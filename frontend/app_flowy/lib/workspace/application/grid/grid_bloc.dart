@@ -7,7 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'block/block_service.dart';
+import 'block/block_cache.dart';
 import 'grid_service.dart';
 import 'row/row_service.dart';
 import 'dart:collection';
@@ -68,7 +68,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  GridRowsCache? getRowCache(String blockId, String rowId) {
+  GridRowCache? getRowCache(String blockId, String rowId) {
     final GridBlockCache? blockCache = _blocks[blockId];
     return blockCache?.rowCache;
   }

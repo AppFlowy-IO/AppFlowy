@@ -7,21 +7,16 @@ abstract class IGridCellDataPersistence<D> {
 }
 
 class CellDataPersistence implements IGridCellDataPersistence<String> {
-  final GridCellIdentifier gridCell;
+  final GridCellIdentifier cellId;
 
   CellDataPersistence({
-    required this.gridCell,
+    required this.cellId,
   });
   final CellService _cellService = CellService();
 
   @override
   Future<Option<FlowyError>> save(String data) async {
-    final fut = _cellService.updateCell(
-      gridId: gridCell.gridId,
-      fieldId: gridCell.field.id,
-      rowId: gridCell.rowId,
-      data: data,
-    );
+    final fut = _cellService.updateCell(cellId: cellId, data: data);
 
     return fut.then((result) {
       return result.fold(
@@ -38,14 +33,14 @@ class CalendarData with _$CalendarData {
 }
 
 class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> {
-  final GridCellIdentifier gridCell;
+  final GridCellIdentifier cellId;
   DateCellDataPersistence({
-    required this.gridCell,
+    required this.cellId,
   });
 
   @override
   Future<Option<FlowyError>> save(CalendarData data) {
-    var payload = DateChangesetPayload.create()..cellIdentifier = _cellIdentifier(gridCell);
+    var payload = DateChangesetPayload.create()..cellIdentifier = _makeCellIdPayload(cellId);
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
     payload.date = date;
@@ -63,9 +58,9 @@ class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> 
   }
 }
 
-CellIdentifierPayload _cellIdentifier(GridCellIdentifier gridCell) {
+CellIdentifierPayload _makeCellIdPayload(GridCellIdentifier cellId) {
   return CellIdentifierPayload.create()
-    ..gridId = gridCell.gridId
-    ..fieldId = gridCell.field.id
-    ..rowId = gridCell.rowId;
+    ..gridId = cellId.gridId
+    ..fieldId = cellId.fieldId
+    ..rowId = cellId.rowId;
 }

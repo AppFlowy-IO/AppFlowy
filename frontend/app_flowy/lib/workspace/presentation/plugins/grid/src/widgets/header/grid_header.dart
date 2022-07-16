@@ -151,7 +151,7 @@ class CreateFieldButton extends StatelessWidget {
       onTap: () => FieldEditor(
         gridId: gridId,
         fieldName: "",
-        contextLoader: NewFieldContextLoader(gridId: gridId),
+        contextLoader: NewFieldTypeOptionLoader(gridId: gridId),
       ).show(context),
       leftIcon: svgWidget("home/add"),
     );

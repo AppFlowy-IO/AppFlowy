@@ -2,11 +2,9 @@ part of 'cell_service.dart';
 
 typedef GridCellMap = LinkedHashMap<String, GridCellIdentifier>;
 
-class _GridCellCacheValue {
-  GridCellCacheKey key;
+class GridCell {
   dynamic object;
-  _GridCellCacheValue({
-    required this.key,
+  GridCell({
     required this.object,
   });
 }
@@ -22,14 +20,16 @@ class GridCellCacheKey {
   });
 }
 
-/// GridCellsCache is used to cache cell data of each Grid.
+/// GridCellCache is used to cache cell data of each block.
 /// We use GridCellCacheKey to index the cell in the cache.
-class GridCellsCache {
+/// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid
+/// for more information
+class GridCellCache {
   final String gridId;
 
-  /// fieldId: {cacheKey: cacheData}
+  /// fieldId: {cacheKey: GridCell}
   final Map<String, Map<String, dynamic>> _cellDataByFieldId = {};
-  GridCellsCache({
+  GridCellCache({
     required this.gridId,
   });
 
@@ -37,14 +37,14 @@ class GridCellsCache {
     _cellDataByFieldId.remove(fieldId);
   }
 
-  void insert<T extends _GridCellCacheValue>(T value) {
-    var map = _cellDataByFieldId[value.key.fieldId];
+  void insert<T extends GridCell>(GridCellCacheKey key, T value) {
+    var map = _cellDataByFieldId[key.fieldId];
     if (map == null) {
-      _cellDataByFieldId[value.key.fieldId] = {};
-      map = _cellDataByFieldId[value.key.fieldId];
+      _cellDataByFieldId[key.fieldId] = {};
+      map = _cellDataByFieldId[key.fieldId];
     }
 
-    map![value.key.rowId] = value.object;
+    map![key.rowId] = value.object;
   }
 
   T? get<T>(GridCellCacheKey key) {

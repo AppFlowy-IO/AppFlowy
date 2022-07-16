@@ -6,97 +6,99 @@ typedef GridDateCellController = IGridCellController<DateCellData, CalendarData>
 typedef GridURLCellController = IGridCellController<URLCellData, String>;
 
 class GridCellControllerBuilder {
-  final GridCellIdentifier _gridCell;
-  final GridCellsCache _cellCache;
+  final GridCellIdentifier _cellId;
+  final GridCellCache _cellCache;
   final GridFieldCache _fieldCache;
 
-  GridCellControllerBuilder(
-      {required GridCellIdentifier gridCell, required GridCellsCache cellCache, required GridFieldCache fieldCache})
-      : _cellCache = cellCache,
+  GridCellControllerBuilder({
+    required GridCellIdentifier cellId,
+    required GridCellCache cellCache,
+    required GridFieldCache fieldCache,
+  })  : _cellCache = cellCache,
         _fieldCache = fieldCache,
-        _gridCell = gridCell;
+        _cellId = cellId;
 
   IGridCellController build() {
     final cellFieldNotifier = GridCellFieldNotifier(notifier: _GridFieldChangedNotifierImpl(_fieldCache));
 
-    switch (_gridCell.field.fieldType) {
+    switch (_cellId.fieldType) {
       case FieldType.Checkbox:
         final cellDataLoader = GridCellDataLoader(
-          gridCell: _gridCell,
+          cellId: _cellId,
           parser: StringCellDataParser(),
         );
         return GridCellController(
-          gridCell: _gridCell,
+          cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
+          cellDataPersistence: CellDataPersistence(cellId: _cellId),
         );
       case FieldType.DateTime:
         final cellDataLoader = GridCellDataLoader(
-          gridCell: _gridCell,
+          cellId: _cellId,
           parser: DateCellDataParser(),
           reloadOnFieldChanged: true,
         );
 
         return GridDateCellController(
-          gridCell: _gridCell,
+          cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: DateCellDataPersistence(gridCell: _gridCell),
+          cellDataPersistence: DateCellDataPersistence(cellId: _cellId),
         );
       case FieldType.Number:
         final cellDataLoader = GridCellDataLoader(
-          gridCell: _gridCell,
+          cellId: _cellId,
           parser: StringCellDataParser(),
         );
         return GridCellController(
-          gridCell: _gridCell,
+          cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
+          cellDataPersistence: CellDataPersistence(cellId: _cellId),
         );
       case FieldType.RichText:
         final cellDataLoader = GridCellDataLoader(
-          gridCell: _gridCell,
+          cellId: _cellId,
           parser: StringCellDataParser(),
         );
         return GridCellController(
-          gridCell: _gridCell,
+          cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
+          cellDataPersistence: CellDataPersistence(cellId: _cellId),
         );
       case FieldType.MultiSelect:
       case FieldType.SingleSelect:
         final cellDataLoader = GridCellDataLoader(
-          gridCell: _gridCell,
+          cellId: _cellId,
           parser: SelectOptionCellDataParser(),
           reloadOnFieldChanged: true,
         );
 
         return GridSelectOptionCellController(
-          gridCell: _gridCell,
+          cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
+          cellDataPersistence: CellDataPersistence(cellId: _cellId),
         );
 
       case FieldType.URL:
         final cellDataLoader = GridCellDataLoader(
-          gridCell: _gridCell,
+          cellId: _cellId,
           parser: URLCellDataParser(),
         );
         return GridURLCellController(
-          gridCell: _gridCell,
+          cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
           fieldNotifier: cellFieldNotifier,
-          cellDataPersistence: CellDataPersistence(gridCell: _gridCell),
+          cellDataPersistence: CellDataPersistence(cellId: _cellId),
         );
     }
     throw UnimplementedError;
@@ -112,8 +114,8 @@ class GridCellControllerBuilder {
 ///
 // ignore: must_be_immutable
 class IGridCellController<T, D> extends Equatable {
-  final GridCellIdentifier gridCell;
-  final GridCellsCache _cellsCache;
+  final GridCellIdentifier cellId;
+  final GridCellCache _cellsCache;
   final GridCellCacheKey _cacheKey;
   final FieldService _fieldService;
   final GridCellFieldNotifier _fieldNotifier;
@@ -130,8 +132,8 @@ class IGridCellController<T, D> extends Equatable {
   bool _isDispose = false;
 
   IGridCellController({
-    required this.gridCell,
-    required GridCellsCache cellCache,
+    required this.cellId,
+    required GridCellCache cellCache,
     required GridCellFieldNotifier fieldNotifier,
     required GridCellDataLoader<T> cellDataLoader,
     required IGridCellDataPersistence<D> cellDataPersistence,
@@ -139,29 +141,27 @@ class IGridCellController<T, D> extends Equatable {
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
         _fieldNotifier = fieldNotifier,
-        _fieldService = FieldService(gridId: gridCell.gridId, fieldId: gridCell.field.id),
-        _cacheKey = GridCellCacheKey(rowId: gridCell.rowId, fieldId: gridCell.field.id);
+        _fieldService = FieldService(gridId: cellId.gridId, fieldId: cellId.field.id),
+        _cacheKey = GridCellCacheKey(rowId: cellId.rowId, fieldId: cellId.field.id);
 
   IGridCellController<T, D> clone() {
     return IGridCellController(
-        gridCell: gridCell,
+        cellId: cellId,
         cellDataLoader: _cellDataLoader,
         cellCache: _cellsCache,
         fieldNotifier: _fieldNotifier,
         cellDataPersistence: _cellDataPersistence);
   }
 
-  String get gridId => gridCell.gridId;
+  String get gridId => cellId.gridId;
 
-  String get rowId => gridCell.rowId;
+  String get rowId => cellId.rowId;
 
-  String get cellId => gridCell.rowId + gridCell.field.id;
+  String get fieldId => cellId.field.id;
 
-  String get fieldId => gridCell.field.id;
+  Field get field => cellId.field;
 
-  Field get field => gridCell.field;
-
-  FieldType get fieldType => gridCell.field.fieldType;
+  FieldType get fieldType => cellId.field.fieldType;
 
   VoidCallback? startListening({required void Function(T?) onCellChanged, VoidCallback? onCellFieldChanged}) {
     if (isListening) {
@@ -177,7 +177,7 @@ class IGridCellController<T, D> extends Equatable {
     ///   user input: 12
     ///   cell display: $12
     _cellDataNotifier = ValueNotifier(_cellsCache.get(_cacheKey));
-    _cellListener = CellListener(rowId: gridCell.rowId, fieldId: gridCell.field.id);
+    _cellListener = CellListener(rowId: cellId.rowId, fieldId: cellId.field.id);
 
     /// 1.Listen on user edit event and load the new cell data if needed.
     _cellListener.start(onCellChanged: (result) {
@@ -264,7 +264,7 @@ class IGridCellController<T, D> extends Equatable {
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       _cellDataLoader.loadData().then((data) {
         _cellDataNotifier?.value = data;
-        _cellsCache.insert(_GridCellCacheValue(key: _cacheKey, object: data));
+        _cellsCache.insert(_cacheKey, GridCell(object: data));
       });
     });
   }
@@ -287,7 +287,7 @@ class IGridCellController<T, D> extends Equatable {
   }
 
   @override
-  List<Object> get props => [_cellsCache.get(_cacheKey) ?? "", cellId];
+  List<Object> get props => [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.field.id];
 }
 
 class _GridFieldChangedNotifierImpl extends GridFieldChangedNotifier {

@@ -11,22 +11,18 @@ abstract class ICellDataParser<T> {
 
 class GridCellDataLoader<T> {
   final CellService service = CellService();
-  final GridCellIdentifier gridCell;
+  final GridCellIdentifier cellId;
   final ICellDataParser<T> parser;
   final bool reloadOnFieldChanged;
 
   GridCellDataLoader({
-    required this.gridCell,
+    required this.cellId,
     required this.parser,
     this.reloadOnFieldChanged = false,
   });
 
   Future<T?> loadData() {
-    final fut = service.getCell(
-      gridId: gridCell.gridId,
-      fieldId: gridCell.field.id,
-      rowId: gridCell.rowId,
-    );
+    final fut = service.getCell(cellId: cellId);
     return fut.then(
       (result) => result.fold((Cell cell) {
         try {

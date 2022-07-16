@@ -61,13 +61,12 @@ typedef FieldsCallback = void Function(List<Field>);
 
 class GridFieldCache {
   final String gridId;
-  late final GridFieldsListener _fieldListener;
+  final GridFieldsListener _fieldListener;
   FieldsNotifier? _fieldNotifier = FieldsNotifier();
   final Map<FieldsCallback, VoidCallback> _fieldsCallbackMap = {};
   final Map<FieldChangesetCallback, FieldChangesetCallback> _changesetCallbackMap = {};
 
-  GridFieldCache({required this.gridId}) {
-    _fieldListener = GridFieldsListener(gridId: gridId);
+  GridFieldCache({required this.gridId}) : _fieldListener = GridFieldsListener(gridId: gridId) {
     _fieldListener.start(onFieldsChanged: (result) {
       result.fold(
         (changeset) {

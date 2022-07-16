@@ -23,7 +23,7 @@ import 'cell_field_notifier.dart';
 part 'cell_service.freezed.dart';
 part 'cell_data_loader.dart';
 part 'context_builder.dart';
-part 'cache.dart';
+part 'cell_cache.dart';
 part 'cell_data_persistence.dart';
 
 // key: rowId
@@ -32,28 +32,24 @@ class CellService {
   CellService();
 
   Future<Either<void, FlowyError>> updateCell({
-    required String gridId,
-    required String fieldId,
-    required String rowId,
+    required GridCellIdentifier cellId,
     required String data,
   }) {
     final payload = CellChangeset.create()
-      ..gridId = gridId
-      ..fieldId = fieldId
-      ..rowId = rowId
+      ..gridId = cellId.gridId
+      ..fieldId = cellId.fieldId
+      ..rowId = cellId.rowId
       ..content = data;
     return GridEventUpdateCell(payload).send();
   }
 
   Future<Either<Cell, FlowyError>> getCell({
-    required String gridId,
-    required String fieldId,
-    required String rowId,
+    required GridCellIdentifier cellId,
   }) {
     final payload = CellIdentifierPayload.create()
-      ..gridId = gridId
-      ..fieldId = fieldId
-      ..rowId = rowId;
+      ..gridId = cellId.gridId
+      ..fieldId = cellId.fieldId
+      ..rowId = cellId.rowId;
     return GridEventGetCell(payload).send();
   }
 }
@@ -71,7 +67,11 @@ class GridCellIdentifier with _$GridCellIdentifier {
   // ignore: unused_element
   const GridCellIdentifier._();
 
+  String get fieldId => field.id;
+
+  FieldType get fieldType => field.fieldType;
+
   ValueKey key() {
-    return ValueKey(rowId + field.id + "${field.fieldType}");
+    return ValueKey(rowId + fieldId + "${field.fieldType}");
   }
 }

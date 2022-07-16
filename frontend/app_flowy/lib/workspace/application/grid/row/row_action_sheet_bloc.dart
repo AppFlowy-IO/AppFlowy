@@ -15,7 +15,7 @@ class RowActionSheetBloc extends Bloc<RowActionSheetEvent, RowActionSheetState> 
       : _rowService = RowService(
           gridId: rowData.gridId,
           blockId: rowData.blockId,
-          rowId: rowData.rowId,
+          rowId: rowData.id,
         ),
         super(RowActionSheetState.initial(rowData)) {
     on<RowActionSheetEvent>(

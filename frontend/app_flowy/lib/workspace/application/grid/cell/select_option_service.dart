@@ -7,12 +7,12 @@ import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'cell_service/cell_service.dart';
 
 class SelectOptionService {
-  final GridCellIdentifier gridCell;
-  SelectOptionService({required this.gridCell});
+  final GridCellIdentifier cellId;
+  SelectOptionService({required this.cellId});
 
-  String get gridId => gridCell.gridId;
-  String get fieldId => gridCell.field.id;
-  String get rowId => gridCell.rowId;
+  String get gridId => cellId.gridId;
+  String get fieldId => cellId.field.id;
+  String get rowId => cellId.rowId;
 
   Future<Either<Unit, FlowyError>> create({required String name}) {
     return TypeOptionService(gridId: gridId, fieldId: fieldId).newOption(name: name).then(

@@ -14,7 +14,7 @@ class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
   final String gridId;
   final String fieldName;
 
-  final IFieldContextLoader contextLoader;
+  final IFieldTypeOptionLoader contextLoader;
   const FieldEditor({
     required this.gridId,
     required this.fieldName,

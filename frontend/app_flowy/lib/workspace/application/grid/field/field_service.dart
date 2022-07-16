@@ -141,7 +141,7 @@ class GridFieldCellContext with _$GridFieldCellContext {
   }) = _GridFieldCellContext;
 }
 
-abstract class IFieldContextLoader {
+abstract class IFieldTypeOptionLoader {
   String get gridId;
   Future<Either<FieldTypeOptionData, FlowyError>> load();
 
@@ -155,10 +155,10 @@ abstract class IFieldContextLoader {
   }
 }
 
-class NewFieldContextLoader extends IFieldContextLoader {
+class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
-  NewFieldContextLoader({
+  NewFieldTypeOptionLoader({
     required this.gridId,
   });
 
@@ -172,12 +172,12 @@ class NewFieldContextLoader extends IFieldContextLoader {
   }
 }
 
-class FieldContextLoader extends IFieldContextLoader {
+class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
   final Field field;
 
-  FieldContextLoader({
+  FieldTypeOptionLoader({
     required this.gridId,
     required this.field,
   });
@@ -195,14 +195,14 @@ class FieldContextLoader extends IFieldContextLoader {
 
 class GridFieldContext {
   final String gridId;
-  final IFieldContextLoader _loader;
+  final IFieldTypeOptionLoader _loader;
 
   late FieldTypeOptionData _data;
   ValueNotifier<Field>? _fieldNotifier;
 
   GridFieldContext({
     required this.gridId,
-    required IFieldContextLoader loader,
+    required IFieldTypeOptionLoader loader,
   }) : _loader = loader;
 
   Future<Either<Unit, FlowyError>> loadData() async {

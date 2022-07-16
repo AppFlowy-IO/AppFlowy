@@ -17,7 +17,7 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
 
   SelectOptionCellEditorBloc({
     required this.cellController,
-  })  : _selectOptionService = SelectOptionService(gridCell: cellController.gridCell),
+  })  : _selectOptionService = SelectOptionService(cellId: cellController.cellId),
         super(SelectOptionEditorState.initial(cellController)) {
     on<SelectOptionEditorEvent>(
       (event, emit) async {
