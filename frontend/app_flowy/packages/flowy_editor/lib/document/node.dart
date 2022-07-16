@@ -1,8 +1,7 @@
 import 'dart:collection';
 import 'package:flowy_editor/document/path.dart';
 import 'package:flutter/material.dart';
-
-typedef Attributes = Map<String, dynamic>;
+import './attributes.dart';
 
 class Node extends ChangeNotifier with LinkedListEntry<Node> {
   Node? parent;

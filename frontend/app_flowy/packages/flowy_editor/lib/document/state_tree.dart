@@ -1,5 +1,6 @@
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/path.dart';
+import './attributes.dart';
 
 class StateTree {
   final Node root;

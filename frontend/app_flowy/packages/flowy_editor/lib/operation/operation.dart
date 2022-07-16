@@ -1,5 +1,7 @@
 import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/text_delta.dart';
+import 'package:flowy_editor/document/attributes.dart';
 
 abstract class Operation {
   Operation invert();
@@ -59,5 +61,20 @@ class DeleteOperation extends Operation {
       path: path,
       value: removedValue,
     );
+  }
+}
+
+class TextEditOperation extends Operation {
+  final Path path;
+  final Delta delta;
+
+  TextEditOperation({
+    required this.path,
+    required this.delta,
+  });
+
+  @override
+  Operation invert() {
+    return TextEditOperation(path: path, delta: delta);
   }
 }

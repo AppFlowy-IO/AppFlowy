@@ -1,6 +1,7 @@
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flowy_editor/document/attributes.dart';
 
 class ImageNodeBuilder extends NodeWidgetBuilder {
   ImageNodeBuilder.create({

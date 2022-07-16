@@ -1,5 +1,6 @@
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/operation/operation.dart';
+import 'package:flowy_editor/document/attributes.dart';
 import 'package:flutter/material.dart';
 
 import './document/state_tree.dart';
