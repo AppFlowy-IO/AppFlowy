@@ -1,3 +1,4 @@
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -6,26 +7,31 @@ import 'package:dartz/dartz.dart';
 part 'field_editor_bloc.freezed.dart';
 
 class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
+  final TypeOptionDataController dataController;
+
   FieldEditorBloc({
     required String gridId,
     required String fieldName,
-    required IFieldTypeOptionLoader fieldContextLoader,
-  }) : super(FieldEditorState.initial(gridId, fieldName, fieldContextLoader)) {
+    required IFieldTypeOptionLoader loader,
+  })  : dataController = TypeOptionDataController(gridId: gridId, loader: loader),
+        super(FieldEditorState.initial(gridId, fieldName)) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
-            final fieldContext = GridFieldContext(gridId: gridId, loader: fieldContextLoader);
-            await fieldContext.loadData().then((result) {
-              result.fold(
-                (l) => emit(state.copyWith(fieldContext: Some(fieldContext), name: fieldContext.field.name)),
-                (r) => null,
-              );
+            dataController.addFieldListener((field) {
+              if (!isClosed) {
+                add(FieldEditorEvent.didReceiveFieldChanged(field));
+              }
             });
+            await dataController.loadData();
           },
           updateName: (name) {
-            state.fieldContext.fold(() => null, (fieldContext) => fieldContext.fieldName = name);
+            dataController.fieldName = name;
             emit(state.copyWith(name: name));
+          },
+          didReceiveFieldChanged: (Field field) {
+            emit(state.copyWith(field: Some(field)));
           },
         );
       },
@@ -42,6 +48,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
   const factory FieldEditorEvent.updateName(String name) = _UpdateName;
+  const factory FieldEditorEvent.didReceiveFieldChanged(Field field) = _DidReceiveFieldChanged;
 }
 
 @freezed
@@ -50,13 +57,17 @@ class FieldEditorState with _$FieldEditorState {
     required String gridId,
     required String errorText,
     required String name,
-    required Option<GridFieldContext> fieldContext,
+    required Option<Field> field,
   }) = _FieldEditorState;
 
-  factory FieldEditorState.initial(String gridId, String fieldName, IFieldTypeOptionLoader loader) => FieldEditorState(
+  factory FieldEditorState.initial(
+    String gridId,
+    String fieldName,
+  ) =>
+      FieldEditorState(
         gridId: gridId,
-        fieldContext: none(),
         errorText: '',
+        field: none(),
         name: fieldName,
       );
 }

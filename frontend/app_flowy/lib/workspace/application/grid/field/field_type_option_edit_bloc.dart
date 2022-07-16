@@ -8,17 +8,17 @@ import 'field_service.dart';
 part 'field_type_option_edit_bloc.freezed.dart';
 
 class FieldTypeOptionEditBloc extends Bloc<FieldTypeOptionEditEvent, FieldTypeOptionEditState> {
-  final GridFieldContext _fieldContext;
+  final TypeOptionDataController _dataController;
   void Function()? _fieldListenFn;
 
-  FieldTypeOptionEditBloc(GridFieldContext fieldContext)
-      : _fieldContext = fieldContext,
-        super(FieldTypeOptionEditState.initial(fieldContext)) {
+  FieldTypeOptionEditBloc(TypeOptionDataController dataController)
+      : _dataController = dataController,
+        super(FieldTypeOptionEditState.initial(dataController)) {
     on<FieldTypeOptionEditEvent>(
       (event, emit) async {
         event.when(
           initial: () {
-            _fieldListenFn = fieldContext.addFieldListener((field) {
+            _fieldListenFn = dataController.addFieldListener((field) {
               add(FieldTypeOptionEditEvent.didReceiveFieldUpdated(field));
             });
           },
@@ -33,7 +33,7 @@ class FieldTypeOptionEditBloc extends Bloc<FieldTypeOptionEditEvent, FieldTypeOp
   @override
   Future<void> close() async {
     if (_fieldListenFn != null) {
-      _fieldContext.removeFieldListener(_fieldListenFn!);
+      _dataController.removeFieldListener(_fieldListenFn!);
     }
     return super.close();
   }
@@ -51,7 +51,7 @@ class FieldTypeOptionEditState with _$FieldTypeOptionEditState {
     required Field field,
   }) = _FieldTypeOptionEditState;
 
-  factory FieldTypeOptionEditState.initial(GridFieldContext fieldContext) => FieldTypeOptionEditState(
+  factory FieldTypeOptionEditState.initial(TypeOptionDataController fieldContext) => FieldTypeOptionEditState(
         field: fieldContext.field,
       );
 }

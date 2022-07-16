@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -193,14 +194,14 @@ class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   }
 }
 
-class GridFieldContext {
+class TypeOptionDataController {
   final String gridId;
   final IFieldTypeOptionLoader _loader;
 
   late FieldTypeOptionData _data;
-  ValueNotifier<Field>? _fieldNotifier;
+  final PublishNotifier<Field> _fieldNotifier = PublishNotifier();
 
-  GridFieldContext({
+  TypeOptionDataController({
     required this.gridId,
     required IFieldTypeOptionLoader loader,
   }) : _loader = loader;
@@ -211,13 +212,7 @@ class GridFieldContext {
       (data) {
         data.freeze();
         _data = data;
-
-        if (_fieldNotifier == null) {
-          _fieldNotifier = ValueNotifier(data.field_2);
-        } else {
-          _fieldNotifier?.value = data.field_2;
-        }
-
+        _fieldNotifier.value = data.field_2;
         return left(unit);
       },
       (err) {
@@ -260,9 +255,7 @@ class GridFieldContext {
       }
     });
 
-    if (_data.field_2 != _fieldNotifier?.value) {
-      _fieldNotifier?.value = _data.field_2;
-    }
+    _fieldNotifier.value = _data.field_2;
 
     FieldService.insertField(
       gridId: gridId,
@@ -292,11 +285,11 @@ class GridFieldContext {
       callback(field);
     }
 
-    _fieldNotifier?.addListener(listener);
+    _fieldNotifier.addListener(listener);
     return listener;
   }
 
   void removeFieldListener(void Function() listener) {
-    _fieldNotifier?.removeListener(listener);
+    _fieldNotifier.removeListener(listener);
   }
 }
