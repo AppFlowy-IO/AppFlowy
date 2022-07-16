@@ -51,7 +51,7 @@ class StateTree {
     if (updatedNode == null) {
       return null;
     }
-    final previousAttributes = {...updatedNode.attributes};
+    final previousAttributes = Attributes.from(updatedNode.attributes);
     updatedNode.updateAttributes(attributes);
     return previousAttributes;
   }

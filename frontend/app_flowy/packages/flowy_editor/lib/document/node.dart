@@ -13,8 +13,9 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   String? get subtype {
     // TODO: make 'subtype' as a const value.
     if (attributes.containsKey('subtype')) {
-      assert(attributes['subtype'] is String, 'subtype must be a [String]');
-      return attributes['subtype'] as String;
+      assert(attributes['subtype'] is String?,
+          'subtype must be a [String] or [null]');
+      return attributes['subtype'] as String?;
     }
     return null;
   }
@@ -63,12 +64,16 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   }
 
   void updateAttributes(Attributes attributes) {
+    bool shouldNotifyParent =
+        this.attributes['subtype'] != attributes['subtype'];
+
     for (final attribute in attributes.entries) {
       this.attributes[attribute.key] = attribute.value;
     }
-
     // Notify the new attributes
-    parent?.notifyListeners();
+    // if attributes contains 'subtype', should notify parent to rebuild node
+    // else, just notify current node.
+    shouldNotifyParent ? parent?.notifyListeners() : notifyListeners();
   }
 
   Node? childAtIndex(int index) {

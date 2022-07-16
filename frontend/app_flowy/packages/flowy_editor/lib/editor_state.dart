@@ -39,7 +39,7 @@ class EditorState {
   void update(Node node, Attributes attributes) {
     _applyOperation(UpdateOperation(
       path: node.path,
-      attributes: Attributes.from(attributes)..addAll(attributes),
+      attributes: Attributes.from(node.attributes)..addAll(attributes),
       oldAttributes: node.attributes,
     ));
   }
