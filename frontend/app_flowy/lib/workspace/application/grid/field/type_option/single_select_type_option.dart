@@ -13,12 +13,12 @@ class SingleSelectTypeOptionContext extends TypeOptionWidgetContext<SingleSelect
 
   SingleSelectTypeOptionContext({
     required SingleSelectTypeOptionWidgetDataParser dataBuilder,
-    required GridFieldContext fieldContext,
+    required TypeOptionDataController fieldContext,
   })  : service = TypeOptionService(
           gridId: fieldContext.gridId,
           fieldId: fieldContext.field.id,
         ),
-        super(dataParser: dataBuilder, fieldContext: fieldContext);
+        super(dataParser: dataBuilder, dataController: fieldContext);
 
   @override
   List<SelectOption> Function(SelectOption) get deleteOption {

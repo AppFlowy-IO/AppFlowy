@@ -183,7 +183,7 @@ class _RowDetailCell extends StatelessWidget {
     FieldEditor(
       gridId: cellId.gridId,
       fieldName: cellId.field.name,
-      contextLoader: FieldTypeOptionLoader(
+      typeOptionLoader: FieldTypeOptionLoader(
         gridId: cellId.gridId,
         field: cellId.field,
       ),

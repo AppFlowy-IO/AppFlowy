@@ -39,30 +39,30 @@ abstract class TypeOptionDataParser<T> {
 
 class TypeOptionWidgetContext<T extends GeneratedMessage> {
   T? _typeOptionObject;
-  final GridFieldContext _fieldContext;
+  final TypeOptionDataController _dataController;
   final TypeOptionDataParser<T> dataParser;
 
   TypeOptionWidgetContext({
     required this.dataParser,
-    required GridFieldContext fieldContext,
-  }) : _fieldContext = fieldContext;
+    required TypeOptionDataController dataController,
+  }) : _dataController = dataController;
 
-  String get gridId => _fieldContext.gridId;
+  String get gridId => _dataController.gridId;
 
-  Field get field => _fieldContext.field;
+  Field get field => _dataController.field;
 
   T get typeOption {
     if (_typeOptionObject != null) {
       return _typeOptionObject!;
     }
 
-    final T object = dataParser.fromBuffer(_fieldContext.typeOptionData);
+    final T object = dataParser.fromBuffer(_dataController.typeOptionData);
     _typeOptionObject = object;
     return object;
   }
 
   set typeOption(T typeOption) {
-    _fieldContext.typeOptionData = typeOption.writeToBuffer();
+    _dataController.typeOptionData = typeOption.writeToBuffer();
     _typeOptionObject = typeOption;
   }
 }

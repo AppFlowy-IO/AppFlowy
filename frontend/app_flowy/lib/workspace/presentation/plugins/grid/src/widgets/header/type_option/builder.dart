@@ -36,27 +36,27 @@ abstract class TypeOptionWidgetBuilder {
 
 Widget? makeTypeOptionWidget({
   required BuildContext context,
-  required GridFieldContext fieldContext,
+  required TypeOptionDataController dataController,
   required TypeOptionOverlayDelegate overlayDelegate,
 }) {
-  final builder = makeTypeOptionWidgetBuilder(fieldContext, overlayDelegate);
+  final builder = makeTypeOptionWidgetBuilder(dataController, overlayDelegate);
   return builder.build(context);
 }
 
 TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
-  GridFieldContext fieldContext,
+  TypeOptionDataController dataController,
   TypeOptionOverlayDelegate overlayDelegate,
 ) {
-  switch (fieldContext.field.fieldType) {
+  switch (dataController.field.fieldType) {
     case FieldType.Checkbox:
       final context = CheckboxTypeOptionContext(
-        fieldContext: fieldContext,
+        dataController: dataController,
         dataParser: CheckboxTypeOptionWidgetDataParser(),
       );
       return CheckboxTypeOptionWidgetBuilder(context);
     case FieldType.DateTime:
       final context = DateTypeOptionContext(
-        fieldContext: fieldContext,
+        dataController: dataController,
         dataParser: DateTypeOptionDataParser(),
       );
       return DateTypeOptionWidgetBuilder(
@@ -65,7 +65,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
       );
     case FieldType.SingleSelect:
       final context = SingleSelectTypeOptionContext(
-        fieldContext: fieldContext,
+        fieldContext: dataController,
         dataBuilder: SingleSelectTypeOptionWidgetDataParser(),
       );
       return SingleSelectTypeOptionWidgetBuilder(
@@ -74,7 +74,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
       );
     case FieldType.MultiSelect:
       final context = MultiSelectTypeOptionContext(
-        fieldContext: fieldContext,
+        dataController: dataController,
         dataBuilder: MultiSelectTypeOptionWidgetDataParser(),
       );
       return MultiSelectTypeOptionWidgetBuilder(
@@ -83,7 +83,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
       );
     case FieldType.Number:
       final context = NumberTypeOptionContext(
-        fieldContext: fieldContext,
+        dataController: dataController,
         dataParser: NumberTypeOptionWidgetDataParser(),
       );
       return NumberTypeOptionWidgetBuilder(
@@ -92,14 +92,14 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
       );
     case FieldType.RichText:
       final context = RichTextTypeOptionContext(
-        fieldContext: fieldContext,
+        dataController: dataController,
         dataParser: RichTextTypeOptionWidgetDataParser(),
       );
       return RichTextTypeOptionWidgetBuilder(context);
 
     case FieldType.URL:
       final context = URLTypeOptionContext(
-        fieldContext: fieldContext,
+        dataController: dataController,
         dataParser: URLTypeOptionWidgetDataParser(),
       );
       return URLTypeOptionWidgetBuilder(context);

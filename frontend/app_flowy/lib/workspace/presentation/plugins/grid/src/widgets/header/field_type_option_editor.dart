@@ -22,10 +22,10 @@ typedef SwitchToFieldCallback = Future<Either<FieldTypeOptionData, FlowyError>> 
 );
 
 class FieldTypeOptionEditor extends StatefulWidget {
-  final GridFieldContext fieldContext;
+  final TypeOptionDataController dataController;
 
   const FieldTypeOptionEditor({
-    required this.fieldContext,
+    required this.dataController,
     Key? key,
   }) : super(key: key);
 
@@ -39,10 +39,11 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FieldTypeOptionEditBloc(widget.fieldContext)..add(const FieldTypeOptionEditEvent.initial()),
+      create: (context) =>
+          FieldTypeOptionEditBloc(widget.dataController)..add(const FieldTypeOptionEditEvent.initial()),
       child: BlocBuilder<FieldTypeOptionEditBloc, FieldTypeOptionEditState>(
         builder: (context, state) {
-          List<Widget> children = [_switchFieldTypeButton(context, widget.fieldContext.field)];
+          List<Widget> children = [_switchFieldTypeButton(context, widget.dataController.field)];
           final typeOptionWidget = _typeOptionWidget(context: context, state: state);
 
           if (typeOptionWidget != null) {
@@ -68,7 +69,7 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
         hoverColor: theme.hover,
         onTap: () {
           final list = FieldTypeList(onSelectField: (newFieldType) {
-            widget.fieldContext.switchToField(newFieldType);
+            widget.dataController.switchToField(newFieldType);
           });
           _showOverlay(context, list);
         },
@@ -89,7 +90,7 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
 
     return makeTypeOptionWidget(
       context: context,
-      fieldContext: widget.fieldContext,
+      dataController: widget.dataController,
       overlayDelegate: overlayDelegate,
     );
   }
