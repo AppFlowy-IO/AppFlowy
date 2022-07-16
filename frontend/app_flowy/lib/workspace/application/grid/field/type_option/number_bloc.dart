@@ -10,7 +10,7 @@ part 'number_bloc.freezed.dart';
 
 typedef NumberTypeOptionContext = TypeOptionWidgetContext<NumberTypeOption>;
 
-class NumberTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<NumberTypeOption> {
+class NumberTypeOptionWidgetDataParser extends TypeOptionDataParser<NumberTypeOption> {
   @override
   NumberTypeOption fromBuffer(List<int> buffer) {
     return NumberTypeOption.fromBuffer(buffer);

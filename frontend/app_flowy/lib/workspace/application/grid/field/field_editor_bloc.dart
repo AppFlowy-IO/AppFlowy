@@ -9,7 +9,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   FieldEditorBloc({
     required String gridId,
     required String fieldName,
-    required IFieldContextLoader fieldContextLoader,
+    required IFieldTypeOptionLoader fieldContextLoader,
   }) : super(FieldEditorState.initial(gridId, fieldName, fieldContextLoader)) {
     on<FieldEditorEvent>(
       (event, emit) async {
@@ -53,7 +53,7 @@ class FieldEditorState with _$FieldEditorState {
     required Option<GridFieldContext> fieldContext,
   }) = _FieldEditorState;
 
-  factory FieldEditorState.initial(String gridId, String fieldName, IFieldContextLoader loader) => FieldEditorState(
+  factory FieldEditorState.initial(String gridId, String fieldName, IFieldTypeOptionLoader loader) => FieldEditorState(
         gridId: gridId,
         fieldContext: none(),
         errorText: '',

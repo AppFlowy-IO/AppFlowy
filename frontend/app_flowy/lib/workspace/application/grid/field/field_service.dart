@@ -9,6 +9,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
 part 'field_service.freezed.dart';
 
+/// FieldService consists of lots of event functions. We define the events in the backend(Rust),
+/// you can find the corresponding event implementation in event_map.rs of the corresponding crate.
+///
+/// You could check out the rust-lib/flowy-grid/event_map.rs for more information.
 class FieldService {
   final String gridId;
   final String fieldId;
@@ -137,7 +141,7 @@ class GridFieldCellContext with _$GridFieldCellContext {
   }) = _GridFieldCellContext;
 }
 
-abstract class IFieldContextLoader {
+abstract class IFieldTypeOptionLoader {
   String get gridId;
   Future<Either<FieldTypeOptionData, FlowyError>> load();
 
@@ -151,10 +155,10 @@ abstract class IFieldContextLoader {
   }
 }
 
-class NewFieldContextLoader extends IFieldContextLoader {
+class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
-  NewFieldContextLoader({
+  NewFieldTypeOptionLoader({
     required this.gridId,
   });
 
@@ -168,12 +172,12 @@ class NewFieldContextLoader extends IFieldContextLoader {
   }
 }
 
-class FieldContextLoader extends IFieldContextLoader {
+class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
   final Field field;
 
-  FieldContextLoader({
+  FieldTypeOptionLoader({
     required this.gridId,
     required this.field,
   });
@@ -191,14 +195,14 @@ class FieldContextLoader extends IFieldContextLoader {
 
 class GridFieldContext {
   final String gridId;
-  final IFieldContextLoader _loader;
+  final IFieldTypeOptionLoader _loader;
 
   late FieldTypeOptionData _data;
   ValueNotifier<Field>? _fieldNotifier;
 
   GridFieldContext({
     required this.gridId,
-    required IFieldContextLoader loader,
+    required IFieldTypeOptionLoader loader,
   }) : _loader = loader;
 
   Future<Either<Unit, FlowyError>> loadData() async {

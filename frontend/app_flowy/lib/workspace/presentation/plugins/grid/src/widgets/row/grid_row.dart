@@ -16,7 +16,7 @@ import 'row_detail.dart';
 
 class GridRowWidget extends StatefulWidget {
   final GridRow rowData;
-  final GridRowsCache rowCache;
+  final GridRowCache rowCache;
   final GridCellBuilder cellBuilder;
 
   GridRowWidget({
@@ -183,12 +183,12 @@ class _RowCells extends StatelessWidget {
 
   List<Widget> _makeCells(BuildContext context, GridCellMap gridCellMap) {
     return gridCellMap.values.map(
-      (gridCell) {
-        final GridCellWidget child = builder.build(gridCell);
+      (cellId) {
+        final GridCellWidget child = builder.build(cellId);
         accessoryBuilder(GridCellAccessoryBuildContext buildContext) {
           final builder = child.accessoryBuilder;
           List<GridCellAccessory> accessories = [];
-          if (gridCell.field.isPrimary) {
+          if (cellId.field.isPrimary) {
             accessories.add(PrimaryCellAccessory(
               onTapCallback: onExpand,
               isCellEditing: buildContext.isCellEditing,
@@ -202,7 +202,7 @@ class _RowCells extends StatelessWidget {
         }
 
         return CellContainer(
-          width: gridCell.field.width.toDouble(),
+          width: cellId.field.width.toDouble(),
           child: child,
           rowStateNotifier: Provider.of<RegionStateNotifier>(context, listen: false),
           accessoryBuilder: accessoryBuilder,

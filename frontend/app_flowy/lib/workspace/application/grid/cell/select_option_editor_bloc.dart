@@ -17,7 +17,7 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
 
   SelectOptionCellEditorBloc({
     required this.cellController,
-  })  : _selectOptionService = SelectOptionService(gridCell: cellController.gridCell),
+  })  : _selectOptionService = SelectOptionService(cellId: cellController.cellId),
         super(SelectOptionEditorState.initial(cellController)) {
     on<SelectOptionEditorEvent>(
       (event, emit) async {
@@ -184,7 +184,7 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
   }) = _SelectOptionEditorState;
 
   factory SelectOptionEditorState.initial(GridSelectOptionCellController context) {
-    final data = context.getCellData(loadIfNoCache: false);
+    final data = context.getCellData(loadIfNotExist: false);
     return SelectOptionEditorState(
       options: data?.options ?? [],
       allOptions: data?.options ?? [],
