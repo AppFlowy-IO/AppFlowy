@@ -18,6 +18,7 @@ import 'package:app_flowy/workspace/application/grid/cell/cell_listener.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'dart:convert' show utf8;
 
+import '../../field/type_option/type_option_service.dart';
 import 'cell_field_notifier.dart';
 part 'cell_service.freezed.dart';
 part 'cell_data_loader.dart';
@@ -57,18 +58,20 @@ class CellService {
   }
 }
 
+/// Id of the cell
+/// We can locate the cell by using gridId + rowId + field.id.
 @freezed
-class GridCell with _$GridCell {
-  const factory GridCell({
+class GridCellIdentifier with _$GridCellIdentifier {
+  const factory GridCellIdentifier({
     required String gridId,
     required String rowId,
     required Field field,
-  }) = _GridCell;
+  }) = _GridCellIdentifier;
 
   // ignore: unused_element
-  const GridCell._();
+  const GridCellIdentifier._();
 
-  String cellId() {
-    return rowId + field.id + "${field.fieldType}";
+  ValueKey key() {
+    return ValueKey(rowId + field.id + "${field.fieldType}");
   }
 }

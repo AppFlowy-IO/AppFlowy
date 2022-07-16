@@ -58,13 +58,13 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 @freezed
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
-  const factory RowDetailEvent.didReceiveCellDatas(List<GridCell> gridCells) = _DidReceiveCellDatas;
+  const factory RowDetailEvent.didReceiveCellDatas(List<GridCellIdentifier> gridCells) = _DidReceiveCellDatas;
 }
 
 @freezed
 class RowDetailState with _$RowDetailState {
   const factory RowDetailState({
-    required List<GridCell> gridCells,
+    required List<GridCellIdentifier> gridCells,
   }) = _RowDetailState;
 
   factory RowDetailState.initial() => RowDetailState(

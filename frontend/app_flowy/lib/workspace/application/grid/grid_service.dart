@@ -186,11 +186,11 @@ class GridFieldCache {
   }
 }
 
-class GridRowCacheDelegateImpl extends GridRowCacheDelegate {
+class GridRowCacheFieldNotifierImpl extends GridRowCacheFieldNotifier {
   final GridFieldCache _cache;
   FieldChangesetCallback? _onChangesetFn;
   FieldsCallback? _onFieldFn;
-  GridRowCacheDelegateImpl(GridFieldCache cache) : _cache = cache;
+  GridRowCacheFieldNotifierImpl(GridFieldCache cache) : _cache = cache;
 
   @override
   UnmodifiableListView<Field> get fields => _cache.unmodifiableFields;

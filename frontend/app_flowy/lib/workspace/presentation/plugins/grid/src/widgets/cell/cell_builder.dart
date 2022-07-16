@@ -21,15 +21,13 @@ class GridCellBuilder {
     required this.fieldCache,
   });
 
-  GridCellWidget build(GridCell cell, {GridCellStyle? style}) {
-    final key = ValueKey(cell.cellId());
-
+  GridCellWidget build(GridCellIdentifier cell, {GridCellStyle? style}) {
     final cellControllerBuilder = GridCellControllerBuilder(
       gridCell: cell,
       cellCache: cellCache,
       fieldCache: fieldCache,
     );
-
+    final key = cell.key();
     switch (cell.field.fieldType) {
       case FieldType.Checkbox:
         return CheckboxCell(cellControllerBuilder: cellControllerBuilder, key: key);

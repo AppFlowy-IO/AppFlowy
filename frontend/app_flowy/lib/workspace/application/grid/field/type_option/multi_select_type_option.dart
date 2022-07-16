@@ -18,7 +18,7 @@ class MultiSelectTypeOptionContext extends TypeOptionWidgetContext<MultiSelectTy
           gridId: fieldContext.gridId,
           fieldId: fieldContext.field.id,
         ),
-        super(dataBuilder: dataBuilder, fieldContext: fieldContext);
+        super(dataParser: dataBuilder, fieldContext: fieldContext);
 
   @override
   List<SelectOption> Function(SelectOption) get deleteOption {
@@ -71,7 +71,7 @@ class MultiSelectTypeOptionContext extends TypeOptionWidgetContext<MultiSelectTy
   }
 }
 
-class MultiSelectTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<MultiSelectTypeOption> {
+class MultiSelectTypeOptionWidgetDataParser extends TypeOptionDataParser<MultiSelectTypeOption> {
   @override
   MultiSelectTypeOption fromBuffer(List<int> buffer) {
     return MultiSelectTypeOption.fromBuffer(buffer);

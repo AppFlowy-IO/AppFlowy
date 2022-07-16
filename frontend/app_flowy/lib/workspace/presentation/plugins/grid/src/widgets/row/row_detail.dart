@@ -137,7 +137,7 @@ class _PropertyList extends StatelessWidget {
 }
 
 class _RowDetailCell extends StatelessWidget {
-  final GridCell gridCell;
+  final GridCellIdentifier gridCell;
   final GridCellBuilder cellBuilder;
   const _RowDetailCell({
     required this.gridCell,

@@ -7,7 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'cell_service/cell_service.dart';
 
 class SelectOptionService {
-  final GridCell gridCell;
+  final GridCellIdentifier gridCell;
   SelectOptionService({required this.gridCell});
 
   String get gridId => gridCell.gridId;

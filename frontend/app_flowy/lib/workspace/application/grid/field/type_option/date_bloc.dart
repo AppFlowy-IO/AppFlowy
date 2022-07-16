@@ -8,7 +8,7 @@ part 'date_bloc.freezed.dart';
 
 typedef DateTypeOptionContext = TypeOptionWidgetContext<DateTypeOption>;
 
-class DateTypeOptionDataParser extends TypeOptionWidgetDataParser<DateTypeOption> {
+class DateTypeOptionDataParser extends TypeOptionDataParser<DateTypeOption> {
   @override
   DateTypeOption fromBuffer(List<int> buffer) {
     return DateTypeOption.fromBuffer(buffer);

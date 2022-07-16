@@ -5,40 +5,22 @@ abstract class IGridCellDataConfig {
   bool get reloadOnFieldChanged;
 }
 
-class GridCellDataConfig implements IGridCellDataConfig {
-  @override
-  final bool reloadOnFieldChanged;
-
-  const GridCellDataConfig({
-    this.reloadOnFieldChanged = false,
-  });
-}
-
-abstract class IGridCellDataLoader<T> {
-  Future<T?> loadData();
-
-  IGridCellDataConfig get config;
-}
-
 abstract class ICellDataParser<T> {
   T? parserData(List<int> data);
 }
 
-class GridCellDataLoader<T> extends IGridCellDataLoader<T> {
+class GridCellDataLoader<T> {
   final CellService service = CellService();
-  final GridCell gridCell;
+  final GridCellIdentifier gridCell;
   final ICellDataParser<T> parser;
-
-  @override
-  final IGridCellDataConfig config;
+  final bool reloadOnFieldChanged;
 
   GridCellDataLoader({
     required this.gridCell,
     required this.parser,
-    this.config = const GridCellDataConfig(),
+    this.reloadOnFieldChanged = false,
   });
 
-  @override
   Future<T?> loadData() {
     final fut = service.getCell(
       gridId: gridCell.gridId,

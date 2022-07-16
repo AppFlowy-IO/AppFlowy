@@ -51,13 +51,13 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
     case FieldType.Checkbox:
       final context = CheckboxTypeOptionContext(
         fieldContext: fieldContext,
-        dataBuilder: CheckboxTypeOptionWidgetDataParser(),
+        dataParser: CheckboxTypeOptionWidgetDataParser(),
       );
       return CheckboxTypeOptionWidgetBuilder(context);
     case FieldType.DateTime:
       final context = DateTypeOptionContext(
         fieldContext: fieldContext,
-        dataBuilder: DateTypeOptionDataParser(),
+        dataParser: DateTypeOptionDataParser(),
       );
       return DateTypeOptionWidgetBuilder(
         context,
@@ -84,7 +84,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
     case FieldType.Number:
       final context = NumberTypeOptionContext(
         fieldContext: fieldContext,
-        dataBuilder: NumberTypeOptionWidgetDataParser(),
+        dataParser: NumberTypeOptionWidgetDataParser(),
       );
       return NumberTypeOptionWidgetBuilder(
         context,
@@ -93,14 +93,14 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
     case FieldType.RichText:
       final context = RichTextTypeOptionContext(
         fieldContext: fieldContext,
-        dataBuilder: RichTextTypeOptionWidgetDataParser(),
+        dataParser: RichTextTypeOptionWidgetDataParser(),
       );
       return RichTextTypeOptionWidgetBuilder(context);
 
     case FieldType.URL:
       final context = URLTypeOptionContext(
         fieldContext: fieldContext,
-        dataBuilder: URLTypeOptionWidgetDataParser(),
+        dataParser: URLTypeOptionWidgetDataParser(),
       );
       return URLTypeOptionWidgetBuilder(context);
   }

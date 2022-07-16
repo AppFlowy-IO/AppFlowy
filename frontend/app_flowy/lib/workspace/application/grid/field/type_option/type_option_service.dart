@@ -33,17 +33,17 @@ class TypeOptionService {
   }
 }
 
-abstract class TypeOptionWidgetDataParser<T> {
+abstract class TypeOptionDataParser<T> {
   T fromBuffer(List<int> buffer);
 }
 
 class TypeOptionWidgetContext<T extends GeneratedMessage> {
   T? _typeOptionObject;
   final GridFieldContext _fieldContext;
-  final TypeOptionWidgetDataParser<T> dataBuilder;
+  final TypeOptionDataParser<T> dataParser;
 
   TypeOptionWidgetContext({
-    required this.dataBuilder,
+    required this.dataParser,
     required GridFieldContext fieldContext,
   }) : _fieldContext = fieldContext;
 
@@ -56,7 +56,7 @@ class TypeOptionWidgetContext<T extends GeneratedMessage> {
       return _typeOptionObject!;
     }
 
-    final T object = dataBuilder.fromBuffer(_fieldContext.typeOptionData);
+    final T object = dataParser.fromBuffer(_fieldContext.typeOptionData);
     _typeOptionObject = object;
     return object;
   }
@@ -77,7 +77,7 @@ class TypeOptionContext2<T> {
   final Field field;
   final FieldService _fieldService;
   T? _data;
-  final TypeOptionWidgetDataParser dataBuilder;
+  final TypeOptionDataParser dataBuilder;
 
   TypeOptionContext2({
     required this.gridId,

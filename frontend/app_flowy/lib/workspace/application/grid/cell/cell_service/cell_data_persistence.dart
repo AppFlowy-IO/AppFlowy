@@ -1,11 +1,13 @@
 part of 'cell_service.dart';
 
+/// Save the cell data to disk
+/// You can extend this class to do custom operations. For example, the DateCellDataPersistence.
 abstract class IGridCellDataPersistence<D> {
   Future<Option<FlowyError>> save(D data);
 }
 
 class CellDataPersistence implements IGridCellDataPersistence<String> {
-  final GridCell gridCell;
+  final GridCellIdentifier gridCell;
 
   CellDataPersistence({
     required this.gridCell,
@@ -36,7 +38,7 @@ class CalendarData with _$CalendarData {
 }
 
 class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> {
-  final GridCell gridCell;
+  final GridCellIdentifier gridCell;
   DateCellDataPersistence({
     required this.gridCell,
   });
@@ -61,7 +63,7 @@ class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> 
   }
 }
 
-CellIdentifierPayload _cellIdentifier(GridCell gridCell) {
+CellIdentifierPayload _cellIdentifier(GridCellIdentifier gridCell) {
   return CellIdentifierPayload.create()
     ..gridId = gridCell.gridId
     ..fieldId = gridCell.field.id

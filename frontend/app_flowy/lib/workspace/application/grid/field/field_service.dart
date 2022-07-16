@@ -9,6 +9,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
 part 'field_service.freezed.dart';
 
+/// FieldService consists of lots of event functions. We define the events in the backend(Rust),
+/// you can find the corresponding event implementation in event_map.rs of the corresponding crate.
+///
+/// You could check out the rust-lib/flowy-grid/event_map.rs for more information.
 class FieldService {
   final String gridId;
   final String fieldId;

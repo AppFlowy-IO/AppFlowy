@@ -18,7 +18,7 @@ class SingleSelectTypeOptionContext extends TypeOptionWidgetContext<SingleSelect
           gridId: fieldContext.gridId,
           fieldId: fieldContext.field.id,
         ),
-        super(dataBuilder: dataBuilder, fieldContext: fieldContext);
+        super(dataParser: dataBuilder, fieldContext: fieldContext);
 
   @override
   List<SelectOption> Function(SelectOption) get deleteOption {
@@ -71,7 +71,7 @@ class SingleSelectTypeOptionContext extends TypeOptionWidgetContext<SingleSelect
   }
 }
 
-class SingleSelectTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<SingleSelectTypeOption> {
+class SingleSelectTypeOptionWidgetDataParser extends TypeOptionDataParser<SingleSelectTypeOption> {
   @override
   SingleSelectTypeOption fromBuffer(List<int> buffer) {
     return SingleSelectTypeOption.fromBuffer(buffer);

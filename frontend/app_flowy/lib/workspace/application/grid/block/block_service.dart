@@ -6,7 +6,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 
 import 'block_listener.dart';
 
-class GridBlockCacheService {
+class GridBlockCache {
   final String gridId;
   final GridBlock block;
   late GridRowsCache _rowCache;
@@ -15,7 +15,7 @@ class GridBlockCacheService {
   List<GridRow> get rows => _rowCache.rows;
   GridRowsCache get rowCache => _rowCache;
 
-  GridBlockCacheService({
+  GridBlockCache({
     required this.gridId,
     required this.block,
     required GridFieldCache fieldCache,
@@ -23,7 +23,7 @@ class GridBlockCacheService {
     _rowCache = GridRowsCache(
       gridId: gridId,
       block: block,
-      delegate: GridRowCacheDelegateImpl(fieldCache),
+      notifier: GridRowCacheFieldNotifierImpl(fieldCache),
     );
 
     _listener = GridBlockListener(blockId: block.id);

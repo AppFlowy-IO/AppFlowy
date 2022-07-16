@@ -14,7 +14,7 @@ part 'row_service.freezed.dart';
 
 typedef RowUpdateCallback = void Function();
 
-abstract class GridRowCacheDelegate {
+abstract class GridRowCacheFieldNotifier {
   UnmodifiableListView<Field> get fields;
   void onFieldsChanged(VoidCallback callback);
   void onFieldChanged(void Function(Field) callback);
@@ -27,7 +27,7 @@ class GridRowsCache {
   final _Notifier _notifier;
   List<GridRow> _rows = [];
   final HashMap<String, Row> _rowByRowId;
-  final GridRowCacheDelegate _delegate;
+  final GridRowCacheFieldNotifier _fieldNotifier;
   final GridCellsCache _cellCache;
 
   List<GridRow> get rows => _rows;
@@ -36,19 +36,19 @@ class GridRowsCache {
   GridRowsCache({
     required this.gridId,
     required this.block,
-    required GridRowCacheDelegate delegate,
+    required GridRowCacheFieldNotifier notifier,
   })  : _cellCache = GridCellsCache(gridId: gridId),
         _rowByRowId = HashMap(),
         _notifier = _Notifier(),
-        _delegate = delegate {
+        _fieldNotifier = notifier {
     //
-    delegate.onFieldsChanged(() => _notifier.receive(const GridRowChangeReason.fieldDidChange()));
-    delegate.onFieldChanged((field) => _cellCache.remove(field.id));
+    notifier.onFieldsChanged(() => _notifier.receive(const GridRowChangeReason.fieldDidChange()));
+    notifier.onFieldChanged((field) => _cellCache.remove(field.id));
     _rows = block.rowInfos.map((rowInfo) => buildGridRow(rowInfo.rowId, rowInfo.height.toDouble())).toList();
   }
 
   Future<void> dispose() async {
-    _delegate.dispose();
+    _fieldNotifier.dispose();
     _notifier.dispose();
     await _cellCache.dispose();
   }
@@ -195,9 +195,9 @@ class GridRowsCache {
 
   GridCellMap _makeGridCells(String rowId, Row? row) {
     var cellDataMap = GridCellMap.new();
-    for (final field in _delegate.fields) {
+    for (final field in _fieldNotifier.fields) {
       if (field.visibility) {
-        cellDataMap[field.id] = GridCell(
+        cellDataMap[field.id] = GridCellIdentifier(
           rowId: rowId,
           gridId: gridId,
           field: field,
@@ -236,7 +236,7 @@ class GridRowsCache {
     return GridRow(
       gridId: gridId,
       blockId: block.id,
-      fields: _delegate.fields,
+      fields: _fieldNotifier.fields,
       rowId: rowId,
       height: rowHeight,
     );
