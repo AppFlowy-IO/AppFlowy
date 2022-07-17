@@ -3,7 +3,7 @@ mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::{CellData, CellDataOperation};
     use crate::services::field::{FieldBuilder, URLCellDataParser};
-    use crate::services::field::{URLCellData, URLTypeOption};
+    use crate::services::field::{URLCellDataPB, URLTypeOption};
     use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
@@ -52,12 +52,12 @@ mod tests {
         assert_eq!(expected_url.to_owned(), decode_cell_data.url);
     }
 
-    fn decode_cell_data<T: Into<CellData<URLCellData>>>(
+    fn decode_cell_data<T: Into<CellData<URLCellDataPB>>>(
         encoded_data: T,
         type_option: &URLTypeOption,
         field_rev: &FieldRevision,
         field_type: &FieldType,
-    ) -> URLCellData {
+    ) -> URLCellDataPB {
         type_option
             .decode_cell_data(encoded_data.into(), field_type, field_rev)
             .unwrap()

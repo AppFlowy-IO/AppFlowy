@@ -75,7 +75,7 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
 }
 
 class _GridPropertyCell extends StatelessWidget {
-  final Field field;
+  final GridFieldPB field;
   final String gridId;
   const _GridPropertyCell({required this.gridId, required this.field, Key? key}) : super(key: key);
 

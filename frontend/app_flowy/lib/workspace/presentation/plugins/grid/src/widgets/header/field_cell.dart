@@ -135,7 +135,7 @@ class _DragToExpandLine extends StatelessWidget {
 
 class FieldCellButton extends StatelessWidget {
   final VoidCallback onTap;
-  final Field field;
+  final GridFieldPB field;
   const FieldCellButton({
     required this.field,
     required this.onTap,

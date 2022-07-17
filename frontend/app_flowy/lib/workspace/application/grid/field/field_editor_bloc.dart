@@ -30,7 +30,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             dataController.fieldName = name;
             emit(state.copyWith(name: name));
           },
-          didReceiveFieldChanged: (Field field) {
+          didReceiveFieldChanged: (GridFieldPB field) {
             emit(state.copyWith(field: Some(field)));
           },
         );
@@ -48,7 +48,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
   const factory FieldEditorEvent.updateName(String name) = _UpdateName;
-  const factory FieldEditorEvent.didReceiveFieldChanged(Field field) = _DidReceiveFieldChanged;
+  const factory FieldEditorEvent.didReceiveFieldChanged(GridFieldPB field) = _DidReceiveFieldChanged;
 }
 
 @freezed
@@ -57,7 +57,7 @@ class FieldEditorState with _$FieldEditorState {
     required String gridId,
     required String errorText,
     required String name,
-    required Option<Field> field,
+    required Option<GridFieldPB> field,
   }) = _FieldEditorState;
 
   factory FieldEditorState.initial(

@@ -35,7 +35,7 @@ class CellService {
     required GridCellIdentifier cellId,
     required String data,
   }) {
-    final payload = CellChangeset.create()
+    final payload = CellChangesetPB.create()
       ..gridId = cellId.gridId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId
@@ -43,10 +43,10 @@ class CellService {
     return GridEventUpdateCell(payload).send();
   }
 
-  Future<Either<Cell, FlowyError>> getCell({
+  Future<Either<GridCellPB, FlowyError>> getCell({
     required GridCellIdentifier cellId,
   }) {
-    final payload = CellIdentifierPayload.create()
+    final payload = GridCellIdentifierPayloadPB.create()
       ..gridId = cellId.gridId
       ..fieldId = cellId.fieldId
       ..rowId = cellId.rowId;
@@ -61,7 +61,7 @@ class GridCellIdentifier with _$GridCellIdentifier {
   const factory GridCellIdentifier({
     required String gridId,
     required String rowId,
-    required Field field,
+    required GridFieldPB field,
   }) = _GridCellIdentifier;
 
   // ignore: unused_element

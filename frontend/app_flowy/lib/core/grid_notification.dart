@@ -8,7 +8,7 @@ import 'package:flowy_sdk/rust_stream.dart';
 
 import 'notification_helper.dart';
 
-// Grid
+// GridPB
 typedef GridNotificationCallback = void Function(GridNotification, Either<Uint8List, FlowyError>);
 
 class GridNotificationParser extends NotificationParser<GridNotification, FlowyError> {

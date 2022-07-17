@@ -2,7 +2,7 @@ use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::{
-    BoxTypeOptionBuilder, DateCellChangeset, DateCellData, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
+    BoxTypeOptionBuilder, DateCellChangesetPB, DateCellDataPB, DateFormat, DateTimestamp, TimeFormat, TypeOptionBuilder,
 };
 use bytes::Bytes;
 use chrono::format::strftime::StrftimeItems;
@@ -32,15 +32,15 @@ impl DateTypeOption {
         Self::default()
     }
 
-    fn today_desc_from_timestamp<T: AsRef<i64>>(&self, timestamp: T) -> DateCellData {
+    fn today_desc_from_timestamp<T: AsRef<i64>>(&self, timestamp: T) -> DateCellDataPB {
         let timestamp = *timestamp.as_ref();
         let native = chrono::NaiveDateTime::from_timestamp(timestamp, 0);
         self.date_from_native(native)
     }
 
-    fn date_from_native(&self, native: chrono::NaiveDateTime) -> DateCellData {
+    fn date_from_native(&self, native: chrono::NaiveDateTime) -> DateCellDataPB {
         if native.timestamp() == 0 {
-            return DateCellData::default();
+            return DateCellDataPB::default();
         }
 
         let time = native.time();
@@ -57,7 +57,7 @@ impl DateTypeOption {
         }
 
         let timestamp = native.timestamp();
-        DateCellData { date, time, timestamp }
+        DateCellDataPB { date, time, timestamp }
     }
 
     fn date_fmt(&self, time: &Option<String>) -> String {
@@ -129,7 +129,7 @@ impl CellDisplayable<DateTimestamp> for DateTypeOption {
     }
 }
 
-impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOption {
+impl CellDataOperation<DateTimestamp, DateCellChangesetPB> for DateTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<DateTimestamp>,
@@ -148,7 +148,7 @@ impl CellDataOperation<DateTimestamp, DateCellChangeset> for DateTypeOption {
 
     fn apply_changeset(
         &self,
-        changeset: CellDataChangeset<DateCellChangeset>,
+        changeset: CellDataChangeset<DateCellChangesetPB>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let changeset = changeset.try_into_inner()?;

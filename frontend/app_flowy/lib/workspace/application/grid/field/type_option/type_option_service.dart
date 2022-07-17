@@ -18,14 +18,14 @@ class TypeOptionService {
     required this.fieldId,
   });
 
-  Future<Either<SelectOption, FlowyError>> newOption({
+  Future<Either<SelectOptionPB, FlowyError>> newOption({
     required String name,
   }) {
-    final fieldIdentifier = FieldIdentifierPayload.create()
+    final fieldIdentifier = GridFieldIdentifierPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId;
 
-    final payload = CreateSelectOptionPayload.create()
+    final payload = CreateSelectOptionPayloadPB.create()
       ..optionName = name
       ..fieldIdentifier = fieldIdentifier;
 
@@ -49,7 +49,7 @@ class TypeOptionWidgetContext<T extends GeneratedMessage> {
 
   String get gridId => _dataController.gridId;
 
-  Field get field => _dataController.field;
+  GridFieldPB get field => _dataController.field;
 
   T get typeOption {
     if (_typeOptionObject != null) {
@@ -74,7 +74,7 @@ abstract class TypeOptionFieldDelegate {
 
 class TypeOptionContext2<T> {
   final String gridId;
-  final Field field;
+  final GridFieldPB field;
   final FieldService _fieldService;
   T? _data;
   final TypeOptionDataParser dataBuilder;

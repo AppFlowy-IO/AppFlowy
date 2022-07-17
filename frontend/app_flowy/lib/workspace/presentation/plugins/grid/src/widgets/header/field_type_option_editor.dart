@@ -15,8 +15,8 @@ import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header
 import 'field_type_extension.dart';
 import 'type_option/builder.dart';
 
-typedef UpdateFieldCallback = void Function(Field, Uint8List);
-typedef SwitchToFieldCallback = Future<Either<FieldTypeOptionData, FlowyError>> Function(
+typedef UpdateFieldCallback = void Function(GridFieldPB, Uint8List);
+typedef SwitchToFieldCallback = Future<Either<FieldTypeOptionDataPB, FlowyError>> Function(
   String fieldId,
   FieldType fieldType,
 );
@@ -59,7 +59,7 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
     );
   }
 
-  Widget _switchFieldTypeButton(BuildContext context, Field field) {
+  Widget _switchFieldTypeButton(BuildContext context, GridFieldPB field) {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,

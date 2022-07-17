@@ -15,9 +15,9 @@ part 'row_service.freezed.dart';
 typedef RowUpdateCallback = void Function();
 
 abstract class GridRowCacheFieldNotifier {
-  UnmodifiableListView<Field> get fields;
+  UnmodifiableListView<GridFieldPB> get fields;
   void onFieldsChanged(VoidCallback callback);
-  void onFieldChanged(void Function(Field) callback);
+  void onFieldChanged(void Function(GridFieldPB) callback);
   void dispose();
 }
 
@@ -28,20 +28,20 @@ abstract class GridRowCacheFieldNotifier {
 
 class GridRowCache {
   final String gridId;
-  final GridBlock block;
+  final GridBlockPB block;
 
   /// _rows containers the current block's rows
   /// Use List to reverse the order of the GridRow.
-  List<GridRow> _rows = [];
+  List<GridRowInfo> _rowInfos = [];
 
   /// Use Map for faster access the raw row data.
-  final HashMap<String, Row> _rowByRowId;
+  final HashMap<String, GridRowPB> _rowByRowId;
 
   final GridCellCache _cellCache;
   final GridRowCacheFieldNotifier _fieldNotifier;
   final _GridRowChangesetNotifier _rowChangeReasonNotifier;
 
-  UnmodifiableListView<GridRow> get rows => UnmodifiableListView(_rows);
+  UnmodifiableListView<GridRowInfo> get rows => UnmodifiableListView(_rowInfos);
   GridCellCache get cellCache => _cellCache;
 
   GridRowCache({
@@ -55,7 +55,7 @@ class GridRowCache {
     //
     notifier.onFieldsChanged(() => _rowChangeReasonNotifier.receive(const GridRowChangeReason.fieldDidChange()));
     notifier.onFieldChanged((field) => _cellCache.remove(field.id));
-    _rows = block.rowInfos.map((rowInfo) => buildGridRow(rowInfo.rowId, rowInfo.height.toDouble())).toList();
+    _rowInfos = block.rows.map((rowInfo) => buildGridRow(rowInfo.id, rowInfo.height.toDouble())).toList();
   }
 
   Future<void> dispose() async {
@@ -64,7 +64,7 @@ class GridRowCache {
     await _cellCache.dispose();
   }
 
-  void applyChangesets(List<GridBlockChangeset> changesets) {
+  void applyChangesets(List<GridBlockChangesetPB> changesets) {
     for (final changeset in changesets) {
       _deleteRows(changeset.deletedRows);
       _insertRows(changeset.insertedRows);
@@ -79,11 +79,11 @@ class GridRowCache {
       return;
     }
 
-    final List<GridRow> newRows = [];
+    final List<GridRowInfo> newRows = [];
     final DeletedIndexs deletedIndex = [];
     final Map<String, String> deletedRowByRowId = {for (var rowId in deletedRows) rowId: rowId};
 
-    _rows.asMap().forEach((index, row) {
+    _rowInfos.asMap().forEach((index, row) {
       if (deletedRowByRowId[row.id] == null) {
         newRows.add(row);
       } else {
@@ -91,11 +91,11 @@ class GridRowCache {
         deletedIndex.add(DeletedIndex(index: index, row: row));
       }
     });
-    _rows = newRows;
+    _rowInfos = newRows;
     _rowChangeReasonNotifier.receive(GridRowChangeReason.delete(deletedIndex));
   }
 
-  void _insertRows(List<InsertedRow> insertRows) {
+  void _insertRows(List<InsertedRowPB> insertRows) {
     if (insertRows.isEmpty) {
       return;
     }
@@ -107,13 +107,13 @@ class GridRowCache {
         rowId: insertRow.rowId,
       );
       insertIndexs.add(insertIndex);
-      _rows.insert(insertRow.index, (buildGridRow(insertRow.rowId, insertRow.height.toDouble())));
+      _rowInfos.insert(insertRow.index, (buildGridRow(insertRow.rowId, insertRow.height.toDouble())));
     }
 
     _rowChangeReasonNotifier.receive(GridRowChangeReason.insert(insertIndexs));
   }
 
-  void _updateRows(List<UpdatedRow> updatedRows) {
+  void _updateRows(List<UpdatedRowPB> updatedRows) {
     if (updatedRows.isEmpty) {
       return;
     }
@@ -121,12 +121,12 @@ class GridRowCache {
     final UpdatedIndexs updatedIndexs = UpdatedIndexs();
     for (final updatedRow in updatedRows) {
       final rowId = updatedRow.rowId;
-      final index = _rows.indexWhere((row) => row.id == rowId);
+      final index = _rowInfos.indexWhere((row) => row.id == rowId);
       if (index != -1) {
         _rowByRowId[rowId] = updatedRow.row;
 
-        _rows.removeAt(index);
-        _rows.insert(index, buildGridRow(rowId, updatedRow.row.height.toDouble()));
+        _rowInfos.removeAt(index);
+        _rowInfos.insert(index, buildGridRow(rowId, updatedRow.row.height.toDouble()));
         updatedIndexs[rowId] = UpdatedIndex(index: index, rowId: rowId);
       }
     }
@@ -183,7 +183,7 @@ class GridRowCache {
   }
 
   GridCellMap loadGridCells(String rowId) {
-    final Row? data = _rowByRowId[rowId];
+    final GridRowPB? data = _rowByRowId[rowId];
     if (data == null) {
       _loadRow(rowId);
     }
@@ -191,7 +191,7 @@ class GridRowCache {
   }
 
   Future<void> _loadRow(String rowId) async {
-    final payload = GridRowIdPayload.create()
+    final payload = GridRowIdPayloadPB.create()
       ..gridId = gridId
       ..blockId = block.id
       ..rowId = rowId;
@@ -203,7 +203,7 @@ class GridRowCache {
     );
   }
 
-  GridCellMap _makeGridCells(String rowId, Row? row) {
+  GridCellMap _makeGridCells(String rowId, GridRowPB? row) {
     var cellDataMap = GridCellMap.new();
     for (final field in _fieldNotifier.fields) {
       if (field.visibility) {
@@ -217,7 +217,7 @@ class GridRowCache {
     return cellDataMap;
   }
 
-  void _refreshRow(OptionalRow optionRow) {
+  void _refreshRow(OptionalRowPB optionRow) {
     if (!optionRow.hasRow()) {
       return;
     }
@@ -225,12 +225,12 @@ class GridRowCache {
     updatedRow.freeze();
 
     _rowByRowId[updatedRow.id] = updatedRow;
-    final index = _rows.indexWhere((gridRow) => gridRow.id == updatedRow.id);
+    final index = _rowInfos.indexWhere((gridRow) => gridRow.id == updatedRow.id);
     if (index != -1) {
       // update the corresponding row in _rows if they are not the same
-      if (_rows[index].rawRow != updatedRow) {
-        final row = _rows.removeAt(index).copyWith(rawRow: updatedRow);
-        _rows.insert(index, row);
+      if (_rowInfos[index].rawRow != updatedRow) {
+        final row = _rowInfos.removeAt(index).copyWith(rawRow: updatedRow);
+        _rowInfos.insert(index, row);
 
         // Calculate the update index
         final UpdatedIndexs updatedIndexs = UpdatedIndexs();
@@ -242,8 +242,8 @@ class GridRowCache {
     }
   }
 
-  GridRow buildGridRow(String rowId, double rowHeight) {
-    return GridRow(
+  GridRowInfo buildGridRow(String rowId, double rowHeight) {
+    return GridRowInfo(
       gridId: gridId,
       blockId: block.id,
       fields: _fieldNotifier.fields,
@@ -277,8 +277,8 @@ class RowService {
 
   RowService({required this.gridId, required this.blockId, required this.rowId});
 
-  Future<Either<Row, FlowyError>> createRow() {
-    CreateRowPayload payload = CreateRowPayload.create()
+  Future<Either<GridRowPB, FlowyError>> createRow() {
+    CreateRowPayloadPB payload = CreateRowPayloadPB.create()
       ..gridId = gridId
       ..startRowId = rowId;
 
@@ -286,18 +286,18 @@ class RowService {
   }
 
   Future<Either<Unit, FlowyError>> moveRow(String rowId, int fromIndex, int toIndex) {
-    final payload = MoveItemPayload.create()
+    final payload = MoveItemPayloadPB.create()
       ..gridId = gridId
       ..itemId = rowId
-      ..ty = MoveItemType.MoveRow
+      ..ty = MoveItemTypePB.MoveRow
       ..fromIndex = fromIndex
       ..toIndex = toIndex;
 
     return GridEventMoveItem(payload).send();
   }
 
-  Future<Either<OptionalRow, FlowyError>> getRow() {
-    final payload = GridRowIdPayload.create()
+  Future<Either<OptionalRowPB, FlowyError>> getRow() {
+    final payload = GridRowIdPayloadPB.create()
       ..gridId = gridId
       ..blockId = blockId
       ..rowId = rowId;
@@ -306,7 +306,7 @@ class RowService {
   }
 
   Future<Either<Unit, FlowyError>> deleteRow() {
-    final payload = GridRowIdPayload.create()
+    final payload = GridRowIdPayloadPB.create()
       ..gridId = gridId
       ..blockId = blockId
       ..rowId = rowId;
@@ -315,7 +315,7 @@ class RowService {
   }
 
   Future<Either<Unit, FlowyError>> duplicateRow() {
-    final payload = GridRowIdPayload.create()
+    final payload = GridRowIdPayloadPB.create()
       ..gridId = gridId
       ..blockId = blockId
       ..rowId = rowId;
@@ -325,15 +325,15 @@ class RowService {
 }
 
 @freezed
-class GridRow with _$GridRow {
-  const factory GridRow({
+class GridRowInfo with _$GridRowInfo {
+  const factory GridRowInfo({
     required String gridId,
     required String blockId,
     required String id,
-    required UnmodifiableListView<Field> fields,
+    required UnmodifiableListView<GridFieldPB> fields,
     required double height,
-    Row? rawRow,
-  }) = _GridRow;
+    GridRowPB? rawRow,
+  }) = _GridRowInfo;
 }
 
 typedef InsertedIndexs = List<InsertedIndex>;
@@ -360,7 +360,7 @@ class InsertedIndex {
 
 class DeletedIndex {
   final int index;
-  final GridRow row;
+  final GridRowInfo row;
   DeletedIndex({
     required this.index,
     required this.row,

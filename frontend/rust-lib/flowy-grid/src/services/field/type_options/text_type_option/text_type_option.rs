@@ -131,7 +131,7 @@ mod tests {
         );
 
         // Single select
-        let done_option = SelectOption::new("Done");
+        let done_option = SelectOptionPB::new("Done");
         let done_option_id = done_option.id.clone();
         let single_select = SingleSelectTypeOptionBuilder::default().option(done_option.clone());
         let single_select_field_rev = FieldBuilder::new(single_select).build();
@@ -151,8 +151,8 @@ mod tests {
         );
 
         // Multiple select
-        let google_option = SelectOption::new("Google");
-        let facebook_option = SelectOption::new("Facebook");
+        let google_option = SelectOptionPB::new("Google");
+        let facebook_option = SelectOptionPB::new("Facebook");
         let ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
         let cell_data_changeset = SelectOptionCellChangeset::from_insert(&ids).to_str();
         let multi_select = MultiSelectTypeOptionBuilder::default()

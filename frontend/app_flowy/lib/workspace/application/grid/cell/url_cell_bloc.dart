@@ -57,7 +57,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
 class URLCellEvent with _$URLCellEvent {
   const factory URLCellEvent.initial() = _InitialCell;
   const factory URLCellEvent.updateURL(String url) = _UpdateURL;
-  const factory URLCellEvent.didReceiveCellUpdate(URLCellData? cell) = _DidReceiveCellUpdate;
+  const factory URLCellEvent.didReceiveCellUpdate(URLCellDataPB? cell) = _DidReceiveCellUpdate;
 }
 
 @freezed

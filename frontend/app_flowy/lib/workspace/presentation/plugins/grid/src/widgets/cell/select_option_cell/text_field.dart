@@ -15,8 +15,8 @@ class SelectOptionTextField extends StatelessWidget {
   final FocusNode _focusNode;
   final TextEditingController _controller;
   final TextfieldTagsController tagController;
-  final List<SelectOption> options;
-  final LinkedHashMap<String, SelectOption> selectedOptionMap;
+  final List<SelectOptionPB> options;
+  final LinkedHashMap<String, SelectOptionPB> selectedOptionMap;
 
   final double distanceToText;
 

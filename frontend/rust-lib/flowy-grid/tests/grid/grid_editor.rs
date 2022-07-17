@@ -4,7 +4,7 @@
 use crate::grid::block_test::util::GridRowTestBuilder;
 use bytes::Bytes;
 use flowy_grid::entities::*;
-use flowy_grid::services::field::SelectOption;
+use flowy_grid::services::field::SelectOptionPB;
 use flowy_grid::services::field::*;
 use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
 use flowy_grid::services::row::{CreateRowRevisionPayload, RowRevisionBuilder};
@@ -32,7 +32,7 @@ pub struct GridEditorTest {
     pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
-    pub row_order_by_row_id: HashMap<String, RowInfo>,
+    pub row_order_by_row_id: HashMap<String, GridRowPB>,
 }
 
 impl GridEditorTest {
@@ -138,18 +138,18 @@ fn make_test_grid() -> BuildGridContext {
             FieldType::SingleSelect => {
                 // Single Select
                 let single_select = SingleSelectTypeOptionBuilder::default()
-                    .option(SelectOption::new(COMPLETED))
-                    .option(SelectOption::new(PLANNED))
-                    .option(SelectOption::new(PAUSED));
+                    .option(SelectOptionPB::new(COMPLETED))
+                    .option(SelectOptionPB::new(PLANNED))
+                    .option(SelectOptionPB::new(PAUSED));
                 let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
                 grid_builder.add_field(single_select_field);
             }
             FieldType::MultiSelect => {
                 // MultiSelect
                 let multi_select = MultiSelectTypeOptionBuilder::default()
-                    .option(SelectOption::new(GOOGLE))
-                    .option(SelectOption::new(FACEBOOK))
-                    .option(SelectOption::new(TWITTER));
+                    .option(SelectOptionPB::new(GOOGLE))
+                    .option(SelectOptionPB::new(FACEBOOK))
+                    .option(SelectOptionPB::new(TWITTER));
                 let multi_select_field = FieldBuilder::new(multi_select)
                     .name("Platform")
                     .visibility(true)

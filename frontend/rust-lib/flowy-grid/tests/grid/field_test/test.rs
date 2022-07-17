@@ -1,8 +1,8 @@
 use crate::grid::field_test::script::FieldScript::*;
 use crate::grid::field_test::script::GridFieldTest;
 use crate::grid::field_test::util::*;
-use flowy_grid::services::field::selection_type_option::SelectOption;
-use flowy_grid::services::field::SingleSelectTypeOption;
+use flowy_grid::services::field::selection_type_option::SelectOptionPB;
+use flowy_grid::services::field::SingleSelectTypeOptionPB;
 use flowy_grid_data_model::revision::TypeOptionDataEntry;
 use flowy_sync::entities::grid::FieldChangesetParams;
 
@@ -71,8 +71,8 @@ async fn grid_update_field() {
     let mut test = GridFieldTest::new().await;
     let (params, single_select_field) = create_single_select_field(&test.grid_id());
 
-    let mut single_select_type_option = SingleSelectTypeOption::from(&single_select_field);
-    single_select_type_option.options.push(SelectOption::new("Unknown"));
+    let mut single_select_type_option = SingleSelectTypeOptionPB::from(&single_select_field);
+    single_select_type_option.options.push(SelectOptionPB::new("Unknown"));
     let changeset = FieldChangesetParams {
         field_id: single_select_field.id.clone(),
         grid_id: test.grid_id(),

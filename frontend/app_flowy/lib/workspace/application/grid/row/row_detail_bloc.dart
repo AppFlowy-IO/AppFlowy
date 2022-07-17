@@ -7,12 +7,12 @@ import 'row_service.dart';
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
-  final GridRow rowData;
+  final GridRowInfo rowInfo;
   final GridRowCache _rowCache;
   void Function()? _rowListenFn;
 
   RowDetailBloc({
-    required this.rowData,
+    required this.rowInfo,
     required GridRowCache rowCache,
   })  : _rowCache = rowCache,
         super(RowDetailState.initial()) {
@@ -41,14 +41,14 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
   Future<void> _startListening() async {
     _rowListenFn = _rowCache.addListener(
-      rowId: rowData.id,
+      rowId: rowInfo.id,
       onCellUpdated: (cellDatas, reason) => add(RowDetailEvent.didReceiveCellDatas(cellDatas.values.toList())),
       listenWhen: () => !isClosed,
     );
   }
 
   Future<void> _loadCellData() async {
-    final cellDataMap = _rowCache.loadGridCells(rowData.id);
+    final cellDataMap = _rowCache.loadGridCells(rowInfo.id);
     if (!isClosed) {
       add(RowDetailEvent.didReceiveCellDatas(cellDataMap.values.toList()));
     }

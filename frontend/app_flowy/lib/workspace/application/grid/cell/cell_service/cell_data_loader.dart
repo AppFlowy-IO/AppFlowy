@@ -24,7 +24,7 @@ class GridCellDataLoader<T> {
   Future<T?> loadData() {
     final fut = service.getCell(cellId: cellId);
     return fut.then(
-      (result) => result.fold((Cell cell) {
+      (result) => result.fold((GridCellPB cell) {
         try {
           return parser.parserData(cell.data);
         } catch (e, s) {
@@ -48,32 +48,32 @@ class StringCellDataParser implements ICellDataParser<String> {
   }
 }
 
-class DateCellDataParser implements ICellDataParser<DateCellData> {
+class DateCellDataParser implements ICellDataParser<DateCellDataPB> {
   @override
-  DateCellData? parserData(List<int> data) {
+  DateCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {
       return null;
     }
-    return DateCellData.fromBuffer(data);
+    return DateCellDataPB.fromBuffer(data);
   }
 }
 
-class SelectOptionCellDataParser implements ICellDataParser<SelectOptionCellData> {
+class SelectOptionCellDataParser implements ICellDataParser<SelectOptionCellDataPB> {
   @override
-  SelectOptionCellData? parserData(List<int> data) {
+  SelectOptionCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {
       return null;
     }
-    return SelectOptionCellData.fromBuffer(data);
+    return SelectOptionCellDataPB.fromBuffer(data);
   }
 }
 
-class URLCellDataParser implements ICellDataParser<URLCellData> {
+class URLCellDataParser implements ICellDataParser<URLCellDataPB> {
   @override
-  URLCellData? parserData(List<int> data) {
+  URLCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {
       return null;
     }
-    return URLCellData.fromBuffer(data);
+    return URLCellDataPB.fromBuffer(data);
   }
 }

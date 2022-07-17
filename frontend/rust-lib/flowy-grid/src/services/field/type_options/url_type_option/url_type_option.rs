@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder, URLCellData};
+use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder, URLCellDataPB};
 use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
@@ -32,22 +32,22 @@ pub struct URLTypeOption {
 }
 impl_type_option!(URLTypeOption, FieldType::URL);
 
-impl CellDisplayable<URLCellData> for URLTypeOption {
+impl CellDisplayable<URLCellDataPB> for URLTypeOption {
     fn display_data(
         &self,
-        cell_data: CellData<URLCellData>,
+        cell_data: CellData<URLCellDataPB>,
         _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        let cell_data: URLCellData = cell_data.try_into_inner()?;
+        let cell_data: URLCellDataPB = cell_data.try_into_inner()?;
         CellBytes::from(cell_data)
     }
 }
 
-impl CellDataOperation<URLCellData, String> for URLTypeOption {
+impl CellDataOperation<URLCellDataPB, String> for URLTypeOption {
     fn decode_cell_data(
         &self,
-        cell_data: CellData<URLCellData>,
+        cell_data: CellData<URLCellDataPB>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
@@ -67,7 +67,7 @@ impl CellDataOperation<URLCellData, String> for URLTypeOption {
         if let Ok(Some(m)) = URL_REGEX.find(&content) {
             url = auto_append_scheme(m.as_str());
         }
-        URLCellData { url, content }.to_json()
+        URLCellDataPB { url, content }.to_json()
     }
 }
 

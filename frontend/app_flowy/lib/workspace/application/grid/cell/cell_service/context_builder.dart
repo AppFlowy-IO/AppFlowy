@@ -1,9 +1,9 @@
 part of 'cell_service.dart';
 
 typedef GridCellController = IGridCellController<String, String>;
-typedef GridSelectOptionCellController = IGridCellController<SelectOptionCellData, String>;
-typedef GridDateCellController = IGridCellController<DateCellData, CalendarData>;
-typedef GridURLCellController = IGridCellController<URLCellData, String>;
+typedef GridSelectOptionCellController = IGridCellController<SelectOptionCellDataPB, String>;
+typedef GridDateCellController = IGridCellController<DateCellDataPB, CalendarData>;
+typedef GridURLCellController = IGridCellController<URLCellDataPB, String>;
 
 class GridCellControllerBuilder {
   final GridCellIdentifier _cellId;
@@ -159,7 +159,7 @@ class IGridCellController<T, D> extends Equatable {
 
   String get fieldId => cellId.field.id;
 
-  Field get field => cellId.field;
+  GridFieldPB get field => cellId.field;
 
   FieldType get fieldType => cellId.field.fieldType;
 
@@ -223,7 +223,7 @@ class IGridCellController<T, D> extends Equatable {
     return data;
   }
 
-  /// Return the FieldTypeOptionData that can be parsed into corresponding class using the [parser].
+  /// Return the FieldTypeOptionDataPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
   Future<Either<PD, FlowyError>> getFieldTypeOption<PD, P extends TypeOptionDataParser>(P parser) {
     return _fieldService.getFieldTypeOptionData(fieldType: fieldType).then((result) {
@@ -305,8 +305,8 @@ class _GridFieldChangedNotifierImpl extends GridFieldChangedNotifier {
   }
 
   @override
-  void onFieldChanged(void Function(Field p1) callback) {
-    _onChangesetFn = (GridFieldChangeset changeset) {
+  void onFieldChanged(void Function(GridFieldPB p1) callback) {
+    _onChangesetFn = (GridFieldChangesetPB changeset) {
       for (final updatedField in changeset.updatedFields) {
         callback(updatedField);
       }

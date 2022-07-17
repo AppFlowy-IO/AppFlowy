@@ -56,14 +56,14 @@ class SelectOptionCellBloc extends Bloc<SelectOptionCellEvent, SelectOptionCellS
 class SelectOptionCellEvent with _$SelectOptionCellEvent {
   const factory SelectOptionCellEvent.initial() = _InitialCell;
   const factory SelectOptionCellEvent.didReceiveOptions(
-    List<SelectOption> selectedOptions,
+    List<SelectOptionPB> selectedOptions,
   ) = _DidReceiveOptions;
 }
 
 @freezed
 class SelectOptionCellState with _$SelectOptionCellState {
   const factory SelectOptionCellState({
-    required List<SelectOption> selectedOptions,
+    required List<SelectOptionPB> selectedOptions,
   }) = _SelectOptionCellState;
 
   factory SelectOptionCellState.initial(GridSelectOptionCellController context) {
