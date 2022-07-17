@@ -93,8 +93,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  Future<void> _loadFields(Grid grid, Emitter<GridState> emit) async {
-    final result = await _gridService.getFields(fieldOrders: grid.fields);
+  Future<void> _loadFields(GridPB grid, Emitter<GridState> emit) async {
+    final result = await _gridService.getFields(fieldIds: grid.fields);
     return Future(
       () => result.fold(
         (fields) {
@@ -112,7 +112,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  void _initialBlocks(List<GridBlock> blocks) {
+  void _initialBlocks(List<GridBlockPB> blocks) {
     for (final block in blocks) {
       if (_blocks[block.id] != null) {
         Log.warn("Intial duplicate block's cache: ${block.id}");
@@ -141,14 +141,14 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.createRow() = _CreateRow;
   const factory GridEvent.didReceiveRowUpdate(List<GridRowInfo> rows, GridRowChangeReason listState) =
       _DidReceiveRowUpdate;
-  const factory GridEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
+  const factory GridEvent.didReceiveFieldUpdate(List<GridFieldPB> fields) = _DidReceiveFieldUpdate;
 }
 
 @freezed
 class GridState with _$GridState {
   const factory GridState({
     required String gridId,
-    required Option<Grid> grid,
+    required Option<GridPB> grid,
     required GridFieldEquatable fields,
     required List<GridRowInfo> rowInfos,
     required GridLoadingState loadingState,
@@ -172,8 +172,8 @@ class GridLoadingState with _$GridLoadingState {
 }
 
 class GridFieldEquatable extends Equatable {
-  final List<Field> _fields;
-  const GridFieldEquatable(List<Field> fields) : _fields = fields;
+  final List<GridFieldPB> _fields;
+  const GridFieldEquatable(List<GridFieldPB> fields) : _fields = fields;
 
   @override
   List<Object?> get props {
@@ -183,5 +183,5 @@ class GridFieldEquatable extends Equatable {
     ];
   }
 
-  UnmodifiableListView<Field> get value => UnmodifiableListView(_fields);
+  UnmodifiableListView<GridFieldPB> get value => UnmodifiableListView(_fields);
 }

@@ -42,13 +42,13 @@ class FieldTypeOptionEditBloc extends Bloc<FieldTypeOptionEditEvent, FieldTypeOp
 @freezed
 class FieldTypeOptionEditEvent with _$FieldTypeOptionEditEvent {
   const factory FieldTypeOptionEditEvent.initial() = _Initial;
-  const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(Field field) = _DidReceiveFieldUpdated;
+  const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(GridFieldPB field) = _DidReceiveFieldUpdated;
 }
 
 @freezed
 class FieldTypeOptionEditState with _$FieldTypeOptionEditState {
   const factory FieldTypeOptionEditState({
-    required Field field,
+    required GridFieldPB field,
   }) = _FieldTypeOptionEditState;
 
   factory FieldTypeOptionEditState.initial(TypeOptionDataController fieldContext) => FieldTypeOptionEditState(

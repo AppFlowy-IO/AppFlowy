@@ -70,7 +70,7 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
     result.fold((l) => {}, (err) => Log.error(err));
   }
 
-  void _deleteOption(SelectOption option) async {
+  void _deleteOption(SelectOptionPB option) async {
     final result = await _selectOptionService.delete(
       option: option,
     );
@@ -78,7 +78,7 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
     result.fold((l) => null, (err) => Log.error(err));
   }
 
-  void _updateOption(SelectOption option) async {
+  void _updateOption(SelectOptionPB option) async {
     final result = await _selectOptionService.update(
       option: option,
     );
@@ -122,8 +122,8 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
     });
   }
 
-  _MakeOptionResult _makeOptions(Option<String> filter, List<SelectOption> allOptions) {
-    final List<SelectOption> options = List.from(allOptions);
+  _MakeOptionResult _makeOptions(Option<String> filter, List<SelectOptionPB> allOptions) {
+    final List<SelectOptionPB> options = List.from(allOptions);
     Option<String> createOption = filter;
 
     filter.foldRight(null, (filter, previous) {
@@ -165,20 +165,20 @@ class SelectOptionCellEditorBloc extends Bloc<SelectOptionEditorEvent, SelectOpt
 class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
   const factory SelectOptionEditorEvent.initial() = _Initial;
   const factory SelectOptionEditorEvent.didReceiveOptions(
-      List<SelectOption> options, List<SelectOption> selectedOptions) = _DidReceiveOptions;
+      List<SelectOptionPB> options, List<SelectOptionPB> selectedOptions) = _DidReceiveOptions;
   const factory SelectOptionEditorEvent.newOption(String optionName) = _NewOption;
   const factory SelectOptionEditorEvent.selectOption(String optionId) = _SelectOption;
-  const factory SelectOptionEditorEvent.updateOption(SelectOption option) = _UpdateOption;
-  const factory SelectOptionEditorEvent.deleteOption(SelectOption option) = _DeleteOption;
+  const factory SelectOptionEditorEvent.updateOption(SelectOptionPB option) = _UpdateOption;
+  const factory SelectOptionEditorEvent.deleteOption(SelectOptionPB option) = _DeleteOption;
   const factory SelectOptionEditorEvent.filterOption(String optionName) = _SelectOptionFilter;
 }
 
 @freezed
 class SelectOptionEditorState with _$SelectOptionEditorState {
   const factory SelectOptionEditorState({
-    required List<SelectOption> options,
-    required List<SelectOption> allOptions,
-    required List<SelectOption> selectedOptions,
+    required List<SelectOptionPB> options,
+    required List<SelectOptionPB> allOptions,
+    required List<SelectOptionPB> selectedOptions,
     required Option<String> createOption,
     required Option<String> filter,
   }) = _SelectOptionEditorState;
@@ -196,7 +196,7 @@ class SelectOptionEditorState with _$SelectOptionEditorState {
 }
 
 class _MakeOptionResult {
-  List<SelectOption> options;
+  List<SelectOptionPB> options;
   Option<String> createOption;
 
   _MakeOptionResult({

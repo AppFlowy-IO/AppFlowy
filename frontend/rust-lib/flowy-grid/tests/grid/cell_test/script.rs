@@ -1,8 +1,8 @@
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::CellChangeset;
+use flowy_grid::entities::CellChangesetPB;
 
 pub enum CellScript {
-    UpdateCell { changeset: CellChangeset, is_err: bool },
+    UpdateCell { changeset: CellChangesetPB, is_err: bool },
 }
 
 pub struct GridCellTest {

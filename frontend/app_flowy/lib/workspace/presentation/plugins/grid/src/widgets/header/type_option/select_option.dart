@@ -17,7 +17,7 @@ import 'builder.dart';
 import 'select_option_editor.dart';
 
 class SelectOptionTypeOptionWidget extends StatelessWidget {
-  final List<SelectOption> options;
+  final List<SelectOptionPB> options;
   final VoidCallback beginEdit;
   final TypeOptionOverlayDelegate overlayDelegate;
   final SelectOptionTypeOptionAction typeOptionAction;
@@ -131,7 +131,7 @@ class _OptionList extends StatelessWidget {
     );
   }
 
-  _OptionCell _makeOptionCell(BuildContext context, SelectOption option) {
+  _OptionCell _makeOptionCell(BuildContext context, SelectOptionPB option) {
     return _OptionCell(
       option: option,
       onSelected: (option) {
@@ -154,8 +154,8 @@ class _OptionList extends StatelessWidget {
 }
 
 class _OptionCell extends StatelessWidget {
-  final SelectOption option;
-  final Function(SelectOption) onSelected;
+  final SelectOptionPB option;
+  final Function(SelectOptionPB) onSelected;
   const _OptionCell({
     required this.option,
     required this.onSelected,

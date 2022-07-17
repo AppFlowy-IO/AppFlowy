@@ -22,7 +22,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
 
   DateCalBloc({
     required DateTypeOption dateTypeOption,
-    required DateCellData? cellData,
+    required DateCellDataPB? cellData,
     required this.cellContext,
   }) : super(DateCalState.initial(dateTypeOption, cellData)) {
     on<DateCalEvent>(
@@ -38,7 +38,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           setFocusedDay: (focusedDay) {
             emit(state.copyWith(focusedDay: focusedDay));
           },
-          didReceiveCellUpdate: (DateCellData? cellData) {
+          didReceiveCellUpdate: (DateCellDataPB? cellData) {
             final calData = calDataFromCellData(cellData);
             final time = calData.foldRight("", (dateData, previous) => dateData.time);
             emit(state.copyWith(calData: calData, time: time));
@@ -188,7 +188,7 @@ class DateCalEvent with _$DateCalEvent {
   const factory DateCalEvent.setDateFormat(DateFormat dateFormat) = _DateFormat;
   const factory DateCalEvent.setIncludeTime(bool includeTime) = _IncludeTime;
   const factory DateCalEvent.setTime(String time) = _Time;
-  const factory DateCalEvent.didReceiveCellUpdate(DateCellData? data) = _DidReceiveCellUpdate;
+  const factory DateCalEvent.didReceiveCellUpdate(DateCellDataPB? data) = _DidReceiveCellUpdate;
   const factory DateCalEvent.didUpdateCalData(Option<CalendarData> data, Option<String> timeFormatError) =
       _DidUpdateCalData;
 }
@@ -207,7 +207,7 @@ class DateCalState with _$DateCalState {
 
   factory DateCalState.initial(
     DateTypeOption dateTypeOption,
-    DateCellData? cellData,
+    DateCellDataPB? cellData,
   ) {
     Option<CalendarData> calData = calDataFromCellData(cellData);
     final time = calData.foldRight("", (dateData, previous) => dateData.time);
@@ -233,7 +233,7 @@ String _timeHintText(DateTypeOption typeOption) {
   return "";
 }
 
-Option<CalendarData> calDataFromCellData(DateCellData? cellData) {
+Option<CalendarData> calDataFromCellData(DateCellDataPB? cellData) {
   String? time = timeFromCellData(cellData);
   Option<CalendarData> calData = none();
   if (cellData != null) {
@@ -249,7 +249,7 @@ $fixnum.Int64 timestampFromDateTime(DateTime dateTime) {
   return $fixnum.Int64(timestamp);
 }
 
-String? timeFromCellData(DateCellData? cellData) {
+String? timeFromCellData(DateCellDataPB? cellData) {
   String? time;
   if (cellData?.hasTime() ?? false) {
     time = cellData?.time;

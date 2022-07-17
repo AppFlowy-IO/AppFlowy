@@ -90,9 +90,9 @@ class RowState with _$RowState {
 }
 
 class GridCellEquatable extends Equatable {
-  final Field _field;
+  final GridFieldPB _field;
 
-  const GridCellEquatable(Field field) : _field = field;
+  const GridCellEquatable(GridFieldPB field) : _field = field;
 
   @override
   List<Object?> get props => [

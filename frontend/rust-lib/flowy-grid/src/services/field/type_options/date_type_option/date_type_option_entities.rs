@@ -1,5 +1,5 @@
-use crate::entities::CellChangeset;
-use crate::entities::{CellIdentifier, CellIdentifierPayload};
+use crate::entities::CellChangesetPB;
+use crate::entities::{CellIdentifierParams, GridCellIdentifierPayloadPB};
 use crate::services::cell::{CellBytesParser, FromCellChangeset, FromCellString};
 use bytes::Bytes;
 
@@ -24,7 +24,7 @@ pub struct DateCellDataPB {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct DateChangesetPayloadPB {
     #[pb(index = 1)]
-    pub cell_identifier: CellIdentifierPayload,
+    pub cell_identifier: GridCellIdentifierPayloadPB,
 
     #[pb(index = 2, one_of)]
     pub date: Option<String>,
@@ -34,7 +34,7 @@ pub struct DateChangesetPayloadPB {
 }
 
 pub struct DateChangesetParams {
-    pub cell_identifier: CellIdentifier,
+    pub cell_identifier: CellIdentifierParams,
     pub date: Option<String>,
     pub time: Option<String>,
 }
@@ -43,7 +43,7 @@ impl TryInto<DateChangesetParams> for DateChangesetPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<DateChangesetParams, Self::Error> {
-        let cell_identifier: CellIdentifier = self.cell_identifier.try_into()?;
+        let cell_identifier: CellIdentifierParams = self.cell_identifier.try_into()?;
         Ok(DateChangesetParams {
             cell_identifier,
             date: self.date,
@@ -52,14 +52,14 @@ impl TryInto<DateChangesetParams> for DateChangesetPayloadPB {
     }
 }
 
-impl std::convert::From<DateChangesetParams> for CellChangeset {
+impl std::convert::From<DateChangesetParams> for CellChangesetPB {
     fn from(params: DateChangesetParams) -> Self {
         let changeset = DateCellChangesetPB {
             date: params.date,
             time: params.time,
         };
         let s = serde_json::to_string(&changeset).unwrap();
-        CellChangeset {
+        CellChangesetPB {
             grid_id: params.cell_identifier.grid_id,
             row_id: params.cell_identifier.row_id,
             field_id: params.cell_identifier.field_id,

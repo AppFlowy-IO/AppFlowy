@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{CellChangeset, GridBlockChangesetPB, GridRowPB, InsertedRowPB, UpdatedRowPB};
+use crate::entities::{CellChangesetPB, GridBlockChangesetPB, GridRowPB, InsertedRowPB, UpdatedRowPB};
 use crate::manager::GridUser;
 use crate::services::block_revision_editor::GridBlockRevisionEditor;
 use crate::services::persistence::block_index::BlockIndexCache;
@@ -196,7 +196,7 @@ impl GridBlockManager {
         Ok(())
     }
 
-    pub async fn update_cell<F>(&self, changeset: CellChangeset, row_builder: F) -> FlowyResult<()>
+    pub async fn update_cell<F>(&self, changeset: CellChangesetPB, row_builder: F) -> FlowyResult<()>
     where
         F: FnOnce(Arc<RowRevision>) -> Option<GridRowPB>,
     {
@@ -254,7 +254,7 @@ impl GridBlockManager {
         Ok(())
     }
 
-    async fn notify_did_update_cell(&self, changeset: CellChangeset) -> FlowyResult<()> {
+    async fn notify_did_update_cell(&self, changeset: CellChangesetPB) -> FlowyResult<()> {
         let id = format!("{}:{}", changeset.row_id, changeset.field_id);
         send_dart_notification(&id, GridNotification::DidUpdateCell).send();
         Ok(())

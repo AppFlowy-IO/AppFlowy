@@ -134,7 +134,7 @@ void _resolveDocDeps(GetIt getIt) {
 }
 
 void _resolveGridDeps(GetIt getIt) {
-  // Grid
+  // GridPB
   getIt.registerFactoryParam<GridBloc, View, void>(
     (view, _) => GridBloc(view: view),
   );

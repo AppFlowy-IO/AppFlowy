@@ -19,11 +19,11 @@ class SelectOptionService {
       (result) {
         return result.fold(
           (option) {
-            final cellIdentifier = CellIdentifierPayload.create()
+            final cellIdentifier = GridCellIdentifierPayloadPB.create()
               ..gridId = gridId
               ..fieldId = fieldId
               ..rowId = rowId;
-            final payload = SelectOptionChangesetPayload.create()
+            final payload = SelectOptionChangesetPayloadPB.create()
               ..insertOption = option
               ..cellIdentifier = cellIdentifier;
             return GridEventUpdateSelectOption(payload).send();
@@ -35,26 +35,26 @@ class SelectOptionService {
   }
 
   Future<Either<Unit, FlowyError>> update({
-    required SelectOption option,
+    required SelectOptionPB option,
   }) {
-    final payload = SelectOptionChangesetPayload.create()
+    final payload = SelectOptionChangesetPayloadPB.create()
       ..updateOption = option
       ..cellIdentifier = _cellIdentifier();
     return GridEventUpdateSelectOption(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> delete({
-    required SelectOption option,
+    required SelectOptionPB option,
   }) {
-    final payload = SelectOptionChangesetPayload.create()
+    final payload = SelectOptionChangesetPayloadPB.create()
       ..deleteOption = option
       ..cellIdentifier = _cellIdentifier();
 
     return GridEventUpdateSelectOption(payload).send();
   }
 
-  Future<Either<SelectOptionCellData, FlowyError>> getOpitonContext() {
-    final payload = CellIdentifierPayload.create()
+  Future<Either<SelectOptionCellDataPB, FlowyError>> getOpitonContext() {
+    final payload = GridCellIdentifierPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..rowId = rowId;
@@ -63,21 +63,21 @@ class SelectOptionService {
   }
 
   Future<Either<void, FlowyError>> select({required String optionId}) {
-    final payload = SelectOptionCellChangesetPayload.create()
+    final payload = SelectOptionCellChangesetPayloadPB.create()
       ..cellIdentifier = _cellIdentifier()
       ..insertOptionId = optionId;
     return GridEventUpdateSelectOptionCell(payload).send();
   }
 
   Future<Either<void, FlowyError>> unSelect({required String optionId}) {
-    final payload = SelectOptionCellChangesetPayload.create()
+    final payload = SelectOptionCellChangesetPayloadPB.create()
       ..cellIdentifier = _cellIdentifier()
       ..deleteOptionId = optionId;
     return GridEventUpdateSelectOptionCell(payload).send();
   }
 
-  CellIdentifierPayload _cellIdentifier() {
-    return CellIdentifierPayload.create()
+  GridCellIdentifierPayloadPB _cellIdentifier() {
+    return GridCellIdentifierPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..rowId = rowId;

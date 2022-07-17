@@ -1,4 +1,4 @@
-use crate::entities::{CellChangeset, CellIdentifier, CellIdentifierPayload, FieldType};
+use crate::entities::{CellChangesetPB, CellIdentifierParams, FieldType, GridCellIdentifierPayloadPB};
 use crate::services::cell::{CellBytes, CellBytesParser, CellData, CellDisplayable, FromCellChangeset, FromCellString};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOptionPB};
 use bytes::Bytes;
@@ -225,7 +225,7 @@ impl CellBytesParser for SelectOptionCellDataParser {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionCellChangesetPayloadPB {
     #[pb(index = 1)]
-    pub cell_identifier: CellIdentifierPayload,
+    pub cell_identifier: GridCellIdentifierPayloadPB,
 
     #[pb(index = 2, one_of)]
     pub insert_option_id: Option<String>,
@@ -235,19 +235,19 @@ pub struct SelectOptionCellChangesetPayloadPB {
 }
 
 pub struct SelectOptionCellChangesetParams {
-    pub cell_identifier: CellIdentifier,
+    pub cell_identifier: CellIdentifierParams,
     pub insert_option_id: Option<String>,
     pub delete_option_id: Option<String>,
 }
 
-impl std::convert::From<SelectOptionCellChangesetParams> for CellChangeset {
+impl std::convert::From<SelectOptionCellChangesetParams> for CellChangesetPB {
     fn from(params: SelectOptionCellChangesetParams) -> Self {
         let changeset = SelectOptionCellChangeset {
             insert_option_id: params.insert_option_id,
             delete_option_id: params.delete_option_id,
         };
         let s = serde_json::to_string(&changeset).unwrap();
-        CellChangeset {
+        CellChangesetPB {
             grid_id: params.cell_identifier.grid_id,
             row_id: params.cell_identifier.row_id,
             field_id: params.cell_identifier.field_id,
@@ -260,7 +260,7 @@ impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPaylo
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SelectOptionCellChangesetParams, Self::Error> {
-        let cell_identifier: CellIdentifier = self.cell_identifier.try_into()?;
+        let cell_identifier: CellIdentifierParams = self.cell_identifier.try_into()?;
         let insert_option_id = match self.insert_option_id {
             None => None,
             Some(insert_option_id) => Some(
@@ -334,7 +334,7 @@ pub struct SelectOptionCellDataPB {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionChangesetPayloadPB {
     #[pb(index = 1)]
-    pub cell_identifier: CellIdentifierPayload,
+    pub cell_identifier: GridCellIdentifierPayloadPB,
 
     #[pb(index = 2, one_of)]
     pub insert_option: Option<SelectOptionPB>,
@@ -347,7 +347,7 @@ pub struct SelectOptionChangesetPayloadPB {
 }
 
 pub struct SelectOptionChangeset {
-    pub cell_identifier: CellIdentifier,
+    pub cell_identifier: CellIdentifierParams,
     pub insert_option: Option<SelectOptionPB>,
     pub update_option: Option<SelectOptionPB>,
     pub delete_option: Option<SelectOptionPB>,

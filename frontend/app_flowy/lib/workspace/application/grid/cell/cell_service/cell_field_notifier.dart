@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'cell_service.dart';
 
 abstract class GridFieldChangedNotifier {
-  void onFieldChanged(void Function(Field) callback);
+  void onFieldChanged(void Function(GridFieldPB) callback);
   void dispose();
 }
 
-/// Grid's cell helper wrapper that enables each cell will get notified when the corresponding field was changed.
+/// GridPB's cell helper wrapper that enables each cell will get notified when the corresponding field was changed.
 /// You Register an onFieldChanged callback to listen to the cell changes, and unregister if you don't want to listen.
 class GridCellFieldNotifier {
   /// fieldId: {objectId: callback}

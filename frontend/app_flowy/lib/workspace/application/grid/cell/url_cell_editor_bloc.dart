@@ -54,7 +54,7 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
 @freezed
 class URLCellEditorEvent with _$URLCellEditorEvent {
   const factory URLCellEditorEvent.initial() = _InitialCell;
-  const factory URLCellEditorEvent.didReceiveCellUpdate(URLCellData? cell) = _DidReceiveCellUpdate;
+  const factory URLCellEditorEvent.didReceiveCellUpdate(URLCellDataPB? cell) = _DidReceiveCellUpdate;
   const factory URLCellEditorEvent.updateText(String text) = _UpdateText;
 }
 

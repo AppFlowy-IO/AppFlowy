@@ -40,7 +40,7 @@ class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> 
 
   @override
   Future<Option<FlowyError>> save(CalendarData data) {
-    var payload = DateChangesetPayload.create()..cellIdentifier = _makeCellIdPayload(cellId);
+    var payload = DateChangesetPayloadPB.create()..cellIdentifier = _makeCellIdPayload(cellId);
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
     payload.date = date;
@@ -58,8 +58,8 @@ class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> 
   }
 }
 
-CellIdentifierPayload _makeCellIdPayload(GridCellIdentifier cellId) {
-  return CellIdentifierPayload.create()
+GridCellIdentifierPayloadPB _makeCellIdPayload(GridCellIdentifier cellId) {
+  return GridCellIdentifierPayloadPB.create()
     ..gridId = cellId.gridId
     ..fieldId = cellId.fieldId
     ..rowId = cellId.rowId;

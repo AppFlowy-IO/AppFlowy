@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::CellIdentifier;
+use crate::entities::CellIdentifierParams;
 use crate::entities::*;
 use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
@@ -188,7 +188,7 @@ impl GridRevisionEditor {
 
     pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
         let _ = self.modify(|grid_pad| Ok(grid_pad.delete_field_rev(field_id)?)).await?;
-        let field_order = GridFieldPB::from(field_id);
+        let field_order = GridFieldIdPB::from(field_id);
         let notified_changeset = GridFieldChangesetPB::delete(&self.grid_id, vec![field_order]);
         let _ = self.notify_did_update_grid(notified_changeset).await?;
         Ok(())
@@ -339,12 +339,12 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn get_cell(&self, params: &CellIdentifier) -> Option<Cell> {
+    pub async fn get_cell(&self, params: &CellIdentifierParams) -> Option<GridCellPB> {
         let cell_bytes = self.get_cell_bytes(params).await?;
-        Some(Cell::new(&params.field_id, cell_bytes.to_vec()))
+        Some(GridCellPB::new(&params.field_id, cell_bytes.to_vec()))
     }
 
-    pub async fn get_cell_bytes(&self, params: &CellIdentifier) -> Option<CellBytes> {
+    pub async fn get_cell_bytes(&self, params: &CellIdentifierParams) -> Option<CellBytes> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let row_rev = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
 
@@ -364,12 +364,12 @@ impl GridRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn update_cell(&self, cell_changeset: CellChangeset) -> FlowyResult<()> {
+    pub async fn update_cell(&self, cell_changeset: CellChangesetPB) -> FlowyResult<()> {
         if cell_changeset.content.as_ref().is_none() {
             return Ok(());
         }
 
-        let CellChangeset {
+        let CellChangesetPB {
             grid_id,
             row_id,
             field_id,
@@ -387,7 +387,7 @@ impl GridRevisionEditor {
                 let cell_rev = self.get_cell_rev(&row_id, &field_id).await?;
                 // Update the changeset.data property with the return value.
                 content = Some(apply_cell_data_changeset(content.unwrap(), cell_rev, field_rev)?);
-                let cell_changeset = CellChangeset {
+                let cell_changeset = CellChangesetPB {
                     grid_id,
                     row_id,
                     field_id,
@@ -425,7 +425,7 @@ impl GridRevisionEditor {
         let field_orders = pad_read_guard
             .get_field_revs(None)?
             .iter()
-            .map(GridFieldPB::from)
+            .map(GridFieldIdPB::from)
             .collect();
         let mut block_orders = vec![];
         for block_rev in pad_read_guard.get_block_meta_revs() {
@@ -508,7 +508,7 @@ impl GridRevisionEditor {
             .modify(|grid_pad| Ok(grid_pad.move_field(field_id, from as usize, to as usize)?))
             .await?;
         if let Some((index, field_rev)) = self.grid_pad.read().await.get_field_rev(field_id) {
-            let delete_field_order = GridFieldPB::from(field_id);
+            let delete_field_order = GridFieldIdPB::from(field_id);
             let insert_field = IndexFieldPB::from_field_rev(field_rev, index);
             let notified_changeset = GridFieldChangesetPB {
                 grid_id: self.grid_id.clone(),
@@ -615,7 +615,7 @@ impl GridRevisionEditor {
             .get_field_rev(field_id)
             .map(|(index, field)| (index, field.clone()))
         {
-            let updated_field = FieldPB::from(field_rev);
+            let updated_field = GridFieldPB::from(field_rev);
             let notified_changeset = GridFieldChangesetPB::update(&self.grid_id, vec![updated_field.clone()]);
             let _ = self.notify_did_update_grid(notified_changeset).await?;
 

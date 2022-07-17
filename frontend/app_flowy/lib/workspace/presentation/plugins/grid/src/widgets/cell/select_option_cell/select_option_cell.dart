@@ -128,7 +128,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 }
 
 class _SelectOptionCell extends StatelessWidget {
-  final List<SelectOption> selectOptions;
+  final List<SelectOptionPB> selectOptions;
   final void Function(bool) onFocus;
   final SelectOptionCellStyle? cellStyle;
   final GridCellControllerBuilder cellContorllerBuilder;
