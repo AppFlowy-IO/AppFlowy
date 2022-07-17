@@ -1,7 +1,7 @@
 use crate::grid::field_test::script::FieldScript::*;
 use crate::grid::field_test::script::GridFieldTest;
 use crate::grid::field_test::util::*;
-use flowy_grid::services::field::select_option::SelectOption;
+use flowy_grid::services::field::selection_type_option::SelectOption;
 use flowy_grid::services::field::SingleSelectTypeOption;
 use flowy_grid_data_model::revision::TypeOptionDataEntry;
 use flowy_sync::entities::grid::FieldChangesetParams;

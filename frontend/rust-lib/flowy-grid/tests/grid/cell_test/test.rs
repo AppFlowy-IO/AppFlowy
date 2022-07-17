@@ -2,7 +2,7 @@ use crate::grid::cell_test::script::CellScript::*;
 use crate::grid::cell_test::script::GridCellTest;
 use crate::grid::field_test::util::make_date_cell_string;
 use flowy_grid::entities::{CellChangeset, FieldType};
-use flowy_grid::services::field::select_option::SelectOptionCellChangeset;
+use flowy_grid::services::field::selection_type_option::SelectOptionCellChangeset;
 use flowy_grid::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
 
 #[tokio::test]

@@ -47,9 +47,7 @@ impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
 #[cfg(test)]
 mod tests {
     use crate::entities::{GridNumberFilter, NumberFilterCondition};
-
     use crate::services::field::{NumberCellData, NumberFormat};
-    use std::str::FromStr;
     #[test]
     fn number_filter_equal_test() {
         let number_filter = GridNumberFilter {
@@ -58,7 +56,7 @@ mod tests {
         };
 
         for (num_str, visible) in [("123", true), ("1234", false), ("", false)] {
-            let data = NumberCellData::from_str(num_str).unwrap();
+            let data = NumberCellData::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
             assert_eq!(number_filter.is_visible(&data), visible);
         }
 
@@ -75,7 +73,7 @@ mod tests {
             content: Some("12".to_owned()),
         };
         for (num_str, visible) in [("123", true), ("10", false), ("30", true), ("", false)] {
-            let data = NumberCellData::from_str(num_str).unwrap();
+            let data = NumberCellData::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
             assert_eq!(number_filter.is_visible(&data), visible);
         }
     }
@@ -87,7 +85,7 @@ mod tests {
             content: Some("100".to_owned()),
         };
         for (num_str, visible) in [("12", true), ("1234", false), ("30", true), ("", true)] {
-            let data = NumberCellData::from_str(num_str).unwrap();
+            let data = NumberCellData::from_format_str(num_str, true, &NumberFormat::Num).unwrap();
             assert_eq!(number_filter.is_visible(&data), visible);
         }
     }

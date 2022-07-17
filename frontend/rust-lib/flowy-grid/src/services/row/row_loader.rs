@@ -1,6 +1,6 @@
 use crate::entities::{GridBlock, RepeatedGridBlock, Row};
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
+use flowy_grid_data_model::revision::RowRevision;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -39,29 +39,15 @@ pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Ve
     row_revs.iter().map(Row::from).collect::<Vec<_>>()
 }
 
-pub(crate) fn make_row_from_row_rev(fields: &[Arc<FieldRevision>], row_rev: Arc<RowRevision>) -> Option<Row> {
-    make_rows_from_row_revs(fields, &[row_rev]).pop()
+pub(crate) fn make_row_from_row_rev(row_rev: Arc<RowRevision>) -> Option<Row> {
+    make_rows_from_row_revs(&[row_rev]).pop()
 }
 
-pub(crate) fn make_rows_from_row_revs(_fields: &[Arc<FieldRevision>], row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
-    // let field_rev_map = fields
-    //     .iter()
-    //     .map(|field_rev| (&field_rev.id, field_rev))
-    //     .collect::<HashMap<&String, &FieldRevision>>();
-
-    let make_row = |row_rev: &Arc<RowRevision>| {
-        // let cell_by_field_id = row_rev
-        //     .cells
-        //     .clone()
-        //     .into_iter()
-        //     .flat_map(|(field_id, cell_rev)| make_cell_by_field_id(&field_rev_map, field_id, cell_rev))
-        //     .collect::<HashMap<String, Cell>>();
-
-        Row {
-            block_id: row_rev.block_id.clone(),
-            id: row_rev.id.clone(),
-            height: row_rev.height,
-        }
+pub(crate) fn make_rows_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
+    let make_row = |row_rev: &Arc<RowRevision>| Row {
+        block_id: row_rev.block_id.clone(),
+        id: row_rev.id.clone(),
+        height: row_rev.height,
     };
 
     row_revs.iter().map(make_row).collect::<Vec<_>>()
