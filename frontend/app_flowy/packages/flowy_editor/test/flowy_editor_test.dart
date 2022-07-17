@@ -39,7 +39,7 @@ void main() {
     expect(checkBoxNode != null, true);
     final textType = checkBoxNode!.attributes['text-type'];
     expect(textType != null, true);
-    final path = checkBoxNode.path([]);
+    final path = checkBoxNode.path;
     expect(pathEquals(path, [1, 0]), true);
   });
 

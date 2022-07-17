@@ -8,7 +8,11 @@ class TextNodeBuilder extends NodeWidgetBuilder {
   TextNodeBuilder.create({
     required super.node,
     required super.editorState,
-  }) : super.create();
+  }) : super.create() {
+    nodeValidator = ((node) {
+      return node.type == 'text' && node.attributes.containsKey('content');
+    });
+  }
 
   String get content => node.attributes['content'] as String;
 
@@ -52,41 +56,35 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final editableRichText = ChangeNotifierProvider.value(
+    return ChangeNotifierProvider.value(
       value: node,
       builder: (_, __) => Consumer<Node>(
-        builder: ((context, value, child) => SelectableText.rich(
-              TextSpan(
-                text: content,
-                style: node.attributes.toTextStyle(),
-              ),
-              onTap: () {
-                _textInputConnection?.close();
-                _textInputConnection = TextInput.attach(
-                  this,
-                  const TextInputConfiguration(
-                    enableDeltaModel: false,
-                    inputType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                  ),
-                );
-                _textInputConnection
-                  ?..show()
-                  ..setEditingState(textEditingValue);
-              },
-            )),
-      ),
-    );
-
-    final child = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        editableRichText,
-        if (node.children.isNotEmpty)
-          Column(
+        builder: ((context, value, child) {
+          return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: node.children
-                .map(
+            children: [
+              SelectableText.rich(
+                TextSpan(
+                  text: content,
+                  style: node.attributes.toTextStyle(),
+                ),
+                onTap: () {
+                  _textInputConnection?.close();
+                  _textInputConnection = TextInput.attach(
+                    this,
+                    const TextInputConfiguration(
+                      enableDeltaModel: false,
+                      inputType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                    ),
+                  );
+                  _textInputConnection
+                    ?..show()
+                    ..setEditingState(textEditingValue);
+                },
+              ),
+              if (node.children.isNotEmpty)
+                ...node.children.map(
                   (e) => editorState.renderPlugins.buildWidget(
                     context: NodeWidgetContext(
                       buildContext: context,
@@ -95,11 +93,11 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
                     ),
                   ),
                 )
-                .toList(),
-          ),
-      ],
+            ],
+          );
+        }),
+      ),
     );
-    return child;
   }
 
   @override
@@ -148,15 +146,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   @override
   void updateEditingValue(TextEditingValue value) {
     debugPrint(value.text);
-    editorState.update(
-      node,
-      Attributes.from(node.attributes)
-        ..addAll(
-          {
-            'content': value.text,
-          },
-        ),
-    );
+    editorState.update(node, {'content': value.text});
   }
 
   @override

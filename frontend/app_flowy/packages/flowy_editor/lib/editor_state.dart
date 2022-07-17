@@ -37,18 +37,25 @@ class EditorState {
   }
 
   // TODO: move to a better place.
-  void update(
-    Node node,
-    Attributes attributes,
-  ) {
+  void update(Node node, Attributes attributes) {
     _applyOperation(UpdateOperation(
-      path: node.path(),
-      attributes: attributes,
+      path: node.path,
+      attributes: Attributes.from(node.attributes)..addAll(attributes),
       oldAttributes: node.attributes,
     ));
   }
 
-  _applyOperation(Operation op) {
+  // TODO: move to a better place.
+  void delete(Node node) {
+    _applyOperation(
+      DeleteOperation(
+        path: node.path,
+        removedValue: node,
+      ),
+    );
+  }
+
+  void _applyOperation(Operation op) {
     if (op is InsertOperation) {
       document.insert(op.path, op.value);
     } else if (op is UpdateOperation) {

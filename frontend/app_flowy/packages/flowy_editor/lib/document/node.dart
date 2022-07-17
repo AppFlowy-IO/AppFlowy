@@ -12,11 +12,14 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   String? get subtype {
     // TODO: make 'subtype' as a const value.
     if (attributes.containsKey('subtype')) {
-      assert(attributes['subtype'] is String, 'subtype must be a [String]');
-      return attributes['subtype'] as String;
+      assert(attributes['subtype'] is String?,
+          'subtype must be a [String] or [null]');
+      return attributes['subtype'] as String?;
     }
     return null;
   }
+
+  Path get path => _path();
 
   Node({
     required this.type,
@@ -60,12 +63,16 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   }
 
   void updateAttributes(Attributes attributes) {
+    bool shouldNotifyParent =
+        this.attributes['subtype'] != attributes['subtype'];
+
     for (final attribute in attributes.entries) {
       this.attributes[attribute.key] = attribute.value;
     }
-
     // Notify the new attributes
-    notifyListeners();
+    // if attributes contains 'subtype', should notify parent to rebuild node
+    // else, just notify current node.
+    shouldNotifyParent ? parent?.notifyListeners() : notifyListeners();
   }
 
   Node? childAtIndex(int index) {
@@ -82,20 +89,6 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     }
 
     return childAtIndex(path.first)?.childAtPath(path.sublist(1));
-  }
-
-  Path path([Path previous = const []]) {
-    if (parent == null) {
-      return previous;
-    }
-    var index = 0;
-    for (var child in parent!.children) {
-      if (child == this) {
-        break;
-      }
-      index += 1;
-    }
-    return parent!.path([index, ...previous]);
   }
 
   @override
@@ -118,8 +111,10 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
 
   @override
   void unlink() {
-    parent = null;
     super.unlink();
+
+    parent?.notifyListeners();
+    parent = null;
   }
 
   Map<String, Object> toJson() {
@@ -133,5 +128,19 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
       map['attributes'] = attributes;
     }
     return map;
+  }
+
+  Path _path([Path previous = const []]) {
+    if (parent == null) {
+      return previous;
+    }
+    var index = 0;
+    for (var child in parent!.children) {
+      if (child == this) {
+        break;
+      }
+      index += 1;
+    }
+    return parent!._path([index, ...previous]);
   }
 }
