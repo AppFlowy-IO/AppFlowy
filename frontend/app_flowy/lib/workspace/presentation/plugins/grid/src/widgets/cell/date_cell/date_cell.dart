@@ -19,12 +19,12 @@ abstract class GridCellDelegate {
 }
 
 class DateCell extends GridCellWidget {
-  final GridCellContextBuilder cellContextBuilder;
+  final GridCellControllerBuilder cellControllerBuilder;
   late final DateCellStyle? cellStyle;
 
   DateCell({
     GridCellStyle? style,
-    required this.cellContextBuilder,
+    required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key) {
     if (style != null) {
@@ -43,7 +43,7 @@ class _DateCellState extends GridCellState<DateCell> {
 
   @override
   void initState() {
-    final cellContext = widget.cellContextBuilder.build();
+    final cellContext = widget.cellControllerBuilder.build();
     _cellBloc = getIt<DateCellBloc>(param1: cellContext)..add(const DateCellEvent.initial());
     super.initState();
   }
@@ -80,7 +80,7 @@ class _DateCellState extends GridCellState<DateCell> {
     final calendar = DateCellEditor(onDismissed: () => widget.onCellEditing.value = false);
     calendar.show(
       context,
-      cellContext: bloc.cellContext.clone(),
+      cellController: bloc.cellContext.clone(),
     );
   }
 

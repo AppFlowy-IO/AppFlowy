@@ -10,19 +10,25 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'row_action_sheet.dart';
 
+import 'row_action_sheet.dart';
 import 'row_detail.dart';
 
 class GridRowWidget extends StatefulWidget {
   final GridRow rowData;
-  final GridRowCacheService rowCache;
+  final GridRowCache rowCache;
+  final GridCellBuilder cellBuilder;
 
-  const GridRowWidget({
+  GridRowWidget({
     required this.rowData,
     required this.rowCache,
+    required GridFieldCache fieldCache,
     Key? key,
-  }) : super(key: key);
+  })  : cellBuilder = GridCellBuilder(
+          cellCache: rowCache.cellCache,
+          fieldCache: fieldCache,
+        ),
+        super(key: key);
 
   @override
   State<GridRowWidget> createState() => _GridRowWidgetState();
@@ -52,7 +58,11 @@ class _GridRowWidgetState extends State<GridRowWidget> {
             return Row(
               children: [
                 const _RowLeading(),
-                Expanded(child: _RowCells(cellCache: widget.rowCache.cellCache, onExpand: () => _expandRow(context))),
+                Expanded(
+                    child: _RowCells(
+                  builder: widget.cellBuilder,
+                  onExpand: () => _expandRow(context),
+                )),
                 const _RowTrailing(),
               ],
             );
@@ -72,6 +82,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
     final page = RowDetailPage(
       rowData: widget.rowData,
       rowCache: widget.rowCache,
+      cellBuilder: widget.cellBuilder,
     );
     page.show(context);
   }
@@ -146,9 +157,13 @@ class _DeleteRowButton extends StatelessWidget {
 }
 
 class _RowCells extends StatelessWidget {
-  final GridCellCacheService cellCache;
   final VoidCallback onExpand;
-  const _RowCells({required this.cellCache, required this.onExpand, Key? key}) : super(key: key);
+  final GridCellBuilder builder;
+  const _RowCells({
+    required this.builder,
+    required this.onExpand,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -168,13 +183,12 @@ class _RowCells extends StatelessWidget {
 
   List<Widget> _makeCells(BuildContext context, GridCellMap gridCellMap) {
     return gridCellMap.values.map(
-      (gridCell) {
-        final GridCellWidget child = buildGridCellWidget(gridCell, cellCache);
-
+      (cellId) {
+        final GridCellWidget child = builder.build(cellId);
         accessoryBuilder(GridCellAccessoryBuildContext buildContext) {
           final builder = child.accessoryBuilder;
           List<GridCellAccessory> accessories = [];
-          if (gridCell.field.isPrimary) {
+          if (cellId.field.isPrimary) {
             accessories.add(PrimaryCellAccessory(
               onTapCallback: onExpand,
               isCellEditing: buildContext.isCellEditing,
@@ -188,7 +202,7 @@ class _RowCells extends StatelessWidget {
         }
 
         return CellContainer(
-          width: gridCell.field.width.toDouble(),
+          width: cellId.field.width.toDouble(),
           child: child,
           rowStateNotifier: Provider.of<RegionStateNotifier>(context, listen: false),
           accessoryBuilder: accessoryBuilder,

@@ -7,7 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'block/block_service.dart';
+import 'block/block_cache.dart';
 import 'grid_service.dart';
 import 'row/row_service.dart';
 import 'dart:collection';
@@ -20,7 +20,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   final GridFieldCache fieldCache;
 
   // key: the block id
-  final LinkedHashMap<String, GridBlockCacheService> _blocks;
+  final LinkedHashMap<String, GridBlockCache> _blocks;
 
   List<GridRow> get rows {
     final List<GridRow> rows = [];
@@ -68,8 +68,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  GridRowCacheService? getRowCache(String blockId, String rowId) {
-    final GridBlockCacheService? blockCache = _blocks[blockId];
+  GridRowCache? getRowCache(String blockId, String rowId) {
+    final GridBlockCache? blockCache = _blocks[blockId];
     return blockCache?.rowCache;
   }
 
@@ -119,7 +119,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
         return;
       }
 
-      final cache = GridBlockCacheService(
+      final cache = GridBlockCache(
         gridId: gridId,
         block: block,
         fieldCache: fieldCache,

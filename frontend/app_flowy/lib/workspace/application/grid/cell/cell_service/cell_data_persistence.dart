@@ -1,25 +1,22 @@
 part of 'cell_service.dart';
 
-abstract class _GridCellDataPersistence<D> {
+/// Save the cell data to disk
+/// You can extend this class to do custom operations. For example, the DateCellDataPersistence.
+abstract class IGridCellDataPersistence<D> {
   Future<Option<FlowyError>> save(D data);
 }
 
-class CellDataPersistence implements _GridCellDataPersistence<String> {
-  final GridCell gridCell;
+class CellDataPersistence implements IGridCellDataPersistence<String> {
+  final GridCellIdentifier cellId;
 
   CellDataPersistence({
-    required this.gridCell,
+    required this.cellId,
   });
   final CellService _cellService = CellService();
 
   @override
   Future<Option<FlowyError>> save(String data) async {
-    final fut = _cellService.updateCell(
-      gridId: gridCell.gridId,
-      fieldId: gridCell.field.id,
-      rowId: gridCell.rowId,
-      data: data,
-    );
+    final fut = _cellService.updateCell(cellId: cellId, data: data);
 
     return fut.then((result) {
       return result.fold(
@@ -35,15 +32,15 @@ class CalendarData with _$CalendarData {
   const factory CalendarData({required DateTime date, String? time}) = _CalendarData;
 }
 
-class DateCellDataPersistence implements _GridCellDataPersistence<CalendarData> {
-  final GridCell gridCell;
+class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> {
+  final GridCellIdentifier cellId;
   DateCellDataPersistence({
-    required this.gridCell,
+    required this.cellId,
   });
 
   @override
   Future<Option<FlowyError>> save(CalendarData data) {
-    var payload = DateChangesetPayload.create()..cellIdentifier = _cellIdentifier(gridCell);
+    var payload = DateChangesetPayload.create()..cellIdentifier = _makeCellIdPayload(cellId);
 
     final date = (data.date.millisecondsSinceEpoch ~/ 1000).toString();
     payload.date = date;
@@ -61,9 +58,9 @@ class DateCellDataPersistence implements _GridCellDataPersistence<CalendarData> 
   }
 }
 
-CellIdentifierPayload _cellIdentifier(GridCell gridCell) {
+CellIdentifierPayload _makeCellIdPayload(GridCellIdentifier cellId) {
   return CellIdentifierPayload.create()
-    ..gridId = gridCell.gridId
-    ..fieldId = gridCell.field.id
-    ..rowId = gridCell.rowId;
+    ..gridId = cellId.gridId
+    ..fieldId = cellId.fieldId
+    ..rowId = cellId.rowId;
 }

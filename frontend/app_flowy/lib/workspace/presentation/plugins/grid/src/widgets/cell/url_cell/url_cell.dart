@@ -31,10 +31,10 @@ enum GridURLCellAccessoryType {
 }
 
 class GridURLCell extends GridCellWidget {
-  final GridCellContextBuilder cellContextBuilder;
+  final GridCellControllerBuilder cellContorllerBuilder;
   late final GridURLCellStyle? cellStyle;
   GridURLCell({
-    required this.cellContextBuilder,
+    required this.cellContorllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -51,11 +51,11 @@ class GridURLCell extends GridCellWidget {
   GridCellAccessory accessoryFromType(GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
     switch (ty) {
       case GridURLCellAccessoryType.edit:
-        final cellContext = cellContextBuilder.build() as GridURLCellContext;
+        final cellContext = cellContorllerBuilder.build() as GridURLCellController;
         return _EditURLAccessory(cellContext: cellContext, anchorContext: buildContext.anchorContext);
 
       case GridURLCellAccessoryType.copyURL:
-        final cellContext = cellContextBuilder.build() as GridURLCellContext;
+        final cellContext = cellContorllerBuilder.build() as GridURLCellController;
         return _CopyURLAccessory(cellContext: cellContext);
     }
   }
@@ -83,7 +83,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
 
   @override
   void initState() {
-    final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
+    final cellContext = widget.cellContorllerBuilder.build() as GridURLCellController;
     _cellBloc = URLCellBloc(cellContext: cellContext);
     _cellBloc.add(const URLCellEvent.initial());
     super.initState();
@@ -132,7 +132,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
     if (url.isNotEmpty && await canLaunchUrl(uri)) {
       await launchUrl(uri);
     } else {
-      final cellContext = widget.cellContextBuilder.build() as GridURLCellContext;
+      final cellContext = widget.cellContorllerBuilder.build() as GridURLCellController;
       widget.onCellEditing.value = true;
       URLCellEditor.show(context, cellContext, () {
         widget.onCellEditing.value = false;
@@ -155,7 +155,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
 }
 
 class _EditURLAccessory extends StatelessWidget with GridCellAccessory {
-  final GridURLCellContext cellContext;
+  final GridURLCellController cellContext;
   final BuildContext anchorContext;
   const _EditURLAccessory({
     required this.cellContext,
@@ -176,7 +176,7 @@ class _EditURLAccessory extends StatelessWidget with GridCellAccessory {
 }
 
 class _CopyURLAccessory extends StatelessWidget with GridCellAccessory {
-  final GridURLCellContext cellContext;
+  final GridURLCellController cellContext;
   const _CopyURLAccessory({required this.cellContext, Key? key}) : super(key: key);
 
   @override
@@ -187,7 +187,7 @@ class _CopyURLAccessory extends StatelessWidget with GridCellAccessory {
 
   @override
   void onTap() {
-    final content = cellContext.getCellData(loadIfNoCache: false)?.content ?? "";
+    final content = cellContext.getCellData(loadIfNotExist: false)?.content ?? "";
     Clipboard.setData(ClipboardData(text: content));
     showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
   }

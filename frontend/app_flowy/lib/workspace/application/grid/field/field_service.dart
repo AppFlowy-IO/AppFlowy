@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -9,6 +10,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
 part 'field_service.freezed.dart';
 
+/// FieldService consists of lots of event functions. We define the events in the backend(Rust),
+/// you can find the corresponding event implementation in event_map.rs of the corresponding crate.
+///
+/// You could check out the rust-lib/flowy-grid/event_map.rs for more information.
 class FieldService {
   final String gridId;
   final String fieldId;
@@ -137,7 +142,7 @@ class GridFieldCellContext with _$GridFieldCellContext {
   }) = _GridFieldCellContext;
 }
 
-abstract class IFieldContextLoader {
+abstract class IFieldTypeOptionLoader {
   String get gridId;
   Future<Either<FieldTypeOptionData, FlowyError>> load();
 
@@ -151,10 +156,10 @@ abstract class IFieldContextLoader {
   }
 }
 
-class NewFieldContextLoader extends IFieldContextLoader {
+class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
-  NewFieldContextLoader({
+  NewFieldTypeOptionLoader({
     required this.gridId,
   });
 
@@ -168,12 +173,12 @@ class NewFieldContextLoader extends IFieldContextLoader {
   }
 }
 
-class FieldContextLoader extends IFieldContextLoader {
+class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
   final Field field;
 
-  FieldContextLoader({
+  FieldTypeOptionLoader({
     required this.gridId,
     required this.field,
   });
@@ -189,16 +194,16 @@ class FieldContextLoader extends IFieldContextLoader {
   }
 }
 
-class GridFieldContext {
+class TypeOptionDataController {
   final String gridId;
-  final IFieldContextLoader _loader;
+  final IFieldTypeOptionLoader _loader;
 
   late FieldTypeOptionData _data;
-  ValueNotifier<Field>? _fieldNotifier;
+  final PublishNotifier<Field> _fieldNotifier = PublishNotifier();
 
-  GridFieldContext({
+  TypeOptionDataController({
     required this.gridId,
-    required IFieldContextLoader loader,
+    required IFieldTypeOptionLoader loader,
   }) : _loader = loader;
 
   Future<Either<Unit, FlowyError>> loadData() async {
@@ -207,13 +212,7 @@ class GridFieldContext {
       (data) {
         data.freeze();
         _data = data;
-
-        if (_fieldNotifier == null) {
-          _fieldNotifier = ValueNotifier(data.field_2);
-        } else {
-          _fieldNotifier?.value = data.field_2;
-        }
-
+        _fieldNotifier.value = data.field_2;
         return left(unit);
       },
       (err) {
@@ -256,9 +255,7 @@ class GridFieldContext {
       }
     });
 
-    if (_data.field_2 != _fieldNotifier?.value) {
-      _fieldNotifier?.value = _data.field_2;
-    }
+    _fieldNotifier.value = _data.field_2;
 
     FieldService.insertField(
       gridId: gridId,
@@ -288,11 +285,11 @@ class GridFieldContext {
       callback(field);
     }
 
-    _fieldNotifier?.addListener(listener);
+    _fieldNotifier.addListener(listener);
     return listener;
   }
 
   void removeFieldListener(void Function() listener) {
-    _fieldNotifier?.removeListener(listener);
+    _fieldNotifier.removeListener(listener);
   }
 }
