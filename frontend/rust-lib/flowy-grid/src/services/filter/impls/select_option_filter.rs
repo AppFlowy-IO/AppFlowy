@@ -2,8 +2,8 @@
 
 use crate::entities::{GridSelectOptionFilter, SelectOptionCondition};
 use crate::services::cell::{AnyCellData, CellFilterOperation};
-use crate::services::field::select_option::{SelectOptionOperation, SelectedSelectOptions};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
+use crate::services::field::{SelectOptionOperation, SelectedSelectOptions};
 use flowy_error::FlowyResult;
 
 impl GridSelectOptionFilter {
@@ -45,7 +45,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
             return Ok(true);
         }
 
-        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
+        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data.into()));
         Ok(filter.is_visible(&selected_options))
     }
 }
@@ -55,7 +55,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOption {
         if !any_cell_data.is_single_select() {
             return Ok(true);
         }
-        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
+        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data.into()));
         Ok(filter.is_visible(&selected_options))
     }
 }
@@ -64,7 +64,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOption {
 mod tests {
     #![allow(clippy::all)]
     use crate::entities::{GridSelectOptionFilter, SelectOptionCondition};
-    use crate::services::field::select_option::{SelectOption, SelectedSelectOptions};
+    use crate::services::field::selection_type_option::{SelectOption, SelectedSelectOptions};
 
     #[test]
     fn select_option_filter_is_test() {

@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
-use crate::services::field::select_option::{
+use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::field::{
     make_selected_select_options, SelectOption, SelectOptionCellChangeset, SelectOptionCellData, SelectOptionIds,
     SelectOptionOperation,
 };
@@ -24,8 +24,10 @@ pub struct SingleSelectTypeOption {
 impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
 
 impl SelectOptionOperation for SingleSelectTypeOption {
-    fn selected_select_option(&self, any_cell_data: AnyCellData) -> SelectOptionCellData {
-        let select_options = make_selected_select_options(any_cell_data, &self.options);
+    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellData {
+        let mut select_options = make_selected_select_options(cell_data, &self.options);
+        // only keep option in single select
+        select_options.truncate(1);
         SelectOptionCellData {
             options: self.options.clone(),
             select_options,
@@ -46,24 +48,13 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         &self,
         cell_data: CellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
         if !decoded_field_type.is_select_option() {
-            return Ok(DecodedCellData::default());
+            return Ok(CellBytes::default());
         }
 
-        let ids: SelectOptionIds = cell_data.try_into_inner()?;
-        let mut cell_data = SelectOptionCellData {
-            options: self.options.clone(),
-            select_options: vec![],
-        };
-        if let Some(option_id) = ids.first() {
-            if let Some(option) = self.options.iter().find(|option| &option.id == option_id) {
-                cell_data.select_options.push(option.clone());
-            }
-        }
-
-        DecodedCellData::try_from_bytes(cell_data)
+        self.display_data(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
@@ -111,7 +102,7 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-    use crate::services::field::select_option::*;
+
     use crate::services::field::type_options::*;
     use crate::services::field::FieldBuilder;
     use flowy_grid_data_model::revision::FieldRevision;
@@ -171,7 +162,7 @@ mod tests {
             type_option
                 .decode_cell_data(cell_data.into(), &field_type, field_rev)
                 .unwrap()
-                .parse::<SelectOptionCellData>()
+                .with_parser(SelectOptionCellDataParser())
                 .unwrap()
                 .select_options,
         );

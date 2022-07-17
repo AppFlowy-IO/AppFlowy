@@ -1,5 +1,5 @@
 use flowy_grid::entities::*;
-use flowy_grid::services::field::select_option::SelectOption;
+use flowy_grid::services::field::selection_type_option::SelectOption;
 use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::*;
 

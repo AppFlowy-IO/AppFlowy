@@ -1,9 +1,11 @@
 use crate::entities::FieldType;
+use crate::services::cell::{CellData, FromCellString};
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::CellRevision;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+
 /// AnyCellData is a generic CellData, you can parse the cell_data according to the field_type.
 /// When the type of field is changed, it's different from the field_type of AnyCellData.
 /// So it will return an empty data. You could check the CellDataOperation trait for more information.
@@ -43,6 +45,15 @@ impl std::convert::TryFrom<CellRevision> for AnyCellData {
 
     fn try_from(value: CellRevision) -> Result<Self, Self::Error> {
         Self::try_from(&value)
+    }
+}
+
+impl<T> std::convert::From<AnyCellData> for CellData<T>
+where
+    T: FromCellString,
+{
+    fn from(any_call_data: AnyCellData) -> Self {
+        CellData::from(any_call_data.data)
     }
 }
 
@@ -100,41 +111,58 @@ impl AnyCellData {
 /// * Use String to parse the data when the FieldType is RichText, Number, or Checkbox.
 /// * Check out the implementation of CellDataOperation trait for more information.
 #[derive(Default)]
-pub struct DecodedCellData {
-    pub data: Vec<u8>,
+pub struct CellBytes(pub Bytes);
+
+pub trait CellBytesParser {
+    type Object;
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object>;
 }
 
-impl DecodedCellData {
+impl CellBytes {
     pub fn new<T: AsRef<[u8]>>(data: T) -> Self {
-        Self {
-            data: data.as_ref().to_vec(),
-        }
+        let bytes = Bytes::from(data.as_ref().to_vec());
+        Self(bytes)
     }
 
-    pub fn try_from_bytes<T: TryInto<Bytes>>(bytes: T) -> FlowyResult<Self>
+    pub fn from<T: TryInto<Bytes>>(bytes: T) -> FlowyResult<Self>
     where
         <T as TryInto<Bytes>>::Error: std::fmt::Debug,
     {
         let bytes = bytes.try_into().map_err(internal_error)?;
-        Ok(Self { data: bytes.to_vec() })
+        Ok(Self(bytes))
     }
 
-    pub fn parse<'a, T: TryFrom<&'a [u8]>>(&'a self) -> FlowyResult<T>
+    pub fn with_parser<P>(&self, parser: P) -> FlowyResult<P::Object>
     where
-        <T as TryFrom<&'a [u8]>>::Error: std::fmt::Debug,
+        P: CellBytesParser,
     {
-        T::try_from(self.data.as_ref()).map_err(internal_error)
+        parser.parse(&self.0)
     }
+
+    // pub fn parse<'a, T: TryFrom<&'a [u8]>>(&'a self) -> FlowyResult<T>
+    // where
+    //     <T as TryFrom<&'a [u8]>>::Error: std::fmt::Debug,
+    // {
+    //     T::try_from(self.0.as_ref()).map_err(internal_error)
+    // }
 }
 
-impl ToString for DecodedCellData {
+impl ToString for CellBytes {
     fn to_string(&self) -> String {
-        match String::from_utf8(self.data.clone()) {
+        match String::from_utf8(self.0.to_vec()) {
             Ok(s) => s,
             Err(e) => {
                 tracing::error!("DecodedCellData to string failed: {:?}", e);
                 "".to_string()
             }
         }
+    }
+}
+
+impl std::ops::Deref for CellBytes {
+    type Target = Bytes;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }

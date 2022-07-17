@@ -1,8 +1,9 @@
 use crate::entities::{CellChangeset, CellIdentifier, CellIdentifierPayload, FieldType};
-use crate::services::cell::{AnyCellData, FromCellChangeset, FromCellString};
+use crate::services::cell::{CellBytes, CellBytesParser, CellData, CellDisplayable, FromCellChangeset, FromCellString};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
+use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_error::{internal_error, ErrorCode, FlowyError, FlowyResult};
+use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
 use nanoid::nanoid;
@@ -60,12 +61,11 @@ impl std::default::Default for SelectOptionColor {
     }
 }
 
-pub fn make_selected_select_options<T: TryInto<AnyCellData>>(
-    any_cell_data: T,
+pub fn make_selected_select_options(
+    cell_data: CellData<SelectOptionIds>,
     options: &[SelectOption],
 ) -> Vec<SelectOption> {
-    if let Ok(type_option_cell_data) = any_cell_data.try_into() {
-        let ids = SelectOptionIds::from(type_option_cell_data.data);
+    if let Ok(ids) = cell_data.try_into_inner() {
         ids.iter()
             .flat_map(|option_id| options.iter().find(|option| &option.id == option_id).cloned())
             .collect()
@@ -100,11 +100,25 @@ pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
         SelectOption::with_color(name, color)
     }
 
-    fn selected_select_option(&self, any_cell_data: AnyCellData) -> SelectOptionCellData;
+    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellData;
 
     fn options(&self) -> &Vec<SelectOption>;
 
     fn mut_options(&mut self) -> &mut Vec<SelectOption>;
+}
+
+impl<T> CellDisplayable<SelectOptionIds> for T
+where
+    T: SelectOptionOperation,
+{
+    fn display_data(
+        &self,
+        cell_data: CellData<SelectOptionIds>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
+        CellBytes::from(self.selected_select_option(cell_data))
+    }
 }
 
 pub fn select_option_operation(field_rev: &FieldRevision) -> FlowyResult<Box<dyn SelectOptionOperation>> {
@@ -147,14 +161,6 @@ impl SelectOptionIds {
     }
 }
 
-impl std::convert::TryFrom<AnyCellData> for SelectOptionIds {
-    type Error = FlowyError;
-
-    fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
-        Ok(Self::from(value.data))
-    }
-}
-
 impl FromCellString for SelectOptionIds {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
@@ -194,6 +200,25 @@ impl std::ops::Deref for SelectOptionIds {
 impl std::ops::DerefMut for SelectOptionIds {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+pub struct SelectOptionIdsParser();
+impl CellBytesParser for SelectOptionIdsParser {
+    type Object = SelectOptionIds;
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+        match String::from_utf8(bytes.to_vec()) {
+            Ok(s) => Ok(SelectOptionIds::from(s)),
+            Err(_) => Ok(SelectOptionIds::from("".to_owned())),
+        }
+    }
+}
+
+pub struct SelectOptionCellDataParser();
+impl CellBytesParser for SelectOptionCellDataParser {
+    type Object = SelectOptionCellData;
+
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+        SelectOptionCellData::try_from(bytes.as_ref()).map_err(internal_error)
     }
 }
 
