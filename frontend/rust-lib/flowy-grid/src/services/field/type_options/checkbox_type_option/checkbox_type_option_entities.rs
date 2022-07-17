@@ -6,7 +6,7 @@ use std::str::FromStr;
 pub const YES: &str = "Yes";
 pub const NO: &str = "No";
 
-pub struct CheckboxCellData(pub String);
+pub struct CheckboxCellData(String);
 
 impl CheckboxCellData {
     pub fn is_check(&self) -> bool {

@@ -28,6 +28,7 @@ impl CellFilterOperation<GridCheckboxFilter> for CheckboxTypeOption {
 mod tests {
     use crate::entities::{CheckboxCondition, GridCheckboxFilter};
     use crate::services::field::CheckboxCellData;
+    use std::str::FromStr;
 
     #[test]
     fn checkbox_filter_is_check_test() {
@@ -35,7 +36,7 @@ mod tests {
             condition: CheckboxCondition::IsChecked,
         };
         for (value, visible) in [("true", true), ("yes", true), ("false", false), ("no", false)] {
-            let data = CheckboxCellData(value.to_owned());
+            let data = CheckboxCellData::from_str(value).unwrap();
             assert_eq!(checkbox_filter.is_visible(&data), visible);
         }
     }
@@ -46,7 +47,7 @@ mod tests {
             condition: CheckboxCondition::IsUnChecked,
         };
         for (value, visible) in [("false", true), ("no", true), ("true", false), ("yes", false)] {
-            let data = CheckboxCellData(value.to_owned());
+            let data = CheckboxCellData::from_str(value).unwrap();
             assert_eq!(checkbox_filter.is_visible(&data), visible);
         }
     }

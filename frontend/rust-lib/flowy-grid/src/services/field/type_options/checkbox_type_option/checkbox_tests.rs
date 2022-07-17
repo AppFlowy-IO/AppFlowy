@@ -25,6 +25,6 @@ mod tests {
         assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), NO);
 
         let data = apply_cell_data_changeset("12", None, &field_rev).unwrap();
-        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), NO);
+        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), "");
     }
 }
