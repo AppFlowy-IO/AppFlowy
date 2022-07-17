@@ -10,33 +10,33 @@ pub struct GridBlock {
     pub id: String,
 
     #[pb(index = 2)]
-    pub row_infos: Vec<RowInfo>,
+    pub rows: Vec<Row>,
 }
 
 impl GridBlock {
-    pub fn new(block_id: &str, row_orders: Vec<RowInfo>) -> Self {
+    pub fn new(block_id: &str, rows: Vec<Row>) -> Self {
         Self {
             id: block_id.to_owned(),
-            row_infos: row_orders,
+            rows,
         }
     }
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RowInfo {
+pub struct Row {
     #[pb(index = 1)]
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub row_id: String,
+    pub id: String,
 
     #[pb(index = 3)]
     pub height: i32,
 }
 
-impl RowInfo {
+impl Row {
     pub fn row_id(&self) -> &str {
-        &self.row_id
+        &self.id
     }
 
     pub fn block_id(&self) -> &str {
@@ -44,33 +44,24 @@ impl RowInfo {
     }
 }
 
-impl std::convert::From<&RowRevision> for RowInfo {
+impl std::convert::From<&RowRevision> for Row {
     fn from(rev: &RowRevision) -> Self {
         Self {
             block_id: rev.block_id.clone(),
-            row_id: rev.id.clone(),
+            id: rev.id.clone(),
             height: rev.height,
         }
     }
 }
 
-impl std::convert::From<&Arc<RowRevision>> for RowInfo {
+impl std::convert::From<&Arc<RowRevision>> for Row {
     fn from(rev: &Arc<RowRevision>) -> Self {
         Self {
             block_id: rev.block_id.clone(),
-            row_id: rev.id.clone(),
+            id: rev.id.clone(),
             height: rev.height,
         }
     }
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct Row {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub height: i32,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -139,10 +130,10 @@ impl UpdatedRow {
     }
 }
 
-impl std::convert::From<RowInfo> for InsertedRow {
-    fn from(row_info: RowInfo) -> Self {
+impl std::convert::From<Row> for InsertedRow {
+    fn from(row_info: Row) -> Self {
         Self {
-            row_id: row_info.row_id,
+            row_id: row_info.id,
             block_id: row_info.block_id,
             height: row_info.height,
             index: None,
@@ -152,7 +143,7 @@ impl std::convert::From<RowInfo> for InsertedRow {
 
 impl std::convert::From<&RowRevision> for InsertedRow {
     fn from(row: &RowRevision) -> Self {
-        let row_order = RowInfo::from(row);
+        let row_order = Row::from(row);
         Self::from(row_order)
     }
 }

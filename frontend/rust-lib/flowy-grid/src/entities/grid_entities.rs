@@ -1,4 +1,4 @@
-use crate::entities::{FieldOrder, GridBlock};
+use crate::entities::{GridBlock, GridField};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -8,7 +8,7 @@ pub struct Grid {
     pub id: String,
 
     #[pb(index = 2)]
-    pub field_orders: Vec<FieldOrder>,
+    pub fields: Vec<GridField>,
 
     #[pb(index = 3)]
     pub blocks: Vec<GridBlock>,

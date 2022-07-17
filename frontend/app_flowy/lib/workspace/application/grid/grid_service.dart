@@ -32,7 +32,7 @@ class GridService {
     return GridEventCreateRow(payload).send();
   }
 
-  Future<Either<RepeatedField, FlowyError>> getFields({required List<FieldOrder> fieldOrders}) {
+  Future<Either<RepeatedField, FlowyError>> getFields({required List<GridField> fieldOrders}) {
     final payload = QueryFieldPayload.create()
       ..gridId = gridId
       ..fieldOrders = RepeatedFieldOrder(items: fieldOrders);
@@ -141,12 +141,12 @@ class GridFieldCache {
     }
   }
 
-  void _deleteFields(List<FieldOrder> deletedFields) {
+  void _deleteFields(List<GridField> deletedFields) {
     if (deletedFields.isEmpty) {
       return;
     }
     final List<Field> newFields = fields;
-    final Map<String, FieldOrder> deletedFieldMap = {
+    final Map<String, GridField> deletedFieldMap = {
       for (var fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
     };
 

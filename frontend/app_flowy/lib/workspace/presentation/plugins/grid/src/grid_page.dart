@@ -212,10 +212,10 @@ class _GridRowsState extends State<_GridRows> {
       builder: (context, state) {
         return SliverAnimatedList(
           key: _key,
-          initialItemCount: context.read<GridBloc>().state.rows.length,
+          initialItemCount: context.read<GridBloc>().state.rowInfos.length,
           itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-            final GridRow rowData = context.read<GridBloc>().state.rows[index];
-            return _renderRow(context, rowData, animation);
+            final GridRowInfo rowInfo = context.read<GridBloc>().state.rowInfos[index];
+            return _renderRow(context, rowInfo, animation);
           },
         );
       },
@@ -224,19 +224,19 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _renderRow(
     BuildContext context,
-    GridRow rowData,
+    GridRowInfo rowInfo,
     Animation<double> animation,
   ) {
-    final rowCache = context.read<GridBloc>().getRowCache(rowData.blockId, rowData.id);
+    final rowCache = context.read<GridBloc>().getRowCache(rowInfo.blockId, rowInfo.id);
     final fieldCache = context.read<GridBloc>().fieldCache;
     if (rowCache != null) {
       return SizeTransition(
         sizeFactor: animation,
         child: GridRowWidget(
-          rowData: rowData,
+          rowData: rowInfo,
           rowCache: rowCache,
           fieldCache: fieldCache,
-          key: ValueKey(rowData.id),
+          key: ValueKey(rowInfo.id),
         ),
       );
     } else {

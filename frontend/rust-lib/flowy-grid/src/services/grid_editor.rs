@@ -189,7 +189,7 @@ impl GridRevisionEditor {
 
     pub async fn delete_field(&self, field_id: &str) -> FlowyResult<()> {
         let _ = self.modify(|grid_pad| Ok(grid_pad.delete_field_rev(field_id)?)).await?;
-        let field_order = FieldOrder::from(field_id);
+        let field_order = GridField::from(field_id);
         let notified_changeset = GridFieldChangeset::delete(&self.grid_id, vec![field_order]);
         let _ = self.notify_did_update_grid(notified_changeset).await?;
         Ok(())
@@ -269,14 +269,14 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<RowInfo> {
+    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<Row> {
         let field_revs = self.grid_pad.read().await.get_field_revs(None)?;
         let block_id = self.block_id().await?;
 
         // insert empty row below the row whose id is upper_row_id
         let row_rev_ctx = CreateRowRevisionBuilder::new(&field_revs).build();
         let row_rev = make_row_rev_from_context(&block_id, row_rev_ctx);
-        let row_order = RowInfo::from(&row_rev);
+        let row_order = Row::from(&row_rev);
 
         // insert the row
         let row_count = self.block_manager.create_row(&block_id, row_rev, start_row_id).await?;
@@ -287,13 +287,13 @@ impl GridRevisionEditor {
         Ok(row_order)
     }
 
-    pub async fn insert_rows(&self, contexts: Vec<CreateRowRevisionPayload>) -> FlowyResult<Vec<RowInfo>> {
+    pub async fn insert_rows(&self, contexts: Vec<CreateRowRevisionPayload>) -> FlowyResult<Vec<Row>> {
         let block_id = self.block_id().await?;
         let mut rows_by_block_id: HashMap<String, Vec<RowRevision>> = HashMap::new();
         let mut row_orders = vec![];
         for ctx in contexts {
             let row_rev = make_row_rev_from_context(&block_id, ctx);
-            row_orders.push(RowInfo::from(&row_rev));
+            row_orders.push(Row::from(&row_rev));
             rows_by_block_id
                 .entry(block_id.clone())
                 .or_insert_with(Vec::new)
@@ -421,7 +421,7 @@ impl GridRevisionEditor {
         Ok(block_meta_revs)
     }
 
-    pub async fn delete_rows(&self, row_orders: Vec<RowInfo>) -> FlowyResult<()> {
+    pub async fn delete_rows(&self, row_orders: Vec<Row>) -> FlowyResult<()> {
         let changesets = self.block_manager.delete_rows(row_orders).await?;
         for changeset in changesets {
             let _ = self.update_block(changeset).await?;
@@ -434,21 +434,21 @@ impl GridRevisionEditor {
         let field_orders = pad_read_guard
             .get_field_revs(None)?
             .iter()
-            .map(FieldOrder::from)
+            .map(GridField::from)
             .collect();
         let mut block_orders = vec![];
         for block_rev in pad_read_guard.get_block_meta_revs() {
             let row_orders = self.block_manager.get_row_orders(&block_rev.block_id).await?;
             let block_order = GridBlock {
                 id: block_rev.block_id.clone(),
-                row_infos: row_orders,
+                rows: row_orders,
             };
             block_orders.push(block_order);
         }
 
         Ok(Grid {
             id: self.grid_id.clone(),
-            field_orders,
+            fields: field_orders,
             blocks: block_orders,
         })
     }
@@ -517,7 +517,7 @@ impl GridRevisionEditor {
             .modify(|grid_pad| Ok(grid_pad.move_field(field_id, from as usize, to as usize)?))
             .await?;
         if let Some((index, field_rev)) = self.grid_pad.read().await.get_field_rev(field_id) {
-            let delete_field_order = FieldOrder::from(field_id);
+            let delete_field_order = GridField::from(field_id);
             let insert_field = IndexField::from_field_rev(field_rev, index);
             let notified_changeset = GridFieldChangeset {
                 grid_id: self.grid_id.clone(),

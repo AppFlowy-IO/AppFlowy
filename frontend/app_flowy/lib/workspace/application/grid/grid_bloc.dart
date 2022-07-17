@@ -22,8 +22,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   // key: the block id
   final LinkedHashMap<String, GridBlockCache> _blocks;
 
-  List<GridRow> get rows {
-    final List<GridRow> rows = [];
+  List<GridRowInfo> get rowInfos {
+    final List<GridRowInfo> rows = [];
     for (var block in _blocks.values) {
       rows.addAll(block.rows);
     }
@@ -46,11 +46,11 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           createRow: () {
             _gridService.createRow();
           },
-          didReceiveRowUpdate: (rows, reason) {
-            emit(state.copyWith(rows: rows, reason: reason));
+          didReceiveRowUpdate: (newRowInfos, reason) {
+            emit(state.copyWith(rowInfos: newRowInfos, reason: reason));
           },
           didReceiveFieldUpdate: (fields) {
-            emit(state.copyWith(rows: rows, fields: GridFieldEquatable(fields)));
+            emit(state.copyWith(rowInfos: rowInfos, fields: GridFieldEquatable(fields)));
           },
         );
       },
@@ -94,7 +94,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   }
 
   Future<void> _loadFields(Grid grid, Emitter<GridState> emit) async {
-    final result = await _gridService.getFields(fieldOrders: grid.fieldOrders);
+    final result = await _gridService.getFields(fieldOrders: grid.fields);
     return Future(
       () => result.fold(
         (fields) {
@@ -103,7 +103,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           emit(state.copyWith(
             grid: Some(grid),
             fields: GridFieldEquatable(fieldCache.fields),
-            rows: rows,
+            rowInfos: rowInfos,
             loadingState: GridLoadingState.finish(left(unit)),
           ));
         },
@@ -127,7 +127,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
       cache.addListener(
         listenWhen: () => !isClosed,
-        onChangeReason: (reason) => add(GridEvent.didReceiveRowUpdate(rows, reason)),
+        onChangeReason: (reason) => add(GridEvent.didReceiveRowUpdate(rowInfos, reason)),
       );
 
       _blocks[block.id] = cache;
@@ -139,7 +139,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.didReceiveRowUpdate(List<GridRow> rows, GridRowChangeReason listState) = _DidReceiveRowUpdate;
+  const factory GridEvent.didReceiveRowUpdate(List<GridRowInfo> rows, GridRowChangeReason listState) =
+      _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
 }
 
@@ -149,14 +150,14 @@ class GridState with _$GridState {
     required String gridId,
     required Option<Grid> grid,
     required GridFieldEquatable fields,
-    required List<GridRow> rows,
+    required List<GridRowInfo> rowInfos,
     required GridLoadingState loadingState,
     required GridRowChangeReason reason,
   }) = _GridState;
 
   factory GridState.initial(String gridId) => GridState(
         fields: const GridFieldEquatable([]),
-        rows: [],
+        rowInfos: [],
         grid: none(),
         gridId: gridId,
         loadingState: const _Loading(),

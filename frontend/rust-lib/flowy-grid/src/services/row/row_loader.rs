@@ -1,4 +1,4 @@
-use crate::entities::{GridBlock, RepeatedGridBlock, Row, RowInfo};
+use crate::entities::{GridBlock, RepeatedGridBlock, Row};
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use std::collections::HashMap;
@@ -9,7 +9,7 @@ pub struct GridBlockSnapshot {
     pub row_revs: Vec<Arc<RowRevision>>,
 }
 
-pub(crate) fn block_from_row_orders(row_orders: Vec<RowInfo>) -> Vec<GridBlock> {
+pub(crate) fn block_from_row_orders(row_orders: Vec<Row>) -> Vec<GridBlock> {
     let mut map: HashMap<String, GridBlock> = HashMap::new();
     row_orders.into_iter().for_each(|row_info| {
         // Memory Optimization: escape clone block_id
@@ -17,7 +17,7 @@ pub(crate) fn block_from_row_orders(row_orders: Vec<RowInfo>) -> Vec<GridBlock> 
         let cloned_block_id = block_id.clone();
         map.entry(block_id)
             .or_insert_with(|| GridBlock::new(&cloned_block_id, vec![]))
-            .row_infos
+            .rows
             .push(row_info);
     });
     map.into_values().collect::<Vec<_>>()
@@ -35,8 +35,8 @@ pub(crate) fn block_from_row_orders(row_orders: Vec<RowInfo>) -> Vec<GridBlock> 
 //     Some((field_id, cell))
 // }
 
-pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowInfo> {
-    row_revs.iter().map(RowInfo::from).collect::<Vec<_>>()
+pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
+    row_revs.iter().map(Row::from).collect::<Vec<_>>()
 }
 
 pub(crate) fn make_row_from_row_rev(fields: &[Arc<FieldRevision>], row_rev: Arc<RowRevision>) -> Option<Row> {
@@ -58,6 +58,7 @@ pub(crate) fn make_rows_from_row_revs(_fields: &[Arc<FieldRevision>], row_revs: 
         //     .collect::<HashMap<String, Cell>>();
 
         Row {
+            block_id: row_rev.block_id.clone(),
             id: row_rev.id.clone(),
             height: row_rev.height,
         }

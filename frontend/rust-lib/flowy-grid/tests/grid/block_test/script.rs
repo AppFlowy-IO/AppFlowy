@@ -1,5 +1,5 @@
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::RowInfo;
+use flowy_grid::entities::Row;
 use flowy_grid::services::row::{CreateRowRevisionBuilder, CreateRowRevisionPayload};
 use flowy_grid_data_model::revision::{
     FieldRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
@@ -90,7 +90,7 @@ impl GridRowTest {
                 let row_orders = row_ids
                     .into_iter()
                     .map(|row_id| self.row_order_by_row_id.get(&row_id).unwrap().clone())
-                    .collect::<Vec<RowInfo>>();
+                    .collect::<Vec<Row>>();
 
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;

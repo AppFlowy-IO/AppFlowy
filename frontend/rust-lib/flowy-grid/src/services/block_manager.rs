@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{CellChangeset, GridBlockChangeset, InsertedRow, Row, RowInfo, UpdatedRow};
+use crate::entities::{CellChangeset, GridBlockChangeset, InsertedRow, Row, UpdatedRow};
 use crate::manager::GridUser;
 use crate::services::block_revision_editor::GridBlockRevisionEditor;
 use crate::services::persistence::block_index::BlockIndexCache;
@@ -138,7 +138,7 @@ impl GridBlockManager {
             Some(row_info) => {
                 let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
                 let _ = self
-                    .notify_did_update_block(&block_id, GridBlockChangeset::delete(&block_id, vec![row_info.row_id]))
+                    .notify_did_update_block(&block_id, GridBlockChangeset::delete(&block_id, vec![row_info.id]))
                     .await?;
             }
         }
@@ -146,15 +146,12 @@ impl GridBlockManager {
         Ok(())
     }
 
-    pub(crate) async fn delete_rows(
-        &self,
-        row_orders: Vec<RowInfo>,
-    ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
+    pub(crate) async fn delete_rows(&self, row_orders: Vec<Row>) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
         let mut changesets = vec![];
         for grid_block in block_from_row_orders(row_orders) {
             let editor = self.get_editor(&grid_block.id).await?;
             let row_ids = grid_block
-                .row_infos
+                .rows
                 .into_iter()
                 .map(|row_info| Cow::Owned(row_info.row_id().to_owned()))
                 .collect::<Vec<Cow<String>>>();
@@ -217,7 +214,7 @@ impl GridBlockManager {
         }
     }
 
-    pub async fn get_row_orders(&self, block_id: &str) -> FlowyResult<Vec<RowInfo>> {
+    pub async fn get_row_orders(&self, block_id: &str) -> FlowyResult<Vec<Row>> {
         let editor = self.get_editor(block_id).await?;
         editor.get_row_infos::<&str>(None).await
     }

@@ -21,12 +21,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
-  final GridRow rowData;
+  final GridRowInfo rowInfo;
   final GridRowCache rowCache;
   final GridCellBuilder cellBuilder;
 
   const RowDetailPage({
-    required this.rowData,
+    required this.rowInfo,
     required this.rowCache,
     required this.cellBuilder,
     Key? key,
@@ -62,7 +62,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final bloc = RowDetailBloc(rowData: widget.rowData, rowCache: widget.rowCache);
+        final bloc = RowDetailBloc(rowInfo: widget.rowInfo, rowCache: widget.rowCache);
         bloc.add(const RowDetailEvent.initial());
         return bloc;
       },

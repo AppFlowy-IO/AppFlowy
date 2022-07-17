@@ -57,24 +57,24 @@ impl std::convert::From<Arc<FieldRevision>> for Field {
     }
 }
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldOrder {
+pub struct GridField {
     #[pb(index = 1)]
     pub field_id: String,
 }
 
-impl std::convert::From<&str> for FieldOrder {
+impl std::convert::From<&str> for GridField {
     fn from(s: &str) -> Self {
-        FieldOrder { field_id: s.to_owned() }
+        GridField { field_id: s.to_owned() }
     }
 }
 
-impl std::convert::From<String> for FieldOrder {
+impl std::convert::From<String> for GridField {
     fn from(s: String) -> Self {
-        FieldOrder { field_id: s }
+        GridField { field_id: s }
     }
 }
 
-impl std::convert::From<&Arc<FieldRevision>> for FieldOrder {
+impl std::convert::From<&Arc<FieldRevision>> for GridField {
     fn from(field_rev: &Arc<FieldRevision>) -> Self {
         Self {
             field_id: field_rev.id.clone(),
@@ -90,7 +90,7 @@ pub struct GridFieldChangeset {
     pub inserted_fields: Vec<IndexField>,
 
     #[pb(index = 3)]
-    pub deleted_fields: Vec<FieldOrder>,
+    pub deleted_fields: Vec<GridField>,
 
     #[pb(index = 4)]
     pub updated_fields: Vec<Field>,
@@ -106,7 +106,7 @@ impl GridFieldChangeset {
         }
     }
 
-    pub fn delete(grid_id: &str, deleted_fields: Vec<FieldOrder>) -> Self {
+    pub fn delete(grid_id: &str, deleted_fields: Vec<GridField>) -> Self {
         Self {
             grid_id: grid_id.to_string(),
             inserted_fields: vec![],
@@ -259,18 +259,18 @@ impl std::convert::From<Vec<Field>> for RepeatedField {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct RepeatedFieldOrder {
     #[pb(index = 1)]
-    pub items: Vec<FieldOrder>,
+    pub items: Vec<GridField>,
 }
 
 impl std::ops::Deref for RepeatedFieldOrder {
-    type Target = Vec<FieldOrder>;
+    type Target = Vec<GridField>;
     fn deref(&self) -> &Self::Target {
         &self.items
     }
 }
 
-impl std::convert::From<Vec<FieldOrder>> for RepeatedFieldOrder {
-    fn from(field_orders: Vec<FieldOrder>) -> Self {
+impl std::convert::From<Vec<GridField>> for RepeatedFieldOrder {
+    fn from(field_orders: Vec<GridField>) -> Self {
         RepeatedFieldOrder { items: field_orders }
     }
 }
@@ -278,7 +278,7 @@ impl std::convert::From<Vec<FieldOrder>> for RepeatedFieldOrder {
 impl std::convert::From<String> for RepeatedFieldOrder {
     fn from(s: String) -> Self {
         RepeatedFieldOrder {
-            items: vec![FieldOrder::from(s)],
+            items: vec![GridField::from(s)],
         }
     }
 }

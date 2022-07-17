@@ -13,7 +13,7 @@ class GridBlockCache {
   late GridRowCache _rowCache;
   late GridBlockListener _listener;
 
-  List<GridRow> get rows => _rowCache.rows;
+  List<GridRowInfo> get rows => _rowCache.rows;
   GridRowCache get rowCache => _rowCache;
 
   GridBlockCache({
