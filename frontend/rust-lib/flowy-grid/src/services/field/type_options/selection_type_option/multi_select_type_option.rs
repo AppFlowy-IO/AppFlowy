@@ -3,8 +3,8 @@ use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{
-    make_selected_select_options, BoxTypeOptionBuilder, SelectOption, SelectOptionCellChangeset, SelectOptionCellData,
-    SelectOptionIds, SelectOptionOperation, TypeOptionBuilder, SELECTION_IDS_SEPARATOR,
+    make_selected_select_options, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB,
+    SelectOptionIds, SelectOptionOperation, SelectOptionPB, TypeOptionBuilder, SELECTION_IDS_SEPARATOR,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -16,7 +16,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct MultiSelectTypeOption {
     #[pb(index = 1)]
-    pub options: Vec<SelectOption>,
+    pub options: Vec<SelectOptionPB>,
 
     #[pb(index = 2)]
     pub disable_color: bool,
@@ -24,19 +24,19 @@ pub struct MultiSelectTypeOption {
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
 impl SelectOptionOperation for MultiSelectTypeOption {
-    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellData {
+    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
         let select_options = make_selected_select_options(cell_data, &self.options);
-        SelectOptionCellData {
+        SelectOptionCellDataPB {
             options: self.options.clone(),
             select_options,
         }
     }
 
-    fn options(&self) -> &Vec<SelectOption> {
+    fn options(&self) -> &Vec<SelectOptionPB> {
         &self.options
     }
 
-    fn mut_options(&mut self) -> &mut Vec<SelectOption> {
+    fn mut_options(&mut self) -> &mut Vec<SelectOptionPB> {
         &mut self.options
     }
 }
@@ -97,7 +97,7 @@ pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOption);
 impl_into_box_type_option_builder!(MultiSelectTypeOptionBuilder);
 impl_builder_from_json_str_and_from_bytes!(MultiSelectTypeOptionBuilder, MultiSelectTypeOption);
 impl MultiSelectTypeOptionBuilder {
-    pub fn option(mut self, opt: SelectOption) -> Self {
+    pub fn option(mut self, opt: SelectOptionPB) -> Self {
         self.0.options.push(opt);
         self
     }
@@ -123,9 +123,9 @@ mod tests {
 
     #[test]
     fn multi_select_test() {
-        let google_option = SelectOption::new("Google");
-        let facebook_option = SelectOption::new("Facebook");
-        let twitter_option = SelectOption::new("Twitter");
+        let google_option = SelectOptionPB::new("Google");
+        let facebook_option = SelectOptionPB::new("Facebook");
+        let twitter_option = SelectOptionPB::new("Twitter");
         let multi_select = MultiSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone())
@@ -172,7 +172,7 @@ mod tests {
         cell_data: String,
         type_option: &MultiSelectTypeOption,
         field_rev: &FieldRevision,
-        expected: Vec<SelectOption>,
+        expected: Vec<SelectOptionPB>,
     ) {
         let field_type: FieldType = field_rev.field_type_rev.into();
         assert_eq!(

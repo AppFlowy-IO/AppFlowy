@@ -3,7 +3,7 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
-use flowy_grid::entities::{CreateGridFilterPayload, GridLayoutType, GridSetting};
+use flowy_grid::entities::{CreateGridFilterPayloadPB, GridLayoutType, GridSettingPB};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
 use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
@@ -15,7 +15,7 @@ pub enum FilterScript {
         params: GridSettingChangesetParams,
     },
     InsertGridTableFilter {
-        payload: CreateGridFilterPayload,
+        payload: CreateGridFilterPayloadPB,
     },
     AssertTableFilterCount {
         count: i32,
@@ -26,7 +26,7 @@ pub enum FilterScript {
     },
     #[allow(dead_code)]
     AssertGridSetting {
-        expected_setting: GridSetting,
+        expected_setting: GridSettingPB,
     },
 }
 

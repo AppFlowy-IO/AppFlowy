@@ -2,8 +2,8 @@ use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::{
-    make_selected_select_options, SelectOption, SelectOptionCellChangeset, SelectOptionCellData, SelectOptionIds,
-    SelectOptionOperation,
+    make_selected_select_options, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds,
+    SelectOptionOperation, SelectOptionPB,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -14,36 +14,36 @@ use serde::{Deserialize, Serialize};
 
 // Single select
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct SingleSelectTypeOption {
+pub struct SingleSelectTypeOptionPB {
     #[pb(index = 1)]
-    pub options: Vec<SelectOption>,
+    pub options: Vec<SelectOptionPB>,
 
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_type_option!(SingleSelectTypeOption, FieldType::SingleSelect);
+impl_type_option!(SingleSelectTypeOptionPB, FieldType::SingleSelect);
 
-impl SelectOptionOperation for SingleSelectTypeOption {
-    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellData {
+impl SelectOptionOperation for SingleSelectTypeOptionPB {
+    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
         let mut select_options = make_selected_select_options(cell_data, &self.options);
         // only keep option in single select
         select_options.truncate(1);
-        SelectOptionCellData {
+        SelectOptionCellDataPB {
             options: self.options.clone(),
             select_options,
         }
     }
 
-    fn options(&self) -> &Vec<SelectOption> {
+    fn options(&self) -> &Vec<SelectOptionPB> {
         &self.options
     }
 
-    fn mut_options(&mut self) -> &mut Vec<SelectOption> {
+    fn mut_options(&mut self) -> &mut Vec<SelectOptionPB> {
         &mut self.options
     }
 }
 
-impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSelectTypeOption {
+impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSelectTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<SelectOptionIds>,
@@ -77,12 +77,12 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
 }
 
 #[derive(Default)]
-pub struct SingleSelectTypeOptionBuilder(SingleSelectTypeOption);
+pub struct SingleSelectTypeOptionBuilder(SingleSelectTypeOptionPB);
 impl_into_box_type_option_builder!(SingleSelectTypeOptionBuilder);
-impl_builder_from_json_str_and_from_bytes!(SingleSelectTypeOptionBuilder, SingleSelectTypeOption);
+impl_builder_from_json_str_and_from_bytes!(SingleSelectTypeOptionBuilder, SingleSelectTypeOptionPB);
 
 impl SingleSelectTypeOptionBuilder {
-    pub fn option(mut self, opt: SelectOption) -> Self {
+    pub fn option(mut self, opt: SelectOptionPB) -> Self {
         self.0.options.push(opt);
         self
     }
@@ -109,9 +109,9 @@ mod tests {
 
     #[test]
     fn single_select_test() {
-        let google_option = SelectOption::new("Google");
-        let facebook_option = SelectOption::new("Facebook");
-        let twitter_option = SelectOption::new("Twitter");
+        let google_option = SelectOptionPB::new("Google");
+        let facebook_option = SelectOptionPB::new("Facebook");
+        let twitter_option = SelectOptionPB::new("Twitter");
         let single_select = SingleSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone())
@@ -122,7 +122,7 @@ mod tests {
             .visibility(true)
             .build();
 
-        let type_option = SingleSelectTypeOption::from(&field_rev);
+        let type_option = SingleSelectTypeOptionPB::from(&field_rev);
 
         let option_ids = vec![google_option.id.clone(), facebook_option.id].join(SELECTION_IDS_SEPARATOR);
         let data = SelectOptionCellChangeset::from_insert(&option_ids).to_str();
@@ -152,9 +152,9 @@ mod tests {
 
     fn assert_single_select_options(
         cell_data: String,
-        type_option: &SingleSelectTypeOption,
+        type_option: &SingleSelectTypeOptionPB,
         field_rev: &FieldRevision,
-        expected: Vec<SelectOption>,
+        expected: Vec<SelectOptionPB>,
     ) {
         let field_type: FieldType = field_rev.field_type_rev.into();
         assert_eq!(

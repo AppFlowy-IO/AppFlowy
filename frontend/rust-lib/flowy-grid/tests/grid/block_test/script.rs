@@ -2,7 +2,7 @@ use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
 
-use flowy_grid::entities::{CellIdentifier, FieldType, Row};
+use flowy_grid::entities::{CellIdentifier, FieldType, GridRowPB};
 use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
@@ -97,7 +97,7 @@ impl GridRowTest {
                 let row_orders = row_ids
                     .into_iter()
                     .map(|row_id| self.row_order_by_row_id.get(&row_id).unwrap().clone())
-                    .collect::<Vec<Row>>();
+                    .collect::<Vec<GridRowPB>>();
 
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;
@@ -289,7 +289,7 @@ impl<'a> CreateRowScriptBuilder<'a> {
 
     pub fn insert_single_select_cell<F>(&mut self, f: F, expected: &str)
     where
-        F: Fn(Vec<SelectOption>) -> SelectOption,
+        F: Fn(Vec<SelectOptionPB>) -> SelectOptionPB,
     {
         let field_id = self.builder.insert_single_select_cell(f);
         self.output_by_field_type.insert(
@@ -303,7 +303,7 @@ impl<'a> CreateRowScriptBuilder<'a> {
 
     pub fn insert_multi_select_cell<F>(&mut self, f: F, expected: &str)
     where
-        F: Fn(Vec<SelectOption>) -> Vec<SelectOption>,
+        F: Fn(Vec<SelectOptionPB>) -> Vec<SelectOptionPB>,
     {
         let field_id = self.builder.insert_multi_select_cell(f);
         self.output_by_field_type.insert(

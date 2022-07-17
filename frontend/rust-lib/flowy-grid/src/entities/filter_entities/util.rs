@@ -17,7 +17,7 @@ pub struct GridFilter {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGridFilter {
+pub struct RepeatedGridFilterPB {
     #[pb(index = 1)]
     pub items: Vec<GridFilter>,
 }
@@ -28,22 +28,22 @@ impl std::convert::From<&GridFilterRevision> for GridFilter {
     }
 }
 
-impl std::convert::From<Vec<Arc<GridFilterRevision>>> for RepeatedGridFilter {
+impl std::convert::From<Vec<Arc<GridFilterRevision>>> for RepeatedGridFilterPB {
     fn from(revs: Vec<Arc<GridFilterRevision>>) -> Self {
-        RepeatedGridFilter {
+        RepeatedGridFilterPB {
             items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }
 
-impl std::convert::From<Vec<GridFilter>> for RepeatedGridFilter {
+impl std::convert::From<Vec<GridFilter>> for RepeatedGridFilterPB {
     fn from(items: Vec<GridFilter>) -> Self {
         Self { items }
     }
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct DeleteFilterPayload {
+pub struct DeleteFilterPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -54,7 +54,7 @@ pub struct DeleteFilterPayload {
     pub field_type: FieldType,
 }
 
-impl TryInto<DeleteFilterParams> for DeleteFilterPayload {
+impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<DeleteFilterParams, Self::Error> {
@@ -73,7 +73,7 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayload {
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct CreateGridFilterPayload {
+pub struct CreateGridFilterPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -87,7 +87,7 @@ pub struct CreateGridFilterPayload {
     pub content: Option<String>,
 }
 
-impl CreateGridFilterPayload {
+impl CreateGridFilterPayloadPB {
     #[allow(dead_code)]
     pub fn new<T: Into<i32>>(field_rev: &FieldRevision, condition: T, content: Option<String>) -> Self {
         Self {
@@ -99,7 +99,7 @@ impl CreateGridFilterPayload {
     }
 }
 
-impl TryInto<CreateGridFilterParams> for CreateGridFilterPayload {
+impl TryInto<CreateGridFilterParams> for CreateGridFilterPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateGridFilterParams, Self::Error> {

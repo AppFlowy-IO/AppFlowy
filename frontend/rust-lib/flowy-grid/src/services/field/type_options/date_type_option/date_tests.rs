@@ -14,7 +14,7 @@ mod tests {
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_changeset_result(
             &type_option,
-            DateCellChangeset {
+            DateCellChangesetPB {
                 date: Some("1e".to_string()),
                 time: Some("23:00".to_owned()),
             },
@@ -60,7 +60,7 @@ mod tests {
                 TimeFormat::TwentyFourHour => {
                     assert_changeset_result(
                         &type_option,
-                        DateCellChangeset {
+                        DateCellChangesetPB {
                             date: Some(1653609600.to_string()),
                             time: None,
                         },
@@ -70,7 +70,7 @@ mod tests {
                     );
                     assert_changeset_result(
                         &type_option,
-                        DateCellChangeset {
+                        DateCellChangesetPB {
                             date: Some(1653609600.to_string()),
                             time: Some("23:00".to_owned()),
                         },
@@ -82,7 +82,7 @@ mod tests {
                 TimeFormat::TwelveHour => {
                     assert_changeset_result(
                         &type_option,
-                        DateCellChangeset {
+                        DateCellChangesetPB {
                             date: Some(1653609600.to_string()),
                             time: None,
                         },
@@ -93,7 +93,7 @@ mod tests {
                     //
                     assert_changeset_result(
                         &type_option,
-                        DateCellChangeset {
+                        DateCellChangesetPB {
                             date: Some(1653609600.to_string()),
                             time: Some("".to_owned()),
                         },
@@ -104,7 +104,7 @@ mod tests {
 
                     assert_changeset_result(
                         &type_option,
-                        DateCellChangeset {
+                        DateCellChangesetPB {
                             date: Some(1653609600.to_string()),
                             time: Some("11:23 pm".to_owned()),
                         },
@@ -126,7 +126,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellChangeset {
+            DateCellChangesetPB {
                 date: Some(date_timestamp.clone()),
                 time: None,
             },
@@ -138,7 +138,7 @@ mod tests {
         type_option.include_time = true;
         assert_changeset_result(
             &type_option,
-            DateCellChangeset {
+            DateCellChangesetPB {
                 date: Some(date_timestamp.clone()),
                 time: None,
             },
@@ -149,7 +149,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellChangeset {
+            DateCellChangesetPB {
                 date: Some(date_timestamp.clone()),
                 time: Some("1:00".to_owned()),
             },
@@ -161,7 +161,7 @@ mod tests {
         type_option.time_format = TimeFormat::TwelveHour;
         assert_changeset_result(
             &type_option,
-            DateCellChangeset {
+            DateCellChangesetPB {
                 date: Some(date_timestamp),
                 time: Some("1:00 am".to_owned()),
             },
@@ -181,7 +181,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellChangeset {
+            DateCellChangesetPB {
                 date: Some(date_timestamp.clone()),
                 time: Some("1:".to_owned()),
             },
@@ -192,7 +192,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellChangeset {
+            DateCellChangesetPB {
                 date: Some(date_timestamp),
                 time: Some("1:00".to_owned()),
             },
@@ -212,7 +212,7 @@ mod tests {
 
         assert_changeset_result(
             &type_option,
-            DateCellChangeset {
+            DateCellChangesetPB {
                 date: Some(date_timestamp),
                 time: Some("1:00 am".to_owned()),
             },
@@ -224,7 +224,7 @@ mod tests {
 
     fn assert_changeset_result(
         type_option: &DateTypeOption,
-        changeset: DateCellChangeset,
+        changeset: DateCellChangesetPB,
         _field_type: &FieldType,
         field_rev: &FieldRevision,
         expected: &str,
@@ -243,7 +243,7 @@ mod tests {
         field_rev: &FieldRevision,
         expected: &str,
     ) {
-        let s = serde_json::to_string(&DateCellChangeset {
+        let s = serde_json::to_string(&DateCellChangesetPB {
             date: Some(timestamp.to_string()),
             time: None,
         })

@@ -2,7 +2,7 @@ use flowy_grid::entities::FieldType;
 use std::sync::Arc;
 
 use flowy_grid::services::field::{
-    DateCellChangeset, MultiSelectTypeOption, SelectOption, SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
+    DateCellChangesetPB, MultiSelectTypeOption, SelectOptionPB, SingleSelectTypeOptionPB, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
@@ -44,7 +44,7 @@ impl<'a> GridRowTestBuilder<'a> {
     }
 
     pub fn insert_date_cell(&mut self, data: &str) -> String {
-        let value = serde_json::to_string(&DateCellChangeset {
+        let value = serde_json::to_string(&DateCellChangesetPB {
             date: Some(data.to_string()),
             time: None,
         })
@@ -71,10 +71,10 @@ impl<'a> GridRowTestBuilder<'a> {
 
     pub fn insert_single_select_cell<F>(&mut self, f: F) -> String
     where
-        F: Fn(Vec<SelectOption>) -> SelectOption,
+        F: Fn(Vec<SelectOptionPB>) -> SelectOptionPB,
     {
         let single_select_field = self.field_rev_with_type(&FieldType::SingleSelect);
-        let type_option = SingleSelectTypeOption::from(&single_select_field);
+        let type_option = SingleSelectTypeOptionPB::from(&single_select_field);
         let option = f(type_option.options);
         self.inner_builder
             .insert_select_option_cell(&single_select_field.id, option.id)
@@ -85,7 +85,7 @@ impl<'a> GridRowTestBuilder<'a> {
 
     pub fn insert_multi_select_cell<F>(&mut self, f: F) -> String
     where
-        F: Fn(Vec<SelectOption>) -> Vec<SelectOption>,
+        F: Fn(Vec<SelectOptionPB>) -> Vec<SelectOptionPB>,
     {
         let multi_select_field = self.field_rev_with_type(&FieldType::MultiSelect);
         let type_option = MultiSelectTypeOption::from(&multi_select_field);

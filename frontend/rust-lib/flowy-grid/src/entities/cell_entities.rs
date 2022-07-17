@@ -1,4 +1,4 @@
-use crate::entities::{FieldIdentifier, FieldIdentifierPayload};
+use crate::entities::{FieldIdentifier, FieldIdentifierPayloadPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -8,7 +8,7 @@ use std::collections::HashMap;
 #[derive(ProtoBuf, Default)]
 pub struct CreateSelectOptionPayload {
     #[pb(index = 1)]
-    pub field_identifier: FieldIdentifierPayload,
+    pub field_identifier: FieldIdentifierPayloadPB,
 
     #[pb(index = 2)]
     pub option_name: String,
