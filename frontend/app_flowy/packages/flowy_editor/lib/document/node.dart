@@ -159,12 +159,21 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
 }
 
 class TextNode extends Node {
-  final Delta delta;
+  Delta _delta;
 
   TextNode({
     required super.type,
     required super.children,
     required super.attributes,
-    required this.delta,
-  });
+    required Delta delta,
+  }) : _delta = delta;
+
+  Delta get delta {
+    return _delta;
+  }
+
+  set delta(Delta v) {
+    _delta = v;
+    notifyListeners();
+  }
 }

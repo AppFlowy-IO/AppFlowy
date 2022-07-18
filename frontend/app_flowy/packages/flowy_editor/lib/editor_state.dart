@@ -36,25 +36,6 @@ class EditorState {
     }
   }
 
-  // TODO: move to a better place.
-  void update(Node node, Attributes attributes) {
-    _applyOperation(UpdateOperation(
-      path: node.path,
-      attributes: Attributes.from(node.attributes)..addAll(attributes),
-      oldAttributes: node.attributes,
-    ));
-  }
-
-  // TODO: move to a better place.
-  void delete(Node node) {
-    _applyOperation(
-      DeleteOperation(
-        path: node.path,
-        removedValue: node,
-      ),
-    );
-  }
-
   void _applyOperation(Operation op) {
     if (op is InsertOperation) {
       document.insert(op.path, op.value);
@@ -62,6 +43,8 @@ class EditorState {
       document.update(op.path, op.attributes);
     } else if (op is DeleteOperation) {
       document.delete(op.path);
+    } else if (op is TextEditOperation) {
+      document.textEdit(op.path, op.delta);
     }
   }
 }

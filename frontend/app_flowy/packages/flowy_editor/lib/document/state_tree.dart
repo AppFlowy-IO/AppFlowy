@@ -1,5 +1,6 @@
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/path.dart';
+import 'package:flowy_editor/document/text_delta.dart';
 import './attributes.dart';
 
 class StateTree {
@@ -33,6 +34,18 @@ class StateTree {
     }
     insertedNode.insertAfter(node);
     return true;
+  }
+
+  bool textEdit(Path path, Delta delta) {
+    if (path.isEmpty) {
+      return false;
+    }
+    var node = root.childAtPath(path);
+    if (node == null || node is! TextNode) {
+      return false;
+    }
+    node.delta = node.delta.compose(delta);
+    return false;
   }
 
   Node? delete(Path path) {

@@ -2,6 +2,7 @@ import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flutter/services.dart';
 import 'package:flowy_editor/document/attributes.dart';
 
@@ -187,7 +188,6 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   @override
   void updateEditingValue(TextEditingValue value) {
     debugPrint(value.text);
-    editorState.update(node, {'content': value.text});
   }
 
   @override
