@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 
+import 'package:flowy_editor/document/attributes.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import './attributes.dart';
@@ -8,7 +9,7 @@ import './attributes.dart';
 // constant number: 2^53 - 1
 const int _maxInt = 9007199254740991;
 
-class TextOperation {
+abstract class TextOperation {
   bool get isEmpty {
     return length == 0;
   }
@@ -20,6 +21,8 @@ class TextOperation {
   Attributes? get attributes {
     return null;
   }
+
+  Map<String, dynamic> toJson();
 }
 
 class TextInsert extends TextOperation {
@@ -53,6 +56,18 @@ class TextInsert extends TextOperation {
     final attrs = _attributes;
     return Object.hash(
         contentHash, attrs == null ? null : hashAttributes(attrs));
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    final result = <String, dynamic>{
+      'insert': content,
+    };
+    final attrs = _attributes;
+    if (attrs != null) {
+      result['attributes'] = {...attrs};
+    }
+    return result;
   }
 }
 
@@ -96,6 +111,18 @@ class TextRetain extends TextOperation {
     final attrs = _attributes;
     return Object.hash(_length, attrs == null ? null : hashAttributes(attrs));
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    final result = <String, dynamic>{
+      'retain': _length,
+    };
+    final attrs = _attributes;
+    if (attrs != null) {
+      result['attributes'] = {...attrs};
+    }
+    return result;
+  }
 }
 
 class TextDelete extends TextOperation {
@@ -128,6 +155,13 @@ class TextDelete extends TextOperation {
   @override
   int get hashCode {
     return _length.hashCode;
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      'delete': _length,
+    };
   }
 }
 
@@ -215,28 +249,17 @@ class _OpIterator {
   }
 }
 
-Attributes? _attributesFromJSON(Map<String, dynamic>? json) {
-  if (json == null) {
-    return null;
-  }
-  final result = <String, dynamic>{};
-
-  for (final entry in json.entries) {
-    result[entry.key] = entry.value;
-  }
-
-  return result;
-}
-
 TextOperation? _textOperationFromJson(Map<String, dynamic> json) {
   TextOperation? result;
 
   if (json['insert'] is String) {
-    result = TextInsert(json['insert'] as String,
-        _attributesFromJSON(json['attributes'] as Map<String, dynamic>?));
+    final attrs = json['attributes'] as Map<String, dynamic>?;
+    result =
+        TextInsert(json['insert'] as String, attrs == null ? null : {...attrs});
   } else if (json['retain'] is int) {
-    result = TextRetain(json['retain'] as int,
-        _attributesFromJSON(json['attributes'] as Map<String, Object>?));
+    final attrs = json['attributes'] as Map<String, dynamic>?;
+    result =
+        TextRetain(json['retain'] as int, attrs == null ? null : {...attrs});
   } else if (json['delete'] is int) {
     result = TextDelete(json['delete'] as int);
   }
@@ -458,5 +481,9 @@ class Delta {
       return previousValue;
     });
     return inverted.chop();
+  }
+
+  List<dynamic> toJson() {
+    return operations.map((e) => e.toJson()).toList();
   }
 }

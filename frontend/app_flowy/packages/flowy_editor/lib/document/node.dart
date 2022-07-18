@@ -176,4 +176,11 @@ class TextNode extends Node {
     _delta = v;
     notifyListeners();
   }
+
+  @override
+  Map<String, Object> toJson() {
+    final map = super.toJson();
+    map['delta'] = _delta.toJson();
+    return map;
+  }
 }
