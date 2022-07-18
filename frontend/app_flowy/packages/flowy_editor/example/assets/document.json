@@ -1,9 +1,7 @@
 {
     "document": {
-      "type": "text",
-      "attributes": {
-        "content": "TITLE"
-      },
+      "type": "editor",
+      "attributes": {},
       "children": [
         {
           "type": "text",

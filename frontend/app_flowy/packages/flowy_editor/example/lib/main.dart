@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:example/plugin/document_node_widget.dart';
 import 'package:example/plugin/image_node_widget.dart';
 import 'package:example/plugin/text_node_widget.dart';
 import 'package:example/plugin/text_with_check_box_node_widget.dart';
@@ -56,23 +57,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final RenderPlugins renderPlugins = RenderPlugins();
+  late EditorState _editorState;
   @override
   void initState() {
     super.initState();
 
     renderPlugins
-      ..register(
-        'text',
-        TextNodeBuilder.create,
-      )
-      ..register(
-        'image',
-        ImageNodeBuilder.create,
-      )
-      ..register(
-        'text/with-checkbox',
-        TextWithCheckBoxNodeBuilder.create,
-      );
+      ..register('editor', EditorNodeWidgetBuilder.create)
+      ..register('text', TextNodeBuilder.create)
+      ..register('image', ImageNodeBuilder.create)
+      ..register('text/with-checkbox', TextWithCheckBoxNodeBuilder.create);
   }
 
   @override
@@ -83,37 +77,23 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FutureBuilder<String>(
-            future: rootBundle.loadString('assets/document.json'),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                final data =
-                    Map<String, Object>.from(json.decode(snapshot.data!));
-                final document = StateTree.fromJson(data);
-                print(document.root.toString());
-                final editorState = EditorState(
-                  document: document,
-                  renderPlugins: renderPlugins,
-                );
-                return editorState.build(context);
-              }
-            },
-          ),
-          SizedBox(
-            height: 50,
-            width: MediaQuery.of(context).size.width,
-            child: Container(
-              color: Colors.red,
-            ),
-          )
-        ],
+      body: FutureBuilder<String>(
+        future: rootBundle.loadString('assets/document.json'),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else {
+            final data = Map<String, Object>.from(json.decode(snapshot.data!));
+            final document = StateTree.fromJson(data);
+            _editorState = EditorState(
+              document: document,
+              renderPlugins: renderPlugins,
+            );
+            return _editorState.build(context);
+          }
+        },
       ),
     );
   }
