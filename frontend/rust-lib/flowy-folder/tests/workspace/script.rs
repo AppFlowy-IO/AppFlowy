@@ -17,7 +17,7 @@ use flowy_folder::{errors::ErrorCode, services::folder_editor::FolderEditor};
 
 use flowy_revision::disk::RevisionState;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
-use flowy_sync::entities::text_block::TextBlockInfo;
+use flowy_sync::entities::text_block::TextBlockInfoPB;
 use flowy_test::{event_builder::*, FlowySDKTest};
 use std::{sync::Arc, time::Duration};
 use tokio::time::sleep;
@@ -399,14 +399,14 @@ pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
 }
 
 #[allow(dead_code)]
-pub async fn set_latest_view(sdk: &FlowySDKTest, view_id: &str) -> TextBlockInfo {
+pub async fn set_latest_view(sdk: &FlowySDKTest, view_id: &str) -> TextBlockInfoPB {
     let view_id: ViewId = view_id.into();
     FolderEventBuilder::new(sdk.clone())
         .event(SetLatestView)
         .payload(view_id)
         .async_send()
         .await
-        .parse::<TextBlockInfo>()
+        .parse::<TextBlockInfoPB>()
 }
 
 pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrash {

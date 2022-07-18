@@ -160,7 +160,7 @@ class DocumentShareButton extends StatelessWidget {
     );
   }
 
-  void _handleExportData(ExportData exportData) {
+  void _handleExportData(ExportDataPB exportData) {
     switch (exportData.exportType) {
       case ExportType.Link:
         break;

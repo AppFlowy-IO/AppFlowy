@@ -17,7 +17,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::revision::{gen_view_id, ViewRevision};
-use flowy_sync::entities::text_block::TextBlockId;
+use flowy_sync::entities::text_block::TextBlockIdPB;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -177,7 +177,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn delete_view(&self, params: TextBlockId) -> Result<(), FlowyError> {
+    pub(crate) async fn delete_view(&self, params: TextBlockIdPB) -> Result<(), FlowyError> {
         if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
             if view_id == params.value {
                 let _ = KV::remove(LATEST_VIEW_ID);

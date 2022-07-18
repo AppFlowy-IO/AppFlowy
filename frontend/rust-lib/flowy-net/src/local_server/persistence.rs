@@ -1,5 +1,5 @@
 use flowy_sync::{
-    entities::{folder::FolderInfo, text_block::TextBlockInfo},
+    entities::{folder::FolderInfo, text_block::TextBlockInfoPB},
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
     server_document::*,
@@ -111,7 +111,7 @@ impl FolderCloudPersistence for LocalTextBlockCloudPersistence {
 }
 
 impl TextBlockCloudPersistence for LocalTextBlockCloudPersistence {
-    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<TextBlockInfo, CollaborateError> {
+    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<TextBlockInfoPB, CollaborateError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
@@ -127,7 +127,7 @@ impl TextBlockCloudPersistence for LocalTextBlockCloudPersistence {
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<Option<TextBlockInfo>, CollaborateError> {
+    ) -> BoxResultFuture<Option<TextBlockInfoPB>, CollaborateError> {
         let doc_id = doc_id.to_owned();
         let storage = self.storage.clone();
         Box::pin(async move {

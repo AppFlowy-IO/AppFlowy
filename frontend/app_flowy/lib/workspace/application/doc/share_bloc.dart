@@ -33,7 +33,7 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
     });
   }
 
-  ExportData _convertDeltaToMarkdown(ExportData value) {
+  ExportDataPB _convertDeltaToMarkdown(ExportDataPB value) {
     final result = deltaToMarkdown(value.data);
     value.data = result;
     writeFile(result);
@@ -73,5 +73,5 @@ class DocShareEvent with _$DocShareEvent {
 class DocShareState with _$DocShareState {
   const factory DocShareState.initial() = _Initial;
   const factory DocShareState.loading() = _Loading;
-  const factory DocShareState.finish(Either<ExportData, FlowyError> successOrFail) = _Finish;
+  const factory DocShareState.finish(Either<ExportDataPB, FlowyError> successOrFail) = _Finish;
 }

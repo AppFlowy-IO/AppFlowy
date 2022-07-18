@@ -7,7 +7,7 @@ use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::{RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket};
 use flowy_sync::entities::{
     revision::{md5, RepeatedRevision, Revision},
-    text_block::{TextBlockDelta, TextBlockId},
+    text_block::{TextBlockDeltaPB, TextBlockIdPB},
     ws_data::ServerRevisionWSData,
 };
 use lib_infra::future::FutureResult;
@@ -71,11 +71,11 @@ impl TextBlockManager {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), fields(doc_id = %delta.block_id), err)]
-    pub async fn receive_local_delta(&self, delta: TextBlockDelta) -> Result<TextBlockDelta, FlowyError> {
+    pub async fn receive_local_delta(&self, delta: TextBlockDeltaPB) -> Result<TextBlockDeltaPB, FlowyError> {
         let editor = self.get_block_editor(&delta.block_id).await?;
         let _ = editor.compose_local_delta(Bytes::from(delta.delta_str)).await?;
         let document_json = editor.delta_str().await?;
-        Ok(TextBlockDelta {
+        Ok(TextBlockDeltaPB {
             block_id: delta.block_id.clone(),
             delta_str: document_json,
         })
@@ -153,7 +153,7 @@ struct TextBlockRevisionCloudService {
 impl RevisionCloudService for TextBlockRevisionCloudService {
     #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
-        let params: TextBlockId = object_id.to_string().into();
+        let params: TextBlockIdPB = object_id.to_string().into();
         let server = self.server.clone();
         let token = self.token.clone();
         let user_id = user_id.to_string();

@@ -6,7 +6,7 @@ use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_sync::{
     client_document::default::initial_quill_delta_string,
     entities::{
-        text_block::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo},
+        text_block::{CreateTextBlockParams, ResetTextBlockParams, TextBlockIdPB, TextBlockInfoPB},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
@@ -419,8 +419,8 @@ impl BlockCloudService for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_block(&self, _token: &str, params: TextBlockId) -> FutureResult<Option<TextBlockInfo>, FlowyError> {
-        let doc = TextBlockInfo {
+    fn read_block(&self, _token: &str, params: TextBlockIdPB) -> FutureResult<Option<TextBlockInfoPB>, FlowyError> {
+        let doc = TextBlockInfoPB {
             block_id: params.value,
             text: initial_quill_delta_string(),
             rev_id: 0,
