@@ -4,8 +4,6 @@ BLUE="\e[34m"
 RED="\e[31m"
 ENDCOLOR="\e[0m"
 
-# Note: This script does not install applications which are installed by the package manager. There are too many package managers out there.
-
 # Install rust on Linux
 echo -e "${BLUE}AppFlowy : The Rust programming language is required to compile AppFlowy.${ENDCOLOR}"
 echo -e "${BLUE}AppFlowy : We can install it now if you don't already have it on your system.${ENDCOLOR}"
@@ -14,13 +12,15 @@ read -p "${BLUE}AppFlowy : Do you want to install Rust? [y/N]${ENDCOLOR} " insta
 
 if [ ${installrust^^} == "Y" ]; then
    echo -e "${BLUE}AppFlowy : Installing Rust.${ENDCOLOR}"
-   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-   source $HOME/.cargo/env
-   rustup toolchain install stable
-   rustup default stable
+   brew 'rustup-init'
+   rustup-init -y --default-toolchain=stable
 else
    echo -e "${BLUE}AppFlowy : Skipping Rust installation.${ENDCOLOR}"
 fi
+
+# Install sqllite
+echo -e "${BLUE}AppFlowy : Installing SqlLite3.${ENDCOLOR}"
+brew 'sqlite3' 
 
 # Enable the flutter stable channel
 echo -e "${BLUE}AppFlowy : Checking Flutter installation.${ENDCOLOR}"
