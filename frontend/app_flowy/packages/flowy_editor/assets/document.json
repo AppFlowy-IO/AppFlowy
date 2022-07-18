@@ -4,18 +4,21 @@
     "children": [
       {
         "type": "text",
+        "delta": [],
         "attributes": {
           "subtype": "with-heading"
         }
       },
       {
         "type": "text", 
+        "delta": [],
         "attributes": {
           "tag": "*"
         },
         "children": [
           {
             "type": "text",
+            "delta": [],
             "attributes": {
               "text-type": "heading2",
               "check": true
@@ -23,6 +26,7 @@
           },
           {
             "type": "text",
+            "delta": [],
             "attributes": {
               "text-type": "checkbox",
               "check": true
@@ -30,6 +34,7 @@
           },
           {
             "type": "text",
+            "delta": [],
             "attributes": {
               "tag": "**"
             }
