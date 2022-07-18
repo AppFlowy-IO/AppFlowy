@@ -10,17 +10,11 @@ import './attributes.dart';
 const int _maxInt = 9007199254740991;
 
 abstract class TextOperation {
-  bool get isEmpty {
-    return length == 0;
-  }
+  bool get isEmpty => length == 0;
 
-  int get length {
-    return 0;
-  }
+  int get length;
 
-  Attributes? get attributes {
-    return null;
-  }
+  Attributes? get attributes => null;
 
   Map<String, dynamic> toJson();
 }
@@ -129,11 +123,6 @@ class TextDelete extends TextOperation {
   int _length;
 
   TextDelete(int length) : _length = length;
-
-  @override
-  bool get isEmpty {
-    return length == 0;
-  }
 
   @override
   int get length {
