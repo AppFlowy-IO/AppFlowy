@@ -2,13 +2,10 @@ use crate::{
     entities::{
         folder::{FolderDelta, FolderInfo},
         revision::{RepeatedRevision, Revision},
-        text_block::TextBlockInfo,
+        text_block::TextBlockInfoPB,
     },
     errors::{CollaborateError, CollaborateResult},
-    protobuf::{
-        FolderInfo as FolderInfoPB, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB,
-        TextBlockInfo as TextBlockInfoPB,
-    },
+    protobuf::{FolderInfo as FolderInfoPB, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
 };
 use dissimilar::Chunk;
 use lib_ot::core::{DeltaBuilder, FlowyStr};
@@ -202,11 +199,11 @@ pub fn make_folder_pb_from_revisions_pb(
 pub fn make_document_info_from_revisions_pb(
     doc_id: &str,
     revisions: RepeatedRevisionPB,
-) -> Result<Option<TextBlockInfo>, CollaborateError> {
+) -> Result<Option<TextBlockInfoPB>, CollaborateError> {
     match make_document_info_pb_from_revisions_pb(doc_id, revisions)? {
         None => Ok(None),
         Some(pb) => {
-            let document_info: TextBlockInfo = pb.try_into().map_err(|e| {
+            let document_info: TextBlockInfoPB = pb.try_into().map_err(|e| {
                 CollaborateError::internal().context(format!("Deserialize document info from pb failed: {}", e))
             })?;
             Ok(Some(document_info))
@@ -218,7 +215,7 @@ pub fn make_document_info_from_revisions_pb(
 pub fn make_document_info_pb_from_revisions_pb(
     doc_id: &str,
     mut revisions: RepeatedRevisionPB,
-) -> Result<Option<TextBlockInfoPB>, CollaborateError> {
+) -> Result<Option<crate::protobuf::TextBlockInfoPB>, CollaborateError> {
     let revisions = revisions.take_items();
     if revisions.is_empty() {
         return Ok(None);
@@ -240,7 +237,7 @@ pub fn make_document_info_pb_from_revisions_pb(
     }
 
     let text = document_delta.to_delta_str();
-    let mut block_info = TextBlockInfoPB::new();
+    let mut block_info = crate::protobuf::TextBlockInfoPB::new();
     block_info.set_block_id(doc_id.to_owned());
     block_info.set_text(text);
     block_info.set_base_rev_id(base_rev_id);

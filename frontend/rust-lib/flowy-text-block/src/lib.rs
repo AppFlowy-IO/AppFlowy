@@ -15,13 +15,13 @@ pub mod errors {
 pub const TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
 
 use crate::errors::FlowyError;
-use flowy_sync::entities::text_block::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo};
+use flowy_sync::entities::text_block::{CreateTextBlockParams, ResetTextBlockParams, TextBlockIdPB, TextBlockInfoPB};
 use lib_infra::future::FutureResult;
 
 pub trait BlockCloudService: Send + Sync {
     fn create_block(&self, token: &str, params: CreateTextBlockParams) -> FutureResult<(), FlowyError>;
 
-    fn read_block(&self, token: &str, params: TextBlockId) -> FutureResult<Option<TextBlockInfo>, FlowyError>;
+    fn read_block(&self, token: &str, params: TextBlockIdPB) -> FutureResult<Option<TextBlockInfoPB>, FlowyError>;
 
     fn update_block(&self, token: &str, params: ResetTextBlockParams) -> FutureResult<(), FlowyError>;
 }
