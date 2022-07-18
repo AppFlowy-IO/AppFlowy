@@ -52,6 +52,7 @@ class GridCellControllerBuilder {
         final cellDataLoader = GridCellDataLoader(
           cellId: _cellId,
           parser: StringCellDataParser(),
+          reloadOnFieldChanged: true,
         );
         return GridCellController(
           cellId: _cellId,
@@ -170,16 +171,13 @@ class IGridCellController<T, D> extends Equatable {
     }
     isListening = true;
 
-    /// The cell data will be changed by two reasons:
-    /// 1. User edit the cell
-    /// 2. User edit the field
-    ///   For example: The number cell reload the cell data that carries the format
-    ///   user input: 12
-    ///   cell display: $12
     _cellDataNotifier = ValueNotifier(_cellsCache.get(_cacheKey));
     _cellListener = CellListener(rowId: cellId.rowId, fieldId: cellId.field.id);
 
     /// 1.Listen on user edit event and load the new cell data if needed.
+    /// For example:
+    ///  user input: 12
+    ///  cell display: $12
     _cellListener.start(onCellChanged: (result) {
       result.fold(
         (_) => _loadData(),
@@ -193,6 +191,9 @@ class IGridCellController<T, D> extends Equatable {
         onCellFieldChanged();
       }
 
+      /// reloadOnFieldChanged should be true if you need to load the data when the corresponding field is changed
+      /// For example:
+      ///   ￥12 -> $12
       if (_cellDataLoader.reloadOnFieldChanged) {
         _loadData();
       }
