@@ -1,4 +1,3 @@
-import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 
