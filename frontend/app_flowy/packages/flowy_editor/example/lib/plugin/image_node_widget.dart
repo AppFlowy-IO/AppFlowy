@@ -1,7 +1,5 @@
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flowy_editor/document/attributes.dart';
 
 class ImageNodeBuilder extends NodeWidgetBuilder {
   ImageNodeBuilder.create({
@@ -33,12 +31,7 @@ class _ImageNodeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      child: ChangeNotifierProvider.value(
-        value: node,
-        builder: (_, __) => Consumer<Node>(
-          builder: ((context, value, child) => _build(context)),
-        ),
-      ),
+      child: _build(context),
       onTap: () {
         editorState.update(node, {
           'image_src':

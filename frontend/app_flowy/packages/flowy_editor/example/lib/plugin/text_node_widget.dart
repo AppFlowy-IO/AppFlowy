@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:flowy_editor/document/attributes.dart';
 
 class TextNodeBuilder extends NodeWidgetBuilder {
@@ -56,47 +55,40 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: node,
-      builder: (_, __) => Consumer<Node>(
-        builder: ((context, value, child) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SelectableText.rich(
-                TextSpan(
-                  text: content,
-                  style: node.attributes.toTextStyle(),
-                ),
-                onTap: () {
-                  _textInputConnection?.close();
-                  _textInputConnection = TextInput.attach(
-                    this,
-                    const TextInputConfiguration(
-                      enableDeltaModel: false,
-                      inputType: TextInputType.multiline,
-                      textCapitalization: TextCapitalization.sentences,
-                    ),
-                  );
-                  _textInputConnection
-                    ?..show()
-                    ..setEditingState(textEditingValue);
-                },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SelectableText.rich(
+          TextSpan(
+            text: content,
+            style: node.attributes.toTextStyle(),
+          ),
+          onTap: () {
+            _textInputConnection?.close();
+            _textInputConnection = TextInput.attach(
+              this,
+              const TextInputConfiguration(
+                enableDeltaModel: false,
+                inputType: TextInputType.multiline,
+                textCapitalization: TextCapitalization.sentences,
               ),
-              if (node.children.isNotEmpty)
-                ...node.children.map(
-                  (e) => editorState.renderPlugins.buildWidget(
-                    context: NodeWidgetContext(
-                      buildContext: context,
-                      node: e,
-                      editorState: editorState,
-                    ),
-                  ),
-                )
-            ],
-          );
-        }),
-      ),
+            );
+            _textInputConnection
+              ?..show()
+              ..setEditingState(textEditingValue);
+          },
+        ),
+        if (node.children.isNotEmpty)
+          ...node.children.map(
+            (e) => editorState.renderPlugins.buildWidget(
+              context: NodeWidgetContext(
+                buildContext: context,
+                node: e,
+                editorState: editorState,
+              ),
+            ),
+          )
+      ],
     );
   }
 
