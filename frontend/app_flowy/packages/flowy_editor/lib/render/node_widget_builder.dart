@@ -2,12 +2,15 @@ import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/render/render_plugins.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 typedef NodeValidator<T extends Node> = bool Function(T node);
 
 class NodeWidgetBuilder<T extends Node> {
   final EditorState editorState;
   final T node;
+
+  bool rebuildOnNodeChanged;
   NodeValidator<T>? nodeValidator;
 
   RenderPlugins get renderPlugins => editorState.renderPlugins;
@@ -15,6 +18,7 @@ class NodeWidgetBuilder<T extends Node> {
   NodeWidgetBuilder.create({
     required this.editorState,
     required this.node,
+    this.rebuildOnNodeChanged = true,
   });
 
   /// Render the current [Node]
@@ -29,6 +33,23 @@ class NodeWidgetBuilder<T extends Node> {
       throw Exception(
           'Node validate failure, node = { type: ${node.type}, attributes: ${node.attributes} }');
     }
-    return build(buildContext);
+
+    if (rebuildOnNodeChanged) {
+      return _buildNodeChangeNotifier(buildContext);
+    } else {
+      return build(buildContext);
+    }
+  }
+
+  Widget _buildNodeChangeNotifier(BuildContext buildContext) {
+    return ChangeNotifierProvider.value(
+      value: node,
+      builder: (_, __) => Consumer<T>(
+        builder: ((context, value, child) {
+          debugPrint('Node changed, and rebuilding...');
+          return build(context);
+        }),
+      ),
+    );
   }
 }
