@@ -27,7 +27,7 @@ class TransactionBuilder {
   TransactionBuilder(this.state);
 
   commit() {
-    final transaction = finish();
+    final transaction = _finish();
     state.apply(transaction);
   }
 
@@ -61,7 +61,7 @@ class TransactionBuilder {
         .add(TextEditOperation(path: path, delta: delta, inverted: inverted));
   }
 
-  Transaction finish() {
+  Transaction _finish() {
     return Transaction(
       operations: UnmodifiableListView(operations),
       cursorSelection: cursorSelection,
