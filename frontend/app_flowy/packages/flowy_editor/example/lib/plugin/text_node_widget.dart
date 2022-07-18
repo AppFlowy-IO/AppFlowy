@@ -132,7 +132,6 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   @override
   void updateEditingValue(TextEditingValue value) {
     debugPrint(value.text);
-    editorState.update(node, {'content': value.text});
   }
 
   @override

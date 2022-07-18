@@ -67,14 +67,16 @@ class DeleteOperation extends Operation {
 class TextEditOperation extends Operation {
   final Path path;
   final Delta delta;
+  final Delta inverted;
 
   TextEditOperation({
     required this.path,
     required this.delta,
+    required this.inverted,
   });
 
   @override
   Operation invert() {
-    return TextEditOperation(path: path, delta: delta);
+    return TextEditOperation(path: path, delta: inverted, inverted: delta);
   }
 }
