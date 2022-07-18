@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'package:flowy_editor/document/path.dart';
+import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flutter/material.dart';
 import './attributes.dart';
 
@@ -49,11 +50,23 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
       );
     }
 
-    final node = Node(
-      type: jType,
-      children: children,
-      attributes: jAttributes,
-    );
+    Node node;
+
+    if (jType == "text") {
+      final jDelta = json['delta'] as List<dynamic>?;
+      final delta = jDelta == null ? Delta() : Delta.fromJson(jDelta);
+      node = TextNode(
+          type: jType,
+          children: children,
+          attributes: jAttributes,
+          delta: delta);
+    } else {
+      node = Node(
+        type: jType,
+        children: children,
+        attributes: jAttributes,
+      );
+    }
 
     for (final child in children) {
       child.parent = node;
@@ -143,4 +156,15 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     }
     return parent!._path([index, ...previous]);
   }
+}
+
+class TextNode extends Node {
+  final Delta delta;
+
+  TextNode({
+    required super.type,
+    required super.children,
+    required super.attributes,
+    required this.delta,
+  });
 }

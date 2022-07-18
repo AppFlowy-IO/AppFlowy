@@ -5,39 +5,46 @@
       "children": [
         {
           "type": "text",
+          "delta": [
+            { "insert": "With " },
+            { "insert": "AppFlowy", "attributes": { "href": "https://www.appflowy.io/" } },
+            { "insert": ", you can build detailed lists of to-do’s for different projects while tracking the status of each one" }
+          ],
           "attributes": {
             "subtype": "with-checkbox",
             "font-size": 30,
-            "content": "aaaaaaaaaaaaaaaaaaaaaaaa",
             "checkbox": false
           }
         },
         {
           "type": "text",
+          "delta": [
+            { "insert": "You can " },
+            { "insert": "host", "attributes": { "italic": true } },
+            { "insert": " " },
+            { "insert": "AppFlowy", "attributes": { "bold": true } },
+            { "insert": " " },
+            { "insert": "wherever you want", "attributes": { "underline": true }},
+            { "insert": "; no vendor lock-in." }
+          ],
           "attributes": {
             "subtype": "with-checkbox",
             "text-type": "heading1",
             "font-size": 30,
-            "content": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
             "checkbox": false
           }
         },
         {
           "type": "text",
+          "delta": [{ "insert": "Design and modify AppFlowy your way with an open core codebase." }],
           "attributes": {
             "text-type": "heading1",
-            "font-size": 30,
-            "content": "cccccccccccccccccccccc"
-          }
-        },
-        {
-          "type": "image",
-          "attributes": {
-            "image_src": "https://images.pexels.com/photos/12499889/pexels-photo-12499889.jpeg?fm=jpg&w=640&h=427"
+            "font-size": 30
           }
         },
         {
           "type": "text",
+          "delta": [{ "insert": "AppFlowy is built with Flutter and Rust. What does this mean? Faster development, better native experience, and more reliable performance." }],
           "attributes": {
             "text-type": "heading1",
             "font-size": 30,

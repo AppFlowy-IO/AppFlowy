@@ -60,10 +60,8 @@ class TextRetain extends TextOperation {
   int _length;
   final Attributes? _attributes;
 
-  TextRetain({
-    required length,
-    attributes,
-  })  : _length = length,
+  TextRetain(length, [Attributes? attributes])
+      : _length = length,
         _attributes = attributes;
 
   @override
@@ -103,9 +101,7 @@ class TextRetain extends TextOperation {
 class TextDelete extends TextOperation {
   int _length;
 
-  TextDelete({
-    required int length,
-  }) : _length = length;
+  TextDelete(int length) : _length = length;
 
   @override
   bool get isEmpty {
@@ -167,7 +163,7 @@ class _OpIterator {
     length ??= _maxInt;
 
     if (_index >= _operations.length) {
-      return TextRetain(length: _maxInt);
+      return TextRetain(_maxInt);
     }
 
     final nextOp = _operations[_index];
@@ -182,15 +178,13 @@ class _OpIterator {
       _offset += length;
     }
     if (nextOp is TextDelete) {
-      return TextDelete(
-        length: length,
-      );
+      return TextDelete(length);
     }
 
     if (nextOp is TextRetain) {
       return TextRetain(
-        length: length,
-        attributes: nextOp.attributes,
+        length,
+        nextOp.attributes,
       );
     }
 
@@ -201,7 +195,7 @@ class _OpIterator {
       );
     }
 
-    return TextRetain(length: _maxInt);
+    return TextRetain(_maxInt);
   }
 
   List<TextOperation> rest() {
@@ -221,9 +215,51 @@ class _OpIterator {
   }
 }
 
+Attributes? _attributesFromJSON(Map<String, dynamic>? json) {
+  if (json == null) {
+    return null;
+  }
+  final result = <String, dynamic>{};
+
+  for (final entry in json.entries) {
+    result[entry.key] = entry.value;
+  }
+
+  return result;
+}
+
+TextOperation? _textOperationFromJson(Map<String, dynamic> json) {
+  TextOperation? result;
+
+  if (json['insert'] is String) {
+    result = TextInsert(json['insert'] as String,
+        _attributesFromJSON(json['attributes'] as Map<String, dynamic>?));
+  } else if (json['retain'] is int) {
+    result = TextRetain(json['retain'] as int,
+        _attributesFromJSON(json['attributes'] as Map<String, Object>?));
+  } else if (json['delete'] is int) {
+    result = TextDelete(json['delete'] as int);
+  }
+
+  return result;
+}
+
 // basically copy from: https://github.com/quilljs/delta
 class Delta {
   final List<TextOperation> operations;
+
+  factory Delta.fromJson(List<dynamic> list) {
+    final operations = <TextOperation>[];
+
+    for (final obj in list) {
+      final op = _textOperationFromJson(obj as Map<String, dynamic>);
+      if (op != null) {
+        operations.add(op);
+      }
+    }
+
+    return Delta(operations);
+  }
 
   Delta([List<TextOperation>? ops]) : operations = ops ?? <TextOperation>[];
 
@@ -288,12 +324,12 @@ class Delta {
   }
 
   Delta retain(int length, [Attributes? attributes]) {
-    final op = TextRetain(length: length, attributes: attributes);
+    final op = TextRetain(length, attributes);
     return add(op);
   }
 
   Delta delete(int length) {
-    final op = TextDelete(length: length);
+    final op = TextDelete(length);
     return add(op);
   }
 
@@ -341,7 +377,7 @@ class Delta {
         if (otherOp is TextRetain && otherOp.length > 0) {
           TextOperation? newOp;
           if (thisOp is TextRetain) {
-            newOp = TextRetain(length: length, attributes: attributes);
+            newOp = TextRetain(length, attributes);
           } else if (thisOp is TextInsert) {
             newOp = TextInsert(thisOp.content, attributes);
           }
