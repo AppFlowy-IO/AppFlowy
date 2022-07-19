@@ -19,10 +19,12 @@ import './operation.dart';
 @immutable
 class Transaction {
   final UnmodifiableListView<Operation> operations;
-  final Selection? cursorSelection;
+  final Selection? beforeSelection;
+  final Selection? afterSelection;
 
   const Transaction({
     required this.operations,
-    this.cursorSelection,
+    this.beforeSelection,
+    this.afterSelection,
   });
 }
