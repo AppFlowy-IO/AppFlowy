@@ -20,7 +20,12 @@ impl GridTaskQueue {
     }
 
     pub(crate) fn push(&mut self, task: &Task) {
-        let task_type = match task.content {
+        if task.content.is_none() {
+            tracing::warn!("Ignore task: {} with empty content", task.id);
+            return;
+        }
+
+        let task_type = match task.content.as_ref().unwrap() {
             TaskContent::Snapshot => TaskType::Snapshot,
             TaskContent::Filter { .. } => TaskType::Filter,
         };
@@ -28,7 +33,7 @@ impl GridTaskQueue {
             ty: task_type,
             id: task.id,
         };
-        match self.index_tasks.entry("1".to_owned()) {
+        match self.index_tasks.entry(task.handler_id.clone()) {
             Entry::Occupied(entry) => {
                 let mut list = entry.get().borrow_mut();
                 assert!(list.peek().map(|old_id| pending_task.id >= old_id.id).unwrap_or(true));
@@ -42,6 +47,11 @@ impl GridTaskQueue {
                 self.queue.push(task_list);
             }
         }
+    }
+
+    #[allow(dead_code)]
+    pub(crate) fn clear(&mut self) {
+        self.queue.clear();
     }
 
     pub(crate) fn mut_head<T, F>(&mut self, mut f: F) -> Option<T>
