@@ -130,11 +130,7 @@ impl GridFilterService {
         let handler_id = self.grid_pad.read().await.grid_id();
 
         let context = FilterTaskContext { blocks };
-        Task {
-            handler_id,
-            id: task_id,
-            content: TaskContent::Filter(context),
-        }
+        Task::new(&handler_id, task_id, TaskContent::Filter(context))
     }
 
     async fn notify(&self, changesets: Vec<GridBlockChangesetPB>) {
