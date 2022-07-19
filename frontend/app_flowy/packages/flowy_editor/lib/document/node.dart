@@ -183,4 +183,11 @@ class TextNode extends Node {
     map['delta'] = _delta.toJson();
     return map;
   }
+
+  String toString() {
+    _delta.operations
+        .whereType<TextInsert>()
+        .map((op) => op.content)
+        .toString();
+  }
 }
