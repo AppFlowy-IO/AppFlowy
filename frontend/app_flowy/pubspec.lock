@@ -425,7 +425,7 @@ packages:
       name: flutter_colorpicker
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.1"
+    version: "1.0.3"
   flutter_inappwebview:
     dependency: transitive
     description:
@@ -476,12 +476,10 @@ packages:
   flutter_quill:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "306fd78b7a134abdde0fed6be67f59e8a6068509"
-      resolved-ref: "306fd78b7a134abdde0fed6be67f59e8a6068509"
-      url: "https://github.com/appflowy/flutter-quill.git"
-    source: git
-    version: "2.0.13"
+      name: flutter_quill
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.4"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -527,6 +525,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.3"
+  gallery_saver:
+    dependency: transitive
+    description:
+      name: gallery_saver
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.3.2"
   get_it:
     dependency: "direct main"
     description:
@@ -589,7 +594,7 @@ packages:
       name: i18n_extension
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.2.1"
+    version: "5.0.0"
   image_picker:
     dependency: transitive
     description:
@@ -897,7 +902,7 @@ packages:
       name: photo_view
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.0"
+    version: "0.14.0"
   platform:
     dependency: transitive
     description:
