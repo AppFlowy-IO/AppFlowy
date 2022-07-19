@@ -40,7 +40,7 @@ class StateTree {
     if (path.isEmpty) {
       return false;
     }
-    var node = root.childAtPath(path);
+    final node = root.childAtPath(path);
     if (node == null || node is! TextNode) {
       return false;
     }

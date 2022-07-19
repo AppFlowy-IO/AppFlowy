@@ -197,4 +197,37 @@ void main() {
     //   expect(base.compose(delta).compose(inverted), base);
     // });
   });
+  group('json', () {
+    test('toJson()', () {
+      final delta = Delta().retain(2).insert('A').delete(3);
+      expect(delta.toJson(), [
+        {'retain': 2},
+        {'insert': 'A'},
+        {'delete': 3}
+      ]);
+    });
+    test('attributes', () {
+      final delta =
+          Delta().retain(2, {'bold': true}).insert('A', {'italic': true});
+      expect(delta.toJson(), [
+        {
+          'retain': 2,
+          'attributes': {'bold': true},
+        },
+        {
+          'insert': 'A',
+          'attributes': {'italic': true},
+        },
+      ]);
+    });
+    test('fromJson()', () {
+      final delta = Delta.fromJson([
+        {'retain': 2},
+        {'insert': 'A'},
+        {'delete': 3},
+      ]);
+      final expected = Delta().retain(2).insert('A').delete(3);
+      expect(delta, expected);
+    });
+  });
 }
