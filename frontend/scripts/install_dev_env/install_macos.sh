@@ -28,7 +28,7 @@ echo -e "${BLUE}AppFlowy : Checking Flutter installation.${ENDCOLOR}"
 flutter channel stable
 
 # Enable linux desktop
-flutter config --enable-linux-desktop
+flutter config --enable-macos-desktop
 
 # Fix any problems reported by flutter doctor
 flutter doctor
