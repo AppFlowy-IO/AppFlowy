@@ -1,30 +1,43 @@
 #!/bin/bash
 
-BLUE="\e[34m"
+YELLOW="\e[93m"
 GREEN="\e[32m"
 RED="\e[31m"
 ENDCOLOR="\e[0m"
 
-# Install Rust 
-echo -e "${BLUE}AppFlowy : The Rust programming language is required to compile AppFlowy.${ENDCOLOR}"
-echo -e "${BLUE}AppFlowy : We can install it now if you don't already have it on your system.${ENDCOLOR}"
+printMessage() {
+   printf "${YELLOW}AppFlowy : $1${ENDCOLOR}\n"
+}
 
-read -p "$(echo -e $GREEN"AppFlowy : Do you want to install Rust? [y/N]"$ENDCOLOR) " installrust
+printSuccess() {
+   printf "${GREEN}AppFlowy : $1${ENDCOLOR}\n"
+}
+
+printError() {
+   printf "${RED}AppFlowy : $1${ENDCOLOR}\n"
+}
+
+
+# Install Rust 
+printMessage "The Rust programming language is required to compile AppFlowy."
+printMessage "We can install it now if you don't already have it on your system."
+
+read -p "$(printSuccess "Do you want to install Rust? [y/N]") " installrust
 
 if [ ${installrust^^} == "Y" ]; then
-   echo -e "${BLUE}AppFlowy : Installing Rust.${ENDCOLOR}"
-   brew 'rustup-init'
+   printMessage "Installing Rust."
+   brew install rustup-init
    rustup-init -y --default-toolchain=stable
 else
-   echo -e "${BLUE}AppFlowy : Skipping Rust installation.${ENDCOLOR}"
+   printMessage "Skipping Rust installation."
 fi
 
 # Install sqllite
-echo -e "${BLUE}AppFlowy : Installing SqlLite3.${ENDCOLOR}"
-brew 'sqlite3' 
+printMessage "Installing sqlLite3."
+brew install sqlite3 
 
 # Enable the flutter stable channel
-echo -e "${BLUE}AppFlowy : Checking Flutter installation.${ENDCOLOR}"
+printMessage "Setting up Flutter"
 flutter channel stable
 
 # Enable linux desktop
@@ -34,24 +47,24 @@ flutter config --enable-macos-desktop
 flutter doctor
 
 # Add the githooks directory to your git configuration
-echo -e "${BLUE}AppFlowy : Setting up githooks.${ENDCOLOR}"
+printMessage "Setting up githooks."
 git config core.hooksPath .githooks
 
 # Change to the frontend directory
 cd frontend
 
 # Install cargo make
-echo -e "${BLUE}AppFlowy : Installing cargo-make.${ENDCOLOR}"
+printMessage "Installing cargo-make."
 cargo install --force cargo-make
 
 # Install duckscript
-echo -e "${BLUE}AppFlowy : Installing duckscript.${ENDCOLOR}"
+printMessage "Installing duckscript."
 cargo install --force duckscript_cli
 
 # Install CommitLint
-echo -e "${BLUE}AppFlowy : Installing CommitLint.${ENDCOLOR}"
+printMessagae "Installing CommitLint."
 npm install @commitlint/cli @commitlint/config-conventional --save-dev
 
 # Check prerequisites
-echo -e "${BLUE}AppFlowy : Checking prerequisites.${ENDCOLOR}"
+printMessage "Checking prerequisites."
 cargo make flowy_dev
