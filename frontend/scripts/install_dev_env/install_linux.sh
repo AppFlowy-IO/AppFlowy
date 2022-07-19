@@ -1,16 +1,17 @@
 #!/bin/bash
 
 BLUE="\e[34m"
+GREEN="\e[32m"
 RED="\e[31m"
 ENDCOLOR="\e[0m"
 
 # Note: This script does not install applications which are installed by the package manager. There are too many package managers out there.
 
-# Install rust on Linux
+# Install Rust 
 echo -e "${BLUE}AppFlowy : The Rust programming language is required to compile AppFlowy.${ENDCOLOR}"
 echo -e "${BLUE}AppFlowy : We can install it now if you don't already have it on your system.${ENDCOLOR}"
 
-read -p "${BLUE}AppFlowy : Do you want to install Rust? [y/N]${ENDCOLOR} " installrust
+read -p "$(echo -e $GREEN"AppFlowy : Do you want to install Rust? [y/N]"$ENDCOLOR) " installrust
 
 if [ ${installrust^^} == "Y" ]; then
    echo -e "${BLUE}AppFlowy : Installing Rust.${ENDCOLOR}"
