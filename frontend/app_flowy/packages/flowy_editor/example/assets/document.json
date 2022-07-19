@@ -4,52 +4,73 @@
       "attributes": {},
       "children": [
         {
+          "type": "image",
+          "attributes": {
+            "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png?format=1500w"
+          }
+        },
+        {
           "type": "text",
           "delta": [
-            { "insert": "With " },
-            { "insert": "AppFlowy", "attributes": { "href": "https://www.appflowy.io/" } },
-            { "insert": ", you can build detailed lists of to-do’s for different projects while tracking the status of each one" }
+            { "insert": "👋 Welcome to AppFlowy!", "attributes": { "href": "https://www.appflowy.io/", "heading": "h1" } }
+          ],
+          "attributes": {
+            "subtype": "with-heading",
+            "heading": "h1"
+          }
+        },
+        {
+          "type": "text",
+          "delta": [
+            { "insert": "Here are the basics", "attributes": { "heading": "h2" } }
+          ],
+          "attributes": { 
+            "subtype": "with-heading",
+            "heading": "h2" 
+          }
+        },
+        {
+          "type": "text",
+          "delta": [
+            { "insert": "Click anywhere and just start typing." }
           ],
           "attributes": {
             "subtype": "with-checkbox",
-            "font-size": 30,
+            "checkbox": true
+          }
+        },
+        {
+          "type": "text",
+          "delta": [
+            { "insert": "Highlight", "attributes": { "highlight": "0xFFFFFF00" } },
+            { "insert": " Click anywhere and just start typing" },
+            { "insert": " any text, and use the menu at the bottom to " },
+            { "insert": "style", "attributes": { "italic": true } },
+            { "insert": " your ", "attributes": { "bold": true } },
+            { "insert": "writing", "attributes": { "underline": true } },
+            { "insert": " howeverv you like.", "attributes": { "strikethrough": true } }
+          ],
+          "attributes": {
+            "subtype": "with-checkbox",
             "checkbox": false
           }
         },
         {
           "type": "text",
           "delta": [
-            { "insert": "You can " },
-            { "insert": "host", "attributes": { "italic": true } },
-            { "insert": " " },
-            { "insert": "AppFlowy", "attributes": { "bold": true } },
-            { "insert": " " },
-            { "insert": "wherever you want", "attributes": { "underline": true }},
-            { "insert": "; no vendor lock-in." }
+            { "insert": "Have a question? ", "attributes": { "heading": "h2" } }
           ],
-          "attributes": {
-            "subtype": "with-checkbox",
-            "text-type": "heading1",
-            "font-size": 30,
-            "checkbox": false
+          "attributes": { 
+            "subtype": "with-heading",
+            "heading": "h2"
           }
         },
         {
           "type": "text",
-          "delta": [{ "insert": "Design and modify AppFlowy your way with an open core codebase." }],
-          "attributes": {
-            "text-type": "heading1",
-            "font-size": 30
-          }
-        },
-        {
-          "type": "text",
-          "delta": [{ "insert": "AppFlowy is built with Flutter and Rust. What does this mean? Faster development, better native experience, and more reliable performance." }],
-          "attributes": {
-            "text-type": "heading1",
-            "font-size": 30,
-            "content": "dddddddddddddddddddd"
-          }
+          "delta": [
+            { "insert": "Click the '?' at the bottom right for help and support."}
+          ],
+          "attributes": {}
         }
       ]
     }

@@ -5,7 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/services.dart';
-import 'package:flowy_editor/document/attributes.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class TextNodeBuilder extends NodeWidgetBuilder {
   TextNodeBuilder.create({
@@ -16,8 +16,6 @@ class TextNodeBuilder extends NodeWidgetBuilder {
       return node.type == 'text';
     });
   }
-
-  String get content => node.attributes['content'] as String;
 
   @override
   Widget build(BuildContext buildContext) {
@@ -146,6 +144,10 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   TextNode get node => widget.node as TextNode;
   EditorState get editorState => widget.editorState;
 
+  TextEditingValue get textEditingValue => TextEditingValue(
+        text: node.toRawString(),
+      );
+
   TextInputConnection? _textInputConnection;
 
   _backDeleteTextAtSelection(TextSelection? sel) {
@@ -249,7 +251,10 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
                 editorState: editorState,
               ),
             ),
-          )
+          ),
+        const SizedBox(
+          height: 10,
+        ),
       ],
     );
   }
@@ -326,4 +331,72 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   void updateFloatingCursor(RawFloatingCursorPoint point) {
     // TODO: implement updateFloatingCursor
   }
+}
+
+extension on TextNode {
+  List<TextSpan> toTextSpans() => delta.operations
+      .whereType<TextInsert>()
+      .map((op) => _textInsertToTextSpan(op))
+      .toList();
+
+  String toRawString() => delta.operations
+      .whereType<TextInsert>()
+      .map((op) => op.content)
+      .toString();
+}
+
+TextSpan _textInsertToTextSpan(TextInsert textInsert) {
+  FontWeight? fontWeight;
+  FontStyle? fontStyle;
+  TextDecoration? decoration;
+  GestureRecognizer? gestureRecognizer;
+  Color? color;
+  Color highLightColor = Colors.transparent;
+  double fontSize = 16.0;
+  final attributes = textInsert.attributes;
+  if (attributes?['bold'] == true) {
+    fontWeight = FontWeight.bold;
+  }
+  if (attributes?['italic'] == true) {
+    fontStyle = FontStyle.italic;
+  }
+  if (attributes?['underline'] == true) {
+    decoration = TextDecoration.underline;
+  }
+  if (attributes?['strikethrough'] == true) {
+    decoration = TextDecoration.lineThrough;
+  }
+  if (attributes?['highlight'] is String) {
+    highLightColor = Color(int.parse(attributes!['highlight']));
+  }
+  if (attributes?['href'] is String) {
+    color = const Color.fromARGB(255, 55, 120, 245);
+    decoration = TextDecoration.underline;
+    gestureRecognizer = TapGestureRecognizer()
+      ..onTap = () {
+        launchUrlString(attributes?['href']);
+      };
+  }
+  final heading = attributes?['heading'] as String?;
+  if (heading != null) {
+    // TODO: make it better
+    if (heading == 'h1') {
+      fontSize = 30.0;
+    } else if (heading == 'h2') {
+      fontSize = 20.0;
+    }
+    fontWeight = FontWeight.bold;
+  }
+  return TextSpan(
+    text: textInsert.content,
+    style: TextStyle(
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      decoration: decoration,
+      color: color,
+      fontSize: fontSize,
+      backgroundColor: highLightColor,
+    ),
+    recognizer: gestureRecognizer,
+  );
 }
