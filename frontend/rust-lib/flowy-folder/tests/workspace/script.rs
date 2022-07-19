@@ -1,16 +1,16 @@
-use flowy_folder::entities::view::{RepeatedViewId, ViewId};
-use flowy_folder::entities::workspace::WorkspaceId;
+use flowy_folder::entities::view::{RepeatedViewIdPB, ViewIdPB};
+use flowy_folder::entities::workspace::WorkspaceIdPB;
 use flowy_folder::entities::{
-    app::{App, RepeatedApp},
-    trash::Trash,
-    view::{RepeatedView, View, ViewDataType},
-    workspace::Workspace,
+    app::{AppIdPB, CreateAppPayloadPB, UpdateAppPayloadPB},
+    trash::{RepeatedTrashPB, TrashIdPB, TrashType},
+    view::{CreateViewPayloadPB, UpdateViewPayloadPB},
+    workspace::{CreateWorkspacePayloadPB, RepeatedWorkspacePB},
 };
 use flowy_folder::entities::{
-    app::{AppId, CreateAppPayload, UpdateAppPayload},
-    trash::{RepeatedTrash, TrashId, TrashType},
-    view::{CreateViewPayload, UpdateViewPayload},
-    workspace::{CreateWorkspacePayload, RepeatedWorkspace},
+    app::{AppPB, RepeatedAppPB},
+    trash::TrashPB,
+    view::{RepeatedViewPB, ViewDataType, ViewPB},
+    workspace::WorkspacePB,
 };
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{errors::ErrorCode, services::folder_editor::FolderEditor};
@@ -30,7 +30,7 @@ pub enum FolderScript {
         desc: String,
     },
     // AssertWorkspaceRevisionJson(String),
-    AssertWorkspace(Workspace),
+    AssertWorkspace(WorkspacePB),
     ReadWorkspace(Option<String>),
 
     // App
@@ -39,7 +39,7 @@ pub enum FolderScript {
         desc: String,
     },
     // AssertAppRevisionJson(String),
-    AssertApp(App),
+    AssertApp(AppPB),
     ReadApp(String),
     UpdateApp {
         name: Option<String>,
@@ -53,7 +53,7 @@ pub enum FolderScript {
         desc: String,
         data_type: ViewDataType,
     },
-    AssertView(View),
+    AssertView(ViewPB),
     ReadView(String),
     UpdateView {
         name: Option<String>,
@@ -79,11 +79,11 @@ pub enum FolderScript {
 
 pub struct FolderTest {
     pub sdk: FlowySDKTest,
-    pub all_workspace: Vec<Workspace>,
-    pub workspace: Workspace,
-    pub app: App,
-    pub view: View,
-    pub trash: Vec<Trash>,
+    pub all_workspace: Vec<WorkspacePB>,
+    pub workspace: WorkspacePB,
+    pub app: AppPB,
+    pub view: ViewPB,
+    pub trash: Vec<TrashPB>,
     // pub folder_editor:
 }
 
@@ -101,11 +101,11 @@ impl FolderTest {
             ViewDataType::TextBlock,
         )
         .await;
-        app.belongings = RepeatedView {
+        app.belongings = RepeatedViewPB {
             items: vec![view.clone()],
         };
 
-        workspace.apps = RepeatedApp {
+        workspace.apps = RepeatedAppPB {
             items: vec![app.clone()],
         };
         Self {
@@ -247,8 +247,8 @@ pub fn invalid_workspace_name_test_case() -> Vec<(String, ErrorCode)> {
     ]
 }
 
-pub async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Workspace {
-    let request = CreateWorkspacePayload {
+pub async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> WorkspacePB {
+    let request = CreateWorkspacePayloadPB {
         name: name.to_owned(),
         desc: desc.to_owned(),
     };
@@ -258,18 +258,18 @@ pub async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Wor
         .payload(request)
         .async_send()
         .await
-        .parse::<Workspace>();
+        .parse::<WorkspacePB>();
     workspace
 }
 
-pub async fn read_workspace(sdk: &FlowySDKTest, workspace_id: Option<String>) -> Vec<Workspace> {
-    let request = WorkspaceId { value: workspace_id };
+pub async fn read_workspace(sdk: &FlowySDKTest, workspace_id: Option<String>) -> Vec<WorkspacePB> {
+    let request = WorkspaceIdPB { value: workspace_id };
     let mut repeated_workspace = FolderEventBuilder::new(sdk.clone())
         .event(ReadWorkspaces)
         .payload(request.clone())
         .async_send()
         .await
-        .parse::<RepeatedWorkspace>();
+        .parse::<RepeatedWorkspacePB>();
 
     let workspaces;
     if let Some(workspace_id) = &request.value {
@@ -277,7 +277,7 @@ pub async fn read_workspace(sdk: &FlowySDKTest, workspace_id: Option<String>) ->
             .into_inner()
             .into_iter()
             .filter(|workspace| &workspace.id == workspace_id)
-            .collect::<Vec<Workspace>>();
+            .collect::<Vec<WorkspacePB>>();
         debug_assert_eq!(workspaces.len(), 1);
     } else {
         workspaces = repeated_workspace.items;
@@ -286,8 +286,8 @@ pub async fn read_workspace(sdk: &FlowySDKTest, workspace_id: Option<String>) ->
     workspaces
 }
 
-pub async fn create_app(sdk: &FlowySDKTest, workspace_id: &str, name: &str, desc: &str) -> App {
-    let create_app_request = CreateAppPayload {
+pub async fn create_app(sdk: &FlowySDKTest, workspace_id: &str, name: &str, desc: &str) -> AppPB {
+    let create_app_request = CreateAppPayloadPB {
         workspace_id: workspace_id.to_owned(),
         name: name.to_string(),
         desc: desc.to_string(),
@@ -299,12 +299,12 @@ pub async fn create_app(sdk: &FlowySDKTest, workspace_id: &str, name: &str, desc
         .payload(create_app_request)
         .async_send()
         .await
-        .parse::<App>();
+        .parse::<AppPB>();
     app
 }
 
-pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> App {
-    let request = AppId {
+pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> AppPB {
+    let request = AppIdPB {
         value: app_id.to_owned(),
     };
 
@@ -313,13 +313,13 @@ pub async fn read_app(sdk: &FlowySDKTest, app_id: &str) -> App {
         .payload(request)
         .async_send()
         .await
-        .parse::<App>();
+        .parse::<AppPB>();
 
     app
 }
 
 pub async fn update_app(sdk: &FlowySDKTest, app_id: &str, name: Option<String>, desc: Option<String>) {
-    let request = UpdateAppPayload {
+    let request = UpdateAppPayloadPB {
         app_id: app_id.to_string(),
         name,
         desc,
@@ -335,7 +335,7 @@ pub async fn update_app(sdk: &FlowySDKTest, app_id: &str, name: Option<String>, 
 }
 
 pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
-    let request = AppId {
+    let request = AppIdPB {
         value: app_id.to_string(),
     };
 
@@ -346,8 +346,8 @@ pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
         .await;
 }
 
-pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, data_type: ViewDataType) -> View {
-    let request = CreateViewPayload {
+pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, data_type: ViewDataType) -> ViewPB {
+    let request = CreateViewPayloadPB {
         belong_to_id: app_id.to_string(),
         name: name.to_string(),
         desc: desc.to_string(),
@@ -361,22 +361,22 @@ pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &st
         .payload(request)
         .async_send()
         .await
-        .parse::<View>();
+        .parse::<ViewPB>();
     view
 }
 
-pub async fn read_view(sdk: &FlowySDKTest, view_id: &str) -> View {
-    let view_id: ViewId = view_id.into();
+pub async fn read_view(sdk: &FlowySDKTest, view_id: &str) -> ViewPB {
+    let view_id: ViewIdPB = view_id.into();
     FolderEventBuilder::new(sdk.clone())
         .event(ReadView)
         .payload(view_id)
         .async_send()
         .await
-        .parse::<View>()
+        .parse::<ViewPB>()
 }
 
 pub async fn update_view(sdk: &FlowySDKTest, view_id: &str, name: Option<String>, desc: Option<String>) {
-    let request = UpdateViewPayload {
+    let request = UpdateViewPayloadPB {
         view_id: view_id.to_string(),
         name,
         desc,
@@ -390,7 +390,7 @@ pub async fn update_view(sdk: &FlowySDKTest, view_id: &str, name: Option<String>
 }
 
 pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
-    let request = RepeatedViewId { items: view_ids };
+    let request = RepeatedViewIdPB { items: view_ids };
     FolderEventBuilder::new(sdk.clone())
         .event(DeleteView)
         .payload(request)
@@ -400,7 +400,7 @@ pub async fn delete_view(sdk: &FlowySDKTest, view_ids: Vec<String>) {
 
 #[allow(dead_code)]
 pub async fn set_latest_view(sdk: &FlowySDKTest, view_id: &str) -> DocumentPB {
-    let view_id: ViewId = view_id.into();
+    let view_id: ViewIdPB = view_id.into();
     FolderEventBuilder::new(sdk.clone())
         .event(SetLatestView)
         .payload(view_id)
@@ -409,16 +409,16 @@ pub async fn set_latest_view(sdk: &FlowySDKTest, view_id: &str) -> DocumentPB {
         .parse::<DocumentPB>()
 }
 
-pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrash {
+pub async fn read_trash(sdk: &FlowySDKTest) -> RepeatedTrashPB {
     FolderEventBuilder::new(sdk.clone())
         .event(ReadTrash)
         .async_send()
         .await
-        .parse::<RepeatedTrash>()
+        .parse::<RepeatedTrashPB>()
 }
 
 pub async fn restore_app_from_trash(sdk: &FlowySDKTest, app_id: &str) {
-    let id = TrashId {
+    let id = TrashIdPB {
         id: app_id.to_owned(),
         ty: TrashType::TrashApp,
     };
@@ -430,7 +430,7 @@ pub async fn restore_app_from_trash(sdk: &FlowySDKTest, app_id: &str) {
 }
 
 pub async fn restore_view_from_trash(sdk: &FlowySDKTest, view_id: &str) {
-    let id = TrashId {
+    let id = TrashIdPB {
         id: view_id.to_owned(),
         ty: TrashType::TrashView,
     };

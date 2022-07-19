@@ -52,7 +52,7 @@ impl WorkspaceController {
             .into_iter()
             .map(|workspace_rev| workspace_rev.into())
             .collect();
-        let repeated_workspace = RepeatedWorkspace { items: workspaces };
+        let repeated_workspace = RepeatedWorkspacePB { items: workspaces };
         send_dart_notification(&token, FolderNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
@@ -99,7 +99,7 @@ impl WorkspaceController {
         Ok(())
     }
 
-    pub(crate) async fn open_workspace(&self, params: WorkspaceId) -> Result<Workspace, FlowyError> {
+    pub(crate) async fn open_workspace(&self, params: WorkspaceIdPB) -> Result<WorkspacePB, FlowyError> {
         let user_id = self.user.user_id()?;
         if let Some(workspace_id) = params.value {
             let workspace = self
@@ -131,14 +131,14 @@ impl WorkspaceController {
         workspace_id: Option<String>,
         user_id: &str,
         transaction: &'a (dyn FolderPersistenceTransaction + 'a),
-    ) -> Result<RepeatedWorkspace, FlowyError> {
+    ) -> Result<RepeatedWorkspacePB, FlowyError> {
         let workspace_id = workspace_id.to_owned();
         let workspaces = transaction
             .read_workspaces(user_id, workspace_id)?
             .into_iter()
             .map(|workspace_rev| workspace_rev.into())
             .collect();
-        Ok(RepeatedWorkspace { items: workspaces })
+        Ok(RepeatedWorkspacePB { items: workspaces })
     }
 
     pub(crate) fn read_local_workspace<'a>(
@@ -146,7 +146,7 @@ impl WorkspaceController {
         workspace_id: String,
         user_id: &str,
         transaction: &'a (dyn FolderPersistenceTransaction + 'a),
-    ) -> Result<Workspace, FlowyError> {
+    ) -> Result<WorkspacePB, FlowyError> {
         let mut workspace_revs = transaction.read_workspaces(user_id, Some(workspace_id.clone()))?;
         if workspace_revs.is_empty() {
             return Err(FlowyError::record_not_found().context(format!("{} workspace not found", workspace_id)));
@@ -155,7 +155,7 @@ impl WorkspaceController {
         let workspace = workspace_revs
             .drain(..1)
             .map(|workspace_rev| workspace_rev.into())
-            .collect::<Vec<Workspace>>()
+            .collect::<Vec<WorkspacePB>>()
             .pop()
             .unwrap();
         Ok(workspace)
@@ -186,7 +186,7 @@ impl WorkspaceController {
 
     #[tracing::instrument(level = "trace", skip(self), err)]
     fn delete_workspace_on_server(&self, workspace_id: &str) -> Result<(), FlowyError> {
-        let params = WorkspaceId {
+        let params = WorkspaceIdPB {
             value: Some(workspace_id.to_string()),
         };
         let (token, server) = (self.user.token()?, self.cloud_service.clone());
@@ -221,11 +221,11 @@ pub async fn notify_workspace_setting_did_change(
             )?;
 
             let setting = match transaction.read_view(view_id) {
-                Ok(latest_view) => CurrentWorkspaceSetting {
+                Ok(latest_view) => CurrentWorkspaceSettingPB {
                     workspace,
                     latest_view: Some(latest_view.into()),
                 },
-                Err(_) => CurrentWorkspaceSetting {
+                Err(_) => CurrentWorkspaceSettingPB {
                     workspace,
                     latest_view: None,
                 },

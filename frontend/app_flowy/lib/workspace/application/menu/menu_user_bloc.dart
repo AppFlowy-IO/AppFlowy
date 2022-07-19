@@ -65,7 +65,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
     );
   }
 
-  void _workspaceListUpdated(Either<List<Workspace>, FlowyError> workspacesOrFailed) {
+  void _workspaceListUpdated(Either<List<WorkspacePB>, FlowyError> workspacesOrFailed) {
     // Do nothing by now
   }
 }
@@ -82,7 +82,7 @@ class MenuUserEvent with _$MenuUserEvent {
 class MenuUserState with _$MenuUserState {
   const factory MenuUserState({
     required UserProfile userProfile,
-    required Option<List<Workspace>> workspaces,
+    required Option<List<WorkspacePB>> workspaces,
     required Either<Unit, String> successOrFailure,
   }) = _MenuUserState;
 

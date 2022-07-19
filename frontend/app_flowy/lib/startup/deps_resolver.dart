@@ -67,7 +67,7 @@ void _resolveHomeDeps(GetIt getIt) {
 
   // share
   getIt.registerLazySingleton<ShareService>(() => ShareService());
-  getIt.registerFactoryParam<DocShareBloc, View, void>(
+  getIt.registerFactoryParam<DocShareBloc, ViewPB, void>(
       (view, _) => DocShareBloc(view: view, service: getIt<ShareService>()));
 }
 
@@ -76,12 +76,12 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>(
       (user, workspaceId) => WorkspaceListener(user: user, workspaceId: workspaceId));
 
-  // View
-  getIt.registerFactoryParam<ViewListener, View, void>(
+  // ViewPB
+  getIt.registerFactoryParam<ViewListener, ViewPB, void>(
     (view, _) => ViewListener(view: view),
   );
 
-  getIt.registerFactoryParam<ViewBloc, View, void>(
+  getIt.registerFactoryParam<ViewBloc, ViewPB, void>(
     (view, _) => ViewBloc(
       view: view,
       service: ViewService(),
@@ -101,8 +101,8 @@ void _resolveFolderDeps(GetIt getIt) {
     (user, _) => MenuUserBloc(user),
   );
 
-  // App
-  getIt.registerFactoryParam<AppBloc, App, void>(
+  // AppPB
+  getIt.registerFactoryParam<AppBloc, AppPB, void>(
     (app, _) => AppBloc(
       app: app,
       appService: AppService(appId: app.id),
@@ -123,7 +123,7 @@ void _resolveFolderDeps(GetIt getIt) {
 
 void _resolveDocDeps(GetIt getIt) {
 // Doc
-  getIt.registerFactoryParam<DocumentBloc, View, void>(
+  getIt.registerFactoryParam<DocumentBloc, ViewPB, void>(
     (view, _) => DocumentBloc(
       view: view,
       service: DocumentService(),
@@ -135,7 +135,7 @@ void _resolveDocDeps(GetIt getIt) {
 
 void _resolveGridDeps(GetIt getIt) {
   // GridPB
-  getIt.registerFactoryParam<GridBloc, View, void>(
+  getIt.registerFactoryParam<GridBloc, ViewPB, void>(
     (view, _) => GridBloc(view: view),
   );
 

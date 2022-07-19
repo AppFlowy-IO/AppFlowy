@@ -33,7 +33,7 @@ import 'menu_user.dart';
 class HomeMenu extends StatelessWidget {
   final PublishNotifier<bool> _collapsedNotifier;
   final UserProfile user;
-  final CurrentWorkspaceSetting workspaceSetting;
+  final CurrentWorkspaceSettingPB workspaceSetting;
 
   const HomeMenu({
     Key? key,
@@ -155,19 +155,19 @@ class HomeMenu extends StatelessWidget {
 }
 
 class MenuSharedState {
-  final ValueNotifier<View?> _latestOpenView = ValueNotifier<View?>(null);
+  final ValueNotifier<ViewPB?> _latestOpenView = ValueNotifier<ViewPB?>(null);
 
-  MenuSharedState({View? view}) {
+  MenuSharedState({ViewPB? view}) {
     _latestOpenView.value = view;
   }
 
-  View? get latestOpenView => _latestOpenView.value;
+  ViewPB? get latestOpenView => _latestOpenView.value;
 
-  set latestOpenView(View? view) {
+  set latestOpenView(ViewPB? view) {
     _latestOpenView.value = view;
   }
 
-  VoidCallback addLatestViewListener(void Function(View?) callback) {
+  VoidCallback addLatestViewListener(void Function(ViewPB?) callback) {
     listener() {
       callback(_latestOpenView.value);
     }

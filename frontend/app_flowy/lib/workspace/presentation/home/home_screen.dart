@@ -19,7 +19,7 @@ import 'menu/menu.dart';
 
 class HomeScreen extends StatefulWidget {
   final UserProfile user;
-  final CurrentWorkspaceSetting workspaceSetting;
+  final CurrentWorkspaceSettingPB workspaceSetting;
   const HomeScreen(this.user, this.workspaceSetting, {Key? key}) : super(key: key);
 
   @override
@@ -27,7 +27,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  View? initialView;
+  ViewPB? initialView;
 
   @override
   void initState() {

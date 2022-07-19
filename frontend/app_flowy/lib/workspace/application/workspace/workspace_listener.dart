@@ -9,8 +9,8 @@ import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 
-typedef AppListNotifyValue = Either<List<App>, FlowyError>;
-typedef WorkspaceNotifyValue = Either<Workspace, FlowyError>;
+typedef AppListNotifyValue = Either<List<AppPB>, FlowyError>;
+typedef WorkspaceNotifyValue = Either<WorkspacePB, FlowyError>;
 
 class WorkspaceListener {
   PublishNotifier<AppListNotifyValue>? _appsChangedNotifier = PublishNotifier();
@@ -47,13 +47,13 @@ class WorkspaceListener {
     switch (ty) {
       case FolderNotification.WorkspaceUpdated:
         result.fold(
-          (payload) => _workspaceUpdatedNotifier?.value = left(Workspace.fromBuffer(payload)),
+          (payload) => _workspaceUpdatedNotifier?.value = left(WorkspacePB.fromBuffer(payload)),
           (error) => _workspaceUpdatedNotifier?.value = right(error),
         );
         break;
       case FolderNotification.WorkspaceAppsChanged:
         result.fold(
-          (payload) => _appsChangedNotifier?.value = left(RepeatedApp.fromBuffer(payload).items),
+          (payload) => _appsChangedNotifier?.value = left(RepeatedAppPB.fromBuffer(payload).items),
           (error) => _appsChangedNotifier?.value = right(error),
         );
         break;

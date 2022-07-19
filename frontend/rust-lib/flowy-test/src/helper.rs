@@ -1,10 +1,10 @@
 use crate::prelude::*;
-use flowy_folder::entities::WorkspaceId;
+use flowy_folder::entities::WorkspaceIdPB;
 use flowy_folder::{
     entities::{
         app::*,
         view::*,
-        workspace::{CreateWorkspacePayload, Workspace},
+        workspace::{CreateWorkspacePayloadPB, WorkspacePB},
     },
     event_map::FolderEvent::{CreateWorkspace, OpenWorkspace, *},
 };
@@ -18,9 +18,9 @@ use std::{fs, path::PathBuf, sync::Arc};
 
 pub struct ViewTest {
     pub sdk: FlowySDKTest,
-    pub workspace: Workspace,
-    pub app: App,
-    pub view: View,
+    pub workspace: WorkspacePB,
+    pub app: AppPB,
+    pub view: ViewPB,
 }
 
 impl ViewTest {
@@ -47,8 +47,8 @@ impl ViewTest {
     }
 }
 
-async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Workspace {
-    let request = CreateWorkspacePayload {
+async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> WorkspacePB {
+    let request = CreateWorkspacePayloadPB {
         name: name.to_owned(),
         desc: desc.to_owned(),
     };
@@ -58,12 +58,12 @@ async fn create_workspace(sdk: &FlowySDKTest, name: &str, desc: &str) -> Workspa
         .payload(request)
         .async_send()
         .await
-        .parse::<Workspace>();
+        .parse::<WorkspacePB>();
     workspace
 }
 
 async fn open_workspace(sdk: &FlowySDKTest, workspace_id: &str) {
-    let payload = WorkspaceId {
+    let payload = WorkspaceIdPB {
         value: Some(workspace_id.to_owned()),
     };
     let _ = FolderEventBuilder::new(sdk.clone())
@@ -73,8 +73,8 @@ async fn open_workspace(sdk: &FlowySDKTest, workspace_id: &str) {
         .await;
 }
 
-async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &str) -> App {
-    let create_app_request = CreateAppPayload {
+async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &str) -> AppPB {
+    let create_app_request = CreateAppPayloadPB {
         workspace_id: workspace_id.to_owned(),
         name: name.to_string(),
         desc: desc.to_string(),
@@ -86,12 +86,12 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
         .payload(create_app_request)
         .async_send()
         .await
-        .parse::<App>();
+        .parse::<AppPB>();
     app
 }
 
-async fn create_view(sdk: &FlowySDKTest, app_id: &str, data_type: ViewDataType, data: Vec<u8>) -> View {
-    let request = CreateViewPayload {
+async fn create_view(sdk: &FlowySDKTest, app_id: &str, data_type: ViewDataType, data: Vec<u8>) -> ViewPB {
+    let request = CreateViewPayloadPB {
         belong_to_id: app_id.to_string(),
         name: "View A".to_string(),
         desc: "".to_string(),
@@ -106,7 +106,7 @@ async fn create_view(sdk: &FlowySDKTest, app_id: &str, data_type: ViewDataType, 
         .payload(request)
         .async_send()
         .await
-        .parse::<View>();
+        .parse::<ViewPB>();
     view
 }
 

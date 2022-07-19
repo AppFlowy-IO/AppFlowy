@@ -3,7 +3,7 @@ import 'package:app_flowy/workspace/application/edit_pannel/edit_context.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart' show CurrentWorkspaceSetting;
+import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart' show CurrentWorkspaceSettingPB;
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,7 +13,7 @@ part 'home_bloc.freezed.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final UserWorkspaceListener _listener;
 
-  HomeBloc(UserProfile user, CurrentWorkspaceSetting workspaceSetting)
+  HomeBloc(UserProfile user, CurrentWorkspaceSettingPB workspaceSetting)
       : _listener = UserWorkspaceListener(userProfile: user),
         super(HomeState.initial(workspaceSetting)) {
     on<HomeEvent>((event, emit) async {
@@ -76,7 +76,7 @@ class HomeEvent with _$HomeEvent {
   const factory HomeEvent.forceCollapse(bool forceCollapse) = _ForceCollapse;
   const factory HomeEvent.setEditPannel(EditPannelContext editContext) = _ShowEditPannel;
   const factory HomeEvent.dismissEditPannel() = _DismissEditPannel;
-  const factory HomeEvent.didReceiveWorkspaceSetting(CurrentWorkspaceSetting setting) = _DidReceiveWorkspaceSetting;
+  const factory HomeEvent.didReceiveWorkspaceSetting(CurrentWorkspaceSettingPB setting) = _DidReceiveWorkspaceSetting;
   const factory HomeEvent.unauthorized(String msg) = _Unauthorized;
   const factory HomeEvent.collapseMenu() = _CollapseMenu;
 }
@@ -87,12 +87,12 @@ class HomeState with _$HomeState {
     required bool isLoading,
     required bool forceCollapse,
     required Option<EditPannelContext> pannelContext,
-    required CurrentWorkspaceSetting workspaceSetting,
+    required CurrentWorkspaceSettingPB workspaceSetting,
     required bool unauthorized,
     required bool isMenuCollapsed,
   }) = _HomeState;
 
-  factory HomeState.initial(CurrentWorkspaceSetting workspaceSetting) => HomeState(
+  factory HomeState.initial(CurrentWorkspaceSettingPB workspaceSetting) => HomeState(
         isLoading: false,
         forceCollapse: false,
         pannelContext: none(),

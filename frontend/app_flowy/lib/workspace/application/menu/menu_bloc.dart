@@ -41,7 +41,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
           if (state.apps.length > value.fromIndex) {
             final app = state.apps[value.fromIndex];
             _workspaceService.moveApp(appId: app.id, fromIndex: value.fromIndex, toIndex: value.toIndex);
-            final apps = List<App>.from(state.apps);
+            final apps = List<AppPB>.from(state.apps);
             apps.insert(value.toIndex, apps.removeAt(value.fromIndex));
             emit(state.copyWith(apps: apps));
           }
@@ -79,7 +79,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     ));
   }
 
-  void _handleAppsOrFail(Either<List<App>, FlowyError> appsOrFail) {
+  void _handleAppsOrFail(Either<List<AppPB>, FlowyError> appsOrFail) {
     appsOrFail.fold(
       (apps) => add(MenuEvent.didReceiveApps(left(apps))),
       (error) => add(MenuEvent.didReceiveApps(right(error))),
@@ -93,13 +93,13 @@ class MenuEvent with _$MenuEvent {
   const factory MenuEvent.openPage(Plugin plugin) = _OpenPage;
   const factory MenuEvent.createApp(String name, {String? desc}) = _CreateApp;
   const factory MenuEvent.moveApp(int fromIndex, int toIndex) = _MoveApp;
-  const factory MenuEvent.didReceiveApps(Either<List<App>, FlowyError> appsOrFail) = _ReceiveApps;
+  const factory MenuEvent.didReceiveApps(Either<List<AppPB>, FlowyError> appsOrFail) = _ReceiveApps;
 }
 
 @freezed
 class MenuState with _$MenuState {
   const factory MenuState({
-    required List<App> apps,
+    required List<AppPB> apps,
     required Either<Unit, FlowyError> successOrFailure,
     required Plugin plugin,
   }) = _MenuState;

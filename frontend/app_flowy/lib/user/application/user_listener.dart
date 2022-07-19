@@ -75,8 +75,8 @@ class UserListener {
   }
 }
 
-typedef WorkspaceListNotifyValue = Either<List<Workspace>, FlowyError>;
-typedef WorkspaceSettingNotifyValue = Either<CurrentWorkspaceSetting, FlowyError>;
+typedef WorkspaceListNotifyValue = Either<List<WorkspacePB>, FlowyError>;
+typedef WorkspaceSettingNotifyValue = Either<CurrentWorkspaceSettingPB, FlowyError>;
 
 class UserWorkspaceListener {
   PublishNotifier<AuthNotifyValue>? _authNotifier = PublishNotifier();
@@ -119,13 +119,13 @@ class UserWorkspaceListener {
       case FolderNotification.UserDeleteWorkspace:
       case FolderNotification.WorkspaceListUpdated:
         result.fold(
-          (payload) => _workspacesChangedNotifier?.value = left(RepeatedWorkspace.fromBuffer(payload).items),
+          (payload) => _workspacesChangedNotifier?.value = left(RepeatedWorkspacePB.fromBuffer(payload).items),
           (error) => _workspacesChangedNotifier?.value = right(error),
         );
         break;
       case FolderNotification.WorkspaceSetting:
         result.fold(
-          (payload) => _settingChangedNotifier?.value = left(CurrentWorkspaceSetting.fromBuffer(payload)),
+          (payload) => _settingChangedNotifier?.value = left(CurrentWorkspaceSettingPB.fromBuffer(payload)),
           (error) => _settingChangedNotifier?.value = right(error),
         );
         break;
