@@ -11,7 +11,7 @@ class UserService {
   UserService({
     required this.userId,
   });
-  Future<Either<UserProfile, FlowyError>> getUserProfile({required String userId}) {
+  Future<Either<UserProfilePB, FlowyError>> getUserProfile({required String userId}) {
     return UserEventGetUserProfile().send();
   }
 
@@ -20,7 +20,7 @@ class UserService {
     String? password,
     String? email,
   }) {
-    var payload = UpdateUserProfilePayload.create()..id = userId;
+    var payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
     if (name != null) {
       payload.name = name;

@@ -12,7 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  final UserProfile userProfile;
+  final UserProfilePB userProfile;
   const WelcomeScreen({
     Key? key,
     required this.userProfile,

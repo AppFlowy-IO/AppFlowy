@@ -10,7 +10,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +32,7 @@ import 'menu_user.dart';
 
 class HomeMenu extends StatelessWidget {
   final PublishNotifier<bool> _collapsedNotifier;
-  final UserProfile user;
+  final UserProfilePB user;
   final CurrentWorkspaceSettingPB workspaceSetting;
 
   const HomeMenu({

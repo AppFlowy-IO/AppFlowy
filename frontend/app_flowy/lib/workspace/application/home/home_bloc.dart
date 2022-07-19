@@ -13,7 +13,7 @@ part 'home_bloc.freezed.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final UserWorkspaceListener _listener;
 
-  HomeBloc(UserProfile user, CurrentWorkspaceSettingPB workspaceSetting)
+  HomeBloc(UserProfilePB user, CurrentWorkspaceSettingPB workspaceSetting)
       : _listener = UserWorkspaceListener(userProfile: user),
         super(HomeState.initial(workspaceSetting)) {
     on<HomeEvent>((event, emit) async {

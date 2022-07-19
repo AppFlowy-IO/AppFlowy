@@ -14,7 +14,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
   final UserService _userService;
   final UserListener _userListener;
   final UserWorkspaceListener _userWorkspaceListener;
-  final UserProfile userProfile;
+  final UserProfilePB userProfile;
 
   MenuUserBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),
@@ -31,7 +31,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
         fetchWorkspaces: () async {
           //
         },
-        didReceiveUserProfile: (UserProfile newUserProfile) {
+        didReceiveUserProfile: (UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
         },
         updateUserName: (String name) {
@@ -58,7 +58,7 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
     result.fold((l) => null, (error) => Log.error(error));
   }
 
-  void _profileUpdated(Either<UserProfile, FlowyError> userProfileOrFailed) {
+  void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
       (newUserProfile) => add(MenuUserEvent.didReceiveUserProfile(newUserProfile)),
       (err) => Log.error(err),
@@ -75,18 +75,18 @@ class MenuUserEvent with _$MenuUserEvent {
   const factory MenuUserEvent.initial() = _Initial;
   const factory MenuUserEvent.fetchWorkspaces() = _FetchWorkspaces;
   const factory MenuUserEvent.updateUserName(String name) = _UpdateUserName;
-  const factory MenuUserEvent.didReceiveUserProfile(UserProfile newUserProfile) = _DidReceiveUserProfile;
+  const factory MenuUserEvent.didReceiveUserProfile(UserProfilePB newUserProfile) = _DidReceiveUserProfile;
 }
 
 @freezed
 class MenuUserState with _$MenuUserState {
   const factory MenuUserState({
-    required UserProfile userProfile,
+    required UserProfilePB userProfile,
     required Option<List<WorkspacePB>> workspaces,
     required Either<Unit, String> successOrFailure,
   }) = _MenuUserState;
 
-  factory MenuUserState.initial(UserProfile userProfile) => MenuUserState(
+  factory MenuUserState.initial(UserProfilePB userProfile) => MenuUserState(
         userProfile: userProfile,
         workspaces: none(),
         successOrFailure: left(unit),

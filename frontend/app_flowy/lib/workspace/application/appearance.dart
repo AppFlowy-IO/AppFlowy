@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
-  AppearanceSettings setting;
+  AppearanceSettingsPB setting;
   AppTheme _theme;
   Locale _locale;
   Timer? _saveOperation;

@@ -51,14 +51,14 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerSingleton(MenuSharedState());
 
-  getIt.registerFactoryParam<UserListener, UserProfile, void>(
+  getIt.registerFactoryParam<UserListener, UserProfilePB, void>(
     (user, _) => UserListener(userProfile: user),
   );
 
   //
   getIt.registerLazySingleton<HomeStackManager>(() => HomeStackManager());
 
-  getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
+  getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
     (user, _) => WelcomeBloc(
       userService: UserService(userId: user.id),
       userWorkspaceListener: UserWorkspaceListener(userProfile: user),
@@ -73,7 +73,7 @@ void _resolveHomeDeps(GetIt getIt) {
 
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
-  getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>(
+  getIt.registerFactoryParam<WorkspaceListener, UserProfilePB, String>(
       (user, workspaceId) => WorkspaceListener(user: user, workspaceId: workspaceId));
 
   // ViewPB
@@ -90,14 +90,14 @@ void _resolveFolderDeps(GetIt getIt) {
   );
 
   //Menu
-  getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
+  getIt.registerFactoryParam<MenuBloc, UserProfilePB, String>(
     (user, workspaceId) => MenuBloc(
       workspaceId: workspaceId,
       listener: getIt<WorkspaceListener>(param1: user, param2: workspaceId),
     ),
   );
 
-  getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
+  getIt.registerFactoryParam<MenuUserBloc, UserProfilePB, void>(
     (user, _) => MenuUserBloc(user),
   );
 

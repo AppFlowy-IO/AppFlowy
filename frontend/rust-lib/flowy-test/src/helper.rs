@@ -9,7 +9,7 @@ use flowy_folder::{
     event_map::FolderEvent::{CreateWorkspace, OpenWorkspace, *},
 };
 use flowy_user::{
-    entities::{SignInPayload, SignUpPayload, UserProfile},
+    entities::{SignInPayloadPB, SignUpPayloadPB, UserProfilePB},
     errors::FlowyError,
     event_map::UserEvent::{InitUser, SignIn, SignOut, SignUp},
 };
@@ -138,13 +138,13 @@ pub fn login_password() -> String {
 }
 
 pub struct SignUpContext {
-    pub user_profile: UserProfile,
+    pub user_profile: UserProfilePB,
     pub password: String,
 }
 
 pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     let password = login_password();
-    let payload = SignUpPayload {
+    let payload = SignUpPayloadPB {
         email: random_email(),
         name: "app flowy".to_string(),
         password: password.clone(),
@@ -154,7 +154,7 @@ pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
 
     let request = ModuleRequest::new(SignUp).payload(payload);
     let user_profile = EventDispatcher::sync_send(dispatch, request)
-        .parse::<UserProfile, FlowyError>()
+        .parse::<UserProfilePB, FlowyError>()
         .unwrap()
         .unwrap();
 
@@ -164,7 +164,7 @@ pub fn sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
 pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     let password = login_password();
     let email = random_email();
-    let payload = SignUpPayload {
+    let payload = SignUpPayloadPB {
         email,
         name: "app flowy".to_string(),
         password: password.clone(),
@@ -175,7 +175,7 @@ pub async fn async_sign_up(dispatch: Arc<EventDispatcher>) -> SignUpContext {
     let request = ModuleRequest::new(SignUp).payload(payload);
     let user_profile = EventDispatcher::async_send(dispatch.clone(), request)
         .await
-        .parse::<UserProfile, FlowyError>()
+        .parse::<UserProfilePB, FlowyError>()
         .unwrap()
         .unwrap();
 
@@ -189,8 +189,8 @@ pub async fn init_user_setting(dispatch: Arc<EventDispatcher>) {
 }
 
 #[allow(dead_code)]
-fn sign_in(dispatch: Arc<EventDispatcher>) -> UserProfile {
-    let payload = SignInPayload {
+fn sign_in(dispatch: Arc<EventDispatcher>) -> UserProfilePB {
+    let payload = SignInPayloadPB {
         email: login_email(),
         password: login_password(),
         name: "rust".to_owned(),
@@ -200,7 +200,7 @@ fn sign_in(dispatch: Arc<EventDispatcher>) -> UserProfile {
 
     let request = ModuleRequest::new(SignIn).payload(payload);
     EventDispatcher::sync_send(dispatch, request)
-        .parse::<UserProfile, FlowyError>()
+        .parse::<UserProfilePB, FlowyError>()
         .unwrap()
         .unwrap()
 }

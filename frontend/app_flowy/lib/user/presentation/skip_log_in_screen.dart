@@ -116,7 +116,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
 
   void _openCurrentWorkspace(
     BuildContext context,
-    UserProfile user,
+    UserProfilePB user,
     dartz.Either<CurrentWorkspaceSettingPB, FlowyError> workspacesOrError,
   ) {
     workspacesOrError.fold(
