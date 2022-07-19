@@ -20,7 +20,7 @@ printError() {
 
 # Note: This script does not install applications which are installed by the package manager. There are too many package managers out there.
 
-# Install Rust 
+# Install Rust
 printMessage "The Rust programming language is required to compile AppFlowy."
 printMessage "We can install it now if you don't already have it on your system."
 
@@ -45,6 +45,14 @@ flutter config --enable-linux-desktop
 
 # Fix any problems reported by flutter doctor
 flutter doctor
+
+# Install protoc plugin
+printMessage "Install protoc plugin"
+dart pub global activate protoc_plugin
+
+# Add protoc to path
+printMessage "Add protoc plugin to PATH"
+echo "export PATH=${HOME}/.pub-cache/bin"
 
 # Add the githooks directory to your git configuration
 printMessage "Setting up githooks."
