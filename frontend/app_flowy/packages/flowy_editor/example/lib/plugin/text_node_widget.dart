@@ -166,6 +166,27 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
         ..commit();
     }
 
+    _setEditingStateFromGlobal();
+  }
+
+  _forwardDeleteTextAtSelection(TextSelection? sel) {
+    if (sel == null) {
+      return;
+    }
+
+    if (sel.isCollapsed) {
+      TransactionBuilder(editorState)
+        ..deleteText(node, sel.start, 1)
+        ..commit();
+    } else {
+      TransactionBuilder(editorState)
+        ..deleteText(node, sel.start, sel.extentOffset - sel.baseOffset)
+        ..commit();
+    }
+    _setEditingStateFromGlobal();
+  }
+
+  _setEditingStateFromGlobal() {
     _textInputConnection?.setEditingState(TextEditingValue(
         text: _textContentOfDelta(node.delta),
         selection: _globalSelectionToLocal(node, editorState.cursorSelection) ??
@@ -185,6 +206,8 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
                   _globalSelectionToLocal(node, editorState.cursorSelection);
               if (value.logicalKey.keyLabel == "Backspace") {
                 _backDeleteTextAtSelection(sel);
+              } else if (value.logicalKey.keyLabel == "Delete") {
+                _forwardDeleteTextAtSelection(sel);
               }
             }
           }),
