@@ -15,7 +15,7 @@ pub struct CreateTextBlockParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
-pub struct TextBlockInfo {
+pub struct DocumentPB {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -29,14 +29,14 @@ pub struct TextBlockInfo {
     pub base_rev_id: i64,
 }
 
-impl TextBlockInfo {
+impl DocumentPB {
     pub fn delta(&self) -> Result<RichTextDelta, OTError> {
         let delta = RichTextDelta::from_bytes(&self.text)?;
         Ok(delta)
     }
 }
 
-impl std::convert::TryFrom<Revision> for TextBlockInfo {
+impl std::convert::TryFrom<Revision> for DocumentPB {
     type Error = CollaborateError;
 
     fn try_from(revision: Revision) -> Result<Self, Self::Error> {
@@ -48,7 +48,7 @@ impl std::convert::TryFrom<Revision> for TextBlockInfo {
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let doc_json = delta.to_delta_str();
 
-        Ok(TextBlockInfo {
+        Ok(DocumentPB {
             block_id: revision.object_id,
             text: doc_json,
             rev_id: revision.rev_id,
@@ -67,7 +67,7 @@ pub struct ResetTextBlockParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct TextBlockDelta {
+pub struct TextBlockDeltaPB {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -76,7 +76,7 @@ pub struct TextBlockDelta {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct NewDocUser {
+pub struct NewDocUserPB {
     #[pb(index = 1)]
     pub user_id: String,
 
@@ -88,30 +88,30 @@ pub struct NewDocUser {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct TextBlockId {
+pub struct TextBlockIdPB {
     #[pb(index = 1)]
     pub value: String,
 }
-impl AsRef<str> for TextBlockId {
+impl AsRef<str> for TextBlockIdPB {
     fn as_ref(&self) -> &str {
         &self.value
     }
 }
 
-impl std::convert::From<String> for TextBlockId {
+impl std::convert::From<String> for TextBlockIdPB {
     fn from(value: String) -> Self {
-        TextBlockId { value }
+        TextBlockIdPB { value }
     }
 }
 
-impl std::convert::From<TextBlockId> for String {
-    fn from(block_id: TextBlockId) -> Self {
+impl std::convert::From<TextBlockIdPB> for String {
+    fn from(block_id: TextBlockIdPB) -> Self {
         block_id.value
     }
 }
 
-impl std::convert::From<&String> for TextBlockId {
+impl std::convert::From<&String> for TextBlockIdPB {
     fn from(s: &String) -> Self {
-        TextBlockId { value: s.to_owned() }
+        TextBlockIdPB { value: s.to_owned() }
     }
 }

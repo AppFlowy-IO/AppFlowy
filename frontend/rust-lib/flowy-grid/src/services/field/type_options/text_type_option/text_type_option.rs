@@ -1,7 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    try_decode_cell_data, AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData,
+    try_decode_cell_data, CellBytes, CellBytesParser, CellData, CellDataChangeset, CellDataOperation, CellDisplayable,
+    FromCellString,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -32,13 +33,25 @@ pub struct RichTextTypeOption {
 }
 impl_type_option!(RichTextTypeOption, FieldType::RichText);
 
+impl CellDisplayable<String> for RichTextTypeOption {
+    fn display_data(
+        &self,
+        cell_data: CellData<String>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
+        let cell_str: String = cell_data.try_into_inner()?;
+        Ok(CellBytes::new(cell_str))
+    }
+}
+
 impl CellDataOperation<String, String> for RichTextTypeOption {
     fn decode_cell_data(
         &self,
         cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+    ) -> FlowyResult<CellBytes> {
         if decoded_field_type.is_date()
             || decoded_field_type.is_single_select()
             || decoded_field_type.is_multi_select()
@@ -46,8 +59,7 @@ impl CellDataOperation<String, String> for RichTextTypeOption {
         {
             try_decode_cell_data(cell_data, field_rev, decoded_field_type, decoded_field_type)
         } else {
-            let cell_data: String = cell_data.try_into_inner()?;
-            Ok(DecodedCellData::new(cell_data))
+            self.display_data(cell_data, decoded_field_type, field_rev)
         }
     }
 
@@ -72,11 +84,23 @@ impl AsRef<str> for TextCellData {
     }
 }
 
-impl std::convert::TryFrom<AnyCellData> for TextCellData {
-    type Error = FlowyError;
+impl FromCellString for TextCellData {
+    fn from_cell_str(s: &str) -> FlowyResult<Self>
+    where
+        Self: Sized,
+    {
+        Ok(TextCellData(s.to_owned()))
+    }
+}
 
-    fn try_from(value: AnyCellData) -> Result<Self, Self::Error> {
-        Ok(TextCellData(value.data))
+pub struct TextCellDataParser();
+impl CellBytesParser for TextCellDataParser {
+    type Object = TextCellData;
+    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+        match String::from_utf8(bytes.to_vec()) {
+            Ok(s) => Ok(TextCellData(s)),
+            Err(_) => Ok(TextCellData("".to_owned())),
+        }
     }
 }
 
@@ -84,7 +108,7 @@ impl std::convert::TryFrom<AnyCellData> for TextCellData {
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-    use crate::services::field::select_option::*;
+
     use crate::services::field::FieldBuilder;
     use crate::services::field::*;
 
@@ -100,14 +124,14 @@ mod tests {
             type_option
                 .decode_cell_data(1647251762.to_string().into(), &field_type, &date_time_field_rev)
                 .unwrap()
-                .parse::<DateCellData>()
+                .with_parser(DateCellDataParser())
                 .unwrap()
                 .date,
             "Mar 14,2022".to_owned()
         );
 
         // Single select
-        let done_option = SelectOption::new("Done");
+        let done_option = SelectOptionPB::new("Done");
         let done_option_id = done_option.id.clone();
         let single_select = SingleSelectTypeOptionBuilder::default().option(done_option.clone());
         let single_select_field_rev = FieldBuilder::new(single_select).build();
@@ -120,15 +144,15 @@ mod tests {
                     &single_select_field_rev
                 )
                 .unwrap()
-                .parse::<SelectOptionCellData>()
+                .with_parser(SelectOptionCellDataParser())
                 .unwrap()
                 .select_options,
             vec![done_option],
         );
 
         // Multiple select
-        let google_option = SelectOption::new("Google");
-        let facebook_option = SelectOption::new("Facebook");
+        let google_option = SelectOptionPB::new("Google");
+        let facebook_option = SelectOptionPB::new("Facebook");
         let ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
         let cell_data_changeset = SelectOptionCellChangeset::from_insert(&ids).to_str();
         let multi_select = MultiSelectTypeOptionBuilder::default()
@@ -143,7 +167,7 @@ mod tests {
             type_option
                 .decode_cell_data(cell_data.into(), &FieldType::MultiSelect, &multi_select_field_rev)
                 .unwrap()
-                .parse::<SelectOptionCellData>()
+                .with_parser(SelectOptionCellDataParser())
                 .unwrap()
                 .select_options,
             vec![google_option, facebook_option]

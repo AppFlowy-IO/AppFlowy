@@ -5,7 +5,7 @@ import 'builder.dart';
 
 typedef RichTextTypeOptionContext = TypeOptionWidgetContext<RichTextTypeOption>;
 
-class RichTextTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<RichTextTypeOption> {
+class RichTextTypeOptionWidgetDataParser extends TypeOptionDataParser<RichTextTypeOption> {
   @override
   RichTextTypeOption fromBuffer(List<int> buffer) {
     return RichTextTypeOption.fromBuffer(buffer);

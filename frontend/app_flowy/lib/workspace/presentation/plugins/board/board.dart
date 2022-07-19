@@ -9,7 +9,7 @@ import 'src/board_page.dart';
 class BoardPluginBuilder implements PluginBuilder {
   @override
   Plugin build(dynamic data) {
-    if (data is View) {
+    if (data is ViewPB) {
       return BoardPlugin(pluginType: pluginType, view: data);
     } else {
       throw FlowyPluginException.invalidData;
@@ -32,11 +32,11 @@ class BoardPluginConfig implements PluginConfig {
 }
 
 class BoardPlugin extends Plugin {
-  final View _view;
+  final ViewPB _view;
   final PluginType _pluginType;
 
   BoardPlugin({
-    required View view,
+    required ViewPB view,
     required PluginType pluginType,
   })  : _pluginType = pluginType,
         _view = view;
@@ -52,8 +52,8 @@ class BoardPlugin extends Plugin {
 }
 
 class GridPluginDisplay extends PluginDisplay {
-  final View _view;
-  GridPluginDisplay({required View view, Key? key}) : _view = view;
+  final ViewPB _view;
+  GridPluginDisplay({required ViewPB view, Key? key}) : _view = view;
 
   @override
   Widget get leftBarItem => ViewLeftBarItem(view: _view);

@@ -5,7 +5,7 @@ import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_b
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
 import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,8 +18,8 @@ import 'home_stack.dart';
 import 'menu/menu.dart';
 
 class HomeScreen extends StatefulWidget {
-  final UserProfile user;
-  final CurrentWorkspaceSetting workspaceSetting;
+  final UserProfilePB user;
+  final CurrentWorkspaceSettingPB workspaceSetting;
   const HomeScreen(this.user, this.workspaceSetting, {Key? key}) : super(key: key);
 
   @override
@@ -27,7 +27,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  View? initialView;
+  ViewPB? initialView;
 
   @override
   void initState() {

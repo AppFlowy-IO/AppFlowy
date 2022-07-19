@@ -15,8 +15,8 @@ import 'row_action_sheet.dart';
 import 'row_detail.dart';
 
 class GridRowWidget extends StatefulWidget {
-  final GridRow rowData;
-  final GridRowsCache rowCache;
+  final GridRowInfo rowData;
+  final GridRowCache rowCache;
   final GridCellBuilder cellBuilder;
 
   GridRowWidget({
@@ -40,7 +40,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   @override
   void initState() {
     _rowBloc = RowBloc(
-      rowData: widget.rowData,
+      rowInfo: widget.rowData,
       rowCache: widget.rowCache,
     );
     _rowBloc.add(const RowEvent.initial());
@@ -53,7 +53,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
       value: _rowBloc,
       child: _RowEnterRegion(
         child: BlocBuilder<RowBloc, RowState>(
-          buildWhen: (p, c) => p.rowData.height != c.rowData.height,
+          buildWhen: (p, c) => p.rowInfo.height != c.rowInfo.height,
           builder: (context, state) {
             return Row(
               children: [
@@ -80,7 +80,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
 
   void _expandRow(BuildContext context) {
     final page = RowDetailPage(
-      rowData: widget.rowData,
+      rowInfo: widget.rowData,
       rowCache: widget.rowCache,
       cellBuilder: widget.cellBuilder,
     );
@@ -148,7 +148,7 @@ class _DeleteRowButton extends StatelessWidget {
       width: 20,
       height: 30,
       onPressed: () => GridRowActionSheet(
-        rowData: context.read<RowBloc>().state.rowData,
+        rowData: context.read<RowBloc>().state.rowInfo,
       ).show(context),
       iconPadding: const EdgeInsets.all(3),
       icon: svgWidget("editor/details"),
@@ -183,12 +183,12 @@ class _RowCells extends StatelessWidget {
 
   List<Widget> _makeCells(BuildContext context, GridCellMap gridCellMap) {
     return gridCellMap.values.map(
-      (gridCell) {
-        final GridCellWidget child = builder.build(gridCell);
+      (cellId) {
+        final GridCellWidget child = builder.build(cellId);
         accessoryBuilder(GridCellAccessoryBuildContext buildContext) {
           final builder = child.accessoryBuilder;
           List<GridCellAccessory> accessories = [];
-          if (gridCell.field.isPrimary) {
+          if (cellId.field.isPrimary) {
             accessories.add(PrimaryCellAccessory(
               onTapCallback: onExpand,
               isCellEditing: buildContext.isCellEditing,
@@ -202,7 +202,7 @@ class _RowCells extends StatelessWidget {
         }
 
         return CellContainer(
-          width: gridCell.field.width.toDouble(),
+          width: cellId.field.width.toDouble(),
           child: child,
           rowStateNotifier: Provider.of<RegionStateNotifier>(context, listen: false),
           accessoryBuilder: accessoryBuilder,

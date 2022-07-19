@@ -5,7 +5,7 @@ import 'builder.dart';
 
 typedef CheckboxTypeOptionContext = TypeOptionWidgetContext<CheckboxTypeOption>;
 
-class CheckboxTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<CheckboxTypeOption> {
+class CheckboxTypeOptionWidgetDataParser extends TypeOptionDataParser<CheckboxTypeOption> {
   @override
   CheckboxTypeOption fromBuffer(List<int> buffer) {
     return CheckboxTypeOption.fromBuffer(buffer);

@@ -146,7 +146,7 @@ class _TextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
-        final optionMap = LinkedHashMap<String, SelectOption>.fromIterable(state.selectedOptions,
+        final optionMap = LinkedHashMap<String, SelectOptionPB>.fromIterable(state.selectedOptions,
             key: (option) => option.name, value: (option) => option);
 
         return SizedBox(
@@ -216,7 +216,7 @@ class _CreateOptionCell extends StatelessWidget {
 }
 
 class _SelectOptionCell extends StatelessWidget {
-  final SelectOption option;
+  final SelectOptionPB option;
   final bool isSelected;
   const _SelectOptionCell(this.option, this.isSelected, {Key? key}) : super(key: key);
 

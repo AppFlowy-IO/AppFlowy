@@ -11,19 +11,19 @@ part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
-  final GridRowsCache _rowCache;
+  final GridRowCache _rowCache;
   void Function()? _rowListenFn;
 
   RowBloc({
-    required GridRow rowData,
-    required GridRowsCache rowCache,
+    required GridRowInfo rowInfo,
+    required GridRowCache rowCache,
   })  : _rowService = RowService(
-          gridId: rowData.gridId,
-          blockId: rowData.blockId,
-          rowId: rowData.rowId,
+          gridId: rowInfo.gridId,
+          blockId: rowInfo.blockId,
+          rowId: rowInfo.id,
         ),
         _rowCache = rowCache,
-        super(RowState.initial(rowData, rowCache.loadGridCells(rowData.rowId))) {
+        super(RowState.initial(rowInfo, rowCache.loadGridCells(rowInfo.id))) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(
@@ -58,7 +58,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   Future<void> _startListening() async {
     _rowListenFn = _rowCache.addListener(
-      rowId: state.rowData.rowId,
+      rowId: state.rowInfo.id,
       onCellUpdated: (cellDatas, reason) => add(RowEvent.didReceiveCellDatas(cellDatas, reason)),
       listenWhen: () => !isClosed,
     );
@@ -76,23 +76,23 @@ class RowEvent with _$RowEvent {
 @freezed
 class RowState with _$RowState {
   const factory RowState({
-    required GridRow rowData,
+    required GridRowInfo rowInfo,
     required GridCellMap gridCellMap,
     required UnmodifiableListView<GridCellEquatable> snapshots,
     GridRowChangeReason? changeReason,
   }) = _RowState;
 
-  factory RowState.initial(GridRow rowData, GridCellMap cellDataMap) => RowState(
-        rowData: rowData,
+  factory RowState.initial(GridRowInfo rowInfo, GridCellMap cellDataMap) => RowState(
+        rowInfo: rowInfo,
         gridCellMap: cellDataMap,
         snapshots: UnmodifiableListView(cellDataMap.values.map((e) => GridCellEquatable(e.field)).toList()),
       );
 }
 
 class GridCellEquatable extends Equatable {
-  final Field _field;
+  final GridFieldPB _field;
 
-  const GridCellEquatable(Field field) : _field = field;
+  const GridCellEquatable(GridFieldPB field) : _field = field;
 
   @override
   List<Object?> get props => [

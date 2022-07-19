@@ -1,5 +1,5 @@
 use crate::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
 use crate::{errors::FlowyError, handlers::*, services::UserSession};
 use lib_dispatch::prelude::*;
@@ -26,7 +26,7 @@ pub trait UserCloudService: Send + Sync {
     fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError>;
     fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError>;
     fn update_user(&self, token: &str, params: UpdateUserProfileParams) -> FutureResult<(), FlowyError>;
-    fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError>;
+    fn get_user(&self, token: &str) -> FutureResult<UserProfilePB, FlowyError>;
     fn ws_addr(&self) -> String;
 }
 
@@ -39,27 +39,27 @@ pub enum UserEvent {
     #[event()]
     InitUser = 0,
 
-    #[event(input = "SignInPayload", output = "UserProfile")]
+    #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
     SignIn = 1,
 
-    #[event(input = "SignUpPayload", output = "UserProfile")]
+    #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
     SignUp = 2,
 
     #[event(passthrough)]
     SignOut = 3,
 
-    #[event(input = "UpdateUserProfilePayload")]
+    #[event(input = "UpdateUserProfilePayloadPB")]
     UpdateUserProfile = 4,
 
-    #[event(output = "UserProfile")]
+    #[event(output = "UserProfilePB")]
     GetUserProfile = 5,
 
-    #[event(output = "UserProfile")]
+    #[event(output = "UserProfilePB")]
     CheckUser = 6,
 
-    #[event(input = "AppearanceSettings")]
+    #[event(input = "AppearanceSettingsPB")]
     SetAppearanceSetting = 7,
 
-    #[event(output = "AppearanceSettings")]
+    #[event(output = "AppearanceSettingsPB")]
     GetAppearanceSetting = 8,
 }

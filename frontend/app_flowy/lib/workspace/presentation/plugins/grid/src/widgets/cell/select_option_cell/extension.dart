@@ -7,27 +7,27 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-extension SelectOptionColorExtension on SelectOptionColor {
+extension SelectOptionColorExtension on SelectOptionColorPB {
   Color make(BuildContext context) {
     final theme = context.watch<AppTheme>();
     switch (this) {
-      case SelectOptionColor.Purple:
+      case SelectOptionColorPB.Purple:
         return theme.tint1;
-      case SelectOptionColor.Pink:
+      case SelectOptionColorPB.Pink:
         return theme.tint2;
-      case SelectOptionColor.LightPink:
+      case SelectOptionColorPB.LightPink:
         return theme.tint3;
-      case SelectOptionColor.Orange:
+      case SelectOptionColorPB.Orange:
         return theme.tint4;
-      case SelectOptionColor.Yellow:
+      case SelectOptionColorPB.Yellow:
         return theme.tint5;
-      case SelectOptionColor.Lime:
+      case SelectOptionColorPB.Lime:
         return theme.tint6;
-      case SelectOptionColor.Green:
+      case SelectOptionColorPB.Green:
         return theme.tint7;
-      case SelectOptionColor.Aqua:
+      case SelectOptionColorPB.Aqua:
         return theme.tint8;
-      case SelectOptionColor.Blue:
+      case SelectOptionColorPB.Blue:
         return theme.tint9;
       default:
         throw ArgumentError;
@@ -36,23 +36,23 @@ extension SelectOptionColorExtension on SelectOptionColor {
 
   String optionName() {
     switch (this) {
-      case SelectOptionColor.Purple:
+      case SelectOptionColorPB.Purple:
         return LocaleKeys.grid_selectOption_purpleColor.tr();
-      case SelectOptionColor.Pink:
+      case SelectOptionColorPB.Pink:
         return LocaleKeys.grid_selectOption_pinkColor.tr();
-      case SelectOptionColor.LightPink:
+      case SelectOptionColorPB.LightPink:
         return LocaleKeys.grid_selectOption_lightPinkColor.tr();
-      case SelectOptionColor.Orange:
+      case SelectOptionColorPB.Orange:
         return LocaleKeys.grid_selectOption_orangeColor.tr();
-      case SelectOptionColor.Yellow:
+      case SelectOptionColorPB.Yellow:
         return LocaleKeys.grid_selectOption_yellowColor.tr();
-      case SelectOptionColor.Lime:
+      case SelectOptionColorPB.Lime:
         return LocaleKeys.grid_selectOption_limeColor.tr();
-      case SelectOptionColor.Green:
+      case SelectOptionColorPB.Green:
         return LocaleKeys.grid_selectOption_greenColor.tr();
-      case SelectOptionColor.Aqua:
+      case SelectOptionColorPB.Aqua:
         return LocaleKeys.grid_selectOption_aquaColor.tr();
-      case SelectOptionColor.Blue:
+      case SelectOptionColorPB.Blue:
         return LocaleKeys.grid_selectOption_blueColor.tr();
       default:
         throw ArgumentError;
@@ -75,7 +75,7 @@ class SelectOptionTag extends StatelessWidget {
 
   factory SelectOptionTag.fromSelectOption({
     required BuildContext context,
-    required SelectOption option,
+    required SelectOptionPB option,
     VoidCallback? onSelected,
     bool isSelected = false,
   }) {
@@ -107,8 +107,8 @@ class SelectOptionTag extends StatelessWidget {
 
 class SelectOptionTagCell extends StatelessWidget {
   final List<Widget> children;
-  final void Function(SelectOption) onSelected;
-  final SelectOption option;
+  final void Function(SelectOptionPB) onSelected;
+  final SelectOptionPB option;
   const SelectOptionTagCell({
     required this.option,
     required this.onSelected,

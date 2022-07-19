@@ -1,33 +1,51 @@
+use crate::entities::FieldType;
+use crate::services::cell::{AnyCellData, CellBytes};
+use crate::services::field::*;
+
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, FieldTypeRevision};
 
-use crate::entities::FieldType;
-use crate::services::cell::{AnyCellData, DecodedCellData};
-use crate::services::field::*;
-
+/// This trait is used when doing filter/search on the grid.
 pub trait CellFilterOperation<T> {
     /// Return true if any_cell_data match the filter condition.
     fn apply_filter(&self, any_cell_data: AnyCellData, filter: &T) -> FlowyResult<bool>;
 }
 
-pub trait CellDataOperation<D, C> {
-    /// The cell_data is able to parse into the specific data that was impl the FromCellData trait.
+/// Return object that describes the cell.
+pub trait CellDisplayable<CD> {
+    fn display_data(
+        &self,
+        cell_data: CellData<CD>,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes>;
+}
+
+// CD: Short for CellData. This type is the type return by apply_changeset function.
+// CS: Short for Changeset. Parse the string into specific Changeset type.
+pub trait CellDataOperation<CD, CS> {
+    /// The cell_data is able to parse into the specific data if CD impl the FromCellData trait.
     /// For example:
     /// URLCellData, DateCellData. etc.
     fn decode_cell_data(
         &self,
-        cell_data: CellData<D>,
+        cell_data: CellData<CD>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData>;
+    ) -> FlowyResult<CellBytes>;
 
-    /// The changeset is able to parse into the specific data that was impl the FromCellChangeset trait.
+    /// The changeset is able to parse into the specific data if CS impl the FromCellChangeset trait.
     /// For example:
     /// SelectOptionCellChangeset,DateCellChangeset. etc.  
-    fn apply_changeset(&self, changeset: CellDataChangeset<C>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
+    fn apply_changeset(&self, changeset: CellDataChangeset<CS>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
 }
-/// The changeset will be deserialized into specific data base on the FieldType.
-/// For example, it's String on FieldType::RichText, and SelectOptionChangeset on FieldType::SingleSelect
+
+/// changeset: It will be deserialized into specific data base on the FieldType.
+///     For example,
+///         FieldType::RichText => String
+///         FieldType::SingleSelect => SelectOptionChangeset
+///
+/// cell_rev: It will be None if the cell does not contain any data.
 pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
     changeset: C,
     cell_rev: Option<CellRevision>,
@@ -40,7 +58,9 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
         FieldType::RichText => RichTextTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::Number => NumberTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::DateTime => DateTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::SingleSelect => SingleSelectTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::SingleSelect => {
+            SingleSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev)
+        }
         FieldType::MultiSelect => MultiSelectTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::Checkbox => CheckboxTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::URL => URLTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
@@ -49,23 +69,20 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
     Ok(AnyCellData::new(s, field_type).json())
 }
 
-pub fn decode_any_cell_data<T: TryInto<AnyCellData>>(data: T, field_rev: &FieldRevision) -> DecodedCellData {
+pub fn decode_any_cell_data<T: TryInto<AnyCellData>>(data: T, field_rev: &FieldRevision) -> CellBytes {
     if let Ok(any_cell_data) = data.try_into() {
-        let AnyCellData {
-            data: cell_data,
-            field_type,
-        } = any_cell_data;
+        let AnyCellData { data, field_type } = any_cell_data;
         let to_field_type = field_rev.field_type_rev.into();
-        match try_decode_cell_data(CellData(Some(cell_data)), field_rev, &field_type, &to_field_type) {
-            Ok(cell_data) => cell_data,
+        match try_decode_cell_data(data.into(), field_rev, &field_type, &to_field_type) {
+            Ok(cell_bytes) => cell_bytes,
             Err(e) => {
                 tracing::error!("Decode cell data failed, {:?}", e);
-                DecodedCellData::default()
+                CellBytes::default()
             }
         }
     } else {
         tracing::error!("Decode type option data failed");
-        DecodedCellData::default()
+        CellBytes::default()
     }
 }
 
@@ -74,7 +91,7 @@ pub fn try_decode_cell_data(
     field_rev: &FieldRevision,
     s_field_type: &FieldType,
     t_field_type: &FieldType,
-) -> FlowyResult<DecodedCellData> {
+) -> FlowyResult<CellBytes> {
     let cell_data = cell_data.try_into_inner()?;
     let get_cell_data = || {
         let field_type: FieldTypeRevision = t_field_type.into();
@@ -89,7 +106,7 @@ pub fn try_decode_cell_data(
                 .get_type_option_entry::<DateTypeOption>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::SingleSelect => field_rev
-                .get_type_option_entry::<SingleSelectTypeOption>(field_type)?
+                .get_type_option_entry::<SingleSelectTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::MultiSelect => field_rev
                 .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
@@ -108,20 +125,22 @@ pub fn try_decode_cell_data(
         Some(Ok(data)) => Ok(data),
         Some(Err(err)) => {
             tracing::error!("{:?}", err);
-            Ok(DecodedCellData::default())
+            Ok(CellBytes::default())
         }
-        None => Ok(DecodedCellData::default()),
+        None => Ok(CellBytes::default()),
     }
 }
 
+/// If the cell data is not String type, it should impl this trait.
+/// Deserialize the String into cell specific data type.  
 pub trait FromCellString {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
         Self: Sized;
 }
 
+/// CellData is a helper struct. String will be parser into Option<T> only if the T impl the FromCellString trait.
 pub struct CellData<T>(pub Option<T>);
-
 impl<T> CellData<T> {
     pub fn try_into_inner(self) -> FlowyResult<T> {
         match self.0 {
@@ -146,9 +165,9 @@ where
     }
 }
 
-impl std::convert::From<String> for CellData<String> {
-    fn from(s: String) -> Self {
-        CellData(Some(s))
+impl<T> std::convert::From<T> for CellData<T> {
+    fn from(val: T) -> Self {
+        CellData(Some(val))
     }
 }
 
@@ -158,7 +177,8 @@ impl std::convert::From<CellData<String>> for String {
     }
 }
 
-// CellChangeset
+/// If the changeset applying to the cell is not String type, it should impl this trait.
+/// Deserialize the string into cell specific changeset.
 pub trait FromCellChangeset {
     fn from_changeset(changeset: String) -> FlowyResult<Self>
     where

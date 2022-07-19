@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ViewLeftBarItem extends StatefulWidget {
-  final View view;
+  final ViewPB view;
 
   ViewLeftBarItem({required this.view, Key? key}) : super(key: ValueKey(view.hashCode));
 
@@ -20,7 +20,7 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
   final _focusNode = FocusNode();
   late ViewService _viewService;
   late ViewListener _viewListener;
-  late View view;
+  late ViewPB view;
 
   @override
   void initState() {

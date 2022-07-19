@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'section/section.dart';
 
 class MenuApp extends StatefulWidget {
-  final App app;
+  final AppPB app;
   const MenuApp(this.app, {Key? key}) : super(key: key);
 
   @override
