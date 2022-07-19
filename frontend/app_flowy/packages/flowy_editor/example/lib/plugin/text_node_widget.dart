@@ -95,11 +95,20 @@ class _TextNodeWidget extends StatefulWidget {
   State<_TextNodeWidget> createState() => __TextNodeWidgetState();
 }
 
+String _textContentOfDelta(Delta delta) {
+  return delta.operations.fold("", (previousValue, element) {
+    if (element is TextInsert) {
+      return previousValue + element.content;
+    }
+    return previousValue;
+  });
+}
+
 class __TextNodeWidgetState extends State<_TextNodeWidget>
-    implements TextInputClient {
+    implements DeltaTextInputClient {
   TextNode get node => widget.node as TextNode;
   EditorState get editorState => widget.editorState;
-  TextEditingValue get textEditingValue => const TextEditingValue();
+  TextSelection? _localSelection;
 
   TextInputConnection? _textInputConnection;
 
@@ -112,20 +121,22 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
           TextSpan(
             children: node.toTextSpans(),
           ),
-          onTap: () {
+          onSelectionChanged: ((selection, cause) {
             _textInputConnection?.close();
             _textInputConnection = TextInput.attach(
               this,
               const TextInputConfiguration(
-                enableDeltaModel: false,
+                enableDeltaModel: true,
                 inputType: TextInputType.multiline,
                 textCapitalization: TextCapitalization.sentences,
               ),
             );
+            debugPrint('selection: $selection');
             _textInputConnection
               ?..show()
-              ..setEditingState(textEditingValue);
-          },
+              ..setEditingState(TextEditingValue(
+                  text: _textContentOfDelta(node.delta), selection: selection));
+          }),
         ),
         if (node.children.isNotEmpty)
           ...node.children.map(
@@ -152,7 +163,9 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   @override
   // TODO: implement currentTextEditingValue
-  TextEditingValue? get currentTextEditingValue => textEditingValue;
+  TextEditingValue? get currentTextEditingValue => TextEditingValue(
+      text: _textContentOfDelta(node.delta),
+      selection: _localSelection ?? const TextSelection.collapsed(offset: -1));
 
   @override
   void insertTextPlaceholder(Size size) {
@@ -186,7 +199,23 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   @override
   void updateEditingValue(TextEditingValue value) {
-    debugPrint(value.text);
+    debugPrint('offset: ${value.selection}');
+  }
+
+  @override
+  void updateEditingValueWithDeltas(List<TextEditingDelta> textEditingDeltas) {
+    for (final textDelta in textEditingDeltas) {
+      if (textDelta is TextEditingDeltaInsertion) {
+        TransactionBuilder(editorState)
+          ..insertText(node, textDelta.insertionOffset, textDelta.textInserted)
+          ..commit();
+      } else if (textDelta is TextEditingDeltaDeletion) {
+        TransactionBuilder(editorState)
+          ..deleteText(node, textDelta.deletedRange.start,
+              textDelta.deletedRange.end - textDelta.deletedRange.start)
+          ..commit();
+      }
+    }
   }
 
   @override
