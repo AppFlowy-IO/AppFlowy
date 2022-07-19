@@ -7,7 +7,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'util/test_env.dart';
 
 void main() {
-  UserProfile? userInfo;
+  UserProfilePB? userInfo;
   setUpAll(() async {
     final flowyTest = await FlowyTest.setup();
     userInfo = await flowyTest.signIn();

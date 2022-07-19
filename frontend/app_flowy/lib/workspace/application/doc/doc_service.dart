@@ -9,7 +9,7 @@ class DocumentService {
   Future<Either<TextBlockDeltaPB, FlowyError>> openDocument({
     required String docId,
   }) async {
-    await FolderEventSetLatestView(ViewId(value: docId)).send();
+    await FolderEventSetLatestView(ViewIdPB(value: docId)).send();
 
     final payload = TextBlockIdPB(value: docId);
     return TextBlockEventGetBlockData(payload).send();
@@ -23,7 +23,7 @@ class DocumentService {
   }
 
   Future<Either<Unit, FlowyError>> closeDocument({required String docId}) {
-    final request = ViewId(value: docId);
+    final request = ViewIdPB(value: docId);
     return FolderEventCloseView(request).send();
   }
 }

@@ -1,4 +1,4 @@
-use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfile};
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfilePB};
 use flowy_database::ConnectionPool;
 use flowy_database::{schema::user_table, DBConnection, Database};
 use flowy_error::{ErrorCode, FlowyError};
@@ -113,9 +113,9 @@ impl std::convert::From<SignInResponse> for UserTable {
     }
 }
 
-impl std::convert::From<UserTable> for UserProfile {
+impl std::convert::From<UserTable> for UserProfilePB {
     fn from(table: UserTable) -> Self {
-        UserProfile {
+        UserProfilePB {
             id: table.id,
             email: table.email,
             name: table.name,

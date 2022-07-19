@@ -13,7 +13,7 @@ import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/dart_notification.pb.dart' as user;
 import 'package:flowy_sdk/rust_stream.dart';
 
-typedef UserProfileNotifyValue = Either<UserProfile, FlowyError>;
+typedef UserProfileNotifyValue = Either<UserProfilePB, FlowyError>;
 typedef AuthNotifyValue = Either<Unit, FlowyError>;
 
 class UserListener {
@@ -22,9 +22,9 @@ class UserListener {
   PublishNotifier<UserProfileNotifyValue>? _profileNotifier = PublishNotifier();
 
   UserNotificationParser? _userParser;
-  final UserProfile _userProfile;
+  final UserProfilePB _userProfile;
   UserListener({
-    required UserProfile userProfile,
+    required UserProfilePB userProfile,
   }) : _userProfile = userProfile;
 
   void start({
@@ -65,7 +65,7 @@ class UserListener {
         break;
       case user.UserNotification.UserProfileUpdated:
         result.fold(
-          (payload) => _profileNotifier?.value = left(UserProfile.fromBuffer(payload)),
+          (payload) => _profileNotifier?.value = left(UserProfilePB.fromBuffer(payload)),
           (error) => _profileNotifier?.value = right(error),
         );
         break;
@@ -75,8 +75,8 @@ class UserListener {
   }
 }
 
-typedef WorkspaceListNotifyValue = Either<List<Workspace>, FlowyError>;
-typedef WorkspaceSettingNotifyValue = Either<CurrentWorkspaceSetting, FlowyError>;
+typedef WorkspaceListNotifyValue = Either<List<WorkspacePB>, FlowyError>;
+typedef WorkspaceSettingNotifyValue = Either<CurrentWorkspaceSettingPB, FlowyError>;
 
 class UserWorkspaceListener {
   PublishNotifier<AuthNotifyValue>? _authNotifier = PublishNotifier();
@@ -84,10 +84,10 @@ class UserWorkspaceListener {
   PublishNotifier<WorkspaceSettingNotifyValue>? _settingChangedNotifier = PublishNotifier();
 
   FolderNotificationListener? _listener;
-  final UserProfile _userProfile;
+  final UserProfilePB _userProfile;
 
   UserWorkspaceListener({
-    required UserProfile userProfile,
+    required UserProfilePB userProfile,
   }) : _userProfile = userProfile;
 
   void start({
@@ -119,13 +119,13 @@ class UserWorkspaceListener {
       case FolderNotification.UserDeleteWorkspace:
       case FolderNotification.WorkspaceListUpdated:
         result.fold(
-          (payload) => _workspacesChangedNotifier?.value = left(RepeatedWorkspace.fromBuffer(payload).items),
+          (payload) => _workspacesChangedNotifier?.value = left(RepeatedWorkspacePB.fromBuffer(payload).items),
           (error) => _workspacesChangedNotifier?.value = right(error),
         );
         break;
       case FolderNotification.WorkspaceSetting:
         result.fold(
-          (payload) => _settingChangedNotifier?.value = left(CurrentWorkspaceSetting.fromBuffer(payload)),
+          (payload) => _settingChangedNotifier?.value = left(CurrentWorkspaceSettingPB.fromBuffer(payload)),
           (error) => _settingChangedNotifier?.value = right(error),
         );
         break;

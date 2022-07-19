@@ -1,5 +1,5 @@
 use crate::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
 use crate::{
     dart_notification::*,
@@ -80,7 +80,7 @@ impl UserSession {
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfile, FlowyError> {
+    pub async fn sign_in(&self, params: SignInParams) -> Result<UserProfilePB, FlowyError> {
         if self.is_user_login(&params.email) {
             self.get_user_profile().await
         } else {
@@ -88,14 +88,14 @@ impl UserSession {
             let session: Session = resp.clone().into();
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
-            let user_profile: UserProfile = user_table.into();
+            let user_profile: UserProfilePB = user_table.into();
             self.notifier.notify_login(&user_profile.token, &user_profile.id);
             Ok(user_profile)
         }
     }
 
     #[tracing::instrument(level = "debug", skip(self))]
-    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfile, FlowyError> {
+    pub async fn sign_up(&self, params: SignUpParams) -> Result<UserProfilePB, FlowyError> {
         if self.is_user_login(&params.email) {
             self.get_user_profile().await
         } else {
@@ -103,7 +103,7 @@ impl UserSession {
             let session: Session = resp.clone().into();
             let _ = self.set_session(Some(session))?;
             let user_table = self.save_user(resp.into()).await?;
-            let user_profile: UserProfile = user_table.into();
+            let user_profile: UserProfilePB = user_table.into();
             let (ret, mut tx) = mpsc::channel(1);
             self.notifier.notify_sign_up(ret, &user_profile);
 
@@ -143,7 +143,7 @@ impl UserSession {
         Ok(())
     }
 
-    pub async fn check_user(&self) -> Result<UserProfile, FlowyError> {
+    pub async fn check_user(&self) -> Result<UserProfilePB, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
 
         let user = dsl::user_table
@@ -154,7 +154,7 @@ impl UserSession {
         Ok(user.into())
     }
 
-    pub async fn get_user_profile(&self) -> Result<UserProfile, FlowyError> {
+    pub async fn get_user_profile(&self) -> Result<UserProfilePB, FlowyError> {
         let (user_id, token) = self.get_session()?.into_part();
         let user = dsl::user_table
             .filter(user_table::id.eq(&user_id))

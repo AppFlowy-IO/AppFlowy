@@ -20,7 +20,7 @@ class GridService {
   });
 
   Future<Either<GridPB, FlowyError>> loadGrid() async {
-    await FolderEventSetLatestView(ViewId(value: gridId)).send();
+    await FolderEventSetLatestView(ViewIdPB(value: gridId)).send();
 
     final payload = GridIdPB(value: gridId);
     return GridEventGetGrid(payload).send();
@@ -40,7 +40,7 @@ class GridService {
   }
 
   Future<Either<Unit, FlowyError>> closeGrid() {
-    final request = ViewId(value: gridId);
+    final request = ViewIdPB(value: gridId);
     return FolderEventCloseView(request).send();
   }
 }

@@ -1,6 +1,6 @@
 use crate::entities::{
     app::UpdateAppParams,
-    trash::{Trash, TrashType},
+    trash::{TrashPB, TrashType},
 };
 use crate::{errors::FlowyError, services::persistence::version_1::workspace_sql::WorkspaceTable};
 use flowy_database::{
@@ -107,9 +107,9 @@ impl AppTable {
     }
 }
 
-impl std::convert::From<AppTable> for Trash {
+impl std::convert::From<AppTable> for TrashPB {
     fn from(table: AppTable) -> Self {
-        Trash {
+        TrashPB {
             id: table.id,
             name: table.name,
             modified_time: table.modified_time,

@@ -19,7 +19,7 @@ import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
-  final View view;
+  final ViewPB view;
 
   GridPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
 

@@ -30,7 +30,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return rows;
   }
 
-  GridBloc({required View view})
+  GridBloc({required ViewPB view})
       : gridId = view.id,
         _blocks = LinkedHashMap.identity(),
         _gridService = GridService(gridId: view.id),

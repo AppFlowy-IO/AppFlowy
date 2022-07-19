@@ -13,7 +13,7 @@ part 'share_bloc.freezed.dart';
 
 class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
   ShareService service;
-  View view;
+  ViewPB view;
   DocShareBloc({required this.view, required this.service}) : super(const DocShareState.initial()) {
     on<DocShareEvent>((event, emit) async {
       await event.map(

@@ -1,7 +1,7 @@
 use crate::entities::view::ViewDataType;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
-    entities::workspace::RepeatedWorkspace,
+    entities::workspace::RepeatedWorkspacePB,
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     services::{
@@ -216,7 +216,7 @@ impl DefaultFolderBuilder {
         let folder = FolderPad::new(vec![workspace_rev.clone()], vec![])?;
         let folder_id = FolderId::new(user_id);
         let _ = persistence.save_folder(user_id, &folder_id, folder).await?;
-        let repeated_workspace = RepeatedWorkspace {
+        let repeated_workspace = RepeatedWorkspacePB {
             items: vec![workspace_rev.into()],
         };
         send_dart_notification(token, FolderNotification::UserCreateWorkspace)
