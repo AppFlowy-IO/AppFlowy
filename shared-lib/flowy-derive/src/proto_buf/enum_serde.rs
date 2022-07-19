@@ -20,21 +20,19 @@ pub fn make_enum_token_stream(_ctxt: &Ctxt, cont: &ASTContainer) -> Option<Token
     });
 
     Some(quote! {
-        impl std::convert::TryFrom<&crate::protobuf::#pb_enum> for #enum_ident {
-            type Error = String;
-            fn try_from(pb:&crate::protobuf::#pb_enum) -> Result<Self, Self::Error> {
-                Ok(match pb {
+        impl std::convert::From<&crate::protobuf::#pb_enum> for #enum_ident {
+            fn from(pb:&crate::protobuf::#pb_enum) -> Self {
+                match pb {
                     #(#build_from_pb_enum)*
-                })
+                }
             }
         }
 
-        impl std::convert::TryInto<crate::protobuf::#pb_enum> for #enum_ident {
-            type Error = String;
-            fn try_into(self) -> Result<crate::protobuf::#pb_enum, Self::Error> {
-                Ok(match self {
+        impl std::convert::Into<crate::protobuf::#pb_enum> for #enum_ident {
+            fn into(self) -> crate::protobuf::#pb_enum  {
+                match self {
                     #(#build_to_pb_enum)*
-                })
+                }
             }
         }
     })

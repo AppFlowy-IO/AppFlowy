@@ -15,7 +15,7 @@ pub struct CreateTextBlockParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone, Eq, PartialEq)]
-pub struct TextBlockInfoPB {
+pub struct DocumentPB {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -29,14 +29,14 @@ pub struct TextBlockInfoPB {
     pub base_rev_id: i64,
 }
 
-impl TextBlockInfoPB {
+impl DocumentPB {
     pub fn delta(&self) -> Result<RichTextDelta, OTError> {
         let delta = RichTextDelta::from_bytes(&self.text)?;
         Ok(delta)
     }
 }
 
-impl std::convert::TryFrom<Revision> for TextBlockInfoPB {
+impl std::convert::TryFrom<Revision> for DocumentPB {
     type Error = CollaborateError;
 
     fn try_from(revision: Revision) -> Result<Self, Self::Error> {
@@ -48,7 +48,7 @@ impl std::convert::TryFrom<Revision> for TextBlockInfoPB {
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
         let doc_json = delta.to_delta_str();
 
-        Ok(TextBlockInfoPB {
+        Ok(DocumentPB {
             block_id: revision.object_id,
             text: doc_json,
             rev_id: revision.rev_id,

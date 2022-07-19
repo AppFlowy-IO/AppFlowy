@@ -2,10 +2,10 @@ use crate::{
     entities::{
         folder::{FolderDelta, FolderInfo},
         revision::{RepeatedRevision, Revision},
-        text_block::TextBlockInfoPB,
+        text_block::DocumentPB,
     },
     errors::{CollaborateError, CollaborateResult},
-    protobuf::{FolderInfo as FolderInfoPB, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+    protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
 };
 use dissimilar::Chunk;
 use lib_ot::core::{DeltaBuilder, FlowyStr};
@@ -102,6 +102,9 @@ where
 
 pub fn repeated_revision_from_revision_pbs(revisions: Vec<RevisionPB>) -> CollaborateResult<RepeatedRevision> {
     let repeated_revision_pb = repeated_revision_pb_from_revisions(revisions);
+
+    // let repeated_revision: RepeatedRevision = revisions.into_iter().map(Revision::);
+
     repeated_revision_from_repeated_revision_pb(repeated_revision_pb)
 }
 
@@ -152,22 +155,8 @@ pub fn pair_rev_id_from_revisions(revisions: &[Revision]) -> (i64, i64) {
 #[inline]
 pub fn make_folder_from_revisions_pb(
     folder_id: &str,
-    revisions: RepeatedRevisionPB,
-) -> Result<Option<FolderInfo>, CollaborateError> {
-    match make_folder_pb_from_revisions_pb(folder_id, revisions)? {
-        None => Ok(None),
-        Some(pb) => {
-            let folder_info: FolderInfo = pb.try_into().map_err(|e| CollaborateError::internal().context(e))?;
-            Ok(Some(folder_info))
-        }
-    }
-}
-
-#[inline]
-pub fn make_folder_pb_from_revisions_pb(
-    folder_id: &str,
     mut revisions: RepeatedRevisionPB,
-) -> Result<Option<FolderInfoPB>, CollaborateError> {
+) -> Result<Option<FolderInfo>, CollaborateError> {
     let revisions = revisions.take_items();
     if revisions.is_empty() {
         return Ok(None);
@@ -187,41 +176,25 @@ pub fn make_folder_pb_from_revisions_pb(
     }
 
     let text = folder_delta.to_delta_str();
-    let mut folder_info = FolderInfoPB::new();
-    folder_info.set_folder_id(folder_id.to_owned());
-    folder_info.set_text(text);
-    folder_info.set_base_rev_id(base_rev_id);
-    folder_info.set_rev_id(rev_id);
-    Ok(Some(folder_info))
+    Ok(Some(FolderInfo {
+        folder_id: folder_id.to_string(),
+        text,
+        rev_id,
+        base_rev_id,
+    }))
 }
 
 #[inline]
-pub fn make_document_info_from_revisions_pb(
-    doc_id: &str,
-    revisions: RepeatedRevisionPB,
-) -> Result<Option<TextBlockInfoPB>, CollaborateError> {
-    match make_document_info_pb_from_revisions_pb(doc_id, revisions)? {
-        None => Ok(None),
-        Some(pb) => {
-            let document_info: TextBlockInfoPB = pb.try_into().map_err(|e| {
-                CollaborateError::internal().context(format!("Deserialize document info from pb failed: {}", e))
-            })?;
-            Ok(Some(document_info))
-        }
-    }
-}
-
-#[inline]
-pub fn make_document_info_pb_from_revisions_pb(
+pub fn make_document_from_revision_pbs(
     doc_id: &str,
     mut revisions: RepeatedRevisionPB,
-) -> Result<Option<crate::protobuf::TextBlockInfoPB>, CollaborateError> {
+) -> Result<Option<DocumentPB>, CollaborateError> {
     let revisions = revisions.take_items();
     if revisions.is_empty() {
         return Ok(None);
     }
 
-    let mut document_delta = RichTextDelta::new();
+    let mut delta = RichTextDelta::new();
     let mut base_rev_id = 0;
     let mut rev_id = 0;
     for revision in revisions {
@@ -232,17 +205,18 @@ pub fn make_document_info_pb_from_revisions_pb(
             tracing::warn!("revision delta_data is empty");
         }
 
-        let delta = RichTextDelta::from_bytes(revision.delta_data)?;
-        document_delta = document_delta.compose(&delta)?;
+        let new_delta = RichTextDelta::from_bytes(revision.delta_data)?;
+        delta = delta.compose(&new_delta)?;
     }
 
-    let text = document_delta.to_delta_str();
-    let mut block_info = crate::protobuf::TextBlockInfoPB::new();
-    block_info.set_block_id(doc_id.to_owned());
-    block_info.set_text(text);
-    block_info.set_base_rev_id(base_rev_id);
-    block_info.set_rev_id(rev_id);
-    Ok(Some(block_info))
+    let text = delta.to_delta_str();
+
+    Ok(Some(DocumentPB {
+        block_id: doc_id.to_owned(),
+        text,
+        rev_id,
+        base_rev_id,
+    }))
 }
 
 #[inline]

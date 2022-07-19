@@ -1,10 +1,10 @@
 use flowy_sync::{
-    entities::{folder::FolderInfo, text_block::TextBlockInfoPB},
+    entities::{folder::FolderInfo, text_block::DocumentPB},
     errors::CollaborateError,
     protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
     server_document::*,
     server_folder::FolderCloudPersistence,
-    util::{make_document_info_from_revisions_pb, make_folder_from_revisions_pb},
+    util::{make_document_from_revision_pbs, make_folder_from_revisions_pb},
 };
 use lib_infra::future::BoxResultFuture;
 use std::{
@@ -111,12 +111,12 @@ impl FolderCloudPersistence for LocalTextBlockCloudPersistence {
 }
 
 impl TextBlockCloudPersistence for LocalTextBlockCloudPersistence {
-    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<TextBlockInfoPB, CollaborateError> {
+    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<DocumentPB, CollaborateError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
             let repeated_revision = storage.get_revisions(&doc_id, None).await?;
-            match make_document_info_from_revisions_pb(&doc_id, repeated_revision)? {
+            match make_document_from_revision_pbs(&doc_id, repeated_revision)? {
                 Some(document_info) => Ok(document_info),
                 None => Err(CollaborateError::record_not_found()),
             }
@@ -127,12 +127,12 @@ impl TextBlockCloudPersistence for LocalTextBlockCloudPersistence {
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<Option<TextBlockInfoPB>, CollaborateError> {
+    ) -> BoxResultFuture<Option<DocumentPB>, CollaborateError> {
         let doc_id = doc_id.to_owned();
         let storage = self.storage.clone();
         Box::pin(async move {
             let _ = storage.set_revisions(repeated_revision.clone()).await?;
-            make_document_info_from_revisions_pb(&doc_id, repeated_revision)
+            make_document_from_revision_pbs(&doc_id, repeated_revision)
         })
     }
 
