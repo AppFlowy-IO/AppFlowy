@@ -1,3 +1,5 @@
+import 'package:flowy_editor/document/position.dart';
+import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -81,6 +83,40 @@ extension on TextNode {
   }
 }
 
+TextSelection? _globalSelectionToLocal(Node node, Selection? globalSel) {
+  if (globalSel == null) {
+    return null;
+  }
+  final nodePath = node.path;
+
+  if (!pathEquals(nodePath, globalSel.start.path)) {
+    return null;
+  }
+  if (globalSel.isCollapsed()) {
+    return TextSelection(
+        baseOffset: globalSel.start.offset, extentOffset: globalSel.end.offset);
+  } else {
+    if (pathEquals(globalSel.start.path, globalSel.end.path)) {
+      return TextSelection(
+          baseOffset: globalSel.start.offset,
+          extentOffset: globalSel.end.offset);
+    }
+  }
+  return null;
+}
+
+Selection? _localSelectionToGlobal(Node node, TextSelection? sel) {
+  if (sel == null) {
+    return null;
+  }
+  final nodePath = node.path;
+
+  return Selection(
+    start: Position(path: nodePath, offset: sel.baseOffset),
+    end: Position(path: nodePath, offset: sel.extentOffset),
+  );
+}
+
 class _TextNodeWidget extends StatefulWidget {
   final Node node;
   final EditorState editorState;
@@ -106,37 +142,80 @@ String _textContentOfDelta(Delta delta) {
 
 class __TextNodeWidgetState extends State<_TextNodeWidget>
     implements DeltaTextInputClient {
+  final _focusNode = FocusNode(debugLabel: "input");
   TextNode get node => widget.node as TextNode;
   EditorState get editorState => widget.editorState;
-  TextSelection? _localSelection;
 
   TextInputConnection? _textInputConnection;
+
+  _backDeleteTextAtSelection(TextSelection? sel) {
+    if (sel == null) {
+      return;
+    }
+    if (sel.start == 0) {
+      return;
+    }
+
+    if (sel.isCollapsed) {
+      TransactionBuilder(editorState)
+        ..deleteText(node, sel.start - 1, 1)
+        ..commit();
+    } else {
+      TransactionBuilder(editorState)
+        ..deleteText(node, sel.start, sel.extentOffset - sel.baseOffset)
+        ..commit();
+    }
+
+    _textInputConnection?.setEditingState(TextEditingValue(
+        text: _textContentOfDelta(node.delta),
+        selection: _globalSelectionToLocal(node, editorState.cursorSelection) ??
+            const TextSelection.collapsed(offset: 0)));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SelectableText.rich(
-          TextSpan(
-            children: node.toTextSpans(),
-          ),
-          onSelectionChanged: ((selection, cause) {
-            _textInputConnection?.close();
-            _textInputConnection = TextInput.attach(
-              this,
-              const TextInputConfiguration(
-                enableDeltaModel: true,
-                inputType: TextInputType.multiline,
-                textCapitalization: TextCapitalization.sentences,
-              ),
-            );
-            debugPrint('selection: $selection');
-            _textInputConnection
-              ?..show()
-              ..setEditingState(TextEditingValue(
-                  text: _textContentOfDelta(node.delta), selection: selection));
+        KeyboardListener(
+          focusNode: _focusNode,
+          onKeyEvent: ((value) {
+            if (value is KeyDownEvent || value is KeyRepeatEvent) {
+              final sel =
+                  _globalSelectionToLocal(node, editorState.cursorSelection);
+              if (value.logicalKey.keyLabel == "Backspace") {
+                _backDeleteTextAtSelection(sel);
+              }
+            }
           }),
+          child: SelectableText.rich(
+            showCursor: true,
+            TextSpan(
+              children: node.toTextSpans(),
+            ),
+            onTap: () {
+              _focusNode.requestFocus();
+            },
+            onSelectionChanged: ((selection, cause) {
+              _textInputConnection?.close();
+              _textInputConnection = TextInput.attach(
+                this,
+                const TextInputConfiguration(
+                  enableDeltaModel: true,
+                  inputType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+              );
+              debugPrint('selection: $selection');
+              editorState.cursorSelection =
+                  _localSelectionToGlobal(node, selection);
+              _textInputConnection
+                ?..show()
+                ..setEditingState(TextEditingValue(
+                    text: _textContentOfDelta(node.delta),
+                    selection: selection));
+            }),
+          ),
         ),
         if (node.children.isNotEmpty)
           ...node.children.map(
@@ -165,7 +244,8 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   // TODO: implement currentTextEditingValue
   TextEditingValue? get currentTextEditingValue => TextEditingValue(
       text: _textContentOfDelta(node.delta),
-      selection: _localSelection ?? const TextSelection.collapsed(offset: -1));
+      selection: _globalSelectionToLocal(node, editorState.cursorSelection) ??
+          const TextSelection.collapsed(offset: 0));
 
   @override
   void insertTextPlaceholder(Size size) {
@@ -174,7 +254,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   @override
   void performAction(TextInputAction action) {
-    // TODO: implement performAction
+    debugPrint('action:$action');
   }
 
   @override
@@ -204,6 +284,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   @override
   void updateEditingValueWithDeltas(List<TextEditingDelta> textEditingDeltas) {
+    debugPrint(textEditingDeltas.toString());
     for (final textDelta in textEditingDeltas) {
       if (textDelta is TextEditingDeltaInsertion) {
         TransactionBuilder(editorState)

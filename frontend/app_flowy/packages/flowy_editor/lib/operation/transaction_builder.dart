@@ -1,7 +1,9 @@
 import 'dart:collection';
+import 'dart:math';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/path.dart';
+import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/selection.dart';
@@ -22,7 +24,8 @@ import './transaction.dart';
 class TransactionBuilder {
   final List<Operation> operations = [];
   EditorState state;
-  Selection? cursorSelection;
+  Selection? beforeSelection;
+  Selection? afterSelection;
 
   TransactionBuilder(this.state);
 
@@ -33,12 +36,12 @@ class TransactionBuilder {
   }
 
   insertNode(Path path, Node node) {
-    cursorSelection = state.cursorSelection;
+    beforeSelection = state.cursorSelection;
     add(InsertOperation(path: path, value: node));
   }
 
   updateNode(Node node, Attributes attributes) {
-    cursorSelection = state.cursorSelection;
+    beforeSelection = state.cursorSelection;
     add(UpdateOperation(
       path: node.path,
       attributes: Attributes.from(node.attributes)..addAll(attributes),
@@ -47,12 +50,12 @@ class TransactionBuilder {
   }
 
   deleteNode(Node node) {
-    cursorSelection = state.cursorSelection;
+    beforeSelection = state.cursorSelection;
     add(DeleteOperation(path: node.path, removedValue: node));
   }
 
   textEdit(TextNode node, Delta Function() f) {
-    cursorSelection = state.cursorSelection;
+    beforeSelection = state.cursorSelection;
     final path = node.path;
 
     final delta = f();
@@ -64,6 +67,8 @@ class TransactionBuilder {
 
   insertText(TextNode node, int index, String content) {
     textEdit(node, () => Delta().retain(index).insert(content));
+    afterSelection = Selection.collapsed(
+        Position(path: node.path, offset: index + content.length));
   }
 
   formatText(TextNode node, int index, int length, Attributes attributes) {
@@ -72,6 +77,8 @@ class TransactionBuilder {
 
   deleteText(TextNode node, int index, int length) {
     textEdit(node, () => Delta().retain(index).delete(length));
+    afterSelection =
+        Selection.collapsed(Position(path: node.path, offset: index));
   }
 
   add(Operation op) {
@@ -95,7 +102,8 @@ class TransactionBuilder {
   Transaction _finish() {
     return Transaction(
       operations: UnmodifiableListView(operations),
-      cursorSelection: cursorSelection,
+      beforeSelection: beforeSelection,
+      afterSelection: afterSelection,
     );
   }
 }
