@@ -5,7 +5,6 @@ use crate::{
         text_block::DocumentPB,
     },
     errors::{CollaborateError, CollaborateResult},
-    protobuf::{RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
 };
 use dissimilar::Chunk;
 use lib_ot::core::{DeltaBuilder, FlowyStr};
@@ -14,10 +13,7 @@ use lib_ot::{
     rich_text::RichTextDelta,
 };
 use serde::de::DeserializeOwned;
-use std::{
-    convert::TryInto,
-    sync::atomic::{AtomicI64, Ordering::SeqCst},
-};
+use std::sync::atomic::{AtomicI64, Ordering::SeqCst};
 
 #[inline]
 pub fn find_newline(s: &str) -> Option<usize> {
@@ -85,7 +81,7 @@ where
     Ok(delta)
 }
 
-pub fn make_delta_from_revision_pb<T>(revisions: Vec<RevisionPB>) -> CollaborateResult<Delta<T>>
+pub fn make_delta_from_revision_pb<T>(revisions: Vec<Revision>) -> CollaborateResult<Delta<T>>
 where
     T: Attributes + DeserializeOwned,
 {
@@ -100,29 +96,7 @@ where
     Ok(new_delta)
 }
 
-pub fn repeated_revision_from_revision_pbs(revisions: Vec<RevisionPB>) -> CollaborateResult<RepeatedRevision> {
-    let repeated_revision_pb = repeated_revision_pb_from_revisions(revisions);
-
-    // let repeated_revision: RepeatedRevision = revisions.into_iter().map(Revision::);
-
-    repeated_revision_from_repeated_revision_pb(repeated_revision_pb)
-}
-
-pub fn repeated_revision_pb_from_revisions(revisions: Vec<RevisionPB>) -> RepeatedRevisionPB {
-    let mut repeated_revision_pb = RepeatedRevisionPB::new();
-    repeated_revision_pb.set_items(revisions.into());
-    repeated_revision_pb
-}
-
-pub fn repeated_revision_from_repeated_revision_pb(
-    repeated_revision: RepeatedRevisionPB,
-) -> CollaborateResult<RepeatedRevision> {
-    repeated_revision
-        .try_into()
-        .map_err(|e| CollaborateError::internal().context(format!("Cast repeated revision failed: {:?}", e)))
-}
-
-pub fn pair_rev_id_from_revision_pbs(revisions: &[RevisionPB]) -> (i64, i64) {
+pub fn pair_rev_id_from_revision_pbs(revisions: &[Revision]) -> (i64, i64) {
     let mut rev_id = 0;
     revisions.iter().for_each(|revision| {
         if rev_id < revision.rev_id {
@@ -155,9 +129,9 @@ pub fn pair_rev_id_from_revisions(revisions: &[Revision]) -> (i64, i64) {
 #[inline]
 pub fn make_folder_from_revisions_pb(
     folder_id: &str,
-    mut revisions: RepeatedRevisionPB,
+    revisions: RepeatedRevision,
 ) -> Result<Option<FolderInfo>, CollaborateError> {
-    let revisions = revisions.take_items();
+    let revisions = revisions.into_inner();
     if revisions.is_empty() {
         return Ok(None);
     }
@@ -187,9 +161,9 @@ pub fn make_folder_from_revisions_pb(
 #[inline]
 pub fn make_document_from_revision_pbs(
     doc_id: &str,
-    mut revisions: RepeatedRevisionPB,
+    revisions: RepeatedRevision,
 ) -> Result<Option<DocumentPB>, CollaborateError> {
-    let revisions = revisions.take_items();
+    let revisions = revisions.into_inner();
     if revisions.is_empty() {
         return Ok(None);
     }

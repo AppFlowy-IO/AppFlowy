@@ -28,9 +28,9 @@ pub fn make_enum_token_stream(_ctxt: &Ctxt, cont: &ASTContainer) -> Option<Token
             }
         }
 
-        impl std::convert::Into<crate::protobuf::#pb_enum> for #enum_ident {
-            fn into(self) -> crate::protobuf::#pb_enum  {
-                match self {
+        impl std::convert::From<#enum_ident> for  crate::protobuf::#pb_enum{
+            fn from(o: #enum_ident) -> crate::protobuf::#pb_enum  {
+                match o {
                     #(#build_to_pb_enum)*
                 }
             }
