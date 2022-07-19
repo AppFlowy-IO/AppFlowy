@@ -1,3 +1,5 @@
+#![allow(clippy::all)]
+#![allow(dead_code)]
 use crate::services::row::GridBlockSnapshot;
 use crate::services::tasks::queue::TaskHandlerId;
 use std::cmp::Ordering;
@@ -60,14 +62,59 @@ pub(crate) enum TaskContent {
     Filter(FilterTaskContext),
 }
 
+#[derive(Debug, Eq, PartialEq)]
+pub(crate) enum TaskStatus {
+    Pending,
+    Processing,
+    Done,
+    Failure,
+    Cancel,
+}
+
 pub(crate) struct Task {
-    pub handler_id: TaskHandlerId,
     pub id: TaskId,
-    pub content: TaskContent,
+    pub handler_id: TaskHandlerId,
+    pub content: Option<TaskContent>,
+    status: TaskStatus,
+    pub ret: Option<tokio::sync::oneshot::Sender<TaskResult>>,
+    pub rx: Option<tokio::sync::oneshot::Receiver<TaskResult>>,
+}
+
+pub(crate) struct TaskResult {
+    pub id: TaskId,
+    pub(crate) status: TaskStatus,
+}
+
+impl std::convert::From<Task> for TaskResult {
+    fn from(task: Task) -> Self {
+        TaskResult {
+            id: task.id,
+            status: task.status,
+        }
+    }
 }
 
 impl Task {
+    pub fn new(handler_id: &str, id: TaskId, content: TaskContent) -> Self {
+        let (ret, rx) = tokio::sync::oneshot::channel();
+        Self {
+            handler_id: handler_id.to_owned(),
+            id,
+            content: Some(content),
+            ret: Some(ret),
+            rx: Some(rx),
+            status: TaskStatus::Pending,
+        }
+    }
+
+    pub fn set_status(&mut self, status: TaskStatus) {
+        self.status = status;
+    }
+
     pub fn is_finished(&self) -> bool {
-        todo!()
+        match self.status {
+            TaskStatus::Done => true,
+            _ => false,
+        }
     }
 }

@@ -1,0 +1,39 @@
+[tasks.install-commitlint.mac]
+script = [
+    """
+    brew install npm
+    npm install @commitlint/cli @commitlint/config-conventional --save-dev
+
+    git config core.hooksPath .githooks
+    """,
+]
+script_runner = "@shell"
+
+[tasks.install-commitlint.windows]
+script = [
+    """
+    echo "WIP"
+
+    git config core.hooksPath .githooks
+    """,
+]
+script_runner = "@duckscript"
+
+[tasks.install-commitlint.linux]
+script = [
+    """
+    if command -v apt &> /dev/null
+    then
+      echo "Installing node.js (sudo apt install nodejs)"
+      sudo apt install nodejs
+    else
+    echo "Installing node.js (sudo pacman -S nodejs)"
+      sudo pacman -S nodejs
+    fi
+
+    npm install @commitlint/cli @commitlint/config-conventional --save-dev
+
+    git config core.hooksPath .githooks
+    """,
+]
+script_runner = "@shell"
