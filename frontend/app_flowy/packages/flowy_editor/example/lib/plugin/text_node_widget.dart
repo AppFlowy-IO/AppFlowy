@@ -1,3 +1,5 @@
+import 'package:flowy_editor/document/position.dart';
+import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,98 @@ class TextNodeBuilder extends NodeWidgetBuilder {
   }
 }
 
+extension on Attributes {
+  TextStyle toTextStyle() {
+    return TextStyle(
+      color: this['color'] != null ? Colors.red : Colors.black,
+      fontSize: this['font-size'] != null ? 30 : 15,
+    );
+  }
+}
+
+TextSpan _textInsertToTextSpan(TextInsert textInsert) {
+  FontWeight? fontWeight;
+  FontStyle? fontStyle;
+  TextDecoration? decoration;
+  GestureRecognizer? gestureRecognizer;
+  Color? color;
+  final attributes = textInsert.attributes;
+  if (attributes?['bold'] == true) {
+    fontWeight = FontWeight.bold;
+  }
+  if (attributes?['italic'] == true) {
+    fontStyle = FontStyle.italic;
+  }
+  if (attributes?["underline"] == true) {
+    decoration = TextDecoration.underline;
+  }
+  if (attributes?["href"] is String) {
+    color = const Color.fromARGB(255, 55, 120, 245);
+    decoration = TextDecoration.underline;
+    gestureRecognizer = TapGestureRecognizer()
+      ..onTap = () {
+        // TODO: open the link
+      };
+  }
+  return TextSpan(
+      text: textInsert.content,
+      style: TextStyle(
+        fontWeight: fontWeight,
+        fontStyle: fontStyle,
+        decoration: decoration,
+        color: color,
+      ),
+      recognizer: gestureRecognizer);
+}
+
+extension on TextNode {
+  List<TextSpan> toTextSpans() {
+    final result = <TextSpan>[];
+
+    for (final op in delta.operations) {
+      if (op is TextInsert) {
+        result.add(_textInsertToTextSpan(op));
+      }
+    }
+
+    return result;
+  }
+}
+
+TextSelection? _globalSelectionToLocal(Node node, Selection? globalSel) {
+  if (globalSel == null) {
+    return null;
+  }
+  final nodePath = node.path;
+
+  if (!pathEquals(nodePath, globalSel.start.path)) {
+    return null;
+  }
+  if (globalSel.isCollapsed()) {
+    return TextSelection(
+        baseOffset: globalSel.start.offset, extentOffset: globalSel.end.offset);
+  } else {
+    if (pathEquals(globalSel.start.path, globalSel.end.path)) {
+      return TextSelection(
+          baseOffset: globalSel.start.offset,
+          extentOffset: globalSel.end.offset);
+    }
+  }
+  return null;
+}
+
+Selection? _localSelectionToGlobal(Node node, TextSelection? sel) {
+  if (sel == null) {
+    return null;
+  }
+  final nodePath = node.path;
+
+  return Selection(
+    start: Position(path: nodePath, offset: sel.baseOffset),
+    end: Position(path: nodePath, offset: sel.extentOffset),
+  );
+}
+
 class _TextNodeWidget extends StatefulWidget {
   final Node node;
   final EditorState editorState;
@@ -35,39 +129,118 @@ class _TextNodeWidget extends StatefulWidget {
   State<_TextNodeWidget> createState() => __TextNodeWidgetState();
 }
 
+String _textContentOfDelta(Delta delta) {
+  return delta.operations.fold("", (previousValue, element) {
+    if (element is TextInsert) {
+      return previousValue + element.content;
+    }
+    return previousValue;
+  });
+}
+
 class __TextNodeWidgetState extends State<_TextNodeWidget>
-    implements TextInputClient {
+    implements DeltaTextInputClient {
+  final _focusNode = FocusNode(debugLabel: "input");
   TextNode get node => widget.node as TextNode;
   EditorState get editorState => widget.editorState;
+
   TextEditingValue get textEditingValue => TextEditingValue(
         text: node.toRawString(),
       );
 
   TextInputConnection? _textInputConnection;
 
+  _backDeleteTextAtSelection(TextSelection? sel) {
+    if (sel == null) {
+      return;
+    }
+    if (sel.start == 0) {
+      return;
+    }
+
+    if (sel.isCollapsed) {
+      TransactionBuilder(editorState)
+        ..deleteText(node, sel.start - 1, 1)
+        ..commit();
+    } else {
+      TransactionBuilder(editorState)
+        ..deleteText(node, sel.start, sel.extentOffset - sel.baseOffset)
+        ..commit();
+    }
+
+    _setEditingStateFromGlobal();
+  }
+
+  _forwardDeleteTextAtSelection(TextSelection? sel) {
+    if (sel == null) {
+      return;
+    }
+
+    if (sel.isCollapsed) {
+      TransactionBuilder(editorState)
+        ..deleteText(node, sel.start, 1)
+        ..commit();
+    } else {
+      TransactionBuilder(editorState)
+        ..deleteText(node, sel.start, sel.extentOffset - sel.baseOffset)
+        ..commit();
+    }
+    _setEditingStateFromGlobal();
+  }
+
+  _setEditingStateFromGlobal() {
+    _textInputConnection?.setEditingState(TextEditingValue(
+        text: _textContentOfDelta(node.delta),
+        selection: _globalSelectionToLocal(node, editorState.cursorSelection) ??
+            const TextSelection.collapsed(offset: 0)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SelectableText.rich(
-          TextSpan(
-            children: node.toTextSpans(),
+        KeyboardListener(
+          focusNode: _focusNode,
+          onKeyEvent: ((value) {
+            if (value is KeyDownEvent || value is KeyRepeatEvent) {
+              final sel =
+                  _globalSelectionToLocal(node, editorState.cursorSelection);
+              if (value.logicalKey.keyLabel == "Backspace") {
+                _backDeleteTextAtSelection(sel);
+              } else if (value.logicalKey.keyLabel == "Delete") {
+                _forwardDeleteTextAtSelection(sel);
+              }
+            }
+          }),
+          child: SelectableText.rich(
+            showCursor: true,
+            TextSpan(
+              children: node.toTextSpans(),
+            ),
+            onTap: () {
+              _focusNode.requestFocus();
+            },
+            onSelectionChanged: ((selection, cause) {
+              _textInputConnection?.close();
+              _textInputConnection = TextInput.attach(
+                this,
+                const TextInputConfiguration(
+                  enableDeltaModel: true,
+                  inputType: TextInputType.multiline,
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+              );
+              debugPrint('selection: $selection');
+              editorState.cursorSelection =
+                  _localSelectionToGlobal(node, selection);
+              _textInputConnection
+                ?..show()
+                ..setEditingState(TextEditingValue(
+                    text: _textContentOfDelta(node.delta),
+                    selection: selection));
+            }),
           ),
-          onTap: () {
-            _textInputConnection?.close();
-            _textInputConnection = TextInput.attach(
-              this,
-              const TextInputConfiguration(
-                enableDeltaModel: false,
-                inputType: TextInputType.multiline,
-                textCapitalization: TextCapitalization.sentences,
-              ),
-            );
-            _textInputConnection
-              ?..show()
-              ..setEditingState(textEditingValue);
-          },
         ),
         if (node.children.isNotEmpty)
           ...node.children.map(
@@ -97,7 +270,10 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   @override
   // TODO: implement currentTextEditingValue
-  TextEditingValue? get currentTextEditingValue => textEditingValue;
+  TextEditingValue? get currentTextEditingValue => TextEditingValue(
+      text: _textContentOfDelta(node.delta),
+      selection: _globalSelectionToLocal(node, editorState.cursorSelection) ??
+          const TextSelection.collapsed(offset: 0));
 
   @override
   void insertTextPlaceholder(Size size) {
@@ -106,7 +282,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   @override
   void performAction(TextInputAction action) {
-    // TODO: implement performAction
+    debugPrint('action:$action');
   }
 
   @override
@@ -131,7 +307,24 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   @override
   void updateEditingValue(TextEditingValue value) {
-    debugPrint(value.text);
+    debugPrint('offset: ${value.selection}');
+  }
+
+  @override
+  void updateEditingValueWithDeltas(List<TextEditingDelta> textEditingDeltas) {
+    debugPrint(textEditingDeltas.toString());
+    for (final textDelta in textEditingDeltas) {
+      if (textDelta is TextEditingDeltaInsertion) {
+        TransactionBuilder(editorState)
+          ..insertText(node, textDelta.insertionOffset, textDelta.textInserted)
+          ..commit();
+      } else if (textDelta is TextEditingDeltaDeletion) {
+        TransactionBuilder(editorState)
+          ..deleteText(node, textDelta.deletedRange.start,
+              textDelta.deletedRange.end - textDelta.deletedRange.start)
+          ..commit();
+      }
+    }
   }
 
   @override

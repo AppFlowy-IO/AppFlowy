@@ -34,6 +34,7 @@ class EditorState {
     for (final op in transaction.operations) {
       _applyOperation(op);
     }
+    cursorSelection = transaction.afterSelection;
   }
 
   void _applyOperation(Operation op) {
