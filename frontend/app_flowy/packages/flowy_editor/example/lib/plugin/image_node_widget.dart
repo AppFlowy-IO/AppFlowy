@@ -30,17 +30,7 @@ class _ImageNodeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      child: _build(context),
-      onTap: () {
-        TransactionBuilder(editorState)
-          ..updateNode(node, {
-            'image_src':
-                "https://images.pexels.com/photos/9995076/pexels-photo-9995076.png?cs=srgb&dl=pexels-temmuz-uzun-9995076.jpg&fm=jpg&w=640&h=400"
-          })
-          ..commit();
-      },
-    );
+    return _build(context);
   }
 
   Widget _build(BuildContext context) {

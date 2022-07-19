@@ -158,6 +158,8 @@ TextSpan _textInsertToTextSpan(TextInsert textInsert) {
   TextDecoration? decoration;
   GestureRecognizer? gestureRecognizer;
   Color? color;
+  Color highLightColor = Colors.transparent;
+  double fontSize = 16.0;
   final attributes = textInsert.attributes;
   if (attributes?['bold'] == true) {
     fontWeight = FontWeight.bold;
@@ -168,6 +170,12 @@ TextSpan _textInsertToTextSpan(TextInsert textInsert) {
   if (attributes?['underline'] == true) {
     decoration = TextDecoration.underline;
   }
+  if (attributes?['strikethrough'] == true) {
+    decoration = TextDecoration.lineThrough;
+  }
+  if (attributes?['highlight'] is String) {
+    highLightColor = Color(int.parse(attributes!['highlight']));
+  }
   if (attributes?['href'] is String) {
     color = const Color.fromARGB(255, 55, 120, 245);
     decoration = TextDecoration.underline;
@@ -176,6 +184,16 @@ TextSpan _textInsertToTextSpan(TextInsert textInsert) {
         launchUrlString(attributes?['href']);
       };
   }
+  final heading = attributes?['heading'] as String?;
+  if (heading != null) {
+    // TODO: make it better
+    if (heading == 'h1') {
+      fontSize = 30.0;
+    } else if (heading == 'h2') {
+      fontSize = 20.0;
+    }
+    fontWeight = FontWeight.bold;
+  }
   return TextSpan(
     text: textInsert.content,
     style: TextStyle(
@@ -183,7 +201,8 @@ TextSpan _textInsertToTextSpan(TextInsert textInsert) {
       fontStyle: fontStyle,
       decoration: decoration,
       color: color,
-      fontSize: 16,
+      fontSize: fontSize,
+      backgroundColor: highLightColor,
     ),
     recognizer: gestureRecognizer,
   );
