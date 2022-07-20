@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'flowy_selectable_text.dart';
 
 class TextNodeBuilder extends NodeWidgetBuilder {
   TextNodeBuilder.create({
@@ -37,22 +38,81 @@ class _TextNodeWidget extends StatefulWidget {
   State<_TextNodeWidget> createState() => __TextNodeWidgetState();
 }
 
-String _textContentOfDelta(Delta delta) {
-  return delta.operations.fold("", (previousValue, element) {
-    if (element is TextInsert) {
-      return previousValue + element.content;
-    }
-    return previousValue;
-  });
-}
-
 class __TextNodeWidgetState extends State<_TextNodeWidget>
     implements DeltaTextInputClient {
-  final _focusNode = FocusNode(debugLabel: "input");
   TextNode get node => widget.node as TextNode;
   EditorState get editorState => widget.editorState;
 
   TextInputConnection? _textInputConnection;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        FlowySelectableText.rich(
+          node.toTextSpan(),
+          showCursor: true,
+          enableInteractiveSelection: true,
+          onSelectionChanged: _onSelectionChanged,
+          // autofocus: true,
+          focusNode: FocusNode(
+            onKey: _onKey,
+          ),
+        ),
+        if (node.children.isNotEmpty)
+          ...node.children.map(
+            (e) => editorState.renderPlugins.buildWidget(
+              context: NodeWidgetContext(
+                buildContext: context,
+                node: e,
+                editorState: editorState,
+              ),
+            ),
+          ),
+        const SizedBox(
+          height: 10,
+        ),
+      ],
+    );
+  }
+
+  KeyEventResult _onKey(FocusNode focusNode, RawKeyEvent event) {
+    if (event is RawKeyDownEvent) {
+      final sel = _globalSelectionToLocal(node, editorState.cursorSelection);
+      if (event.logicalKey == LogicalKeyboardKey.backspace) {
+        _backDeleteTextAtSelection(sel);
+        return KeyEventResult.handled;
+      } else if (event.logicalKey == LogicalKeyboardKey.delete) {
+        _forwardDeleteTextAtSelection(sel);
+        return KeyEventResult.handled;
+      }
+    }
+    return KeyEventResult.ignored;
+  }
+
+  void _onSelectionChanged(
+      TextSelection selection, SelectionChangedCause? cause) {
+    _textInputConnection?.close();
+    _textInputConnection = TextInput.attach(
+      this,
+      const TextInputConfiguration(
+        enableDeltaModel: true,
+        inputType: TextInputType.multiline,
+        textCapitalization: TextCapitalization.sentences,
+      ),
+    );
+    debugPrint('selection: $selection');
+    editorState.cursorSelection = _localSelectionToGlobal(node, selection);
+    _textInputConnection
+      ?..show()
+      ..setEditingState(
+        TextEditingValue(
+          text: node.toRawString(),
+          selection: selection,
+        ),
+      );
+  }
 
   _backDeleteTextAtSelection(TextSelection? sel) {
     if (sel == null) {
@@ -94,76 +154,9 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 
   _setEditingStateFromGlobal() {
     _textInputConnection?.setEditingState(TextEditingValue(
-        text: node.toString(),
+        text: node.toRawString(),
         selection: _globalSelectionToLocal(node, editorState.cursorSelection) ??
             const TextSelection.collapsed(offset: 0)));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        KeyboardListener(
-          focusNode: _focusNode,
-          onKeyEvent: ((value) {
-            if (value is KeyDownEvent || value is KeyRepeatEvent) {
-              final sel =
-                  _globalSelectionToLocal(node, editorState.cursorSelection);
-              if (value.logicalKey.keyLabel == "Backspace") {
-                _backDeleteTextAtSelection(sel);
-              } else if (value.logicalKey.keyLabel == "Delete") {
-                _forwardDeleteTextAtSelection(sel);
-              }
-            }
-          }),
-          child: SelectableText.rich(
-            showCursor: true,
-            TextSpan(
-              children: node.toTextSpans(),
-            ),
-            onTap: () {
-              _focusNode.requestFocus();
-            },
-            onSelectionChanged: ((selection, cause) {
-              _textInputConnection?.close();
-              _textInputConnection = TextInput.attach(
-                this,
-                const TextInputConfiguration(
-                  enableDeltaModel: true,
-                  inputType: TextInputType.multiline,
-                  textCapitalization: TextCapitalization.sentences,
-                ),
-              );
-              debugPrint('selection: $selection');
-              editorState.cursorSelection =
-                  _localSelectionToGlobal(node, selection);
-              _textInputConnection
-                ?..show()
-                ..setEditingState(
-                  TextEditingValue(
-                    text: node.toString(),
-                    selection: selection,
-                  ),
-                );
-            }),
-          ),
-        ),
-        if (node.children.isNotEmpty)
-          ...node.children.map(
-            (e) => editorState.renderPlugins.buildWidget(
-              context: NodeWidgetContext(
-                buildContext: context,
-                node: e,
-                editorState: editorState,
-              ),
-            ),
-          ),
-        const SizedBox(
-          height: 10,
-        ),
-      ],
-    );
   }
 
   @override
@@ -178,7 +171,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   @override
   // TODO: implement currentTextEditingValue
   TextEditingValue? get currentTextEditingValue => TextEditingValue(
-      text: node.toString(),
+      text: node.toRawString(),
       selection: _globalSelectionToLocal(node, editorState.cursorSelection) ??
           const TextSelection.collapsed(offset: 0));
 
@@ -241,10 +234,11 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
 }
 
 extension on TextNode {
-  List<TextSpan> toTextSpans() => delta.operations
-      .whereType<TextInsert>()
-      .map((op) => op.toTextSpan())
-      .toList();
+  TextSpan toTextSpan() => TextSpan(
+      children: delta.operations
+          .whereType<TextInsert>()
+          .map((op) => op.toTextSpan())
+          .toList());
 }
 
 extension on TextInsert {
