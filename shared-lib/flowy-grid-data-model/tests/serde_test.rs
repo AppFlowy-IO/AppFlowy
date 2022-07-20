@@ -6,5 +6,8 @@ fn grid_default_serde_test() {
     let grid = GridRevision::new(&grid_id);
 
     let json = serde_json::to_string(&grid).unwrap();
-    assert_eq!(json, r#"{"grid_id":"1","fields":[],"blocks":[]}"#)
+    assert_eq!(
+        json,
+        r#"{"grid_id":"1","fields":[],"blocks":[],"setting":{"layout":0,"filters":[]}}"#
+    )
 }
