@@ -122,7 +122,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     final latestView = workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null;
-    getIt<MenuSharedState>().latestOpenView = latestView;
+    if (getIt<MenuSharedState>().latestOpenView == null) {
+      /// AppFlowy will open the view that the last time the user opened it. The _buildHomeMenu will get called when AppFlowy's screen resizes. So we only set the latestOpenView when it's null.
+      getIt<MenuSharedState>().latestOpenView = latestView;
+    }
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
