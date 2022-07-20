@@ -16,42 +16,48 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc(UserProfilePB user, CurrentWorkspaceSettingPB workspaceSetting)
       : _listener = UserWorkspaceListener(userProfile: user),
         super(HomeState.initial(workspaceSetting)) {
-    on<HomeEvent>((event, emit) async {
-      await event.map(
-        initial: (_Initial value) {
-          _listener.start(
-            onAuthChanged: (result) => _authDidChanged(result),
-            onSettingUpdated: (result) {
-              result.fold(
-                (setting) => add(HomeEvent.didReceiveWorkspaceSetting(setting)),
-                (r) => Log.error(r),
-              );
-            },
-          );
-        },
-        showLoading: (e) async {
-          emit(state.copyWith(isLoading: e.isLoading));
-        },
-        setEditPannel: (e) async {
-          emit(state.copyWith(pannelContext: some(e.editContext)));
-        },
-        dismissEditPannel: (value) async {
-          emit(state.copyWith(pannelContext: none()));
-        },
-        forceCollapse: (e) async {
-          emit(state.copyWith(forceCollapse: e.forceCollapse));
-        },
-        didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
-          emit(state.copyWith(workspaceSetting: value.setting));
-        },
-        unauthorized: (_Unauthorized value) {
-          emit(state.copyWith(unauthorized: true));
-        },
-        collapseMenu: (e) {
-          emit(state.copyWith(isMenuCollapsed: !state.isMenuCollapsed));
-        },
-      );
-    });
+    on<HomeEvent>(
+      (event, emit) async {
+        await event.map(
+          initial: (_Initial value) {
+            _listener.start(
+              onAuthChanged: (result) => _authDidChanged(result),
+              onSettingUpdated: (result) {
+                result.fold(
+                  (setting) => add(HomeEvent.didReceiveWorkspaceSetting(setting)),
+                  (r) => Log.error(r),
+                );
+              },
+            );
+          },
+          showLoading: (e) async {
+            emit(state.copyWith(isLoading: e.isLoading));
+          },
+          setEditPannel: (e) async {
+            emit(state.copyWith(pannelContext: some(e.editContext)));
+          },
+          dismissEditPannel: (value) async {
+            emit(state.copyWith(pannelContext: none()));
+          },
+          forceCollapse: (e) async {
+            emit(state.copyWith(forceCollapse: e.forceCollapse));
+          },
+          didReceiveWorkspaceSetting: (_DidReceiveWorkspaceSetting value) {
+            emit(state.copyWith(workspaceSetting: value.setting));
+          },
+          unauthorized: (_Unauthorized value) {
+            emit(state.copyWith(unauthorized: true));
+          },
+          collapseMenu: (e) {
+            emit(state.copyWith(isMenuCollapsed: !state.isMenuCollapsed));
+          },
+          editPannelResized: (e) {
+            final newOffset = (state.resizeOffset + e.offset).clamp(-50, 200).toDouble();
+            emit(state.copyWith(resizeOffset: newOffset));
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -79,6 +85,7 @@ class HomeEvent with _$HomeEvent {
   const factory HomeEvent.didReceiveWorkspaceSetting(CurrentWorkspaceSettingPB setting) = _DidReceiveWorkspaceSetting;
   const factory HomeEvent.unauthorized(String msg) = _Unauthorized;
   const factory HomeEvent.collapseMenu() = _CollapseMenu;
+  const factory HomeEvent.editPannelResized(double offset) = _EditPannelResized;
 }
 
 @freezed
@@ -90,6 +97,7 @@ class HomeState with _$HomeState {
     required CurrentWorkspaceSettingPB workspaceSetting,
     required bool unauthorized,
     required bool isMenuCollapsed,
+    required double resizeOffset,
   }) = _HomeState;
 
   factory HomeState.initial(CurrentWorkspaceSettingPB workspaceSetting) => HomeState(
@@ -99,5 +107,6 @@ class HomeState with _$HomeState {
         workspaceSetting: workspaceSetting,
         unauthorized: false,
         isMenuCollapsed: false,
+        resizeOffset: 0,
       );
 }
