@@ -9,7 +9,7 @@ use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket};
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
 use flowy_sync::{
-    entities::{revision::Revision, text_block_info::TextBlockInfo},
+    entities::{revision::Revision, text_block::DocumentPB},
     errors::CollaborateResult,
     util::make_delta_from_revisions,
 };
@@ -199,6 +199,15 @@ fn spawn_edit_queue(
 ) -> EditorCommandSender {
     let (sender, receiver) = mpsc::channel(1000);
     let edit_queue = EditBlockQueue::new(user, rev_manager, delta, receiver);
+    // We can use tokio::task::spawn_local here by using tokio::spawn_blocking.
+    // https://github.com/tokio-rs/tokio/issues/2095
+    // tokio::task::spawn_blocking(move || {
+    //     let rt = tokio::runtime::Handle::current();
+    //     rt.block_on(async {
+    //         let local = tokio::task::LocalSet::new();
+    //         local.run_until(edit_queue.run()).await;
+    //     });
+    // });
     tokio::spawn(edit_queue.run());
     sender
 }
@@ -220,14 +229,14 @@ impl TextBlockEditor {
 
 struct TextBlockInfoBuilder();
 impl RevisionObjectBuilder for TextBlockInfoBuilder {
-    type Output = TextBlockInfo;
+    type Output = DocumentPB;
 
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = make_delta_from_revisions(revisions)?;
         correct_delta(&mut delta);
 
-        Result::<TextBlockInfo, FlowyError>::Ok(TextBlockInfo {
+        Result::<DocumentPB, FlowyError>::Ok(DocumentPB {
             block_id: object_id.to_owned(),
             text: delta.to_delta_str(),
             rev_id,

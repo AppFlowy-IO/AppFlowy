@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 enum FlowyPlugin {
@@ -32,12 +32,9 @@ extension FlowyPluginExtension on FlowyPlugin {
   }
 }
 
-extension ViewExtension on View {
+extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
-    String thumbnail = this.thumbnail;
-    if (thumbnail.isEmpty) {
-      thumbnail = "file_icon";
-    }
+    String thumbnail = "file_icon";
 
     final Widget widget = svgWidget(thumbnail, color: iconColor);
     return widget;

@@ -11,6 +11,7 @@ static RUST_TYPE_MAP: phf::Map<&'static str, &'static str> = phf_map! {
     "i32" => "int32",
     "u64" => "uint64",
     "u32" => "uint32",
+    "u8" => "uint8",
     "Vec" => "repeated",
     "f64" => "double",
     "HashMap" => "map",

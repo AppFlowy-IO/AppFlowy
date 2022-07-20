@@ -10,13 +10,31 @@
 	// ${cwd}: the current working directory of the spawned process
 	"tasks": [
 		{
-			"label": "build_flowy_sdk",
+			"label": "AF: Clean + Rebuild All",
+			"type": "shell",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"AF: Rust Clean",
+				"AF: Flutter Clean",
+				"AF: build_flowy_sdk",
+				"AF: Flutter Pub Get",
+				"AF: Flutter Package Get",
+				"AF: Generate Language Files",
+				"AF: Generate Freezed Files",
+			],
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			}
+		},
+		{
+			"label": "AF: build_flowy_sdk",
 			"type": "shell",
 			"command": "sh ./scripts/build_sdk.sh",
 			"windows": {
 				"options": {
 					"env": {
-						"FLOWY_DEV_ENV": "Windows",
+						"FLOWY_DEV_ENV": "Windows"
 					},
 					"shell": {
 						"executable": "cmd.exe",
@@ -31,27 +49,76 @@
 			"linux": {
 				"options": {
 					"env": {
-						"FLOWY_DEV_ENV": "Linux-x86",
+						"FLOWY_DEV_ENV": "Linux"
 					}
-				},
+				}
 			},
 			"osx": {
 				"options": {
 					"env": {
-						"FLOWY_DEV_ENV": "macOS",
+						"FLOWY_DEV_ENV": "macOS"
 					}
-				},
+				}
 			},
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"
-			},
-			// "problemMatcher": [
-			//     "$rustc"
-			// ],
+			}
 		},
 		{
-			"label": "Generate Language Files",
+			"label": "AF: Code Gen",
+			"type": "shell",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"AF: Flutter Clean",
+				"AF: Flutter Pub Get",
+				"AF: Flutter Package Get",
+				"AF: Generate Language Files",
+				"AF: Generate Freezed Files"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			}
+		},
+		{
+			"label": "AF: Flutter Clean",
+			"type": "shell",
+			"command": "flutter clean",
+			"options": {
+				"cwd": "${workspaceFolder}/app_flowy"
+			}
+		},
+		{
+			"label": "AF: Flutter Pub Get",
+			"type": "shell",
+			"command": "flutter pub get",
+			"options": {
+				"cwd": "${workspaceFolder}/app_flowy"
+			}
+		},
+		{
+			"label": "AF: Flutter Package Get",
+			"type": "shell",
+			"command": "flutter packages pub get",
+			"options": {
+				"cwd": "${workspaceFolder}/app_flowy"
+			}
+		},
+		{
+			"label": "AF: Generate Freezed Files",
+			"type": "shell",
+			"command": "flutter pub run build_runner build --delete-conflicting-outputs",
+			"options": {
+				"cwd": "${workspaceFolder}/app_flowy"
+			}
+		},
+		{
+			"label": "AF: Generate Language Files",
 			"type": "shell",
 			"command": "sh ./scripts/generate_language_files.sh",
 			"windows": {
@@ -69,28 +136,28 @@
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"
-			},
+			}
 		},
 		{
-			"label": "Clean",
+			"label": "AF: Rust Clean",
 			"type": "shell",
-			"command": "sh ./scripts/clean.sh",
-			"windows": {
-				"options": {
-					"shell": {
-						"executable": "cmd.exe",
-						"args": [
-							"/d",
-							"/c",
-							".\\scripts\\clean.cmd"
-						]
-					}
-				}
-			},
+			"command": "cargo make flowy_clean",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"
-			},
+			}
+		},
+		{
+			"label": "AF: flutter build aar",
+			"type": "flutter",
+			"command": "flutter",
+			"args": [
+				"build",
+				"aar"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "app_flowy"
 		}
 	]
 }

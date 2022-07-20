@@ -15,12 +15,12 @@ use flowy_sync::{
 };
 use std::sync::Arc;
 
-pub struct SQLiteGridBlockMetaRevisionPersistence {
+pub struct SQLiteGridBlockRevisionPersistence {
     user_id: String,
     pub(crate) pool: Arc<ConnectionPool>,
 }
 
-impl RevisionDiskCache for SQLiteGridBlockMetaRevisionPersistence {
+impl RevisionDiskCache for SQLiteGridBlockRevisionPersistence {
     type Error = FlowyError;
 
     fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
@@ -81,7 +81,7 @@ impl RevisionDiskCache for SQLiteGridBlockMetaRevisionPersistence {
     }
 }
 
-impl SQLiteGridBlockMetaRevisionPersistence {
+impl SQLiteGridBlockRevisionPersistence {
     pub fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
         Self {
             user_id: user_id.to_owned(),

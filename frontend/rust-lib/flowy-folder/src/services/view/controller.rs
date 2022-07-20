@@ -1,9 +1,11 @@
+pub use crate::entities::view::ViewDataType;
+use crate::entities::ViewInfoPB;
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
     entities::{
-        trash::{RepeatedTrashId, TrashType},
-        view::{CreateViewParams, RepeatedView, UpdateViewParams, View, ViewId},
+        trash::{RepeatedTrashIdPB, TrashType},
+        view::{CreateViewParams, RepeatedViewPB, UpdateViewParams, ViewIdPB, ViewPB},
     },
     errors::{FlowyError, FlowyResult},
     event_map::{FolderCouldServiceV1, WorkspaceUser},
@@ -14,8 +16,8 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_database::kv::KV;
-use flowy_folder_data_model::entities::view::{gen_view_id, ViewDataType};
-use flowy_sync::entities::text_block_info::TextBlockId;
+use flowy_folder_data_model::revision::{gen_view_id, ViewRevision};
+use flowy_sync::entities::text_block::TextBlockIdPB;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -52,24 +54,27 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "trace", skip(self, params), fields(name = %params.name), err)]
-    pub(crate) async fn create_view_from_params(&self, mut params: CreateViewParams) -> Result<View, FlowyError> {
-        let processor = self.get_data_processor(&params.data_type)?;
+    pub(crate) async fn create_view_from_params(
+        &self,
+        mut params: CreateViewParams,
+    ) -> Result<ViewRevision, FlowyError> {
+        let processor = self.get_data_processor(params.data_type.clone())?;
         let user_id = self.user.user_id()?;
         if params.data.is_empty() {
             let view_data = processor.create_default_view(&user_id, &params.view_id).await?;
             params.data = view_data.to_vec();
         } else {
             let delta_data = processor
-                .process_view_delta_data(&user_id, &params.view_id, params.data.clone())
+                .create_view_from_delta_data(&user_id, &params.view_id, params.data.clone())
                 .await?;
             let _ = self
                 .create_view(&params.view_id, params.data_type.clone(), delta_data)
                 .await?;
         };
 
-        let view = self.create_view_on_server(params).await?;
-        let _ = self.create_view_on_local(view.clone()).await?;
-        Ok(view)
+        let view_rev = self.create_view_on_server(params).await?;
+        let _ = self.create_view_on_local(view_rev.clone()).await?;
+        Ok(view_rev)
     }
 
     #[tracing::instrument(level = "debug", skip(self, view_id, delta_data), err)]
@@ -83,17 +88,17 @@ impl ViewController {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
         let user_id = self.user.user_id()?;
-        let processor = self.get_data_processor(&data_type)?;
+        let processor = self.get_data_processor(data_type)?;
         let _ = processor.create_container(&user_id, view_id, delta_data).await?;
         Ok(())
     }
 
-    pub(crate) async fn create_view_on_local(&self, view: View) -> Result<(), FlowyError> {
+    pub(crate) async fn create_view_on_local(&self, view_rev: ViewRevision) -> Result<(), FlowyError> {
         let trash_controller = self.trash_controller.clone();
         self.persistence
             .begin_transaction(|transaction| {
-                let belong_to_id = view.belong_to_id.clone();
-                let _ = transaction.create_view(view)?;
+                let belong_to_id = view_rev.belong_to_id.clone();
+                let _ = transaction.create_view(view_rev)?;
                 let _ = notify_views_changed(&belong_to_id, trash_controller, &transaction)?;
                 Ok(())
             })
@@ -101,8 +106,8 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
-    pub(crate) async fn read_view(&self, view_id: ViewId) -> Result<View, FlowyError> {
-        let view = self
+    pub(crate) async fn read_view(&self, view_id: ViewIdPB) -> Result<ViewRevision, FlowyError> {
+        let view_rev = self
             .persistence
             .begin_transaction(|transaction| {
                 let view = transaction.read_view(&view_id.value)?;
@@ -114,10 +119,39 @@ impl ViewController {
             })
             .await?;
         let _ = self.read_view_on_server(view_id);
-        Ok(view)
+        Ok(view_rev)
     }
 
-    pub(crate) async fn read_local_views(&self, ids: Vec<String>) -> Result<Vec<View>, FlowyError> {
+    #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
+    pub(crate) async fn read_view_info(&self, view_id: ViewIdPB) -> Result<ViewInfoPB, FlowyError> {
+        let view_info = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let view_rev = transaction.read_view(&view_id.value)?;
+
+                let items: Vec<ViewPB> = view_rev
+                    .belongings
+                    .into_iter()
+                    .map(|view_rev| view_rev.into())
+                    .collect();
+
+                let view_info = ViewInfoPB {
+                    id: view_rev.id,
+                    belong_to_id: view_rev.belong_to_id,
+                    name: view_rev.name,
+                    desc: view_rev.desc,
+                    data_type: view_rev.data_type.into(),
+                    belongings: RepeatedViewPB { items },
+                    ext_data: view_rev.ext_data,
+                };
+                Ok(view_info)
+            })
+            .await?;
+
+        Ok(view_info)
+    }
+
+    pub(crate) async fn read_local_views(&self, ids: Vec<String>) -> Result<Vec<ViewRevision>, FlowyError> {
         self.persistence
             .begin_transaction(|transaction| {
                 let mut views = vec![];
@@ -143,7 +177,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn delete_view(&self, params: TextBlockId) -> Result<(), FlowyError> {
+    pub(crate) async fn delete_view(&self, params: TextBlockIdPB) -> Result<(), FlowyError> {
         if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
             if view_id == params.value {
                 let _ = KV::remove(LATEST_VIEW_ID);
@@ -170,22 +204,22 @@ impl ViewController {
 
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
-        let view = self
+        let view_rev = self
             .persistence
             .begin_transaction(|transaction| transaction.read_view(view_id))
             .await?;
 
-        let processor = self.get_data_processor(&view.data_type)?;
-        let delta_bytes = processor.view_delta_data(view_id).await?;
+        let processor = self.get_data_processor(view_rev.data_type.clone())?;
+        let delta_bytes = processor.get_delta_data(view_id).await?;
         let duplicate_params = CreateViewParams {
-            belong_to_id: view.belong_to_id.clone(),
-            name: format!("{} (copy)", &view.name),
-            desc: view.desc,
-            thumbnail: view.thumbnail,
-            data_type: view.data_type,
+            belong_to_id: view_rev.belong_to_id.clone(),
+            name: format!("{} (copy)", &view_rev.name),
+            desc: view_rev.desc,
+            thumbnail: view_rev.thumbnail,
+            data_type: view_rev.data_type.into(),
             data: delta_bytes.to_vec(),
             view_id: gen_view_id(),
-            plugin_type: view.plugin_type,
+            plugin_type: view_rev.plugin_type,
         };
 
         let _ = self.create_view_from_params(duplicate_params).await?;
@@ -194,7 +228,7 @@ impl ViewController {
 
     // belong_to_id will be the app_id or view_id.
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<RepeatedView, FlowyError> {
+    pub(crate) async fn read_views_belong_to(&self, belong_to_id: &str) -> Result<Vec<ViewRevision>, FlowyError> {
         self.persistence
             .begin_transaction(|transaction| {
                 read_belonging_views_on_local(belong_to_id, self.trash_controller.clone(), &transaction)
@@ -203,35 +237,36 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), err)]
-    pub(crate) async fn update_view(&self, params: UpdateViewParams) -> Result<View, FlowyError> {
+    pub(crate) async fn update_view(&self, params: UpdateViewParams) -> Result<ViewRevision, FlowyError> {
         let changeset = ViewChangeset::new(params.clone());
         let view_id = changeset.id.clone();
-        let view = self
+        let view_rev = self
             .persistence
             .begin_transaction(|transaction| {
                 let _ = transaction.update_view(changeset)?;
-                let view = transaction.read_view(&view_id)?;
+                let view_rev = transaction.read_view(&view_id)?;
+                let view: ViewPB = view_rev.clone().into();
                 send_dart_notification(&view_id, FolderNotification::ViewUpdated)
-                    .payload(view.clone())
+                    .payload(view)
                     .send();
-                let _ = notify_views_changed(&view.belong_to_id, self.trash_controller.clone(), &transaction)?;
-                Ok(view)
+                let _ = notify_views_changed(&view_rev.belong_to_id, self.trash_controller.clone(), &transaction)?;
+                Ok(view_rev)
             })
             .await?;
 
         let _ = self.update_view_on_server(params);
-        Ok(view)
+        Ok(view_rev)
     }
 
-    pub(crate) async fn latest_visit_view(&self) -> FlowyResult<Option<View>> {
+    pub(crate) async fn latest_visit_view(&self) -> FlowyResult<Option<ViewRevision>> {
         match KV::get_str(LATEST_VIEW_ID) {
             None => Ok(None),
             Some(view_id) => {
-                let view = self
+                let view_rev = self
                     .persistence
                     .begin_transaction(|transaction| transaction.read_view(&view_id))
                     .await?;
-                Ok(Some(view))
+                Ok(Some(view_rev))
             }
         }
     }
@@ -239,10 +274,10 @@ impl ViewController {
 
 impl ViewController {
     #[tracing::instrument(level = "debug", skip(self, params), err)]
-    async fn create_view_on_server(&self, params: CreateViewParams) -> Result<View, FlowyError> {
+    async fn create_view_on_server(&self, params: CreateViewParams) -> Result<ViewRevision, FlowyError> {
         let token = self.user.token()?;
-        let view = self.cloud_service.create_view(&token, params).await?;
-        Ok(view)
+        let view_rev = self.cloud_service.create_view(&token, params).await?;
+        Ok(view_rev)
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
@@ -262,21 +297,22 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    fn read_view_on_server(&self, params: ViewId) -> Result<(), FlowyError> {
+    fn read_view_on_server(&self, params: ViewIdPB) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.cloud_service.clone();
         let persistence = self.persistence.clone();
         // TODO: Retry with RetryAction?
         tokio::spawn(async move {
             match server.read_view(&token, params).await {
-                Ok(Some(view)) => {
+                Ok(Some(view_rev)) => {
                     match persistence
-                        .begin_transaction(|transaction| transaction.create_view(view.clone()))
+                        .begin_transaction(|transaction| transaction.create_view(view_rev.clone()))
                         .await
                     {
                         Ok(_) => {
+                            let view: ViewPB = view_rev.into();
                             send_dart_notification(&view.id, FolderNotification::ViewUpdated)
-                                .payload(view.clone())
+                                .payload(view)
                                 .send();
                         }
                         Err(e) => log::error!("Save view failed: {:?}", e),
@@ -324,12 +360,16 @@ impl ViewController {
             .persistence
             .begin_transaction(|transaction| transaction.read_view(view_id))
             .await?;
-        self.get_data_processor(&view.data_type)
+        self.get_data_processor(view.data_type)
     }
 
     #[inline]
-    fn get_data_processor(&self, data_type: &ViewDataType) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
-        match self.data_processors.get(data_type) {
+    fn get_data_processor<T: Into<ViewDataType>>(
+        &self,
+        data_type: T,
+    ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
+        let data_type = data_type.into();
+        match self.data_processors.get(&data_type) {
             None => Err(FlowyError::internal().context(format!(
                 "Get data processor failed. Unknown view data type: {:?}",
                 data_type
@@ -350,10 +390,10 @@ async fn handle_trash_event(
         TrashEvent::NewTrash(identifiers, ret) => {
             let result = persistence
                 .begin_transaction(|transaction| {
-                    let views = read_local_views_with_transaction(identifiers, &transaction)?;
-                    for view in views {
-                        let _ = notify_views_changed(&view.belong_to_id, trash_can.clone(), &transaction)?;
-                        notify_dart(view, FolderNotification::ViewDeleted);
+                    let view_revs = read_local_views_with_transaction(identifiers, &transaction)?;
+                    for view_rev in view_revs {
+                        let _ = notify_views_changed(&view_rev.belong_to_id, trash_can.clone(), &transaction)?;
+                        notify_dart(view_rev.into(), FolderNotification::ViewDeleted);
                     }
                     Ok(())
                 })
@@ -363,10 +403,10 @@ async fn handle_trash_event(
         TrashEvent::Putback(identifiers, ret) => {
             let result = persistence
                 .begin_transaction(|transaction| {
-                    let views = read_local_views_with_transaction(identifiers, &transaction)?;
-                    for view in views {
-                        let _ = notify_views_changed(&view.belong_to_id, trash_can.clone(), &transaction)?;
-                        notify_dart(view, FolderNotification::ViewRestored);
+                    let view_revs = read_local_views_with_transaction(identifiers, &transaction)?;
+                    for view_rev in view_revs {
+                        let _ = notify_views_changed(&view_rev.belong_to_id, trash_can.clone(), &transaction)?;
+                        notify_dart(view_rev.into(), FolderNotification::ViewRestored);
                     }
                     Ok(())
                 })
@@ -393,7 +433,8 @@ async fn handle_trash_event(
                     .await?;
 
                 for view in views {
-                    match get_data_processor(data_processors.clone(), &view.data_type) {
+                    let data_type = view.data_type.clone().into();
+                    match get_data_processor(data_processors.clone(), &data_type) {
                         Ok(processor) => {
                             let _ = processor.close_container(&view.id).await?;
                         }
@@ -423,18 +464,17 @@ fn get_data_processor(
 }
 
 fn read_local_views_with_transaction<'a>(
-    identifiers: RepeatedTrashId,
+    identifiers: RepeatedTrashIdPB,
     transaction: &'a (dyn FolderPersistenceTransaction + 'a),
-) -> Result<Vec<View>, FlowyError> {
-    let mut views = vec![];
+) -> Result<Vec<ViewRevision>, FlowyError> {
+    let mut view_revs = vec![];
     for identifier in identifiers.items {
-        let view = transaction.read_view(&identifier.id)?;
-        views.push(view);
+        view_revs.push(transaction.read_view(&identifier.id)?);
     }
-    Ok(views)
+    Ok(view_revs)
 }
 
-fn notify_dart(view: View, notification: FolderNotification) {
+fn notify_dart(view: ViewPB, notification: FolderNotification) {
     send_dart_notification(&view.id, notification).payload(view).send();
 }
 
@@ -449,8 +489,13 @@ fn notify_views_changed<'a>(
     trash_controller: Arc<TrashController>,
     transaction: &'a (dyn FolderPersistenceTransaction + 'a),
 ) -> FlowyResult<()> {
-    let repeated_view = read_belonging_views_on_local(belong_to_id, trash_controller.clone(), transaction)?;
-    tracing::Span::current().record("view_count", &format!("{}", repeated_view.len()).as_str());
+    let items: Vec<ViewPB> = read_belonging_views_on_local(belong_to_id, trash_controller.clone(), transaction)?
+        .into_iter()
+        .map(|view_rev| view_rev.into())
+        .collect();
+    tracing::Span::current().record("view_count", &format!("{}", items.len()).as_str());
+
+    let repeated_view = RepeatedViewPB { items };
     send_dart_notification(belong_to_id, FolderNotification::AppViewsChanged)
         .payload(repeated_view)
         .send();
@@ -461,10 +506,10 @@ fn read_belonging_views_on_local<'a>(
     belong_to_id: &str,
     trash_controller: Arc<TrashController>,
     transaction: &'a (dyn FolderPersistenceTransaction + 'a),
-) -> FlowyResult<RepeatedView> {
-    let mut views = transaction.read_views(belong_to_id)?;
+) -> FlowyResult<Vec<ViewRevision>> {
+    let mut view_revs = transaction.read_views(belong_to_id)?;
     let trash_ids = trash_controller.read_trash_ids(transaction)?;
-    views.retain(|view_table| !trash_ids.contains(&view_table.id));
+    view_revs.retain(|view_table| !trash_ids.contains(&view_table.id));
 
-    Ok(RepeatedView { items: views })
+    Ok(view_revs)
 }

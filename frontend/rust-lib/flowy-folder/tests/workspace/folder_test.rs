@@ -1,7 +1,7 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
+use flowy_folder::entities::view::ViewDataType;
+use flowy_folder::entities::workspace::CreateWorkspacePayloadPB;
 
-use flowy_folder::entities::workspace::CreateWorkspacePayload;
-use flowy_folder_data_model::entities::view::ViewDataType;
 use flowy_revision::disk::RevisionState;
 use flowy_test::{event_builder::*, FlowySDKTest};
 
@@ -38,11 +38,9 @@ async fn workspace_create() {
 async fn workspace_read() {
     let mut test = FolderTest::new().await;
     let workspace = test.workspace.clone();
-    let json = serde_json::to_string(&workspace).unwrap();
 
     test.run_scripts(vec![
         ReadWorkspace(Some(workspace.id.clone())),
-        AssertWorkspaceJson(json),
         AssertWorkspace(workspace),
     ])
     .await;
@@ -58,15 +56,14 @@ async fn workspace_create_with_apps() {
     .await;
 
     let app = test.app.clone();
-    let json = serde_json::to_string(&app).unwrap();
-    test.run_scripts(vec![ReadApp(app.id), AssertAppJson(json)]).await;
+    test.run_scripts(vec![ReadApp(app.id)]).await;
 }
 
 #[tokio::test]
 async fn workspace_create_with_invalid_name() {
     for (name, code) in invalid_workspace_name_test_case() {
         let sdk = FlowySDKTest::default();
-        let request = CreateWorkspacePayload {
+        let request = CreateWorkspacePayloadPB {
             name,
             desc: "".to_owned(),
         };
@@ -343,7 +340,6 @@ async fn folder_sync_revision_with_new_view() {
 
     let view = test.view.clone();
     assert_eq!(view.name, view_name);
-    assert_eq!(view.desc, view_desc);
     test.run_scripts(vec![ReadView(view.id.clone()), AssertView(view)])
         .await;
 }

@@ -1,21 +1,21 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show SignInPayload, SignUpPayload, UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show SignInPayloadPB, SignUpPayloadPB, UserProfilePB;
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 
 class AuthService {
-  Future<Either<UserProfile, FlowyError>> signIn({required String? email, required String? password}) {
+  Future<Either<UserProfilePB, FlowyError>> signIn({required String? email, required String? password}) {
     //
-    final request = SignInPayload.create()
+    final request = SignInPayloadPB.create()
       ..email = email ?? ''
       ..password = password ?? '';
 
     return UserEventSignIn(request).send();
   }
 
-  Future<Either<UserProfile, FlowyError>> signUp(
+  Future<Either<UserProfilePB, FlowyError>> signUp(
       {required String? name, required String? password, required String? email}) {
-    final request = SignUpPayload.create()
+    final request = SignUpPayloadPB.create()
       ..email = email ?? ''
       ..name = name ?? ''
       ..password = password ?? '';

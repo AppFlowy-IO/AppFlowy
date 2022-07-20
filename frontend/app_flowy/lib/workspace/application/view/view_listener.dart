@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:app_flowy/core/notification_helper.dart';
+import 'package:app_flowy/core/folder_notification.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/dart-notify/subject.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/dart_notification.pb.dart';
 import 'package:flowy_sdk/rust_stream.dart';
 import 'package:flowy_infra/notifier.dart';
 
-typedef DeleteViewNotifyValue = Either<View, FlowyError>;
-typedef UpdateViewNotifiedValue = Either<View, FlowyError>;
-typedef RestoreViewNotifiedValue = Either<View, FlowyError>;
+typedef DeleteViewNotifyValue = Either<ViewPB, FlowyError>;
+typedef UpdateViewNotifiedValue = Either<ViewPB, FlowyError>;
+typedef RestoreViewNotifiedValue = Either<ViewPB, FlowyError>;
 
 class ViewListener {
   StreamSubscription<SubscribeObject>? _subscription;
@@ -19,7 +19,7 @@ class ViewListener {
   final PublishNotifier<DeleteViewNotifyValue> _deletedNotifier = PublishNotifier();
   final PublishNotifier<RestoreViewNotifiedValue> _restoredNotifier = PublishNotifier();
   FolderNotificationParser? _parser;
-  View view;
+  ViewPB view;
 
   ViewListener({
     required this.view,
@@ -62,19 +62,19 @@ class ViewListener {
     switch (ty) {
       case FolderNotification.ViewUpdated:
         result.fold(
-          (payload) => _updatedViewNotifier.value = left(View.fromBuffer(payload)),
+          (payload) => _updatedViewNotifier.value = left(ViewPB.fromBuffer(payload)),
           (error) => _updatedViewNotifier.value = right(error),
         );
         break;
       case FolderNotification.ViewDeleted:
         result.fold(
-          (payload) => _deletedNotifier.value = left(View.fromBuffer(payload)),
+          (payload) => _deletedNotifier.value = left(ViewPB.fromBuffer(payload)),
           (error) => _deletedNotifier.value = right(error),
         );
         break;
       case FolderNotification.ViewRestored:
         result.fold(
-          (payload) => _restoredNotifier.value = left(View.fromBuffer(payload)),
+          (payload) => _restoredNotifier.value = left(ViewPB.fromBuffer(payload)),
           (error) => _restoredNotifier.value = right(error),
         );
         break;

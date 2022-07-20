@@ -28,6 +28,8 @@ String languageFromLocale(Locale locale) {
       return "Magyar";
     case "it":
       return "Italiano";
+    case "ja":
+      return "日本語";
     case "pt":
       return "Português";
     case "ru":

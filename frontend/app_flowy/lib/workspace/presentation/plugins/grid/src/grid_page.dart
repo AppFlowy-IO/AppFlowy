@@ -5,7 +5,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
@@ -19,7 +19,7 @@ import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
-  final View view;
+  final ViewPB view;
 
   GridPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
 
@@ -190,9 +190,9 @@ class _GridRowsState extends State<_GridRows> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<GridBloc, GridState>(
-      listenWhen: (previous, current) => previous.listState != current.listState,
+      listenWhen: (previous, current) => previous.reason != current.reason,
       listener: (context, state) {
-        state.listState.mapOrNull(
+        state.reason.mapOrNull(
           insert: (value) {
             for (final item in value.items) {
               _key.currentState?.insertItem(item.index);
@@ -212,10 +212,10 @@ class _GridRowsState extends State<_GridRows> {
       builder: (context, state) {
         return SliverAnimatedList(
           key: _key,
-          initialItemCount: context.read<GridBloc>().state.rows.length,
+          initialItemCount: context.read<GridBloc>().state.rowInfos.length,
           itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-            final GridRow rowData = context.read<GridBloc>().state.rows[index];
-            return _renderRow(context, rowData, animation);
+            final GridRowInfo rowInfo = context.read<GridBloc>().state.rowInfos[index];
+            return _renderRow(context, rowInfo, animation);
           },
         );
       },
@@ -224,20 +224,24 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _renderRow(
     BuildContext context,
-    GridRow rowData,
+    GridRowInfo rowInfo,
     Animation<double> animation,
   ) {
-    final rowCache = context.read<GridBloc>().rowCache;
-    final cellCache = context.read<GridBloc>().cellCache;
-    return SizeTransition(
-      sizeFactor: animation,
-      child: GridRowWidget(
-        rowData: rowData,
-        rowCache: rowCache,
-        cellCache: cellCache,
-        key: ValueKey(rowData.rowId),
-      ),
-    );
+    final rowCache = context.read<GridBloc>().getRowCache(rowInfo.blockId, rowInfo.id);
+    final fieldCache = context.read<GridBloc>().fieldCache;
+    if (rowCache != null) {
+      return SizeTransition(
+        sizeFactor: animation,
+        child: GridRowWidget(
+          rowData: rowInfo,
+          rowCache: rowCache,
+          fieldCache: fieldCache,
+          key: ValueKey(rowInfo.id),
+        ),
+      );
+    } else {
+      return const SizedBox();
+    }
   }
 }
 

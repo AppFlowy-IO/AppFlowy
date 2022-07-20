@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -7,7 +7,7 @@ import 'cell_service/cell_service.dart';
 part 'url_cell_editor_bloc.freezed.dart';
 
 class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
-  final GridURLCellContext cellContext;
+  final GridURLCellController cellContext;
   void Function()? _onCellChangedFn;
   URLCellEditorBloc({
     required this.cellContext,
@@ -54,7 +54,7 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
 @freezed
 class URLCellEditorEvent with _$URLCellEditorEvent {
   const factory URLCellEditorEvent.initial() = _InitialCell;
-  const factory URLCellEditorEvent.didReceiveCellUpdate(URLCellData? cell) = _DidReceiveCellUpdate;
+  const factory URLCellEditorEvent.didReceiveCellUpdate(URLCellDataPB? cell) = _DidReceiveCellUpdate;
   const factory URLCellEditorEvent.updateText(String text) = _UpdateText;
 }
 
@@ -64,7 +64,7 @@ class URLCellEditorState with _$URLCellEditorState {
     required String content,
   }) = _URLCellEditorState;
 
-  factory URLCellEditorState.initial(GridURLCellContext context) {
+  factory URLCellEditorState.initial(GridURLCellController context) {
     final cellData = context.getCellData();
     return URLCellEditorState(
       content: cellData?.content ?? "",

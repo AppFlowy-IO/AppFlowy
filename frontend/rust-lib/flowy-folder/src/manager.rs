@@ -1,6 +1,8 @@
+use crate::entities::view::ViewDataType;
+use crate::services::folder_editor::FolderRevisionCompactor;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
-    entities::workspace::RepeatedWorkspace,
+    entities::workspace::RepeatedWorkspacePB,
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     services::{
@@ -9,17 +11,11 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_sync::client_document::default::{initial_quill_delta_string, initial_read_me};
-
-use crate::services::folder_editor::FolderRevisionCompactor;
 use flowy_error::FlowyError;
-use flowy_folder_data_model::entities::view::ViewDataType;
 use flowy_folder_data_model::user_default;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
-use flowy_revision::{
-    RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionHistoryPersistence,
-    SQLiteRevisionSnapshotPersistence,
-};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
+use flowy_sync::client_document::default::{initial_quill_delta_string, initial_read_me};
 use flowy_sync::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
@@ -170,14 +166,14 @@ impl FolderManager {
         let disk_cache = SQLiteTextBlockRevisionPersistence::new(user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache);
         let rev_compactor = FolderRevisionCompactor();
-        let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());
+        // let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(object_id, pool);
         let rev_manager = RevisionManager::new(
             user_id,
             folder_id.as_ref(),
             rev_persistence,
             rev_compactor,
-            history_persistence,
+            // history_persistence,
             snapshot_persistence,
         );
 
@@ -214,9 +210,9 @@ impl DefaultFolderBuilder {
         view_controller: Arc<ViewController>,
     ) -> FlowyResult<()> {
         log::debug!("Create user default workspace");
-        let workspace = user_default::create_default_workspace();
-        set_current_workspace(&workspace.id);
-        for app in workspace.apps.iter() {
+        let workspace_rev = user_default::create_default_workspace();
+        set_current_workspace(&workspace_rev.id);
+        for app in workspace_rev.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let view_data = if index == 0 {
                     initial_read_me().to_delta_str()
@@ -229,10 +225,12 @@ impl DefaultFolderBuilder {
                     .await?;
             }
         }
-        let folder = FolderPad::new(vec![workspace.clone()], vec![])?;
+        let folder = FolderPad::new(vec![workspace_rev.clone()], vec![])?;
         let folder_id = FolderId::new(user_id);
         let _ = persistence.save_folder(user_id, &folder_id, folder).await?;
-        let repeated_workspace = RepeatedWorkspace { items: vec![workspace] };
+        let repeated_workspace = RepeatedWorkspacePB {
+            items: vec![workspace_rev.into()],
+        };
         send_dart_notification(token, FolderNotification::UserCreateWorkspace)
             .payload(repeated_workspace)
             .send();
@@ -256,11 +254,16 @@ pub trait ViewDataProcessor {
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
-    fn view_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
+    fn get_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
     fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
-    fn process_view_delta_data(&self, user_id: &str, view_id: &str, data: Vec<u8>) -> FutureResult<Bytes, FlowyError>;
+    fn create_view_from_delta_data(
+        &self,
+        user_id: &str,
+        view_id: &str,
+        data: Vec<u8>,
+    ) -> FutureResult<Bytes, FlowyError>;
 
     fn data_type(&self) -> ViewDataType;
 }

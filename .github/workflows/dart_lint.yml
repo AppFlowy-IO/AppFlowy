@@ -25,14 +25,31 @@ jobs:
         with:
           flutter-version: '3.0.0'
           channel: "stable"
-      - name: Deps Flutter
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 'stable-2022-01-20'
+
+      - name: Rust Deps
+        working-directory: frontend
+        run: |
+          cargo install cargo-make
+          cargo make flowy_dev
+
+      - name: Flutter Deps
         run: flutter packages pub get
         working-directory: frontend/app_flowy
+
+      - name: Build FlowySDK
+        working-directory: frontend
+        run: |
+          cargo make --profile development-linux-x86_64 flowy-sdk-dev
+
       - name: Code Generation
         working-directory: frontend/app_flowy
         run: |
           flutter packages pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
           flutter packages pub run build_runner build --delete-conflicting-outputs
+
       - name: Run Flutter Analyzer
         working-directory: frontend/app_flowy
         run: flutter analyze

@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-message FFIRequest {
-    string event = 1;
-    bytes payload = 2;
-}

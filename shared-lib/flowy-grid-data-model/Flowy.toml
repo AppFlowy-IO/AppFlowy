@@ -1,3 +1,0 @@
-
-proto_crates = ["src/entities/grid.rs",]
-event_files = []

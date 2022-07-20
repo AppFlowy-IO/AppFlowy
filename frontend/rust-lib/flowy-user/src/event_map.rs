@@ -1,7 +1,7 @@
-use crate::{errors::FlowyError, handlers::*, services::UserSession};
-use flowy_user_data_model::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
+use crate::entities::{
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
+use crate::{errors::FlowyError, handlers::*, services::UserSession};
 use lib_dispatch::prelude::*;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -15,7 +15,7 @@ pub fn create(user_session: Arc<UserSession>) -> Module {
         .event(UserEvent::InitUser, init_user_handler)
         .event(UserEvent::GetUserProfile, get_user_profile_handler)
         .event(UserEvent::SignOut, sign_out)
-        .event(UserEvent::UpdateUser, update_user_handler)
+        .event(UserEvent::UpdateUserProfile, update_user_profile_handler)
         .event(UserEvent::CheckUser, check_user_handler)
         .event(UserEvent::SetAppearanceSetting, set_appearance_setting)
         .event(UserEvent::GetAppearanceSetting, get_appearance_setting)
@@ -25,8 +25,8 @@ pub trait UserCloudService: Send + Sync {
     fn sign_up(&self, params: SignUpParams) -> FutureResult<SignUpResponse, FlowyError>;
     fn sign_in(&self, params: SignInParams) -> FutureResult<SignInResponse, FlowyError>;
     fn sign_out(&self, token: &str) -> FutureResult<(), FlowyError>;
-    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), FlowyError>;
-    fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError>;
+    fn update_user(&self, token: &str, params: UpdateUserProfileParams) -> FutureResult<(), FlowyError>;
+    fn get_user(&self, token: &str) -> FutureResult<UserProfilePB, FlowyError>;
     fn ws_addr(&self) -> String;
 }
 
@@ -39,27 +39,27 @@ pub enum UserEvent {
     #[event()]
     InitUser = 0,
 
-    #[event(input = "SignInPayload", output = "UserProfile")]
+    #[event(input = "SignInPayloadPB", output = "UserProfilePB")]
     SignIn = 1,
 
-    #[event(input = "SignUpPayload", output = "UserProfile")]
+    #[event(input = "SignUpPayloadPB", output = "UserProfilePB")]
     SignUp = 2,
 
     #[event(passthrough)]
     SignOut = 3,
 
-    #[event(input = "UpdateUserPayload")]
-    UpdateUser = 4,
+    #[event(input = "UpdateUserProfilePayloadPB")]
+    UpdateUserProfile = 4,
 
-    #[event(output = "UserProfile")]
+    #[event(output = "UserProfilePB")]
     GetUserProfile = 5,
 
-    #[event(output = "UserProfile")]
+    #[event(output = "UserProfilePB")]
     CheckUser = 6,
 
-    #[event(input = "AppearanceSettings")]
+    #[event(input = "AppearanceSettingsPB")]
     SetAppearanceSetting = 7,
 
-    #[event(output = "AppearanceSettings")]
+    #[event(output = "AppearanceSettingsPB")]
     GetAppearanceSetting = 8,
 }

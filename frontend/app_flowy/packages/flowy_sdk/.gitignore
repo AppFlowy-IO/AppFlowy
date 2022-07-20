@@ -78,4 +78,6 @@ build/
 **/*.lib
 **/*.dll
 **/*.so
-# lib/**/dart_event.dart
+
+lib/protobuf
+lib/dispatch/dart_event

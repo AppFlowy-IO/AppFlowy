@@ -5,6 +5,7 @@ import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -16,12 +17,12 @@ import 'package:fixnum/fixnum.dart' as $fixnum;
 part 'date_cal_bloc.freezed.dart';
 
 class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
-  final GridDateCellContext cellContext;
+  final GridDateCellController cellContext;
   void Function()? _onCellChangedFn;
 
   DateCalBloc({
     required DateTypeOption dateTypeOption,
-    required DateCellData? cellData,
+    required DateCellDataPB? cellData,
     required this.cellContext,
   }) : super(DateCalState.initial(dateTypeOption, cellData)) {
     on<DateCalEvent>(
@@ -37,7 +38,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
           setFocusedDay: (focusedDay) {
             emit(state.copyWith(focusedDay: focusedDay));
           },
-          didReceiveCellUpdate: (DateCellData? cellData) {
+          didReceiveCellUpdate: (DateCellDataPB? cellData) {
             final calData = calDataFromCellData(cellData);
             final time = calData.foldRight("", (dateData, previous) => dateData.time);
             emit(state.copyWith(calData: calData, time: time));
@@ -187,7 +188,7 @@ class DateCalEvent with _$DateCalEvent {
   const factory DateCalEvent.setDateFormat(DateFormat dateFormat) = _DateFormat;
   const factory DateCalEvent.setIncludeTime(bool includeTime) = _IncludeTime;
   const factory DateCalEvent.setTime(String time) = _Time;
-  const factory DateCalEvent.didReceiveCellUpdate(DateCellData? data) = _DidReceiveCellUpdate;
+  const factory DateCalEvent.didReceiveCellUpdate(DateCellDataPB? data) = _DidReceiveCellUpdate;
   const factory DateCalEvent.didUpdateCalData(Option<CalendarData> data, Option<String> timeFormatError) =
       _DidUpdateCalData;
 }
@@ -206,7 +207,7 @@ class DateCalState with _$DateCalState {
 
   factory DateCalState.initial(
     DateTypeOption dateTypeOption,
-    DateCellData? cellData,
+    DateCellDataPB? cellData,
   ) {
     Option<CalendarData> calData = calDataFromCellData(cellData);
     final time = calData.foldRight("", (dateData, previous) => dateData.time);
@@ -225,14 +226,14 @@ class DateCalState with _$DateCalState {
 String _timeHintText(DateTypeOption typeOption) {
   switch (typeOption.timeFormat) {
     case TimeFormat.TwelveHour:
-      return LocaleKeys.grid_date_timeHintTextInTwelveHour.tr();
+      return LocaleKeys.document_date_timeHintTextInTwelveHour.tr();
     case TimeFormat.TwentyFourHour:
-      return LocaleKeys.grid_date_timeHintTextInTwentyFourHour.tr();
+      return LocaleKeys.document_date_timeHintTextInTwentyFourHour.tr();
   }
   return "";
 }
 
-Option<CalendarData> calDataFromCellData(DateCellData? cellData) {
+Option<CalendarData> calDataFromCellData(DateCellDataPB? cellData) {
   String? time = timeFromCellData(cellData);
   Option<CalendarData> calData = none();
   if (cellData != null) {
@@ -248,7 +249,7 @@ $fixnum.Int64 timestampFromDateTime(DateTime dateTime) {
   return $fixnum.Int64(timestamp);
 }
 
-String? timeFromCellData(DateCellData? cellData) {
+String? timeFromCellData(DateCellDataPB? cellData) {
   String? time;
   if (cellData?.hasTime() ?? false) {
     time = cellData?.time;

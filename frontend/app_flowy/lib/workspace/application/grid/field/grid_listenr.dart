@@ -1,13 +1,13 @@
+import 'package:app_flowy/core/grid_notification.dart';
 import 'package:dartz/dartz.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:app_flowy/core/notification_helper.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 
-typedef UpdateFieldNotifiedValue = Either<GridFieldChangeset, FlowyError>;
+typedef UpdateFieldNotifiedValue = Either<GridFieldChangesetPB, FlowyError>;
 
 class GridFieldsListener {
   final String gridId;
@@ -27,7 +27,7 @@ class GridFieldsListener {
     switch (ty) {
       case GridNotification.DidUpdateGridField:
         result.fold(
-          (payload) => updateFieldsNotifier?.value = left(GridFieldChangeset.fromBuffer(payload)),
+          (payload) => updateFieldsNotifier?.value = left(GridFieldChangesetPB.fromBuffer(payload)),
           (error) => updateFieldsNotifier?.value = right(error),
         );
         break;

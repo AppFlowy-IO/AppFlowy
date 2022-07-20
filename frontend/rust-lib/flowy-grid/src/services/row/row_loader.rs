@@ -1,105 +1,84 @@
-use crate::services::row::decode_cell_data_from_type_option_cell_data;
+use crate::entities::{GridBlockPB, GridRowPB, RepeatedGridBlockPB};
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::entities::{
-    Cell, CellMeta, FieldMeta, GridBlock, GridBlockOrder, RepeatedGridBlock, Row, RowMeta, RowOrder,
-};
+use flowy_grid_data_model::revision::RowRevision;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 pub struct GridBlockSnapshot {
     pub(crate) block_id: String,
-    pub row_metas: Vec<Arc<RowMeta>>,
+    pub row_revs: Vec<Arc<RowRevision>>,
 }
 
-pub(crate) fn group_row_orders(row_orders: Vec<RowOrder>) -> Vec<GridBlockOrder> {
-    let mut map: HashMap<String, GridBlockOrder> = HashMap::new();
-    row_orders.into_iter().for_each(|row_order| {
+pub(crate) fn block_from_row_orders(row_orders: Vec<GridRowPB>) -> Vec<GridBlockPB> {
+    let mut map: HashMap<String, GridBlockPB> = HashMap::new();
+    row_orders.into_iter().for_each(|row_info| {
         // Memory Optimization: escape clone block_id
-        let block_id = row_order.block_id.clone();
+        let block_id = row_info.block_id().to_owned();
+        let cloned_block_id = block_id.clone();
         map.entry(block_id)
-            .or_insert_with(|| GridBlockOrder::new(&row_order.block_id))
-            .row_orders
-            .push(row_order);
+            .or_insert_with(|| GridBlockPB::new(&cloned_block_id, vec![]))
+            .rows
+            .push(row_info);
     });
     map.into_values().collect::<Vec<_>>()
 }
+//
+// #[inline(always)]
+// fn make_cell_by_field_id(
+//     field_map: &HashMap<&String, &FieldRevision>,
+//     field_id: String,
+//     cell_rev: CellRevision,
+// ) -> Option<(String, Cell)> {
+//     let field_rev = field_map.get(&field_id)?;
+//     let data = decode_cell_data(cell_rev.data, field_rev).data;
+//     let cell = Cell::new(&field_id, data);
+//     Some((field_id, cell))
+// }
 
-#[inline(always)]
-pub fn make_cell_by_field_id(
-    field_map: &HashMap<&String, &FieldMeta>,
-    field_id: String,
-    cell_meta: CellMeta,
-) -> Option<(String, Cell)> {
-    let field_meta = field_map.get(&field_id)?;
-    let data = decode_cell_data_from_type_option_cell_data(cell_meta.data, field_meta, &field_meta.field_type).data;
-    let cell = Cell::new(&field_id, data);
-    Some((field_id, cell))
+pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<GridRowPB> {
+    row_revs.iter().map(GridRowPB::from).collect::<Vec<_>>()
 }
 
-pub fn make_cell(field_id: &str, field_meta: &FieldMeta, row_meta: &RowMeta) -> Option<Cell> {
-    let cell_meta = row_meta.cells.get(field_id)?.clone();
-    let data = decode_cell_data_from_type_option_cell_data(cell_meta.data, field_meta, &field_meta.field_type).data;
-    Some(Cell::new(field_id, data))
+pub(crate) fn make_row_from_row_rev(row_rev: Arc<RowRevision>) -> Option<GridRowPB> {
+    make_rows_from_row_revs(&[row_rev]).pop()
 }
 
-pub(crate) fn make_row_orders_from_row_metas(row_metas: &[Arc<RowMeta>]) -> Vec<RowOrder> {
-    row_metas.iter().map(RowOrder::from).collect::<Vec<_>>()
-}
-
-pub(crate) fn make_row_from_row_meta(fields: &[FieldMeta], row_meta: Arc<RowMeta>) -> Option<Row> {
-    make_rows_from_row_metas(fields, &[row_meta]).pop()
-}
-
-pub(crate) fn make_rows_from_row_metas(fields: &[FieldMeta], row_metas: &[Arc<RowMeta>]) -> Vec<Row> {
-    let field_meta_map = fields
-        .iter()
-        .map(|field_meta| (&field_meta.id, field_meta))
-        .collect::<HashMap<&String, &FieldMeta>>();
-
-    let make_row = |row_meta: &Arc<RowMeta>| {
-        let cell_by_field_id = row_meta
-            .cells
-            .clone()
-            .into_iter()
-            .flat_map(|(field_id, cell_meta)| make_cell_by_field_id(&field_meta_map, field_id, cell_meta))
-            .collect::<HashMap<String, Cell>>();
-
-        Row {
-            id: row_meta.id.clone(),
-            cell_by_field_id,
-            height: row_meta.height,
-        }
+pub(crate) fn make_rows_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<GridRowPB> {
+    let make_row = |row_rev: &Arc<RowRevision>| GridRowPB {
+        block_id: row_rev.block_id.clone(),
+        id: row_rev.id.clone(),
+        height: row_rev.height,
     };
 
-    row_metas.iter().map(make_row).collect::<Vec<_>>()
+    row_revs.iter().map(make_row).collect::<Vec<_>>()
 }
 
 pub(crate) fn make_grid_blocks(
     block_ids: Option<Vec<String>>,
     block_snapshots: Vec<GridBlockSnapshot>,
-) -> FlowyResult<RepeatedGridBlock> {
+) -> FlowyResult<RepeatedGridBlockPB> {
     match block_ids {
         None => Ok(block_snapshots
             .into_iter()
             .map(|snapshot| {
-                let row_orders = make_row_orders_from_row_metas(&snapshot.row_metas);
-                GridBlock::new(&snapshot.block_id, row_orders)
+                let row_orders = make_row_orders_from_row_revs(&snapshot.row_revs);
+                GridBlockPB::new(&snapshot.block_id, row_orders)
             })
-            .collect::<Vec<GridBlock>>()
+            .collect::<Vec<GridBlockPB>>()
             .into()),
         Some(block_ids) => {
-            let block_meta_data_map: HashMap<&String, &Vec<Arc<RowMeta>>> = block_snapshots
+            let block_meta_data_map: HashMap<&String, &Vec<Arc<RowRevision>>> = block_snapshots
                 .iter()
-                .map(|data| (&data.block_id, &data.row_metas))
+                .map(|data| (&data.block_id, &data.row_revs))
                 .collect();
 
             let mut grid_blocks = vec![];
             for block_id in block_ids {
                 match block_meta_data_map.get(&block_id) {
                     None => {}
-                    Some(row_metas) => {
-                        let row_orders = make_row_orders_from_row_metas(row_metas);
-                        grid_blocks.push(GridBlock::new(&block_id, row_orders));
+                    Some(row_revs) => {
+                        let row_orders = make_row_orders_from_row_revs(row_revs);
+                        grid_blocks.push(GridBlockPB::new(&block_id, row_orders));
                     }
                 }
             }

@@ -10,9 +10,9 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -32,8 +32,8 @@ import 'menu_user.dart';
 
 class HomeMenu extends StatelessWidget {
   final PublishNotifier<bool> _collapsedNotifier;
-  final UserProfile user;
-  final CurrentWorkspaceSetting workspaceSetting;
+  final UserProfilePB user;
+  final CurrentWorkspaceSettingPB workspaceSetting;
 
   const HomeMenu({
     Key? key,
@@ -155,19 +155,19 @@ class HomeMenu extends StatelessWidget {
 }
 
 class MenuSharedState {
-  final ValueNotifier<View?> _latestOpenView = ValueNotifier<View?>(null);
+  final ValueNotifier<ViewPB?> _latestOpenView = ValueNotifier<ViewPB?>(null);
 
-  MenuSharedState({View? view}) {
+  MenuSharedState({ViewPB? view}) {
     _latestOpenView.value = view;
   }
 
-  View? get latestOpenView => _latestOpenView.value;
+  ViewPB? get latestOpenView => _latestOpenView.value;
 
-  set latestOpenView(View? view) {
+  set latestOpenView(ViewPB? view) {
     _latestOpenView.value = view;
   }
 
-  VoidCallback addLatestViewListener(void Function(View?) callback) {
+  VoidCallback addLatestViewListener(void Function(ViewPB?) callback) {
     listener() {
       callback(_latestOpenView.value);
     }

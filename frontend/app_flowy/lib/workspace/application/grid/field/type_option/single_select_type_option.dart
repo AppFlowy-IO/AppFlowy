@@ -1,27 +1,28 @@
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/single_select_type_option.pb.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 import 'select_option_type_option_bloc.dart';
 import 'type_option_service.dart';
 
-class SingleSelectTypeOptionContext extends TypeOptionContext<SingleSelectTypeOption>
+class SingleSelectTypeOptionContext extends TypeOptionWidgetContext<SingleSelectTypeOptionPB>
     with SelectOptionTypeOptionAction {
   final TypeOptionService service;
 
   SingleSelectTypeOptionContext({
-    required SingleSelectTypeOptionDataBuilder dataBuilder,
-    required GridFieldContext fieldContext,
+    required SingleSelectTypeOptionWidgetDataParser dataBuilder,
+    required TypeOptionDataController fieldContext,
   })  : service = TypeOptionService(
           gridId: fieldContext.gridId,
           fieldId: fieldContext.field.id,
         ),
-        super(dataBuilder: dataBuilder, fieldContext: fieldContext);
+        super(dataParser: dataBuilder, dataController: fieldContext);
 
   @override
-  List<SelectOption> Function(SelectOption) get deleteOption {
-    return (SelectOption option) {
+  List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {
+    return (SelectOptionPB option) {
       typeOption.freeze();
       typeOption = typeOption.rebuild((typeOption) {
         final index = typeOption.options.indexWhere((element) => element.id == option.id);
@@ -34,7 +35,7 @@ class SingleSelectTypeOptionContext extends TypeOptionContext<SingleSelectTypeOp
   }
 
   @override
-  Future<List<SelectOption>> Function(String) get insertOption {
+  Future<List<SelectOptionPB>> Function(String) get insertOption {
     return (String optionName) {
       return service.newOption(name: optionName).then((result) {
         return result.fold(
@@ -56,8 +57,8 @@ class SingleSelectTypeOptionContext extends TypeOptionContext<SingleSelectTypeOp
   }
 
   @override
-  List<SelectOption> Function(SelectOption) get udpateOption {
-    return (SelectOption option) {
+  List<SelectOptionPB> Function(SelectOptionPB) get udpateOption {
+    return (SelectOptionPB option) {
       typeOption.freeze();
       typeOption = typeOption.rebuild((typeOption) {
         final index = typeOption.options.indexWhere((element) => element.id == option.id);
@@ -70,9 +71,9 @@ class SingleSelectTypeOptionContext extends TypeOptionContext<SingleSelectTypeOp
   }
 }
 
-class SingleSelectTypeOptionDataBuilder extends TypeOptionDataBuilder<SingleSelectTypeOption> {
+class SingleSelectTypeOptionWidgetDataParser extends TypeOptionDataParser<SingleSelectTypeOptionPB> {
   @override
-  SingleSelectTypeOption fromBuffer(List<int> buffer) {
-    return SingleSelectTypeOption.fromBuffer(buffer);
+  SingleSelectTypeOptionPB fromBuffer(List<int> buffer) {
+    return SingleSelectTypeOptionPB.fromBuffer(buffer);
   }
 }

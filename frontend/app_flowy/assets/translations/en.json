@@ -96,6 +96,12 @@
     "lightMode": "Switch to Light mode",
     "darkMode": "Switch to Dark mode"
   },
+  "notifications": {
+    "export": {
+      "markdown": "Exported Note To Markdown",
+      "path": "Documents/flowy"
+    }
+  },
   "contactsPage": {
     "title": "Contacts",
     "whatsHappening": "What's happening this week?",
@@ -199,6 +205,10 @@
       "pannelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
     },
+    "menuName": "Grid"
+  },
+  "document": {
+    "menuName": "Doc",
     "date": {
       "timeHintTextInTwelveHour": "12:00 AM",
       "timeHintTextInTwentyFourHour": "12:00"

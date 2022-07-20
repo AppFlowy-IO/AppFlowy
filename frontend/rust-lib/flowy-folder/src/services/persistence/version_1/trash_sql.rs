@@ -1,19 +1,17 @@
-use crate::{
-    entities::trash::{RepeatedTrash, Trash, TrashType},
-    errors::FlowyError,
-};
+use crate::errors::FlowyError;
 use diesel::sql_types::Integer;
 use flowy_database::{
     prelude::*,
     schema::{trash_table, trash_table::dsl},
     SqliteConnection,
 };
+use flowy_folder_data_model::revision::{TrashRevision, TrashTypeRevision};
 
 pub struct TrashTableSql();
 impl TrashTableSql {
-    pub(crate) fn create_trash(trashes: Vec<Trash>, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        for trash in trashes {
-            let trash_table: TrashTable = trash.into();
+    pub(crate) fn create_trash(trashes: Vec<TrashRevision>, conn: &SqliteConnection) -> Result<(), FlowyError> {
+        for trash_rev in trashes {
+            let trash_table: TrashTable = trash_rev.into();
             match diesel_record_count!(trash_table, &trash_table.id, conn) {
                 0 => diesel_insert_table!(trash_table, &trash_table, conn),
                 _ => {
@@ -26,10 +24,13 @@ impl TrashTableSql {
         Ok(())
     }
 
-    pub(crate) fn read_all(conn: &SqliteConnection) -> Result<RepeatedTrash, FlowyError> {
+    pub(crate) fn read_all(conn: &SqliteConnection) -> Result<Vec<TrashRevision>, FlowyError> {
         let trash_tables = dsl::trash_table.load::<TrashTable>(conn)?;
-        let items = trash_tables.into_iter().map(|t| t.into()).collect::<Vec<Trash>>();
-        Ok(RepeatedTrash { items })
+        let items = trash_tables
+            .into_iter()
+            .map(TrashRevision::from)
+            .collect::<Vec<TrashRevision>>();
+        Ok(items)
     }
 
     pub(crate) fn delete_all(conn: &SqliteConnection) -> Result<(), FlowyError> {
@@ -60,27 +61,39 @@ pub(crate) struct TrashTable {
     pub create_time: i64,
     pub ty: SqlTrashType,
 }
-impl std::convert::From<TrashTable> for Trash {
-    fn from(table: TrashTable) -> Self {
-        Trash {
-            id: table.id,
-            name: table.name,
-            modified_time: table.modified_time,
-            create_time: table.create_time,
-            ty: table.ty.into(),
+// impl std::convert::From<TrashTable> for Trash {
+//     fn from(table: TrashTable) -> Self {
+//         Trash {
+//             id: table.id,
+//             name: table.name,
+//             modified_time: table.modified_time,
+//             create_time: table.create_time,
+//             ty: table.ty.into(),
+//         }
+//     }
+// }
+//
+impl std::convert::From<TrashTable> for TrashRevision {
+    fn from(trash: TrashTable) -> Self {
+        TrashRevision {
+            id: trash.id,
+            name: trash.name,
+            modified_time: trash.modified_time,
+            create_time: trash.create_time,
+            ty: trash.ty.into(),
         }
     }
 }
 
-impl std::convert::From<Trash> for TrashTable {
-    fn from(trash: Trash) -> Self {
+impl std::convert::From<TrashRevision> for TrashTable {
+    fn from(trash_rev: TrashRevision) -> Self {
         TrashTable {
-            id: trash.id,
-            name: trash.name,
-            desc: "".to_owned(),
-            modified_time: trash.modified_time,
-            create_time: trash.create_time,
-            ty: trash.ty.into(),
+            id: trash_rev.id,
+            name: trash_rev.name,
+            desc: "".to_string(),
+            modified_time: trash_rev.modified_time,
+            create_time: trash_rev.create_time,
+            ty: trash_rev.ty.into(),
         }
     }
 }
@@ -125,22 +138,22 @@ impl std::convert::From<i32> for SqlTrashType {
 
 impl_sql_integer_expression!(SqlTrashType);
 
-impl std::convert::From<SqlTrashType> for TrashType {
+impl std::convert::From<SqlTrashType> for TrashTypeRevision {
     fn from(ty: SqlTrashType) -> Self {
         match ty {
-            SqlTrashType::Unknown => TrashType::Unknown,
-            SqlTrashType::View => TrashType::TrashView,
-            SqlTrashType::App => TrashType::TrashApp,
+            SqlTrashType::Unknown => TrashTypeRevision::Unknown,
+            SqlTrashType::View => TrashTypeRevision::TrashView,
+            SqlTrashType::App => TrashTypeRevision::TrashApp,
         }
     }
 }
 
-impl std::convert::From<TrashType> for SqlTrashType {
-    fn from(ty: TrashType) -> Self {
+impl std::convert::From<TrashTypeRevision> for SqlTrashType {
+    fn from(ty: TrashTypeRevision) -> Self {
         match ty {
-            TrashType::Unknown => SqlTrashType::Unknown,
-            TrashType::TrashView => SqlTrashType::View,
-            TrashType::TrashApp => SqlTrashType::App,
+            TrashTypeRevision::Unknown => SqlTrashType::Unknown,
+            TrashTypeRevision::TrashView => SqlTrashType::View,
+            TrashTypeRevision::TrashApp => SqlTrashType::App,
         }
     }
 }

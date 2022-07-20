@@ -1,5 +1,0 @@
-syntax = "proto3";
-
-enum NetworkEvent {
-    UpdateNetworkType = 0;
-}

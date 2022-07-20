@@ -1,5 +1,5 @@
-
-proto_crates = [
+# Check out the FlowyConfig (located in flowy_toml.rs) for more details.
+proto_input = [
     "src/event_map.rs",
     "src/services/field/type_options",
     "src/entities",

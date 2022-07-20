@@ -86,7 +86,7 @@ extension NumberFormatExtension on NumberFormat {
         return "New Zealand dollar";
       case NumberFormat.NorwegianKrone:
         return "Norwegian krone";
-      case NumberFormat.Number:
+      case NumberFormat.Num:
         return "Number";
       case NumberFormat.Percent:
         return "Percent";

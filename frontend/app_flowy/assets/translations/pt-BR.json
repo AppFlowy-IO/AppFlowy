@@ -7,11 +7,11 @@
     "letsGoButtonText": "Vamos lá",
     "title": "Título",
     "signUp": {
-      "buttonText": "Inscreve-se",
-      "title": "Inscrever-se @:appName",
+      "buttonText": "Se inscreva",
+      "title": "Se inscreva no @:appName",
       "getStartedText": "Começar",
-      "emptyPasswordError": "Senha não pode ser em branco.",
-      "repeatPasswordEmptyError": "Confirmar a senha não pode ser em branco.",
+      "emptyPasswordError": "Senha não pode estar em branco.",
+      "repeatPasswordEmptyError": "Confirmar a senha não pode estar em branco.",
       "unmatchedPasswordError": "As senhas não conferem.",
       "alreadyHaveAnAccount": "Já possui uma conta?",
       "emailHint": "Email",
@@ -19,14 +19,14 @@
       "repeatPasswordHint": "Confirme a senha"
     },
     "signIn": {
-      "loginTitle": "Login to @:appName",
+      "loginTitle": "Entre no @:appName",
       "loginButtonText": "Login",
       "buttonText": "Entre",
       "forgotPassword": "Esqueceu a senha?",
       "emailHint": "Email",
       "passwordHint": "Senha",
       "dontHaveAnAccount": "Não possui uma conta?",
-      "repeatPasswordEmptyError": "Confirmar a senha não pode ser em branco.",
+      "repeatPasswordEmptyError": "Confirmar a senha não pode estar em branco.",
       "unmatchedPasswordError": "As senhas não conferem."
     },
     "workspace": {
@@ -67,7 +67,7 @@
       "whatsNew": "O que há de novo?",
       "help": "Ajuda & Suporte",
       "debug": {
-        "name": "Informação de debug",
+        "name": "Informação de depuração",
         "success": "Copiar informação de debug para o clipboard!",
         "fail": "Falha em copiar a informação de debug para o clipboard"
       }
@@ -104,7 +104,7 @@
     },
     "button": {
       "OK": "OK",
-      "Cancel": "Canelar",
+      "Cancel": "Cancelar",
       "signIn": "Entrar",
       "signOut": "Sair",
       "complete": "Completar",
@@ -143,4 +143,5 @@
       }
     }
   }
-  
+ 
+

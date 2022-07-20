@@ -1,41 +1,42 @@
 library docuemnt_plugin;
 
-export './src/document_page.dart';
-export './src/widget/toolbar/history_button.dart';
-export './src/widget/toolbar/toolbar_icon_button.dart';
-export './src/widget/toolbar/tool_bar.dart';
-
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/doc/share_bloc.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
+import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/plugins/widgets/left_bar_item.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:clipboard/clipboard.dart';
+import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:dartz/dartz.dart' as dartz;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:clipboard/clipboard.dart';
-import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:provider/provider.dart';
 
 import 'src/document_page.dart';
 
+export './src/document_page.dart';
+export './src/widget/toolbar/history_button.dart';
+export './src/widget/toolbar/tool_bar.dart';
+export './src/widget/toolbar/toolbar_icon_button.dart';
+
 class DocumentPluginBuilder extends PluginBuilder {
   @override
   Plugin build(dynamic data) {
-    if (data is View) {
+    if (data is ViewPB) {
       return DocumentPlugin(pluginType: pluginType, view: data);
     } else {
       throw FlowyPluginException.invalidData;
@@ -43,7 +44,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   }
 
   @override
-  String get menuName => "Doc";
+  String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
   PluginType get pluginType => DefaultPlugin.quill.type();
@@ -53,11 +54,11 @@ class DocumentPluginBuilder extends PluginBuilder {
 }
 
 class DocumentPlugin implements Plugin {
-  late View _view;
+  late ViewPB _view;
   ViewListener? _listener;
   late PluginType _pluginType;
 
-  DocumentPlugin({required PluginType pluginType, required View view, Key? key}) : _view = view {
+  DocumentPlugin({required PluginType pluginType, required ViewPB view, Key? key}) : _view = view {
     _pluginType = pluginType;
     _listener = getIt<ViewListener>(param1: view);
     _listener?.start(onViewUpdated: (result) {
@@ -89,9 +90,9 @@ class DocumentPlugin implements Plugin {
 
 class DocumentPluginDisplay extends PluginDisplay<int> with NavigationItem {
   final PublishNotifier<int> _displayNotifier = PublishNotifier<int>();
-  final View _view;
+  final ViewPB _view;
 
-  DocumentPluginDisplay({required View view, Key? key}) : _view = view;
+  DocumentPluginDisplay({required ViewPB view, Key? key}) : _view = view;
 
   @override
   Widget buildWidget() => DocumentPage(view: _view, key: ValueKey(_view.id));
@@ -110,7 +111,7 @@ class DocumentPluginDisplay extends PluginDisplay<int> with NavigationItem {
 }
 
 class DocumentShareButton extends StatelessWidget {
-  final View view;
+  final ViewPB view;
   DocumentShareButton({Key? key, required this.view}) : super(key: ValueKey(view.hashCode));
 
   @override
@@ -159,7 +160,7 @@ class DocumentShareButton extends StatelessWidget {
     );
   }
 
-  void _handleExportData(ExportData exportData) {
+  void _handleExportData(ExportDataPB exportData) {
     switch (exportData.exportType) {
       case ExportType.Link:
         break;
@@ -179,6 +180,7 @@ class DocumentShareButton extends StatelessWidget {
         switch (action) {
           case ShareAction.markdown:
             context.read<DocShareBloc>().add(const DocShareEvent.shareMarkdown());
+            showMessageToast('Exported to: ${LocaleKeys.notifications_export_path.tr()}');
             break;
           case ShareAction.copyLink:
             FlowyAlertDialog(title: LocaleKeys.shareAction_workInProgress.tr()).show(context);

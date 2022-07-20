@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -62,7 +62,7 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
   Future<void> _moveView(_MoveView value, Emitter<ViewSectionState> emit) async {
     if (value.fromIndex < state.views.length) {
       final viewId = state.views[value.fromIndex].id;
-      final views = List<View>.from(state.views);
+      final views = List<ViewPB>.from(state.views);
       views.insert(value.toIndex, views.removeAt(value.fromIndex));
       emit(state.copyWith(views: views));
 
@@ -92,16 +92,16 @@ class ViewSectionBloc extends Bloc<ViewSectionEvent, ViewSectionState> {
 @freezed
 class ViewSectionEvent with _$ViewSectionEvent {
   const factory ViewSectionEvent.initial() = _Initial;
-  const factory ViewSectionEvent.setSelectedView(View? view) = _SetSelectedView;
+  const factory ViewSectionEvent.setSelectedView(ViewPB? view) = _SetSelectedView;
   const factory ViewSectionEvent.moveView(int fromIndex, int toIndex) = _MoveView;
-  const factory ViewSectionEvent.didReceiveViewUpdated(List<View> views) = _DidReceiveViewUpdated;
+  const factory ViewSectionEvent.didReceiveViewUpdated(List<ViewPB> views) = _DidReceiveViewUpdated;
 }
 
 @freezed
 class ViewSectionState with _$ViewSectionState {
   const factory ViewSectionState({
-    required List<View> views,
-    View? selectedView,
+    required List<ViewPB> views,
+    ViewPB? selectedView,
   }) = _ViewSectionState;
 
   factory ViewSectionState.initial(AppViewDataContext appViewData) => ViewSectionState(

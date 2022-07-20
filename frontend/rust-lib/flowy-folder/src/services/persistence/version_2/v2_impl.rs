@@ -3,23 +3,18 @@ use crate::services::{
     persistence::{AppChangeset, FolderPersistenceTransaction, ViewChangeset, WorkspaceChangeset},
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder_data_model::entities::{
-    app::App,
-    trash::{RepeatedTrash, Trash},
-    view::View,
-    workspace::Workspace,
-};
+use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use std::sync::Arc;
 
 impl FolderPersistenceTransaction for FolderEditor {
-    fn create_workspace(&self, _user_id: &str, workspace: Workspace) -> FlowyResult<()> {
-        if let Some(change) = self.folder.write().create_workspace(workspace)? {
+    fn create_workspace(&self, _user_id: &str, workspace_rev: WorkspaceRevision) -> FlowyResult<()> {
+        if let Some(change) = self.folder.write().create_workspace(workspace_rev)? {
             let _ = self.apply_change(change)?;
         }
         Ok(())
     }
 
-    fn read_workspaces(&self, _user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<Workspace>> {
+    fn read_workspaces(&self, _user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<WorkspaceRevision>> {
         let workspaces = self.folder.read().read_workspaces(workspace_id)?;
         Ok(workspaces)
     }
@@ -42,8 +37,8 @@ impl FolderPersistenceTransaction for FolderEditor {
         Ok(())
     }
 
-    fn create_app(&self, app: App) -> FlowyResult<()> {
-        if let Some(change) = self.folder.write().create_app(app)? {
+    fn create_app(&self, app_rev: AppRevision) -> FlowyResult<()> {
+        if let Some(change) = self.folder.write().create_app(app_rev)? {
             let _ = self.apply_change(change)?;
         }
         Ok(())
@@ -60,22 +55,22 @@ impl FolderPersistenceTransaction for FolderEditor {
         Ok(())
     }
 
-    fn read_app(&self, app_id: &str) -> FlowyResult<App> {
+    fn read_app(&self, app_id: &str) -> FlowyResult<AppRevision> {
         let app = self.folder.read().read_app(app_id)?;
         Ok(app)
     }
 
-    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<App>> {
+    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<AppRevision>> {
         let workspaces = self.folder.read().read_workspaces(Some(workspace_id.to_owned()))?;
         match workspaces.first() {
             None => {
                 Err(FlowyError::record_not_found().context(format!("can't find workspace with id {}", workspace_id)))
             }
-            Some(workspace) => Ok(workspace.apps.clone().take_items()),
+            Some(workspace) => Ok(workspace.apps.clone()),
         }
     }
 
-    fn delete_app(&self, app_id: &str) -> FlowyResult<App> {
+    fn delete_app(&self, app_id: &str) -> FlowyResult<AppRevision> {
         let app = self.folder.read().read_app(app_id)?;
         if let Some(change) = self.folder.write().delete_app(app_id)? {
             let _ = self.apply_change(change)?;
@@ -90,19 +85,19 @@ impl FolderPersistenceTransaction for FolderEditor {
         Ok(())
     }
 
-    fn create_view(&self, view: View) -> FlowyResult<()> {
-        if let Some(change) = self.folder.write().create_view(view)? {
+    fn create_view(&self, view_rev: ViewRevision) -> FlowyResult<()> {
+        if let Some(change) = self.folder.write().create_view(view_rev)? {
             let _ = self.apply_change(change)?;
         }
         Ok(())
     }
 
-    fn read_view(&self, view_id: &str) -> FlowyResult<View> {
+    fn read_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
         let view = self.folder.read().read_view(view_id)?;
         Ok(view)
     }
 
-    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<View>> {
+    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<ViewRevision>> {
         let views = self.folder.read().read_views(belong_to_id)?;
         Ok(views)
     }
@@ -132,16 +127,16 @@ impl FolderPersistenceTransaction for FolderEditor {
         Ok(())
     }
 
-    fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()> {
+    fn create_trash(&self, trashes: Vec<TrashRevision>) -> FlowyResult<()> {
         if let Some(change) = self.folder.write().create_trash(trashes)? {
             let _ = self.apply_change(change)?;
         }
         Ok(())
     }
 
-    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash> {
+    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<Vec<TrashRevision>> {
         let trash = self.folder.read().read_trash(trash_id)?;
-        Ok(RepeatedTrash { items: trash })
+        Ok(trash)
     }
 
     fn delete_trash(&self, trash_ids: Option<Vec<String>>) -> FlowyResult<()> {
@@ -156,11 +151,11 @@ impl<T> FolderPersistenceTransaction for Arc<T>
 where
     T: FolderPersistenceTransaction + ?Sized,
 {
-    fn create_workspace(&self, user_id: &str, workspace: Workspace) -> FlowyResult<()> {
-        (**self).create_workspace(user_id, workspace)
+    fn create_workspace(&self, user_id: &str, workspace_rev: WorkspaceRevision) -> FlowyResult<()> {
+        (**self).create_workspace(user_id, workspace_rev)
     }
 
-    fn read_workspaces(&self, user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<Workspace>> {
+    fn read_workspaces(&self, user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<WorkspaceRevision>> {
         (**self).read_workspaces(user_id, workspace_id)
     }
 
@@ -172,23 +167,23 @@ where
         (**self).delete_workspace(workspace_id)
     }
 
-    fn create_app(&self, app: App) -> FlowyResult<()> {
-        (**self).create_app(app)
+    fn create_app(&self, app_rev: AppRevision) -> FlowyResult<()> {
+        (**self).create_app(app_rev)
     }
 
     fn update_app(&self, changeset: AppChangeset) -> FlowyResult<()> {
         (**self).update_app(changeset)
     }
 
-    fn read_app(&self, app_id: &str) -> FlowyResult<App> {
+    fn read_app(&self, app_id: &str) -> FlowyResult<AppRevision> {
         (**self).read_app(app_id)
     }
 
-    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<App>> {
+    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<AppRevision>> {
         (**self).read_workspace_apps(workspace_id)
     }
 
-    fn delete_app(&self, app_id: &str) -> FlowyResult<App> {
+    fn delete_app(&self, app_id: &str) -> FlowyResult<AppRevision> {
         (**self).delete_app(app_id)
     }
 
@@ -196,15 +191,15 @@ where
         (**self).move_app(app_id, from, to)
     }
 
-    fn create_view(&self, view: View) -> FlowyResult<()> {
-        (**self).create_view(view)
+    fn create_view(&self, view_rev: ViewRevision) -> FlowyResult<()> {
+        (**self).create_view(view_rev)
     }
 
-    fn read_view(&self, view_id: &str) -> FlowyResult<View> {
+    fn read_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
         (**self).read_view(view_id)
     }
 
-    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<View>> {
+    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<ViewRevision>> {
         (**self).read_views(belong_to_id)
     }
 
@@ -220,11 +215,11 @@ where
         (**self).move_view(view_id, from, to)
     }
 
-    fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()> {
+    fn create_trash(&self, trashes: Vec<TrashRevision>) -> FlowyResult<()> {
         (**self).create_trash(trashes)
     }
 
-    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash> {
+    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<Vec<TrashRevision>> {
         (**self).read_trash(trash_id)
     }
 

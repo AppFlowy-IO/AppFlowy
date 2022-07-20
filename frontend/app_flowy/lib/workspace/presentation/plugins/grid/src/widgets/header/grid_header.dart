@@ -5,7 +5,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' hide Row;
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reorderables/reorderables.dart';
@@ -151,7 +151,7 @@ class CreateFieldButton extends StatelessWidget {
       onTap: () => FieldEditor(
         gridId: gridId,
         fieldName: "",
-        contextLoader: NewFieldContextLoader(gridId: gridId),
+        typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
       ).show(context),
       leftIcon: svgWidget("home/add"),
     );
@@ -160,7 +160,7 @@ class CreateFieldButton extends StatelessWidget {
 
 class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate {
   final String gridId;
-  final List<Field> fields;
+  final List<GridFieldPB> fields;
 
   SliverHeaderDelegateImplementation({required this.gridId, required this.fields});
 

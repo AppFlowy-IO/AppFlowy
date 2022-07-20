@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-enum TextBlockEvent {
-    GetBlockData = 0;
-    ApplyDelta = 1;
-    ExportDocument = 2;
-}

@@ -1,9 +1,9 @@
 use crate::{configuration::*, request::HttpRequestBuilder};
 use flowy_error::FlowyError;
-use flowy_user::event_map::UserCloudService;
-use flowy_user_data_model::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserParams, UserProfile,
+use flowy_user::entities::{
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
+use flowy_user::event_map::UserCloudService;
 use http_flowy::errors::ServerError;
 use lib_infra::future::FutureResult;
 
@@ -42,7 +42,7 @@ impl UserCloudService for UserHttpCloudService {
         })
     }
 
-    fn update_user(&self, token: &str, params: UpdateUserParams) -> FutureResult<(), FlowyError> {
+    fn update_user(&self, token: &str, params: UpdateUserProfileParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
         FutureResult::new(async move {
@@ -51,7 +51,7 @@ impl UserCloudService for UserHttpCloudService {
         })
     }
 
-    fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError> {
+    fn get_user(&self, token: &str) -> FutureResult<UserProfilePB, FlowyError> {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
         FutureResult::new(async move {
@@ -92,7 +92,7 @@ pub async fn user_sign_out_request(token: &str, url: &str) -> Result<(), ServerE
     Ok(())
 }
 
-pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfile, ServerError> {
+pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfilePB, ServerError> {
     let user_profile = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)
@@ -101,7 +101,11 @@ pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProf
     Ok(user_profile)
 }
 
-pub async fn update_user_profile_request(token: &str, params: UpdateUserParams, url: &str) -> Result<(), ServerError> {
+pub async fn update_user_profile_request(
+    token: &str,
+    params: UpdateUserProfileParams,
+    url: &str,
+) -> Result<(), ServerError> {
     let _ = request_builder()
         .patch(&url.to_owned())
         .header(HEADER_TOKEN, token)

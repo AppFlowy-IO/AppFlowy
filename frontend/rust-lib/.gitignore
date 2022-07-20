@@ -10,5 +10,6 @@
 **/**/*.log*
 **/**/temp
 bin/
-
+**/src/protobuf
+**/resources/proto
 .idea/

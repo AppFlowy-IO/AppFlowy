@@ -4,7 +4,7 @@ import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/notifier.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/widgets.dart';
 
 export "./src/sandbox.dart";
@@ -14,6 +14,7 @@ enum DefaultPlugin {
   blank,
   trash,
   grid,
+  board,
 }
 
 extension FlowyDefaultPluginExt on DefaultPlugin {
@@ -27,6 +28,8 @@ extension FlowyDefaultPluginExt on DefaultPlugin {
         return 2;
       case DefaultPlugin.grid:
         return 3;
+      case DefaultPlugin.board:
+        return 4;
     }
   }
 }

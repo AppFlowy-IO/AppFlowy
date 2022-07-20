@@ -14,22 +14,21 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart' show FieldType;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:window_size/window_size.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
-  final GridRow rowData;
+  final GridRowInfo rowInfo;
   final GridRowCache rowCache;
-  final GridCellCache cellCache;
+  final GridCellBuilder cellBuilder;
 
   const RowDetailPage({
-    required this.rowData,
+    required this.rowInfo,
     required this.rowCache,
-    required this.cellCache,
+    required this.cellBuilder,
     Key? key,
   }) : super(key: key);
 
@@ -37,8 +36,8 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   State<RowDetailPage> createState() => _RowDetailPageState();
 
   void show(BuildContext context) async {
-    final window = await getWindowInfo();
-    final size = Size(window.frame.size.width * 0.7, window.frame.size.height * 0.7);
+    final windowSize = MediaQuery.of(context).size;
+    final size = windowSize * 0.7;
     FlowyOverlay.of(context).insertWithRect(
       widget: OverlayContainer(
         child: this,
@@ -46,7 +45,7 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
       ),
       identifier: RowDetailPage.identifier(),
       anchorPosition: Offset(-size.width / 2.0, -size.height / 2.0),
-      anchorSize: window.frame.size,
+      anchorSize: windowSize,
       anchorDirection: AnchorDirection.center,
       style: FlowyOverlayStyle(blur: false),
       delegate: this,
@@ -63,7 +62,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final bloc = RowDetailBloc(rowData: widget.rowData, rowCache: widget.rowCache);
+        final bloc = RowDetailBloc(rowInfo: widget.rowInfo, rowCache: widget.rowCache);
         bloc.add(const RowDetailEvent.initial());
         return bloc;
       },
@@ -77,7 +76,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
                 children: const [Spacer(), _CloseButton()],
               ),
             ),
-            Expanded(child: _PropertyList(cellCache: widget.cellCache)),
+            Expanded(child: _PropertyList(cellBuilder: widget.cellBuilder)),
           ],
         ),
       ),
@@ -101,10 +100,10 @@ class _CloseButton extends StatelessWidget {
 }
 
 class _PropertyList extends StatelessWidget {
-  final GridCellCache cellCache;
+  final GridCellBuilder cellBuilder;
   final ScrollController _scrollController;
   _PropertyList({
-    required this.cellCache,
+    required this.cellBuilder,
     Key? key,
   })  : _scrollController = ScrollController(),
         super(key: key);
@@ -123,8 +122,8 @@ class _PropertyList extends StatelessWidget {
             itemCount: state.gridCells.length,
             itemBuilder: (BuildContext context, int index) {
               return _RowDetailCell(
-                gridCell: state.gridCells[index],
-                cellCache: cellCache,
+                cellId: state.gridCells[index],
+                cellBuilder: cellBuilder,
               );
             },
             separatorBuilder: (BuildContext context, int index) {
@@ -138,19 +137,19 @@ class _PropertyList extends StatelessWidget {
 }
 
 class _RowDetailCell extends StatelessWidget {
-  final GridCell gridCell;
-  final GridCellCache cellCache;
+  final GridCellIdentifier cellId;
+  final GridCellBuilder cellBuilder;
   const _RowDetailCell({
-    required this.gridCell,
-    required this.cellCache,
+    required this.cellId,
+    required this.cellBuilder,
     Key? key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final style = _customCellStyle(theme, gridCell.field.fieldType);
-    final cell = buildGridCellWidget(gridCell, cellCache, style: style);
+    final style = _customCellStyle(theme, cellId.fieldType);
+    final cell = cellBuilder.build(cellId, style: style);
 
     final gesture = GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -170,7 +169,7 @@ class _RowDetailCell extends StatelessWidget {
           children: [
             SizedBox(
               width: 150,
-              child: FieldCellButton(field: gridCell.field, onTap: () => _showFieldEditor(context)),
+              child: FieldCellButton(field: cellId.field, onTap: () => _showFieldEditor(context)),
             ),
             const HSpace(10),
             Expanded(child: gesture),
@@ -182,11 +181,11 @@ class _RowDetailCell extends StatelessWidget {
 
   void _showFieldEditor(BuildContext context) {
     FieldEditor(
-      gridId: gridCell.gridId,
-      fieldName: gridCell.field.name,
-      contextLoader: FieldContextLoader(
-        gridId: gridCell.gridId,
-        field: gridCell.field,
+      gridId: cellId.gridId,
+      fieldName: cellId.field.name,
+      typeOptionLoader: FieldTypeOptionLoader(
+        gridId: cellId.gridId,
+        field: cellId.field,
       ),
     ).show(context);
   }

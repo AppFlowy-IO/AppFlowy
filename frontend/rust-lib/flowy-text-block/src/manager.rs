@@ -6,12 +6,11 @@ use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::{
-    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionHistoryPersistence,
-    SQLiteRevisionSnapshotPersistence,
+    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::entities::{
     revision::{md5, RepeatedRevision, Revision},
-    text_block_info::{TextBlockDelta, TextBlockId},
+    text_block::{TextBlockDeltaPB, TextBlockIdPB},
     ws_data::ServerRevisionWSData,
 };
 use lib_infra::future::FutureResult;
@@ -75,11 +74,11 @@ impl TextBlockManager {
     }
 
     #[tracing::instrument(level = "debug", skip(self, delta), fields(doc_id = %delta.block_id), err)]
-    pub async fn receive_local_delta(&self, delta: TextBlockDelta) -> Result<TextBlockDelta, FlowyError> {
+    pub async fn receive_local_delta(&self, delta: TextBlockDeltaPB) -> Result<TextBlockDeltaPB, FlowyError> {
         let editor = self.get_block_editor(&delta.block_id).await?;
         let _ = editor.compose_local_delta(Bytes::from(delta.delta_str)).await?;
         let document_json = editor.delta_str().await?;
-        Ok(TextBlockDelta {
+        Ok(TextBlockDeltaPB {
             block_id: delta.block_id.clone(),
             delta_str: document_json,
         })
@@ -145,7 +144,7 @@ impl TextBlockManager {
         let user_id = self.user.user_id()?;
         let disk_cache = SQLiteTextBlockRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
-        let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
+        // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
         let rev_compactor = TextBlockRevisionCompactor();
 
@@ -154,7 +153,7 @@ impl TextBlockManager {
             doc_id,
             rev_persistence,
             rev_compactor,
-            history_persistence,
+            // history_persistence,
             snapshot_persistence,
         ))
     }
@@ -168,7 +167,7 @@ struct TextBlockRevisionCloudService {
 impl RevisionCloudService for TextBlockRevisionCloudService {
     #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
-        let params: TextBlockId = object_id.to_string().into();
+        let params: TextBlockIdPB = object_id.to_string().into();
         let server = self.server.clone();
         let token = self.token.clone();
         let user_id = user_id.to_string();

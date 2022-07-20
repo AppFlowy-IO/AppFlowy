@@ -1,4 +1,4 @@
-pub use flowy_folder_data_model::entities;
+pub mod entities;
 pub mod event_map;
 pub mod services;
 
@@ -14,8 +14,6 @@ pub mod protobuf;
 mod util;
 
 pub mod prelude {
-    pub use flowy_folder_data_model::entities::{app::*, trash::*, view::*, workspace::*};
-
     pub use crate::{errors::*, event_map::*};
 }
 

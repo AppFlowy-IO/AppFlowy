@@ -11,7 +11,6 @@ flowy-error = { path = "../flowy-error", features = ["collaboration", "http_serv
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-sync = { path = "../../../shared-lib/flowy-sync"}
 flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model"}
-flowy-user-data-model = { path = "../../../shared-lib/flowy-user-data-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
 flowy-text-block = { path = "../flowy-text-block" }
@@ -26,7 +25,7 @@ parking_lot = "0.11"
 strum = "0.21"
 strum_macros = "0.21"
 tracing = { version = "0.1", features = ["log"] }
-dashmap = {version = "4.0"}
+dashmap = "5"
 async-stream = "0.3.2"
 futures-util = "0.3.15"
 http-flowy = { git = "https://github.com/AppFlowy-IO/AppFlowy-Server", features = ["with_reqwest"] }
@@ -46,7 +45,6 @@ dart = [
     "flowy-user/dart",
     "flowy-sync/dart",
     "flowy-error/dart",
-    "flowy-user-data-model/dart",
     "flowy-folder-data-model/dart"
 ]
 

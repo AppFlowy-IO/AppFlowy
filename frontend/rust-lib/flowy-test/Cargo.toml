@@ -31,7 +31,7 @@ nanoid = "0.4.0"
 [dev-dependencies]
 quickcheck = "1.0.3"
 quickcheck_macros = "0.9.1"
-fake = "~2.3.0"
+fake = "2.4.3"
 claim = "0.4.0"
 futures = "0.3.15"
 serial_test = "0.5.1"

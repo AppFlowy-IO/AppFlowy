@@ -8,24 +8,20 @@ use crate::services::persistence::{
 };
 use flowy_database::DBConnection;
 use flowy_error::FlowyResult;
-use flowy_folder_data_model::entities::{
-    app::App,
-    trash::{RepeatedTrash, Trash},
-    view::View,
-    workspace::Workspace,
-};
+use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 
+/// V1Transaction is deprecated since version 0.0.2 version
 pub struct V1Transaction<'a>(pub &'a DBConnection);
 
 impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
-    fn create_workspace(&self, user_id: &str, workspace: Workspace) -> FlowyResult<()> {
-        let _ = WorkspaceTableSql::create_workspace(user_id, workspace, &*self.0)?;
+    fn create_workspace(&self, user_id: &str, workspace_rev: WorkspaceRevision) -> FlowyResult<()> {
+        let _ = WorkspaceTableSql::create_workspace(user_id, workspace_rev, &*self.0)?;
         Ok(())
     }
 
-    fn read_workspaces(&self, user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<Workspace>> {
+    fn read_workspaces(&self, user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<WorkspaceRevision>> {
         let tables = WorkspaceTableSql::read_workspaces(user_id, workspace_id, &*self.0)?;
-        let workspaces = tables.into_iter().map(Workspace::from).collect::<Vec<_>>();
+        let workspaces = tables.into_iter().map(WorkspaceRevision::from).collect::<Vec<_>>();
         Ok(workspaces)
     }
 
@@ -37,8 +33,8 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
         WorkspaceTableSql::delete_workspace(workspace_id, &*self.0)
     }
 
-    fn create_app(&self, app: App) -> FlowyResult<()> {
-        let _ = AppTableSql::create_app(app, &*self.0)?;
+    fn create_app(&self, app_rev: AppRevision) -> FlowyResult<()> {
+        let _ = AppTableSql::create_app(app_rev, &*self.0)?;
         Ok(())
     }
 
@@ -47,39 +43,39 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
         Ok(())
     }
 
-    fn read_app(&self, app_id: &str) -> FlowyResult<App> {
-        let table = AppTableSql::read_app(app_id, &*self.0)?;
-        Ok(App::from(table))
+    fn read_app(&self, app_id: &str) -> FlowyResult<AppRevision> {
+        let app_revision: AppRevision = AppTableSql::read_app(app_id, &*self.0)?.into();
+        Ok(app_revision)
     }
 
-    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<App>> {
+    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<AppRevision>> {
         let tables = AppTableSql::read_workspace_apps(workspace_id, &*self.0)?;
-        let apps = tables.into_iter().map(App::from).collect::<Vec<_>>();
+        let apps = tables.into_iter().map(AppRevision::from).collect::<Vec<_>>();
         Ok(apps)
     }
 
-    fn delete_app(&self, app_id: &str) -> FlowyResult<App> {
-        let table = AppTableSql::delete_app(app_id, &*self.0)?;
-        Ok(App::from(table))
+    fn delete_app(&self, app_id: &str) -> FlowyResult<AppRevision> {
+        let app_revision: AppRevision = AppTableSql::delete_app(app_id, &*self.0)?.into();
+        Ok(app_revision)
     }
 
     fn move_app(&self, _app_id: &str, _from: usize, _to: usize) -> FlowyResult<()> {
         Ok(())
     }
 
-    fn create_view(&self, view: View) -> FlowyResult<()> {
-        let _ = ViewTableSql::create_view(view, &*self.0)?;
+    fn create_view(&self, view_rev: ViewRevision) -> FlowyResult<()> {
+        let _ = ViewTableSql::create_view(view_rev, &*self.0)?;
         Ok(())
     }
 
-    fn read_view(&self, view_id: &str) -> FlowyResult<View> {
-        let table = ViewTableSql::read_view(view_id, &*self.0)?;
-        Ok(View::from(table))
+    fn read_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
+        let view_revision: ViewRevision = ViewTableSql::read_view(view_id, &*self.0)?.into();
+        Ok(view_revision)
     }
 
-    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<View>> {
+    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<ViewRevision>> {
         let tables = ViewTableSql::read_views(belong_to_id, &*self.0)?;
-        let views = tables.into_iter().map(View::from).collect::<Vec<_>>();
+        let views = tables.into_iter().map(ViewRevision::from).collect::<Vec<_>>();
         Ok(views)
     }
 
@@ -97,19 +93,17 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
         Ok(())
     }
 
-    fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()> {
+    fn create_trash(&self, trashes: Vec<TrashRevision>) -> FlowyResult<()> {
         let _ = TrashTableSql::create_trash(trashes, &*self.0)?;
         Ok(())
     }
 
-    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash> {
+    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<Vec<TrashRevision>> {
         match trash_id {
             None => TrashTableSql::read_all(&*self.0),
             Some(trash_id) => {
-                let table = TrashTableSql::read(&trash_id, &*self.0)?;
-                Ok(RepeatedTrash {
-                    items: vec![Trash::from(table)],
-                })
+                let trash_revision: TrashRevision = TrashTableSql::read(&trash_id, &*self.0)?.into();
+                Ok(vec![trash_revision])
             }
         }
     }
@@ -132,11 +126,11 @@ impl<T> FolderPersistenceTransaction for Box<T>
 where
     T: FolderPersistenceTransaction + ?Sized,
 {
-    fn create_workspace(&self, user_id: &str, workspace: Workspace) -> FlowyResult<()> {
-        (**self).create_workspace(user_id, workspace)
+    fn create_workspace(&self, user_id: &str, workspace_rev: WorkspaceRevision) -> FlowyResult<()> {
+        (**self).create_workspace(user_id, workspace_rev)
     }
 
-    fn read_workspaces(&self, user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<Workspace>> {
+    fn read_workspaces(&self, user_id: &str, workspace_id: Option<String>) -> FlowyResult<Vec<WorkspaceRevision>> {
         (**self).read_workspaces(user_id, workspace_id)
     }
 
@@ -148,23 +142,23 @@ where
         (**self).delete_workspace(workspace_id)
     }
 
-    fn create_app(&self, app: App) -> FlowyResult<()> {
-        (**self).create_app(app)
+    fn create_app(&self, app_rev: AppRevision) -> FlowyResult<()> {
+        (**self).create_app(app_rev)
     }
 
     fn update_app(&self, changeset: AppChangeset) -> FlowyResult<()> {
         (**self).update_app(changeset)
     }
 
-    fn read_app(&self, app_id: &str) -> FlowyResult<App> {
+    fn read_app(&self, app_id: &str) -> FlowyResult<AppRevision> {
         (**self).read_app(app_id)
     }
 
-    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<App>> {
+    fn read_workspace_apps(&self, workspace_id: &str) -> FlowyResult<Vec<AppRevision>> {
         (**self).read_workspace_apps(workspace_id)
     }
 
-    fn delete_app(&self, app_id: &str) -> FlowyResult<App> {
+    fn delete_app(&self, app_id: &str) -> FlowyResult<AppRevision> {
         (**self).delete_app(app_id)
     }
 
@@ -172,15 +166,15 @@ where
         Ok(())
     }
 
-    fn create_view(&self, view: View) -> FlowyResult<()> {
-        (**self).create_view(view)
+    fn create_view(&self, view_rev: ViewRevision) -> FlowyResult<()> {
+        (**self).create_view(view_rev)
     }
 
-    fn read_view(&self, view_id: &str) -> FlowyResult<View> {
+    fn read_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
         (**self).read_view(view_id)
     }
 
-    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<View>> {
+    fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<ViewRevision>> {
         (**self).read_views(belong_to_id)
     }
 
@@ -196,11 +190,11 @@ where
         Ok(())
     }
 
-    fn create_trash(&self, trashes: Vec<Trash>) -> FlowyResult<()> {
+    fn create_trash(&self, trashes: Vec<TrashRevision>) -> FlowyResult<()> {
         (**self).create_trash(trashes)
     }
 
-    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<RepeatedTrash> {
+    fn read_trash(&self, trash_id: Option<String>) -> FlowyResult<Vec<TrashRevision>> {
         (**self).read_trash(trash_id)
     }
 

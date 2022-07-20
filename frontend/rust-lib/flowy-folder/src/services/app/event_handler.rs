@@ -1,18 +1,16 @@
 use crate::{
-    entities::{
-        app::{App, AppId, CreateAppParams, CreateAppPayload, UpdateAppParams, UpdateAppPayload},
-        trash::Trash,
-    },
+    entities::app::{AppIdPB, AppPB, CreateAppParams, CreateAppPayloadPB, UpdateAppParams, UpdateAppPayloadPB},
     errors::FlowyError,
     services::{AppController, TrashController, ViewController},
 };
+use flowy_folder_data_model::revision::TrashRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::{convert::TryInto, sync::Arc};
 
 pub(crate) async fn create_app_handler(
-    data: Data<CreateAppPayload>,
+    data: Data<CreateAppPayloadPB>,
     controller: AppData<Arc<AppController>>,
-) -> DataResult<App, FlowyError> {
+) -> DataResult<AppPB, FlowyError> {
     let params: CreateAppParams = data.into_inner().try_into()?;
     let detail = controller.create_app_from_params(params).await?;
 
@@ -20,17 +18,17 @@ pub(crate) async fn create_app_handler(
 }
 
 pub(crate) async fn delete_app_handler(
-    data: Data<AppId>,
+    data: Data<AppIdPB>,
     app_controller: AppData<Arc<AppController>>,
     trash_controller: AppData<Arc<TrashController>>,
 ) -> Result<(), FlowyError> {
-    let params: AppId = data.into_inner();
+    let params: AppIdPB = data.into_inner();
     let trash = app_controller
         .read_local_apps(vec![params.value])
         .await?
         .into_iter()
-        .map(|app| app.into())
-        .collect::<Vec<Trash>>();
+        .map(|app_rev| app_rev.into())
+        .collect::<Vec<TrashRevision>>();
 
     let _ = trash_controller.add(trash).await?;
     Ok(())
@@ -38,7 +36,7 @@ pub(crate) async fn delete_app_handler(
 
 #[tracing::instrument(level = "debug", skip(data, controller))]
 pub(crate) async fn update_app_handler(
-    data: Data<UpdateAppPayload>,
+    data: Data<UpdateAppPayloadPB>,
     controller: AppData<Arc<AppController>>,
 ) -> Result<(), FlowyError> {
     let params: UpdateAppParams = data.into_inner().try_into()?;
@@ -48,13 +46,13 @@ pub(crate) async fn update_app_handler(
 
 #[tracing::instrument(level = "trace", skip(data, app_controller, view_controller))]
 pub(crate) async fn read_app_handler(
-    data: Data<AppId>,
+    data: Data<AppIdPB>,
     app_controller: AppData<Arc<AppController>>,
     view_controller: AppData<Arc<ViewController>>,
-) -> DataResult<App, FlowyError> {
-    let params: AppId = data.into_inner();
-    let mut app = app_controller.read_app(params.clone()).await?;
-    app.belongings = view_controller.read_views_belong_to(&params.value).await?;
+) -> DataResult<AppPB, FlowyError> {
+    let params: AppIdPB = data.into_inner();
+    let mut app_rev = app_controller.read_app(params.clone()).await?;
+    app_rev.belongings = view_controller.read_views_belong_to(&params.value).await?;
 
-    data_result(app)
+    data_result(app_rev.into())
 }

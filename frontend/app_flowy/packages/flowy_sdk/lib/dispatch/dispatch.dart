@@ -4,16 +4,7 @@ import 'package:flowy_sdk/log.dart';
 // ignore: unnecessary_import
 import 'package:flowy_sdk/protobuf/dart-ffi/ffi_response.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-net/event.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-net/network_state.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/event_map.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/event_map.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/event_map.pb.dart';
 import 'package:isolates/isolates.dart';
 import 'package:isolates/ports.dart';
 import 'package:ffi/ffi.dart';
@@ -22,16 +13,17 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flowy_sdk/ffi.dart' as ffi;
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-sync/protobuf.dart';
 
 // ignore: unused_import
 import 'package:protobuf/protobuf.dart';
 import 'dart:convert' show utf8;
+import '../protobuf/flowy-net/event_map.pb.dart';
 import 'error.dart';
 
 part 'dart_event/flowy-folder/dart_event.dart';

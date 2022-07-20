@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -7,7 +7,7 @@ import 'cell_service/cell_service.dart';
 part 'url_cell_bloc.freezed.dart';
 
 class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
-  final GridURLCellContext cellContext;
+  final GridURLCellController cellContext;
   void Function()? _onCellChangedFn;
   URLCellBloc({
     required this.cellContext,
@@ -57,7 +57,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
 class URLCellEvent with _$URLCellEvent {
   const factory URLCellEvent.initial() = _InitialCell;
   const factory URLCellEvent.updateURL(String url) = _UpdateURL;
-  const factory URLCellEvent.didReceiveCellUpdate(URLCellData? cell) = _DidReceiveCellUpdate;
+  const factory URLCellEvent.didReceiveCellUpdate(URLCellDataPB? cell) = _DidReceiveCellUpdate;
 }
 
 @freezed
@@ -67,7 +67,7 @@ class URLCellState with _$URLCellState {
     required String url,
   }) = _URLCellState;
 
-  factory URLCellState.initial(GridURLCellContext context) {
+  factory URLCellState.initial(GridURLCellController context) {
     final cellData = context.getCellData();
     return URLCellState(
       content: cellData?.content ?? "",

@@ -1,16 +1,16 @@
 use crate::{
-    configuration::{ClientServerConfiguration, HEADER_TOKEN},
+    configuration::ClientServerConfiguration,
     request::{HttpRequestBuilder, ResponseMiddleware},
 };
 use flowy_error::FlowyError;
-use flowy_folder_data_model::entities::{
-    app::{App, AppId, CreateAppParams, UpdateAppParams},
-    trash::{RepeatedTrash, RepeatedTrashId},
-    view::{CreateViewParams, RepeatedViewId, UpdateViewParams, View, ViewId},
-    workspace::{CreateWorkspaceParams, RepeatedWorkspace, UpdateWorkspaceParams, Workspace, WorkspaceId},
+use flowy_folder::entities::{
+    trash::RepeatedTrashIdPB,
+    view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
+    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
+    {AppIdPB, CreateAppParams, UpdateAppParams},
 };
-
 use flowy_folder::event_map::FolderCouldServiceV1;
+use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use http_flowy::errors::ServerError;
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
@@ -31,7 +31,11 @@ impl FolderHttpCloudService {
 impl FolderCouldServiceV1 for FolderHttpCloudService {
     fn init(&self) {}
 
-    fn create_workspace(&self, token: &str, params: CreateWorkspaceParams) -> FutureResult<Workspace, FlowyError> {
+    fn create_workspace(
+        &self,
+        token: &str,
+        params: CreateWorkspaceParams,
+    ) -> FutureResult<WorkspaceRevision, FlowyError> {
         let token = token.to_owned();
         let url = self.config.workspace_url();
         FutureResult::new(async move {
@@ -40,12 +44,12 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn read_workspace(&self, token: &str, params: WorkspaceId) -> FutureResult<RepeatedWorkspace, FlowyError> {
+    fn read_workspace(&self, token: &str, params: WorkspaceIdPB) -> FutureResult<Vec<WorkspaceRevision>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.workspace_url();
         FutureResult::new(async move {
-            let repeated_workspace = read_workspaces_request(&token, params, &url).await?;
-            Ok(repeated_workspace)
+            let workspace_revs = read_workspaces_request(&token, params, &url).await?;
+            Ok(workspace_revs)
         })
     }
 
@@ -58,7 +62,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn delete_workspace(&self, token: &str, params: WorkspaceId) -> FutureResult<(), FlowyError> {
+    fn delete_workspace(&self, token: &str, params: WorkspaceIdPB) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.workspace_url();
         FutureResult::new(async move {
@@ -67,7 +71,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn create_view(&self, token: &str, params: CreateViewParams) -> FutureResult<View, FlowyError> {
+    fn create_view(&self, token: &str, params: CreateViewParams) -> FutureResult<ViewRevision, FlowyError> {
         let token = token.to_owned();
         let url = self.config.view_url();
         FutureResult::new(async move {
@@ -76,16 +80,16 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn read_view(&self, token: &str, params: ViewId) -> FutureResult<Option<View>, FlowyError> {
+    fn read_view(&self, token: &str, params: ViewIdPB) -> FutureResult<Option<ViewRevision>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.view_url();
         FutureResult::new(async move {
-            let view = read_view_request(&token, params, &url).await?;
-            Ok(view)
+            let view_rev = read_view_request(&token, params, &url).await?;
+            Ok(view_rev)
         })
     }
 
-    fn delete_view(&self, token: &str, params: RepeatedViewId) -> FutureResult<(), FlowyError> {
+    fn delete_view(&self, token: &str, params: RepeatedViewIdPB) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.view_url();
         FutureResult::new(async move {
@@ -103,7 +107,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn create_app(&self, token: &str, params: CreateAppParams) -> FutureResult<App, FlowyError> {
+    fn create_app(&self, token: &str, params: CreateAppParams) -> FutureResult<AppRevision, FlowyError> {
         let token = token.to_owned();
         let url = self.config.app_url();
         FutureResult::new(async move {
@@ -112,12 +116,12 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn read_app(&self, token: &str, params: AppId) -> FutureResult<Option<App>, FlowyError> {
+    fn read_app(&self, token: &str, params: AppIdPB) -> FutureResult<Option<AppRevision>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.app_url();
         FutureResult::new(async move {
-            let app = read_app_request(&token, params, &url).await?;
-            Ok(app)
+            let app_rev = read_app_request(&token, params, &url).await?;
+            Ok(app_rev)
         })
     }
 
@@ -130,7 +134,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn delete_app(&self, token: &str, params: AppId) -> FutureResult<(), FlowyError> {
+    fn delete_app(&self, token: &str, params: AppIdPB) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.app_url();
         FutureResult::new(async move {
@@ -139,7 +143,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn create_trash(&self, token: &str, params: RepeatedTrashId) -> FutureResult<(), FlowyError> {
+    fn create_trash(&self, token: &str, params: RepeatedTrashIdPB) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.trash_url();
         FutureResult::new(async move {
@@ -148,7 +152,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn delete_trash(&self, token: &str, params: RepeatedTrashId) -> FutureResult<(), FlowyError> {
+    fn delete_trash(&self, token: &str, params: RepeatedTrashIdPB) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.trash_url();
         FutureResult::new(async move {
@@ -157,7 +161,7 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
         })
     }
 
-    fn read_trash(&self, token: &str) -> FutureResult<RepeatedTrash, FlowyError> {
+    fn read_trash(&self, token: &str) -> FutureResult<Vec<TrashRevision>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.trash_url();
         FutureResult::new(async move {
@@ -167,174 +171,194 @@ impl FolderCouldServiceV1 for FolderHttpCloudService {
     }
 }
 
+#[allow(dead_code)]
 fn request_builder() -> HttpRequestBuilder {
     HttpRequestBuilder::new().middleware(MIDDLEWARE.clone())
 }
 
 pub async fn create_workspace_request(
-    token: &str,
-    params: CreateWorkspaceParams,
-    url: &str,
-) -> Result<Workspace, ServerError> {
-    let workspace = request_builder()
-        .post(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .response()
-        .await?;
-    Ok(workspace)
+    _token: &str,
+    _params: CreateWorkspaceParams,
+    _url: &str,
+) -> Result<WorkspaceRevision, ServerError> {
+    // let workspace = request_builder()
+    //     .post(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .response()
+    //     .await?;
+    // Ok(workspace)
+    unimplemented!()
 }
 
 pub async fn read_workspaces_request(
-    token: &str,
-    params: WorkspaceId,
-    url: &str,
-) -> Result<RepeatedWorkspace, ServerError> {
-    let repeated_workspace = request_builder()
-        .get(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .response::<RepeatedWorkspace>()
-        .await?;
-
-    Ok(repeated_workspace)
+    _token: &str,
+    _params: WorkspaceIdPB,
+    _url: &str,
+) -> Result<Vec<WorkspaceRevision>, ServerError> {
+    // let repeated_workspace = request_builder()
+    //     .get(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .response::<RepeatedWorkspace>()
+    //     .await?;
+    //
+    // Ok(repeated_workspace)
+    unimplemented!()
 }
 
 pub async fn update_workspace_request(
-    token: &str,
-    params: UpdateWorkspaceParams,
-    url: &str,
+    _token: &str,
+    _params: UpdateWorkspaceParams,
+    _url: &str,
 ) -> Result<(), ServerError> {
-    let _ = request_builder()
-        .patch(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .send()
-        .await?;
+    // let _ = request_builder()
+    //     .patch(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .send()
+    //     .await?;
     Ok(())
 }
 
-pub async fn delete_workspace_request(token: &str, params: WorkspaceId, url: &str) -> Result<(), ServerError> {
-    let _ = request_builder()
-        .delete(url)
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .send()
-        .await?;
+pub async fn delete_workspace_request(_token: &str, _params: WorkspaceIdPB, _url: &str) -> Result<(), ServerError> {
+    // let _ = request_builder()
+    //     .delete(url)
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .send()
+    //     .await?;
     Ok(())
 }
 
 // App
-pub async fn create_app_request(token: &str, params: CreateAppParams, url: &str) -> Result<App, ServerError> {
-    let app = request_builder()
-        .post(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .response()
-        .await?;
-    Ok(app)
+pub async fn create_app_request(
+    _token: &str,
+    _params: CreateAppParams,
+    _url: &str,
+) -> Result<AppRevision, ServerError> {
+    // let app = request_builder()
+    //     .post(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .response()
+    //     .await?;
+    // Ok(app)
+    unimplemented!()
 }
 
-pub async fn read_app_request(token: &str, params: AppId, url: &str) -> Result<Option<App>, ServerError> {
-    let app = request_builder()
-        .get(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .option_response()
-        .await?;
+pub async fn read_app_request(_token: &str, _params: AppIdPB, _url: &str) -> Result<Option<AppRevision>, ServerError> {
+    // let app = request_builder()
+    //     .get(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .option_response()
+    //     .await?;
+    // Ok(app)
 
-    Ok(app)
+    unimplemented!()
 }
 
-pub async fn update_app_request(token: &str, params: UpdateAppParams, url: &str) -> Result<(), ServerError> {
-    let _ = request_builder()
-        .patch(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .send()
-        .await?;
+pub async fn update_app_request(_token: &str, _params: UpdateAppParams, _url: &str) -> Result<(), ServerError> {
+    // let _ = request_builder()
+    //     .patch(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .send()
+    //     .await?;
     Ok(())
 }
 
-pub async fn delete_app_request(token: &str, params: AppId, url: &str) -> Result<(), ServerError> {
-    let _ = request_builder()
-        .delete(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .send()
-        .await?;
+pub async fn delete_app_request(_token: &str, _params: AppIdPB, _url: &str) -> Result<(), ServerError> {
+    // let _ = request_builder()
+    //     .delete(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .send()
+    //     .await?;
     Ok(())
 }
 
 // View
-pub async fn create_view_request(token: &str, params: CreateViewParams, url: &str) -> Result<View, ServerError> {
-    let view = request_builder()
-        .post(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .response()
-        .await?;
-    Ok(view)
+pub async fn create_view_request(
+    _token: &str,
+    _params: CreateViewParams,
+    _url: &str,
+) -> Result<ViewRevision, ServerError> {
+    // let view = request_builder()
+    //     .post(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .response()
+    //     .await?;
+    // Ok(view)
+    unimplemented!()
 }
 
-pub async fn read_view_request(token: &str, params: ViewId, url: &str) -> Result<Option<View>, ServerError> {
-    let view = request_builder()
-        .get(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .option_response()
-        .await?;
-
-    Ok(view)
+pub async fn read_view_request(
+    _token: &str,
+    _params: ViewIdPB,
+    _url: &str,
+) -> Result<Option<ViewRevision>, ServerError> {
+    // let view = request_builder()
+    //     .get(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .option_response()
+    //     .await?;
+    //
+    // Ok(view)
+    unimplemented!()
 }
 
-pub async fn update_view_request(token: &str, params: UpdateViewParams, url: &str) -> Result<(), ServerError> {
-    let _ = request_builder()
-        .patch(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .send()
-        .await?;
+pub async fn update_view_request(_token: &str, _params: UpdateViewParams, _url: &str) -> Result<(), ServerError> {
+    // let _ = request_builder()
+    //     .patch(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .send()
+    //     .await?;
     Ok(())
 }
 
-pub async fn delete_view_request(token: &str, params: RepeatedViewId, url: &str) -> Result<(), ServerError> {
-    let _ = request_builder()
-        .delete(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .send()
-        .await?;
+pub async fn delete_view_request(_token: &str, _params: RepeatedViewIdPB, _url: &str) -> Result<(), ServerError> {
+    // let _ = request_builder()
+    //     .delete(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .send()
+    //     .await?;
     Ok(())
 }
 
-pub async fn create_trash_request(token: &str, params: RepeatedTrashId, url: &str) -> Result<(), ServerError> {
-    let _ = request_builder()
-        .post(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .send()
-        .await?;
+pub async fn create_trash_request(_token: &str, _params: RepeatedTrashIdPB, _url: &str) -> Result<(), ServerError> {
+    // let _ = request_builder()
+    //     .post(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .send()
+    //     .await?;
     Ok(())
 }
 
-pub async fn delete_trash_request(token: &str, params: RepeatedTrashId, url: &str) -> Result<(), ServerError> {
-    let _ = request_builder()
-        .delete(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .protobuf(params)?
-        .send()
-        .await?;
+pub async fn delete_trash_request(_token: &str, _params: RepeatedTrashIdPB, _url: &str) -> Result<(), ServerError> {
+    // let _ = request_builder()
+    //     .delete(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .protobuf(params)?
+    //     .send()
+    //     .await?;
     Ok(())
 }
 
-pub async fn read_trash_request(token: &str, url: &str) -> Result<RepeatedTrash, ServerError> {
-    let repeated_trash = request_builder()
-        .get(&url.to_owned())
-        .header(HEADER_TOKEN, token)
-        .response::<RepeatedTrash>()
-        .await?;
-    Ok(repeated_trash)
+pub async fn read_trash_request(_token: &str, _url: &str) -> Result<Vec<TrashRevision>, ServerError> {
+    // let repeated_trash = request_builder()
+    //     .get(&url.to_owned())
+    //     .header(HEADER_TOKEN, token)
+    //     .response::<RepeatedTrash>()
+    //     .await?;
+    // Ok(repeated_trash)
+    unimplemented!()
 }
 
 lazy_static! {

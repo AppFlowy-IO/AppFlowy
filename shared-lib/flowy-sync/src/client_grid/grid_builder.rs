@@ -1,5 +1,8 @@
 use crate::errors::{CollaborateError, CollaborateResult};
-use flowy_grid_data_model::entities::{BuildGridContext, FieldMeta, GridBlockMeta, GridBlockMetaSnapshot, RowMeta};
+use flowy_grid_data_model::revision::{
+    BuildGridContext, FieldRevision, GridBlockMetaRevision, GridBlockRevision, RowRevision,
+};
+use std::sync::Arc;
 
 pub struct GridBuilder {
     build_context: BuildGridContext,
@@ -9,8 +12,8 @@ impl std::default::Default for GridBuilder {
     fn default() -> Self {
         let mut build_context = BuildGridContext::new();
 
-        let block_meta = GridBlockMetaSnapshot::new();
-        let block_meta_data = GridBlockMeta {
+        let block_meta = GridBlockMetaRevision::new();
+        let block_meta_data = GridBlockRevision {
             block_id: block_meta.block_id.clone(),
             rows: vec![],
         };
@@ -23,18 +26,31 @@ impl std::default::Default for GridBuilder {
 }
 
 impl GridBuilder {
-    pub fn add_field(mut self, field: FieldMeta) -> Self {
-        self.build_context.field_metas.push(field);
-        self
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn add_field(&mut self, field: FieldRevision) {
+        self.build_context.field_revs.push(Arc::new(field));
     }
 
-    pub fn add_empty_row(mut self) -> Self {
-        let row = RowMeta::new(&self.build_context.blocks.first().unwrap().block_id);
-        let block_meta = self.build_context.blocks.first_mut().unwrap();
-        let block_meta_data = self.build_context.blocks_meta_data.first_mut().unwrap();
-        block_meta_data.rows.push(row);
-        block_meta.row_count += 1;
-        self
+    pub fn add_row(&mut self, row_rev: RowRevision) {
+        let block_meta_rev = self.build_context.blocks.first_mut().unwrap();
+        let block_rev = self.build_context.blocks_meta_data.first_mut().unwrap();
+        block_rev.rows.push(Arc::new(row_rev));
+        block_meta_rev.row_count += 1;
+    }
+
+    pub fn add_empty_row(&mut self) {
+        let row = RowRevision::new(self.block_id());
+        self.add_row(row);
+    }
+
+    pub fn field_revs(&self) -> &Vec<Arc<FieldRevision>> {
+        &self.build_context.field_revs
+    }
+
+    pub fn block_id(&self) -> &str {
+        &self.build_context.blocks.first().unwrap().block_id
     }
 
     pub fn build(self) -> BuildGridContext {
@@ -43,7 +59,7 @@ impl GridBuilder {
 }
 
 #[allow(dead_code)]
-fn check_rows(fields: &[FieldMeta], rows: &[RowMeta]) -> CollaborateResult<()> {
+fn check_rows(fields: &[FieldRevision], rows: &[RowRevision]) -> CollaborateResult<()> {
     let field_ids = fields.iter().map(|field| &field.id).collect::<Vec<&String>>();
     for row in rows {
         let cell_field_ids = row.cells.keys().into_iter().collect::<Vec<&String>>();
@@ -53,35 +69,4 @@ fn check_rows(fields: &[FieldMeta], rows: &[RowMeta]) -> CollaborateResult<()> {
         }
     }
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-
-    use crate::client_grid::{make_block_meta_delta, make_grid_delta, GridBuilder};
-    use flowy_grid_data_model::entities::{FieldMeta, FieldType, GridBlockMeta, GridMeta};
-
-    #[test]
-    fn create_default_grid_test() {
-        let grid_id = "1".to_owned();
-        let build_context = GridBuilder::default()
-            .add_field(FieldMeta::new("Name", "", FieldType::RichText, true))
-            .add_field(FieldMeta::new("Tags", "", FieldType::SingleSelect, false))
-            .add_empty_row()
-            .add_empty_row()
-            .add_empty_row()
-            .build();
-
-        let grid_meta = GridMeta {
-            grid_id,
-            fields: build_context.field_metas,
-            blocks: build_context.blocks,
-        };
-
-        let grid_meta_delta = make_grid_delta(&grid_meta);
-        let _: GridMeta = serde_json::from_str(&grid_meta_delta.to_str().unwrap()).unwrap();
-
-        let grid_block_meta_delta = make_block_meta_delta(build_context.blocks_meta_data.first().unwrap());
-        let _: GridBlockMeta = serde_json::from_str(&grid_block_meta_delta.to_str().unwrap()).unwrap();
-    }
 }

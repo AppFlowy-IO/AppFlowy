@@ -4,7 +4,7 @@ use phf::phf_map;
 use tera::Context;
 
 // Protobuf data type : https://developers.google.com/protocol-buffers/docs/proto3
-static RUST_TYPE_MAP: phf::Map<&'static str, &'static str> = phf_map! {
+pub static RUST_TYPE_MAP: phf::Map<&'static str, &'static str> = phf_map! {
     "String" => "string",
     "i64" => "int64",
     "i32" => "int32",
