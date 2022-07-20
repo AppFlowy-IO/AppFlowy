@@ -7,6 +7,7 @@ import 'package:flowy_sdk/log.dart';
 import 'package:flowy_infra_ui/style_widget/container.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
 import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -87,6 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
           context: context,
           state: state,
         );
+        final homeMenuResizer = _buildHomeMenuResizer(context: context);
         final editPannel = _buildEditPannel(
           homeState: state,
           layout: layout,
@@ -99,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
           homeMenu: menu,
           editPannel: editPannel,
           bubble: bubble,
+          homeMenuResizer: homeMenuResizer,
         );
       },
     );
@@ -147,12 +150,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildHomeMenuResizer({
+    required BuildContext context,
+  }) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeLeftRight,
+      child: GestureDetector(
+          dragStartBehavior: DragStartBehavior.down,
+          onPanUpdate: ((details) {
+            context.read<HomeBloc>().add(HomeEvent.editPannelResized(details.delta.dx));
+          }),
+          behavior: HitTestBehavior.translucent,
+          child: SizedBox(
+            width: 10,
+            height: MediaQuery.of(context).size.height,
+          )),
+    );
+  }
+
   Widget _layoutWidgets({
     required HomeLayout layout,
     required Widget homeMenu,
     required Widget homeStack,
     required Widget editPannel,
     required Widget bubble,
+    required Widget homeMenuResizer,
   }) {
     return Stack(
       children: [
@@ -167,6 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
             .constrained(minWidth: 500)
             .positioned(left: layout.homePageLOffset, right: layout.homePageROffset, bottom: 0, top: 0, animate: true)
             .animate(layout.animDuration, Curves.easeOut),
+        homeMenuResizer.positioned(left: layout.homePageLOffset - 5),
         bubble
             .positioned(
               right: 20,
