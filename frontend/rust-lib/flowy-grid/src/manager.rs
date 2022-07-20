@@ -2,6 +2,7 @@ use crate::services::block_revision_editor::GridBlockRevisionCompactor;
 use crate::services::grid_editor::{GridRevisionCompactor, GridRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
+use crate::services::persistence::migration::GridMigration;
 use crate::services::persistence::GridDatabase;
 use crate::services::tasks::GridTaskScheduler;
 use bytes::Bytes;
@@ -31,6 +32,7 @@ pub struct GridManager {
     #[allow(dead_code)]
     kv_persistence: Arc<GridKVPersistence>,
     task_scheduler: GridTaskSchedulerRwLock,
+    migration: GridMigration,
 }
 
 impl GridManager {
@@ -41,15 +43,25 @@ impl GridManager {
     ) -> Self {
         let grid_editors = Arc::new(DashMap::new());
         let kv_persistence = Arc::new(GridKVPersistence::new(database.clone()));
-        let block_index_cache = Arc::new(BlockIndexCache::new(database));
+        let block_index_cache = Arc::new(BlockIndexCache::new(database.clone()));
         let task_scheduler = GridTaskScheduler::new();
+        let migration = GridMigration::new(grid_user.clone(), database);
         Self {
             grid_editors,
             grid_user,
             kv_persistence,
             block_index_cache,
             task_scheduler,
+            migration,
         }
+    }
+
+    pub async fn initialize_with_new_user(&self, _user_id: &str, _token: &str) -> FlowyResult<()> {
+        Ok(())
+    }
+
+    pub async fn initialize(&self, _user_id: &str, _token: &str) -> FlowyResult<()> {
+        Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
@@ -74,6 +86,7 @@ impl GridManager {
     pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<GridRevisionEditor>> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
+        let _ = self.migration.migration_grid_if_need(grid_id).await;
         self.get_or_create_grid_editor(grid_id).await
     }
 

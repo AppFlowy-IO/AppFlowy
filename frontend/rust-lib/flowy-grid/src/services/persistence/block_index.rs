@@ -7,6 +7,7 @@ use flowy_database::{
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 
+/// Allow getting the block id from row id.
 pub struct BlockIndexCache {
     database: Arc<dyn GridDatabase>,
 }

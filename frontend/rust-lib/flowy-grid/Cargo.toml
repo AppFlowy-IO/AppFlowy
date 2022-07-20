@@ -50,7 +50,6 @@ lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file
 
 
 [features]
-default = ["filter"]
+default = []
 dart = ["lib-infra/dart"]
-filter = []
 flowy_unit_test = ["flowy-revision/flowy_unit_test"]

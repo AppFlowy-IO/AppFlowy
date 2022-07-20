@@ -62,7 +62,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
+    pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
         let grid_delta: GridRevisionDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         Self::from_delta(grid_delta)
     }
@@ -480,8 +480,8 @@ impl GridRevisionPad {
         match f(Arc::make_mut(&mut self.grid_rev))? {
             None => Ok(None),
             Some(_) => {
-                let old = json_from_grid(&cloned_grid)?;
-                let new = json_from_grid(&self.grid_rev)?;
+                let old = make_grid_rev_json_str(&cloned_grid)?;
+                let new = self.json_str()?;
                 match cal_diff::<PlainTextAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
@@ -528,9 +528,13 @@ impl GridRevisionPad {
             },
         )
     }
+
+    pub fn json_str(&self) -> CollaborateResult<String> {
+        make_grid_rev_json_str(&self.grid_rev)
+    }
 }
 
-fn json_from_grid(grid: &Arc<GridRevision>) -> CollaborateResult<String> {
+pub fn make_grid_rev_json_str(grid: &GridRevision) -> CollaborateResult<String> {
     let json = serde_json::to_string(grid)
         .map_err(|err| internal_error(format!("Serialize grid to json str failed. {:?}", err)))?;
     Ok(json)

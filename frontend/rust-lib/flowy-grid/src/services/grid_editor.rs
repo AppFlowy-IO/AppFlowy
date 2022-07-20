@@ -643,8 +643,8 @@ pub struct GridPadBuilder();
 impl RevisionObjectBuilder for GridPadBuilder {
     type Output = GridRevisionPad;
 
-    fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-        let pad = GridRevisionPad::from_revisions(object_id, revisions)?;
+    fn build_object(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+        let pad = GridRevisionPad::from_revisions(revisions)?;
         Ok(pad)
     }
 }
