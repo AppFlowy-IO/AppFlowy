@@ -245,13 +245,13 @@ pub struct GridBlockMetaChange {
     pub md5: String,
 }
 
-pub fn make_block_meta_delta(block_rev: &GridBlockRevision) -> GridBlockRevisionDelta {
+pub fn make_grid_block_delta(block_rev: &GridBlockRevision) -> GridBlockRevisionDelta {
     let json = serde_json::to_string(&block_rev).unwrap();
     PlainTextDeltaBuilder::new().insert(&json).build()
 }
 
-pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
-    let delta = make_block_meta_delta(grid_block_meta_data);
+pub fn make_grid_block_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
+    let delta = make_grid_block_delta(grid_block_meta_data);
     let bytes = delta.to_delta_bytes();
     let revision = Revision::initial_revision(user_id, &grid_block_meta_data.block_id, bytes);
     revision.into()
@@ -264,7 +264,7 @@ impl std::default::Default for GridBlockRevisionPad {
             rows: vec![],
         };
 
-        let delta = make_block_meta_delta(&block_revision);
+        let delta = make_grid_block_delta(&block_revision);
         GridBlockRevisionPad { block_revision, delta }
     }
 }
