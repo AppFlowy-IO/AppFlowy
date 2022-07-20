@@ -1,10 +1,10 @@
 mod folder_rev_impl;
-mod grid_meta_rev_impl;
+mod grid_block_meta_rev_impl;
 mod grid_rev_impl;
 mod text_rev_impl;
 
 pub use folder_rev_impl::*;
-pub use grid_meta_rev_impl::*;
+pub use grid_block_meta_rev_impl::*;
 pub use grid_rev_impl::*;
 pub use text_rev_impl::*;
 

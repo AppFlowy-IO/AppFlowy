@@ -582,10 +582,7 @@ impl GridRevisionEditor {
             &user_id,
             md5,
         );
-        let _ = self
-            .rev_manager
-            .add_local_revision(&revision, Box::new(GridRevisionCompactor()))
-            .await?;
+        let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(())
     }
 
@@ -664,7 +661,7 @@ impl RevisionCloudService for GridRevisionCloudService {
     }
 }
 
-struct GridRevisionCompactor();
+pub struct GridRevisionCompactor();
 impl RevisionCompactor for GridRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;

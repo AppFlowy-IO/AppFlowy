@@ -26,7 +26,7 @@ impl GridBlockRevisionEditor {
         block_id: &str,
         mut rev_manager: RevisionManager,
     ) -> FlowyResult<Self> {
-        let cloud = Arc::new(GridBlockMetaRevisionCloudService {
+        let cloud = Arc::new(GridBlockRevisionCloudService {
             token: token.to_owned(),
         });
         let block_meta_pad = rev_manager.load::<GridBlockMetaPadBuilder>(Some(cloud)).await?;
@@ -170,20 +170,17 @@ impl GridBlockRevisionEditor {
             &user_id,
             md5,
         );
-        let _ = self
-            .rev_manager
-            .add_local_revision(&revision, Box::new(GridBlockMetaRevisionCompactor()))
-            .await?;
+        let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(())
     }
 }
 
-struct GridBlockMetaRevisionCloudService {
+struct GridBlockRevisionCloudService {
     #[allow(dead_code)]
     token: String,
 }
 
-impl RevisionCloudService for GridBlockMetaRevisionCloudService {
+impl RevisionCloudService for GridBlockRevisionCloudService {
     #[tracing::instrument(level = "trace", skip(self))]
     fn fetch_object(&self, _user_id: &str, _object_id: &str) -> FutureResult<Vec<Revision>, FlowyError> {
         FutureResult::new(async move { Ok(vec![]) })
@@ -200,8 +197,8 @@ impl RevisionObjectBuilder for GridBlockMetaPadBuilder {
     }
 }
 
-struct GridBlockMetaRevisionCompactor();
-impl RevisionCompactor for GridBlockMetaRevisionCompactor {
+pub struct GridBlockRevisionCompactor();
+impl RevisionCompactor for GridBlockRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         Ok(delta.to_delta_bytes())

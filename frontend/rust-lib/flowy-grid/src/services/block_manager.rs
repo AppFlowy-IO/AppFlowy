@@ -1,7 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{CellChangesetPB, GridBlockChangesetPB, GridRowPB, InsertedRowPB, UpdatedRowPB};
 use crate::manager::GridUser;
-use crate::services::block_revision_editor::GridBlockRevisionEditor;
+use crate::services::block_revision_editor::{GridBlockRevisionCompactor, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{block_from_row_orders, GridBlockSnapshot};
 use dashmap::DashMap;
@@ -9,8 +9,8 @@ use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
 };
-use flowy_revision::disk::SQLiteGridBlockMetaRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence};
+use flowy_revision::disk::SQLiteGridBlockRevisionPersistence;
+use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -280,8 +280,10 @@ async fn make_block_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyRes
     let user_id = user.user_id()?;
     let pool = user.db_pool()?;
 
-    let disk_cache = Arc::new(SQLiteGridBlockMetaRevisionPersistence::new(&user_id, pool));
-    let rev_persistence = Arc::new(RevisionPersistence::new(&user_id, block_id, disk_cache));
-    let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence);
+    let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
+    let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
+    let rev_compactor = GridBlockRevisionCompactor();
+    let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
+    let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
     GridBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await
 }

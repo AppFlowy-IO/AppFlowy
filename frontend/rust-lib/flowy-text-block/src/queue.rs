@@ -186,10 +186,7 @@ impl EditBlockQueue {
             &user_id,
             md5,
         );
-        let _ = self
-            .rev_manager
-            .add_local_revision(&revision, Box::new(TextBlockRevisionCompactor()))
-            .await?;
+        let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
     }
 }

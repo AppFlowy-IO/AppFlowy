@@ -89,11 +89,7 @@ impl FolderEditor {
             &self.user_id,
             md5,
         );
-        let _ = futures::executor::block_on(async {
-            self.rev_manager
-                .add_local_revision(&revision, Box::new(FolderRevisionCompactor()))
-                .await
-        })?;
+        let _ = futures::executor::block_on(async { self.rev_manager.add_local_revision(&revision).await })?;
         Ok(())
     }
 
@@ -133,7 +129,7 @@ impl FolderEditor {
     }
 }
 
-struct FolderRevisionCompactor();
+pub struct FolderRevisionCompactor();
 impl RevisionCompactor for FolderRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
