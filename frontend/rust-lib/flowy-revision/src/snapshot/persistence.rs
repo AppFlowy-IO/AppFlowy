@@ -1,3 +1,6 @@
+#![allow(clippy::all)]
+#![allow(dead_code)]
+#![allow(unused_variables)]
 use crate::{RevisionSnapshotDiskCache, RevisionSnapshotInfo};
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;

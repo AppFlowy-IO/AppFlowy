@@ -50,16 +50,6 @@ table! {
 }
 
 table! {
-    rev_history (id) {
-        id -> Integer,
-        object_id -> Text,
-        start_rev_id -> BigInt,
-        end_rev_id -> BigInt,
-        data -> Binary,
-    }
-}
-
-table! {
     rev_snapshot (id) {
         id -> Integer,
         object_id -> Text,
@@ -135,7 +125,6 @@ allow_tables_to_appear_in_same_query!(
     grid_meta_rev_table,
     grid_rev_table,
     kv_table,
-    rev_history,
     rev_snapshot,
     rev_table,
     trash_table,

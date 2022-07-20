@@ -1,3 +1,6 @@
+#![allow(clippy::all)]
+#![allow(dead_code)]
+#![allow(unused_variables)]
 use flowy_error::FlowyResult;
 use std::sync::Arc;
 
