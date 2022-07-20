@@ -31,7 +31,7 @@ class TransactionBuilder {
 
   /// Commit the operations to the state
   commit() {
-    final transaction = _finish();
+    final transaction = finish();
     state.apply(transaction);
   }
 
@@ -99,7 +99,7 @@ class TransactionBuilder {
     operations.add(op);
   }
 
-  Transaction _finish() {
+  Transaction finish() {
     return Transaction(
       operations: UnmodifiableListView(operations),
       beforeSelection: beforeSelection,
