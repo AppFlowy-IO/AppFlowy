@@ -25,7 +25,6 @@ class SettingsUserView extends StatelessWidget {
 
   Widget _renderUserNameInput(BuildContext context) {
     String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
-    debugPrint(name);
     return _UserNameInput(name);
   }
 }
