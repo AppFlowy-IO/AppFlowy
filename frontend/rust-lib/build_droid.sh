@@ -4,6 +4,9 @@ set -e
 
 # You can either set the NDK path here or in your .zshrc, .profile, .bashrc
 
+# Check if rust targets are installed
+rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+
 NDK=$ANDROID_NDK_HOME
 
 export TOOLCHAIN_PATH=$NDK/bin
