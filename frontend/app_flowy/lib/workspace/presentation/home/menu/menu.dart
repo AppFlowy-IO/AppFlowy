@@ -164,7 +164,9 @@ class MenuSharedState {
   ViewPB? get latestOpenView => _latestOpenView.value;
 
   set latestOpenView(ViewPB? view) {
-    _latestOpenView.value = view;
+    if (_latestOpenView.value != view) {
+      _latestOpenView.value = view;
+    }
   }
 
   VoidCallback addLatestViewListener(void Function(ViewPB?) callback) {
