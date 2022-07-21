@@ -42,6 +42,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
     implements DeltaTextInputClient {
   TextNode get node => widget.node as TextNode;
   EditorState get editorState => widget.editorState;
+  bool _metaKeyDown = false;
 
   TextInputConnection? _textInputConnection;
 
@@ -86,6 +87,16 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
       } else if (event.logicalKey == LogicalKeyboardKey.delete) {
         _forwardDeleteTextAtSelection(sel);
         return KeyEventResult.handled;
+      } else if (event.logicalKey == LogicalKeyboardKey.metaLeft ||
+          event.logicalKey == LogicalKeyboardKey.metaRight) {
+        _metaKeyDown = true;
+      } else if (event.logicalKey == LogicalKeyboardKey.keyZ && _metaKeyDown) {
+        editorState.undoManager.undo();
+      }
+    } else if (event is RawKeyUpEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.metaLeft ||
+          event.logicalKey == LogicalKeyboardKey.metaRight) {
+        _metaKeyDown = false;
       }
     }
     return KeyEventResult.ignored;
