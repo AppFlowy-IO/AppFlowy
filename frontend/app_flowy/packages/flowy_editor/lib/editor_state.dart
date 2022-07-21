@@ -6,9 +6,12 @@ import 'package:flutter/material.dart';
 import './document/selection.dart';
 
 class ApplyOptions {
-  final bool noLog;
+  /// This flag indicates that
+  /// whether the transaction should be recorded into
+  /// the undo stack.
+  final bool recordUndo;
   const ApplyOptions({
-    this.noLog = false,
+    this.recordUndo = true,
   });
 }
 
@@ -45,19 +48,16 @@ class EditorState {
     }
     cursorSelection = transaction.afterSelection;
 
-    if (options.noLog) {
-      return;
+    if (options.recordUndo) {
+      final undoItem = undoManager.getUndoHistoryItem();
+      undoItem.addAll(transaction.operations);
+      if (undoItem.beforeSelection == null &&
+          transaction.beforeSelection != null) {
+        undoItem.beforeSelection = transaction.beforeSelection;
+      }
+      undoItem.afterSelection = transaction.afterSelection;
+      _debouncedSealHistoryItem();
     }
-
-    final undoItem = undoManager.getUndoHistoryItem();
-    undoItem.addAll(transaction.operations);
-    if (undoItem.beforeSelection == null &&
-        transaction.beforeSelection != null) {
-      undoItem.beforeSelection = transaction.beforeSelection;
-    }
-    undoItem.afterSelection = transaction.afterSelection;
-
-    _debouncedSealHistoryItem();
   }
 
   _debouncedSealHistoryItem() {

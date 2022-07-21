@@ -6,6 +6,9 @@ import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flowy_editor/operation/transaction.dart';
 import 'package:flowy_editor/editor_state.dart';
 
+/// This class contains operations to committed by users.
+/// If a [HistoryItem] is not sealed, operations can be added sequentially.
+/// Otherwise, the operations should be added to a new [HistoryItem].
 class HistoryItem extends LinkedListEntry<HistoryItem> {
   final List<Operation> operations = [];
   Selection? beforeSelection;
@@ -18,16 +21,14 @@ class HistoryItem extends LinkedListEntry<HistoryItem> {
     _sealed = true;
   }
 
+  bool get sealed => _sealed;
+
   add(Operation op) {
     operations.add(op);
   }
 
   addAll(Iterable<Operation> iterable) {
     operations.addAll(iterable);
-  }
-
-  bool get sealed {
-    return _sealed;
   }
 
   Transaction toTransaction(EditorState state) {
@@ -67,23 +68,21 @@ class FixedSizeStack {
     return last;
   }
 
-  HistoryItem get last {
-    return _list.last;
-  }
+  HistoryItem get last => _list.last;
 
-  bool get isEmpty {
-    return _list.isEmpty;
-  }
+  bool get isEmpty => _list.isEmpty;
 
-  bool get isNonEmpty {
-    return _list.isNotEmpty;
-  }
+  bool get isNonEmpty => _list.isNotEmpty;
 }
 
 class UndoManager {
-  final undoStack = FixedSizeStack(20);
-  final redoStack = FixedSizeStack(20);
+  final FixedSizeStack undoStack;
+  final FixedSizeStack redoStack;
   EditorState? state;
+
+  UndoManager([int stackSize = 20])
+      : undoStack = FixedSizeStack(stackSize),
+        redoStack = FixedSizeStack(stackSize);
 
   HistoryItem getUndoHistoryItem() {
     if (undoStack.isEmpty) {
@@ -101,11 +100,15 @@ class UndoManager {
   }
 
   undo() {
+    final s = state;
+    if (s == null) {
+      return;
+    }
     final historyItem = undoStack.pop();
     if (historyItem == null) {
       return;
     }
-    final transaction = historyItem.toTransaction(state!);
-    state!.apply(transaction, const ApplyOptions(noLog: true));
+    final transaction = historyItem.toTransaction(s);
+    s.apply(transaction, const ApplyOptions(recordUndo: false));
   }
 }
