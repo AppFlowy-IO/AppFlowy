@@ -5,6 +5,7 @@ class TextWithCheckBoxNodeBuilder extends NodeWidgetBuilder {
   TextWithCheckBoxNodeBuilder.create({
     required super.node,
     required super.editorState,
+    required super.key,
   }) : super.create();
 
   // TODO: check the type

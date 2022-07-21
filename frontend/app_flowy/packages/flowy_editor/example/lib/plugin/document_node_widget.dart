@@ -1,15 +1,18 @@
 import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class EditorNodeWidgetBuilder extends NodeWidgetBuilder {
   EditorNodeWidgetBuilder.create({
     required super.editorState,
     required super.node,
+    required super.key,
   }) : super.create();
 
   @override
   Widget build(BuildContext buildContext) {
     return SingleChildScrollView(
+      key: key,
       child: _EditorNodeWidget(
         node: node,
         editorState: editorState,
@@ -30,21 +33,49 @@ class _EditorNodeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: node.children
-            .map(
-              (e) => editorState.renderPlugins.buildWidget(
-                context: NodeWidgetContext(
-                  buildContext: context,
-                  node: e,
-                  editorState: editorState,
+    return RawGestureDetector(
+      behavior: HitTestBehavior.translucent,
+      gestures: {
+        PanGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
+          () => PanGestureRecognizer(),
+          (recognizer) {
+            recognizer
+              ..onStart = _onPanStart
+              ..onUpdate = _onPanUpdate
+              ..onEnd = _onPanEnd;
+          },
+        ),
+      },
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: node.children
+              .map(
+                (e) => editorState.renderPlugins.buildWidget(
+                  context: NodeWidgetContext(
+                    buildContext: context,
+                    node: e,
+                    editorState: editorState,
+                  ),
                 ),
-              ),
-            )
-            .toList(),
+              )
+              .toList(),
+        ),
       ),
     );
+  }
+
+  void _onPanStart(DragStartDetails details) {
+    editorState.panStartOffset = details.globalPosition;
+  }
+
+  void _onPanUpdate(DragUpdateDetails details) {
+    editorState.panEndOffset = details.globalPosition;
+    editorState.updateSelection();
+  }
+
+  void _onPanEnd(DragEndDetails details) {
+    // do nothing
   }
 }

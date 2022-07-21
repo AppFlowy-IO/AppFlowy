@@ -19,6 +19,7 @@ typedef NodeWidgetBuilderF<T extends Node, A extends NodeWidgetBuilder> = A
     Function({
   required T node,
   required EditorState editorState,
+  required GlobalKey key,
 });
 
 // unused
@@ -63,9 +64,12 @@ class RenderPlugins {
       name += '/${node.subtype}';
     }
     final nodeWidgetBuilder = _nodeWidgetBuilder(name);
+    final key = GlobalKey();
+    node.key = key;
     return nodeWidgetBuilder(
       node: context.node,
       editorState: context.editorState,
+      key: key,
     )(context.buildContext);
   }
 

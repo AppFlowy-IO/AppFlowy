@@ -5,6 +5,7 @@ class TextWithHeadingNodeBuilder extends NodeWidgetBuilder {
   TextWithHeadingNodeBuilder.create({
     required super.editorState,
     required super.node,
+    required super.key,
   }) : super.create() {
     nodeValidator = (node) => node.attributes.containsKey('heading');
   }
@@ -15,9 +16,9 @@ class TextWithHeadingNodeBuilder extends NodeWidgetBuilder {
       return const Padding(
         padding: EdgeInsets.only(top: 10),
       );
-    } else if (heading == 'h1') {
+    } else if (heading == 'h2') {
       return const Padding(
-        padding: EdgeInsets.only(top: 10),
+        padding: EdgeInsets.only(top: 5),
       );
     }
     return const Padding(

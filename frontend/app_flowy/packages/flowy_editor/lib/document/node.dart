@@ -10,6 +10,8 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   final LinkedList<Node> children;
   final Attributes attributes;
 
+  GlobalKey? key;
+
   String? get subtype {
     // TODO: make 'subtype' as a const value.
     if (attributes.containsKey('subtype')) {

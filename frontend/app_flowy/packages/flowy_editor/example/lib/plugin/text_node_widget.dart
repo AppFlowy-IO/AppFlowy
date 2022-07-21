@@ -12,6 +12,7 @@ class TextNodeBuilder extends NodeWidgetBuilder {
   TextNodeBuilder.create({
     required super.node,
     required super.editorState,
+    required super.key,
   }) : super.create() {
     nodeValidator = ((node) {
       return node.type == 'text';
@@ -20,7 +21,7 @@ class TextNodeBuilder extends NodeWidgetBuilder {
 
   @override
   Widget build(BuildContext buildContext) {
-    return _TextNodeWidget(node: node, editorState: editorState);
+    return _TextNodeWidget(key: key, node: node, editorState: editorState);
   }
 }
 

@@ -5,18 +5,20 @@ class ImageNodeBuilder extends NodeWidgetBuilder {
   ImageNodeBuilder.create({
     required super.node,
     required super.editorState,
+    required super.key,
   }) : super.create();
 
   @override
   Widget build(BuildContext buildContext) {
     return _ImageNodeWidget(
+      key: key,
       node: node,
       editorState: editorState,
     );
   }
 }
 
-class _ImageNodeWidget extends StatelessWidget {
+class _ImageNodeWidget extends StatefulWidget {
   final Node node;
   final EditorState editorState;
 
@@ -26,7 +28,22 @@ class _ImageNodeWidget extends StatelessWidget {
     required this.editorState,
   }) : super(key: key);
 
-  String get src => node.attributes['image_src'] as String;
+  @override
+  State<_ImageNodeWidget> createState() => __ImageNodeWidgetState();
+}
+
+class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
+  Node get node => widget.node;
+  EditorState get editorState => widget.editorState;
+  String get src => widget.node.attributes['image_src'] as String;
+
+  @override
+  List<Rect> getOverlayRectsInRange(Offset start, Offset end) {
+    final renderBox = context.findRenderObject() as RenderBox;
+    final size = renderBox.size;
+    final boxOffset = renderBox.localToGlobal(Offset.zero);
+    return [boxOffset & size];
+  }
 
   @override
   Widget build(BuildContext context) {
