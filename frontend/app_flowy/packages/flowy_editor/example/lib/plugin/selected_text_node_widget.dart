@@ -20,6 +20,7 @@ class SelectedTextNodeBuilder extends NodeWidgetBuilder {
 
   @override
   Widget build(BuildContext buildContext) {
+    print('key -> $key');
     return _SelectedTextNodeWidget(
       key: key,
       node: node,
@@ -100,9 +101,20 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
       // TODO: just handle upforward delete.
       if (textSelection != null) {
         if (textSelection.isCollapsed) {
-          TransactionBuilder(editorState)
-            ..deleteText(node, textSelection.start - 1, 1)
-            ..commit();
+          print(node.toRawString());
+          print('is empty ${node.toRawString().isEmpty}');
+          if (textSelection.baseOffset == 0 && node.toRawString().isEmpty) {
+            TransactionBuilder(editorState)
+              ..deleteNode(node)
+              ..commit();
+          } else {
+            TransactionBuilder(editorState)
+              ..deleteText(node, textSelection.start - 1, 1)
+              ..commit();
+            final rect = _computeCursorRect(textSelection.baseOffset - 1);
+            editorState.tapOffset = rect.center;
+            editorState.updateCursor();
+          }
         } else {
           TransactionBuilder(editorState)
             ..deleteText(node, textSelection.start,
@@ -117,6 +129,7 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
+    print('text rebuild $this');
     Widget richText;
     if (kDebugMode) {
       richText = DebuggableRichText(text: node.toTextSpan(), textKey: _textKey);
@@ -127,7 +140,10 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        richText,
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: richText,
+        ),
         if (node.children.isNotEmpty)
           ...node.children.map(
             (e) => editorState.renderPlugins.buildWidget(
@@ -163,14 +179,18 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
     final position = TextPosition(offset: offset);
     var cursorOffset = _renderParagraph.getOffsetForCaret(position, Rect.zero);
     cursorOffset = _renderParagraph.localToGlobal(cursorOffset);
-    final cursorHeight = _renderParagraph.getFullHeightForCaret(position)!;
-    const cursorWidth = 2;
-    return Rect.fromLTWH(
-      cursorOffset.dx - (cursorWidth / 2),
-      cursorOffset.dy,
-      cursorWidth.toDouble(),
-      cursorHeight.toDouble(),
-    );
+    final cursorHeight = _renderParagraph.getFullHeightForCaret(position);
+    if (cursorHeight != null) {
+      const cursorWidth = 2;
+      return Rect.fromLTWH(
+        cursorOffset.dx - (cursorWidth / 2),
+        cursorOffset.dy,
+        cursorWidth.toDouble(),
+        cursorHeight.toDouble(),
+      );
+    } else {
+      return Rect.zero;
+    }
   }
 }
 

@@ -63,6 +63,10 @@ class EditorState {
   List<OverlayEntry> selectionOverlays = [];
 
   void updateCursor() {
+    selectionOverlays
+      ..forEach((element) => element.remove())
+      ..clear();
+
     if (tapOffset == null) {
       return;
     }

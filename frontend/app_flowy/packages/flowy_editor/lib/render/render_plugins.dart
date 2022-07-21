@@ -51,6 +51,7 @@ class RenderPlugins {
     _nodeWidgetBuilders.removeWhere((key, _) => key == name);
   }
 
+  @protected
   Widget buildWidget({
     required NodeWidgetContext context,
     bool withSubtype = true,

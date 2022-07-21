@@ -186,8 +186,6 @@ class TextNode extends Node {
     return map;
   }
 
-  String toRawString() => _delta.operations
-      .whereType<TextInsert>()
-      .map((op) => op.content)
-      .toString();
+  String toRawString() =>
+      _delta.operations.whereType<TextInsert>().map((op) => op.content).join();
 }
