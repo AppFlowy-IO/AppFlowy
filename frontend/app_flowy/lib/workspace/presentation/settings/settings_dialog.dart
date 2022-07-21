@@ -6,17 +6,17 @@ import 'package:app_flowy/workspace/presentation/settings/widgets/settings_langu
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:app_flowy/workspace/application/settings/settings_dialog_bloc.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 class SettingsDialog extends StatelessWidget {
-  final UserProfile user;
+  final UserProfilePB user;
   SettingsDialog(this.user, {Key? key}) : super(key: ValueKey(user.id));
 
-  Widget getSettingsView(int index, UserProfile user) {
+  Widget getSettingsView(int index, UserProfilePB user) {
     final List<Widget> settingsViews = [
       const SettingsAppearanceView(),
       const SettingsLanguageView(),

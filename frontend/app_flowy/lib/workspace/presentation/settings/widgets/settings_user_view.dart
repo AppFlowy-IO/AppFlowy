@@ -2,10 +2,10 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 
 class SettingsUserView extends StatelessWidget {
-  final UserProfile user;
+  final UserProfilePB user;
   SettingsUserView(this.user, {Key? key}) : super(key: ValueKey(user.id));
 
   @override

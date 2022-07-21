@@ -34,6 +34,14 @@ class MenuUserBloc extends Bloc<MenuUserEvent, MenuUserState> {
         didReceiveUserProfile: (UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
         },
+        updateUserName: (String name) {
+          _userService.updateUserProfile(name: name).then((result) {
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          });
+        },
       );
     });
   }

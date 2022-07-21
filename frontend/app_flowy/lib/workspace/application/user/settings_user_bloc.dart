@@ -12,7 +12,7 @@ part 'settings_user_bloc.freezed.dart';
 class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
   final UserService _userService;
   final UserListener _userListener;
-  final UserProfile userProfile;
+  final UserProfilePB userProfile;
 
   SettingsUserViewBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),
@@ -24,7 +24,7 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
           _userListener.start(onProfileUpdated: _profileUpdated);
           await _initUser();
         },
-        didReceiveUserProfile: (UserProfile newUserProfile) {
+        didReceiveUserProfile: (UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
         },
         updateUserName: (String name) {
@@ -50,7 +50,7 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
     result.fold((l) => null, (error) => Log.error(error));
   }
 
-  void _profileUpdated(Either<UserProfile, FlowyError> userProfileOrFailed) {
+  void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
       (newUserProfile) => add(SettingsUserEvent.didReceiveUserProfile(newUserProfile)),
       (err) => Log.error(err),
@@ -62,17 +62,17 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.initial() = _Initial;
   const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
-  const factory SettingsUserEvent.didReceiveUserProfile(UserProfile newUserProfile) = _DidReceiveUserProfile;
+  const factory SettingsUserEvent.didReceiveUserProfile(UserProfilePB newUserProfile) = _DidReceiveUserProfile;
 }
 
 @freezed
 class SettingsUserState with _$SettingsUserState {
   const factory SettingsUserState({
-    required UserProfile userProfile,
+    required UserProfilePB userProfile,
     required Either<Unit, String> successOrFailure,
   }) = _SettingsUserState;
 
-  factory SettingsUserState.initial(UserProfile userProfile) => SettingsUserState(
+  factory SettingsUserState.initial(UserProfilePB userProfile) => SettingsUserState(
         userProfile: userProfile,
         successOrFailure: left(unit),
       );

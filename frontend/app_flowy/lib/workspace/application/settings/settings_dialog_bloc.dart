@@ -10,7 +10,7 @@ part 'settings_dialog_bloc.freezed.dart';
 
 class SettingsDialogBloc extends Bloc<SettingsDialogEvent, SettingsDialogState> {
   final UserListener _userListener;
-  final UserProfile userProfile;
+  final UserProfilePB userProfile;
 
   SettingsDialogBloc(this.userProfile)
       : _userListener = UserListener(userProfile: userProfile),
@@ -20,7 +20,7 @@ class SettingsDialogBloc extends Bloc<SettingsDialogEvent, SettingsDialogState> 
         initial: () async {
           _userListener.start(onProfileUpdated: _profileUpdated);
         },
-        didReceiveUserProfile: (UserProfile newUserProfile) {
+        didReceiveUserProfile: (UserProfilePB newUserProfile) {
           emit(state.copyWith(userProfile: newUserProfile));
         },
         setViewIndex: (int viewIndex) {
@@ -36,7 +36,7 @@ class SettingsDialogBloc extends Bloc<SettingsDialogEvent, SettingsDialogState> 
     super.close();
   }
 
-  void _profileUpdated(Either<UserProfile, FlowyError> userProfileOrFailed) {
+  void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
       (newUserProfile) => add(SettingsDialogEvent.didReceiveUserProfile(newUserProfile)),
       (err) => Log.error(err),
@@ -47,19 +47,19 @@ class SettingsDialogBloc extends Bloc<SettingsDialogEvent, SettingsDialogState> 
 @freezed
 class SettingsDialogEvent with _$SettingsDialogEvent {
   const factory SettingsDialogEvent.initial() = _Initial;
-  const factory SettingsDialogEvent.didReceiveUserProfile(UserProfile newUserProfile) = _DidReceiveUserProfile;
+  const factory SettingsDialogEvent.didReceiveUserProfile(UserProfilePB newUserProfile) = _DidReceiveUserProfile;
   const factory SettingsDialogEvent.setViewIndex(int index) = _SetViewIndex;
 }
 
 @freezed
 class SettingsDialogState with _$SettingsDialogState {
   const factory SettingsDialogState({
-    required UserProfile userProfile,
+    required UserProfilePB userProfile,
     required Either<Unit, String> successOrFailure,
     required int viewIndex,
   }) = _SettingsDialogState;
 
-  factory SettingsDialogState.initial(UserProfile userProfile) => SettingsDialogState(
+  factory SettingsDialogState.initial(UserProfilePB userProfile) => SettingsDialogState(
         userProfile: userProfile,
         successOrFailure: left(unit),
         viewIndex: 0,
