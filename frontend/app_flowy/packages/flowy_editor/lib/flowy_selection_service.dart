@@ -102,6 +102,7 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
     _clearOverlay();
 
     final nodes = selectedNodes;
+    editorState.selectedNodes = nodes;
     if (nodes.isEmpty || panStartOffset == null || panEndOffset == null) {
       assert(panStartOffset == null);
       assert(panEndOffset == null);
@@ -139,6 +140,7 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
     }
 
     final nodes = selectedNodes;
+    editorState.selectedNodes = nodes;
     if (nodes.isEmpty) {
       return;
     }

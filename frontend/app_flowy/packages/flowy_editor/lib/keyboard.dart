@@ -26,20 +26,20 @@ class Keyboard extends StatelessWidget {
   }
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
-    if (event is! RawKeyDownEvent) {
-      return KeyEventResult.ignored;
-    }
-    List<KeyEventResult> result = [];
-    for (final node in editorState.selectedNodes) {
-      if (node.key != null &&
-          node.key?.currentState is KeyboardEventsRespondable) {
-        final respondable = node.key!.currentState as KeyboardEventsRespondable;
-        result.add(respondable.onKeyDown(event));
-      }
-    }
-    if (result.contains(KeyEventResult.handled)) {
-      return KeyEventResult.handled;
-    }
+    // if (event is! RawKeyDownEvent) {
+    //   return KeyEventResult.ignored;
+    // }
+    // List<KeyEventResult> result = [];
+    // for (final node in editorState.selectedNodes) {
+    //   if (node.key != null &&
+    //       node.key?.currentState is KeyboardEventsRespondable) {
+    //     final respondable = node.key!.currentState as KeyboardEventsRespondable;
+    //     result.add(respondable.onKeyDown(event));
+    //   }
+    // }
+    // if (result.contains(KeyEventResult.handled)) {
+    //   return KeyEventResult.handled;
+    // }
     return KeyEventResult.ignored;
   }
 }

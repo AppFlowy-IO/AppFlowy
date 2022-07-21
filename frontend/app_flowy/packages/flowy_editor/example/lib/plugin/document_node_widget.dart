@@ -1,5 +1,4 @@
 import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class EditorNodeWidgetBuilder extends NodeWidgetBuilder {

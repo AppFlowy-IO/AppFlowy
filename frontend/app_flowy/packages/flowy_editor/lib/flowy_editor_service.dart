@@ -24,7 +24,11 @@ class _FlowyEditorState extends State<FlowyEditor> {
     return FlowySelectionWidget(
       editorState: editorState,
       child: FlowyKeyboardWidget(
-        handlers: const [],
+        handlers: [
+          FlowyKeyboradBackSpaceHandler(
+            editorState: editorState,
+          )
+        ],
         editorState: editorState,
         child: editorState.build(context),
       ),

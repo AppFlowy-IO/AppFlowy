@@ -95,6 +95,11 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
   }
 
   @override
+  TextSelection? getTextSelection() {
+    return _textSelection;
+  }
+
+  @override
   KeyEventResult onKeyDown(RawKeyEvent event) {
     if (event.logicalKey == LogicalKeyboardKey.backspace) {
       final textSelection = _textSelection;
@@ -111,9 +116,9 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
             TransactionBuilder(editorState)
               ..deleteText(node, textSelection.start - 1, 1)
               ..commit();
-            final rect = _computeCursorRect(textSelection.baseOffset - 1);
-            editorState.tapOffset = rect.center;
-            editorState.updateCursor();
+            // final rect = _computeCursorRect(textSelection.baseOffset - 1);
+            // editorState.tapOffset = rect.center;
+            // editorState.updateCursor();
           }
         } else {
           TransactionBuilder(editorState)

@@ -6,8 +6,11 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
   /// [start] and [end] are global offsets.
   List<Rect> getSelectionRectsInSelection(Offset start, Offset end);
 
-  /// Returns a [Rect] for cursor
+  /// Returns a [Rect] for cursor.
   Rect getCursorRect(Offset start);
+
+  /// For [TextNode] only.
+  TextSelection? getTextSelection();
 }
 
 mixin KeyboardEventsRespondable<T extends StatefulWidget> on State<T> {

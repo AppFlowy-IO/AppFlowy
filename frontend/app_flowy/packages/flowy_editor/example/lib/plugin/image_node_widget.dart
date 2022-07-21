@@ -58,6 +58,11 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget>
   }
 
   @override
+  TextSelection? getTextSelection() {
+    return null;
+  }
+
+  @override
   KeyEventResult onKeyDown(RawKeyEvent event) {
     if (event.logicalKey == LogicalKeyboardKey.backspace) {
       TransactionBuilder(editorState)
