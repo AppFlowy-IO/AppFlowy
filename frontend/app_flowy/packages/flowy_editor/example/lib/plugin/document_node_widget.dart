@@ -33,66 +33,21 @@ class _EditorNodeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RawGestureDetector(
-      behavior: HitTestBehavior.translucent,
-      gestures: {
-        PanGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
-          () => PanGestureRecognizer(),
-          (recognizer) {
-            recognizer
-              ..onStart = _onPanStart
-              ..onUpdate = _onPanUpdate
-              ..onEnd = _onPanEnd;
-          },
-        ),
-        TapGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-          () => TapGestureRecognizer(),
-          (recongizer) {
-            recongizer..onTapDown = _onTapDown;
-          },
-        )
-      },
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: node.children
-              .map(
-                (e) => editorState.renderPlugins.buildWidget(
-                  context: NodeWidgetContext(
-                    buildContext: context,
-                    node: e,
-                    editorState: editorState,
-                  ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: node.children
+            .map(
+              (e) => editorState.renderPlugins.buildWidget(
+                context: NodeWidgetContext(
+                  buildContext: context,
+                  node: e,
+                  editorState: editorState,
                 ),
-              )
-              .toList(),
-        ),
+              ),
+            )
+            .toList(),
       ),
     );
-  }
-
-  void _onTapDown(TapDownDetails details) {
-    editorState.panStartOffset = null;
-    editorState.panEndOffset = null;
-    editorState.updateSelection();
-
-    editorState.tapOffset = details.globalPosition;
-    editorState.updateCursor();
-  }
-
-  void _onPanStart(DragStartDetails details) {
-    editorState.panStartOffset = details.globalPosition;
-    editorState.updateSelection();
-  }
-
-  void _onPanUpdate(DragUpdateDetails details) {
-    editorState.panEndOffset = details.globalPosition;
-    editorState.updateSelection();
-  }
-
-  void _onPanEnd(DragEndDetails details) {
-    // do nothing
   }
 }

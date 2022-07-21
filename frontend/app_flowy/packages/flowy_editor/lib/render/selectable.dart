@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 mixin Selectable<T extends StatefulWidget> on State<T> {
   /// Returns a [Rect] list for overlay.
   /// [start] and [end] are global offsets.
-  List<Rect> getOverlayRectsInRange(Offset start, Offset end);
+  List<Rect> getSelectionRectsInSelection(Offset start, Offset end);
 
-  /// Returns a [Offset] for cursor
+  /// Returns a [Rect] for cursor
   Rect getCursorRect(Offset start);
 }
 

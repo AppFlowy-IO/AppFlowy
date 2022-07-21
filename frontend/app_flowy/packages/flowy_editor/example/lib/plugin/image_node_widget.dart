@@ -40,7 +40,7 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget>
   String get src => widget.node.attributes['image_src'] as String;
 
   @override
-  List<Rect> getOverlayRectsInRange(Offset start, Offset end) {
+  List<Rect> getSelectionRectsInSelection(Offset start, Offset end) {
     final renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
     final boxOffset = renderBox.localToGlobal(Offset.zero);

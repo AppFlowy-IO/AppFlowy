@@ -109,8 +109,8 @@ class EditorState {
       final key = node.key;
       if (key != null && key.currentState is Selectable) {
         final selectable = key.currentState as Selectable;
-        final overlayRects =
-            selectable.getOverlayRectsInRange(panStartOffset!, panEndOffset!);
+        final overlayRects = selectable.getSelectionRectsInSelection(
+            panStartOffset!, panEndOffset!);
         for (final rect in overlayRects) {
           // TODO: refactor overlay implement.
           final overlay = OverlayEntry(builder: ((context) {

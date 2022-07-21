@@ -94,7 +94,9 @@ class _MyHomePageState extends State<MyHomePage> {
               document: document,
               renderPlugins: renderPlugins,
             );
-            return _editorState.build(context);
+            return FlowyEditor(
+              editorState: _editorState,
+            );
           }
         },
       ),

@@ -56,7 +56,7 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
 
   @override
-  List<Rect> getOverlayRectsInRange(Offset start, Offset end) {
+  List<Rect> getSelectionRectsInSelection(Offset start, Offset end) {
     var textSelection =
         TextSelection(baseOffset: 0, extentOffset: node.toRawString().length);
     // Returns select all if the start or end exceeds the size of the box

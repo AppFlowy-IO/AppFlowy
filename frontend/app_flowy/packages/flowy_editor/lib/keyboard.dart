@@ -1,7 +1,7 @@
-import 'package:flutter/services.dart';
-
 import '../render/selectable.dart';
 import 'editor_state.dart';
+
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 class Keyboard extends StatelessWidget {
