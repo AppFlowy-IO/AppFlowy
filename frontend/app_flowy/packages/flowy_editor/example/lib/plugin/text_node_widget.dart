@@ -43,6 +43,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   TextNode get node => widget.node as TextNode;
   EditorState get editorState => widget.editorState;
   bool _metaKeyDown = false;
+  bool _shiftKeyDown = false;
 
   TextInputConnection? _textInputConnection;
 
@@ -79,6 +80,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   }
 
   KeyEventResult _onKey(FocusNode focusNode, RawKeyEvent event) {
+    debugPrint('key: $event');
     if (event is RawKeyDownEvent) {
       final sel = _globalSelectionToLocal(node, editorState.cursorSelection);
       if (event.logicalKey == LogicalKeyboardKey.backspace) {
@@ -90,13 +92,24 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
       } else if (event.logicalKey == LogicalKeyboardKey.metaLeft ||
           event.logicalKey == LogicalKeyboardKey.metaRight) {
         _metaKeyDown = true;
+      } else if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
+          event.logicalKey == LogicalKeyboardKey.shiftRight) {
+        _shiftKeyDown = true;
       } else if (event.logicalKey == LogicalKeyboardKey.keyZ && _metaKeyDown) {
-        editorState.undoManager.undo();
+        if (_shiftKeyDown) {
+          editorState.undoManager.redo();
+        } else {
+          editorState.undoManager.undo();
+        }
       }
     } else if (event is RawKeyUpEvent) {
       if (event.logicalKey == LogicalKeyboardKey.metaLeft ||
           event.logicalKey == LogicalKeyboardKey.metaRight) {
         _metaKeyDown = false;
+      }
+      if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
+          event.logicalKey == LogicalKeyboardKey.shiftRight) {
+        _shiftKeyDown = false;
       }
     }
     return KeyEventResult.ignored;

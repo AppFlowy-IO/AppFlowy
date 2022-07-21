@@ -10,8 +10,10 @@ class ApplyOptions {
   /// whether the transaction should be recorded into
   /// the undo stack.
   final bool recordUndo;
+  final bool recordRedo;
   const ApplyOptions({
     this.recordUndo = true,
+    this.recordRedo = false,
   });
 }
 
@@ -57,6 +59,12 @@ class EditorState {
       }
       undoItem.afterSelection = transaction.afterSelection;
       _debouncedSealHistoryItem();
+    } else if (options.recordRedo) {
+      final redoItem = HistoryItem();
+      redoItem.addAll(transaction.operations);
+      redoItem.beforeSelection = transaction.beforeSelection;
+      redoItem.afterSelection = transaction.afterSelection;
+      undoManager.redoStack.push(redoItem);
     }
   }
 
