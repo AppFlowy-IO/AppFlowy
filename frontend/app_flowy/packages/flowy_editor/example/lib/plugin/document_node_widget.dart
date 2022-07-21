@@ -46,6 +46,13 @@ class _EditorNodeWidget extends StatelessWidget {
               ..onEnd = _onPanEnd;
           },
         ),
+        TapGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+          () => TapGestureRecognizer(),
+          (recongizer) {
+            recongizer..onTap = _onTap;
+          },
+        )
       },
       child: SingleChildScrollView(
         child: Column(
@@ -66,8 +73,15 @@ class _EditorNodeWidget extends StatelessWidget {
     );
   }
 
+  void _onTap() {
+    editorState.panStartOffset = null;
+    editorState.panEndOffset = null;
+    editorState.updateSelection();
+  }
+
   void _onPanStart(DragStartDetails details) {
     editorState.panStartOffset = details.globalPosition;
+    editorState.updateSelection();
   }
 
   void _onPanUpdate(DragUpdateDetails details) {

@@ -56,6 +56,10 @@ class EditorState {
   List<OverlayEntry> selectionOverlays = [];
 
   void updateSelection() {
+    selectionOverlays
+      ..forEach((element) => element.remove())
+      ..clear();
+
     final selectedNodes = _selectedNodes;
     if (selectedNodes.isEmpty) {
       return;
@@ -63,9 +67,6 @@ class EditorState {
 
     assert(panStartOffset != null && panEndOffset != null);
 
-    selectionOverlays
-      ..forEach((element) => element.remove())
-      ..clear();
     for (final node in selectedNodes) {
       final key = node.key;
       if (key != null && key.currentState is Selectable) {
