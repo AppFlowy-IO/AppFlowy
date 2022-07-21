@@ -47,7 +47,7 @@ Please view the [documentation](https://appflowy.gitbook.io/docs/essential-docum
 
 [AppFlowy Roadmap](https://trello.com/b/NCyXCXXh/appflowy-roadmap)
 
-If you'd like to propose a feature, submit an issue [here](https://github.com/AppFlowy-IO/appflowy/issues).
+If you would like to propose a feature, submit an issue [here](https://github.com/AppFlowy-IO/appflowy/issues).
 
 ## **Releases**
 
@@ -61,14 +61,14 @@ Contributions are what make the open source community such an amazing place to b
 
 Notion has been our favorite project and knowledge management tool in recent years because of its aesthetic appeal and functionality. Our team uses it daily, and we are on its paid plan. However, as we all know Notion has its limitations. These include weak data security and poor compatibility with mobile devices. Likewise, alternative collaborative workplace management tools also have their constraints.
 
-The limitations we encountered using these tools rooted in our past work experience with collaborative productivity tools lead to our firm belief that there is, and will be a glass ceiling on what's possible in the future for tools like Notion. This emanates from these tools probable struggles to scale horizontally at some point. It implies that they will likely be forced to prioritize for a proportion of customers whose needs can be quite different from the rest. While decision-makers want a workplace OS, the truth is that it is not very possible to come up with a one-size fits all solution in such a fragmented market.
+The limitations we encountered using these tools rooted in our past work experience with collaborative productivity tools lead to our firm belief that there is, and will be a glass ceiling on what is possible in the future for tools like Notion. This emanates from these tools probable struggles to scale horizontally at some point. It implies that they will likely be forced to prioritize for a proportion of customers whose needs can be quite different from the rest. While decision-makers want a workplace OS, the truth is that it is not very possible to come up with a one-size fits all solution in such a fragmented market.
 
-When a customer's evolving core needs are not satisfied, they either switch to another or build one from the ground up, in-house. Consequently, they either go under another ceiling or buy an expensive ticket to learn a hard lesson. This is a requirement for many resources and expertise, building a reliable and easy-to-use collaborative tool, not to mention the speed and native experience. The same may apply to individual users as well.
+When a customer's evolving core needs are not satisfied, they either switch to another or build one from scratch in-house. Consequently, they either go under another ceiling or buy an expensive ticket to learn a hard lesson. This is a requirement for many resources and expertise, building a reliable and easy-to-use collaborative tool, not to mention the speed and native experience. The same may apply to individual users as well.
 
 All these restrictions necessitate our mission - to make it possible for anyone to create apps that suit their needs well.
 
 - To individuals, we would like to offer Notion's functionality along with data security and cross-platform native experience.
-- To enterprises and hackers, AppFlowy is dedicated to offering building blocks, that is, collaboration infra services to enable you to make apps on your own. Moreover, you have 100% control of your data. You can design and modify AppFlowy your way, with a single codebase written in Flutter and Rust supporting multiple platforms armed with long-term maintainability.
+- To enterprises and hackers, AppFlowy is dedicated to offering building blocks. That is, collaboration infra services to enable you to make apps on your own. Moreover, you have 100% control of your data. You can design and modify AppFlowy your way, with a single codebase written in Flutter and Rust supporting multiple platforms armed with long-term maintainability.
 
 We decided to achieve this mission by upholding the three most fundamental values:
 
@@ -76,7 +76,7 @@ We decided to achieve this mission by upholding the three most fundamental value
 - Reliable native experience
 - Community-driven extensibility
 
-To be honest, we do not claim to outperform Notion in terms of functionality and design, at least for now. Besides, our priority doesn't lie in more functionality at the moment. Instead, we would like to cultivate a community to democratize the knowledge and wheels of making complex workplace management tools, while enabling people and businesses to create beautiful things on their own by equipping them with a versatile toolbox of building blocks.
+To be honest, we do not claim to outperform Notion in terms of functionality and design, at least for now. Besides, our priority does not lie in more functionality at the moment. Instead, we would like to cultivate a community to democratize the knowledge and wheels of making complex workplace management tools, while enabling people and businesses to create beautiful things on their own by equipping them with a versatile toolbox of building blocks.
 
 ## License
 
