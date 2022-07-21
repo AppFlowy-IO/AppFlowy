@@ -50,7 +50,7 @@ class _EditorNodeWidget extends StatelessWidget {
             GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
           () => TapGestureRecognizer(),
           (recongizer) {
-            recongizer..onTap = _onTap;
+            recongizer..onTapDown = _onTapDown;
           },
         )
       },
@@ -73,10 +73,13 @@ class _EditorNodeWidget extends StatelessWidget {
     );
   }
 
-  void _onTap() {
+  void _onTapDown(TapDownDetails details) {
     editorState.panStartOffset = null;
     editorState.panEndOffset = null;
     editorState.updateSelection();
+
+    editorState.tapOffset = details.globalPosition;
+    editorState.updateCursor();
   }
 
   void _onPanStart(DragStartDetails details) {

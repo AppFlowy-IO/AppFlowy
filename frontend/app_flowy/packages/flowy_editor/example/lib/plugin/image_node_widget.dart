@@ -1,5 +1,6 @@
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ImageNodeBuilder extends NodeWidgetBuilder {
   ImageNodeBuilder.create({
@@ -32,7 +33,8 @@ class _ImageNodeWidget extends StatefulWidget {
   State<_ImageNodeWidget> createState() => __ImageNodeWidgetState();
 }
 
-class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
+class __ImageNodeWidgetState extends State<_ImageNodeWidget>
+    with Selectable, KeyboardEventsRespondable {
   Node get node => widget.node;
   EditorState get editorState => widget.editorState;
   String get src => widget.node.attributes['image_src'] as String;
@@ -43,6 +45,27 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
     final size = renderBox.size;
     final boxOffset = renderBox.localToGlobal(Offset.zero);
     return [boxOffset & size];
+  }
+
+  @override
+  Rect getCursorRect(Offset start) {
+    final renderBox = context.findRenderObject() as RenderBox;
+    final size = Size(5, renderBox.size.height);
+    final boxOffset = renderBox.localToGlobal(Offset.zero);
+    final cursorOffset =
+        Offset(renderBox.size.width + boxOffset.dx, boxOffset.dy);
+    return cursorOffset & size;
+  }
+
+  @override
+  KeyEventResult onKeyDown(RawKeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.backspace) {
+      TransactionBuilder(editorState)
+        ..deleteNode(node)
+        ..commit();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 
   @override

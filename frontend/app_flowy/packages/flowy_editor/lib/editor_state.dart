@@ -1,4 +1,7 @@
+import 'dart:collection';
+
 import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/keyboard.dart';
 import 'package:flowy_editor/operation/operation.dart';
 import 'package:flowy_editor/render/selectable.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +16,7 @@ class EditorState {
   final StateTree document;
   final RenderPlugins renderPlugins;
 
+  Offset? tapOffset;
   Offset? panStartOffset;
   Offset? panEndOffset;
 
@@ -25,11 +29,14 @@ class EditorState {
 
   /// TODO: move to a better place.
   Widget build(BuildContext context) {
-    return renderPlugins.buildWidget(
-      context: NodeWidgetContext(
-        buildContext: context,
-        node: document.root,
-        editorState: this,
+    return Keyboard(
+      editorState: this,
+      child: renderPlugins.buildWidget(
+        context: NodeWidgetContext(
+          buildContext: context,
+          node: document.root,
+          editorState: this,
+        ),
       ),
     );
   }
@@ -55,17 +62,44 @@ class EditorState {
 
   List<OverlayEntry> selectionOverlays = [];
 
+  void updateCursor() {
+    if (tapOffset == null) {
+      return;
+    }
+
+    // TODO: upward and backward
+    final selectedNode = _calculateSelectedNode(document.root, tapOffset!);
+    if (selectedNode.isEmpty) {
+      return;
+    }
+    final key = selectedNode.first.key;
+    if (key != null && key.currentState is Selectable) {
+      final selectable = key.currentState as Selectable;
+      final rect = selectable.getCursorRect(tapOffset!);
+      final overlay = OverlayEntry(builder: ((context) {
+        return Positioned.fromRect(
+          rect: rect,
+          child: Container(
+            color: Colors.red,
+          ),
+        );
+      }));
+      selectionOverlays.add(overlay);
+      Overlay.of(selectable.context)?.insert(overlay);
+    }
+  }
+
   void updateSelection() {
     selectionOverlays
       ..forEach((element) => element.remove())
       ..clear();
 
-    final selectedNodes = _selectedNodes;
-    if (selectedNodes.isEmpty) {
+    final selectedNodes = this.selectedNodes;
+    if (selectedNodes.isEmpty ||
+        panStartOffset == null ||
+        panEndOffset == null) {
       return;
     }
-
-    assert(panStartOffset != null && panEndOffset != null);
 
     for (final node in selectedNodes) {
       final key = node.key;
@@ -90,12 +124,46 @@ class EditorState {
     }
   }
 
-  List<Node> get _selectedNodes {
-    if (panStartOffset == null || panEndOffset == null) {
-      return [];
+  List<Node> get selectedNodes {
+    if (panStartOffset != null && panEndOffset != null) {
+      return _calculateSelectedNodes(
+          document.root, panStartOffset!, panEndOffset!);
     }
-    return _calculateSelectedNodes(
-        document.root, panStartOffset!, panEndOffset!);
+    if (tapOffset != null) {
+      return _calculateSelectedNode(document.root, tapOffset!);
+    }
+    return [];
+  }
+
+  List<Node> _calculateSelectedNode(Node node, Offset offset) {
+    List<Node> result = [];
+
+    /// Skip the node without parent because it is the topmost node.
+    /// Skip the node without key because it cannot get the [RenderObject].
+    if (node.parent != null && node.key != null) {
+      if (_isNodeInOffset(node, offset)) {
+        result.add(node);
+      }
+    }
+
+    ///
+    for (final child in node.children) {
+      result.addAll(_calculateSelectedNode(child, offset));
+    }
+
+    return result;
+  }
+
+  bool _isNodeInOffset(Node node, Offset offset) {
+    assert(node.key != null);
+    final renderBox =
+        node.key?.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) {
+      return false;
+    }
+    final boxOffset = renderBox.localToGlobal(Offset.zero);
+    final boxRect = boxOffset & renderBox.size;
+    return boxRect.contains(offset);
   }
 
   List<Node> _calculateSelectedNodes(Node node, Offset start, Offset end) {

@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SelectedTextNodeBuilder extends NodeWidgetBuilder {
@@ -43,22 +44,24 @@ class _SelectedTextNodeWidget extends StatefulWidget {
 }
 
 class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
-    with Selectable {
+    with Selectable, KeyboardEventsRespondable {
   TextNode get node => widget.node as TextNode;
   EditorState get editorState => widget.editorState;
 
   final _textKey = GlobalKey();
+  TextSelection? _textSelection;
 
   RenderParagraph get _renderParagraph =>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
 
   @override
   List<Rect> getOverlayRectsInRange(Offset start, Offset end) {
+    var textSelection =
+        TextSelection(baseOffset: 0, extentOffset: node.toRawString().length);
     // Returns select all if the start or end exceeds the size of the box
     // TODO: don't need to compute everytime.
-    var rects = _computeSelectionRects(
-      TextSelection(baseOffset: 0, extentOffset: node.toRawString().length),
-    );
+    var rects = _computeSelectionRects(textSelection);
+    _textSelection = textSelection;
 
     if (end.dy > start.dy) {
       // downward
@@ -74,11 +77,42 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
 
     final selectionBaseOffset = _getTextPositionAtOffset(start).offset;
     final selectionExtentOffset = _getTextPositionAtOffset(end).offset;
-    final textSelection = TextSelection(
+    textSelection = TextSelection(
       baseOffset: selectionBaseOffset,
       extentOffset: selectionExtentOffset,
     );
+    _textSelection = textSelection;
     return _computeSelectionRects(textSelection);
+  }
+
+  @override
+  Rect getCursorRect(Offset start) {
+    final selectionBaseOffset = _getTextPositionAtOffset(start).offset;
+    final textSelection = TextSelection.collapsed(offset: selectionBaseOffset);
+    _textSelection = textSelection;
+    return _computeCursorRect(textSelection.baseOffset);
+  }
+
+  @override
+  KeyEventResult onKeyDown(RawKeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.backspace) {
+      final textSelection = _textSelection;
+      // TODO: just handle upforward delete.
+      if (textSelection != null) {
+        if (textSelection.isCollapsed) {
+          TransactionBuilder(editorState)
+            ..deleteText(node, textSelection.start - 1, 1)
+            ..commit();
+        } else {
+          TransactionBuilder(editorState)
+            ..deleteText(node, textSelection.start,
+                textSelection.baseOffset - textSelection.extentOffset)
+            ..commit();
+        }
+      }
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 
   @override
@@ -123,6 +157,20 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
             _renderParagraph.localToGlobal(box.toRect().topLeft) &
             box.toRect().size)
         .toList();
+  }
+
+  Rect _computeCursorRect(int offset) {
+    final position = TextPosition(offset: offset);
+    var cursorOffset = _renderParagraph.getOffsetForCaret(position, Rect.zero);
+    cursorOffset = _renderParagraph.localToGlobal(cursorOffset);
+    final cursorHeight = _renderParagraph.getFullHeightForCaret(position)!;
+    const cursorWidth = 2;
+    return Rect.fromLTWH(
+      cursorOffset.dx - (cursorWidth / 2),
+      cursorOffset.dy,
+      cursorWidth.toDouble(),
+      cursorHeight.toDouble(),
+    );
   }
 }
 
