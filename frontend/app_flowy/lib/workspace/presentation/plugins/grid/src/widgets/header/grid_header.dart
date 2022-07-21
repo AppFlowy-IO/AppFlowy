@@ -151,7 +151,7 @@ class CreateFieldButton extends StatelessWidget {
       onTap: () => FieldEditor(
         gridId: gridId,
         fieldName: "",
-        contextLoader: NewFieldContextLoader(gridId: gridId),
+        typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
       ).show(context),
       leftIcon: svgWidget("home/add"),
     );
@@ -160,7 +160,7 @@ class CreateFieldButton extends StatelessWidget {
 
 class SliverHeaderDelegateImplementation extends SliverPersistentHeaderDelegate {
   final String gridId;
-  final List<Field> fields;
+  final List<GridFieldPB> fields;
 
   SliverHeaderDelegateImplementation({required this.gridId, required this.fields});
 

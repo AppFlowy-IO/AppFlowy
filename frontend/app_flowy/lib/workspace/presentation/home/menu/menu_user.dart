@@ -6,14 +6,14 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class MenuUser extends StatelessWidget {
-  final UserProfile user;
+  final UserProfilePB user;
   MenuUser(this.user, {Key? key}) : super(key: ValueKey(user.id));
 
   @override

@@ -4,7 +4,7 @@ use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
 #[derive(ProtoBuf, Default)]
-pub struct SignInPayload {
+pub struct SignInPayloadPB {
     #[pb(index = 1)]
     pub email: String,
 
@@ -42,7 +42,7 @@ pub struct SignInResponse {
     pub token: String,
 }
 
-impl TryInto<SignInParams> for SignInPayload {
+impl TryInto<SignInParams> for SignInPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SignInParams, Self::Error> {
@@ -58,7 +58,7 @@ impl TryInto<SignInParams> for SignInPayload {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct SignUpPayload {
+pub struct SignUpPayloadPB {
     #[pb(index = 1)]
     pub email: String,
 
@@ -68,7 +68,7 @@ pub struct SignUpPayload {
     #[pb(index = 3)]
     pub password: String,
 }
-impl TryInto<SignUpParams> for SignUpPayload {
+impl TryInto<SignUpParams> for SignUpPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SignUpParams, Self::Error> {

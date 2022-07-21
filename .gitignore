@@ -28,3 +28,7 @@ frontend/.vscode/*
 !frontend/.vscode/launch.json
 !frontend/.vscode/extensions.json
 !frontend/.vscode/*.code-snippets
+
+# Commit the highest level pubspec.lock, but ignore the others
+pubspec.lock
+!frontend/app_flowy/pubspec.lock

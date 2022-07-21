@@ -1,5 +1,5 @@
 use crate::disk::RevisionState;
-use crate::{RevisionPersistence, WSDataProviderDataSource};
+use crate::{RevisionPersistence, RevisionSnapshotDiskCache, RevisionSnapshotManager, WSDataProviderDataSource};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{
@@ -45,14 +45,31 @@ pub struct RevisionManager {
     user_id: String,
     rev_id_counter: RevIdCounter,
     rev_persistence: Arc<RevisionPersistence>,
-
+    #[allow(dead_code)]
+    rev_snapshot: Arc<RevisionSnapshotManager>,
+    rev_compactor: Arc<dyn RevisionCompactor>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
 }
 
 impl RevisionManager {
-    pub fn new(user_id: &str, object_id: &str, rev_persistence: Arc<RevisionPersistence>) -> Self {
+    pub fn new<SP, C>(
+        user_id: &str,
+        object_id: &str,
+        rev_persistence: RevisionPersistence,
+        rev_compactor: C,
+        snapshot_persistence: SP,
+    ) -> Self
+    where
+        SP: 'static + RevisionSnapshotDiskCache,
+        C: 'static + RevisionCompactor,
+    {
         let rev_id_counter = RevIdCounter::new(0);
+        let rev_compactor = Arc::new(rev_compactor);
+
+        let rev_persistence = Arc::new(rev_persistence);
+
+        let rev_snapshot = Arc::new(RevisionSnapshotManager::new(user_id, object_id, snapshot_persistence));
         #[cfg(feature = "flowy_unit_test")]
         let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
@@ -61,7 +78,8 @@ impl RevisionManager {
             user_id: user_id.to_owned(),
             rev_id_counter,
             rev_persistence,
-
+            rev_snapshot,
+            rev_compactor,
             #[cfg(feature = "flowy_unit_test")]
             rev_ack_notifier: revision_ack_notifier,
         }
@@ -100,20 +118,21 @@ impl RevisionManager {
         }
 
         let _ = self.rev_persistence.add_ack_revision(revision).await?;
+        // self.rev_history.add_revision(revision).await;
         self.rev_id_counter.set(revision.rev_id);
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub async fn add_local_revision<'a>(
-        &'a self,
-        revision: &Revision,
-        compactor: Box<dyn RevisionCompactor + 'a>,
-    ) -> Result<(), FlowyError> {
+    pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
         if revision.delta_data.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
-        let rev_id = self.rev_persistence.add_sync_revision(revision, compactor).await?;
+        let rev_id = self
+            .rev_persistence
+            .add_sync_revision(revision, &self.rev_compactor)
+            .await?;
+        // self.rev_history.add_revision(revision).await;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }

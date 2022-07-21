@@ -31,7 +31,7 @@ pub struct GridRevision {
     pub fields: Vec<Arc<FieldRevision>>,
     pub blocks: Vec<Arc<GridBlockMetaRevision>>,
 
-    #[serde(default, skip)]
+    #[serde(default)]
     pub setting: GridSettingRevision,
 }
 
@@ -48,7 +48,7 @@ impl GridRevision {
     pub fn from_build_context(grid_id: &str, context: BuildGridContext) -> Self {
         Self {
             grid_id: grid_id.to_owned(),
-            fields: context.field_revs.into_iter().map(Arc::new).collect(),
+            fields: context.field_revs,
             blocks: context.blocks.into_iter().map(Arc::new).collect(),
             setting: Default::default(),
         }
@@ -168,13 +168,9 @@ impl FieldRevision {
         self.type_options.insert(id, entry.json_str());
     }
 
-    pub fn get_type_option_entry<T1: TypeOptionDataDeserializer, T2: Into<FieldTypeRevision>>(
-        &self,
-        field_type: T2,
-    ) -> Option<T1> {
-        let field_type_rev = field_type.into();
+    pub fn get_type_option_entry<T: TypeOptionDataDeserializer>(&self, field_type_rev: FieldTypeRevision) -> Option<T> {
         let id = field_type_rev.to_string();
-        self.type_options.get(&id).map(|s| T1::from_json_str(s))
+        self.type_options.get(&id).map(|s| T::from_json_str(s))
     }
 
     pub fn insert_type_option_str(&mut self, field_type: &FieldTypeRevision, json_str: String) {
@@ -244,7 +240,7 @@ impl CellRevision {
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct BuildGridContext {
-    pub field_revs: Vec<FieldRevision>,
+    pub field_revs: Vec<Arc<FieldRevision>>,
     pub blocks: Vec<GridBlockMetaRevision>,
     pub blocks_meta_data: Vec<GridBlockRevision>,
 }

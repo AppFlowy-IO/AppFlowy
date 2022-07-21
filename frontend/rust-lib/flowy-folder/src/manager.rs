@@ -1,7 +1,8 @@
 use crate::entities::view::ViewDataType;
+use crate::services::folder_editor::FolderRevisionCompactor;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
-    entities::workspace::RepeatedWorkspace,
+    entities::workspace::RepeatedWorkspacePB,
     errors::FlowyResult,
     event_map::{FolderCouldServiceV1, WorkspaceDatabase, WorkspaceUser},
     services::{
@@ -13,7 +14,7 @@ use bytes::Bytes;
 use flowy_error::FlowyError;
 use flowy_folder_data_model::user_default;
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket};
+use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
 use flowy_sync::client_document::default::{initial_quill_delta_string, initial_read_me};
 use flowy_sync::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use lazy_static::lazy_static;
@@ -161,9 +162,20 @@ impl FolderManager {
         let _ = self.persistence.initialize(user_id, &folder_id).await?;
 
         let pool = self.persistence.db_pool()?;
-        let disk_cache = Arc::new(SQLiteTextBlockRevisionPersistence::new(user_id, pool));
-        let rev_persistence = Arc::new(RevisionPersistence::new(user_id, folder_id.as_ref(), disk_cache));
-        let rev_manager = RevisionManager::new(user_id, folder_id.as_ref(), rev_persistence);
+        let object_id = folder_id.as_ref();
+        let disk_cache = SQLiteTextBlockRevisionPersistence::new(user_id, pool.clone());
+        let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache);
+        let rev_compactor = FolderRevisionCompactor();
+        // let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());
+        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(object_id, pool);
+        let rev_manager = RevisionManager::new(
+            user_id,
+            folder_id.as_ref(),
+            rev_persistence,
+            rev_compactor,
+            // history_persistence,
+            snapshot_persistence,
+        );
 
         let folder_editor = FolderEditor::new(user_id, &folder_id, token, rev_manager, self.web_socket.clone()).await?;
         *self.folder_editor.write().await = Some(Arc::new(folder_editor));
@@ -216,7 +228,7 @@ impl DefaultFolderBuilder {
         let folder = FolderPad::new(vec![workspace_rev.clone()], vec![])?;
         let folder_id = FolderId::new(user_id);
         let _ = persistence.save_folder(user_id, &folder_id, folder).await?;
-        let repeated_workspace = RepeatedWorkspace {
+        let repeated_workspace = RepeatedWorkspacePB {
             items: vec![workspace_rev.into()],
         };
         send_dart_notification(token, FolderNotification::UserCreateWorkspace)

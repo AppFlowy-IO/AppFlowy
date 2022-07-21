@@ -9,7 +9,7 @@ use std::sync::Arc;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct Field {
+pub struct GridFieldPB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -35,7 +35,7 @@ pub struct Field {
     pub is_primary: bool,
 }
 
-impl std::convert::From<FieldRevision> for Field {
+impl std::convert::From<FieldRevision> for GridFieldPB {
     fn from(field_rev: FieldRevision) -> Self {
         Self {
             id: field_rev.id,
@@ -50,31 +50,31 @@ impl std::convert::From<FieldRevision> for Field {
     }
 }
 
-impl std::convert::From<Arc<FieldRevision>> for Field {
+impl std::convert::From<Arc<FieldRevision>> for GridFieldPB {
     fn from(field_rev: Arc<FieldRevision>) -> Self {
         let field_rev = field_rev.as_ref().clone();
-        Field::from(field_rev)
+        GridFieldPB::from(field_rev)
     }
 }
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldOrder {
+pub struct GridFieldIdPB {
     #[pb(index = 1)]
     pub field_id: String,
 }
 
-impl std::convert::From<&str> for FieldOrder {
+impl std::convert::From<&str> for GridFieldIdPB {
     fn from(s: &str) -> Self {
-        FieldOrder { field_id: s.to_owned() }
+        GridFieldIdPB { field_id: s.to_owned() }
     }
 }
 
-impl std::convert::From<String> for FieldOrder {
+impl std::convert::From<String> for GridFieldIdPB {
     fn from(s: String) -> Self {
-        FieldOrder { field_id: s }
+        GridFieldIdPB { field_id: s }
     }
 }
 
-impl std::convert::From<&Arc<FieldRevision>> for FieldOrder {
+impl std::convert::From<&Arc<FieldRevision>> for GridFieldIdPB {
     fn from(field_rev: &Arc<FieldRevision>) -> Self {
         Self {
             field_id: field_rev.id.clone(),
@@ -82,22 +82,22 @@ impl std::convert::From<&Arc<FieldRevision>> for FieldOrder {
     }
 }
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridFieldChangeset {
+pub struct GridFieldChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub inserted_fields: Vec<IndexField>,
+    pub inserted_fields: Vec<IndexFieldPB>,
 
     #[pb(index = 3)]
-    pub deleted_fields: Vec<FieldOrder>,
+    pub deleted_fields: Vec<GridFieldIdPB>,
 
     #[pb(index = 4)]
-    pub updated_fields: Vec<Field>,
+    pub updated_fields: Vec<GridFieldPB>,
 }
 
-impl GridFieldChangeset {
-    pub fn insert(grid_id: &str, inserted_fields: Vec<IndexField>) -> Self {
+impl GridFieldChangesetPB {
+    pub fn insert(grid_id: &str, inserted_fields: Vec<IndexFieldPB>) -> Self {
         Self {
             grid_id: grid_id.to_owned(),
             inserted_fields,
@@ -106,7 +106,7 @@ impl GridFieldChangeset {
         }
     }
 
-    pub fn delete(grid_id: &str, deleted_fields: Vec<FieldOrder>) -> Self {
+    pub fn delete(grid_id: &str, deleted_fields: Vec<GridFieldIdPB>) -> Self {
         Self {
             grid_id: grid_id.to_string(),
             inserted_fields: vec![],
@@ -115,7 +115,7 @@ impl GridFieldChangeset {
         }
     }
 
-    pub fn update(grid_id: &str, updated_fields: Vec<Field>) -> Self {
+    pub fn update(grid_id: &str, updated_fields: Vec<GridFieldPB>) -> Self {
         Self {
             grid_id: grid_id.to_string(),
             inserted_fields: vec![],
@@ -126,25 +126,25 @@ impl GridFieldChangeset {
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct IndexField {
+pub struct IndexFieldPB {
     #[pb(index = 1)]
-    pub field: Field,
+    pub field: GridFieldPB,
 
     #[pb(index = 2)]
     pub index: i32,
 }
 
-impl IndexField {
+impl IndexFieldPB {
     pub fn from_field_rev(field_rev: &Arc<FieldRevision>, index: usize) -> Self {
         Self {
-            field: Field::from(field_rev.as_ref().clone()),
+            field: GridFieldPB::from(field_rev.as_ref().clone()),
             index: index as i32,
         }
     }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GetEditFieldContextPayload {
+pub struct GetEditFieldContextPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -156,7 +156,7 @@ pub struct GetEditFieldContextPayload {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct EditFieldPayload {
+pub struct EditFieldPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -176,7 +176,7 @@ pub struct EditFieldParams {
     pub field_type: FieldType,
 }
 
-impl TryInto<EditFieldParams> for EditFieldPayload {
+impl TryInto<EditFieldParams> for EditFieldPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<EditFieldParams, Self::Error> {
@@ -195,7 +195,7 @@ pub struct CreateFieldParams {
     pub field_type: FieldType,
 }
 
-impl TryInto<CreateFieldParams> for EditFieldPayload {
+impl TryInto<CreateFieldParams> for EditFieldPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
@@ -209,87 +209,75 @@ impl TryInto<CreateFieldParams> for EditFieldPayload {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct FieldTypeOptionContext {
+pub struct FieldTypeOptionDataPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub grid_field: Field,
+    pub field: GridFieldPB,
 
     #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct FieldTypeOptionData {
+pub struct RepeatedGridFieldPB {
     #[pb(index = 1)]
-    pub grid_id: String,
-
-    #[pb(index = 2)]
-    pub field: Field,
-
-    #[pb(index = 3)]
-    pub type_option_data: Vec<u8>,
+    pub items: Vec<GridFieldPB>,
 }
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedField {
-    #[pb(index = 1)]
-    pub items: Vec<Field>,
-}
-impl std::ops::Deref for RepeatedField {
-    type Target = Vec<Field>;
+impl std::ops::Deref for RepeatedGridFieldPB {
+    type Target = Vec<GridFieldPB>;
     fn deref(&self) -> &Self::Target {
         &self.items
     }
 }
 
-impl std::ops::DerefMut for RepeatedField {
+impl std::ops::DerefMut for RepeatedGridFieldPB {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.items
     }
 }
 
-impl std::convert::From<Vec<Field>> for RepeatedField {
-    fn from(items: Vec<Field>) -> Self {
+impl std::convert::From<Vec<GridFieldPB>> for RepeatedGridFieldPB {
+    fn from(items: Vec<GridFieldPB>) -> Self {
         Self { items }
     }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct RepeatedFieldOrder {
+pub struct RepeatedGridFieldIdPB {
     #[pb(index = 1)]
-    pub items: Vec<FieldOrder>,
+    pub items: Vec<GridFieldIdPB>,
 }
 
-impl std::ops::Deref for RepeatedFieldOrder {
-    type Target = Vec<FieldOrder>;
+impl std::ops::Deref for RepeatedGridFieldIdPB {
+    type Target = Vec<GridFieldIdPB>;
     fn deref(&self) -> &Self::Target {
         &self.items
     }
 }
 
-impl std::convert::From<Vec<FieldOrder>> for RepeatedFieldOrder {
-    fn from(field_orders: Vec<FieldOrder>) -> Self {
-        RepeatedFieldOrder { items: field_orders }
+impl std::convert::From<Vec<GridFieldIdPB>> for RepeatedGridFieldIdPB {
+    fn from(items: Vec<GridFieldIdPB>) -> Self {
+        RepeatedGridFieldIdPB { items }
     }
 }
 
-impl std::convert::From<String> for RepeatedFieldOrder {
+impl std::convert::From<String> for RepeatedGridFieldIdPB {
     fn from(s: String) -> Self {
-        RepeatedFieldOrder {
-            items: vec![FieldOrder::from(s)],
+        RepeatedGridFieldIdPB {
+            items: vec![GridFieldIdPB::from(s)],
         }
     }
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct InsertFieldPayload {
+pub struct InsertFieldPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub field: Field,
+    pub field: GridFieldPB,
 
     #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
@@ -301,12 +289,12 @@ pub struct InsertFieldPayload {
 #[derive(Clone)]
 pub struct InsertFieldParams {
     pub grid_id: String,
-    pub field: Field,
+    pub field: GridFieldPB,
     pub type_option_data: Vec<u8>,
     pub start_field_id: Option<String>,
 }
 
-impl TryInto<InsertFieldParams> for InsertFieldPayload {
+impl TryInto<InsertFieldParams> for InsertFieldPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<InsertFieldParams, Self::Error> {
@@ -328,7 +316,7 @@ impl TryInto<InsertFieldParams> for InsertFieldPayload {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct UpdateFieldTypeOptionPayload {
+pub struct UpdateFieldTypeOptionPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -346,7 +334,7 @@ pub struct UpdateFieldTypeOptionParams {
     pub type_option_data: Vec<u8>,
 }
 
-impl TryInto<UpdateFieldTypeOptionParams> for UpdateFieldTypeOptionPayload {
+impl TryInto<UpdateFieldTypeOptionParams> for UpdateFieldTypeOptionPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateFieldTypeOptionParams, Self::Error> {
@@ -362,33 +350,33 @@ impl TryInto<UpdateFieldTypeOptionParams> for UpdateFieldTypeOptionPayload {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct QueryFieldPayload {
+pub struct QueryFieldPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub field_orders: RepeatedFieldOrder,
+    pub field_ids: RepeatedGridFieldIdPB,
 }
 
 pub struct QueryFieldParams {
     pub grid_id: String,
-    pub field_orders: RepeatedFieldOrder,
+    pub field_ids: RepeatedGridFieldIdPB,
 }
 
-impl TryInto<QueryFieldParams> for QueryFieldPayload {
+impl TryInto<QueryFieldParams> for QueryFieldPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<QueryFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         Ok(QueryFieldParams {
             grid_id: grid_id.0,
-            field_orders: self.field_orders,
+            field_ids: self.field_ids,
         })
     }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldChangesetPayload {
+pub struct FieldChangesetPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -417,7 +405,7 @@ pub struct FieldChangesetPayload {
     pub type_option_data: Option<Vec<u8>>,
 }
 
-impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
+impl TryInto<FieldChangesetParams> for FieldChangesetPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<FieldChangesetParams, Self::Error> {
@@ -458,6 +446,8 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPayload {
     Serialize_repr,
     Deserialize_repr,
 )]
+/// The order of the enum can't be changed. If you want to add a new type,
+/// it would be better to append it to the end of the list.
 #[repr(u8)]
 pub enum FieldType {
     RichText = 0,
@@ -567,7 +557,7 @@ impl std::convert::From<FieldTypeRevision> for FieldType {
     }
 }
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct FieldIdentifierPayload {
+pub struct GridFieldIdentifierPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -575,18 +565,18 @@ pub struct FieldIdentifierPayload {
     pub grid_id: String,
 }
 
-pub struct FieldIdentifier {
+pub struct FieldIdentifierParams {
     pub field_id: String,
     pub grid_id: String,
 }
 
-impl TryInto<FieldIdentifier> for FieldIdentifierPayload {
+impl TryInto<FieldIdentifierParams> for GridFieldIdentifierPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<FieldIdentifier, Self::Error> {
+    fn try_into(self) -> Result<FieldIdentifierParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-        Ok(FieldIdentifier {
+        Ok(FieldIdentifierParams {
             grid_id: grid_id.0,
             field_id: field_id.0,
         })

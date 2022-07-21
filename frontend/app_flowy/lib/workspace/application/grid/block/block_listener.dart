@@ -7,7 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
 
-typedef GridBlockUpdateNotifierValue = Either<List<GridRowsChangeset>, FlowyError>;
+typedef GridBlockUpdateNotifierValue = Either<List<GridBlockChangesetPB>, FlowyError>;
 
 class GridBlockListener {
   final String blockId;
@@ -33,7 +33,7 @@ class GridBlockListener {
     switch (ty) {
       case GridNotification.DidUpdateGridBlock:
         result.fold(
-          (payload) => _rowsUpdateNotifier?.value = left([GridRowsChangeset.fromBuffer(payload)]),
+          (payload) => _rowsUpdateNotifier?.value = left([GridBlockChangesetPB.fromBuffer(payload)]),
           (error) => _rowsUpdateNotifier?.value = right(error),
         );
         break;

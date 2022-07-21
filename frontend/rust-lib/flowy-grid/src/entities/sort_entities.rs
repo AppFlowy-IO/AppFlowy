@@ -4,6 +4,7 @@ use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::GridSortRevision;
 use flowy_sync::entities::grid::CreateGridSortParams;
 use std::convert::TryInto;
+use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridSort {
@@ -25,32 +26,32 @@ impl std::convert::From<&GridSortRevision> for GridSort {
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGridSort {
+pub struct RepeatedGridSortPB {
     #[pb(index = 1)]
     pub items: Vec<GridSort>,
 }
 
-impl std::convert::From<&Vec<GridSortRevision>> for RepeatedGridSort {
-    fn from(revs: &Vec<GridSortRevision>) -> Self {
-        RepeatedGridSort {
-            items: revs.iter().map(|rev| rev.into()).collect(),
+impl std::convert::From<Vec<Arc<GridSortRevision>>> for RepeatedGridSortPB {
+    fn from(revs: Vec<Arc<GridSortRevision>>) -> Self {
+        RepeatedGridSortPB {
+            items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }
 
-impl std::convert::From<Vec<GridSort>> for RepeatedGridSort {
+impl std::convert::From<Vec<GridSort>> for RepeatedGridSortPB {
     fn from(items: Vec<GridSort>) -> Self {
         Self { items }
     }
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
-pub struct CreateGridSortPayload {
+pub struct CreateGridSortPayloadPB {
     #[pb(index = 1, one_of)]
     pub field_id: Option<String>,
 }
 
-impl TryInto<CreateGridSortParams> for CreateGridSortPayload {
+impl TryInto<CreateGridSortParams> for CreateGridSortPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateGridSortParams, Self::Error> {

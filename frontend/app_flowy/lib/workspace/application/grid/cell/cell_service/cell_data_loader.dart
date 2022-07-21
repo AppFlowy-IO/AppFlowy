@@ -3,60 +3,28 @@ part of 'cell_service.dart';
 abstract class IGridCellDataConfig {
   // The cell data will reload if it receives the field's change notification.
   bool get reloadOnFieldChanged;
-
-  // When the reloadOnCellChanged is true, it will load the cell data after user input.
-  // For example: The number cell reload the cell data that carries the format
-  // user input: 12
-  // cell display: $12
-  bool get reloadOnCellChanged;
 }
 
-class GridCellDataConfig implements IGridCellDataConfig {
-  @override
-  final bool reloadOnCellChanged;
-
-  @override
-  final bool reloadOnFieldChanged;
-
-  const GridCellDataConfig({
-    this.reloadOnCellChanged = false,
-    this.reloadOnFieldChanged = false,
-  });
-}
-
-abstract class IGridCellDataLoader<T> {
-  Future<T?> loadData();
-
-  IGridCellDataConfig get config;
-}
-
-abstract class ICellDataParser<T> {
+abstract class IGridCellDataParser<T> {
   T? parserData(List<int> data);
 }
 
-class GridCellDataLoader<T> extends IGridCellDataLoader<T> {
+class GridCellDataLoader<T> {
   final CellService service = CellService();
-  final GridCell gridCell;
-  final ICellDataParser<T> parser;
-
-  @override
-  final IGridCellDataConfig config;
+  final GridCellIdentifier cellId;
+  final IGridCellDataParser<T> parser;
+  final bool reloadOnFieldChanged;
 
   GridCellDataLoader({
-    required this.gridCell,
+    required this.cellId,
     required this.parser,
-    this.config = const GridCellDataConfig(),
+    this.reloadOnFieldChanged = false,
   });
 
-  @override
   Future<T?> loadData() {
-    final fut = service.getCell(
-      gridId: gridCell.gridId,
-      fieldId: gridCell.field.id,
-      rowId: gridCell.rowId,
-    );
+    final fut = service.getCell(cellId: cellId);
     return fut.then(
-      (result) => result.fold((Cell cell) {
+      (result) => result.fold((GridCellPB cell) {
         try {
           return parser.parserData(cell.data);
         } catch (e, s) {
@@ -72,30 +40,7 @@ class GridCellDataLoader<T> extends IGridCellDataLoader<T> {
   }
 }
 
-class SelectOptionCellDataLoader extends IGridCellDataLoader<SelectOptionCellData> {
-  final SelectOptionService service;
-  final GridCell gridCell;
-  SelectOptionCellDataLoader({
-    required this.gridCell,
-  }) : service = SelectOptionService(gridCell: gridCell);
-  @override
-  Future<SelectOptionCellData?> loadData() async {
-    return service.getOpitonContext().then((result) {
-      return result.fold(
-        (data) => data,
-        (err) {
-          Log.error(err);
-          return null;
-        },
-      );
-    });
-  }
-
-  @override
-  IGridCellDataConfig get config => const GridCellDataConfig(reloadOnFieldChanged: true);
-}
-
-class StringCellDataParser implements ICellDataParser<String> {
+class StringCellDataParser implements IGridCellDataParser<String> {
   @override
   String? parserData(List<int> data) {
     final s = utf8.decode(data);
@@ -103,32 +48,32 @@ class StringCellDataParser implements ICellDataParser<String> {
   }
 }
 
-class DateCellDataParser implements ICellDataParser<DateCellData> {
+class DateCellDataParser implements IGridCellDataParser<DateCellDataPB> {
   @override
-  DateCellData? parserData(List<int> data) {
+  DateCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {
       return null;
     }
-    return DateCellData.fromBuffer(data);
+    return DateCellDataPB.fromBuffer(data);
   }
 }
 
-class SelectOptionCellDataParser implements ICellDataParser<SelectOptionCellData> {
+class SelectOptionCellDataParser implements IGridCellDataParser<SelectOptionCellDataPB> {
   @override
-  SelectOptionCellData? parserData(List<int> data) {
+  SelectOptionCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {
       return null;
     }
-    return SelectOptionCellData.fromBuffer(data);
+    return SelectOptionCellDataPB.fromBuffer(data);
   }
 }
 
-class URLCellDataParser implements ICellDataParser<URLCellData> {
+class URLCellDataParser implements IGridCellDataParser<URLCellDataPB> {
   @override
-  URLCellData? parserData(List<int> data) {
+  URLCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {
       return null;
     }
-    return URLCellData.fromBuffer(data);
+    return URLCellDataPB.fromBuffer(data);
   }
 }

@@ -53,14 +53,14 @@ void _resolveHomeDeps(GetIt getIt) {
 
   getIt.registerSingleton(MenuSharedState());
 
-  getIt.registerFactoryParam<UserListener, UserProfile, void>(
+  getIt.registerFactoryParam<UserListener, UserProfilePB, void>(
     (user, _) => UserListener(userProfile: user),
   );
 
   //
   getIt.registerLazySingleton<HomeStackManager>(() => HomeStackManager());
 
-  getIt.registerFactoryParam<WelcomeBloc, UserProfile, void>(
+  getIt.registerFactoryParam<WelcomeBloc, UserProfilePB, void>(
     (user, _) => WelcomeBloc(
       userService: UserService(userId: user.id),
       userWorkspaceListener: UserWorkspaceListener(userProfile: user),
@@ -69,21 +69,21 @@ void _resolveHomeDeps(GetIt getIt) {
 
   // share
   getIt.registerLazySingleton<ShareService>(() => ShareService());
-  getIt.registerFactoryParam<DocShareBloc, View, void>(
+  getIt.registerFactoryParam<DocShareBloc, ViewPB, void>(
       (view, _) => DocShareBloc(view: view, service: getIt<ShareService>()));
 }
 
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
-  getIt.registerFactoryParam<WorkspaceListener, UserProfile, String>(
+  getIt.registerFactoryParam<WorkspaceListener, UserProfilePB, String>(
       (user, workspaceId) => WorkspaceListener(user: user, workspaceId: workspaceId));
 
-  // View
-  getIt.registerFactoryParam<ViewListener, View, void>(
+  // ViewPB
+  getIt.registerFactoryParam<ViewListener, ViewPB, void>(
     (view, _) => ViewListener(view: view),
   );
 
-  getIt.registerFactoryParam<ViewBloc, View, void>(
+  getIt.registerFactoryParam<ViewBloc, ViewPB, void>(
     (view, _) => ViewBloc(
       view: view,
       service: ViewService(),
@@ -92,29 +92,29 @@ void _resolveFolderDeps(GetIt getIt) {
   );
 
   //Menu
-  getIt.registerFactoryParam<MenuBloc, UserProfile, String>(
+  getIt.registerFactoryParam<MenuBloc, UserProfilePB, String>(
     (user, workspaceId) => MenuBloc(
       workspaceId: workspaceId,
       listener: getIt<WorkspaceListener>(param1: user, param2: workspaceId),
     ),
   );
 
-  getIt.registerFactoryParam<MenuUserBloc, UserProfile, void>(
+  getIt.registerFactoryParam<MenuUserBloc, UserProfilePB, void>(
     (user, _) => MenuUserBloc(user),
   );
 
   //Settings
-  getIt.registerFactoryParam<SettingsDialogBloc, UserProfile, void>(
+  getIt.registerFactoryParam<SettingsDialogBloc, UserProfilePB, void>(
     (user, _) => SettingsDialogBloc(user),
   );
 
   //User
-  getIt.registerFactoryParam<SettingsUserViewBloc, UserProfile, void>(
+  getIt.registerFactoryParam<SettingsUserViewBloc, UserProfilePB, void>(
     (user, _) => SettingsUserViewBloc(user),
   );
 
-  // App
-  getIt.registerFactoryParam<AppBloc, App, void>(
+  // AppPB
+  getIt.registerFactoryParam<AppBloc, AppPB, void>(
     (app, _) => AppBloc(
       app: app,
       appService: AppService(appId: app.id),
@@ -135,7 +135,7 @@ void _resolveFolderDeps(GetIt getIt) {
 
 void _resolveDocDeps(GetIt getIt) {
 // Doc
-  getIt.registerFactoryParam<DocumentBloc, View, void>(
+  getIt.registerFactoryParam<DocumentBloc, ViewPB, void>(
     (view, _) => DocumentBloc(
       view: view,
       service: DocumentService(),
@@ -146,8 +146,8 @@ void _resolveDocDeps(GetIt getIt) {
 }
 
 void _resolveGridDeps(GetIt getIt) {
-  // Grid
-  getIt.registerFactoryParam<GridBloc, View, void>(
+  // GridPB
+  getIt.registerFactoryParam<GridBloc, ViewPB, void>(
     (view, _) => GridBloc(view: view),
   );
 
@@ -165,31 +165,31 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<TextCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<TextCellBloc, GridCellController, void>(
     (context, _) => TextCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<SelectOptionCellBloc, GridSelectOptionCellContext, void>(
+  getIt.registerFactoryParam<SelectOptionCellBloc, GridSelectOptionCellController, void>(
     (context, _) => SelectOptionCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<NumberCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<NumberCellBloc, GridCellController, void>(
     (context, _) => NumberCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<DateCellBloc, GridDateCellContext, void>(
+  getIt.registerFactoryParam<DateCellBloc, GridDateCellController, void>(
     (context, _) => DateCellBloc(
       cellContext: context,
     ),
   );
 
-  getIt.registerFactoryParam<CheckboxCellBloc, GridCellContext, void>(
+  getIt.registerFactoryParam<CheckboxCellBloc, GridCellController, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
       cellContext: cellData,

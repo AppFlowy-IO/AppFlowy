@@ -1,6 +1,6 @@
 use crate::entities::{
-    CreateGridFilterPayload, CreateGridGroupPayload, CreateGridSortPayload, DeleteFilterPayload, RepeatedGridFilter,
-    RepeatedGridGroup, RepeatedGridSort,
+    CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, CreateGridSortPayloadPB, DeleteFilterPayloadPB,
+    RepeatedGridFilterPB, RepeatedGridGroupPB, RepeatedGridSortPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -9,49 +9,45 @@ use flowy_grid_data_model::revision::GridLayoutRevision;
 use flowy_sync::entities::grid::GridSettingChangesetParams;
 use std::collections::HashMap;
 use std::convert::TryInto;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridSetting {
+pub struct GridSettingPB {
     #[pb(index = 1)]
-    pub filters_by_layout_ty: HashMap<String, RepeatedGridFilter>,
+    pub layouts: Vec<GridLayoutPB>,
 
     #[pb(index = 2)]
-    pub groups_by_layout_ty: HashMap<String, RepeatedGridGroup>,
+    pub current_layout_type: GridLayoutType,
 
     #[pb(index = 3)]
-    pub sorts_by_layout_ty: HashMap<String, RepeatedGridSort>,
+    pub filters_by_field_id: HashMap<String, RepeatedGridFilterPB>,
+
+    #[pb(index = 4)]
+    pub groups_by_field_id: HashMap<String, RepeatedGridGroupPB>,
+
+    #[pb(index = 5)]
+    pub sorts_by_field_id: HashMap<String, RepeatedGridSortPB>,
 }
 
-//
-// impl std::convert::From<&GridSettingRevision> for GridSetting {
-//     fn from(rev: &GridSettingRevision) -> Self {
-//         let filters_by_layout_ty: HashMap<String, RepeatedGridFilter> = rev
-//             .filters
-//             .iter()
-//             .map(|(layout_rev, filter_revs)| (layout_rev.to_string(), filter_revs.into()))
-//             .collect();
-//
-//         let groups_by_layout_ty: HashMap<String, RepeatedGridGroup> = rev
-//             .groups
-//             .iter()
-//             .map(|(layout_rev, group_revs)| (layout_rev.to_string(), group_revs.into()))
-//             .collect();
-//
-//         let sorts_by_layout_ty: HashMap<String, RepeatedGridSort> = rev
-//             .sorts
-//             .iter()
-//             .map(|(layout_rev, sort_revs)| (layout_rev.to_string(), sort_revs.into()))
-//             .collect();
-//
-//         GridSetting {
-//             filters_by_layout_ty,
-//             groups_by_layout_ty,
-//             sorts_by_layout_ty,
-//         }
-//     }
-// }
-//
-#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum)]
+#[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
+pub struct GridLayoutPB {
+    #[pb(index = 1)]
+    ty: GridLayoutType,
+}
+
+impl GridLayoutPB {
+    pub fn all() -> Vec<GridLayoutPB> {
+        let mut layouts = vec![];
+        for layout_ty in GridLayoutType::iter() {
+            layouts.push(GridLayoutPB { ty: layout_ty })
+        }
+
+        layouts
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
 pub enum GridLayoutType {
     Table = 0,
@@ -83,7 +79,7 @@ impl std::convert::From<GridLayoutType> for GridLayoutRevision {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct GridSettingChangesetPayload {
+pub struct GridSettingChangesetPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -91,25 +87,25 @@ pub struct GridSettingChangesetPayload {
     pub layout_type: GridLayoutType,
 
     #[pb(index = 3, one_of)]
-    pub insert_filter: Option<CreateGridFilterPayload>,
+    pub insert_filter: Option<CreateGridFilterPayloadPB>,
 
     #[pb(index = 4, one_of)]
-    pub delete_filter: Option<DeleteFilterPayload>,
+    pub delete_filter: Option<DeleteFilterPayloadPB>,
 
     #[pb(index = 5, one_of)]
-    pub insert_group: Option<CreateGridGroupPayload>,
+    pub insert_group: Option<CreateGridGroupPayloadPB>,
 
     #[pb(index = 6, one_of)]
     pub delete_group: Option<String>,
 
     #[pb(index = 7, one_of)]
-    pub insert_sort: Option<CreateGridSortPayload>,
+    pub insert_sort: Option<CreateGridSortPayloadPB>,
 
     #[pb(index = 8, one_of)]
     pub delete_sort: Option<String>,
 }
 
-impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayload {
+impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<GridSettingChangesetParams, Self::Error> {

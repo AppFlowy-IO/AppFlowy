@@ -95,7 +95,6 @@ struct GridRevisionSql();
 impl GridRevisionSql {
     fn create(revision_records: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html
-
         let records = revision_records
             .into_iter()
             .map(|record| {

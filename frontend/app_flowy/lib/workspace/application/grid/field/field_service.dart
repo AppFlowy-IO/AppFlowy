@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -9,6 +10,10 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:protobuf/protobuf.dart';
 part 'field_service.freezed.dart';
 
+/// FieldService consists of lots of event functions. We define the events in the backend(Rust),
+/// you can find the corresponding event implementation in event_map.rs of the corresponding crate.
+///
+/// You could check out the rust-lib/flowy-grid/event_map.rs for more information.
 class FieldService {
   final String gridId;
   final String fieldId;
@@ -16,10 +21,10 @@ class FieldService {
   FieldService({required this.gridId, required this.fieldId});
 
   Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
-    final payload = MoveItemPayload.create()
+    final payload = MoveItemPayloadPB.create()
       ..gridId = gridId
       ..itemId = fieldId
-      ..ty = MoveItemType.MoveField
+      ..ty = MoveItemTypePB.MoveField
       ..fromIndex = fromIndex
       ..toIndex = toIndex;
 
@@ -34,7 +39,7 @@ class FieldService {
     double? width,
     List<int>? typeOptionData,
   }) {
-    var payload = FieldChangesetPayload.create()
+    var payload = FieldChangesetPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId;
 
@@ -68,11 +73,11 @@ class FieldService {
   // Create the field if it does not exist. Otherwise, update the field.
   static Future<Either<Unit, FlowyError>> insertField({
     required String gridId,
-    required Field field,
+    required GridFieldPB field,
     List<int>? typeOptionData,
     String? startFieldId,
   }) {
-    var payload = InsertFieldPayload.create()
+    var payload = InsertFieldPayloadPB.create()
       ..gridId = gridId
       ..field_2 = field
       ..typeOptionData = typeOptionData ?? [];
@@ -89,7 +94,7 @@ class FieldService {
     required String fieldId,
     required List<int> typeOptionData,
   }) {
-    var payload = UpdateFieldTypeOptionPayload.create()
+    var payload = UpdateFieldTypeOptionPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..typeOptionData = typeOptionData;
@@ -98,7 +103,7 @@ class FieldService {
   }
 
   Future<Either<Unit, FlowyError>> deleteField() {
-    final payload = FieldIdentifierPayload.create()
+    final payload = GridFieldIdentifierPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId;
 
@@ -106,17 +111,17 @@ class FieldService {
   }
 
   Future<Either<Unit, FlowyError>> duplicateField() {
-    final payload = FieldIdentifierPayload.create()
+    final payload = GridFieldIdentifierPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId;
 
     return GridEventDuplicateField(payload).send();
   }
 
-  Future<Either<FieldTypeOptionData, FlowyError>> getFieldTypeOptionData({
+  Future<Either<FieldTypeOptionDataPB, FlowyError>> getFieldTypeOptionData({
     required FieldType fieldType,
   }) {
-    final payload = EditFieldPayload.create()
+    final payload = EditFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
@@ -133,16 +138,16 @@ class FieldService {
 class GridFieldCellContext with _$GridFieldCellContext {
   const factory GridFieldCellContext({
     required String gridId,
-    required Field field,
+    required GridFieldPB field,
   }) = _GridFieldCellContext;
 }
 
-abstract class IFieldContextLoader {
+abstract class IFieldTypeOptionLoader {
   String get gridId;
-  Future<Either<FieldTypeOptionData, FlowyError>> load();
+  Future<Either<FieldTypeOptionDataPB, FlowyError>> load();
 
-  Future<Either<FieldTypeOptionData, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
-    final payload = EditFieldPayload.create()
+  Future<Either<FieldTypeOptionDataPB, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
+    final payload = EditFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
@@ -151,16 +156,16 @@ abstract class IFieldContextLoader {
   }
 }
 
-class NewFieldContextLoader extends IFieldContextLoader {
+class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
-  NewFieldContextLoader({
+  NewFieldTypeOptionLoader({
     required this.gridId,
   });
 
   @override
-  Future<Either<FieldTypeOptionData, FlowyError>> load() {
-    final payload = EditFieldPayload.create()
+  Future<Either<FieldTypeOptionDataPB, FlowyError>> load() {
+    final payload = EditFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldType = FieldType.RichText;
 
@@ -168,19 +173,19 @@ class NewFieldContextLoader extends IFieldContextLoader {
   }
 }
 
-class FieldContextLoader extends IFieldContextLoader {
+class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
-  final Field field;
+  final GridFieldPB field;
 
-  FieldContextLoader({
+  FieldTypeOptionLoader({
     required this.gridId,
     required this.field,
   });
 
   @override
-  Future<Either<FieldTypeOptionData, FlowyError>> load() {
-    final payload = EditFieldPayload.create()
+  Future<Either<FieldTypeOptionDataPB, FlowyError>> load() {
+    final payload = EditFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldId = field.id
       ..fieldType = field.fieldType;
@@ -189,16 +194,16 @@ class FieldContextLoader extends IFieldContextLoader {
   }
 }
 
-class GridFieldContext {
+class TypeOptionDataController {
   final String gridId;
-  final IFieldContextLoader _loader;
+  final IFieldTypeOptionLoader _loader;
 
-  late FieldTypeOptionData _data;
-  ValueNotifier<Field>? _fieldNotifier;
+  late FieldTypeOptionDataPB _data;
+  final PublishNotifier<GridFieldPB> _fieldNotifier = PublishNotifier();
 
-  GridFieldContext({
+  TypeOptionDataController({
     required this.gridId,
-    required IFieldContextLoader loader,
+    required IFieldTypeOptionLoader loader,
   }) : _loader = loader;
 
   Future<Either<Unit, FlowyError>> loadData() async {
@@ -207,13 +212,7 @@ class GridFieldContext {
       (data) {
         data.freeze();
         _data = data;
-
-        if (_fieldNotifier == null) {
-          _fieldNotifier = ValueNotifier(data.field_2);
-        } else {
-          _fieldNotifier?.value = data.field_2;
-        }
-
+        _fieldNotifier.value = data.field_2;
         return left(unit);
       },
       (err) {
@@ -223,9 +222,9 @@ class GridFieldContext {
     );
   }
 
-  Field get field => _data.field_2;
+  GridFieldPB get field => _data.field_2;
 
-  set field(Field field) {
+  set field(GridFieldPB field) {
     _updateData(newField: field);
   }
 
@@ -239,7 +238,7 @@ class GridFieldContext {
     _updateData(newTypeOptionData: typeOptionData);
   }
 
-  void _updateData({String? newName, Field? newField, List<int>? newTypeOptionData}) {
+  void _updateData({String? newName, GridFieldPB? newField, List<int>? newTypeOptionData}) {
     _data = _data.rebuild((rebuildData) {
       if (newName != null) {
         rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {
@@ -256,9 +255,7 @@ class GridFieldContext {
       }
     });
 
-    if (_data.field_2 != _fieldNotifier?.value) {
-      _fieldNotifier?.value = _data.field_2;
-    }
+    _fieldNotifier.value = _data.field_2;
 
     FieldService.insertField(
       gridId: gridId,
@@ -283,16 +280,16 @@ class GridFieldContext {
     });
   }
 
-  void Function() addFieldListener(void Function(Field) callback) {
+  void Function() addFieldListener(void Function(GridFieldPB) callback) {
     listener() {
       callback(field);
     }
 
-    _fieldNotifier?.addListener(listener);
+    _fieldNotifier.addListener(listener);
     return listener;
   }
 
   void removeFieldListener(void Function() listener) {
-    _fieldNotifier?.removeListener(listener);
+    _fieldNotifier.removeListener(listener);
   }
 }

@@ -24,6 +24,7 @@ pub struct CreateGridFilterParams {
 }
 
 pub struct DeleteFilterParams {
+    pub field_id: String,
     pub filter_id: String,
     pub field_type_rev: FieldTypeRevision,
 }

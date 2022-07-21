@@ -14,7 +14,7 @@ import 'sizes.dart';
 class TrashCell extends StatelessWidget {
   final VoidCallback onRestore;
   final VoidCallback onDelete;
-  final Trash object;
+  final TrashPB object;
   const TrashCell({required this.object, required this.onRestore, required this.onDelete, Key? key}) : super(key: key);
 
   @override

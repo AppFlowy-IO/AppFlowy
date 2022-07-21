@@ -10,8 +10,8 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -24,11 +24,11 @@ import 'text_field.dart';
 const double _editorPannelWidth = 300;
 
 class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
-  final GridSelectOptionCellContext cellContext;
+  final GridSelectOptionCellController cellController;
   final VoidCallback onDismissed;
 
   const SelectOptionCellEditor({
-    required this.cellContext,
+    required this.cellController,
     required this.onDismissed,
     Key? key,
   }) : super(key: key);
@@ -37,7 +37,7 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SelectOptionCellEditorBloc(
-        cellContext: cellContext,
+        cellController: cellController,
       )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
@@ -59,12 +59,12 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
 
   static void show(
     BuildContext context,
-    GridSelectOptionCellContext cellContext,
+    GridSelectOptionCellController cellContext,
     VoidCallback onDismissed,
   ) {
     SelectOptionCellEditor.remove(context);
     final editor = SelectOptionCellEditor(
-      cellContext: cellContext,
+      cellController: cellContext,
       onDismissed: onDismissed,
     );
 
@@ -146,7 +146,7 @@ class _TextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       builder: (context, state) {
-        final optionMap = LinkedHashMap<String, SelectOption>.fromIterable(state.selectedOptions,
+        final optionMap = LinkedHashMap<String, SelectOptionPB>.fromIterable(state.selectedOptions,
             key: (option) => option.name, value: (option) => option);
 
         return SizedBox(
@@ -216,7 +216,7 @@ class _CreateOptionCell extends StatelessWidget {
 }
 
 class _SelectOptionCell extends StatelessWidget {
-  final SelectOption option;
+  final SelectOptionPB option;
   final bool isSelected;
   const _SelectOptionCell(this.option, this.isSelected, {Key? key}) : super(key: key);
 

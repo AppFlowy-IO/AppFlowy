@@ -6,26 +6,26 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'cell_builder.dart';
 
-class NumberCell extends GridCellWidget {
-  final GridCellContextBuilder cellContextBuilder;
+class GridNumberCell extends GridCellWidget {
+  final GridCellControllerBuilder cellContorllerBuilder;
 
-  NumberCell({
-    required this.cellContextBuilder,
+  GridNumberCell({
+    required this.cellContorllerBuilder,
     Key? key,
   }) : super(key: key);
 
   @override
-  GridFocusNodeCellState<NumberCell> createState() => _NumberCellState();
+  GridFocusNodeCellState<GridNumberCell> createState() => _NumberCellState();
 }
 
-class _NumberCellState extends GridFocusNodeCellState<NumberCell> {
+class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
   late NumberCellBloc _cellBloc;
   late TextEditingController _controller;
   Timer? _delayOperation;
 
   @override
   void initState() {
-    final cellContext = widget.cellContextBuilder.build();
+    final cellContext = widget.cellContorllerBuilder.build();
     _cellBloc = getIt<NumberCellBloc>(param1: cellContext)..add(const NumberCellEvent.initial());
     _controller = TextEditingController(text: contentFromState(_cellBloc.state));
     super.initState();

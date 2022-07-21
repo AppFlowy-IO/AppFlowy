@@ -17,8 +17,8 @@ pub type GridRevisionDelta = PlainTextDelta;
 pub type GridRevisionDeltaBuilder = PlainTextDeltaBuilder;
 
 pub struct GridRevisionPad {
-    pub(crate) grid_rev: Arc<GridRevision>,
-    pub(crate) delta: GridRevisionDelta,
+    grid_rev: Arc<GridRevision>,
+    delta: GridRevisionDelta,
 }
 
 pub trait JsonDeserializer {
@@ -62,7 +62,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
+    pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
         let grid_delta: GridRevisionDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         Self::from_delta(grid_delta)
     }
@@ -358,10 +358,9 @@ impl GridRevisionPad {
 
             if is_contain {
                 // Only return the filters for the current fields' type.
-                if let Some(mut t_filter_revs) =
-                    self.grid_rev
-                        .setting
-                        .get_filters(layout_ty, &field_rev.id, &field_rev.field_type_rev)
+                let field_id = &field_rev.id;
+                let field_type_rev = &field_rev.field_type_rev;
+                if let Some(mut t_filter_revs) = self.grid_rev.setting.get_filters(layout_ty, field_id, field_type_rev)
                 {
                     filter_revs.append(&mut t_filter_revs);
                 }
@@ -396,7 +395,7 @@ impl GridRevisionPad {
             if let Some(params) = changeset.delete_filter {
                 match grid_rev
                     .setting
-                    .get_mut_filters(&layout_rev, &params.filter_id, &params.field_type_rev)
+                    .get_mut_filters(&layout_rev, &params.field_id, &params.field_type_rev)
                 {
                     Some(filters) => {
                         filters.retain(|filter| filter.id != params.filter_id);
@@ -481,8 +480,8 @@ impl GridRevisionPad {
         match f(Arc::make_mut(&mut self.grid_rev))? {
             None => Ok(None),
             Some(_) => {
-                let old = json_from_grid(&cloned_grid)?;
-                let new = json_from_grid(&self.grid_rev)?;
+                let old = make_grid_rev_json_str(&cloned_grid)?;
+                let new = self.json_str()?;
                 match cal_diff::<PlainTextAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
@@ -529,9 +528,13 @@ impl GridRevisionPad {
             },
         )
     }
+
+    pub fn json_str(&self) -> CollaborateResult<String> {
+        make_grid_rev_json_str(&self.grid_rev)
+    }
 }
 
-fn json_from_grid(grid: &Arc<GridRevision>) -> CollaborateResult<String> {
+pub fn make_grid_rev_json_str(grid: &GridRevision) -> CollaborateResult<String> {
     let json = serde_json::to_string(grid)
         .map_err(|err| internal_error(format!("Serialize grid to json str failed. {:?}", err)))?;
     Ok(json)

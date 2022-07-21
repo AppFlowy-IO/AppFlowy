@@ -7,21 +7,21 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class URLCellEditor extends StatefulWidget with FlowyOverlayDelegate {
-  final GridURLCellContext cellContext;
+  final GridURLCellController cellController;
   final VoidCallback completed;
-  const URLCellEditor({required this.cellContext, required this.completed, Key? key}) : super(key: key);
+  const URLCellEditor({required this.cellController, required this.completed, Key? key}) : super(key: key);
 
   @override
   State<URLCellEditor> createState() => _URLCellEditorState();
 
   static void show(
     BuildContext context,
-    GridURLCellContext cellContext,
+    GridURLCellController cellContext,
     VoidCallback completed,
   ) {
     FlowyOverlay.of(context).remove(identifier());
     final editor = URLCellEditor(
-      cellContext: cellContext,
+      cellController: cellContext,
       completed: completed,
     );
 
@@ -62,7 +62,7 @@ class _URLCellEditorState extends State<URLCellEditor> {
 
   @override
   void initState() {
-    _cellBloc = URLCellEditorBloc(cellContext: widget.cellContext);
+    _cellBloc = URLCellEditorBloc(cellContext: widget.cellController);
     _cellBloc.add(const URLCellEditorEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
 
