@@ -110,21 +110,22 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
     }
 
     for (final node in nodes) {
-      final selectable = node.key?.currentState as Selectable?;
-      if (selectable != null) {
-        final selectionRects = selectable.getSelectionRectsInSelection(
-            panStartOffset!, panEndOffset!);
-        for (final rect in selectionRects) {
-          final overlay = OverlayEntry(
-            builder: ((context) => Positioned.fromRect(
-                  rect: rect,
-                  child: Container(
-                    color: Colors.yellow.withAlpha(100),
-                  ),
-                )),
-          );
-          selectionOverlays.add(overlay);
-        }
+      if (node.key?.currentState is! Selectable) {
+        continue;
+      }
+      final selectable = node.key?.currentState as Selectable;
+      final selectionRects = selectable.getSelectionRectsInSelection(
+          panStartOffset!, panEndOffset!);
+      for (final rect in selectionRects) {
+        final overlay = OverlayEntry(
+          builder: ((context) => Positioned.fromRect(
+                rect: rect,
+                child: Container(
+                  color: Colors.yellow.withAlpha(100),
+                ),
+              )),
+        );
+        selectionOverlays.add(overlay);
       }
     }
     Overlay.of(context)?.insertAll(selectionOverlays);
@@ -146,19 +147,20 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
     }
 
     final selectedNode = nodes.first;
-    final selectable = selectedNode.key?.currentState as Selectable?;
-    if (selectable != null) {
-      final rect = selectable.getCursorRect(tapOffset!);
-      final cursor = OverlayEntry(
-        builder: ((context) => Positioned.fromRect(
-              rect: rect,
-              child: Container(
-                color: Colors.blue,
-              ),
-            )),
-      );
-      selectionOverlays.add(cursor);
+    if (selectedNode.key?.currentState is! Selectable) {
+      return;
     }
+    final selectable = selectedNode.key?.currentState as Selectable;
+    final rect = selectable.getCursorRect(tapOffset!);
+    final cursor = OverlayEntry(
+      builder: ((context) => Positioned.fromRect(
+            rect: rect,
+            child: Container(
+              color: Colors.blue,
+            ),
+          )),
+    );
+    selectionOverlays.add(cursor);
     Overlay.of(context)?.insertAll(selectionOverlays);
   }
 
@@ -183,16 +185,16 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
     final tapOffset = this.tapOffset;
     if (tapOffset != null) {}
 
-    if (node.parent != null && node.key != null) {
-      if (isNodeInOffset(node, offset)) {
-        return node;
-      }
-    }
-
     for (final child in node.children) {
       final result = computeSelectedNodeByTap(child, offset);
       if (result != null) {
         return result;
+      }
+    }
+
+    if (node.parent != null && node.key != null) {
+      if (isNodeInOffset(node, offset)) {
+        return node;
       }
     }
 
