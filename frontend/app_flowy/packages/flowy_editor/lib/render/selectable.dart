@@ -12,7 +12,3 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
   /// For [TextNode] only.
   TextSelection? getTextSelection();
 }
-
-mixin KeyboardEventsRespondable<T extends StatefulWidget> on State<T> {
-  KeyEventResult onKeyDown(RawKeyEvent event);
-}

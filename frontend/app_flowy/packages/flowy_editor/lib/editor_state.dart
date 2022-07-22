@@ -1,9 +1,5 @@
-import 'dart:collection';
-
 import 'package:flowy_editor/document/node.dart';
-import 'package:flowy_editor/keyboard.dart';
 import 'package:flowy_editor/operation/operation.dart';
-import 'package:flowy_editor/render/selectable.dart';
 import 'package:flutter/material.dart';
 
 import './document/state_tree.dart';
@@ -26,14 +22,11 @@ class EditorState {
 
   /// TODO: move to a better place.
   Widget build(BuildContext context) {
-    return Keyboard(
-      editorState: this,
-      child: renderPlugins.buildWidget(
-        context: NodeWidgetContext(
-          buildContext: context,
-          node: document.root,
-          editorState: this,
-        ),
+    return renderPlugins.buildWidget(
+      context: NodeWidgetContext(
+        buildContext: context,
+        node: document.root,
+        editorState: this,
       ),
     );
   }

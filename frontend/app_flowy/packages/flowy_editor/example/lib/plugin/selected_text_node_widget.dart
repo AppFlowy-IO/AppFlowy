@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SelectedTextNodeBuilder extends NodeWidgetBuilder {
@@ -20,7 +19,6 @@ class SelectedTextNodeBuilder extends NodeWidgetBuilder {
 
   @override
   Widget build(BuildContext buildContext) {
-    print('key -> $key');
     return _SelectedTextNodeWidget(
       key: key,
       node: node,
@@ -45,7 +43,7 @@ class _SelectedTextNodeWidget extends StatefulWidget {
 }
 
 class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
-    with Selectable, KeyboardEventsRespondable {
+    with Selectable {
   TextNode get node => widget.node as TextNode;
   EditorState get editorState => widget.editorState;
 
@@ -97,39 +95,6 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
   @override
   TextSelection? getTextSelection() {
     return _textSelection;
-  }
-
-  @override
-  KeyEventResult onKeyDown(RawKeyEvent event) {
-    if (event.logicalKey == LogicalKeyboardKey.backspace) {
-      final textSelection = _textSelection;
-      // TODO: just handle upforward delete.
-      if (textSelection != null) {
-        if (textSelection.isCollapsed) {
-          print(node.toRawString());
-          print('is empty ${node.toRawString().isEmpty}');
-          if (textSelection.baseOffset == 0 && node.toRawString().isEmpty) {
-            TransactionBuilder(editorState)
-              ..deleteNode(node)
-              ..commit();
-          } else {
-            TransactionBuilder(editorState)
-              ..deleteText(node, textSelection.start - 1, 1)
-              ..commit();
-            // final rect = _computeCursorRect(textSelection.baseOffset - 1);
-            // editorState.tapOffset = rect.center;
-            // editorState.updateCursor();
-          }
-        } else {
-          TransactionBuilder(editorState)
-            ..deleteText(node, textSelection.start,
-                textSelection.baseOffset - textSelection.extentOffset)
-            ..commit();
-        }
-      }
-      return KeyEventResult.handled;
-    }
-    return KeyEventResult.ignored;
   }
 
   @override

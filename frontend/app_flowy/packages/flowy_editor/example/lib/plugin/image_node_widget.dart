@@ -33,8 +33,7 @@ class _ImageNodeWidget extends StatefulWidget {
   State<_ImageNodeWidget> createState() => __ImageNodeWidgetState();
 }
 
-class __ImageNodeWidgetState extends State<_ImageNodeWidget>
-    with Selectable, KeyboardEventsRespondable {
+class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   Node get node => widget.node;
   EditorState get editorState => widget.editorState;
   String get src => widget.node.attributes['image_src'] as String;
@@ -60,17 +59,6 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget>
   @override
   TextSelection? getTextSelection() {
     return null;
-  }
-
-  @override
-  KeyEventResult onKeyDown(RawKeyEvent event) {
-    if (event.logicalKey == LogicalKeyboardKey.backspace) {
-      TransactionBuilder(editorState)
-        ..deleteNode(node)
-        ..commit();
-      return KeyEventResult.handled;
-    }
-    return KeyEventResult.ignored;
   }
 
   @override
