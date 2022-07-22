@@ -182,13 +182,13 @@
       "addSelectOption": "Tambahkan opsi",
       "optionTitle": "Opsi",
       "addOption": "Tambahkan opsi",
-      "editProperty": "Ubah properti",
+      "editProperty": "Ubah properti"
     },
     "row": {
       "duplicate": "Duplikasi",
       "delete": "Hapus",
       "textPlaceholder": "Kosong",
-      "copyProperty": "Salin properti ke papan klip",
+      "copyProperty": "Salin properti ke papan klip"
     },
     "selectOption": {
       "create": "Buat",
