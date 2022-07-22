@@ -8,9 +8,11 @@ class FlowyEditor extends StatefulWidget {
   const FlowyEditor({
     Key? key,
     required this.editorState,
+    required this.keyEventHandler,
   }) : super(key: key);
 
   final EditorState editorState;
+  final List<FlowyKeyEventHandler> keyEventHandler;
 
   @override
   State<FlowyEditor> createState() => _FlowyEditorState();
@@ -25,9 +27,8 @@ class _FlowyEditorState extends State<FlowyEditor> {
       editorState: editorState,
       child: FlowyKeyboardWidget(
         handlers: [
-          FlowyKeyboradBackSpaceHandler(
-            editorState: editorState,
-          )
+          flowyDeleteNodesHandler,
+          ...widget.keyEventHandler,
         ],
         editorState: editorState,
         child: editorState.build(context),

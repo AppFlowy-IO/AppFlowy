@@ -1,53 +1,31 @@
-import 'package:flowy_editor/document/node.dart';
-import 'package:flowy_editor/operation/transaction.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
-import 'package:flowy_editor/render/selectable.dart';
 import 'package:flutter/services.dart';
 
 import 'editor_state.dart';
 import 'package:flutter/material.dart';
 
-abstract class FlowyKeyboardHandler {
-  final EditorState editorState;
+typedef FlowyKeyEventHandler = KeyEventResult Function(
+  EditorState editorState,
+  RawKeyEvent event,
+);
 
-  FlowyKeyboardHandler({
-    required this.editorState,
-  });
-
-  KeyEventResult onKeyDown(RawKeyEvent event);
-}
-
-class FlowyKeyboradBackSpaceHandler extends FlowyKeyboardHandler {
-  FlowyKeyboradBackSpaceHandler({
-    required super.editorState,
-  });
-
-  @override
-  KeyEventResult onKeyDown(RawKeyEvent event) {
-    final selectedNodes = editorState.selectedNodes;
-    if (selectedNodes.isNotEmpty) {
-      // handle delete text
-      // TODO: type: cursor or selection
-      if (selectedNodes.length == 1) {
-        final node = selectedNodes.first;
-        if (node is TextNode) {
-          final selectable = node.key?.currentState as Selectable?;
-          final textSelection = selectable?.getTextSelection();
-          if (textSelection != null) {
-            if (textSelection.isCollapsed) {
-              TransactionBuilder(editorState)
-                ..deleteText(node, textSelection.start - 1, 1)
-                ..commit();
-              // TODO: update selection??
-            }
-          }
-        }
-      }
-      return KeyEventResult.handled;
-    }
+FlowyKeyEventHandler flowyDeleteNodesHandler = (editorState, event) {
+  // Handle delete nodes.
+  final nodes = editorState.selectedNodes;
+  if (nodes.length <= 1) {
     return KeyEventResult.ignored;
   }
-}
+
+  debugPrint('delete nodes = $nodes');
+
+  nodes
+      .fold<TransactionBuilder>(
+        TransactionBuilder(editorState),
+        (previousValue, node) => previousValue..deleteNode(node),
+      )
+      .commit();
+  return KeyEventResult.handled;
+};
 
 /// Process keyboard events
 class FlowyKeyboardWidget extends StatefulWidget {
@@ -60,7 +38,7 @@ class FlowyKeyboardWidget extends StatefulWidget {
 
   final EditorState editorState;
   final Widget child;
-  final List<FlowyKeyboardHandler> handlers;
+  final List<FlowyKeyEventHandler> handlers;
 
   @override
   State<FlowyKeyboardWidget> createState() => _FlowyKeyboardWidgetState();
@@ -89,7 +67,7 @@ class _FlowyKeyboardWidgetState extends State<FlowyKeyboardWidget> {
     for (final handler in widget.handlers) {
       debugPrint('handle keyboard event $event by $handler');
 
-      KeyEventResult result = handler.onKeyDown(event);
+      KeyEventResult result = handler(widget.editorState, event);
 
       switch (result) {
         case KeyEventResult.handled:
@@ -97,7 +75,7 @@ class _FlowyKeyboardWidgetState extends State<FlowyKeyboardWidget> {
         case KeyEventResult.skipRemainingHandlers:
           return KeyEventResult.skipRemainingHandlers;
         case KeyEventResult.ignored:
-          break;
+          continue;
       }
     }
 

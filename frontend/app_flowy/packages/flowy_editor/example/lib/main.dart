@@ -96,6 +96,9 @@ class _MyHomePageState extends State<MyHomePage> {
             );
             return FlowyEditor(
               editorState: _editorState,
+              keyEventHandler: [
+                deleteSingleImageNode,
+              ],
             );
           }
         },

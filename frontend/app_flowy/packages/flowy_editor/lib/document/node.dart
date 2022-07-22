@@ -11,6 +11,8 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   final Attributes attributes;
 
   GlobalKey? key;
+  // TODO: abstract a selectable node??
+  final layerLink = LayerLink();
 
   String? get subtype {
     // TODO: make 'subtype' as a const value.
@@ -186,6 +188,7 @@ class TextNode extends Node {
     return map;
   }
 
+  // TODO: It's unneccesry to compute everytime.
   String toRawString() =>
       _delta.operations.whereType<TextInsert>().map((op) => op.content).join();
 }

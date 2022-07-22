@@ -1,3 +1,4 @@
+import 'package:flowy_editor/flowy_cursor_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -15,9 +16,9 @@ mixin _FlowySelectionService<T extends StatefulWidget> on State<T> {
   /// Tap
   Offset? tapOffset;
 
-  void updateSelection();
+  void updateSelection(Offset start, Offset end);
 
-  void updateCursor();
+  void updateCursor(Offset offset);
 
   /// Returns selected node(s)
   /// Returns empty list if no nodes are being selected.
@@ -66,6 +67,8 @@ class FlowySelectionWidget extends StatefulWidget {
 
 class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
     with _FlowySelectionService {
+  final _cursorKey = GlobalKey(debugLabel: 'cursor');
+
   List<OverlayEntry> selectionOverlays = [];
 
   EditorState get editorState => widget.editorState;
@@ -98,14 +101,12 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
   }
 
   @override
-  void updateSelection() {
+  void updateSelection(Offset start, Offset end) {
     _clearOverlay();
 
     final nodes = selectedNodes;
     editorState.selectedNodes = nodes;
-    if (nodes.isEmpty || panStartOffset == null || panEndOffset == null) {
-      assert(panStartOffset == null);
-      assert(panEndOffset == null);
+    if (nodes.isEmpty) {
       return;
     }
 
@@ -114,8 +115,8 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
         continue;
       }
       final selectable = node.key?.currentState as Selectable;
-      final selectionRects = selectable.getSelectionRectsInSelection(
-          panStartOffset!, panEndOffset!);
+      final selectionRects =
+          selectable.getSelectionRectsInSelection(start, end);
       for (final rect in selectionRects) {
         final overlay = OverlayEntry(
           builder: ((context) => Positioned.fromRect(
@@ -132,13 +133,8 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
   }
 
   @override
-  void updateCursor() {
+  void updateCursor(Offset offset) {
     _clearOverlay();
-
-    if (tapOffset == null) {
-      assert(tapOffset == null);
-      return;
-    }
 
     final nodes = selectedNodes;
     editorState.selectedNodes = nodes;
@@ -151,13 +147,13 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
       return;
     }
     final selectable = selectedNode.key?.currentState as Selectable;
-    final rect = selectable.getCursorRect(tapOffset!);
+    final rect = selectable.getCursorRect(offset);
     final cursor = OverlayEntry(
-      builder: ((context) => Positioned.fromRect(
+      builder: ((context) => FlowyCursorWidget(
+            key: _cursorKey,
             rect: rect,
-            child: Container(
-              color: Colors.blue,
-            ),
+            color: Colors.red,
+            layerLink: selectedNode.layerLink,
           )),
     );
     selectionOverlays.add(cursor);
@@ -251,7 +247,7 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
     panStartOffset = null;
     panEndOffset = null;
 
-    updateCursor();
+    updateCursor(tapOffset!);
   }
 
   void _onPanStart(DragStartDetails details) {
@@ -268,7 +264,7 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
     panEndOffset = details.globalPosition;
     tapOffset = null;
 
-    updateSelection();
+    updateSelection(panStartOffset!, panEndOffset!);
   }
 
   void _onPanEnd(DragEndDetails details) {

@@ -52,7 +52,10 @@ class NodeWidgetBuilder<T extends Node> {
       builder: (_, __) => Consumer<T>(
         builder: ((context, value, child) {
           debugPrint('Node changed, and rebuilding...');
-          return build(context);
+          return CompositedTransformTarget(
+            link: node.layerLink,
+            child: build(context),
+          );
         }),
       ),
     );

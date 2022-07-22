@@ -12,3 +12,4 @@ export 'package:flowy_editor/operation/transaction_builder.dart';
 export 'package:flowy_editor/operation/operation.dart';
 export 'package:flowy_editor/editor_state.dart';
 export 'package:flowy_editor/flowy_editor_service.dart';
+export 'package:flowy_editor/flowy_keyboard_service.dart';

@@ -1,6 +1,17 @@
 import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/flowy_keyboard_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
+FlowyKeyEventHandler deleteSingleImageNode = (editorState, event) {
+  final selectNodes = editorState.selectedNodes;
+  if (selectNodes.length != 1 || selectNodes.first.type != 'image') {
+    return KeyEventResult.ignored;
+  }
+  TransactionBuilder(editorState)
+    ..deleteNode(selectNodes.first)
+    ..commit();
+  return KeyEventResult.handled;
+};
 
 class ImageNodeBuilder extends NodeWidgetBuilder {
   ImageNodeBuilder.create({
