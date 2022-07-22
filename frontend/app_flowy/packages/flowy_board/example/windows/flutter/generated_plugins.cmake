@@ -3,7 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  flowy_sdk
+  flowy_board
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
