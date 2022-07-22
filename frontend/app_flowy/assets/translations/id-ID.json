@@ -1,0 +1,218 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Saya",
+  "welcomeText": "Selamat datang di @:appName",
+  "githubStarText": "Bintangi GitHub",
+  "subscribeNewsletterText": "Berlangganan buletin",
+  "letsGoButtonText": "Ayo",
+  "title": "Judul",
+  "signUp": {
+    "buttonText": "Daftar",
+    "title": "Daftar ke @:appName",
+    "getStartedText": "Mulai",
+    "emptyPasswordError": "Sandi tidak boleh kosong",
+    "repeatPasswordEmptyError": "Sandi ulang tidak boleh kosong",
+    "unmatchedPasswordError": "Sandi ulang tidak sama dengan sandi",
+    "alreadyHaveAnAccount": "Sudah punya akun?",
+    "emailHint": "Email",
+    "passwordHint": "Sandi",
+    "repeatPasswordHint": "Sandi ulang"
+  },
+  "signIn": {
+    "loginTitle": "Masuk ke @:appName",
+    "loginButtonText": "Masuk",
+    "buttonText": "Masuk",
+    "forgotPassword": "Lupa Sandi?",
+    "emailHint": "Email",
+    "passwordHint": "Sandi",
+    "dontHaveAnAccount": "Belum punya akun?",
+    "repeatPasswordEmptyError": "Sandi ulang tidak boleh kosong",
+    "unmatchedPasswordError": "Sandi ulang tidak sama dengan sandi"
+  },
+  "workspace": {
+    "create": "Buat workspace",
+    "hint": "workspace",
+    "notFoundError": "Workspace tidak ditemukan"
+  },
+  "shareAction": {
+    "buttonText": "Bagikan",
+    "workInProgress": "Segera",
+    "markdown": "Markdown",
+    "copyLink": "Salin tautan"
+  },
+  "disclosureAction": {
+    "rename": "Ganti nama",
+    "delete": "Hapus",
+    "duplicate": "Duplikat"
+  },
+  "blankPageTitle": "Halaman kosong",
+  "newPageText": "Halaman baru",
+  "trash": {
+    "text": "Sampah",
+    "restoreAll": "Pulihkan Semua",
+    "deleteAll": "Hapus semua",
+    "pageHeader": {
+      "fileName": "Nama file",
+      "lastModified": "Terakhir diubah",
+      "created": "Dibuat"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Halaman ini di tempat sampah",
+    "restore": "Pulihkan halaman",
+    "deletePermanent": "Hapus secara permanen"
+  },
+  "dialogCreatePageNameHint": "Nama halaman",
+  "questionBubble": {
+    "whatsNew": "Apa yang baru?",
+    "help": "Bantuan & Dukungan",
+    "debug": {
+      "name": "Info debug",
+      "success": "Info debug disalin ke papan klip!",
+      "fail": "Tidak dapat menyalin info debug ke papan klip"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Menambahkan halaman di dalam dengan cepat",
+    "defaultNewPageName": "Tanpa Judul",
+    "renameDialog": "Ganti nama"
+  },
+  "toolbar": {
+    "undo": "Undo",
+    "redo": "Redo",
+    "bold": "Tebal",
+    "italic": "Miring",
+    "underline": "Garis bawah",
+    "strike": "Dicoret",
+    "numList": "Daftar bernomor",
+    "bulletList": "Daftar berpoin",
+    "checkList": "Daftar periksa",
+    "inlineCode": "Kode sebaris",
+    "quote": "Blok kutipan",
+    "header": "Tajuk",
+    "highlight": "Sorotan"
+  },
+  "tooltip": {
+    "lightMode": "Ganti mode terang",
+    "darkMode": "Ganti mode gelap"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Mengekspor Catatan ke Markdown",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "Kontak",
+    "whatsHappening": "Apa yang terjadi minggu ini?",
+    "addContact": "Tambahkan Kontak",
+    "editContact": "Ubah Kontak"
+  },
+  "button": {
+    "OK": "Ya",
+    "Cancel": "Batal",
+    "signIn": "Masuk",
+    "signOut": "Keluar",
+    "complete": "Selesai",
+    "save": "Simpan"
+  },
+  "label": {
+    "welcome": "Selamat datang!",
+    "firstName": "Nama Depan",
+    "middleName": "Nama Tengah",
+    "lastName": "Nama Akhir",
+    "stepX": "Langkah {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Tidak dapat terhubung ke akun anda",
+      "failedMsg": "Mohon pastikan anda menyelesaikan proses pendaftaran pada browser anda."
+    },
+    "google": {
+      "title": "MASUK GOOGLE",
+      "instruction1": "Untuk mengimpor kontak Google Contacts anda, anda harus mengizinkan aplikasi ini menggunakan browser web anda.",
+      "instruction2": "Salin kode ini ke papan klip anda dengan cara mengklik ikon atau memilih teks:",
+      "instruction3": "Arahkan ke tautan berikut di browser web Anda, dan masukkan kode di atas:",
+      "instruction4": "Tekan tombol di bawah ini setelah Anda menyelesaikan pendaftaran:"
+    }
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "menu": {
+      "appearance": "Tampilan",
+      "language": "Bahasa",
+      "user": "Pengguna",
+      "open": "Buka Pengaturan"
+    },
+    "appearance": {
+      "lightLabel": "Mode Terang",
+      "darkLabel": "Mode Gelap"
+    }
+  },
+  "grid": {
+    "settings": {
+      "filter": "Filter",
+      "sortBy": "Sortir dengan",
+      "Properties": "Properti"
+    },
+    "field": {
+      "hide": "Sembunyikan",
+      "insertLeft": "Sisipkan Kiri",
+      "insertRight": "Sisipkan Kanan",
+      "duplicate": "Duplikasi",
+      "delete": "Hapus",
+      "textFieldName": "Teks",
+      "checkboxFieldName": "Kotak Centang",
+      "dateFieldName": "Tanggal",
+      "numberFieldName": "Angka",
+      "singleSelectFieldName": "seleksi",
+      "multiSelectFieldName": "Multi seleksi",
+      "urlFieldName": "URL",
+      "numberFormat": " Format angka",
+      "dateFormat": " Format tanggal",
+      "includeTime": " Sertakan waktu",
+      "dateFormatFriendly": "Bulan Hari,Tahun",
+      "dateFormatISO": "Tahun-Bulan-Hari",
+      "dateFormatLocal": "Tahun/Bulan/Hari",
+      "dateFormatUS": "Tahun/Bulan/Hari",
+      "timeFormat": " Format waktu",
+      "invalidTimeFormat": "Format yang tidak valid",
+      "timeFormatTwelveHour": "12 jam",
+      "timeFormatTwentyFourHour": "24 jam",
+      "addSelectOption": "Tambahkan opsi",
+      "optionTitle": "Opsi",
+      "addOption": "Tambahkan opsi",
+      "editProperty": "Ubah properti",
+    },
+    "row": {
+      "duplicate": "Duplikasi",
+      "delete": "Hapus",
+      "textPlaceholder": "Kosong",
+      "copyProperty": "Salin properti ke papan klip",
+    },
+    "selectOption": {
+      "create": "Buat",
+      "purpleColor": "Ungu",
+      "pinkColor": "Merah Jambu",
+      "lightPinkColor": "Merah Jambu Muda",
+      "orangeColor": "Oranye",
+      "yellowColor": "Kuning",
+      "limeColor": "Limau",
+      "greenColor": "Hijau",
+      "aquaColor": "Air",
+      "blueColor": "Biru",
+      "deleteTag": "Hapus tag",
+      "colorPannelTitle": "Warna",
+      "pannelTitle": "Pilih opsi atau buat baru",
+      "searchOption": "Cari opsi"
+    },
+    "menuName": "Grid"
+  },
+  "document": {
+    "menuName": "Doc",
+    "date": {
+      "timeHintTextInTwelveHour": "12:00 AM",
+      "timeHintTextInTwentyFourHour": "12:00"
+    }
+  }
+}
