@@ -2,7 +2,7 @@ use crate::grid::block_test::script::RowScript::*;
 use crate::grid::block_test::script::{CreateRowScriptBuilder, GridRowTest};
 use crate::grid::grid_editor::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, TWITTER};
 use flowy_grid::entities::FieldType;
-use flowy_grid::services::field::{NO, SELECTION_IDS_SEPARATOR};
+use flowy_grid::services::field::{SELECTION_IDS_SEPARATOR, UNCHECK};
 use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]
@@ -72,7 +72,7 @@ async fn grid_row_add_cells_test() {
     builder.insert(FieldType::RichText, "hello world", "hello world");
     builder.insert(FieldType::DateTime, "1647251762", "2022/03/14");
     builder.insert(FieldType::Number, "18,443", "$18,443.00");
-    builder.insert(FieldType::Checkbox, "false", NO);
+    builder.insert(FieldType::Checkbox, "false", UNCHECK);
     builder.insert(FieldType::URL, "https://appflowy.io", "https://appflowy.io");
     builder.insert_single_select_cell(|mut options| options.remove(0), COMPLETED);
     builder.insert_multi_select_cell(
