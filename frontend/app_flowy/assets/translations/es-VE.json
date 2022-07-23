@@ -96,6 +96,12 @@
     "lightMode": "Cambiar a modo Claro",
     "darkMode": "Cambiar a modo Oscuro"
   },
+  "notifications": {
+    "export": {
+      "markdown": "Nota exportada a Markdown",
+      "path": "Documentos/flowy"
+    }
+  },
   "contactsPage": {
     "title": "Contactos",
     "whatsHappening": "¿Qué está pasando esta semana?",
@@ -120,13 +126,13 @@
   "oAuth": {
     "err": {
       "failedTitle": "Imposible conectarse con sus credenciales.",
-      "failedMsg": "Por favor asegurese haber completado el proceso de ingreso en su buscador."
+      "failedMsg": "Por favor asegurese haber completado el proceso de ingreso en su navegador."
     },
     "google": {
       "title": "Ingresar con Google",
-      "instruction1": "Para importar sus contactos de Google, debe autorizar esta aplicación usando su buscador web.",
+      "instruction1": "Para importar sus contactos de Google, debe autorizar esta aplicación usando su navegador web.",
       "instruction2": "Copie este código al presionar el icono o al seleccionar el texto:",
-      "instruction3": "Navege al siguiente enlace en su buscador web, e ingrese el código anterior:",
+      "instruction3": "Navege al siguiente enlace en su navegador web, e ingrese el código anterior:",
       "instruction4": "Presione el botón de abajo cuando haya completado su registro:"
     }
   },
@@ -140,6 +146,72 @@
     "appearance": {
       "lightLabel": "Modo Claro",
       "darkLabel": "Modo Oscuro"
+    }
+  },
+  "grid": {
+    "settings": {
+      "filter": "Filtrar",
+      "sortBy": "Ordenar por",
+      "Properties": "Propiedades"
+    },
+    "field": {
+      "hide": "Ocultar",
+      "insertLeft": "Insertar a la Izquierda",
+      "insertRight": "Insertar a la Derecha",
+      "duplicate": "Duplicar",
+      "delete": "Eliminar",
+      "textFieldName": "Texto",
+      "checkboxFieldName": "Casilla de verificación",
+      "dateFieldName": "Fecha",
+      "numberFieldName": "Números",
+      "singleSelectFieldName": "Seleccionar",
+      "multiSelectFieldName": "Selección múltiple",
+      "urlFieldName": "URL",
+      "numberFormat": " Formato numérico",
+      "dateFormat": " Formato de fecha",
+      "includeTime": " Incluir tiempo",
+      "dateFormatFriendly": "Mes Día, Año",
+      "dateFormatISO": "Año-Mes-Día",
+      "dateFormatLocal": "Año/Mes/Día",
+      "dateFormatUS": "Año/Mes/Día",
+      "timeFormat": " Time format",
+      "invalidTimeFormat": "Formato de tiempo",
+      "timeFormatTwelveHour": "12 horas",
+      "timeFormatTwentyFourHour": "24 horas",
+      "addSelectOption": "Añadir una opción",
+      "optionTitle": "Opciones",
+      "addOption": "Añadir opción",
+      "editProperty": "Editar propiedad"
+    },
+    "row": {
+      "duplicate": "Duplicar",
+      "delete": "Eliminar",
+      "textPlaceholder": "Vacío",
+      "copyProperty": "Propiedad copiada al portapapeles"
+    },
+    "selectOption": {
+      "create": "Crear",
+      "purpleColor": "Morado",
+      "pinkColor": "Rosa",
+      "lightPinkColor": "Rosa Claro",
+      "orangeColor": "Naranja",
+      "yellowColor": "Amarillo",
+      "limeColor": "Lima",
+      "greenColor": "Verde",
+      "aquaColor": "Agua",
+      "blueColor": "Azul",
+      "deleteTag": "Borrar etiqueta",
+      "colorPannelTitle": "Colores",
+      "pannelTitle": "Selecciona una opción o crea una",
+      "searchOption": "Buscar una opción"
+    },
+    "menuName": "Grid"
+  },
+  "document": {
+    "menuName": "Doc",
+    "date": {
+      "timeHintTextInTwelveHour": "12:00 AM",
+      "timeHintTextInTwentyFourHour": "12:00"
     }
   }
 }
