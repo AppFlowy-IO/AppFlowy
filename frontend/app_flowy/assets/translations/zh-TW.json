@@ -1,0 +1,218 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "我",
+  "welcomeText": "歡迎使用 @:appName",
+  "githubStarText": "在 GitHub 點星",
+  "subscribeNewsletterText": "訂閱電子報",
+  "letsGoButtonText": "出發吧",
+  "title": "標題",
+  "signUp": {
+    "buttonText": "註冊",
+    "title": "註冊 @:appName",
+    "getStartedText": "Get Started",
+    "emptyPasswordError": "密碼不能為空",
+    "repeatPasswordEmptyError": "確認密碼不能為空",
+    "unmatchedPasswordError": "確認密碼與密碼不符",
+    "alreadyHaveAnAccount": "已經有帳號了嗎？",
+    "emailHint": "電子郵件地址",
+    "passwordHint": "密碼",
+    "repeatPasswordHint": "確認密碼"
+  },
+  "signIn": {
+    "loginTitle": "登入 @:appName",
+    "loginButtonText": "登入",
+    "buttonText": "登入",
+    "forgotPassword": "忘記密碼？",
+    "emailHint": "電子郵件地址",
+    "passwordHint": "密碼",
+    "dontHaveAnAccount": "沒有帳號？",
+    "repeatPasswordEmptyError": "確認密碼不能為空",
+    "unmatchedPasswordError": "確認密碼與密碼不符"
+  },
+  "workspace": {
+    "create": "建立工作區",
+    "hint": "工作區",
+    "notFoundError": "找不到工作區"
+  },
+  "shareAction": {
+    "buttonText": "分享",
+    "workInProgress": "即將推出",
+    "markdown": "Markdown",
+    "copyLink": "複製連結"
+  },
+  "disclosureAction": {
+    "rename": "重新命名",
+    "delete": "刪除",
+    "duplicate": "複製"
+  },
+  "blankPageTitle": "空白頁面",
+  "newPageText": "新頁面",
+  "trash": {
+    "text": "垃圾筒",
+    "restoreAll": "全部復原",
+    "deleteAll": "全部刪除",
+    "pageHeader": {
+      "fileName": "檔案名稱",
+      "lastModified": "最後修改時間",
+      "created": "建立時間"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "此頁面在垃圾筒中",
+    "restore": "復原頁面",
+    "deletePermanent": "永久刪除"
+  },
+  "dialogCreatePageNameHint": "頁面名稱",
+  "questionBubble": {
+    "whatsNew": "新功能",
+    "help": "幫助 & 支援",
+    "debug": {
+      "name": "除錯資訊",
+      "success": "已將除錯資訊複製至剪貼簿！",
+      "fail": "無法將除錯資訊複製至剪貼簿"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "快速新增頁面",
+    "defaultNewPageName": "未命名",
+    "renameDialog": "重新命名"
+  },
+  "toolbar": {
+    "undo": "復原",
+    "redo": "取消復原",
+    "bold": "粗體",
+    "italic": "斜體",
+    "underline": "底線",
+    "strike": "刪除線",
+    "numList": "有序清單",
+    "bulletList": "無序清單",
+    "checkList": "核取清單",
+    "inlineCode": "程式碼",
+    "quote": "區塊引言",
+    "header": "標題",
+    "highlight": "反白"
+  },
+  "tooltip": {
+    "lightMode": "切換至亮色模式",
+    "darkMode": "切換至暗色模式"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "已將筆記匯出成 Markdown",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "聯絡人",
+    "whatsHappening": "這周有甚麼新鮮事？",
+    "addContact": "新增聯絡人",
+    "editContact": "編輯聯絡人"
+  },
+  "button": {
+    "OK": "OK",
+    "Cancel": "取消",
+    "signIn": "登入",
+    "signOut": "登出",
+    "complete": "完成",
+    "save": "儲存"
+  },
+  "label": {
+    "welcome": "歡迎！",
+    "firstName": "名",
+    "middleName": "中間名",
+    "lastName": "姓",
+    "stepX": "步驟 {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "無法連接至您的帳號。",
+      "failedMsg": "請確認您已在瀏覽器中完成登入程序："
+    },
+    "google": {
+      "title": "GOOGLE 登入",
+      "instruction1": "若要匯入您的 Google 聯絡人，您必須透過瀏覽器授權此應用程式：",
+      "instruction2": "點擊圖示或選取文字以複製代碼：",
+      "instruction3": "前往下列網址，並輸入上述代碼：",
+      "instruction4": "完成註冊後，請點擊下方按鈕："
+    }
+  },
+  "settings": {
+    "title": "設定",
+    "menu": {
+      "appearance": "外觀",
+      "language": "語言",
+      "user": "使用者",
+      "open": "開啟設定"
+    },
+    "appearance": {
+      "lightLabel": "亮色模式",
+      "darkLabel": "暗色模式"
+    }
+  },
+  "grid": {
+    "settings": {
+      "filter": "篩選",
+      "sortBy": "排序方式",
+      "Properties": "內容"
+    },
+    "field": {
+      "hide": "隱藏",
+      "insertLeft": "插入左方欄",
+      "insertRight": "插入右方欄",
+      "duplicate": "複製",
+      "delete": "刪除",
+      "textFieldName": "文字",
+      "checkboxFieldName": "核取方塊",
+      "dateFieldName": "日期",
+      "numberFieldName": "數字",
+      "singleSelectFieldName": "單選",
+      "multiSelectFieldName": "多選",
+      "urlFieldName": "網址",
+      "numberFormat": " 數字格式",
+      "dateFormat": " 日期格式",
+      "includeTime": " 包含時間",
+      "dateFormatFriendly": "月 日,年",
+      "dateFormatISO": "年-月-日",
+      "dateFormatLocal": "年/月/日",
+      "dateFormatUS": "年/月/日",
+      "timeFormat": " 時間格式",
+      "invalidTimeFormat": "格式無效",
+      "timeFormatTwelveHour": "12 小時",
+      "timeFormatTwentyFourHour": "24 小時",
+      "addSelectOption": "新增選項",
+      "optionTitle": "選項",
+      "addOption": "新增選項",
+      "editProperty": "編輯內容"
+    },
+    "row": {
+      "duplicate": "複製",
+      "delete": "刪除",
+      "textPlaceholder": "空",
+      "copyProperty": "已將內容複製至剪貼簿"
+    },
+    "selectOption": {
+      "create": "建立",
+      "purpleColor": "紫色",
+      "pinkColor": "粉色",
+      "lightPinkColor": "淡粉色",
+      "orangeColor": "橘色",
+      "yellowColor": "黃色",
+      "limeColor": "萊姆色",
+      "greenColor": "綠色",
+      "aquaColor": "水藍色",
+      "blueColor": "藍色",
+      "deleteTag": "刪除標籤",
+      "colorPannelTitle": "顏色",
+      "pannelTitle": "搜尋或建立選項",
+      "searchOption": "搜尋選項"
+    },
+    "menuName": "網格"
+  },
+  "document": {
+    "menuName": "檔案",
+    "date": {
+      "timeHintTextInTwelveHour": "12:00 AM",
+      "timeHintTextInTwentyFourHour": "12:00"
+    }
+  }
+}
