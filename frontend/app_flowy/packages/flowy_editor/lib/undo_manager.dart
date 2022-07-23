@@ -5,6 +5,7 @@ import 'package:flowy_editor/operation/operation.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flowy_editor/operation/transaction.dart';
 import 'package:flowy_editor/editor_state.dart';
+import 'package:flutter/foundation.dart';
 
 /// This class contains operations committed by users.
 /// If a [HistoryItem] is not sealed, operations can be added sequentially.
@@ -68,6 +69,10 @@ class FixedSizeStack {
     return last;
   }
 
+  clear() {
+    _list.clear();
+  }
+
   HistoryItem get last => _list.last;
 
   bool get isEmpty => _list.isEmpty;
@@ -92,6 +97,7 @@ class UndoManager {
     }
     final last = undoStack.last;
     if (last.sealed) {
+      redoStack.clear();
       final item = HistoryItem();
       undoStack.push(item);
       return item;
@@ -100,6 +106,7 @@ class UndoManager {
   }
 
   undo() {
+    debugPrint('undo');
     final s = state;
     if (s == null) {
       return;
@@ -109,6 +116,30 @@ class UndoManager {
       return;
     }
     final transaction = historyItem.toTransaction(s);
-    s.apply(transaction, const ApplyOptions(recordUndo: false));
+    s.apply(
+        transaction,
+        const ApplyOptions(
+          recordUndo: false,
+          recordRedo: true,
+        ));
+  }
+
+  redo() {
+    debugPrint('redo');
+    final s = state;
+    if (s == null) {
+      return;
+    }
+    final historyItem = redoStack.pop();
+    if (historyItem == null) {
+      return;
+    }
+    final transaction = historyItem.toTransaction(s);
+    s.apply(
+        transaction,
+        const ApplyOptions(
+          recordUndo: true,
+          recordRedo: false,
+        ));
   }
 }
