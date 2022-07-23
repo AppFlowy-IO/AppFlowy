@@ -102,6 +102,18 @@
     "addContact": "添加联系人",
     "editContact": "编辑联系人"
   },
+  "notifications": {
+    "export": {
+      "markdown": "将笔记导出为Markdown",
+      "path": "Documents/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "通讯录",
+    "whatsHappening": "这周发生了什么事？",
+    "addContact": "添加联系人",
+    "editContact": "编辑联系人"
+  },
   "button": {
     "OK": "确认",
     "Cancel": "取消",
@@ -140,6 +152,72 @@
     "appearance": {
       "lightLabel": "日间模式",
       "darkLabel": "夜间模式"
+    },
+    "grid": {
+      "settings": {
+        "filter": "过滤",
+        "sortBy": "排序依据",
+        "Properties": "属性"
+      },
+      "field": {
+        "hide": "隐藏",
+        "insertLeft": "左侧插入",
+        "insertRight": "右侧插入",
+        "duplicate": "复制",
+        "delete": "删除",
+        "textFieldName": "文本",
+        "checkboxFieldName": "复选框",
+        "dateFieldName": "日期",
+        "numberFieldName": "数字",
+        "singleSelectFieldName": "选择",
+        "multiSelectFieldName": "多选",
+        "urlFieldName": "网址",
+        "numberFormat": " 数字格式",
+        "dateFormat": " 日期格式",
+        "includeTime": " 包括时间",
+        "dateFormatFriendly": "月 日，年",
+        "dateFormatISO": "年-月-日",
+        "dateFormatLocal": "年-月-日",
+        "dateFormatUS": "月/日/年",
+        "timeFormat": " 时间格式",
+        "invalidTimeFormat": "无效的格式",
+        "timeFormatTwelveHour": "12小时制",
+        "timeFormatTwentyFourHour": "24小时制",
+        "addSelectOption": "添加选项",
+        "optionTitle": "选项",
+        "addOption": "添加选项",
+        "editProperty": "编辑属性"
+      },
+      "row": {
+        "duplicate": "复制",
+        "delete": "删除",
+        "textPlaceholder": "占位符",
+        "copyProperty": "已将属性复制到剪贴板"
+      },
+      "selectOption": {
+        "create": "创建",
+        "purpleColor": "紫色",
+        "pinkColor": "粉红色",
+        "lightPinkColor": "浅粉红色",
+        "orangeColor": "橙色",
+        "yellowColor": "黄色",
+        "limeColor": "石灰色",
+        "greenColor": "绿色",
+        "aquaColor": "湖绿色",
+        "blueColor": "蓝色",
+        "deleteTag": "删除标记",
+        "colorPannelTitle": "颜色",
+        "pannelTitle": "选择或创建选项",
+        "searchOption": "搜索选项"
+      },
+      "menuName": "表格"
+    },
+    "document": {
+      "menuName": "文档",
+      "date": {
+        "timeHintTextInTwelveHour": "12:00 上午",
+        "timeHintTextInTwentyFourHour": "12:00"
+      }
     }
   }
 }
