@@ -1,30 +1,44 @@
 #[cfg(test)]
 mod tests {
-    use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data};
-    use crate::services::field::type_options::checkbox_type_option::{NO, YES};
-    use crate::services::field::FieldBuilder;
-
     use crate::entities::FieldType;
+    use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellDataOperation};
+    use crate::services::field::type_options::checkbox_type_option::*;
+    use crate::services::field::FieldBuilder;
+    use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
     fn checkout_box_description_test() {
-        let field_rev = FieldBuilder::from_field_type(&FieldType::Checkbox).build();
-        let data = apply_cell_data_changeset("true", None, &field_rev).unwrap();
-        assert_eq!(decode_any_cell_data(data, &field_rev).to_string(), YES);
+        let type_option = CheckboxTypeOption::default();
+        let field_type = FieldType::Checkbox;
+        let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
-        let data = apply_cell_data_changeset("1", None, &field_rev).unwrap();
-        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), YES);
+        // the checkout value will be checked if the value is "1", "true" or "yes"
+        assert_checkbox(&type_option, "1", CHECK, &field_type, &field_rev);
+        assert_checkbox(&type_option, "true", CHECK, &field_type, &field_rev);
+        assert_checkbox(&type_option, "yes", CHECK, &field_type, &field_rev);
 
-        let data = apply_cell_data_changeset("yes", None, &field_rev).unwrap();
-        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), YES);
+        // the checkout value will be uncheck if the value is "false" or "No"
+        assert_checkbox(&type_option, "false", UNCHECK, &field_type, &field_rev);
+        assert_checkbox(&type_option, "No", UNCHECK, &field_type, &field_rev);
 
-        let data = apply_cell_data_changeset("false", None, &field_rev).unwrap();
-        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), NO);
+        // the checkout value will be empty if the value is letters or empty string
+        assert_checkbox(&type_option, "abc", "", &field_type, &field_rev);
+        assert_checkbox(&type_option, "", "", &field_type, &field_rev);
+    }
 
-        let data = apply_cell_data_changeset("no", None, &field_rev).unwrap();
-        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), NO);
-
-        let data = apply_cell_data_changeset("12", None, &field_rev).unwrap();
-        assert_eq!(decode_any_cell_data(data, &field_rev,).to_string(), "");
+    fn assert_checkbox(
+        type_option: &CheckboxTypeOption,
+        input_str: &str,
+        expected_str: &str,
+        field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) {
+        assert_eq!(
+            type_option
+                .decode_cell_data(input_str.to_owned().into(), field_type, field_rev)
+                .unwrap()
+                .to_string(),
+            expected_str.to_owned()
+        );
     }
 }
