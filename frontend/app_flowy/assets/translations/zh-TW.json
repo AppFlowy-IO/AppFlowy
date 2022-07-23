@@ -9,7 +9,7 @@
   "signUp": {
     "buttonText": "註冊",
     "title": "註冊 @:appName",
-    "getStartedText": "Get Started",
+    "getStartedText": "開始使用",
     "emptyPasswordError": "密碼不能為空",
     "repeatPasswordEmptyError": "確認密碼不能為空",
     "unmatchedPasswordError": "確認密碼與密碼不符",
