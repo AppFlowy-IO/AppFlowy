@@ -6,14 +6,14 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class MenuUser extends StatelessWidget {
-  final UserProfile user;
+  final UserProfilePB user;
   MenuUser(this.user, {Key? key}) : super(key: ValueKey(user.id));
 
   @override
@@ -58,15 +58,16 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderUserName(BuildContext context) {
-    String name = context.read<MenuUserBloc>().state.user.name;
+    String name = context.read<MenuUserBloc>().state.userProfile.name;
     if (name.isEmpty) {
-      name = context.read<MenuUserBloc>().state.user.email;
+      name = context.read<MenuUserBloc>().state.userProfile.email;
     }
     return FlowyText(name, fontSize: 12);
   }
 
   Widget _renderSettingsButton(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    final userProfile = context.read<MenuUserBloc>().state.userProfile;
     return Tooltip(
       message: LocaleKeys.settings_menu_open.tr(),
       child: IconButton(
@@ -74,7 +75,7 @@ class MenuUser extends StatelessWidget {
           showDialog(
             context: context,
             builder: (context) {
-              return const SettingsDialog();
+              return SettingsDialog(userProfile);
             },
           );
         },

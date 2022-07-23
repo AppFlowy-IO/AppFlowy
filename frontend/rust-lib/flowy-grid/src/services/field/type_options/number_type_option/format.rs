@@ -15,7 +15,7 @@ lazy_static! {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, EnumIter, Serialize, Deserialize, ProtoBuf_Enum)]
 pub enum NumberFormat {
-    Number = 0,
+    Num = 0,
     USD = 1,
     CanadianDollar = 2,
     EUR = 4,
@@ -55,7 +55,7 @@ pub enum NumberFormat {
 
 impl std::default::Default for NumberFormat {
     fn default() -> Self {
-        NumberFormat::Number
+        NumberFormat::Num
     }
 }
 
@@ -400,7 +400,7 @@ define_currency_set!(
 impl NumberFormat {
     pub fn currency(&self) -> &'static number_currency::Currency {
         match self {
-            NumberFormat::Number => number_currency::NUMBER,
+            NumberFormat::Num => number_currency::NUMBER,
             NumberFormat::USD => number_currency::USD,
             NumberFormat::CanadianDollar => number_currency::CANADIAN_DOLLAR,
             NumberFormat::EUR => number_currency::EUR,

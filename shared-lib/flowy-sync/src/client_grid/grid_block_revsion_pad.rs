@@ -2,40 +2,44 @@ use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use flowy_grid_data_model::revision::{
-    gen_block_id, gen_row_id, CellRevision, GridBlockRevisionData, RowMetaChangeset, RowRevision,
+    gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision,
 };
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
-use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
-
 use std::collections::HashMap;
 use std::sync::Arc;
 
 pub type GridBlockRevisionDelta = PlainTextDelta;
 pub type GridBlockRevisionDeltaBuilder = PlainTextDeltaBuilder;
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Clone)]
 pub struct GridBlockRevisionPad {
-    block_id: String,
-    rows: Vec<Arc<RowRevision>>,
-
-    #[serde(skip)]
+    block_revision: GridBlockRevision,
     pub(crate) delta: GridBlockRevisionDelta,
 }
 
+impl std::ops::Deref for GridBlockRevisionPad {
+    type Target = GridBlockRevision;
+
+    fn deref(&self) -> &Self::Target {
+        &self.block_revision
+    }
+}
+
 impl GridBlockRevisionPad {
-    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> GridBlockRevisionData {
+    pub async fn duplicate_data(&self, duplicated_block_id: &str) -> GridBlockRevision {
         let duplicated_rows = self
+            .block_revision
             .rows
             .iter()
             .map(|row| {
                 let mut duplicated_row = row.as_ref().clone();
                 duplicated_row.id = gen_row_id();
                 duplicated_row.block_id = duplicated_block_id.to_string();
-                duplicated_row
+                Arc::new(duplicated_row)
             })
-            .collect::<Vec<RowRevision>>();
-        GridBlockRevisionData {
+            .collect::<Vec<Arc<RowRevision>>>();
+        GridBlockRevision {
             block_id: duplicated_block_id.to_string(),
             rows: duplicated_rows,
         }
@@ -43,18 +47,12 @@ impl GridBlockRevisionPad {
 
     pub fn from_delta(delta: GridBlockRevisionDelta) -> CollaborateResult<Self> {
         let s = delta.to_str()?;
-        let meta_data: GridBlockRevisionData = serde_json::from_str(&s).map_err(|e| {
+        let block_revision: GridBlockRevision = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to block meta failed: {}", e);
             tracing::error!("{}", s);
             CollaborateError::internal().context(msg)
         })?;
-        let block_id = meta_data.block_id;
-        let rows = meta_data
-            .rows
-            .into_iter()
-            .map(Arc::new)
-            .collect::<Vec<Arc<RowRevision>>>();
-        Ok(Self { block_id, rows, delta })
+        Ok(Self { block_revision, delta })
     }
 
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
@@ -95,9 +93,10 @@ impl GridBlockRevisionPad {
         T: AsRef<str> + ToOwned + ?Sized,
     {
         match row_ids {
-            None => Ok(self.rows.to_vec()),
+            None => Ok(self.block_revision.rows.clone()),
             Some(row_ids) => {
                 let row_map = self
+                    .block_revision
                     .rows
                     .iter()
                     .map(|row| (row.id.as_str(), row.clone()))
@@ -137,11 +136,12 @@ impl GridBlockRevisionPad {
     }
 
     pub fn number_of_rows(&self) -> i32 {
-        self.rows.len() as i32
+        self.block_revision.rows.len() as i32
     }
 
     pub fn index_of_row(&self, row_id: &str) -> Option<i32> {
-        self.rows
+        self.block_revision
+            .rows
             .iter()
             .position(|row| row.id == row_id)
             .map(|index| index as i32)
@@ -190,7 +190,7 @@ impl GridBlockRevisionPad {
         F: for<'a> FnOnce(&'a mut Vec<Arc<RowRevision>>) -> CollaborateResult<Option<()>>,
     {
         let cloned_self = self.clone();
-        match f(&mut self.rows)? {
+        match f(&mut self.block_revision.rows)? {
             None => Ok(None),
             Some(_) => {
                 let old = cloned_self.to_json()?;
@@ -226,7 +226,7 @@ impl GridBlockRevisionPad {
     }
 
     pub fn to_json(&self) -> CollaborateResult<String> {
-        serde_json::to_string(self)
+        serde_json::to_string(&self.block_revision)
             .map_err(|e| CollaborateError::internal().context(format!("serial trash to json failed: {}", e)))
     }
 
@@ -245,13 +245,13 @@ pub struct GridBlockMetaChange {
     pub md5: String,
 }
 
-pub fn make_block_meta_delta(grid_block_meta_data: &GridBlockRevisionData) -> GridBlockRevisionDelta {
-    let json = serde_json::to_string(&grid_block_meta_data).unwrap();
+pub fn make_grid_block_delta(block_rev: &GridBlockRevision) -> GridBlockRevisionDelta {
+    let json = serde_json::to_string(&block_rev).unwrap();
     PlainTextDeltaBuilder::new().insert(&json).build()
 }
 
-pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevisionData) -> RepeatedRevision {
-    let delta = make_block_meta_delta(grid_block_meta_data);
+pub fn make_grid_block_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
+    let delta = make_grid_block_delta(grid_block_meta_data);
     let bytes = delta.to_delta_bytes();
     let revision = Revision::initial_revision(user_id, &grid_block_meta_data.block_id, bytes);
     revision.into()
@@ -259,17 +259,13 @@ pub fn make_block_meta_revisions(user_id: &str, grid_block_meta_data: &GridBlock
 
 impl std::default::Default for GridBlockRevisionPad {
     fn default() -> Self {
-        let block_meta_data = GridBlockRevisionData {
+        let block_revision = GridBlockRevision {
             block_id: gen_block_id(),
             rows: vec![],
         };
 
-        let delta = make_block_meta_delta(&block_meta_data);
-        GridBlockRevisionPad {
-            block_id: block_meta_data.block_id,
-            rows: block_meta_data.rows.into_iter().map(Arc::new).collect::<Vec<_>>(),
-            delta,
-        }
+        let delta = make_grid_block_delta(&block_revision);
+        GridBlockRevisionPad { block_revision, delta }
     }
 }
 

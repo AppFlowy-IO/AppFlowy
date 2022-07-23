@@ -1,13 +1,40 @@
 import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 
 class UserService {
-  Future<Either<UserProfile, FlowyError>> fetchUserProfile({required String userId}) {
+  final String userId;
+  UserService({
+    required this.userId,
+  });
+  Future<Either<UserProfilePB, FlowyError>> getUserProfile({required String userId}) {
     return UserEventGetUserProfile().send();
+  }
+
+  Future<Either<Unit, FlowyError>> updateUserProfile({
+    String? name,
+    String? password,
+    String? email,
+  }) {
+    var payload = UpdateUserProfilePayloadPB.create()..id = userId;
+
+    if (name != null) {
+      payload.name = name;
+    }
+
+    if (password != null) {
+      payload.password = password;
+    }
+
+    if (email != null) {
+      payload.email = email;
+    }
+
+    return UserEventUpdateUserProfile(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> deleteWorkspace({required String workspaceId}) {
@@ -22,8 +49,8 @@ class UserService {
     return UserEventInitUser().send();
   }
 
-  Future<Either<List<Workspace>, FlowyError>> getWorkspaces() {
-    final request = WorkspaceId.create();
+  Future<Either<List<WorkspacePB>, FlowyError>> getWorkspaces() {
+    final request = WorkspaceIdPB.create();
 
     return FolderEventReadWorkspaces(request).send().then((result) {
       return result.fold(
@@ -33,8 +60,8 @@ class UserService {
     });
   }
 
-  Future<Either<Workspace, FlowyError>> openWorkspace(String workspaceId) {
-    final request = WorkspaceId.create()..value = workspaceId;
+  Future<Either<WorkspacePB, FlowyError>> openWorkspace(String workspaceId) {
+    final request = WorkspaceIdPB.create()..value = workspaceId;
     return FolderEventOpenWorkspace(request).send().then((result) {
       return result.fold(
         (workspace) => left(workspace),
@@ -43,8 +70,8 @@ class UserService {
     });
   }
 
-  Future<Either<Workspace, FlowyError>> createWorkspace(String name, String desc) {
-    final request = CreateWorkspacePayload.create()
+  Future<Either<WorkspacePB, FlowyError>> createWorkspace(String name, String desc) {
+    final request = CreateWorkspacePayloadPB.create()
       ..name = name
       ..desc = desc;
     return FolderEventCreateWorkspace(request).send().then((result) {

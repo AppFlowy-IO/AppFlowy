@@ -1,7 +1,7 @@
+use crate::entities::{SignInResponse, SignUpResponse, UpdateUserProfileParams, UserProfilePB};
 use flowy_database::ConnectionPool;
 use flowy_database::{schema::user_table, DBConnection, Database};
 use flowy_error::{ErrorCode, FlowyError};
-use flowy_user_data_model::entities::{SignInResponse, SignUpResponse, UpdateUserParams, UserProfile};
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc, time::Duration};
@@ -113,9 +113,9 @@ impl std::convert::From<SignInResponse> for UserTable {
     }
 }
 
-impl std::convert::From<UserTable> for UserProfile {
+impl std::convert::From<UserTable> for UserProfilePB {
     fn from(table: UserTable) -> Self {
-        UserProfile {
+        UserProfilePB {
             id: table.id,
             email: table.email,
             name: table.name,
@@ -134,7 +134,7 @@ pub struct UserTableChangeset {
 }
 
 impl UserTableChangeset {
-    pub fn new(params: UpdateUserParams) -> Self {
+    pub fn new(params: UpdateUserProfileParams) -> Self {
         UserTableChangeset {
             id: params.id,
             workspace: None,

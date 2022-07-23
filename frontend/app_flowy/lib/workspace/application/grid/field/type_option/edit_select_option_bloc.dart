@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-grid/selection_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -7,7 +7,7 @@ import 'package:dartz/dartz.dart';
 part 'edit_select_option_bloc.freezed.dart';
 
 class EditSelectOptionBloc extends Bloc<EditSelectOptionEvent, EditSelectOptionState> {
-  EditSelectOptionBloc({required SelectOption option}) : super(EditSelectOptionState.initial(option)) {
+  EditSelectOptionBloc({required SelectOptionPB option}) : super(EditSelectOptionState.initial(option)) {
     on<EditSelectOptionEvent>(
       (event, emit) async {
         event.map(
@@ -30,14 +30,14 @@ class EditSelectOptionBloc extends Bloc<EditSelectOptionEvent, EditSelectOptionS
     return super.close();
   }
 
-  SelectOption _updateColor(SelectOptionColor color) {
+  SelectOptionPB _updateColor(SelectOptionColorPB color) {
     state.option.freeze();
     return state.option.rebuild((option) {
       option.color = color;
     });
   }
 
-  SelectOption _updateName(String name) {
+  SelectOptionPB _updateName(String name) {
     state.option.freeze();
     return state.option.rebuild((option) {
       option.name = name;
@@ -48,18 +48,18 @@ class EditSelectOptionBloc extends Bloc<EditSelectOptionEvent, EditSelectOptionS
 @freezed
 class EditSelectOptionEvent with _$EditSelectOptionEvent {
   const factory EditSelectOptionEvent.updateName(String name) = _UpdateName;
-  const factory EditSelectOptionEvent.updateColor(SelectOptionColor color) = _UpdateColor;
+  const factory EditSelectOptionEvent.updateColor(SelectOptionColorPB color) = _UpdateColor;
   const factory EditSelectOptionEvent.delete() = _Delete;
 }
 
 @freezed
 class EditSelectOptionState with _$EditSelectOptionState {
   const factory EditSelectOptionState({
-    required SelectOption option,
+    required SelectOptionPB option,
     required Option<bool> deleted,
   }) = _EditSelectOptionState;
 
-  factory EditSelectOptionState.initial(SelectOption option) => EditSelectOptionState(
+  factory EditSelectOptionState.initial(SelectOptionPB option) => EditSelectOptionState(
         option: option,
         deleted: none(),
       );

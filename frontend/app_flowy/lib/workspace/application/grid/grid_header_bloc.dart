@@ -1,6 +1,6 @@
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -34,7 +34,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
   }
 
   Future<void> _moveField(_MoveField value, Emitter<GridHeaderState> emit) async {
-    final fields = List<Field>.from(state.fields);
+    final fields = List<GridFieldPB>.from(state.fields);
     fields.insert(value.toIndex, fields.removeAt(value.fromIndex));
     emit(state.copyWith(fields: fields));
 
@@ -48,7 +48,7 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 
   Future<void> _startListening() async {
     fieldCache.addListener(
-      onChanged: (fields) => add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
+      onFields: (fields) => add(GridHeaderEvent.didReceiveFieldUpdate(fields)),
       listenWhen: () => !isClosed,
     );
   }
@@ -62,16 +62,16 @@ class GridHeaderBloc extends Bloc<GridHeaderEvent, GridHeaderState> {
 @freezed
 class GridHeaderEvent with _$GridHeaderEvent {
   const factory GridHeaderEvent.initial() = _InitialHeader;
-  const factory GridHeaderEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
-  const factory GridHeaderEvent.moveField(Field field, int fromIndex, int toIndex) = _MoveField;
+  const factory GridHeaderEvent.didReceiveFieldUpdate(List<GridFieldPB> fields) = _DidReceiveFieldUpdate;
+  const factory GridHeaderEvent.moveField(GridFieldPB field, int fromIndex, int toIndex) = _MoveField;
 }
 
 @freezed
 class GridHeaderState with _$GridHeaderState {
-  const factory GridHeaderState({required List<Field> fields}) = _GridHeaderState;
+  const factory GridHeaderState({required List<GridFieldPB> fields}) = _GridHeaderState;
 
-  factory GridHeaderState.initial(List<Field> fields) {
-    // final List<Field> newFields = List.from(fields);
+  factory GridHeaderState.initial(List<GridFieldPB> fields) {
+    // final List<GridFieldPB> newFields = List.from(fields);
     // newFields.retainWhere((field) => field.visibility);
     return GridHeaderState(fields: fields);
   }

@@ -1,12 +1,12 @@
+use crate::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
-use flowy_grid_data_model::entities::{FieldChangesetParams, FieldOrder};
-use flowy_grid_data_model::entities::{FieldType, GridSettingChangesetParams};
 use flowy_grid_data_model::revision::{
-    gen_block_id, gen_grid_id, FieldRevision, GridBlockRevision, GridBlockRevisionChangeset, GridFilterRevision,
-    GridGroupRevision, GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
+    gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, gen_grid_sort_id, FieldRevision,
+    FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridFilterRevision, GridGroupRevision,
+    GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
@@ -17,8 +17,8 @@ pub type GridRevisionDelta = PlainTextDelta;
 pub type GridRevisionDeltaBuilder = PlainTextDeltaBuilder;
 
 pub struct GridRevisionPad {
-    pub(crate) grid_rev: Arc<GridRevision>,
-    pub(crate) delta: GridRevisionDelta,
+    grid_rev: Arc<GridRevision>,
+    delta: GridRevisionDelta,
 }
 
 pub trait JsonDeserializer {
@@ -26,19 +26,27 @@ pub trait JsonDeserializer {
 }
 
 impl GridRevisionPad {
-    pub async fn duplicate_grid_meta(&self) -> (Vec<FieldRevision>, Vec<GridBlockRevision>) {
-        let fields = self.grid_rev.fields.to_vec();
+    pub fn grid_id(&self) -> String {
+        self.grid_rev.grid_id.clone()
+    }
+    pub async fn duplicate_grid_block_meta(&self) -> (Vec<FieldRevision>, Vec<GridBlockMetaRevision>) {
+        let fields = self
+            .grid_rev
+            .fields
+            .iter()
+            .map(|field_rev| field_rev.as_ref().clone())
+            .collect();
 
         let blocks = self
             .grid_rev
             .blocks
             .iter()
             .map(|block| {
-                let mut duplicated_block = block.clone();
+                let mut duplicated_block = (&*block.clone()).clone();
                 duplicated_block.block_id = gen_block_id();
                 duplicated_block
             })
-            .collect::<Vec<GridBlockRevision>>();
+            .collect::<Vec<GridBlockMetaRevision>>();
 
         (fields, blocks)
     }
@@ -54,7 +62,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
+    pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
         let grid_delta: GridRevisionDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
         Self::from_delta(grid_delta)
     }
@@ -80,7 +88,7 @@ impl GridRevisionPad {
                 None => None,
                 Some(start_field_id) => grid_meta.fields.iter().position(|field| field.id == start_field_id),
             };
-
+            let new_field_rev = Arc::new(new_field_rev);
             match insert_index {
                 None => grid_meta.fields.push(new_field_rev),
                 Some(index) => grid_meta.fields.insert(index, new_field_rev),
@@ -110,25 +118,27 @@ impl GridRevisionPad {
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
                 Some(index) => {
-                    let mut duplicate_field_rev = grid_meta.fields[index].clone();
+                    let mut duplicate_field_rev = grid_meta.fields[index].as_ref().clone();
                     duplicate_field_rev.id = duplicated_field_id.to_string();
                     duplicate_field_rev.name = format!("{} (copy)", duplicate_field_rev.name);
-                    grid_meta.fields.insert(index + 1, duplicate_field_rev);
+                    grid_meta.fields.insert(index + 1, Arc::new(duplicate_field_rev));
                     Ok(Some(()))
                 }
             },
         )
     }
 
-    pub fn switch_to_field<B>(
+    pub fn switch_to_field<B, T>(
         &mut self,
         field_id: &str,
-        field_type: FieldType,
+        field_type: T,
         type_option_json_builder: B,
     ) -> CollaborateResult<Option<GridChangeset>>
     where
-        B: FnOnce(&FieldType) -> String,
+        B: FnOnce(&FieldTypeRevision) -> String,
+        T: Into<FieldTypeRevision>,
     {
+        let field_type = field_type.into();
         self.modify_grid(|grid_meta| {
             //
             match grid_meta.fields.iter_mut().find(|field_rev| field_rev.id == field_id) {
@@ -137,12 +147,13 @@ impl GridRevisionPad {
                     Ok(None)
                 }
                 Some(field_rev) => {
-                    if field_rev.get_type_option_str(&field_type).is_none() {
+                    let mut_field_rev = Arc::make_mut(field_rev);
+                    if mut_field_rev.get_type_option_str(field_type).is_none() {
                         let type_option_json = type_option_json_builder(&field_type);
-                        field_rev.insert_type_option_str(&field_type, type_option_json);
+                        mut_field_rev.insert_type_option_str(&field_type, type_option_json);
                     }
 
-                    field_rev.field_type = field_type;
+                    mut_field_rev.field_type_rev = field_type;
                     Ok(Some(()))
                 }
             }
@@ -168,7 +179,7 @@ impl GridRevisionPad {
             }
 
             if let Some(field_type) = changeset.field_type {
-                field.field_type = field_type;
+                field.field_type_rev = field_type;
                 is_changed = Some(())
             }
 
@@ -190,7 +201,7 @@ impl GridRevisionPad {
             if let Some(type_option_data) = changeset.type_option_data {
                 match deserializer.deserialize(type_option_data) {
                     Ok(json_str) => {
-                        let field_type = field.field_type.clone();
+                        let field_type = field.field_type_rev;
                         field.insert_type_option_str(&field_type, json_str);
                         is_changed = Some(())
                     }
@@ -204,7 +215,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_field_rev(&self, field_id: &str) -> Option<(usize, &FieldRevision)> {
+    pub fn get_field_rev(&self, field_id: &str) -> Option<(usize, &Arc<FieldRevision>)> {
         self.grid_rev
             .fields
             .iter()
@@ -212,7 +223,7 @@ impl GridRevisionPad {
             .find(|(_, field)| field.id == field_id)
     }
 
-    pub fn replace_field_rev(&mut self, field_rev: FieldRevision) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn replace_field_rev(&mut self, field_rev: Arc<FieldRevision>) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_rev.id) {
                 None => Ok(None),
@@ -250,44 +261,40 @@ impl GridRevisionPad {
         self.grid_rev.fields.iter().any(|field| field.id == field_id)
     }
 
-    pub fn get_field_orders(&self) -> Vec<FieldOrder> {
-        self.grid_rev.fields.iter().map(FieldOrder::from).collect()
-    }
-
-    pub fn get_field_revs(&self, field_orders: Option<Vec<FieldOrder>>) -> CollaborateResult<Vec<FieldRevision>> {
-        match field_orders {
+    pub fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> CollaborateResult<Vec<Arc<FieldRevision>>> {
+        match field_ids {
             None => Ok(self.grid_rev.fields.clone()),
-            Some(field_orders) => {
+            Some(field_ids) => {
                 let field_by_field_id = self
                     .grid_rev
                     .fields
                     .iter()
                     .map(|field| (&field.id, field))
-                    .collect::<HashMap<&String, &FieldRevision>>();
+                    .collect::<HashMap<&String, &Arc<FieldRevision>>>();
 
-                let fields = field_orders
+                let fields = field_ids
                     .iter()
-                    .flat_map(|field_order| match field_by_field_id.get(&field_order.field_id) {
+                    .flat_map(|field_id| match field_by_field_id.get(&field_id) {
                         None => {
-                            tracing::error!("Can't find the field with id: {}", field_order.field_id);
+                            tracing::error!("Can't find the field with id: {}", field_id);
                             None
                         }
                         Some(field) => Some((*field).clone()),
                     })
-                    .collect::<Vec<FieldRevision>>();
+                    .collect::<Vec<Arc<FieldRevision>>>();
                 Ok(fields)
             }
         }
     }
 
-    pub fn create_block_rev(&mut self, block: GridBlockRevision) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_block_meta_rev(&mut self, block: GridBlockMetaRevision) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid_meta| {
             if grid_meta.blocks.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
                 Ok(None)
             } else {
                 match grid_meta.blocks.last() {
-                    None => grid_meta.blocks.push(block),
+                    None => grid_meta.blocks.push(Arc::new(block)),
                     Some(last_block) => {
                         if last_block.start_row_index > block.start_row_index
                             && last_block.len() > block.start_row_index
@@ -295,7 +302,7 @@ impl GridRevisionPad {
                             let msg = "GridBlock's start_row_index should be greater than the last_block's start_row_index and its len".to_string();
                             return Err(CollaborateError::internal().context(msg))
                         }
-                        grid_meta.blocks.push(block);
+                        grid_meta.blocks.push(Arc::new(block));
                     }
                 }
                 Ok(Some(()))
@@ -303,13 +310,13 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_block_revs(&self) -> Vec<GridBlockRevision> {
+    pub fn get_block_meta_revs(&self) -> Vec<Arc<GridBlockMetaRevision>> {
         self.grid_rev.blocks.clone()
     }
 
     pub fn update_block_rev(
         &mut self,
-        changeset: GridBlockRevisionChangeset,
+        changeset: GridBlockMetaRevisionChangeset,
     ) -> CollaborateResult<Option<GridChangeset>> {
         let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
@@ -329,8 +336,38 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_grid_setting_rev(&self) -> GridSettingRevision {
-        self.grid_rev.setting.clone()
+    pub fn get_grid_setting_rev(&self) -> &GridSettingRevision {
+        &self.grid_rev.setting
+    }
+
+    /// If layout is None, then the default layout will be the read from GridSettingRevision
+    pub fn get_filters(
+        &self,
+        layout: Option<&GridLayoutRevision>,
+        field_ids: Option<Vec<String>>,
+    ) -> Option<Vec<Arc<GridFilterRevision>>> {
+        let mut filter_revs = vec![];
+        let layout_ty = layout.unwrap_or(&self.grid_rev.setting.layout);
+        let field_revs = self.get_field_revs(None).ok()?;
+
+        field_revs.iter().for_each(|field_rev| {
+            let mut is_contain = true;
+            if let Some(field_ids) = &field_ids {
+                is_contain = field_ids.contains(&field_rev.id);
+            }
+
+            if is_contain {
+                // Only return the filters for the current fields' type.
+                let field_id = &field_rev.id;
+                let field_type_rev = &field_rev.field_type_rev;
+                if let Some(mut t_filter_revs) = self.grid_rev.setting.get_filters(layout_ty, field_id, field_type_rev)
+                {
+                    filter_revs.append(&mut t_filter_revs);
+                }
+            }
+        });
+
+        Some(filter_revs)
     }
 
     pub fn update_grid_setting_rev(
@@ -339,39 +376,82 @@ impl GridRevisionPad {
     ) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid_rev| {
             let mut is_changed = None;
-            let layout_rev: GridLayoutRevision = changeset.layout_type.into();
+            let layout_rev = changeset.layout_type;
 
-            if let Some(filter) = changeset.filter {
-                grid_rev.setting.filter.insert(
-                    layout_rev.clone(),
-                    GridFilterRevision {
-                        field_id: filter.field_id,
-                    },
-                );
+            if let Some(params) = changeset.insert_filter {
+                let filter_rev = GridFilterRevision {
+                    id: gen_grid_filter_id(),
+                    field_id: params.field_id.clone(),
+                    condition: params.condition,
+                    content: params.content,
+                };
+
+                grid_rev
+                    .setting
+                    .insert_filter(&layout_rev, &params.field_id, &params.field_type_rev, filter_rev);
+
+                is_changed = Some(())
+            }
+            if let Some(params) = changeset.delete_filter {
+                match grid_rev
+                    .setting
+                    .get_mut_filters(&layout_rev, &params.field_id, &params.field_type_rev)
+                {
+                    Some(filters) => {
+                        filters.retain(|filter| filter.id != params.filter_id);
+                    }
+                    None => {
+                        tracing::warn!("Can't find the filter with {:?}", layout_rev);
+                    }
+                }
+            }
+            if let Some(params) = changeset.insert_group {
+                let rev = GridGroupRevision {
+                    id: gen_grid_group_id(),
+                    field_id: params.field_id,
+                    sub_field_id: params.sub_field_id,
+                };
+
+                grid_rev
+                    .setting
+                    .groups
+                    .entry(layout_rev.clone())
+                    .or_insert_with(std::vec::Vec::new)
+                    .push(rev);
+
+                is_changed = Some(())
+            }
+            if let Some(delete_group_id) = changeset.delete_group {
+                match grid_rev.setting.groups.get_mut(&layout_rev) {
+                    Some(groups) => groups.retain(|group| group.id != delete_group_id),
+                    None => {
+                        tracing::warn!("Can't find the group with {:?}", layout_rev);
+                    }
+                }
+            }
+            if let Some(sort) = changeset.insert_sort {
+                let rev = GridSortRevision {
+                    id: gen_grid_sort_id(),
+                    field_id: sort.field_id,
+                };
+
+                grid_rev
+                    .setting
+                    .sorts
+                    .entry(layout_rev.clone())
+                    .or_insert_with(std::vec::Vec::new)
+                    .push(rev);
                 is_changed = Some(())
             }
 
-            if let Some(group) = changeset.group {
-                grid_rev.setting.group.insert(
-                    layout_rev.clone(),
-                    GridGroupRevision {
-                        group_field_id: group.group_field_id,
-                        sub_group_field_id: group.sub_group_field_id,
-                    },
-                );
-                is_changed = Some(())
+            if let Some(delete_sort_id) = changeset.delete_sort {
+                match grid_rev.setting.sorts.get_mut(&layout_rev) {
+                    Some(sorts) => sorts.retain(|sort| sort.id != delete_sort_id),
+                    None => {
+                        tracing::warn!("Can't find the sort with {:?}", layout_rev);
+                    }
+                }
             }
-
-            if let Some(sort) = changeset.sort {
-                grid_rev.setting.sort.insert(
-                    layout_rev,
-                    GridSortRevision {
-                        field_id: sort.field_id,
-                    },
-                );
-                is_changed = Some(())
-            }
-
             Ok(is_changed)
         })
     }
@@ -388,7 +468,7 @@ impl GridRevisionPad {
         self.delta.to_delta_bytes()
     }
 
-    pub fn fields(&self) -> &[FieldRevision] {
+    pub fn fields(&self) -> &[Arc<FieldRevision>] {
         &self.grid_rev.fields
     }
 
@@ -400,8 +480,8 @@ impl GridRevisionPad {
         match f(Arc::make_mut(&mut self.grid_rev))? {
             None => Ok(None),
             Some(_) => {
-                let old = json_from_grid(&cloned_grid)?;
-                let new = json_from_grid(&self.grid_rev)?;
+                let old = make_grid_rev_json_str(&cloned_grid)?;
+                let new = self.json_str()?;
                 match cal_diff::<PlainTextAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
@@ -415,7 +495,7 @@ impl GridRevisionPad {
 
     fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
     where
-        F: FnOnce(&mut GridBlockRevision) -> CollaborateResult<Option<()>>,
+        F: FnOnce(&mut GridBlockMetaRevision) -> CollaborateResult<Option<()>>,
     {
         self.modify_grid(
             |grid_rev| match grid_rev.blocks.iter().position(|block| block.block_id == block_id) {
@@ -423,7 +503,10 @@ impl GridRevisionPad {
                     tracing::warn!("[GridMetaPad]: Can't find any block with id: {}", block_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid_rev.blocks[index]),
+                Some(index) => {
+                    let block_rev = Arc::make_mut(&mut grid_rev.blocks[index]);
+                    f(block_rev)
+                }
             },
         )
     }
@@ -438,13 +521,20 @@ impl GridRevisionPad {
                     tracing::warn!("[GridMetaPad]: Can't find any field with id: {}", field_id);
                     Ok(None)
                 }
-                Some(index) => f(&mut grid_rev.fields[index]),
+                Some(index) => {
+                    let mut_field_rev = Arc::make_mut(&mut grid_rev.fields[index]);
+                    f(mut_field_rev)
+                }
             },
         )
     }
+
+    pub fn json_str(&self) -> CollaborateResult<String> {
+        make_grid_rev_json_str(&self.grid_rev)
+    }
 }
 
-fn json_from_grid(grid: &Arc<GridRevision>) -> CollaborateResult<String> {
+pub fn make_grid_rev_json_str(grid: &GridRevision) -> CollaborateResult<String> {
     let json = serde_json::to_string(grid)
         .map_err(|err| internal_error(format!("Serialize grid to json str failed. {:?}", err)))?;
     Ok(json)

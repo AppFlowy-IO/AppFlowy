@@ -7,8 +7,8 @@ import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -18,7 +18,7 @@ import 'package:dartz/dartz.dart';
 part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
-  final App app;
+  final AppPB app;
   final AppService appService;
   final AppListener appListener;
 
@@ -103,7 +103,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     return super.close();
   }
 
-  Future<void> _didReceiveViewUpdated(List<View> views, Emitter<AppState> emit) async {
+  Future<void> _didReceiveViewUpdated(List<ViewPB> views, Emitter<AppState> emit) async {
     final latestCreatedView = state.latestCreatedView;
     AppState newState = state.copyWith(views: views);
     if (latestCreatedView != null) {
@@ -139,20 +139,20 @@ class AppEvent with _$AppEvent {
   ) = CreateView;
   const factory AppEvent.delete() = Delete;
   const factory AppEvent.rename(String newName) = Rename;
-  const factory AppEvent.didReceiveViewUpdated(List<View> views) = ReceiveViews;
-  const factory AppEvent.appDidUpdate(App app) = AppDidUpdate;
+  const factory AppEvent.didReceiveViewUpdated(List<ViewPB> views) = ReceiveViews;
+  const factory AppEvent.appDidUpdate(AppPB app) = AppDidUpdate;
 }
 
 @freezed
 class AppState with _$AppState {
   const factory AppState({
-    required App app,
-    required List<View> views,
-    View? latestCreatedView,
+    required AppPB app,
+    required List<ViewPB> views,
+    ViewPB? latestCreatedView,
     required Either<Unit, FlowyError> successOrFailure,
   }) = _AppState;
 
-  factory AppState.initial(App app) => AppState(
+  factory AppState.initial(AppPB app) => AppState(
         app: app,
         views: [],
         successOrFailure: left(unit),
@@ -161,8 +161,8 @@ class AppState with _$AppState {
 
 class AppViewDataContext extends ChangeNotifier {
   final String appId;
-  final ValueNotifier<List<View>> _viewsNotifier = ValueNotifier([]);
-  final ValueNotifier<View?> _selectedViewNotifier = ValueNotifier(null);
+  final ValueNotifier<List<ViewPB>> _viewsNotifier = ValueNotifier([]);
+  final ValueNotifier<ViewPB?> _selectedViewNotifier = ValueNotifier(null);
   VoidCallback? _menuSharedStateListener;
   ExpandableController expandController = ExpandableController(initialExpanded: false);
 
@@ -173,7 +173,7 @@ class AppViewDataContext extends ChangeNotifier {
     });
   }
 
-  VoidCallback addSelectedViewChangeListener(void Function(View?) callback) {
+  VoidCallback addSelectedViewChangeListener(void Function(ViewPB?) callback) {
     listener() {
       callback(_selectedViewNotifier.value);
     }
@@ -186,7 +186,7 @@ class AppViewDataContext extends ChangeNotifier {
     _selectedViewNotifier.removeListener(listener);
   }
 
-  void _setLatestView(View? view) {
+  void _setLatestView(ViewPB? view) {
     view?.freeze();
 
     if (_selectedViewNotifier.value != view) {
@@ -196,9 +196,9 @@ class AppViewDataContext extends ChangeNotifier {
     }
   }
 
-  View? get selectedView => _selectedViewNotifier.value;
+  ViewPB? get selectedView => _selectedViewNotifier.value;
 
-  set views(List<View> views) {
+  set views(List<ViewPB> views) {
     if (_viewsNotifier.value != views) {
       _viewsNotifier.value = views;
       _expandIfNeed();
@@ -206,9 +206,9 @@ class AppViewDataContext extends ChangeNotifier {
     }
   }
 
-  UnmodifiableListView<View> get views => UnmodifiableListView(_viewsNotifier.value);
+  UnmodifiableListView<ViewPB> get views => UnmodifiableListView(_viewsNotifier.value);
 
-  VoidCallback addViewsChangeListener(void Function(UnmodifiableListView<View>) callback) {
+  VoidCallback addViewsChangeListener(void Function(UnmodifiableListView<ViewPB>) callback) {
     listener() {
       callback(views);
     }

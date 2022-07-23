@@ -1,5 +1,5 @@
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -10,8 +10,8 @@ part 'field_action_sheet_bloc.freezed.dart';
 class FieldActionSheetBloc extends Bloc<FieldActionSheetEvent, FieldActionSheetState> {
   final FieldService fieldService;
 
-  FieldActionSheetBloc({required Field field, required this.fieldService})
-      : super(FieldActionSheetState.initial(FieldTypeOptionData.create()..field_2 = field)) {
+  FieldActionSheetBloc({required GridFieldPB field, required this.fieldService})
+      : super(FieldActionSheetState.initial(FieldTypeOptionDataPB.create()..field_2 = field)) {
     on<FieldActionSheetEvent>(
       (event, emit) async {
         await event.map(
@@ -67,12 +67,12 @@ class FieldActionSheetEvent with _$FieldActionSheetEvent {
 @freezed
 class FieldActionSheetState with _$FieldActionSheetState {
   const factory FieldActionSheetState({
-    required FieldTypeOptionData fieldTypeOptionData,
+    required FieldTypeOptionDataPB fieldTypeOptionData,
     required String errorText,
     required String fieldName,
   }) = _FieldActionSheetState;
 
-  factory FieldActionSheetState.initial(FieldTypeOptionData data) => FieldActionSheetState(
+  factory FieldActionSheetState.initial(FieldTypeOptionDataPB data) => FieldActionSheetState(
         fieldTypeOptionData: data,
         errorText: '',
         fieldName: data.field_2.name,

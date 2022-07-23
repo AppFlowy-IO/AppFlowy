@@ -1,7 +1,7 @@
 import 'package:app_flowy/workspace/application/grid/field/field_listener.dart';
 import 'package:app_flowy/workspace/application/grid/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -62,7 +62,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 @freezed
 class FieldCellEvent with _$FieldCellEvent {
   const factory FieldCellEvent.initial() = _InitialCell;
-  const factory FieldCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
+  const factory FieldCellEvent.didReceiveFieldUpdate(GridFieldPB field) = _DidReceiveFieldUpdate;
   const factory FieldCellEvent.startUpdateWidth(double offset) = _StartUpdateWidth;
   const factory FieldCellEvent.endUpdateWidth() = _EndUpdateWidth;
 }
@@ -71,7 +71,7 @@ class FieldCellEvent with _$FieldCellEvent {
 class FieldCellState with _$FieldCellState {
   const factory FieldCellState({
     required String gridId,
-    required Field field,
+    required GridFieldPB field,
     required double width,
   }) = _FieldCellState;
 

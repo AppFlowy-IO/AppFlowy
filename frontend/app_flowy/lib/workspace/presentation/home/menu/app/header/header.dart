@@ -5,7 +5,7 @@ import 'package:flowy_infra/icon_data.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/app.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
@@ -19,7 +19,7 @@ import 'add_button.dart';
 import 'right_click_action.dart';
 
 class MenuAppHeader extends StatelessWidget {
-  final App app;
+  final AppPB app;
   const MenuAppHeader(
     this.app, {
     Key? key,
@@ -85,7 +85,7 @@ class MenuAppHeader extends StatelessWidget {
               anchorDirection: AnchorDirection.bottomWithCenterAligned,
             );
           },
-          child: BlocSelector<AppBloc, AppState, App>(
+          child: BlocSelector<AppBloc, AppState, AppPB>(
             selector: (state) => state.app,
             builder: (context, app) => FlowyText.medium(
               app.name,

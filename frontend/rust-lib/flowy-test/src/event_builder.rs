@@ -1,5 +1,5 @@
 use crate::FlowySDKTest;
-use flowy_user::{entities::UserProfile, errors::FlowyError};
+use flowy_user::{entities::UserProfilePB, errors::FlowyError};
 use lib_dispatch::prelude::{EventDispatcher, EventResponse, FromBytes, ModuleRequest, StatusCode, ToBytes, *};
 use std::{
     convert::TryFrom,
@@ -14,7 +14,7 @@ impl FolderEventBuilder {
     pub fn new(sdk: FlowySDKTest) -> Self {
         EventBuilder::test(TestContext::new(sdk))
     }
-    pub fn user_profile(&self) -> &Option<UserProfile> {
+    pub fn user_profile(&self) -> &Option<UserProfilePB> {
         &self.user_profile
     }
 }
@@ -24,7 +24,7 @@ pub type UserModuleEventBuilder = FolderEventBuilder;
 #[derive(Clone)]
 pub struct EventBuilder<E> {
     context: TestContext,
-    user_profile: Option<UserProfile>,
+    user_profile: Option<UserProfilePB>,
     err_phantom: PhantomData<E>,
 }
 

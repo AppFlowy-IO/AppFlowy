@@ -1,12 +1,12 @@
 // ignore_for_file: unused_field
 
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
 class BoardPage extends StatelessWidget {
-  final View _view;
+  final ViewPB _view;
 
-  const BoardPage({required View view, Key? key})
+  const BoardPage({required ViewPB view, Key? key})
       : _view = view,
         super(key: key);
 

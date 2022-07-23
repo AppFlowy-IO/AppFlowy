@@ -6,7 +6,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'field_type_extension.dart';
@@ -65,7 +65,7 @@ class GridFieldCell extends StatelessWidget {
     FieldEditor(
       gridId: state.gridId,
       fieldName: field.name,
-      contextLoader: FieldContextLoader(
+      typeOptionLoader: FieldTypeOptionLoader(
         gridId: state.gridId,
         field: field,
       ),
@@ -135,7 +135,7 @@ class _DragToExpandLine extends StatelessWidget {
 
 class FieldCellButton extends StatelessWidget {
   final VoidCallback onTap;
-  final Field field;
+  final GridFieldPB field;
   const FieldCellButton({
     required this.field,
     required this.onTap,

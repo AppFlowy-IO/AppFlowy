@@ -1,15 +1,15 @@
+import 'package:app_flowy/core/grid_notification.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/grid.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:app_flowy/core/notification_helper.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 
-typedef UpdateRowNotifiedValue = Either<Row, FlowyError>;
-typedef UpdateFieldNotifiedValue = Either<List<Field>, FlowyError>;
+typedef UpdateRowNotifiedValue = Either<GridRowPB, FlowyError>;
+typedef UpdateFieldNotifiedValue = Either<List<GridFieldPB>, FlowyError>;
 
 class RowListener {
   final String rowId;
@@ -26,7 +26,7 @@ class RowListener {
     switch (ty) {
       case GridNotification.DidUpdateRow:
         result.fold(
-          (payload) => updateRowNotifier?.value = left(Row.fromBuffer(payload)),
+          (payload) => updateRowNotifier?.value = left(GridRowPB.fromBuffer(payload)),
           (error) => updateRowNotifier?.value = right(error),
         );
         break;

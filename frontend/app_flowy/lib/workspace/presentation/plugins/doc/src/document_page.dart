@@ -6,7 +6,7 @@ import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -14,7 +14,7 @@ import 'styles.dart';
 import 'widget/banner.dart';
 
 class DocumentPage extends StatefulWidget {
-  final View view;
+  final ViewPB view;
 
   DocumentPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
 

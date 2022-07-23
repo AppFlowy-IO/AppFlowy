@@ -1,7 +1,8 @@
+use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::{
-    entities::{text_block_info::TextBlockInfo, ws_data::ServerRevisionWSDataBuilder},
+    entities::{text_block::DocumentPB, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
-    protobuf::{ClientRevisionWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+    protobuf::ClientRevisionWSData,
     server_document::document_pad::ServerDocument,
     synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionSynchronizer, RevisionUser},
     util::rev_id_from_str,
@@ -18,27 +19,26 @@ use tokio::{
 };
 
 pub trait TextBlockCloudPersistence: Send + Sync + Debug {
-    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<TextBlockInfo, CollaborateError>;
+    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<DocumentPB, CollaborateError>;
 
     fn create_text_block(
         &self,
         doc_id: &str,
-        repeated_revision: RepeatedRevisionPB,
-    ) -> BoxResultFuture<Option<TextBlockInfo>, CollaborateError>;
+        repeated_revision: RepeatedRevision,
+    ) -> BoxResultFuture<Option<DocumentPB>, CollaborateError>;
 
     fn read_text_block_revisions(
         &self,
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
-    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
+    ) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
 
-    fn save_text_block_revisions(&self, repeated_revision: RepeatedRevisionPB)
-        -> BoxResultFuture<(), CollaborateError>;
+    fn save_text_block_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError>;
 
     fn reset_text_block(
         &self,
         doc_id: &str,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
@@ -47,18 +47,18 @@ impl RevisionSyncPersistence for Arc<dyn TextBlockCloudPersistence> {
         &self,
         object_id: &str,
         rev_ids: Option<Vec<i64>>,
-    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
+    ) -> BoxResultFuture<Vec<Revision>, CollaborateError> {
         (**self).read_text_block_revisions(object_id, rev_ids)
     }
 
-    fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
+    fn save_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
         (**self).save_text_block_revisions(repeated_revision)
     }
 
     fn reset_object(
         &self,
         object_id: &str,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
     ) -> BoxResultFuture<(), CollaborateError> {
         (**self).reset_text_block(object_id, repeated_revision)
     }
@@ -82,7 +82,7 @@ impl ServerDocumentManager {
         user: Arc<dyn RevisionUser>,
         mut client_data: ClientRevisionWSData,
     ) -> Result<(), CollaborateError> {
-        let repeated_revision = client_data.take_revisions();
+        let repeated_revision: RepeatedRevision = client_data.take_revisions().into();
         let cloned_user = user.clone();
         let ack_id = rev_id_from_str(&client_data.data_id)?;
         let object_id = client_data.object_id;
@@ -131,9 +131,10 @@ impl ServerDocumentManager {
     pub async fn handle_document_reset(
         &self,
         doc_id: &str,
-        mut repeated_revision: RepeatedRevisionPB,
+        mut repeated_revision: RepeatedRevision,
     ) -> Result<(), CollaborateError> {
-        repeated_revision.mut_items().sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
+        repeated_revision.sort_by(|a, b| a.rev_id.cmp(&b.rev_id));
+
         match self.get_document_handler(doc_id).await {
             None => {
                 tracing::warn!("Document:{} doesn't exist, ignore document reset", doc_id);
@@ -166,7 +167,7 @@ impl ServerDocumentManager {
     async fn create_document(
         &self,
         doc_id: &str,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
     ) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
         match self.persistence.create_text_block(doc_id, repeated_revision).await? {
             None => Err(CollaborateError::internal().context("Create document info from revisions failed")),
@@ -182,7 +183,7 @@ impl ServerDocumentManager {
     }
 
     #[tracing::instrument(level = "debug", skip(self, doc), err)]
-    async fn create_document_handler(&self, doc: TextBlockInfo) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
+    async fn create_document_handler(&self, doc: DocumentPB) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocumentHandler::new(doc, persistence))
             .await
@@ -206,7 +207,7 @@ struct OpenDocumentHandler {
 }
 
 impl OpenDocumentHandler {
-    fn new(doc: TextBlockInfo, persistence: Arc<dyn TextBlockCloudPersistence>) -> Result<Self, CollaborateError> {
+    fn new(doc: DocumentPB, persistence: Arc<dyn TextBlockCloudPersistence>) -> Result<Self, CollaborateError> {
         let doc_id = doc.block_id.clone();
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();
@@ -229,7 +230,7 @@ impl OpenDocumentHandler {
     async fn apply_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
     ) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         self.users.insert(user.user_id(), user.clone());
@@ -252,7 +253,7 @@ impl OpenDocumentHandler {
     }
 
     #[tracing::instrument(level = "debug", skip(self, repeated_revision), err)]
-    async fn apply_document_reset(&self, repeated_revision: RepeatedRevisionPB) -> Result<(), CollaborateError> {
+    async fn apply_document_reset(&self, repeated_revision: RepeatedRevision) -> Result<(), CollaborateError> {
         let (ret, rx) = oneshot::channel();
         let msg = DocumentCommand::Reset { repeated_revision, ret };
         let result = self.send(msg, rx).await?;
@@ -279,7 +280,7 @@ impl std::ops::Drop for OpenDocumentHandler {
 enum DocumentCommand {
     ApplyRevisions {
         user: Arc<dyn RevisionUser>,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Ping {
@@ -288,7 +289,7 @@ enum DocumentCommand {
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Reset {
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
 }

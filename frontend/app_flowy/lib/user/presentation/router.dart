@@ -7,8 +7,8 @@ import 'package:app_flowy/user/presentation/welcome_screen.dart';
 import 'package:app_flowy/workspace/presentation/home/home_screen.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_infra_ui/widget/route/animation.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
+import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/material.dart';
 
 class AuthRouter {
@@ -16,7 +16,7 @@ class AuthRouter {
     // TODO: implement showForgetPasswordScreen
   }
 
-  void pushWelcomeScreen(BuildContext context, UserProfile userProfile) {
+  void pushWelcomeScreen(BuildContext context, UserProfilePB userProfile) {
     getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);
   }
 
@@ -28,7 +28,7 @@ class AuthRouter {
     );
   }
 
-  void pushHomeScreen(BuildContext context, UserProfile profile, CurrentWorkspaceSetting workspaceSetting) {
+  void pushHomeScreen(BuildContext context, UserProfilePB profile, CurrentWorkspaceSettingPB workspaceSetting) {
     Navigator.push(
       context,
       PageRoutes.fade(() => HomeScreen(profile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),
@@ -37,7 +37,7 @@ class AuthRouter {
 }
 
 class SplashRoute {
-  Future<void> pushWelcomeScreen(BuildContext context, UserProfile userProfile) async {
+  Future<void> pushWelcomeScreen(BuildContext context, UserProfilePB userProfile) async {
     final screen = WelcomeScreen(userProfile: userProfile);
     final workspaceId = await Navigator.of(context).push(
       PageRoutes.fade(
@@ -49,7 +49,7 @@ class SplashRoute {
     pushHomeScreen(context, userProfile, workspaceId);
   }
 
-  void pushHomeScreen(BuildContext context, UserProfile userProfile, CurrentWorkspaceSetting workspaceSetting) {
+  void pushHomeScreen(BuildContext context, UserProfilePB userProfile, CurrentWorkspaceSettingPB workspaceSetting) {
     Navigator.push(
       context,
       PageRoutes.fade(() => HomeScreen(userProfile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),

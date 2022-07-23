@@ -1,6 +1,6 @@
+use crate::entities::{FieldType, GridFieldPB};
 use crate::services::field::type_options::*;
 use bytes::Bytes;
-use flowy_grid_data_model::entities::{Field, FieldType};
 use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
 use indexmap::IndexMap;
 
@@ -14,7 +14,9 @@ pub type BoxTypeOptionBuilder = Box<dyn TypeOptionBuilder + 'static>;
 impl FieldBuilder {
     pub fn new<T: Into<BoxTypeOptionBuilder>>(type_option_builder: T) -> Self {
         let type_option_builder = type_option_builder.into();
-        let field_rev = FieldRevision::new("", "", type_option_builder.field_type(), false);
+        let field_type = type_option_builder.field_type();
+        let width = field_type.default_cell_width();
+        let field_rev = FieldRevision::new("", "", field_type, width, false);
         Self {
             field_rev,
             type_option_builder,
@@ -26,12 +28,12 @@ impl FieldBuilder {
         Self::new(type_option_builder)
     }
 
-    pub fn from_field(field: Field, type_option_builder: Box<dyn TypeOptionBuilder>) -> Self {
+    pub fn from_field(field: GridFieldPB, type_option_builder: Box<dyn TypeOptionBuilder>) -> Self {
         let field_rev = FieldRevision {
             id: field.id,
             name: field.name,
             desc: field.desc,
-            field_type: field.field_type,
+            field_type_rev: field.field_type.into(),
             frozen: field.frozen,
             visibility: field.visibility,
             width: field.width,
@@ -75,7 +77,6 @@ impl FieldBuilder {
     }
 
     pub fn build(self) -> FieldRevision {
-        debug_assert_eq!(self.field_rev.field_type, self.type_option_builder.field_type());
         let mut field_rev = self.field_rev;
         field_rev.insert_type_option_entry(self.type_option_builder.entry());
         field_rev
@@ -92,7 +93,7 @@ pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn 
         FieldType::RichText => RichTextTypeOption::default().into(),
         FieldType::Number => NumberTypeOption::default().into(),
         FieldType::DateTime => DateTypeOption::default().into(),
-        FieldType::SingleSelect => SingleSelectTypeOption::default().into(),
+        FieldType::SingleSelect => SingleSelectTypeOptionPB::default().into(),
         FieldType::MultiSelect => MultiSelectTypeOption::default().into(),
         FieldType::Checkbox => CheckboxTypeOption::default().into(),
         FieldType::URL => URLTypeOption::default().into(),

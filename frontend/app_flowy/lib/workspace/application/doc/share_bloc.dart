@@ -4,7 +4,7 @@ import 'package:app_flowy/startup/tasks/rust_sdk.dart';
 import 'package:app_flowy/workspace/application/doc/share_service.dart';
 import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
 import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,7 +13,7 @@ part 'share_bloc.freezed.dart';
 
 class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
   ShareService service;
-  View view;
+  ViewPB view;
   DocShareBloc({required this.view, required this.service}) : super(const DocShareState.initial()) {
     on<DocShareEvent>((event, emit) async {
       await event.map(
@@ -33,7 +33,7 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
     });
   }
 
-  ExportData _convertDeltaToMarkdown(ExportData value) {
+  ExportDataPB _convertDeltaToMarkdown(ExportDataPB value) {
     final result = deltaToMarkdown(value.data);
     value.data = result;
     writeFile(result);
@@ -73,5 +73,5 @@ class DocShareEvent with _$DocShareEvent {
 class DocShareState with _$DocShareState {
   const factory DocShareState.initial() = _Initial;
   const factory DocShareState.loading() = _Loading;
-  const factory DocShareState.finish(Either<ExportData, FlowyError> successOrFail) = _Finish;
+  const factory DocShareState.finish(Either<ExportDataPB, FlowyError> successOrFail) = _Finish;
 }

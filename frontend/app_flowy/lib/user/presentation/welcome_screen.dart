@@ -5,14 +5,14 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/workspace.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/user_profile.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  final UserProfile userProfile;
+  final UserProfilePB userProfile;
   const WelcomeScreen({
     Key? key,
     required this.userProfile,
@@ -65,7 +65,7 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _renderList(List<Workspace> workspaces) {
+  Widget _renderList(List<WorkspacePB> workspaces) {
     return Expanded(
       child: StyledListView(
         itemBuilder: (BuildContext context, int index) {
@@ -80,7 +80,7 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  void _handleOnPress(BuildContext context, Workspace workspace) {
+  void _handleOnPress(BuildContext context, WorkspacePB workspace) {
     context.read<WelcomeBloc>().add(WelcomeEvent.openWorkspace(workspace));
 
     Navigator.of(context).pop(workspace.id);
@@ -88,8 +88,8 @@ class WelcomeScreen extends StatelessWidget {
 }
 
 class WorkspaceItem extends StatelessWidget {
-  final Workspace workspace;
-  final void Function(Workspace workspace) onPressed;
+  final WorkspacePB workspace;
+  final void Function(WorkspacePB workspace) onPressed;
   const WorkspaceItem({Key? key, required this.workspace, required this.onPressed}) : super(key: key);
 
   @override

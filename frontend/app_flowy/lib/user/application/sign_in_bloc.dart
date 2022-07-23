@@ -2,7 +2,7 @@ import 'package:app_flowy/user/application/auth_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-user-data-model/protobuf.dart' show UserProfile;
+import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart' show UserProfilePB;
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -69,7 +69,7 @@ class SignInState with _$SignInState {
     required bool isSubmitting,
     required Option<String> passwordError,
     required Option<String> emailError,
-    required Option<Either<UserProfile, FlowyError>> successOrFail,
+    required Option<Either<UserProfilePB, FlowyError>> successOrFail,
   }) = _SignInState;
 
   factory SignInState.initial() => SignInState(

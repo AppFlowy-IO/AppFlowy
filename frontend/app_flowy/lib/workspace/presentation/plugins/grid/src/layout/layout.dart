@@ -1,8 +1,8 @@
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'sizes.dart';
 
 class GridLayout {
-  static double headerWidth(List<Field> fields) {
+  static double headerWidth(List<GridFieldPB> fields) {
     if (fields.isEmpty) return 0;
 
     final fieldsWidth = fields.map((field) => field.width.toDouble()).reduce((value, element) => value + element);

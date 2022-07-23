@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:app_flowy/workspace/application/doc/doc_service.dart';
 import 'package:app_flowy/workspace/application/trash/trash_service.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/trash.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder-data-model/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_quill/flutter_quill.dart' show Document, Delta;
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,7 +17,7 @@ part 'doc_bloc.freezed.dart';
 typedef FlutterQuillDocument = Document;
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
-  final View view;
+  final ViewPB view;
   final DocumentService service;
 
   final ViewListener listener;

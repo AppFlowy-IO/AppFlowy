@@ -94,6 +94,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "atomic_refcell"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73b5e5f48b927f04e952dedc932f31995a65a0bf65ec971c74436e51bf6e970d"
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -759,11 +765,11 @@ dependencies = [
 
 [[package]]
 name = "fake"
-version = "2.3.0"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6479fa2c7e83ddf8be7d435421e093b072ca891b99a49bc84eba098f4044f818"
+checksum = "4d68f517805463f3a896a9d29c1d6ff09d3579ded64a7201b4069f8f9c0d52fd"
 dependencies = [
- "rand 0.7.3",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -898,6 +904,7 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
+ "unicode-segmentation",
 ]
 
 [[package]]
@@ -925,6 +932,7 @@ dependencies = [
 name = "flowy-grid"
 version = "0.1.0"
 dependencies = [
+ "atomic_refcell",
  "bytes",
  "chrono",
  "dart-notify",
@@ -966,17 +974,13 @@ name = "flowy-grid-data-model"
 version = "0.1.0"
 dependencies = [
  "bytes",
- "flowy-derive",
  "flowy-error-code",
  "indexmap",
  "lib-infra",
  "nanoid",
- "protobuf",
  "serde",
  "serde_json",
  "serde_repr",
- "strum",
- "strum_macros",
 ]
 
 [[package]]
@@ -995,7 +999,6 @@ dependencies = [
  "flowy-sync",
  "flowy-text-block",
  "flowy-user",
- "flowy-user-data-model",
  "futures-util",
  "http-flowy",
  "hyper",
@@ -1175,14 +1178,16 @@ name = "flowy-user"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "claim 0.4.0",
  "dart-notify",
  "diesel",
  "diesel_derives",
+ "fake",
+ "fancy-regex",
  "flowy-database",
  "flowy-derive",
  "flowy-error",
  "flowy-test",
- "flowy-user-data-model",
  "futures",
  "lazy_static",
  "lib-dispatch",
@@ -1192,28 +1197,17 @@ dependencies = [
  "once_cell",
  "parking_lot 0.11.2",
  "protobuf",
+ "quickcheck",
+ "quickcheck_macros",
+ "rand 0.8.5",
+ "rand_core 0.6.3",
  "serde",
  "serde_json",
+ "serial_test",
  "strum",
  "strum_macros",
  "tokio",
  "tracing",
-]
-
-[[package]]
-name = "flowy-user-data-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "derive_more",
- "fancy-regex",
- "flowy-derive",
- "flowy-error-code",
- "lazy_static",
- "lib-infra",
- "log",
- "protobuf",
- "serde",
  "unicode-segmentation",
  "validator",
 ]
@@ -3609,9 +3603,9 @@ dependencies = [
 
 [[package]]
 name = "validator"
-version = "0.12.0"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "841d6937c33ec6039d8071bcf72933146b5bbe378d645d8fa59bdadabfc2a249"
+checksum = "f07b0a1390e01c0fc35ebb26b28ced33c9a3808f7f9fbe94d3cc01e233bfeed5"
 dependencies = [
  "idna",
  "lazy_static",
@@ -3620,14 +3614,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "url",
- "validator_types",
 ]
-
-[[package]]
-name = "validator_types"
-version = "0.12.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ad9680608df133af2c1ddd5eaf1ddce91d60d61b6bc51494ef326458365a470a"
 
 [[package]]
 name = "vcpkg"

@@ -12,7 +12,7 @@ import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid-data-model/field.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -75,7 +75,7 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
 }
 
 class _GridPropertyCell extends StatelessWidget {
-  final Field field;
+  final GridFieldPB field;
   final String gridId;
   const _GridPropertyCell({required this.gridId, required this.field, Key? key}) : super(key: key);
 
@@ -116,7 +116,7 @@ class _GridPropertyCell extends StatelessWidget {
         FieldEditor(
           gridId: gridId,
           fieldName: field.name,
-          contextLoader: FieldContextLoader(gridId: gridId, field: field),
+          typeOptionLoader: FieldTypeOptionLoader(gridId: gridId, field: field),
         ).show(context, anchorDirection: AnchorDirection.bottomRight);
       },
     );
