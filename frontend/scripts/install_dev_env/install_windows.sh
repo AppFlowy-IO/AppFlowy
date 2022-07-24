@@ -92,4 +92,4 @@ vcpkg integrate install
 
 # Check prerequisites
 printMessage "Checking prerequisites."
-PATH="$PATH;$LOCALAPPDATA/Pub/Cache/Bin" $USERPROFILE/.cargo/bin/cargo make flowy_dev
+PATH="$PATH;$LOCALAPPDATA\Pub\Cache\bin" bash -c '$USERPROFILE/.cargo/bin/cargo make flowy_dev'
