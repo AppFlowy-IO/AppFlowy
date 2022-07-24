@@ -3,7 +3,9 @@ name: release
 on:
   push:
     tags:
-      - '*'
+      - "*"
+env:
+  CARGO_INCREMENTAL: 0
 
 jobs:
   create-release:
@@ -44,13 +46,13 @@ jobs:
       - name: Setup environment - Rust and Cargo
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 'stable-2022-01-20'
+          toolchain: "stable-2022-01-20"
 
       - name: Setup environment - Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          flutter-version: '3.0.0'
+          channel: "stable"
+          flutter-version: "3.0.0"
 
       - name: Pre build
         working-directory: frontend
@@ -93,13 +95,13 @@ jobs:
       - name: Setup environment - Rust and Cargo
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 'stable-2022-01-20'
+          toolchain: "stable-2022-01-20"
 
       - name: Setup environment - Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          flutter-version: '3.0.0'
+          channel: "stable"
+          flutter-version: "3.0.0"
 
       - name: Pre build
         working-directory: frontend

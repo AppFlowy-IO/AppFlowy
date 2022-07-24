@@ -7,14 +7,16 @@ name: Flutter lint
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  RUST_LOG: "debug"
 
-jobs:  
+jobs:
   flutter-analyze:
     name: flutter analyze
     runs-on: ubuntu-latest
@@ -23,11 +25,11 @@ jobs:
         uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
         with:
-          flutter-version: '3.0.0'
+          flutter-version: "3.0.0"
           channel: "stable"
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 'stable-2022-01-20'
+          toolchain: "stable-2022-01-20"
 
       - name: Rust Deps
         working-directory: frontend
@@ -53,4 +55,3 @@ jobs:
       - name: Run Flutter Analyzer
         working-directory: frontend/app_flowy
         run: flutter analyze
-
