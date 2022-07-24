@@ -21,7 +21,7 @@ use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::CollaborateResult;
 use flowy_sync::util::make_delta_from_revisions;
 use lib_infra::future::FutureResult;
-use lib_ot::core::PlainTextAttributes;
+use lib_ot::core::PhantomAttributes;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -573,7 +573,7 @@ impl GridRevisionEditor {
         let GridChangeset { delta, md5 } = change;
         let user_id = self.user.user_id()?;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let delta_data = delta.to_delta_bytes();
+        let delta_data = delta.to_json_bytes();
         let revision = Revision::new(
             &self.rev_manager.object_id,
             base_rev_id,
@@ -664,8 +664,8 @@ impl RevisionCloudService for GridRevisionCloudService {
 pub struct GridRevisionCompactor();
 impl RevisionCompactor for GridRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
-        Ok(delta.to_delta_bytes())
+        let delta = make_delta_from_revisions::<PhantomAttributes>(revisions)?;
+        Ok(delta.to_json_bytes())
     }
 }
 

@@ -26,7 +26,7 @@ pub trait OperationTransformable {
     ///  let document = PlainTextDeltaBuilder::new().build();
     ///  let delta = PlainTextDeltaBuilder::new().insert("abc").build();
     ///  let new_document = document.compose(&delta).unwrap();
-    ///  assert_eq!(new_document.to_str().unwrap(), "abc".to_owned());
+    ///  assert_eq!(new_document.content_str().unwrap(), "abc".to_owned());
     /// ```
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
@@ -65,6 +65,12 @@ pub trait OperationTransformable {
     fn invert(&self, other: &Self) -> Self;
 }
 
+/// Each operation can carry attributes. For example, the [RichTextAttributes] has a list of key/value attributes.
+/// Such as { bold: true, italic: true }.  
+///
+/// Because [Operation] is generic over the T, so you must specify the T. For example, the [PlainTextDelta]. It use
+/// use [PhantomAttributes] as the T. [PhantomAttributes] does nothing, just a phantom.
+///
 pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + OperationTransformable {
     fn is_empty(&self) -> bool {
         true
@@ -80,6 +86,14 @@ pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + Opera
     }
 }
 
+/// [Operation] consists of three types.
+/// * Delete
+/// * Retain
+/// * Insert
+///
+/// The [T] should support serde if you want to serialize/deserialize the operation
+/// to json string. You could check out the operation_serde.rs for more information.
+///
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Operation<T: Attributes> {
     Delete(usize),
@@ -241,9 +255,7 @@ where
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Retain<T: Attributes> {
-    // #[serde(rename(serialize = "retain", deserialize = "retain"))]
     pub n: usize,
-    // #[serde(skip_serializing_if = "is_empty")]
     pub attributes: T,
 }
 
@@ -318,10 +330,7 @@ where
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Insert<T: Attributes> {
-    // #[serde(rename(serialize = "insert", deserialize = "insert"))]
     pub s: FlowyStr,
-
-    // #[serde(skip_serializing_if = "is_empty")]
     pub attributes: T,
 }
 
@@ -402,16 +411,16 @@ where
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
-pub struct PlainTextAttributes();
-impl fmt::Display for PlainTextAttributes {
+pub struct PhantomAttributes();
+impl fmt::Display for PhantomAttributes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("PlainAttributes")
+        f.write_str("PhantomAttributes")
     }
 }
 
-impl Attributes for PlainTextAttributes {}
+impl Attributes for PhantomAttributes {}
 
-impl OperationTransformable for PlainTextAttributes {
+impl OperationTransformable for PhantomAttributes {
     fn compose(&self, _other: &Self) -> Result<Self, OTError> {
         Ok(self.clone())
     }

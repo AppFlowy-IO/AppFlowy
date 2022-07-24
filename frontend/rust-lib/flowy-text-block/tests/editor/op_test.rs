@@ -378,7 +378,7 @@ fn apply_test() {
         .insert(", AppFlowy")
         .build();
 
-    let after_a = delta_a.to_str().unwrap();
+    let after_a = delta_a.content_str().unwrap();
     let after_b = delta_b.apply(&after_a).unwrap();
     assert_eq!("hello, AppFlowy", &after_b);
 }

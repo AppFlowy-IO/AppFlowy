@@ -1,8 +1,8 @@
-use crate::core::operation::{Attributes, Operation, PlainTextAttributes};
+use crate::core::operation::{Attributes, Operation, PhantomAttributes};
 use crate::rich_text::RichTextAttributes;
 
 pub type RichTextOpBuilder = OperationBuilder<RichTextAttributes>;
-pub type PlainTextOpBuilder = OperationBuilder<PlainTextAttributes>;
+pub type PlainTextOpBuilder = OperationBuilder<PhantomAttributes>;
 
 pub struct OperationBuilder<T: Attributes> {
     ty: Operation<T>,

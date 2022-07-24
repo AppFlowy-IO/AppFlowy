@@ -9,7 +9,7 @@ use flowy_sync::{
     util::make_delta_from_revisions,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{Attributes, Delta, PlainTextAttributes};
+use lib_ot::core::{Attributes, Delta, PhantomAttributes};
 use lib_ot::rich_text::RichTextAttributes;
 use serde::de::DeserializeOwned;
 use std::{convert::TryFrom, sync::Arc};
@@ -31,7 +31,7 @@ pub trait ConflictRevisionSink: Send + Sync + 'static {
 }
 
 pub type RichTextConflictController = ConflictController<RichTextAttributes>;
-pub type PlainTextConflictController = ConflictController<PlainTextAttributes>;
+pub type PlainTextConflictController = ConflictController<PhantomAttributes>;
 
 pub struct ConflictController<T>
 where
@@ -154,7 +154,7 @@ where
         &rev_manager.object_id,
         base_rev_id,
         rev_id,
-        client_delta.to_delta_bytes(),
+        client_delta.to_json_bytes(),
         user_id,
         md5.clone(),
     );
@@ -166,7 +166,7 @@ where
                 &rev_manager.object_id,
                 base_rev_id,
                 rev_id,
-                server_delta.to_delta_bytes(),
+                server_delta.to_json_bytes(),
                 user_id,
                 md5,
             );

@@ -1,7 +1,7 @@
 use crate::core::delta::{trim, Delta};
-use crate::core::operation::{Attributes, PlainTextAttributes};
+use crate::core::operation::{Attributes, PhantomAttributes};
 
-pub type PlainTextDeltaBuilder = DeltaBuilder<PlainTextAttributes>;
+pub type PlainTextDeltaBuilder = DeltaBuilder<PhantomAttributes>;
 
 /// A builder for creating new [Delta] objects.
 ///

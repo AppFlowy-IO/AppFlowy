@@ -175,7 +175,7 @@ impl EditBlockQueue {
     }
 
     async fn save_local_delta(&self, delta: RichTextDelta, md5: String) -> Result<RevId, FlowyError> {
-        let delta_data = delta.to_delta_bytes();
+        let delta_data = delta.to_json_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let user_id = self.user.user_id()?;
         let revision = Revision::new(
@@ -195,7 +195,7 @@ pub(crate) struct TextBlockRevisionCompactor();
 impl RevisionCompactor for TextBlockRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<RichTextAttributes>(revisions)?;
-        Ok(delta.to_delta_bytes())
+        Ok(delta.to_json_bytes())
     }
 }
 

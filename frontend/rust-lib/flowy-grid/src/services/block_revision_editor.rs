@@ -7,7 +7,7 @@ use flowy_sync::client_grid::{GridBlockMetaChange, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_delta_from_revisions;
 use lib_infra::future::FutureResult;
-use lib_ot::core::PlainTextAttributes;
+use lib_ot::core::PhantomAttributes;
 use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -161,7 +161,7 @@ impl GridBlockRevisionEditor {
         let GridBlockMetaChange { delta, md5 } = change;
         let user_id = self.user_id.clone();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let delta_data = delta.to_delta_bytes();
+        let delta_data = delta.to_json_bytes();
         let revision = Revision::new(
             &self.rev_manager.object_id,
             base_rev_id,
@@ -200,7 +200,7 @@ impl RevisionObjectBuilder for GridBlockMetaPadBuilder {
 pub struct GridBlockRevisionCompactor();
 impl RevisionCompactor for GridBlockRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
-        Ok(delta.to_delta_bytes())
+        let delta = make_delta_from_revisions::<PhantomAttributes>(revisions)?;
+        Ok(delta.to_json_bytes())
     }
 }

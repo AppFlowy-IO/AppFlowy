@@ -3,7 +3,7 @@ use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use crate::core::delta::{DeltaIterator, MAX_IV_LEN};
 use crate::core::flowy_str::FlowyStr;
 use crate::core::interval::Interval;
-use crate::core::operation::{Attributes, Operation, OperationBuilder, OperationTransformable, PlainTextAttributes};
+use crate::core::operation::{Attributes, Operation, OperationBuilder, OperationTransformable, PhantomAttributes};
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
 use std::{
@@ -14,11 +14,14 @@ use std::{
     str::FromStr,
 };
 
-pub type PlainTextDelta = Delta<PlainTextAttributes>;
+pub type PlainTextDelta = Delta<PhantomAttributes>;
 
 /// A [Delta] contains list of operations that consists of 'Retain', 'Delete' and 'Insert' operation.
 /// Check out the [Operation] for more details. It describes the document as a sequence of
 /// operations.
+///
+/// If the [T] supports 'serde', that will enable delta to serialize to JSON or deserialize from
+/// a JSON string.
 ///
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Delta<T: Attributes> {
@@ -182,7 +185,7 @@ where
     ///         .insert(", AppFlowy")
     ///         .build();
     ///
-    ///  let after_a = delta_a.to_str().unwrap();
+    ///  let after_a = delta_a.content_str().unwrap();
     ///  let after_b = delta_b.apply(&after_a).unwrap();
     ///  assert_eq!("hello, AppFlowy", &after_b);
     /// ```
@@ -565,7 +568,7 @@ impl<T> Delta<T>
 where
     T: Attributes + DeserializeOwned,
 {
-    pub fn from_delta_str(json: &str) -> Result<Self, OTError> {
+    pub fn from_json_str(json: &str) -> Result<Self, OTError> {
         let delta = serde_json::from_str(json).map_err(|e| {
             tracing::trace!("Deserialize failed: {:?}", e);
             tracing::trace!("{:?}", json);
@@ -576,7 +579,7 @@ where
 
     pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, OTError> {
         let json = str::from_utf8(bytes.as_ref())?.to_owned();
-        let val = Self::from_delta_str(&json)?;
+        let val = Self::from_json_str(&json)?;
         Ok(val)
     }
 }
@@ -585,16 +588,16 @@ impl<T> Delta<T>
 where
     T: Attributes + serde::Serialize,
 {
-    pub fn to_delta_str(&self) -> String {
+    pub fn to_json_str(&self) -> String {
         serde_json::to_string(self).unwrap_or_else(|_| "".to_owned())
     }
 
-    pub fn to_str(&self) -> Result<String, OTError> {
+    pub fn content_str(&self) -> Result<String, OTError> {
         self.apply("")
     }
 
-    pub fn to_delta_bytes(&self) -> Bytes {
-        let json = self.to_delta_str();
+    pub fn to_json_bytes(&self) -> Bytes {
+        let json = self.to_json_str();
         Bytes::from(json.into_bytes())
     }
 }

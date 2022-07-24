@@ -46,7 +46,7 @@ impl std::convert::TryFrom<Revision> for DocumentPB {
         }
 
         let delta = RichTextDelta::from_bytes(&revision.delta_data)?;
-        let doc_json = delta.to_delta_str();
+        let doc_json = delta.to_json_str();
 
         Ok(DocumentPB {
             block_id: revision.object_id,

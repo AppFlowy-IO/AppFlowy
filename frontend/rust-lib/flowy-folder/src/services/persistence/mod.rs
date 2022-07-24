@@ -110,7 +110,7 @@ impl FolderPersistence {
     pub async fn save_folder(&self, user_id: &str, folder_id: &FolderId, folder: FolderPad) -> FlowyResult<()> {
         let pool = self.database.db_pool()?;
         let json = folder.to_json()?;
-        let delta_data = PlainTextDeltaBuilder::new().insert(&json).build().to_delta_bytes();
+        let delta_data = PlainTextDeltaBuilder::new().insert(&json).build().to_json_bytes();
         let revision = Revision::initial_revision(user_id, folder_id.as_ref(), delta_data);
         let record = RevisionRecord {
             revision,
