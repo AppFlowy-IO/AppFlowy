@@ -78,7 +78,7 @@ cd frontend
 
 # Install cargo make
 printMessage "Installing cargo-make."
-#$USERPROFILE/.cargo/bin/cargo install --force cargo-make
+$USERPROFILE/.cargo/bin/cargo install --force cargo-make
 
 # Install duckscript
 printMessage "Installing duckscript."
