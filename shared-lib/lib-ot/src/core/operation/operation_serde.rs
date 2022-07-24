@@ -1,4 +1,5 @@
-use crate::core::{Attributes, FlowyStr, Insert, Operation, Retain};
+use crate::core::flowy_str::FlowyStr;
+use crate::core::operation::{Attributes, Insert, Operation, Retain};
 use serde::{
     de,
     de::{MapAccess, SeqAccess, Visitor},

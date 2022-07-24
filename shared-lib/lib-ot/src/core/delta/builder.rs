@@ -1,7 +1,12 @@
-use crate::core::{trim, Attributes, Delta, PlainTextAttributes};
+use crate::core::delta::{trim, Delta};
+use crate::core::operation::{Attributes, PlainTextAttributes};
 
 pub type PlainTextDeltaBuilder = DeltaBuilder<PlainTextAttributes>;
 
+/// A builder for creating new [Delta] objects.
+///
+/// Note that all edit operations must be sorted; the start point of each
+/// interval must be no less than the end point of the previous one.
 pub struct DeltaBuilder<T: Attributes> {
     delta: Delta<T>,
 }
@@ -23,6 +28,8 @@ where
         DeltaBuilder::default()
     }
 
+    /// Retain the 'n' characters with the attributes. Use 'retain' instead if you don't
+    /// need any attributes.
     pub fn retain_with_attributes(mut self, n: usize, attrs: T) -> Self {
         self.delta.retain(n, attrs);
         self
@@ -33,11 +40,14 @@ where
         self
     }
 
+    /// Deletes the given interval. Panics if interval is not properly sorted.
     pub fn delete(mut self, n: usize) -> Self {
         self.delta.delete(n);
         self
     }
 
+    /// Insert the string with attributes. Use 'insert' instead if you don't
+    /// need any attributes.
     pub fn insert_with_attributes(mut self, s: &str, attrs: T) -> Self {
         self.delta.insert(s, attrs);
         self
@@ -53,6 +63,7 @@ where
         self
     }
 
+    /// Builds the `Delta`
     pub fn build(self) -> Delta<T> {
         self.delta
     }
