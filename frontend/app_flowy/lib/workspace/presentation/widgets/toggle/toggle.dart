@@ -27,7 +27,7 @@ class Toggle extends StatelessWidget {
               height: style.height,
               width: style.width,
               decoration: BoxDecoration(
-                color: style.backgroundColor,
+                color: value ? style.activeBackgroundColor : style.inactiveBackgroundColor,
                 borderRadius: BorderRadius.circular(style.height / 2),
               ),
             ),

@@ -7,29 +7,32 @@ class ToggleStyle {
   final double width;
 
   final double thumbRadius;
-
-  final Color backgroundColor;
   final Color thumbColor;
+  final Color activeBackgroundColor;
+  final Color inactiveBackgroundColor;
 
   ToggleStyle({
     required this.height,
     required this.width,
     required this.thumbRadius,
-    required this.backgroundColor,
     required this.thumbColor,
+    required this.activeBackgroundColor,
+    required this.inactiveBackgroundColor,
   });
 
   ToggleStyle.big(AppTheme theme)
       : height = 16,
         width = 27,
         thumbRadius = 14,
-        backgroundColor = theme.main1,
+        activeBackgroundColor = theme.main1,
+        inactiveBackgroundColor = theme.shader5,
         thumbColor = theme.surface;
 
   ToggleStyle.small(AppTheme theme)
       : height = 10,
         width = 16,
         thumbRadius = 8,
-        backgroundColor = theme.main1,
+        activeBackgroundColor = theme.main1,
+        inactiveBackgroundColor = theme.shader5,
         thumbColor = theme.surface;
 }
