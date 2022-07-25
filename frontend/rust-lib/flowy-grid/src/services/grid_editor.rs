@@ -103,7 +103,6 @@ impl GridRevisionEditor {
                 .modify(|grid| {
                     let builder = type_option_builder_from_bytes(type_option_data, &field.field_type);
                     let field_rev = FieldBuilder::from_field(field, builder).build();
-
                     Ok(grid.create_field_rev(field_rev, start_field_id)?)
                 })
                 .await?;
