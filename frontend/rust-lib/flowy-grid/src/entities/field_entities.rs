@@ -9,7 +9,7 @@ use std::sync::Arc;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 
-/// [GridFieldPB] defines the field's attributes. Such as the name, field_type, and width. etc.
+/// [GridFieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridFieldPB {
     #[pb(index = 1)]
@@ -391,7 +391,7 @@ pub struct UpdateFieldTypeOptionPayloadPB {
     #[pb(index = 2)]
     pub field_id: String,
 
-    /// Check out the [FieldTypeOptionDataPB] for more details.
+    /// Check out [FieldTypeOptionDataPB] for more details.
     #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
 }
@@ -444,7 +444,7 @@ impl TryInto<QueryFieldParams> for QueryFieldPayloadPB {
     }
 }
 
-/// [FieldChangesetPayloadPB] is used to modify the corresponding field. It defines which property of
+/// [FieldChangesetPayloadPB] is used to modify the corresponding field. It defines which properties of
 /// the field can be modified.
 ///
 /// Pass in None if you don't want to modify a property

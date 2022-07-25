@@ -125,7 +125,6 @@ pub struct FieldRevision {
     /// value: type option data that can be parsed into specified TypeOptionStruct.
     ///
     /// For example, CheckboxTypeOption, MultiSelectTypeOption etc.
-    ///
     #[serde(with = "indexmap::serde_seq")]
     pub type_options: IndexMap<String, String>,
 
@@ -187,15 +186,15 @@ impl FieldRevision {
     }
 }
 
-/// The macro, [impl_type_option] will implement the [TypeOptionDataEntry] for the type that
-/// supports serde trait and TryInto<Bytes> trait.
+/// The macro [impl_type_option] will implement the [TypeOptionDataEntry] for the type that
+/// supports the serde trait and the TryInto<Bytes> trait.
 pub trait TypeOptionDataEntry {
     fn json_str(&self) -> String;
     fn protobuf_bytes(&self) -> Bytes;
 }
 
-/// The macro, [impl_type_option] will implement the [TypeOptionDataDeserializer] for the type that
-/// supports serde trait and TryFrom<Bytes> trait.
+/// The macro [impl_type_option] will implement the [TypeOptionDataDeserializer] for the type that
+/// supports the serde trait and the TryFrom<Bytes> trait.
 pub trait TypeOptionDataDeserializer {
     fn from_json_str(s: &str) -> Self;
     fn from_protobuf_bytes(bytes: Bytes) -> Self;

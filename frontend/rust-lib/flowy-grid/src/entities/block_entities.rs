@@ -5,7 +5,7 @@ use flowy_grid_data_model::revision::RowRevision;
 use std::sync::Arc;
 
 
-/// [GridBlockPB] contains list of rows. The row here does not contain any data, just the id
+/// [GridBlockPB] contains list of row ids. The rows here does not contain any data, just the id
 /// of the row. Check out [GridRowPB] for more details.
 ///
 ///
@@ -30,7 +30,7 @@ impl GridBlockPB {
     }
 }
 
-/// [GridRowPB] describes the row belongs to which block and the metadata of the row.
+/// [GridRowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridRowPB {
     #[pb(index = 1)]

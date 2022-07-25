@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
 
-/// [SelectOptionPB] represents an option for the single select, and multiple select.
+/// [SelectOptionPB] represents an option for a single select, and multiple select.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct SelectOptionPB {
     #[pb(index = 1)]
@@ -340,7 +340,7 @@ pub struct SelectOptionCellDataPB {
 }
 
 
-/// [SelectOptionChangesetPayloadPB] describes the changes of the FieldTypeOptionData. For the moment,
+/// [SelectOptionChangesetPayloadPB] describes the changes of a FieldTypeOptionData. For the moment,
 /// it is used by [MultiSelectTypeOptionPB] and [SingleSelectTypeOptionPB].
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionChangesetPayloadPB {
