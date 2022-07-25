@@ -1,7 +1,7 @@
-import 'package:flowy_editor/flowy_keyboard_service.dart';
-import 'package:flowy_editor/flowy_selection_service.dart';
+import 'package:flowy_editor/service/flowy_keyboard_service.dart';
+import 'package:flowy_editor/service/flowy_selection_service.dart';
 
-import 'editor_state.dart';
+import '../editor_state.dart';
 import 'package:flutter/material.dart';
 
 class FlowyEditor extends StatefulWidget {
@@ -23,7 +23,7 @@ class _FlowyEditorState extends State<FlowyEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return FlowySelectionWidget(
+    return FlowySelectionService(
       editorState: editorState,
       child: FlowyKeyboardWidget(
         handlers: [

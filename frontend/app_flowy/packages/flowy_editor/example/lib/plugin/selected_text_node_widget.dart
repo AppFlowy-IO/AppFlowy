@@ -54,7 +54,10 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
 
   @override
-  List<Rect> getSelectionRectsInSelection(Offset start, Offset end) {
+  List<Rect> getSelectionRectsInRange(Offset start, Offset end) {
+    final localStart = _renderParagraph.globalToLocal(start);
+    final localEnd = _renderParagraph.globalToLocal(end);
+
     var textSelection =
         TextSelection(baseOffset: 0, extentOffset: node.toRawString().length);
     // Returns select all if the start or end exceeds the size of the box
@@ -62,20 +65,20 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
     var rects = _computeSelectionRects(textSelection);
     _textSelection = textSelection;
 
-    if (end.dy > start.dy) {
+    if (localEnd.dy > localStart.dy) {
       // downward
-      if (end.dy >= rects.last.bottom) {
+      if (localEnd.dy >= rects.last.bottom) {
         return rects;
       }
     } else {
       // upward
-      if (end.dy <= rects.first.top) {
+      if (localEnd.dy <= rects.first.top) {
         return rects;
       }
     }
 
-    final selectionBaseOffset = _getTextPositionAtOffset(start).offset;
-    final selectionExtentOffset = _getTextPositionAtOffset(end).offset;
+    final selectionBaseOffset = _getTextPositionAtOffset(localStart).offset;
+    final selectionExtentOffset = _getTextPositionAtOffset(localEnd).offset;
     textSelection = TextSelection(
       baseOffset: selectionBaseOffset,
       extentOffset: selectionExtentOffset,
@@ -86,7 +89,8 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
 
   @override
   Rect getCursorRect(Offset start) {
-    final selectionBaseOffset = _getTextPositionAtOffset(start).offset;
+    final localStart = _renderParagraph.globalToLocal(start);
+    final selectionBaseOffset = _getTextPositionAtOffset(localStart).offset;
     final textSelection = TextSelection.collapsed(offset: selectionBaseOffset);
     _textSelection = textSelection;
     return _computeCursorRect(textSelection.baseOffset);
@@ -99,7 +103,6 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    print('text rebuild $this');
     Widget richText;
     if (kDebugMode) {
       richText = DebuggableRichText(text: node.toTextSpan(), textKey: _textKey);
@@ -132,23 +135,18 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
   }
 
   TextPosition _getTextPositionAtOffset(Offset offset) {
-    final textOffset = _renderParagraph.globalToLocal(offset);
-    return _renderParagraph.getPositionForOffset(textOffset);
+    return _renderParagraph.getPositionForOffset(offset);
   }
 
   List<Rect> _computeSelectionRects(TextSelection selection) {
     final textBoxes = _renderParagraph.getBoxesForSelection(selection);
-    return textBoxes
-        .map((box) =>
-            _renderParagraph.localToGlobal(box.toRect().topLeft) &
-            box.toRect().size)
-        .toList();
+    return textBoxes.map((box) => box.toRect()).toList();
   }
 
   Rect _computeCursorRect(int offset) {
     final position = TextPosition(offset: offset);
-    var cursorOffset = _renderParagraph.getOffsetForCaret(position, Rect.zero);
-    cursorOffset = _renderParagraph.localToGlobal(cursorOffset);
+    final cursorOffset =
+        _renderParagraph.getOffsetForCaret(position, Rect.zero);
     final cursorHeight = _renderParagraph.getFullHeightForCaret(position);
     if (cursorHeight != null) {
       const cursorWidth = 2;

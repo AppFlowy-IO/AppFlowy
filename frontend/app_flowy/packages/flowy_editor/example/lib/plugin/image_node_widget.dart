@@ -1,5 +1,4 @@
 import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flowy_editor/flowy_keyboard_service.dart';
 import 'package:flutter/material.dart';
 
 FlowyKeyEventHandler deleteSingleImageNode = (editorState, event) {
@@ -50,20 +49,16 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   String get src => widget.node.attributes['image_src'] as String;
 
   @override
-  List<Rect> getSelectionRectsInSelection(Offset start, Offset end) {
+  List<Rect> getSelectionRectsInRange(Offset start, Offset end) {
     final renderBox = context.findRenderObject() as RenderBox;
-    final size = renderBox.size;
-    final boxOffset = renderBox.localToGlobal(Offset.zero);
-    return [boxOffset & size];
+    return [Offset.zero & renderBox.size];
   }
 
   @override
   Rect getCursorRect(Offset start) {
     final renderBox = context.findRenderObject() as RenderBox;
-    final size = Size(5, renderBox.size.height);
-    final boxOffset = renderBox.localToGlobal(Offset.zero);
-    final cursorOffset =
-        Offset(renderBox.size.width + boxOffset.dx, boxOffset.dy);
+    final size = Size(2, renderBox.size.height);
+    final cursorOffset = Offset(renderBox.size.width, 0);
     return cursorOffset & size;
   }
 

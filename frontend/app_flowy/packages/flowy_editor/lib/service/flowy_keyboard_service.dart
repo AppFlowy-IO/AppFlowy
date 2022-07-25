@@ -1,7 +1,7 @@
 import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flutter/services.dart';
 
-import 'editor_state.dart';
+import '../editor_state.dart';
 import 'package:flutter/material.dart';
 
 typedef FlowyKeyEventHandler = KeyEventResult Function(

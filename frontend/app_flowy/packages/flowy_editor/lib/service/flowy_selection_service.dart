@@ -1,10 +1,11 @@
-import 'package:flowy_editor/flowy_cursor_widget.dart';
+import 'package:flowy_editor/render/selection/flowy_cursor_widget.dart';
+import 'package:flowy_editor/render/selection/flowy_selection_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'editor_state.dart';
-import 'document/node.dart';
-import '../render/selectable.dart';
+import '../editor_state.dart';
+import '../document/node.dart';
+import '../render/selection/selectable.dart';
 
 /// Process selection and cursor
 mixin _FlowySelectionService<T extends StatefulWidget> on State<T> {
@@ -51,8 +52,8 @@ mixin _FlowySelectionService<T extends StatefulWidget> on State<T> {
   );
 }
 
-class FlowySelectionWidget extends StatefulWidget {
-  const FlowySelectionWidget({
+class FlowySelectionService extends StatefulWidget {
+  const FlowySelectionService({
     Key? key,
     required this.editorState,
     required this.child,
@@ -62,14 +63,15 @@ class FlowySelectionWidget extends StatefulWidget {
   final Widget child;
 
   @override
-  State<FlowySelectionWidget> createState() => _FlowySelectionWidgetState();
+  State<FlowySelectionService> createState() => _FlowySelectionServiceState();
 }
 
-class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
+class _FlowySelectionServiceState extends State<FlowySelectionService>
     with _FlowySelectionService {
   final _cursorKey = GlobalKey(debugLabel: 'cursor');
 
-  List<OverlayEntry> selectionOverlays = [];
+  final List<OverlayEntry> _selectionOverlays = [];
+  final List<OverlayEntry> _cursorOverlays = [];
 
   EditorState get editorState => widget.editorState;
 
@@ -102,7 +104,7 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
 
   @override
   void updateSelection(Offset start, Offset end) {
-    _clearOverlay();
+    _clearAllOverlayEntries();
 
     final nodes = selectedNodes;
     editorState.selectedNodes = nodes;
@@ -115,26 +117,24 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
         continue;
       }
       final selectable = node.key?.currentState as Selectable;
-      final selectionRects =
-          selectable.getSelectionRectsInSelection(start, end);
+      final selectionRects = selectable.getSelectionRectsInRange(start, end);
       for (final rect in selectionRects) {
         final overlay = OverlayEntry(
-          builder: ((context) => Positioned.fromRect(
+          builder: ((context) => FlowySelectionWidget(
+                color: Colors.yellow.withAlpha(100),
+                layerLink: node.layerLink,
                 rect: rect,
-                child: Container(
-                  color: Colors.yellow.withAlpha(100),
-                ),
               )),
         );
-        selectionOverlays.add(overlay);
+        _selectionOverlays.add(overlay);
       }
     }
-    Overlay.of(context)?.insertAll(selectionOverlays);
+    Overlay.of(context)?.insertAll(_selectionOverlays);
   }
 
   @override
   void updateCursor(Offset offset) {
-    _clearOverlay();
+    _clearAllOverlayEntries();
 
     final nodes = selectedNodes;
     editorState.selectedNodes = nodes;
@@ -156,8 +156,8 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
             layerLink: selectedNode.layerLink,
           )),
     );
-    selectionOverlays.add(cursor);
-    Overlay.of(context)?.insertAll(selectionOverlays);
+    _cursorOverlays.add(cursor);
+    Overlay.of(context)?.insertAll(_cursorOverlays);
   }
 
   @override
@@ -271,8 +271,19 @@ class _FlowySelectionWidgetState extends State<FlowySelectionWidget>
     // do nothing
   }
 
-  void _clearOverlay() {
-    selectionOverlays
+  void _clearAllOverlayEntries() {
+    _clearSelection();
+    _clearCursor();
+  }
+
+  void _clearSelection() {
+    _selectionOverlays
+      ..forEach((overlay) => overlay.remove())
+      ..clear();
+  }
+
+  void _clearCursor() {
+    _cursorOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
   }

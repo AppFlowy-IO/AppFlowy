@@ -49,7 +49,7 @@ class _FlowyCursorWidgetState extends State<FlowyCursorWidget> {
       rect: widget.rect,
       child: CompositedTransformFollower(
         link: widget.layerLink,
-        offset: Offset(widget.rect.center.dx, 0),
+        offset: widget.rect.topCenter,
         showWhenUnlinked: true,
         child: Container(
           color: showCursor ? widget.color : Colors.transparent,
