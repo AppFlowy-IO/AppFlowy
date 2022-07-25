@@ -16,7 +16,14 @@ test "" = "$(grep '^Signed-off-by: ' "$1" |
 	exit 1
 }
 
-npx --no -- commitlint --edit $1
+.githooks/gitlint \
+	 --msg-file=$1 \
+	 --subject-regex="^([bB]uild|[cC]hore|[cC]i|[dD]ocs|[fF]eat|[fF]eature|[fF]ix|[pP]erf|[rR]efactor|[rR]evert|[sS]tyle|[tT]est)(.*)?\s?:\s?.*" \
+    --subject-maxlen=100 \
+    --subject-minlen=10 \
+    --body-regex=".*" \
+    --body-maxlen=200 \
+    --max-parents=1
 
 if [ $? -ne 0 ]
 then
