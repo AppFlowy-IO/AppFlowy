@@ -68,11 +68,6 @@ cargo install --force cargo-make
 printMessage "Installing duckscript."
 cargo install --force duckscript_cli
 
-# Install CommitLint
-printMessage "Installing go-gitlint."
-wget https://github.com/llorllale/go-gitlint/releases/download/1.1.0/go-gitlint_1.1.0_linux_x86_64.tar.gz
-tar -xf go-gitlint_1.1.0_linux_x86_64.tar.gz - C
-
 # Check prerequisites
 printMessage "Checking prerequisites."
 cargo make flowy_dev
