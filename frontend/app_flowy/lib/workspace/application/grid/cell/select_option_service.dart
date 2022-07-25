@@ -19,7 +19,7 @@ class SelectOptionService {
       (result) {
         return result.fold(
           (option) {
-            final cellIdentifier = GridCellIdentifierPayloadPB.create()
+            final cellIdentifier = GridCellIdPB.create()
               ..gridId = gridId
               ..fieldId = fieldId
               ..rowId = rowId;
@@ -54,7 +54,7 @@ class SelectOptionService {
   }
 
   Future<Either<SelectOptionCellDataPB, FlowyError>> getOpitonContext() {
-    final payload = GridCellIdentifierPayloadPB.create()
+    final payload = GridCellIdPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..rowId = rowId;
@@ -76,8 +76,8 @@ class SelectOptionService {
     return GridEventUpdateSelectOptionCell(payload).send();
   }
 
-  GridCellIdentifierPayloadPB _cellIdentifier() {
-    return GridCellIdentifierPayloadPB.create()
+  GridCellIdPB _cellIdentifier() {
+    return GridCellIdPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..rowId = rowId;

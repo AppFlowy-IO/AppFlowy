@@ -113,10 +113,10 @@ pub(crate) async fn update_field_type_option_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn delete_field_handler(
-    data: Data<GridFieldIdentifierPayloadPB>,
+    data: Data<DeleteFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: FieldIdentifierParams = data.into_inner().try_into()?;
+    let params: GridFieldIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.delete_field(&params.field_id).await?;
     Ok(())
@@ -151,10 +151,10 @@ pub(crate) async fn switch_to_field_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn duplicate_field_handler(
-    data: Data<GridFieldIdentifierPayloadPB>,
+    data: Data<DuplicateFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: FieldIdentifierParams = data.into_inner().try_into()?;
+    let params: GridFieldIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.duplicate_field(&params.field_id).await?;
     Ok(())
@@ -163,10 +163,10 @@ pub(crate) async fn duplicate_field_handler(
 /// Return the FieldTypeOptionData if the Field exists otherwise return record not found error.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_field_type_option_data_handler(
-    data: Data<EditFieldPayloadPB>,
+    data: Data<GridFieldTypeOptionIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
-    let params: EditFieldParams = data.into_inner().try_into()?;
+    let params: GridFieldTypeOptionIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
@@ -186,7 +186,7 @@ pub(crate) async fn get_field_type_option_data_handler(
 /// Create FieldMeta and save it. Return the FieldTypeOptionData.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn create_field_type_option_data_handler(
-    data: Data<EditFieldPayloadPB>,
+    data: Data<CreateFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
     let params: CreateFieldParams = data.into_inner().try_into()?;
@@ -227,10 +227,10 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
-    data: Data<GridRowIdPayloadPB>,
+    data: Data<GridRowIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
-    let params: GridRowIdPB = data.into_inner().try_into()?;
+    let params: GridRowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let row = editor
         .get_row_rev(&params.row_id)
@@ -242,10 +242,10 @@ pub(crate) async fn get_row_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn delete_row_handler(
-    data: Data<GridRowIdPayloadPB>,
+    data: Data<GridRowIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridRowIdPB = data.into_inner().try_into()?;
+    let params: GridRowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.delete_row(&params.row_id).await?;
     Ok(())
@@ -253,10 +253,10 @@ pub(crate) async fn delete_row_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn duplicate_row_handler(
-    data: Data<GridRowIdPayloadPB>,
+    data: Data<GridRowIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridRowIdPB = data.into_inner().try_into()?;
+    let params: GridRowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.duplicate_row(&params.row_id).await?;
     Ok(())
@@ -275,10 +275,10 @@ pub(crate) async fn create_row_handler(
 
 // #[tracing::instrument(level = "debug", skip_all, err)]
 pub(crate) async fn get_cell_handler(
-    data: Data<GridCellIdentifierPayloadPB>,
+    data: Data<GridCellIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<GridCellPB, FlowyError> {
-    let params: CellIdentifierParams = data.into_inner().try_into()?;
+    let params: GridCellIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     match editor.get_cell(&params).await {
         None => data_result(GridCellPB::empty(&params.field_id)),
@@ -357,10 +357,10 @@ pub(crate) async fn update_select_option_handler(
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_select_option_handler(
-    data: Data<GridCellIdentifierPayloadPB>,
+    data: Data<GridCellIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<SelectOptionCellDataPB, FlowyError> {
-    let params: CellIdentifierParams = data.into_inner().try_into()?;
+    let params: GridCellIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     match editor.get_field_rev(&params.field_id).await {
         None => {
