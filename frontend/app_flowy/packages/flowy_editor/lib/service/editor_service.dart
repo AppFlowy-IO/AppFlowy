@@ -1,5 +1,7 @@
-import 'package:flowy_editor/service/flowy_keyboard_service.dart';
-import 'package:flowy_editor/service/flowy_selection_service.dart';
+import 'package:flowy_editor/service/flowy_key_event_handlers/delete_nodes_handler.dart';
+import 'package:flowy_editor/service/flowy_key_event_handlers/delete_single_text_node_handler.dart';
+import 'package:flowy_editor/service/keyboard_service.dart';
+import 'package:flowy_editor/service/selection_service.dart';
 
 import '../editor_state.dart';
 import 'package:flutter/material.dart';
@@ -23,11 +25,13 @@ class _FlowyEditorState extends State<FlowyEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return FlowySelectionService(
+    return FlowySelection(
+      key: selectionServiceKey,
       editorState: editorState,
-      child: FlowyKeyboardWidget(
+      child: FlowyKeyboard(
         handlers: [
           flowyDeleteNodesHandler,
+          deleteSingleTextNodeHandler,
           ...widget.keyEventHandler,
         ],
         editorState: editorState,

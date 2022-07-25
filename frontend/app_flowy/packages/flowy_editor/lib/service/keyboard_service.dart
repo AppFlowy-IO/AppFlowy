@@ -1,4 +1,3 @@
-import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flutter/services.dart';
 
 import '../editor_state.dart';
@@ -9,27 +8,9 @@ typedef FlowyKeyEventHandler = KeyEventResult Function(
   RawKeyEvent event,
 );
 
-FlowyKeyEventHandler flowyDeleteNodesHandler = (editorState, event) {
-  // Handle delete nodes.
-  final nodes = editorState.selectedNodes;
-  if (nodes.length <= 1) {
-    return KeyEventResult.ignored;
-  }
-
-  debugPrint('delete nodes = $nodes');
-
-  nodes
-      .fold<TransactionBuilder>(
-        TransactionBuilder(editorState),
-        (previousValue, node) => previousValue..deleteNode(node),
-      )
-      .commit();
-  return KeyEventResult.handled;
-};
-
 /// Process keyboard events
-class FlowyKeyboardWidget extends StatefulWidget {
-  const FlowyKeyboardWidget({
+class FlowyKeyboard extends StatefulWidget {
+  const FlowyKeyboard({
     Key? key,
     required this.handlers,
     required this.editorState,
@@ -41,10 +22,10 @@ class FlowyKeyboardWidget extends StatefulWidget {
   final List<FlowyKeyEventHandler> handlers;
 
   @override
-  State<FlowyKeyboardWidget> createState() => _FlowyKeyboardWidgetState();
+  State<FlowyKeyboard> createState() => _FlowyKeyboardState();
 }
 
-class _FlowyKeyboardWidgetState extends State<FlowyKeyboardWidget> {
+class _FlowyKeyboardState extends State<FlowyKeyboard> {
   final FocusNode focusNode = FocusNode(debugLabel: 'flowy_keyboard_service');
 
   @override

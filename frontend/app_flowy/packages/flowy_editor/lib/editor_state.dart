@@ -19,6 +19,9 @@ class ApplyOptions {
   });
 }
 
+// TODO
+final selectionServiceKey = GlobalKey();
+
 class EditorState {
   final StateTree document;
   final RenderPlugins renderPlugins;

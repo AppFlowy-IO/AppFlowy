@@ -8,7 +8,7 @@ import '../document/node.dart';
 import '../render/selection/selectable.dart';
 
 /// Process selection and cursor
-mixin _FlowySelectionService<T extends StatefulWidget> on State<T> {
+mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
   /// [Pan] and [Tap] must be mutually exclusive.
   /// Pan
   Offset? panStartOffset;
@@ -19,20 +19,20 @@ mixin _FlowySelectionService<T extends StatefulWidget> on State<T> {
 
   void updateSelection(Offset start, Offset end);
 
-  void updateCursor(Offset offset);
+  void updateCursor(Offset start);
 
   /// Returns selected node(s)
   /// Returns empty list if no nodes are being selected.
-  List<Node> get selectedNodes;
+  List<Node> getSelectedNodes(Offset start, [Offset? end]);
 
   /// Compute selected node triggered by [Tap]
-  Node? computeSelectedNodeByTap(
+  Node? computeSelectedNodeInOffset(
     Node node,
     Offset offset,
   );
 
   /// Compute selected nodes triggered by [Pan]
-  List<Node> computeSelectedNodesByPan(
+  List<Node> computeSelectedNodesInRange(
     Node node,
     Offset start,
     Offset end,
@@ -52,8 +52,8 @@ mixin _FlowySelectionService<T extends StatefulWidget> on State<T> {
   );
 }
 
-class FlowySelectionService extends StatefulWidget {
-  const FlowySelectionService({
+class FlowySelection extends StatefulWidget {
+  const FlowySelection({
     Key? key,
     required this.editorState,
     required this.child,
@@ -63,11 +63,11 @@ class FlowySelectionService extends StatefulWidget {
   final Widget child;
 
   @override
-  State<FlowySelectionService> createState() => _FlowySelectionServiceState();
+  State<FlowySelection> createState() => _FlowySelectionState();
 }
 
-class _FlowySelectionServiceState extends State<FlowySelectionService>
-    with _FlowySelectionService {
+class _FlowySelectionState extends State<FlowySelection>
+    with FlowySelectionService {
   final _cursorKey = GlobalKey(debugLabel: 'cursor');
 
   final List<OverlayEntry> _selectionOverlays = [];
@@ -106,7 +106,7 @@ class _FlowySelectionServiceState extends State<FlowySelectionService>
   void updateSelection(Offset start, Offset end) {
     _clearAllOverlayEntries();
 
-    final nodes = selectedNodes;
+    final nodes = getSelectedNodes(start, end);
     editorState.selectedNodes = nodes;
     if (nodes.isEmpty) {
       return;
@@ -133,10 +133,10 @@ class _FlowySelectionServiceState extends State<FlowySelectionService>
   }
 
   @override
-  void updateCursor(Offset offset) {
+  void updateCursor(Offset start) {
     _clearAllOverlayEntries();
 
-    final nodes = selectedNodes;
+    final nodes = getSelectedNodes(start);
     editorState.selectedNodes = nodes;
     if (nodes.isEmpty) {
       return;
@@ -147,7 +147,7 @@ class _FlowySelectionServiceState extends State<FlowySelectionService>
       return;
     }
     final selectable = selectedNode.key?.currentState as Selectable;
-    final rect = selectable.getCursorRect(offset);
+    final rect = selectable.getCursorRect(start);
     final cursor = OverlayEntry(
       builder: ((context) => FlowyCursorWidget(
             key: _cursorKey,
@@ -161,13 +161,18 @@ class _FlowySelectionServiceState extends State<FlowySelectionService>
   }
 
   @override
-  List<Node> get selectedNodes {
-    if (panStartOffset != null && panEndOffset != null) {
-      return computeSelectedNodesByPan(
-          editorState.document.root, panStartOffset!, panEndOffset!);
-    } else if (tapOffset != null) {
-      final reuslt =
-          computeSelectedNodeByTap(editorState.document.root, tapOffset!);
+  List<Node> getSelectedNodes(Offset start, [Offset? end]) {
+    if (end != null) {
+      return computeSelectedNodesInRange(
+        editorState.document.root,
+        start,
+        end,
+      );
+    } else {
+      final reuslt = computeSelectedNodeInOffset(
+        editorState.document.root,
+        start,
+      );
       if (reuslt != null) {
         return [reuslt];
       }
@@ -176,13 +181,9 @@ class _FlowySelectionServiceState extends State<FlowySelectionService>
   }
 
   @override
-  Node? computeSelectedNodeByTap(Node node, Offset offset) {
-    assert(this.tapOffset != null);
-    final tapOffset = this.tapOffset;
-    if (tapOffset != null) {}
-
+  Node? computeSelectedNodeInOffset(Node node, Offset offset) {
     for (final child in node.children) {
-      final result = computeSelectedNodeByTap(child, offset);
+      final result = computeSelectedNodeInOffset(child, offset);
       if (result != null) {
         return result;
       }
@@ -198,7 +199,7 @@ class _FlowySelectionServiceState extends State<FlowySelectionService>
   }
 
   @override
-  List<Node> computeSelectedNodesByPan(Node node, Offset start, Offset end) {
+  List<Node> computeSelectedNodesInRange(Node node, Offset start, Offset end) {
     List<Node> result = [];
     if (node.parent != null && node.key != null) {
       if (isNodeInSelection(node, start, end)) {
@@ -206,7 +207,7 @@ class _FlowySelectionServiceState extends State<FlowySelectionService>
       }
     }
     for (final child in node.children) {
-      result.addAll(computeSelectedNodesByPan(child, start, end));
+      result.addAll(computeSelectedNodesInRange(child, start, end));
     }
     // TODO: sort the result
     return result;

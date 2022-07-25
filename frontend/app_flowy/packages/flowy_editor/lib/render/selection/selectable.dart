@@ -13,4 +13,7 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
 
   /// For [TextNode] only.
   TextSelection? getTextSelection();
+
+  /// For [TextNode] only.
+  Offset getOffsetByTextSelection(TextSelection textSelection);
 }

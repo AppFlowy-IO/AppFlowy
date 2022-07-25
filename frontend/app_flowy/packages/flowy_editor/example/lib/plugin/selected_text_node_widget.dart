@@ -93,12 +93,19 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
     final selectionBaseOffset = _getTextPositionAtOffset(localStart).offset;
     final textSelection = TextSelection.collapsed(offset: selectionBaseOffset);
     _textSelection = textSelection;
+    print('text selection = $textSelection');
     return _computeCursorRect(textSelection.baseOffset);
   }
 
   @override
   TextSelection? getTextSelection() {
     return _textSelection;
+  }
+
+  @override
+  Offset getOffsetByTextSelection(TextSelection textSelection) {
+    final offset = _computeCursorRect(textSelection.baseOffset).center;
+    return _renderParagraph.localToGlobal(offset);
   }
 
   @override
@@ -148,6 +155,7 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
     final cursorOffset =
         _renderParagraph.getOffsetForCaret(position, Rect.zero);
     final cursorHeight = _renderParagraph.getFullHeightForCaret(position);
+    print('offset = $offset, cursorHeight = $cursorHeight');
     if (cursorHeight != null) {
       const cursorWidth = 2;
       return Rect.fromLTWH(

@@ -1,17 +1,6 @@
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 
-FlowyKeyEventHandler deleteSingleImageNode = (editorState, event) {
-  final selectNodes = editorState.selectedNodes;
-  if (selectNodes.length != 1 || selectNodes.first.type != 'image') {
-    return KeyEventResult.ignored;
-  }
-  TransactionBuilder(editorState)
-    ..deleteNode(selectNodes.first)
-    ..commit();
-  return KeyEventResult.handled;
-};
-
 class ImageNodeBuilder extends NodeWidgetBuilder {
   ImageNodeBuilder.create({
     required super.node,
@@ -65,6 +54,11 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   @override
   TextSelection? getTextSelection() {
     return null;
+  }
+
+  @override
+  Offset getOffsetByTextSelection(TextSelection textSelection) {
+    return Offset.zero;
   }
 
   @override
