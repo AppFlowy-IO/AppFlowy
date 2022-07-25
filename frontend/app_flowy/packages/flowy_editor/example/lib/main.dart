@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:example/plugin/document_node_widget.dart';
+import 'package:example/plugin/selected_text_node_widget.dart';
 import 'package:example/plugin/text_with_heading_node_widget.dart';
 import 'package:example/plugin/image_node_widget.dart';
 import 'package:example/plugin/text_node_widget.dart';
@@ -65,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     renderPlugins
       ..register('editor', EditorNodeWidgetBuilder.create)
-      ..register('text', TextNodeBuilder.create)
+      ..register('text', SelectedTextNodeBuilder.create)
       ..register('image', ImageNodeBuilder.create)
       ..register('text/with-checkbox', TextWithCheckBoxNodeBuilder.create)
       ..register('text/with-heading', TextWithHeadingNodeBuilder.create);
@@ -93,7 +94,10 @@ class _MyHomePageState extends State<MyHomePage> {
               document: document,
               renderPlugins: renderPlugins,
             );
-            return _editorState.build(context);
+            return FlowyEditor(
+              editorState: _editorState,
+              keyEventHandler: const [],
+            );
           }
         },
       ),

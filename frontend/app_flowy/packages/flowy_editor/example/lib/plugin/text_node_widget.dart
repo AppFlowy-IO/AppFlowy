@@ -12,6 +12,7 @@ class TextNodeBuilder extends NodeWidgetBuilder {
   TextNodeBuilder.create({
     required super.node,
     required super.editorState,
+    required super.key,
   }) : super.create() {
     nodeValidator = ((node) {
       return node.type == 'text';
@@ -20,7 +21,7 @@ class TextNodeBuilder extends NodeWidgetBuilder {
 
   @override
   Widget build(BuildContext buildContext) {
-    return _TextNodeWidget(node: node, editorState: editorState);
+    return _TextNodeWidget(key: key, node: node, editorState: editorState);
   }
 }
 
@@ -126,7 +127,6 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
         textCapitalization: TextCapitalization.sentences,
       ),
     );
-    debugPrint('selection: $selection');
     editorState.cursorSelection = _localSelectionToGlobal(node, selection);
     _textInputConnection
       ?..show()
@@ -205,9 +205,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   }
 
   @override
-  void performAction(TextInputAction action) {
-    debugPrint('action:$action');
-  }
+  void performAction(TextInputAction action) {}
 
   @override
   void performPrivateCommand(String action, Map<String, dynamic> data) {
@@ -230,13 +228,10 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
   }
 
   @override
-  void updateEditingValue(TextEditingValue value) {
-    debugPrint('offset: ${value.selection}');
-  }
+  void updateEditingValue(TextEditingValue value) {}
 
   @override
   void updateEditingValueWithDeltas(List<TextEditingDelta> textEditingDeltas) {
-    debugPrint(textEditingDeltas.toString());
     for (final textDelta in textEditingDeltas) {
       if (textDelta is TextEditingDeltaInsertion) {
         TransactionBuilder(editorState)

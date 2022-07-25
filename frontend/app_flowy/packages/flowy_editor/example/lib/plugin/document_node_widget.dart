@@ -5,11 +5,13 @@ class EditorNodeWidgetBuilder extends NodeWidgetBuilder {
   EditorNodeWidgetBuilder.create({
     required super.editorState,
     required super.node,
+    required super.key,
   }) : super.create();
 
   @override
   Widget build(BuildContext buildContext) {
     return SingleChildScrollView(
+      key: key,
       child: _EditorNodeWidget(
         node: node,
         editorState: editorState,

@@ -1,9 +1,13 @@
 import 'dart:async';
-import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flowy_editor/undo_manager.dart';
 import 'package:flutter/material.dart';
 
-import './document/selection.dart';
+import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/selection.dart';
+import 'package:flowy_editor/document/state_tree.dart';
+import 'package:flowy_editor/operation/operation.dart';
+import 'package:flowy_editor/operation/transaction.dart';
+import 'package:flowy_editor/undo_manager.dart';
+import 'package:flowy_editor/render/render_plugins.dart';
 
 class ApplyOptions {
   /// This flag indicates that
@@ -17,9 +21,13 @@ class ApplyOptions {
   });
 }
 
+// TODO
+final selectionServiceKey = GlobalKey();
+
 class EditorState {
   final StateTree document;
   final RenderPlugins renderPlugins;
+  List<Node> selectedNodes = [];
   final UndoManager undoManager = UndoManager();
   Selection? cursorSelection;
 
