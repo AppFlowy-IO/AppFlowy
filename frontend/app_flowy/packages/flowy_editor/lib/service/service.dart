@@ -1,3 +1,4 @@
+import 'package:flowy_editor/service/floating_shortcut_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
 import 'package:flutter/material.dart';
 
@@ -12,4 +13,15 @@ class FlowyService {
 
   // keyboard service
   final keyboardServiceKey = GlobalKey(debugLabel: 'flowy_keyboard_service');
+
+  // floating toolbar service
+  final floatingShortcutServiceKey =
+      GlobalKey(debugLabel: 'flowy_floating_shortcut_service');
+  FlowyFloatingShortCutService get floatingToolbarService {
+    assert(floatingShortcutServiceKey.currentState != null &&
+        floatingShortcutServiceKey.currentState
+            is FlowyFloatingShortCutService);
+    return floatingShortcutServiceKey.currentState!
+        as FlowyFloatingShortCutService;
+  }
 }

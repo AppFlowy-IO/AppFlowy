@@ -1,10 +1,8 @@
 import 'package:flowy_editor/document/node.dart';
-import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';
-import 'package:flowy_editor/service/selection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

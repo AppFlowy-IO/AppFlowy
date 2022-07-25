@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-class FlowyCursorWidget extends StatefulWidget {
-  const FlowyCursorWidget({
+class CursorWidget extends StatefulWidget {
+  const CursorWidget({
     Key? key,
     required this.layerLink,
     required this.rect,
@@ -17,10 +17,10 @@ class FlowyCursorWidget extends StatefulWidget {
   final LayerLink layerLink;
 
   @override
-  State<FlowyCursorWidget> createState() => _FlowyCursorWidgetState();
+  State<CursorWidget> createState() => _CursorWidgetState();
 }
 
-class _FlowyCursorWidgetState extends State<FlowyCursorWidget> {
+class _CursorWidgetState extends State<CursorWidget> {
   bool showCursor = true;
   late Timer timer;
 

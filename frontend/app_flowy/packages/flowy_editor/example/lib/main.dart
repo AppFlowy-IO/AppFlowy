@@ -97,6 +97,21 @@ class _MyHomePageState extends State<MyHomePage> {
             return FlowyEditor(
               editorState: _editorState,
               keyEventHandler: const [],
+              shortCuts: [
+                // TODO: this won't work, just a example for now.
+                {
+                  'heading': (editorState, eventName) =>
+                      debugPrint('shortcut => $eventName')
+                },
+                {
+                  'bold': (editorState, eventName) =>
+                      debugPrint('shortcut => $eventName')
+                },
+                {
+                  'underline': (editorState, eventName) =>
+                      debugPrint('shortcut => $eventName')
+                },
+              ],
             );
           }
         },

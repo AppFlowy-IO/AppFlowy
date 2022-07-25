@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class FlowySelectionWidget extends StatefulWidget {
-  const FlowySelectionWidget({
+class SelectionWidget extends StatefulWidget {
+  const SelectionWidget({
     Key? key,
     required this.layerLink,
     required this.rect,
@@ -13,10 +13,10 @@ class FlowySelectionWidget extends StatefulWidget {
   final LayerLink layerLink;
 
   @override
-  State<FlowySelectionWidget> createState() => _FlowySelectionWidgetState();
+  State<SelectionWidget> createState() => _SelectionWidgetState();
 }
 
-class _FlowySelectionWidgetState extends State<FlowySelectionWidget> {
+class _SelectionWidgetState extends State<SelectionWidget> {
   @override
   Widget build(BuildContext context) {
     return Positioned.fromRect(

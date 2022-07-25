@@ -1,6 +1,9 @@
+import 'package:flowy_editor/render/selection/floating_shortcut_widget.dart';
+import 'package:flowy_editor/service/floating_shortcut_service.dart';
 import 'package:flowy_editor/service/flowy_key_event_handlers/arrow_keys_handler.dart';
 import 'package:flowy_editor/service/flowy_key_event_handlers/delete_nodes_handler.dart';
 import 'package:flowy_editor/service/flowy_key_event_handlers/delete_single_text_node_handler.dart';
+import 'package:flowy_editor/service/flowy_key_event_handlers/shortcut_handler.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
 
@@ -12,10 +15,12 @@ class FlowyEditor extends StatefulWidget {
     Key? key,
     required this.editorState,
     required this.keyEventHandler,
+    required this.shortCuts,
   }) : super(key: key);
 
   final EditorState editorState;
   final List<FlowyKeyEventHandler> keyEventHandler;
+  final FloatingShortCuts shortCuts;
 
   @override
   State<FlowyEditor> createState() => _FlowyEditorState();
@@ -32,13 +37,20 @@ class _FlowyEditorState extends State<FlowyEditor> {
       child: FlowyKeyboard(
         key: editorState.service.keyboardServiceKey,
         handlers: [
+          slashShortcutHandler,
           flowyDeleteNodesHandler,
           deleteSingleTextNodeHandler,
           arrowKeysHandler,
           ...widget.keyEventHandler,
         ],
         editorState: editorState,
-        child: editorState.build(context),
+        child: FloatingShortCut(
+          key: editorState.service.floatingShortcutServiceKey,
+          size: const Size(200, 150), // TODO: support customize size.
+          editorState: editorState,
+          floatingShortCuts: widget.shortCuts,
+          child: editorState.build(context),
+        ),
       ),
     );
   }
