@@ -1,3 +1,4 @@
+import 'package:flowy_editor/service/flowy_key_event_handlers/arrow_keys_handler.dart';
 import 'package:flowy_editor/service/flowy_key_event_handlers/delete_nodes_handler.dart';
 import 'package:flowy_editor/service/flowy_key_event_handlers/delete_single_text_node_handler.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
@@ -26,12 +27,14 @@ class _FlowyEditorState extends State<FlowyEditor> {
   @override
   Widget build(BuildContext context) {
     return FlowySelection(
-      key: selectionServiceKey,
+      key: editorState.service.selectionServiceKey,
       editorState: editorState,
       child: FlowyKeyboard(
+        key: editorState.service.keyboardServiceKey,
         handlers: [
           flowyDeleteNodesHandler,
           deleteSingleTextNodeHandler,
+          arrowKeysHandler,
           ...widget.keyEventHandler,
         ],
         editorState: editorState,

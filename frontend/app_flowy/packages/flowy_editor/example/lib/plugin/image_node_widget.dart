@@ -62,6 +62,16 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   }
 
   @override
+  Offset getLeftOfOffset() {
+    return Offset.zero;
+  }
+
+  @override
+  Offset getRightOfOffset() {
+    return Offset.zero;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return _build(context);
   }

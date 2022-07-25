@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:example/plugin/debuggable_rich_text.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/foundation.dart';
@@ -109,12 +111,40 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
   }
 
   @override
+  Offset getLeftOfOffset() {
+    final textSelection = _textSelection;
+    if (textSelection != null) {
+      final leftTextSelection = TextSelection.collapsed(
+        offset: max(0, textSelection.baseOffset - 1),
+      );
+      return getOffsetByTextSelection(leftTextSelection);
+    }
+    return Offset.zero;
+  }
+
+  @override
+  Offset getRightOfOffset() {
+    final textSelection = _textSelection;
+    if (textSelection != null) {
+      final leftTextSelection = TextSelection.collapsed(
+        offset: min(node.toRawString().length, textSelection.extentOffset + 1),
+      );
+      return getOffsetByTextSelection(leftTextSelection);
+    }
+    return Offset.zero;
+  }
+
+  @override
   Widget build(BuildContext context) {
     Widget richText;
     if (kDebugMode) {
       richText = DebuggableRichText(text: node.toTextSpan(), textKey: _textKey);
     } else {
       richText = RichText(key: _textKey, text: node.toTextSpan());
+    }
+
+    if (node.children.isEmpty) {
+      return richText;
     }
 
     return Column(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flowy_editor/service/service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_editor/document/node.dart';
@@ -19,13 +20,14 @@ class ApplyOptions {
   });
 }
 
-// TODO
-final selectionServiceKey = GlobalKey();
-
 class EditorState {
   final StateTree document;
   final RenderPlugins renderPlugins;
   List<Node> selectedNodes = [];
+
+  // Service reference.
+  final service = FlowyService();
+
   final UndoManager undoManager = UndoManager();
   Selection? cursorSelection;
 

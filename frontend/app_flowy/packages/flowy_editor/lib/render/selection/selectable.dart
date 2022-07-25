@@ -11,6 +11,12 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
   /// The return result must be an local offset.
   Rect getCursorRect(Offset start);
 
+  /// Returns one unit offset to the left of the offset
+  Offset getLeftOfOffset(/* Cause */);
+
+  /// Returns one unit offset to the right of the offset
+  Offset getRightOfOffset(/* Cause */);
+
   /// For [TextNode] only.
   TextSelection? getTextSelection();
 

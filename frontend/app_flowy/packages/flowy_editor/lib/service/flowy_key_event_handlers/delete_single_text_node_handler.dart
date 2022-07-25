@@ -33,8 +33,7 @@ FlowyKeyEventHandler deleteSingleTextNodeHandler = (editorState, event) {
               final previous = node!.previous! as TextNode;
               final newTextSelection = TextSelection.collapsed(
                   offset: previous.toRawString().length);
-              final selectionService =
-                  selectionServiceKey.currentState as FlowySelectionService;
+              final selectionService = editorState.service.selectionService;
               final previousSelectable =
                   previous.key?.currentState?.unwrapOrNull<Selectable>();
               final newOfset = previousSelectable
@@ -58,8 +57,7 @@ FlowyKeyEventHandler deleteSingleTextNodeHandler = (editorState, event) {
               ..commit();
             final newTextSelection =
                 TextSelection.collapsed(offset: textSelection.baseOffset - 1);
-            final selectionService =
-                selectionServiceKey.currentState as FlowySelectionService;
+            final selectionService = editorState.service.selectionService;
             final newOfset =
                 selectable.getOffsetByTextSelection(newTextSelection);
             selectionService.updateCursor(newOfset);
