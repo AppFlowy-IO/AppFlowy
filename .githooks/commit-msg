@@ -35,7 +35,7 @@ test "" = "$(grep '^Signed-off-by: ' "$1" |
 
 .githooks/gitlint \
 	 --msg-file=$1 \
-	 --subject-regex="^([bB]uild|[cC]hore|[cC]i|[dD]ocs|[fF]eat|[fF]eature|[fF]ix|[pP]erf|[rR]efactor|[rR]evert|[sS]tyle|[tT]est)(.*)?\s?:\s?.*" \
+	 --subject-regex="^(build|chore|ci|docs|feat|feature|fix|perf|refactor|revert|style|test)(.*)?:\s?.*" \
     --subject-maxlen=100 \
     --subject-minlen=10 \
     --body-regex=".*" \
