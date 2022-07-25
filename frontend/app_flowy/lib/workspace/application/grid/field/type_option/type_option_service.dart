@@ -21,13 +21,10 @@ class TypeOptionService {
   Future<Either<SelectOptionPB, FlowyError>> newOption({
     required String name,
   }) {
-    final fieldIdentifier = GridFieldIdentifierPayloadPB.create()
-      ..gridId = gridId
-      ..fieldId = fieldId;
-
     final payload = CreateSelectOptionPayloadPB.create()
       ..optionName = name
-      ..fieldIdentifier = fieldIdentifier;
+      ..gridId = gridId
+      ..fieldId = fieldId;
 
     return GridEventNewSelectOption(payload).send();
   }

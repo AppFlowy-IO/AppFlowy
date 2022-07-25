@@ -2,17 +2,6 @@ use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 
-#[derive(ProtoBuf, Default)]
-pub struct GridRowIdPayloadPB {
-    #[pb(index = 1)]
-    pub grid_id: String,
-
-    #[pb(index = 2)]
-    pub block_id: String,
-
-    #[pb(index = 3)]
-    pub row_id: String,
-}
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridRowIdPB {
@@ -26,15 +15,21 @@ pub struct GridRowIdPB {
     pub row_id: String,
 }
 
-impl TryInto<GridRowIdPB> for GridRowIdPayloadPB {
+pub struct GridRowIdParams {
+    pub grid_id: String,
+    pub block_id: String,
+    pub row_id: String,
+}
+
+impl TryInto<GridRowIdParams> for GridRowIdPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<GridRowIdPB, Self::Error> {
+    fn try_into(self) -> Result<GridRowIdParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let block_id = NotEmptyStr::parse(self.block_id).map_err(|_| ErrorCode::BlockIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
 
-        Ok(GridRowIdPB {
+        Ok(GridRowIdParams {
             grid_id: grid_id.0,
             block_id: block_id.0,
             row_id: row_id.0,
