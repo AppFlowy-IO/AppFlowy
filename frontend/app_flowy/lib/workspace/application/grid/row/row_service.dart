@@ -191,7 +191,7 @@ class GridRowCache {
   }
 
   Future<void> _loadRow(String rowId) async {
-    final payload = GridRowIdPayloadPB.create()
+    final payload = GridRowIdPB.create()
       ..gridId = gridId
       ..blockId = block.id
       ..rowId = rowId;
@@ -297,7 +297,7 @@ class RowService {
   }
 
   Future<Either<OptionalRowPB, FlowyError>> getRow() {
-    final payload = GridRowIdPayloadPB.create()
+    final payload = GridRowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
       ..rowId = rowId;
@@ -306,7 +306,7 @@ class RowService {
   }
 
   Future<Either<Unit, FlowyError>> deleteRow() {
-    final payload = GridRowIdPayloadPB.create()
+    final payload = GridRowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
       ..rowId = rowId;
@@ -315,7 +315,7 @@ class RowService {
   }
 
   Future<Either<Unit, FlowyError>> duplicateRow() {
-    final payload = GridRowIdPayloadPB.create()
+    final payload = GridRowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
       ..rowId = rowId;

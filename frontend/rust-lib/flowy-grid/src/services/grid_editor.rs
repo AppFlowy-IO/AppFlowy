@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::CellIdentifierParams;
+use crate::entities::GridCellIdParams;
 use crate::entities::*;
 use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
@@ -339,12 +339,12 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn get_cell(&self, params: &CellIdentifierParams) -> Option<GridCellPB> {
+    pub async fn get_cell(&self, params: &GridCellIdParams) -> Option<GridCellPB> {
         let cell_bytes = self.get_cell_bytes(params).await?;
         Some(GridCellPB::new(&params.field_id, cell_bytes.to_vec()))
     }
 
-    pub async fn get_cell_bytes(&self, params: &CellIdentifierParams) -> Option<CellBytes> {
+    pub async fn get_cell_bytes(&self, params: &GridCellIdParams) -> Option<CellBytes> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let row_rev = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
 

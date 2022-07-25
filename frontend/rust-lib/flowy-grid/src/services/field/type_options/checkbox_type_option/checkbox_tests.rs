@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellDataOperation};
+    use crate::services::cell::{CellDataOperation};
     use crate::services::field::type_options::checkbox_type_option::*;
     use crate::services::field::FieldBuilder;
     use flowy_grid_data_model::revision::FieldRevision;
