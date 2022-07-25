@@ -34,7 +34,7 @@ class Toggle extends StatelessWidget {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 150),
               top: (style.height - style.thumbRadius) / 2,
-              left: value ? 1 : style.width - style.thumbRadius - 1,
+              left: value ? style.width - style.thumbRadius - 1 : 1,
               child: Container(
                 height: style.thumbRadius,
                 width: style.thumbRadius,
