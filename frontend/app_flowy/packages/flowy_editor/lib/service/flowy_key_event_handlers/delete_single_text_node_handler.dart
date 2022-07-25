@@ -17,7 +17,7 @@ FlowyKeyEventHandler deleteSingleTextNodeHandler = (editorState, event) {
     final node = selectionNodes.first.unwrapOrNull<TextNode>();
     final selectable = node?.key?.currentState?.unwrapOrNull<Selectable>();
     if (selectable != null) {
-      final textSelection = selectable.getTextSelection();
+      final textSelection = selectable.getCurrentTextSelection();
       if (textSelection != null) {
         if (textSelection.isCollapsed) {
           /// Three cases:

@@ -1,33 +1,35 @@
-import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_editor/render/selection/floating_shortcut_widget.dart';
 import 'package:flutter/material.dart';
 
-mixin FlowyFloatingShortCutService {
+mixin FlowyFloatingShortcutService {
+  /// Show the floating shortcut widget beside the offset.
   void showInOffset(Offset offset, LayerLink layerLink);
+
+  /// Hide the floating shortcut widget.
   void hide();
 }
 
-class FloatingShortCut extends StatefulWidget {
-  const FloatingShortCut({
+class FloatingShortcut extends StatefulWidget {
+  const FloatingShortcut({
     Key? key,
     required this.size,
     required this.editorState,
-    required this.floatingShortCuts,
+    required this.floatingShortcuts,
     required this.child,
   }) : super(key: key);
 
   final Size size;
   final EditorState editorState;
   final Widget child;
-  final FloatingShortCuts floatingShortCuts;
+  final FloatingShortcuts floatingShortcuts;
 
   @override
-  State<FloatingShortCut> createState() => _FloatingShortCutState();
+  State<FloatingShortcut> createState() => _FloatingShortcutState();
 }
 
-class _FloatingShortCutState extends State<FloatingShortCut>
-    with FlowyFloatingShortCutService {
+class _FloatingShortcutState extends State<FloatingShortcut>
+    with FlowyFloatingShortcutService {
   OverlayEntry? _floatintShortcutOverlay;
 
   @override
@@ -38,7 +40,7 @@ class _FloatingShortCutState extends State<FloatingShortCut>
           editorState: widget.editorState,
           layerLink: layerLink,
           rect: offset.translate(10, 0) & widget.size,
-          floatingShortcuts: widget.floatingShortCuts),
+          floatingShortcuts: widget.floatingShortcuts),
     );
     Overlay.of(context)?.insert(_floatintShortcutOverlay!);
   }

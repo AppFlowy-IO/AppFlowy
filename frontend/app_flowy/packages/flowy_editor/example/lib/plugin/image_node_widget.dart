@@ -52,7 +52,7 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   }
 
   @override
-  TextSelection? getTextSelection() {
+  TextSelection? getCurrentTextSelection() {
     return null;
   }
 
@@ -62,12 +62,12 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   }
 
   @override
-  Offset getLeftOfOffset() {
+  Offset getBackwardOffset() {
     return Offset.zero;
   }
 
   @override
-  Offset getRightOfOffset() {
+  Offset getForwardOffset() {
     return Offset.zero;
   }
 

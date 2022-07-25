@@ -15,12 +15,12 @@ class FlowyEditor extends StatefulWidget {
     Key? key,
     required this.editorState,
     required this.keyEventHandler,
-    required this.shortCuts,
+    required this.shortcuts,
   }) : super(key: key);
 
   final EditorState editorState;
   final List<FlowyKeyEventHandler> keyEventHandler;
-  final FloatingShortCuts shortCuts;
+  final FloatingShortcuts shortcuts;
 
   @override
   State<FlowyEditor> createState() => _FlowyEditorState();
@@ -44,11 +44,11 @@ class _FlowyEditorState extends State<FlowyEditor> {
           ...widget.keyEventHandler,
         ],
         editorState: editorState,
-        child: FloatingShortCut(
+        child: FloatingShortcut(
           key: editorState.service.floatingShortcutServiceKey,
           size: const Size(200, 150), // TODO: support customize size.
           editorState: editorState,
-          floatingShortCuts: widget.shortCuts,
+          floatingShortcuts: widget.shortcuts,
           child: editorState.build(context),
         ),
       ),

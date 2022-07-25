@@ -100,7 +100,7 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
   }
 
   @override
-  TextSelection? getTextSelection() {
+  TextSelection? getCurrentTextSelection() {
     return _textSelection;
   }
 
@@ -111,7 +111,7 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
   }
 
   @override
-  Offset getLeftOfOffset() {
+  Offset getBackwardOffset() {
     final textSelection = _textSelection;
     if (textSelection != null) {
       final leftTextSelection = TextSelection.collapsed(
@@ -123,7 +123,7 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
   }
 
   @override
-  Offset getRightOfOffset() {
+  Offset getForwardOffset() {
     final textSelection = _textSelection;
     if (textSelection != null) {
       final leftTextSelection = TextSelection.collapsed(

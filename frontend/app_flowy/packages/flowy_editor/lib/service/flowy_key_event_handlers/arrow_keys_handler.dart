@@ -24,9 +24,9 @@ FlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
   final selectable = node?.key?.currentState?.unwrapOrNull<Selectable>();
   Offset? offset;
   if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-    offset = selectable?.getLeftOfOffset();
+    offset = selectable?.getBackwardOffset();
   } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-    offset = selectable?.getRightOfOffset();
+    offset = selectable?.getForwardOffset();
   }
   final selectionService = editorState.service.selectionService;
   if (offset != null) {

@@ -14,14 +14,14 @@ class FlowyService {
   // keyboard service
   final keyboardServiceKey = GlobalKey(debugLabel: 'flowy_keyboard_service');
 
-  // floating toolbar service
+  // floating shortcut service
   final floatingShortcutServiceKey =
       GlobalKey(debugLabel: 'flowy_floating_shortcut_service');
-  FlowyFloatingShortCutService get floatingToolbarService {
+  FlowyFloatingShortcutService get floatingToolbarService {
     assert(floatingShortcutServiceKey.currentState != null &&
         floatingShortcutServiceKey.currentState
-            is FlowyFloatingShortCutService);
+            is FlowyFloatingShortcutService);
     return floatingShortcutServiceKey.currentState!
-        as FlowyFloatingShortCutService;
+        as FlowyFloatingShortcutService;
   }
 }

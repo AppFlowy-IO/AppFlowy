@@ -1,9 +1,9 @@
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 
-typedef FloatingShortCutHandler = void Function(
+typedef FloatingShortcutHandler = void Function(
     EditorState editorState, String eventName);
-typedef FloatingShortCuts = List<Map<String, FloatingShortCutHandler>>;
+typedef FloatingShortcuts = List<Map<String, FloatingShortcutHandler>>;
 
 class FloatingShortcutWidget extends StatelessWidget {
   const FloatingShortcutWidget({
@@ -17,11 +17,11 @@ class FloatingShortcutWidget extends StatelessWidget {
   final EditorState editorState;
   final LayerLink layerLink;
   final Rect rect;
-  final FloatingShortCuts floatingShortcuts;
+  final FloatingShortcuts floatingShortcuts;
 
   List<String> get _shortcutNames =>
       floatingShortcuts.map((shortcut) => shortcut.keys.first).toList();
-  List<FloatingShortCutHandler> get _shortcutHandlers =>
+  List<FloatingShortcutHandler> get _shortcutHandlers =>
       floatingShortcuts.map((shortcut) => shortcut.values.first).toList();
 
   @override
@@ -38,7 +38,7 @@ class FloatingShortcutWidget extends StatelessWidget {
             itemCount: floatingShortcuts.length,
             itemBuilder: ((context, index) {
               final name = _shortcutNameInIndex(index);
-              final handler = _shortCutHandlerInIndex(index);
+              final handler = _shortcutHandlerInIndex(index);
               return Card(
                 child: GestureDetector(
                   onTap: () => handler(editorState, name),
@@ -53,6 +53,6 @@ class FloatingShortcutWidget extends StatelessWidget {
   }
 
   String _shortcutNameInIndex(int index) => _shortcutNames[index];
-  FloatingShortCutHandler _shortCutHandlerInIndex(int index) =>
+  FloatingShortcutHandler _shortcutHandlerInIndex(int index) =>
       _shortcutHandlers[index];
 }

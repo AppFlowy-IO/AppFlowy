@@ -17,7 +17,7 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
 
   final textNode = selectedNodes.first.unwrapOrNull<TextNode>();
   final selectable = textNode?.key?.currentState?.unwrapOrNull<Selectable>();
-  final textSelection = selectable?.getTextSelection();
+  final textSelection = selectable?.getCurrentTextSelection();
   if (textNode != null && selectable != null && textSelection != null) {
     final offset = selectable.getOffsetByTextSelection(textSelection);
     final rect = selectable.getCursorRect(offset);

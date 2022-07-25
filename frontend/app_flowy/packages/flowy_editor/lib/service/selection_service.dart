@@ -1,5 +1,5 @@
 import 'package:flowy_editor/render/selection/cursor_widget.dart';
-import 'package:flowy_editor/render/selection/selection_widget.dart';
+import 'package:flowy_editor/render/selection/flowy_selection_widget.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';
 import 'package:flowy_editor/service/floating_shortcut_service.dart';
 import 'package:flutter/gestures.dart';
@@ -293,9 +293,9 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   void _clearFloatingShorts() {
-    final shortCutService = editorState
+    final shortcutService = editorState
         .service.floatingShortcutServiceKey.currentState
-        ?.unwrapOrNull<FlowyFloatingShortCutService>();
-    shortCutService?.hide();
+        ?.unwrapOrNull<FlowyFloatingShortcutService>();
+    shortcutService?.hide();
   }
 }
