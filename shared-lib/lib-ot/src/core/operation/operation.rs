@@ -41,7 +41,7 @@ pub trait OperationTransformable {
     where
         Self: Sized;
 
-    /// Return the invert delta from the other. It can be used to do the undo operation.
+    /// Returns the invert delta from the other. It can be used to do the undo operation.
     ///
     /// # Arguments
     ///

@@ -46,7 +46,7 @@ where
         self
     }
 
-    /// Insert the string with attributes. Use 'insert' instead if you don't
+    /// Inserts the string with attributes. Use 'insert' instead if you don't
     /// need any attributes.
     pub fn insert_with_attributes(mut self, s: &str, attrs: T) -> Self {
         self.delta.insert(s, attrs);

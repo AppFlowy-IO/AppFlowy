@@ -53,17 +53,17 @@ where
         cursor
     }
 
-    /// Return the next operation interval
+    /// Returns the next operation interval
     pub fn next_iv(&self) -> Interval {
         self.next_iv_with_len(None).unwrap_or_else(|| Interval::new(0, 0))
     }
 
-    /// Return the next operation
+    /// Returns the next operation
     pub fn get_next_op(&mut self) -> Option<Operation<T>> {
         self.next_with_len(None)
     }
 
-    /// Return the reference of the next operation
+    /// Returns the reference of the next operation
     pub fn next_op(&self) -> Option<&Operation<T>> {
         let mut next_op = self.next_op.as_ref();
         if next_op.is_none() {
@@ -138,8 +138,8 @@ where
         self.next_op().is_some()
     }
 
-    /// Find the op within the current offset.
-    /// This function sets the start of the consume_iv to the offset, update the consume_count
+    /// Finds the op within the current offset.
+    /// This function sets the start of the consume_iv to the offset, updates the consume_count
     /// and the next_op reference.
     ///
     /// # Arguments
