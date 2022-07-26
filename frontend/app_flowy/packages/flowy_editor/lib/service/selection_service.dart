@@ -14,14 +14,25 @@ import 'package:flutter/material.dart';
 
 /// Process selection and cursor
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
+  /// Returns the currently selected [Node]s.
   ///
+  /// The order of the return is determined according to the selected order.
   List<Node> get currentSelectedNodes;
+
+  /// ------------------ Selection ------------------------
 
   ///
   void updateSelection(Selection selection);
 
   ///
   void clearSelection();
+
+  ///
+  List<Node> getNodesInSelection(Selection selection);
+
+  /// ------------------ Selection ------------------------
+
+  /// ------------------ Offset ------------------------
 
   /// Returns selected [Node]s. Empty list would be returned
   ///   if no nodes are being selected.
@@ -32,9 +43,6 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
   /// If end is not null, it means multiple selection,
   ///   otherwise single selection.
   List<Node> getNodesInRange(Offset start, [Offset? end]);
-
-  ///
-  List<Node> getNodesInSelection(Selection selection);
 
   /// Return the [Node] or [Null] in single selection.
   ///
@@ -64,6 +72,8 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
   ///
   /// [start] is the offset under the global coordinate system.
   bool isNodeInOffset(Node node, Offset offset);
+
+  /// ------------------ Offset ------------------------
 }
 
 class FlowySelection extends StatefulWidget {
@@ -100,9 +110,6 @@ class _FlowySelectionState extends State<FlowySelection>
   Offset? tapOffset;
 
   EditorState get editorState => widget.editorState;
-
-  Node? _selectedNodeInPostion(Node node, Position position) =>
-      node.childAtPath(position.path);
 
   @override
   List<Node> currentSelectedNodes = [];
@@ -186,6 +193,17 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   List<Node> computeNodesInRange(Node node, Offset start, Offset end) {
+    final result = _computeNodesInRange(node, start, end);
+    if (start.dy <= end.dy) {
+      // downward
+      return result;
+    } else {
+      // upward
+      return result.reversed.toList(growable: false);
+    }
+  }
+
+  List<Node> _computeNodesInRange(Node node, Offset start, Offset end) {
     List<Node> result = [];
     if (node.parent != null && node.key != null) {
       if (isNodeInRange(node, start, end)) {
@@ -195,7 +213,6 @@ class _FlowySelectionState extends State<FlowySelection>
     for (final child in node.children) {
       result.addAll(computeNodesInRange(child, start, end));
     }
-    // TODO: sort the result
     return result;
   }
 
@@ -223,12 +240,11 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   void _onTapDown(TapDownDetails details) {
-    debugPrint('on tap down');
-
-    // TODO: use setter to make them exclusive??
-    tapOffset = details.globalPosition;
+    // clear old state.
     panStartOffset = null;
     panEndOffset = null;
+
+    tapOffset = details.globalPosition;
 
     final nodes = getNodesInRange(tapOffset!);
     if (nodes.isNotEmpty) {
@@ -243,38 +259,30 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   void _onPanStart(DragStartDetails details) {
-    debugPrint('on pan start');
-
-    panStartOffset = details.globalPosition;
+    // clear old state.
     panEndOffset = null;
     tapOffset = null;
+    clearSelection();
+
+    panStartOffset = details.globalPosition;
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    // debugPrint('on pan update');
-
     panEndOffset = details.globalPosition;
-    tapOffset = null;
 
     final nodes = getNodesInRange(panStartOffset!, panEndOffset!);
     final first = nodes.first.selectable;
     final last = nodes.last.selectable;
+
+    // compute the selection in range.
     if (first != null && last != null) {
-      final Selection selection;
-      if (panStartOffset!.dy <= panEndOffset!.dy) {
-        // down
-        selection = Selection(
-          start:
-              first.getSelectionInRange(panStartOffset!, panEndOffset!).start,
-          end: last.getSelectionInRange(panStartOffset!, panEndOffset!).end,
-        );
-      } else {
-        // up
-        selection = Selection(
-          start: last.getSelectionInRange(panStartOffset!, panEndOffset!).end,
-          end: first.getSelectionInRange(panStartOffset!, panEndOffset!).start,
-        );
-      }
+      bool isDownward = panStartOffset!.dy <= panEndOffset!.dy;
+      final start =
+          first.getSelectionInRange(panStartOffset!, panEndOffset!).start;
+      final end = last.getSelectionInRange(panStartOffset!, panEndOffset!).end;
+      final selection = Selection(
+          start: isDownward ? start : end, end: isDownward ? end : start);
+      debugPrint('[_onPanUpdate] $selection');
       updateSelection(selection);
     }
   }
@@ -313,51 +321,32 @@ class _FlowySelectionState extends State<FlowySelection>
         continue;
       }
 
-      Selection newSelection;
-      // TODO: too complicate, need to refactor.
-      if (node is TextNode) {
-        if (pathEquals(selection.start.path, selection.end.path)) {
-          newSelection = selection.copyWith();
-        } else {
-          if (index == 0) {
-            if (selection.isUpward) {
-              newSelection = selection.copyWith(
-                /// FIXME: make it better.
-                start: selection.end.copyWith(),
-                end: selection.end.copyWith(offset: node.toRawString().length),
-              );
-            } else {
-              newSelection = selection.copyWith(
-                /// FIXME: make it better.
-                end:
-                    selection.start.copyWith(offset: node.toRawString().length),
-              );
-            }
-          } else if (index == nodes.length - 1) {
-            if (selection.isUpward) {
-              newSelection = selection.copyWith(
-                /// FIXME: make it better.
-                start: selection.start.copyWith(offset: 0),
-                end: selection.start.copyWith(),
-              );
-            } else {
-              newSelection = selection.copyWith(
-                /// FIXME: make it better.
-                start: selection.end.copyWith(offset: 0),
-              );
-            }
+      var newSelection = selection.copy();
+      // In the case of multiple selections,
+      //  we need to return a new selection for each selected node individually.
+      if (!selection.isSingle) {
+        // <> means selected.
+        // text: abcd<ef
+        // text: ghijkl
+        // text: mn>opqr
+        if (index == 0) {
+          if (selection.isDownward) {
+            newSelection = selection.copyWith(end: selectable.end());
           } else {
-            final position = Position(path: node.path);
-            newSelection = Selection(
-              start: position.copyWith(offset: 0),
-              end: position.copyWith(offset: node.toRawString().length),
-            );
+            newSelection = selection.copyWith(start: selectable.start());
           }
+        } else if (index == nodes.length - 1) {
+          if (selection.isDownward) {
+            newSelection = selection.copyWith(start: selectable.start());
+          } else {
+            newSelection = selection.copyWith(end: selectable.end());
+          }
+        } else {
+          newSelection = selection.copyWith(
+            start: selectable.start(),
+            end: selectable.end(),
+          );
         }
-      } else {
-        newSelection = Selection.collapsed(
-          Position(path: node.path),
-        );
       }
 
       final rects = selectable.getRectsInSelection(newSelection);

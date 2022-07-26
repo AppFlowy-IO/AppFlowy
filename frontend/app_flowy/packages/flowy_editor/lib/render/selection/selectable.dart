@@ -23,11 +23,8 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
   Position getPositionInOffset(Offset start);
   Rect getCursorRectInPosition(Position position);
 
-  /// Returns a backward offset of the current offset based on the cause.
-  Offset getBackwardOffset(/* Cause */);
-
-  /// Returns a forward offset of the current offset based on the cause.
-  Offset getForwardOffset(/* Cause */);
+  Position start();
+  Position end();
 
   /// For [TextNode] only.
   ///

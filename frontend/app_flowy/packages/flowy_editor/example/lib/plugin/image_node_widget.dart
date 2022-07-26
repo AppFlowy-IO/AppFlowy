@@ -40,6 +40,18 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   String get src => widget.node.attributes['image_src'] as String;
 
   @override
+  Position end() {
+    // TODO: implement end
+    throw UnimplementedError();
+  }
+
+  @override
+  Position start() {
+    // TODO: implement start
+    throw UnimplementedError();
+  }
+
+  @override
   List<Rect> getRectsInSelection(Selection selection) {
     // TODO: implement getRectsInSelection
     throw UnimplementedError();
@@ -61,16 +73,6 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   Position getPositionInOffset(Offset start) {
     // TODO: implement getPositionInOffset
     throw UnimplementedError();
-  }
-
-  @override
-  Offset getBackwardOffset() {
-    return Offset.zero;
-  }
-
-  @override
-  Offset getForwardOffset() {
-    return Offset.zero;
   }
 
   @override

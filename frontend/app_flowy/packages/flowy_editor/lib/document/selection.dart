@@ -31,6 +31,7 @@ class Selection {
   }
 
   bool get isCollapsed => start == end;
+  bool get isSingle => pathEquals(start.path, end.path);
   bool get isUpward =>
       start.path >= end.path && !pathEquals(start.path, end.path);
   bool get isDownward =>
@@ -42,6 +43,8 @@ class Selection {
       end: end ?? this.end,
     );
   }
+
+  Selection copy() => Selection(start: start, end: end);
 
   @override
   String toString() => '[Selection] start = $start, end = $end';
