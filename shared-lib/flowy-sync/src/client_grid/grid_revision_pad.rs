@@ -9,7 +9,7 @@ use flowy_grid_data_model::revision::{
     GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
 };
 use lib_infra::util::move_vec_element;
-use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta, PlainTextDeltaBuilder};
+use lib_ot::core::{OperationTransformable, PhantomAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -52,8 +52,8 @@ impl GridRevisionPad {
     }
 
     pub fn from_delta(delta: GridRevisionDelta) -> CollaborateResult<Self> {
-        let s = delta.to_str()?;
-        let grid: GridRevision = serde_json::from_str(&s)
+        let content = delta.content_str()?;
+        let grid: GridRevision = serde_json::from_str(&content)
             .map_err(|e| CollaborateError::internal().context(format!("Deserialize delta to grid failed: {}", e)))?;
 
         Ok(Self {
@@ -63,7 +63,7 @@ impl GridRevisionPad {
     }
 
     pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let grid_delta: GridRevisionDelta = make_delta_from_revisions::<PlainTextAttributes>(revisions)?;
+        let grid_delta: GridRevisionDelta = make_delta_from_revisions::<PhantomAttributes>(revisions)?;
         Self::from_delta(grid_delta)
     }
 
@@ -457,15 +457,15 @@ impl GridRevisionPad {
     }
 
     pub fn md5(&self) -> String {
-        md5(&self.delta.to_delta_bytes())
+        md5(&self.delta.to_json_bytes())
     }
 
     pub fn delta_str(&self) -> String {
-        self.delta.to_delta_str()
+        self.delta.to_json_str()
     }
 
     pub fn delta_bytes(&self) -> Bytes {
-        self.delta.to_delta_bytes()
+        self.delta.to_json_bytes()
     }
 
     pub fn fields(&self) -> &[Arc<FieldRevision>] {
@@ -482,7 +482,7 @@ impl GridRevisionPad {
             Some(_) => {
                 let old = make_grid_rev_json_str(&cloned_grid)?;
                 let new = self.json_str()?;
-                match cal_diff::<PlainTextAttributes>(old, new) {
+                match cal_diff::<PhantomAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
@@ -553,7 +553,7 @@ pub fn make_grid_delta(grid_rev: &GridRevision) -> GridRevisionDelta {
 
 pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {
     let delta = make_grid_delta(grid_rev);
-    let bytes = delta.to_delta_bytes();
+    let bytes = delta.to_json_bytes();
     let revision = Revision::initial_revision(user_id, &grid_rev.grid_id, bytes);
     revision.into()
 }

@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
     use crate::entities::FieldType;
-    use crate::services::cell::{CellDataOperation};
+    use crate::services::cell::CellDataOperation;
     use crate::services::field::*;
     // use crate::services::field::{DateCellChangeset, DateCellData, DateFormat, DateTypeOption, TimeFormat};
     use flowy_grid_data_model::revision::FieldRevision;

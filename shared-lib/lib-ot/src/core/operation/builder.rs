@@ -1,40 +1,38 @@
-use crate::{
-    core::{Attributes, Operation, PlainTextAttributes},
-    rich_text::RichTextAttributes,
-};
+use crate::core::operation::{Attributes, Operation, PhantomAttributes};
+use crate::rich_text::RichTextAttributes;
 
-pub type RichTextOpBuilder = OpBuilder<RichTextAttributes>;
-pub type PlainTextOpBuilder = OpBuilder<PlainTextAttributes>;
+pub type RichTextOpBuilder = OperationBuilder<RichTextAttributes>;
+pub type PlainTextOpBuilder = OperationBuilder<PhantomAttributes>;
 
-pub struct OpBuilder<T: Attributes> {
+pub struct OperationBuilder<T: Attributes> {
     ty: Operation<T>,
     attrs: T,
 }
 
-impl<T> OpBuilder<T>
+impl<T> OperationBuilder<T>
 where
     T: Attributes,
 {
-    pub fn new(ty: Operation<T>) -> OpBuilder<T> {
-        OpBuilder {
+    pub fn new(ty: Operation<T>) -> OperationBuilder<T> {
+        OperationBuilder {
             ty,
             attrs: T::default(),
         }
     }
 
-    pub fn retain(n: usize) -> OpBuilder<T> {
-        OpBuilder::new(Operation::Retain(n.into()))
+    pub fn retain(n: usize) -> OperationBuilder<T> {
+        OperationBuilder::new(Operation::Retain(n.into()))
     }
 
-    pub fn delete(n: usize) -> OpBuilder<T> {
-        OpBuilder::new(Operation::Delete(n))
+    pub fn delete(n: usize) -> OperationBuilder<T> {
+        OperationBuilder::new(Operation::Delete(n))
     }
 
-    pub fn insert(s: &str) -> OpBuilder<T> {
-        OpBuilder::new(Operation::Insert(s.into()))
+    pub fn insert(s: &str) -> OperationBuilder<T> {
+        OperationBuilder::new(Operation::Insert(s.into()))
     }
 
-    pub fn attributes(mut self, attrs: T) -> OpBuilder<T> {
+    pub fn attributes(mut self, attrs: T) -> OperationBuilder<T> {
         self.attrs = attrs;
         self
     }

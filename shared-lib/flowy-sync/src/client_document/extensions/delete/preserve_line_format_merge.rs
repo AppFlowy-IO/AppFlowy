@@ -1,6 +1,6 @@
 use crate::{client_document::DeleteExt, util::is_newline};
 use lib_ot::{
-    core::{Attributes, DeltaBuilder, DeltaIter, Interval, Utf16CodeUnitMetric, NEW_LINE},
+    core::{Attributes, DeltaBuilder, DeltaIterator, Interval, Utf16CodeUnitMetric, NEW_LINE},
     rich_text::{plain_attributes, RichTextDelta},
 };
 
@@ -16,7 +16,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
         }
 
         // seek to the  interval start pos. e.g. You backspace enter pos
-        let mut iter = DeltaIter::from_offset(delta, interval.start);
+        let mut iter = DeltaIterator::from_offset(delta, interval.start);
 
         // op will be the "\n"
         let newline_op = iter.next_op_with_len(1)?;

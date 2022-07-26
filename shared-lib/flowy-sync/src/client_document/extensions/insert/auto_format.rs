@@ -1,6 +1,6 @@
 use crate::{client_document::InsertExt, util::is_whitespace};
 use lib_ot::{
-    core::{count_utf16_code_units, DeltaBuilder, DeltaIter},
+    core::{count_utf16_code_units, DeltaBuilder, DeltaIterator},
     rich_text::{plain_attributes, RichTextAttribute, RichTextAttributes, RichTextDelta},
 };
 use std::cmp::min;
@@ -17,7 +17,7 @@ impl InsertExt for AutoFormatExt {
         if !is_whitespace(text) {
             return None;
         }
-        let mut iter = DeltaIter::new(delta);
+        let mut iter = DeltaIterator::new(delta);
         if let Some(prev) = iter.next_op_with_len(index) {
             match AutoFormat::parse(prev.get_data()) {
                 None => {}

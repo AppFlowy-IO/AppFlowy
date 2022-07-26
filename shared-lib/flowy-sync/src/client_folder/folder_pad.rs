@@ -295,7 +295,7 @@ impl FolderPad {
     }
 
     pub fn md5(&self) -> String {
-        md5(&self.delta.to_delta_bytes())
+        md5(&self.delta.to_json_bytes())
     }
 
     pub fn to_json(&self) -> CollaborateResult<String> {
@@ -315,7 +315,7 @@ impl FolderPad {
             Some(_) => {
                 let old = cloned_self.to_json()?;
                 let new = self.to_json()?;
-                match cal_diff::<PlainTextAttributes>(old, new) {
+                match cal_diff::<PhantomAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
@@ -350,7 +350,7 @@ impl FolderPad {
             Some(_) => {
                 let old = cloned_self.to_json()?;
                 let new = self.to_json()?;
-                match cal_diff::<PlainTextAttributes>(old, new) {
+                match cal_diff::<PhantomAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;

@@ -177,7 +177,7 @@ impl<'a> FlowyUtf16CodePointIterator<'a> {
     }
 }
 
-use crate::core::Interval;
+use crate::core::interval::Interval;
 use std::str;
 
 impl<'a> Iterator for FlowyUtf16CodePointIterator<'a> {
@@ -226,7 +226,8 @@ pub fn len_utf8_from_first_byte(b: u8) -> usize {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{FlowyStr, Interval};
+    use crate::core::flowy_str::FlowyStr;
+    use crate::core::interval::Interval;
 
     #[test]
     fn flowy_str_code_unit() {

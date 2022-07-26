@@ -1,6 +1,6 @@
 use crate::client_document::InsertExt;
 use lib_ot::{
-    core::{Attributes, DeltaBuilder, DeltaIter, NEW_LINE},
+    core::{Attributes, DeltaBuilder, DeltaIterator, NEW_LINE},
     rich_text::{RichTextAttributeKey, RichTextAttributes, RichTextDelta},
 };
 
@@ -11,7 +11,7 @@ impl InsertExt for DefaultInsertAttribute {
     }
 
     fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
-        let iter = DeltaIter::new(delta);
+        let iter = DeltaIterator::new(delta);
         let mut attributes = RichTextAttributes::new();
 
         // Enable each line split by "\n" remains the block attributes. for example:
