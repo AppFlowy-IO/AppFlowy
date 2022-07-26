@@ -1,4 +1,5 @@
 import 'package:flowy_editor/document/path.dart';
+import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/render/selection/cursor_widget.dart';
@@ -6,17 +7,21 @@ import 'package:flowy_editor/render/selection/flowy_selection_widget.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';
 import 'package:flowy_editor/extensions/node_extensions.dart';
 import 'package:flowy_editor/service/shortcut_service.dart';
+import 'package:flowy_editor/editor_state.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
-import '../editor_state.dart';
-import '../document/node.dart';
-import '../render/selection/selectable.dart';
 
 /// Process selection and cursor
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
   ///
+  List<Node> get currentSelectedNodes;
+
+  ///
   void updateSelection(Selection selection);
+
+  ///
+  void clearSelection();
 
   /// Returns selected [Node]s. Empty list would be returned
   ///   if no nodes are being selected.
@@ -49,7 +54,7 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
   /// Return [bool] to identify the [Node] is in Range or not.
   ///
   /// [start] and [end] are the offsets under the global coordinate system.
-  bool isNodeInSelection(
+  bool isNodeInRange(
     Node node,
     Offset start,
     Offset end,
@@ -96,6 +101,12 @@ class _FlowySelectionState extends State<FlowySelection>
 
   EditorState get editorState => widget.editorState;
 
+  Node? _selectedNodeInPostion(Node node, Position position) =>
+      node.childAtPath(position.path);
+
+  @override
+  List<Node> currentSelectedNodes = [];
+
   @override
   List<Node> getNodesInSelection(Selection selection) =>
       _selectedNodesInSelection(editorState.document.root, selection);
@@ -129,14 +140,19 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   void updateSelection(Selection selection) {
-    _clearAllOverlayEntries();
+    _clearSelection();
 
     // cursor
-    if (selection.isCollapsed()) {
+    if (selection.isCollapsed) {
       _updateCursor(selection.start);
     } else {
       _updateSelection(selection);
     }
+  }
+
+  @override
+  void clearSelection() {
+    _clearSelection();
   }
 
   @override
@@ -172,7 +188,7 @@ class _FlowySelectionState extends State<FlowySelection>
   List<Node> computeNodesInRange(Node node, Offset start, Offset end) {
     List<Node> result = [];
     if (node.parent != null && node.key != null) {
-      if (isNodeInSelection(node, start, end)) {
+      if (isNodeInRange(node, start, end)) {
         result.add(node);
       }
     }
@@ -195,7 +211,7 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   @override
-  bool isNodeInSelection(Node node, Offset start, Offset end) {
+  bool isNodeInRange(Node node, Offset start, Offset end) {
     final renderBox = node.renderBox;
     if (renderBox != null) {
       final rect = Rect.fromPoints(start, end);
@@ -244,10 +260,21 @@ class _FlowySelectionState extends State<FlowySelection>
     final first = nodes.first.selectable;
     final last = nodes.last.selectable;
     if (first != null && last != null) {
-      final selection = Selection(
-        start: first.getSelectionInRange(panStartOffset!, panEndOffset!).start,
-        end: last.getSelectionInRange(panStartOffset!, panEndOffset!).end,
-      );
+      final Selection selection;
+      if (panStartOffset!.dy <= panEndOffset!.dy) {
+        // down
+        selection = Selection(
+          start:
+              first.getSelectionInRange(panStartOffset!, panEndOffset!).start,
+          end: last.getSelectionInRange(panStartOffset!, panEndOffset!).end,
+        );
+      } else {
+        // up
+        selection = Selection(
+          start: last.getSelectionInRange(panStartOffset!, panEndOffset!).end,
+          end: first.getSelectionInRange(panStartOffset!, panEndOffset!).start,
+        );
+      }
       updateSelection(selection);
     }
   }
@@ -256,34 +283,28 @@ class _FlowySelectionState extends State<FlowySelection>
     // do nothing
   }
 
-  void _clearAllOverlayEntries() {
-    _clearSelection();
-    _clearCursor();
-    _clearFloatingShorts();
-  }
-
   void _clearSelection() {
+    currentSelectedNodes = [];
+
+    // clear selection
     _selectionOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
-  }
-
-  void _clearCursor() {
+    // clear cursors
     _cursorOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
-  }
-
-  void _clearFloatingShorts() {
-    final shortcutService = editorState
-        .service.floatingShortcutServiceKey.currentState
-        ?.unwrapOrNull<FlowyFloatingShortcutService>();
-    shortcutService?.hide();
+    // clear floating shortcusts
+    editorState.service.floatingShortcutServiceKey.currentState
+        ?.unwrapOrNull<FlowyFloatingShortcutService>()
+        ?.hide();
   }
 
   void _updateSelection(Selection selection) {
     final nodes =
         _selectedNodesInSelection(editorState.document.root, selection);
+
+    currentSelectedNodes = nodes;
 
     var index = 0;
     for (final node in nodes) {
@@ -293,20 +314,38 @@ class _FlowySelectionState extends State<FlowySelection>
       }
 
       Selection newSelection;
+      // TODO: too complicate, need to refactor.
       if (node is TextNode) {
         if (pathEquals(selection.start.path, selection.end.path)) {
           newSelection = selection.copyWith();
         } else {
           if (index == 0) {
-            newSelection = selection.copyWith(
-              /// FIXME: make it better.
-              end: selection.start.copyWith(offset: node.toRawString().length),
-            );
+            if (selection.isUpward) {
+              newSelection = selection.copyWith(
+                /// FIXME: make it better.
+                start: selection.end.copyWith(),
+                end: selection.end.copyWith(offset: node.toRawString().length),
+              );
+            } else {
+              newSelection = selection.copyWith(
+                /// FIXME: make it better.
+                end:
+                    selection.start.copyWith(offset: node.toRawString().length),
+              );
+            }
           } else if (index == nodes.length - 1) {
-            newSelection = selection.copyWith(
-              /// FIXME: make it better.
-              start: selection.end.copyWith(offset: 0),
-            );
+            if (selection.isUpward) {
+              newSelection = selection.copyWith(
+                /// FIXME: make it better.
+                start: selection.start.copyWith(offset: 0),
+                end: selection.start.copyWith(),
+              );
+            } else {
+              newSelection = selection.copyWith(
+                /// FIXME: make it better.
+                start: selection.end.copyWith(offset: 0),
+              );
+            }
           } else {
             final position = Position(path: node.path);
             newSelection = Selection(
@@ -339,12 +378,14 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   void _updateCursor(Position position) {
-    final node = _selectedNodeInPostion(editorState.document.root, position);
+    final node = editorState.document.root.childAtPath(position.path);
 
     assert(node != null);
     if (node == null) {
       return;
     }
+
+    currentSelectedNodes = [node];
 
     final selectable = node.selectable;
     final rect = selectable?.getCursorRectInPosition(position);
@@ -365,7 +406,7 @@ class _FlowySelectionState extends State<FlowySelection>
   List<Node> _selectedNodesInSelection(Node node, Selection selection) {
     List<Node> result = [];
     if (node.parent != null) {
-      if (_isNodeInSelection(node, selection)) {
+      if (node.inSelection(selection)) {
         result.add(node);
       }
     }
@@ -373,13 +414,5 @@ class _FlowySelectionState extends State<FlowySelection>
       result.addAll(_selectedNodesInSelection(child, selection));
     }
     return result;
-  }
-
-  Node? _selectedNodeInPostion(Node node, Position position) =>
-      node.childAtPath(position.path);
-
-  bool _isNodeInSelection(Node node, Selection selection) {
-    return pathGreaterOrEquals(node.path, selection.start.path) &&
-        pathLessOrEquals(node.path, selection.end.path);
   }
 }

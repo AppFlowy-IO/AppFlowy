@@ -1,5 +1,6 @@
 import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/position.dart';
+import 'package:flowy_editor/extensions/path_extensions.dart';
 
 class Selection {
   final Position start;
@@ -29,9 +30,11 @@ class Selection {
     }
   }
 
-  bool isCollapsed() {
-    return start == end;
-  }
+  bool get isCollapsed => start == end;
+  bool get isUpward =>
+      start.path >= end.path && !pathEquals(start.path, end.path);
+  bool get isDownward =>
+      start.path <= end.path && !pathEquals(start.path, end.path);
 
   Selection copyWith({Position? start, Position? end}) {
     return Selection(
@@ -39,4 +42,7 @@ class Selection {
       end: end ?? this.end,
     );
   }
+
+  @override
+  String toString() => '[Selection] start = $start, end = $end';
 }

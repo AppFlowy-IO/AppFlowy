@@ -31,4 +31,7 @@ class Position {
       offset: offset ?? this.offset,
     );
   }
+
+  @override
+  String toString() => 'path = $path, offset = $offset';
 }

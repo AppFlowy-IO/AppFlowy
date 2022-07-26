@@ -326,7 +326,7 @@ TextSelection? _globalSelectionToLocal(Node node, Selection? globalSel) {
   if (!pathEquals(nodePath, globalSel.start.path)) {
     return null;
   }
-  if (globalSel.isCollapsed()) {
+  if (globalSel.isCollapsed) {
     return TextSelection(
         baseOffset: globalSel.start.offset, extentOffset: globalSel.end.offset);
   } else {
