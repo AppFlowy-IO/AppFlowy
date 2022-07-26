@@ -97,6 +97,32 @@ class _MyHomePageState extends State<MyHomePage> {
             return FlowyEditor(
               editorState: _editorState,
               keyEventHandler: const [],
+              shortcuts: [
+                // TODO: this won't work, just a example for now.
+                {
+                  'h1': (editorState, eventName) {
+                    debugPrint('shortcut => $eventName');
+                    final selectedNodes = editorState.selectedNodes;
+                    if (selectedNodes.isEmpty) {
+                      return;
+                    }
+                    final textNode = selectedNodes.first as TextNode;
+                    TransactionBuilder(editorState)
+                      ..formatText(textNode, 0, textNode.toRawString().length, {
+                        'heading': 'h1',
+                      })
+                      ..commit();
+                  }
+                },
+                {
+                  'bold': (editorState, eventName) =>
+                      debugPrint('shortcut => $eventName')
+                },
+                {
+                  'underline': (editorState, eventName) =>
+                      debugPrint('shortcut => $eventName')
+                },
+              ],
             );
           }
         },

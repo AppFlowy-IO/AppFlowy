@@ -1,5 +1,7 @@
-import 'package:flowy_editor/render/selection/flowy_cursor_widget.dart';
+import 'package:flowy_editor/render/selection/cursor_widget.dart';
 import 'package:flowy_editor/render/selection/flowy_selection_widget.dart';
+import 'package:flowy_editor/extensions/object_extensions.dart';
+import 'package:flowy_editor/service/floating_shortcut_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -120,7 +122,7 @@ class _FlowySelectionState extends State<FlowySelection>
       final selectionRects = selectable.getSelectionRectsInRange(start, end);
       for (final rect in selectionRects) {
         final overlay = OverlayEntry(
-          builder: ((context) => FlowySelectionWidget(
+          builder: ((context) => SelectionWidget(
                 color: Colors.yellow.withAlpha(100),
                 layerLink: node.layerLink,
                 rect: rect,
@@ -149,7 +151,7 @@ class _FlowySelectionState extends State<FlowySelection>
     final selectable = selectedNode.key?.currentState as Selectable;
     final rect = selectable.getCursorRect(start);
     final cursor = OverlayEntry(
-      builder: ((context) => FlowyCursorWidget(
+      builder: ((context) => CursorWidget(
             key: _cursorKey,
             rect: rect,
             color: Colors.red,
@@ -275,6 +277,7 @@ class _FlowySelectionState extends State<FlowySelection>
   void _clearAllOverlayEntries() {
     _clearSelection();
     _clearCursor();
+    _clearFloatingShorts();
   }
 
   void _clearSelection() {
@@ -287,5 +290,12 @@ class _FlowySelectionState extends State<FlowySelection>
     _cursorOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
+  }
+
+  void _clearFloatingShorts() {
+    final shortcutService = editorState
+        .service.floatingShortcutServiceKey.currentState
+        ?.unwrapOrNull<FlowyFloatingShortcutService>();
+    shortcutService?.hide();
   }
 }

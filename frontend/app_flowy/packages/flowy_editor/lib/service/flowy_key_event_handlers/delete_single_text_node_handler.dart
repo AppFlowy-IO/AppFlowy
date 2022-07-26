@@ -1,10 +1,8 @@
 import 'package:flowy_editor/document/node.dart';
-import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';
-import 'package:flowy_editor/service/selection_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -19,7 +17,7 @@ FlowyKeyEventHandler deleteSingleTextNodeHandler = (editorState, event) {
     final node = selectionNodes.first.unwrapOrNull<TextNode>();
     final selectable = node?.key?.currentState?.unwrapOrNull<Selectable>();
     if (selectable != null) {
-      final textSelection = selectable.getTextSelection();
+      final textSelection = selectable.getCurrentTextSelection();
       if (textSelection != null) {
         if (textSelection.isCollapsed) {
           /// Three cases:
@@ -33,8 +31,7 @@ FlowyKeyEventHandler deleteSingleTextNodeHandler = (editorState, event) {
               final previous = node!.previous! as TextNode;
               final newTextSelection = TextSelection.collapsed(
                   offset: previous.toRawString().length);
-              final selectionService =
-                  selectionServiceKey.currentState as FlowySelectionService;
+              final selectionService = editorState.service.selectionService;
               final previousSelectable =
                   previous.key?.currentState?.unwrapOrNull<Selectable>();
               final newOfset = previousSelectable
@@ -58,8 +55,7 @@ FlowyKeyEventHandler deleteSingleTextNodeHandler = (editorState, event) {
               ..commit();
             final newTextSelection =
                 TextSelection.collapsed(offset: textSelection.baseOffset - 1);
-            final selectionService =
-                selectionServiceKey.currentState as FlowySelectionService;
+            final selectionService = editorState.service.selectionService;
             final newOfset =
                 selectable.getOffsetByTextSelection(newTextSelection);
             selectionService.updateCursor(newOfset);

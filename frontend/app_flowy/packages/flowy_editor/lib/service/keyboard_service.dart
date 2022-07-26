@@ -46,7 +46,7 @@ class _FlowyKeyboardState extends State<FlowyKeyboard> {
     }
 
     for (final handler in widget.handlers) {
-      debugPrint('handle keyboard event $event by $handler');
+      // debugPrint('handle keyboard event $event by $handler');
 
       KeyEventResult result = handler(widget.editorState, event);
 
