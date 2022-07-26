@@ -1,4 +1,4 @@
-import 'package:flowy_editor/service/floating_shortcut_service.dart';
+import 'package:flowy_editor/service/shortcut_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
 import 'package:flutter/material.dart';
 

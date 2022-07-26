@@ -1,7 +1,8 @@
 import 'package:flowy_editor/render/selection/cursor_widget.dart';
 import 'package:flowy_editor/render/selection/flowy_selection_widget.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';
-import 'package:flowy_editor/service/floating_shortcut_service.dart';
+import 'package:flowy_editor/extensions/node_extensions.dart';
+import 'package:flowy_editor/service/shortcut_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -11,58 +12,65 @@ import '../render/selection/selectable.dart';
 
 /// Process selection and cursor
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
-  /// [Pan] and [Tap] must be mutually exclusive.
-  /// Pan
-  Offset? panStartOffset;
-  Offset? panEndOffset;
-
-  /// Tap
-  Offset? tapOffset;
-
+  /// [start] and [end] are the offsets under the global coordinate system.
   void updateSelection(Offset start, Offset end);
 
+  /// [start] is the offset under the global coordinate system.
   void updateCursor(Offset start);
 
-  /// Returns selected node(s)
-  /// Returns empty list if no nodes are being selected.
+  /// Returns selected [Node]s. Empty list would be returned
+  ///   if no nodes are being selected.
+  ///
+  ///
+  /// [start] and [end] are the offsets under the global coordinate system.
+  ///
+  /// If end is not null, it means multiple selection,
+  ///   otherwise single selection.
   List<Node> getSelectedNodes(Offset start, [Offset? end]);
 
-  /// Compute selected node triggered by [Tap]
-  Node? computeSelectedNodeInOffset(
-    Node node,
-    Offset offset,
-  );
+  /// Return the [Node] or [Null] in single selection.
+  ///
+  /// [start] is the offset under the global coordinate system.
+  Node? computeSelectedNodeInOffset(Node node, Offset offset);
 
-  /// Compute selected nodes triggered by [Pan]
+  /// Return the [Node]s in multiple selection. Emtpy list would be returned
+  ///   if no nodes are in range.
+  ///
+  /// [start] is the offset under the global coordinate system.
   List<Node> computeSelectedNodesInRange(
     Node node,
     Offset start,
     Offset end,
   );
 
-  /// Pan
+  /// Return [bool] to identify the [Node] is in Range or not.
+  ///
+  /// [start] and [end] are the offsets under the global coordinate system.
   bool isNodeInSelection(
     Node node,
     Offset start,
     Offset end,
   );
 
-  /// Tap
-  bool isNodeInOffset(
-    Node node,
-    Offset offset,
-  );
+  /// Return [bool] to identify the [Node] contains [Offset] or not.
+  ///
+  /// [start] is the offset under the global coordinate system.
+  bool isNodeInOffset(Node node, Offset offset);
 }
 
 class FlowySelection extends StatefulWidget {
   const FlowySelection({
     Key? key,
+    this.cursorColor = Colors.black,
+    this.selectionColor = const Color.fromARGB(60, 61, 61, 213),
     required this.editorState,
     required this.child,
   }) : super(key: key);
 
   final EditorState editorState;
   final Widget child;
+  final Color cursorColor;
+  final Color selectionColor;
 
   @override
   State<FlowySelection> createState() => _FlowySelectionState();
@@ -74,6 +82,14 @@ class _FlowySelectionState extends State<FlowySelection>
 
   final List<OverlayEntry> _selectionOverlays = [];
   final List<OverlayEntry> _cursorOverlays = [];
+
+  /// [Pan] and [Tap] must be mutually exclusive.
+  /// Pan
+  Offset? panStartOffset;
+  Offset? panEndOffset;
+
+  /// Tap
+  Offset? tapOffset;
 
   EditorState get editorState => widget.editorState;
 
@@ -123,7 +139,7 @@ class _FlowySelectionState extends State<FlowySelection>
       for (final rect in selectionRects) {
         final overlay = OverlayEntry(
           builder: ((context) => SelectionWidget(
-                color: Colors.yellow.withAlpha(100),
+                color: widget.selectionColor,
                 layerLink: node.layerLink,
                 rect: rect,
               )),
@@ -154,7 +170,7 @@ class _FlowySelectionState extends State<FlowySelection>
       builder: ((context) => CursorWidget(
             key: _cursorKey,
             rect: rect,
-            color: Colors.red,
+            color: widget.cursorColor,
             layerLink: selectedNode.layerLink,
           )),
     );
@@ -165,16 +181,10 @@ class _FlowySelectionState extends State<FlowySelection>
   @override
   List<Node> getSelectedNodes(Offset start, [Offset? end]) {
     if (end != null) {
-      return computeSelectedNodesInRange(
-        editorState.document.root,
-        start,
-        end,
-      );
+      return computeSelectedNodesInRange(editorState.document.root, start, end);
     } else {
-      final reuslt = computeSelectedNodeInOffset(
-        editorState.document.root,
-        start,
-      );
+      final reuslt =
+          computeSelectedNodeInOffset(editorState.document.root, start);
       if (reuslt != null) {
         return [reuslt];
       }
@@ -190,13 +200,11 @@ class _FlowySelectionState extends State<FlowySelection>
         return result;
       }
     }
-
     if (node.parent != null && node.key != null) {
       if (isNodeInOffset(node, offset)) {
         return node;
       }
     }
-
     return null;
   }
 
@@ -217,9 +225,7 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   bool isNodeInOffset(Node node, Offset offset) {
-    assert(node.key != null);
-    final renderBox =
-        node.key?.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox = node.renderBox;
     if (renderBox != null) {
       final boxOffset = renderBox.localToGlobal(Offset.zero);
       final boxRect = boxOffset & renderBox.size;
@@ -230,9 +236,7 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   bool isNodeInSelection(Node node, Offset start, Offset end) {
-    assert(node.key != null);
-    final renderBox =
-        node.key?.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox = node.renderBox;
     if (renderBox != null) {
       final rect = Rect.fromPoints(start, end);
       final boxOffset = renderBox.localToGlobal(Offset.zero);

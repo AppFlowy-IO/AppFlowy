@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
             );
             return FlowyEditor(
               editorState: _editorState,
-              keyEventHandler: const [],
+              keyEventHandlers: const [],
               shortcuts: [
                 // TODO: this won't work, just a example for now.
                 {
