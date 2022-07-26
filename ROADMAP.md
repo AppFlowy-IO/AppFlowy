@@ -1,5 +1,5 @@
 # View the official [AppFlowy public roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12)
-Our [roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12) is where you can learn about the features we’re working on, their status, and when we expect to release them. Have any questions or comments about items on the roadmap? Or feedback about the roadmap itself, such as how issues are presented? Share your feedback via the [discussions](https://github.com/AppFlowy-IO/AppFlowy/discussions).
+Our [roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12) is where you can learn about the features we’re working on, their status, when we expect to release them, and how you can help us. Have any questions or comments about items on the roadmap? Or feedback about the roadmap itself, such as how issues are presented? Share your feedback via the [discussions](https://github.com/AppFlowy-IO/AppFlowy/discussions).
 
 
 ## Guide to the roadmap
