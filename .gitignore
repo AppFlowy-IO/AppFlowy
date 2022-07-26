@@ -32,3 +32,6 @@ frontend/.vscode/*
 # Commit the highest level pubspec.lock, but ignore the others
 pubspec.lock
 !frontend/app_flowy/pubspec.lock
+
+# ignore tool used for commit linting
+.githooks/gitlint
