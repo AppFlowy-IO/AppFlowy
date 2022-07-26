@@ -7,7 +7,7 @@ import 'package:flowy_editor/operation/transaction.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flutter/foundation.dart';
 
-/// This class contains operations committed by users.
+/// A [HistoryItem] contains list of operations committed by users.
 /// If a [HistoryItem] is not sealed, operations can be added sequentially.
 /// Otherwise, the operations should be added to a new [HistoryItem].
 class HistoryItem extends LinkedListEntry<HistoryItem> {
