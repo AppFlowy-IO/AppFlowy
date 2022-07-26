@@ -37,7 +37,7 @@ FlowyKeyEventHandler deleteSingleTextNodeHandler = (editorState, event) {
               final newOfset = previousSelectable
                   ?.getOffsetByTextSelection(newTextSelection);
               if (newOfset != null) {
-                selectionService.updateCursor(newOfset);
+                // selectionService.updateCursor(newOfset);
               }
               // merge
               TransactionBuilder(editorState)
@@ -58,7 +58,7 @@ FlowyKeyEventHandler deleteSingleTextNodeHandler = (editorState, event) {
             final selectionService = editorState.service.selectionService;
             final newOfset =
                 selectable.getOffsetByTextSelection(newTextSelection);
-            selectionService.updateCursor(newOfset);
+            // selectionService.updateCursor(newOfset);
             return KeyEventResult.handled;
           }
         }

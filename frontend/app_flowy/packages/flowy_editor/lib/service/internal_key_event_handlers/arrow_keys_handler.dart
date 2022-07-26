@@ -30,7 +30,7 @@ FlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
   }
   final selectionService = editorState.service.selectionService;
   if (offset != null) {
-    selectionService.updateCursor(offset);
+    // selectionService.updateCursor(offset);
     return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;

@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:example/plugin/debuggable_rich_text.dart';
+import 'package:flowy_editor/document/selection.dart';
+import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -56,47 +58,41 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
 
   @override
-  List<Rect> getSelectionRectsInRange(Offset start, Offset end) {
+  Selection getSelectionInRange(Offset start, Offset end) {
     final localStart = _renderParagraph.globalToLocal(start);
     final localEnd = _renderParagraph.globalToLocal(end);
-
-    var textSelection =
-        TextSelection(baseOffset: 0, extentOffset: node.toRawString().length);
-    // Returns select all if the start or end exceeds the size of the box
-    // TODO: don't need to compute everytime.
-    var rects = _computeSelectionRects(textSelection);
-    _textSelection = textSelection;
-
-    if (localEnd.dy > localStart.dy) {
-      // downward
-      if (localEnd.dy >= rects.last.bottom) {
-        return rects;
-      }
-    } else {
-      // upward
-      if (localEnd.dy <= rects.first.top) {
-        return rects;
-      }
-    }
-
-    final selectionBaseOffset = _getTextPositionAtOffset(localStart).offset;
-    final selectionExtentOffset = _getTextPositionAtOffset(localEnd).offset;
-    textSelection = TextSelection(
-      baseOffset: selectionBaseOffset,
-      extentOffset: selectionExtentOffset,
+    final baseOffset = _getTextPositionAtOffset(localStart).offset;
+    final extentOffset = _getTextPositionAtOffset(localEnd).offset;
+    return Selection.single(
+      path: node.path,
+      startOffset: baseOffset,
+      endOffset: extentOffset,
     );
-    _textSelection = textSelection;
+  }
+
+  @override
+  List<Rect> getRectsInSelection(Selection selection) {
+    assert(pathEquals(selection.start.path, selection.end.path));
+    assert(pathEquals(selection.start.path, node.path));
+    final textSelection = TextSelection(
+      baseOffset: selection.start.offset,
+      extentOffset: selection.end.offset,
+    );
     return _computeSelectionRects(textSelection);
   }
 
   @override
-  Rect getCursorRect(Offset start) {
-    final localStart = _renderParagraph.globalToLocal(start);
-    final selectionBaseOffset = _getTextPositionAtOffset(localStart).offset;
-    final textSelection = TextSelection.collapsed(offset: selectionBaseOffset);
+  Rect getCursorRectInPosition(Position position) {
+    final textSelection = TextSelection.collapsed(offset: position.offset);
     _textSelection = textSelection;
-    print('text selection = $textSelection');
     return _computeCursorRect(textSelection.baseOffset);
+  }
+
+  @override
+  Position getPositionInOffset(Offset start) {
+    final localStart = _renderParagraph.globalToLocal(start);
+    final baseOffset = _getTextPositionAtOffset(localStart).offset;
+    return Position(path: node.path, offset: baseOffset);
   }
 
   @override
@@ -175,8 +171,8 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
     return _renderParagraph.getPositionForOffset(offset);
   }
 
-  List<Rect> _computeSelectionRects(TextSelection selection) {
-    final textBoxes = _renderParagraph.getBoxesForSelection(selection);
+  List<Rect> _computeSelectionRects(TextSelection textSelection) {
+    final textBoxes = _renderParagraph.getBoxesForSelection(textSelection);
     return textBoxes.map((box) => box.toRect()).toList();
   }
 
@@ -185,7 +181,6 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
     final cursorOffset =
         _renderParagraph.getOffsetForCaret(position, Rect.zero);
     final cursorHeight = _renderParagraph.getFullHeightForCaret(position);
-    print('offset = $offset, cursorHeight = $cursorHeight');
     if (cursorHeight != null) {
       const cursorWidth = 2;
       return Rect.fromLTWH(
