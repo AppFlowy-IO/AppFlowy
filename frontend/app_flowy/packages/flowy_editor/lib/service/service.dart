@@ -14,6 +14,9 @@ class FlowyService {
   // keyboard service
   final keyboardServiceKey = GlobalKey(debugLabel: 'flowy_keyboard_service');
 
+  // input service
+  final inputServiceKey = GlobalKey(debugLabel: 'flowy_input_service');
+
   // floating shortcut service
   final floatingShortcutServiceKey =
       GlobalKey(debugLabel: 'flowy_floating_shortcut_service');
