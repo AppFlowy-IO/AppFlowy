@@ -38,7 +38,7 @@ Please view the [documentation](https://appflowy.gitbook.io/docs/essential-docum
 
 ## Stay Up-to-Date
 
-<p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/howtostar.gif" alt="AppFlowy Github" width="1000px" /></p>
+<p align="center"><img src="https://github.com/AppFlowy-IO/appflowy/blob/main/doc/imgs/howtostar.gif" alt="AppFlowy Github" /></p>
 
 ## Getting Started with development
 Please view the [documentation](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy) for OS specific development instructions
