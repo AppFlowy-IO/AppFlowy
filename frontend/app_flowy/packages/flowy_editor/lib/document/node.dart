@@ -31,7 +31,11 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     required this.children,
     required this.attributes,
     this.parent,
-  });
+  }) {
+    for (final child in children) {
+      child.parent = this;
+    }
+  }
 
   factory Node.fromJson(Map<String, Object> json) {
     assert(json['type'] is String);

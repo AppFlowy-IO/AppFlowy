@@ -90,6 +90,9 @@ class TransactionBuilder {
         return;
       }
     }
+    for (var i = 0; i < operations.length; i++) {
+      op = transformOperation(operations[i], op);
+    }
     operations.add(op);
   }
 
