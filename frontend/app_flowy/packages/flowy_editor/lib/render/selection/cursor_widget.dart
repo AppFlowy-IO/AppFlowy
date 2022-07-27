@@ -17,10 +17,10 @@ class CursorWidget extends StatefulWidget {
   final LayerLink layerLink;
 
   @override
-  State<CursorWidget> createState() => _CursorWidgetState();
+  State<CursorWidget> createState() => CursorWidgetState();
 }
 
-class _CursorWidgetState extends State<CursorWidget> {
+class CursorWidgetState extends State<CursorWidget> {
   bool showCursor = true;
   late Timer timer;
 
@@ -28,7 +28,17 @@ class _CursorWidgetState extends State<CursorWidget> {
   void initState() {
     super.initState();
 
-    timer = Timer.periodic(
+    timer = _initTimer();
+  }
+
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
+
+  Timer _initTimer() {
+    return Timer.periodic(
         Duration(milliseconds: (widget.blinkingInterval * 1000).toInt()),
         (timer) {
       setState(() {
@@ -37,10 +47,13 @@ class _CursorWidgetState extends State<CursorWidget> {
     });
   }
 
-  @override
-  void dispose() {
+  /// force the cursor widget to show for a while
+  show() {
+    setState(() {
+      showCursor = true;
+    });
     timer.cancel();
-    super.dispose();
+    timer = _initTimer();
   }
 
   @override

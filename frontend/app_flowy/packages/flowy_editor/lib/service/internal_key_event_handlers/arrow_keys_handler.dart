@@ -2,6 +2,7 @@ import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/document/selection.dart';
+import 'package:flowy_editor/extensions/node_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -26,7 +27,6 @@ FlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
   }
 
   if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-    // turn left
     if (currentSelection.isCollapsed) {
       final end = currentSelection.end;
       final offset = end.offset;
@@ -66,6 +66,26 @@ FlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
     } else {
       editorState.updateCursorSelection(currentSelection.collapse());
     }
+    return KeyEventResult.handled;
+  } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+    final rects = editorState.service.selectionService.rects();
+    if (rects.isEmpty) {
+      return KeyEventResult.handled;
+    }
+    final first = rects.first;
+    final firstOffset = Offset(first.left, first.top);
+    final hitOffset = firstOffset - Offset(0, first.height * 0.5);
+    editorState.service.selectionService.hit(hitOffset);
+    return KeyEventResult.handled;
+  } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+    final rects = editorState.service.selectionService.rects();
+    if (rects.isEmpty) {
+      return KeyEventResult.handled;
+    }
+    final first = rects.last;
+    final firstOffset = Offset(first.right, first.bottom);
+    final hitOffset = firstOffset + Offset(0, first.height * 0.5);
+    editorState.service.selectionService.hit(hitOffset);
     return KeyEventResult.handled;
   }
 

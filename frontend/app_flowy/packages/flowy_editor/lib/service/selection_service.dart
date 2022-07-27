@@ -1,6 +1,7 @@
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
+import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/render/selection/cursor_widget.dart';
 import 'package:flowy_editor/render/selection/flowy_selection_widget.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';
@@ -25,6 +26,10 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
 
   ///
   void clearSelection();
+
+  List<Rect> rects();
+
+  hit(Offset? offset);
 
   ///
   List<Node> getNodesInSelection(Selection selection);
@@ -108,6 +113,8 @@ class _FlowySelectionState extends State<FlowySelection>
   /// Tap
   Offset? tapOffset;
 
+  final List<Rect> _rects = [];
+
   EditorState get editorState => widget.editorState;
 
   @override
@@ -144,8 +151,13 @@ class _FlowySelectionState extends State<FlowySelection>
     );
   }
 
+  List<Rect> rects() {
+    return _rects;
+  }
+
   @override
   void updateSelection(Selection selection) {
+    _rects.clear();
     _clearSelection();
 
     // cursor
@@ -245,18 +257,29 @@ class _FlowySelectionState extends State<FlowySelection>
 
     tapOffset = details.globalPosition;
 
-    final nodes = getNodesInRange(tapOffset!);
-    if (nodes.isNotEmpty) {
-      assert(nodes.length == 1);
-      final selectable = nodes.first.selectable;
-      if (selectable != null) {
-        final position = selectable.getPositionInOffset(tapOffset!);
-        final selection = Selection.collapsed(position);
-        editorState.updateCursorSelection(selection);
-      }
-    } else {
+    hit(tapOffset);
+  }
+
+  @override
+  hit(Offset? offset) {
+    if (offset == null) {
       editorState.updateCursorSelection(null);
+      return;
     }
+    final nodes = getNodesInRange(offset);
+    if (nodes.isEmpty) {
+      editorState.updateCursorSelection(null);
+      return;
+    }
+    assert(nodes.length == 1);
+    final selectable = nodes.first.selectable;
+    if (selectable == null) {
+      editorState.updateCursorSelection(null);
+      return;
+    }
+    final position = selectable.getPositionInOffset(offset);
+    final selection = Selection.collapsed(position);
+    editorState.updateCursorSelection(selection);
   }
 
   void _onPanStart(DragStartDetails details) {
@@ -353,6 +376,7 @@ class _FlowySelectionState extends State<FlowySelection>
       final rects = selectable.getRectsInSelection(newSelection);
 
       for (final rect in rects) {
+        _rects.add(_transformRectToGlobal(selectable, rect));
         final overlay = OverlayEntry(
           builder: ((context) => SelectionWidget(
                 color: widget.selectionColor,
@@ -365,6 +389,11 @@ class _FlowySelectionState extends State<FlowySelection>
       index += 1;
     }
     Overlay.of(context)?.insertAll(_selectionOverlays);
+  }
+
+  Rect _transformRectToGlobal(Selectable selectable, Rect r) {
+    final Offset topLeft = selectable.localToGlobal(Offset(r.left, r.top));
+    return Rect.fromLTWH(topLeft.dx, topLeft.dy, r.width, r.height);
   }
 
   void _updateCursor(Position position) {
@@ -380,6 +409,7 @@ class _FlowySelectionState extends State<FlowySelection>
     final selectable = node.selectable;
     final rect = selectable?.getCursorRectInPosition(position);
     if (rect != null) {
+      _rects.add(_transformRectToGlobal(selectable!, rect));
       final cursor = OverlayEntry(
         builder: ((context) => CursorWidget(
               key: _cursorKey,
@@ -390,7 +420,13 @@ class _FlowySelectionState extends State<FlowySelection>
       );
       _cursorOverlays.add(cursor);
       Overlay.of(context)?.insertAll(_cursorOverlays);
+      _forceShowCursor();
     }
+  }
+
+  _forceShowCursor() {
+    final currentState = _cursorKey.currentState as CursorWidgetState?;
+    currentState?.show();
   }
 
   List<Node> _selectedNodesInSelection(Node node, Selection selection) {
