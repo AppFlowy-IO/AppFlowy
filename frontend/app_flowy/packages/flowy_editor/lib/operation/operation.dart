@@ -141,5 +141,6 @@ Operation transformOperation(Operation a, Operation b) {
     final newPath = transformPath(a.path, b.path, -1);
     return b.copyWithPath(newPath);
   }
+  // TODO: transform update and textedit
   return b;
 }
