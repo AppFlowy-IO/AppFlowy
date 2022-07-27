@@ -1,4 +1,3 @@
-import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
@@ -49,7 +48,7 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
   /// [start] is the offset under the global coordinate system.
   Node? computeNodeInOffset(Node node, Offset offset);
 
-  /// Return the [Node]s in multiple selection. Emtpy list would be returned
+  /// Return the [Node]s in multiple selection. Empty list would be returned
   ///   if no nodes are in range.
   ///
   /// [start] is the offset under the global coordinate system.
@@ -136,8 +135,8 @@ class _FlowySelectionState extends State<FlowySelection>
         TapGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
           () => TapGestureRecognizer(),
-          (recongizer) {
-            recongizer.onTapDown = _onTapDown;
+          (recognizer) {
+            recognizer.onTapDown = _onTapDown;
           },
         )
       },
@@ -167,9 +166,9 @@ class _FlowySelectionState extends State<FlowySelection>
     if (end != null) {
       return computeNodesInRange(editorState.document.root, start, end);
     } else {
-      final reuslt = computeNodeInOffset(editorState.document.root, start);
-      if (reuslt != null) {
-        return [reuslt];
+      final result = computeNodeInOffset(editorState.document.root, start);
+      if (result != null) {
+        return [result];
       }
     }
     return [];
@@ -253,8 +252,10 @@ class _FlowySelectionState extends State<FlowySelection>
       if (selectable != null) {
         final position = selectable.getPositionInOffset(tapOffset!);
         final selection = Selection.collapsed(position);
-        updateSelection(selection);
+        editorState.updateCursorSelection(selection);
       }
+    } else {
+      editorState.updateCursorSelection(null);
     }
   }
 
@@ -283,7 +284,7 @@ class _FlowySelectionState extends State<FlowySelection>
       final selection = Selection(
           start: isDownward ? start : end, end: isDownward ? end : start);
       debugPrint('[_onPanUpdate] $selection');
-      updateSelection(selection);
+      editorState.updateCursorSelection(selection);
     }
   }
 
@@ -302,7 +303,7 @@ class _FlowySelectionState extends State<FlowySelection>
     _cursorOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
-    // clear floating shortcusts
+    // clear floating shortcuts
     editorState.service.floatingShortcutServiceKey.currentState
         ?.unwrapOrNull<FlowyFloatingShortcutService>()
         ?.hide();

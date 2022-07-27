@@ -126,7 +126,7 @@ class __TextNodeWidgetState extends State<_TextNodeWidget>
         textCapitalization: TextCapitalization.sentences,
       ),
     );
-    editorState.cursorSelection = _localSelectionToGlobal(node, selection);
+    editorState.updateCursorSelection(_localSelectionToGlobal(node, selection));
     _textInputConnection
       ?..show()
       ..setEditingState(
