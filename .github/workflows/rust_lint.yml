@@ -20,6 +20,10 @@ jobs:
         with:
           toolchain: 'stable-2022-01-20'
           override: true
+      - uses: subosito/flutter-action@v1
+        with:
+          flutter-version: '3.0.0'
+          channel: "stable"
 
       - name: Rust Deps
         working-directory: frontend
