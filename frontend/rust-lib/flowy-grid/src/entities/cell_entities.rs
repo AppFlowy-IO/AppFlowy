@@ -1,4 +1,4 @@
-use crate::entities::{FieldIdentifier, FieldIdentifierPayload};
+
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -6,42 +6,41 @@ use flowy_grid_data_model::revision::{CellRevision, RowMetaChangeset};
 use std::collections::HashMap;
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateSelectOptionPayload {
+pub struct CreateSelectOptionPayloadPB {
     #[pb(index = 1)]
-    pub field_identifier: FieldIdentifierPayload,
+    pub field_id: String,
 
     #[pb(index = 2)]
+    pub grid_id: String,
+
+    #[pb(index = 3)]
     pub option_name: String,
 }
 
 pub struct CreateSelectOptionParams {
-    pub field_identifier: FieldIdentifier,
+    pub field_id: String,
+    pub grid_id: String,
     pub option_name: String,
+
 }
 
-impl std::ops::Deref for CreateSelectOptionParams {
-    type Target = FieldIdentifier;
-
-    fn deref(&self) -> &Self::Target {
-        &self.field_identifier
-    }
-}
-
-impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayload {
+impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateSelectOptionParams, Self::Error> {
         let option_name = NotEmptyStr::parse(self.option_name).map_err(|_| ErrorCode::SelectOptionNameIsEmpty)?;
-        let field_identifier = self.field_identifier.try_into()?;
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(CreateSelectOptionParams {
-            field_identifier,
+            field_id: field_id.0,
             option_name: option_name.0,
+            grid_id: grid_id.0,
         })
     }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct CellIdentifierPayload {
+pub struct GridCellIdPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -52,20 +51,20 @@ pub struct CellIdentifierPayload {
     pub row_id: String,
 }
 
-pub struct CellIdentifier {
+pub struct GridCellIdParams {
     pub grid_id: String,
     pub field_id: String,
     pub row_id: String,
 }
 
-impl TryInto<CellIdentifier> for CellIdentifierPayload {
+impl TryInto<GridCellIdParams> for GridCellIdPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CellIdentifier, Self::Error> {
+    fn try_into(self) -> Result<GridCellIdParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-        Ok(CellIdentifier {
+        Ok(GridCellIdParams {
             grid_id: grid_id.0,
             field_id: field_id.0,
             row_id: row_id.0,
@@ -73,7 +72,7 @@ impl TryInto<CellIdentifier> for CellIdentifierPayload {
     }
 }
 #[derive(Debug, Default, ProtoBuf)]
-pub struct Cell {
+pub struct GridCellPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -81,7 +80,7 @@ pub struct Cell {
     pub data: Vec<u8>,
 }
 
-impl Cell {
+impl GridCellPB {
     pub fn new(field_id: &str, data: Vec<u8>) -> Self {
         Self {
             field_id: field_id.to_owned(),
@@ -98,32 +97,32 @@ impl Cell {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedCell {
+pub struct RepeatedCellPB {
     #[pb(index = 1)]
-    pub items: Vec<Cell>,
+    pub items: Vec<GridCellPB>,
 }
 
-impl std::ops::Deref for RepeatedCell {
-    type Target = Vec<Cell>;
+impl std::ops::Deref for RepeatedCellPB {
+    type Target = Vec<GridCellPB>;
     fn deref(&self) -> &Self::Target {
         &self.items
     }
 }
 
-impl std::ops::DerefMut for RepeatedCell {
+impl std::ops::DerefMut for RepeatedCellPB {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.items
     }
 }
 
-impl std::convert::From<Vec<Cell>> for RepeatedCell {
-    fn from(items: Vec<Cell>) -> Self {
+impl std::convert::From<Vec<GridCellPB>> for RepeatedCellPB {
+    fn from(items: Vec<GridCellPB>) -> Self {
         Self { items }
     }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct CellChangeset {
+pub struct CellChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -137,8 +136,8 @@ pub struct CellChangeset {
     pub content: Option<String>,
 }
 
-impl std::convert::From<CellChangeset> for RowMetaChangeset {
-    fn from(changeset: CellChangeset) -> Self {
+impl std::convert::From<CellChangesetPB> for RowMetaChangeset {
+    fn from(changeset: CellChangesetPB) -> Self {
         let mut cell_by_field_id = HashMap::with_capacity(1);
         let field_id = changeset.field_id;
         let cell_rev = CellRevision {

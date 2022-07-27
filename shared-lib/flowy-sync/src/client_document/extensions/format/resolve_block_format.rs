@@ -1,5 +1,5 @@
 use lib_ot::{
-    core::{DeltaBuilder, DeltaIter, Interval},
+    core::{DeltaBuilder, DeltaIterator, Interval},
     rich_text::{plain_attributes, AttributeScope, RichTextAttribute, RichTextDelta},
 };
 
@@ -20,7 +20,7 @@ impl FormatExt for ResolveBlockFormat {
         }
 
         let mut new_delta = DeltaBuilder::new().retain(interval.start).build();
-        let mut iter = DeltaIter::from_offset(delta, interval.start);
+        let mut iter = DeltaIterator::from_offset(delta, interval.start);
         let mut start = 0;
         let end = interval.size();
         while start < end && iter.has_next() {

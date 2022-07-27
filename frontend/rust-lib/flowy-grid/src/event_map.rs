@@ -45,78 +45,78 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum GridEvent {
-    #[event(input = "GridId", output = "Grid")]
+    #[event(input = "GridIdPB", output = "GridPB")]
     GetGrid = 0,
 
-    #[event(input = "QueryGridBlocksPayload", output = "RepeatedGridBlock")]
+    #[event(input = "QueryGridBlocksPayloadPB", output = "RepeatedGridBlockPB")]
     GetGridBlocks = 1,
 
-    #[event(input = "GridId", output = "GridSetting")]
+    #[event(input = "GridIdPB", output = "GridSettingPB")]
     GetGridSetting = 2,
 
-    #[event(input = "GridId", input = "GridSettingChangesetPayload")]
+    #[event(input = "GridIdPB", input = "GridSettingChangesetPayloadPB")]
     UpdateGridSetting = 3,
 
-    #[event(input = "QueryFieldPayload", output = "RepeatedField")]
+    #[event(input = "QueryFieldPayloadPB", output = "RepeatedGridFieldPB")]
     GetFields = 10,
 
-    #[event(input = "FieldChangesetPayload")]
+    #[event(input = "FieldChangesetPayloadPB")]
     UpdateField = 11,
 
-    #[event(input = "UpdateFieldTypeOptionPayload")]
+    #[event(input = "UpdateFieldTypeOptionPayloadPB")]
     UpdateFieldTypeOption = 12,
 
-    #[event(input = "InsertFieldPayload")]
+    #[event(input = "InsertFieldPayloadPB")]
     InsertField = 13,
 
-    #[event(input = "FieldIdentifierPayload")]
+    #[event(input = "DeleteFieldPayloadPB")]
     DeleteField = 14,
 
-    #[event(input = "EditFieldPayload", output = "FieldTypeOptionData")]
+    #[event(input = "EditFieldPayloadPB", output = "FieldTypeOptionDataPB")]
     SwitchToField = 20,
 
-    #[event(input = "FieldIdentifierPayload")]
+    #[event(input = "DuplicateFieldPayloadPB")]
     DuplicateField = 21,
 
-    #[event(input = "MoveItemPayload")]
+    #[event(input = "MoveItemPayloadPB")]
     MoveItem = 22,
 
-    #[event(input = "EditFieldPayload", output = "FieldTypeOptionData")]
+    #[event(input = "GridFieldTypeOptionIdPB", output = "FieldTypeOptionDataPB")]
     GetFieldTypeOption = 23,
 
-    #[event(input = "EditFieldPayload", output = "FieldTypeOptionData")]
+    #[event(input = "CreateFieldPayloadPB", output = "FieldTypeOptionDataPB")]
     CreateFieldTypeOption = 24,
 
-    #[event(input = "CreateSelectOptionPayload", output = "SelectOption")]
+    #[event(input = "CreateSelectOptionPayloadPB", output = "SelectOptionPB")]
     NewSelectOption = 30,
 
-    #[event(input = "CellIdentifierPayload", output = "SelectOptionCellData")]
+    #[event(input = "GridCellIdPB", output = "SelectOptionCellDataPB")]
     GetSelectOptionCellData = 31,
 
-    #[event(input = "SelectOptionChangesetPayload")]
+    #[event(input = "SelectOptionChangesetPayloadPB")]
     UpdateSelectOption = 32,
 
-    #[event(input = "CreateRowPayload", output = "Row")]
+    #[event(input = "CreateRowPayloadPB", output = "GridRowPB")]
     CreateRow = 50,
 
-    #[event(input = "GridRowIdPayload", output = "OptionalRow")]
+    #[event(input = "GridRowIdPB", output = "OptionalRowPB")]
     GetRow = 51,
 
-    #[event(input = "GridRowIdPayload")]
+    #[event(input = "GridRowIdPB")]
     DeleteRow = 52,
 
-    #[event(input = "GridRowIdPayload")]
+    #[event(input = "GridRowIdPB")]
     DuplicateRow = 53,
 
-    #[event(input = "CellIdentifierPayload", output = "Cell")]
+    #[event(input = "GridCellIdPB", output = "GridCellPB")]
     GetCell = 70,
 
-    #[event(input = "CellChangeset")]
+    #[event(input = "CellChangesetPB")]
     UpdateCell = 71,
 
-    #[event(input = "SelectOptionCellChangesetPayload")]
+    #[event(input = "SelectOptionCellChangesetPayloadPB")]
     UpdateSelectOptionCell = 72,
 
-    #[event(input = "DateChangesetPayload")]
+    #[event(input = "DateChangesetPayloadPB")]
     UpdateDateCell = 80,
 }

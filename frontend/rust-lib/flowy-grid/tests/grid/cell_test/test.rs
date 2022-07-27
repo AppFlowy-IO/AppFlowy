@@ -1,9 +1,9 @@
 use crate::grid::cell_test::script::CellScript::*;
 use crate::grid::cell_test::script::GridCellTest;
 use crate::grid::field_test::util::make_date_cell_string;
-use flowy_grid::entities::{CellChangeset, FieldType};
-use flowy_grid::services::field::select_option::SelectOptionCellChangeset;
-use flowy_grid::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
+use flowy_grid::entities::{CellChangesetPB, FieldType};
+use flowy_grid::services::field::selection_type_option::SelectOptionCellChangeset;
+use flowy_grid::services::field::{MultiSelectTypeOption, SingleSelectTypeOptionPB};
 
 #[tokio::test]
 async fn grid_cell_update() {
@@ -24,7 +24,7 @@ async fn grid_cell_update() {
                 FieldType::Number => "123".to_string(),
                 FieldType::DateTime => make_date_cell_string("123"),
                 FieldType::SingleSelect => {
-                    let type_option = SingleSelectTypeOption::from(field_rev);
+                    let type_option = SingleSelectTypeOptionPB::from(field_rev);
                     SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                 }
                 FieldType::MultiSelect => {
@@ -36,7 +36,7 @@ async fn grid_cell_update() {
             };
 
             scripts.push(UpdateCell {
-                changeset: CellChangeset {
+                changeset: CellChangesetPB {
                     grid_id: block_id.to_string(),
                     row_id: row_rev.id.clone(),
                     field_id: field_rev.id.clone(),

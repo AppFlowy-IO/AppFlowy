@@ -21,8 +21,8 @@ import 'disclosure_action.dart';
 // ignore: must_be_immutable
 class ViewSectionItem extends StatelessWidget {
   final bool isSelected;
-  final View view;
-  final void Function(View) onSelected;
+  final ViewPB view;
+  final void Function(ViewPB) onSelected;
 
   ViewSectionItem({
     Key? key,

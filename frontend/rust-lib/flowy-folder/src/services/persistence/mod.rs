@@ -11,9 +11,9 @@ use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use flowy_revision::disk::{RevisionRecord, RevisionState};
-use flowy_revision::mk_revision_disk_cache;
-use flowy_sync::client_folder::initial_folder_delta;
+use flowy_revision::mk_text_block_revision_disk_cache;
 use flowy_sync::{client_folder::FolderPad, entities::revision::Revision};
+use lib_ot::core::PlainTextDeltaBuilder;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
@@ -109,16 +109,16 @@ impl FolderPersistence {
 
     pub async fn save_folder(&self, user_id: &str, folder_id: &FolderId, folder: FolderPad) -> FlowyResult<()> {
         let pool = self.database.db_pool()?;
-        let delta_data = initial_folder_delta(&folder)?.to_delta_bytes();
-        let md5 = folder.md5();
-        let revision = Revision::new(folder_id.as_ref(), 0, 0, delta_data, user_id, md5);
+        let json = folder.to_json()?;
+        let delta_data = PlainTextDeltaBuilder::new().insert(&json).build().to_json_bytes();
+        let revision = Revision::initial_revision(user_id, folder_id.as_ref(), delta_data);
         let record = RevisionRecord {
             revision,
             state: RevisionState::Sync,
             write_to_disk: true,
         };
 
-        let disk_cache = mk_revision_disk_cache(user_id, pool);
+        let disk_cache = mk_text_block_revision_disk_cache(user_id, pool);
         disk_cache.delete_and_insert_records(folder_id.as_ref(), None, vec![record])
     }
 }

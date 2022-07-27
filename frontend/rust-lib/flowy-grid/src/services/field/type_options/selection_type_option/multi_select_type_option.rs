@@ -1,26 +1,22 @@
 use crate::entities::FieldType;
-
 use crate::impl_type_option;
-use crate::services::cell::{AnyCellData, CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
-use crate::services::field::select_option::{
-    make_selected_select_options, SelectOption, SelectOptionCellChangeset, SelectOptionCellData, SelectOptionIds,
-    SelectOptionOperation, SELECTION_IDS_SEPARATOR,
-};
+use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::type_options::util::get_cell_data;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{
+    make_selected_select_options, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB,
+    SelectOptionIds, SelectOptionOperation, SelectOptionPB, TypeOptionBuilder, SELECTION_IDS_SEPARATOR,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
-
 use serde::{Deserialize, Serialize};
 
 // Multiple select
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct MultiSelectTypeOption {
     #[pb(index = 1)]
-    pub options: Vec<SelectOption>,
+    pub options: Vec<SelectOptionPB>,
 
     #[pb(index = 2)]
     pub disable_color: bool,
@@ -28,19 +24,19 @@ pub struct MultiSelectTypeOption {
 impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
 
 impl SelectOptionOperation for MultiSelectTypeOption {
-    fn selected_select_option(&self, any_cell_data: AnyCellData) -> SelectOptionCellData {
-        let select_options = make_selected_select_options(any_cell_data, &self.options);
-        SelectOptionCellData {
+    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
+        let select_options = make_selected_select_options(cell_data, &self.options);
+        SelectOptionCellDataPB {
             options: self.options.clone(),
             select_options,
         }
     }
 
-    fn options(&self) -> &Vec<SelectOption> {
+    fn options(&self) -> &Vec<SelectOptionPB> {
         &self.options
     }
 
-    fn mut_options(&mut self) -> &mut Vec<SelectOption> {
+    fn mut_options(&mut self) -> &mut Vec<SelectOptionPB> {
         &mut self.options
     }
 }
@@ -50,24 +46,13 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
         &self,
         cell_data: CellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
         if !decoded_field_type.is_select_option() {
-            return Ok(DecodedCellData::default());
+            return Ok(CellBytes::default());
         }
 
-        let ids: SelectOptionIds = cell_data.try_into_inner()?;
-        let select_options = ids
-            .iter()
-            .flat_map(|option_id| self.options.iter().find(|option| &option.id == option_id).cloned())
-            .collect::<Vec<SelectOption>>();
-
-        let cell_data = SelectOptionCellData {
-            options: self.options.clone(),
-            select_options,
-        };
-
-        DecodedCellData::try_from_bytes(cell_data)
+        self.display_data(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
@@ -112,7 +97,7 @@ pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOption);
 impl_into_box_type_option_builder!(MultiSelectTypeOptionBuilder);
 impl_builder_from_json_str_and_from_bytes!(MultiSelectTypeOptionBuilder, MultiSelectTypeOption);
 impl MultiSelectTypeOptionBuilder {
-    pub fn option(mut self, opt: SelectOption) -> Self {
+    pub fn option(mut self, opt: SelectOptionPB) -> Self {
         self.0.options.push(opt);
         self
     }
@@ -131,16 +116,16 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-    use crate::services::field::select_option::*;
+    use crate::services::field::type_options::selection_type_option::*;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{MultiSelectTypeOption, MultiSelectTypeOptionBuilder};
     use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
     fn multi_select_test() {
-        let google_option = SelectOption::new("Google");
-        let facebook_option = SelectOption::new("Facebook");
-        let twitter_option = SelectOption::new("Twitter");
+        let google_option = SelectOptionPB::new("Google");
+        let facebook_option = SelectOptionPB::new("Facebook");
+        let twitter_option = SelectOptionPB::new("Twitter");
         let multi_select = MultiSelectTypeOptionBuilder::default()
             .option(google_option.clone())
             .option(facebook_option.clone())
@@ -187,7 +172,7 @@ mod tests {
         cell_data: String,
         type_option: &MultiSelectTypeOption,
         field_rev: &FieldRevision,
-        expected: Vec<SelectOption>,
+        expected: Vec<SelectOptionPB>,
     ) {
         let field_type: FieldType = field_rev.field_type_rev.into();
         assert_eq!(
@@ -195,7 +180,7 @@ mod tests {
             type_option
                 .decode_cell_data(cell_data.into(), &field_type, field_rev)
                 .unwrap()
-                .parse::<SelectOptionCellData>()
+                .with_parser(SelectOptionCellDataParser())
                 .unwrap()
                 .select_options,
         );

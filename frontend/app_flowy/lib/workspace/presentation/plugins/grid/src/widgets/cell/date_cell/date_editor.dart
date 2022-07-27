@@ -31,16 +31,16 @@ class DateCellEditor with FlowyOverlayDelegate {
 
   Future<void> show(
     BuildContext context, {
-    required GridDateCellController cellContext,
+    required GridDateCellController cellController,
   }) async {
     DateCellEditor.remove(context);
 
-    final result = await cellContext.getTypeOptionData();
+    final result = await cellController.getFieldTypeOption(DateTypeOptionDataParser());
     result.fold(
-      (data) {
+      (dateTypeOption) {
         final calendar = _CellCalendarWidget(
-          cellContext: cellContext,
-          dateTypeOption: DateTypeOption.fromBuffer(data.typeOptionData),
+          cellContext: cellController,
+          dateTypeOption: dateTypeOption,
         );
 
         FlowyOverlay.of(context).insertWithAnchor(

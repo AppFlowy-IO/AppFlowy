@@ -1,10 +1,10 @@
 mod folder_rev_impl;
-mod grid_meta_rev_impl;
+mod grid_block_meta_rev_impl;
 mod grid_rev_impl;
 mod text_rev_impl;
 
 pub use folder_rev_impl::*;
-pub use grid_meta_rev_impl::*;
+pub use grid_block_meta_rev_impl::*;
 pub use grid_rev_impl::*;
 pub use text_rev_impl::*;
 
@@ -53,6 +53,14 @@ pub struct RevisionRecord {
 }
 
 impl RevisionRecord {
+    pub fn new(revision: Revision) -> Self {
+        Self {
+            revision,
+            state: RevisionState::Sync,
+            write_to_disk: true,
+        }
+    }
+
     pub fn ack(&mut self) {
         self.state = RevisionState::Ack;
     }
@@ -64,6 +72,8 @@ pub struct RevisionChangeset {
     pub(crate) state: RevisionState,
 }
 
+/// Sync: revision is not synced to the server
+/// Ack: revision is synced to the server
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum RevisionState {
     Sync = 0,

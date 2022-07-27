@@ -7,9 +7,9 @@ use std::{convert::TryInto, sync::Arc};
 // tracing instrument 👉🏻 https://docs.rs/tracing/0.1.26/tracing/attr.instrument.html
 #[tracing::instrument(level = "debug", name = "sign_in", skip(data, session), fields(email = %data.email), err)]
 pub async fn sign_in(
-    data: Data<SignInPayload>,
+    data: Data<SignInPayloadPB>,
     session: AppData<Arc<UserSession>>,
-) -> DataResult<UserProfile, FlowyError> {
+) -> DataResult<UserProfilePB, FlowyError> {
     let params: SignInParams = data.into_inner().try_into()?;
     let user_profile = session.sign_in(params).await?;
     data_result(user_profile)
@@ -26,9 +26,9 @@ pub async fn sign_in(
     err
 )]
 pub async fn sign_up(
-    data: Data<SignUpPayload>,
+    data: Data<SignUpPayloadPB>,
     session: AppData<Arc<UserSession>>,
-) -> DataResult<UserProfile, FlowyError> {
+) -> DataResult<UserProfilePB, FlowyError> {
     let params: SignUpParams = data.into_inner().try_into()?;
     let user_profile = session.sign_up(params).await?;
 

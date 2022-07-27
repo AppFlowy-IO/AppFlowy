@@ -187,7 +187,7 @@ class _CopyURLAccessory extends StatelessWidget with GridCellAccessory {
 
   @override
   void onTap() {
-    final content = cellContext.getCellData(loadIfNoCache: false)?.content ?? "";
+    final content = cellContext.getCellData(loadIfNotExist: false)?.content ?? "";
     Clipboard.setData(ClipboardData(text: content));
     showMessageToast(LocaleKeys.grid_row_copyProperty.tr());
   }

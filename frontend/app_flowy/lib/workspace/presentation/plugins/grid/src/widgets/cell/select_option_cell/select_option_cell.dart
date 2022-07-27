@@ -20,11 +20,11 @@ class SelectOptionCellStyle extends GridCellStyle {
   });
 }
 
-class SingleSelectCell extends GridCellWidget {
+class GridSingleSelectCell extends GridCellWidget {
   final GridCellControllerBuilder cellContorllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
-  SingleSelectCell({
+  GridSingleSelectCell({
     required this.cellContorllerBuilder,
     GridCellStyle? style,
     Key? key,
@@ -37,10 +37,10 @@ class SingleSelectCell extends GridCellWidget {
   }
 
   @override
-  State<SingleSelectCell> createState() => _SingleSelectCellState();
+  State<GridSingleSelectCell> createState() => _SingleSelectCellState();
 }
 
-class _SingleSelectCellState extends State<SingleSelectCell> {
+class _SingleSelectCellState extends State<GridSingleSelectCell> {
   late SelectOptionCellBloc _cellBloc;
 
   @override
@@ -74,11 +74,11 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 }
 
 //----------------------------------------------------------------
-class MultiSelectCell extends GridCellWidget {
+class GridMultiSelectCell extends GridCellWidget {
   final GridCellControllerBuilder cellContorllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
-  MultiSelectCell({
+  GridMultiSelectCell({
     required this.cellContorllerBuilder,
     GridCellStyle? style,
     Key? key,
@@ -91,10 +91,10 @@ class MultiSelectCell extends GridCellWidget {
   }
 
   @override
-  State<MultiSelectCell> createState() => _MultiSelectCellState();
+  State<GridMultiSelectCell> createState() => _MultiSelectCellState();
 }
 
-class _MultiSelectCellState extends State<MultiSelectCell> {
+class _MultiSelectCellState extends State<GridMultiSelectCell> {
   late SelectOptionCellBloc _cellBloc;
 
   @override
@@ -128,7 +128,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 }
 
 class _SelectOptionCell extends StatelessWidget {
-  final List<SelectOption> selectOptions;
+  final List<SelectOptionPB> selectOptions;
   final void Function(bool) onFocus;
   final SelectOptionCellStyle? cellStyle;
   final GridCellControllerBuilder cellContorllerBuilder;

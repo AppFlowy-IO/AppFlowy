@@ -2,7 +2,6 @@
 proto_input = [
     "src/event_map.rs",
     "src/services/field/type_options",
-    "src/services/field/select_option.rs",
     "src/entities",
     "src/dart_notification.rs"
 ]

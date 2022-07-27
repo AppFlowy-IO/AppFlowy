@@ -21,12 +21,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
-  final GridRow rowData;
-  final GridRowsCache rowCache;
+  final GridRowInfo rowInfo;
+  final GridRowCache rowCache;
   final GridCellBuilder cellBuilder;
 
   const RowDetailPage({
-    required this.rowData,
+    required this.rowInfo,
     required this.rowCache,
     required this.cellBuilder,
     Key? key,
@@ -62,7 +62,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final bloc = RowDetailBloc(rowData: widget.rowData, rowCache: widget.rowCache);
+        final bloc = RowDetailBloc(rowInfo: widget.rowInfo, rowCache: widget.rowCache);
         bloc.add(const RowDetailEvent.initial());
         return bloc;
       },
@@ -122,7 +122,7 @@ class _PropertyList extends StatelessWidget {
             itemCount: state.gridCells.length,
             itemBuilder: (BuildContext context, int index) {
               return _RowDetailCell(
-                gridCell: state.gridCells[index],
+                cellId: state.gridCells[index],
                 cellBuilder: cellBuilder,
               );
             },
@@ -137,10 +137,10 @@ class _PropertyList extends StatelessWidget {
 }
 
 class _RowDetailCell extends StatelessWidget {
-  final GridCell gridCell;
+  final GridCellIdentifier cellId;
   final GridCellBuilder cellBuilder;
   const _RowDetailCell({
-    required this.gridCell,
+    required this.cellId,
     required this.cellBuilder,
     Key? key,
   }) : super(key: key);
@@ -148,8 +148,8 @@ class _RowDetailCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final style = _customCellStyle(theme, gridCell.field.fieldType);
-    final cell = cellBuilder.build(gridCell, style: style);
+    final style = _customCellStyle(theme, cellId.fieldType);
+    final cell = cellBuilder.build(cellId, style: style);
 
     final gesture = GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -169,7 +169,7 @@ class _RowDetailCell extends StatelessWidget {
           children: [
             SizedBox(
               width: 150,
-              child: FieldCellButton(field: gridCell.field, onTap: () => _showFieldEditor(context)),
+              child: FieldCellButton(field: cellId.field, onTap: () => _showFieldEditor(context)),
             ),
             const HSpace(10),
             Expanded(child: gesture),
@@ -181,11 +181,11 @@ class _RowDetailCell extends StatelessWidget {
 
   void _showFieldEditor(BuildContext context) {
     FieldEditor(
-      gridId: gridCell.gridId,
-      fieldName: gridCell.field.name,
-      contextLoader: FieldContextLoader(
-        gridId: gridCell.gridId,
-        field: gridCell.field,
+      gridId: cellId.gridId,
+      fieldName: cellId.field.name,
+      typeOptionLoader: FieldTypeOptionLoader(
+        gridId: cellId.gridId,
+        field: cellId.field,
       ),
     ).show(context);
   }

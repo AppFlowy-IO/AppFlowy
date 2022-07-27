@@ -19,18 +19,17 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
             type Error = ::protobuf::ProtobufError;
             fn try_into(self) -> Result<bytes::Bytes, Self::Error> {
                 use protobuf::Message;
-                let pb: crate::protobuf::#pb_ty = self.try_into()?;
+                let pb: crate::protobuf::#pb_ty = self.into();
                 let bytes = pb.write_to_bytes()?;
                 Ok(bytes::Bytes::from(bytes))
             }
         }
 
-        impl std::convert::TryInto<crate::protobuf::#pb_ty> for #struct_ident {
-            type Error = ::protobuf::ProtobufError;
-            fn try_into(self) -> Result<crate::protobuf::#pb_ty, Self::Error> {
+        impl std::convert::From<#struct_ident> for crate::protobuf::#pb_ty {
+            fn from(mut o: #struct_ident) -> crate::protobuf::#pb_ty {
                 let mut pb = crate::protobuf::#pb_ty::new();
                 #(#build_set_pb_fields)*
-                Ok(pb)
+                pb
             }
         }
     };
@@ -41,7 +40,7 @@ pub fn make_se_token_stream(ctxt: &Ctxt, ast: &ASTContainer) -> Option<TokenStre
 fn se_token_stream_for_field(ctxt: &Ctxt, field: &ASTField, _take: bool) -> Option<TokenStream> {
     if let Some(func) = &field.attrs.serialize_with() {
         let member = &field.member;
-        Some(quote! { pb.#member=self.#func(); })
+        Some(quote! { pb.#member=o.#func(); })
     } else if field.attrs.is_one_of() {
         token_stream_for_one_of(ctxt, field)
     } else {
@@ -66,19 +65,19 @@ fn token_stream_for_one_of(ctxt: &Ctxt, field: &ASTField) -> Option<TokenStream>
 
     match ident_category(bracketed_ty_info.unwrap().ident) {
         TypeCategory::Protobuf => Some(quote! {
-            match self.#member {
-                Some(s) => { pb.#set_func(s.try_into().unwrap()) }
+            match o.#member {
+                Some(s) => { pb.#set_func(s.into()) }
                 None => {}
             }
         }),
         TypeCategory::Enum => Some(quote! {
-            match self.#member {
-                Some(s) => { pb.#set_func(s.try_into().unwrap()) }
+            match o.#member {
+                Some(s) => { pb.#set_func(s.into()) }
                 None => {}
             }
         }),
         _ => Some(quote! {
-            match self.#member {
+            match o.#member {
                 Some(ref s) => { pb.#set_func(s.clone()) }
                 None => {}
             }
@@ -100,18 +99,16 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
         TypeCategory::Str => {
             if is_option {
                 Some(quote! {
-                    match self.#member {
+                    match o.#member {
                         Some(ref s) => { pb.#member = s.to_string().clone();  }
                         None => {  pb.#member = String::new(); }
                     }
                 })
             } else {
-                Some(quote! { pb.#member = self.#member.clone(); })
+                Some(quote! { pb.#member = o.#member.clone(); })
             }
         }
-        TypeCategory::Protobuf => {
-            Some(quote! { pb.#member =  ::protobuf::SingularPtrField::some(self.#member.try_into().unwrap()); })
-        }
+        TypeCategory::Protobuf => Some(quote! { pb.#member =  ::protobuf::SingularPtrField::some(o.#member.into()); }),
         TypeCategory::Opt => gen_token_stream(ctxt, member, ty_info.bracket_ty_info.unwrap().ty, true),
         TypeCategory::Enum => {
             // let pb_enum_ident = format_ident!("{}", ty_info.ident.to_string());
@@ -119,10 +116,10 @@ fn gen_token_stream(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type, is_option
             // flowy_protobuf::#pb_enum_ident::from_i32(self.#member.value()).unwrap();
             // })
             Some(quote! {
-                pb.#member = self.#member.try_into().unwrap();
+                pb.#member = o.#member.into();
             })
         }
-        _ => Some(quote! { pb.#member = self.#member; }),
+        _ => Some(quote! { pb.#member = o.#member; }),
     }
 }
 
@@ -139,15 +136,15 @@ fn token_stream_for_vec(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
     match ident_category(ty_info.ident) {
         TypeCategory::Protobuf => Some(quote! {
             pb.#member = ::protobuf::RepeatedField::from_vec(
-                self.#member
+                o.#member
                 .into_iter()
-                .map(|m| m.try_into().unwrap())
+                .map(|m| m.into())
                 .collect());
         }),
-        TypeCategory::Bytes => Some(quote! { pb.#member = self.#member.clone(); }),
+        TypeCategory::Bytes => Some(quote! { pb.#member = o.#member.clone(); }),
 
         _ => Some(quote! {
-            pb.#member = ::protobuf::RepeatedField::from_vec(self.#member.clone());
+            pb.#member = ::protobuf::RepeatedField::from_vec(o.#member.clone());
         }),
     }
 }
@@ -166,14 +163,14 @@ fn token_stream_for_map(ctxt: &Ctxt, member: &syn::Member, ty: &syn::Type) -> Op
     match ident_category(ty_info.ident) {
         TypeCategory::Protobuf => Some(quote! {
             let mut m: std::collections::HashMap<String, crate::protobuf::#value_ty> = std::collections::HashMap::new();
-            self.#member.into_iter().for_each(|(k,v)| {
-                m.insert(k.clone(), v.try_into().unwrap());
+            o.#member.into_iter().for_each(|(k,v)| {
+                m.insert(k.clone(), v.into());
             });
             pb.#member = m;
         }),
         _ => Some(quote! {
             let mut m: std::collections::HashMap<String, #value_ty> = std::collections::HashMap::new();
-              self.#member.iter().for_each(|(k,v)| {
+              o.#member.iter().for_each(|(k,v)| {
                  m.insert(k.clone(), v.clone());
               });
             pb.#member = m;

@@ -14,33 +14,31 @@ import 'text_cell.dart';
 import 'url_cell/url_cell.dart';
 
 class GridCellBuilder {
-  final GridCellsCache cellCache;
+  final GridCellCache cellCache;
   final GridFieldCache fieldCache;
   GridCellBuilder({
     required this.cellCache,
     required this.fieldCache,
   });
 
-  GridCellWidget build(GridCell cell, {GridCellStyle? style}) {
-    final key = ValueKey(cell.cellId());
-
+  GridCellWidget build(GridCellIdentifier cell, {GridCellStyle? style}) {
     final cellControllerBuilder = GridCellControllerBuilder(
-      gridCell: cell,
+      cellId: cell,
       cellCache: cellCache,
       fieldCache: fieldCache,
     );
-
-    switch (cell.field.fieldType) {
+    final key = cell.key();
+    switch (cell.fieldType) {
       case FieldType.Checkbox:
-        return CheckboxCell(cellControllerBuilder: cellControllerBuilder, key: key);
+        return GridCheckboxCell(cellControllerBuilder: cellControllerBuilder, key: key);
       case FieldType.DateTime:
-        return DateCell(cellControllerBuilder: cellControllerBuilder, key: key, style: style);
+        return GridDateCell(cellControllerBuilder: cellControllerBuilder, key: key, style: style);
       case FieldType.SingleSelect:
-        return SingleSelectCell(cellContorllerBuilder: cellControllerBuilder, style: style, key: key);
+        return GridSingleSelectCell(cellContorllerBuilder: cellControllerBuilder, style: style, key: key);
       case FieldType.MultiSelect:
-        return MultiSelectCell(cellContorllerBuilder: cellControllerBuilder, style: style, key: key);
+        return GridMultiSelectCell(cellContorllerBuilder: cellControllerBuilder, style: style, key: key);
       case FieldType.Number:
-        return NumberCell(cellContorllerBuilder: cellControllerBuilder, key: key);
+        return GridNumberCell(cellContorllerBuilder: cellControllerBuilder, key: key);
       case FieldType.RichText:
         return GridTextCell(cellContorllerBuilder: cellControllerBuilder, style: style, key: key);
       case FieldType.URL:

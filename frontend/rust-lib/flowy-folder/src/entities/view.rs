@@ -11,7 +11,7 @@ use flowy_folder_data_model::revision::{gen_view_id, ViewDataTypeRevision, ViewR
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct View {
+pub struct ViewPB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -34,9 +34,9 @@ pub struct View {
     pub plugin_type: i32,
 }
 
-impl std::convert::From<ViewRevision> for View {
+impl std::convert::From<ViewRevision> for ViewPB {
     fn from(rev: ViewRevision) -> Self {
-        View {
+        ViewPB {
             id: rev.id,
             belong_to_id: rev.belong_to_id,
             name: rev.name,
@@ -79,27 +79,27 @@ impl std::convert::From<ViewDataType> for ViewDataTypeRevision {
 }
 
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
-pub struct RepeatedView {
+pub struct RepeatedViewPB {
     #[pb(index = 1)]
-    pub items: Vec<View>,
+    pub items: Vec<ViewPB>,
 }
 
-impl_def_and_def_mut!(RepeatedView, View);
+impl_def_and_def_mut!(RepeatedViewPB, ViewPB);
 
-impl std::convert::From<Vec<ViewRevision>> for RepeatedView {
+impl std::convert::From<Vec<ViewRevision>> for RepeatedViewPB {
     fn from(values: Vec<ViewRevision>) -> Self {
-        let items = values.into_iter().map(|value| value.into()).collect::<Vec<View>>();
-        RepeatedView { items }
+        let items = values.into_iter().map(|value| value.into()).collect::<Vec<ViewPB>>();
+        RepeatedViewPB { items }
     }
 }
 #[derive(Default, ProtoBuf)]
-pub struct RepeatedViewId {
+pub struct RepeatedViewIdPB {
     #[pb(index = 1)]
     pub items: Vec<String>,
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct CreateViewPayload {
+pub struct CreateViewPayloadPB {
     #[pb(index = 1)]
     pub belong_to_id: String,
 
@@ -122,34 +122,19 @@ pub struct CreateViewPayload {
     pub data: Vec<u8>,
 }
 
-#[derive(Default, ProtoBuf, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct CreateViewParams {
-    #[pb(index = 1)]
     pub belong_to_id: String,
-
-    #[pb(index = 2)]
     pub name: String,
-
-    #[pb(index = 3)]
     pub desc: String,
-
-    #[pb(index = 4)]
     pub thumbnail: String,
-
-    #[pb(index = 5)]
     pub data_type: ViewDataType,
-
-    #[pb(index = 6)]
     pub view_id: String,
-
-    #[pb(index = 7)]
     pub data: Vec<u8>,
-
-    #[pb(index = 8)]
     pub plugin_type: i32,
 }
 
-impl TryInto<CreateViewParams> for CreateViewPayload {
+impl TryInto<CreateViewParams> for CreateViewPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateViewParams, Self::Error> {
@@ -175,20 +160,20 @@ impl TryInto<CreateViewParams> for CreateViewPayload {
 }
 
 #[derive(Default, ProtoBuf, Clone, Debug)]
-pub struct ViewId {
+pub struct ViewIdPB {
     #[pb(index = 1)]
     pub value: String,
 }
 
-impl std::convert::From<&str> for ViewId {
+impl std::convert::From<&str> for ViewIdPB {
     fn from(value: &str) -> Self {
-        ViewId {
+        ViewIdPB {
             value: value.to_string(),
         }
     }
 }
 
-impl std::ops::Deref for ViewId {
+impl std::ops::Deref for ViewIdPB {
     type Target = str;
 
     fn deref(&self) -> &Self::Target {
@@ -197,7 +182,7 @@ impl std::ops::Deref for ViewId {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct UpdateViewPayload {
+pub struct UpdateViewPayloadPB {
     #[pb(index = 1)]
     pub view_id: String,
 
@@ -211,22 +196,15 @@ pub struct UpdateViewPayload {
     pub thumbnail: Option<String>,
 }
 
-#[derive(Default, ProtoBuf, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct UpdateViewParams {
-    #[pb(index = 1)]
     pub view_id: String,
-
-    #[pb(index = 2, one_of)]
     pub name: Option<String>,
-
-    #[pb(index = 3, one_of)]
     pub desc: Option<String>,
-
-    #[pb(index = 4, one_of)]
     pub thumbnail: Option<String>,
 }
 
-impl TryInto<UpdateViewParams> for UpdateViewPayload {
+impl TryInto<UpdateViewParams> for UpdateViewPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateViewParams, Self::Error> {
@@ -269,7 +247,7 @@ impl std::default::Default for MoveFolderItemType {
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct MoveFolderItemPayload {
+pub struct MoveFolderItemPayloadPB {
     #[pb(index = 1)]
     pub item_id: String,
 
@@ -290,7 +268,7 @@ pub struct MoveFolderItemParams {
     pub ty: MoveFolderItemType,
 }
 
-impl TryInto<MoveFolderItemParams> for MoveFolderItemPayload {
+impl TryInto<MoveFolderItemParams> for MoveFolderItemPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<MoveFolderItemParams, Self::Error> {

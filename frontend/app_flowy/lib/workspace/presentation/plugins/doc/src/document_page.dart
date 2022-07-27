@@ -14,7 +14,7 @@ import 'styles.dart';
 import 'widget/banner.dart';
 
 class DocumentPage extends StatefulWidget {
-  final View view;
+  final ViewPB view;
 
   DocumentPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
 

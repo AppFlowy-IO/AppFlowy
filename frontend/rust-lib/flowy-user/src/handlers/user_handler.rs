@@ -1,5 +1,5 @@
 use crate::entities::{
-    AppearanceSettings, UpdateUserProfileParams, UpdateUserProfilePayload, UserProfile, APPEARANCE_DEFAULT_THEME,
+    AppearanceSettingsPB, UpdateUserProfileParams, UpdateUserProfilePayloadPB, UserProfilePB, APPEARANCE_DEFAULT_THEME,
 };
 use crate::{errors::FlowyError, services::UserSession};
 use flowy_database::kv::KV;
@@ -13,13 +13,13 @@ pub async fn init_user_handler(session: AppData<Arc<UserSession>>) -> Result<(),
 }
 
 #[tracing::instrument(level = "debug", skip(session))]
-pub async fn check_user_handler(session: AppData<Arc<UserSession>>) -> DataResult<UserProfile, FlowyError> {
+pub async fn check_user_handler(session: AppData<Arc<UserSession>>) -> DataResult<UserProfilePB, FlowyError> {
     let user_profile = session.check_user().await?;
     data_result(user_profile)
 }
 
 #[tracing::instrument(level = "debug", skip(session))]
-pub async fn get_user_profile_handler(session: AppData<Arc<UserSession>>) -> DataResult<UserProfile, FlowyError> {
+pub async fn get_user_profile_handler(session: AppData<Arc<UserSession>>) -> DataResult<UserProfilePB, FlowyError> {
     let user_profile = session.get_user_profile().await?;
     data_result(user_profile)
 }
@@ -32,7 +32,7 @@ pub async fn sign_out(session: AppData<Arc<UserSession>>) -> Result<(), FlowyErr
 
 #[tracing::instrument(level = "debug", skip(data, session))]
 pub async fn update_user_profile_handler(
-    data: Data<UpdateUserProfilePayload>,
+    data: Data<UpdateUserProfilePayloadPB>,
     session: AppData<Arc<UserSession>>,
 ) -> Result<(), FlowyError> {
     let params: UpdateUserProfileParams = data.into_inner().try_into()?;
@@ -43,7 +43,7 @@ pub async fn update_user_profile_handler(
 const APPEARANCE_SETTING_CACHE_KEY: &str = "appearance_settings";
 
 #[tracing::instrument(level = "debug", skip(data), err)]
-pub async fn set_appearance_setting(data: Data<AppearanceSettings>) -> Result<(), FlowyError> {
+pub async fn set_appearance_setting(data: Data<AppearanceSettingsPB>) -> Result<(), FlowyError> {
     let mut setting = data.into_inner();
     if setting.theme.is_empty() {
         setting.theme = APPEARANCE_DEFAULT_THEME.to_string();
@@ -55,15 +55,15 @@ pub async fn set_appearance_setting(data: Data<AppearanceSettings>) -> Result<()
 }
 
 #[tracing::instrument(err)]
-pub async fn get_appearance_setting() -> DataResult<AppearanceSettings, FlowyError> {
+pub async fn get_appearance_setting() -> DataResult<AppearanceSettingsPB, FlowyError> {
     match KV::get_str(APPEARANCE_SETTING_CACHE_KEY) {
-        None => data_result(AppearanceSettings::default()),
+        None => data_result(AppearanceSettingsPB::default()),
         Some(s) => {
             let setting = match serde_json::from_str(&s) {
                 Ok(setting) => setting,
                 Err(e) => {
                     tracing::error!("Deserialize AppearanceSettings failed: {:?}, fallback to default", e);
-                    AppearanceSettings::default()
+                    AppearanceSettingsPB::default()
                 }
             };
             data_result(setting)

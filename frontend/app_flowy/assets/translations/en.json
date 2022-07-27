@@ -141,6 +141,7 @@
     "menu": {
       "appearance": "Appearance",
       "language": "Language",
+      "user": "User",
       "open": "Open Settings"
     },
     "appearance": {
@@ -172,8 +173,8 @@
       "includeTime": " Include time",
       "dateFormatFriendly": "Month Day,Year",
       "dateFormatISO": "Year-Month-Day",
-      "dateFormatLocal": "Month/Month/Day",
-      "dateFormatUS": "Month/Month/Day",
+      "dateFormatLocal": "Year/Month/Day",
+      "dateFormatUS": "Year/Month/Day",
       "timeFormat": " Time format",
       "invalidTimeFormat": "Invalid format",
       "timeFormatTwelveHour": "12 hour",

@@ -1,5 +1,5 @@
 use crate::entities::{
-    GridLayout, GridLayoutType, GridSetting, RepeatedGridFilter, RepeatedGridGroup, RepeatedGridSort,
+    GridLayoutPB, GridLayoutType, GridSettingPB, RepeatedGridFilterPB, RepeatedGridGroupPB, RepeatedGridSortPB,
 };
 use flowy_grid_data_model::revision::{FieldRevision, GridSettingRevision};
 use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
@@ -40,7 +40,7 @@ impl GridSettingChangesetBuilder {
     }
 }
 
-pub fn make_grid_setting(grid_setting_rev: &GridSettingRevision, field_revs: &[Arc<FieldRevision>]) -> GridSetting {
+pub fn make_grid_setting(grid_setting_rev: &GridSettingRevision, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
     let current_layout_type: GridLayoutType = grid_setting_rev.layout.clone().into();
     let filters_by_field_id = grid_setting_rev
         .get_all_filter(field_revs)
@@ -48,7 +48,7 @@ pub fn make_grid_setting(grid_setting_rev: &GridSettingRevision, field_revs: &[A
             filters_by_field_id
                 .into_iter()
                 .map(|(k, v)| (k, v.into()))
-                .collect::<HashMap<String, RepeatedGridFilter>>()
+                .collect::<HashMap<String, RepeatedGridFilterPB>>()
         })
         .unwrap_or_default();
     let groups_by_field_id = grid_setting_rev
@@ -57,7 +57,7 @@ pub fn make_grid_setting(grid_setting_rev: &GridSettingRevision, field_revs: &[A
             groups_by_field_id
                 .into_iter()
                 .map(|(k, v)| (k, v.into()))
-                .collect::<HashMap<String, RepeatedGridGroup>>()
+                .collect::<HashMap<String, RepeatedGridGroupPB>>()
         })
         .unwrap_or_default();
     let sorts_by_field_id = grid_setting_rev
@@ -66,12 +66,12 @@ pub fn make_grid_setting(grid_setting_rev: &GridSettingRevision, field_revs: &[A
             sorts_by_field_id
                 .into_iter()
                 .map(|(k, v)| (k, v.into()))
-                .collect::<HashMap<String, RepeatedGridSort>>()
+                .collect::<HashMap<String, RepeatedGridSortPB>>()
         })
         .unwrap_or_default();
 
-    GridSetting {
-        layouts: GridLayout::all(),
+    GridSettingPB {
+        layouts: GridLayoutPB::all(),
         current_layout_type,
         filters_by_field_id,
         groups_by_field_id,

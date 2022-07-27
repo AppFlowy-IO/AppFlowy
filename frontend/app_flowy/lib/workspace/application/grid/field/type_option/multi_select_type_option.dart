@@ -13,16 +13,16 @@ class MultiSelectTypeOptionContext extends TypeOptionWidgetContext<MultiSelectTy
 
   MultiSelectTypeOptionContext({
     required MultiSelectTypeOptionWidgetDataParser dataBuilder,
-    required GridFieldContext fieldContext,
+    required TypeOptionDataController dataController,
   })  : service = TypeOptionService(
-          gridId: fieldContext.gridId,
-          fieldId: fieldContext.field.id,
+          gridId: dataController.gridId,
+          fieldId: dataController.field.id,
         ),
-        super(dataBuilder: dataBuilder, fieldContext: fieldContext);
+        super(dataParser: dataBuilder, dataController: dataController);
 
   @override
-  List<SelectOption> Function(SelectOption) get deleteOption {
-    return (SelectOption option) {
+  List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {
+    return (SelectOptionPB option) {
       typeOption.freeze();
       typeOption = typeOption.rebuild((typeOption) {
         final index = typeOption.options.indexWhere((element) => element.id == option.id);
@@ -35,7 +35,7 @@ class MultiSelectTypeOptionContext extends TypeOptionWidgetContext<MultiSelectTy
   }
 
   @override
-  Future<List<SelectOption>> Function(String) get insertOption {
+  Future<List<SelectOptionPB>> Function(String) get insertOption {
     return (String optionName) {
       return service.newOption(name: optionName).then((result) {
         return result.fold(
@@ -57,8 +57,8 @@ class MultiSelectTypeOptionContext extends TypeOptionWidgetContext<MultiSelectTy
   }
 
   @override
-  List<SelectOption> Function(SelectOption) get udpateOption {
-    return (SelectOption option) {
+  List<SelectOptionPB> Function(SelectOptionPB) get udpateOption {
+    return (SelectOptionPB option) {
       typeOption.freeze();
       typeOption = typeOption.rebuild((typeOption) {
         final index = typeOption.options.indexWhere((element) => element.id == option.id);
@@ -71,7 +71,7 @@ class MultiSelectTypeOptionContext extends TypeOptionWidgetContext<MultiSelectTy
   }
 }
 
-class MultiSelectTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<MultiSelectTypeOption> {
+class MultiSelectTypeOptionWidgetDataParser extends TypeOptionDataParser<MultiSelectTypeOption> {
   @override
   MultiSelectTypeOption fromBuffer(List<int> buffer) {
     return MultiSelectTypeOption.fromBuffer(buffer);

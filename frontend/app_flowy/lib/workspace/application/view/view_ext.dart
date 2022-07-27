@@ -32,7 +32,7 @@ extension FlowyPluginExtension on FlowyPlugin {
   }
 }
 
-extension ViewExtension on View {
+extension ViewExtension on ViewPB {
   Widget renderThumbnail({Color? iconColor}) {
     String thumbnail = "file_icon";
 

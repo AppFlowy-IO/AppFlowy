@@ -5,7 +5,7 @@ import 'builder.dart';
 
 typedef URLTypeOptionContext = TypeOptionWidgetContext<URLTypeOption>;
 
-class URLTypeOptionWidgetDataParser extends TypeOptionWidgetDataParser<URLTypeOption> {
+class URLTypeOptionWidgetDataParser extends TypeOptionDataParser<URLTypeOption> {
   @override
   URLTypeOption fromBuffer(List<int> buffer) {
     return URLTypeOption.fromBuffer(buffer);

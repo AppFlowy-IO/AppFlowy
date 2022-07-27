@@ -18,11 +18,11 @@ abstract class GridCellDelegate {
   GridCellDelegate get delegate;
 }
 
-class DateCell extends GridCellWidget {
+class GridDateCell extends GridCellWidget {
   final GridCellControllerBuilder cellControllerBuilder;
   late final DateCellStyle? cellStyle;
 
-  DateCell({
+  GridDateCell({
     GridCellStyle? style,
     required this.cellControllerBuilder,
     Key? key,
@@ -35,10 +35,10 @@ class DateCell extends GridCellWidget {
   }
 
   @override
-  GridCellState<DateCell> createState() => _DateCellState();
+  GridCellState<GridDateCell> createState() => _DateCellState();
 }
 
-class _DateCellState extends GridCellState<DateCell> {
+class _DateCellState extends GridCellState<GridDateCell> {
   late DateCellBloc _cellBloc;
 
   @override
@@ -80,7 +80,7 @@ class _DateCellState extends GridCellState<DateCell> {
     final calendar = DateCellEditor(onDismissed: () => widget.onCellEditing.value = false);
     calendar.show(
       context,
-      cellContext: bloc.cellContext.clone(),
+      cellController: bloc.cellContext.clone(),
     );
   }
 

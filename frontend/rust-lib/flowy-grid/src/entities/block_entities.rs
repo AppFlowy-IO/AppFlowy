@@ -5,38 +5,38 @@ use flowy_grid_data_model::revision::RowRevision;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridBlock {
+pub struct GridBlockPB {
     #[pb(index = 1)]
     pub id: String,
 
     #[pb(index = 2)]
-    pub row_infos: Vec<RowInfo>,
+    pub rows: Vec<GridRowPB>,
 }
 
-impl GridBlock {
-    pub fn new(block_id: &str, row_orders: Vec<RowInfo>) -> Self {
+impl GridBlockPB {
+    pub fn new(block_id: &str, rows: Vec<GridRowPB>) -> Self {
         Self {
             id: block_id.to_owned(),
-            row_infos: row_orders,
+            rows,
         }
     }
 }
 
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct RowInfo {
+pub struct GridRowPB {
     #[pb(index = 1)]
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub row_id: String,
+    pub id: String,
 
     #[pb(index = 3)]
     pub height: i32,
 }
 
-impl RowInfo {
+impl GridRowPB {
     pub fn row_id(&self) -> &str {
-        &self.row_id
+        &self.id
     }
 
     pub fn block_id(&self) -> &str {
@@ -44,66 +44,57 @@ impl RowInfo {
     }
 }
 
-impl std::convert::From<&RowRevision> for RowInfo {
+impl std::convert::From<&RowRevision> for GridRowPB {
     fn from(rev: &RowRevision) -> Self {
         Self {
             block_id: rev.block_id.clone(),
-            row_id: rev.id.clone(),
+            id: rev.id.clone(),
             height: rev.height,
         }
     }
 }
 
-impl std::convert::From<&Arc<RowRevision>> for RowInfo {
+impl std::convert::From<&Arc<RowRevision>> for GridRowPB {
     fn from(rev: &Arc<RowRevision>) -> Self {
         Self {
             block_id: rev.block_id.clone(),
-            row_id: rev.id.clone(),
+            id: rev.id.clone(),
             height: rev.height,
         }
     }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct Row {
-    #[pb(index = 1)]
-    pub id: String,
-
-    #[pb(index = 2)]
-    pub height: i32,
-}
-
-#[derive(Debug, Default, ProtoBuf)]
-pub struct OptionalRow {
+pub struct OptionalRowPB {
     #[pb(index = 1, one_of)]
-    pub row: Option<Row>,
+    pub row: Option<GridRowPB>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedRow {
+pub struct RepeatedRowPB {
     #[pb(index = 1)]
-    pub items: Vec<Row>,
+    pub items: Vec<GridRowPB>,
 }
 
-impl std::convert::From<Vec<Row>> for RepeatedRow {
-    fn from(items: Vec<Row>) -> Self {
+impl std::convert::From<Vec<GridRowPB>> for RepeatedRowPB {
+    fn from(items: Vec<GridRowPB>) -> Self {
         Self { items }
     }
 }
 #[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedGridBlock {
+pub struct RepeatedGridBlockPB {
     #[pb(index = 1)]
-    pub items: Vec<GridBlock>,
+    pub items: Vec<GridBlockPB>,
 }
 
-impl std::convert::From<Vec<GridBlock>> for RepeatedGridBlock {
-    fn from(items: Vec<GridBlock>) -> Self {
+impl std::convert::From<Vec<GridBlockPB>> for RepeatedGridBlockPB {
+    fn from(items: Vec<GridBlockPB>) -> Self {
         Self { items }
     }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct InsertedRow {
+pub struct InsertedRowPB {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -118,7 +109,7 @@ pub struct InsertedRow {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct UpdatedRow {
+pub struct UpdatedRowPB {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -126,11 +117,11 @@ pub struct UpdatedRow {
     pub row_id: String,
 
     #[pb(index = 3)]
-    pub row: Row,
+    pub row: GridRowPB,
 }
 
-impl UpdatedRow {
-    pub fn new(row_rev: &RowRevision, row: Row) -> Self {
+impl UpdatedRowPB {
+    pub fn new(row_rev: &RowRevision, row: GridRowPB) -> Self {
         Self {
             row_id: row_rev.id.clone(),
             block_id: row_rev.block_id.clone(),
@@ -139,10 +130,10 @@ impl UpdatedRow {
     }
 }
 
-impl std::convert::From<RowInfo> for InsertedRow {
-    fn from(row_info: RowInfo) -> Self {
+impl std::convert::From<GridRowPB> for InsertedRowPB {
+    fn from(row_info: GridRowPB) -> Self {
         Self {
-            row_id: row_info.row_id,
+            row_id: row_info.id,
             block_id: row_info.block_id,
             height: row_info.height,
             index: None,
@@ -150,26 +141,26 @@ impl std::convert::From<RowInfo> for InsertedRow {
     }
 }
 
-impl std::convert::From<&RowRevision> for InsertedRow {
+impl std::convert::From<&RowRevision> for InsertedRowPB {
     fn from(row: &RowRevision) -> Self {
-        let row_order = RowInfo::from(row);
+        let row_order = GridRowPB::from(row);
         Self::from(row_order)
     }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GridBlockChangeset {
+pub struct GridBlockChangesetPB {
     #[pb(index = 1)]
     pub block_id: String,
 
     #[pb(index = 2)]
-    pub inserted_rows: Vec<InsertedRow>,
+    pub inserted_rows: Vec<InsertedRowPB>,
 
     #[pb(index = 3)]
     pub deleted_rows: Vec<String>,
 
     #[pb(index = 4)]
-    pub updated_rows: Vec<UpdatedRow>,
+    pub updated_rows: Vec<UpdatedRowPB>,
 
     #[pb(index = 5)]
     pub visible_rows: Vec<String>,
@@ -177,8 +168,8 @@ pub struct GridBlockChangeset {
     #[pb(index = 6)]
     pub hide_rows: Vec<String>,
 }
-impl GridBlockChangeset {
-    pub fn insert(block_id: &str, inserted_rows: Vec<InsertedRow>) -> Self {
+impl GridBlockChangesetPB {
+    pub fn insert(block_id: &str, inserted_rows: Vec<InsertedRowPB>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             inserted_rows,
@@ -194,7 +185,7 @@ impl GridBlockChangeset {
         }
     }
 
-    pub fn update(block_id: &str, updated_rows: Vec<UpdatedRow>) -> Self {
+    pub fn update(block_id: &str, updated_rows: Vec<UpdatedRowPB>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             updated_rows,
@@ -204,7 +195,7 @@ impl GridBlockChangeset {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct QueryGridBlocksPayload {
+pub struct QueryGridBlocksPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -217,7 +208,7 @@ pub struct QueryGridBlocksParams {
     pub block_ids: Vec<String>,
 }
 
-impl TryInto<QueryGridBlocksParams> for QueryGridBlocksPayload {
+impl TryInto<QueryGridBlocksParams> for QueryGridBlocksPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<QueryGridBlocksParams, Self::Error> {

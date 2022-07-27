@@ -1,26 +1,21 @@
-use crate::grid::block_test::script::GridRowTest;
 use crate::grid::block_test::script::RowScript::*;
-use crate::grid::block_test::util::GridRowTestBuilder;
-use chrono::NaiveDateTime;
+use crate::grid::block_test::script::{CreateRowScriptBuilder, GridRowTest};
+use crate::grid::grid_editor::{COMPLETED, FACEBOOK, GOOGLE, PAUSED, TWITTER};
 use flowy_grid::entities::FieldType;
-use flowy_grid::services::cell::decode_any_cell_data;
-use flowy_grid::services::field::select_option::SELECTION_IDS_SEPARATOR;
-use flowy_grid::services::field::{DateCellData, MultiSelectTypeOption, SingleSelectTypeOption};
-
-use crate::grid::field_test::util::make_date_cell_string;
+use flowy_grid::services::field::{SELECTION_IDS_SEPARATOR, UNCHECK};
 use flowy_grid_data_model::revision::RowMetaChangeset;
 
 #[tokio::test]
 async fn grid_create_row_count_test() {
     let mut test = GridRowTest::new().await;
     let scripts = vec![
-        AssertRowCount(3),
+        AssertRowCount(5),
         CreateEmptyRow,
         CreateEmptyRow,
         CreateRow {
-            payload: GridRowTestBuilder::new(&test).build(),
+            row_rev: test.row_builder().build(),
         },
-        AssertRowCount(6),
+        AssertRowCount(8),
     ];
     test.run_scripts(scripts).await;
 }
@@ -28,42 +23,42 @@ async fn grid_create_row_count_test() {
 #[tokio::test]
 async fn grid_update_row() {
     let mut test = GridRowTest::new().await;
-    let payload = GridRowTestBuilder::new(&test).build();
+    let row_rev = test.row_builder().build();
     let changeset = RowMetaChangeset {
-        row_id: payload.row_id.clone(),
+        row_id: row_rev.id.clone(),
         height: None,
         visibility: None,
         cell_by_field_id: Default::default(),
     };
 
-    let scripts = vec![AssertRowCount(3), CreateRow { payload }, UpdateRow { changeset }];
+    let scripts = vec![AssertRowCount(5), CreateRow { row_rev }, UpdateRow { changeset }];
     test.run_scripts(scripts).await;
 
     let expected_row = test.last_row().unwrap();
-    let scripts = vec![AssertRow { expected_row }, AssertRowCount(4)];
+    let scripts = vec![AssertRow { expected_row }, AssertRowCount(6)];
     test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
 async fn grid_delete_row() {
     let mut test = GridRowTest::new().await;
-    let payload1 = GridRowTestBuilder::new(&test).build();
-    let payload2 = GridRowTestBuilder::new(&test).build();
-    let row_ids = vec![payload1.row_id.clone(), payload2.row_id.clone()];
+    let row_1 = test.row_builder().build();
+    let row_2 = test.row_builder().build();
+    let row_ids = vec![row_1.id.clone(), row_2.id.clone()];
     let scripts = vec![
-        AssertRowCount(3),
-        CreateRow { payload: payload1 },
-        CreateRow { payload: payload2 },
+        AssertRowCount(5),
+        CreateRow { row_rev: row_1 },
+        CreateRow { row_rev: row_2 },
         AssertBlockCount(1),
         AssertBlock {
             block_index: 0,
-            row_count: 5,
+            row_count: 7,
             start_row_index: 0,
         },
         DeleteRows { row_ids },
         AssertBlock {
             block_index: 0,
-            row_count: 3,
+            row_count: 5,
             start_row_index: 0,
         },
     ];
@@ -73,78 +68,68 @@ async fn grid_delete_row() {
 #[tokio::test]
 async fn grid_row_add_cells_test() {
     let mut test = GridRowTest::new().await;
-    let mut builder = test.builder();
-    for field in test.field_revs() {
-        let field_type: FieldType = field.field_type_rev.into();
-        match field_type {
-            FieldType::RichText => {
-                builder.add_cell(&field.id, "hello world".to_owned()).unwrap();
-            }
-            FieldType::Number => {
-                builder.add_cell(&field.id, "18,443".to_owned()).unwrap();
-            }
-            FieldType::DateTime => {
-                builder
-                    .add_cell(&field.id, make_date_cell_string("1647251762"))
-                    .unwrap();
-            }
-            FieldType::SingleSelect => {
-                let type_option = SingleSelectTypeOption::from(field);
-                let option = type_option.options.first().unwrap();
-                builder.add_select_option_cell(&field.id, option.id.clone()).unwrap();
-            }
-            FieldType::MultiSelect => {
-                let type_option = MultiSelectTypeOption::from(field);
-                let ops_ids = type_option
-                    .options
-                    .iter()
-                    .map(|option| option.id.clone())
-                    .collect::<Vec<_>>()
-                    .join(SELECTION_IDS_SEPARATOR);
-                builder.add_select_option_cell(&field.id, ops_ids).unwrap();
-            }
-            FieldType::Checkbox => {
-                builder.add_cell(&field.id, "false".to_string()).unwrap();
-            }
-            FieldType::URL => {
-                builder.add_cell(&field.id, "1".to_string()).unwrap();
-            }
-        }
-    }
-    let context = builder.build();
-    let scripts = vec![CreateRow { payload: context }];
+    let mut builder = CreateRowScriptBuilder::new(&test);
+    builder.insert(FieldType::RichText, "hello world", "hello world");
+    builder.insert(FieldType::DateTime, "1647251762", "2022/03/14");
+    builder.insert(FieldType::Number, "18,443", "$18,443.00");
+    builder.insert(FieldType::Checkbox, "false", UNCHECK);
+    builder.insert(FieldType::URL, "https://appflowy.io", "https://appflowy.io");
+    builder.insert_single_select_cell(|mut options| options.remove(0), COMPLETED);
+    builder.insert_multi_select_cell(
+        |options| options,
+        &vec![GOOGLE, FACEBOOK, TWITTER].join(SELECTION_IDS_SEPARATOR),
+    );
+    let scripts = builder.build();
     test.run_scripts(scripts).await;
 }
 
 #[tokio::test]
-async fn grid_row_add_date_cell_test() {
+async fn grid_row_insert_number_test() {
     let mut test = GridRowTest::new().await;
-    let mut builder = test.builder();
-    let mut date_field = None;
-    let timestamp = 1647390674;
-    for field in test.field_revs() {
-        let field_type: FieldType = field.field_type_rev.into();
-        if field_type == FieldType::DateTime {
-            date_field = Some(field.clone());
-            NaiveDateTime::from_timestamp(123, 0);
-            // The data should not be empty
-            assert!(builder.add_cell(&field.id, "".to_string()).is_err());
-            assert!(builder.add_cell(&field.id, make_date_cell_string("123")).is_ok());
-            assert!(builder
-                .add_cell(&field.id, make_date_cell_string(&timestamp.to_string()))
-                .is_ok());
-        }
+    for (val, expected) in &[("1647251762", "2022/03/14"), ("2022/03/14", ""), ("", "")] {
+        let mut builder = CreateRowScriptBuilder::new(&test);
+        builder.insert(FieldType::DateTime, val, expected);
+        let scripts = builder.build();
+        test.run_scripts(scripts).await;
     }
-    let context = builder.build();
-    let date_field = date_field.unwrap();
-    let cell_rev = context.cell_by_field_id.get(&date_field.id).unwrap();
-    assert_eq!(
-        decode_any_cell_data(cell_rev, &date_field)
-            .parse::<DateCellData>()
-            .unwrap()
-            .date,
-        "2022/03/16",
+}
+
+#[tokio::test]
+async fn grid_row_insert_date_test() {
+    let mut test = GridRowTest::new().await;
+    for (val, expected) in &[
+        ("18,443", "$18,443.00"),
+        ("0", "$0.00"),
+        ("100000", "$100,000.00"),
+        ("$100,000.00", "$100,000.00"),
+        ("", ""),
+    ] {
+        let mut builder = CreateRowScriptBuilder::new(&test);
+        builder.insert(FieldType::Number, val, expected);
+        let scripts = builder.build();
+        test.run_scripts(scripts).await;
+    }
+}
+#[tokio::test]
+async fn grid_row_insert_single_select_test() {
+    let mut test = GridRowTest::new().await;
+    let mut builder = CreateRowScriptBuilder::new(&test);
+    builder.insert_single_select_cell(|mut options| options.pop().unwrap(), PAUSED);
+    let scripts = builder.build();
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn grid_row_insert_multi_select_test() {
+    let mut test = GridRowTest::new().await;
+    let mut builder = CreateRowScriptBuilder::new(&test);
+    builder.insert_multi_select_cell(
+        |mut options| {
+            options.remove(0);
+            options
+        },
+        &vec![FACEBOOK, TWITTER].join(SELECTION_IDS_SEPARATOR),
     );
-    let scripts = vec![CreateRow { payload: context }];
+    let scripts = builder.build();
     test.run_scripts(scripts).await;
 }

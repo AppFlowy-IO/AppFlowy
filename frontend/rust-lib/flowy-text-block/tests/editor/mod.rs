@@ -108,20 +108,20 @@ impl TestBuilder {
             TestOp::Insert(delta_i, s, index) => {
                 let document = &mut self.documents[*delta_i];
                 let delta = document.insert(*index, s).unwrap();
-                tracing::debug!("Insert delta: {}", delta.to_delta_str());
+                tracing::debug!("Insert delta: {}", delta.to_json_str());
 
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Delete(delta_i, iv) => {
                 let document = &mut self.documents[*delta_i];
                 let delta = document.replace(*iv, "").unwrap();
-                tracing::trace!("Delete delta: {}", delta.to_delta_str());
+                tracing::trace!("Delete delta: {}", delta.to_json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Replace(delta_i, iv, s) => {
                 let document = &mut self.documents[*delta_i];
                 let delta = document.replace(*iv, s).unwrap();
-                tracing::trace!("Replace delta: {}", delta.to_delta_str());
+                tracing::trace!("Replace delta: {}", delta.to_json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::InsertBold(delta_i, s, iv) => {
@@ -133,7 +133,7 @@ impl TestBuilder {
                 let document = &mut self.documents[*delta_i];
                 let attribute = RichTextAttribute::Bold(*enable);
                 let delta = document.format(*iv, attribute).unwrap();
-                tracing::trace!("Bold delta: {}", delta.to_delta_str());
+                tracing::trace!("Bold delta: {}", delta.to_json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Italic(delta_i, iv, enable) => {
@@ -143,28 +143,28 @@ impl TestBuilder {
                     false => RichTextAttribute::Italic(false),
                 };
                 let delta = document.format(*iv, attribute).unwrap();
-                tracing::trace!("Italic delta: {}", delta.to_delta_str());
+                tracing::trace!("Italic delta: {}", delta.to_json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Header(delta_i, iv, level) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = RichTextAttribute::Header(*level);
                 let delta = document.format(*iv, attribute).unwrap();
-                tracing::trace!("Header delta: {}", delta.to_delta_str());
+                tracing::trace!("Header delta: {}", delta.to_json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Link(delta_i, iv, link) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = RichTextAttribute::Link(link.to_owned());
                 let delta = document.format(*iv, attribute).unwrap();
-                tracing::trace!("Link delta: {}", delta.to_delta_str());
+                tracing::trace!("Link delta: {}", delta.to_json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Bullet(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = RichTextAttribute::Bullet(*enable);
                 let delta = document.format(*iv, attribute).unwrap();
-                tracing::debug!("Bullet delta: {}", delta.to_delta_str());
+                tracing::debug!("Bullet delta: {}", delta.to_json_str());
 
                 self.deltas.insert(*delta_i, Some(delta));
             }
@@ -194,15 +194,15 @@ impl TestBuilder {
                 let delta_a = &self.documents[*delta_a_i].delta();
                 let delta_b = &self.documents[*delta_b_i].delta();
                 tracing::debug!("Invert: ");
-                tracing::debug!("a: {}", delta_a.to_delta_str());
-                tracing::debug!("b: {}", delta_b.to_delta_str());
+                tracing::debug!("a: {}", delta_a.to_json_str());
+                tracing::debug!("b: {}", delta_b.to_json_str());
 
                 let (_, b_prime) = delta_a.transform(delta_b).unwrap();
                 let undo = b_prime.invert(delta_a);
 
                 let new_delta = delta_a.compose(&b_prime).unwrap();
-                tracing::debug!("new delta: {}", new_delta.to_delta_str());
-                tracing::debug!("undo delta: {}", undo.to_delta_str());
+                tracing::debug!("new delta: {}", new_delta.to_json_str());
+                tracing::debug!("undo delta: {}", undo.to_json_str());
 
                 let new_delta_after_undo = new_delta.compose(&undo).unwrap();
 
@@ -238,7 +238,7 @@ impl TestBuilder {
             }
 
             TestOp::AssertPrimeJson(doc_i, expected) => {
-                let prime_json = self.primes[*doc_i].as_ref().unwrap().to_delta_str();
+                let prime_json = self.primes[*doc_i].as_ref().unwrap().to_json_str();
                 let expected_prime: RichTextDelta = serde_json::from_str(expected).unwrap();
                 let target_prime: RichTextDelta = serde_json::from_str(&prime_json).unwrap();
 
