@@ -17,9 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
-      with:
-        toolchain: 'stable-2022-01-20'
-        override: true
+        with:
+          toolchain: 'stable-2022-01-20'
+          override: true
 
       - name: Rust Deps
         working-directory: frontend
@@ -40,7 +40,7 @@ jobs:
 
 
       - run: rustup component add clippy
-          working-directory: frontend/rust-lib
+        working-directory: frontend/rust-lib
       - name: clippy
         run: cargo clippy --no-default-features
         working-directory: frontend/rust-lib
