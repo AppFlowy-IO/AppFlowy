@@ -43,20 +43,20 @@ class NodeWidgetBuilder<T extends Node> {
           'Node validate failure, node = { type: ${node.type}, attributes: ${node.attributes} }');
     }
 
-    return _buildNodeChangeNotifier(buildContext);
+    return _build(buildContext);
   }
 
-  Widget _buildNodeChangeNotifier(BuildContext buildContext) {
-    return ChangeNotifierProvider.value(
-      value: node,
-      builder: (_, __) => Consumer<T>(
-        builder: ((context, value, child) {
-          debugPrint('Node changed, and rebuilding...');
-          return CompositedTransformTarget(
-            link: node.layerLink,
-            child: build(context),
-          );
-        }),
+  Widget _build(BuildContext buildContext) {
+    return CompositedTransformTarget(
+      link: node.layerLink,
+      child: ChangeNotifierProvider.value(
+        value: node,
+        builder: (context, child) => Consumer<T>(
+          builder: ((context, value, child) {
+            debugPrint('Node is rebuilding...');
+            return build(context);
+          }),
+        ),
       ),
     );
   }

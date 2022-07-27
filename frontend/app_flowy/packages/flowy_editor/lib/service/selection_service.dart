@@ -96,7 +96,7 @@ class FlowySelection extends StatefulWidget {
 }
 
 class _FlowySelectionState extends State<FlowySelection>
-    with FlowySelectionService {
+    with FlowySelectionService, WidgetsBindingObserver {
   final _cursorKey = GlobalKey(debugLabel: 'cursor');
 
   final List<OverlayEntry> _selectionOverlays = [];
@@ -123,6 +123,28 @@ class _FlowySelectionState extends State<FlowySelection>
       _selectedNodesInSelection(editorState.document.root, selection);
 
   @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+
+    // Need to refresh the selection when the metrics changed.
+    if (currentSelection != null) {
+      updateSelection(currentSelection!);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return RawGestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -140,8 +162,8 @@ class _FlowySelectionState extends State<FlowySelection>
         TapGestureRecognizer:
             GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
           () => TapGestureRecognizer(),
-          (recongizer) {
-            recongizer.onTapDown = _onTapDown;
+          (recognizer) {
+            recognizer.onTapDown = _onTapDown;
           },
         )
       },
@@ -155,8 +177,10 @@ class _FlowySelectionState extends State<FlowySelection>
 
     // cursor
     if (selection.isCollapsed) {
+      debugPrint('Update cursor');
       _updateCursor(selection.start);
     } else {
+      debugPrint('Update selection');
       _updateSelection(selection);
     }
   }
@@ -171,9 +195,9 @@ class _FlowySelectionState extends State<FlowySelection>
     if (end != null) {
       return computeNodesInRange(editorState.document.root, start, end);
     } else {
-      final reuslt = computeNodeInOffset(editorState.document.root, start);
-      if (reuslt != null) {
-        return [reuslt];
+      final result = computeNodeInOffset(editorState.document.root, start);
+      if (result != null) {
+        return [result];
       }
     }
     return [];
@@ -307,7 +331,7 @@ class _FlowySelectionState extends State<FlowySelection>
     _cursorOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
-    // clear floating shortcusts
+    // clear floating shortcuts
     editorState.service.floatingShortcutServiceKey.currentState
         ?.unwrapOrNull<FlowyFloatingShortcutService>()
         ?.hide();

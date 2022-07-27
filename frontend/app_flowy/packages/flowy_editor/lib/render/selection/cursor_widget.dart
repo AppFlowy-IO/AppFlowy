@@ -11,7 +11,7 @@ class CursorWidget extends StatefulWidget {
     this.blinkingInterval = 0.5,
   }) : super(key: key);
 
-  final double blinkingInterval;
+  final double blinkingInterval; // milliseconds
   final Color color;
   final Rect rect;
   final LayerLink layerLink;
