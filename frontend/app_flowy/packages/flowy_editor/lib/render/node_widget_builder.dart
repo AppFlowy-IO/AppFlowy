@@ -31,7 +31,7 @@ class NodeWidgetBuilder<T extends Node> {
       throw UnimplementedError();
 
   /// TODO: refactore this part.
-  /// return widget embeded with ChangeNotifier and widget itself.
+  /// return widget embedded with ChangeNotifier and widget itself.
   Widget call(
     BuildContext buildContext,
   ) {

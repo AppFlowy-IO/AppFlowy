@@ -1,5 +1,6 @@
 import 'package:flowy_editor/render/selection/floating_shortcut_widget.dart';
 import 'package:flowy_editor/service/input_service.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/enter_in_edge_of_text_node_handler.dart';
 import 'package:flowy_editor/service/shortcut_service.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/arrow_keys_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/delete_nodes_handler.dart';
@@ -47,6 +48,7 @@ class _FlowyEditorState extends State<FlowyEditor> {
             flowyDeleteNodesHandler,
             deleteSingleTextNodeHandler,
             arrowKeysHandler,
+            enterInEdgeOfTextNodeHandler,
             ...widget.keyEventHandlers,
           ],
           editorState: editorState,

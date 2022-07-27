@@ -1,5 +1,8 @@
+import 'package:flowy_editor/document/position.dart';
+import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -86,7 +89,18 @@ class _FlowyInputState extends State<FlowyInput>
   }
 
   @override
-  void apply(List<TextEditingDelta> deltas) {}
+  void apply(List<TextEditingDelta> deltas) {
+// TODO: implement the detail
+    for (final delta in deltas) {
+      if (delta is TextEditingDeltaInsertion) {
+      } else if (delta is TextEditingDeltaDeletion) {
+      } else if (delta is TextEditingDeltaReplacement) {
+      } else if (delta is TextEditingDeltaNonTextUpdate) {
+        // We don't need to care the [TextEditingDeltaNonTextUpdate].
+        // Do nothing.
+      }
+    }
+  }
 
   @override
   void close() {

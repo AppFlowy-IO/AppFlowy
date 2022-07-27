@@ -22,4 +22,15 @@ extension PathExtensions on Path {
     }
     return true;
   }
+
+  Path get next {
+    Path nextPath = Path.from(this, growable: true);
+    if (isEmpty) {
+      return nextPath;
+    }
+    final last = nextPath.last;
+    return nextPath
+      ..removeLast()
+      ..add(last + 1);
+  }
 }
