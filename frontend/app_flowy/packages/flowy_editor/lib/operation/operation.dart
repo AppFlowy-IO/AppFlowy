@@ -128,6 +128,8 @@ Path transformPath(Path preInsertPath, Path b, [int delta = 1]) {
   final bAtIndex = b[preInsertPath.length - 1];
   if (preInsertLast <= bAtIndex) {
     prefix.add(bAtIndex + delta);
+  } else {
+    prefix.add(bAtIndex);
   }
   prefix.addAll(suffix);
   return prefix;
