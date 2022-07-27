@@ -2,6 +2,7 @@ import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flowy_editor/infra/flowy_svg.dart';
 
 class RichTextNodeWidgetBuilder extends NodeWidgetBuilder {
   RichTextNodeWidgetBuilder.create({
@@ -154,15 +155,16 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildTodoListRichText(BuildContext context) {
+    final name = _textNode.attributes.todo ? 'check' : 'uncheck';
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
-          child: Icon(
-              key: _decorationKey,
-              _textNode.attributes.todo
-                  ? Icons.square_rounded
-                  : Icons.square_outlined),
+          child: FlowySvg(
+            name: name,
+            key: _decorationKey,
+            size: const Size.square(20),
+          ),
           onTap: () => TransactionBuilder(_editorState)
             ..updateNode(_textNode, {
               'todo': !_textNode.attributes.todo,
