@@ -127,7 +127,7 @@ void main() {
     final pos = Position(path: [0], offset: 0);
     final sel = Selection.collapsed(pos);
     expect(sel.start, sel.end);
-    expect(sel.isCollapsed(), true);
+    expect(sel.isCollapsed, true);
   });
 
   test('test selection collapse', () {

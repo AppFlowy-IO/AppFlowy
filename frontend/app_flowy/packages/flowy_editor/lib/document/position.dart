@@ -24,4 +24,14 @@ class Position {
     final pathHash = hashList(path);
     return Object.hash(pathHash, offset);
   }
+
+  Position copyWith({Path? path, int? offset}) {
+    return Position(
+      path: path ?? this.path,
+      offset: offset ?? this.offset,
+    );
+  }
+
+  @override
+  String toString() => 'path = $path, offset = $offset';
 }

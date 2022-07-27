@@ -1,68 +1,94 @@
+import 'package:flowy_editor/document/path.dart';
+import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/position.dart';
+import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/render/selection/cursor_widget.dart';
 import 'package:flowy_editor/render/selection/flowy_selection_widget.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';
-import 'package:flowy_editor/service/floating_shortcut_service.dart';
+import 'package:flowy_editor/extensions/node_extensions.dart';
+import 'package:flowy_editor/service/shortcut_service.dart';
+import 'package:flowy_editor/editor_state.dart';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import '../editor_state.dart';
-import '../document/node.dart';
-import '../render/selection/selectable.dart';
-
 /// Process selection and cursor
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
-  /// [Pan] and [Tap] must be mutually exclusive.
-  /// Pan
-  Offset? panStartOffset;
-  Offset? panEndOffset;
+  /// Returns the currently selected [Node]s.
+  ///
+  /// The order of the return is determined according to the selected order.
+  List<Node> get currentSelectedNodes;
 
-  /// Tap
-  Offset? tapOffset;
+  /// ------------------ Selection ------------------------
 
-  void updateSelection(Offset start, Offset end);
+  ///
+  void updateSelection(Selection selection);
 
-  void updateCursor(Offset start);
+  ///
+  void clearSelection();
 
-  /// Returns selected node(s)
-  /// Returns empty list if no nodes are being selected.
-  List<Node> getSelectedNodes(Offset start, [Offset? end]);
+  ///
+  List<Node> getNodesInSelection(Selection selection);
 
-  /// Compute selected node triggered by [Tap]
-  Node? computeSelectedNodeInOffset(
-    Node node,
-    Offset offset,
-  );
+  /// ------------------ Selection ------------------------
 
-  /// Compute selected nodes triggered by [Pan]
-  List<Node> computeSelectedNodesInRange(
+  /// ------------------ Offset ------------------------
+
+  /// Returns selected [Node]s. Empty list would be returned
+  ///   if no nodes are being selected.
+  ///
+  ///
+  /// [start] and [end] are the offsets under the global coordinate system.
+  ///
+  /// If end is not null, it means multiple selection,
+  ///   otherwise single selection.
+  List<Node> getNodesInRange(Offset start, [Offset? end]);
+
+  /// Return the [Node] or [Null] in single selection.
+  ///
+  /// [start] is the offset under the global coordinate system.
+  Node? computeNodeInOffset(Node node, Offset offset);
+
+  /// Return the [Node]s in multiple selection. Emtpy list would be returned
+  ///   if no nodes are in range.
+  ///
+  /// [start] is the offset under the global coordinate system.
+  List<Node> computeNodesInRange(
     Node node,
     Offset start,
     Offset end,
   );
 
-  /// Pan
-  bool isNodeInSelection(
+  /// Return [bool] to identify the [Node] is in Range or not.
+  ///
+  /// [start] and [end] are the offsets under the global coordinate system.
+  bool isNodeInRange(
     Node node,
     Offset start,
     Offset end,
   );
 
-  /// Tap
-  bool isNodeInOffset(
-    Node node,
-    Offset offset,
-  );
+  /// Return [bool] to identify the [Node] contains [Offset] or not.
+  ///
+  /// [start] is the offset under the global coordinate system.
+  bool isNodeInOffset(Node node, Offset offset);
+
+  /// ------------------ Offset ------------------------
 }
 
 class FlowySelection extends StatefulWidget {
   const FlowySelection({
     Key? key,
+    this.cursorColor = Colors.black,
+    this.selectionColor = const Color.fromARGB(60, 61, 61, 213),
     required this.editorState,
     required this.child,
   }) : super(key: key);
 
   final EditorState editorState;
   final Widget child;
+  final Color cursorColor;
+  final Color selectionColor;
 
   @override
   State<FlowySelection> createState() => _FlowySelectionState();
@@ -75,7 +101,22 @@ class _FlowySelectionState extends State<FlowySelection>
   final List<OverlayEntry> _selectionOverlays = [];
   final List<OverlayEntry> _cursorOverlays = [];
 
+  /// [Pan] and [Tap] must be mutually exclusive.
+  /// Pan
+  Offset? panStartOffset;
+  Offset? panEndOffset;
+
+  /// Tap
+  Offset? tapOffset;
+
   EditorState get editorState => widget.editorState;
+
+  @override
+  List<Node> currentSelectedNodes = [];
+
+  @override
+  List<Node> getNodesInSelection(Selection selection) =>
+      _selectedNodesInSelection(editorState.document.root, selection);
 
   @override
   Widget build(BuildContext context) {
@@ -105,76 +146,28 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   @override
-  void updateSelection(Offset start, Offset end) {
-    _clearAllOverlayEntries();
+  void updateSelection(Selection selection) {
+    _clearSelection();
 
-    final nodes = getSelectedNodes(start, end);
-    editorState.selectedNodes = nodes;
-    if (nodes.isEmpty) {
-      return;
-    }
-
-    for (final node in nodes) {
-      if (node.key?.currentState is! Selectable) {
-        continue;
-      }
-      final selectable = node.key?.currentState as Selectable;
-      final selectionRects = selectable.getSelectionRectsInRange(start, end);
-      for (final rect in selectionRects) {
-        final overlay = OverlayEntry(
-          builder: ((context) => SelectionWidget(
-                color: Colors.yellow.withAlpha(100),
-                layerLink: node.layerLink,
-                rect: rect,
-              )),
-        );
-        _selectionOverlays.add(overlay);
-      }
-    }
-    Overlay.of(context)?.insertAll(_selectionOverlays);
-  }
-
-  @override
-  void updateCursor(Offset start) {
-    _clearAllOverlayEntries();
-
-    final nodes = getSelectedNodes(start);
-    editorState.selectedNodes = nodes;
-    if (nodes.isEmpty) {
-      return;
-    }
-
-    final selectedNode = nodes.first;
-    if (selectedNode.key?.currentState is! Selectable) {
-      return;
-    }
-    final selectable = selectedNode.key?.currentState as Selectable;
-    final rect = selectable.getCursorRect(start);
-    final cursor = OverlayEntry(
-      builder: ((context) => CursorWidget(
-            key: _cursorKey,
-            rect: rect,
-            color: Colors.red,
-            layerLink: selectedNode.layerLink,
-          )),
-    );
-    _cursorOverlays.add(cursor);
-    Overlay.of(context)?.insertAll(_cursorOverlays);
-  }
-
-  @override
-  List<Node> getSelectedNodes(Offset start, [Offset? end]) {
-    if (end != null) {
-      return computeSelectedNodesInRange(
-        editorState.document.root,
-        start,
-        end,
-      );
+    // cursor
+    if (selection.isCollapsed) {
+      _updateCursor(selection.start);
     } else {
-      final reuslt = computeSelectedNodeInOffset(
-        editorState.document.root,
-        start,
-      );
+      _updateSelection(selection);
+    }
+  }
+
+  @override
+  void clearSelection() {
+    _clearSelection();
+  }
+
+  @override
+  List<Node> getNodesInRange(Offset start, [Offset? end]) {
+    if (end != null) {
+      return computeNodesInRange(editorState.document.root, start, end);
+    } else {
+      final reuslt = computeNodeInOffset(editorState.document.root, start);
       if (reuslt != null) {
         return [reuslt];
       }
@@ -183,43 +176,49 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   @override
-  Node? computeSelectedNodeInOffset(Node node, Offset offset) {
+  Node? computeNodeInOffset(Node node, Offset offset) {
     for (final child in node.children) {
-      final result = computeSelectedNodeInOffset(child, offset);
+      final result = computeNodeInOffset(child, offset);
       if (result != null) {
         return result;
       }
     }
-
     if (node.parent != null && node.key != null) {
       if (isNodeInOffset(node, offset)) {
         return node;
       }
     }
-
     return null;
   }
 
   @override
-  List<Node> computeSelectedNodesInRange(Node node, Offset start, Offset end) {
+  List<Node> computeNodesInRange(Node node, Offset start, Offset end) {
+    final result = _computeNodesInRange(node, start, end);
+    if (start.dy <= end.dy) {
+      // downward
+      return result;
+    } else {
+      // upward
+      return result.reversed.toList(growable: false);
+    }
+  }
+
+  List<Node> _computeNodesInRange(Node node, Offset start, Offset end) {
     List<Node> result = [];
     if (node.parent != null && node.key != null) {
-      if (isNodeInSelection(node, start, end)) {
+      if (isNodeInRange(node, start, end)) {
         result.add(node);
       }
     }
     for (final child in node.children) {
-      result.addAll(computeSelectedNodesInRange(child, start, end));
+      result.addAll(computeNodesInRange(child, start, end));
     }
-    // TODO: sort the result
     return result;
   }
 
   @override
   bool isNodeInOffset(Node node, Offset offset) {
-    assert(node.key != null);
-    final renderBox =
-        node.key?.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox = node.renderBox;
     if (renderBox != null) {
       final boxOffset = renderBox.localToGlobal(Offset.zero);
       final boxRect = boxOffset & renderBox.size;
@@ -229,10 +228,8 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   @override
-  bool isNodeInSelection(Node node, Offset start, Offset end) {
-    assert(node.key != null);
-    final renderBox =
-        node.key?.currentContext?.findRenderObject() as RenderBox?;
+  bool isNodeInRange(Node node, Offset start, Offset end) {
+    final renderBox = node.renderBox;
     if (renderBox != null) {
       final rect = Rect.fromPoints(start, end);
       final boxOffset = renderBox.localToGlobal(Offset.zero);
@@ -243,59 +240,168 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   void _onTapDown(TapDownDetails details) {
-    debugPrint('on tap down');
-
-    // TODO: use setter to make them exclusive??
-    tapOffset = details.globalPosition;
+    // clear old state.
     panStartOffset = null;
     panEndOffset = null;
 
-    updateCursor(tapOffset!);
+    tapOffset = details.globalPosition;
+
+    final nodes = getNodesInRange(tapOffset!);
+    if (nodes.isNotEmpty) {
+      assert(nodes.length == 1);
+      final selectable = nodes.first.selectable;
+      if (selectable != null) {
+        final position = selectable.getPositionInOffset(tapOffset!);
+        final selection = Selection.collapsed(position);
+        updateSelection(selection);
+      }
+    }
   }
 
   void _onPanStart(DragStartDetails details) {
-    debugPrint('on pan start');
-
-    panStartOffset = details.globalPosition;
+    // clear old state.
     panEndOffset = null;
     tapOffset = null;
+    clearSelection();
+
+    panStartOffset = details.globalPosition;
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    // debugPrint('on pan update');
-
     panEndOffset = details.globalPosition;
-    tapOffset = null;
 
-    updateSelection(panStartOffset!, panEndOffset!);
+    final nodes = getNodesInRange(panStartOffset!, panEndOffset!);
+    final first = nodes.first.selectable;
+    final last = nodes.last.selectable;
+
+    // compute the selection in range.
+    if (first != null && last != null) {
+      bool isDownward = panStartOffset!.dy <= panEndOffset!.dy;
+      final start =
+          first.getSelectionInRange(panStartOffset!, panEndOffset!).start;
+      final end = last.getSelectionInRange(panStartOffset!, panEndOffset!).end;
+      final selection = Selection(
+          start: isDownward ? start : end, end: isDownward ? end : start);
+      debugPrint('[_onPanUpdate] $selection');
+      updateSelection(selection);
+    }
   }
 
   void _onPanEnd(DragEndDetails details) {
     // do nothing
   }
 
-  void _clearAllOverlayEntries() {
-    _clearSelection();
-    _clearCursor();
-    _clearFloatingShorts();
-  }
-
   void _clearSelection() {
+    currentSelectedNodes = [];
+
+    // clear selection
     _selectionOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
-  }
-
-  void _clearCursor() {
+    // clear cursors
     _cursorOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
+    // clear floating shortcusts
+    editorState.service.floatingShortcutServiceKey.currentState
+        ?.unwrapOrNull<FlowyFloatingShortcutService>()
+        ?.hide();
   }
 
-  void _clearFloatingShorts() {
-    final shortcutService = editorState
-        .service.floatingShortcutServiceKey.currentState
-        ?.unwrapOrNull<FlowyFloatingShortcutService>();
-    shortcutService?.hide();
+  void _updateSelection(Selection selection) {
+    final nodes =
+        _selectedNodesInSelection(editorState.document.root, selection);
+
+    currentSelectedNodes = nodes;
+
+    var index = 0;
+    for (final node in nodes) {
+      final selectable = node.selectable;
+      if (selectable == null) {
+        continue;
+      }
+
+      var newSelection = selection.copy();
+      // In the case of multiple selections,
+      //  we need to return a new selection for each selected node individually.
+      if (!selection.isSingle) {
+        // <> means selected.
+        // text: abcd<ef
+        // text: ghijkl
+        // text: mn>opqr
+        if (index == 0) {
+          if (selection.isDownward) {
+            newSelection = selection.copyWith(end: selectable.end());
+          } else {
+            newSelection = selection.copyWith(start: selectable.start());
+          }
+        } else if (index == nodes.length - 1) {
+          if (selection.isDownward) {
+            newSelection = selection.copyWith(start: selectable.start());
+          } else {
+            newSelection = selection.copyWith(end: selectable.end());
+          }
+        } else {
+          newSelection = selection.copyWith(
+            start: selectable.start(),
+            end: selectable.end(),
+          );
+        }
+      }
+
+      final rects = selectable.getRectsInSelection(newSelection);
+
+      for (final rect in rects) {
+        final overlay = OverlayEntry(
+          builder: ((context) => SelectionWidget(
+                color: widget.selectionColor,
+                layerLink: node.layerLink,
+                rect: rect,
+              )),
+        );
+        _selectionOverlays.add(overlay);
+      }
+      index += 1;
+    }
+    Overlay.of(context)?.insertAll(_selectionOverlays);
+  }
+
+  void _updateCursor(Position position) {
+    final node = editorState.document.root.childAtPath(position.path);
+
+    assert(node != null);
+    if (node == null) {
+      return;
+    }
+
+    currentSelectedNodes = [node];
+
+    final selectable = node.selectable;
+    final rect = selectable?.getCursorRectInPosition(position);
+    if (rect != null) {
+      final cursor = OverlayEntry(
+        builder: ((context) => CursorWidget(
+              key: _cursorKey,
+              rect: rect,
+              color: widget.cursorColor,
+              layerLink: node.layerLink,
+            )),
+      );
+      _cursorOverlays.add(cursor);
+      Overlay.of(context)?.insertAll(_cursorOverlays);
+    }
+  }
+
+  List<Node> _selectedNodesInSelection(Node node, Selection selection) {
+    List<Node> result = [];
+    if (node.parent != null) {
+      if (node.inSelection(selection)) {
+        result.add(node);
+      }
+    }
+    for (final child in node.children) {
+      result.addAll(_selectedNodesInSelection(child, selection));
+    }
+    return result;
   }
 }

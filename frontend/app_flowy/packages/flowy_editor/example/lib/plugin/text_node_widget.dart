@@ -1,6 +1,5 @@
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
-import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
@@ -327,7 +326,7 @@ TextSelection? _globalSelectionToLocal(Node node, Selection? globalSel) {
   if (!pathEquals(nodePath, globalSel.start.path)) {
     return null;
   }
-  if (globalSel.isCollapsed()) {
+  if (globalSel.isCollapsed) {
     return TextSelection(
         baseOffset: globalSel.start.offset, extentOffset: globalSel.end.offset);
   } else {

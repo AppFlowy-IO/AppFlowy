@@ -1,3 +1,5 @@
+import 'package:flowy_editor/document/position.dart';
+import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 
@@ -38,37 +40,39 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   String get src => widget.node.attributes['image_src'] as String;
 
   @override
-  List<Rect> getSelectionRectsInRange(Offset start, Offset end) {
-    final renderBox = context.findRenderObject() as RenderBox;
-    return [Offset.zero & renderBox.size];
+  Position end() {
+    // TODO: implement end
+    throw UnimplementedError();
   }
 
   @override
-  Rect getCursorRect(Offset start) {
-    final renderBox = context.findRenderObject() as RenderBox;
-    final size = Size(2, renderBox.size.height);
-    final cursorOffset = Offset(renderBox.size.width, 0);
-    return cursorOffset & size;
+  Position start() {
+    // TODO: implement start
+    throw UnimplementedError();
   }
 
   @override
-  TextSelection? getCurrentTextSelection() {
-    return null;
+  List<Rect> getRectsInSelection(Selection selection) {
+    // TODO: implement getRectsInSelection
+    throw UnimplementedError();
   }
 
   @override
-  Offset getOffsetByTextSelection(TextSelection textSelection) {
-    return Offset.zero;
+  Selection getSelectionInRange(Offset start, Offset end) {
+    // TODO: implement getSelectionInRange
+    throw UnimplementedError();
   }
 
   @override
-  Offset getBackwardOffset() {
-    return Offset.zero;
+  Rect getCursorRectInPosition(Position position) {
+    // TODO: implement getCursorRectInPosition
+    throw UnimplementedError();
   }
 
   @override
-  Offset getForwardOffset() {
-    return Offset.zero;
+  Position getPositionInOffset(Offset start) {
+    // TODO: implement getPositionInOffset
+    throw UnimplementedError();
   }
 
   @override

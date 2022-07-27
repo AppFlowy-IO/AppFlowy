@@ -18,13 +18,13 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
   final textNode = selectedNodes.first.unwrapOrNull<TextNode>();
   final selectable = textNode?.key?.currentState?.unwrapOrNull<Selectable>();
   final textSelection = selectable?.getCurrentTextSelection();
-  if (textNode != null && selectable != null && textSelection != null) {
-    final offset = selectable.getOffsetByTextSelection(textSelection);
-    final rect = selectable.getCursorRect(offset);
-    editorState.service.floatingToolbarService
-        .showInOffset(rect.topLeft, textNode.layerLink);
-    return KeyEventResult.handled;
-  }
+  // if (textNode != null && selectable != null && textSelection != null) {
+  //   final offset = selectable.getOffsetByTextSelection(textSelection);
+  //   final rect = selectable.getCursorRect(offset);
+  //   editorState.service.floatingToolbarService
+  //       .showInOffset(rect.topLeft, textNode.layerLink);
+  //   return KeyEventResult.handled;
+  // }
 
   return KeyEventResult.ignored;
 };
