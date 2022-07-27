@@ -1,4 +1,5 @@
-use crate::core::{Attributes, Delta};
+use crate::core::delta::Delta;
+use crate::core::operation::Attributes;
 use serde::{
     de::{SeqAccess, Visitor},
     ser::SerializeSeq,

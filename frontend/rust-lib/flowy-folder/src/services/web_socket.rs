@@ -10,7 +10,7 @@ use flowy_sync::{
     },
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::core::{OperationTransformable, PlainTextAttributes, PlainTextDelta};
+use lib_ot::core::{OperationTransformable, PhantomAttributes, PlainTextDelta};
 use parking_lot::RwLock;
 use std::{sync::Arc, time::Duration};
 
@@ -24,7 +24,7 @@ pub(crate) async fn make_folder_ws_manager(
 ) -> Arc<RevisionWebSocketManager> {
     let ws_data_provider = Arc::new(WSDataProvider::new(folder_id, Arc::new(rev_manager.clone())));
     let resolver = Arc::new(FolderConflictResolver { folder_pad });
-    let conflict_controller = ConflictController::<PlainTextAttributes>::new(
+    let conflict_controller = ConflictController::<PhantomAttributes>::new(
         user_id,
         resolver,
         Arc::new(ws_data_provider.clone()),
@@ -55,7 +55,7 @@ struct FolderConflictResolver {
     folder_pad: Arc<RwLock<FolderPad>>,
 }
 
-impl ConflictResolver<PlainTextAttributes> for FolderConflictResolver {
+impl ConflictResolver<PhantomAttributes> for FolderConflictResolver {
     fn compose_delta(&self, delta: PlainTextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
@@ -67,7 +67,7 @@ impl ConflictResolver<PlainTextAttributes> for FolderConflictResolver {
     fn transform_delta(
         &self,
         delta: PlainTextDelta,
-    ) -> BoxResultFuture<TransformDeltas<PlainTextAttributes>, FlowyError> {
+    ) -> BoxResultFuture<TransformDeltas<PhantomAttributes>, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let read_guard = folder_pad.read();

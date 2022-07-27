@@ -215,7 +215,7 @@ impl DefaultFolderBuilder {
         for app in workspace_rev.apps.iter() {
             for (index, view) in app.belongings.iter().enumerate() {
                 let view_data = if index == 0 {
-                    initial_read_me().to_delta_str()
+                    initial_read_me().to_json_str()
                 } else {
                     initial_quill_delta_string()
                 };

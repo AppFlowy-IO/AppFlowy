@@ -155,6 +155,45 @@ pub struct GetEditFieldContextPayloadPB {
     pub field_type: FieldType,
 }
 
+
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct CreateFieldPayloadPB {
+    #[pb(index = 1)]
+    pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
+    pub field_type: FieldType,
+
+    #[pb(index = 4)]
+    pub create_if_not_exist: bool,
+}
+
+pub struct CreateFieldParams {
+    pub grid_id: String,
+    pub field_id: String,
+    pub field_type: FieldType,
+}
+
+impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        Ok(CreateFieldParams {
+            grid_id: grid_id.0,
+            field_id: field_id.0,
+            field_type: self.field_type,
+        })
+    }
+}
+
+
+
 #[derive(Debug, Default, ProtoBuf)]
 pub struct EditFieldPayloadPB {
     #[pb(index = 1)]
@@ -190,19 +229,34 @@ impl TryInto<EditFieldParams> for EditFieldPayloadPB {
     }
 }
 
-pub struct CreateFieldParams {
+#[derive(Debug, Default, ProtoBuf)]
+pub struct GridFieldTypeOptionIdPB {
+    #[pb(index = 1)]
     pub grid_id: String,
+
+    #[pb(index = 2)]
+    pub field_id: String,
+
+    #[pb(index = 3)]
     pub field_type: FieldType,
 }
 
-impl TryInto<CreateFieldParams> for EditFieldPayloadPB {
+
+pub struct GridFieldTypeOptionIdParams {
+    pub grid_id: String,
+    pub field_id: String,
+    pub field_type: FieldType,
+}
+
+impl TryInto<GridFieldTypeOptionIdParams> for GridFieldTypeOptionIdPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
+    fn try_into(self) -> Result<GridFieldTypeOptionIdParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-
-        Ok(CreateFieldParams {
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        Ok(GridFieldTypeOptionIdParams {
             grid_id: grid_id.0,
+            field_id: field_id.0,
             field_type: self.field_type,
         })
     }
@@ -557,6 +611,16 @@ impl std::convert::From<FieldTypeRevision> for FieldType {
     }
 }
 #[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct DuplicateFieldPayloadPB {
+    #[pb(index = 1)]
+    pub field_id: String,
+
+    #[pb(index = 2)]
+    pub grid_id: String,
+}
+
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridFieldIdentifierPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
@@ -565,20 +629,44 @@ pub struct GridFieldIdentifierPayloadPB {
     pub grid_id: String,
 }
 
-pub struct FieldIdentifierParams {
-    pub field_id: String,
-    pub grid_id: String,
-}
-
-impl TryInto<FieldIdentifierParams> for GridFieldIdentifierPayloadPB {
+impl TryInto<GridFieldIdParams> for DuplicateFieldPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<FieldIdentifierParams, Self::Error> {
+    fn try_into(self) -> Result<GridFieldIdParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-        Ok(FieldIdentifierParams {
+        Ok(GridFieldIdParams {
             grid_id: grid_id.0,
             field_id: field_id.0,
         })
     }
 }
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct DeleteFieldPayloadPB {
+    #[pb(index = 1)]
+    pub field_id: String,
+
+    #[pb(index = 2)]
+    pub grid_id: String,
+}
+
+impl TryInto<GridFieldIdParams> for DeleteFieldPayloadPB {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<GridFieldIdParams, Self::Error> {
+        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
+        Ok(GridFieldIdParams {
+            grid_id: grid_id.0,
+            field_id: field_id.0,
+        })
+    }
+}
+
+pub struct GridFieldIdParams {
+    pub field_id: String,
+    pub grid_id: String,
+}
+
+

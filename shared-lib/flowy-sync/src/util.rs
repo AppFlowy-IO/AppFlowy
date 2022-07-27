@@ -149,7 +149,7 @@ pub fn make_folder_from_revisions_pb(
         folder_delta = folder_delta.compose(&delta)?;
     }
 
-    let text = folder_delta.to_delta_str();
+    let text = folder_delta.to_json_str();
     Ok(Some(FolderInfo {
         folder_id: folder_id.to_string(),
         text,
@@ -183,7 +183,7 @@ pub fn make_document_from_revision_pbs(
         delta = delta.compose(&new_delta)?;
     }
 
-    let text = delta.to_delta_str();
+    let text = delta.to_json_str();
 
     Ok(Some(DocumentPB {
         block_id: doc_id.to_owned(),

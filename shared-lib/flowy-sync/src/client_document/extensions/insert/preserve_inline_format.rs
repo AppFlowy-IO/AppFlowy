@@ -3,7 +3,7 @@ use crate::{
     util::{contain_newline, is_newline},
 };
 use lib_ot::{
-    core::{DeltaBuilder, DeltaIter, OpNewline, NEW_LINE},
+    core::{DeltaBuilder, DeltaIterator, OpNewline, NEW_LINE},
     rich_text::{plain_attributes, RichTextAttributeKey, RichTextDelta},
 };
 
@@ -18,7 +18,7 @@ impl InsertExt for PreserveInlineFormat {
             return None;
         }
 
-        let mut iter = DeltaIter::new(delta);
+        let mut iter = DeltaIterator::new(delta);
         let prev = iter.next_op_with_len(index)?;
         if OpNewline::parse(&prev).is_contain() {
             return None;
@@ -64,7 +64,7 @@ impl InsertExt for PreserveLineFormatOnSplit {
             return None;
         }
 
-        let mut iter = DeltaIter::new(delta);
+        let mut iter = DeltaIterator::new(delta);
         let prev = iter.next_op_with_len(index)?;
         if OpNewline::parse(&prev).is_end() {
             return None;

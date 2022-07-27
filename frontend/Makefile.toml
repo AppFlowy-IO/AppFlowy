@@ -8,7 +8,6 @@ extend = [
     { path = "scripts/makefile/env.toml" },
     { path = "scripts/makefile/flutter.toml" },
     { path = "scripts/makefile/tool.toml" },
-    { path = "scripts/makefile/githooks.toml" },
 ]
 
 [config]

@@ -69,28 +69,28 @@ pub enum GridEvent {
     #[event(input = "InsertFieldPayloadPB")]
     InsertField = 13,
 
-    #[event(input = "GridFieldIdentifierPayloadPB")]
+    #[event(input = "DeleteFieldPayloadPB")]
     DeleteField = 14,
 
     #[event(input = "EditFieldPayloadPB", output = "FieldTypeOptionDataPB")]
     SwitchToField = 20,
 
-    #[event(input = "GridFieldIdentifierPayloadPB")]
+    #[event(input = "DuplicateFieldPayloadPB")]
     DuplicateField = 21,
 
     #[event(input = "MoveItemPayloadPB")]
     MoveItem = 22,
 
-    #[event(input = "EditFieldPayloadPB", output = "FieldTypeOptionDataPB")]
+    #[event(input = "GridFieldTypeOptionIdPB", output = "FieldTypeOptionDataPB")]
     GetFieldTypeOption = 23,
 
-    #[event(input = "EditFieldPayloadPB", output = "FieldTypeOptionDataPB")]
+    #[event(input = "CreateFieldPayloadPB", output = "FieldTypeOptionDataPB")]
     CreateFieldTypeOption = 24,
 
     #[event(input = "CreateSelectOptionPayloadPB", output = "SelectOptionPB")]
     NewSelectOption = 30,
 
-    #[event(input = "GridCellIdentifierPayloadPB", output = "SelectOptionCellDataPB")]
+    #[event(input = "GridCellIdPB", output = "SelectOptionCellDataPB")]
     GetSelectOptionCellData = 31,
 
     #[event(input = "SelectOptionChangesetPayloadPB")]
@@ -99,16 +99,16 @@ pub enum GridEvent {
     #[event(input = "CreateRowPayloadPB", output = "GridRowPB")]
     CreateRow = 50,
 
-    #[event(input = "GridRowIdPayloadPB", output = "OptionalRowPB")]
+    #[event(input = "GridRowIdPB", output = "OptionalRowPB")]
     GetRow = 51,
 
-    #[event(input = "GridRowIdPayloadPB")]
+    #[event(input = "GridRowIdPB")]
     DeleteRow = 52,
 
-    #[event(input = "GridRowIdPayloadPB")]
+    #[event(input = "GridRowIdPB")]
     DuplicateRow = 53,
 
-    #[event(input = "GridCellIdentifierPayloadPB", output = "GridCellPB")]
+    #[event(input = "GridCellIdPB", output = "GridCellPB")]
     GetCell = 70,
 
     #[event(input = "CellChangesetPB")]

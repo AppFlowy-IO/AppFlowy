@@ -50,6 +50,13 @@ flutter doctor
 printMessage "Setting up githooks."
 git config core.hooksPath .githooks
 
+# Install go-gitlint 
+printMessage "Installing go-gitlint."
+GOLINT_FILENAME="go-gitlint_1.1.0_osx_x86_64.tar.gz"
+wget https://github.com/llorllale/go-gitlint/releases/download/1.1.0/${GOLINT_FILENAME}
+tar -zxv --directory .githooks/. -f ${GOLINT_FILENAME} gitlint 
+rm ${GOLINT_FILENAME}
+
 # Change to the frontend directory
 cd frontend
 
@@ -60,10 +67,6 @@ cargo install --force cargo-make
 # Install duckscript
 printMessage "Installing duckscript."
 cargo install --force duckscript_cli
-
-# Install CommitLint
-printMessagae "Installing CommitLint."
-npm install @commitlint/cli @commitlint/config-conventional --save-dev
 
 # Check prerequisites
 printMessage "Checking prerequisites."
