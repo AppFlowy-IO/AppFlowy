@@ -155,8 +155,6 @@ pub struct GetEditFieldContextPayloadPB {
     pub field_type: FieldType,
 }
 
-
-
 #[derive(Debug, Default, ProtoBuf)]
 pub struct CreateFieldPayloadPB {
     #[pb(index = 1)]
@@ -191,8 +189,6 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
         })
     }
 }
-
-
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct EditFieldPayloadPB {
@@ -240,7 +236,6 @@ pub struct GridFieldTypeOptionIdPB {
     #[pb(index = 3)]
     pub field_type: FieldType,
 }
-
 
 pub struct GridFieldTypeOptionIdParams {
     pub grid_id: String,
@@ -619,7 +614,6 @@ pub struct DuplicateFieldPayloadPB {
     pub grid_id: String,
 }
 
-
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridFieldIdentifierPayloadPB {
     #[pb(index = 1)]
@@ -668,5 +662,3 @@ pub struct GridFieldIdParams {
     pub field_id: String,
     pub grid_id: String,
 }
-
-
