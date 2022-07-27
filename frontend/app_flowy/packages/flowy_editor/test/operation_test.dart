@@ -19,6 +19,7 @@ void main() {
     test("transform path not changed", () {
       expect(transformPath([0, 1, 2], [0, 0, 7, 8, 9]), [0, 0, 7, 8, 9]);
       expect(transformPath([0, 1, 2], [0, 1]), [0, 1]);
+      expect(transformPath([1, 1], [1, 0]), [1, 0]);
     });
     test("transform path delta", () {
       expect(transformPath([0, 1], [0, 1], 5), [0, 6]);
