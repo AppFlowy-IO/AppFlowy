@@ -12,3 +12,5 @@ export 'package:flowy_editor/operation/transaction_builder.dart';
 export 'package:flowy_editor/operation/operation.dart';
 export 'package:flowy_editor/editor_state.dart';
 export 'package:flowy_editor/service/editor_service.dart';
+export 'package:flowy_editor/document/selection.dart';
+export 'package:flowy_editor/document/position.dart';

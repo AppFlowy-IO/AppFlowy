@@ -299,6 +299,9 @@ class _FlowySelectionState extends State<FlowySelection>
     panEndOffset = details.globalPosition;
 
     final nodes = getNodesInRange(panStartOffset!, panEndOffset!);
+    if (nodes.isEmpty) {
+      return;
+    }
     final first = nodes.first.selectable;
     final last = nodes.last.selectable;
 

@@ -11,7 +11,7 @@ class ImageNodeBuilder extends NodeWidgetBuilder {
   }) : super.create();
 
   @override
-  Widget build(BuildContext buildContext) {
+  Widget build(BuildContext context) {
     return _ImageNodeWidget(
       key: key,
       node: node,

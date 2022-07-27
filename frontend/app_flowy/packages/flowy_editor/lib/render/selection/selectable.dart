@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 ///
 mixin Selectable<T extends StatefulWidget> on State<T> {
-  /// Returns a [List] of the [Rect] selection sorrounded by start and end
+  /// Returns a [List] of the [Rect] selection surrounded by start and end
   ///   in current widget.
   ///
   /// [start] and [end] are the offsets under the global coordinate system.
@@ -32,12 +32,5 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
   ///
   /// Only the widget rendered by [TextNode] need to implement the detail,
   ///   and the rest can return null.
-  TextSelection? getCurrentTextSelection() => null;
-
-  /// For [TextNode] only.
-  ///
-  /// Retruns a [Offset].
-  /// Only the widget rendered by [TextNode] need to implement the detail,
-  ///   and the rest can return [Offset.zero].
-  Offset getOffsetByTextSelection(TextSelection textSelection) => Offset.zero;
+  TextSelection? getTextSelectionInSelection(Selection selection) => null;
 }

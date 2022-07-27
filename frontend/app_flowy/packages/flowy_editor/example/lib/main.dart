@@ -5,7 +5,7 @@ import 'package:example/plugin/document_node_widget.dart';
 import 'package:example/plugin/selected_text_node_widget.dart';
 import 'package:example/plugin/text_with_heading_node_widget.dart';
 import 'package:example/plugin/image_node_widget.dart';
-import 'package:example/plugin/text_node_widget.dart';
+import 'package:example/plugin/old_text_node_widget.dart';
 import 'package:example/plugin/text_with_check_box_node_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
@@ -68,7 +68,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     renderPlugins
       ..register('editor', EditorNodeWidgetBuilder.create)
-      ..register('text', SelectedTextNodeBuilder.create)
       ..register('image', ImageNodeBuilder.create)
       ..register('text/with-checkbox', TextWithCheckBoxNodeBuilder.create)
       ..register('text/with-heading', TextWithHeadingNodeBuilder.create);

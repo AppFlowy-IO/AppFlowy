@@ -22,7 +22,7 @@ class SelectedTextNodeBuilder extends NodeWidgetBuilder {
   }
 
   @override
-  Widget build(BuildContext buildContext) {
+  Widget build(BuildContext context) {
     return _SelectedTextNodeWidget(
       key: key,
       node: node,
@@ -96,14 +96,15 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
   }
 
   @override
-  TextSelection? getCurrentTextSelection() {
-    return _textSelection;
-  }
-
-  @override
-  Offset getOffsetByTextSelection(TextSelection textSelection) {
-    final offset = _computeCursorRect(textSelection.baseOffset).center;
-    return _renderParagraph.localToGlobal(offset);
+  TextSelection? getTextSelectionInSelection(Selection selection) {
+    assert(selection.isCollapsed);
+    if (!selection.isCollapsed) {
+      return null;
+    }
+    return TextSelection(
+      baseOffset: selection.start.offset,
+      extentOffset: selection.end.offset,
+    );
   }
 
   @override

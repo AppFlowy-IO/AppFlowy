@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
 import 'package:flowy_editor/service/service.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +26,7 @@ class ApplyOptions {
 class EditorState {
   final StateTree document;
   final RenderPlugins renderPlugins;
+
   List<Node> selectedNodes = [];
 
   // Service reference.
@@ -39,6 +41,8 @@ class EditorState {
     required this.document,
     required this.renderPlugins,
   }) {
+    // FIXME: abstract render plugins as a service.
+    renderPlugins.register('text', RichTextNodeWidgetBuilder.create);
     undoManager.state = this;
   }
 

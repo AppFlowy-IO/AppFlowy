@@ -27,13 +27,13 @@ class TextWithHeadingNodeBuilder extends NodeWidgetBuilder {
   }
 
   @override
-  Widget build(BuildContext buildContext) {
+  Widget build(BuildContext context) {
     return Column(
       children: [
         buildPadding(),
         renderPlugins.buildWidget(
           context: NodeWidgetContext(
-            buildContext: buildContext,
+            buildContext: context,
             node: node,
             editorState: editorState,
           ),

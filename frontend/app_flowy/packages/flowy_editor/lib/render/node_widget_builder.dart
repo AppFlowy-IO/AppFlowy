@@ -26,14 +26,14 @@ class NodeWidgetBuilder<T extends Node> {
   /// Render the current [Node]
   /// and the layout style of [Node.Children].
   Widget build(
-    BuildContext buildContext,
+    BuildContext context,
   ) =>
       throw UnimplementedError();
 
   /// TODO: refactore this part.
   /// return widget embedded with ChangeNotifier and widget itself.
   Widget call(
-    BuildContext buildContext,
+    BuildContext context,
   ) {
     /// TODO: Validate the node
     /// if failed, stop call build function,
@@ -43,10 +43,10 @@ class NodeWidgetBuilder<T extends Node> {
           'Node validate failure, node = { type: ${node.type}, attributes: ${node.attributes} }');
     }
 
-    return _build(buildContext);
+    return _build(context);
   }
 
-  Widget _build(BuildContext buildContext) {
+  Widget _build(BuildContext context) {
     return CompositedTransformTarget(
       link: node.layerLink,
       child: ChangeNotifierProvider.value(
