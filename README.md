@@ -45,7 +45,7 @@ Please view the [documentation](https://appflowy.gitbook.io/docs/essential-docum
 
 ## Roadmap
 
-- [AppFlowy Roadmap ReadMe](https://github.com/AppFlowy-IO/AppFlowy/blob/main/ROADMAP.md)
+- [AppFlowy Roadmap ReadMe](https://appflowy.gitbook.io/docs/essential-documentation/roadmap)
 - [AppFlowy Public Roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12)
 
 If you'd like to propose a feature, submit an issue [here](https://github.com/AppFlowy-IO/appflowy/issues).
