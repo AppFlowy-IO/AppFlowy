@@ -2,7 +2,7 @@ use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
 
-use flowy_grid::entities::{GridCellIdParams, FieldType, GridRowPB};
+use flowy_grid::entities::{FieldType, GridCellIdParams, GridRowPB};
 use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
