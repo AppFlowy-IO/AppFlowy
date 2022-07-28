@@ -68,15 +68,15 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     final attributes = _textNode.attributes;
     // TODO: use factory method ??
     if (attributes.list == 'todo') {
-      return _buildTodoListRichText(context);
+      // return _buildTodoListRichText(context);
     } else if (attributes.list == 'bullet') {
-      return _buildBulletedListRichText(context);
+      // return _buildBulletedListRichText(context);
     } else if (attributes.quote == true) {
       return _buildQuotedRichText(context);
     } else if (attributes.heading != null) {
       // return _buildHeadingRichText(context);
     } else if (attributes.number != null) {
-      return _buildNumberListRichText(context);
+      // return _buildNumberListRichText(context);
     }
     return _buildRichText(context);
   }

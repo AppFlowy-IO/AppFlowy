@@ -1,5 +1,6 @@
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/editor_state.dart';
+import 'package:flowy_editor/infra/flowy_svg.dart';
 import 'package:flowy_editor/render/node_widget_builder.dart';
 import 'package:flowy_editor/render/rich_text/default_selectable.dart';
 import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
@@ -7,8 +8,8 @@ import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
-class HeadingTextNodeWidgetBuilder extends NodeWidgetBuilder {
-  HeadingTextNodeWidgetBuilder.create({
+class NumberListTextNodeWidgetBuilder extends NodeWidgetBuilder {
+  NumberListTextNodeWidgetBuilder.create({
     required super.editorState,
     required super.node,
     required super.key,
@@ -16,7 +17,7 @@ class HeadingTextNodeWidgetBuilder extends NodeWidgetBuilder {
 
   @override
   Widget build(BuildContext context) {
-    return HeadingTextNodeWidget(
+    return NumberListTextNodeWidget(
       key: key,
       textNode: node as TextNode,
       editorState: editorState,
@@ -24,8 +25,8 @@ class HeadingTextNodeWidgetBuilder extends NodeWidgetBuilder {
   }
 }
 
-class HeadingTextNodeWidget extends StatefulWidget {
-  const HeadingTextNodeWidget({
+class NumberListTextNodeWidget extends StatefulWidget {
+  const NumberListTextNodeWidget({
     Key? key,
     required this.textNode,
     required this.editorState,
@@ -35,16 +36,16 @@ class HeadingTextNodeWidget extends StatefulWidget {
   final EditorState editorState;
 
   @override
-  State<HeadingTextNodeWidget> createState() => _HeadingTextNodeWidgetState();
+  State<NumberListTextNodeWidget> createState() =>
+      _NumberListTextNodeWidgetState();
 }
 
 // customize
 
-class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
+class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     with Selectable, DefaultSelectable {
   final _richTextKey = GlobalKey(debugLabel: 'heading_text');
-  final topPadding = 5.0;
-  final bottomPadding = 2.0;
+  final leftPadding = 20.0;
 
   @override
   Selectable<StatefulWidget> get forward =>
@@ -52,43 +53,22 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
 
   @override
   Offset get baseOffset {
-    return Offset(0, topPadding);
+    return Offset(leftPadding, 0);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
       children: [
-        SizedBox(
-          height: topPadding,
+        FlowySvg(
+          number: widget.textNode.attributes.number,
         ),
         FlowyRichText(
           key: _richTextKey,
-          textSpanDecorator: _textSpanDecorator,
           textNode: widget.textNode,
           editorState: widget.editorState,
         ),
-        SizedBox(
-          height: bottomPadding,
-        ),
       ],
-    );
-  }
-
-  TextSpan _textSpanDecorator(TextSpan textSpan) {
-    return TextSpan(
-      children: textSpan.children
-          ?.whereType<TextSpan>()
-          .map(
-            (span) => TextSpan(
-              text: span.text,
-              style: span.style?.copyWith(
-                fontSize: widget.textNode.attributes.fontSize,
-              ),
-              recognizer: span.recognizer,
-            ),
-          )
-          .toList(),
     );
   }
 }

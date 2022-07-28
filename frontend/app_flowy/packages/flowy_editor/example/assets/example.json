@@ -111,8 +111,8 @@
           { "insert": " and just typing." }
         ],
         "attributes": {
-          "list": "todo",
-          "todo": true
+          "subtype": "checkbox",
+          "checkbox": true
         }
       },
       {
@@ -130,8 +130,8 @@
           }
         ],
         "attributes": {
-          "list": "todo",
-          "todo": true
+          "subtype": "checkbox",
+          "checkbox": true
         }
       },
       {
@@ -146,8 +146,8 @@
           { "insert": "." }
         ],
         "attributes": {
-          "list": "todo",
-          "todo": true
+          "subtype": "checkbox",
+          "checkbox": true
         }
       },
       {
@@ -170,7 +170,7 @@
           }
         ],
         "attributes": {
-          "list": "bullet"
+          "subtype": "bullet-list"
         }
       },
       {
@@ -181,7 +181,7 @@
           }
         ],
         "attributes": {
-          "list": "bullet"
+          "subtype": "bullet-list"
         }
       },
       {
@@ -192,18 +192,7 @@
           }
         ],
         "attributes": {
-          "list": "bullet"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "quote": true
+          "subtype": "bullet-list"
         }
       },
       {
@@ -225,6 +214,18 @@
           }
         ],
         "attributes": {
+          "quote": true
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "number-list",
           "number": 1
         }
       },
@@ -236,6 +237,7 @@
           }
         ],
         "attributes": {
+          "subtype": "number-list",
           "number": 2
         }
       },
@@ -247,6 +249,7 @@
           }
         ],
         "attributes": {
+          "subtype": "number-list",
           "number": 3
         }
       }
