@@ -37,7 +37,22 @@
         "type": "text",
         "delta": [{ "insert": "Click anywhere and just start typing." }],
         "attributes": {
-          "checkbox": true
+          "list": "todo",
+          "todo": false
+        }
+      },
+      {
+        "type": "text",
+        "delta": [{ "insert": "Click anywhere and just start typing." }],
+        "attributes": {
+          "list": "bullet"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [{ "insert": "Click anywhere and just start typing." }],
+        "attributes": {
+          "list": "bullet"
         }
       },
       {
@@ -77,7 +92,9 @@
             "insert": "1. Click the '?' at the bottom right for help and support."
           }
         ],
-        "attributes": {}
+        "attributes": {
+          "quotes": true
+        }
       },
       {
         "type": "text",

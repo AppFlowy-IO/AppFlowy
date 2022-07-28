@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';

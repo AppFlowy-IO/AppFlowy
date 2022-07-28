@@ -17,7 +17,8 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
   /// Returns the currently selected [Node]s.
   ///
   /// The order of the return is determined according to the selected order.
-  List<Node> get currentSelectedNodes;
+  ValueNotifier<List<Node>> get currentSelectedNodes;
+  Selection? get currentSelection;
 
   /// ------------------ Selection ------------------------
 
@@ -99,7 +100,7 @@ class FlowySelection extends StatefulWidget {
 }
 
 class _FlowySelectionState extends State<FlowySelection>
-    with FlowySelectionService {
+    with FlowySelectionService, WidgetsBindingObserver {
   final _cursorKey = GlobalKey(debugLabel: 'cursor');
 
   final List<OverlayEntry> _selectionOverlays = [];
@@ -118,11 +119,36 @@ class _FlowySelectionState extends State<FlowySelection>
   EditorState get editorState => widget.editorState;
 
   @override
-  List<Node> currentSelectedNodes = [];
+  Selection? currentSelection;
+
+  @override
+  ValueNotifier<List<Node>> currentSelectedNodes = ValueNotifier([]);
 
   @override
   List<Node> getNodesInSelection(Selection selection) =>
       _selectedNodesInSelection(editorState.document.root, selection);
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+
+    // Need to refresh the selection when the metrics changed.
+    if (currentSelection != null) {
+      updateSelection(currentSelection!);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,8 +188,10 @@ class _FlowySelectionState extends State<FlowySelection>
 
     // cursor
     if (selection.isCollapsed) {
+      debugPrint('Update cursor');
       _updateCursor(selection.start);
     } else {
+      debugPrint('Update selection');
       _updateSelection(selection);
     }
   }
@@ -295,6 +323,9 @@ class _FlowySelectionState extends State<FlowySelection>
     panEndOffset = details.globalPosition;
 
     final nodes = getNodesInRange(panStartOffset!, panEndOffset!);
+    if (nodes.isEmpty) {
+      return;
+    }
     final first = nodes.first.selectable;
     final last = nodes.last.selectable;
 
@@ -316,7 +347,8 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   void _clearSelection() {
-    currentSelectedNodes = [];
+    currentSelection = null;
+    currentSelectedNodes.value = [];
 
     // clear selection
     _selectionOverlays
@@ -336,7 +368,8 @@ class _FlowySelectionState extends State<FlowySelection>
     final nodes =
         _selectedNodesInSelection(editorState.document.root, selection);
 
-    currentSelectedNodes = nodes;
+    currentSelection = selection;
+    currentSelectedNodes.value = nodes;
 
     var index = 0;
     for (final node in nodes) {
@@ -404,7 +437,8 @@ class _FlowySelectionState extends State<FlowySelection>
       return;
     }
 
-    currentSelectedNodes = [node];
+    currentSelection = Selection.collapsed(position);
+    currentSelectedNodes.value = [node];
 
     final selectable = node.selectable;
     final rect = selectable?.getCursorRectInPosition(position);

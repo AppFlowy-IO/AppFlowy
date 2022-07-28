@@ -1,10 +1,11 @@
 import 'dart:convert';
 
+import 'package:example/expandable_floating_action_button.dart';
 import 'package:example/plugin/document_node_widget.dart';
 import 'package:example/plugin/selected_text_node_widget.dart';
 import 'package:example/plugin/text_with_heading_node_widget.dart';
 import 'package:example/plugin/image_node_widget.dart';
-import 'package:example/plugin/text_node_widget.dart';
+import 'package:example/plugin/old_text_node_widget.dart';
 import 'package:example/plugin/text_with_check_box_node_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
@@ -60,13 +61,13 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final RenderPlugins renderPlugins = RenderPlugins();
   late EditorState _editorState;
+  int page = 0;
   @override
   void initState() {
     super.initState();
 
     renderPlugins
       ..register('editor', EditorNodeWidgetBuilder.create)
-      ..register('text', SelectedTextNodeBuilder.create)
       ..register('image', ImageNodeBuilder.create)
       ..register('text/with-checkbox', TextWithCheckBoxNodeBuilder.create)
       ..register('text/with-heading', TextWithHeadingNodeBuilder.create);
@@ -80,53 +81,95 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: FutureBuilder<String>(
-        future: rootBundle.loadString('assets/document.json'),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          } else {
-            final data = Map<String, Object>.from(json.decode(snapshot.data!));
-            final document = StateTree.fromJson(data);
-            _editorState = EditorState(
-              document: document,
-              renderPlugins: renderPlugins,
-            );
-            return FlowyEditor(
-              editorState: _editorState,
-              keyEventHandlers: const [],
-              shortcuts: [
-                // TODO: this won't work, just a example for now.
-                {
-                  'h1': (editorState, eventName) {
-                    debugPrint('shortcut => $eventName');
-                    final selectedNodes = editorState.selectedNodes;
-                    if (selectedNodes.isEmpty) {
-                      return;
-                    }
-                    final textNode = selectedNodes.first as TextNode;
-                    TransactionBuilder(editorState)
-                      ..formatText(textNode, 0, textNode.toRawString().length, {
-                        'heading': 'h1',
-                      })
-                      ..commit();
-                  }
-                },
-                {
-                  'bold': (editorState, eventName) =>
-                      debugPrint('shortcut => $eventName')
-                },
-                {
-                  'underline': (editorState, eventName) =>
-                      debugPrint('shortcut => $eventName')
-                },
-              ],
-            );
-          }
-        },
+      body: _buildBody(),
+      floatingActionButton: ExpandableFab(
+        distance: 112.0,
+        children: [
+          ActionButton(
+            onPressed: () {
+              if (page == 0) return;
+              setState(() {
+                page = 0;
+              });
+            },
+            icon: const Icon(Icons.note_add),
+          ),
+          ActionButton(
+            onPressed: () {
+              if (page == 1) return;
+              setState(() {
+                page = 1;
+              });
+            },
+            icon: const Icon(Icons.text_fields),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (page == 0) {
+      return _buildFlowyEditor();
+    } else if (page == 1) {
+      return _buildTextField();
+    }
+    return Container();
+  }
+
+  Widget _buildFlowyEditor() {
+    return FutureBuilder<String>(
+      future: rootBundle.loadString('assets/example.json'),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          final data = Map<String, Object>.from(json.decode(snapshot.data!));
+          final document = StateTree.fromJson(data);
+          _editorState = EditorState(
+            document: document,
+            renderPlugins: renderPlugins,
+          );
+          return FlowyEditor(
+            editorState: _editorState,
+            keyEventHandlers: const [],
+            shortcuts: [
+              // TODO: this won't work, just a example for now.
+              {
+                'h1': (editorState, eventName) {
+                  debugPrint('shortcut => $eventName');
+                  final selectedNodes = editorState.selectedNodes;
+                  if (selectedNodes.isEmpty) {
+                    return;
+                  }
+                  final textNode = selectedNodes.first as TextNode;
+                  TransactionBuilder(editorState)
+                    ..formatText(textNode, 0, textNode.toRawString().length, {
+                      'heading': 'h1',
+                    })
+                    ..commit();
+                }
+              },
+              {
+                'bold': (editorState, eventName) =>
+                    debugPrint('shortcut => $eventName')
+              },
+              {
+                'underline': (editorState, eventName) =>
+                    debugPrint('shortcut => $eventName')
+              },
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildTextField() {
+    return const Center(
+      child: TextField(),
     );
   }
 }
