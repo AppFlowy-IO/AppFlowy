@@ -2,7 +2,6 @@ import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/document/selection.dart';
-import 'package:flowy_editor/extensions/node_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
