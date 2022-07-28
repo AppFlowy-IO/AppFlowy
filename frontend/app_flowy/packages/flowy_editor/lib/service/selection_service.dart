@@ -30,7 +30,7 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
 
   List<Rect> rects();
 
-  hit(Offset? offset);
+  Position? hitTest(Offset? offset);
 
   ///
   List<Node> getNodesInSelection(Selection selection);
@@ -285,29 +285,32 @@ class _FlowySelectionState extends State<FlowySelection>
 
     tapOffset = details.globalPosition;
 
-    hit(tapOffset);
+    final position = hitTest(tapOffset);
+    if (position == null) {
+      return;
+    }
+    final selection = Selection.collapsed(position);
+    editorState.updateCursorSelection(selection);
   }
 
   @override
-  hit(Offset? offset) {
+  Position? hitTest(Offset? offset) {
     if (offset == null) {
       editorState.updateCursorSelection(null);
-      return;
+      return null;
     }
     final nodes = getNodesInRange(offset);
     if (nodes.isEmpty) {
       editorState.updateCursorSelection(null);
-      return;
+      return null;
     }
     assert(nodes.length == 1);
     final selectable = nodes.first.selectable;
     if (selectable == null) {
       editorState.updateCursorSelection(null);
-      return;
+      return null;
     }
-    final position = selectable.getPositionInOffset(offset);
-    final selection = Selection.collapsed(position);
-    editorState.updateCursorSelection(selection);
+    return selectable.getPositionInOffset(offset);
   }
 
   void _onPanStart(DragStartDetails details) {

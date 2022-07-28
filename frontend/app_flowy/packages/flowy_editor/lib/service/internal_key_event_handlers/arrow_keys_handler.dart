@@ -10,6 +10,58 @@ int _endOffsetOfNode(Node node) {
   return 0;
 }
 
+extension on Position {
+  Position? goLeft(EditorState editorState) {
+    if (offset == 0) {
+      final node = editorState.document.nodeAtPath(path)!;
+      final prevNode = node.previous;
+      if (prevNode != null) {
+        return Position(
+            path: prevNode.path, offset: _endOffsetOfNode(prevNode));
+      }
+      return null;
+    }
+
+    return Position(path: path, offset: offset - 1);
+  }
+
+  Position? goRight(EditorState editorState) {
+    final node = editorState.document.nodeAtPath(path)!;
+    final lengthOfNode = _endOffsetOfNode(node);
+    if (offset >= lengthOfNode) {
+      final nextNode = node.next;
+      if (nextNode != null) {
+        return Position(path: nextNode.path, offset: 0);
+      }
+      return null;
+    }
+
+    return Position(path: path, offset: offset + 1);
+  }
+}
+
+Position? _goUp(EditorState editorState) {
+  final rects = editorState.service.selectionService.rects();
+  if (rects.isEmpty) {
+    return null;
+  }
+  final first = rects.first;
+  final firstOffset = Offset(first.left, first.top);
+  final hitOffset = firstOffset - Offset(0, first.height * 0.5);
+  return editorState.service.selectionService.hitTest(hitOffset);
+}
+
+Position? _goDown(EditorState editorState) {
+  final rects = editorState.service.selectionService.rects();
+  if (rects.isEmpty) {
+    return null;
+  }
+  final first = rects.last;
+  final firstOffset = Offset(first.right, first.bottom);
+  final hitOffset = firstOffset + Offset(0, first.height * 0.5);
+  return editorState.service.selectionService.hitTest(hitOffset);
+}
+
 KeyEventResult _handleShiftKey(EditorState editorState, RawKeyEvent event) {
   final currentSelection = editorState.cursorSelection;
   if (currentSelection == null) {
@@ -17,51 +69,31 @@ KeyEventResult _handleShiftKey(EditorState editorState, RawKeyEvent event) {
   }
 
   if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-    final leftPosition = _leftPosition(editorState, currentSelection.start);
-    if (leftPosition != null) {
-      editorState.updateCursorSelection(
-          Selection(start: leftPosition, end: currentSelection.end));
-    }
+    final leftPosition = currentSelection.end.goLeft(editorState);
+    editorState.updateCursorSelection(leftPosition == null
+        ? null
+        : Selection(start: currentSelection.start, end: leftPosition));
     return KeyEventResult.handled;
   } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-    final rightPosition = _rightPosition(editorState, currentSelection.end);
-    if (rightPosition != null) {
-      editorState.updateCursorSelection(
-          Selection(start: currentSelection.start, end: rightPosition));
-    }
+    final rightPosition = currentSelection.start.goRight(editorState);
+    editorState.updateCursorSelection(rightPosition == null
+        ? null
+        : Selection(start: rightPosition, end: currentSelection.end));
+    return KeyEventResult.handled;
+  } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+    final position = _goUp(editorState);
+    editorState.updateCursorSelection(position == null
+        ? null
+        : Selection(start: position, end: currentSelection.end));
+    return KeyEventResult.handled;
+  } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+    final position = _goDown(editorState);
+    editorState.updateCursorSelection(position == null
+        ? null
+        : Selection(start: currentSelection.start, end: position));
     return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;
-}
-
-Position? _leftPosition(EditorState editorState, Position position) {
-  final offset = position.offset;
-  if (offset == 0) {
-    final node = editorState.document.nodeAtPath(position.path)!;
-    final prevNode = node.previous;
-    if (prevNode != null) {
-      editorState.updateCursorSelection(Selection.collapsed(
-          Position(path: prevNode.path, offset: _endOffsetOfNode(prevNode))));
-    }
-    return null;
-  }
-
-  return Position(path: position.path, offset: offset - 1);
-}
-
-Position? _rightPosition(EditorState editorState, Position position) {
-  final offset = position.offset;
-  final node = editorState.document.nodeAtPath(position.path)!;
-  final lengthOfNode = _endOffsetOfNode(node);
-  if (offset >= lengthOfNode) {
-    final nextNode = node.next;
-    if (nextNode != null) {
-      Position(path: nextNode.path, offset: 0);
-    }
-    return null;
-  }
-
-  return Position(path: position.path, offset: offset + 1);
 }
 
 FlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
@@ -76,7 +108,7 @@ FlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
 
   if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
     if (currentSelection.isCollapsed) {
-      final leftPosition = _leftPosition(editorState, currentSelection.start);
+      final leftPosition = currentSelection.start.goLeft(editorState);
       if (leftPosition != null) {
         editorState.updateCursorSelection(Selection.collapsed(leftPosition));
       }
@@ -87,7 +119,7 @@ FlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
     return KeyEventResult.handled;
   } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
     if (currentSelection.isCollapsed) {
-      final rightPosition = _rightPosition(editorState, currentSelection.end);
+      final rightPosition = currentSelection.end.goRight(editorState);
       if (rightPosition != null) {
         editorState.updateCursorSelection(Selection.collapsed(rightPosition));
       }
@@ -96,24 +128,14 @@ FlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
     }
     return KeyEventResult.handled;
   } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-    final rects = editorState.service.selectionService.rects();
-    if (rects.isEmpty) {
-      return KeyEventResult.handled;
-    }
-    final first = rects.first;
-    final firstOffset = Offset(first.left, first.top);
-    final hitOffset = firstOffset - Offset(0, first.height * 0.5);
-    editorState.service.selectionService.hit(hitOffset);
+    final position = _goUp(editorState);
+    editorState.updateCursorSelection(
+        position == null ? null : Selection.collapsed(position));
     return KeyEventResult.handled;
   } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-    final rects = editorState.service.selectionService.rects();
-    if (rects.isEmpty) {
-      return KeyEventResult.handled;
-    }
-    final first = rects.last;
-    final firstOffset = Offset(first.right, first.bottom);
-    final hitOffset = firstOffset + Offset(0, first.height * 0.5);
-    editorState.service.selectionService.hit(hitOffset);
+    final position = _goDown(editorState);
+    editorState.updateCursorSelection(
+        position == null ? null : Selection.collapsed(position));
     return KeyEventResult.handled;
   }
 
