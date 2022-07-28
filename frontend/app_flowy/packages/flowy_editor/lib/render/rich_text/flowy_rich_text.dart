@@ -1,8 +1,19 @@
+import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/position.dart';
+import 'package:flowy_editor/document/selection.dart';
+import 'package:flowy_editor/document/text_delta.dart';
+import 'package:flowy_editor/editor_state.dart';
+import 'package:flowy_editor/document/path.dart';
+import 'package:flowy_editor/operation/transaction_builder.dart';
+import 'package:flowy_editor/render/node_widget_builder.dart';
+import 'package:flowy_editor/render/render_plugins.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/infra/flowy_svg.dart';
+import 'package:flowy_editor/extensions/object_extensions.dart';
+import 'package:flowy_editor/render/selection/selectable.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flowy_editor/infra/flowy_svg.dart';
 
 class RichTextNodeWidgetBuilder extends NodeWidgetBuilder {
   RichTextNodeWidgetBuilder.create({
@@ -56,8 +67,12 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
       return _buildTodoListRichText(context);
     } else if (attributes.list == 'bullet') {
       return _buildBulletedListRichText(context);
-    } else if (attributes.quotes == true) {
+    } else if (attributes.quote == true) {
       return _buildQuotedRichText(context);
+    } else if (attributes.heading != null) {
+      return _buildHeadingRichText(context);
+    } else if (attributes.number != null) {
+      return _buildNumberListRichText(context);
     }
     return _buildRichText(context);
   }
@@ -151,7 +166,11 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildSingleRichText(BuildContext context) {
-    return Expanded(child: RichText(key: _textKey, text: _textSpan));
+    return SizedBox(
+      width:
+          MediaQuery.of(context).size.width - 20, // FIXME: use the const value
+      child: RichText(key: _textKey, text: _textSpan),
+    );
   }
 
   Widget _buildTodoListRichText(BuildContext context) {
@@ -161,9 +180,8 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
       children: [
         GestureDetector(
           child: FlowySvg(
-            name: name,
             key: _decorationKey,
-            size: const Size.square(20),
+            name: name,
           ),
           onTap: () => TransactionBuilder(_editorState)
             ..updateNode(_textNode, {
@@ -178,9 +196,25 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
 
   Widget _buildBulletedListRichText(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Icon(key: _decorationKey, Icons.circle),
+        FlowySvg(
+          key: _decorationKey,
+          name: 'point',
+        ),
+        _buildRichText(context),
+      ],
+    );
+  }
+
+  Widget _buildNumberListRichText(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        FlowySvg(
+          key: _decorationKey,
+          number: _textNode.attributes.number,
+        ),
         _buildRichText(context),
       ],
     );
@@ -190,17 +224,32 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(key: _decorationKey, Icons.format_quote),
+        FlowySvg(
+          key: _decorationKey,
+          name: 'quote',
+        ),
         _buildRichText(context),
+      ],
+    );
+  }
+
+  Widget _buildHeadingRichText(BuildContext context) {
+    // TODO: customize
+    return Column(
+      children: [
+        const Padding(padding: EdgeInsets.only(top: 5)),
+        _buildRichText(context),
+        const Padding(padding: EdgeInsets.only(top: 5)),
       ],
     );
   }
 
   Rect frontWidgetRect() {
     // FIXME: find a more elegant way to solve this situation.
-    if (_textNode.attributes.list != null) {
-      final renderBox =
-          _decorationKey.currentContext?.findRenderObject() as RenderBox;
+    final renderBox = _decorationKey.currentContext
+        ?.findRenderObject()
+        ?.unwrapOrNull<RenderBox>();
+    if (renderBox != null) {
       return renderBox.localToGlobal(Offset.zero) & renderBox.size;
     }
     return Rect.zero;

@@ -1,0 +1,207 @@
+{
+  "document": {
+    "type": "editor",
+    "attributes": {},
+    "children": [
+      {
+        "type": "image",
+        "attributes": {
+          "image_src": "https://images.pexels.com/photos/2253275/pexels-photo-2253275.jpeg?cs=srgb&dl=pexels-helena-lopes-2253275.jpg&fm=jpg"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "🌶 Read Me",
+            "attributes": {
+              "heading": "h1"
+            }
+          }
+        ],
+        "attributes": {
+          "heading": "h1"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "👋 Welcome to Appflowy",
+            "attributes": {
+              "heading": "h2"
+            }
+          }
+        ],
+        "attributes": {
+          "heading": "h2"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Here are the basics:",
+            "attributes": {
+              "heading": "h3"
+            }
+          }
+        ],
+        "attributes": {
+          "heading": "h3"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          { "insert": "Click " },
+          { "insert": "anywhere", "attributes": { "underline": true } },
+          { "insert": " and just typing." }
+        ],
+        "attributes": {
+          "list": "todo",
+          "todo": true
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hit"
+          },
+          {
+            "insert": "  /  ",
+            "attributes": { "highlightColor": "0xFFFFFF00" }
+          },
+          {
+            "insert": "to see all the types of content you can add - entity, headers, videos, sub pages, etc."
+          }
+        ],
+        "attributes": {
+          "list": "todo",
+          "todo": true
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Highlight any text, and use the menu that pops up to "
+          },
+          { "insert": "style", "attributes": { "bold": true } },
+          { "insert": " your ", "attributes": { "italic": true } },
+          { "insert": "writing", "attributes": { "strikethrough": true } },
+          { "insert": "." }
+        ],
+        "attributes": {
+          "list": "todo",
+          "todo": true
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Here are the examples:",
+            "attributes": {
+              "heading": "h3"
+            }
+          }
+        ],
+        "attributes": {
+          "heading": "h3"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "list": "bullet"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "list": "bullet"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "list": "bullet"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world",
+            "attributes": { "quote": true }
+          }
+        ],
+        "attributes": {
+          "quote": true
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world",
+            "attributes": { "quote": true }
+          }
+        ],
+        "attributes": {
+          "quote": true
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "number": 1
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "number": 2
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "number": 3
+        }
+      }
+    ]
+  }
+}

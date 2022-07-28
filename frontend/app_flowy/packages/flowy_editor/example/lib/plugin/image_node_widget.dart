@@ -83,7 +83,10 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   Widget _build(BuildContext context) {
     return Column(
       children: [
-        Image.network(src),
+        Image.network(
+          src,
+          height: 150.0,
+        ),
         if (node.children.isNotEmpty)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

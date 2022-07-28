@@ -8,11 +8,13 @@ class StyleKey {
   static String underline = 'underline';
   static String strikethrough = 'strikethrough';
   static String color = 'color';
+  static String highlightColor = 'highlightColor';
   static String font = 'font';
   static String href = 'href';
   static String heading = 'heading';
-  static String quotes = 'quotes';
+  static String quote = 'quote';
   static String list = 'list';
+  static String number = 'number';
   static String todo = 'todo';
   static String code = 'code';
 }
@@ -45,6 +47,16 @@ extension AttributesExtensions on Attributes {
     return null;
   }
 
+  Color? get hightlightColor {
+    if (containsKey(StyleKey.highlightColor) &&
+        this[StyleKey.highlightColor] is String) {
+      return Color(
+        int.parse(this[StyleKey.highlightColor]),
+      );
+    }
+    return null;
+  }
+
   String? get font {
     // TODO: unspport now.
     return null;
@@ -64,9 +76,9 @@ extension AttributesExtensions on Attributes {
     return null;
   }
 
-  bool get quotes {
-    if (containsKey(StyleKey.quotes) && this[StyleKey.quotes] == true) {
-      return this[StyleKey.quotes];
+  bool get quote {
+    if (containsKey(StyleKey.quote) && this[StyleKey.quote] == true) {
+      return this[StyleKey.quote];
     }
     return false;
   }
@@ -74,6 +86,13 @@ extension AttributesExtensions on Attributes {
   String? get list {
     if (containsKey(StyleKey.list) && this[StyleKey.list] is String) {
       return this[StyleKey.list];
+    }
+    return null;
+  }
+
+  int? get number {
+    if (containsKey(StyleKey.number) && this[StyleKey.number] is int) {
+      return this[StyleKey.number];
     }
     return null;
   }
@@ -102,7 +121,7 @@ extension AttributesExtensions on Attributes {
 ///
 /// Supported global rendering types:
 ///   heading: h1, h2, h3, h4, h5, h6,
-///   block quotes,
+///   block quote,
 ///   list: ordered list, bulleted list,
 ///   code block
 ///
@@ -124,6 +143,7 @@ class RichTextStyle {
         fontStyle: fontStyle,
         fontSize: fontSize,
         color: textColor,
+        backgroundColor: backgroundColor,
         decoration: textDecoration,
       ),
       recognizer: recognizer,
@@ -131,8 +151,14 @@ class RichTextStyle {
   }
 
   // bold
-  FontWeight get fontWeight =>
-      attributes.bold ? FontWeight.bold : FontWeight.normal;
+  FontWeight get fontWeight {
+    if (attributes.bold) {
+      return FontWeight.bold;
+    } else if (attributes.heading != null) {
+      return FontWeight.bold;
+    }
+    return FontWeight.normal;
+  }
 
   // underline or strikethrough
   TextDecoration get textDecoration {
@@ -152,8 +178,14 @@ class RichTextStyle {
   Color get textColor {
     if (attributes.href != null) {
       return Colors.lightBlue;
+    } else if (attributes.quote) {
+      return Colors.grey;
     }
     return attributes.color ?? Colors.black;
+  }
+
+  Color get backgroundColor {
+    return attributes.hightlightColor ?? Colors.transparent;
   }
 
   // font size
@@ -161,10 +193,10 @@ class RichTextStyle {
     final heading = attributes.heading;
     if (heading != null) {
       final headings = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-      final fontSizes = [30.0, 28.0, 26.0, 24.0, 22.0, 20.0];
+      final fontSizes = [30.0, 25.0, 20.0, 20.0, 20.0, 20.0];
       return fontSizes[headings.indexOf(heading)];
     } else {
-      return 18.0;
+      return 16.0;
     }
   }
 

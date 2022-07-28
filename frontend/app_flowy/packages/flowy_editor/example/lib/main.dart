@@ -112,14 +112,14 @@ class _MyHomePageState extends State<MyHomePage> {
     if (page == 0) {
       return _buildFlowyEditor();
     } else if (page == 1) {
-      return _buildTextfield();
+      return _buildTextField();
     }
     return Container();
   }
 
   Widget _buildFlowyEditor() {
     return FutureBuilder<String>(
-      future: rootBundle.loadString('assets/document.json'),
+      future: rootBundle.loadString('assets/example.json'),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(
@@ -167,7 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildTextfield() {
+  Widget _buildTextField() {
     return const Center(
       child: TextField(),
     );
