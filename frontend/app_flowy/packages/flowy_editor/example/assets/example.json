@@ -6,7 +6,7 @@
       {
         "type": "image",
         "attributes": {
-          "image_src": "https://images.pexels.com/photos/2253275/pexels-photo-2253275.jpeg?cs=srgb&dl=pexels-helena-lopes-2253275.jpg&fm=jpg"
+          "image_src": "https://s1.ax1x.com/2022/07/28/vCgz1x.png"
         }
       },
       {
@@ -37,57 +37,7 @@
         "type": "text",
         "delta": [
           {
-            "insert": "Here are the plugin demos:"
-          }
-        ],
-        "attributes": {
-          "subtype": "heading",
-          "heading": "h3"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Checkbox example ......"
-          }
-        ],
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": false
-        },
-        "children": [
-          {
-            "type": "text",
-            "delta": [
-              {
-                "insert": "AAA Checkbox example ......\nAAA Checkbox example ......"
-              }
-            ],
-            "attributes": {
-              "subtype": "checkbox",
-              "checkbox": false
-            }
-          },
-          {
-            "type": "text",
-            "delta": [
-              {
-                "insert": "BBB Checkbox example ......"
-              }
-            ],
-            "attributes": {
-              "subtype": "checkbox",
-              "checkbox": true
-            }
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Raw text example ......"
+            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
           }
         ]
       },
@@ -109,11 +59,7 @@
           { "insert": "Click " },
           { "insert": "anywhere", "attributes": { "underline": true } },
           { "insert": " and just typing." }
-        ],
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": true
-        }
+        ]
       },
       {
         "type": "text",
@@ -128,11 +74,7 @@
           {
             "insert": "to see all the types of content you can add - entity, headers, videos, sub pages, etc."
           }
-        ],
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": true
-        }
+        ]
       },
       {
         "type": "text",
@@ -144,17 +86,13 @@
           { "insert": " your ", "attributes": { "italic": true } },
           { "insert": "writing", "attributes": { "strikethrough": true } },
           { "insert": "." }
-        ],
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": true
-        }
+        ]
       },
       {
         "type": "text",
         "delta": [
           {
-            "insert": "Here are the examples:"
+            "insert": "Here are the plugins:"
           }
         ],
         "attributes": {
@@ -170,7 +108,32 @@
           }
         ],
         "attributes": {
-          "subtype": "bullet-list"
+          "subtype": "checkbox",
+          "checkbox": false
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "checkbox",
+          "checkbox": false
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "checkbox",
+          "checkbox": false
         }
       },
       {
@@ -203,7 +166,7 @@
           }
         ],
         "attributes": {
-          "quote": true
+          "subtype": "bullet-list"
         }
       },
       {
@@ -214,7 +177,29 @@
           }
         ],
         "attributes": {
-          "quote": true
+          "subtype": "quote"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "quote"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "quote"
         }
       },
       {

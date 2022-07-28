@@ -85,23 +85,8 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
       children: [
         Image.network(
           src,
-          height: 150.0,
-        ),
-        if (node.children.isNotEmpty)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: node.children
-                .map(
-                  (e) => editorState.renderPlugins.buildWidget(
-                    context: NodeWidgetContext(
-                      buildContext: context,
-                      node: e,
-                      editorState: editorState,
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
+          width: MediaQuery.of(context).size.width,
+        )
       ],
     );
   }

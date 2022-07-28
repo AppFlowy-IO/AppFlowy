@@ -4,6 +4,7 @@ import 'package:flowy_editor/render/rich_text/checkbox_text.dart';
 import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
 import 'package:flowy_editor/render/rich_text/heading_text.dart';
 import 'package:flowy_editor/render/rich_text/number_list_text.dart';
+import 'package:flowy_editor/render/rich_text/quoted_text.dart';
 import 'package:flowy_editor/service/service.dart';
 import 'package:flutter/material.dart';
 
@@ -53,6 +54,7 @@ class EditorState {
         'text/bullet-list', BulletedListTextNodeWidgetBuilder.create);
     renderPlugins.register(
         'text/number-list', NumberListTextNodeWidgetBuilder.create);
+    renderPlugins.register('text/quote', QuotedTextNodeWidgetBuilder.create);
     undoManager.state = this;
   }
 
