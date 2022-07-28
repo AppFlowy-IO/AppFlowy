@@ -165,7 +165,7 @@ class _FlowySelectionState extends State<FlowySelection>
           (recognizer) {
             recognizer.onTapDown = _onTapDown;
           },
-        )
+        ),
       },
       child: widget.child,
     );

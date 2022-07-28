@@ -17,6 +17,7 @@
           }
         ],
         "attributes": {
+          "subtype": "heading",
           "heading": "h1"
         }
       },
@@ -28,8 +29,67 @@
           }
         ],
         "attributes": {
+          "subtype": "heading",
           "heading": "h2"
         }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Here are the plugin demos:"
+          }
+        ],
+        "attributes": {
+          "subtype": "heading",
+          "heading": "h3"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Checkbox example ......"
+          }
+        ],
+        "attributes": {
+          "subtype": "checkbox",
+          "checkbox": false
+        },
+        "children": [
+          {
+            "type": "text",
+            "delta": [
+              {
+                "insert": "AAA Checkbox example ......\nAAA Checkbox example ......"
+              }
+            ],
+            "attributes": {
+              "subtype": "checkbox",
+              "checkbox": false
+            }
+          },
+          {
+            "type": "text",
+            "delta": [
+              {
+                "insert": "BBB Checkbox example ......"
+              }
+            ],
+            "attributes": {
+              "subtype": "checkbox",
+              "checkbox": true
+            }
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Raw text example ......"
+          }
+        ]
       },
       {
         "type": "text",
@@ -39,6 +99,7 @@
           }
         ],
         "attributes": {
+          "subtype": "heading",
           "heading": "h3"
         }
       },
@@ -97,6 +158,7 @@
           }
         ],
         "attributes": {
+          "subtype": "heading",
           "heading": "h3"
         }
       },

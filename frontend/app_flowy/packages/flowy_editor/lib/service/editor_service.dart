@@ -23,7 +23,7 @@ class FlowyEditor extends StatefulWidget {
   final EditorState editorState;
   final List<FlowyKeyEventHandler> keyEventHandlers;
 
-  /// Shortcusts
+  /// shortcuts
   final FloatingShortcuts shortcuts;
 
   @override

@@ -32,11 +32,14 @@ class RichTextNodeWidgetBuilder extends NodeWidgetBuilder {
   }
 }
 
+typedef FlowyTextSpanDecorator = TextSpan Function(TextSpan textSpan);
+
 class FlowyRichText extends StatefulWidget {
   const FlowyRichText({
     Key? key,
     this.cursorHeight,
     this.cursorWidth = 2.0,
+    this.textSpanDecorator,
     required this.textNode,
     required this.editorState,
   }) : super(key: key);
@@ -45,6 +48,7 @@ class FlowyRichText extends StatefulWidget {
   final double cursorWidth;
   final TextNode textNode;
   final EditorState editorState;
+  final FlowyTextSpanDecorator? textSpanDecorator;
 
   @override
   State<FlowyRichText> createState() => _FlowyRichTextState();
@@ -70,7 +74,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     } else if (attributes.quote == true) {
       return _buildQuotedRichText(context);
     } else if (attributes.heading != null) {
-      return _buildHeadingRichText(context);
+      // return _buildHeadingRichText(context);
     } else if (attributes.number != null) {
       return _buildNumberListRichText(context);
     }
@@ -87,14 +91,13 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   @override
   Rect getCursorRectInPosition(Position position) {
     final textPosition = TextPosition(offset: position.offset);
-    final baseRect = frontWidgetRect();
     final cursorOffset =
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
     final cursorHeight = widget.cursorHeight ??
         _renderParagraph.getFullHeightForCaret(textPosition) ??
         5.0; // default height
     return Rect.fromLTWH(
-      baseRect.centerRight.dx + cursorOffset.dx - (widget.cursorWidth / 2),
+      cursorOffset.dx - (widget.cursorWidth / 2),
       cursorOffset.dy,
       widget.cursorWidth,
       cursorHeight,
@@ -138,11 +141,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildRichText(BuildContext context) {
-    if (_textNode.children.isEmpty) {
-      return _buildSingleRichText(context);
-    } else {
-      return _buildRichTextWithChildren(context);
-    }
+    return _buildSingleRichText(context);
   }
 
   Widget _buildRichTextWithChildren(BuildContext context) {
@@ -166,10 +165,11 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildSingleRichText(BuildContext context) {
-    return SizedBox(
-      width:
-          MediaQuery.of(context).size.width - 20, // FIXME: use the const value
-      child: RichText(key: _textKey, text: _decorateTextSpanWithGlobalStyle),
+    return RichText(
+      key: _textKey,
+      text: widget.textSpanDecorator != null
+          ? widget.textSpanDecorator!(_decorateTextSpanWithGlobalStyle)
+          : _decorateTextSpanWithGlobalStyle,
     );
   }
 

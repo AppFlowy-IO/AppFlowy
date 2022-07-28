@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:flowy_editor/render/rich_text/checkbox_text.dart';
 import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
+import 'package:flowy_editor/render/rich_text/heading_text.dart';
 import 'package:flowy_editor/service/service.dart';
 import 'package:flutter/material.dart';
 
@@ -43,6 +45,8 @@ class EditorState {
   }) {
     // FIXME: abstract render plugins as a service.
     renderPlugins.register('text', RichTextNodeWidgetBuilder.create);
+    renderPlugins.register('text/checkbox', CheckboxNodeWidgetBuilder.create);
+    renderPlugins.register('text/heading', HeadingTextNodeWidgetBuilder.create);
     undoManager.state = this;
   }
 
