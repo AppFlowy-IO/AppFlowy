@@ -23,6 +23,8 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
   Position getPositionInOffset(Offset start);
   Rect getCursorRectInPosition(Position position);
 
+  Offset localToGlobal(Offset offset);
+
   Position start();
   Position end();
 

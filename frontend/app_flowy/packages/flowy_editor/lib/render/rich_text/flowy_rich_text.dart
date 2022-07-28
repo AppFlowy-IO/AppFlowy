@@ -255,6 +255,10 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     return Rect.zero;
   }
 
+  Offset localToGlobal(Offset offset) {
+    return _renderParagraph.localToGlobal(offset);
+  }
+
   TextSpan get _decorateTextSpanWithGlobalStyle => TextSpan(
         children: _textSpan.children
             ?.whereType<TextSpan>()

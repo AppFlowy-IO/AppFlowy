@@ -64,6 +64,11 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   }
 
   @override
+  Offset localToGlobal(Offset offset) {
+    throw UnimplementedError();
+  }
+
+  @override
   Rect getCursorRectInPosition(Position position) {
     // TODO: implement getCursorRectInPosition
     throw UnimplementedError();

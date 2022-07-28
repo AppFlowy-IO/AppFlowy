@@ -71,6 +71,11 @@ class _SelectedTextNodeWidgetState extends State<_SelectedTextNodeWidget>
   }
 
   @override
+  Offset localToGlobal(Offset offset) {
+    return _renderParagraph.localToGlobal(offset);
+  }
+
+  @override
   List<Rect> getRectsInSelection(Selection selection) {
     assert(pathEquals(selection.start.path, selection.end.path));
     assert(pathEquals(selection.start.path, node.path));
