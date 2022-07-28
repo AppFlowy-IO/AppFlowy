@@ -1,4 +1,6 @@
 import 'package:flowy_editor/render/selection/floating_shortcut_widget.dart';
+import 'package:flowy_editor/service/input_service.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/enter_in_edge_of_text_node_handler.dart';
 import 'package:flowy_editor/service/shortcut_service.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/arrow_keys_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/delete_nodes_handler.dart';
@@ -36,22 +38,27 @@ class _FlowyEditorState extends State<FlowyEditor> {
     return FlowySelection(
       key: editorState.service.selectionServiceKey,
       editorState: editorState,
-      child: FlowyKeyboard(
-        key: editorState.service.keyboardServiceKey,
-        handlers: [
-          slashShortcutHandler,
-          flowyDeleteNodesHandler,
-          deleteSingleTextNodeHandler,
-          arrowKeysHandler,
-          ...widget.keyEventHandlers,
-        ],
+      child: FlowyInput(
+        key: editorState.service.inputServiceKey,
         editorState: editorState,
-        child: FloatingShortcut(
-          key: editorState.service.floatingShortcutServiceKey,
-          size: const Size(200, 150), // TODO: support customize size.
+        child: FlowyKeyboard(
+          key: editorState.service.keyboardServiceKey,
+          handlers: [
+            slashShortcutHandler,
+            flowyDeleteNodesHandler,
+            deleteSingleTextNodeHandler,
+            arrowKeysHandler,
+            enterInEdgeOfTextNodeHandler,
+            ...widget.keyEventHandlers,
+          ],
           editorState: editorState,
-          floatingShortcuts: widget.shortcuts,
-          child: editorState.build(context),
+          child: FloatingShortcut(
+            key: editorState.service.floatingShortcutServiceKey,
+            size: const Size(200, 150), // TODO: support customize size.
+            editorState: editorState,
+            floatingShortcuts: widget.shortcuts,
+            child: editorState.build(context),
+          ),
         ),
       ),
     );

@@ -12,7 +12,7 @@ class TextWithCheckBoxNodeBuilder extends NodeWidgetBuilder {
   bool get isCompleted => node.attributes['checkbox'] as bool;
 
   @override
-  Widget build(BuildContext buildContext) {
+  Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -20,7 +20,7 @@ class TextWithCheckBoxNodeBuilder extends NodeWidgetBuilder {
         Expanded(
           child: renderPlugins.buildWidget(
             context: NodeWidgetContext(
-              buildContext: buildContext,
+              buildContext: context,
               node: node,
               editorState: editorState,
             ),

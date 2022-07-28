@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  flutter_svg: ^1.1.1+1
   provider: ^6.0.3
 
 dev_dependencies:
@@ -26,7 +27,8 @@ flutter:
 
   # To add assets to your package, add an assets section, like this:
   assets:
-    - document.json
+    - assets/images/uncheck.svg
+    - assets/images/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   #

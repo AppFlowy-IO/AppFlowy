@@ -9,7 +9,7 @@ class EditorNodeWidgetBuilder extends NodeWidgetBuilder {
   }) : super.create();
 
   @override
-  Widget build(BuildContext buildContext) {
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
       key: key,
       child: _EditorNodeWidget(

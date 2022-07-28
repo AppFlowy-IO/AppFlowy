@@ -26,14 +26,14 @@ class NodeWidgetBuilder<T extends Node> {
   /// Render the current [Node]
   /// and the layout style of [Node.Children].
   Widget build(
-    BuildContext buildContext,
+    BuildContext context,
   ) =>
       throw UnimplementedError();
 
   /// TODO: refactore this part.
-  /// return widget embeded with ChangeNotifier and widget itself.
+  /// return widget embedded with ChangeNotifier and widget itself.
   Widget call(
-    BuildContext buildContext,
+    BuildContext context,
   ) {
     /// TODO: Validate the node
     /// if failed, stop call build function,
@@ -43,20 +43,20 @@ class NodeWidgetBuilder<T extends Node> {
           'Node validate failure, node = { type: ${node.type}, attributes: ${node.attributes} }');
     }
 
-    return _buildNodeChangeNotifier(buildContext);
+    return _build(context);
   }
 
-  Widget _buildNodeChangeNotifier(BuildContext buildContext) {
-    return ChangeNotifierProvider.value(
-      value: node,
-      builder: (_, __) => Consumer<T>(
-        builder: ((context, value, child) {
-          debugPrint('Node changed, and rebuilding...');
-          return CompositedTransformTarget(
-            link: node.layerLink,
-            child: build(context),
-          );
-        }),
+  Widget _build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: node.layerLink,
+      child: ChangeNotifierProvider.value(
+        value: node,
+        builder: (context, child) => Consumer<T>(
+          builder: ((context, value, child) {
+            debugPrint('Node is rebuilding...');
+            return build(context);
+          }),
+        ),
       ),
     );
   }

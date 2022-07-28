@@ -11,7 +11,7 @@ class ImageNodeBuilder extends NodeWidgetBuilder {
   }) : super.create();
 
   @override
-  Widget build(BuildContext buildContext) {
+  Widget build(BuildContext context) {
     return _ImageNodeWidget(
       key: key,
       node: node,
@@ -83,7 +83,10 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
   Widget _build(BuildContext context) {
     return Column(
       children: [
-        Image.network(src),
+        Image.network(
+          src,
+          height: 150.0,
+        ),
         if (node.children.isNotEmpty)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
