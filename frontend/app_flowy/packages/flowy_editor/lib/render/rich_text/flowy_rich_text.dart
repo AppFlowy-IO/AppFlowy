@@ -169,7 +169,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     return SizedBox(
       width:
           MediaQuery.of(context).size.width - 20, // FIXME: use the const value
-      child: RichText(key: _textKey, text: _textSpan),
+      child: RichText(key: _textKey, text: _decorateTextSpanWithGlobalStyle),
     );
   }
 
@@ -254,6 +254,22 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     }
     return Rect.zero;
   }
+
+  TextSpan get _decorateTextSpanWithGlobalStyle => TextSpan(
+        children: _textSpan.children
+            ?.whereType<TextSpan>()
+            .map(
+              (span) => TextSpan(
+                text: span.text,
+                style: span.style?.copyWith(
+                  fontSize: _textNode.attributes.fontSize,
+                  color: _textNode.attributes.quoteColor,
+                ),
+                recognizer: span.recognizer,
+              ),
+            )
+            .toList(),
+      );
 
   TextSpan get _textSpan => TextSpan(
       children: _textNode.delta.operations

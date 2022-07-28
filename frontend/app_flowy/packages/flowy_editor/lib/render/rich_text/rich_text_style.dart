@@ -2,6 +2,19 @@ import 'package:flowy_editor/document/attributes.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
+///
+/// Supported partial rendering types:
+///   bold, italic,
+///   underline, strikethrough,
+///   color, font,
+///   href
+///
+/// Supported global rendering types:
+///   heading: h1, h2, h3, h4, h5, h6, ...
+///   block quote,
+///   list: ordered list, bulleted list,
+///   code block
+///
 class StyleKey {
   static String bold = 'bold';
   static String italic = 'italic';
@@ -11,6 +24,7 @@ class StyleKey {
   static String highlightColor = 'highlightColor';
   static String font = 'font';
   static String href = 'href';
+
   static String heading = 'heading';
   static String quote = 'quote';
   static String list = 'list';
@@ -19,7 +33,76 @@ class StyleKey {
   static String code = 'code';
 }
 
-extension AttributesExtensions on Attributes {
+double baseFontSize = 16.0;
+// TODO: customize.
+Map<String, double> headingToFontSize = {
+  'h1': baseFontSize + 15,
+  'h2': baseFontSize + 12,
+  'h3': baseFontSize + 9,
+  'h4': baseFontSize + 6,
+  'h5': baseFontSize + 3,
+  'h6': baseFontSize,
+};
+
+extension NodeAttributesExtensions on Attributes {
+  String? get heading {
+    if (containsKey(StyleKey.heading) && this[StyleKey.heading] is String) {
+      return this[StyleKey.heading];
+    }
+    return null;
+  }
+
+  double get fontSize {
+    if (heading != null) {
+      return headingToFontSize[heading]!;
+    }
+    return baseFontSize;
+  }
+
+  bool get quote {
+    if (containsKey(StyleKey.quote) && this[StyleKey.quote] == true) {
+      return this[StyleKey.quote];
+    }
+    return false;
+  }
+
+  Color? get quoteColor {
+    if (quote) {
+      return Colors.grey;
+    }
+    return null;
+  }
+
+  String? get list {
+    if (containsKey(StyleKey.list) && this[StyleKey.list] is String) {
+      return this[StyleKey.list];
+    }
+    return null;
+  }
+
+  int? get number {
+    if (containsKey(StyleKey.number) && this[StyleKey.number] is int) {
+      return this[StyleKey.number];
+    }
+    return null;
+  }
+
+  bool get todo {
+    if (containsKey(StyleKey.todo) && this[StyleKey.todo] is bool) {
+      return this[StyleKey.todo];
+    }
+    return false;
+  }
+
+  bool get code {
+    if (containsKey(StyleKey.code) && this[StyleKey.code] == true) {
+      return this[StyleKey.code];
+    }
+    return false;
+  }
+}
+
+extension DeltaAttributesExtensions on Attributes {
   bool get bold {
     return (containsKey(StyleKey.bold) && this[StyleKey.bold] == true);
   }
@@ -68,63 +151,8 @@ extension AttributesExtensions on Attributes {
     }
     return null;
   }
-
-  String? get heading {
-    if (containsKey(StyleKey.heading) && this[StyleKey.heading] is String) {
-      return this[StyleKey.heading];
-    }
-    return null;
-  }
-
-  bool get quote {
-    if (containsKey(StyleKey.quote) && this[StyleKey.quote] == true) {
-      return this[StyleKey.quote];
-    }
-    return false;
-  }
-
-  String? get list {
-    if (containsKey(StyleKey.list) && this[StyleKey.list] is String) {
-      return this[StyleKey.list];
-    }
-    return null;
-  }
-
-  int? get number {
-    if (containsKey(StyleKey.number) && this[StyleKey.number] is int) {
-      return this[StyleKey.number];
-    }
-    return null;
-  }
-
-  bool get todo {
-    if (containsKey(StyleKey.todo) && this[StyleKey.todo] is bool) {
-      return this[StyleKey.todo];
-    }
-    return false;
-  }
-
-  bool get code {
-    if (containsKey(StyleKey.code) && this[StyleKey.code] == true) {
-      return this[StyleKey.code];
-    }
-    return false;
-  }
 }
 
-///
-/// Supported partial rendering types:
-///   bold, italic,
-///   underline, strikethrough,
-///   color, font,
-///   href
-///
-/// Supported global rendering types:
-///   heading: h1, h2, h3, h4, h5, h6,
-///   block quote,
-///   list: ordered list, bulleted list,
-///   code block
-///
 class RichTextStyle {
   // TODO: customize
   RichTextStyle({
@@ -154,8 +182,6 @@ class RichTextStyle {
   FontWeight get fontWeight {
     if (attributes.bold) {
       return FontWeight.bold;
-    } else if (attributes.heading != null) {
-      return FontWeight.bold;
     }
     return FontWeight.normal;
   }
@@ -178,8 +204,6 @@ class RichTextStyle {
   Color get textColor {
     if (attributes.href != null) {
       return Colors.lightBlue;
-    } else if (attributes.quote) {
-      return Colors.grey;
     }
     return attributes.color ?? Colors.black;
   }
@@ -190,14 +214,7 @@ class RichTextStyle {
 
   // font size
   double get fontSize {
-    final heading = attributes.heading;
-    if (heading != null) {
-      final headings = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-      final fontSizes = [30.0, 25.0, 20.0, 20.0, 20.0, 20.0];
-      return fontSizes[headings.indexOf(heading)];
-    } else {
-      return 16.0;
-    }
+    return baseFontSize;
   }
 
   // recognizer

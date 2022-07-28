@@ -13,10 +13,7 @@
         "type": "text",
         "delta": [
           {
-            "insert": "🌶 Read Me",
-            "attributes": {
-              "heading": "h1"
-            }
+            "insert": "🌶 Read Me"
           }
         ],
         "attributes": {
@@ -27,10 +24,7 @@
         "type": "text",
         "delta": [
           {
-            "insert": "👋 Welcome to Appflowy",
-            "attributes": {
-              "heading": "h2"
-            }
+            "insert": "👋 Welcome to Appflowy"
           }
         ],
         "attributes": {
@@ -41,10 +35,7 @@
         "type": "text",
         "delta": [
           {
-            "insert": "Here are the basics:",
-            "attributes": {
-              "heading": "h3"
-            }
+            "insert": "Here are the basics:"
           }
         ],
         "attributes": {
@@ -102,10 +93,7 @@
         "type": "text",
         "delta": [
           {
-            "insert": "Here are the examples:",
-            "attributes": {
-              "heading": "h3"
-            }
+            "insert": "Here are the examples:"
           }
         ],
         "attributes": {
@@ -149,8 +137,7 @@
         "type": "text",
         "delta": [
           {
-            "insert": "Hello world",
-            "attributes": { "quote": true }
+            "insert": "Hello world"
           }
         ],
         "attributes": {
@@ -161,8 +148,7 @@
         "type": "text",
         "delta": [
           {
-            "insert": "Hello world",
-            "attributes": { "quote": true }
+            "insert": "Hello world"
           }
         ],
         "attributes": {
