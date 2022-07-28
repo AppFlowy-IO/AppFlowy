@@ -19,6 +19,7 @@ DynamicLibrary _open() {
     // if (Platform.isLinux) return DynamicLibrary.open('lib/libdart_ffi.so');
     // if (Platform.isAndroid)
     // return DynamicLibrary.open('${prefix}/libdart_ffi.so');
+    if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
     if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isIOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isWindows)
@@ -26,7 +27,7 @@ DynamicLibrary _open() {
   } else {
     if (Platform.isLinux) return DynamicLibrary.open('libdart_ffi.so');
     if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
-    if (Platform.isAndroid) return DynamicLibrary.open('libssl.so.1.1');
+    //if (Platform.isAndroid) return DynamicLibrary.open('libssl.so.1.1');
     if (Platform.isMacOS) return DynamicLibrary.executable();
     if (Platform.isIOS) return DynamicLibrary.executable();
     if (Platform.isWindows) return DynamicLibrary.open('dart_ffi.dll');
