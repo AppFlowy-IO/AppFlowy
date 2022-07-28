@@ -21,6 +21,10 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
   ///
   /// The return result must be an offset of the local coordinate system.
   Position getPositionInOffset(Offset start);
+  Selection? getWorldBoundaryInOffset(Offset start) {
+    return null;
+  }
+
   Rect getCursorRectInPosition(Position position);
 
   Offset localToGlobal(Offset offset);
