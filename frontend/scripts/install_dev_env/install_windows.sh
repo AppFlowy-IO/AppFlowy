@@ -37,8 +37,8 @@ if ! rustc --version; then
       start "Rust Installer" rustup-init.exe
       read -p "$(printSuccess "Press enter when Rust installation is done") " isDone
       rm rustup-init.exe
-      rustup toolchain install stable
-      rustup default stable
+      $USERPROFILE/.cargo/bin/rustup toolchain install stable
+      $USERPROFILE/.cargo/bin/rustup default stable
    else
       printMessage "Skipping Rust installation."
    fi
@@ -50,6 +50,9 @@ fi
 printMessage "Setting up Flutter"
 flutter channel stable
 
+# Add pub cache to PATH
+powershell '[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + ";" + $Env:LOCALAPPDATA + "\Pub\Cache\Bin", [EnvironmentVariableTarget]::User)'
+
 # Enable linux desktop
 flutter config --enable-windows-desktop
 
@@ -59,17 +62,6 @@ flutter doctor
 # Add the githooks directory to your git configuration
 printMessage "Setting up githooks."
 git config core.hooksPath .githooks
-
-# Change to the frontend directory
-cd frontend
-
-# Install cargo make
-printMessage "Installing cargo-make."
-cargo install --force cargo-make
-
-# Install duckscript
-printMessage "Installing duckscript."
-cargo install --force duckscript_cli
 
 # Install go-gitlint 
 printMessage "Installing go-gitlint."
@@ -81,10 +73,22 @@ else
  printError "Failed to install go-gitlint"
 fi
 
+# Change to the frontend directory
+cd frontend
+
+# Install cargo make
+printMessage "Installing cargo-make."
+#$USERPROFILE/.cargo/bin/cargo install --force cargo-make
+
+# Install duckscript
+printMessage "Installing duckscript."
+$USERPROFILE/.cargo/bin/cargo install --force duckscript_cli
+
 # Enable vcpkg integration
 # Note: Requires admin
+printMessage "Setting up vcpkg."
 vcpkg integrate install
 
 # Check prerequisites
 printMessage "Checking prerequisites."
-cargo make flowy_dev
+$USERPROFILE/.cargo/bin/cargo make flowy_dev
