@@ -162,7 +162,11 @@
         "type": "text",
         "delta": [
           {
-            "insert": "Hello world"
+            "insert": "Hello "
+          },
+          {
+            "insert": "world",
+            "attributes": { "bold": true }
           }
         ],
         "attributes": {

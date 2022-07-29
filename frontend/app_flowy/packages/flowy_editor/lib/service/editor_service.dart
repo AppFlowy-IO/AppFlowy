@@ -1,3 +1,4 @@
+import 'package:flowy_editor/service/internal_key_event_handlers/delele_text_handler.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_editor/editor_state.dart';
@@ -30,6 +31,7 @@ NodeWidgetBuilders defaultBuilders = {
 };
 
 List<FlowyKeyEventHandler> defaultKeyEventHandler = [
+  deleteTextHandler,
   slashShortcutHandler,
   flowyDeleteNodesHandler,
   arrowKeysHandler,
