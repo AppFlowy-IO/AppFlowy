@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/editor_state.dart';
-import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 mixin FlowyInputService {
   void attach(TextEditingValue textEditingValue);

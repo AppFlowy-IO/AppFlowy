@@ -30,6 +30,14 @@ NodeWidgetBuilders defaultBuilders = {
   'text/quote': QuotedTextNodeWidgetBuilder(),
 };
 
+List<FlowyKeyEventHandler> defaultKeyEventHandler = [
+  slashShortcutHandler,
+  flowyDeleteNodesHandler,
+  deleteSingleTextNodeHandler,
+  arrowKeysHandler,
+  enterInEdgeOfTextNodeHandler,
+];
+
 class FlowyEditor extends StatefulWidget {
   const FlowyEditor({
     Key? key,
@@ -68,7 +76,9 @@ class _FlowyEditorState extends State<FlowyEditor> {
   void didUpdateWidget(covariant FlowyEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    editorState.service.renderPluginService = _createRenderPlugin();
+    if (editorState.service != oldWidget.editorState.service) {
+      editorState.service.renderPluginService = _createRenderPlugin();
+    }
   }
 
   @override
@@ -82,11 +92,7 @@ class _FlowyEditorState extends State<FlowyEditor> {
         child: FlowyKeyboard(
           key: editorState.service.keyboardServiceKey,
           handlers: [
-            slashShortcutHandler,
-            flowyDeleteNodesHandler,
-            deleteSingleTextNodeHandler,
-            arrowKeysHandler,
-            enterInEdgeOfTextNodeHandler,
+            ...defaultKeyEventHandler,
             ...widget.keyEventHandlers,
           ],
           editorState: editorState,
