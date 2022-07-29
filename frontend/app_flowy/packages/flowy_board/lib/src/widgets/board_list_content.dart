@@ -135,17 +135,6 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
       children.add(_wrap(widget.children[i], i));
     }
 
-    // if (_phantomData.hasInsert) {
-    //   final appearPhantom = makeAppearPhantomWidget();
-    //   if (appearPhantom != null) {
-    //     children.insert(_phantomData.insertedIndex, appearPhantom);
-    //   }
-    // }
-
-    // if (_phantomData.hasDelete) {
-    //   //
-    // }
-
     if (widget.footer != null) {
       children.add(widget.footer!);
     }

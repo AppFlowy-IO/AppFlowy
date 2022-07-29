@@ -63,16 +63,20 @@ class BoardListData extends ChangeNotifier with EquatableMixin {
         Log.debug(
             '[Phantom] Move phantom from $id:$index to $id:$insertedIndex');
 
-        _items.removeAt(index);
-        phantomNotifier.delete(index);
+        move(index, insertedIndex);
 
-        _items.insert(insertedIndex, BoardListPhantomItem(listItem));
-        phantomNotifier.insert(insertedIndex);
+        // _items.removeAt(index);
+        // phantomNotifier.delete(index);
+
+        // _items.insert(insertedIndex, BoardListPhantomItem(listItem));
+        // phantomNotifier.insert(insertedIndex);
       }
     } else {
       Log.debug('[Phantom] insert phantom at $id:$insertedIndex');
-      _items.insert(insertedIndex, BoardListPhantomItem(listItem));
-      phantomNotifier.insert(insertedIndex);
+      insert(insertedIndex, BoardListPhantomItem(listItem));
+
+      // _items.insert(insertedIndex, BoardListPhantomItem(listItem));
+      // phantomNotifier.insert(insertedIndex);
     }
   }
 
@@ -81,8 +85,10 @@ class BoardListData extends ChangeNotifier with EquatableMixin {
     if (index != -1) {
       Log.debug('[Phantom] Remove phantom at $id:$index');
 
-      _items.removeAt(index);
-      phantomNotifier.delete(index);
+      removeAt(index);
+
+      // _items.removeAt(index);
+      // phantomNotifier.delete(index);
     }
   }
 }
