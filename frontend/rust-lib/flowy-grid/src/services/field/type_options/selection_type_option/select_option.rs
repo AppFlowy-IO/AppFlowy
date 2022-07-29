@@ -1,4 +1,4 @@
-use crate::entities::{CellChangesetPB, GridCellIdParams, FieldType, GridCellIdPB};
+use crate::entities::{CellChangesetPB, FieldType, GridCellIdPB, GridCellIdParams};
 use crate::services::cell::{CellBytes, CellBytesParser, CellData, CellDisplayable, FromCellChangeset, FromCellString};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOptionPB};
 use bytes::Bytes;

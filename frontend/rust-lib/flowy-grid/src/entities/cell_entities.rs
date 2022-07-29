@@ -1,4 +1,3 @@
-
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -21,7 +20,6 @@ pub struct CreateSelectOptionParams {
     pub field_id: String,
     pub grid_id: String,
     pub option_name: String,
-
 }
 
 impl TryInto<CreateSelectOptionParams> for CreateSelectOptionPayloadPB {

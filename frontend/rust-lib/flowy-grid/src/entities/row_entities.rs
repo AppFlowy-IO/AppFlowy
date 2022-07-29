@@ -2,7 +2,6 @@ use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 
-
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridRowIdPB {
     #[pb(index = 1)]

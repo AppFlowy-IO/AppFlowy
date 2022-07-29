@@ -1,1 +1,3 @@
-https://trello.com/b/NCyXCXXh/appflowy-roadmap
+[AppFlowy Roadmap ReadMe](https://appflowy.gitbook.io/docs/essential-documentation/roadmap)
+
+[AppFlowy Public Roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12)
