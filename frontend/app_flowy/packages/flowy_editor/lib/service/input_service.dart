@@ -90,7 +90,7 @@ class _FlowyInputState extends State<FlowyInput>
 
   @override
   void apply(List<TextEditingDelta> deltas) {
-// TODO: implement the detail
+    // TODO: implement the detail
     for (final delta in deltas) {
       if (delta is TextEditingDeltaInsertion) {
       } else if (delta is TextEditingDeltaDeletion) {

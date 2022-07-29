@@ -43,7 +43,7 @@ class BulletedListTextNodeWidget extends StatefulWidget {
 
 class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
     with Selectable, DefaultSelectable {
-  final _richTextKey = GlobalKey(debugLabel: 'heading_text');
+  final _richTextKey = GlobalKey(debugLabel: 'bulleted_list_text');
   final leftPadding = 20.0;
 
   @override
@@ -59,7 +59,8 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const FlowySvg(
+        FlowySvg(
+          size: Size.square(leftPadding),
           name: 'point',
         ),
         FlowyRichText(

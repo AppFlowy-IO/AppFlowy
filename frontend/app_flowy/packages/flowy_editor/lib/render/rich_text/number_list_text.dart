@@ -61,6 +61,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     return Row(
       children: [
         FlowySvg(
+          size: Size.square(leftPadding),
           number: widget.textNode.attributes.number,
         ),
         FlowyRichText(

@@ -44,8 +44,9 @@ class CheckboxNodeWidget extends StatefulWidget {
 
 class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
     with Selectable, DefaultSelectable {
-  final _checkboxKey = GlobalKey(debugLabel: 'checkbox');
   final _richTextKey = GlobalKey(debugLabel: 'checkbox_text');
+
+  final leftPadding = 20.0;
 
   @override
   Selectable<StatefulWidget> get forward =>
@@ -53,15 +54,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
 
   @override
   Offset get baseOffset {
-    final width = _checkboxKey.currentContext
-        ?.findRenderObject()
-        ?.unwrapOrNull<RenderBox>()
-        ?.size
-        .width;
-    if (width != null) {
-      return Offset(width, 0);
-    }
-    return Offset.zero;
+    return Offset(leftPadding, 0);
   }
 
   @override
@@ -80,7 +73,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
       children: [
         GestureDetector(
           child: FlowySvg(
-            key: _checkboxKey,
+            size: Size.square(leftPadding),
             name: check ? 'check' : 'uncheck',
           ),
           onTap: () {

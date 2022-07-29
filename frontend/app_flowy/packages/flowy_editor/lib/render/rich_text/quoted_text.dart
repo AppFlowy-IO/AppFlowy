@@ -58,7 +58,8 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const FlowySvg(
+        FlowySvg(
+          size: Size.square(leftPadding),
           name: 'quote',
         ),
         FlowyRichText(
