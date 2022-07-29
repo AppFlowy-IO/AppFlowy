@@ -1,24 +1,24 @@
+import 'package:flutter/material.dart';
+
+import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/render/editor/editor_entry.dart';
+import 'package:flowy_editor/render/rich_text/bulleted_list_text.dart';
 import 'package:flowy_editor/render/rich_text/checkbox_text.dart';
 import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
-import 'package:flowy_editor/render/selection/floating_shortcut_widget.dart';
-import 'package:flowy_editor/service/input_service.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/enter_in_edge_of_text_node_handler.dart';
-import 'package:flowy_editor/service/render_plugin_service.dart';
-import 'package:flowy_editor/service/shortcut_service.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/arrow_keys_handler.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/delete_nodes_handler.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/delete_single_text_node_handler.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/shortcut_handler.dart';
-import 'package:flowy_editor/service/keyboard_service.dart';
-import 'package:flowy_editor/service/selection_service.dart';
-import 'package:flowy_editor/editor_state.dart';
-import 'package:flowy_editor/render/rich_text/bulleted_list_text.dart';
 import 'package:flowy_editor/render/rich_text/heading_text.dart';
 import 'package:flowy_editor/render/rich_text/number_list_text.dart';
 import 'package:flowy_editor/render/rich_text/quoted_text.dart';
-
-import 'package:flutter/material.dart';
+import 'package:flowy_editor/render/selection/floating_shortcut_widget.dart';
+import 'package:flowy_editor/service/input_service.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/arrow_keys_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/delete_nodes_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/delete_single_text_node_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/enter_in_edge_of_text_node_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/shortcut_handler.dart';
+import 'package:flowy_editor/service/keyboard_service.dart';
+import 'package:flowy_editor/service/render_plugin_service.dart';
+import 'package:flowy_editor/service/selection_service.dart';
+import 'package:flowy_editor/service/shortcut_service.dart';
 
 NodeWidgetBuilders defaultBuilders = {
   'editor': EditorEntryWidgetBuilder(),
@@ -61,13 +61,14 @@ class _FlowyEditorState extends State<FlowyEditor> {
   void initState() {
     super.initState();
 
-    editorState.service.renderPluginService = FlowyRenderPlugin(
-      editorState: editorState,
-      builders: {
-        ...defaultBuilders,
-        ...widget.customBuilders,
-      },
-    );
+    editorState.service.renderPluginService = _createRenderPlugin();
+  }
+
+  @override
+  void didUpdateWidget(covariant FlowyEditor oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    editorState.service.renderPluginService = _createRenderPlugin();
   }
 
   @override
@@ -106,4 +107,12 @@ class _FlowyEditorState extends State<FlowyEditor> {
       ),
     );
   }
+
+  FlowyRenderPlugin _createRenderPlugin() => FlowyRenderPlugin(
+        editorState: editorState,
+        builders: {
+          ...defaultBuilders,
+          ...widget.customBuilders,
+        },
+      );
 }
