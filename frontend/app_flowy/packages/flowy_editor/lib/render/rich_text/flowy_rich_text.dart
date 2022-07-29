@@ -109,6 +109,16 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   @override
+  Selection? getWorldBoundaryInOffset(Offset offset) {
+    final localOffset = _renderParagraph.globalToLocal(offset);
+    final textPosition = _renderParagraph.getPositionForOffset(localOffset);
+    final textRange = _renderParagraph.getWordBoundary(textPosition);
+    final start = Position(path: _textNode.path, offset: textRange.start);
+    final end = Position(path: _textNode.path, offset: textRange.end);
+    return Selection(start: start, end: end);
+  }
+
+  @override
   List<Rect> getRectsInSelection(Selection selection) {
     assert(pathEquals(selection.start.path, selection.end.path) &&
         pathEquals(selection.start.path, _textNode.path));
