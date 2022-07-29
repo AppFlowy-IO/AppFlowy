@@ -59,18 +59,18 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          height: topPadding,
-        ),
-        FlowyRichText(
-          key: _richTextKey,
-          textSpanDecorator: _textSpanDecorator,
-          textNode: widget.textNode,
-          editorState: widget.editorState,
-        ),
-        SizedBox(
-          height: bottomPadding,
-        ),
+        Padding(
+          padding: EdgeInsets.only(
+            top: topPadding,
+            bottom: bottomPadding,
+          ),
+          child: FlowyRichText(
+            key: _richTextKey,
+            textSpanDecorator: _textSpanDecorator,
+            textNode: widget.textNode,
+            editorState: widget.editorState,
+          ),
+        )
       ],
     );
   }
