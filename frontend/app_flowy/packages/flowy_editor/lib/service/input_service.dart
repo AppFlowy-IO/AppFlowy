@@ -94,12 +94,34 @@ class _FlowyInputState extends State<FlowyInput>
     // TODO: implement the detail
     for (final delta in deltas) {
       if (delta is TextEditingDeltaInsertion) {
+        _applyInsert(delta);
       } else if (delta is TextEditingDeltaDeletion) {
       } else if (delta is TextEditingDeltaReplacement) {
       } else if (delta is TextEditingDeltaNonTextUpdate) {
         // We don't need to care the [TextEditingDeltaNonTextUpdate].
         // Do nothing.
       }
+    }
+  }
+
+  void _applyInsert(TextEditingDeltaInsertion delta) {
+    final selectionService = _editorState.service.selectionService;
+    final currentSelection = selectionService.currentSelection;
+    if (currentSelection == null) {
+      return;
+    }
+    if (currentSelection.isSingle) {
+      final textNode =
+          selectionService.currentSelectedNodes.value.first as TextNode;
+      TransactionBuilder(_editorState)
+        ..insertText(
+          textNode,
+          delta.insertionOffset,
+          delta.textInserted,
+        )
+        ..commit();
+    } else {
+      // TODO: implement
     }
   }
 

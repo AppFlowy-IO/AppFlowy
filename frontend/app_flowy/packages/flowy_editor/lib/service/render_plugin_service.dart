@@ -75,10 +75,7 @@ class FlowyRenderPlugin extends FlowyRenderPluginService {
     if (builder != null && builder.nodeValidator(node)) {
       final key = GlobalKey(debugLabel: name);
       node.key = key;
-      return _wrap(
-        builder.build(context),
-        context,
-      );
+      return _autoUpdateNodeWidget(builder, context);
     } else {
       assert(false, 'Could not query the builder with this $name');
       // TODO: return a placeholder widget with tips.
@@ -87,14 +84,14 @@ class FlowyRenderPlugin extends FlowyRenderPluginService {
   }
 
   @override
-  void register(String name, NodeWidgetBuilder<Node> builder) {
+  void register(String name, NodeWidgetBuilder builder) {
     debugPrint('[Plugins] registering $name...');
     _validatePlugin(name);
     _builders[name] = builder;
   }
 
   @override
-  void registerAll(Map<String, NodeWidgetBuilder<Node>> builders) {
+  void registerAll(Map<String, NodeWidgetBuilder> builders) {
     builders.forEach(register);
   }
 
@@ -104,18 +101,35 @@ class FlowyRenderPlugin extends FlowyRenderPluginService {
     _builders.remove(name);
   }
 
-  Widget _wrap(Widget widget, NodeWidgetContext context) {
+  Widget _autoUpdateNodeWidget(
+      NodeWidgetBuilder builder, NodeWidgetContext context) {
+    Widget notifier;
+    if (context.node is TextNode) {
+      notifier = ChangeNotifierProvider.value(
+          value: context.node as TextNode,
+          builder: (_, child) {
+            return Consumer<TextNode>(
+              builder: ((_, value, child) {
+                debugPrint('Text Node is rebuilding...');
+                return builder.build(context);
+              }),
+            );
+          });
+    } else {
+      notifier = ChangeNotifierProvider.value(
+          value: context.node,
+          builder: (_, child) {
+            return Consumer<Node>(
+              builder: ((_, value, child) {
+                debugPrint('Node is rebuilding...');
+                return builder.build(context);
+              }),
+            );
+          });
+    }
     return CompositedTransformTarget(
       link: context.node.layerLink,
-      child: ChangeNotifierProvider<Node>.value(
-        value: context.node,
-        builder: (context, child) => Consumer(
-          builder: ((context, value, child) {
-            debugPrint('Node is rebuilding...');
-            return widget;
-          }),
-        ),
-      ),
+      child: notifier,
     );
   }
 
