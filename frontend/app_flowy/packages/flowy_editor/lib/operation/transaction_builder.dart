@@ -75,6 +75,19 @@ class TransactionBuilder {
         Selection.collapsed(Position(path: node.path, offset: index));
   }
 
+  replaceText(TextNode node, int index, int length, String content) {
+    textEdit(
+      node,
+      () => Delta().retain(index).delete(length).insert(content),
+    );
+    afterSelection = Selection.collapsed(
+      Position(
+        path: node.path,
+        offset: index + content.length,
+      ),
+    );
+  }
+
   add(Operation op) {
     final Operation? last = operations.isEmpty ? null : operations.last;
     if (last != null) {

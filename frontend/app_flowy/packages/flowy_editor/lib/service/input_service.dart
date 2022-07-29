@@ -97,6 +97,7 @@ class _FlowyInputState extends State<FlowyInput>
         _applyInsert(delta);
       } else if (delta is TextEditingDeltaDeletion) {
       } else if (delta is TextEditingDeltaReplacement) {
+        _applyReplacement(delta);
       } else if (delta is TextEditingDeltaNonTextUpdate) {
         // We don't need to care the [TextEditingDeltaNonTextUpdate].
         // Do nothing.
@@ -119,6 +120,25 @@ class _FlowyInputState extends State<FlowyInput>
           delta.insertionOffset,
           delta.textInserted,
         )
+        ..commit();
+    } else {
+      // TODO: implement
+    }
+  }
+
+  void _applyReplacement(TextEditingDeltaReplacement delta) {
+    final selectionService = _editorState.service.selectionService;
+    final currentSelection = selectionService.currentSelection;
+    if (currentSelection == null) {
+      return;
+    }
+    if (currentSelection.isSingle) {
+      final textNode =
+          selectionService.currentSelectedNodes.value.first as TextNode;
+      final length = delta.replacedRange.end - delta.replacedRange.start;
+      TransactionBuilder(_editorState)
+        ..replaceText(
+            textNode, delta.replacedRange.start, length, delta.replacementText)
         ..commit();
     } else {
       // TODO: implement
