@@ -22,6 +22,11 @@ mixin DefaultSelectable {
   Selection getSelectionInRange(Offset start, Offset end) =>
       forward.getSelectionInRange(start, end);
 
+  Offset localToGlobal(Offset offset) => forward.localToGlobal(offset);
+
+  Selection? getWorldBoundaryInOffset(Offset offset) =>
+      forward.getWorldBoundaryInOffset(offset);
+
   Position start() => forward.start();
 
   Position end() => forward.end();

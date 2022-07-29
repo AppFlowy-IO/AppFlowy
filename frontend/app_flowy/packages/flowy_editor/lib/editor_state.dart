@@ -38,7 +38,22 @@ class EditorState {
   final service = FlowyService();
 
   final UndoManager undoManager = UndoManager();
-  Selection? cursorSelection;
+  Selection? _cursorSelection;
+
+  Selection? get cursorSelection {
+    return _cursorSelection;
+  }
+
+  /// add the set reason in the future, don't use setter
+  updateCursorSelection(Selection? cursorSelection) {
+    // broadcast to other users here
+    if (cursorSelection == null) {
+      service.selectionService.clearSelection();
+    } else {
+      service.selectionService.updateSelection(cursorSelection);
+    }
+    _cursorSelection = cursorSelection;
+  }
 
   Timer? _debouncedSealHistoryItemTimer;
 
@@ -74,7 +89,7 @@ class EditorState {
     for (final op in transaction.operations) {
       _applyOperation(op);
     }
-    cursorSelection = transaction.afterSelection;
+    updateCursorSelection(transaction.afterSelection);
 
     if (options.recordUndo) {
       final undoItem = undoManager.getUndoHistoryItem();

@@ -1,15 +1,17 @@
-import 'package:flowy_editor/document/path.dart';
+import 'dart:async';
+
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
+import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/render/selection/cursor_widget.dart';
 import 'package:flowy_editor/render/selection/flowy_selection_widget.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';
 import 'package:flowy_editor/extensions/node_extensions.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flowy_editor/service/shortcut_service.dart';
 import 'package:flowy_editor/editor_state.dart';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 /// Process selection and cursor
@@ -27,6 +29,10 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
 
   ///
   void clearSelection();
+
+  List<Rect> rects();
+
+  Position? hitTest(Offset? offset);
 
   ///
   List<Node> getNodesInSelection(Selection selection);
@@ -50,7 +56,7 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
   /// [start] is the offset under the global coordinate system.
   Node? computeNodeInOffset(Node node, Offset offset);
 
-  /// Return the [Node]s in multiple selection. Emtpy list would be returned
+  /// Return the [Node]s in multiple selection. Empty list would be returned
   ///   if no nodes are in range.
   ///
   /// [start] is the offset under the global coordinate system.
@@ -95,6 +101,92 @@ class FlowySelection extends StatefulWidget {
   State<FlowySelection> createState() => _FlowySelectionState();
 }
 
+/// Because the flutter's [DoubleTapGestureRecognizer] will block the [TapGestureRecognizer]
+/// for a while. So we need to implement our own GestureDetector.
+@immutable
+class _SelectionGestureDetector extends StatefulWidget {
+  const _SelectionGestureDetector(
+      {Key? key,
+      this.child,
+      this.onTapDown,
+      this.onDoubleTapDown,
+      this.onPanStart,
+      this.onPanUpdate,
+      this.onPanEnd})
+      : super(key: key);
+
+  @override
+  State<_SelectionGestureDetector> createState() =>
+      _SelectionGestureDetectorState();
+
+  final Widget? child;
+
+  final GestureTapDownCallback? onTapDown;
+  final GestureTapDownCallback? onDoubleTapDown;
+  final GestureDragStartCallback? onPanStart;
+  final GestureDragUpdateCallback? onPanUpdate;
+  final GestureDragEndCallback? onPanEnd;
+}
+
+class _SelectionGestureDetectorState extends State<_SelectionGestureDetector> {
+  bool _isDoubleTap = false;
+  Timer? _doubleTapTimer;
+  @override
+  Widget build(BuildContext context) {
+    return RawGestureDetector(
+      behavior: HitTestBehavior.translucent,
+      gestures: {
+        PanGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
+          () => PanGestureRecognizer(),
+          (recognizer) {
+            recognizer
+              ..onStart = widget.onPanStart
+              ..onUpdate = widget.onPanUpdate
+              ..onEnd = widget.onPanEnd;
+          },
+        ),
+        TapGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+          () => TapGestureRecognizer(),
+          (recognizer) {
+            recognizer.onTapDown = _tapDownDelegate;
+          },
+        ),
+      },
+      child: widget.child,
+    );
+  }
+
+  _tapDownDelegate(TapDownDetails tapDownDetails) {
+    if (_isDoubleTap) {
+      _isDoubleTap = false;
+      _doubleTapTimer?.cancel();
+      _doubleTapTimer = null;
+      if (widget.onDoubleTapDown != null) {
+        widget.onDoubleTapDown!(tapDownDetails);
+      }
+    } else {
+      if (widget.onTapDown != null) {
+        widget.onTapDown!(tapDownDetails);
+      }
+
+      _isDoubleTap = true;
+      _doubleTapTimer?.cancel();
+      _doubleTapTimer = Timer(kDoubleTapTimeout, () {
+        _isDoubleTap = false;
+        _doubleTapTimer = null;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _doubleTapTimer?.cancel();
+    super.dispose();
+  }
+}
+
 class _FlowySelectionState extends State<FlowySelection>
     with FlowySelectionService, WidgetsBindingObserver {
   final _cursorKey = GlobalKey(debugLabel: 'cursor');
@@ -109,6 +201,8 @@ class _FlowySelectionState extends State<FlowySelection>
 
   /// Tap
   Offset? tapOffset;
+
+  final List<Rect> _rects = [];
 
   EditorState get editorState => widget.editorState;
 
@@ -146,33 +240,24 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   Widget build(BuildContext context) {
-    return RawGestureDetector(
-      behavior: HitTestBehavior.translucent,
-      gestures: {
-        PanGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
-          () => PanGestureRecognizer(),
-          (recognizer) {
-            recognizer
-              ..onStart = _onPanStart
-              ..onUpdate = _onPanUpdate
-              ..onEnd = _onPanEnd;
-          },
-        ),
-        TapGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-          () => TapGestureRecognizer(),
-          (recognizer) {
-            recognizer.onTapDown = _onTapDown;
-          },
-        ),
-      },
+    return _SelectionGestureDetector(
+      onPanStart: _onPanStart,
+      onPanUpdate: _onPanUpdate,
+      onPanEnd: _onPanEnd,
+      onTapDown: _onTapDown,
+      onDoubleTapDown: _onDoubleTapDown,
       child: widget.child,
     );
   }
 
   @override
+  List<Rect> rects() {
+    return _rects;
+  }
+
+  @override
   void updateSelection(Selection selection) {
+    _rects.clear();
     _clearSelection();
 
     // cursor
@@ -267,6 +352,22 @@ class _FlowySelectionState extends State<FlowySelection>
     return false;
   }
 
+  void _onDoubleTapDown(TapDownDetails details) {
+    final offset = details.globalPosition;
+    final nodes = getNodesInRange(offset);
+    if (nodes.isEmpty) {
+      editorState.updateCursorSelection(null);
+      return;
+    }
+    final selectable = nodes.first.selectable;
+    if (selectable == null) {
+      editorState.updateCursorSelection(null);
+      return;
+    }
+    editorState
+        .updateCursorSelection(selectable.getWorldBoundaryInOffset(offset));
+  }
+
   void _onTapDown(TapDownDetails details) {
     // clear old state.
     panStartOffset = null;
@@ -274,16 +375,32 @@ class _FlowySelectionState extends State<FlowySelection>
 
     tapOffset = details.globalPosition;
 
-    final nodes = getNodesInRange(tapOffset!);
-    if (nodes.isNotEmpty) {
-      assert(nodes.length == 1);
-      final selectable = nodes.first.selectable;
-      if (selectable != null) {
-        final position = selectable.getPositionInOffset(tapOffset!);
-        final selection = Selection.collapsed(position);
-        updateSelection(selection);
-      }
+    final position = hitTest(tapOffset);
+    if (position == null) {
+      return;
     }
+    final selection = Selection.collapsed(position);
+    editorState.updateCursorSelection(selection);
+  }
+
+  @override
+  Position? hitTest(Offset? offset) {
+    if (offset == null) {
+      editorState.updateCursorSelection(null);
+      return null;
+    }
+    final nodes = getNodesInRange(offset);
+    if (nodes.isEmpty) {
+      editorState.updateCursorSelection(null);
+      return null;
+    }
+    assert(nodes.length == 1);
+    final selectable = nodes.first.selectable;
+    if (selectable == null) {
+      editorState.updateCursorSelection(null);
+      return null;
+    }
+    return selectable.getPositionInOffset(offset);
   }
 
   void _onPanStart(DragStartDetails details) {
@@ -314,7 +431,7 @@ class _FlowySelectionState extends State<FlowySelection>
       final selection = Selection(
           start: isDownward ? start : end, end: isDownward ? end : start);
       debugPrint('[_onPanUpdate] $selection');
-      updateSelection(selection);
+      editorState.updateCursorSelection(selection);
     }
   }
 
@@ -385,6 +502,7 @@ class _FlowySelectionState extends State<FlowySelection>
       final rects = selectable.getRectsInSelection(newSelection);
 
       for (final rect in rects) {
+        _rects.add(_transformRectToGlobal(selectable, rect));
         final overlay = OverlayEntry(
           builder: ((context) => SelectionWidget(
                 color: widget.selectionColor,
@@ -397,6 +515,11 @@ class _FlowySelectionState extends State<FlowySelection>
       index += 1;
     }
     Overlay.of(context)?.insertAll(_selectionOverlays);
+  }
+
+  Rect _transformRectToGlobal(Selectable selectable, Rect r) {
+    final Offset topLeft = selectable.localToGlobal(Offset(r.left, r.top));
+    return Rect.fromLTWH(topLeft.dx, topLeft.dy, r.width, r.height);
   }
 
   void _updateCursor(Position position) {
@@ -413,6 +536,7 @@ class _FlowySelectionState extends State<FlowySelection>
     final selectable = node.selectable;
     final rect = selectable?.getCursorRectInPosition(position);
     if (rect != null) {
+      _rects.add(_transformRectToGlobal(selectable!, rect));
       final cursor = OverlayEntry(
         builder: ((context) => CursorWidget(
               key: _cursorKey,
@@ -423,7 +547,13 @@ class _FlowySelectionState extends State<FlowySelection>
       );
       _cursorOverlays.add(cursor);
       Overlay.of(context)?.insertAll(_cursorOverlays);
+      _forceShowCursor();
     }
+  }
+
+  _forceShowCursor() {
+    final currentState = _cursorKey.currentState as CursorWidgetState?;
+    currentState?.show();
   }
 
   List<Node> _selectedNodesInSelection(Node node, Selection selection) {

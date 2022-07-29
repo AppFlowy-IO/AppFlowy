@@ -11,16 +11,10 @@ import 'package:flowy_editor/document/selection.dart';
 import './operation.dart';
 import './transaction.dart';
 
-///
-/// This class is used to
-/// build the transaction from the state.
-///
-/// This class automatically save the
-/// cursor from the state.
-///
-/// When the transaction is undo, the
-/// cursor can be restored.
-///
+/// A [TransactionBuilder] is used to build the transaction from the state.
+/// It will save make a snapshot of the cursor selection state automatically.
+/// The cursor can be resoted if the transaction is undo.
+
 class TransactionBuilder {
   final List<Operation> operations = [];
   EditorState state;
@@ -95,6 +89,9 @@ class TransactionBuilder {
         operations[operations.length - 1] = newOp;
         return;
       }
+    }
+    for (var i = 0; i < operations.length; i++) {
+      op = transformOperation(operations[i], op);
     }
     operations.add(op);
   }
