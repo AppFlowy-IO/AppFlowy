@@ -1,10 +1,4 @@
 import 'dart:async';
-import 'package:flowy_editor/render/rich_text/bulleted_list_text.dart';
-import 'package:flowy_editor/render/rich_text/checkbox_text.dart';
-import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
-import 'package:flowy_editor/render/rich_text/heading_text.dart';
-import 'package:flowy_editor/render/rich_text/number_list_text.dart';
-import 'package:flowy_editor/render/rich_text/quoted_text.dart';
 import 'package:flowy_editor/service/service.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +8,6 @@ import 'package:flowy_editor/document/state_tree.dart';
 import 'package:flowy_editor/operation/operation.dart';
 import 'package:flowy_editor/operation/transaction.dart';
 import 'package:flowy_editor/undo_manager.dart';
-import 'package:flowy_editor/render/render_plugins.dart';
 
 class ApplyOptions {
   /// This flag indicates that
@@ -30,7 +23,6 @@ class ApplyOptions {
 
 class EditorState {
   final StateTree document;
-  final RenderPlugins renderPlugins;
 
   List<Node> selectedNodes = [];
 
@@ -59,29 +51,8 @@ class EditorState {
 
   EditorState({
     required this.document,
-    required this.renderPlugins,
   }) {
-    // FIXME: abstract render plugins as a service.
-    renderPlugins.register('text', RichTextNodeWidgetBuilder.create);
-    renderPlugins.register('text/checkbox', CheckboxNodeWidgetBuilder.create);
-    renderPlugins.register('text/heading', HeadingTextNodeWidgetBuilder.create);
-    renderPlugins.register(
-        'text/bullet-list', BulletedListTextNodeWidgetBuilder.create);
-    renderPlugins.register(
-        'text/number-list', NumberListTextNodeWidgetBuilder.create);
-    renderPlugins.register('text/quote', QuotedTextNodeWidgetBuilder.create);
     undoManager.state = this;
-  }
-
-  /// TODO: move to a better place.
-  Widget build(BuildContext context) {
-    return renderPlugins.buildWidget(
-      context: NodeWidgetContext(
-        buildContext: context,
-        node: document.root,
-        editorState: this,
-      ),
-    );
   }
 
   apply(Transaction transaction,

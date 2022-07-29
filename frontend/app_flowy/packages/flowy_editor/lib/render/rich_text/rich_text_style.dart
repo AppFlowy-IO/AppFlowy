@@ -32,7 +32,7 @@ class StyleKey {
   static String code = 'code';
 
   static String subtype = 'subtype';
-  static String checkbox = 'checkbox';
+  static String check = 'checkbox';
   static String heading = 'heading';
 }
 
@@ -63,10 +63,7 @@ extension NodeAttributesExtensions on Attributes {
   }
 
   bool get quote {
-    if (containsKey(StyleKey.quote) && this[StyleKey.quote] == true) {
-      return this[StyleKey.quote];
-    }
-    return false;
+    return containsKey(StyleKey.quote);
   }
 
   Color? get quoteColor {
@@ -104,9 +101,9 @@ extension NodeAttributesExtensions on Attributes {
     return false;
   }
 
-  bool get checkbox {
-    if (containsKey(StyleKey.checkbox) && this[StyleKey.checkbox] is bool) {
-      return this[StyleKey.checkbox];
+  bool get check {
+    if (containsKey(StyleKey.check) && this[StyleKey.check] is bool) {
+      return this[StyleKey.check];
     }
     return false;
   }

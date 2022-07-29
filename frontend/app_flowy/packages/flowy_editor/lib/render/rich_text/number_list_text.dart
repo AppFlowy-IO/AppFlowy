@@ -1,28 +1,27 @@
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/infra/flowy_svg.dart';
-import 'package:flowy_editor/render/node_widget_builder.dart';
 import 'package:flowy_editor/render/rich_text/default_selectable.dart';
 import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
+import 'package:flowy_editor/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 
-class NumberListTextNodeWidgetBuilder extends NodeWidgetBuilder {
-  NumberListTextNodeWidgetBuilder.create({
-    required super.editorState,
-    required super.node,
-    required super.key,
-  }) : super.create();
-
+class NumberListTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(NodeWidgetContext<TextNode> context) {
     return NumberListTextNodeWidget(
-      key: key,
-      textNode: node as TextNode,
-      editorState: editorState,
+      key: context.node.key,
+      textNode: context.node,
+      editorState: context.editorState,
     );
   }
+
+  @override
+  NodeValidator<Node> get nodeValidator => ((node) {
+        return node.attributes.number != null;
+      });
 }
 
 class NumberListTextNodeWidget extends StatefulWidget {

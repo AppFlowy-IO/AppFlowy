@@ -2,30 +2,27 @@ import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/infra/flowy_svg.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
-import 'package:flowy_editor/render/node_widget_builder.dart';
-import 'package:flowy_editor/render/render_plugins.dart';
 import 'package:flowy_editor/render/rich_text/default_selectable.dart';
 import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
-import 'package:flowy_editor/extensions/object_extensions.dart';
+import 'package:flowy_editor/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 
-class CheckboxNodeWidgetBuilder extends NodeWidgetBuilder {
-  CheckboxNodeWidgetBuilder.create({
-    required super.editorState,
-    required super.node,
-    required super.key,
-  }) : super.create();
-
+class CheckboxNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(NodeWidgetContext<TextNode> context) {
     return CheckboxNodeWidget(
-      key: key,
-      textNode: node as TextNode,
-      editorState: editorState,
+      key: context.node.key,
+      textNode: context.node,
+      editorState: context.editorState,
     );
   }
+
+  @override
+  NodeValidator<Node> get nodeValidator => ((node) {
+        return node.attributes.containsKey(StyleKey.check);
+      });
 }
 
 class CheckboxNodeWidget extends StatefulWidget {
@@ -67,7 +64,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
   }
 
   Widget _buildWithSingle(BuildContext context) {
-    final check = widget.textNode.attributes.checkbox;
+    final check = widget.textNode.attributes.check;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -107,9 +104,10 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
             Column(
               children: widget.textNode.children
                   .map(
-                    (child) => widget.editorState.renderPlugins.buildWidget(
-                      context: NodeWidgetContext(
-                        buildContext: context,
+                    (child) => widget.editorState.service.renderPluginService
+                        .buildPluginWidget(
+                      NodeWidgetContext(
+                        context: context,
                         node: child,
                         editorState: widget.editorState,
                       ),

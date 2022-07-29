@@ -4,29 +4,27 @@ import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/document/path.dart';
-import 'package:flowy_editor/render/node_widget_builder.dart';
-import 'package:flowy_editor/render/render_plugins.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
+import 'package:flowy_editor/service/render_plugin_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-class RichTextNodeWidgetBuilder extends NodeWidgetBuilder {
-  RichTextNodeWidgetBuilder.create({
-    required super.editorState,
-    required super.node,
-    required super.key,
-  }) : super.create();
-
+class RichTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
-  Widget build(BuildContext context) {
+  Widget build(NodeWidgetContext<TextNode> context) {
     return FlowyRichText(
-      key: key,
-      textNode: node as TextNode,
-      editorState: editorState,
+      key: context.node.key,
+      textNode: context.node,
+      editorState: context.editorState,
     );
   }
+
+  @override
+  NodeValidator<Node> get nodeValidator => ((node) {
+        return true;
+      });
 }
 
 typedef FlowyTextSpanDecorator = TextSpan Function(TextSpan textSpan);
@@ -152,9 +150,10 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
         _buildSingleRichText(context),
         ...widget.textNode.children
             .map(
-              (child) => widget.editorState.renderPlugins.buildWidget(
-                context: NodeWidgetContext(
-                  buildContext: context,
+              (child) => widget.editorState.service.renderPluginService
+                  .buildPluginWidget(
+                NodeWidgetContext(
+                  context: context,
                   node: child,
                   editorState: widget.editorState,
                 ),
