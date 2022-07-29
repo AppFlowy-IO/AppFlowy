@@ -1,40 +1,37 @@
-import 'package:flowy_editor/document/position.dart';
-import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 
-class ImageNodeBuilder extends NodeWidgetBuilder {
-  ImageNodeBuilder.create({
-    required super.node,
-    required super.editorState,
-    required super.key,
-  }) : super.create();
-
+class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
   @override
-  Widget build(BuildContext context) {
-    return _ImageNodeWidget(
-      key: key,
-      node: node,
-      editorState: editorState,
+  Widget build(NodeWidgetContext<Node> context) {
+    return ImageNodeWidget(
+      key: context.node.key,
+      node: context.node,
+      editorState: context.editorState,
     );
   }
+
+  @override
+  NodeValidator<Node> get nodeValidator => ((node) {
+        return node.type == 'image';
+      });
 }
 
-class _ImageNodeWidget extends StatefulWidget {
+class ImageNodeWidget extends StatefulWidget {
   final Node node;
   final EditorState editorState;
 
-  const _ImageNodeWidget({
+  const ImageNodeWidget({
     Key? key,
     required this.node,
     required this.editorState,
   }) : super(key: key);
 
   @override
-  State<_ImageNodeWidget> createState() => __ImageNodeWidgetState();
+  State<ImageNodeWidget> createState() => _ImageNodeWidgetState();
 }
 
-class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
+class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
   Node get node => widget.node;
   EditorState get editorState => widget.editorState;
   String get src => widget.node.attributes['image_src'] as String;
@@ -90,23 +87,8 @@ class __ImageNodeWidgetState extends State<_ImageNodeWidget> with Selectable {
       children: [
         Image.network(
           src,
-          height: 150.0,
-        ),
-        if (node.children.isNotEmpty)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: node.children
-                .map(
-                  (e) => editorState.renderPlugins.buildWidget(
-                    context: NodeWidgetContext(
-                      buildContext: context,
-                      node: e,
-                      editorState: editorState,
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
+          width: MediaQuery.of(context).size.width,
+        )
       ],
     );
   }

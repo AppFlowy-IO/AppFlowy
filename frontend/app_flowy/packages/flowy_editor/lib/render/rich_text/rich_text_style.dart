@@ -25,12 +25,15 @@ class StyleKey {
   static String font = 'font';
   static String href = 'href';
 
-  static String heading = 'heading';
   static String quote = 'quote';
   static String list = 'list';
   static String number = 'number';
   static String todo = 'todo';
   static String code = 'code';
+
+  static String subtype = 'subtype';
+  static String check = 'checkbox';
+  static String heading = 'heading';
 }
 
 double baseFontSize = 16.0;
@@ -60,10 +63,7 @@ extension NodeAttributesExtensions on Attributes {
   }
 
   bool get quote {
-    if (containsKey(StyleKey.quote) && this[StyleKey.quote] == true) {
-      return this[StyleKey.quote];
-    }
-    return false;
+    return containsKey(StyleKey.quote);
   }
 
   Color? get quoteColor {
@@ -97,6 +97,13 @@ extension NodeAttributesExtensions on Attributes {
   bool get code {
     if (containsKey(StyleKey.code) && this[StyleKey.code] == true) {
       return this[StyleKey.code];
+    }
+    return false;
+  }
+
+  bool get check {
+    if (containsKey(StyleKey.check) && this[StyleKey.check] is bool) {
+      return this[StyleKey.check];
     }
     return false;
   }

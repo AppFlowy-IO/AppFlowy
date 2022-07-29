@@ -250,6 +250,7 @@ class _FlowySelectionState extends State<FlowySelection>
     );
   }
 
+  @override
   List<Rect> rects() {
     return _rects;
   }

@@ -68,7 +68,7 @@
           { "insert": " your ", "attributes": { "bold": true } },
           { "insert": "writing", "attributes": { "underline": true } },
           {
-            "insert": " howeverv you like.",
+            "insert": " however you like.",
             "attributes": { "strikethrough": true }
           }
         ],

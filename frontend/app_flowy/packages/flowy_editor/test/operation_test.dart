@@ -6,7 +6,6 @@ import 'package:flowy_editor/operation/operation.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/document/state_tree.dart';
-import 'package:flowy_editor/render/render_plugins.dart';
 
 void main() {
   group('transform path', () {
@@ -64,8 +63,7 @@ void main() {
             item2,
             item3,
           ]));
-    final state = EditorState(
-        document: StateTree(root: root), renderPlugins: RenderPlugins());
+    final state = EditorState(document: StateTree(root: root));
 
     expect(item1.path, [0]);
     expect(item2.path, [1]);

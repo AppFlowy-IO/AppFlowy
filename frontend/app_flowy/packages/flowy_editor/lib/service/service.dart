@@ -1,3 +1,4 @@
+import 'package:flowy_editor/service/render_plugin_service.dart';
 import 'package:flowy_editor/service/shortcut_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,9 @@ class FlowyService {
 
   // input service
   final inputServiceKey = GlobalKey(debugLabel: 'flowy_input_service');
+
+  // render plugin service
+  late FlowyRenderPlugin renderPluginService;
 
   // floating shortcut service
   final floatingShortcutServiceKey =

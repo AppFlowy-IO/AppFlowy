@@ -4,9 +4,20 @@
     "attributes": {},
     "children": [
       {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "quote"
+        }
+      },
+      {
         "type": "image",
         "attributes": {
-          "image_src": "https://images.pexels.com/photos/2253275/pexels-photo-2253275.jpeg?cs=srgb&dl=pexels-helena-lopes-2253275.jpg&fm=jpg"
+          "image_src": "https://s1.ax1x.com/2022/07/28/vCgz1x.png"
         }
       },
       {
@@ -17,6 +28,7 @@
           }
         ],
         "attributes": {
+          "subtype": "heading",
           "heading": "h1"
         }
       },
@@ -28,8 +40,17 @@
           }
         ],
         "attributes": {
+          "subtype": "heading",
           "heading": "h2"
         }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
+          }
+        ]
       },
       {
         "type": "text",
@@ -39,6 +60,7 @@
           }
         ],
         "attributes": {
+          "subtype": "heading",
           "heading": "h3"
         }
       },
@@ -48,11 +70,7 @@
           { "insert": "Click " },
           { "insert": "anywhere", "attributes": { "underline": true } },
           { "insert": " and just typing." }
-        ],
-        "attributes": {
-          "list": "todo",
-          "todo": true
-        }
+        ]
       },
       {
         "type": "text",
@@ -67,11 +85,7 @@
           {
             "insert": "to see all the types of content you can add - entity, headers, videos, sub pages, etc."
           }
-        ],
-        "attributes": {
-          "list": "todo",
-          "todo": true
-        }
+        ]
       },
       {
         "type": "text",
@@ -83,20 +97,17 @@
           { "insert": " your ", "attributes": { "italic": true } },
           { "insert": "writing", "attributes": { "strikethrough": true } },
           { "insert": "." }
-        ],
-        "attributes": {
-          "list": "todo",
-          "todo": true
-        }
+        ]
       },
       {
         "type": "text",
         "delta": [
           {
-            "insert": "Here are the examples:"
+            "insert": "Here are the plugins:"
           }
         ],
         "attributes": {
+          "subtype": "heading",
           "heading": "h3"
         }
       },
@@ -108,7 +119,8 @@
           }
         ],
         "attributes": {
-          "list": "bullet"
+          "subtype": "checkbox",
+          "checkbox": false
         }
       },
       {
@@ -119,7 +131,8 @@
           }
         ],
         "attributes": {
-          "list": "bullet"
+          "subtype": "checkbox",
+          "checkbox": false
         }
       },
       {
@@ -130,7 +143,8 @@
           }
         ],
         "attributes": {
-          "list": "bullet"
+          "subtype": "checkbox",
+          "checkbox": false
         }
       },
       {
@@ -141,7 +155,7 @@
           }
         ],
         "attributes": {
-          "quote": true
+          "subtype": "bullet-list"
         }
       },
       {
@@ -152,7 +166,7 @@
           }
         ],
         "attributes": {
-          "quote": true
+          "subtype": "bullet-list"
         }
       },
       {
@@ -163,6 +177,51 @@
           }
         ],
         "attributes": {
+          "subtype": "bullet-list"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "quote"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "quote"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "quote"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "number-list",
           "number": 1
         }
       },
@@ -174,6 +233,7 @@
           }
         ],
         "attributes": {
+          "subtype": "number-list",
           "number": 2
         }
       },
@@ -185,6 +245,7 @@
           }
         ],
         "attributes": {
+          "subtype": "number-list",
           "number": 3
         }
       }
