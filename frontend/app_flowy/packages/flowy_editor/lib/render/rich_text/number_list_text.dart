@@ -44,7 +44,7 @@ class NumberListTextNodeWidget extends StatefulWidget {
 
 class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     with Selectable, DefaultSelectable {
-  final _richTextKey = GlobalKey(debugLabel: 'heading_text');
+  final _richTextKey = GlobalKey(debugLabel: 'number_list_text');
   final leftPadding = 20.0;
 
   @override
