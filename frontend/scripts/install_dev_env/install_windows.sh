@@ -50,8 +50,9 @@ fi
 printMessage "Setting up Flutter"
 flutter channel stable
 
-# Add pub cache to PATH
+# Add pub cache and cargo to PATH
 powershell '[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + ";" + $Env:LOCALAPPDATA + "\Pub\Cache\Bin", [EnvironmentVariableTarget]::User)'
+powershell '[Environment]::SetEnvironmentVariable("PATH", $Env:PATH + ";" + $Env:USERPROFILE + "\.cargo\bin", [EnvironmentVariableTarget]::User)'
 
 # Enable linux desktop
 flutter config --enable-windows-desktop
@@ -91,4 +92,4 @@ vcpkg integrate install
 
 # Check prerequisites
 printMessage "Checking prerequisites."
-$USERPROFILE/.cargo/bin/cargo make flowy_dev
+PATH="$PATH;$LOCALAPPDATA/Pub/Cache/Bin" $USERPROFILE/.cargo/bin/cargo make flowy_dev
