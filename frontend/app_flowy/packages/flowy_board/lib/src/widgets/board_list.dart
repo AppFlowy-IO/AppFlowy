@@ -14,8 +14,7 @@ typedef OnDragEnded = void Function(String listId);
 typedef OnReorder = void Function(String listId, int fromIndex, int toIndex);
 typedef OnDeleted = void Function(String listId, int deletedIndex);
 typedef OnInserted = void Function(String listId, int insertedIndex);
-typedef OnWillInsert = void Function(String listId, int insertedIndex,
-    BoardListItem item, Widget? draggingWidget);
+typedef OnWillInsert = void Function(String listId, int insertedIndex, BoardListItem item, Widget? draggingWidget);
 
 class BoardListData extends ChangeNotifier with EquatableMixin {
   final String id;
@@ -55,13 +54,11 @@ class BoardListData extends ChangeNotifier with EquatableMixin {
 
   /// Insert the [Phantom] at [insertedIndex] and remove the existing [Phantom]
   /// if it exists.
-  void insertPhantom(
-      int insertedIndex, BoardListItem listItem, Widget? draggingWidget) {
+  void insertPhantom(int insertedIndex, BoardListItem listItem, Widget? draggingWidget) {
     final index = _items.indexWhere((item) => item.isPhantom);
     if (index != -1) {
       if (index != insertedIndex) {
-        Log.debug(
-            '[Phantom] Move phantom from $id:$index to $id:$insertedIndex');
+        Log.debug('[Phantom] Move phantom from $id:$index to $id:$insertedIndex');
 
         move(index, insertedIndex);
 
@@ -121,14 +118,12 @@ class BoardListPhantomItem extends BoardListItem {
   String get id => inner.id;
 }
 
-typedef BoardListItemWidgetBuilder = Widget Function(
-    BuildContext context, BoardListItem item);
+typedef BoardListItemWidgetBuilder = Widget Function(BuildContext context, BoardListItem item);
 
 class BoardList extends StatefulWidget {
   final Widget? header;
   final Widget? footer;
   final BoardListData listData;
-  final BoardListItemWidgetBuilder builder;
   final ScrollController? scrollController;
   final BoardListConfig config;
   final OnDragStarted? onDragStarted;
@@ -139,13 +134,14 @@ class BoardList extends StatefulWidget {
   final OnWillInsert onWillInserted;
 
   String get listId => listData.id;
+  final BoardListItemWidgetBuilder _builder;
 
-  const BoardList({
+  BoardList({
     Key? key,
     this.header,
     this.footer,
     required this.listData,
-    required this.builder,
+    required BoardListItemWidgetBuilder builder,
     this.scrollController,
     this.config = const BoardListConfig(),
     this.onDragStarted,
@@ -154,7 +150,19 @@ class BoardList extends StatefulWidget {
     required this.onDeleted,
     required this.onInserted,
     required this.onWillInserted,
-  }) : super(key: key);
+  })  : _builder = ((BuildContext context, BoardListItem item) {
+          if (item is BoardListPhantomItem) {
+            final child = builder(context, item.inner);
+            return PhantomWidget(
+              key: child.key,
+              opacity: config.draggingWidgetOpacity,
+              child: child,
+            );
+          } else {
+            return builder(context, item);
+          }
+        }),
+        super(key: key);
 
   @override
   State<BoardList> createState() => _BoardListState();
@@ -169,9 +177,7 @@ class _BoardListState extends State<BoardList> {
   void initState() {
     _overlayEntry = BoardOverlayEntry(
         builder: (BuildContext context) {
-          final children = widget.listData.items
-              .map((item) => widget.builder(context, item))
-              .toList();
+          final children = widget.listData.items.map((item) => widget._builder(context, item)).toList();
 
           return BoardListContentWidget(
             key: widget.key,
@@ -203,18 +209,7 @@ class _BoardListState extends State<BoardList> {
               );
             },
             listData: widget.listData,
-            builder: (context, item) {
-              if (item is BoardListPhantomItem) {
-                final child = widget.builder(context, item.inner);
-                return PhantomWidget(
-                  key: child.key,
-                  opacity: widget.config.draggingWidgetOpacity,
-                  child: child,
-                );
-              } else {
-                return widget.builder(context, item);
-              }
-            },
+            builder: widget._builder,
             children: children,
           );
         },

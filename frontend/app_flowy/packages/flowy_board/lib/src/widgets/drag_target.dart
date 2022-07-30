@@ -57,7 +57,7 @@ class _BoardDragTargetState extends State<BoardDragTarget> {
 
   @override
   Widget build(BuildContext context) {
-    Widget dragTarget = DragTarget<DraggingData>(
+    Widget dragTarget = DragTarget<DraggingContext>(
       builder: _buildDraggableWidget,
       onWillAccept: (draggingData) {
         assert(draggingData != null);
@@ -79,12 +79,11 @@ class _BoardDragTargetState extends State<BoardDragTarget> {
 
   Widget _buildDraggableWidget(
     BuildContext context,
-    List<DraggingData?> acceptedCandidates,
+    List<DraggingContext?> acceptedCandidates,
     List<dynamic> rejectedCandidates,
   ) {
     Widget feedbackBuilder = Builder(builder: (BuildContext context) {
-      BoxConstraints contentSizeConstraints =
-          BoxConstraints.loose(_draggingFeedbackSize!);
+      BoxConstraints contentSizeConstraints = BoxConstraints.loose(_draggingFeedbackSize!);
       return _buildDraggableFeedback(
         context,
         contentSizeConstraints,
@@ -115,8 +114,7 @@ class _BoardDragTargetState extends State<BoardDragTarget> {
       // When the drag does not end inside a DragTarget widget, the
       // drag fails, but we still reorder the widget to the last position it
       // had been dragged to.
-      onDraggableCanceled: (Velocity velocity, Offset offset) =>
-          widget.onDragEnded(),
+      onDraggableCanceled: (Velocity velocity, Offset offset) => widget.onDragEnded(),
       child: widget.child,
     );
   }
@@ -131,8 +129,7 @@ class _BoardDragTargetState extends State<BoardDragTarget> {
     );
   }
 
-  Widget _buildDraggableFeedback(
-      BuildContext context, BoxConstraints constraints, Widget child) {
+  Widget _buildDraggableFeedback(BuildContext context, BoxConstraints constraints, Widget child) {
     return Transform(
       transform: Matrix4.rotationZ(0),
       alignment: FractionalOffset.topLeft,
@@ -167,10 +164,8 @@ class DragAnimationController {
     required TickerProvider vsync,
     required void Function(AnimationStatus) entranceAnimateStatusChanged,
   }) {
-    entranceController = AnimationController(
-        value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
-    phantomController = AnimationController(
-        value: 0, vsync: vsync, duration: reorderAnimationDuration);
+    entranceController = AnimationController(value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
+    phantomController = AnimationController(value: 0, vsync: vsync, duration: reorderAnimationDuration);
     entranceController.addStatusListener(entranceAnimateStatusChanged);
   }
 
@@ -250,12 +245,10 @@ class DraggingState {
     if (_draggingFeedbackSize == null) {
       return Size.zero;
     }
-    return _draggingFeedbackSize! +
-        const Offset(_dropAreaMargin, _dropAreaMargin);
+    return _draggingFeedbackSize! + const Offset(_dropAreaMargin, _dropAreaMargin);
   }
 
-  void startDragging(Widget draggingWidget, int draggingWidgetIndex,
-      Size? draggingWidgetSize) {
+  void startDragging(Widget draggingWidget, int draggingWidgetIndex, Size? draggingWidgetSize) {
     ///
     _draggingWidget = draggingWidget;
     phantomIndex = draggingWidgetIndex;
@@ -331,27 +324,31 @@ class DraggingState {
   }
 }
 
-/// [DraggingData] is used to store the custom dragging data. It can be used to
+/// [DraggingContext] is used to store the custom dragging data. It can be used to
 /// locate the index of the dragging widget in the [BoardList].
-class DraggingData {
+class DraggingContext extends DraggingData {
   /// The index of the dragging target in the boardList.
   final int dragIndex;
 
-  final DraggingState dragState;
+  final DraggingState state;
+
+  Widget? get bindWidget => state.draggingWidget;
 
   /// Indicate the dargging come from which [BoardListContentWidget].
   final BoardListContentWidget boardList;
 
-  BoardListItem get dragData => boardList.listData.items[dragIndex];
+  BoardListItem get bindData => boardList.listData.items[dragIndex];
 
   String get listId => boardList.listData.id;
 
-  DraggingData({
+  DraggingContext({
     required this.dragIndex,
-    required this.dragState,
+    required this.state,
     required this.boardList,
   });
 }
+
+abstract class DraggingData {}
 
 class PhantomData {
   int _insertedIndex = -1;
@@ -392,10 +389,8 @@ class PhantomAnimateContorller {
     required this.reorderAnimationDuration,
     required void Function(AnimationStatus) appearAnimateStatusChanged,
   }) {
-    appearController = AnimationController(
-        value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
-    disappearController = AnimationController(
-        value: 0, vsync: vsync, duration: reorderAnimationDuration);
+    appearController = AnimationController(value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
+    disappearController = AnimationController(value: 0, vsync: vsync, duration: reorderAnimationDuration);
     appearController.addStatusListener(appearAnimateStatusChanged);
   }
 

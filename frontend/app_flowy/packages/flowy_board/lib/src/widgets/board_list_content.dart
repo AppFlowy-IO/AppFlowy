@@ -5,8 +5,7 @@ typedef OnContentDragEnded = void Function();
 typedef OnContentReorder = void Function(int fromIndex, int toIndex);
 typedef OnContentDeleted = void Function(int deletedIndex);
 typedef OnContentInserted = void Function(int insertedIndex);
-typedef OnContentWillInserted = void Function(
-    int insertedIndex, BoardListItem item, Widget? draggingWidget);
+typedef OnContentWillInserted = void Function(int insertedIndex, BoardListItem item, Widget? draggingWidget);
 
 class BoardListContentWidget extends StatefulWidget {
   final Widget? header;
@@ -107,9 +106,7 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
       _attachedScrollPosition = null;
     }
 
-    _scrollController = widget.scrollController ??
-        PrimaryScrollController.of(context) ??
-        ScrollController();
+    _scrollController = widget.scrollController ?? PrimaryScrollController.of(context) ?? ScrollController();
 
     if (_scrollController.hasClients) {
       _attachedScrollPosition = Scrollable.of(context)?.position;
@@ -223,9 +220,7 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
       if (shiftedIndex == currentIndex || childIndex == dragPhantomIndex) {
         Widget dragSpace = _dragState.draggingWidget == null
             ? SizedBox.fromSize(size: _dragState.dropAreaSize)
-            : PhantomWidget(
-                opacity: widget.config.draggingWidgetOpacity,
-                child: _dragState.draggingWidget);
+            : PhantomWidget(opacity: widget.config.draggingWidgetOpacity, child: _dragState.draggingWidget);
 
         /// Return the dragTarget it is not start dragging. The size of the
         /// dragTarget will be the same as the child in the column/row.
@@ -259,9 +254,7 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
             ]);
           } else if (childIndex == dragPhantomIndex) {
             return _buildDraggingContainer(
-                children: shiftedIndex <= childIndex
-                    ? [dragTarget, disappearSpace]
-                    : [disappearSpace, dragTarget]);
+                children: shiftedIndex <= childIndex ? [dragTarget, disappearSpace] : [disappearSpace, dragTarget]);
           }
         }
 
@@ -282,9 +275,7 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
             ]);
           } else if (childIndex == dragPhantomIndex) {
             return _buildDraggingContainer(
-                children: shiftedIndex >= childIndex
-                    ? [disappearSpace, dragTarget]
-                    : [dragTarget, disappearSpace]);
+                children: shiftedIndex >= childIndex ? [disappearSpace, dragTarget] : [dragTarget, disappearSpace]);
           }
         }
 
@@ -323,17 +314,16 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
     );
   }
 
-  BoardDragTarget _buildDragTarget(
-      BuildContext builderContext, Widget child, int childIndex) {
+  BoardDragTarget _buildDragTarget(BuildContext builderContext, Widget child, int childIndex) {
     return BoardDragTarget(
-      draggingData: DraggingData(
+      draggingData: DraggingContext(
         dragIndex: childIndex,
-        dragState: _dragState,
+        state: _dragState,
         boardList: widget,
       ),
-      onDragStarted: (draggingWidget, draggingData, size) {
-        _startDragging(draggingWidget, draggingData.dragIndex, size);
-        widget.onDragStarted?.call(draggingData.dragIndex);
+      onDragStarted: (draggingWidget, draggingContext, size) {
+        _startDragging(draggingWidget, draggingContext.dragIndex, size);
+        widget.onDragStarted?.call(draggingContext.dragIndex);
       },
       onDragEnded: () {
         setState(() {
@@ -345,51 +335,50 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
           widget.onDragEnded?.call();
         });
       },
-      onWillAccept: (DraggingData draggingData) {
+      onWillAccept: (DraggingContext draggingContext) {
         Log.debug('[$BoardDragTarget] ${widget.listData.id} on will accept');
         assert(widget.listData.items.length > childIndex);
         var willAccept = true;
 
-        /// If the currentBoardList equal to the draggingData's boardList,
+        /// If the currentBoardList equal to the draggingContext's boardList,
         /// it means the dragTarget is dragging on the top of its own list.
         /// Otherwise, it means the dargTarget was moved to another list.
         ///
-        if (currentBoardList != draggingData.boardList) {
-          Log.debug(
-              'Try move List${draggingData.listId}:${draggingData.dragIndex} '
+        if (currentBoardList != draggingContext.boardList) {
+          Log.debug('Try move List${draggingContext.listId}:${draggingContext.dragIndex} '
               'to List${widget.listData.id}:$childIndex');
 
           /// The childIndex must be less than the current list length.
           if (widget.listData.items.length > childIndex) {
             widget.onWillInserted(
               childIndex,
-              draggingData.dragData,
-              draggingData.dragState.draggingWidget,
+              draggingContext.bindData,
+              draggingContext.bindWidget,
             );
           }
         } else {
-          final dragIndex = draggingData.dragIndex;
+          final dragIndex = draggingContext.dragIndex;
           willAccept = _onWillAccept(builderContext, dragIndex, childIndex);
         }
+
         return willAccept;
       },
-      onAccept: (draggingData) {
+      onAccept: (draggingContext) {
         Log.debug('[$BoardDragTarget] ${widget.listData.id} on accept');
-        if (currentBoardList != draggingData.boardList) {
+        if (currentBoardList != draggingContext.boardList) {
           /// The dragTarget was moved to another list.
-          draggingData.boardList.onDeleted(draggingData.dragIndex);
+          draggingContext.boardList.onDeleted(draggingContext.dragIndex);
           widget.onInserted(childIndex);
         }
       },
-      onLeave: (draggingData) {
+      onLeave: (draggingContext) {
         Log.debug('[$BoardDragTarget] ${widget.listData.id} on leave');
       },
       child: child,
     );
   }
 
-  void _startDragging(
-      Widget draggingWidget, int dragIndex, Size? feedbackSize) {
+  void _startDragging(Widget draggingWidget, int dragIndex, Size? feedbackSize) {
     setState(() {
       _dragState.startDragging(draggingWidget, dragIndex, feedbackSize);
       _dragAnimationController.startDargging();
@@ -399,8 +388,7 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
   bool _onWillAccept(BuildContext context, int? dragIndex, int childIndex) {
     /// The [willAccept] will be true if the dargTarget is the widget that gets
     /// dragged and it is dragged on top of the other dragTargets.
-    bool willAccept =
-        _dragState.dragStartIndex == dragIndex && dragIndex != childIndex;
+    bool willAccept = _dragState.dragStartIndex == dragIndex && dragIndex != childIndex;
 
     // Log.info("$this: acceptIndex: $toAcceptIndex, childIndex: $childIndex");
     setState(() {
@@ -429,8 +417,7 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
   }
 
   Widget _wrapScrollView({required Widget child}) {
-    if (widget.scrollController != null &&
-        PrimaryScrollController.of(context) == null) {
+    if (widget.scrollController != null && PrimaryScrollController.of(context) == null) {
       return child;
     } else {
       return SingleChildScrollView(
@@ -474,14 +461,12 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
   void _scrollTo(BuildContext context) {
     if (_scrolling) return;
     final RenderObject contextObject = context.findRenderObject()!;
-    final RenderAbstractViewport viewport =
-        RenderAbstractViewport.of(contextObject)!;
+    final RenderAbstractViewport viewport = RenderAbstractViewport.of(contextObject)!;
     // If and only if the current scroll offset falls in-between the offsets
     // necessary to reveal the selected context at the top or bottom of the
     // screen, then it is already on-screen.
-    final double margin = widget.direction == Axis.horizontal
-        ? _dragState.dropAreaSize.width
-        : _dragState.dropAreaSize.height;
+    final double margin =
+        widget.direction == Axis.horizontal ? _dragState.dropAreaSize.width : _dragState.dropAreaSize.height;
     if (_scrollController.hasClients) {
       final double scrollOffset = _scrollController.offset;
       final double topOffset = max(
@@ -492,8 +477,7 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
         _scrollController.position.maxScrollExtent,
         viewport.getOffsetToReveal(contextObject, 1.0).offset + margin,
       );
-      final bool onScreen =
-          scrollOffset <= topOffset && scrollOffset >= bottomOffset;
+      final bool onScreen = scrollOffset <= topOffset && scrollOffset >= bottomOffset;
 
       // If the context is off screen, then we request a scroll to make it visible.
       if (!onScreen) {
