@@ -32,6 +32,8 @@ String languageFromLocale(Locale locale) {
       return "Italiano";
     case "ja":
       return "日本語";
+    case "pl":
+      return "Polski";
     case "pt":
       return "Português";
     case "ru":

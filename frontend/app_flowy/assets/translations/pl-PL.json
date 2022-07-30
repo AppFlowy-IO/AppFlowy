@@ -1,0 +1,145 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Ja",
+  "welcomeText": "Witaj w @:appName",
+  "githubStarText": "Gwiazdka na GitHub-ie",
+  "subscribeNewsletterText": "Zapisz się do naszego Newslettera",
+  "letsGoButtonText": "Start!",
+  "title": "Tytuł",
+  "signUp": {
+    "buttonText": "Zarejestruj",
+    "title": "Zarejestruj się w @:appName",
+    "getStartedText": "Zaczynamy",
+    "emptyPasswordError": "Hasło nie moze być puste",
+    "repeatPasswordEmptyError": "Powtórzone hasło nie moze być puste",
+    "unmatchedPasswordError": "Hasła nie są takie same",
+    "alreadyHaveAnAccount": "Masz juz konto?",
+    "emailHint": "Email",
+    "passwordHint": "Hasło",
+    "repeatPasswordHint": "Powtórz hasło"
+  },
+  "signIn": {
+    "loginTitle": "Zaloguj do @:appName",
+    "loginButtonText": "Logowanie",
+    "buttonText": "Zaloguj",
+    "forgotPassword": "Zapomniałem hasła?",
+    "emailHint": "Email",
+    "passwordHint": "Password",
+    "dontHaveAnAccount": "Nie masz konta?",
+    "repeatPasswordEmptyError": "Powtórzone hasło nie moze być puste",
+    "unmatchedPasswordError": "Hasła nie są takie same"
+  },
+  "workspace": {
+    "create": "Utwórz przestrzeń",
+    "hint": "przestrzeń robocza",
+    "notFoundError": "Przestrzeni nie znaleziono"
+  },
+  "shareAction": {
+    "buttonText": "Udostępnij",
+    "workInProgress": "Wkrótce",
+    "markdown": "Markdown",
+    "copyLink": "Skopiuj link"
+  },
+  "disclosureAction": {
+    "rename": "Zmień nazwę",
+    "delete": "Usuń",
+    "duplicate": "Duplikuj"
+  },
+  "blankPageTitle": "Pusta strona",
+  "newPageText": "Nowa strona",
+  "trash": {
+    "text": "Kosz",
+    "restoreAll": "Przywróć Wszystko",
+    "deleteAll": "Usuń Wszystko",
+    "pageHeader": {
+      "fileName": "Nazwa Pliku",
+      "lastModified": "Ostatnio Zmodyfikowano",
+      "created": "Utworzono"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Ta strona jest w Koszu",
+    "restore": "Przywróć strone",
+    "deletePermanent": "Usuń bezpowrotnie"
+  },
+  "dialogCreatePageNameHint": "Nazwa Strony",
+  "questionBubble": {
+    "whatsNew": "What's new?",
+    "help": "Pomoc & Wsparcie",
+    "debug": {
+      "name": "Informacje Debugowania",
+      "success": "Skopiowano informacje debugowania do schowka!",
+      "fail": "Nie mozna skopiować informacji debugowania do schowka"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Szybko dodaj stronę do środka",
+    "defaultNewPageName": "Brak tytułu",
+    "renameDialog": "Zmień nazwę"
+  },
+  "toolbar": {
+    "undo": "Cofnij",
+    "redo": "Powtórz",
+    "bold": "Pogrubiony",
+    "italic": "Kursywa",
+    "underline": "Podkreśl",
+    "strike": "Przekreśl",
+    "numList": "Lista Numerowana",
+    "bulletList": "Lista Punktowana",
+    "checkList": "Lista Kontrolna",
+    "inlineCode": "Kod Wbudowany",
+    "quote": "Blok cytat",
+    "header": "Nagłówek",
+    "highlight": "Podświetl"
+  },
+  "tooltip": {
+    "lightMode": "Przełącz w Tryb Jasny",
+    "darkMode": "Przełącz w Tryb Ciemny"
+  },
+  "contactsPage": {
+    "title": "Kontakty",
+    "whatsHappening": "Co się dzieje w tym tygodniu?",
+    "addContact": "Dodaj Kontakt",
+    "editContact": "Edytuj Kontakt"
+  },
+  "button": {
+    "OK": "OK",
+    "Cancel": "Anuluj",
+    "signIn": "Zaloguj",
+    "signOut": "Wyloguj",
+    "complete": "Zakończono",
+    "save": "Zapisz"
+  },
+  "label": {
+    "welcome": "Witaj!",
+    "firstName": "Imię Pierwsze",
+    "middleName": "Imię Drugie",
+    "lastName": "Nazwisko",
+    "stepX": "Krok {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Nie można połączyć się z Twoim kontem.",
+      "failedMsg": "Upewnij się, że zakończyłeś proces logowania w przeglądarce."
+    },
+    "google": {
+      "title": "LOGOWANIE GOOGLE",
+      "instruction1": "Aby zaimportować Kontakty Google, musisz autoryzować tę aplikację za pomocą przeglądarki internetowej.",
+      "instruction2": "Skopiuj ten kod do schowka, klikając ikonę lub zaznaczając tekst:",
+      "instruction3": "Przejdź do następującego linku w przeglądarce internetowej i wprowadź powyższy kod:",
+      "instruction4": "Naciśnij poniższy przycisk po zakończeniu rejestracji:"
+    }
+  },
+  "settings": {
+    "title": "Ustawienia",
+    "menu": {
+      "appearance": "Wygląd",
+      "language": "Język",
+      "open": "Otwórz Ustawienia"
+    },
+    "appearance": {
+      "lightLabel": "Tryb Jasny",
+      "darkLabel": "Tryb Ciemny"
+    }
+  }
+}
