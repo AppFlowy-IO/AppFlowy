@@ -54,26 +54,19 @@ class BoardData extends ChangeNotifier with EquatableMixin {
   /// Insert the [Phantom] to list with [listId] and remove the [Phantom]
   /// from the others which [listId] is not equal to the [listId].
   ///
-  void insertPhantom(
-    String listId,
-    int insertedIndex,
-    BoardListItem boardListItem,
-    Widget? draggingWidget,
-  ) {
+  void insertPhantom(String listId, InsertedPhantom insertedPhantom) {
     if (phantomItem != null) {
       if (phantomItem!.listId != listId) {
         /// Remove the phanotm from the old list
         lists[phantomItem!.listId]?.removePhantom();
       } else {
         /// Update the existing phantom index
-        lists[phantomItem!.listId]
-            ?.insertPhantom(insertedIndex, boardListItem, draggingWidget);
+        lists[phantomItem!.listId]?.insertPhantom(insertedPhantom);
       }
     } else {
       /// Insert new phantom to list
-      phantomItem = PhantomItem(listId, boardListItem);
-      lists[listId]
-          ?.insertPhantom(insertedIndex, boardListItem, draggingWidget);
+      phantomItem = PhantomItem(listId, insertedPhantom.itemData);
+      lists[listId]?.insertPhantom(insertedPhantom);
     }
   }
 
@@ -99,8 +92,7 @@ class BoardData extends ChangeNotifier with EquatableMixin {
     assert(item != null);
 
     if (item != null) {
-      Log.info(
-          'Did move item from List$removeListId:$removeIndex to List$insertListId:$insertIndex');
+      Log.info('Did move item from List$removeListId:$removeIndex to List$insertListId:$insertIndex');
       lists[insertListId]?.insert(insertIndex, item);
     }
 
@@ -189,13 +181,8 @@ class Board extends StatelessWidget {
               boardData.removePhantom();
               boardData.swapListDataIfNeed();
             },
-            onWillInserted: (listId, insertedIndex, item, draggingWidget) {
-              boardData.insertPhantom(
-                listId,
-                insertedIndex,
-                item,
-                draggingWidget,
-              );
+            onWillInserted: (listId, insertedPhantom) {
+              boardData.insertPhantom(listId, insertedPhantom);
             },
           );
         },

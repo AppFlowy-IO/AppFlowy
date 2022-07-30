@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
 
-import '../../flowy_board.dart';
 import '../utils/log.dart';
+
+abstract class DraggingData {}
 
 /// [BoardDragTarget] is a [DragTarget] that carries the index information of
 /// the child.
 ///
 /// The size of the [BoardDragTarget] will become zero when it start dragging.
 ///
-class BoardDragTarget extends StatefulWidget {
+class BoardDragTarget<T extends DraggingData> extends StatefulWidget {
   final Widget child;
-  final DraggingData draggingData;
+  final T draggingData;
 
   final GlobalObjectKey _indexGlobalKey;
 
   /// Called when dragTarget is being dragging.
-  final void Function(Widget, DraggingData, Size?) onDragStarted;
+  final void Function(Widget, T, Size?) onDragStarted;
 
   final void Function() onDragEnded;
 
@@ -24,16 +25,16 @@ class BoardDragTarget extends StatefulWidget {
   ///
   /// [toAccept] represents the dragTarget index, which is the value passed in
   /// when creating the [BoardDragTarget].
-  final bool Function(DraggingData toAccept) onWillAccept;
+  final bool Function(T toAccept) onWillAccept;
 
   /// Called when an acceptable piece of data was dropped over this drag target.
   ///
   /// Equivalent to [onAcceptWithDetails], but only includes the data.
-  final void Function(DraggingData)? onAccept;
+  final void Function(T)? onAccept;
 
   /// Called when a given piece of data being dragged over this target leaves
   /// the target.
-  final void Function(DraggingData)? onLeave;
+  final void Function(T)? onLeave;
 
   BoardDragTarget({
     Key? key,
@@ -48,16 +49,16 @@ class BoardDragTarget extends StatefulWidget {
         super(key: key);
 
   @override
-  State<BoardDragTarget> createState() => _BoardDragTargetState();
+  State<BoardDragTarget<T>> createState() => _BoardDragTargetState<T>();
 }
 
-class _BoardDragTargetState extends State<BoardDragTarget> {
+class _BoardDragTargetState<T extends DraggingData> extends State<BoardDragTarget<T>> {
   /// Return the dragTarget's size
   Size? _draggingFeedbackSize = Size.zero;
 
   @override
   Widget build(BuildContext context) {
-    Widget dragTarget = DragTarget<DraggingContext>(
+    Widget dragTarget = DragTarget<T>(
       builder: _buildDraggableWidget,
       onWillAccept: (draggingData) {
         assert(draggingData != null);
@@ -79,7 +80,7 @@ class _BoardDragTargetState extends State<BoardDragTarget> {
 
   Widget _buildDraggableWidget(
     BuildContext context,
-    List<DraggingContext?> acceptedCandidates,
+    List<T?> acceptedCandidates,
     List<dynamic> rejectedCandidates,
   ) {
     Widget feedbackBuilder = Builder(builder: (BuildContext context) {
@@ -96,7 +97,7 @@ class _BoardDragTargetState extends State<BoardDragTarget> {
       data: widget.draggingData,
       ignoringFeedbackSemantics: false,
       feedback: feedbackBuilder,
-      childWhenDragging: _buildNoSizedDraggingWidget(widget.child),
+      childWhenDragging: IgnorePointerWidget(child: widget.child),
       onDragStarted: () {
         _draggingFeedbackSize = widget._indexGlobalKey.currentContext?.size;
         widget.onDragStarted(
@@ -116,16 +117,6 @@ class _BoardDragTargetState extends State<BoardDragTarget> {
       // had been dragged to.
       onDraggableCanceled: (Velocity velocity, Offset offset) => widget.onDragEnded(),
       child: widget.child,
-    );
-  }
-
-  Widget _buildNoSizedDraggingWidget(Widget child) {
-    return IgnorePointer(
-      ignoring: true,
-      child: Opacity(
-        opacity: 0,
-        child: SizedBox(width: 0, height: 0, child: child),
-      ),
     );
   }
 
@@ -191,12 +182,31 @@ class DragAnimationController {
   }
 }
 
+class IgnorePointerWidget extends StatelessWidget {
+  final Widget? child;
+  const IgnorePointerWidget({
+    required this.child,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      ignoring: true,
+      child: Opacity(
+        opacity: 0,
+        child: SizedBox(width: 0, height: 0, child: child),
+      ),
+    );
+  }
+}
+
 class PhantomWidget extends StatelessWidget {
   final Widget? child;
   final double opacity;
   const PhantomWidget({
     this.child,
-    required this.opacity,
+    this.opacity = 1.0,
     Key? key,
   }) : super(key: key);
 
@@ -209,146 +219,15 @@ class PhantomWidget extends StatelessWidget {
   }
 }
 
-class DraggingState {
-  /// The member of widget.children currently being dragged.
-  ///
-  /// Null if no drag is underway.
-  Widget? _draggingWidget;
-
-  Widget? get draggingWidget => _draggingWidget;
-
-  /// The last computed size of the feedback widget being dragged.
-  Size? _draggingFeedbackSize = Size.zero;
-
-  Size? get draggingFeedbackSize => _draggingFeedbackSize;
-
-  /// The location that the dragging widget occupied before it started to drag.
-  int dragStartIndex = -1;
-
-  /// The index that the dragging widget most recently left.
-  /// This is used to show an animation of the widget's position.
-  int phantomIndex = -1;
-
-  /// The index that the dragging widget currently occupies.
-  int currentIndex = -1;
-
-  /// The widget to move the dragging widget too after the current index.
-  int nextIndex = 0;
-
-  /// Whether or not we are currently scrolling this view to show a widget.
-  bool scrolling = false;
-
-  /// The additional margin to place around a computed drop area.
-  static const double _dropAreaMargin = 0.0;
-
-  Size get dropAreaSize {
-    if (_draggingFeedbackSize == null) {
-      return Size.zero;
-    }
-    return _draggingFeedbackSize! + const Offset(_dropAreaMargin, _dropAreaMargin);
-  }
-
-  void startDragging(Widget draggingWidget, int draggingWidgetIndex, Size? draggingWidgetSize) {
-    ///
-    _draggingWidget = draggingWidget;
-    phantomIndex = draggingWidgetIndex;
-    dragStartIndex = draggingWidgetIndex;
-    currentIndex = draggingWidgetIndex;
-    _draggingFeedbackSize = draggingWidgetSize;
-  }
-
-  void endDragging() {
-    dragStartIndex = -1;
-    phantomIndex = -1;
-    currentIndex = -1;
-    _draggingWidget = null;
-  }
-
-  /// When the phantomIndex and currentIndex are the same, it means the dragging
-  /// widget did move to the destination location.
-  void removePhantom() {
-    phantomIndex = currentIndex;
-  }
-
-  /// The dragging widget overlaps with the phantom widget.
-  bool isOverlapWithPhantom() {
-    return currentIndex != phantomIndex;
-  }
-
-  bool isPhantomAboveDragTarget() {
-    return currentIndex > phantomIndex;
-  }
-
-  bool isPhantomBelowDragTarget() {
-    return currentIndex < phantomIndex;
-  }
-
-  bool didDragTargetMoveToNext() {
-    return currentIndex == nextIndex;
-  }
-
-  /// Set the currentIndex to nextIndex
-  void moveDragTargetToNext() {
-    currentIndex = nextIndex;
-  }
-
-  void updateNextIndex(int index) {
-    assert(index >= 0);
-
-    nextIndex = index;
-  }
-
-  bool isNotDragging() {
-    return dragStartIndex == -1;
-  }
-
-  /// When the _dragStartIndex less than the _currentIndex, it means the
-  /// dragTarget is going down to the end of the list.
-  bool isDragTargetMovingDown() {
-    return dragStartIndex < currentIndex;
-  }
-
-  /// The index represents the widget original index of the list.
-  int calculateShiftedIndex(int index) {
-    int shiftedIndex = index;
-    if (index == dragStartIndex) {
-      shiftedIndex = phantomIndex;
-    } else if (index > dragStartIndex && index <= phantomIndex) {
-      /// phantom move up
-      shiftedIndex--;
-    } else if (index < dragStartIndex && index >= phantomIndex) {
-      /// phantom move down
-      shiftedIndex++;
-    }
-    return shiftedIndex;
-  }
+class PassedInPhantomWidget extends PhantomWidget {
+  final Size? feedbackSize;
+  const PassedInPhantomWidget({
+    Widget? child,
+    required double opacity,
+    this.feedbackSize,
+    Key? key,
+  }) : super(child: child, opacity: opacity, key: key);
 }
-
-/// [DraggingContext] is used to store the custom dragging data. It can be used to
-/// locate the index of the dragging widget in the [BoardList].
-class DraggingContext extends DraggingData {
-  /// The index of the dragging target in the boardList.
-  final int dragIndex;
-
-  final DraggingState state;
-
-  Widget? get bindWidget => state.draggingWidget;
-
-  /// Indicate the dargging come from which [BoardListContentWidget].
-  final BoardListContentWidget boardList;
-
-  BoardListItem get bindData => boardList.listData.items[dragIndex];
-
-  String get listId => boardList.listData.id;
-
-  DraggingContext({
-    required this.dragIndex,
-    required this.state,
-    required this.boardList,
-  });
-}
-
-abstract class DraggingData {}
 
 class PhantomData {
   int _insertedIndex = -1;

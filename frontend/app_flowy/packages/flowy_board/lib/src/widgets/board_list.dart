@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:equatable/equatable.dart';
 import '../utils/log.dart';
+import 'board_list_content/content.dart';
 import 'board_overlay.dart';
-import 'board_mixin.dart';
 import 'drag_target.dart';
-import 'dart:math';
-
-part 'board_list_content.dart';
 
 typedef OnDragStarted = void Function(String listId, int index);
 typedef OnDragEnded = void Function(String listId);
 typedef OnReorder = void Function(String listId, int fromIndex, int toIndex);
 typedef OnDeleted = void Function(String listId, int deletedIndex);
 typedef OnInserted = void Function(String listId, int insertedIndex);
-typedef OnWillInsert = void Function(String listId, int insertedIndex, BoardListItem item, Widget? draggingWidget);
+typedef OnWillInsert = void Function(String listId, InsertedPhantom insertedPhantom);
 
 class BoardListData extends ChangeNotifier with EquatableMixin {
   final String id;
-  final phantomNotifier = PhantomChangeNotifier();
+  final _phantomNotifier = PhantomNotifier();
 
   final List<BoardListItem> _items;
   List<BoardListItem> get items => _items;
@@ -32,6 +28,7 @@ class BoardListData extends ChangeNotifier with EquatableMixin {
   List<Object?> get props => [id, ..._items];
 
   BoardListItem removeAt(int index) {
+    Log.debug('[$BoardListData] List$id remove item at $index');
     final item = _items.removeAt(index);
     notifyListeners();
     return item;
@@ -41,39 +38,34 @@ class BoardListData extends ChangeNotifier with EquatableMixin {
     if (fromIndex == toIndex) {
       return;
     }
-
+    Log.debug('[$BoardListData] List$id move item from $fromIndex to $toIndex');
     final item = _items.removeAt(fromIndex);
     _items.insert(toIndex, item);
     notifyListeners();
   }
 
   void insert(int index, BoardListItem item) {
+    Log.debug('[$BoardListData] List$id insert item at $index');
     _items.insert(index, item);
     notifyListeners();
   }
 
   /// Insert the [Phantom] at [insertedIndex] and remove the existing [Phantom]
   /// if it exists.
-  void insertPhantom(int insertedIndex, BoardListItem listItem, Widget? draggingWidget) {
+  void insertPhantom(InsertedPhantom insertedPhantom) {
     final index = _items.indexWhere((item) => item.isPhantom);
     if (index != -1) {
-      if (index != insertedIndex) {
-        Log.debug('[Phantom] Move phantom from $id:$index to $id:$insertedIndex');
-
-        move(index, insertedIndex);
-
-        // _items.removeAt(index);
-        // phantomNotifier.delete(index);
-
-        // _items.insert(insertedIndex, BoardListPhantomItem(listItem));
-        // phantomNotifier.insert(insertedIndex);
+      if (index != insertedPhantom.index) {
+        Log.debug('[Phantom] Move phantom from $id:$index to $id:${insertedPhantom.index}');
+        move(index, insertedPhantom.index);
       }
     } else {
-      Log.debug('[Phantom] insert phantom at $id:$insertedIndex');
-      insert(insertedIndex, BoardListPhantomItem(listItem));
+      Log.debug('[Phantom] insert phantom at $id:${insertedPhantom.index}');
+      insert(insertedPhantom.index, BoardListPhantomItem(insertedPhantom));
 
-      // _items.insert(insertedIndex, BoardListPhantomItem(listItem));
-      // phantomNotifier.insert(insertedIndex);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _phantomNotifier.insert(insertedPhantom);
+      });
     }
   }
 
@@ -81,12 +73,22 @@ class BoardListData extends ChangeNotifier with EquatableMixin {
     final index = _items.indexWhere((item) => item.isPhantom);
     if (index != -1) {
       Log.debug('[Phantom] Remove phantom at $id:$index');
-
       removeAt(index);
 
-      // _items.removeAt(index);
-      // phantomNotifier.delete(index);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _phantomNotifier.delete(index);
+      });
     }
+  }
+
+  void addPhantomListener({
+    void Function(InsertedPhantom? insertedPhantom)? onInserted,
+    void Function(int index)? onDeleted,
+  }) {
+    _phantomNotifier.addListener(
+      onInserted: onInserted,
+      onDeleted: onDeleted,
+    );
   }
 }
 
@@ -105,17 +107,20 @@ abstract class BoardListItem {
 }
 
 class BoardListPhantomItem extends BoardListItem {
-  final BoardListItem inner;
+  final InsertedPhantom _insertedPhantom;
 
-  BoardListPhantomItem(
-    this.inner,
-  );
+  BoardListPhantomItem(InsertedPhantom insertedPhantom) : _insertedPhantom = insertedPhantom;
 
   @override
   bool get isPhantom => true;
 
   @override
-  String get id => inner.id;
+  String get id => _insertedPhantom.itemData.id;
+
+  Size? get feedbackSize => _insertedPhantom.feedbackSize;
+
+  Widget get draggingWidget =>
+      _insertedPhantom.draggingWidget == null ? const SizedBox() : _insertedPhantom.draggingWidget!;
 }
 
 typedef BoardListItemWidgetBuilder = Widget Function(BuildContext context, BoardListItem item);
@@ -152,11 +157,11 @@ class BoardList extends StatefulWidget {
     required this.onWillInserted,
   })  : _builder = ((BuildContext context, BoardListItem item) {
           if (item is BoardListPhantomItem) {
-            final child = builder(context, item.inner);
-            return PhantomWidget(
-              key: child.key,
+            return PassedInPhantomWidget(
+              key: UniqueKey(),
+              feedbackSize: item.feedbackSize,
               opacity: config.draggingWidgetOpacity,
-              child: child,
+              child: item.draggingWidget,
             );
           } else {
             return builder(context, item);
@@ -200,13 +205,8 @@ class _BoardListState extends State<BoardList> {
             onInserted: (insertedIndex) {
               widget.onInserted(widget.listId, insertedIndex);
             },
-            onWillInserted: (insertedIndex, item, draggingWidget) {
-              widget.onWillInserted(
-                widget.listId,
-                insertedIndex,
-                item,
-                draggingWidget,
-              );
+            onWillInserted: (insertedPhantom) {
+              widget.onWillInserted(widget.listId, insertedPhantom);
             },
             listData: widget.listData,
             builder: widget._builder,
@@ -226,12 +226,12 @@ class _BoardListState extends State<BoardList> {
   }
 }
 
-class PhantomChangeNotifier {
+class PhantomNotifier {
   final _insertNotifier = PhantomInsertNotifier();
 
   final _deleteNotifier = PhantomDeleteNotifier();
 
-  void insert(int insertedIndex) {
+  void insert(InsertedPhantom insertedIndex) {
     _insertNotifier.insert(insertedIndex);
   }
 
@@ -239,25 +239,30 @@ class PhantomChangeNotifier {
     _deleteNotifier.delete(deletedIndex);
   }
 
-  void onInsert(void Function(int index) callback) {
-    _insertNotifier.addListener(() {
-      callback(_insertNotifier.insertedIndex);
-    });
-  }
+  void addListener({
+    void Function(InsertedPhantom? insertedPhantom)? onInserted,
+    void Function(int index)? onDeleted,
+  }) {
+    if (onInserted != null) {
+      _insertNotifier.addListener(() {
+        onInserted(_insertNotifier.insertedPhantom);
+      });
+    }
 
-  void onDelete(void Function(int index) callback) {
-    _deleteNotifier.addListener(() {
-      callback(_deleteNotifier.deletedIndex);
-    });
+    if (onDeleted != null) {
+      _deleteNotifier.addListener(() {
+        onDeleted(_deleteNotifier.deletedIndex);
+      });
+    }
   }
 }
 
 class PhantomInsertNotifier extends ChangeNotifier {
-  int insertedIndex = -1;
+  InsertedPhantom? insertedPhantom;
 
-  void insert(int insertedIndex) {
-    if (this.insertedIndex != insertedIndex) {
-      this.insertedIndex = insertedIndex;
+  void insert(InsertedPhantom insertedPhantom) {
+    if (this.insertedPhantom != insertedPhantom) {
+      this.insertedPhantom = insertedPhantom;
       notifyListeners();
     }
   }
@@ -274,22 +279,16 @@ class PhantomDeleteNotifier extends ChangeNotifier {
   }
 }
 
-class PhantomMoveNotifier extends ChangeNotifier {
-  int fromIndex = -1;
-  int toIndex = -1;
+class InsertedPhantom {
+  final int index;
+  final Widget? draggingWidget;
+  final Size? feedbackSize;
+  final BoardListItem itemData;
 
-  void move(int fromIndex, int toIndex) {
-    bool isChange = false;
-    if (this.fromIndex != fromIndex) {
-      this.fromIndex = fromIndex;
-      isChange = true;
-    }
-
-    if (this.toIndex != toIndex) {
-      this.toIndex = toIndex;
-      isChange = true;
-    }
-
-    if (isChange) notifyListeners();
-  }
+  InsertedPhantom({
+    required this.draggingWidget,
+    required this.feedbackSize,
+    required this.index,
+    required this.itemData,
+  });
 }
