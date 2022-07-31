@@ -53,7 +53,7 @@ git config core.hooksPath .githooks
 # Install go-gitlint 
 printMessage "Installing go-gitlint."
 GOLINT_FILENAME="go-gitlint_1.1.0_osx_x86_64.tar.gz"
-wget https://github.com/llorllale/go-gitlint/releases/download/1.1.0/${GOLINT_FILENAME}
+curl -L https://github.com/llorllale/go-gitlint/releases/download/1.1.0/${GOLINT_FILENAME} --output ${GOLINT_FILENAME}
 tar -zxv --directory .githooks/. -f ${GOLINT_FILENAME} gitlint 
 rm ${GOLINT_FILENAME}
 
