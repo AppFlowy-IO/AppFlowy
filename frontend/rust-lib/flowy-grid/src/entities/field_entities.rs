@@ -8,7 +8,6 @@ use std::sync::Arc;
 
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
-
 /// [GridFieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridFieldPB {
@@ -279,7 +278,6 @@ pub struct FieldTypeOptionDataPB {
     #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
 }
-
 
 /// Collection of the [GridFieldPB]
 #[derive(Debug, Default, ProtoBuf)]

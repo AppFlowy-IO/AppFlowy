@@ -42,7 +42,6 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
     module
 }
 
-
 /// [GridEvent] defines events that are used to interact with the Grid. You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/protobuf)
 /// out, it includes how to use these annotations: input, output, etc.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
@@ -87,7 +86,6 @@ pub enum GridEvent {
     /// field.
     #[event(input = "FieldChangesetPayloadPB")]
     UpdateField = 11,
-
 
     /// [UpdateFieldTypeOption] event is used to update the field's type option data. Certain field
     /// types have user-defined options such as color, date format, number format, or a list of values
@@ -160,7 +158,7 @@ pub enum GridEvent {
     /// FieldType::SingleSelect or FieldType::MultiSelect.
     ///
     /// This event may trigger the GridNotification::DidUpdateCell event.
-    /// For example, GridNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPayloadPB] 
+    /// For example, GridNotification::DidUpdateCell will be triggered if the [SelectOptionChangesetPayloadPB]
     /// carries a change that updates the name of the option.
     #[event(input = "SelectOptionChangesetPayloadPB")]
     UpdateSelectOption = 32,
