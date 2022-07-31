@@ -4,7 +4,6 @@ use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::RowRevision;
 use std::sync::Arc;
 
-
 /// [GridBlockPB] contains list of row ids. The rows here does not contain any data, just the id
 /// of the row. Check out [GridRowPB] for more details.
 ///
