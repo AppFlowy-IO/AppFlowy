@@ -48,6 +48,10 @@ class TransactionBuilder {
     add(DeleteOperation(path: node.path, removedValue: node));
   }
 
+  deleteNodes(List<Node> nodes) {
+    nodes.forEach(deleteNode);
+  }
+
   textEdit(TextNode node, Delta Function() f) {
     beforeSelection = state.cursorSelection;
     final path = node.path;

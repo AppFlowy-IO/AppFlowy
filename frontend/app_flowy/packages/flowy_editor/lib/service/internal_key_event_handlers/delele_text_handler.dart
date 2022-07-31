@@ -57,24 +57,19 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
       );
     }
   } else {
-    for (var i = 0; i < textNodes.length; i++) {
-      final textNode = textNodes[i];
-      if (i == 0) {
-        transactionBuilder.deleteText(
-          textNode,
-          selection.start.offset,
-          textNode.toRawString().length - selection.start.offset,
-        );
-      } else if (i == textNodes.length - 1) {
-        transactionBuilder.deleteText(
-          textNode,
-          0,
-          selection.end.offset,
-        );
-      } else {
-        transactionBuilder.deleteNode(textNode);
-      }
-    }
+    final first = textNodes.first;
+    var content = textNodes.last.toRawString();
+    content = content.substring(selection.end.offset, content.length);
+    // Merge the fist and the last text node content,
+    //  and delete the all nodes expect for the first.
+    transactionBuilder
+      ..deleteNodes(textNodes.sublist(1))
+      ..replaceText(
+        first,
+        selection.start.offset,
+        first.toRawString().length - selection.start.offset,
+        content,
+      );
   }
 
   transactionBuilder.commit();
