@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
+/// [GridFieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridFieldPB {
     #[pb(index = 1)]
@@ -56,6 +57,8 @@ impl std::convert::From<Arc<FieldRevision>> for GridFieldPB {
         GridFieldPB::from(field_rev)
     }
 }
+
+/// [GridFieldIdPB] id of the [Field]
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridFieldIdPB {
     #[pb(index = 1)]
@@ -257,6 +260,13 @@ impl TryInto<GridFieldTypeOptionIdParams> for GridFieldTypeOptionIdPB {
     }
 }
 
+/// Certain field types have user-defined options such as color, date format, number format,
+/// or a list of values for a multi-select list. These options are defined within a specialization
+/// of the FieldTypeOption class.
+///
+/// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
+/// for more information.
+///
 #[derive(Debug, Default, ProtoBuf)]
 pub struct FieldTypeOptionDataPB {
     #[pb(index = 1)]
@@ -269,6 +279,7 @@ pub struct FieldTypeOptionDataPB {
     pub type_option_data: Vec<u8>,
 }
 
+/// Collection of the [GridFieldPB]
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedGridFieldPB {
     #[pb(index = 1)]
@@ -364,6 +375,7 @@ impl TryInto<InsertFieldParams> for InsertFieldPayloadPB {
     }
 }
 
+/// [UpdateFieldTypeOptionPayloadPB] is used to update the type option data.
 #[derive(ProtoBuf, Default)]
 pub struct UpdateFieldTypeOptionPayloadPB {
     #[pb(index = 1)]
@@ -372,6 +384,7 @@ pub struct UpdateFieldTypeOptionPayloadPB {
     #[pb(index = 2)]
     pub field_id: String,
 
+    /// Check out [FieldTypeOptionDataPB] for more details.
     #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
 }
@@ -424,6 +437,12 @@ impl TryInto<QueryFieldParams> for QueryFieldPayloadPB {
     }
 }
 
+/// [FieldChangesetPayloadPB] is used to modify the corresponding field. It defines which properties of
+/// the field can be modified.
+///
+/// Pass in None if you don't want to modify a property
+/// Pass in Some(Value) if you want to modify a property
+///
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct FieldChangesetPayloadPB {
     #[pb(index = 1)]

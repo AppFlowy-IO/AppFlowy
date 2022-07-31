@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
+/// [SelectOptionPB] represents an option for a single select, and multiple select.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct SelectOptionPB {
     #[pb(index = 1)]
@@ -322,15 +323,21 @@ impl SelectOptionCellChangeset {
     }
 }
 
+/// [SelectOptionCellDataPB] contains a list of user's selected options and a list of all the options
+/// that the cell can use.
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct SelectOptionCellDataPB {
+    /// The available options that the cell can use.
     #[pb(index = 1)]
     pub options: Vec<SelectOptionPB>,
 
+    /// The selected options for the cell.
     #[pb(index = 2)]
     pub select_options: Vec<SelectOptionPB>,
 }
 
+/// [SelectOptionChangesetPayloadPB] describes the changes of a FieldTypeOptionData. For the moment,
+/// it is used by [MultiSelectTypeOptionPB] and [SingleSelectTypeOptionPB].
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionChangesetPayloadPB {
     #[pb(index = 1)]

@@ -119,6 +119,7 @@ impl std::convert::From<Vec<GridCellPB>> for RepeatedCellPB {
     }
 }
 
+///
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct CellChangesetPB {
     #[pb(index = 1)]
