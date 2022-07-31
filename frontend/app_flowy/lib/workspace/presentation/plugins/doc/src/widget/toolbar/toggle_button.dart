@@ -1,5 +1,5 @@
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/models/documents/style.dart';
+import 'package:flutter_quill/src/models/documents/style.dart';
 import 'package:flutter/material.dart';
 
 import 'toolbar_icon_button.dart';

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:collection/collection.dart' show IterableExtension;
-import 'package:flutter_quill/models/documents/attribute.dart';
-import 'package:flutter_quill/models/documents/nodes/embed.dart';
-import 'package:flutter_quill/models/documents/style.dart';
-import 'package:flutter_quill/models/quill_delta.dart';
+import 'package:flutter_quill/src/models/documents/attribute.dart';
+import 'package:flutter_quill/src/models/documents/nodes/embeddable.dart';
+import 'package:flutter_quill/src/models/documents/style.dart';
+import 'package:flutter_quill/src/models/quill_delta.dart';
 
 class DeltaMarkdownEncoder extends Converter<String, String> {
   static const _lineFeedAsciiCode = 0x0A;
