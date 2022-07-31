@@ -25,8 +25,12 @@ class _SelectionWidgetState extends State<SelectionWidget> {
         link: widget.layerLink,
         offset: widget.rect.topLeft,
         showWhenUnlinked: true,
-        child: Container(
-          color: widget.color,
+        // Ignore the gestures in selection overlays
+        //  to solve the problem that selection areas cannot overlap.
+        child: IgnorePointer(
+          child: Container(
+            color: widget.color,
+          ),
         ),
       ),
     );
