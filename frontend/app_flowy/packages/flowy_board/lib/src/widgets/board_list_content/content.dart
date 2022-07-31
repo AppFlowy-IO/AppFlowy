@@ -9,12 +9,12 @@ import '../board_mixin.dart';
 import '../drag_target.dart';
 import 'state.dart';
 
-typedef OnContentDragStarted = void Function(int index);
-typedef OnContentDragEnded = void Function();
-typedef OnContentReorder = void Function(int fromIndex, int toIndex);
-typedef OnContentDeleted = void Function(int deletedIndex);
-typedef OnContentInserted = void Function(int insertedIndex);
-typedef OnContentWillInserted = void Function(InsertedPhantom insertedPhantom);
+typedef OnDragStarted = void Function(int index);
+typedef OnDragEnded = void Function();
+typedef OnReorder = void Function(int fromIndex, int toIndex);
+typedef OnDeleted = void Function(int deletedIndex);
+typedef OnInserted = void Function(int insertedIndex);
+typedef OnReveivePassedInPhantom = void Function(DraggingContext draggingContext, int phantomIndex);
 
 class BoardListContentWidget extends StatefulWidget with DraggingContextBoardList<BoardListItem> {
   final Widget? header;
@@ -24,12 +24,10 @@ class BoardListContentWidget extends StatefulWidget with DraggingContextBoardLis
   final BoardListItemWidgetBuilder builder;
   final ScrollController? scrollController;
   final BoardListConfig config;
-  final OnContentDragStarted? onDragStarted;
-  final OnContentReorder onReorder;
-  final OnContentDragEnded? onDragEnded;
-  final OnContentDeleted onDeleted;
-  final OnContentInserted onInserted;
-  final OnContentWillInserted onWillInserted;
+  final OnDragStarted? onDragStarted;
+  final OnReorder onReorder;
+  final OnDragEnded? onDragEnded;
+  final OnReveivePassedInPhantom onPassedInPhantom;
   final EdgeInsets? padding;
   final Axis direction = Axis.vertical;
   final MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start;
@@ -46,9 +44,7 @@ class BoardListContentWidget extends StatefulWidget with DraggingContextBoardLis
     this.onDragStarted,
     required this.onReorder,
     this.onDragEnded,
-    required this.onDeleted,
-    required this.onInserted,
-    required this.onWillInserted,
+    required this.onPassedInPhantom,
     // ignore: unused_element
     this.padding,
   }) : super(key: key);
@@ -62,11 +58,6 @@ class BoardListContentWidget extends StatefulWidget with DraggingContextBoardLis
   @override
   BoardListItem itemAtIndex(int index) {
     return listData.items[index];
-  }
-
-  @override
-  void deleteItemAtIndex(int index) {
-    onDeleted(index);
   }
 }
 
@@ -91,11 +82,6 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
       scrollAnimationDuration: widget.config.scrollAnimationDuration,
       entranceAnimateStatusChanged: _onEntranceAnimationStatusChanged,
       vsync: this,
-    );
-
-    widget.listData.addPhantomListener(
-      onInserted: (InsertedPhantom? insertedPhantom) {},
-      onDeleted: (int deletedIndex) {},
     );
 
     super.initState();
@@ -133,16 +119,6 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
       Widget child = widget.children[i];
       final wrapChild = _wrap(child, i);
       children.add(wrapChild);
-
-      // if (child is FakePhantomWidget) {
-      //   if (_dragState.isNotDragging()) {
-      //     _startDragging(child, i, child.feedbackSize);
-      //   }
-      //   children.add(IgnorePointerWidget(child: child));
-      // } else {
-      //   final wrapChild = _wrap(child, i);
-      //   children.add(wrapChild);
-      // }
     }
 
     if (widget.footer != null) {
@@ -228,12 +204,12 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
         }
 
         /// Determine the size of the drop area to show under the dragging widget.
-        final feedbackSize = _dragState.draggingFeedbackSize;
+        final feedbackSize = _dragState.feedbackSize;
         Widget appearSpace = _makeAppearSpace(dragSpace, feedbackSize);
         Widget disappearSpace = _makeDisappearSpace(dragSpace, feedbackSize);
-        Log.trace('appearSpace: $appearSpace, disappearSpace: $disappearSpace');
 
-        ///
+        /// When start dragging, the dragTarget, [BoardDragTarget], will
+        /// return a [IgnorePointerWidget] which size is zero.
         if (_dragState.isPhantomAboveDragTarget()) {
           //the phantom is moving down, i.e. the tile below the phantom is moving up
           Log.trace('index:$childIndex item moving up / phantom moving down');
@@ -313,69 +289,69 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
   BoardDragTarget _buildDragTarget(BuildContext builderContext, Widget child, int childIndex) {
     return BoardDragTarget<DraggingContext>(
       draggingData: DraggingContext<BoardListItem>(
-        dragIndex: childIndex,
+        draggingIndex: childIndex,
         state: _dragState,
         boardList: widget,
       ),
-      onDragStarted: (draggingWidget, draggingContext, size) {
-        _startDragging(draggingWidget, draggingContext.dragIndex, size);
-        widget.onDragStarted?.call(draggingContext.dragIndex);
+      onDragStarted: (draggingWidget, draggingIndex, size) {
+        _startDragging(draggingWidget, draggingIndex, size);
+        widget.onDragStarted?.call(draggingIndex);
       },
-      onDragEnded: () {
-        setState(() {
-          _onReordered(
-            _dragState.dragStartIndex,
-            _dragState.currentIndex,
-          );
-          _dragState.endDragging();
-          widget.onDragEnded?.call();
-        });
+      onDragEnded: (draggingContext) {
+        if (currentBoardList != draggingContext.boardList) {
+          setState(() {
+            _dragAnimationController.reverseAnimation();
+            _dragState.endDragging();
+            widget.onDragEnded?.call();
+          });
+        } else {
+          setState(() {
+            _onReordered(
+              _dragState.dragStartIndex,
+              _dragState.currentIndex,
+            );
+            _dragState.endDragging();
+            widget.onDragEnded?.call();
+          });
+        }
       },
       onWillAccept: (DraggingContext draggingContext) {
-        Log.debug('[$BoardDragTarget] ${widget.listData.id} on will accept');
+        Log.trace('[$BoardDragTarget] ${widget.listData.id} on will accept');
         assert(widget.listData.items.length > childIndex);
-        var willAccept = true;
 
         /// If the currentBoardList equal to the draggingContext's boardList,
         /// it means the dragTarget is dragging on the top of its own list.
         /// Otherwise, it means the dargTarget was moved to another list.
         ///
-        if (currentBoardList != draggingContext.boardList && _dragState.isNotDragging()) {
-          Log.debug('Try move List${draggingContext.listId}:${draggingContext.dragIndex} '
+        if (currentBoardList != draggingContext.boardList) {
+          Log.debug('Try move List${draggingContext.listId}:${draggingContext.draggingIndex} '
               'to List${widget.listData.id}:$childIndex');
+          widget.onPassedInPhantom(draggingContext, childIndex);
 
-          /// The childIndex must be less than the current list length.
-          if (widget.listData.items.length > childIndex) {
-            widget.onWillInserted(_makeInsertPhantom(draggingContext, childIndex));
+          if (_dragState.isDragging()) {
+            final dragIndex = draggingContext.draggingIndex;
+            _onWillAccept(builderContext, dragIndex, childIndex);
           }
-        } else {
-          final dragIndex = draggingContext.dragIndex;
-          willAccept = _onWillAccept(builderContext, dragIndex, childIndex);
-        }
 
-        return willAccept;
+          return true;
+        } else {
+          final dragIndex = draggingContext.draggingIndex;
+          return _onWillAccept(builderContext, dragIndex, childIndex);
+        }
       },
       onAccept: (draggingContext) {
-        Log.debug('[$BoardDragTarget] ${widget.listData.id} on accept');
-        if (currentBoardList != draggingContext.boardList) {
-          /// The dragTarget was moved to another list.
-          draggingContext.boardList.deleteItemAtIndex(draggingContext.dragIndex);
-          widget.onInserted(childIndex);
-        }
+        Log.debug('[$BoardDragTarget] ${widget.listData.id} on onAccept');
+
+        // if (currentBoardList != draggingContext.boardList) {
+        //   /// The dragTarget was moved to another list.
+        //   draggingContext.boardList.onDeleted(draggingContext.draggingIndex);
+        //   widget.onInserted(childIndex);
+        // }
       },
       onLeave: (draggingContext) {
-        Log.debug('[$BoardDragTarget] ${widget.listData.id} on leave');
+        // Log.debug('[$BoardDragTarget] ${widget.listData.id} on leave');
       },
       child: child,
-    );
-  }
-
-  InsertedPhantom _makeInsertPhantom(DraggingContext draggingContext, int index) {
-    return InsertedPhantom(
-      index: index,
-      itemData: draggingContext.bindData,
-      feedbackSize: draggingContext.state.draggingFeedbackSize,
-      draggingWidget: draggingContext.draggingWidget,
     );
   }
 
@@ -392,7 +368,7 @@ class BoardListContentWidgetState extends State<BoardListContentWidget>
     /// The [willAccept] will be true if the dargTarget is the widget that gets
     /// dragged and it is dragged on top of the other dragTargets.
     bool willAccept = _dragState.dragStartIndex == dragIndex && dragIndex != childIndex;
-    Log.trace("$this: dragIndex: $dragIndex, childIndex: $childIndex");
+    Log.trace("List${widget.listData.id}: dragIndex: $dragIndex, childIndex: $childIndex");
     setState(() {
       if (willAccept) {
         int shiftedIndex = _dragState.calculateShiftedIndex(childIndex);

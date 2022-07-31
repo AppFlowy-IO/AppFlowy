@@ -7,23 +7,24 @@ import 'content.dart';
 /// locate the index of the dragging widget in the [BoardList].
 class DraggingContext<I> extends DraggingData {
   /// The index of the dragging target in the boardList.
-  final int dragIndex;
+  @override
+  final int draggingIndex;
 
   final DraggingContextState state;
 
   Widget? get draggingWidget => state.draggingWidget;
 
-  Size? get draggingFeedbackSize => state.draggingFeedbackSize;
+  Size? get draggingFeedbackSize => state.feedbackSize;
 
   /// Indicate the dargging come from which [BoardListContentWidget].
   final DraggingContextBoardList<I> boardList;
 
-  I get bindData => boardList.itemAtIndex(dragIndex);
+  I get bindData => boardList.itemAtIndex(draggingIndex);
 
   String get listId => boardList.listId;
 
   DraggingContext({
-    required this.dragIndex,
+    required this.draggingIndex,
     required this.state,
     required this.boardList,
   });
@@ -31,14 +32,12 @@ class DraggingContext<I> extends DraggingData {
 
 abstract class DraggingContextState {
   Widget? get draggingWidget;
-  Size? get draggingFeedbackSize;
+  Size? get feedbackSize;
 }
 
 abstract class DraggingContextBoardList<I> {
   String get listId;
   I itemAtIndex(int index);
-
-  void deleteItemAtIndex(int index);
 }
 
 class DraggingState extends DraggingContextState {
@@ -54,7 +53,7 @@ class DraggingState extends DraggingContextState {
   Size? _draggingFeedbackSize = Size.zero;
 
   @override
-  Size? get draggingFeedbackSize => _draggingFeedbackSize;
+  Size? get feedbackSize => _draggingFeedbackSize;
 
   /// The location that the dragging widget occupied before it started to drag.
   int dragStartIndex = -1;
@@ -134,6 +133,10 @@ class DraggingState extends DraggingContextState {
 
   bool isNotDragging() {
     return dragStartIndex == -1;
+  }
+
+  bool isDragging() {
+    return !isNotDragging();
   }
 
   /// When the _dragStartIndex less than the _currentIndex, it means the

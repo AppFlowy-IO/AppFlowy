@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../flowy_board.dart';
 import '../utils/log.dart';
 
-abstract class DraggingData {}
+abstract class DraggingData {
+  int get draggingIndex;
+}
 
 /// [BoardDragTarget] is a [DragTarget] that carries the index information of
 /// the child.
@@ -16,25 +19,25 @@ class BoardDragTarget<T extends DraggingData> extends StatefulWidget {
   final GlobalObjectKey _indexGlobalKey;
 
   /// Called when dragTarget is being dragging.
-  final void Function(Widget, T, Size?) onDragStarted;
+  final void Function(Widget, int, Size?) onDragStarted;
 
-  final void Function() onDragEnded;
+  final void Function(T draggingData) onDragEnded;
 
   /// Called to determine whether this widget is interested in receiving a given
   /// piece of data being dragged over this drag target.
   ///
   /// [toAccept] represents the dragTarget index, which is the value passed in
   /// when creating the [BoardDragTarget].
-  final bool Function(T toAccept) onWillAccept;
+  final bool Function(T draggingData) onWillAccept;
 
   /// Called when an acceptable piece of data was dropped over this drag target.
   ///
   /// Equivalent to [onAcceptWithDetails], but only includes the data.
-  final void Function(T)? onAccept;
+  final void Function(T draggingData)? onAccept;
 
   /// Called when a given piece of data being dragged over this target leaves
   /// the target.
-  final void Function(T)? onLeave;
+  final void Function(T draggingData)? onLeave;
 
   BoardDragTarget({
     Key? key,
@@ -92,32 +95,79 @@ class _BoardDragTargetState<T extends DraggingData> extends State<BoardDragTarge
       );
     });
 
-    return LongPressDraggable<DraggingData>(
-      maxSimultaneousDrags: 1,
-      data: widget.draggingData,
-      ignoringFeedbackSemantics: false,
-      feedback: feedbackBuilder,
-      childWhenDragging: IgnorePointerWidget(child: widget.child),
-      onDragStarted: () {
-        _draggingFeedbackSize = widget._indexGlobalKey.currentContext?.size;
+    if (widget.child is PassedInPhantomWidget) {
+      final phantomWidget = widget.child as PassedInPhantomWidget;
+      phantomWidget.phantomContext.onInserted = () {
         widget.onDragStarted(
           widget.child,
-          widget.draggingData,
-          _draggingFeedbackSize,
+          phantomWidget.phantomContext.index,
+          phantomWidget.phantomContext.feedbackSize,
         );
-      },
-      dragAnchorStrategy: childDragAnchorStrategy,
-      // When the drag ends inside a DragTarget widget, the drag
-      // succeeds, and we reorder the widget into position appropriately.
-      onDragCompleted: () {
-        widget.onDragEnded();
-      },
-      // When the drag does not end inside a DragTarget widget, the
-      // drag fails, but we still reorder the widget to the last position it
-      // had been dragged to.
-      onDraggableCanceled: (Velocity velocity, Offset offset) => widget.onDragEnded(),
-      child: widget.child,
-    );
+      };
+
+      phantomWidget.phantomContext.onDeleted = () {
+        widget.onDragEnded(phantomWidget.phantomContext.draggingContext as T);
+      };
+
+      return IgnorePointerWidget(child: widget.child);
+
+      // return LongPressDraggable<DraggingData>(
+      //   maxSimultaneousDrags: 1,
+      //   data: widget.draggingData,
+      //   ignoringFeedbackSemantics: false,
+      //   feedback: feedbackBuilder,
+      //   childWhenDragging: IgnorePointerWidget(child: widget.child),
+      //   onDragStarted: () {
+      //     _draggingFeedbackSize = widget._indexGlobalKey.currentContext?.size;
+      //     widget.onDragStarted(
+      //       widget.child,
+      //       widget.draggingData.draggingIndex,
+      //       _draggingFeedbackSize,
+      //     );
+      //   },
+      //   dragAnchorStrategy: childDragAnchorStrategy,
+      //   // When the drag ends inside a DragTarget widget, the drag
+      //   // succeeds, and we reorder the widget into position appropriately.
+      //   onDragCompleted: () {
+      //     widget.onDragEnded(true, widget.draggingData);
+      //   },
+      //   // When the drag does not end inside a DragTarget widget, the
+      //   // drag fails, but we still reorder the widget to the last position it
+      //   // had been dragged to.
+      //   onDraggableCanceled: (Velocity velocity, Offset offset) => widget.onDragEnded(true, widget.draggingData),
+      //   child: Opacity(
+      //     opacity: 0,
+      //     child: SizedBox(width: 0, height: 0, child: widget.child),
+      //   ),
+      // );
+    } else {
+      return LongPressDraggable<DraggingData>(
+        maxSimultaneousDrags: 1,
+        data: widget.draggingData,
+        ignoringFeedbackSemantics: false,
+        feedback: feedbackBuilder,
+        childWhenDragging: IgnorePointerWidget(child: widget.child),
+        onDragStarted: () {
+          _draggingFeedbackSize = widget._indexGlobalKey.currentContext?.size;
+          widget.onDragStarted(
+            widget.child,
+            widget.draggingData.draggingIndex,
+            _draggingFeedbackSize,
+          );
+        },
+        dragAnchorStrategy: childDragAnchorStrategy,
+        // When the drag ends inside a DragTarget widget, the drag
+        // succeeds, and we reorder the widget into position appropriately.
+        onDragCompleted: () {
+          widget.onDragEnded(widget.draggingData);
+        },
+        // When the drag does not end inside a DragTarget widget, the
+        // drag fails, but we still reorder the widget to the last position it
+        // had been dragged to.
+        onDraggableCanceled: (Velocity velocity, Offset offset) => widget.onDragEnded(widget.draggingData),
+        child: widget.child,
+      );
+    }
   }
 
   Widget _buildDraggableFeedback(BuildContext context, BoxConstraints constraints, Widget child) {
@@ -220,13 +270,19 @@ class PhantomWidget extends StatelessWidget {
 }
 
 class PassedInPhantomWidget extends PhantomWidget {
-  final Size? feedbackSize;
-  const PassedInPhantomWidget({
-    Widget? child,
+  final PassedInPhantomContext _phantomContext;
+  PassedInPhantomContext get phantomContext => _phantomContext;
+
+  PassedInPhantomWidget({
     required double opacity,
-    this.feedbackSize,
+    required PassedInPhantomContext phantomContext,
     Key? key,
-  }) : super(child: child, opacity: opacity, key: key);
+  })  : _phantomContext = phantomContext,
+        super(
+          child: phantomContext.draggingWidget,
+          opacity: opacity,
+          key: key,
+        );
 }
 
 class PhantomData {

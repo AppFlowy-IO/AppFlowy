@@ -10,19 +10,19 @@ class Log {
 
   static void info(String? message) {
     if (enableLog) {
-      debugPrint(message);
+      debugPrint('ℹ️[Info]=> $message');
     }
   }
 
   static void debug(String? message) {
     if (enableLog) {
-      debugPrint(message);
+      debugPrint('🐛[Debug]=> $message');
     }
   }
 
   static void trace(String? message) {
     if (enableLog) {
-      debugPrint(message);
+      // debugPrint('❗️[Trace]=> $message');
     }
   }
 }
