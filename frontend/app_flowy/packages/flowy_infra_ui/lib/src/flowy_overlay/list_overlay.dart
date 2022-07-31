@@ -41,20 +41,22 @@ class ListOverlay extends StatelessWidget {
     return OverlayContainer(
       constraints: BoxConstraints.tight(Size(width, totalHeight)),
       padding: padding,
-      child: Column(
-        children: [
-          ListView.builder(
-            shrinkWrap: true,
-            itemBuilder: itemBuilder,
-            itemCount: itemCount,
-            controller: controller,
-          ),
-          if (footer != null)
-            Padding(
-              padding: footer!.padding,
-              child: footer!.widget,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            ListView.builder(
+              shrinkWrap: true,
+              itemBuilder: itemBuilder,
+              itemCount: itemCount,
+              controller: controller,
             ),
-        ],
+            if (footer != null)
+              Padding(
+                padding: footer!.padding,
+                child: footer!.widget,
+              ),
+          ],
+        ),
       ),
     );
   }
