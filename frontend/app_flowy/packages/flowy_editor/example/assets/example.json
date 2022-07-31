@@ -4,17 +4,6 @@
     "attributes": {},
     "children": [
       {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "quote"
-        }
-      },
-      {
         "type": "image",
         "attributes": {
           "image_src": "https://s1.ax1x.com/2022/07/28/vCgz1x.png"
@@ -173,7 +162,11 @@
         "type": "text",
         "delta": [
           {
-            "insert": "Hello world"
+            "insert": "Hello "
+          },
+          {
+            "insert": "world",
+            "attributes": { "bold": true }
           }
         ],
         "attributes": {

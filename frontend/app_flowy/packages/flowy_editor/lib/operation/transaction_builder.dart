@@ -48,6 +48,10 @@ class TransactionBuilder {
     add(DeleteOperation(path: node.path, removedValue: node));
   }
 
+  deleteNodes(List<Node> nodes) {
+    nodes.forEach(deleteNode);
+  }
+
   textEdit(TextNode node, Delta Function() f) {
     beforeSelection = state.cursorSelection;
     final path = node.path;
@@ -73,6 +77,19 @@ class TransactionBuilder {
     textEdit(node, () => Delta().retain(index).delete(length));
     afterSelection =
         Selection.collapsed(Position(path: node.path, offset: index));
+  }
+
+  replaceText(TextNode node, int index, int length, String content) {
+    textEdit(
+      node,
+      () => Delta().retain(index).delete(length).insert(content),
+    );
+    afterSelection = Selection.collapsed(
+      Position(
+        path: node.path,
+        offset: index + content.length,
+      ),
+    );
   }
 
   add(Operation op) {

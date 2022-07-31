@@ -64,8 +64,12 @@ class CursorWidgetState extends State<CursorWidget> {
         link: widget.layerLink,
         offset: widget.rect.topCenter,
         showWhenUnlinked: true,
-        child: Container(
-          color: showCursor ? widget.color : Colors.transparent,
+        // Ignore the gestures in cursor
+        //  to solve the problem that cursor area cannot be selected.
+        child: IgnorePointer(
+          child: Container(
+            color: showCursor ? widget.color : Colors.transparent,
+          ),
         ),
       ),
     );

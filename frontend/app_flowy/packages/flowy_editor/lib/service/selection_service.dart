@@ -5,7 +5,7 @@ import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/render/selection/cursor_widget.dart';
-import 'package:flowy_editor/render/selection/flowy_selection_widget.dart';
+import 'package:flowy_editor/render/selection/selection_widget.dart';
 import 'package:flowy_editor/extensions/object_extensions.dart';
 import 'package:flowy_editor/extensions/node_extensions.dart';
 import 'package:flutter/gestures.dart';
