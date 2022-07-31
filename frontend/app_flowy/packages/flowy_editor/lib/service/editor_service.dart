@@ -1,4 +1,5 @@
 import 'package:flowy_editor/service/internal_key_event_handlers/delele_text_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_editor/editor_state.dart';
@@ -36,6 +37,7 @@ List<FlowyKeyEventHandler> defaultKeyEventHandler = [
   flowyDeleteNodesHandler,
   arrowKeysHandler,
   enterInEdgeOfTextNodeHandler,
+  updateTextStyleByCommandXHandler,
 ];
 
 class FlowyEditor extends StatefulWidget {
