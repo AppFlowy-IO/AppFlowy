@@ -50,11 +50,19 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
         }
       }
     } else {
-      transactionBuilder.deleteText(
-        textNode,
-        selection.start.offset - 1,
-        1,
-      );
+      if (selection.isCollapsed) {
+        transactionBuilder.deleteText(
+          textNode,
+          selection.start.offset - 1,
+          1,
+        );
+      } else {
+        transactionBuilder.deleteText(
+          textNode,
+          selection.start.offset,
+          selection.end.offset - selection.start.offset,
+        );
+      }
     }
   } else {
     final first = textNodes.first;
