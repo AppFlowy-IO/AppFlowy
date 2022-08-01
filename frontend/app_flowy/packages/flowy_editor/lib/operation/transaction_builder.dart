@@ -63,8 +63,28 @@ class TransactionBuilder {
     add(TextEditOperation(path: path, delta: delta, inverted: inverted));
   }
 
-  insertText(TextNode node, int index, String content) {
-    textEdit(node, () => Delta().retain(index).insert(content));
+  mergeText(TextNode firstNode, TextNode secondNode,
+      {int? firstOffset, int secondOffset = 0}) {
+    final firstLength = firstNode.delta.length;
+    final secondLength = secondNode.delta.length;
+    textEdit(
+      firstNode,
+      () => Delta()
+        ..retain(firstOffset ?? firstLength)
+        ..delete(firstLength - (firstOffset ?? firstLength))
+        ..addAll(secondNode.delta.slice(secondOffset, secondLength).operations),
+    );
+    afterSelection = Selection.collapsed(
+      Position(
+        path: firstNode.path,
+        offset: firstOffset ?? firstLength,
+      ),
+    );
+  }
+
+  insertText(TextNode node, int index, String content,
+      [Attributes? attributes]) {
+    textEdit(node, () => Delta().retain(index).insert(content, attributes));
     afterSelection = Selection.collapsed(
         Position(path: node.path, offset: index + content.length));
   }

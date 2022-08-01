@@ -39,12 +39,7 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
             final previous = textNode.previous as TextNode;
             transactionBuilder
               ..deleteNode(textNode)
-              ..insertText(
-                previous,
-                previous.toRawString().length,
-                textNode.toRawString(),
-              );
-            // FIXME: keep the attributes.
+              ..mergeText(previous, textNode);
             break;
           }
         }
@@ -66,17 +61,18 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
     }
   } else {
     final first = textNodes.first;
+    final last = textNodes.last;
     var content = textNodes.last.toRawString();
     content = content.substring(selection.end.offset, content.length);
     // Merge the fist and the last text node content,
     //  and delete the all nodes expect for the first.
     transactionBuilder
       ..deleteNodes(textNodes.sublist(1))
-      ..replaceText(
+      ..mergeText(
         first,
-        selection.start.offset,
-        first.toRawString().length - selection.start.offset,
-        content,
+        last,
+        firstOffset: selection.start.offset,
+        secondOffset: selection.end.offset,
       );
   }
 
