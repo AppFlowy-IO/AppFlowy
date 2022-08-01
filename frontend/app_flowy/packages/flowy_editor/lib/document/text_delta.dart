@@ -275,6 +275,11 @@ class Delta {
 
   Delta([List<TextOperation>? ops]) : operations = ops ?? <TextOperation>[];
 
+  Delta addAll(List<TextOperation> textOps) {
+    textOps.forEach(add);
+    return this;
+  }
+
   Delta add(TextOperation textOp) {
     if (textOp.isEmpty) {
       return this;

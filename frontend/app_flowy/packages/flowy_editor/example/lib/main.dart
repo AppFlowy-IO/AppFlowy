@@ -55,6 +55,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late EditorState _editorState;
+  final editorKey = GlobalKey();
   int page = 0;
 
   @override
@@ -116,6 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
             document: document,
           );
           return FlowyEditor(
+            key: editorKey,
             editorState: _editorState,
             keyEventHandlers: const [],
             customBuilders: {
