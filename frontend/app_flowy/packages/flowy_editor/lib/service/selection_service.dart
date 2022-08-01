@@ -1,18 +1,16 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
-import 'package:flowy_editor/render/selection/selectable.dart';
-import 'package:flowy_editor/render/selection/cursor_widget.dart';
-import 'package:flowy_editor/render/selection/selection_widget.dart';
-import 'package:flowy_editor/extensions/object_extensions.dart';
-import 'package:flowy_editor/extensions/node_extensions.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flowy_editor/service/toolbar_service.dart';
 import 'package:flowy_editor/editor_state.dart';
-
-import 'package:flutter/material.dart';
+import 'package:flowy_editor/extensions/node_extensions.dart';
+import 'package:flowy_editor/render/selection/cursor_widget.dart';
+import 'package:flowy_editor/render/selection/selectable.dart';
+import 'package:flowy_editor/render/selection/selection_widget.dart';
 
 /// Process selection and cursor
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
