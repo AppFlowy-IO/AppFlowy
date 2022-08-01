@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/application/user/settings_user_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flowy_infra/image.dart';
 
 import 'dart:convert';
 
@@ -61,11 +61,11 @@ class _CurrentIcon extends StatefulWidget {
 }
 
 class _CurrentIconState extends State<_CurrentIcon> {
-  String iconUrl = 'assets/images/emoji/page.svg';
+  String iconName = 'page';
 
-  _setIcon(String path) {
+  _setIcon(String name) {
     setState(() {
-      iconUrl = path;
+      iconName = name;
     });
     Navigator.of(context).pop();
   }
@@ -86,11 +86,19 @@ class _CurrentIconState extends State<_CurrentIcon> {
             );
           },
           child: Column(children: <Widget>[
-            const Align(alignment: Alignment.topLeft, child: Text("Icon")),
+            const Align(
+                alignment: Alignment.topLeft,
+                child: Text(
+                  "Icon",
+                  style: TextStyle(color: Colors.grey),
+                )),
             Align(
-              alignment: Alignment.centerLeft,
-              child: SvgPicture.asset(iconUrl),
-            ),
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  margin: const EdgeInsets.all(5.0),
+                  decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+                  child: svgWithSize('emoji/$iconName', const Size(60, 60)),
+                )),
           ])),
     );
   }
@@ -100,23 +108,26 @@ class IconGallery extends StatelessWidget {
   final Function setIcon;
   const IconGallery(this.setIcon, {Key? key}) : super(key: key);
 
-  Future<List<String>> _initImages(BuildContext context) async {
+  Future<List<String>> _getIconNames(BuildContext context) async {
     // >> To get paths you need these 2 lines
     final manifestContent = await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
 
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
     // >> To get paths you need these 2 lines
 
-    final imagePaths =
-        manifestMap.keys.where((String key) => key.startsWith('assets/images/emoji/') && key.endsWith('.svg')).toList();
+    final iconNames = manifestMap.keys
+        .where((String key) => key.startsWith('assets/images/emoji/') && key.endsWith('.svg'))
+        .map((String key) => key.split('/').last.split('.').first)
+        .toList();
 
-    return imagePaths;
+    debugPrint(iconNames.toString());
+    return iconNames;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<String>>(
-      future: _initImages(context),
+      future: _getIconNames(context),
       builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
         if (snapshot.hasData) {
           return GridView.count(
@@ -125,8 +136,8 @@ class IconGallery extends StatelessWidget {
             crossAxisSpacing: 10,
             mainAxisSpacing: 10,
             crossAxisCount: 5,
-            children: (snapshot.data ?? []).map((String fileName) {
-              return IconOption(fileName, 50.0, setIcon);
+            children: (snapshot.data ?? []).map((String iconName) {
+              return IconOption(iconName, 50.0, setIcon);
             }).toList(),
           );
         } else {
@@ -140,11 +151,11 @@ class IconGallery extends StatelessWidget {
 }
 
 class IconOption extends StatelessWidget {
-  final String fileName;
+  final String iconName;
   final double size;
   final Function setIcon;
 
-  IconOption(this.fileName, this.size, this.setIcon, {Key? key}) : super(key: ValueKey(fileName));
+  IconOption(this.iconName, this.size, this.setIcon, {Key? key}) : super(key: ValueKey(iconName));
 
   @override
   Widget build(BuildContext context) {
@@ -152,10 +163,9 @@ class IconOption extends StatelessWidget {
       color: Colors.transparent,
       child: GestureDetector(
         onTap: () {
-          debugPrint('$fileName is tapped');
-          setIcon(fileName);
+          setIcon(iconName);
         },
-        child: SvgPicture.asset(fileName),
+        child: svgWidget('emoji/$iconName'),
       ),
     );
   }
