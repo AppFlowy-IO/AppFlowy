@@ -23,4 +23,17 @@ class Transaction {
     this.beforeSelection,
     this.afterSelection,
   });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> result = {
+      "operations": operations.map((e) => e.toJson()),
+    };
+    if (beforeSelection != null) {
+      result["beforeSelection"] = beforeSelection!.toJson();
+    }
+    if (afterSelection != null) {
+      result["afterSelection"] = afterSelection!.toJson();
+    }
+    return result;
+  }
 }

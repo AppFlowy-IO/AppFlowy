@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:math';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/path.dart';
@@ -31,21 +30,21 @@ class TransactionBuilder {
 
   insertNode(Path path, Node node) {
     beforeSelection = state.cursorSelection;
-    add(InsertOperation(path: path, value: node));
+    add(InsertOperation(path, node));
   }
 
   updateNode(Node node, Attributes attributes) {
     beforeSelection = state.cursorSelection;
     add(UpdateOperation(
-      path: node.path,
-      attributes: Attributes.from(node.attributes)..addAll(attributes),
-      oldAttributes: node.attributes,
+      node.path,
+      Attributes.from(node.attributes)..addAll(attributes),
+      node.attributes,
     ));
   }
 
   deleteNode(Node node) {
     beforeSelection = state.cursorSelection;
-    add(DeleteOperation(path: node.path, removedValue: node));
+    add(DeleteOperation(node.path, node));
   }
 
   deleteNodes(List<Node> nodes) {
@@ -60,7 +59,7 @@ class TransactionBuilder {
 
     final inverted = delta.invert(node.delta);
 
-    add(TextEditOperation(path: path, delta: delta, inverted: inverted));
+    add(TextEditOperation(path, delta, inverted));
   }
 
   mergeText(TextNode firstNode, TextNode secondNode,
@@ -119,9 +118,9 @@ class TransactionBuilder {
           last is TextEditOperation &&
           pathEquals(op.path, last.path)) {
         final newOp = TextEditOperation(
-          path: op.path,
-          delta: last.delta.compose(op.delta),
-          inverted: op.inverted.compose(last.inverted),
+          op.path,
+          last.delta.compose(op.delta),
+          op.inverted.compose(last.inverted),
         );
         operations[operations.length - 1] = newOp;
         return;
