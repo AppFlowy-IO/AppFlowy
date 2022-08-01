@@ -434,7 +434,7 @@ mod tests {
     use chrono::Utc;
 
     use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-    use lib_ot::core::{OperationTransformable, PlainTextDelta, PlainTextDeltaBuilder};
+    use lib_ot::core::{OperationTransform, PlainTextDelta, PlainTextDeltaBuilder};
 
     #[test]
     fn folder_add_workspace() {

@@ -1,6 +1,7 @@
 #![allow(clippy::all)]
 use crate::editor::{Rng, TestBuilder, TestOp::*};
 use flowy_sync::client_document::{NewlineDoc, PlainDoc};
+use lib_ot::rich_text::RichTextDeltaBuilder;
 use lib_ot::{
     core::Interval,
     core::*,
@@ -39,12 +40,8 @@ fn attributes_insert_text_at_middle() {
 
 #[test]
 fn delta_get_ops_in_interval_1() {
-    let mut delta = RichTextDelta::default();
-    let insert_a = OperationBuilder::insert("123").build();
-    let insert_b = OperationBuilder::insert("4").build();
-
-    delta.add(insert_a.clone());
-    delta.add(insert_b.clone());
+    let operations = OperationBuilder::new().insert("123", None).insert("4", None).build();
+    let delta = RichTextDeltaBuilder::from_operations(operations);
 
     let mut iterator = DeltaIterator::from_interval(&delta, Interval::new(0, 4));
     assert_eq!(iterator.ops(), delta.ops);
@@ -365,7 +362,7 @@ fn apply_1000() {
         let mut rng = Rng::default();
         let s: FlowyStr = rng.gen_string(50).into();
         let delta = rng.gen_delta(&s);
-        assert_eq!(s.utf16_size(), delta.utf16_base_len);
+        assert_eq!(s.utf16_len(), delta.utf16_base_len);
     }
 }
 
@@ -489,11 +486,11 @@ fn compose() {
         let s = rng.gen_string(20);
         let a = rng.gen_delta(&s);
         let after_a: FlowyStr = a.apply(&s).unwrap().into();
-        assert_eq!(a.utf16_target_len, after_a.utf16_size());
+        assert_eq!(a.utf16_target_len, after_a.utf16_len());
 
         let b = rng.gen_delta(&after_a);
         let after_b: FlowyStr = b.apply(&after_a).unwrap().into();
-        assert_eq!(b.utf16_target_len, after_b.utf16_size());
+        assert_eq!(b.utf16_target_len, after_b.utf16_len());
 
         let ab = a.compose(&b).unwrap();
         assert_eq!(ab.utf16_target_len, b.utf16_target_len);

@@ -302,7 +302,7 @@ impl Rng {
         let mut delta = RichTextDelta::default();
         let s = FlowyStr::from(s);
         loop {
-            let left = s.utf16_size() - delta.utf16_base_len;
+            let left = s.utf16_len() - delta.utf16_base_len;
             if left == 0 {
                 break;
             }

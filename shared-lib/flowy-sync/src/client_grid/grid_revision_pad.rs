@@ -9,7 +9,7 @@ use flowy_grid_data_model::revision::{
     GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
 };
 use lib_infra::util::move_vec_element;
-use lib_ot::core::{OperationTransformable, PhantomAttributes, PlainTextDelta, PlainTextDeltaBuilder};
+use lib_ot::core::{OperationTransform, PhantomAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::collections::HashMap;
 use std::sync::Arc;
 

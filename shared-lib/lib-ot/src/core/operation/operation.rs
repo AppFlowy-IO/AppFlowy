@@ -11,7 +11,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-pub trait OperationTransformable {
+pub trait OperationTransform {
     /// Merges the operation with `other` into one operation while preserving
     /// the changes of both.    
     ///
@@ -22,7 +22,7 @@ pub trait OperationTransformable {
     /// # Examples
     ///
     /// ```
-    ///  use lib_ot::core::{OperationTransformable, PlainTextDeltaBuilder};
+    ///  use lib_ot::core::{OperationTransform, PlainTextDeltaBuilder};
     ///  let document = PlainTextDeltaBuilder::new().build();
     ///  let delta = PlainTextDeltaBuilder::new().insert("abc").build();
     ///  let new_document = document.compose(&delta).unwrap();
@@ -51,7 +51,7 @@ pub trait OperationTransformable {
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{OperationTransformable, PlainTextDeltaBuilder};
+    /// use lib_ot::core::{OperationTransform, PlainTextDeltaBuilder};
     /// let original_document = PlainTextDeltaBuilder::new().build();
     /// let delta = PlainTextDeltaBuilder::new().insert("abc").build();
     ///
@@ -71,7 +71,7 @@ pub trait OperationTransformable {
 /// Because [Operation] is generic over the T, so you must specify the T. For example, the [PlainTextDelta]. It use
 /// use [PhantomAttributes] as the T. [PhantomAttributes] does nothing, just a phantom.
 ///
-pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + OperationTransformable {
+pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + OperationTransform {
     fn is_empty(&self) -> bool {
         true
     }
@@ -360,7 +360,7 @@ where
     T: Attributes,
 {
     pub fn utf16_size(&self) -> usize {
-        self.s.utf16_size()
+        self.s.utf16_len()
     }
 
     pub fn merge_or_new_op(&mut self, s: &str, attributes: T) -> Option<Operation<T>> {
@@ -420,7 +420,7 @@ impl fmt::Display for PhantomAttributes {
 
 impl Attributes for PhantomAttributes {}
 
-impl OperationTransformable for PhantomAttributes {
+impl OperationTransform for PhantomAttributes {
     fn compose(&self, _other: &Self) -> Result<Self, OTError> {
         Ok(self.clone())
     }

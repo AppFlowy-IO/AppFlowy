@@ -4,7 +4,7 @@ use crate::util::{cal_diff, make_delta_from_revisions};
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision,
 };
-use lib_ot::core::{OperationTransformable, PhantomAttributes, PlainTextDelta, PlainTextDeltaBuilder};
+use lib_ot::core::{OperationTransform, PhantomAttributes, PlainTextDelta, PlainTextDeltaBuilder};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;

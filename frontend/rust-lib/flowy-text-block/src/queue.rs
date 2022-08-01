@@ -12,7 +12,7 @@ use flowy_sync::{
 };
 use futures::stream::StreamExt;
 use lib_ot::{
-    core::{Interval, OperationTransformable},
+    core::{Interval, OperationTransform},
     rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},
 };
 use std::sync::Arc;

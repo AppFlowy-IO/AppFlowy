@@ -3,7 +3,7 @@ use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use crate::core::delta::{DeltaIterator, MAX_IV_LEN};
 use crate::core::flowy_str::FlowyStr;
 use crate::core::interval::Interval;
-use crate::core::operation::{Attributes, Operation, OperationBuilder, OperationTransformable, PhantomAttributes};
+use crate::core::operation::{Attributes, Operation, OperationBuilder, OperationTransform, PhantomAttributes};
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
 use std::{
@@ -123,7 +123,7 @@ where
             return;
         }
 
-        self.utf16_target_len += s.utf16_size();
+        self.utf16_target_len += s.utf16_len();
         let new_last = match self.ops.as_mut_slice() {
             [.., Operation::<T>::Insert(insert)] => {
                 //
@@ -191,12 +191,12 @@ where
     /// ```
     pub fn apply(&self, applied_str: &str) -> Result<String, OTError> {
         let applied_str: FlowyStr = applied_str.into();
-        if applied_str.utf16_size() != self.utf16_base_len {
+        if applied_str.utf16_len() != self.utf16_base_len {
             return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
                 .msg(format!(
                     "Expected: {}, but received: {}",
                     self.utf16_base_len,
-                    applied_str.utf16_size()
+                    applied_str.utf16_len()
                 ))
                 .build());
         }
@@ -289,7 +289,7 @@ where
     }
 }
 
-impl<T> OperationTransformable for Delta<T>
+impl<T> OperationTransform for Delta<T>
 where
     T: Attributes,
 {
@@ -568,6 +568,17 @@ impl<T> Delta<T>
 where
     T: Attributes + DeserializeOwned,
 {
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::DeltaBuilder;
+    /// use lib_ot::rich_text::{RichTextDelta};
+    /// let json = r#"[
+    ///     {"retain":7,"attributes":{"bold":null}}
+    ///  ]"#;
+    /// let delta = RichTextDelta::from_json_str(json).unwrap();
+    /// assert_eq!(delta.to_json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
+    /// ```
     pub fn from_json_str(json: &str) -> Result<Self, OTError> {
         let delta = serde_json::from_str(json).map_err(|e| {
             tracing::trace!("Deserialize failed: {:?}", e);

@@ -5,8 +5,24 @@ use std::{fmt, fmt::Formatter};
 pub struct FlowyStr(pub String);
 
 impl FlowyStr {
-    // https://stackoverflow.com/questions/2241348/what-is-unicode-utf-8-utf-16
-    pub fn utf16_size(&self) -> usize {
+    ///
+    /// # Arguments
+    ///
+    /// * `delta`: The delta you want to iterate over.
+    /// * `interval`: The range for the cursor movement.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::FlowyStr;
+    /// let utf16_len = FlowyStr::from("👋").utf16_len();
+    /// assert_eq!(utf16_len, 2);
+    /// let bytes_len = String::from("👋").len();
+    /// assert_eq!(bytes_len, 4);
+    ///         
+    /// ```
+    /// https://stackoverflow.com/questions/2241348/what-is-unicode-utf-8-utf-16
+    pub fn utf16_len(&self) -> usize {
         count_utf16_code_units(&self.0)
     }
 
@@ -231,7 +247,7 @@ mod tests {
 
     #[test]
     fn flowy_str_code_unit() {
-        let size = FlowyStr::from("👋").utf16_size();
+        let size = FlowyStr::from("👋").utf16_len();
         assert_eq!(size, 2);
 
         let s: FlowyStr = "👋 \n👋".into();
@@ -251,7 +267,7 @@ mod tests {
     #[test]
     fn flowy_str_sub_str_in_chinese() {
         let s: FlowyStr = "你好\n😁".into();
-        let size = s.utf16_size();
+        let size = s.utf16_len();
         assert_eq!(size, 5);
 
         let output1 = s.sub_str(Interval::new(0, 2)).unwrap();
@@ -265,7 +281,7 @@ mod tests {
     #[test]
     fn flowy_str_sub_str_in_chinese2() {
         let s: FlowyStr = "😁 \n".into();
-        let size = s.utf16_size();
+        let size = s.utf16_len();
         assert_eq!(size, 4);
 
         let output1 = s.sub_str(Interval::new(0, 3)).unwrap();
@@ -277,7 +293,7 @@ mod tests {
     #[test]
     fn flowy_str_sub_str_in_english() {
         let s: FlowyStr = "ab".into();
-        let size = s.utf16_size();
+        let size = s.utf16_len();
         assert_eq!(size, 2);
 
         let output = s.sub_str(Interval::new(0, 2)).unwrap();
