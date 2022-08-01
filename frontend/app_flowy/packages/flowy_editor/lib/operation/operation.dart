@@ -6,6 +6,7 @@ abstract class Operation {
   Operation({required this.path});
   Operation copyWithPath(Path path);
   Operation invert();
+  Map<String, dynamic> toJson();
 }
 
 class InsertOperation extends Operation {
@@ -28,6 +29,15 @@ class InsertOperation extends Operation {
       path: path,
       removedValue: value,
     );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "type": "insert-operation",
+      "path": path.toList(),
+      "value": value.toJson(),
+    };
   }
 }
 
@@ -59,6 +69,16 @@ class UpdateOperation extends Operation {
       oldAttributes: attributes,
     );
   }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "type": "update-operation",
+      "path": path.toList(),
+      "attributes": {...attributes},
+      "oldAttributes": {...oldAttributes},
+    };
+  }
 }
 
 class DeleteOperation extends Operation {
@@ -81,6 +101,15 @@ class DeleteOperation extends Operation {
       path: path,
       value: removedValue,
     );
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "type": "delete-operation",
+      "path": path.toList(),
+      "removedValue": removedValue.toJson(),
+    };
   }
 }
 
@@ -106,6 +135,16 @@ class TextEditOperation extends Operation {
   @override
   Operation invert() {
     return TextEditOperation(path: path, delta: inverted, inverted: delta);
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+    return {
+      "type": "text-edit-operation",
+      "path": path.toList(),
+      "delta": delta.toJson(),
+      "invert": inverted.toJson(),
+    };
   }
 }
 

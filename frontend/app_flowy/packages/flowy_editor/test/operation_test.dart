@@ -78,4 +78,48 @@ void main() {
     expect(transaction.operations[1].path, [0]);
     expect(transaction.operations[2].path, [0]);
   });
+  group("toJson", () {
+    test("insert", () {
+      final root = Node(type: "root", attributes: {}, children: LinkedList());
+      final state = EditorState(document: StateTree(root: root));
+
+      final item1 = Node(type: "node", attributes: {}, children: LinkedList());
+      final tb = TransactionBuilder(state);
+      tb.insertNode([0], item1);
+
+      final transaction = tb.finish();
+      expect(transaction.toJson(), {
+        "operations": [
+          {
+            "type": "insert-operation",
+            "path": [0],
+            "value": item1.toJson(),
+          }
+        ],
+      });
+    });
+    test("delete", () {
+      final item1 = Node(type: "node", attributes: {}, children: LinkedList());
+      final root = Node(
+          type: "root",
+          attributes: {},
+          children: LinkedList()
+            ..addAll([
+              item1,
+            ]));
+      final state = EditorState(document: StateTree(root: root));
+      final tb = TransactionBuilder(state);
+      tb.deleteNode(item1);
+      final transaction = tb.finish();
+      expect(transaction.toJson(), {
+        "operations": [
+          {
+            "type": "delete-operation",
+            "path": [0],
+            "removedValue": item1.toJson(),
+          }
+        ],
+      });
+    });
+  });
 }
