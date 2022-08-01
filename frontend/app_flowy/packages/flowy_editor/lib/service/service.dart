@@ -21,9 +21,8 @@ class FlowyService {
   // render plugin service
   late FlowyRenderPlugin renderPluginService;
 
-  // floating shortcut service
-  final toolbarServiceKey =
-      GlobalKey(debugLabel: 'flowy_floating_shortcut_service');
+  // toolbar service
+  final toolbarServiceKey = GlobalKey(debugLabel: 'flowy_toolbar_service');
   ToolbarService get toolbarService {
     assert(toolbarServiceKey.currentState != null &&
         toolbarServiceKey.currentState is ToolbarService);

@@ -451,7 +451,7 @@ class _FlowySelectionState extends State<FlowySelection>
     _cursorOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
-    // clear floating shortcuts
+    // clear toolbar
     editorState.service.toolbarService.hide();
   }
 

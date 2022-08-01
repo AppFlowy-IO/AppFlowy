@@ -3,10 +3,10 @@ import 'package:flowy_editor/render/selection/toolbar_widget.dart';
 import 'package:flutter/material.dart';
 
 mixin ToolbarService {
-  /// Show the floating shortcut widget beside the offset.
+  /// Show the toolbar widget beside the offset.
   void showInOffset(Offset offset, LayerLink layerLink);
 
-  /// Hide the floating shortcut widget.
+  /// Hide the toolbar widget.
   void hide();
 }
 
@@ -25,12 +25,12 @@ class FlowyToolbar extends StatefulWidget {
 }
 
 class _FlowyToolbarState extends State<FlowyToolbar> with ToolbarService {
-  OverlayEntry? _floatingShortcutOverlay;
+  OverlayEntry? _toolbarOverlay;
 
   @override
   void showInOffset(Offset offset, LayerLink layerLink) {
-    _floatingShortcutOverlay?.remove();
-    _floatingShortcutOverlay = OverlayEntry(
+    _toolbarOverlay?.remove();
+    _toolbarOverlay = OverlayEntry(
       builder: (context) => ToolbarWidget(
         editorState: widget.editorState,
         layerLink: layerLink,
@@ -38,13 +38,13 @@ class _FlowyToolbarState extends State<FlowyToolbar> with ToolbarService {
         handlers: const [],
       ),
     );
-    Overlay.of(context)?.insert(_floatingShortcutOverlay!);
+    Overlay.of(context)?.insert(_toolbarOverlay!);
   }
 
   @override
   void hide() {
-    _floatingShortcutOverlay?.remove();
-    _floatingShortcutOverlay = null;
+    _toolbarOverlay?.remove();
+    _toolbarOverlay = null;
   }
 
   @override
