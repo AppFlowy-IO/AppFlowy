@@ -300,7 +300,7 @@ impl Rng {
 
     pub fn gen_delta(&mut self, s: &str) -> RichTextDelta {
         let mut delta = RichTextDelta::default();
-        let s = FlowyStr::from(s);
+        let s = OTString::from(s);
         loop {
             let left = s.utf16_len() - delta.utf16_base_len;
             if left == 0 {

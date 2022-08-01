@@ -1,4 +1,4 @@
-use crate::core::flowy_str::FlowyStr;
+use crate::core::flowy_str::OTString;
 use crate::core::interval::Interval;
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize, __private::Formatter};
@@ -124,7 +124,7 @@ where
     /// Create a [Insert] operation with the given attributes
     pub fn insert_with_attributes(s: &str, attributes: T) -> Self {
         Self::Insert(Insert {
-            s: FlowyStr::from(s),
+            s: OTString::from(s),
             attributes,
         })
     }
@@ -132,7 +132,7 @@ where
     /// Create a [Insert] operation without attributes
     pub fn insert(s: &str) -> Self {
         Self::Insert(Insert {
-            s: FlowyStr::from(s),
+            s: OTString::from(s),
             attributes: T::default(),
         })
     }
@@ -376,7 +376,7 @@ where
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Insert<T: Attributes> {
-    pub s: FlowyStr,
+    pub s: OTString,
     pub attributes: T,
 }
 
@@ -444,11 +444,11 @@ where
     }
 }
 
-impl<T> std::convert::From<FlowyStr> for Insert<T>
+impl<T> std::convert::From<OTString> for Insert<T>
 where
     T: Attributes,
 {
-    fn from(s: FlowyStr) -> Self {
+    fn from(s: OTString) -> Self {
         Insert {
             s,
             attributes: T::default(),

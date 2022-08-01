@@ -333,7 +333,7 @@ fn sequence() {
 fn apply_1000() {
     for _ in 0..1 {
         let mut rng = Rng::default();
-        let s: FlowyStr = rng.gen_string(50).into();
+        let s: OTString = rng.gen_string(50).into();
         let delta = rng.gen_delta(&s);
         assert_eq!(s.utf16_len(), delta.utf16_base_len);
     }
@@ -458,16 +458,16 @@ fn compose() {
         let mut rng = Rng::default();
         let s = rng.gen_string(20);
         let a = rng.gen_delta(&s);
-        let after_a: FlowyStr = a.apply(&s).unwrap().into();
+        let after_a: OTString = a.apply(&s).unwrap().into();
         assert_eq!(a.utf16_target_len, after_a.utf16_len());
 
         let b = rng.gen_delta(&after_a);
-        let after_b: FlowyStr = b.apply(&after_a).unwrap().into();
+        let after_b: OTString = b.apply(&after_a).unwrap().into();
         assert_eq!(b.utf16_target_len, after_b.utf16_len());
 
         let ab = a.compose(&b).unwrap();
         assert_eq!(ab.utf16_target_len, b.utf16_target_len);
-        let after_ab: FlowyStr = ab.apply(&s).unwrap().into();
+        let after_ab: OTString = ab.apply(&s).unwrap().into();
         assert_eq!(after_b, after_ab);
     }
 }

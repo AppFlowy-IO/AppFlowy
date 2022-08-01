@@ -1,7 +1,7 @@
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 
 use crate::core::delta::{DeltaIterator, MAX_IV_LEN};
-use crate::core::flowy_str::FlowyStr;
+use crate::core::flowy_str::OTString;
 use crate::core::interval::Interval;
 use crate::core::operation::{Attributes, Operation, OperationTransform, PhantomAttributes};
 use bytes::Bytes;
@@ -118,7 +118,7 @@ where
 
     /// Creating a [Insert] operation with string, [s].
     pub fn insert(&mut self, s: &str, attributes: T) {
-        let s: FlowyStr = s.into();
+        let s: OTString = s.into();
         if s.is_empty() {
             return;
         }
@@ -189,7 +189,7 @@ where
     ///  assert_eq!("hello, AppFlowy", &after_b);
     /// ```
     pub fn apply(&self, applied_str: &str) -> Result<String, OTError> {
-        let applied_str: FlowyStr = applied_str.into();
+        let applied_str: OTString = applied_str.into();
         if applied_str.utf16_len() != self.utf16_base_len {
             return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength)
                 .msg(format!(
@@ -200,7 +200,7 @@ where
                 .build());
         }
         let mut new_s = String::new();
-        let code_point_iter = &mut applied_str.utf16_code_unit_iter();
+        let code_point_iter = &mut applied_str.utf16_iter();
         for op in &self.ops {
             match &op {
                 Operation::Retain(retain) => {
@@ -246,8 +246,8 @@ where
     ///
     pub fn invert_str(&self, inverted_s: &str) -> Self {
         let mut inverted = Delta::default();
-        let inverted_s: FlowyStr = inverted_s.into();
-        let code_point_iter = &mut inverted_s.utf16_code_unit_iter();
+        let inverted_s: OTString = inverted_s.into();
+        let code_point_iter = &mut inverted_s.utf16_iter();
 
         for op in &self.ops {
             match &op {

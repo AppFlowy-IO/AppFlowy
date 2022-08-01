@@ -7,7 +7,7 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 use dissimilar::Chunk;
-use lib_ot::core::{DeltaBuilder, FlowyStr};
+use lib_ot::core::{DeltaBuilder, OTString};
 use lib_ot::{
     core::{Attributes, Delta, OperationTransform, NEW_LINE, WHITESPACE},
     rich_text::RichTextDelta,
@@ -208,10 +208,10 @@ pub fn cal_diff<T: Attributes>(old: String, new: String) -> Option<Delta<T>> {
     for chunk in &chunks {
         match chunk {
             Chunk::Equal(s) => {
-                delta_builder = delta_builder.retain(FlowyStr::from(*s).utf16_len());
+                delta_builder = delta_builder.retain(OTString::from(*s).utf16_len());
             }
             Chunk::Delete(s) => {
-                delta_builder = delta_builder.delete(FlowyStr::from(*s).utf16_len());
+                delta_builder = delta_builder.delete(OTString::from(*s).utf16_len());
             }
             Chunk::Insert(s) => {
                 delta_builder = delta_builder.insert(*s);
