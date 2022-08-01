@@ -1,5 +1,5 @@
 import 'package:flowy_editor/service/render_plugin_service.dart';
-import 'package:flowy_editor/service/shortcut_service.dart';
+import 'package:flowy_editor/service/toolbar_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
 import 'package:flutter/material.dart';
 
@@ -22,13 +22,11 @@ class FlowyService {
   late FlowyRenderPlugin renderPluginService;
 
   // floating shortcut service
-  final floatingShortcutServiceKey =
+  final toolbarServiceKey =
       GlobalKey(debugLabel: 'flowy_floating_shortcut_service');
-  FlowyFloatingShortcutService get floatingToolbarService {
-    assert(floatingShortcutServiceKey.currentState != null &&
-        floatingShortcutServiceKey.currentState
-            is FlowyFloatingShortcutService);
-    return floatingShortcutServiceKey.currentState!
-        as FlowyFloatingShortcutService;
+  ToolbarService get toolbarService {
+    assert(toolbarServiceKey.currentState != null &&
+        toolbarServiceKey.currentState is ToolbarService);
+    return toolbarServiceKey.currentState! as ToolbarService;
   }
 }
