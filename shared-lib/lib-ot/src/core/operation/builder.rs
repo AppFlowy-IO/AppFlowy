@@ -1,51 +1,47 @@
 use crate::core::operation::{Attributes, Operation, PhantomAttributes};
 use crate::rich_text::RichTextAttributes;
 
-pub type RichTextOpBuilder = OperationBuilder<RichTextAttributes>;
-pub type PlainTextOpBuilder = OperationBuilder<PhantomAttributes>;
+pub type RichTextOpBuilder = OperationsBuilder<RichTextAttributes>;
+pub type PlainTextOpBuilder = OperationsBuilder<PhantomAttributes>;
 
-pub struct OperationBuilder<T: Attributes> {
+pub struct OperationsBuilder<T: Attributes> {
     operations: Vec<Operation<T>>,
 }
 
-impl<T> OperationBuilder<T>
+impl<T> OperationsBuilder<T>
 where
     T: Attributes,
 {
-    pub fn new() -> OperationBuilder<T> {
-        OperationBuilder { operations: vec![] }
+    pub fn new() -> OperationsBuilder<T> {
+        OperationsBuilder { operations: vec![] }
     }
 
-    pub fn retain(mut self, n: usize) -> OperationBuilder<T> {
-        let mut retain = Operation::Retain(n.into());
-
-        if let Some(attributes) = attributes {
-            if let Operation::Retain(r) = &mut retain {
-                r.attributes = attributes;
-            }
-        }
+    pub fn retain_with_attributes(mut self, n: usize, attributes: T) -> OperationsBuilder<T> {
+        let retain = Operation::retain_with_attributes(n.into(), attributes);
         self.operations.push(retain);
         self
     }
 
-    pub fn delete(mut self, n: usize) -> OperationBuilder<T> {
+    pub fn retain(mut self, n: usize) -> OperationsBuilder<T> {
+        let retain = Operation::retain(n.into());
+        self.operations.push(retain);
+        self
+    }
+
+    pub fn delete(mut self, n: usize) -> OperationsBuilder<T> {
         self.operations.push(Operation::Delete(n));
         self
     }
 
-    pub fn insert(mut self, s: &str, attributes: Option<T>) -> OperationBuilder<T> {
-        let mut insert = Operation::Insert(s.into());
-        if let Some(attributes) = attributes {
-            if let Operation::Retain(i) = &mut insert {
-                i.attributes = attributes;
-            }
-        }
+    pub fn insert_with_attributes(mut self, s: &str, attributes: T) -> OperationsBuilder<T> {
+        let insert = Operation::insert_with_attributes(s.into(), attributes);
         self.operations.push(insert);
         self
     }
 
-    pub fn attributes(mut self, attrs: T) -> OperationBuilder<T> {
-        self.attrs = attrs;
+    pub fn insert(mut self, s: &str) -> OperationsBuilder<T> {
+        let insert = Operation::insert(s.into());
+        self.operations.push(insert);
         self
     }
 

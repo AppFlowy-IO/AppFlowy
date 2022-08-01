@@ -30,6 +30,22 @@ impl FlowyStr {
         Utf16CodeUnitIterator::new(self)
     }
 
+    /// Return a new string with the given [Interval]
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::{FlowyStr, Interval};
+    /// let s: FlowyStr = "你好\n😁".into();
+    /// assert_eq!(s.utf16_len(), 5);
+    /// let output1 = s.sub_str(Interval::new(0, 2)).unwrap();
+    /// assert_eq!(output1, "你好");
+    ///
+    /// let output2 = s.sub_str(Interval::new(2, 3)).unwrap();
+    /// assert_eq!(output2, "\n");
+    ///
+    /// let output3 = s.sub_str(Interval::new(3, 5)).unwrap();
+    /// assert_eq!(output3, "😁");
+    /// ```
     pub fn sub_str(&self, interval: Interval) -> Option<String> {
         let mut iter = Utf16CodeUnitIterator::new(self);
         let mut buf = vec![];
@@ -49,8 +65,28 @@ impl FlowyStr {
         }
     }
 
+    /// Return a new string with the given [Interval]
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::FlowyStr;
+    /// let s: FlowyStr = "👋😁👋".into();    ///
+    /// let mut iter = s.utf16_code_point_iter();
+    /// assert_eq!(iter.next().unwrap(), "👋".to_string());
+    /// assert_eq!(iter.next().unwrap(), "😁".to_string());
+    /// assert_eq!(iter.next().unwrap(), "👋".to_string());
+    /// assert_eq!(iter.next(), None);
+    ///
+    /// let s: FlowyStr = "👋12ab一二👋".into();    ///
+    /// let mut iter = s.utf16_code_point_iter();
+    /// assert_eq!(iter.next().unwrap(), "👋".to_string());
+    /// assert_eq!(iter.next().unwrap(), "1".to_string());
+    /// assert_eq!(iter.next().unwrap(), "2".to_string());
+    ///
+    /// assert_eq!(iter.skip(FlowyStr::from("ab一二").utf16_len()).next().unwrap(), "👋".to_string());
+    /// ```
     #[allow(dead_code)]
-    fn utf16_code_point_iter(&self) -> FlowyUtf16CodePointIterator {
+    pub fn utf16_code_point_iter(&self) -> FlowyUtf16CodePointIterator {
         FlowyUtf16CodePointIterator::new(self, 0)
     }
 }
@@ -265,20 +301,6 @@ mod tests {
     }
 
     #[test]
-    fn flowy_str_sub_str_in_chinese() {
-        let s: FlowyStr = "你好\n😁".into();
-        let size = s.utf16_len();
-        assert_eq!(size, 5);
-
-        let output1 = s.sub_str(Interval::new(0, 2)).unwrap();
-        let output2 = s.sub_str(Interval::new(2, 3)).unwrap();
-        let output3 = s.sub_str(Interval::new(3, 5)).unwrap();
-        assert_eq!(output1, "你好");
-        assert_eq!(output2, "\n");
-        assert_eq!(output3, "😁");
-    }
-
-    #[test]
     fn flowy_str_sub_str_in_chinese2() {
         let s: FlowyStr = "😁 \n".into();
         let size = s.utf16_len();
@@ -298,16 +320,6 @@ mod tests {
 
         let output = s.sub_str(Interval::new(0, 2)).unwrap();
         assert_eq!(output, "ab");
-    }
-
-    #[test]
-    fn flowy_str_utf16_code_point_iter_test1() {
-        let s: FlowyStr = "👋😁👋".into();
-        let mut iter = s.utf16_code_point_iter();
-        assert_eq!(iter.next().unwrap(), "👋".to_string());
-        assert_eq!(iter.next().unwrap(), "😁".to_string());
-        assert_eq!(iter.next().unwrap(), "👋".to_string());
-        assert_eq!(iter.next(), None);
     }
 
     #[test]

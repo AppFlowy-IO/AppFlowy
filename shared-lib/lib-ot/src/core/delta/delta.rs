@@ -3,7 +3,7 @@ use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use crate::core::delta::{DeltaIterator, MAX_IV_LEN};
 use crate::core::flowy_str::FlowyStr;
 use crate::core::interval::Interval;
-use crate::core::operation::{Attributes, Operation, OperationBuilder, OperationTransform, PhantomAttributes};
+use crate::core::operation::{Attributes, Operation, OperationTransform, PhantomAttributes};
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
 use std::{
@@ -112,7 +112,7 @@ where
         if let Some(Operation::Delete(n_last)) = self.ops.last_mut() {
             *n_last += n;
         } else {
-            self.ops.push(OperationBuilder::delete(n).build());
+            self.ops.push(Operation::delete(n));
         }
     }
 
@@ -135,10 +135,10 @@ where
             }
             [.., op_last @ Operation::<T>::Delete(_)] => {
                 let new_last = op_last.clone();
-                *op_last = OperationBuilder::<T>::insert(&s).attributes(attributes).build();
+                *op_last = Operation::<T>::insert_with_attributes(&s, attributes);
                 Some(new_last)
             }
-            _ => Some(OperationBuilder::<T>::insert(&s).attributes(attributes).build()),
+            _ => Some(Operation::<T>::insert_with_attributes(&s, attributes)),
         };
 
         match new_last {
@@ -160,8 +160,7 @@ where
                 self.ops.push(new_op);
             }
         } else {
-            self.ops
-                .push(OperationBuilder::<T>::retain(n).attributes(attributes).build());
+            self.ops.push(Operation::<T>::retain_with_attributes(n, attributes));
         }
     }
 
@@ -319,10 +318,10 @@ where
 
             let op = iter
                 .next_op_with_len(length)
-                .unwrap_or_else(|| OperationBuilder::retain(length).build());
+                .unwrap_or_else(|| Operation::retain(length));
             let other_op = other_iter
                 .next_op_with_len(length)
-                .unwrap_or_else(|| OperationBuilder::retain(length).build());
+                .unwrap_or_else(|| Operation::retain(length));
 
             // debug_assert_eq!(op.len(), other_op.len(), "Composing delta failed,");
 
@@ -330,16 +329,12 @@ where
                 (Operation::Retain(retain), Operation::Retain(other_retain)) => {
                     let composed_attrs = retain.attributes.compose(&other_retain.attributes)?;
 
-                    new_delta.add(OperationBuilder::retain(retain.n).attributes(composed_attrs).build())
+                    new_delta.add(Operation::retain_with_attributes(retain.n, composed_attrs))
                 }
                 (Operation::Insert(insert), Operation::Retain(other_retain)) => {
                     let mut composed_attrs = insert.attributes.compose(&other_retain.attributes)?;
                     composed_attrs.remove_empty();
-                    new_delta.add(
-                        OperationBuilder::insert(op.get_data())
-                            .attributes(composed_attrs)
-                            .build(),
-                    )
+                    new_delta.add(Operation::insert_with_attributes(op.get_data(), composed_attrs))
                 }
                 (Operation::Retain(_), Operation::Delete(_)) => {
                     new_delta.add(other_op);
@@ -402,7 +397,7 @@ where
                         Ordering::Less => {
                             a_prime.retain(retain.n, composed_attrs.clone());
                             b_prime.retain(retain.n, composed_attrs.clone());
-                            next_op2 = Some(OperationBuilder::retain(o_retain.n - retain.n).build());
+                            next_op2 = Some(Operation::retain(o_retain.n - retain.n));
                             next_op1 = ops1.next();
                         }
                         Ordering::Equal => {
@@ -414,14 +409,14 @@ where
                         Ordering::Greater => {
                             a_prime.retain(o_retain.n, composed_attrs.clone());
                             b_prime.retain(o_retain.n, composed_attrs.clone());
-                            next_op1 = Some(OperationBuilder::retain(retain.n - o_retain.n).build());
+                            next_op1 = Some(Operation::retain(retain.n - o_retain.n));
                             next_op2 = ops2.next();
                         }
                     };
                 }
                 (Some(Operation::Delete(i)), Some(Operation::Delete(j))) => match i.cmp(j) {
                     Ordering::Less => {
-                        next_op2 = Some(OperationBuilder::delete(*j - *i).build());
+                        next_op2 = Some(Operation::delete(*j - *i));
                         next_op1 = ops1.next();
                     }
                     Ordering::Equal => {
@@ -429,7 +424,7 @@ where
                         next_op2 = ops2.next();
                     }
                     Ordering::Greater => {
-                        next_op1 = Some(OperationBuilder::delete(*i - *j).build());
+                        next_op1 = Some(Operation::delete(*i - *j));
                         next_op2 = ops2.next();
                     }
                 },
@@ -437,7 +432,7 @@ where
                     match i.cmp(o_retain) {
                         Ordering::Less => {
                             a_prime.delete(*i);
-                            next_op2 = Some(OperationBuilder::retain(o_retain.n - *i).build());
+                            next_op2 = Some(Operation::retain(o_retain.n - *i));
                             next_op1 = ops1.next();
                         }
                         Ordering::Equal => {
@@ -447,7 +442,7 @@ where
                         }
                         Ordering::Greater => {
                             a_prime.delete(o_retain.n);
-                            next_op1 = Some(OperationBuilder::delete(*i - o_retain.n).build());
+                            next_op1 = Some(Operation::delete(*i - o_retain.n));
                             next_op2 = ops2.next();
                         }
                     };
@@ -456,7 +451,7 @@ where
                     match retain.cmp(j) {
                         Ordering::Less => {
                             b_prime.delete(retain.n);
-                            next_op2 = Some(OperationBuilder::delete(*j - retain.n).build());
+                            next_op2 = Some(Operation::delete(*j - retain.n));
                             next_op1 = ops1.next();
                         }
                         Ordering::Equal => {
@@ -466,7 +461,7 @@ where
                         }
                         Ordering::Greater => {
                             b_prime.delete(*j);
-                            next_op1 = Some(OperationBuilder::retain(retain.n - *j).build());
+                            next_op1 = Some(Operation::retain(retain.n - *j));
                             next_op2 = ops2.next();
                         }
                     };

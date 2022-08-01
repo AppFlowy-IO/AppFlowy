@@ -1,6 +1,5 @@
 use crate::core::flowy_str::FlowyStr;
 use crate::core::interval::Interval;
-use crate::core::operation::OperationBuilder;
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize, __private::Formatter};
 use std::fmt::Display;
@@ -105,6 +104,40 @@ impl<T> Operation<T>
 where
     T: Attributes,
 {
+    pub fn delete(n: usize) -> Self {
+        Self::Delete(n)
+    }
+
+    /// Create a [Retain] operation with the given attributes
+    pub fn retain_with_attributes(n: usize, attributes: T) -> Self {
+        Self::Retain(Retain { n, attributes })
+    }
+
+    /// Create a [Retain] operation without attributes
+    pub fn retain(n: usize) -> Self {
+        Self::Retain(Retain {
+            n,
+            attributes: T::default(),
+        })
+    }
+
+    /// Create a [Insert] operation with the given attributes
+    pub fn insert_with_attributes(s: &str, attributes: T) -> Self {
+        Self::Insert(Insert {
+            s: FlowyStr::from(s),
+            attributes,
+        })
+    }
+
+    /// Create a [Insert] operation without attributes
+    pub fn insert(s: &str) -> Self {
+        Self::Insert(Insert {
+            s: FlowyStr::from(s),
+            attributes: T::default(),
+        })
+    }
+
+    /// Return the String if the operation is [Insert] operation, otherwise return the empty string.
     pub fn get_data(&self) -> &str {
         match self {
             Operation::Delete(_) => "",
@@ -152,45 +185,58 @@ where
         let right;
         match self {
             Operation::Delete(n) => {
-                left = Some(OperationBuilder::<T>::delete(index).build());
-                right = Some(OperationBuilder::<T>::delete(*n - index).build());
+                left = Some(Operation::<T>::delete(index));
+                right = Some(Operation::<T>::delete(*n - index));
             }
             Operation::Retain(retain) => {
-                left = Some(OperationBuilder::<T>::delete(index).build());
-                right = Some(OperationBuilder::<T>::delete(retain.n - index).build());
+                left = Some(Operation::<T>::delete(index));
+                right = Some(Operation::<T>::delete(retain.n - index));
             }
             Operation::Insert(insert) => {
                 let attributes = self.get_attributes();
-                left = Some(
-                    OperationBuilder::<T>::insert(&insert.s[0..index])
-                        .attributes(attributes.clone())
-                        .build(),
-                );
-                right = Some(
-                    OperationBuilder::<T>::insert(&insert.s[index..insert.utf16_size()])
-                        .attributes(attributes)
-                        .build(),
-                );
+                left = Some(Operation::<T>::insert_with_attributes(
+                    &insert.s[0..index],
+                    attributes.clone(),
+                ));
+                right = Some(Operation::<T>::insert_with_attributes(
+                    &insert.s[index..insert.utf16_size()],
+                    attributes,
+                ));
             }
         }
 
         (left, right)
     }
 
+    /// Returns an operation with the specified width.
+    /// # Arguments
+    ///
+    /// * `interval`: Specify the shrink width of the operation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::{Interval, Operation, PhantomAttributes};
+    /// let operation = Operation::<PhantomAttributes>::insert("1234");
+    ///
+    /// let op1 = operation.shrink(Interval::new(0,3)).unwrap();
+    /// assert_eq!(op1 , Operation::insert("123"));
+    ///
+    /// let op2= operation.shrink(Interval::new(3,4)).unwrap();
+    /// assert_eq!(op2, Operation::insert("4"));
+    /// ```
     pub fn shrink(&self, interval: Interval) -> Option<Operation<T>> {
         let op = match self {
-            Operation::Delete(n) => OperationBuilder::delete(min(*n, interval.size())).build(),
-            Operation::Retain(retain) => OperationBuilder::retain(min(retain.n, interval.size()))
-                .attributes(retain.attributes.clone())
-                .build(),
+            Operation::Delete(n) => Operation::delete(min(*n, interval.size())),
+            Operation::Retain(retain) => {
+                Operation::retain_with_attributes(min(retain.n, interval.size()), retain.attributes.clone())
+            }
             Operation::Insert(insert) => {
                 if interval.start > insert.utf16_size() {
-                    OperationBuilder::insert("").build()
+                    Operation::insert("")
                 } else {
                     let s = insert.s.sub_str(interval).unwrap_or_else(|| "".to_owned());
-                    OperationBuilder::insert(&s)
-                        .attributes(insert.attributes.clone())
-                        .build()
+                    Operation::insert_with_attributes(&s, insert.attributes.clone())
                 }
             }
         };
@@ -287,7 +333,7 @@ where
             self.n += n;
             None
         } else {
-            Some(OperationBuilder::retain(n).attributes(attributes).build())
+            Some(Operation::retain_with_attributes(n, attributes))
         }
     }
 
@@ -368,7 +414,7 @@ where
             self.s += s;
             None
         } else {
-            Some(OperationBuilder::<T>::insert(s).attributes(attributes).build())
+            Some(Operation::<T>::insert_with_attributes(s, attributes))
         }
     }
 
