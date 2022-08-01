@@ -17,10 +17,14 @@ _pasteHTML(EditorState editorState, String html) {
     return;
   }
 
-  final tb = TransactionBuilder(editorState);
-  for (final node in nodes) {
-    tb.insertNode(selection.end.path, node);
+  final path = [...selection.end.path];
+  if (path.isEmpty) {
+    return;
   }
+  path[path.length - 1]++;
+
+  final tb = TransactionBuilder(editorState);
+  tb.insertNodes(path, nodes);
   tb.commit();
 }
 
