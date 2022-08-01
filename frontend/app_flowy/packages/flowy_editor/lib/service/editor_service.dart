@@ -7,17 +7,18 @@ import 'package:flowy_editor/render/editor/editor_entry.dart';
 import 'package:flowy_editor/render/rich_text/bulleted_list_text.dart';
 import 'package:flowy_editor/render/rich_text/checkbox_text.dart';
 import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
+import 'package:flowy_editor/service/input_service.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/enter_in_edge_of_text_node_handler.dart';
+import 'package:flowy_editor/service/render_plugin_service.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/arrow_keys_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/copy_paste_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/delete_nodes_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/shortcut_handler.dart';
+import 'package:flowy_editor/service/keyboard_service.dart';
+import 'package:flowy_editor/service/selection_service.dart';
 import 'package:flowy_editor/render/rich_text/heading_text.dart';
 import 'package:flowy_editor/render/rich_text/number_list_text.dart';
 import 'package:flowy_editor/render/rich_text/quoted_text.dart';
-import 'package:flowy_editor/service/input_service.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/arrow_keys_handler.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/delete_nodes_handler.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/enter_in_edge_of_text_node_handler.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/shortcut_handler.dart';
-import 'package:flowy_editor/service/keyboard_service.dart';
-import 'package:flowy_editor/service/render_plugin_service.dart';
-import 'package:flowy_editor/service/selection_service.dart';
 import 'package:flowy_editor/service/toolbar_service.dart';
 
 NodeWidgetBuilders defaultBuilders = {
@@ -35,6 +36,7 @@ List<FlowyKeyEventHandler> defaultKeyEventHandler = [
   slashShortcutHandler,
   flowyDeleteNodesHandler,
   arrowKeysHandler,
+  copyPasteKeysHandler,
   enterInEdgeOfTextNodeHandler,
   updateTextStyleByCommandXHandler,
 ];
