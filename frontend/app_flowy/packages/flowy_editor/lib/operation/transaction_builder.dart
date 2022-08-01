@@ -29,8 +29,12 @@ class TransactionBuilder {
   }
 
   insertNode(Path path, Node node) {
+    insertNodes(path, [node]);
+  }
+
+  insertNodes(Path path, List<Node> nodes) {
     beforeSelection = state.cursorSelection;
-    add(InsertOperation(path, node));
+    add(InsertOperation(path, nodes));
   }
 
   updateNode(Node node, Attributes attributes) {
@@ -43,12 +47,26 @@ class TransactionBuilder {
   }
 
   deleteNode(Node node) {
-    beforeSelection = state.cursorSelection;
-    add(DeleteOperation(node.path, node));
+    deleteNodesAtPath(node.path);
   }
 
   deleteNodes(List<Node> nodes) {
     nodes.forEach(deleteNode);
+  }
+
+  deleteNodesAtPath(Path path, [int length = 1]) {
+    if (path.isEmpty) {
+      return;
+    }
+    final nodes = <Node>[];
+    final prefix = path.sublist(0, path.length - 1);
+    final last = path.last;
+    for (var i = 0; i < length; i++) {
+      final node = state.document.nodeAtPath(prefix + [last + i])!;
+      nodes.add(node);
+    }
+
+    add(DeleteOperation(path, nodes));
   }
 
   textEdit(TextNode node, Delta Function() f) {

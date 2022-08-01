@@ -22,17 +22,21 @@ class StateTree {
     return root.childAtPath(path);
   }
 
-  bool insert(Path path, Node node) {
+  bool insert(Path path, List<Node> nodes) {
     if (path.isEmpty) {
       return false;
     }
-    final insertedNode = root.childAtPath(
+    Node? insertedNode = root.childAtPath(
       path.sublist(0, path.length - 1) + [path.last - 1],
     );
     if (insertedNode == null) {
       return false;
     }
-    insertedNode.insertAfter(node);
+    for (var i = 0; i < nodes.length; i++) {
+      final node = nodes[i];
+      insertedNode!.insertAfter(node);
+      insertedNode = node;
+    }
     return true;
   }
 
@@ -48,13 +52,17 @@ class StateTree {
     return false;
   }
 
-  Node? delete(Path path) {
+  delete(Path path, [int length = 1]) {
     if (path.isEmpty) {
       return null;
     }
-    final deletedNode = root.childAtPath(path);
-    deletedNode?.unlink();
-    return deletedNode;
+    var deletedNode = root.childAtPath(path);
+    while (deletedNode != null && length > 0) {
+      final next = deletedNode.next;
+      deletedNode.unlink();
+      length--;
+      deletedNode = next;
+    }
   }
 
   Attributes? update(Path path, Attributes attributes) {
