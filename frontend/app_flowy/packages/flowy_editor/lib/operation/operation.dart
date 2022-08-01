@@ -2,6 +2,16 @@ import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 
 abstract class Operation {
+  factory Operation.fromJson(Map<String, dynamic> map) {
+    String t = map["type"] as String;
+    if (t == "insert-operation") {
+      final path = map["path"] as List<int>;
+      final value = Node.fromJson(map["value"]);
+      return InsertOperation(path: path, value: value);
+    }
+
+    throw ArgumentError('unexpected type $t');
+  }
   final Path path;
   Operation({required this.path});
   Operation copyWithPath(Path path);
