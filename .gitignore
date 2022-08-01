@@ -35,3 +35,4 @@ pubspec.lock
 
 # ignore tool used for commit linting
 .githooks/gitlint
+.githooks/gitlint.exe
