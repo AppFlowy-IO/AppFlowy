@@ -1,10 +1,10 @@
-import 'package:flowy_editor/document/node.dart';
-import 'package:flowy_editor/document/selection.dart';
-import 'package:flowy_editor/editor_state.dart';
-import 'package:flowy_editor/operation/transaction_builder.dart';
-import 'package:flowy_editor/service/keyboard_service.dart';
-import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flutter/material.dart';
+
+import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/extensions/text_node_extensions.dart';
+import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
+import 'package:flowy_editor/service/default_text_operations/format_rich_text_style.dart';
+import 'package:flowy_editor/service/keyboard_service.dart';
 
 FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
   if (!event.isMetaPressed || event.character == null) {
@@ -12,11 +12,10 @@ FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
   }
 
   final selection = editorState.service.selectionService.currentSelection;
-  final nodes = editorState.service.selectionService.currentSelectedNodes.value
-      .whereType<TextNode>()
-      .toList();
+  final nodes = editorState.service.selectionService.currentSelectedNodes.value;
+  final textNodes = nodes.whereType<TextNode>().toList(growable: false);
 
-  if (selection == null || nodes.isEmpty) {
+  if (selection == null || textNodes.isEmpty) {
     return KeyEventResult.ignored;
   }
 
@@ -24,7 +23,9 @@ FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
     // bold
     case 'B':
     case 'b':
-      _makeBold(editorState, nodes, selection);
+      formatRichTextStyle(editorState, {
+        StyleKey.bold: !textNodes.allSatisfyBoldInSelection(selection),
+      });
       return KeyEventResult.handled;
     default:
       break;
@@ -32,52 +33,3 @@ FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
 
   return KeyEventResult.ignored;
 };
-
-// TODO: implement unBold.
-void _makeBold(
-    EditorState editorState, List<TextNode> nodes, Selection selection) {
-  final builder = TransactionBuilder(editorState);
-  if (nodes.length == 1) {
-    builder.formatText(
-      nodes.first,
-      selection.start.offset,
-      selection.end.offset - selection.start.offset,
-      {
-        'bold': true,
-      },
-    );
-  } else {
-    for (var i = 0; i < nodes.length; i++) {
-      final node = nodes[i];
-      if (i == 0) {
-        builder.formatText(
-          node,
-          selection.start.offset,
-          node.toRawString().length - selection.start.offset,
-          {
-            'bold': true,
-          },
-        );
-      } else if (i == nodes.length - 1) {
-        builder.formatText(
-          node,
-          0,
-          selection.end.offset,
-          {
-            'bold': true,
-          },
-        );
-      } else {
-        builder.formatText(
-          node,
-          0,
-          node.toRawString().length,
-          {
-            'bold': true,
-          },
-        );
-      }
-    }
-  }
-  builder.commit();
-}

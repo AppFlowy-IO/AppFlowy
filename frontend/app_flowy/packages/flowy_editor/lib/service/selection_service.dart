@@ -422,14 +422,19 @@ class _FlowySelectionState extends State<FlowySelection>
 
     // compute the selection in range.
     if (first != null && last != null) {
-      bool isDownward = panStartOffset!.dy <= panEndOffset!.dy;
+      bool isDownward;
+      if (first == last) {
+        isDownward = panStartOffset!.dx < panEndOffset!.dx;
+      } else {
+        isDownward = panStartOffset!.dy < panEndOffset!.dy;
+      }
       final start =
           first.getSelectionInRange(panStartOffset!, panEndOffset!).start;
       final end = last.getSelectionInRange(panStartOffset!, panEndOffset!).end;
       final selection = Selection(
           start: isDownward ? start : end, end: isDownward ? end : start);
-      debugPrint('[_onPanUpdate] $selection');
-      editorState.updateCursorSelection(selection);
+      debugPrint('[_onPanUpdate] isDownward = $isDownward, $selection');
+      editorState.service.selectionService.updateSelection(selection);
     }
   }
 
