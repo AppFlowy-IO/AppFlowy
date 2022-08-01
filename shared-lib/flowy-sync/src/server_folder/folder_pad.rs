@@ -1,5 +1,5 @@
 use crate::{entities::folder::FolderDelta, errors::CollaborateError, synchronizer::RevisionSyncObject};
-use lib_ot::core::{OperationTransformable, PhantomAttributes, PlainTextDelta};
+use lib_ot::core::{OperationTransform, PhantomAttributes, PlainTextDelta};
 
 pub struct ServerFolder {
     folder_id: String,

@@ -10,7 +10,7 @@ use flowy_sync::{
     },
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::core::{OperationTransformable, PhantomAttributes, PlainTextDelta};
+use lib_ot::core::{OperationTransform, PhantomAttributes, PlainTextDelta};
 use parking_lot::RwLock;
 use std::{sync::Arc, time::Duration};
 

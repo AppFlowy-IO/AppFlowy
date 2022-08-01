@@ -11,7 +11,7 @@ fn operation_insert_serialize_test() {
         .add_attr(RichTextAttribute::Bold(true))
         .add_attr(RichTextAttribute::Italic(true))
         .build();
-    let operation = OperationBuilder::insert("123").attributes(attributes).build();
+    let operation = Operation::insert_with_attributes("123", attributes);
     let json = serde_json::to_string(&operation).unwrap();
     eprintln!("{}", json);
 
@@ -42,7 +42,7 @@ fn attributes_serialize_test() {
         .add_attr(RichTextAttribute::Bold(true))
         .add_attr(RichTextAttribute::Italic(true))
         .build();
-    let retain = OperationBuilder::insert("123").attributes(attributes).build();
+    let retain = Operation::insert_with_attributes("123", attributes);
 
     let json = serde_json::to_string(&retain).unwrap();
     eprintln!("{}", json);
@@ -56,7 +56,7 @@ fn delta_serialize_multi_attribute_test() {
         .add_attr(RichTextAttribute::Bold(true))
         .add_attr(RichTextAttribute::Italic(true))
         .build();
-    let retain = OperationBuilder::insert("123").attributes(attributes).build();
+    let retain = Operation::insert_with_attributes("123", attributes);
 
     delta.add(retain);
     delta.add(Operation::Retain(5.into()));
