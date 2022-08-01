@@ -29,11 +29,11 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{DeltaIterator, Interval, OperationBuilder};
+    /// use lib_ot::core::{DeltaIterator, Interval, Operation};
     /// use lib_ot::rich_text::RichTextDelta;
     /// let mut delta = RichTextDelta::default();   
-    /// let op_1 = OperationBuilder::insert("123").build();    
-    /// let op_2 = OperationBuilder::insert("4").build();
+    /// let op_1 = Operation::insert("123");    
+    /// let op_2 = Operation::insert("4");
     /// delta.add(op_1.clone());
     /// delta.add(op_2.clone());
     /// assert_eq!(DeltaIterator::from_interval(&delta, Interval::new(0, 3)).ops(), vec![op_1.clone()]);
