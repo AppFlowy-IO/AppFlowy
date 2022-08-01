@@ -7,6 +7,18 @@ use std::ops::{Deref, DerefMut};
 
 pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
 
+/// Retain the 'n' characters with the attributes. Use 'retain' instead if you don't
+/// need any attributes.
+/// # Examples
+///
+/// ```
+/// use lib_ot::rich_text::{RichTextAttribute, RichTextDelta, RichTextDeltaBuilder};
+///
+/// let mut attribute = RichTextAttribute::Bold(true);
+/// let delta = RichTextDeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
+///
+/// assert_eq!(delta.to_json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
+/// ```
 pub struct DeltaIterator<'a, T: Attributes> {
     cursor: DeltaCursor<'a, T>,
 }

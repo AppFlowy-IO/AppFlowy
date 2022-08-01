@@ -1,5 +1,5 @@
 use crate::entities::CellChangesetPB;
-use crate::entities::{GridCellIdParams, GridCellIdPB};
+use crate::entities::{GridCellIdPB, GridCellIdParams};
 use crate::services::cell::{CellBytesParser, FromCellChangeset, FromCellString};
 use bytes::Bytes;
 
