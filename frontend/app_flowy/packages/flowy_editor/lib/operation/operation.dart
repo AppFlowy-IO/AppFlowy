@@ -5,15 +5,19 @@ abstract class Operation {
   factory Operation.fromJson(Map<String, dynamic> map) {
     String t = map["type"] as String;
     if (t == "insert-operation") {
-      final path = map["path"] as List<int>;
-      final value = Node.fromJson(map["value"]);
-      return InsertOperation(path: path, value: value);
+      return InsertOperation.fromJson(map);
+    } else if (t == "update-operation") {
+      return UpdateOperation.fromJson(map);
+    } else if (t == "delete-operation") {
+      return DeleteOperation.fromJson(map);
+    } else if (t == "text-edit-operation") {
+      return TextEditOperation.fromJson(map);
     }
 
     throw ArgumentError('unexpected type $t');
   }
   final Path path;
-  Operation({required this.path});
+  Operation(this.path);
   Operation copyWithPath(Path path);
   Operation invert();
   Map<String, dynamic> toJson();
@@ -22,13 +26,16 @@ abstract class Operation {
 class InsertOperation extends Operation {
   final Node value;
 
-  InsertOperation({
-    required super.path,
-    required this.value,
-  });
+  factory InsertOperation.fromJson(Map<String, dynamic> map) {
+    final path = map["path"] as List<int>;
+    final value = Node.fromJson(map["value"]);
+    return InsertOperation(path, value);
+  }
+
+  InsertOperation(Path path, this.value) : super(path);
 
   InsertOperation copyWith({Path? path, Node? value}) =>
-      InsertOperation(path: path ?? this.path, value: value ?? this.value);
+      InsertOperation(path ?? this.path, value ?? this.value);
 
   @override
   Operation copyWithPath(Path path) => copyWith(path: path);
@@ -36,8 +43,8 @@ class InsertOperation extends Operation {
   @override
   Operation invert() {
     return DeleteOperation(
-      path: path,
-      removedValue: value,
+      path,
+      value,
     );
   }
 
@@ -55,18 +62,23 @@ class UpdateOperation extends Operation {
   final Attributes attributes;
   final Attributes oldAttributes;
 
-  UpdateOperation({
-    required super.path,
-    required this.attributes,
-    required this.oldAttributes,
-  });
+  factory UpdateOperation.fromJson(Map<String, dynamic> map) {
+    final path = map["path"] as List<int>;
+    final attributes = map["attributes"] as Map<String, dynamic>;
+    final oldAttributes = map["oldAttributes"] as Map<String, dynamic>;
+    return UpdateOperation(path, attributes, oldAttributes);
+  }
+
+  UpdateOperation(
+    Path path,
+    this.attributes,
+    this.oldAttributes,
+  ) : super(path);
 
   UpdateOperation copyWith(
           {Path? path, Attributes? attributes, Attributes? oldAttributes}) =>
-      UpdateOperation(
-          path: path ?? this.path,
-          attributes: attributes ?? this.attributes,
-          oldAttributes: oldAttributes ?? this.oldAttributes);
+      UpdateOperation(path ?? this.path, attributes ?? this.attributes,
+          oldAttributes ?? this.oldAttributes);
 
   @override
   Operation copyWithPath(Path path) => copyWith(path: path);
@@ -74,9 +86,9 @@ class UpdateOperation extends Operation {
   @override
   Operation invert() {
     return UpdateOperation(
-      path: path,
-      attributes: oldAttributes,
-      oldAttributes: attributes,
+      path,
+      oldAttributes,
+      attributes,
     );
   }
 
@@ -94,23 +106,26 @@ class UpdateOperation extends Operation {
 class DeleteOperation extends Operation {
   final Node removedValue;
 
-  DeleteOperation({
-    required super.path,
-    required this.removedValue,
-  });
+  factory DeleteOperation.fromJson(Map<String, dynamic> map) {
+    final path = map["path"] as List<int>;
+    final removedValue = Node.fromJson(map["removedValue"]);
+    return DeleteOperation(path, removedValue);
+  }
 
-  DeleteOperation copyWith({Path? path, Node? removedValue}) => DeleteOperation(
-      path: path ?? this.path, removedValue: removedValue ?? this.removedValue);
+  DeleteOperation(
+    Path path,
+    this.removedValue,
+  ) : super(path);
+
+  DeleteOperation copyWith({Path? path, Node? removedValue}) =>
+      DeleteOperation(path ?? this.path, removedValue ?? this.removedValue);
 
   @override
   Operation copyWithPath(Path path) => copyWith(path: path);
 
   @override
   Operation invert() {
-    return InsertOperation(
-      path: path,
-      value: removedValue,
-    );
+    return InsertOperation(path, removedValue);
   }
 
   @override
@@ -127,24 +142,29 @@ class TextEditOperation extends Operation {
   final Delta delta;
   final Delta inverted;
 
-  TextEditOperation({
-    required super.path,
-    required this.delta,
-    required this.inverted,
-  });
+  factory TextEditOperation.fromJson(Map<String, dynamic> map) {
+    final path = map["path"] as List<int>;
+    final delta = Delta.fromJson(map["delta"]);
+    final invert = Delta.fromJson(map["invert"]);
+    return TextEditOperation(path, delta, invert);
+  }
+
+  TextEditOperation(
+    Path path,
+    this.delta,
+    this.inverted,
+  ) : super(path);
 
   TextEditOperation copyWith({Path? path, Delta? delta, Delta? inverted}) =>
       TextEditOperation(
-          path: path ?? this.path,
-          delta: delta ?? this.delta,
-          inverted: inverted ?? this.inverted);
+          path ?? this.path, delta ?? this.delta, inverted ?? this.inverted);
 
   @override
   Operation copyWithPath(Path path) => copyWith(path: path);
 
   @override
   Operation invert() {
-    return TextEditOperation(path: path, delta: inverted, inverted: delta);
+    return TextEditOperation(path, inverted, delta);
   }
 
   @override
