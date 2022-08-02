@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:flowy_editor/document/node.dart';
-import 'package:flowy_editor/extensions/text_node_extensions.dart';
-import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/service/default_text_operations/format_rich_text_style.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 

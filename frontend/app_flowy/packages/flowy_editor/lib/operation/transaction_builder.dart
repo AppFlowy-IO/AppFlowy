@@ -1,19 +1,18 @@
 import 'dart:collection';
-import 'dart:math';
-import 'package:flowy_editor/editor_state.dart';
+
+import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/position.dart';
-import 'package:flowy_editor/document/text_delta.dart';
-import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/selection.dart';
-
-import './operation.dart';
-import './transaction.dart';
+import 'package:flowy_editor/document/text_delta.dart';
+import 'package:flowy_editor/editor_state.dart';
+import 'package:flowy_editor/operation/operation.dart';
+import 'package:flowy_editor/operation/transaction.dart';
 
 /// A [TransactionBuilder] is used to build the transaction from the state.
 /// It will save make a snapshot of the cursor selection state automatically.
-/// The cursor can be resoted if the transaction is undo.
+/// The cursor can be resorted if the transaction is undo.
 
 class TransactionBuilder {
   final List<Operation> operations = [];
@@ -30,8 +29,12 @@ class TransactionBuilder {
   }
 
   insertNode(Path path, Node node) {
-    beforeSelection = state.cursorSelection;
+    beforeSelection = state.service.selectionService.currentSelection;
     add(InsertOperation(path: path, value: node));
+    // FIXME: Not exactly correct, needs to be customized.
+    afterSelection = Selection.collapsed(
+      Position(path: path, offset: 0),
+    );
   }
 
   updateNode(Node node, Attributes attributes) {

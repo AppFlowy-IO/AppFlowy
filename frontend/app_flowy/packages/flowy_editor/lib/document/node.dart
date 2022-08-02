@@ -205,6 +205,19 @@ class TextNode extends Node {
     return map;
   }
 
+  TextNode copyWith({
+    String? type,
+    LinkedList<Node>? children,
+    Attributes? attributes,
+    Delta? delta,
+  }) =>
+      TextNode(
+        type: type ?? this.type,
+        children: children ?? this.children,
+        attributes: attributes ?? this.attributes,
+        delta: delta ?? this.delta,
+      );
+
   // TODO: It's unneccesry to compute everytime.
   String toRawString() =>
       _delta.operations.whereType<TextInsert>().map((op) => op.content).join();
