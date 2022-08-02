@@ -26,7 +26,7 @@ dev_dependencies:
 flutter:
   # To add assets to your package, add an assets section, like this:
   assets:
-    - assets/images/uncheck.svg
+    - assets/images/toolbar/
     - assets/images/
     - assets/document.json
   #   - images/a_dot_burr.jpeg

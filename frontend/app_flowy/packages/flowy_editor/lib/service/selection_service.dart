@@ -1,18 +1,16 @@
 import 'dart:async';
 
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
-import 'package:flowy_editor/render/selection/selectable.dart';
-import 'package:flowy_editor/render/selection/cursor_widget.dart';
-import 'package:flowy_editor/render/selection/selection_widget.dart';
-import 'package:flowy_editor/extensions/object_extensions.dart';
-import 'package:flowy_editor/extensions/node_extensions.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flowy_editor/service/shortcut_service.dart';
 import 'package:flowy_editor/editor_state.dart';
-
-import 'package:flutter/material.dart';
+import 'package:flowy_editor/extensions/node_extensions.dart';
+import 'package:flowy_editor/render/selection/cursor_widget.dart';
+import 'package:flowy_editor/render/selection/selectable.dart';
+import 'package:flowy_editor/render/selection/selection_widget.dart';
 
 /// Process selection and cursor
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
@@ -424,14 +422,19 @@ class _FlowySelectionState extends State<FlowySelection>
 
     // compute the selection in range.
     if (first != null && last != null) {
-      bool isDownward = panStartOffset!.dy <= panEndOffset!.dy;
+      bool isDownward;
+      if (first == last) {
+        isDownward = panStartOffset!.dx < panEndOffset!.dx;
+      } else {
+        isDownward = panStartOffset!.dy < panEndOffset!.dy;
+      }
       final start =
           first.getSelectionInRange(panStartOffset!, panEndOffset!).start;
       final end = last.getSelectionInRange(panStartOffset!, panEndOffset!).end;
       final selection = Selection(
           start: isDownward ? start : end, end: isDownward ? end : start);
-      debugPrint('[_onPanUpdate] $selection');
-      editorState.updateCursorSelection(selection);
+      debugPrint('[_onPanUpdate] isDownward = $isDownward, $selection');
+      editorState.service.selectionService.updateSelection(selection);
     }
   }
 
@@ -451,10 +454,8 @@ class _FlowySelectionState extends State<FlowySelection>
     _cursorOverlays
       ..forEach((overlay) => overlay.remove())
       ..clear();
-    // clear floating shortcuts
-    editorState.service.floatingShortcutServiceKey.currentState
-        ?.unwrapOrNull<FlowyFloatingShortcutService>()
-        ?.hide();
+    // clear toolbar
+    editorState.service.toolbarService.hide();
   }
 
   void _updateSelection(Selection selection) {
@@ -463,6 +464,9 @@ class _FlowySelectionState extends State<FlowySelection>
 
     currentSelection = selection;
     currentSelectedNodes.value = nodes;
+
+    Rect? topmostRect;
+    LayerLink? layerLink;
 
     var index = 0;
     for (final node in nodes) {
@@ -502,19 +506,28 @@ class _FlowySelectionState extends State<FlowySelection>
       final rects = selectable.getRectsInSelection(newSelection);
 
       for (final rect in rects) {
+        // FIXME: Need to compute more precise location.
+        topmostRect ??= rect;
+        layerLink ??= node.layerLink;
+
         _rects.add(_transformRectToGlobal(selectable, rect));
         final overlay = OverlayEntry(
-          builder: ((context) => SelectionWidget(
-                color: widget.selectionColor,
-                layerLink: node.layerLink,
-                rect: rect,
-              )),
+          builder: (context) => SelectionWidget(
+            color: widget.selectionColor,
+            layerLink: node.layerLink,
+            rect: rect,
+          ),
         );
         _selectionOverlays.add(overlay);
       }
       index += 1;
     }
     Overlay.of(context)?.insertAll(_selectionOverlays);
+
+    if (topmostRect != null && layerLink != null) {
+      editorState.service.toolbarService
+          .showInOffset(topmostRect.topLeft, layerLink);
+    }
   }
 
   Rect _transformRectToGlobal(Selectable selectable, Rect r) {
