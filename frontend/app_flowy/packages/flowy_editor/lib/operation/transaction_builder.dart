@@ -53,7 +53,7 @@ class TransactionBuilder {
   }
 
   textEdit(TextNode node, Delta Function() f) {
-    beforeSelection = state.cursorSelection;
+    beforeSelection = state.service.selectionService.currentSelection;
     final path = node.path;
 
     final delta = f();
@@ -91,6 +91,7 @@ class TransactionBuilder {
 
   formatText(TextNode node, int index, int length, Attributes attributes) {
     textEdit(node, () => Delta().retain(index).retain(length, attributes));
+    afterSelection = beforeSelection;
   }
 
   deleteText(TextNode node, int index, int length) {

@@ -17,66 +17,29 @@ bool formatRichTextStyle(
   // 1. All nodes are text nodes.
   // 2. The first node is not TextNode.
   // 3. The last node is not TextNode.
-  if (textNodes.length == nodes.length) {
-    if (textNodes.length == 1) {
+  for (var i = 0; i < textNodes.length; i++) {
+    final textNode = textNodes[i];
+    if (i == 0 && textNode == nodes.first) {
       builder.formatText(
-        textNodes.first,
+        textNode,
         selection.start.offset,
-        selection.end.offset - selection.start.offset,
+        textNode.toRawString().length - selection.start.offset,
+        attributes,
+      );
+    } else if (i == textNodes.length - 1 && textNode == nodes.last) {
+      builder.formatText(
+        textNode,
+        0,
+        selection.end.offset,
         attributes,
       );
     } else {
-      for (var i = 0; i < textNodes.length; i++) {
-        final node = textNodes[i];
-        if (i == 0) {
-          builder.formatText(
-            node,
-            selection.start.offset,
-            node.toRawString().length - selection.start.offset,
-            attributes,
-          );
-        } else if (i == textNodes.length - 1) {
-          builder.formatText(
-            node,
-            0,
-            selection.end.offset,
-            attributes,
-          );
-        } else {
-          builder.formatText(
-            node,
-            0,
-            node.toRawString().length,
-            attributes,
-          );
-        }
-      }
-    }
-  } else {
-    for (var i = 0; i < textNodes.length; i++) {
-      final node = textNodes[i];
-      if (i == 0 && node == nodes.first) {
-        builder.formatText(
-          node,
-          selection.start.offset,
-          node.toRawString().length - selection.start.offset,
-          attributes,
-        );
-      } else if (i == textNodes.length - 1 && node == nodes.last) {
-        builder.formatText(
-          node,
-          0,
-          selection.end.offset,
-          attributes,
-        );
-      } else {
-        builder.formatText(
-          node,
-          0,
-          node.toRawString().length,
-          attributes,
-        );
-      }
+      builder.formatText(
+        textNode,
+        0,
+        textNode.toRawString().length,
+        attributes,
+      );
     }
   }
 
