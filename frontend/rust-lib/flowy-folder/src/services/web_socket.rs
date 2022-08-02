@@ -10,7 +10,7 @@ use flowy_sync::{
     },
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::core::{OperationTransform, PhantomAttributes, PlainTextDelta};
+use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta};
 use parking_lot::RwLock;
 use std::{sync::Arc, time::Duration};
 
@@ -56,7 +56,7 @@ struct FolderConflictResolver {
 }
 
 impl ConflictResolver<PhantomAttributes> for FolderConflictResolver {
-    fn compose_delta(&self, delta: PlainTextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
+    fn compose_delta(&self, delta: TextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().compose_remote_delta(delta)?;
@@ -64,15 +64,12 @@ impl ConflictResolver<PhantomAttributes> for FolderConflictResolver {
         })
     }
 
-    fn transform_delta(
-        &self,
-        delta: PlainTextDelta,
-    ) -> BoxResultFuture<TransformDeltas<PhantomAttributes>, FlowyError> {
+    fn transform_delta(&self, delta: TextDelta) -> BoxResultFuture<TransformDeltas<PhantomAttributes>, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let read_guard = folder_pad.read();
-            let mut server_prime: Option<PlainTextDelta> = None;
-            let client_prime: PlainTextDelta;
+            let mut server_prime: Option<TextDelta> = None;
+            let client_prime: TextDelta;
             if read_guard.is_empty() {
                 // Do nothing
                 client_prime = delta;
@@ -89,7 +86,7 @@ impl ConflictResolver<PhantomAttributes> for FolderConflictResolver {
         })
     }
 
-    fn reset_delta(&self, delta: PlainTextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
+    fn reset_delta(&self, delta: TextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().reset_folder(delta)?;

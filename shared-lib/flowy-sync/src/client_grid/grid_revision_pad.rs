@@ -9,12 +9,12 @@ use flowy_grid_data_model::revision::{
     GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
 };
 use lib_infra::util::move_vec_element;
-use lib_ot::core::{OperationTransform, PhantomAttributes, PlainTextDelta, PlainTextDeltaBuilder};
+use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub type GridRevisionDelta = PlainTextDelta;
-pub type GridRevisionDeltaBuilder = PlainTextDeltaBuilder;
+pub type GridRevisionDelta = TextDelta;
+pub type GridRevisionDeltaBuilder = TextDeltaBuilder;
 
 pub struct GridRevisionPad {
     grid_rev: Arc<GridRevision>,
@@ -548,7 +548,7 @@ pub struct GridChangeset {
 
 pub fn make_grid_delta(grid_rev: &GridRevision) -> GridRevisionDelta {
     let json = serde_json::to_string(&grid_rev).unwrap();
-    PlainTextDeltaBuilder::new().insert(&json).build()
+    TextDeltaBuilder::new().insert(&json).build()
 }
 
 pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {

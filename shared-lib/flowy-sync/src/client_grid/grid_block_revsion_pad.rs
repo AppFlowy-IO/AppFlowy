@@ -4,13 +4,13 @@ use crate::util::{cal_diff, make_delta_from_revisions};
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision,
 };
-use lib_ot::core::{OperationTransform, PhantomAttributes, PlainTextDelta, PlainTextDeltaBuilder};
+use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub type GridBlockRevisionDelta = PlainTextDelta;
-pub type GridBlockRevisionDeltaBuilder = PlainTextDeltaBuilder;
+pub type GridBlockRevisionDelta = TextDelta;
+pub type GridBlockRevisionDeltaBuilder = TextDeltaBuilder;
 
 #[derive(Debug, Clone)]
 pub struct GridBlockRevisionPad {
@@ -247,7 +247,7 @@ pub struct GridBlockMetaChange {
 
 pub fn make_grid_block_delta(block_rev: &GridBlockRevision) -> GridBlockRevisionDelta {
     let json = serde_json::to_string(&block_rev).unwrap();
-    PlainTextDeltaBuilder::new().insert(&json).build()
+    TextDeltaBuilder::new().insert(&json).build()
 }
 
 pub fn make_grid_block_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {

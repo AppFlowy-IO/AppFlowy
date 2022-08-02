@@ -9,7 +9,7 @@ use flowy_revision::{mk_grid_block_revision_disk_cache, RevisionLoader, Revision
 use flowy_sync::client_grid::{make_grid_rev_json_str, GridRevisionPad};
 use flowy_sync::entities::revision::Revision;
 
-use lib_ot::core::PlainTextDeltaBuilder;
+use lib_ot::core::TextDeltaBuilder;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
@@ -48,7 +48,7 @@ impl GridMigration {
         let pool = self.database.db_pool()?;
         let grid_rev_pad = self.get_grid_revision_pad(grid_id).await?;
         let json = grid_rev_pad.json_str()?;
-        let delta_data = PlainTextDeltaBuilder::new().insert(&json).build().to_json_bytes();
+        let delta_data = TextDeltaBuilder::new().insert(&json).build().to_json_bytes();
         let revision = Revision::initial_revision(&user_id, grid_id, delta_data);
         let record = RevisionRecord::new(revision);
         //

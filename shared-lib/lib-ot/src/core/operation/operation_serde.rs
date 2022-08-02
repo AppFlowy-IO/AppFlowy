@@ -1,5 +1,5 @@
-use crate::core::flowy_str::OTString;
 use crate::core::operation::{Attributes, Insert, Operation, Retain};
+use crate::core::ot_str::OTString;
 use serde::{
     de,
     de::{MapAccess, SeqAccess, Visitor},

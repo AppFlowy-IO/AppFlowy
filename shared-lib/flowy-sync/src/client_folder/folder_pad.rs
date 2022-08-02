@@ -400,14 +400,14 @@ impl FolderPad {
 }
 
 pub fn default_folder_delta() -> FolderDelta {
-    PlainTextDeltaBuilder::new()
+    TextDeltaBuilder::new()
         .insert(r#"{"workspaces":[],"trash":[]}"#)
         .build()
 }
 
 pub fn initial_folder_delta(folder_pad: &FolderPad) -> CollaborateResult<FolderDelta> {
     let json = folder_pad.to_json()?;
-    let delta = PlainTextDeltaBuilder::new().insert(&json).build();
+    let delta = TextDeltaBuilder::new().insert(&json).build();
     Ok(delta)
 }
 
@@ -434,7 +434,7 @@ mod tests {
     use chrono::Utc;
 
     use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-    use lib_ot::core::{OperationTransform, PlainTextDelta, PlainTextDeltaBuilder};
+    use lib_ot::core::{OperationTransform, TextDelta, TextDeltaBuilder};
 
     #[test]
     fn folder_add_workspace() {
@@ -749,7 +749,7 @@ mod tests {
     fn test_folder() -> (FolderPad, FolderDelta, WorkspaceRevision) {
         let mut folder = FolderPad::default();
         let folder_json = serde_json::to_string(&folder).unwrap();
-        let mut delta = PlainTextDeltaBuilder::new().insert(&folder_json).build();
+        let mut delta = TextDeltaBuilder::new().insert(&folder_json).build();
 
         let mut workspace_rev = WorkspaceRevision::default();
         workspace_rev.name = "😁 my first workspace".to_owned();
@@ -791,7 +791,7 @@ mod tests {
     fn test_trash() -> (FolderPad, FolderDelta, TrashRevision) {
         let mut folder = FolderPad::default();
         let folder_json = serde_json::to_string(&folder).unwrap();
-        let mut delta = PlainTextDeltaBuilder::new().insert(&folder_json).build();
+        let mut delta = TextDeltaBuilder::new().insert(&folder_json).build();
 
         let mut trash_rev = TrashRevision::default();
         trash_rev.name = "🚽 my first trash".to_owned();
@@ -810,7 +810,7 @@ mod tests {
         (folder, delta, trash_rev)
     }
 
-    fn make_folder_from_delta(mut initial_delta: FolderDelta, deltas: Vec<PlainTextDelta>) -> FolderPad {
+    fn make_folder_from_delta(mut initial_delta: FolderDelta, deltas: Vec<TextDelta>) -> FolderPad {
         for delta in deltas {
             initial_delta = initial_delta.compose(&delta).unwrap();
         }

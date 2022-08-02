@@ -1,9 +1,10 @@
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 
 use crate::core::delta::{DeltaIterator, MAX_IV_LEN};
-use crate::core::flowy_str::OTString;
 use crate::core::interval::Interval;
 use crate::core::operation::{Attributes, Operation, OperationTransform, PhantomAttributes};
+use crate::core::ot_str::OTString;
+use crate::core::DeltaBuilder;
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
 use std::{
@@ -14,11 +15,14 @@ use std::{
     str::FromStr,
 };
 
-pub type PlainTextDelta = Delta<PhantomAttributes>;
+pub type TextDelta = Delta<PhantomAttributes>;
+pub type TextDeltaBuilder = DeltaBuilder<PhantomAttributes>;
 
 /// A [Delta] contains list of operations that consists of 'Retain', 'Delete' and 'Insert' operation.
 /// Check out the [Operation] for more details. It describes the document as a sequence of
 /// operations.
+///
+/// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/delta) out for more information.
 ///
 /// If the [T] supports 'serde', that will enable delta to serialize to JSON or deserialize from
 /// a JSON string.
@@ -176,10 +180,10 @@ where
     /// # Examples
     ///
     /// ```
-    ///  use lib_ot::core::PlainTextDeltaBuilder;
+    ///  use lib_ot::core::TextDeltaBuilder;
     ///  let s = "hello";
-    ///  let delta_a = PlainTextDeltaBuilder::new().insert(s).build();
-    ///  let delta_b = PlainTextDeltaBuilder::new()
+    ///  let delta_a = TextDeltaBuilder::new().insert(s).build();
+    ///  let delta_b = TextDeltaBuilder::new()
     ///         .retain(s.len())
     ///         .insert(", AppFlowy")
     ///         .build();
@@ -233,9 +237,9 @@ where
     /// # Examples
     ///
     /// ```
-    ///  use lib_ot::core::PlainTextDeltaBuilder;
+    ///  use lib_ot::core::TextDeltaBuilder;
     ///  let s = "hello world";
-    ///  let delta = PlainTextDeltaBuilder::new().insert(s).build();
+    ///  let delta = TextDeltaBuilder::new().insert(s).build();
     ///  let invert_delta = delta.invert_str(s);
     ///  assert_eq!(delta.utf16_base_len, invert_delta.utf16_target_len);
     ///  assert_eq!(delta.utf16_target_len, invert_delta.utf16_base_len);
