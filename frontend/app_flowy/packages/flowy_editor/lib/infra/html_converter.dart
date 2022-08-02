@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/text_delta.dart';
+import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
 
@@ -12,10 +13,24 @@ class HTMLConverter {
 
   List<Node> toNodes() {
     final result = <Node>[];
+    final delta = Delta();
 
-    final bodyChildren = _document.body?.children ?? [];
-    for (final child in bodyChildren) {
-      _handleElement(result, child);
+    for (final child in _document.body?.nodes.toList() ?? <html.Node>[]) {
+      if (child is html.Element) {
+        if (child.localName == "span") {
+          delta.insert(child.text);
+        } else if (child.localName == "strong") {
+          delta.insert(child.text, {"bold": true});
+        } else {
+          _handleElement(result, child);
+        }
+      } else {
+        delta.insert(child.text ?? "");
+      }
+    }
+
+    if (delta.operations.isNotEmpty) {
+      result.add(TextNode(type: "text", delta: delta));
     }
 
     return result;
@@ -44,25 +59,33 @@ class HTMLConverter {
   }
 
   _handleParagraph(List<Node> nodes, html.Element element) {
-    for (final child in element.children) {
-      if (child.localName == "a") {
-        _handleAnchorLink(nodes, child);
+    final image = element.querySelector("img");
+    if (image != null) {
+      _handleImage(nodes, image);
+      return;
+    }
+
+    var delta = Delta();
+
+    for (final child in element.nodes.toList()) {
+      if (child is html.Element) {
+        if (child.localName == "a") {
+          final hyperLink = child.attributes["href"];
+          Map<String, dynamic>? attributes;
+          if (hyperLink != null) {
+            attributes = {"href": hyperLink};
+          }
+          delta.insert(child.text, attributes);
+        } else {
+          delta.insert(child.text);
+        }
+      } else {
+        delta.insert(child.text ?? "");
       }
     }
 
-    final delta = Delta();
-    delta.insert(element.text);
     if (delta.operations.isNotEmpty) {
       nodes.add(TextNode(type: "text", delta: delta));
-    }
-  }
-
-  _handleAnchorLink(List<Node> nodes, html.Element element) {
-    for (final child in element.children) {
-      if (child.localName == "img") {
-        _handleImage(nodes, child);
-        return;
-      }
     }
   }
 
@@ -72,6 +95,7 @@ class HTMLConverter {
     if (src != null) {
       attributes["image_src"] = src;
     }
+    debugPrint("insert image: $src");
     nodes.add(
         Node(type: "image", attributes: attributes, children: LinkedList()));
   }
