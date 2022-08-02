@@ -52,7 +52,7 @@ impl GridRevisionPad {
     }
 
     pub fn from_delta(delta: GridRevisionDelta) -> CollaborateResult<Self> {
-        let content = delta.content_str()?;
+        let content = delta.content()?;
         let grid: GridRevision = serde_json::from_str(&content)
             .map_err(|e| CollaborateError::internal().context(format!("Deserialize delta to grid failed: {}", e)))?;
 
@@ -457,15 +457,15 @@ impl GridRevisionPad {
     }
 
     pub fn md5(&self) -> String {
-        md5(&self.delta.to_json_bytes())
+        md5(&self.delta.json_bytes())
     }
 
     pub fn delta_str(&self) -> String {
-        self.delta.to_json_str()
+        self.delta.json_str()
     }
 
     pub fn delta_bytes(&self) -> Bytes {
-        self.delta.to_json_bytes()
+        self.delta.json_bytes()
     }
 
     pub fn fields(&self) -> &[Arc<FieldRevision>] {
@@ -553,7 +553,7 @@ pub fn make_grid_delta(grid_rev: &GridRevision) -> GridRevisionDelta {
 
 pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {
     let delta = make_grid_delta(grid_rev);
-    let bytes = delta.to_json_bytes();
+    let bytes = delta.json_bytes();
     let revision = Revision::initial_revision(user_id, &grid_rev.grid_id, bytes);
     revision.into()
 }

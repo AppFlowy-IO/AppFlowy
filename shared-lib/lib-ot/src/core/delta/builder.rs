@@ -14,7 +14,7 @@ use crate::core::Operation;
 /// let delta = TextDeltaBuilder::new()
 ///         .insert("AppFlowy")
 ///         .build();
-/// assert_eq!(delta.content_str().unwrap(), "AppFlowy");
+/// assert_eq!(delta.content().unwrap(), "AppFlowy");
 /// ```
 pub struct DeltaBuilder<T: Attributes> {
     delta: Delta<T>,
@@ -55,7 +55,7 @@ where
     /// let mut attribute = RichTextAttribute::Bold(true);
     /// let delta = RichTextDeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
     ///
-    /// assert_eq!(delta.to_json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
+    /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
     /// ```
     pub fn retain_with_attributes(mut self, n: usize, attrs: T) -> Self {
         self.delta.retain(n, attrs);
@@ -84,7 +84,7 @@ where
     ///         .build();
     ///
     /// let new_delta = delta.compose(&changeset).unwrap();
-    /// assert_eq!(new_delta.content_str().unwrap(), "AppFlowy");
+    /// assert_eq!(new_delta.content().unwrap(), "AppFlowy");
     /// ```
     pub fn delete(mut self, n: usize) -> Self {
         self.delta.delete(n);

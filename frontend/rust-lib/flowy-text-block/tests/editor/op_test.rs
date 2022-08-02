@@ -345,7 +345,7 @@ fn apply_test() {
     let delta_a = TextDeltaBuilder::new().insert(s).build();
     let delta_b = TextDeltaBuilder::new().retain(s.len()).insert(", AppFlowy").build();
 
-    let after_a = delta_a.content_str().unwrap();
+    let after_a = delta_a.content().unwrap();
     let after_b = delta_b.apply(&after_a).unwrap();
     assert_eq!("hello, AppFlowy", &after_b);
 }

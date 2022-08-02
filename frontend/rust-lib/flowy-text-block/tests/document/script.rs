@@ -75,7 +75,7 @@ impl TextBlockEditorTest {
                 let delta = self.editor.text_block_delta().await.unwrap();
                 if expected_delta != delta {
                     eprintln!("✅ expect: {}", expected,);
-                    eprintln!("❌ receive: {}", delta.to_json_str());
+                    eprintln!("❌ receive: {}", delta.json_str());
                 }
                 assert_eq!(expected_delta, delta);
             }

@@ -188,7 +188,7 @@ where
     ///         .insert(", AppFlowy")
     ///         .build();
     ///
-    ///  let after_a = delta_a.content_str().unwrap();
+    ///  let after_a = delta_a.content().unwrap();
     ///  let after_b = delta_b.apply(&after_a).unwrap();
     ///  assert_eq!("hello, AppFlowy", &after_b);
     /// ```
@@ -559,7 +559,7 @@ fn transform_op_attribute<T: Attributes>(
     }
     let left = left.as_ref().unwrap().get_attributes();
     let right = right.as_ref().unwrap().get_attributes();
-    // TODO: replace with anyhow and thiserror.
+    // TODO: replace with anyhow and this error.
     Ok(left.transform(&right)?.0)
 }
 
@@ -575,10 +575,10 @@ where
     /// let json = r#"[
     ///     {"retain":7,"attributes":{"bold":null}}
     ///  ]"#;
-    /// let delta = RichTextDelta::from_json_str(json).unwrap();
-    /// assert_eq!(delta.to_json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
+    /// let delta = RichTextDelta::from_json(json).unwrap();
+    /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
     /// ```
-    pub fn from_json_str(json: &str) -> Result<Self, OTError> {
+    pub fn from_json(json: &str) -> Result<Self, OTError> {
         let delta = serde_json::from_str(json).map_err(|e| {
             tracing::trace!("Deserialize failed: {:?}", e);
             tracing::trace!("{:?}", json);
@@ -587,9 +587,10 @@ where
         Ok(delta)
     }
 
+    /// Deserialize the bytes into [Delta]. It requires the bytes is in utf8 format.
     pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, OTError> {
         let json = str::from_utf8(bytes.as_ref())?.to_owned();
-        let val = Self::from_json_str(&json)?;
+        let val = Self::from_json(&json)?;
         Ok(val)
     }
 }
@@ -598,16 +599,19 @@ impl<T> Delta<T>
 where
     T: Attributes + serde::Serialize,
 {
-    pub fn to_json_str(&self) -> String {
+    /// Serialize the [Delta] into a String in JSON format
+    pub fn json_str(&self) -> String {
         serde_json::to_string(self).unwrap_or_else(|_| "".to_owned())
     }
 
-    pub fn content_str(&self) -> Result<String, OTError> {
+    /// Get the content the [Delta] represents.
+    pub fn content(&self) -> Result<String, OTError> {
         self.apply("")
     }
 
-    pub fn to_json_bytes(&self) -> Bytes {
-        let json = self.to_json_str();
+    /// Serial the [Delta] into a String in Bytes format
+    pub fn json_bytes(&self) -> Bytes {
+        let json = self.json_str();
         Bytes::from(json.into_bytes())
     }
 }

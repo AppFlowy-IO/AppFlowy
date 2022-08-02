@@ -295,7 +295,7 @@ impl FolderPad {
     }
 
     pub fn md5(&self) -> String {
-        md5(&self.delta.to_json_bytes())
+        md5(&self.delta.json_bytes())
     }
 
     pub fn to_json(&self) -> CollaborateResult<String> {

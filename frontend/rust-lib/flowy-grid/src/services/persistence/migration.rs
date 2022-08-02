@@ -48,7 +48,7 @@ impl GridMigration {
         let pool = self.database.db_pool()?;
         let grid_rev_pad = self.get_grid_revision_pad(grid_id).await?;
         let json = grid_rev_pad.json_str()?;
-        let delta_data = TextDeltaBuilder::new().insert(&json).build().to_json_bytes();
+        let delta_data = TextDeltaBuilder::new().insert(&json).build().json_bytes();
         let revision = Revision::initial_revision(&user_id, grid_id, delta_data);
         let record = RevisionRecord::new(revision);
         //

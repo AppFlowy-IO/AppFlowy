@@ -25,7 +25,7 @@ pub trait OperationTransform {
     ///  let document = TextDeltaBuilder::new().build();
     ///  let delta = TextDeltaBuilder::new().insert("abc").build();
     ///  let new_document = document.compose(&delta).unwrap();
-    ///  assert_eq!(new_document.content_str().unwrap(), "abc".to_owned());
+    ///  assert_eq!(new_document.content().unwrap(), "abc".to_owned());
     /// ```
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
