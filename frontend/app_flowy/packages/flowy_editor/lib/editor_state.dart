@@ -94,11 +94,11 @@ class EditorState {
 
   _applyOperation(Operation op) {
     if (op is InsertOperation) {
-      document.insert(op.path, op.value);
+      document.insert(op.path, op.nodes);
     } else if (op is UpdateOperation) {
       document.update(op.path, op.attributes);
     } else if (op is DeleteOperation) {
-      document.delete(op.path);
+      document.delete(op.path, op.nodes.length);
     } else if (op is TextEditOperation) {
       document.textEdit(op.path, op.delta);
     }

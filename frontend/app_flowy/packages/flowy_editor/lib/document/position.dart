@@ -34,4 +34,11 @@ class Position {
 
   @override
   String toString() => 'path = $path, offset = $offset';
+
+  Map<String, dynamic> toJson() {
+    return {
+      "path": path.toList(),
+      "offset": offset,
+    };
+  }
 }

@@ -37,7 +37,7 @@ FlowyKeyEventHandler enterInEdgeOfTextNodeHandler = (editorState, event) {
           children: LinkedList(),
           delta: Delta([TextInsert(' ')]),
           attributes:
-              needCopyAttributes ? {StyleKey.subtype: textNode.subtype} : null,
+              needCopyAttributes ? {StyleKey.subtype: textNode.subtype} : {},
         ),
       )
       ..commit();

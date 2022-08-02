@@ -29,30 +29,48 @@ class TransactionBuilder {
   }
 
   insertNode(Path path, Node node) {
-    beforeSelection = state.service.selectionService.currentSelection;
-    add(InsertOperation(path: path, value: node));
+    insertNodes(path, [node]);
     // FIXME: Not exactly correct, needs to be customized.
     afterSelection = Selection.collapsed(
       Position(path: path, offset: 0),
     );
   }
 
+  insertNodes(Path path, List<Node> nodes) {
+    beforeSelection = state.service.selectionService.currentSelection;
+    add(InsertOperation(path, nodes));
+  }
+
   updateNode(Node node, Attributes attributes) {
     beforeSelection = state.cursorSelection;
     add(UpdateOperation(
-      path: node.path,
-      attributes: Attributes.from(node.attributes)..addAll(attributes),
-      oldAttributes: node.attributes,
+      node.path,
+      Attributes.from(node.attributes)..addAll(attributes),
+      node.attributes,
     ));
   }
 
   deleteNode(Node node) {
-    beforeSelection = state.cursorSelection;
-    add(DeleteOperation(path: node.path, removedValue: node));
+    deleteNodesAtPath(node.path);
   }
 
   deleteNodes(List<Node> nodes) {
     nodes.forEach(deleteNode);
+  }
+
+  deleteNodesAtPath(Path path, [int length = 1]) {
+    if (path.isEmpty) {
+      return;
+    }
+    final nodes = <Node>[];
+    final prefix = path.sublist(0, path.length - 1);
+    final last = path.last;
+    for (var i = 0; i < length; i++) {
+      final node = state.document.nodeAtPath(prefix + [last + i])!;
+      nodes.add(node);
+    }
+
+    add(DeleteOperation(path, nodes));
   }
 
   textEdit(TextNode node, Delta Function() f) {
@@ -63,7 +81,7 @@ class TransactionBuilder {
 
     final inverted = delta.invert(node.delta);
 
-    add(TextEditOperation(path: path, delta: delta, inverted: inverted));
+    add(TextEditOperation(path, delta, inverted));
   }
 
   mergeText(TextNode firstNode, TextNode secondNode,
@@ -123,9 +141,9 @@ class TransactionBuilder {
           last is TextEditOperation &&
           pathEquals(op.path, last.path)) {
         final newOp = TextEditOperation(
-          path: op.path,
-          delta: last.delta.compose(op.delta),
-          inverted: op.inverted.compose(last.inverted),
+          op.path,
+          last.delta.compose(op.delta),
+          op.inverted.compose(last.inverted),
         );
         operations[operations.length - 1] = newOp;
         return;

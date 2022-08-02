@@ -27,26 +27,18 @@ void main() {
   group('transform operation', () {
     test('insert + insert', () {
       final t = transformOperation(
-          InsertOperation(path: [
-            0,
-            1
-          ], value: Node(type: "node", attributes: {}, children: LinkedList())),
-          InsertOperation(
-              path: [0, 1],
-              value:
-                  Node(type: "node", attributes: {}, children: LinkedList())));
+          InsertOperation([0, 1],
+              [Node(type: "node", attributes: {}, children: LinkedList())]),
+          InsertOperation([0, 1],
+              [Node(type: "node", attributes: {}, children: LinkedList())]));
       expect(t.path, [0, 2]);
     });
     test('delete + delete', () {
       final t = transformOperation(
-          DeleteOperation(
-              path: [0, 1],
-              removedValue:
-                  Node(type: "node", attributes: {}, children: LinkedList())),
-          DeleteOperation(
-              path: [0, 2],
-              removedValue:
-                  Node(type: "node", attributes: {}, children: LinkedList())));
+          DeleteOperation([0, 1],
+              [Node(type: "node", attributes: {}, children: LinkedList())]),
+          DeleteOperation([0, 2],
+              [Node(type: "node", attributes: {}, children: LinkedList())]));
       expect(t.path, [0, 1]);
     });
   });
@@ -77,5 +69,49 @@ void main() {
     expect(transaction.operations[0].path, [0]);
     expect(transaction.operations[1].path, [0]);
     expect(transaction.operations[2].path, [0]);
+  });
+  group("toJson", () {
+    test("insert", () {
+      final root = Node(type: "root", attributes: {}, children: LinkedList());
+      final state = EditorState(document: StateTree(root: root));
+
+      final item1 = Node(type: "node", attributes: {}, children: LinkedList());
+      final tb = TransactionBuilder(state);
+      tb.insertNode([0], item1);
+
+      final transaction = tb.finish();
+      expect(transaction.toJson(), {
+        "operations": [
+          {
+            "type": "insert-operation",
+            "path": [0],
+            "nodes": [item1.toJson()],
+          }
+        ],
+      });
+    });
+    test("delete", () {
+      final item1 = Node(type: "node", attributes: {}, children: LinkedList());
+      final root = Node(
+          type: "root",
+          attributes: {},
+          children: LinkedList()
+            ..addAll([
+              item1,
+            ]));
+      final state = EditorState(document: StateTree(root: root));
+      final tb = TransactionBuilder(state);
+      tb.deleteNode(item1);
+      final transaction = tb.finish();
+      expect(transaction.toJson(), {
+        "operations": [
+          {
+            "type": "delete-operation",
+            "path": [0],
+            "nodes": [item1.toJson()],
+          }
+        ],
+      });
+    });
   });
 }
