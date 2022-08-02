@@ -51,6 +51,7 @@ class StyleKey {
 
   static List<String> globalStyleKeys = [
     StyleKey.heading,
+    StyleKey.checkbox,
     StyleKey.bulletedList,
     StyleKey.numberList,
     StyleKey.quote,

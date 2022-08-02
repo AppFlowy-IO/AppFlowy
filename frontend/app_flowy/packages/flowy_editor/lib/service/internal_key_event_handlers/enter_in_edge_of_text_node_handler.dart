@@ -37,9 +37,8 @@ FlowyKeyEventHandler enterInEdgeOfTextNodeHandler = (editorState, event) {
         textNode.path.next,
         textNode.copyWith(
           children: LinkedList(),
-          delta: Delta([TextInsert(' ')]),
-          attributes:
-              needCopyAttributes ? {StyleKey.subtype: textNode.subtype} : {},
+          delta: Delta([TextInsert('')]),
+          attributes: needCopyAttributes ? textNode.attributes : {},
         ),
       )
       ..afterSelection = Selection.collapsed(
@@ -56,7 +55,7 @@ FlowyKeyEventHandler enterInEdgeOfTextNodeHandler = (editorState, event) {
         textNode.path,
         textNode.copyWith(
           children: LinkedList(),
-          delta: Delta([TextInsert(' ')]),
+          delta: Delta([TextInsert('')]),
           attributes: {},
         ),
       )

@@ -233,6 +233,9 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   void dispose() {
+    clearSelection();
+    WidgetsBinding.instance.removeObserver(this);
+
     super.dispose();
   }
 
@@ -455,7 +458,7 @@ class _FlowySelectionState extends State<FlowySelection>
       ..forEach((overlay) => overlay.remove())
       ..clear();
     // clear toolbar
-    editorState.service.toolbarService.hide();
+    editorState.service.toolbarService?.hide();
   }
 
   void _updateSelection(Selection selection) {
@@ -526,7 +529,7 @@ class _FlowySelectionState extends State<FlowySelection>
 
     if (topmostRect != null && layerLink != null) {
       editorState.service.toolbarService
-          .showInOffset(topmostRect.topLeft, layerLink);
+          ?.showInOffset(topmostRect.topLeft, layerLink);
     }
   }
 
