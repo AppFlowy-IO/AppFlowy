@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:html/parser.dart' show parse;
@@ -20,8 +18,7 @@ class HTMLConverter {
     }
 
     if (delta.operations.isNotEmpty) {
-      result.add(TextNode(
-          type: "text", children: LinkedList(), attributes: {}, delta: delta));
+      result.add(TextNode(type: "text", delta: delta));
     }
 
     return result;

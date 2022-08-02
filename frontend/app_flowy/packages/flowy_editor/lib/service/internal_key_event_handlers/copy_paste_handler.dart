@@ -34,7 +34,33 @@ _handlePaste(EditorState editorState) async {
     _pasteHTML(editorState, data.html!);
     return;
   }
-  debugPrint('paste ${data.text ?? ''}');
+  if (data.text != null) {
+    _handlePastePlainText(editorState, data.text!);
+    return;
+  }
+}
+
+_handlePastePlainText(EditorState editorState, String plainText) {
+  final selection = editorState.cursorSelection;
+  if (selection == null) {
+    return;
+  }
+
+  final path = [...selection.end.path];
+  if (path.isEmpty) {
+    return;
+  }
+  path[path.length - 1]++;
+
+  final lines =
+      plainText.split("\n").map((e) => e.replaceAll(RegExp(r'\r'), ""));
+  final nodes = lines
+      .map((e) => TextNode(type: "text", delta: Delta().insert(e)))
+      .toList();
+
+  final tb = TransactionBuilder(editorState);
+  tb.insertNodes(path, nodes);
+  tb.commit();
 }
 
 _handleCut() {
