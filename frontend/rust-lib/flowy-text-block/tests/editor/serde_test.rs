@@ -65,7 +65,7 @@ fn delta_serialize_multi_attribute_test() {
     let json = serde_json::to_string(&delta).unwrap();
     eprintln!("{}", json);
 
-    let delta_from_json = Delta::from_json_str(&json).unwrap();
+    let delta_from_json = Delta::from_json(&json).unwrap();
     assert_eq!(delta_from_json, delta);
 }
 
@@ -77,7 +77,7 @@ fn delta_deserialize_test() {
         {"retain":2,"attributes":{"italic":"true","bold":"true"}},
         {"retain":2,"attributes":{"italic":true,"bold":true}}
      ]"#;
-    let delta = RichTextDelta::from_json_str(json).unwrap();
+    let delta = RichTextDelta::from_json(json).unwrap();
     eprintln!("{}", delta);
 }
 
@@ -86,13 +86,13 @@ fn delta_deserialize_null_test() {
     let json = r#"[
         {"retain":7,"attributes":{"bold":null}}
      ]"#;
-    let delta1 = RichTextDelta::from_json_str(json).unwrap();
+    let delta1 = RichTextDelta::from_json(json).unwrap();
 
     let mut attribute = RichTextAttribute::Bold(true);
     attribute.value = RichTextAttributeValue(None);
     let delta2 = DeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
 
-    assert_eq!(delta2.to_json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
+    assert_eq!(delta2.json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
     assert_eq!(delta1, delta2);
 }
 

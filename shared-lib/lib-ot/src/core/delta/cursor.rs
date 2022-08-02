@@ -29,14 +29,17 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{DeltaIterator, Interval, Operation};
+    /// use lib_ot::core::{DeltaCursor, DeltaIterator, Interval, Operation};
     /// use lib_ot::rich_text::RichTextDelta;
     /// let mut delta = RichTextDelta::default();   
-    /// let op_1 = Operation::insert("123");    
-    /// let op_2 = Operation::insert("4");
-    /// delta.add(op_1.clone());
-    /// delta.add(op_2.clone());
-    /// assert_eq!(DeltaIterator::from_interval(&delta, Interval::new(0, 3)).ops(), vec![op_1.clone()]);
+    /// delta.add(Operation::insert("123"));    
+    /// delta.add(Operation::insert("4"));
+    ///
+    /// let mut cursor = DeltaCursor::new(&delta, Interval::new(0, 3));
+    /// assert_eq!(cursor.next_iv(), Interval::new(0,3));
+    /// assert_eq!(cursor.next_with_len(Some(2)).unwrap(), Operation::insert("12"));
+    /// assert_eq!(cursor.get_next_op().unwrap(), Operation::insert("3"));
+    /// assert_eq!(cursor.get_next_op(), None);
     /// ```
     pub fn new(delta: &'a Delta<T>, interval: Interval) -> DeltaCursor<'a, T> {
         // debug_assert!(interval.start <= delta.target_len);

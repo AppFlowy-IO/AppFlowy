@@ -7,7 +7,7 @@ use crate::{
 };
 
 use flowy_folder_data_model::revision::{TrashRevision, WorkspaceRevision};
-use lib_ot::core::{PhantomAttributes, PlainTextDelta, PlainTextDeltaBuilder};
+use lib_ot::core::{PhantomAttributes, TextDelta, TextDeltaBuilder};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -35,13 +35,13 @@ impl FolderPadBuilder {
         self
     }
 
-    pub(crate) fn build_with_delta(self, mut delta: PlainTextDelta) -> CollaborateResult<FolderPad> {
+    pub(crate) fn build_with_delta(self, mut delta: TextDelta) -> CollaborateResult<FolderPad> {
         if delta.is_empty() {
             delta = default_folder_delta();
         }
 
         // TODO: Reconvert from history if delta.to_str() failed.
-        let content = delta.content_str()?;
+        let content = delta.content()?;
         let mut folder: FolderPad = serde_json::from_str(&content).map_err(|e| {
             tracing::error!("Deserialize folder from {} failed", content);
             return CollaborateError::internal().context(format!("Deserialize delta to folder failed: {}", e));
@@ -61,7 +61,7 @@ impl FolderPadBuilder {
         Ok(FolderPad {
             workspaces: self.workspaces,
             trash: self.trash,
-            delta: PlainTextDeltaBuilder::new().insert(&json).build(),
+            delta: TextDeltaBuilder::new().insert(&json).build(),
         })
     }
 }
