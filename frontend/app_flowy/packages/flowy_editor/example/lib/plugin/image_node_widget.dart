@@ -1,6 +1,23 @@
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/material.dart';
 
+/// 1. define your custom type in example.json
+///   For example I need to define an image plugin, then I define type equals
+///   "image", and add "image_src" into "attributes".
+///   {
+///     "type": "image",
+///     "attributes", { "image_src": "https://s1.ax1x.com/2022/07/28/vCgz1x.png" }
+///   }
+/// 2. create a class extends [NodeWidgetBuilder]
+/// 3. override the function `Widget build(NodeWidgetContext<Node> context)`
+///     and return a widget to render. The returned widget should be
+///     a StatefulWidget and mixin with [Selectable].
+///
+/// 4. override the getter `nodeValidator`
+///     to verify the data structure in [Node].
+/// 5. register the plugin with `type` to `flowy_editor` in `main.dart`.
+/// 6. Congratulations!
+
 class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
   @override
   Widget build(NodeWidgetContext<Node> context) {
