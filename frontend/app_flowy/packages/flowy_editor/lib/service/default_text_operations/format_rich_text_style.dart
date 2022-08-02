@@ -1,27 +1,77 @@
 import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/editor_state.dart';
+import 'package:flowy_editor/extensions/text_node_extensions.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
-import 'package:flowy_editor/extensions/text_node_extensions.dart';
+
+void formatHeading(EditorState editorState, String heading) {
+  formatTextNodes(editorState, {
+    StyleKey.subtype: StyleKey.heading,
+    StyleKey.heading: heading,
+  });
+}
+
+void formatQuote(EditorState editorState) {
+  formatTextNodes(editorState, {
+    StyleKey.subtype: StyleKey.quote,
+  });
+}
+
+void formatCheckbox(EditorState editorState) {
+  formatTextNodes(editorState, {
+    StyleKey.subtype: StyleKey.checkbox,
+    StyleKey.checkbox: false,
+  });
+}
+
+void formatBulletedList(EditorState editorState) {
+  formatTextNodes(editorState, {
+    StyleKey.subtype: StyleKey.bulletedList,
+  });
+}
+
+bool formatTextNodes(EditorState editorState, Attributes attributes) {
+  final nodes = editorState.service.selectionService.currentSelectedNodes.value;
+  final textNodes = nodes.whereType<TextNode>().toList();
+
+  if (textNodes.isEmpty) {
+    return false;
+  }
+
+  final builder = TransactionBuilder(editorState);
+
+  for (final textNode in textNodes) {
+    builder.updateNode(
+      textNode,
+      Attributes.fromIterable(
+        StyleKey.globalStyleKeys,
+        value: (_) => null,
+      )..addAll(attributes),
+    );
+  }
+
+  builder.commit();
+  return true;
+}
 
 bool formatBold(EditorState editorState) {
-  return formatRichText(editorState, StyleKey.bold);
+  return formatRichTextPartialStyle(editorState, StyleKey.bold);
 }
 
 bool formatItalic(EditorState editorState) {
-  return formatRichText(editorState, StyleKey.italic);
+  return formatRichTextPartialStyle(editorState, StyleKey.italic);
 }
 
 bool formatUnderline(EditorState editorState) {
-  return formatRichText(editorState, StyleKey.underline);
+  return formatRichTextPartialStyle(editorState, StyleKey.underline);
 }
 
 bool formatStrikethrough(EditorState editorState) {
-  return formatRichText(editorState, StyleKey.strikethrough);
+  return formatRichTextPartialStyle(editorState, StyleKey.strikethrough);
 }
 
-bool formatRichText(EditorState editorState, String styleKey) {
+bool formatRichTextPartialStyle(EditorState editorState, String styleKey) {
   final selection = editorState.service.selectionService.currentSelection;
   final nodes = editorState.service.selectionService.currentSelectedNodes.value;
   final textNodes = nodes.whereType<TextNode>().toList(growable: false);

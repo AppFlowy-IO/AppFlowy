@@ -1,8 +1,9 @@
+import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
+import 'package:flutter/material.dart';
+
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/infra/flowy_svg.dart';
-import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/service/default_text_operations/format_rich_text_style.dart';
-import 'package:flutter/material.dart';
 
 typedef ToolbarEventHandler = void Function(EditorState editorState);
 
@@ -13,17 +14,20 @@ ToolbarEventHandlers defaultToolbarEventHandlers = {
   'italic': (editorState) => formatItalic(editorState),
   'strikethrough': (editorState) => formatStrikethrough(editorState),
   'underline': (editorState) => formatUnderline(editorState),
-  'quote': ((editorState) {}),
-  'number_list': ((editorState) {}),
-  'bulleted_list': ((editorState) {}),
+  'quote': (editorState) => formatQuote(editorState),
+  'number_list': (editorState) {},
+  'bulleted_list': (editorState) => formatBulletedList(editorState),
+  'H1': (editorState) => formatHeading(editorState, StyleKey.h1),
+  'H2': (editorState) => formatHeading(editorState, StyleKey.h2),
+  'H3': (editorState) => formatHeading(editorState, StyleKey.h3),
 };
 
 List<String> defaultListToolbarEventNames = [
   'H1',
   'H2',
   'H3',
-  'B-List',
-  'N-List',
+  // 'B-List',
+  // 'N-List',
 ];
 
 class ToolbarWidget extends StatefulWidget {
