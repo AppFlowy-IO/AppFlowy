@@ -29,25 +29,46 @@ FlowyKeyEventHandler enterInEdgeOfTextNodeHandler = (editorState, event) {
 
   final textNode = nodes.first as TextNode;
   if (textNode.selectable!.end() == selection.end) {
-    final needCopyAttributes = StyleKey.globalStyleKeys
-        .where((key) => key != StyleKey.heading)
-        .contains(textNode.subtype);
-    TransactionBuilder(editorState)
-      ..insertNode(
-        textNode.path.next,
-        textNode.copyWith(
-          children: LinkedList(),
-          delta: Delta([TextInsert('')]),
-          attributes: needCopyAttributes ? textNode.attributes : {},
-        ),
-      )
-      ..afterSelection = Selection.collapsed(
-        Position(
-          path: textNode.path.next,
-          offset: 0,
-        ),
-      )
-      ..commit();
+    if (textNode.subtype != null && textNode.delta.length == 0) {
+      TransactionBuilder(editorState)
+        ..deleteNode(textNode)
+        ..insertNode(
+          textNode.path,
+          textNode.copyWith(
+            children: LinkedList(),
+            delta: Delta([TextInsert('')]),
+            attributes: {},
+          ),
+        )
+        ..afterSelection = Selection.collapsed(
+          Position(
+            path: textNode.path,
+            offset: 0,
+          ),
+        )
+        ..commit();
+    } else {
+      final needCopyAttributes = StyleKey.globalStyleKeys
+          .where((key) => key != StyleKey.heading)
+          .contains(textNode.subtype);
+      TransactionBuilder(editorState)
+        ..insertNode(
+          textNode.path.next,
+          textNode.copyWith(
+            children: LinkedList(),
+            delta: Delta([TextInsert('')]),
+            attributes: needCopyAttributes ? textNode.attributes : {},
+          ),
+        )
+        ..afterSelection = Selection.collapsed(
+          Position(
+            path: textNode.path.next,
+            offset: 0,
+          ),
+        )
+        ..commit();
+    }
+
     return KeyEventResult.handled;
   } else if (textNode.selectable!.start() == selection.start) {
     TransactionBuilder(editorState)
