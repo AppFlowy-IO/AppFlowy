@@ -178,7 +178,7 @@ class TextNode extends Node {
   }) : _delta = delta;
 
   TextNode.empty()
-      : _delta = Delta([TextInsert('')]),
+      : _delta = Delta([TextInsert(' ')]),
         super(
           type: 'text',
           children: LinkedList(),

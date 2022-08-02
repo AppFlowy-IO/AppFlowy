@@ -17,29 +17,38 @@ bool formatRichTextStyle(
   // 1. All nodes are text nodes.
   // 2. The first node is not TextNode.
   // 3. The last node is not TextNode.
-  for (var i = 0; i < textNodes.length; i++) {
-    final textNode = textNodes[i];
-    if (i == 0 && textNode == nodes.first) {
-      builder.formatText(
-        textNode,
-        selection.start.offset,
-        textNode.toRawString().length - selection.start.offset,
-        attributes,
-      );
-    } else if (i == textNodes.length - 1 && textNode == nodes.last) {
-      builder.formatText(
-        textNode,
-        0,
-        selection.end.offset,
-        attributes,
-      );
-    } else {
-      builder.formatText(
-        textNode,
-        0,
-        textNode.toRawString().length,
-        attributes,
-      );
+  if (nodes.length == textNodes.length && textNodes.length == 1) {
+    builder.formatText(
+      textNodes.first,
+      selection.start.offset,
+      selection.end.offset - selection.start.offset,
+      attributes,
+    );
+  } else {
+    for (var i = 0; i < textNodes.length; i++) {
+      final textNode = textNodes[i];
+      if (i == 0 && textNode == nodes.first) {
+        builder.formatText(
+          textNode,
+          selection.start.offset,
+          textNode.toRawString().length - selection.start.offset,
+          attributes,
+        );
+      } else if (i == textNodes.length - 1 && textNode == nodes.last) {
+        builder.formatText(
+          textNode,
+          0,
+          selection.end.offset,
+          attributes,
+        );
+      } else {
+        builder.formatText(
+          textNode,
+          0,
+          textNode.toRawString().length,
+          attributes,
+        );
+      }
     }
   }
 

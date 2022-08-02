@@ -35,7 +35,7 @@ class _FlowyToolbarState extends State<FlowyToolbar> with ToolbarService {
         editorState: widget.editorState,
         layerLink: layerLink,
         offset: offset.translate(0, -37.0),
-        handlers: const [],
+        handlers: const {},
       ),
     );
     Overlay.of(context)?.insert(_toolbarOverlay!);
