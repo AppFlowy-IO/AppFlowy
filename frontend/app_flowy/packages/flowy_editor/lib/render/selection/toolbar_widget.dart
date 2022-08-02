@@ -17,12 +17,14 @@ ToolbarEventHandlers defaultToolbarEventHandlers = {
   'quote': (editorState) => formatQuote(editorState),
   'number_list': (editorState) {},
   'bulleted_list': (editorState) => formatBulletedList(editorState),
+  'Text': (editorState) => formatText(editorState),
   'H1': (editorState) => formatHeading(editorState, StyleKey.h1),
   'H2': (editorState) => formatHeading(editorState, StyleKey.h2),
   'H3': (editorState) => formatHeading(editorState, StyleKey.h3),
 };
 
 List<String> defaultListToolbarEventNames = [
+  'Text',
   'H1',
   'H2',
   'H3',

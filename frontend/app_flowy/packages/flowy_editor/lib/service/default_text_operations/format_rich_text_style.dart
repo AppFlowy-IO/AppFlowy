@@ -5,6 +5,10 @@ import 'package:flowy_editor/extensions/text_node_extensions.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 
+void formatText(EditorState editorState) {
+  formatTextNodes(editorState, {});
+}
+
 void formatHeading(EditorState editorState, String heading) {
   formatTextNodes(editorState, {
     StyleKey.subtype: StyleKey.heading,
