@@ -20,7 +20,7 @@ class SettingsUserView extends StatelessWidget {
         builder: (context, state) => SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [_renderUserNameInput(context), const VSpace(20), const _CurrentIcon()],
+            children: [_renderUserNameInput(context), const VSpace(20), _renderCurrentIcon(context)],
           ),
         ),
       ),
@@ -30,6 +30,11 @@ class SettingsUserView extends StatelessWidget {
   Widget _renderUserNameInput(BuildContext context) {
     String name = context.read<SettingsUserViewBloc>().state.userProfile.name;
     return _UserNameInput(name);
+  }
+
+  Widget _renderCurrentIcon(BuildContext context) {
+    String icon = context.read<SettingsUserViewBloc>().state.icon;
+    return _CurrentIcon(icon);
   }
 }
 
@@ -53,25 +58,17 @@ class _UserNameInput extends StatelessWidget {
   }
 }
 
-class _CurrentIcon extends StatefulWidget {
-  const _CurrentIcon({Key? key}) : super(key: key);
-
-  @override
-  State<_CurrentIcon> createState() => _CurrentIconState();
-}
-
-class _CurrentIconState extends State<_CurrentIcon> {
-  String iconName = 'page';
-
-  _setIcon(String name) {
-    setState(() {
-      iconName = name;
-    });
-    Navigator.of(context).pop();
-  }
+class _CurrentIcon extends StatelessWidget {
+  final String icon;
+  const _CurrentIcon(this.icon, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    _setIcon(String icon) {
+      context.read<SettingsUserViewBloc>().add(SettingsUserEvent.updateUserIcon(icon));
+      Navigator.of(context).pop();
+    }
+
     return Material(
       color: Colors.transparent,
       child: GestureDetector(
@@ -97,7 +94,7 @@ class _CurrentIconState extends State<_CurrentIcon> {
                 child: Container(
                   margin: const EdgeInsets.all(5.0),
                   decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-                  child: svgWithSize('emoji/$iconName', const Size(60, 60)),
+                  child: svgWithSize('emoji/$icon', const Size(60, 60)),
                 )),
           ])),
     );
@@ -108,36 +105,30 @@ class IconGallery extends StatelessWidget {
   final Function setIcon;
   const IconGallery(this.setIcon, {Key? key}) : super(key: key);
 
-  Future<List<String>> _getIconNames(BuildContext context) async {
-    // >> To get paths you need these 2 lines
+  Future<List<String>> _getIcons(BuildContext context) async {
     final manifestContent = await DefaultAssetBundle.of(context).loadString('AssetManifest.json');
 
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-    // >> To get paths you need these 2 lines
 
-    final iconNames = manifestMap.keys
+    final icons = manifestMap.keys
         .where((String key) => key.startsWith('assets/images/emoji/') && key.endsWith('.svg'))
         .map((String key) => key.split('/').last.split('.').first)
         .toList();
 
-    debugPrint(iconNames.toString());
-    return iconNames;
+    return icons;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<String>>(
-      future: _getIconNames(context),
+      future: _getIcons(context),
       builder: (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
         if (snapshot.hasData) {
           return GridView.count(
-            primary: false,
             padding: const EdgeInsets.all(20),
-            crossAxisSpacing: 10,
-            mainAxisSpacing: 10,
             crossAxisCount: 5,
-            children: (snapshot.data ?? []).map((String iconName) {
-              return IconOption(iconName, 50.0, setIcon);
+            children: (snapshot.data ?? []).map((String icon) {
+              return IconOption(icon, setIcon);
             }).toList(),
           );
         } else {
@@ -151,11 +142,10 @@ class IconGallery extends StatelessWidget {
 }
 
 class IconOption extends StatelessWidget {
-  final String iconName;
-  final double size;
+  final String icon;
   final Function setIcon;
 
-  IconOption(this.iconName, this.size, this.setIcon, {Key? key}) : super(key: ValueKey(iconName));
+  IconOption(this.icon, this.setIcon, {Key? key}) : super(key: ValueKey(icon));
 
   @override
   Widget build(BuildContext context) {
@@ -163,9 +153,9 @@ class IconOption extends StatelessWidget {
       color: Colors.transparent,
       child: GestureDetector(
         onTap: () {
-          setIcon(iconName);
+          setIcon(icon);
         },
-        child: svgWidget('emoji/$iconName'),
+        child: svgWidget('emoji/$icon'),
       ),
     );
   }

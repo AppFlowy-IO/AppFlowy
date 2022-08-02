@@ -35,6 +35,9 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
             );
           });
         },
+        updateUserIcon: (String icon) {
+          emit(state.copyWith(icon: icon));
+        },
       );
     });
   }
@@ -62,6 +65,7 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.initial() = _Initial;
   const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
+  const factory SettingsUserEvent.updateUserIcon(String icon) = _UpdateUserIcon;
   const factory SettingsUserEvent.didReceiveUserProfile(UserProfilePB newUserProfile) = _DidReceiveUserProfile;
 }
 
@@ -70,10 +74,12 @@ class SettingsUserState with _$SettingsUserState {
   const factory SettingsUserState({
     required UserProfilePB userProfile,
     required Either<Unit, String> successOrFailure,
+    required String icon,
   }) = _SettingsUserState;
 
   factory SettingsUserState.initial(UserProfilePB userProfile) => SettingsUserState(
         userProfile: userProfile,
         successOrFailure: left(unit),
+        icon: 'page',
       );
 }
