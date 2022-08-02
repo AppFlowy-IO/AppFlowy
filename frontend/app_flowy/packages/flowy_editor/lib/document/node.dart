@@ -89,7 +89,11 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
         this.attributes['subtype'] != attributes['subtype'];
 
     for (final attribute in attributes.entries) {
-      this.attributes[attribute.key] = attribute.value;
+      if (attribute.value == null) {
+        this.attributes.remove(attribute.key);
+      } else {
+        this.attributes[attribute.key] = attribute.value;
+      }
     }
     // Notify the new attributes
     // if attributes contains 'subtype', should notify parent to rebuild node

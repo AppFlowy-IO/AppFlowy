@@ -23,9 +23,7 @@ FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
     // bold
     case 'B':
     case 'b':
-      formatRichTextStyle(editorState, {
-        StyleKey.bold: !textNodes.allSatisfyBoldInSelection(selection),
-      });
+      formatBold(editorState);
       return KeyEventResult.handled;
     default:
       break;

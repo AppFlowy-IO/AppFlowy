@@ -1,9 +1,49 @@
+import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
+import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
+import 'package:flowy_editor/extensions/text_node_extensions.dart';
 
-bool formatRichTextStyle(
-    EditorState editorState, Map<String, dynamic> attributes) {
+bool formatBold(EditorState editorState) {
+  return formatRichText(editorState, StyleKey.bold);
+}
+
+bool formatItalic(EditorState editorState) {
+  return formatRichText(editorState, StyleKey.italic);
+}
+
+bool formatUnderline(EditorState editorState) {
+  return formatRichText(editorState, StyleKey.underline);
+}
+
+bool formatStrikethrough(EditorState editorState) {
+  return formatRichText(editorState, StyleKey.strikethrough);
+}
+
+bool formatRichText(EditorState editorState, String styleKey) {
+  final selection = editorState.service.selectionService.currentSelection;
+  final nodes = editorState.service.selectionService.currentSelectedNodes.value;
+  final textNodes = nodes.whereType<TextNode>().toList(growable: false);
+
+  if (selection == null || textNodes.isEmpty) {
+    return false;
+  }
+
+  bool value = !textNodes.allSatisfyInSelection(styleKey, selection);
+  Attributes attributes = {
+    styleKey: value,
+  };
+  if (styleKey == StyleKey.underline && value) {
+    attributes[StyleKey.strikethrough] = null;
+  } else if (styleKey == StyleKey.strikethrough && value) {
+    attributes[StyleKey.underline] = null;
+  }
+
+  return formatRichTextStyle(editorState, attributes);
+}
+
+bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
   final selection = editorState.service.selectionService.currentSelection;
   final nodes = editorState.service.selectionService.currentSelectedNodes.value;
   final textNodes = nodes.whereType<TextNode>().toList();

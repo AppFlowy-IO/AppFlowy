@@ -9,12 +9,10 @@ typedef ToolbarEventHandler = void Function(EditorState editorState);
 typedef ToolbarEventHandlers = Map<String, ToolbarEventHandler>;
 
 ToolbarEventHandlers defaultToolbarEventHandlers = {
-  'bold': ((editorState) {
-    formatRichTextStyle(editorState, {StyleKey.bold: true});
-  }),
-  'italic': ((editorState) {}),
-  'strikethrough': ((editorState) {}),
-  'underline': ((editorState) {}),
+  'bold': (editorState) => formatBold(editorState),
+  'italic': (editorState) => formatItalic(editorState),
+  'strikethrough': (editorState) => formatStrikethrough(editorState),
+  'underline': (editorState) => formatUnderline(editorState),
   'quote': ((editorState) {}),
   'number_list': ((editorState) {}),
   'bulleted_list': ((editorState) {}),
