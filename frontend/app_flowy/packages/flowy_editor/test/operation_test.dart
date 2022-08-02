@@ -8,6 +8,7 @@ import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/document/state_tree.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('transform path', () {
     test('transform path changed', () {
       expect(transformPath([0, 1], [0, 1]), [0, 2]);
@@ -87,7 +88,7 @@ void main() {
             "path": [0],
             "nodes": [item1.toJson()],
           }
-        ],
+        ]
       });
     });
     test("delete", () {

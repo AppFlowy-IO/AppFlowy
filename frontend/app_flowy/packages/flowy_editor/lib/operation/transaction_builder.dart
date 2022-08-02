@@ -30,14 +30,10 @@ class TransactionBuilder {
 
   insertNode(Path path, Node node) {
     insertNodes(path, [node]);
-    // FIXME: Not exactly correct, needs to be customized.
-    afterSelection = Selection.collapsed(
-      Position(path: path, offset: 0),
-    );
   }
 
   insertNodes(Path path, List<Node> nodes) {
-    beforeSelection = state.service.selectionService.currentSelection;
+    beforeSelection = state.cursorSelection;
     add(InsertOperation(path, nodes));
   }
 
@@ -74,7 +70,7 @@ class TransactionBuilder {
   }
 
   textEdit(TextNode node, Delta Function() f) {
-    beforeSelection = state.service.selectionService.currentSelection;
+    beforeSelection = state.cursorSelection;
     final path = node.path;
 
     final delta = f();

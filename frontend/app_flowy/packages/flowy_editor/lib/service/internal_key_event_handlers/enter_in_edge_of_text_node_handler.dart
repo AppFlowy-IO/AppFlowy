@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/position.dart';
+import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flowy_editor/extensions/node_extensions.dart';
 import 'package:flowy_editor/extensions/path_extensions.dart';
@@ -40,6 +42,12 @@ FlowyKeyEventHandler enterInEdgeOfTextNodeHandler = (editorState, event) {
               needCopyAttributes ? {StyleKey.subtype: textNode.subtype} : {},
         ),
       )
+      ..afterSelection = Selection.collapsed(
+        Position(
+          path: textNode.path.next,
+          offset: 0,
+        ),
+      )
       ..commit();
     return KeyEventResult.handled;
   } else if (textNode.selectable!.start() == selection.start) {
@@ -50,6 +58,12 @@ FlowyKeyEventHandler enterInEdgeOfTextNodeHandler = (editorState, event) {
           children: LinkedList(),
           delta: Delta([TextInsert(' ')]),
           attributes: {},
+        ),
+      )
+      ..afterSelection = Selection.collapsed(
+        Position(
+          path: textNode.path.next,
+          offset: 0,
         ),
       )
       ..commit();
