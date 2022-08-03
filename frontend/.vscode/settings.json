@@ -2,23 +2,21 @@
     "[dart]": {
         "editor.formatOnSave": true,
         "editor.formatOnType": true,
-        "editor.rulers": [
-            120
-        ],
+        "editor.rulers": [80],
         "editor.selectionHighlight": false,
         "editor.suggest.snippetsPreventQuickSuggestions": false,
         "editor.suggestSelection": "first",
         "editor.tabCompletion": "onlySnippets",
-        "editor.wordBasedSuggestions": false
+        "editor.wordBasedSuggestions": false,
     },
     "svgviewer.enableautopreview": true,
     "svgviewer.previewcolumn": "Active",
     "svgviewer.showzoominout": true,
-    "editor.wordWrapColumn": 120,
+    "editor.wordWrapColumn": 80,
     "editor.minimap.maxColumn": 140,
     "prettier.printWidth": 140,
     "editor.wordWrap": "wordWrapColumn",
-    "dart.lineLength": 120,
+    "dart.lineLength": 80,
     "files.associations": {
         "*.log.*": "log"
     },
