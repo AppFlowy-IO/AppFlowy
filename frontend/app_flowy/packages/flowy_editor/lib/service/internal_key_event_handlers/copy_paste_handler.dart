@@ -1,6 +1,7 @@
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/infra/html_converter.dart';
+import 'package:flowy_editor/document/node_traverser.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
@@ -25,7 +26,37 @@ _handleCopy(EditorState editorState) async {
     }
     return;
   }
-  debugPrint('copy');
+
+  final beginNode = editorState.document.nodeAtPath(selection.start.path)!;
+  final endNode = editorState.document.nodeAtPath(selection.end.path)!;
+  final traverser = NodeTraverser(editorState.document, beginNode);
+
+  var copyString = "";
+  while (traverser.currentNode != null) {
+    final node = traverser.next()!;
+    if (node.type == "text") {
+      final textNode = node as TextNode;
+      if (node == beginNode) {
+        final htmlString =
+            deltaToHtml(textNode.delta.slice(selection.start.offset));
+        copyString += htmlString;
+      } else if (node == endNode) {
+        final htmlString =
+            deltaToHtml(textNode.delta.slice(0, selection.end.offset));
+        copyString += htmlString;
+      } else {
+        final htmlString = deltaToHtml(textNode.delta);
+        copyString += htmlString;
+      }
+    }
+    // TODO: handle image and other blocks
+
+    if (node == endNode) {
+      break;
+    }
+  }
+  debugPrint('copy html: $copyString');
+  RichClipboard.setData(RichClipboardData(html: copyString));
 }
 
 _pasteHTML(EditorState editorState, String html) {
