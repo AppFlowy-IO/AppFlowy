@@ -108,6 +108,7 @@ fn history_bold_redo_with_lagging() {
 fn history_delete_undo() {
     let ops = vec![
         Insert(0, "123", 0),
+        Wait(RECORD_THRESHOLD),
         AssertDocJson(0, r#"[{"insert":"123"}]"#),
         Delete(0, Interval::new(0, 3)),
         AssertDocJson(0, r#"[]"#),

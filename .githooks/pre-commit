@@ -1,5 +1,24 @@
 #!/usr/bin/env bash
 
+YELLOW="\e[93m"
+GREEN="\e[32m"
+RED="\e[31m"
+ENDCOLOR="\e[0m"
+
+printMessage() {
+   printf "${YELLOW}AppFlowy : $1${ENDCOLOR}\n"
+}
+
+printSuccess() {
+   printf "${GREEN}AppFlowy : $1${ENDCOLOR}\n"
+}
+
+printError() {
+   printf "${RED}AppFlowy : $1${ENDCOLOR}\n"
+}
+
+printMessage "Running local AppFlowy pre-commit hook."
+
 #flutter format .
 ##https://gist.github.com/benmccallum/28e4f216d9d72f5965133e6c43aaff6e
 limit=$(( 1 * 2**20 )) # 1MB

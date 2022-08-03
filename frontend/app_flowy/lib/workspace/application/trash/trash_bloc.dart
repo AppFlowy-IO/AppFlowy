@@ -45,7 +45,7 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
     ));
   }
 
-  void _listenTrashUpdated(Either<List<Trash>, FlowyError> trashOrFailed) {
+  void _listenTrashUpdated(Either<List<TrashPB>, FlowyError> trashOrFailed) {
     trashOrFailed.fold(
       (trash) {
         add(TrashEvent.didReceiveTrash(trash));
@@ -66,9 +66,9 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
 @freezed
 class TrashEvent with _$TrashEvent {
   const factory TrashEvent.initial() = Initial;
-  const factory TrashEvent.didReceiveTrash(List<Trash> trash) = ReceiveTrash;
+  const factory TrashEvent.didReceiveTrash(List<TrashPB> trash) = ReceiveTrash;
   const factory TrashEvent.putback(String trashId) = Putback;
-  const factory TrashEvent.delete(Trash trash) = Delete;
+  const factory TrashEvent.delete(TrashPB trash) = Delete;
   const factory TrashEvent.restoreAll() = RestoreAll;
   const factory TrashEvent.deleteAll() = DeleteAll;
 }
@@ -76,7 +76,7 @@ class TrashEvent with _$TrashEvent {
 @freezed
 class TrashState with _$TrashState {
   const factory TrashState({
-    required List<Trash> objects,
+    required List<TrashPB> objects,
     required Either<Unit, FlowyError> successOrFailure,
   }) = _TrashState;
 

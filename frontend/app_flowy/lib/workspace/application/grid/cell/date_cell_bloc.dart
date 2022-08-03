@@ -1,4 +1,4 @@
-import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -7,7 +7,7 @@ import 'cell_service/cell_service.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
-  final GridDateCellContext cellContext;
+  final GridDateCellController cellContext;
   void Function()? _onCellChangedFn;
 
   DateCellBloc({required this.cellContext}) : super(DateCellState.initial(cellContext)) {
@@ -15,10 +15,10 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
       (event, emit) async {
         event.when(
           initial: () => _startListening(),
-          didReceiveCellUpdate: (DateCellData? cellData) {
+          didReceiveCellUpdate: (DateCellDataPB? cellData) {
             emit(state.copyWith(data: cellData, dateStr: _dateStrFromCellData(cellData)));
           },
-          didReceiveFieldUpdate: (Field value) => emit(state.copyWith(field: value)),
+          didReceiveFieldUpdate: (GridFieldPB value) => emit(state.copyWith(field: value)),
         );
       },
     );
@@ -48,19 +48,19 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 @freezed
 class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
-  const factory DateCellEvent.didReceiveCellUpdate(DateCellData? data) = _DidReceiveCellUpdate;
-  const factory DateCellEvent.didReceiveFieldUpdate(Field field) = _DidReceiveFieldUpdate;
+  const factory DateCellEvent.didReceiveCellUpdate(DateCellDataPB? data) = _DidReceiveCellUpdate;
+  const factory DateCellEvent.didReceiveFieldUpdate(GridFieldPB field) = _DidReceiveFieldUpdate;
 }
 
 @freezed
 class DateCellState with _$DateCellState {
   const factory DateCellState({
-    required DateCellData? data,
+    required DateCellDataPB? data,
     required String dateStr,
-    required Field field,
+    required GridFieldPB field,
   }) = _DateCellState;
 
-  factory DateCellState.initial(GridDateCellContext context) {
+  factory DateCellState.initial(GridDateCellController context) {
     final cellData = context.getCellData();
 
     return DateCellState(
@@ -71,7 +71,7 @@ class DateCellState with _$DateCellState {
   }
 }
 
-String _dateStrFromCellData(DateCellData? cellData) {
+String _dateStrFromCellData(DateCellDataPB? cellData) {
   String dateStr = "";
   if (cellData != null) {
     dateStr = cellData.date + " " + cellData.time;

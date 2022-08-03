@@ -52,7 +52,7 @@ class WelcomeBloc extends Bloc<WelcomeEvent, WelcomeState> {
     ));
   }
 
-  Future<void> _openWorkspace(Workspace workspace, Emitter<WelcomeState> emit) async {
+  Future<void> _openWorkspace(WorkspacePB workspace, Emitter<WelcomeState> emit) async {
     final result = await userService.openWorkspace(workspace.id);
     emit(result.fold(
       (workspaces) => state.copyWith(successOrFailure: left(unit)),
@@ -82,8 +82,8 @@ class WelcomeEvent with _$WelcomeEvent {
   const factory WelcomeEvent.initial() = Initial;
   // const factory WelcomeEvent.fetchWorkspaces() = FetchWorkspace;
   const factory WelcomeEvent.createWorkspace(String name, String desc) = CreateWorkspace;
-  const factory WelcomeEvent.openWorkspace(Workspace workspace) = OpenWorkspace;
-  const factory WelcomeEvent.workspacesReveived(Either<List<Workspace>, FlowyError> workspacesOrFail) =
+  const factory WelcomeEvent.openWorkspace(WorkspacePB workspace) = OpenWorkspace;
+  const factory WelcomeEvent.workspacesReveived(Either<List<WorkspacePB>, FlowyError> workspacesOrFail) =
       WorkspacesReceived;
 }
 
@@ -91,7 +91,7 @@ class WelcomeEvent with _$WelcomeEvent {
 class WelcomeState with _$WelcomeState {
   const factory WelcomeState({
     required bool isLoading,
-    required List<Workspace> workspaces,
+    required List<WorkspacePB> workspaces,
     required Either<Unit, FlowyError> successOrFailure,
   }) = _WelcomeState;
 

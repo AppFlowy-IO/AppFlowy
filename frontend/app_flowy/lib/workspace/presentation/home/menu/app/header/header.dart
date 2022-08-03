@@ -19,7 +19,7 @@ import 'add_button.dart';
 import 'right_click_action.dart';
 
 class MenuAppHeader extends StatelessWidget {
-  final App app;
+  final AppPB app;
   const MenuAppHeader(
     this.app, {
     Key? key,
@@ -85,7 +85,7 @@ class MenuAppHeader extends StatelessWidget {
               anchorDirection: AnchorDirection.bottomWithCenterAligned,
             );
           },
-          child: BlocSelector<AppBloc, AppState, App>(
+          child: BlocSelector<AppBloc, AppState, AppPB>(
             selector: (state) => state.app,
             builder: (context, app) => FlowyText.medium(
               app.name,

@@ -17,7 +17,7 @@ part 'doc_bloc.freezed.dart';
 typedef FlutterQuillDocument = Document;
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
-  final View view;
+  final ViewPB view;
   final DocumentService service;
 
   final ViewListener listener;

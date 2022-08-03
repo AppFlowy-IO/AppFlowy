@@ -7,7 +7,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'block/block_service.dart';
+import 'block/block_cache.dart';
 import 'grid_service.dart';
 import 'row/row_service.dart';
 import 'dart:collection';
@@ -20,17 +20,17 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   final GridFieldCache fieldCache;
 
   // key: the block id
-  final LinkedHashMap<String, GridBlockCacheService> _blocks;
+  final LinkedHashMap<String, GridBlockCache> _blocks;
 
-  List<GridRow> get rows {
-    final List<GridRow> rows = [];
+  List<GridRowInfo> get rowInfos {
+    final List<GridRowInfo> rows = [];
     for (var block in _blocks.values) {
       rows.addAll(block.rows);
     }
     return rows;
   }
 
-  GridBloc({required View view})
+  GridBloc({required ViewPB view})
       : gridId = view.id,
         _blocks = LinkedHashMap.identity(),
         _gridService = GridService(gridId: view.id),
@@ -46,11 +46,11 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           createRow: () {
             _gridService.createRow();
           },
-          didReceiveRowUpdate: (rows, reason) {
-            emit(state.copyWith(rows: rows, reason: reason));
+          didReceiveRowUpdate: (newRowInfos, reason) {
+            emit(state.copyWith(rowInfos: newRowInfos, reason: reason));
           },
           didReceiveFieldUpdate: (fields) {
-            emit(state.copyWith(rows: rows, fields: GridFieldEquatable(fields)));
+            emit(state.copyWith(rowInfos: rowInfos, fields: GridFieldEquatable(fields)));
           },
         );
       },
@@ -68,8 +68,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     return super.close();
   }
 
-  GridRowCacheService? getRowCache(String blockId, String rowId) {
-    final GridBlockCacheService? blockCache = _blocks[blockId];
+  GridRowCache? getRowCache(String blockId, String rowId) {
+    final GridBlockCache? blockCache = _blocks[blockId];
     return blockCache?.rowCache;
   }
 
@@ -93,8 +93,8 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  Future<void> _loadFields(Grid grid, Emitter<GridState> emit) async {
-    final result = await _gridService.getFields(fieldOrders: grid.fieldOrders);
+  Future<void> _loadFields(GridPB grid, Emitter<GridState> emit) async {
+    final result = await _gridService.getFields(fieldIds: grid.fields);
     return Future(
       () => result.fold(
         (fields) {
@@ -103,7 +103,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           emit(state.copyWith(
             grid: Some(grid),
             fields: GridFieldEquatable(fieldCache.fields),
-            rows: rows,
+            rowInfos: rowInfos,
             loadingState: GridLoadingState.finish(left(unit)),
           ));
         },
@@ -112,14 +112,14 @@ class GridBloc extends Bloc<GridEvent, GridState> {
     );
   }
 
-  void _initialBlocks(List<GridBlock> blocks) {
+  void _initialBlocks(List<GridBlockPB> blocks) {
     for (final block in blocks) {
       if (_blocks[block.id] != null) {
         Log.warn("Intial duplicate block's cache: ${block.id}");
         return;
       }
 
-      final cache = GridBlockCacheService(
+      final cache = GridBlockCache(
         gridId: gridId,
         block: block,
         fieldCache: fieldCache,
@@ -127,7 +127,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 
       cache.addListener(
         listenWhen: () => !isClosed,
-        onChangeReason: (reason) => add(GridEvent.didReceiveRowUpdate(rows, reason)),
+        onChangeReason: (reason) => add(GridEvent.didReceiveRowUpdate(rowInfos, reason)),
       );
 
       _blocks[block.id] = cache;
@@ -139,24 +139,25 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
-  const factory GridEvent.didReceiveRowUpdate(List<GridRow> rows, GridRowChangeReason listState) = _DidReceiveRowUpdate;
-  const factory GridEvent.didReceiveFieldUpdate(List<Field> fields) = _DidReceiveFieldUpdate;
+  const factory GridEvent.didReceiveRowUpdate(List<GridRowInfo> rows, GridRowChangeReason listState) =
+      _DidReceiveRowUpdate;
+  const factory GridEvent.didReceiveFieldUpdate(List<GridFieldPB> fields) = _DidReceiveFieldUpdate;
 }
 
 @freezed
 class GridState with _$GridState {
   const factory GridState({
     required String gridId,
-    required Option<Grid> grid,
+    required Option<GridPB> grid,
     required GridFieldEquatable fields,
-    required List<GridRow> rows,
+    required List<GridRowInfo> rowInfos,
     required GridLoadingState loadingState,
     required GridRowChangeReason reason,
   }) = _GridState;
 
   factory GridState.initial(String gridId) => GridState(
         fields: const GridFieldEquatable([]),
-        rows: [],
+        rowInfos: [],
         grid: none(),
         gridId: gridId,
         loadingState: const _Loading(),
@@ -171,8 +172,8 @@ class GridLoadingState with _$GridLoadingState {
 }
 
 class GridFieldEquatable extends Equatable {
-  final List<Field> _fields;
-  const GridFieldEquatable(List<Field> fields) : _fields = fields;
+  final List<GridFieldPB> _fields;
+  const GridFieldEquatable(List<GridFieldPB> fields) : _fields = fields;
 
   @override
   List<Object?> get props {
@@ -182,5 +183,5 @@ class GridFieldEquatable extends Equatable {
     ];
   }
 
-  UnmodifiableListView<Field> get value => UnmodifiableListView(_fields);
+  UnmodifiableListView<GridFieldPB> get value => UnmodifiableListView(_fields);
 }

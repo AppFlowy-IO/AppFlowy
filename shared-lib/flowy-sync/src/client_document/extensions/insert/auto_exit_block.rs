@@ -1,8 +1,6 @@
 use crate::{client_document::InsertExt, util::is_newline};
-use lib_ot::{
-    core::{is_empty_line_at_index, DeltaBuilder, DeltaIter},
-    rich_text::{attributes_except_header, RichTextAttributeKey, RichTextDelta},
-};
+use lib_ot::core::{is_empty_line_at_index, DeltaBuilder, DeltaIterator};
+use lib_ot::rich_text::{attributes_except_header, RichTextAttributeKey, RichTextDelta};
 
 pub struct AutoExitBlock {}
 
@@ -21,7 +19,7 @@ impl InsertExt for AutoExitBlock {
             return None;
         }
 
-        let mut iter = DeltaIter::from_offset(delta, index);
+        let mut iter = DeltaIterator::from_offset(delta, index);
         let next = iter.next_op()?;
         let mut attributes = next.get_attributes();
 

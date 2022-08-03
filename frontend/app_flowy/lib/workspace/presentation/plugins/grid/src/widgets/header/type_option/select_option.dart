@@ -2,7 +2,6 @@ import 'package:app_flowy/workspace/application/grid/field/type_option/select_op
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/cell/select_option_cell/extension.dart';
 import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/common/text_field.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/src/widgets/header/field_editor_pannel.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -14,10 +13,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
+import 'builder.dart';
 import 'select_option_editor.dart';
 
 class SelectOptionTypeOptionWidget extends StatelessWidget {
-  final List<SelectOption> options;
+  final List<SelectOptionPB> options;
   final VoidCallback beginEdit;
   final TypeOptionOverlayDelegate overlayDelegate;
   final SelectOptionTypeOptionAction typeOptionAction;
@@ -131,7 +131,7 @@ class _OptionList extends StatelessWidget {
     );
   }
 
-  _OptionCell _makeOptionCell(BuildContext context, SelectOption option) {
+  _OptionCell _makeOptionCell(BuildContext context, SelectOptionPB option) {
     return _OptionCell(
       option: option,
       onSelected: (option) {
@@ -154,8 +154,8 @@ class _OptionList extends StatelessWidget {
 }
 
 class _OptionCell extends StatelessWidget {
-  final SelectOption option;
-  final Function(SelectOption) onSelected;
+  final SelectOptionPB option;
+  final Function(SelectOptionPB) onSelected;
   const _OptionCell({
     required this.option,
     required this.onSelected,

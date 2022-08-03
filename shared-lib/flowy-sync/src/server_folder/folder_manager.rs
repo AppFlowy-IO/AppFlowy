@@ -1,10 +1,11 @@
+use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::{
     entities::{
         folder::{FolderDelta, FolderInfo},
         ws_data::ServerRevisionWSDataBuilder,
     },
     errors::{internal_error, CollaborateError, CollaborateResult},
-    protobuf::{ClientRevisionWSData, RepeatedRevision as RepeatedRevisionPB, Revision as RevisionPB},
+    protobuf::ClientRevisionWSData,
     server_folder::folder_pad::ServerFolder,
     synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionSynchronizer, RevisionUser},
     util::rev_id_from_str,
@@ -12,7 +13,7 @@ use crate::{
 use async_stream::stream;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::PlainTextAttributes;
+use lib_ot::core::PhantomAttributes;
 use std::{collections::HashMap, fmt::Debug, sync::Arc};
 use tokio::{
     sync::{mpsc, oneshot, RwLock},
@@ -26,21 +27,21 @@ pub trait FolderCloudPersistence: Send + Sync + Debug {
         &self,
         user_id: &str,
         folder_id: &str,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
     ) -> BoxResultFuture<Option<FolderInfo>, CollaborateError>;
 
-    fn save_folder_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError>;
+    fn save_folder_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError>;
 
     fn read_folder_revisions(
         &self,
         folder_id: &str,
         rev_ids: Option<Vec<i64>>,
-    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError>;
+    ) -> BoxResultFuture<Vec<Revision>, CollaborateError>;
 
     fn reset_folder(
         &self,
         folder_id: &str,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
@@ -49,18 +50,18 @@ impl RevisionSyncPersistence for Arc<dyn FolderCloudPersistence> {
         &self,
         object_id: &str,
         rev_ids: Option<Vec<i64>>,
-    ) -> BoxResultFuture<Vec<RevisionPB>, CollaborateError> {
+    ) -> BoxResultFuture<Vec<Revision>, CollaborateError> {
         (**self).read_folder_revisions(object_id, rev_ids)
     }
 
-    fn save_revisions(&self, repeated_revision: RepeatedRevisionPB) -> BoxResultFuture<(), CollaborateError> {
+    fn save_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
         (**self).save_folder_revisions(repeated_revision)
     }
 
     fn reset_object(
         &self,
         object_id: &str,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
     ) -> BoxResultFuture<(), CollaborateError> {
         (**self).reset_folder(object_id, repeated_revision)
     }
@@ -84,7 +85,7 @@ impl ServerFolderManager {
         user: Arc<dyn RevisionUser>,
         mut client_data: ClientRevisionWSData,
     ) -> Result<(), CollaborateError> {
-        let repeated_revision = client_data.take_revisions();
+        let repeated_revision: RepeatedRevision = client_data.take_revisions().into();
         let cloned_user = user.clone();
         let ack_id = rev_id_from_str(&client_data.data_id)?;
         let folder_id = client_data.object_id;
@@ -167,7 +168,7 @@ impl ServerFolderManager {
         &self,
         user_id: &str,
         folder_id: &str,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
     ) -> Result<Arc<OpenFolderHandler>, CollaborateError> {
         match self
             .persistence
@@ -187,7 +188,7 @@ impl ServerFolderManager {
     }
 }
 
-type FolderRevisionSynchronizer = RevisionSynchronizer<PlainTextAttributes>;
+type FolderRevisionSynchronizer = RevisionSynchronizer<PhantomAttributes>;
 
 struct OpenFolderHandler {
     folder_id: String,
@@ -221,7 +222,7 @@ impl OpenFolderHandler {
     async fn apply_revisions(
         &self,
         user: Arc<dyn RevisionUser>,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
     ) -> CollaborateResult<()> {
         let (ret, rx) = oneshot::channel();
         let msg = FolderCommand::ApplyRevisions {
@@ -258,7 +259,7 @@ impl std::ops::Drop for OpenFolderHandler {
 enum FolderCommand {
     ApplyRevisions {
         user: Arc<dyn RevisionUser>,
-        repeated_revision: RepeatedRevisionPB,
+        repeated_revision: RepeatedRevision,
         ret: oneshot::Sender<CollaborateResult<()>>,
     },
     Ping {

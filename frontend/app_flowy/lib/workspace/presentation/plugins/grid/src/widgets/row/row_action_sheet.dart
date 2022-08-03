@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridRowActionSheet extends StatelessWidget {
-  final GridRow rowData;
+  final GridRowInfo rowData;
   const GridRowActionSheet({required this.rowData, Key? key}) : super(key: key);
 
   @override

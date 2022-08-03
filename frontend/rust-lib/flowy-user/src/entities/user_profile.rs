@@ -7,13 +7,13 @@ use crate::{
 };
 
 #[derive(Default, ProtoBuf)]
-pub struct UserToken {
+pub struct UserTokenPB {
     #[pb(index = 1)]
     pub token: String,
 }
 
 #[derive(ProtoBuf, Default, Debug, PartialEq, Eq, Clone)]
-pub struct UserProfile {
+pub struct UserProfilePB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -28,7 +28,7 @@ pub struct UserProfile {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct UpdateUserProfilePayload {
+pub struct UpdateUserProfilePayloadPB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -42,7 +42,7 @@ pub struct UpdateUserProfilePayload {
     pub password: Option<String>,
 }
 
-impl UpdateUserProfilePayload {
+impl UpdateUserProfilePayloadPB {
     pub fn new(id: &str) -> Self {
         Self {
             id: id.to_owned(),
@@ -85,7 +85,9 @@ impl UpdateUserProfileParams {
     pub fn new(user_id: &str) -> Self {
         Self {
             id: user_id.to_owned(),
-            ..Default::default()
+            name: None,
+            email: None,
+            password: None,
         }
     }
 
@@ -105,7 +107,7 @@ impl UpdateUserProfileParams {
     }
 }
 
-impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayload {
+impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateUserProfileParams, Self::Error> {

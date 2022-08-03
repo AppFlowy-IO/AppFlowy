@@ -1,69 +1,71 @@
-use crate::entities::{FieldOrder, GridBlock};
+use crate::entities::{GridBlockPB, GridFieldIdPB};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
+
+/// [GridPB] describes how many fields and blocks the grid has
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct Grid {
+pub struct GridPB {
     #[pb(index = 1)]
     pub id: String,
 
     #[pb(index = 2)]
-    pub field_orders: Vec<FieldOrder>,
+    pub fields: Vec<GridFieldIdPB>,
 
     #[pb(index = 3)]
-    pub blocks: Vec<GridBlock>,
+    pub blocks: Vec<GridBlockPB>,
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateGridPayload {
+pub struct CreateGridPayloadPB {
     #[pb(index = 1)]
     pub name: String,
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
-pub struct GridId {
+pub struct GridIdPB {
     #[pb(index = 1)]
     pub value: String,
 }
 
-impl AsRef<str> for GridId {
+impl AsRef<str> for GridIdPB {
     fn as_ref(&self) -> &str {
         &self.value
     }
 }
 
 #[derive(Clone, ProtoBuf, Default, Debug)]
-pub struct GridBlockId {
+pub struct GridBlockIdPB {
     #[pb(index = 1)]
     pub value: String,
 }
 
-impl AsRef<str> for GridBlockId {
+impl AsRef<str> for GridBlockIdPB {
     fn as_ref(&self) -> &str {
         &self.value
     }
 }
 
-impl std::convert::From<&str> for GridBlockId {
+impl std::convert::From<&str> for GridBlockIdPB {
     fn from(s: &str) -> Self {
-        GridBlockId { value: s.to_owned() }
+        GridBlockIdPB { value: s.to_owned() }
     }
 }
 
 #[derive(Debug, Clone, ProtoBuf_Enum)]
-pub enum MoveItemType {
+pub enum MoveItemTypePB {
     MoveField = 0,
     MoveRow = 1,
 }
 
-impl std::default::Default for MoveItemType {
+impl std::default::Default for MoveItemTypePB {
     fn default() -> Self {
-        MoveItemType::MoveField
+        MoveItemTypePB::MoveField
     }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct MoveItemPayload {
+pub struct MoveItemPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -77,7 +79,7 @@ pub struct MoveItemPayload {
     pub to_index: i32,
 
     #[pb(index = 5)]
-    pub ty: MoveItemType,
+    pub ty: MoveItemTypePB,
 }
 
 #[derive(Clone)]
@@ -86,10 +88,10 @@ pub struct MoveItemParams {
     pub item_id: String,
     pub from_index: i32,
     pub to_index: i32,
-    pub ty: MoveItemType,
+    pub ty: MoveItemTypePB,
 }
 
-impl TryInto<MoveItemParams> for MoveItemPayload {
+impl TryInto<MoveItemParams> for MoveItemPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<MoveItemParams, Self::Error> {

@@ -1,7 +1,7 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::editor::{TestBuilder, TestOp::*};
 use flowy_sync::client_document::{NewlineDoc, PlainDoc};
-use lib_ot::core::{Interval, OperationTransformable, NEW_LINE, WHITESPACE, FlowyStr};
+use lib_ot::core::{Interval, OperationTransform, NEW_LINE, WHITESPACE, OTString};
 use unicode_segmentation::UnicodeSegmentation;
 use lib_ot::rich_text::RichTextDelta;
 
@@ -723,8 +723,8 @@ fn attributes_preserve_header_format_on_merge() {
 #[test]
 fn attributes_format_emoji() {
     let emoji_s = "👋 ";
-    let s: FlowyStr = emoji_s.into();
-    let len = s.utf16_size();
+    let s: OTString = emoji_s.into();
+    let len = s.utf16_len();
     assert_eq!(3, len);
     assert_eq!(2, s.graphemes(true).count());
     
@@ -762,19 +762,19 @@ fn attributes_preserve_list_format_on_merge() {
 
 #[test]
 fn delta_compose() {
-    let mut delta = RichTextDelta::from_delta_str(r#"[{"insert":"\n"}]"#).unwrap();
+    let mut delta = RichTextDelta::from_json(r#"[{"insert":"\n"}]"#).unwrap();
     let deltas = vec![
-        RichTextDelta::from_delta_str(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
-        RichTextDelta::from_delta_str(r#"[{"insert":"a"}]"#).unwrap(),
-        RichTextDelta::from_delta_str(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
-        RichTextDelta::from_delta_str(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"insert":"a"}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
     ];
 
     for d in deltas {
         delta = delta.compose(&d).unwrap();
     }
     assert_eq!(
-        delta.to_delta_str(),
+        delta.json_str(),
         r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"unchecked"}},{"insert":"\n"}]"#
     );
 

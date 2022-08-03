@@ -3,7 +3,7 @@ use crate::{
         app::{AppColorStyle, AppIdentify, AppName},
         workspace::WorkspaceIdentify,
     },
-    entities::view::RepeatedView,
+    entities::view::RepeatedViewPB,
     errors::ErrorCode,
     impl_def_and_def_mut,
 };
@@ -12,7 +12,7 @@ use flowy_folder_data_model::revision::AppRevision;
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct App {
+pub struct AppPB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -26,7 +26,7 @@ pub struct App {
     pub desc: String,
 
     #[pb(index = 5)]
-    pub belongings: RepeatedView,
+    pub belongings: RepeatedViewPB,
 
     #[pb(index = 6)]
     pub version: i64,
@@ -38,9 +38,9 @@ pub struct App {
     pub create_time: i64,
 }
 
-impl std::convert::From<AppRevision> for App {
+impl std::convert::From<AppRevision> for AppPB {
     fn from(app_serde: AppRevision) -> Self {
-        App {
+        AppPB {
             id: app_serde.id,
             workspace_id: app_serde.workspace_id,
             name: app_serde.name,
@@ -53,21 +53,21 @@ impl std::convert::From<AppRevision> for App {
     }
 }
 #[derive(Eq, PartialEq, Debug, Default, ProtoBuf, Clone)]
-pub struct RepeatedApp {
+pub struct RepeatedAppPB {
     #[pb(index = 1)]
-    pub items: Vec<App>,
+    pub items: Vec<AppPB>,
 }
 
-impl_def_and_def_mut!(RepeatedApp, App);
+impl_def_and_def_mut!(RepeatedAppPB, AppPB);
 
-impl std::convert::From<Vec<AppRevision>> for RepeatedApp {
+impl std::convert::From<Vec<AppRevision>> for RepeatedAppPB {
     fn from(values: Vec<AppRevision>) -> Self {
-        let items = values.into_iter().map(|value| value.into()).collect::<Vec<App>>();
-        RepeatedApp { items }
+        let items = values.into_iter().map(|value| value.into()).collect::<Vec<AppPB>>();
+        RepeatedAppPB { items }
     }
 }
 #[derive(ProtoBuf, Default)]
-pub struct CreateAppPayload {
+pub struct CreateAppPayloadPB {
     #[pb(index = 1)]
     pub workspace_id: String,
 
@@ -78,31 +78,24 @@ pub struct CreateAppPayload {
     pub desc: String,
 
     #[pb(index = 4)]
-    pub color_style: ColorStyle,
+    pub color_style: ColorStylePB,
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct ColorStyle {
+pub struct ColorStylePB {
     #[pb(index = 1)]
     pub theme_color: String,
 }
 
-#[derive(ProtoBuf, Default, Debug)]
+#[derive(Debug)]
 pub struct CreateAppParams {
-    #[pb(index = 1)]
     pub workspace_id: String,
-
-    #[pb(index = 2)]
     pub name: String,
-
-    #[pb(index = 3)]
     pub desc: String,
-
-    #[pb(index = 4)]
-    pub color_style: ColorStyle,
+    pub color_style: ColorStylePB,
 }
 
-impl TryInto<CreateAppParams> for CreateAppPayload {
+impl TryInto<CreateAppParams> for CreateAppPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateAppParams, Self::Error> {
@@ -119,21 +112,21 @@ impl TryInto<CreateAppParams> for CreateAppPayload {
     }
 }
 
-impl std::convert::From<AppColorStyle> for ColorStyle {
+impl std::convert::From<AppColorStyle> for ColorStylePB {
     fn from(data: AppColorStyle) -> Self {
-        ColorStyle {
+        ColorStylePB {
             theme_color: data.theme_color,
         }
     }
 }
 
 #[derive(ProtoBuf, Default, Clone, Debug)]
-pub struct AppId {
+pub struct AppIdPB {
     #[pb(index = 1)]
     pub value: String,
 }
 
-impl AppId {
+impl AppIdPB {
     pub fn new(app_id: &str) -> Self {
         Self {
             value: app_id.to_string(),
@@ -142,7 +135,7 @@ impl AppId {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct UpdateAppPayload {
+pub struct UpdateAppPayloadPB {
     #[pb(index = 1)]
     pub app_id: String,
 
@@ -153,27 +146,22 @@ pub struct UpdateAppPayload {
     pub desc: Option<String>,
 
     #[pb(index = 4, one_of)]
-    pub color_style: Option<ColorStyle>,
+    pub color_style: Option<ColorStylePB>,
 
     #[pb(index = 5, one_of)]
     pub is_trash: Option<bool>,
 }
 
-#[derive(ProtoBuf, Default, Clone, Debug)]
+#[derive(Debug, Clone)]
 pub struct UpdateAppParams {
-    #[pb(index = 1)]
     pub app_id: String,
 
-    #[pb(index = 2, one_of)]
     pub name: Option<String>,
 
-    #[pb(index = 3, one_of)]
     pub desc: Option<String>,
 
-    #[pb(index = 4, one_of)]
-    pub color_style: Option<ColorStyle>,
+    pub color_style: Option<ColorStylePB>,
 
-    #[pb(index = 5, one_of)]
     pub is_trash: Option<bool>,
 }
 
@@ -181,7 +169,10 @@ impl UpdateAppParams {
     pub fn new(app_id: &str) -> Self {
         Self {
             app_id: app_id.to_string(),
-            ..Default::default()
+            name: None,
+            desc: None,
+            color_style: None,
+            is_trash: None,
         }
     }
 
@@ -201,7 +192,7 @@ impl UpdateAppParams {
     }
 }
 
-impl TryInto<UpdateAppParams> for UpdateAppPayload {
+impl TryInto<UpdateAppParams> for UpdateAppPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<UpdateAppParams, Self::Error> {

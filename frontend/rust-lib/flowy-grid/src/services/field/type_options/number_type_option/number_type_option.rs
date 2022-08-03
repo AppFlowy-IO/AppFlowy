@@ -1,17 +1,15 @@
-use crate::impl_type_option;
-
 use crate::entities::FieldType;
-use crate::services::cell::{CellData, CellDataChangeset, CellDataOperation, DecodedCellData};
-use crate::services::field::number_currency::Currency;
+use crate::impl_type_option;
+use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation};
 use crate::services::field::type_options::number_type_option::format::*;
-use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
 
 use rust_decimal::Decimal;
-use rusty_money::Money;
+
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -110,15 +108,15 @@ impl CellDataOperation<String, String> for NumberTypeOption {
         cell_data: CellData<String>,
         decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
-    ) -> FlowyResult<DecodedCellData> {
+    ) -> FlowyResult<CellBytes> {
         if decoded_field_type.is_date() {
-            return Ok(DecodedCellData::default());
+            return Ok(CellBytes::default());
         }
 
         let cell_data: String = cell_data.try_into_inner()?;
         match self.format_cell_data(&cell_data) {
-            Ok(num) => Ok(DecodedCellData::new(num.to_string())),
-            Err(_) => Ok(DecodedCellData::default()),
+            Ok(num) => Ok(CellBytes::new(num.to_string())),
+            Err(_) => Ok(CellBytes::default()),
         }
     }
 
@@ -145,232 +143,5 @@ impl std::default::Default for NumberTypeOption {
             sign_positive: true,
             name: "Number".to_string(),
         }
-    }
-}
-
-#[derive(Default)]
-pub struct NumberCellData {
-    decimal: Option<Decimal>,
-    money: Option<String>,
-}
-
-impl NumberCellData {
-    pub fn new() -> Self {
-        Self {
-            decimal: Default::default(),
-            money: None,
-        }
-    }
-
-    pub fn from_format_str(s: &str, sign_positive: bool, format: &NumberFormat) -> FlowyResult<Self> {
-        let mut num_str = strip_currency_symbol(s);
-        let currency = format.currency();
-        if num_str.is_empty() {
-            return Ok(Self::default());
-        }
-        match Decimal::from_str(&num_str) {
-            Ok(mut decimal) => {
-                decimal.set_sign_positive(sign_positive);
-                let money = Money::from_decimal(decimal, currency);
-                Ok(Self::from_money(money))
-            }
-            Err(_) => match Money::from_str(&num_str, currency) {
-                Ok(money) => Ok(NumberCellData::from_money(money)),
-                Err(_) => {
-                    num_str.retain(|c| !STRIP_SYMBOL.contains(&c.to_string()));
-                    if num_str.chars().all(char::is_numeric) {
-                        Self::from_format_str(&num_str, sign_positive, format)
-                    } else {
-                        Err(FlowyError::invalid_data().context("Should only contain numbers"))
-                    }
-                }
-            },
-        }
-    }
-
-    pub fn from_decimal(decimal: Decimal) -> Self {
-        Self {
-            decimal: Some(decimal),
-            money: None,
-        }
-    }
-
-    pub fn from_money(money: Money<Currency>) -> Self {
-        Self {
-            decimal: Some(*money.amount()),
-            money: Some(money.to_string()),
-        }
-    }
-
-    pub fn decimal(&self) -> &Option<Decimal> {
-        &self.decimal
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.decimal.is_none()
-    }
-}
-
-impl FromStr for NumberCellData {
-    type Err = rust_decimal::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.is_empty() {
-            return Ok(Self::default());
-        }
-        let decimal = Decimal::from_str(s)?;
-        Ok(Self::from_decimal(decimal))
-    }
-}
-
-impl ToString for NumberCellData {
-    fn to_string(&self) -> String {
-        match &self.money {
-            None => match self.decimal {
-                None => String::default(),
-                Some(decimal) => decimal.to_string(),
-            },
-            Some(money) => money.to_string(),
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::entities::FieldType;
-    use crate::services::cell::CellDataOperation;
-    use crate::services::field::FieldBuilder;
-    use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOption};
-    use flowy_grid_data_model::revision::FieldRevision;
-    use strum::IntoEnumIterator;
-
-    #[test]
-    fn number_type_option_invalid_input_test() {
-        let type_option = NumberTypeOption::default();
-        let field_type = FieldType::Number;
-        let field_rev = FieldBuilder::from_field_type(&field_type).build();
-        assert_equal(&type_option, "", "", &field_type, &field_rev);
-        assert_equal(&type_option, "abc", "", &field_type, &field_rev);
-    }
-
-    #[test]
-    fn number_type_option_strip_symbol_test() {
-        let mut type_option = NumberTypeOption::new();
-        type_option.format = NumberFormat::USD;
-        assert_eq!(strip_currency_symbol("$18,443"), "18,443".to_owned());
-
-        type_option.format = NumberFormat::Yuan;
-        assert_eq!(strip_currency_symbol("$0.2"), "0.2".to_owned());
-    }
-
-    #[test]
-    fn number_type_option_format_number_test() {
-        let mut type_option = NumberTypeOption::default();
-        let field_type = FieldType::Number;
-        let field_rev = FieldBuilder::from_field_type(&field_type).build();
-
-        for format in NumberFormat::iter() {
-            type_option.format = format;
-            match format {
-                NumberFormat::Num => {
-                    assert_equal(&type_option, "18443", "18443", &field_type, &field_rev);
-                }
-                NumberFormat::USD => {
-                    assert_equal(&type_option, "18443", "$18,443", &field_type, &field_rev);
-                }
-                NumberFormat::Yen => {
-                    assert_equal(&type_option, "18443", "¥18,443", &field_type, &field_rev);
-                }
-                NumberFormat::Yuan => {
-                    assert_equal(&type_option, "18443", "CN¥18,443", &field_type, &field_rev);
-                }
-                NumberFormat::EUR => {
-                    assert_equal(&type_option, "18443", "€18.443", &field_type, &field_rev);
-                }
-                _ => {}
-            }
-        }
-    }
-
-    #[test]
-    fn number_type_option_format_str_test() {
-        let mut type_option = NumberTypeOption::default();
-        let field_type = FieldType::Number;
-        let field_rev = FieldBuilder::from_field_type(&field_type).build();
-
-        for format in NumberFormat::iter() {
-            type_option.format = format;
-            match format {
-                NumberFormat::Num => {
-                    assert_equal(&type_option, "18443", "18443", &field_type, &field_rev);
-                    assert_equal(&type_option, "0.2", "0.2", &field_type, &field_rev);
-                }
-                NumberFormat::USD => {
-                    assert_equal(&type_option, "$18,44", "$1,844", &field_type, &field_rev);
-                    assert_equal(&type_option, "$0.2", "$0.2", &field_type, &field_rev);
-                    assert_equal(&type_option, "", "", &field_type, &field_rev);
-                    assert_equal(&type_option, "abc", "", &field_type, &field_rev);
-                }
-                NumberFormat::Yen => {
-                    assert_equal(&type_option, "¥18,44", "¥1,844", &field_type, &field_rev);
-                    assert_equal(&type_option, "¥1844", "¥1,844", &field_type, &field_rev);
-                }
-                NumberFormat::Yuan => {
-                    assert_equal(&type_option, "CN¥18,44", "CN¥1,844", &field_type, &field_rev);
-                    assert_equal(&type_option, "CN¥1844", "CN¥1,844", &field_type, &field_rev);
-                }
-                NumberFormat::EUR => {
-                    assert_equal(&type_option, "€18.44", "€18,44", &field_type, &field_rev);
-                    assert_equal(&type_option, "€0.5", "€0,5", &field_type, &field_rev);
-                    assert_equal(&type_option, "€1844", "€1.844", &field_type, &field_rev);
-                }
-                _ => {}
-            }
-        }
-    }
-
-    #[test]
-    fn number_description_sign_test() {
-        let mut type_option = NumberTypeOption {
-            sign_positive: false,
-            ..Default::default()
-        };
-        let field_type = FieldType::Number;
-        let field_rev = FieldBuilder::from_field_type(&field_type).build();
-
-        for format in NumberFormat::iter() {
-            type_option.format = format;
-            match format {
-                NumberFormat::Num => {
-                    assert_equal(&type_option, "18443", "18443", &field_type, &field_rev);
-                }
-                NumberFormat::USD => {
-                    assert_equal(&type_option, "18443", "-$18,443", &field_type, &field_rev);
-                }
-                NumberFormat::Yen => {
-                    assert_equal(&type_option, "18443", "-¥18,443", &field_type, &field_rev);
-                }
-                NumberFormat::EUR => {
-                    assert_equal(&type_option, "18443", "-€18.443", &field_type, &field_rev);
-                }
-                _ => {}
-            }
-        }
-    }
-
-    fn assert_equal(
-        type_option: &NumberTypeOption,
-        cell_data: &str,
-        expected_str: &str,
-        field_type: &FieldType,
-        field_rev: &FieldRevision,
-    ) {
-        assert_eq!(
-            type_option
-                .decode_cell_data(cell_data.to_owned().into(), field_type, field_rev)
-                .unwrap()
-                .to_string(),
-            expected_str.to_owned()
-        );
     }
 }

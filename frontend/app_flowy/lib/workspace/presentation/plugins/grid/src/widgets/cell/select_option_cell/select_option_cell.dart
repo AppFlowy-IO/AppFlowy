@@ -20,12 +20,12 @@ class SelectOptionCellStyle extends GridCellStyle {
   });
 }
 
-class SingleSelectCell extends GridCellWidget {
-  final GridCellContextBuilder cellContextBuilder;
+class GridSingleSelectCell extends GridCellWidget {
+  final GridCellControllerBuilder cellContorllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
-  SingleSelectCell({
-    required this.cellContextBuilder,
+  GridSingleSelectCell({
+    required this.cellContorllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -37,15 +37,15 @@ class SingleSelectCell extends GridCellWidget {
   }
 
   @override
-  State<SingleSelectCell> createState() => _SingleSelectCellState();
+  State<GridSingleSelectCell> createState() => _SingleSelectCellState();
 }
 
-class _SingleSelectCellState extends State<SingleSelectCell> {
+class _SingleSelectCellState extends State<GridSingleSelectCell> {
   late SelectOptionCellBloc _cellBloc;
 
   @override
   void initState() {
-    final cellContext = widget.cellContextBuilder.build() as GridSelectOptionCellContext;
+    final cellContext = widget.cellContorllerBuilder.build() as GridSelectOptionCellController;
     _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
@@ -60,7 +60,7 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
               onFocus: (value) => widget.onCellEditing.value = value,
-              cellContextBuilder: widget.cellContextBuilder);
+              cellContorllerBuilder: widget.cellContorllerBuilder);
         },
       ),
     );
@@ -74,12 +74,12 @@ class _SingleSelectCellState extends State<SingleSelectCell> {
 }
 
 //----------------------------------------------------------------
-class MultiSelectCell extends GridCellWidget {
-  final GridCellContextBuilder cellContextBuilder;
+class GridMultiSelectCell extends GridCellWidget {
+  final GridCellControllerBuilder cellContorllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
-  MultiSelectCell({
-    required this.cellContextBuilder,
+  GridMultiSelectCell({
+    required this.cellContorllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -91,15 +91,15 @@ class MultiSelectCell extends GridCellWidget {
   }
 
   @override
-  State<MultiSelectCell> createState() => _MultiSelectCellState();
+  State<GridMultiSelectCell> createState() => _MultiSelectCellState();
 }
 
-class _MultiSelectCellState extends State<MultiSelectCell> {
+class _MultiSelectCellState extends State<GridMultiSelectCell> {
   late SelectOptionCellBloc _cellBloc;
 
   @override
   void initState() {
-    final cellContext = widget.cellContextBuilder.build() as GridSelectOptionCellContext;
+    final cellContext = widget.cellContorllerBuilder.build() as GridSelectOptionCellController;
     _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
@@ -114,7 +114,7 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
               onFocus: (value) => widget.onCellEditing.value = value,
-              cellContextBuilder: widget.cellContextBuilder);
+              cellContorllerBuilder: widget.cellContorllerBuilder);
         },
       ),
     );
@@ -128,15 +128,15 @@ class _MultiSelectCellState extends State<MultiSelectCell> {
 }
 
 class _SelectOptionCell extends StatelessWidget {
-  final List<SelectOption> selectOptions;
+  final List<SelectOptionPB> selectOptions;
   final void Function(bool) onFocus;
   final SelectOptionCellStyle? cellStyle;
-  final GridCellContextBuilder cellContextBuilder;
+  final GridCellControllerBuilder cellContorllerBuilder;
   const _SelectOptionCell({
     required this.selectOptions,
     required this.onFocus,
     required this.cellStyle,
-    required this.cellContextBuilder,
+    required this.cellContorllerBuilder,
     Key? key,
   }) : super(key: key);
 
@@ -172,7 +172,7 @@ class _SelectOptionCell extends StatelessWidget {
         InkWell(
           onTap: () {
             onFocus(true);
-            final cellContext = cellContextBuilder.build() as GridSelectOptionCellContext;
+            final cellContext = cellContorllerBuilder.build() as GridSelectOptionCellController;
             SelectOptionCellEditor.show(context, cellContext, () => onFocus(false));
           },
         ),

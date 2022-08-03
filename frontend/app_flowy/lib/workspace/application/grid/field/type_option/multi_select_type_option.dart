@@ -7,21 +7,22 @@ import 'package:protobuf/protobuf.dart';
 import 'select_option_type_option_bloc.dart';
 import 'type_option_service.dart';
 
-class MultiSelectTypeOptionContext extends TypeOptionContext<MultiSelectTypeOption> with SelectOptionTypeOptionAction {
+class MultiSelectTypeOptionContext extends TypeOptionWidgetContext<MultiSelectTypeOption>
+    with SelectOptionTypeOptionAction {
   final TypeOptionService service;
 
   MultiSelectTypeOptionContext({
-    required MultiSelectTypeOptionDataBuilder dataBuilder,
-    required GridFieldContext fieldContext,
+    required MultiSelectTypeOptionWidgetDataParser dataBuilder,
+    required TypeOptionDataController dataController,
   })  : service = TypeOptionService(
-          gridId: fieldContext.gridId,
-          fieldId: fieldContext.field.id,
+          gridId: dataController.gridId,
+          fieldId: dataController.field.id,
         ),
-        super(dataBuilder: dataBuilder, fieldContext: fieldContext);
+        super(dataParser: dataBuilder, dataController: dataController);
 
   @override
-  List<SelectOption> Function(SelectOption) get deleteOption {
-    return (SelectOption option) {
+  List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {
+    return (SelectOptionPB option) {
       typeOption.freeze();
       typeOption = typeOption.rebuild((typeOption) {
         final index = typeOption.options.indexWhere((element) => element.id == option.id);
@@ -34,7 +35,7 @@ class MultiSelectTypeOptionContext extends TypeOptionContext<MultiSelectTypeOpti
   }
 
   @override
-  Future<List<SelectOption>> Function(String) get insertOption {
+  Future<List<SelectOptionPB>> Function(String) get insertOption {
     return (String optionName) {
       return service.newOption(name: optionName).then((result) {
         return result.fold(
@@ -56,8 +57,8 @@ class MultiSelectTypeOptionContext extends TypeOptionContext<MultiSelectTypeOpti
   }
 
   @override
-  List<SelectOption> Function(SelectOption) get udpateOption {
-    return (SelectOption option) {
+  List<SelectOptionPB> Function(SelectOptionPB) get udpateOption {
+    return (SelectOptionPB option) {
       typeOption.freeze();
       typeOption = typeOption.rebuild((typeOption) {
         final index = typeOption.options.indexWhere((element) => element.id == option.id);
@@ -70,7 +71,7 @@ class MultiSelectTypeOptionContext extends TypeOptionContext<MultiSelectTypeOpti
   }
 }
 
-class MultiSelectTypeOptionDataBuilder extends TypeOptionDataBuilder<MultiSelectTypeOption> {
+class MultiSelectTypeOptionWidgetDataParser extends TypeOptionDataParser<MultiSelectTypeOption> {
   @override
   MultiSelectTypeOption fromBuffer(List<int> buffer) {
     return MultiSelectTypeOption.fromBuffer(buffer);

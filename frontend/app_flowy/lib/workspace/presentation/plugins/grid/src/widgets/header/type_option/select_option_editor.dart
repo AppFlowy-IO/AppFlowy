@@ -15,9 +15,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class SelectOptionTypeOptionEditor extends StatelessWidget {
-  final SelectOption option;
+  final SelectOptionPB option;
   final VoidCallback onDeleted;
-  final Function(SelectOption) onUpdated;
+  final Function(SelectOptionPB) onUpdated;
   const SelectOptionTypeOptionEditor({
     required this.option,
     required this.onDeleted,
@@ -110,12 +110,12 @@ class _OptionNameTextField extends StatelessWidget {
 }
 
 class SelectOptionColorList extends StatelessWidget {
-  final SelectOptionColor selectedColor;
+  final SelectOptionColorPB selectedColor;
   const SelectOptionColorList({required this.selectedColor, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final cells = SelectOptionColor.values.map((color) {
+    final cells = SelectOptionColorPB.values.map((color) {
       return _SelectOptionColorCell(color: color, isSelected: selectedColor == color);
     }).toList();
 
@@ -152,7 +152,7 @@ class SelectOptionColorList extends StatelessWidget {
 }
 
 class _SelectOptionColorCell extends StatelessWidget {
-  final SelectOptionColor color;
+  final SelectOptionColorPB color;
   final bool isSelected;
   const _SelectOptionColorCell({required this.color, required this.isSelected, Key? key}) : super(key: key);
 

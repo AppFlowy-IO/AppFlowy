@@ -1,7 +1,7 @@
 use crate::{configuration::*, request::HttpRequestBuilder};
 use flowy_error::FlowyError;
 use flowy_user::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
 use flowy_user::event_map::UserCloudService;
 use http_flowy::errors::ServerError;
@@ -51,7 +51,7 @@ impl UserCloudService for UserHttpCloudService {
         })
     }
 
-    fn get_user(&self, token: &str) -> FutureResult<UserProfile, FlowyError> {
+    fn get_user(&self, token: &str) -> FutureResult<UserProfilePB, FlowyError> {
         let token = token.to_owned();
         let url = self.config.user_profile_url();
         FutureResult::new(async move {
@@ -92,7 +92,7 @@ pub async fn user_sign_out_request(token: &str, url: &str) -> Result<(), ServerE
     Ok(())
 }
 
-pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfile, ServerError> {
+pub async fn get_user_profile_request(token: &str, url: &str) -> Result<UserProfilePB, ServerError> {
     let user_profile = request_builder()
         .get(&url.to_owned())
         .header(HEADER_TOKEN, token)

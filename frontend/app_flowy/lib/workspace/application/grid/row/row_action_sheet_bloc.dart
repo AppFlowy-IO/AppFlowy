@@ -11,11 +11,11 @@ part 'row_action_sheet_bloc.freezed.dart';
 class RowActionSheetBloc extends Bloc<RowActionSheetEvent, RowActionSheetState> {
   final RowService _rowService;
 
-  RowActionSheetBloc({required GridRow rowData})
+  RowActionSheetBloc({required GridRowInfo rowData})
       : _rowService = RowService(
           gridId: rowData.gridId,
           blockId: rowData.blockId,
-          rowId: rowData.rowId,
+          rowId: rowData.id,
         ),
         super(RowActionSheetState.initial(rowData)) {
     on<RowActionSheetEvent>(
@@ -53,10 +53,10 @@ class RowActionSheetEvent with _$RowActionSheetEvent {
 @freezed
 class RowActionSheetState with _$RowActionSheetState {
   const factory RowActionSheetState({
-    required GridRow rowData,
+    required GridRowInfo rowData,
   }) = _RowActionSheetState;
 
-  factory RowActionSheetState.initial(GridRow rowData) => RowActionSheetState(
+  factory RowActionSheetState.initial(GridRowInfo rowData) => RowActionSheetState(
         rowData: rowData,
       );
 }

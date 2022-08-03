@@ -18,51 +18,48 @@ class TypeOptionService {
     required this.fieldId,
   });
 
-  Future<Either<SelectOption, FlowyError>> newOption({
+  Future<Either<SelectOptionPB, FlowyError>> newOption({
     required String name,
   }) {
-    final fieldIdentifier = FieldIdentifierPayload.create()
+    final payload = CreateSelectOptionPayloadPB.create()
+      ..optionName = name
       ..gridId = gridId
       ..fieldId = fieldId;
-
-    final payload = CreateSelectOptionPayload.create()
-      ..optionName = name
-      ..fieldIdentifier = fieldIdentifier;
 
     return GridEventNewSelectOption(payload).send();
   }
 }
 
-abstract class TypeOptionDataBuilder<T> {
+abstract class TypeOptionDataParser<T> {
   T fromBuffer(List<int> buffer);
 }
 
-class TypeOptionContext<T extends GeneratedMessage> {
+class TypeOptionWidgetContext<T extends GeneratedMessage> {
   T? _typeOptionObject;
-  final GridFieldContext _fieldContext;
-  final TypeOptionDataBuilder<T> dataBuilder;
+  final TypeOptionDataController _dataController;
+  final TypeOptionDataParser<T> dataParser;
 
-  TypeOptionContext({
-    required this.dataBuilder,
-    required GridFieldContext fieldContext,
-  }) : _fieldContext = fieldContext;
+  TypeOptionWidgetContext({
+    required this.dataParser,
+    required TypeOptionDataController dataController,
+  }) : _dataController = dataController;
 
-  String get gridId => _fieldContext.gridId;
+  String get gridId => _dataController.gridId;
 
-  Field get field => _fieldContext.field;
+  GridFieldPB get field => _dataController.field;
 
   T get typeOption {
     if (_typeOptionObject != null) {
       return _typeOptionObject!;
     }
 
-    final T object = dataBuilder.fromBuffer(_fieldContext.typeOptionData);
+    final T object = dataParser.fromBuffer(_dataController.typeOptionData);
     _typeOptionObject = object;
     return object;
   }
 
   set typeOption(T typeOption) {
-    _fieldContext.typeOptionData = typeOption.writeToBuffer();
+    _dataController.typeOptionData = typeOption.writeToBuffer();
     _typeOptionObject = typeOption;
   }
 }
@@ -74,10 +71,10 @@ abstract class TypeOptionFieldDelegate {
 
 class TypeOptionContext2<T> {
   final String gridId;
-  final Field field;
+  final GridFieldPB field;
   final FieldService _fieldService;
   T? _data;
-  final TypeOptionDataBuilder dataBuilder;
+  final TypeOptionDataParser dataBuilder;
 
   TypeOptionContext2({
     required this.gridId,

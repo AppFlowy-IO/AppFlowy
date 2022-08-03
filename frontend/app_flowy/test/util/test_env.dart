@@ -14,7 +14,7 @@ class FlowyTest {
     return FlowyTest();
   }
 
-  Future<UserProfile> signIn() async {
+  Future<UserProfilePB> signIn() async {
     final authService = getIt<AuthService>();
     const password = "AppFlowy123@";
     final uid = uuid();
