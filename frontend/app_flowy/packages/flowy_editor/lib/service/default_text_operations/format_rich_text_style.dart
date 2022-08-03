@@ -1,5 +1,7 @@
 import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/position.dart';
+import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/extensions/text_node_extensions.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
@@ -46,13 +48,20 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
   final builder = TransactionBuilder(editorState);
 
   for (final textNode in textNodes) {
-    builder.updateNode(
-      textNode,
-      Attributes.fromIterable(
-        StyleKey.globalStyleKeys,
-        value: (_) => null,
-      )..addAll(attributes),
-    );
+    builder
+      ..updateNode(
+        textNode,
+        Attributes.fromIterable(
+          StyleKey.globalStyleKeys,
+          value: (_) => null,
+        )..addAll(attributes),
+      )
+      ..afterSelection = Selection.collapsed(
+        Position(
+          path: textNode.path,
+          offset: textNode.toRawString().length,
+        ),
+      );
   }
 
   builder.commit();
