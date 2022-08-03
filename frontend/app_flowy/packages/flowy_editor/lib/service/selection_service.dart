@@ -437,7 +437,7 @@ class _FlowySelectionState extends State<FlowySelection>
       final selection = Selection(
           start: isDownward ? start : end, end: isDownward ? end : start);
       debugPrint('[_onPanUpdate] isDownward = $isDownward, $selection');
-      editorState.service.selectionService.updateSelection(selection);
+      editorState.updateCursorSelection(selection);
     }
   }
 

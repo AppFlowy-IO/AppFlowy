@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flutter/foundation.dart';
@@ -20,7 +21,8 @@ class HTMLConverter {
       if (child is html.Element) {
         if (child.localName == "a" ||
             child.localName == "span" ||
-            child.localName == "strong") {
+            child.localName == "strong" ||
+            child.localName == "b") {
           _handleRichTextElement(delta, child);
         } else {
           _handleElement(result, child);
@@ -63,9 +65,33 @@ class HTMLConverter {
     _handleRichText(nodes, element);
   }
 
+  Attributes? _getDeltaAttributesFromHtmlAttributes(
+      LinkedHashMap<Object, String> htmlAttributes) {
+    final attrs = <String, dynamic>{};
+    final styleString = htmlAttributes["style"];
+    if (styleString != null) {
+      final entries = styleString.split(";");
+      for (final entry in entries) {
+        final tuples = entry.split(":");
+        if (tuples.length < 2) {
+          continue;
+        }
+        if (tuples[0] == "font-weight") {
+          int? weight = int.tryParse(tuples[1]);
+          if (weight != null && weight > 500) {
+            attrs["bold"] = true;
+          }
+        }
+      }
+    }
+
+    return attrs.isEmpty ? null : attrs;
+  }
+
   _handleRichTextElement(Delta delta, html.Element element) {
     if (element.localName == "span") {
-      delta.insert(element.text);
+      delta.insert(element.text,
+          _getDeltaAttributesFromHtmlAttributes(element.attributes));
     } else if (element.localName == "a") {
       final hyperLink = element.attributes["href"];
       Map<String, dynamic>? attributes;
@@ -73,8 +99,10 @@ class HTMLConverter {
         attributes = {"href": hyperLink};
       }
       delta.insert(element.text, attributes);
-    } else if (element.localName == "strong") {
+    } else if (element.localName == "strong" || element.localName == "b") {
       delta.insert(element.text, {"bold": true});
+    } else {
+      delta.insert(element.text);
     }
   }
 
@@ -89,13 +117,7 @@ class HTMLConverter {
 
     for (final child in element.nodes.toList()) {
       if (child is html.Element) {
-        if (child.localName == "a" ||
-            child.localName == "span" ||
-            child.localName == "strong") {
-          _handleRichTextElement(delta, element);
-        } else {
-          delta.insert(child.text);
-        }
+        _handleRichTextElement(delta, child);
       } else {
         delta.insert(child.text ?? "");
       }
@@ -146,4 +168,22 @@ class HTMLConverter {
       }
     }
   }
+}
+
+String deltaToHtml(Delta delta) {
+  var result = "<p>";
+
+  for (final op in delta.operations) {
+    if (op is TextInsert) {
+      final attributes = op.attributes;
+      if (attributes != null && attributes["bold"] == true) {
+        result += '<strong>${op.content}</strong>';
+      } else {
+        result += op.content;
+      }
+    }
+  }
+
+  result += "</p>";
+  return result;
 }

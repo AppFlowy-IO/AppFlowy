@@ -5,7 +5,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
-_handleCopy() async {
+_handleCopy(EditorState editorState) async {
+  final selection = editorState.cursorSelection;
+  if (selection == null || selection.isCollapsed) {
+    return;
+  }
+  if (pathEquals(selection.start.path, selection.end.path)) {
+    final nodeAtPath = editorState.document.nodeAtPath(selection.end.path)!;
+    if (nodeAtPath.type == "text") {
+      final textNode = nodeAtPath as TextNode;
+      final delta =
+          textNode.delta.slice(selection.start.offset, selection.end.offset);
+
+      final htmlString = deltaToHtml(delta);
+      debugPrint('copy html: $htmlString');
+      RichClipboard.setData(RichClipboardData(html: htmlString));
+    } else {
+      debugPrint("unimplemented: copy non-text");
+    }
+    return;
+  }
   debugPrint('copy');
 }
 
@@ -20,6 +39,7 @@ _pasteHTML(EditorState editorState, String html) {
     return;
   }
 
+  debugPrint('paste html: $html');
   final converter = HTMLConverter(html);
   final nodes = converter.toNodes();
 
@@ -38,6 +58,7 @@ _pasteHTML(EditorState editorState, String html) {
       tb.setAfterSelection(Selection.collapsed(Position(
           path: path, offset: startOffset + firstTextNode.delta.length)));
       tb.commit();
+      return;
     }
   }
 
@@ -64,12 +85,16 @@ _pasteMultipleLinesInText(
             .delete(remain.length)
             .concat(firstTextNode.delta));
 
-    path[path.length - 1]++;
     final tailNodes = nodes.sublist(1);
-    if (tailNodes.last.type == "text") {
-      final tailTextNode = tailNodes.last as TextNode;
-      tailTextNode.delta = tailTextNode.delta.concat(remain);
-    } else if (remain.length > 0) {
+    path[path.length - 1]++;
+    if (tailNodes.isNotEmpty) {
+      if (tailNodes.last.type == "text") {
+        final tailTextNode = tailNodes.last as TextNode;
+        tailTextNode.delta = tailTextNode.delta.concat(remain);
+      } else if (remain.length > 0) {
+        tailNodes.add(TextNode(type: "text", delta: remain));
+      }
+    } else {
       tailNodes.add(TextNode(type: "text", delta: remain));
     }
 
@@ -165,7 +190,7 @@ _handleCut() {
 
 FlowyKeyEventHandler copyPasteKeysHandler = (editorState, event) {
   if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyC) {
-    _handleCopy();
+    _handleCopy(editorState);
     return KeyEventResult.handled;
   }
   if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyV) {
