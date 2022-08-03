@@ -46,21 +46,61 @@ _handlePastePlainText(EditorState editorState, String plainText) {
     return;
   }
 
-  final path = [...selection.end.path];
-  if (path.isEmpty) {
-    return;
-  }
-  path[path.length - 1]++;
-
-  final lines =
-      plainText.split("\n").map((e) => e.replaceAll(RegExp(r'\r'), ""));
-  final nodes = lines
-      .map((e) => TextNode(type: "text", delta: Delta().insert(e)))
+  final lines = plainText
+      .split("\n")
+      .map((e) => e.replaceAll(RegExp(r'\r'), ""))
       .toList();
 
-  final tb = TransactionBuilder(editorState);
-  tb.insertNodes(path, nodes);
-  tb.commit();
+  if (lines.isEmpty) {
+    return;
+  } else if (lines.length == 1) {
+    final node =
+        editorState.document.nodeAtPath(selection.end.path)! as TextNode;
+    final beginOffset = selection.end.offset;
+    TransactionBuilder(editorState)
+      ..textEdit(node, () => Delta().retain(beginOffset).insert(lines[0]))
+      ..setAfterSelection(Selection.collapsed(Position(
+          path: selection.end.path, offset: beginOffset + lines[0].length)))
+      ..commit();
+  } else {
+    final firstLine = lines[0];
+    final beginOffset = selection.end.offset;
+    final remains = lines.sublist(1);
+
+    final path = [...selection.end.path];
+    if (path.isEmpty) {
+      return;
+    }
+
+    final node =
+        editorState.document.nodeAtPath(selection.end.path)! as TextNode;
+    final insertedLineSuffix = node.delta.slice(beginOffset);
+
+    path[path.length - 1]++;
+    var index = 0;
+    final tb = TransactionBuilder(editorState);
+    final nodes = remains.map((e) {
+      if (index++ == remains.length - 1) {
+        return TextNode(
+            type: "text",
+            delta: Delta().insert(e).addAll(insertedLineSuffix.operations));
+      }
+      return TextNode(type: "text", delta: Delta().insert(e));
+    }).toList();
+    // insert first line
+    tb.textEdit(
+        node,
+        () => Delta()
+            .retain(beginOffset)
+            .insert(firstLine)
+            .delete(node.delta.length - beginOffset));
+    // insert remains
+    tb.insertNodes(path, nodes);
+    tb.commit();
+
+    editorState.updateCursorSelection(Selection.collapsed(
+        Position(path: nodes.last.path, offset: lines.last.length)));
+  }
 }
 
 _handleCut() {

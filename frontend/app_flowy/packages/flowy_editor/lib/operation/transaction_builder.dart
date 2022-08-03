@@ -80,6 +80,10 @@ class TransactionBuilder {
     add(TextEditOperation(path, delta, inverted));
   }
 
+  setAfterSelection(Selection sel) {
+    afterSelection = sel;
+  }
+
   mergeText(TextNode firstNode, TextNode secondNode,
       {int? firstOffset, int secondOffset = 0}) {
     final firstLength = firstNode.delta.length;
