@@ -1,8 +1,5 @@
+library flowy_board;
 
-import 'flowy_board_platform_interface.dart';
-
-class FlowyBoard {
-  Future<String?> getPlatformVersion() {
-    return FlowyBoardPlatform.instance.getPlatformVersion();
-  }
-}
+export 'src/widgets/board_column/board_column.dart';
+export 'src/widgets/board_column/data_controller.dart';
+export 'src/widgets/board.dart';

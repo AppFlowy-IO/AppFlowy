@@ -1,0 +1,22 @@
+PODS:
+  - flowy_board (0.0.1):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+
+DEPENDENCIES:
+  - flowy_board (from `Flutter/ephemeral/.symlinks/plugins/flowy_board/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+
+EXTERNAL SOURCES:
+  flowy_board:
+    :path: Flutter/ephemeral/.symlinks/plugins/flowy_board/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+
+SPEC CHECKSUMS:
+  flowy_board: e93adfa305df65f1ac860f2cf9dc7188f50c9b66
+  FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
+
+PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
+
+COCOAPODS: 1.11.3
