@@ -10,8 +10,6 @@ _handleCopy() async {
 }
 
 _pasteHTML(EditorState editorState, String html) {
-  final converter = HTMLConverter(html);
-  final nodes = converter.toNodes();
   final selection = editorState.cursorSelection;
   if (selection == null) {
     return;
@@ -21,9 +19,31 @@ _pasteHTML(EditorState editorState, String html) {
   if (path.isEmpty) {
     return;
   }
-  path[path.length - 1]++;
+
+  final converter = HTMLConverter(html);
+  final nodes = converter.toNodes();
+
+  if (nodes.isEmpty) {
+    return;
+  } else if (nodes.length == 1) {
+    final firstNode = nodes[0];
+    final nodeAtPath = editorState.document.nodeAtPath(path)!;
+    final tb = TransactionBuilder(editorState);
+    final startOffset = selection.start.offset;
+    if (nodeAtPath.type == "text" && firstNode.type == "text") {
+      final textNodeAtPath = nodeAtPath as TextNode;
+      final firstTextNode = firstNode as TextNode;
+      tb.textEdit(textNodeAtPath,
+          () => Delta().retain(startOffset).concat(firstTextNode.delta));
+      tb.setAfterSelection(Selection.collapsed(Position(
+          path: path, offset: startOffset + firstTextNode.delta.length)));
+    }
+    tb.commit();
+    return;
+  }
 
   final tb = TransactionBuilder(editorState);
+  path[path.length - 1]++;
   tb.insertNodes(path, nodes);
   tb.commit();
 }
@@ -98,6 +118,7 @@ _handlePastePlainText(EditorState editorState, String plainText) {
     tb.insertNodes(path, nodes);
     tb.commit();
 
+    // fixme: don't set the cursor manually
     editorState.updateCursorSelection(Selection.collapsed(
         Position(path: nodes.last.path, offset: lines.last.length)));
   }
