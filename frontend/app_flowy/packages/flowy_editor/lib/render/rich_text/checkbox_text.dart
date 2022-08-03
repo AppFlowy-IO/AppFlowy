@@ -21,7 +21,7 @@ class CheckboxNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
 
   @override
   NodeValidator<Node> get nodeValidator => ((node) {
-        return node.attributes.containsKey(StyleKey.check);
+        return node.attributes.containsKey(StyleKey.checkbox);
       });
 }
 

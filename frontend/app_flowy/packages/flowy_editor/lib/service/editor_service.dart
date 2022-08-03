@@ -25,7 +25,7 @@ NodeWidgetBuilders defaultBuilders = {
   'text': RichTextNodeWidgetBuilder(),
   'text/checkbox': CheckboxNodeWidgetBuilder(),
   'text/heading': HeadingTextNodeWidgetBuilder(),
-  'text/bullet-list': BulletedListTextNodeWidgetBuilder(),
+  'text/bulleted-list': BulletedListTextNodeWidgetBuilder(),
   'text/number-list': NumberListTextNodeWidgetBuilder(),
   'text/quote': QuotedTextNodeWidgetBuilder(),
 };

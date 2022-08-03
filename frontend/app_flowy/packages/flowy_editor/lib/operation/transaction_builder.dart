@@ -1,18 +1,18 @@
 import 'dart:collection';
-import 'package:flowy_editor/editor_state.dart';
+
+import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/position.dart';
-import 'package:flowy_editor/document/text_delta.dart';
-import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/selection.dart';
-
-import './operation.dart';
-import './transaction.dart';
+import 'package:flowy_editor/document/text_delta.dart';
+import 'package:flowy_editor/editor_state.dart';
+import 'package:flowy_editor/operation/operation.dart';
+import 'package:flowy_editor/operation/transaction.dart';
 
 /// A [TransactionBuilder] is used to build the transaction from the state.
 /// It will save make a snapshot of the cursor selection state automatically.
-/// The cursor can be resoted if the transaction is undo.
+/// The cursor can be resorted if the transaction is undo.
 
 class TransactionBuilder {
   final List<Operation> operations = [];
@@ -70,7 +70,7 @@ class TransactionBuilder {
   }
 
   textEdit(TextNode node, Delta Function() f) {
-    beforeSelection = state.service.selectionService.currentSelection;
+    beforeSelection = state.cursorSelection;
     final path = node.path;
 
     final delta = f();

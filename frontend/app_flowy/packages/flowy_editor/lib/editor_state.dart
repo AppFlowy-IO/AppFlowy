@@ -60,7 +60,12 @@ class EditorState {
     for (final op in transaction.operations) {
       _applyOperation(op);
     }
-    updateCursorSelection(transaction.afterSelection);
+    // updateCursorSelection(transaction.afterSelection);
+
+    // FIXME: don't use delay
+    Future.delayed(const Duration(milliseconds: 16), () {
+      updateCursorSelection(transaction.afterSelection);
+    });
 
     if (options.recordUndo) {
       final undoItem = undoManager.getUndoHistoryItem();

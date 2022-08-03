@@ -25,26 +25,49 @@ class StyleKey {
   static String font = 'font';
   static String href = 'href';
 
-  static String quote = 'quote';
-  static String list = 'list';
-  static String number = 'number';
-  static String todo = 'todo';
-  static String code = 'code';
-
   static String subtype = 'subtype';
-  static String check = 'checkbox';
   static String heading = 'heading';
+  static String h1 = 'h1';
+  static String h2 = 'h2';
+  static String h3 = 'h3';
+  static String h4 = 'h4';
+  static String h5 = 'h5';
+  static String h6 = 'h6';
+
+  static String bulletedList = 'bulleted-list';
+  static String numberList = 'number-list';
+
+  static String quote = 'quote';
+  static String checkbox = 'checkbox';
+  static String code = 'code';
+  static String number = 'number';
+
+  static List<String> partialStyleKeys = [
+    StyleKey.bold,
+    StyleKey.italic,
+    StyleKey.underline,
+    StyleKey.strikethrough,
+  ];
+
+  static List<String> globalStyleKeys = [
+    StyleKey.heading,
+    StyleKey.checkbox,
+    StyleKey.bulletedList,
+    StyleKey.numberList,
+    StyleKey.quote,
+    StyleKey.code,
+  ];
 }
 
 double baseFontSize = 16.0;
 // TODO: customize.
 Map<String, double> headingToFontSize = {
-  'h1': baseFontSize + 15,
-  'h2': baseFontSize + 12,
-  'h3': baseFontSize + 9,
-  'h4': baseFontSize + 6,
-  'h5': baseFontSize + 3,
-  'h6': baseFontSize,
+  StyleKey.h1: baseFontSize + 15,
+  StyleKey.h2: baseFontSize + 12,
+  StyleKey.h3: baseFontSize + 9,
+  StyleKey.h4: baseFontSize + 6,
+  StyleKey.h5: baseFontSize + 3,
+  StyleKey.h6: baseFontSize,
 };
 
 extension NodeAttributesExtensions on Attributes {
@@ -73,25 +96,11 @@ extension NodeAttributesExtensions on Attributes {
     return null;
   }
 
-  String? get list {
-    if (containsKey(StyleKey.list) && this[StyleKey.list] is String) {
-      return this[StyleKey.list];
-    }
-    return null;
-  }
-
   int? get number {
     if (containsKey(StyleKey.number) && this[StyleKey.number] is int) {
       return this[StyleKey.number];
     }
     return null;
-  }
-
-  bool get todo {
-    if (containsKey(StyleKey.todo) && this[StyleKey.todo] is bool) {
-      return this[StyleKey.todo];
-    }
-    return false;
   }
 
   bool get code {
@@ -102,8 +111,8 @@ extension NodeAttributesExtensions on Attributes {
   }
 
   bool get check {
-    if (containsKey(StyleKey.check) && this[StyleKey.check] is bool) {
-      return this[StyleKey.check];
+    if (containsKey(StyleKey.checkbox) && this[StyleKey.checkbox] is bool) {
+      return this[StyleKey.checkbox];
     }
     return false;
   }

@@ -116,13 +116,16 @@ class _MyHomePageState extends State<MyHomePage> {
           _editorState = EditorState(
             document: document,
           );
-          return FlowyEditor(
-            key: editorKey,
-            editorState: _editorState,
-            keyEventHandlers: const [],
-            customBuilders: {
-              'image': ImageNodeBuilder(),
-            },
+          return Container(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: FlowyEditor(
+              key: editorKey,
+              editorState: _editorState,
+              keyEventHandlers: const [],
+              customBuilders: {
+                'image': ImageNodeBuilder(),
+              },
+            ),
             // shortcuts: [
             //   // TODO: this won't work, just a example for now.
             //   {

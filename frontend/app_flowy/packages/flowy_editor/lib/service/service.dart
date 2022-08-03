@@ -23,9 +23,11 @@ class FlowyService {
 
   // toolbar service
   final toolbarServiceKey = GlobalKey(debugLabel: 'flowy_toolbar_service');
-  ToolbarService get toolbarService {
-    assert(toolbarServiceKey.currentState != null &&
-        toolbarServiceKey.currentState is ToolbarService);
-    return toolbarServiceKey.currentState! as ToolbarService;
+  ToolbarService? get toolbarService {
+    if (toolbarServiceKey.currentState != null &&
+        toolbarServiceKey.currentState is ToolbarService) {
+      return toolbarServiceKey.currentState! as ToolbarService;
+    }
+    return null;
   }
 }

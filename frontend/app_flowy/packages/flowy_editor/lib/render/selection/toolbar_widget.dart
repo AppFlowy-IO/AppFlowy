@@ -1,43 +1,39 @@
-import 'package:flowy_editor/editor_state.dart';
-import 'package:flowy_editor/infra/flowy_svg.dart';
+import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flutter/material.dart';
 
-typedef ToolbarEventHandler = void Function(
-    EditorState editorState, String eventName);
+import 'package:flowy_editor/editor_state.dart';
+import 'package:flowy_editor/infra/flowy_svg.dart';
+import 'package:flowy_editor/service/default_text_operations/format_rich_text_style.dart';
 
-typedef ToolbarEventHandlers = List<Map<String, ToolbarEventHandler>>;
-ToolbarEventHandlers defaultToolbarEventHandlers = [
-  {
-    'bold': ((editorState, eventName) {}),
-    'italic': ((editorState, eventName) {}),
-    'strikethrough': ((editorState, eventName) {}),
-    'underline': ((editorState, eventName) {}),
-    'quote': ((editorState, eventName) {}),
-    'number_list': ((editorState, eventName) {}),
-    'bulleted_list': ((editorState, eventName) {}),
-  }
-];
+typedef ToolbarEventHandler = void Function(EditorState editorState);
 
-ToolbarEventHandlers defaultListToolbarEventHandlers = [
-  {
-    'h1': ((editorState, eventName) {}),
-  },
-  {
-    'h2': ((editorState, eventName) {}),
-  },
-  {
-    'h3': ((editorState, eventName) {}),
-  },
-  {
-    'bulleted_list': ((editorState, eventName) {}),
-  },
-  {
-    'quote': ((editorState, eventName) {}),
-  }
+typedef ToolbarEventHandlers = Map<String, ToolbarEventHandler>;
+
+ToolbarEventHandlers defaultToolbarEventHandlers = {
+  'bold': (editorState) => formatBold(editorState),
+  'italic': (editorState) => formatItalic(editorState),
+  'strikethrough': (editorState) => formatStrikethrough(editorState),
+  'underline': (editorState) => formatUnderline(editorState),
+  'quote': (editorState) => formatQuote(editorState),
+  'number_list': (editorState) {},
+  'bulleted_list': (editorState) => formatBulletedList(editorState),
+  'Text': (editorState) => formatText(editorState),
+  'H1': (editorState) => formatHeading(editorState, StyleKey.h1),
+  'H2': (editorState) => formatHeading(editorState, StyleKey.h2),
+  'H3': (editorState) => formatHeading(editorState, StyleKey.h3),
+};
+
+List<String> defaultListToolbarEventNames = [
+  'Text',
+  'H1',
+  'H2',
+  'H3',
+  // 'B-List',
+  // 'N-List',
 ];
 
 class ToolbarWidget extends StatefulWidget {
-  ToolbarWidget({
+  const ToolbarWidget({
     Key? key,
     required this.editorState,
     required this.layerLink,
@@ -137,7 +133,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
       preferBelow: false,
       message: name,
       child: GestureDetector(
-        onTap: onTap ?? () => debugPrint('toolbar tap $name'),
+        onTap: onTap ?? () => _onTap(name),
         child: SizedBox.fromSize(
           size: width != null
               ? Size(width, toolbarHeight)
@@ -154,9 +150,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
 
   void _onTapListToolbar(BuildContext context) {
     // TODO: implement more detailed UI.
-    final items = defaultListToolbarEventHandlers
-        .map((handler) => handler.keys.first)
-        .toList(growable: false);
+    final items = defaultListToolbarEventNames;
     final renderBox =
         _listToolbarKey.currentContext?.findRenderObject() as RenderBox;
     final offset = renderBox
@@ -198,7 +192,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
                     ),
                   ),
                   onTap: () {
-                    debugPrint('tap on $index');
+                    _onTap(items[index]);
                   },
                 );
               }),
@@ -208,6 +202,14 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
       );
     });
     Overlay.of(context)?.insert(_listToolbarOverlay!);
+  }
+
+  void _onTap(String eventName) {
+    if (defaultToolbarEventHandlers.containsKey(eventName)) {
+      defaultToolbarEventHandlers[eventName]!(widget.editorState);
+      return;
+    }
+    assert(false, 'Could not find the event handler for $eventName');
   }
 
   void _onSelectionChange() {
