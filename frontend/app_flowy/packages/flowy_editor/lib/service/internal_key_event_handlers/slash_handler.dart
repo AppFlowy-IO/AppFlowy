@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/infra/flowy_svg.dart';
@@ -47,9 +49,10 @@ final List<PopupListItem> _popupListItems = [
   ),
 ];
 
-OverlayEntry? popupListOverlay;
+OverlayEntry? _popupListOverlay;
+EditorState? _editorState;
 FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
-  if (event.logicalKey != LogicalKeyboardKey.slash && !event.isMetaPressed) {
+  if (event.logicalKey != LogicalKeyboardKey.slash) {
     return KeyEventResult.ignored;
   }
 
@@ -80,11 +83,11 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
       ..commit();
   }
 
-  popupListOverlay?.remove();
-  popupListOverlay = OverlayEntry(
+  _popupListOverlay?.remove();
+  _popupListOverlay = OverlayEntry(
     builder: (context) => Positioned(
       top: offset.dy + 15.0,
-      left: offset.dx,
+      left: offset.dx + 5.0,
       child: PopupListWidget(
         editorState: editorState,
         items: _popupListItems,
@@ -92,19 +95,24 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
     ),
   );
 
-  Overlay.of(context)?.insert(popupListOverlay!);
+  Overlay.of(context)?.insert(_popupListOverlay!);
 
   editorState.service.selectionService.currentSelectedNodes
       .removeListener(clearPopupListOverlay);
   editorState.service.selectionService.currentSelectedNodes
       .addListener(clearPopupListOverlay);
+  // editorState.service.keyboardService?.disable();
+  _editorState = editorState;
 
   return KeyEventResult.handled;
 };
 
 void clearPopupListOverlay() {
-  popupListOverlay?.remove();
-  popupListOverlay = null;
+  _popupListOverlay?.remove();
+  _popupListOverlay = null;
+
+  _editorState?.service.keyboardService?.enable();
+  _editorState = null;
 }
 
 class PopupListWidget extends StatefulWidget {
@@ -112,7 +120,7 @@ class PopupListWidget extends StatefulWidget {
     Key? key,
     required this.editorState,
     required this.items,
-    this.maxItemInRow = 8,
+    this.maxItemInRow = 5,
   }) : super(key: key);
 
   final EditorState editorState;
@@ -124,32 +132,57 @@ class PopupListWidget extends StatefulWidget {
 }
 
 class _PopupListWidgetState extends State<PopupListWidget> {
+  final focusNode = FocusNode(debugLabel: 'popup_list_widget');
+  var selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    focusNode.dispose();
+
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 5,
-            spreadRadius: 1,
-            color: Colors.black.withOpacity(0.1),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(6.0),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: _buildColumns(widget.items),
+    // TODO: Is there a better way to get focus?
+
+    return Focus(
+      focusNode: focusNode,
+      onKey: _onKey,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 5,
+              spreadRadius: 1,
+              color: Colors.black.withOpacity(0.1),
+            ),
+          ],
+          borderRadius: BorderRadius.circular(6.0),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _buildColumns(widget.items, selectedIndex),
+        ),
       ),
     );
   }
 
-  List<Widget> _buildColumns(List<PopupListItem> items) {
+  List<Widget> _buildColumns(List<PopupListItem> items, int selectedIndex) {
     List<Widget> columns = [];
     List<Widget> itemWidgets = [];
     for (var i = 0; i < items.length; i++) {
-      if (i != 0 && i % (widget.maxItemInRow - 1) == 0) {
+      if (i != 0 && i % (widget.maxItemInRow) == 0) {
         columns.add(Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: itemWidgets,
@@ -157,7 +190,10 @@ class _PopupListWidgetState extends State<PopupListWidget> {
         itemWidgets = [];
       }
       itemWidgets.add(_PopupListItemWidget(
-          editorState: widget.editorState, item: items[i]));
+        editorState: widget.editorState,
+        item: items[i],
+        highlight: selectedIndex == i,
+      ));
     }
     if (itemWidgets.isNotEmpty) {
       columns.add(Column(
@@ -168,35 +204,78 @@ class _PopupListWidgetState extends State<PopupListWidget> {
     }
     return columns;
   }
+
+  KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
+    if (event is! RawKeyDownEvent) {
+      return KeyEventResult.ignored;
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.enter) {
+      widget.items[selectedIndex].handler(widget.editorState);
+      return KeyEventResult.handled;
+    }
+
+    var newSelectedIndex = selectedIndex;
+    if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+      newSelectedIndex -= widget.maxItemInRow;
+    } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+      newSelectedIndex += widget.maxItemInRow;
+    } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      newSelectedIndex -= 1;
+    } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+      newSelectedIndex += 1;
+    }
+    if (newSelectedIndex != selectedIndex) {
+      setState(() {
+        selectedIndex = max(0, min(widget.items.length - 1, newSelectedIndex));
+      });
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
 }
 
 class _PopupListItemWidget extends StatelessWidget {
   const _PopupListItemWidget({
     Key? key,
+    required this.highlight,
     required this.item,
     required this.editorState,
   }) : super(key: key);
 
   final EditorState editorState;
   final PopupListItem item;
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(8.0, 5.0, 8.0, 5.0),
-      child: TextButton.icon(
-        icon: item.icon,
-        label: Text(
-          item.text,
-          textAlign: TextAlign.left,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 14.0,
+      child: SizedBox(
+        width: 140,
+        child: TextButton.icon(
+          icon: item.icon,
+          style: ButtonStyle(
+            alignment: Alignment.centerLeft,
+            overlayColor: MaterialStateProperty.all(
+              const Color(0xFFE0F8FF),
+            ),
+            backgroundColor: highlight
+                ? MaterialStateProperty.all(const Color(0xFFE0F8FF))
+                : MaterialStateProperty.all(Colors.transparent),
           ),
+          label: Text(
+            item.text,
+            textAlign: TextAlign.left,
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 14.0,
+            ),
+          ),
+          onPressed: () {
+            item.handler(editorState);
+          },
         ),
-        onPressed: () {
-          item.handler(editorState);
-        },
       ),
     );
   }
