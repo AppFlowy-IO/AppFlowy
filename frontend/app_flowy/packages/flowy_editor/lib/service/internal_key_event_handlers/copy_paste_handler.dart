@@ -37,12 +37,47 @@ _pasteHTML(EditorState editorState, String html) {
           () => Delta().retain(startOffset).concat(firstTextNode.delta));
       tb.setAfterSelection(Selection.collapsed(Position(
           path: path, offset: startOffset + firstTextNode.delta.length)));
+      tb.commit();
     }
+  }
+
+  _pasteMultipleLinesInText(editorState, path, selection.start.offset, nodes);
+}
+
+_pasteMultipleLinesInText(
+    EditorState editorState, List<int> path, int offset, List<Node> nodes) {
+  final tb = TransactionBuilder(editorState);
+
+  final firstNode = nodes[0];
+  final nodeAtPath = editorState.document.nodeAtPath(path)!;
+
+  if (nodeAtPath.type == "text" && firstNode.type == "text") {
+    // split and merge
+    final textNodeAtPath = nodeAtPath as TextNode;
+    final firstTextNode = firstNode as TextNode;
+    final remain = textNodeAtPath.delta.slice(offset);
+
+    tb.textEdit(
+        textNodeAtPath,
+        () => Delta()
+            .retain(offset)
+            .delete(remain.length)
+            .concat(firstTextNode.delta));
+
+    path[path.length - 1]++;
+    final tailNodes = nodes.sublist(1);
+    if (tailNodes.last.type == "text") {
+      final tailTextNode = tailNodes.last as TextNode;
+      tailTextNode.delta = tailTextNode.delta.concat(remain);
+    } else if (remain.length > 0) {
+      tailNodes.add(TextNode(type: "text", delta: remain));
+    }
+
+    tb.insertNodes(path, tailNodes);
     tb.commit();
     return;
   }
 
-  final tb = TransactionBuilder(editorState);
   path[path.length - 1]++;
   tb.insertNodes(path, nodes);
   tb.commit();
