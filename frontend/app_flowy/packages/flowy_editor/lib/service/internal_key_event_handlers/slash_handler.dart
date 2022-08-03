@@ -153,8 +153,6 @@ class _PopupListWidgetState extends State<PopupListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Is there a better way to get focus?
-
     return Focus(
       focusNode: focusNode,
       onKey: _onKey,
