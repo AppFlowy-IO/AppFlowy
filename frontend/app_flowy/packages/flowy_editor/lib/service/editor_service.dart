@@ -14,7 +14,7 @@ import 'package:flowy_editor/service/input_service.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/arrow_keys_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/delete_nodes_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/enter_in_edge_of_text_node_handler.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/shortcut_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/slash_handler.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
