@@ -1,7 +1,7 @@
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/infra/html_converter.dart';
-import 'package:flowy_editor/document/node_traverser.dart';
+import 'package:flowy_editor/document/node_iterator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
@@ -29,11 +29,11 @@ _handleCopy(EditorState editorState) async {
 
   final beginNode = editorState.document.nodeAtPath(selection.start.path)!;
   final endNode = editorState.document.nodeAtPath(selection.end.path)!;
-  final traverser = NodeTraverser(editorState.document, beginNode);
+  final traverser = NodeIterator(editorState.document, beginNode, endNode);
 
   var copyString = "";
-  while (traverser.currentNode != null) {
-    final node = traverser.next()!;
+  while (traverser.moveNext()) {
+    final node = traverser.current;
     if (node.type == "text") {
       final textNode = node as TextNode;
       if (node == beginNode) {
@@ -51,9 +51,6 @@ _handleCopy(EditorState editorState) async {
     }
     // TODO: handle image and other blocks
 
-    if (node == endNode) {
-      break;
-    }
   }
   debugPrint('copy html: $copyString');
   RichClipboard.setData(RichClipboardData(html: copyString));
