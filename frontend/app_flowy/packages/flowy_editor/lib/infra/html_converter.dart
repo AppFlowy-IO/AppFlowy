@@ -7,6 +7,18 @@ import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
 
+const String tagH1 = "h1";
+const String tagH2 = "h2";
+const String tagH3 = "h3";
+const String tagUnorderedList = "ul";
+const String tagList = "li";
+const String tagParagraph = "p";
+const String tagImage = "img";
+const String tagAnchor = "a";
+const String tagBold = "b";
+const String tagStrong = "strong";
+const String tagSpan = "span";
+
 class HTMLConverter {
   final html.Document _document;
 
@@ -19,10 +31,10 @@ class HTMLConverter {
     final childNodes = _document.body?.nodes.toList() ?? <html.Node>[];
     for (final child in childNodes) {
       if (child is html.Element) {
-        if (child.localName == "a" ||
-            child.localName == "span" ||
-            child.localName == "strong" ||
-            child.localName == "b") {
+        if (child.localName == tagAnchor ||
+            child.localName == tagSpan ||
+            child.localName == tagStrong ||
+            child.localName == tagBold) {
           _handleRichTextElement(delta, child);
         } else {
           _handleElement(result, child);
@@ -40,17 +52,17 @@ class HTMLConverter {
   }
 
   _handleElement(List<Node> nodes, html.Element element) {
-    if (element.localName == "h1") {
-      _handleHeadingElement(nodes, element, "h1");
-    } else if (element.localName == "h2") {
-      _handleHeadingElement(nodes, element, "h2");
-    } else if (element.localName == "h3") {
-      _handleHeadingElement(nodes, element, "h3");
-    } else if (element.localName == "ul") {
+    if (element.localName == tagH1) {
+      _handleHeadingElement(nodes, element, tagH1);
+    } else if (element.localName == tagH2) {
+      _handleHeadingElement(nodes, element, tagH2);
+    } else if (element.localName == tagH3) {
+      _handleHeadingElement(nodes, element, tagH3);
+    } else if (element.localName == tagUnorderedList) {
       _handleUnorderedList(nodes, element);
-    } else if (element.localName == "li") {
+    } else if (element.localName == tagList) {
       _handleListElement(nodes, element);
-    } else if (element.localName == "p") {
+    } else if (element.localName == tagParagraph) {
       _handleParagraph(nodes, element);
     } else {
       final delta = Delta();
@@ -89,17 +101,17 @@ class HTMLConverter {
   }
 
   _handleRichTextElement(Delta delta, html.Element element) {
-    if (element.localName == "span") {
+    if (element.localName == tagSpan) {
       delta.insert(element.text,
           _getDeltaAttributesFromHtmlAttributes(element.attributes));
-    } else if (element.localName == "a") {
+    } else if (element.localName == tagAnchor) {
       final hyperLink = element.attributes["href"];
       Map<String, dynamic>? attributes;
       if (hyperLink != null) {
         attributes = {"href": hyperLink};
       }
       delta.insert(element.text, attributes);
-    } else if (element.localName == "strong" || element.localName == "b") {
+    } else if (element.localName == tagStrong || element.localName == tagBold) {
       delta.insert(element.text, {"bold": true});
     } else {
       delta.insert(element.text);
@@ -107,7 +119,7 @@ class HTMLConverter {
   }
 
   _handleRichText(List<Node> nodes, html.Element element) {
-    final image = element.querySelector("img");
+    final image = element.querySelector(tagImage);
     if (image != null) {
       _handleImage(nodes, image);
       return;
