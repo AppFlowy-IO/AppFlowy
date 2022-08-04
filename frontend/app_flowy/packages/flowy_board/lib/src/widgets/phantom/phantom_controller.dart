@@ -14,10 +14,8 @@ mixin ColumnDataPhantomMixim {
   BoardColumnDataController? get;
 }
 
-class BoardPhantomController
-    with
-        CrossReorderFlexDragTargetDelegate,
-        OverlapReorderFlexDragTargetDelegate {
+class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate
+    with CrossReorderFlexDragTargetDelegate {
   final BoardPhantomControllerDelegate delegate;
 
   PhantomRecord? phantomRecord;
@@ -83,43 +81,6 @@ class BoardPhantomController
         ?.replace(phantomRecord!.toColumnIndex, item!);
 
     phantomRecord = null;
-  }
-
-  @override
-  bool acceptNewDragTargetData(
-      String columnId, FlexDragTargetData dragTargetData, int index) {
-    if (phantomRecord == null) {
-      _updatePhantomRecord(columnId, dragTargetData, index);
-      _insertPhantom(columnId, dragTargetData, index);
-
-      return true;
-    }
-
-    final isDifferentDragTarget = phantomRecord!.toColumnId != columnId;
-    Log.debug(
-        '[$BoardPhantomController] Set inserted column id: $columnId, different target: $isDifferentDragTarget');
-    if (isDifferentDragTarget) {
-      /// Remove the phantom in the previous column.
-      _removePhantom(phantomRecord!.toColumnId);
-
-      /// Update the record and insert the phantom to new column.
-      _updatePhantomRecord(columnId, dragTargetData, index);
-      _insertPhantom(columnId, dragTargetData, index);
-    }
-
-    return isDifferentDragTarget;
-  }
-
-  @override
-  void updateDragTargetData(
-      String columnId, FlexDragTargetData dragTargetData, int index) {
-    phantomRecord?.updateInsertedIndex(index);
-
-    assert(phantomRecord != null);
-    if (phantomRecord!.toColumnId == columnId) {
-      /// Update the existing phantom index
-      _updatePhantom(phantomRecord!.toColumnId, dragTargetData, index);
-    }
   }
 
   void _updatePhantom(
@@ -197,6 +158,10 @@ class BoardPhantomController
     FlexDragTargetData dragTargetData,
     int index,
   ) {
+    Log.debug(
+        '[$BoardPhantomController] move Column${dragTargetData.reorderFlexId}:${dragTargetData.draggingIndex} '
+        'to Column$columnId:$index');
+
     phantomRecord = PhantomRecord(
       toColumnId: columnId,
       toColumnIndex: index,
@@ -204,6 +169,42 @@ class BoardPhantomController
       fromColumnId: dragTargetData.reorderFlexId,
       fromColumnIndex: dragTargetData.draggingIndex,
     );
+  }
+
+  @override
+  bool acceptNewDragTargetData(
+      String reorderFlexId, FlexDragTargetData dragTargetData, int index) {
+    if (phantomRecord == null) {
+      _updatePhantomRecord(reorderFlexId, dragTargetData, index);
+      _insertPhantom(reorderFlexId, dragTargetData, index);
+      return false;
+    }
+
+    final isNewDragTarget = phantomRecord!.toColumnId != reorderFlexId;
+    Log.debug(
+        '[$BoardPhantomController] Set inserted column id: $reorderFlexId, is new target: $isNewDragTarget');
+    if (isNewDragTarget) {
+      /// Remove the phantom in the previous column.
+      _removePhantom(phantomRecord!.toColumnId);
+
+      /// Update the record and insert the phantom to new column.
+      _updatePhantomRecord(reorderFlexId, dragTargetData, index);
+      _insertPhantom(reorderFlexId, dragTargetData, index);
+    }
+
+    return isNewDragTarget;
+  }
+
+  @override
+  void updateDragTargetData(
+      String reorderFlexId, FlexDragTargetData dragTargetData, int index) {
+    phantomRecord?.updateInsertedIndex(index);
+
+    assert(phantomRecord != null);
+    if (phantomRecord!.toColumnId == reorderFlexId) {
+      /// Update the existing phantom index
+      _updatePhantom(phantomRecord!.toColumnId, dragTargetData, index);
+    }
   }
 }
 
@@ -234,6 +235,8 @@ class PhantomRecord {
 
   void updateInsertedIndex(int index) {
     if (toColumnIndex == index) {
+      Log.info(
+          '[$PhantomRecord] Column$toColumnId toColumnIndex: $toColumnIndex, index: $index');
       return;
     }
 
