@@ -3,7 +3,7 @@ import '../../../flowy_board.dart';
 import '../../utils/log.dart';
 import '../flex/drag_state.dart';
 import '../flex/drag_target.dart';
-import '../flex/reorder_flex_ext.dart';
+import '../flex/drag_target_inteceptor.dart';
 import 'phantom_state.dart';
 
 abstract class BoardPhantomControllerDelegate {
@@ -14,7 +14,7 @@ mixin ColumnDataPhantomMixim {
   BoardColumnDataController? get;
 }
 
-class BoardPhantomController extends DragTargetExtensionDelegate {
+class BoardPhantomController extends CrossReorderFlexDragTargetDelegate {
   final BoardPhantomControllerDelegate delegate;
 
   PhantomRecord? phantomRecord;
@@ -313,7 +313,7 @@ class PassthroughPhantomWidget extends PhantomWidget {
         );
 }
 
-class PhantomReorderDraggableBuilder extends ReorderDraggableTargetBuilder {
+class PhantomDraggableBuilder extends ReorderFlexDraggableTargetBuilder {
   @override
   Widget? build<T extends DragTargetData>(
     BuildContext context,

@@ -20,25 +20,37 @@ class Board extends StatelessWidget {
   /// Defaults to 0.0.
   final double runSpacing;
 
+  ///
   final Widget? background;
 
-  final BoardColumnItemWidgetBuilder builder;
+  ///
+  final BoardColumnCardBuilder cardBuilder;
+
+  ///
+  final BoardColumnHeaderBuilder? headerBuilder;
+
+  ///
+  final BoardColumnFooterBuilder? footBuilder;
 
   ///
   final BoardDataController dataController;
 
+  final BoxConstraints columnConstraints;
+
   ///
-  final BoardPhantomController passthroughPhantomContorller;
+  final BoardPhantomController phantomController;
 
   Board({
     required this.dataController,
-    required this.builder,
+    required this.cardBuilder,
     this.spacing = 10.0,
     this.runSpacing = 0.0,
     this.background,
+    this.footBuilder,
+    this.headerBuilder,
+    this.columnConstraints = const BoxConstraints(maxWidth: 200),
     Key? key,
-  })  : passthroughPhantomContorller =
-            BoardPhantomController(delegate: dataController),
+  })  : phantomController = BoardPhantomController(delegate: dataController),
         super(key: key);
 
   @override
@@ -51,41 +63,25 @@ class Board extends StatelessWidget {
           List<String> acceptColumns =
               dataController.columnControllers.keys.toList();
 
-          dataController.columnControllers.forEach((columnId, dataController) {
-            Widget child =
-                buildBoardColumn(columnId, acceptColumns, dataController);
-            if (children.isEmpty) {
-              // children.add(SizedBox(width: spacing));
-            }
-            // if (background != null) {
-            //   child = Stack(children: [
-            //     background!,
-            //     child,
-            //   ]);
-            // }
-            // children.add(Expanded(key: ValueKey(columnId), child: child));
+          dataController.columnControllers.forEach((columnId, controller) {
+            Widget child = _buildColumn(columnId, acceptColumns, controller);
             children.add(child);
-            // children.add(SizedBox(width: spacing));
           });
 
           return BoardColumnContainer(
             onReorder: (fromIndex, toIndex) {},
             boardDataController: dataController,
+            background: background,
+            spacing: spacing,
             children: children,
           );
-
-          // return Row(
-          //   crossAxisAlignment: CrossAxisAlignment.start,
-          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //   children: children,
-          // );
         },
       ),
     );
   }
 
   ///
-  Widget buildBoardColumn(
+  Widget _buildColumn(
     String columnId,
     List<String> acceptColumns,
     BoardColumnDataController dataController,
@@ -95,18 +91,19 @@ class Board extends StatelessWidget {
       value: dataController,
       child: Consumer<BoardColumnDataController>(
         builder: (context, value, child) {
-          return SizedBox(
-            width: 200,
+          return ConstrainedBox(
+            constraints: columnConstraints,
             child: BoardColumnWidget(
-              header: Container(color: Colors.yellow, height: 30),
-              builder: builder,
+              headerBuilder: headerBuilder,
+              footBuilder: footBuilder,
+              cardBuilder: cardBuilder,
               acceptColumns: acceptColumns,
               dataController: dataController,
               scrollController: ScrollController(),
               onReorder: (_, int fromIndex, int toIndex) {
                 dataController.move(fromIndex, toIndex);
               },
-              phantomController: passthroughPhantomContorller,
+              phantomController: phantomController,
             ),
           );
         },

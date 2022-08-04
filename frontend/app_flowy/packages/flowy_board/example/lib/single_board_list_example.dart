@@ -28,7 +28,7 @@ class _SingleBoardListExampleState extends State<SingleBoardListExample> {
   Widget build(BuildContext context) {
     return Board(
       dataController: boardData,
-      builder: (context, item) {
+      cardBuilder: (context, item) {
         return _RowWidget(item: item as TextItem, key: ObjectKey(item));
       },
     );

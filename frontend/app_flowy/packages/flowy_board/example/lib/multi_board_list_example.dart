@@ -46,9 +46,22 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     return Board(
       dataController: boardData,
       background: Container(color: Colors.red),
-      builder: (context, item) {
+      footBuilder: (context, columnData) {
+        return Container(
+          color: Colors.purple,
+          height: 30,
+        );
+      },
+      headerBuilder: (context, columnData) {
+        return Container(
+          color: Colors.yellow,
+          height: 30,
+        );
+      },
+      cardBuilder: (context, item) {
         return _RowWidget(item: item as TextItem, key: ObjectKey(item));
       },
+      columnConstraints: const BoxConstraints.tightFor(width: 240),
     );
   }
 }

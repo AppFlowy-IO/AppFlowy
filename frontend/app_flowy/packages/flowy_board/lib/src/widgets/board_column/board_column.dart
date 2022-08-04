@@ -4,34 +4,33 @@ import '../../rendering/board_overlay.dart';
 import '../../utils/log.dart';
 import '../phantom/phantom_controller.dart';
 import '../flex/reorder_flex.dart';
-import '../flex/drag_state.dart';
-import '../flex/reorder_flex_ext.dart';
+import '../flex/drag_target_inteceptor.dart';
 import 'data_controller.dart';
 
-typedef OnDragStarted = void Function(int index);
-typedef OnDragEnded = void Function(String listId);
-typedef OnReorder = void Function(String listId, int fromIndex, int toIndex);
-typedef OnDeleted = void Function(String listId, int deletedIndex);
-typedef OnInserted = void Function(String listId, int insertedIndex);
-typedef OnPassedInPhantom = void Function(
-  String listId,
-  FlexDragTargetData dragTargetData,
-  int phantomIndex,
-);
+typedef OnColumnDragStarted = void Function(int index);
+typedef OnColumnDragEnded = void Function(String listId);
+typedef OnColumnReorder = void Function(
+    String listId, int fromIndex, int toIndex);
+typedef OnColumnDeleted = void Function(String listId, int deletedIndex);
+typedef OnColumnInserted = void Function(String listId, int insertedIndex);
 
-typedef BoardColumnItemWidgetBuilder = Widget Function(
+typedef BoardColumnCardBuilder = Widget Function(
     BuildContext context, ColumnItem item);
 
+typedef BoardColumnHeaderBuilder = Widget Function(
+    BuildContext context, BoardColumnData columnData);
+
+typedef BoardColumnFooterBuilder = Widget Function(
+    BuildContext context, BoardColumnData columnData);
+
 class BoardColumnWidget extends StatefulWidget {
-  final Widget? header;
-  final Widget? footer;
   final BoardColumnDataController dataController;
   final ScrollController? scrollController;
   final ReorderFlexConfig config;
 
-  final OnDragStarted? onDragStarted;
-  final OnReorder onReorder;
-  final OnDragEnded? onDragEnded;
+  final OnColumnDragStarted? onDragStarted;
+  final OnColumnReorder onReorder;
+  final OnColumnDragEnded? onDragEnded;
 
   final BoardPhantomController phantomController;
 
@@ -39,18 +38,25 @@ class BoardColumnWidget extends StatefulWidget {
 
   final List<String> acceptColumns;
 
-  final BoardColumnItemWidgetBuilder builder;
+  final BoardColumnCardBuilder cardBuilder;
+
+  final BoardColumnHeaderBuilder? headerBuilder;
+
+  final BoardColumnFooterBuilder? footBuilder;
+
+  final double? spacing;
 
   const BoardColumnWidget({
     Key? key,
-    this.header,
-    this.footer,
-    required this.builder,
+    this.headerBuilder,
+    this.footBuilder,
+    required this.cardBuilder,
     required this.onReorder,
     required this.dataController,
     required this.phantomController,
     required this.acceptColumns,
     this.config = const ReorderFlexConfig(),
+    this.spacing,
     this.onDragStarted,
     this.scrollController,
     this.onDragEnded,
@@ -69,45 +75,59 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
   @override
   void initState() {
     _overlayEntry = BoardOverlayEntry(
-        builder: (BuildContext context) {
-          final children = widget.dataController.items
-              .map((item) => _buildWidget(context, item))
-              .toList();
+      builder: (BuildContext context) {
+        final children = widget.dataController.items
+            .map((item) => _buildWidget(context, item))
+            .toList();
 
-          final dragTargetExtension = ReorderFlextDragTargetExtension(
-            reorderFlexId: widget.columnId,
-            delegate: widget.phantomController,
-            acceptReorderFlexIds: widget.acceptColumns,
-            draggableTargetBuilder: PhantomReorderDraggableBuilder(),
-          );
+        final header = widget.headerBuilder
+            ?.call(context, widget.dataController.columnData);
 
-          return ReorderFlex(
-            key: widget.key,
-            header: widget.header,
-            footer: widget.footer,
-            scrollController: widget.scrollController,
-            config: widget.config,
-            onDragStarted: (index) {
-              widget.phantomController.columnStartDragging(widget.columnId);
-              widget.onDragStarted?.call(index);
-            },
-            onReorder: ((fromIndex, toIndex) {
-              if (widget.phantomController.isFromColumn(widget.columnId)) {
-                widget.onReorder(widget.columnId, fromIndex, toIndex);
-                widget.phantomController.transformIndex(fromIndex, toIndex);
-              }
-            }),
-            onDragEnded: () {
-              widget.phantomController.columnEndDragging(widget.columnId);
-              widget.onDragEnded?.call(widget.columnId);
-              _printItems(widget.dataController);
-            },
-            dataSource: widget.dataController,
-            dragTargetExtension: dragTargetExtension,
-            children: children,
-          );
-        },
-        opaque: false);
+        final footer =
+            widget.footBuilder?.call(context, widget.dataController.columnData);
+
+        final interceptor = CrossReorderFlexDragTargetInterceptor(
+          reorderFlexId: widget.columnId,
+          delegate: widget.phantomController,
+          acceptReorderFlexIds: widget.acceptColumns,
+          draggableTargetBuilder: PhantomDraggableBuilder(),
+        );
+
+        final reorderFlex = ReorderFlex(
+          key: widget.key,
+          scrollController: widget.scrollController,
+          config: widget.config,
+          onDragStarted: (index) {
+            widget.phantomController.columnStartDragging(widget.columnId);
+            widget.onDragStarted?.call(index);
+          },
+          onReorder: ((fromIndex, toIndex) {
+            if (widget.phantomController.isFromColumn(widget.columnId)) {
+              widget.onReorder(widget.columnId, fromIndex, toIndex);
+              widget.phantomController.transformIndex(fromIndex, toIndex);
+            }
+          }),
+          onDragEnded: () {
+            widget.phantomController.columnEndDragging(widget.columnId);
+            widget.onDragEnded?.call(widget.columnId);
+            _printItems(widget.dataController);
+          },
+          dataSource: widget.dataController,
+          interceptor: interceptor,
+          spacing: widget.spacing,
+          children: children,
+        );
+
+        return Column(
+          children: [
+            if (header != null) header,
+            Expanded(child: reorderFlex),
+            if (footer != null) footer,
+          ],
+        );
+      },
+      opaque: false,
+    );
     super.initState();
   }
 
@@ -127,7 +147,7 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
         passthroughPhantomContext: item.phantomContext,
       );
     } else {
-      return widget.builder(context, item);
+      return widget.cardBuilder(context, item);
     }
   }
 }
