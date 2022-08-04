@@ -342,13 +342,10 @@ fn apply_1000() {
 #[test]
 fn apply_test() {
     let s = "hello";
-    let delta_a = PlainTextDeltaBuilder::new().insert(s).build();
-    let delta_b = PlainTextDeltaBuilder::new()
-        .retain(s.len())
-        .insert(", AppFlowy")
-        .build();
+    let delta_a = TextDeltaBuilder::new().insert(s).build();
+    let delta_b = TextDeltaBuilder::new().retain(s.len()).insert(", AppFlowy").build();
 
-    let after_a = delta_a.content_str().unwrap();
+    let after_a = delta_a.content().unwrap();
     let after_b = delta_b.apply(&after_a).unwrap();
     assert_eq!("hello, AppFlowy", &after_b);
 }
@@ -384,7 +381,7 @@ fn invert() {
 #[test]
 fn invert_test() {
     let s = "hello world";
-    let delta = PlainTextDeltaBuilder::new().insert(s).build();
+    let delta = TextDeltaBuilder::new().insert(s).build();
     let invert_delta = delta.invert_str("");
     assert_eq!(delta.utf16_base_len, invert_delta.utf16_target_len);
     assert_eq!(delta.utf16_target_len, invert_delta.utf16_base_len);

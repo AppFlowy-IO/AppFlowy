@@ -1,9 +1,9 @@
 mod delta;
-mod flowy_str;
 mod interval;
 mod operation;
+mod ot_str;
 
 pub use delta::*;
-pub use flowy_str::*;
 pub use interval::*;
 pub use operation::*;
+pub use ot_str::*;

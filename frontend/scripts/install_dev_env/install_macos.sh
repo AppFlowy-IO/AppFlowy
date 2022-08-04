@@ -22,12 +22,14 @@ printError() {
 printMessage "The Rust programming language is required to compile AppFlowy."
 printMessage "We can install it now if you don't already have it on your system."
 
-read -p "$(printSuccess "Do you want to install Rust? [y/N]") " installrust
+read -p "$(printSuccess "Do you want to install Rust? [Y/N]") " installrust
 
-if [ ${installrust^^} == "Y" ]; then
+if [ ${installrust} == "Y" ] || [ ${installrust} == "y" ]; then
    printMessage "Installing Rust."
    brew install rustup-init
    rustup-init -y --default-toolchain=stable
+  
+   source "$HOME/.cargo/env"
 else
    printMessage "Skipping Rust installation."
 fi

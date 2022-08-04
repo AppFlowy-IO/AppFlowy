@@ -192,7 +192,7 @@ pub async fn make_grid_view_data(
 
         // Create grid's block
         let grid_block_delta = make_grid_block_delta(block_meta_data);
-        let block_delta_data = grid_block_delta.to_json_bytes();
+        let block_delta_data = grid_block_delta.json_bytes();
         let repeated_revision: RepeatedRevision =
             Revision::initial_revision(user_id, block_id, block_delta_data).into();
         let _ = grid_manager.create_grid_block(&block_id, repeated_revision).await?;
@@ -202,7 +202,7 @@ pub async fn make_grid_view_data(
 
     // Create grid
     let grid_meta_delta = make_grid_delta(&grid_rev);
-    let grid_delta_data = grid_meta_delta.to_json_bytes();
+    let grid_delta_data = grid_meta_delta.json_bytes();
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, view_id, grid_delta_data.clone()).into();
     let _ = grid_manager.create_grid(view_id, repeated_revision).await?;

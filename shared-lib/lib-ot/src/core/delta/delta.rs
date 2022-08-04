@@ -1,9 +1,10 @@
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 
 use crate::core::delta::{DeltaIterator, MAX_IV_LEN};
-use crate::core::flowy_str::OTString;
 use crate::core::interval::Interval;
 use crate::core::operation::{Attributes, Operation, OperationTransform, PhantomAttributes};
+use crate::core::ot_str::OTString;
+use crate::core::DeltaBuilder;
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
 use std::{
@@ -14,11 +15,14 @@ use std::{
     str::FromStr,
 };
 
-pub type PlainTextDelta = Delta<PhantomAttributes>;
+pub type TextDelta = Delta<PhantomAttributes>;
+pub type TextDeltaBuilder = DeltaBuilder<PhantomAttributes>;
 
 /// A [Delta] contains list of operations that consists of 'Retain', 'Delete' and 'Insert' operation.
 /// Check out the [Operation] for more details. It describes the document as a sequence of
 /// operations.
+///
+/// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/delta) out for more information.
 ///
 /// If the [T] supports 'serde', that will enable delta to serialize to JSON or deserialize from
 /// a JSON string.
@@ -176,15 +180,15 @@ where
     /// # Examples
     ///
     /// ```
-    ///  use lib_ot::core::PlainTextDeltaBuilder;
+    ///  use lib_ot::core::TextDeltaBuilder;
     ///  let s = "hello";
-    ///  let delta_a = PlainTextDeltaBuilder::new().insert(s).build();
-    ///  let delta_b = PlainTextDeltaBuilder::new()
+    ///  let delta_a = TextDeltaBuilder::new().insert(s).build();
+    ///  let delta_b = TextDeltaBuilder::new()
     ///         .retain(s.len())
     ///         .insert(", AppFlowy")
     ///         .build();
     ///
-    ///  let after_a = delta_a.content_str().unwrap();
+    ///  let after_a = delta_a.content().unwrap();
     ///  let after_b = delta_b.apply(&after_a).unwrap();
     ///  assert_eq!("hello, AppFlowy", &after_b);
     /// ```
@@ -233,9 +237,9 @@ where
     /// # Examples
     ///
     /// ```
-    ///  use lib_ot::core::PlainTextDeltaBuilder;
+    ///  use lib_ot::core::TextDeltaBuilder;
     ///  let s = "hello world";
-    ///  let delta = PlainTextDeltaBuilder::new().insert(s).build();
+    ///  let delta = TextDeltaBuilder::new().insert(s).build();
     ///  let invert_delta = delta.invert_str(s);
     ///  assert_eq!(delta.utf16_base_len, invert_delta.utf16_target_len);
     ///  assert_eq!(delta.utf16_target_len, invert_delta.utf16_base_len);
@@ -555,7 +559,7 @@ fn transform_op_attribute<T: Attributes>(
     }
     let left = left.as_ref().unwrap().get_attributes();
     let right = right.as_ref().unwrap().get_attributes();
-    // TODO: replace with anyhow and thiserror.
+    // TODO: replace with anyhow and this error.
     Ok(left.transform(&right)?.0)
 }
 
@@ -571,10 +575,10 @@ where
     /// let json = r#"[
     ///     {"retain":7,"attributes":{"bold":null}}
     ///  ]"#;
-    /// let delta = RichTextDelta::from_json_str(json).unwrap();
-    /// assert_eq!(delta.to_json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
+    /// let delta = RichTextDelta::from_json(json).unwrap();
+    /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
     /// ```
-    pub fn from_json_str(json: &str) -> Result<Self, OTError> {
+    pub fn from_json(json: &str) -> Result<Self, OTError> {
         let delta = serde_json::from_str(json).map_err(|e| {
             tracing::trace!("Deserialize failed: {:?}", e);
             tracing::trace!("{:?}", json);
@@ -583,9 +587,10 @@ where
         Ok(delta)
     }
 
+    /// Deserialize the bytes into [Delta]. It requires the bytes is in utf8 format.
     pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, OTError> {
         let json = str::from_utf8(bytes.as_ref())?.to_owned();
-        let val = Self::from_json_str(&json)?;
+        let val = Self::from_json(&json)?;
         Ok(val)
     }
 }
@@ -594,16 +599,19 @@ impl<T> Delta<T>
 where
     T: Attributes + serde::Serialize,
 {
-    pub fn to_json_str(&self) -> String {
+    /// Serialize the [Delta] into a String in JSON format
+    pub fn json_str(&self) -> String {
         serde_json::to_string(self).unwrap_or_else(|_| "".to_owned())
     }
 
-    pub fn content_str(&self) -> Result<String, OTError> {
+    /// Get the content the [Delta] represents.
+    pub fn content(&self) -> Result<String, OTError> {
         self.apply("")
     }
 
-    pub fn to_json_bytes(&self) -> Bytes {
-        let json = self.to_json_str();
+    /// Serial the [Delta] into a String in Bytes format
+    pub fn json_bytes(&self) -> Bytes {
+        let json = self.json_str();
         Bytes::from(json.into_bytes())
     }
 }

@@ -1,8 +1,6 @@
 use crate::core::delta::{trim, Delta};
-use crate::core::operation::{Attributes, PhantomAttributes};
+use crate::core::operation::Attributes;
 use crate::core::Operation;
-
-pub type PlainTextDeltaBuilder = DeltaBuilder<PhantomAttributes>;
 
 /// A builder for creating new [Delta] objects.
 ///
@@ -12,11 +10,11 @@ pub type PlainTextDeltaBuilder = DeltaBuilder<PhantomAttributes>;
 /// # Examples
 ///
 /// ```
-/// use lib_ot::core::PlainTextDeltaBuilder;
-/// let delta = PlainTextDeltaBuilder::new()
+/// use lib_ot::core::TextDeltaBuilder;
+/// let delta = TextDeltaBuilder::new()
 ///         .insert("AppFlowy")
 ///         .build();
-/// assert_eq!(delta.content_str().unwrap(), "AppFlowy");
+/// assert_eq!(delta.content().unwrap(), "AppFlowy");
 /// ```
 pub struct DeltaBuilder<T: Attributes> {
     delta: Delta<T>,
@@ -57,7 +55,7 @@ where
     /// let mut attribute = RichTextAttribute::Bold(true);
     /// let delta = RichTextDeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
     ///
-    /// assert_eq!(delta.to_json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
+    /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
     /// ```
     pub fn retain_with_attributes(mut self, n: usize, attrs: T) -> Self {
         self.delta.retain(n, attrs);
@@ -74,19 +72,19 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{OperationTransform, PlainTextDeltaBuilder};
+    /// use lib_ot::core::{OperationTransform, TextDeltaBuilder};
     ///
-    /// let delta = PlainTextDeltaBuilder::new()
+    /// let delta = TextDeltaBuilder::new()
     ///         .insert("AppFlowy...")
     ///         .build();
     ///
-    /// let changeset = PlainTextDeltaBuilder::new()
+    /// let changeset = TextDeltaBuilder::new()
     ///         .retain(8)
     ///         .delete(3)
     ///         .build();
     ///
     /// let new_delta = delta.compose(&changeset).unwrap();
-    /// assert_eq!(new_delta.content_str().unwrap(), "AppFlowy");
+    /// assert_eq!(new_delta.content().unwrap(), "AppFlowy");
     /// ```
     pub fn delete(mut self, n: usize) -> Self {
         self.delta.delete(n);
@@ -110,9 +108,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{OperationTransform, PlainTextDeltaBuilder};
+    /// use lib_ot::core::{OperationTransform, TextDeltaBuilder};
     /// use lib_ot::rich_text::{RichTextAttribute, RichTextDeltaBuilder};
-    /// let delta = PlainTextDeltaBuilder::new()
+    /// let delta = TextDeltaBuilder::new()
     ///         .retain(3)
     ///         .trim()
     ///         .build();

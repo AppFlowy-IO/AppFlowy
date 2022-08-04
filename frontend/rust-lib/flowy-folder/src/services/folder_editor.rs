@@ -80,7 +80,7 @@ impl FolderEditor {
     pub(crate) fn apply_change(&self, change: FolderChange) -> FlowyResult<()> {
         let FolderChange { delta, md5 } = change;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let delta_data = delta.to_json_bytes();
+        let delta_data = delta.json_bytes();
         let revision = Revision::new(
             &self.rev_manager.object_id,
             base_rev_id,
@@ -133,6 +133,6 @@ pub struct FolderRevisionCompactor();
 impl RevisionCompactor for FolderRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_delta_from_revisions::<PhantomAttributes>(revisions)?;
-        Ok(delta.to_json_bytes())
+        Ok(delta.json_bytes())
     }
 }

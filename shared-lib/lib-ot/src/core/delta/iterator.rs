@@ -7,17 +7,26 @@ use std::ops::{Deref, DerefMut};
 
 pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
 
-/// Retain the 'n' characters with the attributes. Use 'retain' instead if you don't
-/// need any attributes.
+/// [DeltaIterator] is used to iterate over a delta.
 /// # Examples
 ///
+/// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/delta) out for more information.
+///
 /// ```
-/// use lib_ot::rich_text::{RichTextAttribute, RichTextDelta, RichTextDeltaBuilder};
+///  use lib_ot::core::{DeltaIterator, Interval, Operation};
+///  use lib_ot::rich_text::RichTextDelta;
+///  let mut delta = RichTextDelta::default();
+///  delta.add(Operation::insert("123"));
+///  delta.add(Operation::insert("4"));
+///  assert_eq!(
+///     DeltaIterator::from_interval(&delta, Interval::new(0, 2)).ops(),
+///     vec![Operation::insert("12")]
+///  );
 ///
-/// let mut attribute = RichTextAttribute::Bold(true);
-/// let delta = RichTextDeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
-///
-/// assert_eq!(delta.to_json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
+///  assert_eq!(
+///     DeltaIterator::from_interval(&delta, Interval::new(1, 3)).ops(),
+///     vec![Operation::insert("23")]
+///  );
 /// ```
 pub struct DeltaIterator<'a, T: Attributes> {
     cursor: DeltaCursor<'a, T>,

@@ -1,5 +1,5 @@
-use crate::core::flowy_str::OTString;
 use crate::core::interval::Interval;
+use crate::core::ot_str::OTString;
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize, __private::Formatter};
 use std::fmt::Display;
@@ -21,11 +21,11 @@ pub trait OperationTransform {
     /// # Examples
     ///
     /// ```
-    ///  use lib_ot::core::{OperationTransform, PlainTextDeltaBuilder};
-    ///  let document = PlainTextDeltaBuilder::new().build();
-    ///  let delta = PlainTextDeltaBuilder::new().insert("abc").build();
+    ///  use lib_ot::core::{OperationTransform, TextDeltaBuilder};
+    ///  let document = TextDeltaBuilder::new().build();
+    ///  let delta = TextDeltaBuilder::new().insert("abc").build();
     ///  let new_document = document.compose(&delta).unwrap();
-    ///  assert_eq!(new_document.content_str().unwrap(), "abc".to_owned());
+    ///  assert_eq!(new_document.content().unwrap(), "abc".to_owned());
     /// ```
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
@@ -50,9 +50,9 @@ pub trait OperationTransform {
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{OperationTransform, PlainTextDeltaBuilder};
-    /// let original_document = PlainTextDeltaBuilder::new().build();
-    /// let delta = PlainTextDeltaBuilder::new().insert("abc").build();
+    /// use lib_ot::core::{OperationTransform, TextDeltaBuilder};
+    /// let original_document = TextDeltaBuilder::new().build();
+    /// let delta = TextDeltaBuilder::new().insert("abc").build();
     ///
     /// let undo_delta = delta.invert(&original_document);
     /// let new_document = original_document.compose(&delta).unwrap();
@@ -67,8 +67,8 @@ pub trait OperationTransform {
 /// Each operation can carry attributes. For example, the [RichTextAttributes] has a list of key/value attributes.
 /// Such as { bold: true, italic: true }.  
 ///
-/// Because [Operation] is generic over the T, so you must specify the T. For example, the [PlainTextDelta]. It use
-/// use [PhantomAttributes] as the T. [PhantomAttributes] does nothing, just a phantom.
+///Because [Operation] is generic over the T, so you must specify the T. For example, the [TextDelta] uses
+///[PhantomAttributes] as the T. [PhantomAttributes] does nothing, just a phantom.
 ///
 pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + OperationTransform {
     fn is_empty(&self) -> bool {
@@ -89,6 +89,8 @@ pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + Opera
 /// * Delete
 /// * Retain
 /// * Insert
+///
+/// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/delta) out for more information.
 ///
 /// The [T] should support serde if you want to serialize/deserialize the operation
 /// to json string. You could check out the operation_serde.rs for more information.
