@@ -3,6 +3,11 @@ import 'package:flutter/services.dart';
 import '../editor_state.dart';
 import 'package:flutter/material.dart';
 
+mixin FlowyKeyboardService<T extends StatefulWidget> on State<T> {
+  void enable();
+  void disable();
+}
+
 typedef FlowyKeyEventHandler = KeyEventResult Function(
   EditorState editorState,
   RawKeyEvent event,
@@ -25,8 +30,11 @@ class FlowyKeyboard extends StatefulWidget {
   State<FlowyKeyboard> createState() => _FlowyKeyboardState();
 }
 
-class _FlowyKeyboardState extends State<FlowyKeyboard> {
+class _FlowyKeyboardState extends State<FlowyKeyboard>
+    with FlowyKeyboardService {
   final FocusNode focusNode = FocusNode(debugLabel: 'flowy_keyboard_service');
+
+  bool isFocus = true;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +46,30 @@ class _FlowyKeyboardState extends State<FlowyKeyboard> {
     );
   }
 
+  @override
+  void dispose() {
+    focusNode.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  void enable() {
+    isFocus = true;
+    focusNode.requestFocus();
+  }
+
+  @override
+  void disable() {
+    isFocus = false;
+    focusNode.unfocus();
+  }
+
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
+    if (!isFocus) {
+      return KeyEventResult.ignored;
+    }
+
     debugPrint('on keyboard event $event');
 
     if (event is! RawKeyDownEvent) {

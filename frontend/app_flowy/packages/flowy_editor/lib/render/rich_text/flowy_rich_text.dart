@@ -129,7 +129,10 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildRichText(BuildContext context) {
-    return _buildSingleRichText(context);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: _buildSingleRichText(context),
+    );
   }
 
   Widget _buildSingleRichText(BuildContext context) {

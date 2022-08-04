@@ -38,6 +38,7 @@ dependencies:
     path: ../
   provider: ^6.0.3
   url_launcher: ^6.1.5
+  flutter_inappwebview: ^5.4.3+7
 
 dev_dependencies:
   flutter_test:

@@ -201,6 +201,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
         ),
       );
     });
+    // TODO: disable scrolling.
     Overlay.of(context)?.insert(_listToolbarOverlay!);
   }
 

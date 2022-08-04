@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:example/expandable_floating_action_button.dart';
@@ -80,10 +81,19 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: const Icon(Icons.note_add),
           ),
           ActionButton(
+            icon: const Icon(Icons.document_scanner),
             onPressed: () {
               if (page == 1) return;
               setState(() {
                 page = 1;
+              });
+            },
+          ),
+          ActionButton(
+            onPressed: () {
+              if (page == 2) return;
+              setState(() {
+                page = 2;
               });
             },
             icon: const Icon(Icons.text_fields),
@@ -97,9 +107,39 @@ class _MyHomePageState extends State<MyHomePage> {
     if (page == 0) {
       return _buildFlowyEditor();
     } else if (page == 1) {
+      return _buildFlowyEditorWithEmptyDocument();
+    } else if (page == 2) {
       return _buildTextField();
     }
     return Container();
+  }
+
+  Widget _buildFlowyEditorWithEmptyDocument() {
+    return Container(
+      padding: const EdgeInsets.only(left: 20, right: 20),
+      child: FlowyEditor(
+        key: editorKey,
+        editorState: EditorState(
+          document: StateTree(
+            root: Node(
+              type: 'editor',
+              children: LinkedList()
+                ..add(
+                  TextNode.empty()
+                    ..delta = Delta(
+                      [TextInsert('')],
+                    ),
+                ),
+              attributes: {},
+            ),
+          ),
+        ),
+        keyEventHandlers: const [],
+        customBuilders: {
+          'image': ImageNodeBuilder(),
+        },
+      ),
+    );
   }
 
   Widget _buildFlowyEditor() {

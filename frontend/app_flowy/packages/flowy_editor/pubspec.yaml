@@ -27,6 +27,7 @@ flutter:
   # To add assets to your package, add an assets section, like this:
   assets:
     - assets/images/toolbar/
+    - assets/images/popup_list/
     - assets/images/
     - assets/document.json
   #   - images/a_dot_burr.jpeg

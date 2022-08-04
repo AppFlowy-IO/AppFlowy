@@ -1,3 +1,4 @@
+import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
 import 'package:flowy_editor/service/toolbar_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
@@ -14,6 +15,13 @@ class FlowyService {
 
   // keyboard service
   final keyboardServiceKey = GlobalKey(debugLabel: 'flowy_keyboard_service');
+  FlowyKeyboardService? get keyboardService {
+    if (keyboardServiceKey.currentState != null &&
+        keyboardServiceKey.currentState is FlowyKeyboardService) {
+      return keyboardServiceKey.currentState! as FlowyKeyboardService;
+    }
+    return null;
+  }
 
   // input service
   final inputServiceKey = GlobalKey(debugLabel: 'flowy_input_service');
