@@ -36,7 +36,7 @@ class BoardColumnWidget extends StatefulWidget {
 
   String get columnId => dataController.identifier;
 
-  final List<String> acceptColumns;
+  final List<String> acceptedColumns;
 
   final BoardColumnCardBuilder cardBuilder;
 
@@ -54,7 +54,7 @@ class BoardColumnWidget extends StatefulWidget {
     required this.onReorder,
     required this.dataController,
     required this.phantomController,
-    required this.acceptColumns,
+    required this.acceptedColumns,
     this.config = const ReorderFlexConfig(),
     this.spacing,
     this.onDragStarted,
@@ -89,7 +89,7 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
         final interceptor = CrossReorderFlexDragTargetInterceptor(
           reorderFlexId: widget.columnId,
           delegate: widget.phantomController,
-          acceptReorderFlexIds: widget.acceptColumns,
+          acceptedReorderFlexIds: widget.acceptedColumns,
           draggableTargetBuilder: PhantomDraggableBuilder(),
         );
 
@@ -153,7 +153,7 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
 }
 
 void _printItems(BoardColumnDataController dataController) {
-  String msg = '';
+  String msg = 'Column${dataController.columnData} data: ';
   for (var element in dataController.items) {
     msg = '$msg$element,';
   }

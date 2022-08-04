@@ -17,24 +17,32 @@ class FlexDragTargetData extends DragTargetData {
 
   Size? get draggingFeedbackSize => state.feedbackSize;
 
-  /// Indicate the dargging come from which [ReorderFlex].
+  /// Indicate the dragTarget come from which [ReorderFlex].
   final DraggingReorderFlex draggingReorderFlex;
 
-  ReoderFlextItem get columnItem =>
+  final String dragTargetId;
+
+  ReoderFlexItem get reorderFlexItem =>
       draggingReorderFlex.itemAtIndex(draggingIndex);
 
-  String get reorderFlexId => draggingReorderFlex.id;
+  String get reorderFlexId => draggingReorderFlex.reorderFlexId;
 
   FlexDragTargetData({
+    required this.dragTargetId,
     required this.draggingIndex,
     required this.state,
     required this.draggingReorderFlex,
   });
+
+  @override
+  String toString() {
+    return 'ReorderFlexId: $reorderFlexId, dragTargetId: $dragTargetId';
+  }
 }
 
 abstract class DraggingReorderFlex {
-  String get id;
-  ReoderFlextItem itemAtIndex(int index);
+  String get reorderFlexId;
+  ReoderFlexItem itemAtIndex(int index);
 }
 
 class DraggingState {

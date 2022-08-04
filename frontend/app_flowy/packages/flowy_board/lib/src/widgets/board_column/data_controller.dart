@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import '../../utils/log.dart';
 import '../flex/reorder_flex.dart';
 
-abstract class ColumnItem extends ReoderFlextItem {
-  String get id;
-
+abstract class ColumnItem extends ReoderFlexItem {
   bool get isPhantom => false;
 
   @override
@@ -14,7 +12,8 @@ abstract class ColumnItem extends ReoderFlextItem {
   }
 }
 
-class BoardColumnData extends ReoderFlextItem with EquatableMixin {
+class BoardColumnData extends ReoderFlexItem with EquatableMixin {
+  @override
   final String id;
   final List<ColumnItem> items;
 

@@ -18,10 +18,12 @@ typedef OnReveivePassedInPhantom = void Function(
 
 abstract class ReoderFlextDataSource {
   String get identifier;
-  List<ReoderFlextItem> get items;
+  List<ReoderFlexItem> get items;
 }
 
-abstract class ReoderFlextItem {}
+abstract class ReoderFlexItem {
+  String get id;
+}
 
 class ReorderFlexConfig {
   final bool needsLongPressDraggable = true;
@@ -68,10 +70,10 @@ class ReorderFlex extends StatefulWidget with DraggingReorderFlex {
   State<ReorderFlex> createState() => ReorderFlexState();
 
   @override
-  String get id => dataSource.identifier;
+  String get reorderFlexId => dataSource.identifier;
 
   @override
-  ReoderFlextItem itemAtIndex(int index) {
+  ReoderFlexItem itemAtIndex(int index) {
     return dataSource.items[index];
   }
 }
@@ -90,7 +92,7 @@ class ReorderFlexState extends State<ReorderFlex>
 
   @override
   void initState() {
-    dragState = DraggingState(widget.id);
+    dragState = DraggingState(widget.reorderFlexId);
 
     _dragAnimationController = DragAnimationController(
       reorderAnimationDuration: widget.config.reorderAnimationDuration,
@@ -135,6 +137,7 @@ class ReorderFlexState extends State<ReorderFlex>
 
     for (int i = 0; i < widget.children.length; i += 1) {
       Widget child = widget.children[i];
+
       if (widget.spacing != null) {
         children.add(SizedBox(width: widget.spacing!));
       }
@@ -283,12 +286,17 @@ class ReorderFlexState extends State<ReorderFlex>
   }
 
   ReorderDragTarget _buildDragTarget(
-      BuildContext builderContext, Widget child, int childIndex) {
+    BuildContext builderContext,
+    Widget child,
+    int dragTargetIndex,
+  ) {
+    final ReoderFlexItem item = widget.dataSource.items[dragTargetIndex];
     return ReorderDragTarget<FlexDragTargetData>(
       dragTargetData: FlexDragTargetData(
-        draggingIndex: childIndex,
+        draggingIndex: dragTargetIndex,
         state: dragState,
         draggingReorderFlex: widget,
+        dragTargetId: item.id,
       ),
       onDragStarted: (draggingWidget, draggingIndex, size) {
         Log.debug("Column${widget.dataSource.identifier} start dragging");
@@ -308,15 +316,16 @@ class ReorderFlexState extends State<ReorderFlex>
         });
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
-        assert(widget.dataSource.items.length > childIndex);
+        assert(widget.dataSource.items.length > dragTargetIndex);
 
         if (_interceptDragTarget(
           dragTargetData,
           (interceptor) => interceptor.onWillAccept(
-            builderContext,
-            this,
-            dragTargetData,
-            childIndex,
+            context: builderContext,
+            reorderFlexState: this,
+            dragTargetData: dragTargetData,
+            dragTargetId: item.id,
+            dragTargetIndex: dragTargetIndex,
           ),
         )) {
           return true;
@@ -324,7 +333,7 @@ class ReorderFlexState extends State<ReorderFlex>
           Log.debug(
               '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, count: ${widget.dataSource.items.length}');
           final dragIndex = dragTargetData.draggingIndex;
-          return onWillAccept(builderContext, dragIndex, childIndex);
+          return onWillAccept(builderContext, dragIndex, dragTargetIndex);
         }
       },
       onAccept: (dragTargetData) {
