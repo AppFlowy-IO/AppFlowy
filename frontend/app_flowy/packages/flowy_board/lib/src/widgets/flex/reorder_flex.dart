@@ -13,8 +13,7 @@ typedef OnDragEnded = void Function();
 typedef OnReorder = void Function(int fromIndex, int toIndex);
 typedef OnDeleted = void Function(int deletedIndex);
 typedef OnInserted = void Function(int insertedIndex);
-typedef OnReveivePassedInPhantom = void Function(
-    FlexDragTargetData dragTargetData, int phantomIndex);
+typedef OnReveivePassedInPhantom = void Function(FlexDragTargetData dragTargetData, int phantomIndex);
 
 abstract class ReoderFlextDataSource {
   String get identifier;
@@ -78,8 +77,7 @@ class ReorderFlex extends StatefulWidget with DraggingReorderFlex {
   }
 }
 
-class ReorderFlexState extends State<ReorderFlex>
-    with ReorderFlexMinxi, TickerProviderStateMixin<ReorderFlex> {
+class ReorderFlexState extends State<ReorderFlex> with ReorderFlexMinxi, TickerProviderStateMixin<ReorderFlex> {
   /// Controls scrolls and measures scroll progress.
   late ScrollController _scrollController;
   ScrollPosition? _attachedScrollPosition;
@@ -115,9 +113,7 @@ class ReorderFlexState extends State<ReorderFlex>
       _attachedScrollPosition = null;
     }
 
-    _scrollController = widget.scrollController ??
-        PrimaryScrollController.of(context) ??
-        ScrollController();
+    _scrollController = widget.scrollController ?? PrimaryScrollController.of(context) ?? ScrollController();
 
     if (_scrollController.hasClients) {
       _attachedScrollPosition = Scrollable.of(context)?.position;
@@ -239,9 +235,7 @@ class ReorderFlexState extends State<ReorderFlex>
             ]);
           } else if (childIndex == dragPhantomIndex) {
             return _buildDraggingContainer(
-                children: shiftedIndex <= childIndex
-                    ? [dragTarget, disappearSpace]
-                    : [disappearSpace, dragTarget]);
+                children: shiftedIndex <= childIndex ? [dragTarget, disappearSpace] : [disappearSpace, dragTarget]);
           }
         }
 
@@ -262,9 +256,7 @@ class ReorderFlexState extends State<ReorderFlex>
             ]);
           } else if (childIndex == dragPhantomIndex) {
             return _buildDraggingContainer(
-                children: shiftedIndex >= childIndex
-                    ? [disappearSpace, dragTarget]
-                    : [dragTarget, disappearSpace]);
+                children: shiftedIndex >= childIndex ? [disappearSpace, dragTarget] : [dragTarget, disappearSpace]);
           }
         }
 
@@ -290,21 +282,22 @@ class ReorderFlexState extends State<ReorderFlex>
     Widget child,
     int dragTargetIndex,
   ) {
-    final ReoderFlexItem item = widget.dataSource.items[dragTargetIndex];
+    final ReoderFlexItem reorderFlexItem = widget.dataSource.items[dragTargetIndex];
     return ReorderDragTarget<FlexDragTargetData>(
       dragTargetData: FlexDragTargetData(
         draggingIndex: dragTargetIndex,
+        reorderFlexItem: reorderFlexItem,
         state: dragState,
         draggingReorderFlex: widget,
-        dragTargetId: item.id,
+        dragTargetId: reorderFlexItem.id,
       ),
       onDragStarted: (draggingWidget, draggingIndex, size) {
-        Log.debug("Column${widget.dataSource.identifier} start dragging");
+        Log.debug("[DragTarget] Column${widget.dataSource.identifier} start dragging");
         _startDragging(draggingWidget, draggingIndex, size);
         widget.onDragStarted?.call(draggingIndex);
       },
       onDragEnded: (dragTargetData) {
-        Log.debug("Column${widget.dataSource.identifier} end dragging");
+        Log.debug("[DragTarget]: Column${widget.dataSource.identifier} end dragging");
 
         setState(() {
           _onReordered(
@@ -317,22 +310,21 @@ class ReorderFlexState extends State<ReorderFlex>
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
         assert(widget.dataSource.items.length > dragTargetIndex);
-        Log.debug(
-            '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, count: ${widget.dataSource.items.length}');
+
         if (_interceptDragTarget(
           dragTargetData,
           (interceptor) => interceptor.onWillAccept(
             context: builderContext,
             reorderFlexState: this,
             dragTargetData: dragTargetData,
-            dragTargetId: item.id,
+            dragTargetId: reorderFlexItem.id,
             dragTargetIndex: dragTargetIndex,
           ),
         )) {
           return true;
         } else {
           final dragIndex = dragTargetData.draggingIndex;
-          return onWillAccept(builderContext, dragIndex, dragTargetIndex);
+          return handleOnWillAccept(builderContext, dragIndex, dragTargetIndex);
         }
       },
       onAccept: (dragTargetData) {
@@ -394,11 +386,14 @@ class ReorderFlexState extends State<ReorderFlex>
     });
   }
 
-  bool onWillAccept(BuildContext context, int? dragIndex, int childIndex) {
+  bool handleOnWillAccept(BuildContext context, int? dragIndex, int childIndex) {
     /// The [willAccept] will be true if the dargTarget is the widget that gets
     /// dragged and it is dragged on top of the other dragTargets.
-    bool willAccept =
-        dragState.dragStartIndex == dragIndex && dragIndex != childIndex;
+    ///
+    Log.trace(
+        '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, count: ${widget.dataSource.items.length}');
+
+    bool willAccept = dragState.dragStartIndex == dragIndex && dragIndex != childIndex;
     setState(() {
       if (willAccept) {
         int shiftedIndex = dragState.calculateShiftedIndex(childIndex);
@@ -425,8 +420,7 @@ class ReorderFlexState extends State<ReorderFlex>
   }
 
   Widget _wrapScrollView({required Widget child}) {
-    if (widget.scrollController != null &&
-        PrimaryScrollController.of(context) == null) {
+    if (widget.scrollController != null && PrimaryScrollController.of(context) == null) {
       return child;
     } else {
       return SingleChildScrollView(
@@ -480,14 +474,12 @@ class ReorderFlexState extends State<ReorderFlex>
   void _scrollTo(BuildContext context) {
     if (_scrolling) return;
     final RenderObject contextObject = context.findRenderObject()!;
-    final RenderAbstractViewport viewport =
-        RenderAbstractViewport.of(contextObject)!;
+    final RenderAbstractViewport viewport = RenderAbstractViewport.of(contextObject)!;
     // If and only if the current scroll offset falls in-between the offsets
     // necessary to reveal the selected context at the top or bottom of the
     // screen, then it is already on-screen.
-    final double margin = widget.direction == Axis.horizontal
-        ? dragState.dropAreaSize.width
-        : dragState.dropAreaSize.height;
+    final double margin =
+        widget.direction == Axis.horizontal ? dragState.dropAreaSize.width : dragState.dropAreaSize.height;
     if (_scrollController.hasClients) {
       final double scrollOffset = _scrollController.offset;
       final double topOffset = max(
@@ -498,8 +490,7 @@ class ReorderFlexState extends State<ReorderFlex>
         _scrollController.position.maxScrollExtent,
         viewport.getOffsetToReveal(contextObject, 1.0).offset + margin,
       );
-      final bool onScreen =
-          scrollOffset <= topOffset && scrollOffset >= bottomOffset;
+      final bool onScreen = scrollOffset <= topOffset && scrollOffset >= bottomOffset;
 
       // If the context is off screen, then we request a scroll to make it visible.
       if (!onScreen) {

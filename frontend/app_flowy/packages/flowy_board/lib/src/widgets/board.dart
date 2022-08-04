@@ -122,16 +122,14 @@ class BoardContent extends StatefulWidget {
 }
 
 class _BoardContentState extends State<BoardContent> {
-  final GlobalKey _columnContainerOverlayKey =
-      GlobalKey(debugLabel: '$BoardContent overlay key');
+  final GlobalKey _columnContainerOverlayKey = GlobalKey(debugLabel: '$BoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   @override
   void initState() {
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
-        List<Widget> children =
-            widget.dataController.columnDatas.map((columnData) {
+        List<Widget> children = widget.dataController.columnDatas.map((columnData) {
           return _buildColumn(
             columnData.id,
             widget.dataController.columnIds,

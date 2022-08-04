@@ -22,14 +22,14 @@ class FlexDragTargetData extends DragTargetData {
 
   final String dragTargetId;
 
-  ReoderFlexItem get reorderFlexItem =>
-      draggingReorderFlex.itemAtIndex(draggingIndex);
+  final ReoderFlexItem reorderFlexItem;
 
   String get reorderFlexId => draggingReorderFlex.reorderFlexId;
 
   FlexDragTargetData({
     required this.dragTargetId,
     required this.draggingIndex,
+    required this.reorderFlexItem,
     required this.state,
     required this.draggingReorderFlex,
   });
@@ -85,12 +85,10 @@ class DraggingState {
     if (_draggingFeedbackSize == null) {
       return Size.zero;
     }
-    return _draggingFeedbackSize! +
-        const Offset(_dropAreaMargin, _dropAreaMargin);
+    return _draggingFeedbackSize! + const Offset(_dropAreaMargin, _dropAreaMargin);
   }
 
-  void startDragging(Widget draggingWidget, int draggingWidgetIndex,
-      Size? draggingWidgetSize) {
+  void startDragging(Widget draggingWidget, int draggingWidgetIndex, Size? draggingWidgetSize) {
     ///
     assert(draggingWidgetIndex >= 0);
 
