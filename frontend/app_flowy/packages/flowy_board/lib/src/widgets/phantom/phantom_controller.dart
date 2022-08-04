@@ -14,7 +14,10 @@ mixin ColumnDataPhantomMixim {
   BoardColumnDataController? get;
 }
 
-class BoardPhantomController extends CrossReorderFlexDragTargetDelegate {
+class BoardPhantomController
+    with
+        CrossReorderFlexDragTargetDelegate,
+        OverlapReorderFlexDragTargetDelegate {
   final BoardPhantomControllerDelegate delegate;
 
   PhantomRecord? phantomRecord;
@@ -142,17 +145,19 @@ class BoardPhantomController extends CrossReorderFlexDragTargetDelegate {
   }
 
   void _removePhantom(String columnId) {
-    final items = delegate.controller(columnId)?.items;
-    if (items == null) {
-      return;
-    }
+    final index = delegate
+        .controller(columnId)
+        ?.items
+        .indexWhere((item) => item.isPhantom);
 
-    final index = items.indexWhere((item) => item.isPhantom);
+    if (index == null) return;
+
     assert(index != -1);
+
     if (index != -1) {
-      items.removeAt(index);
+      delegate.controller(columnId)?.removeAt(index);
       Log.debug(
-          '[$BoardPhantomController] Column$columnId remove phantom, current count: ${items.length}');
+          '[$BoardPhantomController] Column$columnId remove phantom, current count: ${delegate.controller(columnId)?.items.length}');
       columnsState.notifyDidRemovePhantom(columnId);
       columnsState.removeColumnListener(columnId);
     }
@@ -195,7 +200,7 @@ class BoardPhantomController extends CrossReorderFlexDragTargetDelegate {
     phantomRecord = PhantomRecord(
       toColumnId: columnId,
       toColumnIndex: index,
-      item: dragTargetData.columnItem as ColumnItem,
+      item: dragTargetData.reorderFlexItem as ColumnItem,
       fromColumnId: dragTargetData.reorderFlexId,
       fromColumnIndex: dragTargetData.draggingIndex,
     );
@@ -275,7 +280,7 @@ class PassthroughPhantomContext extends FakeDragTargetEventTrigger
 
   Widget? get draggingWidget => dragTargetData.draggingWidget;
 
-  ColumnItem get itemData => dragTargetData.columnItem as ColumnItem;
+  ColumnItem get itemData => dragTargetData.reorderFlexItem as ColumnItem;
 
   @override
   VoidCallback? onInserted;
