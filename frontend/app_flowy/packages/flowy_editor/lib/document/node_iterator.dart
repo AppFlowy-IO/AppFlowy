@@ -61,4 +61,14 @@ class NodeIterator implements Iterator<Node> {
   Node get current {
     return _currentNode!;
   }
+
+  List<Node> toList() {
+    final result = <Node>[];
+
+    while (moveNext()) {
+      result.add(current);
+    }
+
+    return result;
+  }
 }

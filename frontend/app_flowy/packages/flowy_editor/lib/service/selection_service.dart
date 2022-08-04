@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flowy_editor/document/node_iterator.dart';
+import 'package:flowy_editor/document/state_tree.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -212,7 +214,7 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   List<Node> getNodesInSelection(Selection selection) =>
-      _selectedNodesInSelection(editorState.document.root, selection);
+      _selectedNodesInSelection(editorState.document, selection);
 
   @override
   void initState() {
@@ -462,8 +464,7 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   void _updateSelection(Selection selection) {
-    final nodes =
-        _selectedNodesInSelection(editorState.document.root, selection);
+    final nodes = _selectedNodesInSelection(editorState.document, selection);
 
     currentSelection = selection;
     currentSelectedNodes.value = nodes;
@@ -572,16 +573,10 @@ class _FlowySelectionState extends State<FlowySelection>
     currentState?.show();
   }
 
-  List<Node> _selectedNodesInSelection(Node node, Selection selection) {
-    List<Node> result = [];
-    if (node.parent != null) {
-      if (node.inSelection(selection)) {
-        result.add(node);
-      }
-    }
-    for (final child in node.children) {
-      result.addAll(_selectedNodesInSelection(child, selection));
-    }
-    return result;
+  List<Node> _selectedNodesInSelection(
+      StateTree stateTree, Selection selection) {
+    final startNode = stateTree.nodeAtPath(selection.start.path)!;
+    final endNode = stateTree.nodeAtPath(selection.end.path)!;
+    return NodeIterator(stateTree, startNode, endNode).toList();
   }
 }
