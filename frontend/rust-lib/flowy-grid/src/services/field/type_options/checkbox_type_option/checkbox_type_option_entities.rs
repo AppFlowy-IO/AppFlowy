@@ -3,14 +3,14 @@ use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use std::str::FromStr;
 
-pub const YES: &str = "Yes";
-pub const NO: &str = "No";
+pub const CHECK: &str = "Yes";
+pub const UNCHECK: &str = "No";
 
 pub struct CheckboxCellData(String);
 
 impl CheckboxCellData {
     pub fn is_check(&self) -> bool {
-        self.0 == YES
+        self.0 == CHECK
     }
 }
 
@@ -36,8 +36,8 @@ impl FromStr for CheckboxCellData {
         };
 
         match val {
-            Some(true) => Ok(Self(YES.to_string())),
-            Some(false) => Ok(Self(NO.to_string())),
+            Some(true) => Ok(Self(CHECK.to_string())),
+            Some(false) => Ok(Self(UNCHECK.to_string())),
             None => Ok(Self("".to_string())),
         }
     }

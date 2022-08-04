@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - 'main'
+      - 'feat/flowy_editor'
 
 env:
   CARGO_TERM_COLOR: always
@@ -71,3 +72,8 @@ jobs:
           flutter pub get
           flutter test
 
+      - name: Run FlowyEditor tests
+        working-directory: frontend/app_flowy/packages/flowy_editor
+        run: |
+          flutter pub get
+          flutter test

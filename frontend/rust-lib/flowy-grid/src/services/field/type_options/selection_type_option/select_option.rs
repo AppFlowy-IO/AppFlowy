@@ -1,4 +1,4 @@
-use crate::entities::{CellChangesetPB, CellIdentifierParams, FieldType, GridCellIdentifierPayloadPB};
+use crate::entities::{CellChangesetPB, FieldType, GridCellIdPB, GridCellIdParams};
 use crate::services::cell::{CellBytes, CellBytesParser, CellData, CellDisplayable, FromCellChangeset, FromCellString};
 use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOptionPB};
 use bytes::Bytes;
@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 
 pub const SELECTION_IDS_SEPARATOR: &str = ",";
 
+/// [SelectOptionPB] represents an option for a single select, and multiple select.
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, ProtoBuf)]
 pub struct SelectOptionPB {
     #[pb(index = 1)]
@@ -225,7 +226,7 @@ impl CellBytesParser for SelectOptionCellDataParser {
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionCellChangesetPayloadPB {
     #[pb(index = 1)]
-    pub cell_identifier: GridCellIdentifierPayloadPB,
+    pub cell_identifier: GridCellIdPB,
 
     #[pb(index = 2, one_of)]
     pub insert_option_id: Option<String>,
@@ -235,7 +236,7 @@ pub struct SelectOptionCellChangesetPayloadPB {
 }
 
 pub struct SelectOptionCellChangesetParams {
-    pub cell_identifier: CellIdentifierParams,
+    pub cell_identifier: GridCellIdParams,
     pub insert_option_id: Option<String>,
     pub delete_option_id: Option<String>,
 }
@@ -260,7 +261,7 @@ impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPaylo
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<SelectOptionCellChangesetParams, Self::Error> {
-        let cell_identifier: CellIdentifierParams = self.cell_identifier.try_into()?;
+        let cell_identifier: GridCellIdParams = self.cell_identifier.try_into()?;
         let insert_option_id = match self.insert_option_id {
             None => None,
             Some(insert_option_id) => Some(
@@ -322,19 +323,25 @@ impl SelectOptionCellChangeset {
     }
 }
 
+/// [SelectOptionCellDataPB] contains a list of user's selected options and a list of all the options
+/// that the cell can use.
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct SelectOptionCellDataPB {
+    /// The available options that the cell can use.
     #[pb(index = 1)]
     pub options: Vec<SelectOptionPB>,
 
+    /// The selected options for the cell.
     #[pb(index = 2)]
     pub select_options: Vec<SelectOptionPB>,
 }
 
+/// [SelectOptionChangesetPayloadPB] describes the changes of a FieldTypeOptionData. For the moment,
+/// it is used by [MultiSelectTypeOptionPB] and [SingleSelectTypeOptionPB].
 #[derive(Clone, Debug, Default, ProtoBuf)]
 pub struct SelectOptionChangesetPayloadPB {
     #[pb(index = 1)]
-    pub cell_identifier: GridCellIdentifierPayloadPB,
+    pub cell_identifier: GridCellIdPB,
 
     #[pb(index = 2, one_of)]
     pub insert_option: Option<SelectOptionPB>,
@@ -347,7 +354,7 @@ pub struct SelectOptionChangesetPayloadPB {
 }
 
 pub struct SelectOptionChangeset {
-    pub cell_identifier: CellIdentifierParams,
+    pub cell_identifier: GridCellIdParams,
     pub insert_option: Option<SelectOptionPB>,
     pub update_option: Option<SelectOptionPB>,
     pub delete_option: Option<SelectOptionPB>,

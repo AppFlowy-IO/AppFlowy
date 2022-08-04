@@ -65,3 +65,4 @@ windows/flutter/dart_ffi/
 **/**/*.so
 **/**/Brewfile.lock.json
 **/.sandbox
+**/.vscode/

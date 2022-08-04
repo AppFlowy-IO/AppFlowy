@@ -1,9 +1,12 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
+import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../widgets/toggle/toggle.dart';
 
 class SettingsAppearanceView extends StatelessWidget {
   const SettingsAppearanceView({Key? key}) : super(key: key);
@@ -25,11 +28,12 @@ class SettingsAppearanceView extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              Switch(
+              Toggle(
                 value: theme.isDark,
                 onChanged: (val) {
                   context.read<AppearanceSettingModel>().swapTheme();
                 },
+                style: ToggleStyle.big(theme),
               ),
               Text(
                 LocaleKeys.settings_appearance_darkLabel.tr(),

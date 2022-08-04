@@ -4,6 +4,13 @@ use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::RowRevision;
 use std::sync::Arc;
 
+/// [GridBlockPB] contains list of row ids. The rows here does not contain any data, just the id
+/// of the row. Check out [GridRowPB] for more details.
+///
+///
+/// A grid can have many rows. Rows are therefore grouped into Blocks in order to make
+/// things more efficient.
+///                                        |
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct GridBlockPB {
     #[pb(index = 1)]
@@ -22,6 +29,7 @@ impl GridBlockPB {
     }
 }
 
+/// [GridRowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
 #[derive(Debug, Default, Clone, ProtoBuf)]
 pub struct GridRowPB {
     #[pb(index = 1)]
@@ -81,6 +89,8 @@ impl std::convert::From<Vec<GridRowPB>> for RepeatedRowPB {
         Self { items }
     }
 }
+
+/// [RepeatedGridBlockPB] contains list of [GridBlockPB]
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedGridBlockPB {
     #[pb(index = 1)]
@@ -194,6 +204,8 @@ impl GridBlockChangesetPB {
     }
 }
 
+/// [QueryGridBlocksPayloadPB] is used to query the data of the block that belongs to the grid whose
+/// id is grid_id.
 #[derive(ProtoBuf, Default)]
 pub struct QueryGridBlocksPayloadPB {
     #[pb(index = 1)]

@@ -68,7 +68,7 @@
     "help": "Aide et Support",
     "debug": {
       "name": "Informations de Débogage",
-      "success": "Informations de Débogage copiées dans le presse-papiers!",
+      "success": "Informations de Débogage copiées dans le presse-papiers !",
       "fail": "Impossible de copier les informations de Débogage dans le presse-papiers"
     }
   },

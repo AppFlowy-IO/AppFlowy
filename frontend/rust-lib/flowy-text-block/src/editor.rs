@@ -238,7 +238,7 @@ impl RevisionObjectBuilder for TextBlockInfoBuilder {
 
         Result::<DocumentPB, FlowyError>::Ok(DocumentPB {
             block_id: object_id.to_owned(),
-            text: delta.to_delta_str(),
+            text: delta.json_str(),
             rev_id,
             base_rev_id,
         })

@@ -58,8 +58,8 @@ class DateCellDataPersistence implements IGridCellDataPersistence<CalendarData> 
   }
 }
 
-GridCellIdentifierPayloadPB _makeCellIdPayload(GridCellIdentifier cellId) {
-  return GridCellIdentifierPayloadPB.create()
+GridCellIdPB _makeCellIdPayload(GridCellIdentifier cellId) {
+  return GridCellIdPB.create()
     ..gridId = cellId.gridId
     ..fieldId = cellId.fieldId
     ..rowId = cellId.rowId;

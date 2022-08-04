@@ -103,7 +103,7 @@ class FieldService {
   }
 
   Future<Either<Unit, FlowyError>> deleteField() {
-    final payload = GridFieldIdentifierPayloadPB.create()
+    final payload = DeleteFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId;
 
@@ -111,7 +111,7 @@ class FieldService {
   }
 
   Future<Either<Unit, FlowyError>> duplicateField() {
-    final payload = GridFieldIdentifierPayloadPB.create()
+    final payload = DuplicateFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId;
 
@@ -121,7 +121,7 @@ class FieldService {
   Future<Either<FieldTypeOptionDataPB, FlowyError>> getFieldTypeOptionData({
     required FieldType fieldType,
   }) {
-    final payload = EditFieldPayloadPB.create()
+    final payload = GridFieldTypeOptionIdPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
@@ -165,7 +165,7 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
 
   @override
   Future<Either<FieldTypeOptionDataPB, FlowyError>> load() {
-    final payload = EditFieldPayloadPB.create()
+    final payload = CreateFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldType = FieldType.RichText;
 
@@ -185,7 +185,7 @@ class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
 
   @override
   Future<Either<FieldTypeOptionDataPB, FlowyError>> load() {
-    final payload = EditFieldPayloadPB.create()
+    final payload = GridFieldTypeOptionIdPB.create()
       ..gridId = gridId
       ..fieldId = field.id
       ..fieldType = field.fieldType;

@@ -89,7 +89,7 @@ impl std::fmt::Debug for Revision {
         let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
         match RichTextDelta::from_bytes(&self.delta_data) {
             Ok(delta) => {
-                let _ = f.write_fmt(format_args!("delta {:?}", delta.to_delta_str()))?;
+                let _ = f.write_fmt(format_args!("delta {:?}", delta.json_str()))?;
             }
             Err(e) => {
                 let _ = f.write_fmt(format_args!("delta {:?}", e))?;

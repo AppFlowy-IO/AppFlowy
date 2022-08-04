@@ -22,12 +22,14 @@ printError() {
 printMessage "The Rust programming language is required to compile AppFlowy."
 printMessage "We can install it now if you don't already have it on your system."
 
-read -p "$(printSuccess "Do you want to install Rust? [y/N]") " installrust
+read -p "$(printSuccess "Do you want to install Rust? [Y/N]") " installrust
 
-if [ ${installrust^^} == "Y" ]; then
+if [ ${installrust} == "Y" ] || [ ${installrust} == "y" ]; then
    printMessage "Installing Rust."
    brew install rustup-init
    rustup-init -y --default-toolchain=stable
+  
+   source "$HOME/.cargo/env"
 else
    printMessage "Skipping Rust installation."
 fi
@@ -50,6 +52,13 @@ flutter doctor
 printMessage "Setting up githooks."
 git config core.hooksPath .githooks
 
+# Install go-gitlint 
+printMessage "Installing go-gitlint."
+GOLINT_FILENAME="go-gitlint_1.1.0_osx_x86_64.tar.gz"
+curl -L https://github.com/llorllale/go-gitlint/releases/download/1.1.0/${GOLINT_FILENAME} --output ${GOLINT_FILENAME}
+tar -zxv --directory .githooks/. -f ${GOLINT_FILENAME} gitlint 
+rm ${GOLINT_FILENAME}
+
 # Change to the frontend directory
 cd frontend
 
@@ -60,10 +69,6 @@ cargo install --force cargo-make
 # Install duckscript
 printMessage "Installing duckscript."
 cargo install --force duckscript_cli
-
-# Install CommitLint
-printMessagae "Installing CommitLint."
-npm install @commitlint/cli @commitlint/config-conventional --save-dev
 
 # Check prerequisites
 printMessage "Checking prerequisites."

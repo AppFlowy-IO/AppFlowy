@@ -1,6 +1,6 @@
 use crate::{client_document::InsertExt, util::is_newline};
 use lib_ot::{
-    core::{DeltaBuilder, DeltaIter, NEW_LINE},
+    core::{DeltaBuilder, DeltaIterator, NEW_LINE},
     rich_text::{
         attributes_except_header, plain_attributes, RichTextAttribute, RichTextAttributeKey, RichTextAttributes,
         RichTextDelta,
@@ -18,7 +18,7 @@ impl InsertExt for PreserveBlockFormatOnInsert {
             return None;
         }
 
-        let mut iter = DeltaIter::from_offset(delta, index);
+        let mut iter = DeltaIterator::from_offset(delta, index);
         match iter.next_op_with_newline() {
             None => {}
             Some((newline_op, offset)) => {

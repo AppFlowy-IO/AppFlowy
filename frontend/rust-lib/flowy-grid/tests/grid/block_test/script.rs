@@ -2,7 +2,7 @@ use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
 
-use flowy_grid::entities::{CellIdentifierParams, FieldType, GridRowPB};
+use flowy_grid::entities::{FieldType, GridCellIdParams, GridRowPB};
 use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
@@ -109,7 +109,7 @@ impl GridRowTest {
                 field_type,
                 expected,
             } => {
-                let id = CellIdentifierParams {
+                let id = GridCellIdParams {
                     grid_id: self.grid_id.clone(),
                     field_id,
                     row_id,
@@ -154,7 +154,7 @@ impl GridRowTest {
         }
     }
 
-    async fn compare_cell_content(&self, cell_id: CellIdentifierParams, field_type: FieldType, expected: String) {
+    async fn compare_cell_content(&self, cell_id: GridCellIdParams, field_type: FieldType, expected: String) {
         match field_type {
             FieldType::RichText => {
                 let cell_data = self

@@ -7,9 +7,9 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 use dissimilar::Chunk;
-use lib_ot::core::{DeltaBuilder, FlowyStr};
+use lib_ot::core::{DeltaBuilder, OTString};
 use lib_ot::{
-    core::{Attributes, Delta, OperationTransformable, NEW_LINE, WHITESPACE},
+    core::{Attributes, Delta, OperationTransform, NEW_LINE, WHITESPACE},
     rich_text::RichTextDelta,
 };
 use serde::de::DeserializeOwned;
@@ -149,7 +149,7 @@ pub fn make_folder_from_revisions_pb(
         folder_delta = folder_delta.compose(&delta)?;
     }
 
-    let text = folder_delta.to_delta_str();
+    let text = folder_delta.json_str();
     Ok(Some(FolderInfo {
         folder_id: folder_id.to_string(),
         text,
@@ -183,7 +183,7 @@ pub fn make_document_from_revision_pbs(
         delta = delta.compose(&new_delta)?;
     }
 
-    let text = delta.to_delta_str();
+    let text = delta.json_str();
 
     Ok(Some(DocumentPB {
         block_id: doc_id.to_owned(),
@@ -208,10 +208,10 @@ pub fn cal_diff<T: Attributes>(old: String, new: String) -> Option<Delta<T>> {
     for chunk in &chunks {
         match chunk {
             Chunk::Equal(s) => {
-                delta_builder = delta_builder.retain(FlowyStr::from(*s).utf16_size());
+                delta_builder = delta_builder.retain(OTString::from(*s).utf16_len());
             }
             Chunk::Delete(s) => {
-                delta_builder = delta_builder.delete(FlowyStr::from(*s).utf16_size());
+                delta_builder = delta_builder.delete(OTString::from(*s).utf16_len());
             }
             Chunk::Insert(s) => {
                 delta_builder = delta_builder.insert(*s);
