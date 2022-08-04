@@ -13,8 +13,7 @@ class BoardOverlayEntry {
   /// Whether this entry occludes the entire overlay.
   ///
   /// If an entry claims to be opaque, then, for efficiency, the overlay will
-  /// skip building entries below that entry unless they have [maintainState]
-  /// set.
+  /// skip building entries below that entry.
   bool get opaque => _opaque;
   bool _opaque;
 

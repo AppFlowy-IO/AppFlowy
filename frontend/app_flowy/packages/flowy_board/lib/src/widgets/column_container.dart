@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../flowy_board.dart';
 import '../rendering/board_overlay.dart';
 import 'flex/reorder_flex.dart';
-import 'board.dart';
 
 class BoardColumnContainer extends StatefulWidget {
-  final Widget? header;
-  final Widget? footer;
   final ScrollController? scrollController;
   final OnDragStarted? onDragStarted;
   final OnReorder onReorder;
@@ -15,6 +13,7 @@ class BoardColumnContainer extends StatefulWidget {
   final List<Widget> children;
   final EdgeInsets? padding;
   final Widget? background;
+  final double spacing;
   final ReorderFlexConfig config;
 
   const BoardColumnContainer({
@@ -23,11 +22,10 @@ class BoardColumnContainer extends StatefulWidget {
     required this.children,
     this.onDragStarted,
     this.onDragEnded,
-    this.header,
-    this.footer,
     this.scrollController,
     this.padding,
     this.background,
+    this.spacing = 0.0,
     this.config = const ReorderFlexConfig(),
     Key? key,
   }) : super(key: key);
@@ -47,8 +45,6 @@ class _BoardColumnContainerState extends State<BoardColumnContainer> {
         builder: (BuildContext context) {
           Widget reorderFlex = ReorderFlex(
             key: widget.key,
-            header: widget.header,
-            footer: widget.footer,
             scrollController: widget.scrollController,
             config: widget.config,
             onDragStarted: (index) {},
@@ -56,6 +52,7 @@ class _BoardColumnContainerState extends State<BoardColumnContainer> {
             onDragEnded: () {},
             dataSource: widget.boardDataController,
             direction: Axis.horizontal,
+            spacing: widget.spacing,
             children: widget.children,
           );
 
@@ -65,17 +62,7 @@ class _BoardColumnContainerState extends State<BoardColumnContainer> {
               child: reorderFlex,
             );
           }
-
-          return Expanded(
-              child: Stack(
-            alignment: AlignmentDirectional.center,
-            children: [
-              Container(
-                color: Colors.red,
-              ),
-              reorderFlex
-            ],
-          ));
+          return _wrapStack(reorderFlex);
         },
         opaque: false);
     super.initState();
@@ -86,6 +73,16 @@ class _BoardColumnContainerState extends State<BoardColumnContainer> {
     return BoardOverlay(
       key: _columnContainerOverlayKey,
       initialEntries: [_overlayEntry],
+    );
+  }
+
+  Widget _wrapStack(Widget child) {
+    return Stack(
+      alignment: AlignmentDirectional.topStart,
+      children: [
+        if (widget.background != null) widget.background!,
+        child,
+      ],
     );
   }
 }

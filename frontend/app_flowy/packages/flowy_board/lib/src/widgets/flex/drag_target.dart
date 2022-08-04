@@ -4,7 +4,7 @@ abstract class DragTargetData {
   int get draggingIndex;
 }
 
-abstract class ReorderDraggableTargetBuilder {
+abstract class ReorderFlexDraggableTargetBuilder {
   Widget? build<T extends DragTargetData>(
       BuildContext context,
       Widget child,
@@ -51,7 +51,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   /// the target.
   final void Function(T dragTargetData)? onLeave;
 
-  final ReorderDraggableTargetBuilder? draggableTargetBuilder;
+  final ReorderFlexDraggableTargetBuilder? draggableTargetBuilder;
 
   ReorderDragTarget({
     Key? key,
@@ -158,9 +158,10 @@ class _ReorderDragTargetState<T extends DragTargetData>
       transform: Matrix4.rotationZ(0),
       alignment: FractionalOffset.topLeft,
       child: Material(
-        elevation: 3.0,
+        elevation: 6.0,
         color: Colors.transparent,
         borderRadius: BorderRadius.zero,
+        clipBehavior: Clip.hardEdge,
         child: ConstrainedBox(constraints: constraints, child: child),
       ),
     );

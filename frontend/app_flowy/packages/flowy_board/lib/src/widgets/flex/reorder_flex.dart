@@ -2,12 +2,11 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
 import '../../utils/log.dart';
 import 'reorder_mixin.dart';
 import 'drag_target.dart';
 import 'drag_state.dart';
-import 'reorder_flex_ext.dart';
+import 'drag_target_inteceptor.dart';
 
 typedef OnDragStarted = void Function(int index);
 typedef OnDragEnded = void Function();
@@ -33,14 +32,13 @@ class ReorderFlexConfig {
 }
 
 class ReorderFlex extends StatefulWidget with DraggingReorderFlex {
-  final Widget? header;
-  final Widget? footer;
   final ReorderFlexConfig config;
 
   final List<Widget> children;
   final EdgeInsets? padding;
+  final double? spacing;
   final Axis direction;
-  final MainAxisAlignment mainAxisAlignment = MainAxisAlignment.spaceEvenly;
+  final MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start;
   final ScrollController? scrollController;
 
   final OnDragStarted? onDragStarted;
@@ -49,12 +47,10 @@ class ReorderFlex extends StatefulWidget with DraggingReorderFlex {
 
   final ReoderFlextDataSource dataSource;
 
-  final ReorderFlextDragTargetExtension? dragTargetExtension;
+  final ReorderFlexDragTargetInterceptor? interceptor;
 
   const ReorderFlex({
     Key? key,
-    this.header,
-    this.footer,
     this.scrollController,
     required this.dataSource,
     required this.children,
@@ -62,9 +58,9 @@ class ReorderFlex extends StatefulWidget with DraggingReorderFlex {
     required this.onReorder,
     this.onDragStarted,
     this.onDragEnded,
-    this.dragTargetExtension,
-    // ignore: unused_element
+    this.interceptor,
     this.padding,
+    this.spacing,
     this.direction = Axis.vertical,
   }) : super(key: key);
 
@@ -136,23 +132,19 @@ class ReorderFlexState extends State<ReorderFlex>
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [];
-    if (widget.header != null) {
-      children.add(widget.header!);
-    }
 
     for (int i = 0; i < widget.children.length; i += 1) {
       Widget child = widget.children[i];
+      if (widget.spacing != null) {
+        children.add(SizedBox(width: widget.spacing!));
+      }
+
       final wrapChild = _wrap(child, i);
       children.add(wrapChild);
     }
 
-    if (widget.footer != null) {
-      children.add(widget.footer!);
-    }
-
-    return _wrapScrollView(
-      child: _wrapContainer(children),
-    );
+    final child = _wrapContainer(children);
+    return _wrapScrollView(child: child);
   }
 
   @override
@@ -316,54 +308,49 @@ class ReorderFlexState extends State<ReorderFlex>
         });
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
-        Log.debug(
-            '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, count: ${widget.dataSource.items.length}');
         assert(widget.dataSource.items.length > childIndex);
 
-        if (_requestDragExtensionToHanlder(
+        if (_interceptDragTarget(
           dragTargetData,
-          (extension) {
-            extension.onWillAccept(
-              this,
-              builderContext,
-              dragTargetData,
-              dragState.isDragging(),
-              dragTargetData.draggingIndex,
-              childIndex,
-            );
-          },
+          (interceptor) => interceptor.onWillAccept(
+            builderContext,
+            this,
+            dragTargetData,
+            childIndex,
+          ),
         )) {
           return true;
         } else {
+          Log.debug(
+              '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, count: ${widget.dataSource.items.length}');
           final dragIndex = dragTargetData.draggingIndex;
           return onWillAccept(builderContext, dragIndex, childIndex);
         }
       },
       onAccept: (dragTargetData) {
-        _requestDragExtensionToHanlder(
+        _interceptDragTarget(
           dragTargetData,
-          (extension) => extension.onAccept(dragTargetData),
+          (interceptor) => interceptor.onAccept(dragTargetData),
         );
       },
       onLeave: (dragTargetData) {
-        _requestDragExtensionToHanlder(
+        _interceptDragTarget(
           dragTargetData,
-          (extension) => extension.onLeave(dragTargetData),
+          (interceptor) => interceptor.onLeave(dragTargetData),
         );
       },
-      draggableTargetBuilder:
-          widget.dragTargetExtension?.draggableTargetBuilder,
+      draggableTargetBuilder: widget.interceptor?.draggableTargetBuilder,
       child: child,
     );
   }
 
-  bool _requestDragExtensionToHanlder(
+  bool _interceptDragTarget(
     FlexDragTargetData dragTargetData,
-    void Function(ReorderFlextDragTargetExtension) callback,
+    void Function(ReorderFlexDragTargetInterceptor) callback,
   ) {
-    final extension = widget.dragTargetExtension;
-    if (extension != null && extension.canHandler(dragTargetData)) {
-      callback(extension);
+    final interceptor = widget.interceptor;
+    if (interceptor != null && interceptor.canHandler(dragTargetData)) {
+      callback(interceptor);
       return true;
     } else {
       return false;
@@ -466,14 +453,16 @@ class ReorderFlexState extends State<ReorderFlex>
       case Axis.horizontal:
         return Row(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: widget.mainAxisAlignment,
           children: children,
         );
       case Axis.vertical:
       default:
         return Column(
           mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: widget.mainAxisAlignment,
           children: children,
         );
     }
@@ -514,9 +503,7 @@ class ReorderFlexState extends State<ReorderFlex>
           curve: Curves.easeInOut,
         )
             .then((void value) {
-          setState(() {
-            _scrolling = false;
-          });
+          setState(() => _scrolling = false);
         });
       }
     }
