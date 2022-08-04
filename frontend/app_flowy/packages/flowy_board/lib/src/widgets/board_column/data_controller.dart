@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import '../../utils/log.dart';
@@ -8,22 +10,26 @@ abstract class ColumnItem extends ReoderFlexItem {
 
   @override
   String toString() {
-    return id;
+    if (isPhantom) {
+      return 'phantom:$id';
+    } else {
+      return id;
+    }
   }
 }
 
 class BoardColumnData extends ReoderFlexItem with EquatableMixin {
   @override
   final String id;
-  final List<ColumnItem> items;
+  final List<ColumnItem> _items;
 
   BoardColumnData({
     required this.id,
-    required this.items,
-  });
+    required List<ColumnItem> items,
+  }) : _items = items;
 
   @override
-  List<Object?> get props => [id, ...items];
+  List<Object?> get props => [id, ..._items];
 
   @override
   String toString() {
@@ -31,8 +37,7 @@ class BoardColumnData extends ReoderFlexItem with EquatableMixin {
   }
 }
 
-class BoardColumnDataController extends ChangeNotifier
-    with EquatableMixin, ReoderFlextDataSource {
+class BoardColumnDataController extends ChangeNotifier with EquatableMixin, ReoderFlextDataSource {
   final BoardColumnData columnData;
 
   BoardColumnDataController({
@@ -42,10 +47,12 @@ class BoardColumnDataController extends ChangeNotifier
   @override
   List<Object?> get props => columnData.props;
 
-  ColumnItem removeAt(int index) {
+  ColumnItem removeAt(int index, {bool notify = true}) {
     Log.debug('[$BoardColumnDataController] $columnData remove item at $index');
-    final item = columnData.items.removeAt(index);
-    notifyListeners();
+    final item = columnData._items.removeAt(index);
+    if (notify) {
+      notifyListeners();
+    }
     return item;
   }
 
@@ -53,31 +60,29 @@ class BoardColumnDataController extends ChangeNotifier
     if (fromIndex == toIndex) {
       return;
     }
-    Log.debug(
-        '[$BoardColumnDataController] $columnData move item from $fromIndex to $toIndex');
-    final item = columnData.items.removeAt(fromIndex);
-    columnData.items.insert(toIndex, item);
+    Log.debug('[$BoardColumnDataController] $columnData move item from $fromIndex to $toIndex');
+    final item = columnData._items.removeAt(fromIndex);
+    columnData._items.insert(toIndex, item);
     notifyListeners();
   }
 
   void insert(int index, ColumnItem item, {bool notify = true}) {
-    Log.debug('[$BoardColumnDataController] $columnData insert item at $index');
-    columnData.items.insert(index, item);
+    Log.debug('[$BoardColumnDataController] $columnData insert $item at $index');
+    columnData._items.insert(index, item);
     if (notify) {
       notifyListeners();
     }
   }
 
   void replace(int index, ColumnItem item) {
-    Log.debug(
-        '[$BoardColumnDataController] $columnData replace item at $index');
-    columnData.items.removeAt(index);
-    columnData.items.insert(index, item);
+    final removedItem = columnData._items.removeAt(index);
+    columnData._items.insert(index, item);
+    Log.debug('[$BoardColumnDataController] $columnData replace $removedItem with $item at $index');
     notifyListeners();
   }
 
   @override
-  List<ColumnItem> get items => columnData.items;
+  List<ColumnItem> get items => UnmodifiableListView(columnData._items);
 
   @override
   String get identifier => columnData.id;

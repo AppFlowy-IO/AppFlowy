@@ -25,8 +25,7 @@ abstract class ReorderFlexDragTargetInterceptor {
 
 abstract class OverlapReorderFlexDragTargetDelegate {}
 
-class OverlapReorderFlexDragTargetInteceptor
-    extends ReorderFlexDragTargetInterceptor {
+class OverlapReorderFlexDragTargetInteceptor extends ReorderFlexDragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapReorderFlexDragTargetDelegate delegate;
@@ -71,8 +70,7 @@ abstract class CrossReorderFlexDragTargetDelegate {
   );
 }
 
-class CrossReorderFlexDragTargetInterceptor
-    extends ReorderFlexDragTargetInterceptor {
+class CrossReorderFlexDragTargetInterceptor extends ReorderFlexDragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexIds;
   final CrossReorderFlexDragTargetDelegate delegate;
@@ -104,14 +102,12 @@ class CrossReorderFlexDragTargetInterceptor
 
   @override
   void onAccept(FlexDragTargetData dragTargetData) {
-    Log.trace(
-        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on onAccept');
+    Log.trace('[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on onAccept');
   }
 
   @override
   void onLeave(FlexDragTargetData dragTargetData) {
-    Log.trace(
-        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on leave');
+    Log.trace('[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on leave');
   }
 
   @override
@@ -134,7 +130,7 @@ class CrossReorderFlexDragTargetInterceptor
         dragTargetIndex,
       );
 
-      reorderFlexState.onWillAccept(
+      reorderFlexState.handleOnWillAccept(
         context,
         dragTargetData.draggingIndex,
         dragTargetIndex,
