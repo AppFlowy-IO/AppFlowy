@@ -16,15 +16,14 @@ abstract class ReorderFlexDragTargetInterceptor {
     required int dragTargetIndex,
   });
 
-  void onAccept(FlexDragTargetData dragTargetData);
+  void onAccept(FlexDragTargetData dragTargetData) {}
 
-  void onLeave(FlexDragTargetData dragTargetData);
+  void onLeave(FlexDragTargetData dragTargetData) {}
 
-  ReorderFlexDraggableTargetBuilder? get draggableTargetBuilder;
+  ReorderFlexDraggableTargetBuilder? get draggableTargetBuilder => null;
 }
 
-abstract class OverlapReorderFlexDragTargetDelegate
-    extends CrossReorderFlexDragTargetDelegate {}
+abstract class OverlapReorderFlexDragTargetDelegate {}
 
 class OverlapReorderFlexDragTargetInteceptor
     extends ReorderFlexDragTargetInterceptor {
@@ -44,25 +43,15 @@ class OverlapReorderFlexDragTargetInteceptor
   }
 
   @override
-  ReorderFlexDraggableTargetBuilder? get draggableTargetBuilder => null;
-
-  @override
-  void onAccept(FlexDragTargetData dragTargetData) {}
-
-  @override
-  void onLeave(FlexDragTargetData dragTargetData) {}
-
-  @override
   bool onWillAccept(
       {required BuildContext context,
       required ReorderFlexState reorderFlexState,
       required FlexDragTargetData dragTargetData,
       required String dragTargetId,
       required int dragTargetIndex}) {
-    Log.trace('dragTargetData: $dragTargetData');
-    Log.trace('currentDragTargetId: $dragTargetId');
-    //
-    Log.debug('Switch to $dragTargetId');
+    if (dragTargetId == dragTargetData.reorderFlexId) {
+      Log.debug('remove all phantom');
+    }
 
     return true;
   }
@@ -70,12 +59,13 @@ class OverlapReorderFlexDragTargetInteceptor
 
 abstract class CrossReorderFlexDragTargetDelegate {
   bool acceptNewDragTargetData(
-    String columnId,
+    String reorderFlexId,
     FlexDragTargetData dragTargetData,
     int index,
   );
+
   void updateDragTargetData(
-    String columnId,
+    String reorderFlexId,
     FlexDragTargetData dragTargetData,
     int index,
   );
@@ -149,10 +139,6 @@ class CrossReorderFlexDragTargetInterceptor
         dragTargetData.draggingIndex,
         dragTargetIndex,
       );
-    } else {
-      Log.debug(
-          '[$CrossReorderFlexDragTargetInterceptor] move Column${dragTargetData.reorderFlexId}:${dragTargetData.draggingIndex} '
-          'to Column$reorderFlexId:$dragTargetIndex');
     }
 
     return true;

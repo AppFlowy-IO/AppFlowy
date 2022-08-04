@@ -317,7 +317,8 @@ class ReorderFlexState extends State<ReorderFlex>
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
         assert(widget.dataSource.items.length > dragTargetIndex);
-
+        Log.debug(
+            '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, count: ${widget.dataSource.items.length}');
         if (_interceptDragTarget(
           dragTargetData,
           (interceptor) => interceptor.onWillAccept(
@@ -330,8 +331,6 @@ class ReorderFlexState extends State<ReorderFlex>
         )) {
           return true;
         } else {
-          Log.debug(
-              '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, count: ${widget.dataSource.items.length}');
           final dragIndex = dragTargetData.draggingIndex;
           return onWillAccept(builderContext, dragIndex, dragTargetIndex);
         }
