@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  rich_clipboard_linux
   url_launcher_linux
 )
 

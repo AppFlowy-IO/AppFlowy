@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  rich_clipboard: ^1.0.0
+  html: ^0.15.0
   flutter_svg: ^1.1.1+1
   provider: ^6.0.3
 

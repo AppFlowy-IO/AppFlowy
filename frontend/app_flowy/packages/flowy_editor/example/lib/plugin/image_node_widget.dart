@@ -90,8 +90,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
 
   @override
   Position getPositionInOffset(Offset start) {
-    // TODO: implement getPositionInOffset
-    throw UnimplementedError();
+    return Position(path: node.path, offset: 0);
   }
 
   @override
