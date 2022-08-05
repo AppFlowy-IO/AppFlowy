@@ -10,6 +10,12 @@
         }
       },
       {
+        "type": "youtube_link",
+        "attributes": {
+          "youtube_link": "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"
+        }
+      },
+      {
         "type": "text",
         "delta": [
           {
