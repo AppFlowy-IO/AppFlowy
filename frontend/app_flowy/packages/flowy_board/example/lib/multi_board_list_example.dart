@@ -9,7 +9,7 @@ class MultiBoardListExample extends StatefulWidget {
 }
 
 class _MultiBoardListExampleState extends State<MultiBoardListExample> {
-  final BoardDataController boardData = BoardDataController();
+  final BoardDataController boardDataController = BoardDataController();
 
   @override
   void initState() {
@@ -34,9 +34,9 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       TextItem("D"),
     ]);
 
-    boardData.setColumnData(column1);
-    boardData.setColumnData(column2);
-    boardData.setColumnData(column3);
+    boardDataController.setColumnData(column1);
+    boardDataController.setColumnData(column2);
+    boardDataController.setColumnData(column3);
 
     super.initState();
   }
@@ -44,7 +44,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
   @override
   Widget build(BuildContext context) {
     return Board(
-      dataController: boardData,
+      dataController: boardDataController,
       background: Container(color: Colors.red),
       footBuilder: (context, columnData) {
         return Container(

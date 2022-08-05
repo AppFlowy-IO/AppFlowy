@@ -67,7 +67,7 @@ class Board extends StatelessWidget {
             footBuilder: footBuilder,
             headerBuilder: headerBuilder,
             phantomController: phantomController,
-            onReorder: dataController.onReorder,
+            onReorder: dataController.moveColumn,
           );
         },
       ),
@@ -99,7 +99,7 @@ class BoardContent extends StatefulWidget {
 
   final BoardPhantomController phantomController;
 
-  const BoardContent({
+  BoardContent({
     required this.onReorder,
     required this.delegate,
     required this.dataController,
@@ -107,22 +107,23 @@ class BoardContent extends StatefulWidget {
     this.onDragEnded,
     this.scrollController,
     this.background,
-    this.spacing = 0.0,
-    this.config = const ReorderFlexConfig(),
+    this.spacing = 10.0,
     required this.columnConstraints,
     required this.cardBuilder,
     this.footBuilder,
     this.headerBuilder,
     required this.phantomController,
     Key? key,
-  }) : super(key: key);
+  })  : config = ReorderFlexConfig(spacing: spacing),
+        super(key: key);
 
   @override
   State<BoardContent> createState() => _BoardContentState();
 }
 
 class _BoardContentState extends State<BoardContent> {
-  final GlobalKey _columnContainerOverlayKey = GlobalKey(debugLabel: '$BoardContent overlay key');
+  final GlobalKey _columnContainerOverlayKey =
+      GlobalKey(debugLabel: '$BoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   @override
@@ -144,7 +145,6 @@ class _BoardContentState extends State<BoardContent> {
           onDragEnded: widget.onDragEnded,
           dataSource: widget.dataController,
           direction: Axis.horizontal,
-          spacing: widget.spacing,
           interceptor: interceptor,
           children: _buildColumns(),
         );
@@ -171,36 +171,54 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   List<Widget> _buildColumns() {
-    final acceptColumns = widget.dataController.columnIds;
+    final List<Widget> children = widget.dataController.columnDatas.map(
+      (columnData) {
+        final dataSource = _BoardColumnDataSourceImpl(
+          columnId: columnData.id,
+          dataController: widget.dataController,
+        );
 
-    final List<Widget> children = widget.dataController.columnDatas.map((columnData) {
-      final dataController = widget.dataController.columnController(columnData.id);
-
-      return ChangeNotifierProvider.value(
-        key: ValueKey(columnData.id),
-        value: dataController,
-        child: Consumer<BoardColumnDataController>(
-          builder: (context, value, child) {
-            return ConstrainedBox(
-              constraints: widget.columnConstraints,
-              child: BoardColumnWidget(
-                headerBuilder: widget.headerBuilder,
-                footBuilder: widget.footBuilder,
-                cardBuilder: widget.cardBuilder,
-                acceptedColumns: acceptColumns,
-                dataController: dataController,
-                scrollController: ScrollController(),
-                phantomController: widget.phantomController,
-                onReorder: (_, int fromIndex, int toIndex) {
-                  dataController.move(fromIndex, toIndex);
-                },
-              ),
-            );
-          },
-        ),
-      );
-    }).toList();
+        return ChangeNotifierProvider.value(
+          key: ValueKey(columnData.id),
+          value: widget.dataController.columnController(columnData.id),
+          child: Consumer<BoardColumnDataController>(
+            builder: (context, value, child) {
+              return ConstrainedBox(
+                constraints: widget.columnConstraints,
+                child: BoardColumnWidget(
+                  headerBuilder: widget.headerBuilder,
+                  footBuilder: widget.footBuilder,
+                  cardBuilder: widget.cardBuilder,
+                  dataSource: dataSource,
+                  scrollController: ScrollController(),
+                  phantomController: widget.phantomController,
+                  onReorder: widget.dataController.moveColumnItem,
+                  spacing: 10,
+                ),
+              );
+            },
+          ),
+        );
+      },
+    ).toList();
 
     return children;
   }
+}
+
+class _BoardColumnDataSourceImpl extends BoardColumnDataDataSource {
+  String columnId;
+  final BoardDataController dataController;
+
+  _BoardColumnDataSourceImpl({
+    required this.columnId,
+    required this.dataController,
+  });
+
+  @override
+  BoardColumnData get columnData =>
+      dataController.columnController(columnId).columnData;
+
+  @override
+  List<String> get acceptedColumnIds => dataController.columnIds;
 }

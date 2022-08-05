@@ -77,7 +77,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
 
 class _ReorderDragTargetState<T extends DragTargetData>
     extends State<ReorderDragTarget<T>> {
-  /// Return the dragTarget's size
+  /// Returns the dragTarget's size
   Size? _draggingFeedbackSize = Size.zero;
 
   @override

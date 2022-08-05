@@ -9,36 +9,18 @@ abstract class ColumnItem extends ReoderFlexItem {
   bool get isPhantom => false;
 
   @override
-  String toString() {
-    if (isPhantom) {
-      return 'phantom:$id';
-    } else {
-      return id;
-    }
-  }
+  String toString() => id;
 }
 
-class BoardColumnData extends ReoderFlexItem with EquatableMixin {
-  @override
-  final String id;
-  final List<ColumnItem> _items;
-
-  BoardColumnData({
-    required this.id,
-    required List<ColumnItem> items,
-  }) : _items = items;
-
-  @override
-  List<Object?> get props => [id, ..._items];
-
-  @override
-  String toString() {
-    return 'Column$id';
-  }
-}
-
-class BoardColumnDataController extends ChangeNotifier
-    with EquatableMixin, ReoderFlextDataSource {
+/// [BoardColumnDataController] is used to handle the [BoardColumnData].
+/// * Remove an item by calling [removeAt] method.
+/// * Move item to another position by calling [move] method.
+/// * Insert item to index by calling [insert] method
+/// * Replace item at index by calling [replace] method.
+///
+/// All there operations will notify listeners by default.
+///
+class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
   final BoardColumnData columnData;
 
   BoardColumnDataController({
@@ -48,7 +30,18 @@ class BoardColumnDataController extends ChangeNotifier
   @override
   List<Object?> get props => columnData.props;
 
+  /// Returns the readonly List<ColumnItem>
+  UnmodifiableListView<ColumnItem> get items =>
+      UnmodifiableListView(columnData.items);
+
+  /// Remove the item at [index].
+  /// * [index] the index of the item you want to remove
+  /// * [notify] the default value of [notify] is true, it will notify the
+  /// listener. Set to [false] if you do not want to notify the listeners.
+  ///
   ColumnItem removeAt(int index, {bool notify = true}) {
+    assert(index >= 0);
+
     Log.debug('[$BoardColumnDataController] $columnData remove item at $index');
     final item = columnData._items.removeAt(index);
     if (notify) {
@@ -57,7 +50,16 @@ class BoardColumnDataController extends ChangeNotifier
     return item;
   }
 
+  int removeWhere(bool Function(ColumnItem) condition) {
+    return items.indexWhere(condition);
+  }
+
+  /// Move the item from [fromIndex] to [toIndex]. It will do nothing if the
+  /// [fromIndex] equal to the [toIndex].
   void move(int fromIndex, int toIndex) {
+    assert(fromIndex >= 0);
+    assert(toIndex >= 0);
+
     if (fromIndex == toIndex) {
       return;
     }
@@ -68,7 +70,12 @@ class BoardColumnDataController extends ChangeNotifier
     notifyListeners();
   }
 
+  /// Insert an item to [index] and notify the listen if the value of [notify]
+  /// is true.
+  ///
+  /// The default value of [notify] is true.
   void insert(int index, ColumnItem item, {bool notify = true}) {
+    assert(index >= 0);
     Log.debug(
         '[$BoardColumnDataController] $columnData insert $item at $index');
 
@@ -83,26 +90,35 @@ class BoardColumnDataController extends ChangeNotifier
     }
   }
 
-  void replace(int index, ColumnItem item) {
+  /// Replace the item at index with the [newItem].
+  void replace(int index, ColumnItem newItem) {
     final removedItem = columnData._items.removeAt(index);
-    columnData._items.insert(index, item);
+    columnData._items.insert(index, newItem);
     Log.debug(
-        '[$BoardColumnDataController] $columnData replace $removedItem with $item at $index');
+        '[$BoardColumnDataController] $columnData replace $removedItem with $newItem at $index');
     notifyListeners();
   }
+}
 
-  void debugPrintItems() {
-    String msg = '[$BoardColumnDataController] $columnData data: ';
-    for (var element in items) {
-      msg = '$msg$element,';
-    }
+/// [BoardColumnData] represents the data of each Column of the Board.
+class BoardColumnData extends ReoderFlexItem with EquatableMixin {
+  @override
+  final String id;
+  final List<ColumnItem> _items;
 
-    Log.debug(msg);
+  BoardColumnData({
+    required this.id,
+    required List<ColumnItem> items,
+  }) : _items = items;
+
+  /// Returns the readonly List<ColumnItem>
+  UnmodifiableListView<ColumnItem> get items => UnmodifiableListView(_items);
+
+  @override
+  List<Object?> get props => [id, ..._items];
+
+  @override
+  String toString() {
+    return 'Column$id';
   }
-
-  @override
-  List<ColumnItem> get items => UnmodifiableListView(columnData._items);
-
-  @override
-  String get identifier => columnData.id;
 }
