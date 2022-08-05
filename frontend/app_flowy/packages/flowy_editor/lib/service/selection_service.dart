@@ -359,12 +359,14 @@ class _FlowySelectionState extends State<FlowySelection>
       panStartOffsetWithScrollDyGap =
           panStartOffsetWithScrollDyGap.translate(0, panStartScrollDy! - dy);
     }
-    final nodes = getNodesInRange(panStartOffsetWithScrollDyGap, panEndOffset!);
-    if (nodes.isEmpty) {
-      return;
-    }
-    final first = nodes.first.selectable;
-    final last = nodes.last.selectable;
+
+    final sortedNodes =
+        editorState.document.root.children.toList(growable: false);
+    final first = _lowerBound(
+            sortedNodes, panStartOffsetWithScrollDyGap, 0, sortedNodes.length)
+        .selectable;
+    final last = _upperBound(sortedNodes, panEndOffset!, 0, sortedNodes.length)
+        .selectable;
 
     // compute the selection in range.
     if (first != null && last != null) {
@@ -558,6 +560,41 @@ class _FlowySelectionState extends State<FlowySelection>
         _debugOverlay = null;
       }
     }
+  }
+
+  // find the first node's rect.top <= offset.dy
+  Node _lowerBound(List<Node> sortedNodes, Offset offset, int start, int end) {
+    var min = start;
+    var max = end;
+    while (min <= max) {
+      final mid = min + ((max - min) >> 1);
+      if (sortedNodes[mid].rect.bottom <= offset.dy) {
+        min = mid + 1;
+      } else {
+        max = mid - 1;
+      }
+    }
+    return sortedNodes[min];
+  }
+
+  // find the first node's rect.top < offset.dy
+  Node _upperBound(
+    List<Node> sortedNodes,
+    Offset offset,
+    int start,
+    int end,
+  ) {
+    var min = start;
+    var max = end;
+    while (min <= max) {
+      final mid = min + ((max - min) >> 1);
+      if (sortedNodes[mid].rect.top < offset.dy) {
+        min = mid + 1;
+      } else {
+        max = mid - 1;
+      }
+    }
+    return sortedNodes[max];
   }
 }
 

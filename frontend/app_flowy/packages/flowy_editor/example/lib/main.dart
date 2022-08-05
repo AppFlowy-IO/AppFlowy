@@ -99,6 +99,15 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             icon: const Icon(Icons.text_fields),
           ),
+          ActionButton(
+            onPressed: () {
+              if (page == 3) return;
+              setState(() {
+                page = 3;
+              });
+            },
+            icon: const Icon(Icons.email),
+          ),
         ],
       ),
     );
@@ -111,6 +120,8 @@ class _MyHomePageState extends State<MyHomePage> {
       return _buildFlowyEditorWithEmptyDocument();
     } else if (page == 2) {
       return _buildTextField();
+    } else if (page == 3) {
+      return _buildFlowyEditorWithBigDocument();
     }
     return Container();
   }
@@ -203,6 +214,36 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildTextField() {
     return const Center(
       child: TextField(),
+    );
+  }
+
+  Widget _buildFlowyEditorWithBigDocument() {
+    return FutureBuilder<String>(
+      future: rootBundle.loadString('assets/big_document.json'),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          final data = Map<String, Object>.from(json.decode(snapshot.data!));
+          final document = StateTree.fromJson(data);
+          _editorState = EditorState(
+            document: document,
+          );
+          return Container(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: FlowyEditor(
+              key: editorKey,
+              editorState: _editorState,
+              keyEventHandlers: const [],
+              customBuilders: {
+                'image': ImageNodeBuilder(),
+              },
+            ),
+          );
+        }
+      },
     );
   }
 }

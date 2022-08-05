@@ -19,4 +19,12 @@ extension NodeExtensions on Node {
       return selection.end.path <= path && path <= selection.start.path;
     }
   }
+
+  Rect get rect {
+    if (renderBox != null) {
+      final boxOffset = renderBox!.localToGlobal(Offset.zero);
+      return boxOffset & renderBox!.size;
+    }
+    return Rect.zero;
+  }
 }
