@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
+
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
-import 'package:flowy_editor/service/toolbar_service.dart';
+import 'package:flowy_editor/service/scroll_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
-import 'package:flutter/material.dart';
+import 'package:flowy_editor/service/toolbar_service.dart';
 
 class FlowyService {
   // selection service
@@ -31,10 +33,20 @@ class FlowyService {
 
   // toolbar service
   final toolbarServiceKey = GlobalKey(debugLabel: 'flowy_toolbar_service');
-  ToolbarService? get toolbarService {
+  FlowyToolbarService? get toolbarService {
     if (toolbarServiceKey.currentState != null &&
-        toolbarServiceKey.currentState is ToolbarService) {
-      return toolbarServiceKey.currentState! as ToolbarService;
+        toolbarServiceKey.currentState is FlowyToolbarService) {
+      return toolbarServiceKey.currentState! as FlowyToolbarService;
+    }
+    return null;
+  }
+
+  // scroll service
+  final scrollServiceKey = GlobalKey(debugLabel: 'flowy_scroll_service');
+  FlowyScrollService? get scrollService {
+    if (scrollServiceKey.currentState != null &&
+        scrollServiceKey.currentState is FlowyScrollService) {
+      return scrollServiceKey.currentState! as FlowyScrollService;
     }
     return null;
   }
