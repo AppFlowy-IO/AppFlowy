@@ -25,6 +25,11 @@ abstract class ReorderFlexDragTargetInterceptor {
 
 abstract class OverlapReorderFlexDragTargetDelegate {
   void dragTargetDidDisappear();
+  bool acceptNewDragTargetData(
+    String reorderFlexId,
+    FlexDragTargetData dragTargetData,
+    int dragTargetIndex,
+  );
 }
 
 class OverlapReorderFlexDragTargetInteceptor
@@ -54,7 +59,11 @@ class OverlapReorderFlexDragTargetInteceptor
     if (dragTargetId == dragTargetData.reorderFlexId) {
       delegate.dragTargetDidDisappear();
     } else {
-      Log.debug('add phantom to $dragTargetId');
+      delegate.acceptNewDragTargetData(
+        dragTargetId,
+        dragTargetData,
+        dragTargetIndex,
+      );
     }
 
     return true;
