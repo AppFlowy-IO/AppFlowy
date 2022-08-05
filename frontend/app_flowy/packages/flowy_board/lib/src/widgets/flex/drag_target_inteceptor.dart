@@ -50,7 +50,9 @@ class OverlapReorderFlexDragTargetInteceptor
       required String dragTargetId,
       required int dragTargetIndex}) {
     if (dragTargetId == dragTargetData.reorderFlexId) {
-      // Log.debug('remove all phantom');
+      Log.debug('remove all phantom');
+    } else {
+      Log.debug('add phantom to $dragTargetId');
     }
 
     return true;
@@ -58,6 +60,7 @@ class OverlapReorderFlexDragTargetInteceptor
 }
 
 abstract class CrossReorderFlexDragTargetDelegate {
+  /// * [reorderFlexId] is the id that the [ReorderFlex] passed in.
   bool acceptNewDragTargetData(
     String reorderFlexId,
     FlexDragTargetData dragTargetData,
@@ -66,7 +69,6 @@ abstract class CrossReorderFlexDragTargetDelegate {
 
   void updateDragTargetData(
     String reorderFlexId,
-    FlexDragTargetData dragTargetData,
     int dragTargetIndex,
   );
 }
@@ -129,16 +131,8 @@ class CrossReorderFlexDragTargetInterceptor
     );
 
     if (isNewDragTarget == false) {
-      delegate.updateDragTargetData(
-        reorderFlexId,
-        dragTargetData,
-        dragTargetIndex,
-      );
-
-      reorderFlexState.handleOnWillAccept(
-        context,
-        dragTargetIndex,
-      );
+      delegate.updateDragTargetData(reorderFlexId, dragTargetIndex);
+      reorderFlexState.handleOnWillAccept(context, dragTargetIndex);
     }
 
     return true;
