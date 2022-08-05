@@ -23,7 +23,9 @@ abstract class ReorderFlexDragTargetInterceptor {
   ReorderFlexDraggableTargetBuilder? get draggableTargetBuilder => null;
 }
 
-abstract class OverlapReorderFlexDragTargetDelegate {}
+abstract class OverlapReorderFlexDragTargetDelegate {
+  void dragTargetDidDisappear();
+}
 
 class OverlapReorderFlexDragTargetInteceptor
     extends ReorderFlexDragTargetInterceptor {
@@ -50,7 +52,7 @@ class OverlapReorderFlexDragTargetInteceptor
       required String dragTargetId,
       required int dragTargetIndex}) {
     if (dragTargetId == dragTargetData.reorderFlexId) {
-      Log.debug('remove all phantom');
+      delegate.dragTargetDidDisappear();
     } else {
       Log.debug('add phantom to $dragTargetId');
     }

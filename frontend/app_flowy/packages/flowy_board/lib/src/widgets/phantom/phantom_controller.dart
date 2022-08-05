@@ -207,6 +207,16 @@ class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate
       _updatePhantom(phantomRecord!.toColumnId, dragTargetIndex);
     }
   }
+
+  @override
+  void dragTargetDidDisappear() {
+    if (phantomRecord == null) {
+      return;
+    }
+
+    _removePhantom(phantomRecord!.toColumnId);
+    phantomRecord = null;
+  }
 }
 
 /// Use [PhantomRecord] to record where to remove the column item and where to
