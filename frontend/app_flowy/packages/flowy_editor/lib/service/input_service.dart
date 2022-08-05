@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/editor_state.dart';
+import 'package:flowy_editor/extensions/node_extensions.dart';
 import 'package:flowy_editor/operation/transaction_builder.dart';
 
 mixin FlowyInputService {
   void attach(TextEditingValue textEditingValue);
-  void setTextEditingValue(TextEditingValue textEditingValue);
   void apply(List<TextEditingDelta> deltas);
   void close();
 }
@@ -33,6 +34,7 @@ class _FlowyInputState extends State<FlowyInput>
     with FlowyInputService
     implements DeltaTextInputClient {
   TextInputConnection? _textInputConnection;
+  TextRange? _composingTextRange;
 
   EditorState get _editorState => widget.editorState;
 
@@ -46,6 +48,7 @@ class _FlowyInputState extends State<FlowyInput>
 
   @override
   void dispose() {
+    close();
     _editorState.service.selectionService.currentSelectedNodes
         .removeListener(_onSelectedNodesChange);
 
@@ -61,11 +64,7 @@ class _FlowyInputState extends State<FlowyInput>
 
   @override
   void attach(TextEditingValue textEditingValue) {
-    if (_textInputConnection != null) {
-      return;
-    }
-
-    _textInputConnection = TextInput.attach(
+    _textInputConnection ??= TextInput.attach(
       this,
       const TextInputConfiguration(
         // TODO: customize
@@ -75,18 +74,9 @@ class _FlowyInputState extends State<FlowyInput>
       ),
     );
 
-    _textInputConnection
-      ?..show()
-      ..setEditingState(textEditingValue);
-  }
-
-  @override
-  void setTextEditingValue(TextEditingValue textEditingValue) {
-    assert(_textInputConnection != null,
-        'Must call `attach` before set textEditingValue');
-    if (_textInputConnection != null) {
-      _textInputConnection?.setEditingState(textEditingValue);
-    }
+    _textInputConnection!
+      ..setEditingState(textEditingValue)
+      ..show();
   }
 
   @override
@@ -94,13 +84,21 @@ class _FlowyInputState extends State<FlowyInput>
     // TODO: implement the detail
     for (final delta in deltas) {
       if (delta is TextEditingDeltaInsertion) {
+        if (_composingTextRange != null) {
+          _composingTextRange = TextRange(
+            start: _composingTextRange!.start,
+            end: delta.composing.end,
+          );
+        } else {
+          _composingTextRange = delta.composing;
+        }
+
         _applyInsert(delta);
       } else if (delta is TextEditingDeltaDeletion) {
       } else if (delta is TextEditingDeltaReplacement) {
         _applyReplacement(delta);
       } else if (delta is TextEditingDeltaNonTextUpdate) {
-        // We don't need to care the [TextEditingDeltaNonTextUpdate].
-        // Do nothing.
+        _composingTextRange = null;
       }
     }
   }
@@ -212,12 +210,12 @@ class _FlowyInputState extends State<FlowyInput>
   }
 
   void _onSelectedNodesChange() {
-    final nodes =
-        _editorState.service.selectionService.currentSelectedNodes.value;
+    final textNodes = _editorState
+        .service.selectionService.currentSelectedNodes.value
+        .whereType<TextNode>();
     final selection = _editorState.service.selectionService.currentSelection;
-    // FIXME: upward.
-    if (nodes.isNotEmpty && selection != null) {
-      final textNodes = nodes.whereType<TextNode>();
+    // FIXME: upward and selection update.
+    if (textNodes.isNotEmpty && selection != null) {
       final text = textNodes.fold<String>(
           '', (sum, textNode) => '$sum${textNode.toRawString()}\n');
       attach(
@@ -227,10 +225,32 @@ class _FlowyInputState extends State<FlowyInput>
             baseOffset: selection.start.offset,
             extentOffset: selection.end.offset,
           ),
+          composing: _composingTextRange ?? const TextRange.collapsed(-1),
         ),
       );
+      if (textNodes.length == 1) {
+        _updateCaretPosition(textNodes.first, selection);
+      }
     } else {
-      close();
+      // close();
+    }
+  }
+
+  // TODO: support IME in linux / windows / ios / android
+  // Only support macOS now.
+  void _updateCaretPosition(TextNode textNode, Selection selection) {
+    if (!selection.isCollapsed) {
+      return;
+    }
+    final renderBox = textNode.renderBox;
+    final selectable = textNode.selectable;
+    if (renderBox != null && selectable != null) {
+      final size = renderBox.size;
+      final transform = renderBox.getTransformTo(null);
+      final rect = selectable.getCursorRectInPosition(selection.end);
+      _textInputConnection
+        ?..setEditableSizeAndTransform(size, transform)
+        ..setCaretRect(rect);
     }
   }
 }
