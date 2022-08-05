@@ -5,9 +5,13 @@ import 'drag_state.dart';
 import 'drag_target.dart';
 import 'reorder_flex.dart';
 
-abstract class ReorderFlexDragTargetInterceptor {
+/// [DragTargetInterceptor] is used to intercept the [DragTarget]'s
+/// [onWillAccept], [OnAccept], and [onLeave] event.
+abstract class DragTargetInterceptor {
+  /// Returns [yes] to receive the [DragTarget]'s event.
   bool canHandler(FlexDragTargetData dragTargetData);
 
+  /// Handle the [DragTarget]'s [onWillAccept] event.
   bool onWillAccept({
     required BuildContext context,
     required ReorderFlexState reorderFlexState,
@@ -16,29 +20,36 @@ abstract class ReorderFlexDragTargetInterceptor {
     required int dragTargetIndex,
   });
 
+  /// Handle the [DragTarget]'s [onAccept] event.
   void onAccept(FlexDragTargetData dragTargetData) {}
 
+  /// Handle the [DragTarget]'s [onLeave] event.
   void onLeave(FlexDragTargetData dragTargetData) {}
 
   ReorderFlexDraggableTargetBuilder? get draggableTargetBuilder => null;
 }
 
-abstract class OverlapReorderFlexDragTargetDelegate {
-  void dragTargetDidDisappear();
-  bool acceptNewDragTargetData(
+abstract class OverlapDragTargetDelegate {
+  void didReturnOriginalDragTarget();
+  void didCrossOtherDragTarget(
     String reorderFlexId,
     FlexDragTargetData dragTargetData,
     int dragTargetIndex,
   );
 }
 
-class OverlapReorderFlexDragTargetInteceptor
-    extends ReorderFlexDragTargetInterceptor {
+/// [OverlappingDragTargetInteceptor] is used to receive the overlapping
+/// [DragTarget] event. If a [DragTarget] child is [DragTarget], it will
+/// receive the [DragTarget] event when being dragged.
+///
+/// Receive the [DragTarget] event if the [acceptedReorderFlexId] contains
+/// the passed in dragTarget' reorderFlexId.
+class OverlappingDragTargetInteceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
-  final OverlapReorderFlexDragTargetDelegate delegate;
+  final OverlapDragTargetDelegate delegate;
 
-  OverlapReorderFlexDragTargetInteceptor({
+  OverlappingDragTargetInteceptor({
     required this.delegate,
     required this.reorderFlexId,
     required this.acceptedReorderFlexId,
@@ -57,9 +68,9 @@ class OverlapReorderFlexDragTargetInteceptor
       required String dragTargetId,
       required int dragTargetIndex}) {
     if (dragTargetId == dragTargetData.reorderFlexId) {
-      delegate.dragTargetDidDisappear();
+      delegate.didReturnOriginalDragTarget();
     } else {
-      delegate.acceptNewDragTargetData(
+      delegate.didCrossOtherDragTarget(
         dragTargetId,
         dragTargetData,
         dragTargetIndex,
@@ -84,8 +95,7 @@ abstract class CrossReorderFlexDragTargetDelegate {
   );
 }
 
-class CrossReorderFlexDragTargetInterceptor
-    extends ReorderFlexDragTargetInterceptor {
+class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexIds;
   final CrossReorderFlexDragTargetDelegate delegate;
@@ -117,14 +127,12 @@ class CrossReorderFlexDragTargetInterceptor
 
   @override
   void onAccept(FlexDragTargetData dragTargetData) {
-    Log.trace(
-        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on onAccept');
+    Log.trace('[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on onAccept');
   }
 
   @override
   void onLeave(FlexDragTargetData dragTargetData) {
-    Log.trace(
-        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on leave');
+    Log.trace('[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on leave');
   }
 
   @override

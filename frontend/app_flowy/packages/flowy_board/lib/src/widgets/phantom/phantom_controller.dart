@@ -34,8 +34,7 @@ abstract class BoardPhantomControllerDelegate {
   );
 }
 
-class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate
-    with CrossReorderFlexDragTargetDelegate {
+class BoardPhantomController extends OverlapDragTargetDelegate with CrossReorderFlexDragTargetDelegate {
   PhantomRecord? phantomRecord;
   final BoardPhantomControllerDelegate delegate;
   final columnsState = ColumnPhantomStateController();
@@ -117,8 +116,7 @@ class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 100), () {
-        Log.debug(
-            '[$BoardPhantomController] notify $toColumnId to insert phantom');
+        Log.debug('[$BoardPhantomController] notify $toColumnId to insert phantom');
         columnsState.notifyDidInsertPhantom(toColumnId);
       });
     });
@@ -185,13 +183,26 @@ class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate
   }
 
   @override
-  void dragTargetDidDisappear() {
+  void didReturnOriginalDragTarget() {
     if (phantomRecord == null) {
       return;
     }
 
     _removePhantom(phantomRecord!.toColumnId);
     phantomRecord = null;
+  }
+
+  @override
+  void didCrossOtherDragTarget(
+    String reorderFlexId,
+    FlexDragTargetData dragTargetData,
+    int dragTargetIndex,
+  ) {
+    acceptNewDragTargetData(
+      reorderFlexId,
+      dragTargetData,
+      dragTargetIndex,
+    );
   }
 }
 
@@ -221,8 +232,7 @@ class PhantomRecord {
     if (fromColumnIndex == index) {
       return;
     }
-    Log.debug(
-        '[$PhantomRecord] Update Column$fromColumnId remove position to $index');
+    Log.debug('[$PhantomRecord] Update Column$fromColumnId remove position to $index');
     fromColumnIndex = index;
   }
 
@@ -231,8 +241,7 @@ class PhantomRecord {
       return;
     }
 
-    Log.debug(
-        '[$PhantomRecord] Column$toColumnId update position $toColumnIndex -> $index');
+    Log.debug('[$PhantomRecord] Column$toColumnId update position $toColumnIndex -> $index');
     toColumnIndex = index;
   }
 
@@ -245,8 +254,7 @@ class PhantomRecord {
 class PhantomColumnItem extends ColumnItem {
   final PassthroughPhantomContext phantomContext;
 
-  PhantomColumnItem(PassthroughPhantomContext insertedPhantom)
-      : phantomContext = insertedPhantom;
+  PhantomColumnItem(PassthroughPhantomContext insertedPhantom) : phantomContext = insertedPhantom;
 
   @override
   bool get isPhantom => true;
@@ -256,9 +264,8 @@ class PhantomColumnItem extends ColumnItem {
 
   Size? get feedbackSize => phantomContext.feedbackSize;
 
-  Widget get draggingWidget => phantomContext.draggingWidget == null
-      ? const SizedBox()
-      : phantomContext.draggingWidget!;
+  Widget get draggingWidget =>
+      phantomContext.draggingWidget == null ? const SizedBox() : phantomContext.draggingWidget!;
 
   @override
   String toString() {

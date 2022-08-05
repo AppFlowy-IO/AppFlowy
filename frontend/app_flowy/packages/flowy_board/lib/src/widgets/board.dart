@@ -95,7 +95,7 @@ class BoardContent extends StatefulWidget {
   ///
   final BoardColumnFooterBuilder? footBuilder;
 
-  final OverlapReorderFlexDragTargetDelegate delegate;
+  final OverlapDragTargetDelegate delegate;
 
   final BoardPhantomController phantomController;
 
@@ -122,15 +122,14 @@ class BoardContent extends StatefulWidget {
 }
 
 class _BoardContentState extends State<BoardContent> {
-  final GlobalKey _columnContainerOverlayKey =
-      GlobalKey(debugLabel: '$BoardContent overlay key');
+  final GlobalKey _columnContainerOverlayKey = GlobalKey(debugLabel: '$BoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   @override
   void initState() {
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
-        final interceptor = OverlapReorderFlexDragTargetInteceptor(
+        final interceptor = OverlappingDragTargetInteceptor(
           reorderFlexId: widget.dataController.identifier,
           acceptedReorderFlexId: widget.dataController.columnIds,
           delegate: widget.delegate,
@@ -216,8 +215,7 @@ class _BoardColumnDataSourceImpl extends BoardColumnDataDataSource {
   });
 
   @override
-  BoardColumnData get columnData =>
-      dataController.columnController(columnId).columnData;
+  BoardColumnData get columnData => dataController.columnController(columnId).columnData;
 
   @override
   List<String> get acceptedColumnIds => dataController.columnIds;
