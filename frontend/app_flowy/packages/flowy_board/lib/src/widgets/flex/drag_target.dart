@@ -5,24 +5,18 @@ abstract class DragTargetData {
 }
 
 abstract class ReorderFlexDraggableTargetBuilder {
-  Widget? build<T extends DragTargetData>(
-      BuildContext context,
-      Widget child,
-      DragTargetOnStarted onDragStarted,
-      DragTargetOnEnded<T> onDragEnded,
-      DragTargetWillAccpet<T> onWillAccept);
+  Widget? build<T extends DragTargetData>(BuildContext context, Widget child, DragTargetOnStarted onDragStarted,
+      DragTargetOnEnded<T> onDragEnded, DragTargetWillAccpet<T> onWillAccept);
 }
 
 ///
-typedef DragTargetWillAccpet<T extends DragTargetData> = bool Function(
-    T dragTargetData);
+typedef DragTargetWillAccpet<T extends DragTargetData> = bool Function(T dragTargetData);
 
 ///
 typedef DragTargetOnStarted = void Function(Widget, int, Size?);
 
 ///
-typedef DragTargetOnEnded<T extends DragTargetData> = void Function(
-    T dragTargetData);
+typedef DragTargetOnEnded<T extends DragTargetData> = void Function(T dragTargetData);
 
 /// [ReorderDragTarget] is a [DragTarget] that carries the index information of
 /// the child.
@@ -75,8 +69,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   State<ReorderDragTarget<T>> createState() => _ReorderDragTargetState<T>();
 }
 
-class _ReorderDragTargetState<T extends DragTargetData>
-    extends State<ReorderDragTarget<T>> {
+class _ReorderDragTargetState<T extends DragTargetData> extends State<ReorderDragTarget<T>> {
   /// Returns the dragTarget's size
   Size? _draggingFeedbackSize = Size.zero;
 
@@ -108,8 +101,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
     List<dynamic> rejectedCandidates,
   ) {
     Widget feedbackBuilder = Builder(builder: (BuildContext context) {
-      BoxConstraints contentSizeConstraints =
-          BoxConstraints.loose(_draggingFeedbackSize!);
+      BoxConstraints contentSizeConstraints = BoxConstraints.loose(_draggingFeedbackSize!);
       return _buildDraggableFeedback(
         context,
         contentSizeConstraints,
@@ -149,21 +141,19 @@ class _ReorderDragTargetState<T extends DragTargetData>
           /// When the drag does not end inside a DragTarget widget, the
           /// drag fails, but we still reorder the widget to the last position it
           /// had been dragged to.
-          onDraggableCanceled: (Velocity velocity, Offset offset) =>
-              widget.onDragEnded(widget.dragTargetData),
+          onDraggableCanceled: (Velocity velocity, Offset offset) => widget.onDragEnded(widget.dragTargetData),
           child: widget.child,
         );
 
     return draggableWidget;
   }
 
-  Widget _buildDraggableFeedback(
-      BuildContext context, BoxConstraints constraints, Widget child) {
+  Widget _buildDraggableFeedback(BuildContext context, BoxConstraints constraints, Widget child) {
     return Transform(
       transform: Matrix4.rotationZ(0),
       alignment: FractionalOffset.topLeft,
       child: Material(
-        elevation: 6.0,
+        elevation: 2.0,
         color: Colors.transparent,
         borderRadius: BorderRadius.zero,
         clipBehavior: Clip.hardEdge,
@@ -177,10 +167,6 @@ class DragAnimationController {
   // How long an animation to reorder an element in the list takes.
   final Duration reorderAnimationDuration;
 
-  // How long an animation to scroll to an off-screen element in the
-  // list takes.
-  final Duration scrollAnimationDuration;
-
   // This controls the entrance of the dragging widget into a new place.
   late AnimationController entranceController;
 
@@ -190,14 +176,11 @@ class DragAnimationController {
 
   DragAnimationController({
     required this.reorderAnimationDuration,
-    required this.scrollAnimationDuration,
     required TickerProvider vsync,
     required void Function(AnimationStatus) entranceAnimateStatusChanged,
   }) {
-    entranceController = AnimationController(
-        value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
-    phantomController = AnimationController(
-        value: 0, vsync: vsync, duration: reorderAnimationDuration);
+    entranceController = AnimationController(value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
+    phantomController = AnimationController(value: 0, vsync: vsync, duration: reorderAnimationDuration);
     entranceController.addStatusListener(entranceAnimateStatusChanged);
   }
 
@@ -234,9 +217,7 @@ class IgnorePointerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sizedChild = useIntrinsicSize
-        ? child
-        : SizedBox(width: 0.0, height: 0.0, child: child);
+    final sizedChild = useIntrinsicSize ? child : SizedBox(width: 0.0, height: 0.0, child: child);
     return IgnorePointer(
       ignoring: true,
       child: Opacity(
@@ -276,10 +257,8 @@ class PhantomAnimateContorller {
     required this.reorderAnimationDuration,
     required void Function(AnimationStatus) appearAnimateStatusChanged,
   }) {
-    appearController = AnimationController(
-        value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
-    disappearController = AnimationController(
-        value: 0, vsync: vsync, duration: reorderAnimationDuration);
+    appearController = AnimationController(value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
+    disappearController = AnimationController(value: 0, vsync: vsync, duration: reorderAnimationDuration);
     appearController.addStatusListener(appearAnimateStatusChanged);
   }
 
@@ -333,8 +312,7 @@ class FakeDragTarget<T extends DragTargetData> extends StatefulWidget {
   State<FakeDragTarget<T>> createState() => _FakeDragTargetState<T>();
 }
 
-class _FakeDragTargetState<T extends DragTargetData>
-    extends State<FakeDragTarget<T>> {
+class _FakeDragTargetState<T extends DragTargetData> extends State<FakeDragTarget<T>> {
   bool isDragging = false;
 
   @override

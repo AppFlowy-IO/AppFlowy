@@ -46,16 +46,12 @@ class DraggingState {
   final String id;
 
   /// The member of widget.children currently being dragged.
-  ///
-  /// Null if no drag is underway.
   Widget? _draggingWidget;
 
   Widget? get draggingWidget => _draggingWidget;
 
   /// The last computed size of the feedback widget being dragged.
-  Size? _draggingFeedbackSize = Size.zero;
-
-  Size? get feedbackSize => _draggingFeedbackSize;
+  Size? feedbackSize = Size.zero;
 
   /// The location that the dragging widget occupied before it started to drag.
   int dragStartIndex = -1;
@@ -79,15 +75,17 @@ class DraggingState {
   DraggingState(this.id);
 
   Size get dropAreaSize {
-    if (_draggingFeedbackSize == null) {
+    if (feedbackSize == null) {
       return Size.zero;
     }
-    return _draggingFeedbackSize! +
-        const Offset(_dropAreaMargin, _dropAreaMargin);
+    return feedbackSize! + const Offset(_dropAreaMargin, _dropAreaMargin);
   }
 
-  void startDragging(Widget draggingWidget, int draggingWidgetIndex,
-      Size? draggingWidgetSize) {
+  void startDragging(
+    Widget draggingWidget,
+    int draggingWidgetIndex,
+    Size? draggingWidgetSize,
+  ) {
     ///
     assert(draggingWidgetIndex >= 0);
 
@@ -95,7 +93,7 @@ class DraggingState {
     phantomIndex = draggingWidgetIndex;
     dragStartIndex = draggingWidgetIndex;
     currentIndex = draggingWidgetIndex;
-    _draggingFeedbackSize = draggingWidgetSize;
+    feedbackSize = draggingWidgetSize;
   }
 
   void endDragging() {
@@ -130,12 +128,10 @@ class DraggingState {
 
   /// Set the currentIndex to nextIndex
   void moveDragTargetToNext() {
-    Log.trace('moveDragTargetToNext: $nextIndex');
     currentIndex = nextIndex;
   }
 
   void updateNextIndex(int index) {
-    assert(index >= 0);
     Log.trace('updateNextIndex: $index');
     nextIndex = index;
   }

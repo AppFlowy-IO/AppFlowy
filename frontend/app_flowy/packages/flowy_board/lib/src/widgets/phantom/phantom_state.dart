@@ -97,13 +97,7 @@ class PhantomInsertNotifier extends ChangeNotifier {
 }
 
 class PhantomDeleteNotifier extends ChangeNotifier {
-  // int deletedIndex = -1;
-
   void remove() {
-    // if (this.deletedIndex != deletedIndex) {
-    //   this.deletedIndex = deletedIndex;
-    //   notifyListeners();
-    // }
     notifyListeners();
   }
 }
