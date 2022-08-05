@@ -55,4 +55,18 @@ class Selection {
       "end": end.toJson(),
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! Selection) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return start == other.start && end == other.end;
+  }
+
+  @override
+  int get hashCode => Object.hash(start, end);
 }

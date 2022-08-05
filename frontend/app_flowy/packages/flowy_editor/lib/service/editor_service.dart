@@ -63,8 +63,6 @@ class FlowyEditor extends StatefulWidget {
 }
 
 class _FlowyEditorState extends State<FlowyEditor> {
-  late ScrollController _scrollController;
-
   EditorState get editorState => widget.editorState;
 
   @override
@@ -72,13 +70,6 @@ class _FlowyEditorState extends State<FlowyEditor> {
     super.initState();
 
     editorState.service.renderPluginService = _createRenderPlugin();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-
-    super.dispose();
   }
 
   @override
