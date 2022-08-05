@@ -1,29 +1,67 @@
-import 'package:flutter/material.dart';
+import 'dart:collection';
 
+import 'package:flutter/material.dart';
 import '../../rendering/board_overlay.dart';
+import '../../utils/log.dart';
 import '../phantom/phantom_controller.dart';
 import '../flex/reorder_flex.dart';
 import '../flex/drag_target_inteceptor.dart';
 import 'data_controller.dart';
 
 typedef OnColumnDragStarted = void Function(int index);
+
 typedef OnColumnDragEnded = void Function(String listId);
+
 typedef OnColumnReorder = void Function(
-    String listId, int fromIndex, int toIndex);
+  String listId,
+  int fromIndex,
+  int toIndex,
+);
+
 typedef OnColumnDeleted = void Function(String listId, int deletedIndex);
+
 typedef OnColumnInserted = void Function(String listId, int insertedIndex);
 
 typedef BoardColumnCardBuilder = Widget Function(
-    BuildContext context, ColumnItem item);
+  BuildContext context,
+  ColumnItem item,
+);
 
 typedef BoardColumnHeaderBuilder = Widget Function(
-    BuildContext context, BoardColumnData columnData);
+  BuildContext context,
+  BoardColumnData columnData,
+);
 
 typedef BoardColumnFooterBuilder = Widget Function(
-    BuildContext context, BoardColumnData columnData);
+  BuildContext context,
+  BoardColumnData columnData,
+);
 
+abstract class BoardColumnDataDataSource extends ReoderFlextDataSource {
+  BoardColumnData get columnData;
+
+  List<String> get acceptedColumnIds;
+
+  @override
+  String get identifier => columnData.id;
+
+  @override
+  UnmodifiableListView<ColumnItem> get items => columnData.items;
+
+  void debugPrint() {
+    String msg = '[$BoardColumnDataDataSource] $columnData data: ';
+    for (var element in items) {
+      msg = '$msg$element,';
+    }
+
+    Log.debug(msg);
+  }
+}
+
+/// [BoardColumnWidget] represents the column of the Board.
+///
 class BoardColumnWidget extends StatefulWidget {
-  final BoardColumnDataController dataController;
+  final BoardColumnDataDataSource dataSource;
   final ScrollController? scrollController;
   final ReorderFlexConfig config;
 
@@ -33,9 +71,7 @@ class BoardColumnWidget extends StatefulWidget {
 
   final BoardPhantomController phantomController;
 
-  String get columnId => dataController.identifier;
-
-  final List<String> acceptedColumns;
+  String get columnId => dataSource.columnData.id;
 
   final BoardColumnCardBuilder cardBuilder;
 
@@ -43,23 +79,20 @@ class BoardColumnWidget extends StatefulWidget {
 
   final BoardColumnFooterBuilder? footBuilder;
 
-  final double? spacing;
-
-  const BoardColumnWidget({
+  BoardColumnWidget({
     Key? key,
     this.headerBuilder,
     this.footBuilder,
     required this.cardBuilder,
     required this.onReorder,
-    required this.dataController,
+    required this.dataSource,
     required this.phantomController,
-    required this.acceptedColumns,
-    this.config = const ReorderFlexConfig(),
-    this.spacing,
     this.onDragStarted,
     this.scrollController,
     this.onDragEnded,
-  }) : super(key: key);
+    double? spacing,
+  })  : config = ReorderFlexConfig(spacing: spacing),
+        super(key: key);
 
   @override
   State<BoardColumnWidget> createState() => _BoardColumnWidgetState();
@@ -75,20 +108,20 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
   void initState() {
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
-        final children = widget.dataController.items
+        final children = widget.dataSource.columnData.items
             .map((item) => _buildWidget(context, item))
             .toList();
 
-        final header = widget.headerBuilder
-            ?.call(context, widget.dataController.columnData);
+        final header =
+            widget.headerBuilder?.call(context, widget.dataSource.columnData);
 
         final footer =
-            widget.footBuilder?.call(context, widget.dataController.columnData);
+            widget.footBuilder?.call(context, widget.dataSource.columnData);
 
         final interceptor = CrossReorderFlexDragTargetInterceptor(
           reorderFlexId: widget.columnId,
           delegate: widget.phantomController,
-          acceptedReorderFlexIds: widget.acceptedColumns,
+          acceptedReorderFlexIds: widget.dataSource.acceptedColumnIds,
           draggableTargetBuilder: PhantomDraggableBuilder(),
         );
 
@@ -109,11 +142,10 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
           onDragEnded: () {
             widget.phantomController.columnEndDragging(widget.columnId);
             widget.onDragEnded?.call(widget.columnId);
-            widget.dataController.debugPrintItems();
+            widget.dataSource.debugPrint();
           },
-          dataSource: widget.dataController,
+          dataSource: widget.dataSource,
           interceptor: interceptor,
-          spacing: widget.spacing,
           children: children,
         );
 

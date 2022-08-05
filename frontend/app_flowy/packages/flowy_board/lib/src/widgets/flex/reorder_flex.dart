@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -18,10 +19,11 @@ typedef OnReveivePassedInPhantom = void Function(
 
 abstract class ReoderFlextDataSource {
   String get identifier;
-  List<ReoderFlexItem> get items;
+  UnmodifiableListView<ReoderFlexItem> get items;
 }
 
 abstract class ReoderFlexItem {
+  /// [id] is used to identify the item
   String get id;
 }
 
@@ -30,7 +32,9 @@ class ReorderFlexConfig {
   final double draggingWidgetOpacity = 0.2;
   final Duration reorderAnimationDuration = const Duration(milliseconds: 250);
   final Duration scrollAnimationDuration = const Duration(milliseconds: 250);
-  const ReorderFlexConfig();
+
+  final double? spacing;
+  const ReorderFlexConfig({this.spacing});
 }
 
 class ReorderFlex extends StatefulWidget {
@@ -38,7 +42,6 @@ class ReorderFlex extends StatefulWidget {
 
   final List<Widget> children;
   final EdgeInsets? padding;
-  final double? spacing;
   final Axis direction;
   final MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start;
   final ScrollController? scrollController;
@@ -62,7 +65,6 @@ class ReorderFlex extends StatefulWidget {
     this.onDragEnded,
     this.interceptor,
     this.padding,
-    this.spacing,
     this.direction = Axis.vertical,
   }) : super(key: key);
 
@@ -132,8 +134,8 @@ class ReorderFlexState extends State<ReorderFlex>
     for (int i = 0; i < widget.children.length; i += 1) {
       Widget child = widget.children[i];
 
-      if (widget.spacing != null) {
-        children.add(SizedBox(width: widget.spacing!));
+      if (widget.config.spacing != null) {
+        children.add(SizedBox(width: widget.config.spacing!));
       }
 
       final wrapChild = _wrap(child, i);
@@ -203,7 +205,7 @@ class ReorderFlexState extends State<ReorderFlex>
           dragSpace = SizedBox.fromSize(size: dragState.dropAreaSize);
         }
 
-        /// Return the dragTarget it is not start dragging. The size of the
+        /// Returns the dragTarget it is not start dragging. The size of the
         /// dragTarget is the same as the the passed in child.
         ///
         if (dragState.isNotDragging()) {

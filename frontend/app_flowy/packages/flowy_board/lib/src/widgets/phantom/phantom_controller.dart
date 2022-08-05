@@ -8,23 +8,38 @@ import 'phantom_state.dart';
 
 abstract class BoardPhantomControllerDelegate {
   BoardColumnDataController? controller(String columnId);
-}
 
-mixin ColumnDataPhantomMixim {
-  BoardColumnDataController? get;
+  bool removePhantom(String columnId);
+
+  /// Insert the phantom into column
+  ///
+  /// * [toColumnId] id of the column
+  /// * [phantomIndex] the phantom occupies index
+  void insertPhantom(
+    String columnId,
+    int index,
+    PhantomColumnItem item,
+  );
+
+  /// Update the column's phantom index if it exists.
+  /// [toColumnId] the id of the column
+  /// [dragTargetIndex] the index of the dragTarget
+  void updatePhantom(String columnId, int newIndex);
+
+  void swapColumnItem(
+    String fromColumnId,
+    int fromColumnIndex,
+    String toColumnId,
+    int toColumnIndex,
+  );
 }
 
 class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate
     with CrossReorderFlexDragTargetDelegate {
-  final BoardPhantomControllerDelegate delegate;
-
   PhantomRecord? phantomRecord;
-
+  final BoardPhantomControllerDelegate delegate;
   final columnsState = ColumnPhantomStateController();
-
   BoardPhantomController({required this.delegate});
-
-  bool get hasPhantom => phantomRecord != null;
 
   bool isFromColumn(String columnId) {
     if (phantomRecord != null) {
@@ -64,67 +79,25 @@ class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate
     if (columnsState.isDragging(phantomRecord!.fromColumnId) == false) {
       return;
     }
-    final item = delegate
-        .controller(phantomRecord!.fromColumnId)
-        ?.removeAt(phantomRecord!.fromColumnIndex);
-    assert(item != null);
-    assert(delegate
-        .controller(phantomRecord!.toColumnId)
-        ?.items[phantomRecord!.toColumnIndex] is PhantomColumnItem);
-    delegate
-        .controller(phantomRecord!.toColumnId)
-        ?.replace(phantomRecord!.toColumnIndex, item!);
+    delegate.swapColumnItem(
+      phantomRecord!.fromColumnId,
+      phantomRecord!.fromColumnIndex,
+      phantomRecord!.toColumnId,
+      phantomRecord!.toColumnIndex,
+    );
 
     Log.debug("[$BoardPhantomController] did move ${phantomRecord.toString()}");
     phantomRecord = null;
   }
 
-  /// Update the column's phantom index if it exists.
-  /// [toColumnId] the id of the column
-  /// [dragTargetIndex] the index of the dragTarget
-  void _updatePhantom(
-    String toColumnId,
-    int dragTargetIndex,
-  ) {
-    final columnDataController = delegate.controller(toColumnId);
-    final index =
-        columnDataController?.items.indexWhere((item) => item.isPhantom);
-    if (index == null) return;
-
-    assert(index != -1);
-    if (index != -1) {
-      if (index != dragTargetIndex) {
-        // Log.debug('[$BoardPhantomController] update $toColumnId:$index to $toColumnId:$phantomIndex');
-        final item = columnDataController!.removeAt(index, notify: false);
-        columnDataController.insert(dragTargetIndex, item, notify: false);
-      }
-    }
-  }
-
   /// Remove the phantom in the column if it contains phantom
   void _removePhantom(String columnId) {
-    final index = delegate
-        .controller(columnId)
-        ?.items
-        .indexWhere((item) => item.isPhantom);
-
-    if (index == null) return;
-
-    assert(index != -1);
-
-    if (index != -1) {
-      delegate.controller(columnId)?.removeAt(index);
-      Log.debug(
-          '[$BoardPhantomController] Column$columnId remove phantom, current count: ${delegate.controller(columnId)?.items.length}');
+    if (delegate.removePhantom(columnId)) {
       columnsState.notifyDidRemovePhantom(columnId);
       columnsState.removeColumnListener(columnId);
     }
   }
 
-  /// Insert the phantom into column
-  ///
-  /// * [toColumnId] id of the column
-  /// * [phantomIndex] the phantom occupies index
   void _insertPhantom(
     String toColumnId,
     FlexDragTargetData dragTargetData,
@@ -135,9 +108,12 @@ class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate
       dragTargetData: dragTargetData,
     );
     columnsState.addColumnListener(toColumnId, phantomContext);
-    delegate
-        .controller(toColumnId)
-        ?.insert(phantomIndex, PhantomColumnItem(phantomContext));
+
+    delegate.insertPhantom(
+      toColumnId,
+      phantomIndex,
+      PhantomColumnItem(phantomContext),
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 100), () {
@@ -204,7 +180,7 @@ class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate
     assert(phantomRecord != null);
     if (phantomRecord!.toColumnId == reorderFlexId) {
       /// Update the existing phantom index
-      _updatePhantom(phantomRecord!.toColumnId, dragTargetIndex);
+      delegate.updatePhantom(phantomRecord!.toColumnId, dragTargetIndex);
     }
   }
 
@@ -283,6 +259,11 @@ class PhantomColumnItem extends ColumnItem {
   Widget get draggingWidget => phantomContext.draggingWidget == null
       ? const SizedBox()
       : phantomContext.draggingWidget!;
+
+  @override
+  String toString() {
+    return 'phantom:$id';
+  }
 }
 
 class PassthroughPhantomContext extends FakeDragTargetEventTrigger
