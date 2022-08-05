@@ -74,7 +74,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
     final cursorHeight = widget.cursorHeight ??
         _renderParagraph.getFullHeightForCaret(textPosition) ??
-        5.0; // default height
+        18.0; // default height
     return Rect.fromLTWH(
       cursorOffset.dx - (widget.cursorWidth / 2),
       cursorOffset.dy,
@@ -129,7 +129,10 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildRichText(BuildContext context) {
-    return _buildSingleRichText(context);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: _buildSingleRichText(context),
+    );
   }
 
   Widget _buildSingleRichText(BuildContext context) {

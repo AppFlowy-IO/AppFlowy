@@ -1,8 +1,8 @@
-use crate::entities::{RepeatedView, ViewDataType};
+use crate::entities::{RepeatedViewPB, ViewDataType};
 use flowy_derive::ProtoBuf;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct ViewInfo {
+pub struct ViewInfoPB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -19,7 +19,7 @@ pub struct ViewInfo {
     pub data_type: ViewDataType,
 
     #[pb(index = 6)]
-    pub belongings: RepeatedView,
+    pub belongings: RepeatedViewPB,
 
     #[pb(index = 7)]
     pub ext_data: String,

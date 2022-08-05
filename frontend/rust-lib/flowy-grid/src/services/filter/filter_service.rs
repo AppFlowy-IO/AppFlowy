@@ -1,10 +1,10 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{FieldType, GridBlockChangeset};
+use crate::entities::{FieldType, GridBlockChangesetPB};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::{
     CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
-    SingleSelectTypeOption, URLTypeOption,
+    SingleSelectTypeOptionPB, URLTypeOption,
 };
 use crate::services::filter::filter_cache::{
     refresh_filter_cache, FilterCache, FilterId, FilterResult, FilterResultCache,
@@ -90,7 +90,7 @@ impl GridFilterService {
                 }
             }
 
-            let changeset = GridBlockChangeset {
+            let changeset = GridBlockChangesetPB {
                 block_id: block.block_id,
                 hide_rows,
                 visible_rows,
@@ -130,14 +130,10 @@ impl GridFilterService {
         let handler_id = self.grid_pad.read().await.grid_id();
 
         let context = FilterTaskContext { blocks };
-        Task {
-            handler_id,
-            id: task_id,
-            content: TaskContent::Filter(context),
-        }
+        Task::new(&handler_id, task_id, TaskContent::Filter(context))
     }
 
-    async fn notify(&self, changesets: Vec<GridBlockChangeset>) {
+    async fn notify(&self, changesets: Vec<GridBlockChangesetPB>) {
         for changeset in changesets {
             send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridBlock)
                 .payload(changeset)
@@ -213,7 +209,7 @@ fn filter_cell(
         FieldType::SingleSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<SingleSelectTypeOption>(field_type_rev)?
+                    .get_type_option_entry::<SingleSelectTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )

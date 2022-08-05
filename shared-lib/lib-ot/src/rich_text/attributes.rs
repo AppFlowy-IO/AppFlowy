@@ -1,10 +1,6 @@
 #![allow(non_snake_case)]
-use crate::{
-    block_attribute,
-    core::{Attributes, Operation, OperationTransformable},
-    errors::OTError,
-    ignore_attribute, inline_attribute, list_attribute,
-};
+use crate::core::{Attributes, Operation, OperationTransform};
+use crate::{block_attribute, errors::OTError, ignore_attribute, inline_attribute, list_attribute};
 use lazy_static::lazy_static;
 use std::{
     collections::{HashMap, HashSet},
@@ -126,7 +122,7 @@ impl Attributes for RichTextAttributes {
     }
 }
 
-impl OperationTransformable for RichTextAttributes {
+impl OperationTransform for RichTextAttributes {
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
         Self: Sized,

@@ -34,6 +34,16 @@ class SettingsMenu extends StatelessWidget {
           icon: Icons.translate,
           changeSelectedIndex: changeSelectedIndex,
         ),
+        const SizedBox(
+          height: 10,
+        ),
+        SettingsMenuElement(
+          index: 2,
+          currentIndex: currentIndex,
+          label: LocaleKeys.settings_menu_user.tr(),
+          icon: Icons.account_box_outlined,
+          changeSelectedIndex: changeSelectedIndex,
+        ),
       ],
     );
   }

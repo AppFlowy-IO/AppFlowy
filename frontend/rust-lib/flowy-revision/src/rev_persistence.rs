@@ -2,7 +2,7 @@ use crate::cache::{
     disk::{RevisionChangeset, RevisionDiskCache, SQLiteTextBlockRevisionPersistence},
     memory::RevisionMemoryCacheDelegate,
 };
-use crate::disk::{RevisionRecord, RevisionState};
+use crate::disk::{RevisionRecord, RevisionState, SQLiteGridBlockRevisionPersistence};
 use crate::memory::RevisionMemoryCache;
 use crate::RevisionCompactor;
 use flowy_database::ConnectionPool;
@@ -24,13 +24,13 @@ pub struct RevisionPersistence {
 }
 
 impl RevisionPersistence {
-    pub fn new(
-        user_id: &str,
-        object_id: &str,
-        disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
-    ) -> RevisionPersistence {
+    pub fn new<C>(user_id: &str, object_id: &str, disk_cache: C) -> RevisionPersistence
+    where
+        C: 'static + RevisionDiskCache<Error = FlowyError>,
+    {
         let object_id = object_id.to_owned();
         let user_id = user_id.to_owned();
+        let disk_cache = Arc::new(disk_cache) as Arc<dyn RevisionDiskCache<Error = FlowyError>>;
         let sync_seq = RwLock::new(RevisionSyncSequence::new());
         let memory_cache = Arc::new(RevisionMemoryCache::new(&object_id, Arc::new(disk_cache.clone())));
         Self {
@@ -63,7 +63,7 @@ impl RevisionPersistence {
     pub(crate) async fn add_sync_revision<'a>(
         &'a self,
         revision: &'a Revision,
-        compactor: Box<dyn RevisionCompactor + 'a>,
+        compactor: &Arc<dyn RevisionCompactor + 'a>,
     ) -> FlowyResult<i64> {
         let result = self.sync_seq.read().await.compact();
         match result {
@@ -214,11 +214,18 @@ impl RevisionPersistence {
     }
 }
 
-pub fn mk_revision_disk_cache(
+pub fn mk_text_block_revision_disk_cache(
     user_id: &str,
     pool: Arc<ConnectionPool>,
 ) -> Arc<dyn RevisionDiskCache<Error = FlowyError>> {
     Arc::new(SQLiteTextBlockRevisionPersistence::new(user_id, pool))
+}
+
+pub fn mk_grid_block_revision_disk_cache(
+    user_id: &str,
+    pool: Arc<ConnectionPool>,
+) -> Arc<dyn RevisionDiskCache<Error = FlowyError>> {
+    Arc::new(SQLiteGridBlockRevisionPersistence::new(user_id, pool))
 }
 
 impl RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<Error = FlowyError>> {

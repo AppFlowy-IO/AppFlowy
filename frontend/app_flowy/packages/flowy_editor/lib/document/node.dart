@@ -89,7 +89,11 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
         this.attributes['subtype'] != attributes['subtype'];
 
     for (final attribute in attributes.entries) {
-      this.attributes[attribute.key] = attribute.value;
+      if (attribute.value == null) {
+        this.attributes.remove(attribute.key);
+      } else {
+        this.attributes[attribute.key] = attribute.value;
+      }
     }
     // Notify the new attributes
     // if attributes contains 'subtype', should notify parent to rebuild node
@@ -178,7 +182,7 @@ class TextNode extends Node {
   }) : _delta = delta;
 
   TextNode.empty()
-      : _delta = Delta([TextInsert('')]),
+      : _delta = Delta([TextInsert(' ')]),
         super(
           type: 'text',
           children: LinkedList(),
@@ -200,6 +204,19 @@ class TextNode extends Node {
     map['delta'] = _delta.toJson();
     return map;
   }
+
+  TextNode copyWith({
+    String? type,
+    LinkedList<Node>? children,
+    Attributes? attributes,
+    Delta? delta,
+  }) =>
+      TextNode(
+        type: type ?? this.type,
+        children: children ?? this.children,
+        attributes: attributes ?? this.attributes,
+        delta: delta ?? this.delta,
+      );
 
   // TODO: It's unneccesry to compute everytime.
   String toRawString() =>

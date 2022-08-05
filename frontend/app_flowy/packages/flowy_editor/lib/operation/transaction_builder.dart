@@ -1,18 +1,18 @@
 import 'dart:collection';
-import 'package:flowy_editor/editor_state.dart';
+
+import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/position.dart';
-import 'package:flowy_editor/document/text_delta.dart';
-import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/selection.dart';
-
-import './operation.dart';
-import './transaction.dart';
+import 'package:flowy_editor/document/text_delta.dart';
+import 'package:flowy_editor/editor_state.dart';
+import 'package:flowy_editor/operation/operation.dart';
+import 'package:flowy_editor/operation/transaction.dart';
 
 /// A [TransactionBuilder] is used to build the transaction from the state.
 /// It will save make a snapshot of the cursor selection state automatically.
-/// The cursor can be resoted if the transaction is undo.
+/// The cursor can be resorted if the transaction is undo.
 
 class TransactionBuilder {
   final List<Operation> operations = [];
@@ -29,8 +29,12 @@ class TransactionBuilder {
   }
 
   insertNode(Path path, Node node) {
+    insertNodes(path, [node]);
+  }
+
+  insertNodes(Path path, List<Node> nodes) {
     beforeSelection = state.cursorSelection;
-    add(InsertOperation(path, node));
+    add(InsertOperation(path, nodes));
   }
 
   updateNode(Node node, Attributes attributes) {
@@ -43,12 +47,26 @@ class TransactionBuilder {
   }
 
   deleteNode(Node node) {
-    beforeSelection = state.cursorSelection;
-    add(DeleteOperation(node.path, node));
+    deleteNodesAtPath(node.path);
   }
 
   deleteNodes(List<Node> nodes) {
     nodes.forEach(deleteNode);
+  }
+
+  deleteNodesAtPath(Path path, [int length = 1]) {
+    if (path.isEmpty) {
+      return;
+    }
+    final nodes = <Node>[];
+    final prefix = path.sublist(0, path.length - 1);
+    final last = path.last;
+    for (var i = 0; i < length; i++) {
+      final node = state.document.nodeAtPath(prefix + [last + i])!;
+      nodes.add(node);
+    }
+
+    add(DeleteOperation(path, nodes));
   }
 
   textEdit(TextNode node, Delta Function() f) {
@@ -90,6 +108,7 @@ class TransactionBuilder {
 
   formatText(TextNode node, int index, int length, Attributes attributes) {
     textEdit(node, () => Delta().retain(index).retain(length, attributes));
+    afterSelection = beforeSelection;
   }
 
   deleteText(TextNode node, int index, int length) {

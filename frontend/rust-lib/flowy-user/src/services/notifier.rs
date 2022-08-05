@@ -1,4 +1,4 @@
-use crate::entities::UserProfile;
+use crate::entities::UserProfilePB;
 use tokio::sync::{broadcast, mpsc};
 
 #[derive(Clone)]
@@ -14,7 +14,7 @@ pub enum UserStatus {
         token: String,
     },
     SignUp {
-        profile: UserProfile,
+        profile: UserProfilePB,
         ret: mpsc::Sender<()>,
     },
 }
@@ -42,7 +42,7 @@ impl UserNotifier {
         });
     }
 
-    pub(crate) fn notify_sign_up(&self, ret: mpsc::Sender<()>, user_profile: &UserProfile) {
+    pub(crate) fn notify_sign_up(&self, ret: mpsc::Sender<()>, user_profile: &UserProfilePB) {
         let _ = self.user_status_notifier.send(UserStatus::SignUp {
             profile: user_profile.clone(),
             ret,

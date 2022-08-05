@@ -1,9 +1,11 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/grid/grid_bloc.dart';
 import 'package:app_flowy/workspace/application/grid/row/row_service.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,7 +21,7 @@ import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
-  final View view;
+  final ViewPB view;
 
   GridPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
 
@@ -212,10 +214,10 @@ class _GridRowsState extends State<_GridRows> {
       builder: (context, state) {
         return SliverAnimatedList(
           key: _key,
-          initialItemCount: context.read<GridBloc>().state.rows.length,
+          initialItemCount: context.read<GridBloc>().state.rowInfos.length,
           itemBuilder: (BuildContext context, int index, Animation<double> animation) {
-            final GridRow rowData = context.read<GridBloc>().state.rows[index];
-            return _renderRow(context, rowData, animation);
+            final GridRowInfo rowInfo = context.read<GridBloc>().state.rowInfos[index];
+            return _renderRow(context, rowInfo, animation);
           },
         );
       },
@@ -224,17 +226,19 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _renderRow(
     BuildContext context,
-    GridRow rowData,
+    GridRowInfo rowInfo,
     Animation<double> animation,
   ) {
-    final rowCache = context.read<GridBloc>().getRowCache(rowData.blockId, rowData.rowId);
+    final rowCache = context.read<GridBloc>().getRowCache(rowInfo.blockId, rowInfo.id);
+    final fieldCache = context.read<GridBloc>().fieldCache;
     if (rowCache != null) {
       return SizeTransition(
         sizeFactor: animation,
         child: GridRowWidget(
-          rowData: rowData,
+          rowData: rowInfo,
           rowCache: rowCache,
-          key: ValueKey(rowData.rowId),
+          fieldCache: fieldCache,
+          key: ValueKey(rowInfo.id),
         ),
       );
     } else {
@@ -248,6 +252,8 @@ class _GridFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final rowCount = context.watch<GridBloc>().state.rowInfos.length;
+    final theme = context.watch<AppTheme>();
     return SliverPadding(
       padding: const EdgeInsets.only(bottom: 200),
       sliver: SliverToBoxAdapter(
@@ -258,12 +264,34 @@ class _GridFooter extends StatelessWidget {
             child: Row(
               children: [
                 SizedBox(width: GridSize.leadingHeaderPadding),
-                const SizedBox(width: 120, child: GridAddRowButton()),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children:  [
+                    const SizedBox(width: 120, child: GridAddRowButton()),
+                    const SizedBox(height: 30),
+                    _rowCountTextWidget(theme: theme,count: rowCount)
+                  ],
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _rowCountTextWidget({required AppTheme theme, required int count}){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        FlowyText.regular('Count : ',
+         fontSize: 13,
+         color: theme.shader3,
+        ),
+        FlowyText.regular(count.toString(),
+         fontSize: 13,
+        ),
+      ],
     );
   }
 }

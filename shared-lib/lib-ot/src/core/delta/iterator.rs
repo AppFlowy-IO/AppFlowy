@@ -1,17 +1,38 @@
 use super::cursor::*;
-use crate::{
-    core::{Attributes, Delta, Interval, Operation, NEW_LINE},
-    rich_text::RichTextAttributes,
-};
+use crate::core::delta::{Delta, NEW_LINE};
+use crate::core::interval::Interval;
+use crate::core::operation::{Attributes, Operation};
+use crate::rich_text::RichTextAttributes;
 use std::ops::{Deref, DerefMut};
 
 pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
 
-pub struct DeltaIter<'a, T: Attributes> {
-    cursor: OpCursor<'a, T>,
+/// [DeltaIterator] is used to iterate over a delta.
+/// # Examples
+///
+/// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/delta) out for more information.
+///
+/// ```
+///  use lib_ot::core::{DeltaIterator, Interval, Operation};
+///  use lib_ot::rich_text::RichTextDelta;
+///  let mut delta = RichTextDelta::default();
+///  delta.add(Operation::insert("123"));
+///  delta.add(Operation::insert("4"));
+///  assert_eq!(
+///     DeltaIterator::from_interval(&delta, Interval::new(0, 2)).ops(),
+///     vec![Operation::insert("12")]
+///  );
+///
+///  assert_eq!(
+///     DeltaIterator::from_interval(&delta, Interval::new(1, 3)).ops(),
+///     vec![Operation::insert("23")]
+///  );
+/// ```
+pub struct DeltaIterator<'a, T: Attributes> {
+    cursor: DeltaCursor<'a, T>,
 }
 
-impl<'a, T> DeltaIter<'a, T>
+impl<'a, T> DeltaIterator<'a, T>
 where
     T: Attributes,
 {
@@ -28,7 +49,7 @@ where
     }
 
     pub fn from_interval(delta: &'a Delta<T>, interval: Interval) -> Self {
-        let cursor = OpCursor::new(delta, interval);
+        let cursor = DeltaCursor::new(delta, interval);
         Self { cursor }
     }
 
@@ -46,7 +67,7 @@ where
     }
 
     pub fn next_op(&mut self) -> Option<Operation<T>> {
-        self.cursor.next_op()
+        self.cursor.get_next_op()
     }
 
     pub fn next_op_with_len(&mut self, len: usize) -> Option<Operation<T>> {
@@ -80,28 +101,28 @@ where
     }
 
     pub fn is_next_insert(&self) -> bool {
-        match self.cursor.next_iter_op() {
+        match self.cursor.next_op() {
             None => false,
             Some(op) => op.is_insert(),
         }
     }
 
     pub fn is_next_retain(&self) -> bool {
-        match self.cursor.next_iter_op() {
+        match self.cursor.next_op() {
             None => false,
             Some(op) => op.is_retain(),
         }
     }
 
     pub fn is_next_delete(&self) -> bool {
-        match self.cursor.next_iter_op() {
+        match self.cursor.next_op() {
             None => false,
             Some(op) => op.is_delete(),
         }
     }
 }
 
-impl<'a, T> Iterator for DeltaIter<'a, T>
+impl<'a, T> Iterator for DeltaIterator<'a, T>
 where
     T: Attributes,
 {
@@ -112,7 +133,7 @@ where
 }
 
 pub fn is_empty_line_at_index(delta: &Delta<RichTextAttributes>, index: usize) -> bool {
-    let mut iter = DeltaIter::new(delta);
+    let mut iter = DeltaIterator::new(delta);
     let (prev, next) = (iter.next_op_with_len(index), iter.next_op());
     if prev.is_none() {
         return true;
@@ -128,7 +149,7 @@ pub fn is_empty_line_at_index(delta: &Delta<RichTextAttributes>, index: usize) -
 }
 
 pub struct AttributesIter<'a, T: Attributes> {
-    delta_iter: DeltaIter<'a, T>,
+    delta_iter: DeltaIterator<'a, T>,
 }
 
 impl<'a, T> AttributesIter<'a, T>
@@ -141,7 +162,7 @@ where
     }
 
     pub fn from_interval(delta: &'a Delta<T>, interval: Interval) -> Self {
-        let delta_iter = DeltaIter::from_interval(delta, interval);
+        let delta_iter = DeltaIterator::from_interval(delta, interval);
         Self { delta_iter }
     }
 
@@ -157,7 +178,7 @@ impl<'a, T> Deref for AttributesIter<'a, T>
 where
     T: Attributes,
 {
-    type Target = DeltaIter<'a, T>;
+    type Target = DeltaIterator<'a, T>;
 
     fn deref(&self) -> &Self::Target {
         &self.delta_iter

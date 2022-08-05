@@ -24,18 +24,19 @@ abstract class Operation {
 }
 
 class InsertOperation extends Operation {
-  final Node value;
+  final List<Node> nodes;
 
   factory InsertOperation.fromJson(Map<String, dynamic> map) {
     final path = map["path"] as List<int>;
-    final value = Node.fromJson(map["value"]);
+    final value =
+        (map["nodes"] as List<dynamic>).map((n) => Node.fromJson(n)).toList();
     return InsertOperation(path, value);
   }
 
-  InsertOperation(Path path, this.value) : super(path);
+  InsertOperation(Path path, this.nodes) : super(path);
 
-  InsertOperation copyWith({Path? path, Node? value}) =>
-      InsertOperation(path ?? this.path, value ?? this.value);
+  InsertOperation copyWith({Path? path, List<Node>? nodes}) =>
+      InsertOperation(path ?? this.path, nodes ?? this.nodes);
 
   @override
   Operation copyWithPath(Path path) => copyWith(path: path);
@@ -44,7 +45,7 @@ class InsertOperation extends Operation {
   Operation invert() {
     return DeleteOperation(
       path,
-      value,
+      nodes,
     );
   }
 
@@ -53,7 +54,7 @@ class InsertOperation extends Operation {
     return {
       "type": "insert-operation",
       "path": path.toList(),
-      "value": value.toJson(),
+      "nodes": nodes.map((n) => n.toJson()),
     };
   }
 }
@@ -104,28 +105,29 @@ class UpdateOperation extends Operation {
 }
 
 class DeleteOperation extends Operation {
-  final Node removedValue;
+  final List<Node> nodes;
 
   factory DeleteOperation.fromJson(Map<String, dynamic> map) {
     final path = map["path"] as List<int>;
-    final removedValue = Node.fromJson(map["removedValue"]);
-    return DeleteOperation(path, removedValue);
+    final List<Node> nodes =
+        (map["nodes"] as List<dynamic>).map((e) => Node.fromJson(e)).toList();
+    return DeleteOperation(path, nodes);
   }
 
   DeleteOperation(
     Path path,
-    this.removedValue,
+    this.nodes,
   ) : super(path);
 
-  DeleteOperation copyWith({Path? path, Node? removedValue}) =>
-      DeleteOperation(path ?? this.path, removedValue ?? this.removedValue);
+  DeleteOperation copyWith({Path? path, List<Node>? nodes}) =>
+      DeleteOperation(path ?? this.path, nodes ?? this.nodes);
 
   @override
   Operation copyWithPath(Path path) => copyWith(path: path);
 
   @override
   Operation invert() {
-    return InsertOperation(path, removedValue);
+    return InsertOperation(path, nodes);
   }
 
   @override
@@ -133,7 +135,7 @@ class DeleteOperation extends Operation {
     return {
       "type": "delete-operation",
       "path": path.toList(),
-      "removedValue": removedValue.toJson(),
+      "nodes": nodes.map((n) => n.toJson()),
     };
   }
 }

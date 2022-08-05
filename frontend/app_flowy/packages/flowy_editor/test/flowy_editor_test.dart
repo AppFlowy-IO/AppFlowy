@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/state_tree.dart';
@@ -50,7 +49,7 @@ void main() {
     final insertNode = Node.fromJson({
       'type': 'text',
     });
-    bool result = stateTree.insert([1, 1], insertNode);
+    bool result = stateTree.insert([1, 1], [insertNode]);
     expect(result, true);
     expect(identical(insertNode, stateTree.nodeAtPath([1, 1])), true);
   });
@@ -59,9 +58,7 @@ void main() {
     final String response = await rootBundle.loadString('assets/document.json');
     final data = Map<String, Object>.from(json.decode(response));
     final stateTree = StateTree.fromJson(data);
-    final deletedNode = stateTree.delete([1, 1]);
-    expect(deletedNode != null, true);
-    expect(deletedNode!.attributes['text-type'], 'checkbox');
+    stateTree.delete([1, 1], 1);
     final node = stateTree.nodeAtPath([1, 1]);
     expect(node != null, true);
     expect(node!.attributes['tag'], '**');

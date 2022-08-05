@@ -1,9 +1,9 @@
 use crate::{
     entities::{
-        app::{AppId, CreateAppParams, UpdateAppParams},
-        trash::RepeatedTrashId,
-        view::{CreateViewParams, RepeatedViewId, UpdateViewParams, ViewId},
-        workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
+        app::{AppIdPB, CreateAppParams, UpdateAppParams},
+        trash::RepeatedTrashIdPB,
+        view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
+        workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
     },
     errors::FlowyError,
     manager::FolderManager,
@@ -84,73 +84,73 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum FolderEvent {
-    #[event(input = "CreateWorkspacePayload", output = "Workspace")]
+    #[event(input = "CreateWorkspacePayloadPB", output = "WorkspacePB")]
     CreateWorkspace = 0,
 
-    #[event(output = "CurrentWorkspaceSetting")]
+    #[event(output = "CurrentWorkspaceSettingPB")]
     ReadCurWorkspace = 1,
 
-    #[event(input = "WorkspaceId", output = "RepeatedWorkspace")]
+    #[event(input = "WorkspaceIdPB", output = "RepeatedWorkspacePB")]
     ReadWorkspaces = 2,
 
-    #[event(input = "WorkspaceId")]
+    #[event(input = "WorkspaceIdPB")]
     DeleteWorkspace = 3,
 
-    #[event(input = "WorkspaceId", output = "Workspace")]
+    #[event(input = "WorkspaceIdPB", output = "WorkspacePB")]
     OpenWorkspace = 4,
 
-    #[event(input = "WorkspaceId", output = "RepeatedApp")]
+    #[event(input = "WorkspaceIdPB", output = "RepeatedAppPB")]
     ReadWorkspaceApps = 5,
 
-    #[event(input = "CreateAppPayload", output = "App")]
+    #[event(input = "CreateAppPayloadPB", output = "AppPB")]
     CreateApp = 101,
 
-    #[event(input = "AppId")]
+    #[event(input = "AppIdPB")]
     DeleteApp = 102,
 
-    #[event(input = "AppId", output = "App")]
+    #[event(input = "AppIdPB", output = "AppPB")]
     ReadApp = 103,
 
-    #[event(input = "UpdateAppPayload")]
+    #[event(input = "UpdateAppPayloadPB")]
     UpdateApp = 104,
 
-    #[event(input = "CreateViewPayload", output = "View")]
+    #[event(input = "CreateViewPayloadPB", output = "ViewPB")]
     CreateView = 201,
 
-    #[event(input = "ViewId", output = "View")]
+    #[event(input = "ViewIdPB", output = "ViewPB")]
     ReadView = 202,
 
-    #[event(input = "UpdateViewPayload", output = "View")]
+    #[event(input = "UpdateViewPayloadPB", output = "ViewPB")]
     UpdateView = 203,
 
-    #[event(input = "RepeatedViewId")]
+    #[event(input = "RepeatedViewIdPB")]
     DeleteView = 204,
 
-    #[event(input = "ViewId")]
+    #[event(input = "ViewIdPB")]
     DuplicateView = 205,
 
-    #[event(input = "ViewId")]
+    #[event(input = "ViewIdPB")]
     CloseView = 206,
 
-    #[event(input = "ViewId", output = "ViewInfo")]
+    #[event(input = "ViewIdPB", output = "ViewInfoPB")]
     ReadViewInfo = 207,
 
     #[event()]
     CopyLink = 220,
 
-    #[event(input = "ViewId")]
+    #[event(input = "ViewIdPB")]
     SetLatestView = 221,
 
-    #[event(input = "MoveFolderItemPayload")]
+    #[event(input = "MoveFolderItemPayloadPB")]
     MoveFolderItem = 230,
 
-    #[event(output = "RepeatedTrash")]
+    #[event(output = "RepeatedTrashPB")]
     ReadTrash = 300,
 
-    #[event(input = "TrashId")]
+    #[event(input = "TrashIdPB")]
     PutbackTrash = 301,
 
-    #[event(input = "RepeatedTrashId")]
+    #[event(input = "RepeatedTrashIdPB")]
     DeleteTrash = 302,
 
     #[event()]
@@ -170,34 +170,34 @@ pub trait FolderCouldServiceV1: Send + Sync {
         params: CreateWorkspaceParams,
     ) -> FutureResult<WorkspaceRevision, FlowyError>;
 
-    fn read_workspace(&self, token: &str, params: WorkspaceId) -> FutureResult<Vec<WorkspaceRevision>, FlowyError>;
+    fn read_workspace(&self, token: &str, params: WorkspaceIdPB) -> FutureResult<Vec<WorkspaceRevision>, FlowyError>;
 
     fn update_workspace(&self, token: &str, params: UpdateWorkspaceParams) -> FutureResult<(), FlowyError>;
 
-    fn delete_workspace(&self, token: &str, params: WorkspaceId) -> FutureResult<(), FlowyError>;
+    fn delete_workspace(&self, token: &str, params: WorkspaceIdPB) -> FutureResult<(), FlowyError>;
 
     // View
     fn create_view(&self, token: &str, params: CreateViewParams) -> FutureResult<ViewRevision, FlowyError>;
 
-    fn read_view(&self, token: &str, params: ViewId) -> FutureResult<Option<ViewRevision>, FlowyError>;
+    fn read_view(&self, token: &str, params: ViewIdPB) -> FutureResult<Option<ViewRevision>, FlowyError>;
 
-    fn delete_view(&self, token: &str, params: RepeatedViewId) -> FutureResult<(), FlowyError>;
+    fn delete_view(&self, token: &str, params: RepeatedViewIdPB) -> FutureResult<(), FlowyError>;
 
     fn update_view(&self, token: &str, params: UpdateViewParams) -> FutureResult<(), FlowyError>;
 
     // App
     fn create_app(&self, token: &str, params: CreateAppParams) -> FutureResult<AppRevision, FlowyError>;
 
-    fn read_app(&self, token: &str, params: AppId) -> FutureResult<Option<AppRevision>, FlowyError>;
+    fn read_app(&self, token: &str, params: AppIdPB) -> FutureResult<Option<AppRevision>, FlowyError>;
 
     fn update_app(&self, token: &str, params: UpdateAppParams) -> FutureResult<(), FlowyError>;
 
-    fn delete_app(&self, token: &str, params: AppId) -> FutureResult<(), FlowyError>;
+    fn delete_app(&self, token: &str, params: AppIdPB) -> FutureResult<(), FlowyError>;
 
     // Trash
-    fn create_trash(&self, token: &str, params: RepeatedTrashId) -> FutureResult<(), FlowyError>;
+    fn create_trash(&self, token: &str, params: RepeatedTrashIdPB) -> FutureResult<(), FlowyError>;
 
-    fn delete_trash(&self, token: &str, params: RepeatedTrashId) -> FutureResult<(), FlowyError>;
+    fn delete_trash(&self, token: &str, params: RepeatedTrashIdPB) -> FutureResult<(), FlowyError>;
 
     fn read_trash(&self, token: &str) -> FutureResult<Vec<TrashRevision>, FlowyError>;
 }

@@ -1,4 +1,4 @@
-import 'package:flowy_editor/service/internal_key_event_handlers/delele_text_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/delete_text_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart';
 import 'package:flutter/material.dart';
 
@@ -10,23 +10,22 @@ import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
 import 'package:flowy_editor/render/rich_text/heading_text.dart';
 import 'package:flowy_editor/render/rich_text/number_list_text.dart';
 import 'package:flowy_editor/render/rich_text/quoted_text.dart';
-import 'package:flowy_editor/render/selection/floating_shortcut_widget.dart';
 import 'package:flowy_editor/service/input_service.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/arrow_keys_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/delete_nodes_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/enter_in_edge_of_text_node_handler.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/shortcut_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/slash_handler.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
-import 'package:flowy_editor/service/shortcut_service.dart';
+import 'package:flowy_editor/service/toolbar_service.dart';
 
 NodeWidgetBuilders defaultBuilders = {
   'editor': EditorEntryWidgetBuilder(),
   'text': RichTextNodeWidgetBuilder(),
   'text/checkbox': CheckboxNodeWidgetBuilder(),
   'text/heading': HeadingTextNodeWidgetBuilder(),
-  'text/bullet-list': BulletedListTextNodeWidgetBuilder(),
+  'text/bulleted-list': BulletedListTextNodeWidgetBuilder(),
   'text/number-list': NumberListTextNodeWidgetBuilder(),
   'text/quote': QuotedTextNodeWidgetBuilder(),
 };
@@ -46,7 +45,6 @@ class FlowyEditor extends StatefulWidget {
     required this.editorState,
     this.customBuilders = const {},
     this.keyEventHandlers = const [],
-    this.shortcuts = const [],
   }) : super(key: key);
 
   final EditorState editorState;
@@ -56,9 +54,6 @@ class FlowyEditor extends StatefulWidget {
 
   /// Keyboard event handlers.
   final List<FlowyKeyEventHandler> keyEventHandlers;
-
-  /// Shortcuts
-  final FloatingShortcuts shortcuts;
 
   @override
   State<FlowyEditor> createState() => _FlowyEditorState();
@@ -98,11 +93,9 @@ class _FlowyEditorState extends State<FlowyEditor> {
             ...widget.keyEventHandlers,
           ],
           editorState: editorState,
-          child: FloatingShortcut(
-            key: editorState.service.floatingShortcutServiceKey,
-            size: const Size(200, 150), // TODO: support customize size.
+          child: FlowyToolbar(
+            key: editorState.service.toolbarServiceKey,
             editorState: editorState,
-            floatingShortcuts: widget.shortcuts,
             child: editorState.service.renderPluginService.buildPluginWidget(
               NodeWidgetContext(
                 context: context,

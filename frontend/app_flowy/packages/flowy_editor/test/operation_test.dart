@@ -8,6 +8,7 @@ import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/document/state_tree.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   group('transform path', () {
     test('transform path changed', () {
       expect(transformPath([0, 1], [0, 1]), [0, 2]);
@@ -28,17 +29,17 @@ void main() {
     test('insert + insert', () {
       final t = transformOperation(
           InsertOperation([0, 1],
-              Node(type: "node", attributes: {}, children: LinkedList())),
+              [Node(type: "node", attributes: {}, children: LinkedList())]),
           InsertOperation([0, 1],
-              Node(type: "node", attributes: {}, children: LinkedList())));
+              [Node(type: "node", attributes: {}, children: LinkedList())]));
       expect(t.path, [0, 2]);
     });
     test('delete + delete', () {
       final t = transformOperation(
           DeleteOperation([0, 1],
-              Node(type: "node", attributes: {}, children: LinkedList())),
+              [Node(type: "node", attributes: {}, children: LinkedList())]),
           DeleteOperation([0, 2],
-              Node(type: "node", attributes: {}, children: LinkedList())));
+              [Node(type: "node", attributes: {}, children: LinkedList())]));
       expect(t.path, [0, 1]);
     });
   });
@@ -85,9 +86,9 @@ void main() {
           {
             "type": "insert-operation",
             "path": [0],
-            "value": item1.toJson(),
+            "nodes": [item1.toJson()],
           }
-        ],
+        ]
       });
     });
     test("delete", () {
@@ -108,7 +109,7 @@ void main() {
           {
             "type": "delete-operation",
             "path": [0],
-            "removedValue": item1.toJson(),
+            "nodes": [item1.toJson()],
           }
         ],
       });

@@ -1,6 +1,6 @@
-use crate::entities::{GridBlock, RepeatedGridBlock, Row, RowInfo};
+use crate::entities::{GridBlockPB, GridRowPB, RepeatedGridBlockPB};
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
+use flowy_grid_data_model::revision::RowRevision;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -9,15 +9,15 @@ pub struct GridBlockSnapshot {
     pub row_revs: Vec<Arc<RowRevision>>,
 }
 
-pub(crate) fn block_from_row_orders(row_orders: Vec<RowInfo>) -> Vec<GridBlock> {
-    let mut map: HashMap<String, GridBlock> = HashMap::new();
+pub(crate) fn block_from_row_orders(row_orders: Vec<GridRowPB>) -> Vec<GridBlockPB> {
+    let mut map: HashMap<String, GridBlockPB> = HashMap::new();
     row_orders.into_iter().for_each(|row_info| {
         // Memory Optimization: escape clone block_id
         let block_id = row_info.block_id().to_owned();
         let cloned_block_id = block_id.clone();
         map.entry(block_id)
-            .or_insert_with(|| GridBlock::new(&cloned_block_id, vec![]))
-            .row_infos
+            .or_insert_with(|| GridBlockPB::new(&cloned_block_id, vec![]))
+            .rows
             .push(row_info);
     });
     map.into_values().collect::<Vec<_>>()
@@ -35,32 +35,19 @@ pub(crate) fn block_from_row_orders(row_orders: Vec<RowInfo>) -> Vec<GridBlock> 
 //     Some((field_id, cell))
 // }
 
-pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowInfo> {
-    row_revs.iter().map(RowInfo::from).collect::<Vec<_>>()
+pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<GridRowPB> {
+    row_revs.iter().map(GridRowPB::from).collect::<Vec<_>>()
 }
 
-pub(crate) fn make_row_from_row_rev(fields: &[Arc<FieldRevision>], row_rev: Arc<RowRevision>) -> Option<Row> {
-    make_rows_from_row_revs(fields, &[row_rev]).pop()
+pub(crate) fn make_row_from_row_rev(row_rev: Arc<RowRevision>) -> Option<GridRowPB> {
+    make_rows_from_row_revs(&[row_rev]).pop()
 }
 
-pub(crate) fn make_rows_from_row_revs(_fields: &[Arc<FieldRevision>], row_revs: &[Arc<RowRevision>]) -> Vec<Row> {
-    // let field_rev_map = fields
-    //     .iter()
-    //     .map(|field_rev| (&field_rev.id, field_rev))
-    //     .collect::<HashMap<&String, &FieldRevision>>();
-
-    let make_row = |row_rev: &Arc<RowRevision>| {
-        // let cell_by_field_id = row_rev
-        //     .cells
-        //     .clone()
-        //     .into_iter()
-        //     .flat_map(|(field_id, cell_rev)| make_cell_by_field_id(&field_rev_map, field_id, cell_rev))
-        //     .collect::<HashMap<String, Cell>>();
-
-        Row {
-            id: row_rev.id.clone(),
-            height: row_rev.height,
-        }
+pub(crate) fn make_rows_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<GridRowPB> {
+    let make_row = |row_rev: &Arc<RowRevision>| GridRowPB {
+        block_id: row_rev.block_id.clone(),
+        id: row_rev.id.clone(),
+        height: row_rev.height,
     };
 
     row_revs.iter().map(make_row).collect::<Vec<_>>()
@@ -69,15 +56,15 @@ pub(crate) fn make_rows_from_row_revs(_fields: &[Arc<FieldRevision>], row_revs: 
 pub(crate) fn make_grid_blocks(
     block_ids: Option<Vec<String>>,
     block_snapshots: Vec<GridBlockSnapshot>,
-) -> FlowyResult<RepeatedGridBlock> {
+) -> FlowyResult<RepeatedGridBlockPB> {
     match block_ids {
         None => Ok(block_snapshots
             .into_iter()
             .map(|snapshot| {
                 let row_orders = make_row_orders_from_row_revs(&snapshot.row_revs);
-                GridBlock::new(&snapshot.block_id, row_orders)
+                GridBlockPB::new(&snapshot.block_id, row_orders)
             })
-            .collect::<Vec<GridBlock>>()
+            .collect::<Vec<GridBlockPB>>()
             .into()),
         Some(block_ids) => {
             let block_meta_data_map: HashMap<&String, &Vec<Arc<RowRevision>>> = block_snapshots
@@ -91,7 +78,7 @@ pub(crate) fn make_grid_blocks(
                     None => {}
                     Some(row_revs) => {
                         let row_orders = make_row_orders_from_row_revs(row_revs);
-                        grid_blocks.push(GridBlock::new(&block_id, row_orders));
+                        grid_blocks.push(GridBlockPB::new(&block_id, row_orders));
                     }
                 }
             }

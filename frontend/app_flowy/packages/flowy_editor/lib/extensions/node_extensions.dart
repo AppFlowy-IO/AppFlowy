@@ -9,6 +9,7 @@ extension NodeExtensions on Node {
   RenderBox? get renderBox =>
       key?.currentContext?.findRenderObject()?.unwrapOrNull<RenderBox>();
 
+  BuildContext? get context => key?.currentContext;
   Selectable? get selectable => key?.currentState?.unwrapOrNull<Selectable>();
 
   bool inSelection(Selection selection) {

@@ -19,12 +19,12 @@ pub fn create(block_manager: Arc<TextBlockManager>) -> Module {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum TextBlockEvent {
-    #[event(input = "TextBlockId", output = "TextBlockDelta")]
+    #[event(input = "TextBlockIdPB", output = "TextBlockDeltaPB")]
     GetBlockData = 0,
 
-    #[event(input = "TextBlockDelta", output = "TextBlockDelta")]
+    #[event(input = "TextBlockDeltaPB", output = "TextBlockDeltaPB")]
     ApplyDelta = 1,
 
-    #[event(input = "ExportPayload", output = "ExportData")]
+    #[event(input = "ExportPayloadPB", output = "ExportDataPB")]
     ExportDocument = 2,
 }

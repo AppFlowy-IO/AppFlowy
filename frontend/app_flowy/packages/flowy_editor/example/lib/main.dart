@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:example/expandable_floating_action_button.dart';
@@ -81,10 +82,19 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: const Icon(Icons.note_add),
           ),
           ActionButton(
+            icon: const Icon(Icons.document_scanner),
             onPressed: () {
               if (page == 1) return;
               setState(() {
                 page = 1;
+              });
+            },
+          ),
+          ActionButton(
+            onPressed: () {
+              if (page == 2) return;
+              setState(() {
+                page = 2;
               });
             },
             icon: const Icon(Icons.text_fields),
@@ -98,9 +108,39 @@ class _MyHomePageState extends State<MyHomePage> {
     if (page == 0) {
       return _buildFlowyEditor();
     } else if (page == 1) {
+      return _buildFlowyEditorWithEmptyDocument();
+    } else if (page == 2) {
       return _buildTextField();
     }
     return Container();
+  }
+
+  Widget _buildFlowyEditorWithEmptyDocument() {
+    return Container(
+      padding: const EdgeInsets.only(left: 20, right: 20),
+      child: FlowyEditor(
+        key: editorKey,
+        editorState: EditorState(
+          document: StateTree(
+            root: Node(
+              type: 'editor',
+              children: LinkedList()
+                ..add(
+                  TextNode.empty()
+                    ..delta = Delta(
+                      [TextInsert('')],
+                    ),
+                ),
+              attributes: {},
+            ),
+          ),
+        ),
+        keyEventHandlers: const [],
+        customBuilders: {
+          'image': ImageNodeBuilder(),
+        },
+      ),
+    );
   }
 
   Widget _buildFlowyEditor() {
@@ -117,40 +157,43 @@ class _MyHomePageState extends State<MyHomePage> {
           _editorState = EditorState(
             document: document,
           );
-          return FlowyEditor(
-            key: editorKey,
-            editorState: _editorState,
-            keyEventHandlers: const [],
-            customBuilders: {
-              'image': ImageNodeBuilder(),
-              'youtube_link': YouTubeLinkNodeBuilder()
-            },
-            shortcuts: [
-              // TODO: this won't work, just a example for now.
-              {
-                'h1': (editorState, eventName) {
-                  debugPrint('shortcut => $eventName');
-                  final selectedNodes = editorState.selectedNodes;
-                  if (selectedNodes.isEmpty) {
-                    return;
-                  }
-                  final textNode = selectedNodes.first as TextNode;
-                  TransactionBuilder(editorState)
-                    ..formatText(textNode, 0, textNode.toRawString().length, {
-                      'heading': 'h1',
-                    })
-                    ..commit();
-                }
+          return Container(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: FlowyEditor(
+              key: editorKey,
+              editorState: _editorState,
+              keyEventHandlers: const [],
+              customBuilders: {
+                'image': ImageNodeBuilder(),
+                'youtube_link': YouTubeLinkNodeBuilder()
               },
-              {
-                'bold': (editorState, eventName) =>
-                    debugPrint('shortcut => $eventName')
-              },
-              {
-                'underline': (editorState, eventName) =>
-                    debugPrint('shortcut => $eventName')
-              },
-            ],
+            ),
+            // shortcuts: [
+            //   // TODO: this won't work, just a example for now.
+            //   {
+            //     'h1': (editorState, eventName) {
+            //       debugPrint('shortcut => $eventName');
+            //       final selectedNodes = editorState.selectedNodes;
+            //       if (selectedNodes.isEmpty) {
+            //         return;
+            //       }
+            //       final textNode = selectedNodes.first as TextNode;
+            //       TransactionBuilder(editorState)
+            //         ..formatText(textNode, 0, textNode.toRawString().length, {
+            //           'heading': 'h1',
+            //         })
+            //         ..commit();
+            //     }
+            //   },
+            //   {
+            //     'bold': (editorState, eventName) =>
+            //         debugPrint('shortcut => $eventName')
+            //   },
+            //   {
+            //     'underline': (editorState, eventName) =>
+            //         debugPrint('shortcut => $eventName')
+            //   },
+            // ],
           );
         }
       },

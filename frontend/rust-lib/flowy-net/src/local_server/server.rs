@@ -6,7 +6,7 @@ use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_sync::{
     client_document::default::initial_quill_delta_string,
     entities::{
-        text_block::{CreateTextBlockParams, ResetTextBlockParams, TextBlockId, TextBlockInfo},
+        text_block::{CreateTextBlockParams, DocumentPB, ResetTextBlockParams, TextBlockIdPB},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
@@ -253,17 +253,17 @@ impl RevisionUser for LocalRevisionUser {
 }
 
 use flowy_folder::entities::{
-    app::{AppId, CreateAppParams, UpdateAppParams},
-    trash::RepeatedTrashId,
-    view::{CreateViewParams, RepeatedViewId, UpdateViewParams, ViewId},
-    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceId},
+    app::{AppIdPB, CreateAppParams, UpdateAppParams},
+    trash::RepeatedTrashIdPB,
+    view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
+    workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
 };
 use flowy_folder_data_model::revision::{
     gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision,
 };
 use flowy_text_block::BlockCloudService;
 use flowy_user::entities::{
-    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfile,
+    SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
 use flowy_user::event_map::UserCloudService;
 use lib_infra::{future::FutureResult, util::timestamp};
@@ -289,7 +289,7 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(workspace) })
     }
 
-    fn read_workspace(&self, _token: &str, _params: WorkspaceId) -> FutureResult<Vec<WorkspaceRevision>, FlowyError> {
+    fn read_workspace(&self, _token: &str, _params: WorkspaceIdPB) -> FutureResult<Vec<WorkspaceRevision>, FlowyError> {
         FutureResult::new(async { Ok(vec![]) })
     }
 
@@ -297,7 +297,7 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn delete_workspace(&self, _token: &str, _params: WorkspaceId) -> FutureResult<(), FlowyError> {
+    fn delete_workspace(&self, _token: &str, _params: WorkspaceIdPB) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
@@ -320,11 +320,11 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(view) })
     }
 
-    fn read_view(&self, _token: &str, _params: ViewId) -> FutureResult<Option<ViewRevision>, FlowyError> {
+    fn read_view(&self, _token: &str, _params: ViewIdPB) -> FutureResult<Option<ViewRevision>, FlowyError> {
         FutureResult::new(async { Ok(None) })
     }
 
-    fn delete_view(&self, _token: &str, _params: RepeatedViewId) -> FutureResult<(), FlowyError> {
+    fn delete_view(&self, _token: &str, _params: RepeatedViewIdPB) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
@@ -347,7 +347,7 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(app) })
     }
 
-    fn read_app(&self, _token: &str, _params: AppId) -> FutureResult<Option<AppRevision>, FlowyError> {
+    fn read_app(&self, _token: &str, _params: AppIdPB) -> FutureResult<Option<AppRevision>, FlowyError> {
         FutureResult::new(async { Ok(None) })
     }
 
@@ -355,15 +355,15 @@ impl FolderCouldServiceV1 for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn delete_app(&self, _token: &str, _params: AppId) -> FutureResult<(), FlowyError> {
+    fn delete_app(&self, _token: &str, _params: AppIdPB) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn create_trash(&self, _token: &str, _params: RepeatedTrashId) -> FutureResult<(), FlowyError> {
+    fn create_trash(&self, _token: &str, _params: RepeatedTrashIdPB) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn delete_trash(&self, _token: &str, _params: RepeatedTrashId) -> FutureResult<(), FlowyError> {
+    fn delete_trash(&self, _token: &str, _params: RepeatedTrashIdPB) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
@@ -405,8 +405,8 @@ impl UserCloudService for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn get_user(&self, _token: &str) -> FutureResult<UserProfile, FlowyError> {
-        FutureResult::new(async { Ok(UserProfile::default()) })
+    fn get_user(&self, _token: &str) -> FutureResult<UserProfilePB, FlowyError> {
+        FutureResult::new(async { Ok(UserProfilePB::default()) })
     }
 
     fn ws_addr(&self) -> String {
@@ -419,8 +419,8 @@ impl BlockCloudService for LocalServer {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_block(&self, _token: &str, params: TextBlockId) -> FutureResult<Option<TextBlockInfo>, FlowyError> {
-        let doc = TextBlockInfo {
+    fn read_block(&self, _token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError> {
+        let doc = DocumentPB {
             block_id: params.value,
             text: initial_quill_delta_string(),
             rev_id: 0,

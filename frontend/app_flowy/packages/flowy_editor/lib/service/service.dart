@@ -1,5 +1,6 @@
+import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
-import 'package:flowy_editor/service/shortcut_service.dart';
+import 'package:flowy_editor/service/toolbar_service.dart';
 import 'package:flowy_editor/service/selection_service.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +15,13 @@ class FlowyService {
 
   // keyboard service
   final keyboardServiceKey = GlobalKey(debugLabel: 'flowy_keyboard_service');
+  FlowyKeyboardService? get keyboardService {
+    if (keyboardServiceKey.currentState != null &&
+        keyboardServiceKey.currentState is FlowyKeyboardService) {
+      return keyboardServiceKey.currentState! as FlowyKeyboardService;
+    }
+    return null;
+  }
 
   // input service
   final inputServiceKey = GlobalKey(debugLabel: 'flowy_input_service');
@@ -21,14 +29,13 @@ class FlowyService {
   // render plugin service
   late FlowyRenderPlugin renderPluginService;
 
-  // floating shortcut service
-  final floatingShortcutServiceKey =
-      GlobalKey(debugLabel: 'flowy_floating_shortcut_service');
-  FlowyFloatingShortcutService get floatingToolbarService {
-    assert(floatingShortcutServiceKey.currentState != null &&
-        floatingShortcutServiceKey.currentState
-            is FlowyFloatingShortcutService);
-    return floatingShortcutServiceKey.currentState!
-        as FlowyFloatingShortcutService;
+  // toolbar service
+  final toolbarServiceKey = GlobalKey(debugLabel: 'flowy_toolbar_service');
+  ToolbarService? get toolbarService {
+    if (toolbarServiceKey.currentState != null &&
+        toolbarServiceKey.currentState is ToolbarService) {
+      return toolbarServiceKey.currentState! as ToolbarService;
+    }
+    return null;
   }
 }

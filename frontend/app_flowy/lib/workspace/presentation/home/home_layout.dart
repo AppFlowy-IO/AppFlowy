@@ -27,6 +27,8 @@ class HomeLayout {
       menuWidth = Sizes.sideBarLg;
     }
 
+    menuWidth += homeBlocState.resizeOffset;
+
     if (forceCollapse) {
       showMenu = false;
     } else {

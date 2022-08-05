@@ -89,7 +89,7 @@ impl std::fmt::Debug for Revision {
         let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
         match RichTextDelta::from_bytes(&self.delta_data) {
             Ok(delta) => {
-                let _ = f.write_fmt(format_args!("delta {:?}", delta.to_delta_str()))?;
+                let _ = f.write_fmt(format_args!("delta {:?}", delta.json_str()))?;
             }
             Err(e) => {
                 let _ = f.write_fmt(format_args!("delta {:?}", e))?;
@@ -122,6 +122,12 @@ impl std::ops::DerefMut for RepeatedRevision {
 impl std::convert::From<Revision> for RepeatedRevision {
     fn from(revision: Revision) -> Self {
         Self { items: vec![revision] }
+    }
+}
+
+impl std::convert::From<Vec<Revision>> for RepeatedRevision {
+    fn from(revisions: Vec<Revision>) -> Self {
+        Self { items: revisions }
     }
 }
 

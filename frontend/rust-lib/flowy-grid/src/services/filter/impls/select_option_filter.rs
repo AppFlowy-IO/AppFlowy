@@ -2,8 +2,8 @@
 
 use crate::entities::{GridSelectOptionFilter, SelectOptionCondition};
 use crate::services::cell::{AnyCellData, CellFilterOperation};
-use crate::services::field::select_option::{SelectOptionOperation, SelectedSelectOptions};
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOption};
+use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOptionPB};
+use crate::services::field::{SelectOptionOperation, SelectedSelectOptions};
 use flowy_error::FlowyResult;
 
 impl GridSelectOptionFilter {
@@ -45,17 +45,17 @@ impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
             return Ok(true);
         }
 
-        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
+        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data.into()));
         Ok(filter.is_visible(&selected_options))
     }
 }
 
-impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOption {
+impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOptionPB {
     fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
         if !any_cell_data.is_single_select() {
             return Ok(true);
         }
-        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data));
+        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data.into()));
         Ok(filter.is_visible(&selected_options))
     }
 }
@@ -64,13 +64,13 @@ impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOption {
 mod tests {
     #![allow(clippy::all)]
     use crate::entities::{GridSelectOptionFilter, SelectOptionCondition};
-    use crate::services::field::select_option::{SelectOption, SelectedSelectOptions};
+    use crate::services::field::selection_type_option::{SelectOptionPB, SelectedSelectOptions};
 
     #[test]
     fn select_option_filter_is_test() {
-        let option_1 = SelectOption::new("A");
-        let option_2 = SelectOption::new("B");
-        let option_3 = SelectOption::new("C");
+        let option_1 = SelectOptionPB::new("A");
+        let option_2 = SelectOptionPB::new("B");
+        let option_3 = SelectOptionPB::new("C");
 
         let filter_1 = GridSelectOptionFilter {
             condition: SelectOptionCondition::OptionIs,

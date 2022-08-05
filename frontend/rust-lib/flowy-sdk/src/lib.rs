@@ -112,7 +112,7 @@ impl FlowySDK {
                 &config.server_config,
             );
 
-            let grid_manager = GridDepsResolver::resolve(ws_conn.clone(), user_session.clone());
+            let grid_manager = GridDepsResolver::resolve(ws_conn.clone(), user_session.clone()).await;
 
             let folder_manager = FolderDepsResolver::resolve(
                 local_server.clone(),
@@ -147,7 +147,7 @@ impl FlowySDK {
             )
         }));
 
-        _start_listening(&dispatcher, &ws_conn, &user_session, &folder_manager);
+        _start_listening(&dispatcher, &ws_conn, &user_session, &folder_manager, &grid_manager);
 
         Self {
             config,
@@ -171,10 +171,12 @@ fn _start_listening(
     ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
     folder_manager: &Arc<FolderManager>,
+    grid_manager: &Arc<GridManager>,
 ) {
     let subscribe_user_status = user_session.notifier.subscribe_user_status();
     let subscribe_network_type = ws_conn.subscribe_network_ty();
     let folder_manager = folder_manager.clone();
+    let grid_manager = grid_manager.clone();
     let cloned_folder_manager = folder_manager.clone();
     let ws_conn = ws_conn.clone();
     let user_session = user_session.clone();
@@ -182,7 +184,13 @@ fn _start_listening(
     dispatch.spawn(async move {
         user_session.init();
         listen_on_websocket(ws_conn.clone());
-        _listen_user_status(ws_conn.clone(), subscribe_user_status, folder_manager.clone()).await;
+        _listen_user_status(
+            ws_conn.clone(),
+            subscribe_user_status,
+            folder_manager.clone(),
+            grid_manager.clone(),
+        )
+        .await;
     });
 
     dispatch.spawn(async move {
@@ -209,6 +217,7 @@ async fn _listen_user_status(
     ws_conn: Arc<FlowyWebSocketConnect>,
     mut subscribe: broadcast::Receiver<UserStatus>,
     folder_manager: Arc<FolderManager>,
+    grid_manager: Arc<GridManager>,
 ) {
     while let Ok(status) = subscribe.recv().await {
         let result = || async {
@@ -216,6 +225,7 @@ async fn _listen_user_status(
                 UserStatus::Login { token, user_id } => {
                     tracing::trace!("User did login");
                     let _ = folder_manager.initialize(&user_id, &token).await?;
+                    let _ = grid_manager.initialize(&user_id, &token).await?;
                     let _ = ws_conn.start(token, user_id).await?;
                 }
                 UserStatus::Logout { .. } => {
@@ -233,6 +243,11 @@ async fn _listen_user_status(
                     let _ = folder_manager
                         .initialize_with_new_user(&profile.id, &profile.token)
                         .await?;
+
+                    let _ = grid_manager
+                        .initialize_with_new_user(&profile.id, &profile.token)
+                        .await?;
+
                     let _ = ws_conn.start(profile.token.clone(), profile.id.clone()).await?;
                     let _ = ret.send(());
                 }

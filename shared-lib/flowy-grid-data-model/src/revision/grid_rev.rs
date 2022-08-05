@@ -31,12 +31,7 @@ pub struct GridRevision {
     pub fields: Vec<Arc<FieldRevision>>,
     pub blocks: Vec<Arc<GridBlockMetaRevision>>,
 
-    #[cfg(feature = "filter")]
     #[serde(default)]
-    pub setting: GridSettingRevision,
-
-    #[cfg(not(feature = "filter"))]
-    #[serde(default, skip)]
     pub setting: GridSettingRevision,
 }
 
@@ -53,7 +48,7 @@ impl GridRevision {
     pub fn from_build_context(grid_id: &str, context: BuildGridContext) -> Self {
         Self {
             grid_id: grid_id.to_owned(),
-            fields: context.field_revs.into_iter().map(Arc::new).collect(),
+            fields: context.field_revs,
             blocks: context.blocks.into_iter().map(Arc::new).collect(),
             setting: Default::default(),
         }
@@ -128,6 +123,7 @@ pub struct FieldRevision {
     /// type_options contains key/value pairs
     /// key: id of the FieldType
     /// value: type option data that can be parsed into specified TypeOptionStruct.
+    ///
     /// For example, CheckboxTypeOption, MultiSelectTypeOption etc.
     #[serde(with = "indexmap::serde_seq")]
     pub type_options: IndexMap<String, String>,
@@ -190,15 +186,20 @@ impl FieldRevision {
     }
 }
 
+/// The macro [impl_type_option] will implement the [TypeOptionDataEntry] for the type that
+/// supports the serde trait and the TryInto<Bytes> trait.
 pub trait TypeOptionDataEntry {
     fn json_str(&self) -> String;
     fn protobuf_bytes(&self) -> Bytes;
 }
 
+/// The macro [impl_type_option] will implement the [TypeOptionDataDeserializer] for the type that
+/// supports the serde trait and the TryFrom<Bytes> trait.
 pub trait TypeOptionDataDeserializer {
     fn from_json_str(s: &str) -> Self;
     fn from_protobuf_bytes(bytes: Bytes) -> Self;
 }
+
 pub type FieldId = String;
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RowRevision {
@@ -245,7 +246,7 @@ impl CellRevision {
 
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct BuildGridContext {
-    pub field_revs: Vec<FieldRevision>,
+    pub field_revs: Vec<Arc<FieldRevision>>,
     pub blocks: Vec<GridBlockMetaRevision>,
     pub blocks_meta_data: Vec<GridBlockRevision>,
 }

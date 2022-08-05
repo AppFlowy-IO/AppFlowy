@@ -6,7 +6,7 @@ import 'cell_service/cell_service.dart';
 part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
-  final GridCellContext cellContext;
+  final GridCellController cellContext;
   void Function()? _onCellChangedFn;
 
   CheckboxCellBloc({
@@ -67,7 +67,7 @@ class CheckboxCellState with _$CheckboxCellState {
     required bool isSelected,
   }) = _CheckboxCellState;
 
-  factory CheckboxCellState.initial(GridCellContext context) {
+  factory CheckboxCellState.initial(GridCellController context) {
     return CheckboxCellState(isSelected: _isSelected(context.getCellData()));
   }
 }

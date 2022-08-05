@@ -145,7 +145,7 @@
           }
         ],
         "attributes": {
-          "subtype": "bullet-list"
+          "subtype": "bulleted-list"
         }
       },
       {
@@ -156,7 +156,7 @@
           }
         ],
         "attributes": {
-          "subtype": "bullet-list"
+          "subtype": "bulleted-list"
         }
       },
       {
@@ -171,7 +171,7 @@
           }
         ],
         "attributes": {
-          "subtype": "bullet-list"
+          "subtype": "bulleted-list"
         }
       },
       {

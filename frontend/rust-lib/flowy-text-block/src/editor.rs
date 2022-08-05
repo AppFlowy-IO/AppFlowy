@@ -9,7 +9,7 @@ use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket};
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
 use flowy_sync::{
-    entities::{revision::Revision, text_block::TextBlockInfo},
+    entities::{revision::Revision, text_block::DocumentPB},
     errors::CollaborateResult,
     util::make_delta_from_revisions,
 };
@@ -229,16 +229,16 @@ impl TextBlockEditor {
 
 struct TextBlockInfoBuilder();
 impl RevisionObjectBuilder for TextBlockInfoBuilder {
-    type Output = TextBlockInfo;
+    type Output = DocumentPB;
 
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = make_delta_from_revisions(revisions)?;
         correct_delta(&mut delta);
 
-        Result::<TextBlockInfo, FlowyError>::Ok(TextBlockInfo {
+        Result::<DocumentPB, FlowyError>::Ok(DocumentPB {
             block_id: object_id.to_owned(),
-            text: delta.to_delta_str(),
+            text: delta.json_str(),
             rev_id,
             base_rev_id,
         })

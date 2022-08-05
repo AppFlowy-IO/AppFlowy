@@ -1,7 +1,7 @@
 use crate::{
     dart_notification::*,
     entities::{
-        app::{App, CreateAppParams, *},
+        app::{AppPB, CreateAppParams, *},
         trash::TrashType,
     },
     errors::*,
@@ -44,12 +44,12 @@ impl AppController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, params), fields(name = %params.name) err)]
-    pub(crate) async fn create_app_from_params(&self, params: CreateAppParams) -> Result<App, FlowyError> {
+    pub(crate) async fn create_app_from_params(&self, params: CreateAppParams) -> Result<AppPB, FlowyError> {
         let app = self.create_app_on_server(params).await?;
         self.create_app_on_local(app).await
     }
 
-    pub(crate) async fn create_app_on_local(&self, app: AppRevision) -> Result<App, FlowyError> {
+    pub(crate) async fn create_app_on_local(&self, app: AppRevision) -> Result<AppPB, FlowyError> {
         let _ = self
             .persistence
             .begin_transaction(|transaction| {
@@ -61,7 +61,7 @@ impl AppController {
         Ok(app.into())
     }
 
-    pub(crate) async fn read_app(&self, params: AppId) -> Result<AppRevision, FlowyError> {
+    pub(crate) async fn read_app(&self, params: AppIdPB) -> Result<AppRevision, FlowyError> {
         let app = self
             .persistence
             .begin_transaction(|transaction| {
@@ -81,7 +81,7 @@ impl AppController {
         let changeset = AppChangeset::new(params.clone());
         let app_id = changeset.id.clone();
 
-        let app: App = self
+        let app: AppPB = self
             .persistence
             .begin_transaction(|transaction| {
                 let _ = transaction.update_app(changeset)?;
@@ -150,7 +150,7 @@ impl AppController {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    fn read_app_on_server(&self, params: AppId) -> Result<(), FlowyError> {
+    fn read_app_on_server(&self, params: AppIdPB) -> Result<(), FlowyError> {
         let token = self.user.token()?;
         let server = self.cloud_service.clone();
         let persistence = self.persistence.clone();
@@ -162,7 +162,7 @@ impl AppController {
                         .await
                     {
                         Ok(_) => {
-                            let app: App = app_rev.into();
+                            let app: AppPB = app_rev.into();
                             send_dart_notification(&app.id, FolderNotification::AppUpdated)
                                 .payload(app)
                                 .send();
@@ -247,7 +247,7 @@ fn notify_apps_changed<'a>(
         .into_iter()
         .map(|app_rev| app_rev.into())
         .collect();
-    let repeated_app = RepeatedApp { items };
+    let repeated_app = RepeatedAppPB { items };
     send_dart_notification(workspace_id, FolderNotification::WorkspaceAppsChanged)
         .payload(repeated_app)
         .send();

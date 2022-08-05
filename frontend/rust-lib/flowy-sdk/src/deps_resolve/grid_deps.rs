@@ -16,14 +16,23 @@ use std::sync::Arc;
 pub struct GridDepsResolver();
 
 impl GridDepsResolver {
-    pub fn resolve(ws_conn: Arc<FlowyWebSocketConnect>, user_session: Arc<UserSession>) -> Arc<GridManager> {
+    pub async fn resolve(ws_conn: Arc<FlowyWebSocketConnect>, user_session: Arc<UserSession>) -> Arc<GridManager> {
         let user = Arc::new(GridUserImpl(user_session.clone()));
         let rev_web_socket = Arc::new(GridWebSocket(ws_conn));
-        Arc::new(GridManager::new(
-            user,
+        let grid_manager = Arc::new(GridManager::new(
+            user.clone(),
             rev_web_socket,
             Arc::new(GridDatabaseImpl(user_session)),
-        ))
+        ));
+
+        if let (Ok(user_id), Ok(token)) = (user.user_id(), user.token()) {
+            match grid_manager.initialize(&user_id, &token).await {
+                Ok(_) => {}
+                Err(e) => tracing::error!("Initialize grid manager failed: {}", e),
+            }
+        }
+
+        grid_manager
     }
 }
 

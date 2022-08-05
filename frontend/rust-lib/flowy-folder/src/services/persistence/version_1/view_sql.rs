@@ -1,6 +1,6 @@
 use crate::{
     entities::{
-        trash::{Trash, TrashType},
+        trash::{TrashPB, TrashType},
         view::UpdateViewParams,
     },
     errors::FlowyError,
@@ -133,9 +133,9 @@ impl std::convert::From<ViewTable> for ViewRevision {
     }
 }
 
-impl std::convert::From<ViewTable> for Trash {
+impl std::convert::From<ViewTable> for TrashPB {
     fn from(table: ViewTable) -> Self {
-        Trash {
+        TrashPB {
             id: table.id,
             name: table.name,
             modified_time: table.modified_time,

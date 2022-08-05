@@ -26,7 +26,7 @@ Attributes? composeAttributes(Attributes? a, Attributes? b) {
   a ??= {};
   b ??= {};
   final Attributes attributes = {};
-  attributes.addAll(b);
+  attributes.addAll(Map.from(b)..removeWhere((_, value) => value == null));
 
   for (final entry in a.entries) {
     if (!b.containsKey(entry.key)) {

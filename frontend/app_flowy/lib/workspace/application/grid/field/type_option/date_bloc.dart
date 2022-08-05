@@ -1,14 +1,15 @@
 import 'package:app_flowy/workspace/application/grid/field/type_option/type_option_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 part 'date_bloc.freezed.dart';
 
-typedef DateTypeOptionContext = TypeOptionContext<DateTypeOption>;
+typedef DateTypeOptionContext = TypeOptionWidgetContext<DateTypeOption>;
 
-class DateTypeOptionDataBuilder extends TypeOptionDataBuilder<DateTypeOption> {
+class DateTypeOptionDataParser extends TypeOptionDataParser<DateTypeOption> {
   @override
   DateTypeOption fromBuffer(List<int> buffer) {
     return DateTypeOption.fromBuffer(buffer);

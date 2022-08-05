@@ -18,20 +18,20 @@ class FlowySvg extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (name != null) {
-      return SizedBox.fromSize(
-        size: size,
-        child: SvgPicture.asset(
-          'assets/images/$name.svg',
-          color: color,
-          package: 'flowy_editor',
-        ),
+      return SvgPicture.asset(
+        'assets/images/$name.svg',
+        color: color,
+        package: 'flowy_editor',
+        width: size.width,
+        height: size.width,
       );
     } else if (number != null) {
       final numberText =
           '<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><text x="30" y="150" fill="black" font-size="160">$number.</text></svg>';
-      return SizedBox.fromSize(
-        size: size,
-        child: SvgPicture.string(numberText),
+      return SvgPicture.string(
+        numberText,
+        width: size.width,
+        height: size.width,
       );
     }
     return Container();

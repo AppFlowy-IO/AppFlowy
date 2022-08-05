@@ -1,4 +1,5 @@
-use crate::core::{Attributes, FlowyStr, Insert, Operation, Retain};
+use crate::core::operation::{Attributes, Insert, Operation, Retain};
+use crate::core::ot_str::OTString;
 use serde::{
     de,
     de::{MapAccess, SeqAccess, Visitor},
@@ -248,7 +249,7 @@ where
             where
                 A: SeqAccess<'de>,
             {
-                let s = match serde::de::SeqAccess::next_element::<FlowyStr>(&mut seq)? {
+                let s = match serde::de::SeqAccess::next_element::<OTString>(&mut seq)? {
                     Some(val) => val,
                     None => {
                         return Err(de::Error::invalid_length(0, &"struct Insert with 2 elements"));
@@ -270,7 +271,7 @@ where
             where
                 V: MapAccess<'de>,
             {
-                let mut s: Option<FlowyStr> = None;
+                let mut s: Option<OTString> = None;
                 let mut attributes: Option<T> = None;
                 while let Some(key) = map.next_key()? {
                     match key {

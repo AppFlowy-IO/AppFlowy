@@ -1,8 +1,8 @@
-use crate::{
-    core::{FlowyStr, Interval, OpBuilder, OperationTransformable},
-    errors::OTError,
-};
+use crate::core::interval::Interval;
+use crate::core::ot_str::OTString;
+use crate::errors::OTError;
 use serde::{Deserialize, Serialize, __private::Formatter};
+use std::fmt::Display;
 use std::{
     cmp::min,
     fmt,
@@ -10,15 +10,91 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-pub trait Attributes: fmt::Display + Eq + PartialEq + Default + Clone + Debug + OperationTransformable {
-    fn is_empty(&self) -> bool;
+pub trait OperationTransform {
+    /// Merges the operation with `other` into one operation while preserving
+    /// the changes of both.    
+    ///
+    /// # Arguments
+    ///
+    /// * `other`: The delta gonna to merge.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///  use lib_ot::core::{OperationTransform, TextDeltaBuilder};
+    ///  let document = TextDeltaBuilder::new().build();
+    ///  let delta = TextDeltaBuilder::new().insert("abc").build();
+    ///  let new_document = document.compose(&delta).unwrap();
+    ///  assert_eq!(new_document.content().unwrap(), "abc".to_owned());
+    /// ```
+    fn compose(&self, other: &Self) -> Result<Self, OTError>
+    where
+        Self: Sized;
 
-    // Remove the empty attribute which value is None.
-    fn remove_empty(&mut self);
+    /// Transforms two operations a and b that happened concurrently and
+    /// produces two operations a' and b'.
+    ///  (a', b') = a.transform(b)
+    ///  a.compose(b') = b.compose(a')    
+    ///
+    fn transform(&self, other: &Self) -> Result<(Self, Self), OTError>
+    where
+        Self: Sized;
 
-    fn extend_other(&mut self, other: Self);
+    /// Returns the invert delta from the other. It can be used to do the undo operation.
+    ///
+    /// # Arguments
+    ///
+    /// * `other`:  Generate the undo delta for [Other]. [Other] can compose the undo delta to return
+    /// to the previous state.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::{OperationTransform, TextDeltaBuilder};
+    /// let original_document = TextDeltaBuilder::new().build();
+    /// let delta = TextDeltaBuilder::new().insert("abc").build();
+    ///
+    /// let undo_delta = delta.invert(&original_document);
+    /// let new_document = original_document.compose(&delta).unwrap();
+    /// let document = new_document.compose(&undo_delta).unwrap();
+    ///
+    /// assert_eq!(original_document, document);
+    ///
+    /// ```
+    fn invert(&self, other: &Self) -> Self;
 }
 
+/// Each operation can carry attributes. For example, the [RichTextAttributes] has a list of key/value attributes.
+/// Such as { bold: true, italic: true }.  
+///
+///Because [Operation] is generic over the T, so you must specify the T. For example, the [TextDelta] uses
+///[PhantomAttributes] as the T. [PhantomAttributes] does nothing, just a phantom.
+///
+pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + OperationTransform {
+    fn is_empty(&self) -> bool {
+        true
+    }
+
+    /// Remove the empty attribute which value is None.
+    fn remove_empty(&mut self) {
+        // Do nothing
+    }
+
+    fn extend_other(&mut self, _other: Self) {
+        // Do nothing
+    }
+}
+
+/// [Operation] consists of three types.
+/// * Delete
+/// * Retain
+/// * Insert
+///
+/// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/delta) out for more information.
+///
+/// The [T] should support serde if you want to serialize/deserialize the operation
+/// to json string. You could check out the operation_serde.rs for more information.
+///
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Operation<T: Attributes> {
     Delete(usize),
@@ -30,6 +106,40 @@ impl<T> Operation<T>
 where
     T: Attributes,
 {
+    pub fn delete(n: usize) -> Self {
+        Self::Delete(n)
+    }
+
+    /// Create a [Retain] operation with the given attributes
+    pub fn retain_with_attributes(n: usize, attributes: T) -> Self {
+        Self::Retain(Retain { n, attributes })
+    }
+
+    /// Create a [Retain] operation without attributes
+    pub fn retain(n: usize) -> Self {
+        Self::Retain(Retain {
+            n,
+            attributes: T::default(),
+        })
+    }
+
+    /// Create a [Insert] operation with the given attributes
+    pub fn insert_with_attributes(s: &str, attributes: T) -> Self {
+        Self::Insert(Insert {
+            s: OTString::from(s),
+            attributes,
+        })
+    }
+
+    /// Create a [Insert] operation without attributes
+    pub fn insert(s: &str) -> Self {
+        Self::Insert(Insert {
+            s: OTString::from(s),
+            attributes: T::default(),
+        })
+    }
+
+    /// Return the String if the operation is [Insert] operation, otherwise return the empty string.
     pub fn get_data(&self) -> &str {
         match self {
             Operation::Delete(_) => "",
@@ -77,43 +187,58 @@ where
         let right;
         match self {
             Operation::Delete(n) => {
-                left = Some(OpBuilder::<T>::delete(index).build());
-                right = Some(OpBuilder::<T>::delete(*n - index).build());
+                left = Some(Operation::<T>::delete(index));
+                right = Some(Operation::<T>::delete(*n - index));
             }
             Operation::Retain(retain) => {
-                left = Some(OpBuilder::<T>::delete(index).build());
-                right = Some(OpBuilder::<T>::delete(retain.n - index).build());
+                left = Some(Operation::<T>::delete(index));
+                right = Some(Operation::<T>::delete(retain.n - index));
             }
             Operation::Insert(insert) => {
                 let attributes = self.get_attributes();
-                left = Some(
-                    OpBuilder::<T>::insert(&insert.s[0..index])
-                        .attributes(attributes.clone())
-                        .build(),
-                );
-                right = Some(
-                    OpBuilder::<T>::insert(&insert.s[index..insert.utf16_size()])
-                        .attributes(attributes)
-                        .build(),
-                );
+                left = Some(Operation::<T>::insert_with_attributes(
+                    &insert.s[0..index],
+                    attributes.clone(),
+                ));
+                right = Some(Operation::<T>::insert_with_attributes(
+                    &insert.s[index..insert.utf16_size()],
+                    attributes,
+                ));
             }
         }
 
         (left, right)
     }
 
+    /// Returns an operation with the specified width.
+    /// # Arguments
+    ///
+    /// * `interval`: Specify the shrink width of the operation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::{Interval, Operation, PhantomAttributes};
+    /// let operation = Operation::<PhantomAttributes>::insert("1234");
+    ///
+    /// let op1 = operation.shrink(Interval::new(0,3)).unwrap();
+    /// assert_eq!(op1 , Operation::insert("123"));
+    ///
+    /// let op2= operation.shrink(Interval::new(3,4)).unwrap();
+    /// assert_eq!(op2, Operation::insert("4"));
+    /// ```
     pub fn shrink(&self, interval: Interval) -> Option<Operation<T>> {
         let op = match self {
-            Operation::Delete(n) => OpBuilder::delete(min(*n, interval.size())).build(),
-            Operation::Retain(retain) => OpBuilder::retain(min(retain.n, interval.size()))
-                .attributes(retain.attributes.clone())
-                .build(),
+            Operation::Delete(n) => Operation::delete(min(*n, interval.size())),
+            Operation::Retain(retain) => {
+                Operation::retain_with_attributes(min(retain.n, interval.size()), retain.attributes.clone())
+            }
             Operation::Insert(insert) => {
                 if interval.start > insert.utf16_size() {
-                    OpBuilder::insert("").build()
+                    Operation::insert("")
                 } else {
                     let s = insert.s.sub_str(interval).unwrap_or_else(|| "".to_owned());
-                    OpBuilder::insert(&s).attributes(insert.attributes.clone()).build()
+                    Operation::insert_with_attributes(&s, insert.attributes.clone())
                 }
             }
         };
@@ -178,9 +303,7 @@ where
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Retain<T: Attributes> {
-    // #[serde(rename(serialize = "retain", deserialize = "retain"))]
     pub n: usize,
-    // #[serde(skip_serializing_if = "is_empty")]
     pub attributes: T,
 }
 
@@ -212,7 +335,7 @@ where
             self.n += n;
             None
         } else {
-            Some(OpBuilder::retain(n).attributes(attributes).build())
+            Some(Operation::retain_with_attributes(n, attributes))
         }
     }
 
@@ -255,10 +378,7 @@ where
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Insert<T: Attributes> {
-    // #[serde(rename(serialize = "insert", deserialize = "insert"))]
-    pub s: FlowyStr,
-
-    // #[serde(skip_serializing_if = "is_empty")]
+    pub s: OTString,
     pub attributes: T,
 }
 
@@ -288,7 +408,7 @@ where
     T: Attributes,
 {
     pub fn utf16_size(&self) -> usize {
-        self.s.utf16_size()
+        self.s.utf16_len()
     }
 
     pub fn merge_or_new_op(&mut self, s: &str, attributes: T) -> Option<Operation<T>> {
@@ -296,7 +416,7 @@ where
             self.s += s;
             None
         } else {
-            Some(OpBuilder::<T>::insert(s).attributes(attributes).build())
+            Some(Operation::<T>::insert_with_attributes(s, attributes))
         }
     }
 
@@ -326,11 +446,11 @@ where
     }
 }
 
-impl<T> std::convert::From<FlowyStr> for Insert<T>
+impl<T> std::convert::From<OTString> for Insert<T>
 where
     T: Attributes,
 {
-    fn from(s: FlowyStr) -> Self {
+    fn from(s: OTString) -> Self {
         Insert {
             s,
             attributes: T::default(),
@@ -339,24 +459,16 @@ where
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
-pub struct PlainTextAttributes();
-impl fmt::Display for PlainTextAttributes {
+pub struct PhantomAttributes();
+impl fmt::Display for PhantomAttributes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("PlainAttributes")
+        f.write_str("PhantomAttributes")
     }
 }
 
-impl Attributes for PlainTextAttributes {
-    fn is_empty(&self) -> bool {
-        true
-    }
+impl Attributes for PhantomAttributes {}
 
-    fn remove_empty(&mut self) {}
-
-    fn extend_other(&mut self, _other: Self) {}
-}
-
-impl OperationTransformable for PlainTextAttributes {
+impl OperationTransform for PhantomAttributes {
     fn compose(&self, _other: &Self) -> Result<Self, OTError> {
         Ok(self.clone())
     }

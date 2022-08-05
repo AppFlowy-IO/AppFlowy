@@ -11,7 +11,7 @@ part 'view_bloc.freezed.dart';
 class ViewBloc extends Bloc<ViewEvent, ViewState> {
   final ViewService service;
   final ViewListener listener;
-  final View view;
+  final ViewPB view;
 
   ViewBloc({
     required this.view,
@@ -81,18 +81,18 @@ class ViewEvent with _$ViewEvent {
   const factory ViewEvent.rename(String newName) = Rename;
   const factory ViewEvent.delete() = Delete;
   const factory ViewEvent.duplicate() = Duplicate;
-  const factory ViewEvent.viewDidUpdate(Either<View, FlowyError> result) = ViewDidUpdate;
+  const factory ViewEvent.viewDidUpdate(Either<ViewPB, FlowyError> result) = ViewDidUpdate;
 }
 
 @freezed
 class ViewState with _$ViewState {
   const factory ViewState({
-    required View view,
+    required ViewPB view,
     required bool isEditing,
     required Either<Unit, FlowyError> successOrFailure,
   }) = _ViewState;
 
-  factory ViewState.init(View view) => ViewState(
+  factory ViewState.init(ViewPB view) => ViewState(
         view: view,
         isEditing: false,
         successOrFailure: left(unit),
