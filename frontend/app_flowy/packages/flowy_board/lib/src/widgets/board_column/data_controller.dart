@@ -71,7 +71,13 @@ class BoardColumnDataController extends ChangeNotifier
   void insert(int index, ColumnItem item, {bool notify = true}) {
     Log.debug(
         '[$BoardColumnDataController] $columnData insert $item at $index');
-    columnData._items.insert(index, item);
+
+    if (columnData._items.length > index) {
+      columnData._items.insert(index, item);
+    } else {
+      columnData._items.add(item);
+    }
+
     if (notify) {
       notifyListeners();
     }
