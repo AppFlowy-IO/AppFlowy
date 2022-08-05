@@ -38,6 +38,8 @@ dependencies:
     path: ../
   provider: ^6.0.3
   url_launcher: ^6.1.5
+  video_player: ^2.4.5
+  pod_player: 0.0.8
 
 dev_dependencies:
   flutter_test:

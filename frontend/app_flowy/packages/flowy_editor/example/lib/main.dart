@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:example/expandable_floating_action_button.dart';
 import 'package:example/plugin/image_node_widget.dart';
+import 'package:example/plugin/youtube_link_node_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flutter/services.dart';
@@ -122,6 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
             keyEventHandlers: const [],
             customBuilders: {
               'image': ImageNodeBuilder(),
+              'youtube_link': YouTubeLinkNodeBuilder()
             },
             shortcuts: [
               // TODO: this won't work, just a example for now.
