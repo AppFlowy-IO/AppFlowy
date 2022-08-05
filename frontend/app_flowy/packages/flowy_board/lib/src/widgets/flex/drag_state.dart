@@ -15,7 +15,7 @@ class FlexDragTargetData extends DragTargetData {
 
   Widget? get draggingWidget => state.draggingWidget;
 
-  Size? get draggingFeedbackSize => state.feedbackSize;
+  Size? get feedbackSize => state.feedbackSize;
 
   /// Indicate the dragTarget come from which [ReorderFlex].
   final DraggingReorderFlex draggingReorderFlex;

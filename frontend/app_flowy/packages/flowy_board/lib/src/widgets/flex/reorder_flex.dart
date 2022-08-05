@@ -386,20 +386,20 @@ class ReorderFlexState extends State<ReorderFlex> with ReorderFlexMinxi, TickerP
     });
   }
 
-  bool handleOnWillAccept(BuildContext context, int? dragIndex, int childIndex) {
+  bool handleOnWillAccept(BuildContext context, int? dragIndex, int dragTargetIndex) {
     /// The [willAccept] will be true if the dargTarget is the widget that gets
     /// dragged and it is dragged on top of the other dragTargets.
     ///
-    Log.trace(
-        '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, count: ${widget.dataSource.items.length}');
+    Log.debug(
+        '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, dragIndex:$dragIndex, dragTargetIndex:$dragTargetIndex, count: ${widget.dataSource.items.length}');
 
-    bool willAccept = dragState.dragStartIndex == dragIndex && dragIndex != childIndex;
+    bool willAccept = dragState.dragStartIndex == dragIndex && dragIndex != dragTargetIndex;
     setState(() {
       if (willAccept) {
-        int shiftedIndex = dragState.calculateShiftedIndex(childIndex);
+        int shiftedIndex = dragState.calculateShiftedIndex(dragTargetIndex);
         dragState.updateNextIndex(shiftedIndex);
       } else {
-        dragState.updateNextIndex(childIndex);
+        dragState.updateNextIndex(dragTargetIndex);
       }
 
       _requestAnimationToNextIndex(isAcceptingNewTarget: true);

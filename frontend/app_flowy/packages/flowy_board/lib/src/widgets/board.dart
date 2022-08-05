@@ -129,24 +129,16 @@ class _BoardContentState extends State<BoardContent> {
   void initState() {
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
-        List<Widget> children = widget.dataController.columnDatas.map((columnData) {
-          return _buildColumn(
-            columnData.id,
-            widget.dataController.columnIds,
-            widget.dataController.columnController(columnData.id),
-          );
-        }).toList();
-
         final interceptor = OverlapReorderFlexDragTargetInteceptor(
           reorderFlexId: widget.dataController.identifier,
           acceptedReorderFlexId: widget.dataController.columnIds,
           delegate: widget.delegate,
         );
 
-        Widget reorderFlex = ReorderFlex(
+        final reorderFlex = ReorderFlex(
           key: widget.key,
-          scrollController: widget.scrollController,
           config: widget.config,
+          scrollController: widget.scrollController,
           onDragStarted: widget.onDragStarted,
           onReorder: widget.onReorder,
           onDragEnded: widget.onDragEnded,
@@ -154,7 +146,7 @@ class _BoardContentState extends State<BoardContent> {
           direction: Axis.horizontal,
           spacing: widget.spacing,
           interceptor: interceptor,
-          children: children,
+          children: _buildColumns(),
         );
 
         return Stack(
@@ -178,33 +170,37 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  Widget _buildColumn(
-    String columnId,
-    List<String> acceptColumns,
-    BoardColumnDataController dataController,
-  ) {
-    return ChangeNotifierProvider.value(
-      key: ValueKey(columnId),
-      value: dataController,
-      child: Consumer<BoardColumnDataController>(
-        builder: (context, value, child) {
-          return ConstrainedBox(
-            constraints: widget.columnConstraints,
-            child: BoardColumnWidget(
-              headerBuilder: widget.headerBuilder,
-              footBuilder: widget.footBuilder,
-              cardBuilder: widget.cardBuilder,
-              acceptedColumns: acceptColumns,
-              dataController: dataController,
-              scrollController: ScrollController(),
-              onReorder: (_, int fromIndex, int toIndex) {
-                dataController.move(fromIndex, toIndex);
-              },
-              phantomController: widget.phantomController,
-            ),
-          );
-        },
-      ),
-    );
+  List<Widget> _buildColumns() {
+    final acceptColumns = widget.dataController.columnIds;
+
+    final List<Widget> children = widget.dataController.columnDatas.map((columnData) {
+      final dataController = widget.dataController.columnController(columnData.id);
+
+      return ChangeNotifierProvider.value(
+        key: ValueKey(columnData.id),
+        value: dataController,
+        child: Consumer<BoardColumnDataController>(
+          builder: (context, value, child) {
+            return ConstrainedBox(
+              constraints: widget.columnConstraints,
+              child: BoardColumnWidget(
+                headerBuilder: widget.headerBuilder,
+                footBuilder: widget.footBuilder,
+                cardBuilder: widget.cardBuilder,
+                acceptedColumns: acceptColumns,
+                dataController: dataController,
+                scrollController: ScrollController(),
+                phantomController: widget.phantomController,
+                onReorder: (_, int fromIndex, int toIndex) {
+                  dataController.move(fromIndex, toIndex);
+                },
+              ),
+            );
+          },
+        ),
+      );
+    }).toList();
+
+    return children;
   }
 }
