@@ -4,18 +4,23 @@ import '../../utils/log.dart';
 import 'drag_target.dart';
 import 'reorder_flex.dart';
 
-/// [FlexDragTargetData] is used to store the custom dragging data. It can be used to
-/// locate the index of the dragging widget in the [BoardList].
+/// [FlexDragTargetData] is used to store the custom dragging data.
+///
+/// * [draggingIndex] the index of the dragTarget that is being dragged.
+/// * [draggingWidget] the widget of the dragTarget that is being dragged.
+/// * [reorderFlexId] the id of the [ReorderFlex]
+/// * [reorderFlexItem] the item of the [ReorderFlex]
+///
 class FlexDragTargetData extends DragTargetData {
   /// The index of the dragging target in the boardList.
   @override
   final int draggingIndex;
 
-  final DraggingState state;
+  final DraggingState _state;
 
-  Widget? get draggingWidget => state.draggingWidget;
+  Widget? get draggingWidget => _state.draggingWidget;
 
-  Size? get feedbackSize => state.feedbackSize;
+  Size? get feedbackSize => _state.feedbackSize;
 
   final String dragTargetId;
 
@@ -28,8 +33,8 @@ class FlexDragTargetData extends DragTargetData {
     required this.draggingIndex,
     required this.reorderFlexId,
     required this.reorderFlexItem,
-    required this.state,
-  });
+    required DraggingState state,
+  }) : _state = state;
 
   @override
   String toString() {

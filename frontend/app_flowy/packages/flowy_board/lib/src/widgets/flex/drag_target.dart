@@ -13,9 +13,14 @@ abstract class ReorderFlexDraggableTargetBuilder {
       DragTargetWillAccpet<T> onWillAccept);
 }
 
+///
 typedef DragTargetWillAccpet<T extends DragTargetData> = bool Function(
     T dragTargetData);
+
+///
 typedef DragTargetOnStarted = void Function(Widget, int, Size?);
+
+///
 typedef DragTargetOnEnded<T extends DragTargetData> = void Function(
     T dragTargetData);
 

@@ -37,7 +37,8 @@ class BoardColumnData extends ReoderFlexItem with EquatableMixin {
   }
 }
 
-class BoardColumnDataController extends ChangeNotifier with EquatableMixin, ReoderFlextDataSource {
+class BoardColumnDataController extends ChangeNotifier
+    with EquatableMixin, ReoderFlextDataSource {
   final BoardColumnData columnData;
 
   BoardColumnDataController({
@@ -60,14 +61,16 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin, Reod
     if (fromIndex == toIndex) {
       return;
     }
-    Log.debug('[$BoardColumnDataController] $columnData move item from $fromIndex to $toIndex');
+    Log.debug(
+        '[$BoardColumnDataController] $columnData move item from $fromIndex to $toIndex');
     final item = columnData._items.removeAt(fromIndex);
     columnData._items.insert(toIndex, item);
     notifyListeners();
   }
 
   void insert(int index, ColumnItem item, {bool notify = true}) {
-    Log.debug('[$BoardColumnDataController] $columnData insert $item at $index');
+    Log.debug(
+        '[$BoardColumnDataController] $columnData insert $item at $index');
     columnData._items.insert(index, item);
     if (notify) {
       notifyListeners();
@@ -77,8 +80,18 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin, Reod
   void replace(int index, ColumnItem item) {
     final removedItem = columnData._items.removeAt(index);
     columnData._items.insert(index, item);
-    Log.debug('[$BoardColumnDataController] $columnData replace $removedItem with $item at $index');
+    Log.debug(
+        '[$BoardColumnDataController] $columnData replace $removedItem with $item at $index');
     notifyListeners();
+  }
+
+  void debugPrintItems() {
+    String msg = '[$BoardColumnDataController] $columnData data: ';
+    for (var element in items) {
+      msg = '$msg$element,';
+    }
+
+    Log.debug(msg);
   }
 
   @override

@@ -1,8 +1,8 @@
 import 'phantom_controller.dart';
 import 'package:flutter/material.dart';
 
-class ColumnPassthroughStateController {
-  final _states = <String, ColumnPassthrougPhantomhState>{};
+class ColumnPhantomStateController {
+  final _states = <String, ColumnState>{};
 
   void setColumnIsDragging(String columnId, bool isDragging) {
     _stateWithId(columnId).isDragging = isDragging;
@@ -32,17 +32,17 @@ class ColumnPassthroughStateController {
     _stateWithId(columnId).notifier.remove();
   }
 
-  ColumnPassthrougPhantomhState _stateWithId(String columnId) {
+  ColumnState _stateWithId(String columnId) {
     var state = _states[columnId];
     if (state == null) {
-      state = ColumnPassthrougPhantomhState();
+      state = ColumnState();
       _states[columnId] = state;
     }
     return state;
   }
 }
 
-class ColumnPassthrougPhantomhState {
+class ColumnState {
   bool isDragging = false;
   final notifier = PassthroughPhantomNotifier();
 }

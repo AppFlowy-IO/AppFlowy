@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../rendering/board_overlay.dart';
-import '../../utils/log.dart';
 import '../phantom/phantom_controller.dart';
 import '../flex/reorder_flex.dart';
 import '../flex/drag_target_inteceptor.dart';
@@ -110,7 +109,7 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
           onDragEnded: () {
             widget.phantomController.columnEndDragging(widget.columnId);
             widget.onDragEnded?.call(widget.columnId);
-            _printItems(widget.dataController);
+            widget.dataController.debugPrintItems();
           },
           dataSource: widget.dataController,
           interceptor: interceptor,
@@ -150,13 +149,4 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
       return widget.cardBuilder(context, item);
     }
   }
-}
-
-void _printItems(BoardColumnDataController dataController) {
-  String msg = 'Column${dataController.columnData} data: ';
-  for (var element in dataController.items) {
-    msg = '$msg$element,';
-  }
-
-  Log.debug(msg);
 }
