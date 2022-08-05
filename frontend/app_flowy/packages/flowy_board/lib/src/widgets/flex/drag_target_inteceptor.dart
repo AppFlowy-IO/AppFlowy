@@ -25,7 +25,8 @@ abstract class ReorderFlexDragTargetInterceptor {
 
 abstract class OverlapReorderFlexDragTargetDelegate {}
 
-class OverlapReorderFlexDragTargetInteceptor extends ReorderFlexDragTargetInterceptor {
+class OverlapReorderFlexDragTargetInteceptor
+    extends ReorderFlexDragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapReorderFlexDragTargetDelegate delegate;
@@ -49,7 +50,7 @@ class OverlapReorderFlexDragTargetInteceptor extends ReorderFlexDragTargetInterc
       required String dragTargetId,
       required int dragTargetIndex}) {
     if (dragTargetId == dragTargetData.reorderFlexId) {
-      Log.debug('remove all phantom');
+      // Log.debug('remove all phantom');
     }
 
     return true;
@@ -60,7 +61,7 @@ abstract class CrossReorderFlexDragTargetDelegate {
   bool acceptNewDragTargetData(
     String reorderFlexId,
     FlexDragTargetData dragTargetData,
-    int index,
+    int dragTargetIndex,
   );
 
   void updateDragTargetData(
@@ -70,7 +71,8 @@ abstract class CrossReorderFlexDragTargetDelegate {
   );
 }
 
-class CrossReorderFlexDragTargetInterceptor extends ReorderFlexDragTargetInterceptor {
+class CrossReorderFlexDragTargetInterceptor
+    extends ReorderFlexDragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexIds;
   final CrossReorderFlexDragTargetDelegate delegate;
@@ -102,21 +104,24 @@ class CrossReorderFlexDragTargetInterceptor extends ReorderFlexDragTargetInterce
 
   @override
   void onAccept(FlexDragTargetData dragTargetData) {
-    Log.trace('[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on onAccept');
+    Log.trace(
+        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on onAccept');
   }
 
   @override
   void onLeave(FlexDragTargetData dragTargetData) {
-    Log.trace('[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on leave');
+    Log.trace(
+        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on leave');
   }
 
   @override
-  bool onWillAccept(
-      {required BuildContext context,
-      required ReorderFlexState reorderFlexState,
-      required FlexDragTargetData dragTargetData,
-      required String dragTargetId,
-      required int dragTargetIndex}) {
+  bool onWillAccept({
+    required BuildContext context,
+    required ReorderFlexState reorderFlexState,
+    required FlexDragTargetData dragTargetData,
+    required String dragTargetId,
+    required int dragTargetIndex,
+  }) {
     final isNewDragTarget = delegate.acceptNewDragTargetData(
       reorderFlexId,
       dragTargetData,
@@ -132,7 +137,6 @@ class CrossReorderFlexDragTargetInterceptor extends ReorderFlexDragTargetInterce
 
       reorderFlexState.handleOnWillAccept(
         context,
-        dragTargetData.draggingIndex,
         dragTargetIndex,
       );
     }
