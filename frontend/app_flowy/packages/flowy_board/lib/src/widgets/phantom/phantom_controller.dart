@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import '../../../flowy_board.dart';
 import '../../utils/log.dart';
 import '../flex/drag_state.dart';
@@ -126,7 +127,7 @@ class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate with C
     delegate.controller(toColumnId)?.insert(phantomIndex, PhantomColumnItem(phantomContext));
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 00), () {
+      Future.delayed(const Duration(milliseconds: 100), () {
         columnsState.notifyDidInsertPhantom(toColumnId);
       });
     });
@@ -172,13 +173,13 @@ class BoardPhantomController extends OverlapReorderFlexDragTargetDelegate with C
   }
 
   @override
-  void updateDragTargetData(String reorderFlexId, FlexDragTargetData dragTargetData, int index) {
-    phantomRecord?.updateInsertedIndex(index);
+  void updateDragTargetData(String reorderFlexId, FlexDragTargetData dragTargetData, int dragTargetIndex) {
+    phantomRecord?.updateInsertedIndex(dragTargetIndex);
 
     assert(phantomRecord != null);
     if (phantomRecord!.toColumnId == reorderFlexId) {
       /// Update the existing phantom index
-      _updatePhantom(phantomRecord!.toColumnId, dragTargetData, index);
+      _updatePhantom(phantomRecord!.toColumnId, dragTargetData, dragTargetIndex);
     }
   }
 }

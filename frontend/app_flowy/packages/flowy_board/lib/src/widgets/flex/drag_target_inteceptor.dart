@@ -66,7 +66,7 @@ abstract class CrossReorderFlexDragTargetDelegate {
   void updateDragTargetData(
     String reorderFlexId,
     FlexDragTargetData dragTargetData,
-    int index,
+    int dragTargetIndex,
   );
 }
 
