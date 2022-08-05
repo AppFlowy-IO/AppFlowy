@@ -1,13 +1,14 @@
 import 'dart:async';
 
-import 'package:flowy_editor/document/node_iterator.dart';
-import 'package:flowy_editor/document/state_tree.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/node_iterator.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
+import 'package:flowy_editor/document/state_tree.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/extensions/node_extensions.dart';
 import 'package:flowy_editor/render/selection/cursor_widget.dart';
@@ -101,102 +102,18 @@ class FlowySelection extends StatefulWidget {
   State<FlowySelection> createState() => _FlowySelectionState();
 }
 
-/// Because the flutter's [DoubleTapGestureRecognizer] will block the [TapGestureRecognizer]
-/// for a while. So we need to implement our own GestureDetector.
-@immutable
-class _SelectionGestureDetector extends StatefulWidget {
-  const _SelectionGestureDetector(
-      {Key? key,
-      this.child,
-      this.onTapDown,
-      this.onDoubleTapDown,
-      this.onPanStart,
-      this.onPanUpdate,
-      this.onPanEnd})
-      : super(key: key);
-
-  @override
-  State<_SelectionGestureDetector> createState() =>
-      _SelectionGestureDetectorState();
-
-  final Widget? child;
-
-  final GestureTapDownCallback? onTapDown;
-  final GestureTapDownCallback? onDoubleTapDown;
-  final GestureDragStartCallback? onPanStart;
-  final GestureDragUpdateCallback? onPanUpdate;
-  final GestureDragEndCallback? onPanEnd;
-}
-
-class _SelectionGestureDetectorState extends State<_SelectionGestureDetector> {
-  bool _isDoubleTap = false;
-  Timer? _doubleTapTimer;
-  @override
-  Widget build(BuildContext context) {
-    return RawGestureDetector(
-      behavior: HitTestBehavior.translucent,
-      gestures: {
-        PanGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
-          () => PanGestureRecognizer(),
-          (recognizer) {
-            recognizer
-              ..onStart = widget.onPanStart
-              ..onUpdate = widget.onPanUpdate
-              ..onEnd = widget.onPanEnd;
-          },
-        ),
-        TapGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
-          () => TapGestureRecognizer(),
-          (recognizer) {
-            recognizer.onTapDown = _tapDownDelegate;
-          },
-        ),
-      },
-      child: widget.child,
-    );
-  }
-
-  _tapDownDelegate(TapDownDetails tapDownDetails) {
-    if (_isDoubleTap) {
-      _isDoubleTap = false;
-      _doubleTapTimer?.cancel();
-      _doubleTapTimer = null;
-      if (widget.onDoubleTapDown != null) {
-        widget.onDoubleTapDown!(tapDownDetails);
-      }
-    } else {
-      if (widget.onTapDown != null) {
-        widget.onTapDown!(tapDownDetails);
-      }
-
-      _isDoubleTap = true;
-      _doubleTapTimer?.cancel();
-      _doubleTapTimer = Timer(kDoubleTapTimeout, () {
-        _isDoubleTap = false;
-        _doubleTapTimer = null;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _doubleTapTimer?.cancel();
-    super.dispose();
-  }
-}
-
 class _FlowySelectionState extends State<FlowySelection>
     with FlowySelectionService, WidgetsBindingObserver {
   final _cursorKey = GlobalKey(debugLabel: 'cursor');
 
   final List<OverlayEntry> _selectionOverlays = [];
   final List<OverlayEntry> _cursorOverlays = [];
+  OverlayEntry? _debugOverlay;
 
   /// [Pan] and [Tap] must be mutually exclusive.
   /// Pan
   Offset? panStartOffset;
+  double? panStartScrollDy;
   Offset? panEndOffset;
 
   /// Tap
@@ -261,7 +178,7 @@ class _FlowySelectionState extends State<FlowySelection>
   @override
   void updateSelection(Selection selection) {
     _rects.clear();
-    _clearSelection();
+    clearSelection();
 
     // cursor
     if (selection.isCollapsed) {
@@ -275,7 +192,19 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   void clearSelection() {
-    _clearSelection();
+    currentSelection = null;
+    currentSelectedNodes.value = [];
+
+    // clear selection
+    _selectionOverlays
+      ..forEach((overlay) => overlay.remove())
+      ..clear();
+    // clear cursors
+    _cursorOverlays
+      ..forEach((overlay) => overlay.remove())
+      ..clear();
+    // clear toolbar
+    editorState.service.toolbarService?.hide();
   }
 
   @override
@@ -327,7 +256,7 @@ class _FlowySelectionState extends State<FlowySelection>
       }
     }
     for (final child in node.children) {
-      result.addAll(computeNodesInRange(child, start, end));
+      result.addAll(_computeNodesInRange(child, start, end));
     }
     return result;
   }
@@ -413,12 +342,24 @@ class _FlowySelectionState extends State<FlowySelection>
     clearSelection();
 
     panStartOffset = details.globalPosition;
+    panStartScrollDy = editorState.service.scrollService?.dy;
+
+    debugPrint('[_onPanStart] panStartOffset = $panStartOffset');
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
-    panEndOffset = details.globalPosition;
+    if (panStartOffset == null || panStartScrollDy == null) {
+      return;
+    }
 
-    final nodes = getNodesInRange(panStartOffset!, panEndOffset!);
+    panEndOffset = details.globalPosition;
+    final dy = editorState.service.scrollService?.dy;
+    var panStartOffsetWithScrollDyGap = panStartOffset!;
+    if (dy != null) {
+      panStartOffsetWithScrollDyGap =
+          panStartOffsetWithScrollDyGap.translate(0, panStartScrollDy! - dy);
+    }
+    final nodes = getNodesInRange(panStartOffsetWithScrollDyGap, panEndOffset!);
     if (nodes.isEmpty) {
       return;
     }
@@ -429,38 +370,28 @@ class _FlowySelectionState extends State<FlowySelection>
     if (first != null && last != null) {
       bool isDownward;
       if (first == last) {
-        isDownward = panStartOffset!.dx < panEndOffset!.dx;
+        isDownward = panStartOffsetWithScrollDyGap.dx < panEndOffset!.dx;
       } else {
-        isDownward = panStartOffset!.dy < panEndOffset!.dy;
+        isDownward = panStartOffsetWithScrollDyGap.dy < panEndOffset!.dy;
       }
-      final start =
-          first.getSelectionInRange(panStartOffset!, panEndOffset!).start;
-      final end = last.getSelectionInRange(panStartOffset!, panEndOffset!).end;
+      final start = first
+          .getSelectionInRange(panStartOffsetWithScrollDyGap, panEndOffset!)
+          .start;
+      final end = last
+          .getSelectionInRange(panStartOffsetWithScrollDyGap, panEndOffset!)
+          .end;
       final selection = Selection(
           start: isDownward ? start : end, end: isDownward ? end : start);
       debugPrint('[_onPanUpdate] isDownward = $isDownward, $selection');
       editorState.updateCursorSelection(selection);
     }
+
+    _scrollUpOrDownIfNeeded(panEndOffset!);
+    _showDebugLayerIfNeeded();
   }
 
   void _onPanEnd(DragEndDetails details) {
     // do nothing
-  }
-
-  void _clearSelection() {
-    currentSelection = null;
-    currentSelectedNodes.value = [];
-
-    // clear selection
-    _selectionOverlays
-      ..forEach((overlay) => overlay.remove())
-      ..clear();
-    // clear cursors
-    _cursorOverlays
-      ..forEach((overlay) => overlay.remove())
-      ..clear();
-    // clear toolbar
-    editorState.service.toolbarService?.hide();
   }
 
   void _updateSelection(Selection selection) {
@@ -555,12 +486,12 @@ class _FlowySelectionState extends State<FlowySelection>
     if (rect != null) {
       _rects.add(_transformRectToGlobal(selectable!, rect));
       final cursor = OverlayEntry(
-        builder: ((context) => CursorWidget(
-              key: _cursorKey,
-              rect: rect,
-              color: widget.cursorColor,
-              layerLink: node.layerLink,
-            )),
+        builder: (context) => CursorWidget(
+          key: _cursorKey,
+          rect: rect,
+          color: widget.cursorColor,
+          layerLink: node.layerLink,
+        ),
       );
       _cursorOverlays.add(cursor);
       Overlay.of(context)?.insertAll(_cursorOverlays);
@@ -578,5 +509,140 @@ class _FlowySelectionState extends State<FlowySelection>
     final startNode = stateTree.nodeAtPath(selection.start.path)!;
     final endNode = stateTree.nodeAtPath(selection.end.path)!;
     return NodeIterator(stateTree, startNode, endNode).toList();
+  }
+
+  void _scrollUpOrDownIfNeeded(Offset offset) {
+    final dy = editorState.service.scrollService?.dy;
+    if (dy == null) {
+      assert(false, 'Dy could not be null');
+      return;
+    }
+    final topLimit = MediaQuery.of(context).size.height * 0.2;
+    final bottomLimit = MediaQuery.of(context).size.height * 0.8;
+
+    /// TODO: It is necessary to calculate the relative speed
+    ///   according to the gap and move forward more gently.
+    final distance = 10.0;
+    if (offset.dy <= topLimit) {
+      // up
+      editorState.service.scrollService?.scrollTo(dy - distance);
+    } else if (offset.dy >= bottomLimit) {
+      //down
+      editorState.service.scrollService?.scrollTo(dy + distance);
+    }
+  }
+
+  void _showDebugLayerIfNeeded() {
+    // remove false to show debug overlay.
+    if (kDebugMode && false) {
+      _debugOverlay?.remove();
+      if (panStartOffset != null) {
+        _debugOverlay = OverlayEntry(
+          builder: (context) => Positioned.fromRect(
+            rect: Rect.fromPoints(
+                    panStartOffset?.translate(
+                          0,
+                          -(editorState.service.scrollService!.dy -
+                              panStartScrollDy!),
+                        ) ??
+                        Offset.zero,
+                    panEndOffset ?? Offset.zero)
+                .translate(0, 0),
+            child: Container(
+              color: Colors.red.withOpacity(0.2),
+            ),
+          ),
+        );
+        Overlay.of(context)?.insert(_debugOverlay!);
+      } else {
+        _debugOverlay = null;
+      }
+    }
+  }
+}
+
+/// Because the flutter's [DoubleTapGestureRecognizer] will block the [TapGestureRecognizer]
+/// for a while. So we need to implement our own GestureDetector.
+@immutable
+class _SelectionGestureDetector extends StatefulWidget {
+  const _SelectionGestureDetector(
+      {Key? key,
+      this.child,
+      this.onTapDown,
+      this.onDoubleTapDown,
+      this.onPanStart,
+      this.onPanUpdate,
+      this.onPanEnd})
+      : super(key: key);
+
+  @override
+  State<_SelectionGestureDetector> createState() =>
+      _SelectionGestureDetectorState();
+
+  final Widget? child;
+
+  final GestureTapDownCallback? onTapDown;
+  final GestureTapDownCallback? onDoubleTapDown;
+  final GestureDragStartCallback? onPanStart;
+  final GestureDragUpdateCallback? onPanUpdate;
+  final GestureDragEndCallback? onPanEnd;
+}
+
+class _SelectionGestureDetectorState extends State<_SelectionGestureDetector> {
+  bool _isDoubleTap = false;
+  Timer? _doubleTapTimer;
+  @override
+  Widget build(BuildContext context) {
+    return RawGestureDetector(
+      behavior: HitTestBehavior.translucent,
+      gestures: {
+        PanGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
+          () => PanGestureRecognizer(),
+          (recognizer) {
+            recognizer
+              ..onStart = widget.onPanStart
+              ..onUpdate = widget.onPanUpdate
+              ..onEnd = widget.onPanEnd;
+          },
+        ),
+        TapGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+          () => TapGestureRecognizer(),
+          (recognizer) {
+            recognizer.onTapDown = _tapDownDelegate;
+          },
+        ),
+      },
+      child: widget.child,
+    );
+  }
+
+  _tapDownDelegate(TapDownDetails tapDownDetails) {
+    if (_isDoubleTap) {
+      _isDoubleTap = false;
+      _doubleTapTimer?.cancel();
+      _doubleTapTimer = null;
+      if (widget.onDoubleTapDown != null) {
+        widget.onDoubleTapDown!(tapDownDetails);
+      }
+    } else {
+      if (widget.onTapDown != null) {
+        widget.onTapDown!(tapDownDetails);
+      }
+
+      _isDoubleTap = true;
+      _doubleTapTimer?.cancel();
+      _doubleTapTimer = Timer(kDoubleTapTimeout, () {
+        _isDoubleTap = false;
+        _doubleTapTimer = null;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _doubleTapTimer?.cancel();
+    super.dispose();
   }
 }

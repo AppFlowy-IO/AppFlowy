@@ -1,15 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
 import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flowy_editor/editor_state.dart';
-import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 class RichTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -129,7 +129,10 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildRichText(BuildContext context) {
-    return _buildSingleRichText(context);
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: _buildSingleRichText(context),
+    );
   }
 
   Widget _buildSingleRichText(BuildContext context) {
@@ -170,11 +173,12 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   TextSpan get _textSpan => TextSpan(
-      children: widget.textNode.delta.operations
-          .whereType<TextInsert>()
-          .map((insert) => RichTextStyle(
-                attributes: insert.attributes ?? {},
-                text: insert.content,
-              ).toTextSpan())
-          .toList(growable: false));
+        children: widget.textNode.delta.operations
+            .whereType<TextInsert>()
+            .map((insert) => RichTextStyle(
+                  attributes: insert.attributes ?? {},
+                  text: insert.content,
+                ).toTextSpan())
+            .toList(growable: false),
+      );
 }

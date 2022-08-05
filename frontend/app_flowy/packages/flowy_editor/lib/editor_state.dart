@@ -60,10 +60,8 @@ class EditorState {
     for (final op in transaction.operations) {
       _applyOperation(op);
     }
-    // updateCursorSelection(transaction.afterSelection);
 
-    // FIXME: don't use delay
-    Future.delayed(const Duration(milliseconds: 16), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       updateCursorSelection(transaction.afterSelection);
     });
 
