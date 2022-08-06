@@ -36,7 +36,12 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
           });
         },
         updateUserIcon: (String icon) {
-          emit(state.copyWith(icon: icon));
+          _userService.updateUserProfile(icon: icon).then((result) {
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          });
         },
       );
     });
@@ -74,12 +79,10 @@ class SettingsUserState with _$SettingsUserState {
   const factory SettingsUserState({
     required UserProfilePB userProfile,
     required Either<Unit, String> successOrFailure,
-    required String icon,
   }) = _SettingsUserState;
 
   factory SettingsUserState.initial(UserProfilePB userProfile) => SettingsUserState(
         userProfile: userProfile,
         successOrFailure: left(unit),
-        icon: 'page',
       );
 }

@@ -87,6 +87,7 @@ table! {
         name -> Text,
         token -> Text,
         email -> Text,
+        icon -> Text,
         workspace -> Text,
     }
 }

@@ -19,6 +19,7 @@ class UserService {
     String? name,
     String? password,
     String? email,
+    String? icon,
   }) {
     var payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
@@ -32,6 +33,10 @@ class UserService {
 
     if (email != null) {
       payload.email = email;
+    }
+
+    if (icon != null) {
+      payload.icon = icon;
     }
 
     return UserEventUpdateUserProfile(payload).send();

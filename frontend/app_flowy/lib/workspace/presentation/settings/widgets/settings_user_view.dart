@@ -33,7 +33,7 @@ class SettingsUserView extends StatelessWidget {
   }
 
   Widget _renderCurrentIcon(BuildContext context) {
-    String icon = context.read<SettingsUserViewBloc>().state.icon;
+    String icon = context.read<SettingsUserViewBloc>().state.userProfile.icon;
     return _CurrentIcon(icon);
   }
 }
