@@ -8,6 +8,7 @@ import 'flex/reorder_flex.dart';
 import 'package:flutter/material.dart';
 import 'phantom/phantom_controller.dart';
 
+@protected
 class BoardDataController extends ChangeNotifier
     with EquatableMixin, BoardPhantomControllerDelegate, ReoderFlextDataSource {
   final List<BoardColumnData> _columnDatas = [];
