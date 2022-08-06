@@ -127,12 +127,14 @@ class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
 
   @override
   void onAccept(FlexDragTargetData dragTargetData) {
-    Log.trace('[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on onAccept');
+    Log.trace(
+        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on onAccept');
   }
 
   @override
   void onLeave(FlexDragTargetData dragTargetData) {
-    Log.trace('[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on leave');
+    Log.trace(
+        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on leave');
   }
 
   @override

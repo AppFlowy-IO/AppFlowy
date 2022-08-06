@@ -1,25 +1,35 @@
 import 'package:flutter/material.dart';
+import '../transitions.dart';
 
 abstract class DragTargetData {
   int get draggingIndex;
 }
 
 abstract class ReorderFlexDraggableTargetBuilder {
-  Widget? build<T extends DragTargetData>(BuildContext context, Widget child, DragTargetOnStarted onDragStarted,
-      DragTargetOnEnded<T> onDragEnded, DragTargetWillAccpet<T> onWillAccept);
+  Widget? build<T extends DragTargetData>(
+    BuildContext context,
+    Widget child,
+    DragTargetOnStarted onDragStarted,
+    DragTargetOnEnded<T> onDragEnded,
+    DragTargetWillAccpet<T> onWillAccept,
+    AnimationController insertAnimationController,
+    AnimationController deleteAnimationController,
+  );
 }
 
 ///
-typedef DragTargetWillAccpet<T extends DragTargetData> = bool Function(T dragTargetData);
+typedef DragTargetWillAccpet<T extends DragTargetData> = bool Function(
+    T dragTargetData);
 
 ///
 typedef DragTargetOnStarted = void Function(Widget, int, Size?);
 
 ///
-typedef DragTargetOnEnded<T extends DragTargetData> = void Function(T dragTargetData);
+typedef DragTargetOnEnded<T extends DragTargetData> = void Function(
+    T dragTargetData);
 
 /// [ReorderDragTarget] is a [DragTarget] that carries the index information of
-/// the child.
+/// the child. You could check out this link for more information.
 ///
 /// The size of the [ReorderDragTarget] will become zero when it start dragging.
 ///
@@ -52,6 +62,9 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
 
   final ReorderFlexDraggableTargetBuilder? draggableTargetBuilder;
 
+  final AnimationController insertAnimationController;
+  final AnimationController deleteAnimationController;
+
   ReorderDragTarget({
     Key? key,
     required this.child,
@@ -59,6 +72,8 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
     required this.onDragStarted,
     required this.onDragEnded,
     required this.onWillAccept,
+    required this.insertAnimationController,
+    required this.deleteAnimationController,
     this.onAccept,
     this.onLeave,
     this.draggableTargetBuilder,
@@ -69,7 +84,8 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   State<ReorderDragTarget<T>> createState() => _ReorderDragTargetState<T>();
 }
 
-class _ReorderDragTargetState<T extends DragTargetData> extends State<ReorderDragTarget<T>> {
+class _ReorderDragTargetState<T extends DragTargetData>
+    extends State<ReorderDragTarget<T>> {
   /// Returns the dragTarget's size
   Size? _draggingFeedbackSize = Size.zero;
 
@@ -101,7 +117,8 @@ class _ReorderDragTargetState<T extends DragTargetData> extends State<ReorderDra
     List<dynamic> rejectedCandidates,
   ) {
     Widget feedbackBuilder = Builder(builder: (BuildContext context) {
-      BoxConstraints contentSizeConstraints = BoxConstraints.loose(_draggingFeedbackSize!);
+      BoxConstraints contentSizeConstraints =
+          BoxConstraints.loose(_draggingFeedbackSize!);
       return _buildDraggableFeedback(
         context,
         contentSizeConstraints,
@@ -115,6 +132,8 @@ class _ReorderDragTargetState<T extends DragTargetData> extends State<ReorderDra
           widget.onDragStarted,
           widget.onDragEnded,
           widget.onWillAccept,
+          widget.insertAnimationController,
+          widget.deleteAnimationController,
         ) ??
         LongPressDraggable<DragTargetData>(
           maxSimultaneousDrags: 1,
@@ -141,14 +160,16 @@ class _ReorderDragTargetState<T extends DragTargetData> extends State<ReorderDra
           /// When the drag does not end inside a DragTarget widget, the
           /// drag fails, but we still reorder the widget to the last position it
           /// had been dragged to.
-          onDraggableCanceled: (Velocity velocity, Offset offset) => widget.onDragEnded(widget.dragTargetData),
+          onDraggableCanceled: (Velocity velocity, Offset offset) =>
+              widget.onDragEnded(widget.dragTargetData),
           child: widget.child,
         );
 
     return draggableWidget;
   }
 
-  Widget _buildDraggableFeedback(BuildContext context, BoxConstraints constraints, Widget child) {
+  Widget _buildDraggableFeedback(
+      BuildContext context, BoxConstraints constraints, Widget child) {
     return Transform(
       transform: Matrix4.rotationZ(0),
       alignment: FractionalOffset.topLeft,
@@ -163,7 +184,7 @@ class _ReorderDragTargetState<T extends DragTargetData> extends State<ReorderDra
   }
 }
 
-class DragAnimationController {
+class DragTargetAnimation {
   // How long an animation to reorder an element in the list takes.
   final Duration reorderAnimationDuration;
 
@@ -174,17 +195,28 @@ class DragAnimationController {
   // where the widget used to be.
   late AnimationController phantomController;
 
-  DragAnimationController({
+  late AnimationController insertController;
+
+  late AnimationController deleteController;
+
+  DragTargetAnimation({
     required this.reorderAnimationDuration,
     required TickerProvider vsync,
     required void Function(AnimationStatus) entranceAnimateStatusChanged,
   }) {
-    entranceController = AnimationController(value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
-    phantomController = AnimationController(value: 0, vsync: vsync, duration: reorderAnimationDuration);
+    entranceController = AnimationController(
+        value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
     entranceController.addStatusListener(entranceAnimateStatusChanged);
-  }
 
-  bool get isEntranceAnimationCompleted => entranceController.isCompleted;
+    phantomController = AnimationController(
+        value: 0, vsync: vsync, duration: reorderAnimationDuration);
+
+    insertController = AnimationController(
+        value: 0.0, vsync: vsync, duration: reorderAnimationDuration);
+
+    deleteController = AnimationController(
+        value: 0.0, vsync: vsync, duration: reorderAnimationDuration);
+  }
 
   void startDargging() {
     entranceController.value = 1.0;
@@ -203,6 +235,8 @@ class DragAnimationController {
   void dispose() {
     entranceController.dispose();
     phantomController.dispose();
+    insertController.dispose();
+    deleteController.dispose();
   }
 }
 
@@ -217,7 +251,9 @@ class IgnorePointerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sizedChild = useIntrinsicSize ? child : SizedBox(width: 0.0, height: 0.0, child: child);
+    final sizedChild = useIntrinsicSize
+        ? child
+        : SizedBox(width: 0.0, height: 0.0, child: child);
     return IgnorePointer(
       ignoring: true,
       child: Opacity(
@@ -246,42 +282,7 @@ class PhantomWidget extends StatelessWidget {
   }
 }
 
-class PhantomAnimateContorller {
-  // How long an animation to reorder an element in the list takes.
-  final Duration reorderAnimationDuration;
-  late AnimationController appearController;
-  late AnimationController disappearController;
-
-  PhantomAnimateContorller({
-    required TickerProvider vsync,
-    required this.reorderAnimationDuration,
-    required void Function(AnimationStatus) appearAnimateStatusChanged,
-  }) {
-    appearController = AnimationController(value: 1.0, vsync: vsync, duration: reorderAnimationDuration);
-    disappearController = AnimationController(value: 0, vsync: vsync, duration: reorderAnimationDuration);
-    appearController.addStatusListener(appearAnimateStatusChanged);
-  }
-
-  bool get isAppearAnimationCompleted => appearController.isCompleted;
-
-  void animateToNext() {
-    disappearController.reverse(from: 1.0);
-    appearController.forward(from: 0.0);
-  }
-
-  void performReorderAnimation() {
-    disappearController.reverse(from: 0.1);
-    appearController.reverse(from: 0.0);
-  }
-
-  void dispose() {
-    appearController.dispose();
-    disappearController.dispose();
-  }
-}
-
 abstract class FakeDragTargetEventTrigger {
-  void fakeOnDragStarted(VoidCallback callback);
   void fakeOnDragEnded(VoidCallback callback);
 }
 
@@ -292,12 +293,15 @@ abstract class FakeDragTargetEventData {
 }
 
 class FakeDragTarget<T extends DragTargetData> extends StatefulWidget {
+  final Duration animationDuration;
   final FakeDragTargetEventTrigger eventTrigger;
   final FakeDragTargetEventData eventData;
   final DragTargetOnStarted onDragStarted;
   final DragTargetOnEnded<T> onDragEnded;
   final DragTargetWillAccpet<T> onWillAccept;
   final Widget child;
+  final AnimationController insertAnimationController;
+  final AnimationController deleteAnimationController;
   const FakeDragTarget({
     Key? key,
     required this.eventTrigger,
@@ -305,34 +309,43 @@ class FakeDragTarget<T extends DragTargetData> extends StatefulWidget {
     required this.onDragStarted,
     required this.onDragEnded,
     required this.onWillAccept,
+    required this.insertAnimationController,
+    required this.deleteAnimationController,
     required this.child,
+    this.animationDuration = const Duration(milliseconds: 250),
   }) : super(key: key);
 
   @override
   State<FakeDragTarget<T>> createState() => _FakeDragTargetState<T>();
 }
 
-class _FakeDragTargetState<T extends DragTargetData> extends State<FakeDragTarget<T>> {
-  bool isDragging = false;
+class _FakeDragTargetState<T extends DragTargetData>
+    extends State<FakeDragTarget<T>>
+    with TickerProviderStateMixin<FakeDragTarget<T>> {
+  bool simulateDragging = false;
 
   @override
   void initState() {
-    widget.eventTrigger.fakeOnDragStarted(() {
-      if (mounted) {
-        setState(() {
-          widget.onWillAccept(widget.eventData.dragTargetData as T);
-
-          widget.onDragStarted(
-            widget.child,
-            widget.eventData.index,
-            widget.eventData.feedbackSize,
-          );
-
-          isDragging = true;
+    widget.insertAnimationController.addStatusListener(
+      (status) {
+        if (status != AnimationStatus.completed) return;
+        if (!mounted) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            simulateDragging = true;
+            widget.deleteAnimationController.reverse(from: 1.0);
+            widget.onWillAccept(widget.eventData.dragTargetData as T);
+            widget.onDragStarted(
+              widget.child,
+              widget.eventData.index,
+              widget.eventData.feedbackSize,
+            );
+          });
         });
-      }
-    });
+      },
+    );
 
+    widget.insertAnimationController.forward(from: 0.0);
     widget.eventTrigger.fakeOnDragEnded(() {
       if (mounted) {
         widget.onDragEnded(widget.eventData.dragTargetData as T);
@@ -344,10 +357,17 @@ class _FakeDragTargetState<T extends DragTargetData> extends State<FakeDragTarge
 
   @override
   Widget build(BuildContext context) {
-    if (isDragging) {
-      return IgnorePointerWidget(child: widget.child);
-    } else {
-      return IgnorePointerWidget(useIntrinsicSize: true, child: widget.child);
-    }
+    final child = IgnorePointerWidget(
+        useIntrinsicSize: !simulateDragging, child: widget.child);
+
+    final animationController = simulateDragging
+        ? widget.deleteAnimationController
+        : widget.insertAnimationController;
+
+    return SizeTransitionWithIntrinsicSize(
+      sizeFactor: animationController,
+      axis: Axis.vertical,
+      child: child,
+    );
   }
 }
