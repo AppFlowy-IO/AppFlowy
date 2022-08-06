@@ -19,7 +19,8 @@ class MenuUser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<MenuUserBloc>(
-      create: (context) => getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
+      create: (context) =>
+          getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
           children: [
@@ -39,20 +40,16 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderAvatar(BuildContext context) {
-    return const SizedBox(
+    String icon = context.read<MenuUserBloc>().state.userProfile.icon;
+
+    return SizedBox(
       width: 25,
       height: 25,
       child: ClipRRect(
           borderRadius: Corners.s5Border,
           child: CircleAvatar(
-            backgroundColor: Color.fromRGBO(132, 39, 224, 1.0),
-            child: Text(
-              'M',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
+            backgroundColor: Colors.transparent,
+            child: svgWidget('emoji/$icon'),
           )),
     );
   }
