@@ -105,14 +105,14 @@ class ReorderFlexState extends State<ReorderFlex>
   /// [dragState] records the dragging state including dragStartIndex, and phantomIndex, etc.
   late DraggingState dragState;
 
-  /// [_dragAnimationController] controls the dragging animations
-  late DragAnimationController _dragAnimationController;
+  /// [_animation] controls the dragging animations
+  late DragTargetAnimation _animation;
 
   @override
   void initState() {
     dragState = DraggingState(widget.reorderFlexId);
 
-    _dragAnimationController = DragAnimationController(
+    _animation = DragTargetAnimation(
       reorderAnimationDuration: widget.config.reorderAnimationDuration,
       entranceAnimateStatusChanged: (status) {
         if (status == AnimationStatus.completed) {
@@ -174,7 +174,7 @@ class ReorderFlexState extends State<ReorderFlex>
       _attachedScrollPosition = null;
     }
 
-    _dragAnimationController.dispose();
+    _animation.dispose();
     super.dispose();
   }
 
@@ -183,7 +183,7 @@ class ReorderFlexState extends State<ReorderFlex>
     /// dragging animation is completed. Otherwise, it will get called again
     /// when the animation finishs.
 
-    if (_dragAnimationController.isEntranceAnimationCompleted) {
+    if (_animation.entranceController.isCompleted) {
       dragState.removePhantom();
 
       if (!isAcceptingNewTarget && dragState.didDragTargetMoveToNext()) {
@@ -191,7 +191,7 @@ class ReorderFlexState extends State<ReorderFlex>
       }
 
       dragState.moveDragTargetToNext();
-      _dragAnimationController.animateToNext();
+      _animation.animateToNext();
     }
   }
 
@@ -238,7 +238,7 @@ class ReorderFlexState extends State<ReorderFlex>
         Widget appearSpace = _makeAppearSpace(dragSpace, feedbackSize);
         Widget disappearSpace = _makeDisappearSpace(dragSpace, feedbackSize);
 
-        /// When start dragging, the dragTarget, [BoardDragTarget], will
+        /// When start dragging, the dragTarget, [ReorderDragTarget], will
         /// return a [IgnorePointerWidget] which size is zero.
         if (dragState.isPhantomAboveDragTarget()) {
           //the phantom is moving down, i.e. the tile below the phantom is moving up
@@ -337,6 +337,12 @@ class ReorderFlexState extends State<ReorderFlex>
         });
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
+        Log.debug('Insert animation: ${_animation.deleteController.status}');
+
+        if (_animation.deleteController.isAnimating) {
+          return false;
+        }
+
         assert(widget.dataSource.items.length > dragTargetIndex);
 
         if (_interceptDragTarget(
@@ -366,6 +372,8 @@ class ReorderFlexState extends State<ReorderFlex>
           (interceptor) => interceptor.onLeave(dragTargetData),
         );
       },
+      insertAnimationController: _animation.insertController,
+      deleteAnimationController: _animation.deleteController,
       draggableTargetBuilder: widget.interceptor?.draggableTargetBuilder,
       child: child,
     );
@@ -387,7 +395,7 @@ class ReorderFlexState extends State<ReorderFlex>
   Widget _makeAppearSpace(Widget child, Size? feedbackSize) {
     return makeAppearingWidget(
       child,
-      _dragAnimationController.entranceController,
+      _animation.entranceController,
       feedbackSize,
       widget.direction,
     );
@@ -396,7 +404,7 @@ class ReorderFlexState extends State<ReorderFlex>
   Widget _makeDisappearSpace(Widget child, Size? feedbackSize) {
     return makeDisappearingWidget(
       child,
-      _dragAnimationController.phantomController,
+      _animation.phantomController,
       feedbackSize,
       widget.direction,
     );
@@ -409,7 +417,7 @@ class ReorderFlexState extends State<ReorderFlex>
   ) {
     setState(() {
       dragState.startDragging(draggingWidget, dragIndex, feedbackSize);
-      _dragAnimationController.startDargging();
+      _animation.startDargging();
     });
   }
 
@@ -446,7 +454,7 @@ class ReorderFlexState extends State<ReorderFlex>
       widget.onReorder.call(fromIndex, toIndex);
     }
 
-    _dragAnimationController.reverseAnimation();
+    _animation.reverseAnimation();
   }
 
   Widget _wrapScrollView({required Widget child}) {
