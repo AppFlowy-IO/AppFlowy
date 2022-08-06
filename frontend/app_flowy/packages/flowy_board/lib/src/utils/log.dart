@@ -22,7 +22,7 @@ class Log {
 
   static void trace(String? message) {
     if (enableLog) {
-      // debugPrint('❗️[Trace]=> $message');
+      debugPrint('❗️[Trace]=> $message');
     }
   }
 }
