@@ -174,7 +174,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
       transform: Matrix4.rotationZ(0),
       alignment: FractionalOffset.topLeft,
       child: Material(
-        elevation: 2.0,
+        elevation: 3.0,
         color: Colors.transparent,
         borderRadius: BorderRadius.zero,
         clipBehavior: Clip.hardEdge,
@@ -212,10 +212,10 @@ class DragTargetAnimation {
         value: 0, vsync: vsync, duration: reorderAnimationDuration);
 
     insertController = AnimationController(
-        value: 0.0, vsync: vsync, duration: reorderAnimationDuration);
+        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 100));
 
     deleteController = AnimationController(
-        value: 0.0, vsync: vsync, duration: reorderAnimationDuration);
+        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 10));
   }
 
   void startDargging() {

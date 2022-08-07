@@ -56,5 +56,5 @@ class TextItem extends ColumnItem {
   TextItem(this.s);
 
   @override
-  String get id => throw UnimplementedError();
+  String get id => s;
 }

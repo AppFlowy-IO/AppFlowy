@@ -14,11 +14,10 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       debugPrint('Move column from $fromIndex to $toIndex');
     },
     onMoveColumnItem: (columnId, fromIndex, toIndex) {
-      debugPrint('Column:$columnId move item from $fromIndex to $toIndex');
+      debugPrint('Move $columnId:$fromIndex to $columnId:$toIndex');
     },
     onMoveColumnItemToColumn: (fromColumnId, fromIndex, toColumnId, toIndex) {
-      debugPrint(
-          'Column:$fromColumnId move item at $fromIndex to column:$toColumnId $toIndex');
+      debugPrint('Move $fromColumnId:$fromIndex to $toColumnId:$toIndex');
     },
   );
 

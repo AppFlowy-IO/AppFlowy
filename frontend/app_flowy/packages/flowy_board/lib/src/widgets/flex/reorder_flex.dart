@@ -328,10 +328,13 @@ class ReorderFlexState extends State<ReorderFlex>
             "[DragTarget]: Column${widget.dataSource.identifier} end dragging");
 
         setState(() {
-          _onReordered(
-            dragState.dragStartIndex,
-            dragState.currentIndex,
-          );
+          if (dragTargetData.reorderFlexId == widget.reorderFlexId) {
+            _onReordered(
+              dragState.dragStartIndex,
+              dragState.currentIndex,
+            );
+          }
+
           dragState.endDragging();
           widget.onDragEnded?.call();
         });
