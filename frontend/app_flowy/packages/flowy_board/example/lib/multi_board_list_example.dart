@@ -9,7 +9,18 @@ class MultiBoardListExample extends StatefulWidget {
 }
 
 class _MultiBoardListExampleState extends State<MultiBoardListExample> {
-  final BoardDataController boardDataController = BoardDataController();
+  final BoardDataController boardDataController = BoardDataController(
+    onMoveColumn: (fromIndex, toIndex) {
+      debugPrint('Move column from $fromIndex to $toIndex');
+    },
+    onMoveColumnItem: (columnId, fromIndex, toIndex) {
+      debugPrint('Column:$columnId move item from $fromIndex to $toIndex');
+    },
+    onMoveColumnItemToColumn: (fromColumnId, fromIndex, toColumnId, toIndex) {
+      debugPrint(
+          'Column:$fromColumnId move item at $fromIndex to column:$toColumnId $toIndex');
+    },
+  );
 
   @override
   void initState() {
@@ -34,9 +45,9 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       TextItem("D"),
     ]);
 
-    boardDataController.setColumnData(column1);
-    boardDataController.setColumnData(column2);
-    boardDataController.setColumnData(column3);
+    boardDataController.addColumn(column1);
+    boardDataController.addColumn(column2);
+    boardDataController.addColumn(column3);
 
     super.initState();
   }

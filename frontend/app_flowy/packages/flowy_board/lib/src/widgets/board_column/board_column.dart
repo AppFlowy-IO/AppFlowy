@@ -6,7 +6,7 @@ import '../../utils/log.dart';
 import '../phantom/phantom_controller.dart';
 import '../flex/reorder_flex.dart';
 import '../flex/drag_target_inteceptor.dart';
-import 'data_controller.dart';
+import 'board_column_data.dart';
 
 typedef OnColumnDragStarted = void Function(int index);
 

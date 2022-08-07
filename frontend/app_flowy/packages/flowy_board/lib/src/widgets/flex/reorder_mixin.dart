@@ -27,8 +27,10 @@ mixin ReorderFlexMinxi {
         child: FadeTransition(opacity: animationController, child: child),
       );
 
-      BoxConstraints contentSizeConstraints = BoxConstraints.loose(draggingFeedbackSize);
-      return ConstrainedBox(constraints: contentSizeConstraints, child: transition);
+      BoxConstraints contentSizeConstraints =
+          BoxConstraints.loose(draggingFeedbackSize);
+      return ConstrainedBox(
+          constraints: contentSizeConstraints, child: transition);
     }
   }
 
@@ -56,13 +58,16 @@ mixin ReorderFlexMinxi {
         child: FadeTransition(opacity: animationController, child: child),
       );
 
-      BoxConstraints contentSizeConstraints = BoxConstraints.loose(draggingFeedbackSize);
-      return ConstrainedBox(constraints: contentSizeConstraints, child: transition);
+      BoxConstraints contentSizeConstraints =
+          BoxConstraints.loose(draggingFeedbackSize);
+      return ConstrainedBox(
+          constraints: contentSizeConstraints, child: transition);
     }
   }
 }
 
-Animation<double> withCurve(AnimationController animationController, Cubic curve) {
+Animation<double> withCurve(
+    AnimationController animationController, Cubic curve) {
   return CurvedAnimation(
     parent: animationController,
     curve: curve,

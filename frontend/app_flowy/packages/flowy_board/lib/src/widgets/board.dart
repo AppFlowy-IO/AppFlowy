@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'board_column/board_column.dart';
+import 'board_column/board_column_data.dart';
+import 'board_data.dart';
 import 'flex/drag_target_inteceptor.dart';
 import 'flex/reorder_flex.dart';
 import 'phantom/phantom_controller.dart';
-import '../../flowy_board.dart';
 import '../rendering/board_overlay.dart';
 
 class Board extends StatelessWidget {
@@ -122,7 +124,8 @@ class BoardContent extends StatefulWidget {
 }
 
 class _BoardContentState extends State<BoardContent> {
-  final GlobalKey _columnContainerOverlayKey = GlobalKey(debugLabel: '$BoardContent overlay key');
+  final GlobalKey _columnContainerOverlayKey =
+      GlobalKey(debugLabel: '$BoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   @override
@@ -215,7 +218,8 @@ class _BoardColumnDataSourceImpl extends BoardColumnDataDataSource {
   });
 
   @override
-  BoardColumnData get columnData => dataController.columnController(columnId).columnData;
+  BoardColumnData get columnData =>
+      dataController.columnController(columnId).columnData;
 
   @override
   List<String> get acceptedColumnIds => dataController.columnIds;
