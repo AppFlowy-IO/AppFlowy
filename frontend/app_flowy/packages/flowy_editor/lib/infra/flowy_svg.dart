@@ -18,12 +18,14 @@ class FlowySvg extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (name != null) {
-      return SvgPicture.asset(
-        'assets/images/$name.svg',
-        color: color,
-        package: 'flowy_editor',
-        width: size.width,
-        height: size.width,
+      return SizedBox.fromSize(
+        size: size,
+        child: SvgPicture.asset(
+          'assets/images/$name.svg',
+          color: color,
+          package: 'flowy_editor',
+          fit: BoxFit.fill,
+        ),
       );
     } else if (number != null) {
       final numberText =

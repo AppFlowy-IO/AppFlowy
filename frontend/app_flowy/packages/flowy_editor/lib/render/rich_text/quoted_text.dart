@@ -59,7 +59,10 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
     return Row(
       children: [
         FlowySvg(
-          size: Size.square(leftPadding),
+          size: Size(
+            leftPadding,
+            _quoteHeight,
+          ),
           name: 'quote',
         ),
         FlowyRichText(
@@ -70,5 +73,11 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
         ),
       ],
     );
+  }
+
+  double get _quoteHeight {
+    final lines =
+        widget.textNode.toRawString().characters.where((c) => c == '\n').length;
+    return (lines + 1) * leftPadding;
   }
 }

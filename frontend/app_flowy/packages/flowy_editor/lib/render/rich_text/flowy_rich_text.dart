@@ -158,6 +158,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
             color: widget.textNode.toRawString().isNotEmpty
                 ? Colors.transparent
                 : Colors.grey,
+            fontSize: baseFontSize,
           ),
         ),
       ],
