@@ -94,7 +94,8 @@
   },
   "tooltip": {
     "lightMode": "Switch to Light mode",
-    "darkMode": "Switch to Dark mode"
+    "darkMode": "Switch to Dark mode",
+    "openAsPage": "Open as a Page"
   },
   "notifications": {
     "export": {
