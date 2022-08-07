@@ -64,26 +64,22 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   /// Remove the phanton in the column when the column is end dragging.
   void columnEndDragging(String columnId) {
     columnsState.setColumnIsDragging(columnId, true);
-    if (phantomRecord != null) {
-      if (phantomRecord!.fromColumnId == columnId) {
-        columnsState.notifyDidRemovePhantom(phantomRecord!.toColumnId);
-      }
-    }
-    _swapColumnData();
-  }
+    if (phantomRecord == null) return;
 
-  void _swapColumnData() {
-    if (phantomRecord == null) {
+    final fromColumnId = phantomRecord!.fromColumnId;
+    final toColumnId = phantomRecord!.toColumnId;
+    if (fromColumnId == columnId) {
+      columnsState.notifyDidRemovePhantom(toColumnId);
+    }
+
+    if (columnsState.isDragging(fromColumnId) == false) {
       return;
     }
 
-    if (columnsState.isDragging(phantomRecord!.fromColumnId) == false) {
-      return;
-    }
     delegate.swapColumnItem(
-      phantomRecord!.fromColumnId,
+      fromColumnId,
       phantomRecord!.fromColumnIndex,
-      phantomRecord!.toColumnId,
+      toColumnId,
       phantomRecord!.toColumnIndex,
     );
 

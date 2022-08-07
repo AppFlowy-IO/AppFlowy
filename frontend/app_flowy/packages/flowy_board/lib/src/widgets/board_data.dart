@@ -120,7 +120,7 @@ class BoardDataController extends ChangeNotifier
       columnController.removeAt(index);
 
       Log.debug(
-          '[$BoardPhantomController] Column$columnId remove phantom, current count: ${columnController.items.length}');
+          '[$BoardDataController] Column$columnId remove phantom, current count: ${columnController.items.length}');
     }
     return isExist;
   }
