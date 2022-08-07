@@ -64,6 +64,7 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
         ),
         FlowyRichText(
           key: _richTextKey,
+          placeholderText: 'Quote',
           textNode: widget.textNode,
           editorState: widget.editorState,
         ),

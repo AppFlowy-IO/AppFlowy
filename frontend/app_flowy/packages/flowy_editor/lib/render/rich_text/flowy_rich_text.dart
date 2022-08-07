@@ -35,15 +35,19 @@ class FlowyRichText extends StatefulWidget {
     this.cursorHeight,
     this.cursorWidth = 2.0,
     this.textSpanDecorator,
+    this.placeholderText = ' ',
+    this.placeholderTextSpanDecorator,
     required this.textNode,
     required this.editorState,
   }) : super(key: key);
 
-  final double? cursorHeight;
-  final double cursorWidth;
   final TextNode textNode;
   final EditorState editorState;
+  final double? cursorHeight;
+  final double cursorWidth;
   final FlowyTextSpanDecorator? textSpanDecorator;
+  final String placeholderText;
+  final FlowyTextSpanDecorator? placeholderTextSpanDecorator;
 
   @override
   State<FlowyRichText> createState() => _FlowyRichTextState();
@@ -51,9 +55,13 @@ class FlowyRichText extends StatefulWidget {
 
 class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   final _textKey = GlobalKey();
+  final _placeholderTextKey = GlobalKey();
 
   RenderParagraph get _renderParagraph =>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
+
+  RenderParagraph get _placeholderRenderParagraph =>
+      _placeholderTextKey.currentContext?.findRenderObject() as RenderParagraph;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +82,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
     final cursorHeight = widget.cursorHeight ??
         _renderParagraph.getFullHeightForCaret(textPosition) ??
+        _placeholderRenderParagraph.getFullHeightForCaret(textPosition) ??
         18.0; // default height
     return Rect.fromLTWH(
       cursorOffset.dx - (widget.cursorWidth / 2),
@@ -129,9 +138,35 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildRichText(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: _buildSingleRichText(context),
+    return Stack(
+      children: [
+        _buildPlaceholderText(context),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _buildSingleRichText(context),
+        )
+      ],
+    );
+  }
+
+  Widget _buildPlaceholderText(BuildContext context) {
+    final textSpan = TextSpan(
+      children: [
+        TextSpan(
+          text: widget.placeholderText,
+          style: TextStyle(
+            color: widget.textNode.toRawString().isNotEmpty
+                ? Colors.transparent
+                : Colors.grey,
+          ),
+        ),
+      ],
+    );
+    return RichText(
+      key: _placeholderTextKey,
+      text: widget.placeholderTextSpanDecorator != null
+          ? widget.placeholderTextSpanDecorator!(textSpan)
+          : textSpan,
     );
   }
 

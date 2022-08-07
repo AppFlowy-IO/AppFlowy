@@ -64,6 +64,7 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
         ),
         FlowyRichText(
           key: _richTextKey,
+          placeholderText: 'List',
           textNode: widget.textNode,
           editorState: widget.editorState,
         ),

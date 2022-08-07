@@ -84,6 +84,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
         ),
         FlowyRichText(
           key: _richTextKey,
+          placeholderText: 'To-do',
           textNode: widget.textNode,
           editorState: widget.editorState,
         )

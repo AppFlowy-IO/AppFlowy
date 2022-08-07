@@ -65,6 +65,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
         ),
         FlowyRichText(
           key: _richTextKey,
+          placeholderText: 'List',
           textNode: widget.textNode,
           editorState: widget.editorState,
         ),
