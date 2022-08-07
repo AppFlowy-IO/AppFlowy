@@ -327,29 +327,16 @@ class _FakeDragTargetState<T extends DragTargetData>
   @override
   void initState() {
     widget.insertAnimationController.addStatusListener(
-      (status) {
-        if (status != AnimationStatus.completed) return;
-        if (!mounted) return;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          setState(() {
-            simulateDragging = true;
-            widget.deleteAnimationController.reverse(from: 1.0);
-            widget.onWillAccept(widget.eventData.dragTargetData as T);
-            widget.onDragStarted(
-              widget.child,
-              widget.eventData.index,
-              widget.eventData.feedbackSize,
-            );
-          });
-        });
-      },
+      _onInsertedAnimationStatusChanged,
     );
 
+    /// Start insert animation
     widget.insertAnimationController.forward(from: 0.0);
+
     widget.eventTrigger.fakeOnDragEnded(() {
-      if (mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onDragEnded(widget.eventData.dragTargetData as T);
-      }
+      });
     });
 
     super.initState();
@@ -357,17 +344,40 @@ class _FakeDragTargetState<T extends DragTargetData>
 
   @override
   Widget build(BuildContext context) {
-    final child = IgnorePointerWidget(
-        useIntrinsicSize: !simulateDragging, child: widget.child);
+    if (simulateDragging) {
+      return SizeTransitionWithIntrinsicSize(
+        sizeFactor: widget.deleteAnimationController,
+        axis: Axis.vertical,
+        child: IgnorePointerWidget(
+          child: widget.child,
+        ),
+      );
+    } else {
+      return SizeTransitionWithIntrinsicSize(
+        sizeFactor: widget.insertAnimationController,
+        axis: Axis.vertical,
+        child: IgnorePointerWidget(
+          useIntrinsicSize: true,
+          child: widget.child,
+        ),
+      );
+    }
+  }
 
-    final animationController = simulateDragging
-        ? widget.deleteAnimationController
-        : widget.insertAnimationController;
-
-    return SizeTransitionWithIntrinsicSize(
-      sizeFactor: animationController,
-      axis: Axis.vertical,
-      child: child,
-    );
+  void _onInsertedAnimationStatusChanged(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        simulateDragging = true;
+        widget.deleteAnimationController.reverse(from: 1.0);
+        widget.onWillAccept(widget.eventData.dragTargetData as T);
+        widget.onDragStarted(
+          widget.child,
+          widget.eventData.index,
+          widget.eventData.feedbackSize,
+        );
+      });
+    });
   }
 }

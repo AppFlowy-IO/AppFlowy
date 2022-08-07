@@ -2,16 +2,33 @@ import 'dart:collection';
 
 import 'package:equatable/equatable.dart';
 
-import '../../flowy_board.dart';
 import '../utils/log.dart';
+import 'board_column/board_column_data.dart';
 import 'flex/reorder_flex.dart';
 import 'package:flutter/material.dart';
 import 'phantom/phantom_controller.dart';
 
-@protected
+typedef OnMoveColumn = void Function(int fromIndex, int toIndex);
+
+typedef OnMoveColumnItem = void Function(
+  String columnId,
+  int fromIndex,
+  int toIndex,
+);
+
+typedef OnMoveColumnItemToColumn = void Function(
+  String fromColumnId,
+  int fromIndex,
+  String toColumnId,
+  int toIndex,
+);
+
 class BoardDataController extends ChangeNotifier
     with EquatableMixin, BoardPhantomControllerDelegate, ReoderFlextDataSource {
   final List<BoardColumnData> _columnDatas = [];
+  final OnMoveColumn? onMoveColumn;
+  final OnMoveColumnItem? onMoveColumnItem;
+  final OnMoveColumnItemToColumn? onMoveColumnItemToColumn;
 
   List<BoardColumnData> get columnDatas => _columnDatas;
 
@@ -21,9 +38,13 @@ class BoardDataController extends ChangeNotifier
   final LinkedHashMap<String, BoardColumnDataController> _columnControllers =
       LinkedHashMap();
 
-  BoardDataController();
+  BoardDataController({
+    this.onMoveColumn,
+    this.onMoveColumnItem,
+    this.onMoveColumnItemToColumn,
+  });
 
-  void setColumnData(BoardColumnData columnData) {
+  void addColumn(BoardColumnData columnData) {
     final controller = BoardColumnDataController(columnData: columnData);
     _columnDatas.add(columnData);
     _columnControllers[columnData.id] = controller;
@@ -36,6 +57,7 @@ class BoardDataController extends ChangeNotifier
   void moveColumn(int fromIndex, int toIndex) {
     final columnData = _columnDatas.removeAt(fromIndex);
     _columnDatas.insert(toIndex, columnData);
+    onMoveColumn?.call(fromIndex, toIndex);
     notifyListeners();
   }
 
@@ -44,10 +66,12 @@ class BoardDataController extends ChangeNotifier
     assert(columnController != null);
     if (columnController != null) {
       columnController.move(fromIndex, toIndex);
+      onMoveColumnItem?.call(columnId, fromIndex, toIndex);
     }
   }
 
   @override
+  @protected
   void swapColumnItem(
     String fromColumnId,
     int fromColumnIndex,
@@ -55,11 +79,17 @@ class BoardDataController extends ChangeNotifier
     int toColumnIndex,
   ) {
     final item = columnController(fromColumnId).removeAt(fromColumnIndex);
-
     assert(
         columnController(toColumnId).items[toColumnIndex] is PhantomColumnItem);
 
     columnController(toColumnId).replace(toColumnIndex, item);
+
+    onMoveColumnItemToColumn?.call(
+      fromColumnId,
+      fromColumnIndex,
+      toColumnId,
+      toColumnIndex,
+    );
   }
 
   @override
@@ -80,6 +110,7 @@ class BoardDataController extends ChangeNotifier
       UnmodifiableListView(_columnDatas);
 
   @override
+  @protected
   bool removePhantom(String columnId) {
     final columnController = this.columnController(columnId);
     final index = columnController.items.indexWhere((item) => item.isPhantom);
@@ -95,6 +126,7 @@ class BoardDataController extends ChangeNotifier
   }
 
   @override
+  @protected
   void updatePhantom(String columnId, int newIndex) {
     final columnDataController = columnController(columnId);
     final index =
@@ -111,6 +143,7 @@ class BoardDataController extends ChangeNotifier
   }
 
   @override
+  @protected
   void insertPhantom(String columnId, int index, PhantomColumnItem item) {
     columnController(columnId).insert(index, item);
   }

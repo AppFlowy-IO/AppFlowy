@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../flowy_board.dart';
 import '../../utils/log.dart';
+import '../board_column/board_column_data.dart';
 import '../flex/drag_state.dart';
 import '../flex/drag_target.dart';
 import '../flex/drag_target_inteceptor.dart';
 import 'phantom_state.dart';
 
-@protected
 abstract class BoardPhantomControllerDelegate {
   BoardColumnDataController? controller(String columnId);
 
@@ -35,7 +34,6 @@ abstract class BoardPhantomControllerDelegate {
   );
 }
 
-@protected
 class BoardPhantomController extends OverlapDragTargetDelegate
     with CrossReorderFlexDragTargetDelegate {
   PhantomRecord? phantomRecord;
@@ -95,8 +93,6 @@ class BoardPhantomController extends OverlapDragTargetDelegate
 
   /// Remove the phantom in the column if it contains phantom
   void _removePhantom(String columnId) {
-    // columnsState.notifyDidRemovePhantom(columnId);
-    // columnsState.removeColumnListener(columnId);
     if (delegate.removePhantom(columnId)) {
       columnsState.notifyDidRemovePhantom(columnId);
       columnsState.removeColumnListener(columnId);
@@ -217,7 +213,6 @@ class BoardPhantomController extends OverlapDragTargetDelegate
 /// [toColumnId] the column that the phantom moves into
 /// [toColumnIndex] the index of the phantom moves into the column
 ///
-@protected
 class PhantomRecord {
   final String fromColumnId;
   int fromColumnIndex;
@@ -313,7 +308,6 @@ class PassthroughPhantomContext extends FakeDragTargetEventTrigger
   }
 }
 
-@protected
 class PassthroughPhantomWidget extends PhantomWidget {
   final PassthroughPhantomContext passthroughPhantomContext;
 
@@ -328,7 +322,6 @@ class PassthroughPhantomWidget extends PhantomWidget {
         );
 }
 
-@protected
 class PhantomDraggableBuilder extends ReorderFlexDraggableTargetBuilder {
   PhantomDraggableBuilder();
   @override

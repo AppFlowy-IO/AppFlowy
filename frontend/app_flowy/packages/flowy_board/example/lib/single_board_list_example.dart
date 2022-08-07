@@ -20,7 +20,7 @@ class _SingleBoardListExampleState extends State<SingleBoardListExample> {
       TextItem("d"),
     ]);
 
-    boardData.setColumnData(column);
+    boardData.addColumn(column);
     super.initState();
   }
 
