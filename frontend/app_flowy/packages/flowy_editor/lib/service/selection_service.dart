@@ -17,19 +17,25 @@ import 'package:flowy_editor/render/selection/selection_widget.dart';
 
 /// Process selection and cursor
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
-  /// Returns the currently selected [Node]s.
+  /// Returns the current [Selection]
+  ValueNotifier<Selection?> get currentSelection;
+
+  /// Returns the current selected [Node]s.
   ///
   /// The order of the return is determined according to the selected order.
-  ValueNotifier<List<Node>> get currentSelectedNodes;
-  Selection? get currentSelection;
+  List<Node> get currentSelectedNodes;
 
-  /// ------------------ Selection ------------------------
-
+  /// Update the selection or cursor.
   ///
+  /// If selection is collapsed, this method will
+  ///   update the position of the cursor.
+  /// Otherwise, will update the selection.
   void updateSelection(Selection selection);
 
-  ///
+  /// Clear the selection or cursor.
   void clearSelection();
+
+  /// ------------------ Selection ------------------------
 
   List<Rect> rects();
 
@@ -124,10 +130,10 @@ class _FlowySelectionState extends State<FlowySelection>
   EditorState get editorState => widget.editorState;
 
   @override
-  Selection? currentSelection;
+  ValueNotifier<Selection?> currentSelection = ValueNotifier(null);
 
   @override
-  ValueNotifier<List<Node>> currentSelectedNodes = ValueNotifier([]);
+  List<Node> currentSelectedNodes = [];
 
   @override
   List<Node> getNodesInSelection(Selection selection) =>
@@ -145,8 +151,8 @@ class _FlowySelectionState extends State<FlowySelection>
     super.didChangeMetrics();
 
     // Need to refresh the selection when the metrics changed.
-    if (currentSelection != null) {
-      updateSelection(currentSelection!);
+    if (currentSelection.value != null) {
+      updateSelection(currentSelection.value!);
     }
   }
 
@@ -192,8 +198,8 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   void clearSelection() {
-    currentSelection = null;
-    currentSelectedNodes.value = [];
+    currentSelectedNodes = [];
+    currentSelection.value = null;
 
     // clear selection
     _selectionOverlays
@@ -399,8 +405,8 @@ class _FlowySelectionState extends State<FlowySelection>
   void _updateSelection(Selection selection) {
     final nodes = _selectedNodesInSelection(editorState.document, selection);
 
-    currentSelection = selection;
-    currentSelectedNodes.value = nodes;
+    currentSelectedNodes = nodes;
+    currentSelection.value = selection;
 
     Rect? topmostRect;
     LayerLink? layerLink;
@@ -480,8 +486,8 @@ class _FlowySelectionState extends State<FlowySelection>
       return;
     }
 
-    currentSelection = Selection.collapsed(position);
-    currentSelectedNodes.value = [node];
+    currentSelectedNodes = [node];
+    currentSelection.value = Selection.collapsed(position);
 
     final selectable = node.selectable;
     final rect = selectable?.getCursorRectInPosition(position);

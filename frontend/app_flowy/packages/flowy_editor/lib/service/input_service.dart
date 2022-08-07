@@ -42,15 +42,15 @@ class _FlowyInputState extends State<FlowyInput>
   void initState() {
     super.initState();
 
-    _editorState.service.selectionService.currentSelectedNodes
-        .addListener(_onSelectedNodesChange);
+    _editorState.service.selectionService.currentSelection
+        .addListener(_onSelectionChange);
   }
 
   @override
   void dispose() {
     close();
-    _editorState.service.selectionService.currentSelectedNodes
-        .removeListener(_onSelectedNodesChange);
+    _editorState.service.selectionService.currentSelection
+        .removeListener(_onSelectionChange);
 
     super.dispose();
   }
@@ -105,13 +105,12 @@ class _FlowyInputState extends State<FlowyInput>
 
   void _applyInsert(TextEditingDeltaInsertion delta) {
     final selectionService = _editorState.service.selectionService;
-    final currentSelection = selectionService.currentSelection;
+    final currentSelection = selectionService.currentSelection.value;
     if (currentSelection == null) {
       return;
     }
     if (currentSelection.isSingle) {
-      final textNode =
-          selectionService.currentSelectedNodes.value.first as TextNode;
+      final textNode = selectionService.currentSelectedNodes.first as TextNode;
       TransactionBuilder(_editorState)
         ..insertText(
           textNode,
@@ -126,13 +125,12 @@ class _FlowyInputState extends State<FlowyInput>
 
   void _applyReplacement(TextEditingDeltaReplacement delta) {
     final selectionService = _editorState.service.selectionService;
-    final currentSelection = selectionService.currentSelection;
+    final currentSelection = selectionService.currentSelection.value;
     if (currentSelection == null) {
       return;
     }
     if (currentSelection.isSingle) {
-      final textNode =
-          selectionService.currentSelectedNodes.value.first as TextNode;
+      final textNode = selectionService.currentSelectedNodes.first as TextNode;
       final length = delta.replacedRange.end - delta.replacedRange.start;
       TransactionBuilder(_editorState)
         ..replaceText(
@@ -209,11 +207,11 @@ class _FlowyInputState extends State<FlowyInput>
     // TODO: implement updateFloatingCursor
   }
 
-  void _onSelectedNodesChange() {
-    final textNodes = _editorState
-        .service.selectionService.currentSelectedNodes.value
+  void _onSelectionChange() {
+    final textNodes = _editorState.service.selectionService.currentSelectedNodes
         .whereType<TextNode>();
-    final selection = _editorState.service.selectionService.currentSelection;
+    final selection =
+        _editorState.service.selectionService.currentSelection.value;
     // FIXME: upward and selection update.
     if (textNodes.isNotEmpty && selection != null) {
       final text = textNodes.fold<String>(

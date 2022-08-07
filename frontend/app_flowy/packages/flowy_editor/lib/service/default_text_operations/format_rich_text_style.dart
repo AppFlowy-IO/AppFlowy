@@ -38,7 +38,7 @@ void formatBulletedList(EditorState editorState) {
 }
 
 bool formatTextNodes(EditorState editorState, Attributes attributes) {
-  final nodes = editorState.service.selectionService.currentSelectedNodes.value;
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
   final textNodes = nodes.whereType<TextNode>().toList();
 
   if (textNodes.isEmpty) {
@@ -85,8 +85,8 @@ bool formatStrikethrough(EditorState editorState) {
 }
 
 bool formatRichTextPartialStyle(EditorState editorState, String styleKey) {
-  final selection = editorState.service.selectionService.currentSelection;
-  final nodes = editorState.service.selectionService.currentSelectedNodes.value;
+  final selection = editorState.service.selectionService.currentSelection.value;
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
   final textNodes = nodes.whereType<TextNode>().toList(growable: false);
 
   if (selection == null || textNodes.isEmpty) {
@@ -107,8 +107,8 @@ bool formatRichTextPartialStyle(EditorState editorState, String styleKey) {
 }
 
 bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
-  final selection = editorState.service.selectionService.currentSelection;
-  final nodes = editorState.service.selectionService.currentSelectedNodes.value;
+  final selection = editorState.service.selectionService.currentSelection.value;
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
   final textNodes = nodes.whereType<TextNode>().toList();
 
   if (selection == null || textNodes.isEmpty) {

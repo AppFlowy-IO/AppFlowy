@@ -56,14 +56,13 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
 
-  final textNodes = editorState
-      .service.selectionService.currentSelectedNodes.value
+  final textNodes = editorState.service.selectionService.currentSelectedNodes
       .whereType<TextNode>();
   if (textNodes.length != 1) {
     return KeyEventResult.ignored;
   }
 
-  final selection = editorState.service.selectionService.currentSelection;
+  final selection = editorState.service.selectionService.currentSelection.value;
   final textNode = textNodes.first;
   final context = textNode.context;
   final selectable = textNode.selectable;
@@ -97,9 +96,9 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
 
   Overlay.of(context)?.insert(_popupListOverlay!);
 
-  editorState.service.selectionService.currentSelectedNodes
+  editorState.service.selectionService.currentSelection
       .removeListener(clearPopupListOverlay);
-  editorState.service.selectionService.currentSelectedNodes
+  editorState.service.selectionService.currentSelection
       .addListener(clearPopupListOverlay);
   // editorState.service.keyboardService?.disable();
   _editorState = editorState;
