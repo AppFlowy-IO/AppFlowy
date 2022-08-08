@@ -37,6 +37,8 @@ dependencies:
     path: packages/flowy_infra_ui
   flowy_infra:
     path: packages/flowy_infra
+  appflowy_board:
+    path: packages/appflowy_board
   flutter_quill:
     git:
       url: https://github.com/appflowy/flutter-quill.git
