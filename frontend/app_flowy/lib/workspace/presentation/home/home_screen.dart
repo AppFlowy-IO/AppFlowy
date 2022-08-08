@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/workspace/presentation/home/hotkeys.dart';
 import 'package:app_flowy/workspace/presentation/widgets/edit_pannel/pannel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/startup/startup.dart';
@@ -21,7 +22,8 @@ import 'menu/menu.dart';
 class HomeScreen extends StatefulWidget {
   final UserProfilePB user;
   final CurrentWorkspaceSettingPB workspaceSetting;
-  const HomeScreen(this.user, this.workspaceSetting, {Key? key}) : super(key: key);
+  const HomeScreen(this.user, this.workspaceSetting, {Key? key})
+      : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -47,11 +49,13 @@ class _HomeScreenState extends State<HomeScreen> {
       providers: [
         BlocProvider<HomeBloc>(
           create: (context) {
-            return HomeBloc(widget.user, widget.workspaceSetting)..add(const HomeEvent.initial());
+            return HomeBloc(widget.user, widget.workspaceSetting)
+              ..add(const HomeEvent.initial());
           },
         ),
       ],
-      child: Scaffold(
+      child: HomeHotKeys(
+          child: Scaffold(
         body: BlocListener<HomeBloc, HomeState>(
           listenWhen: (p, c) => p.unauthorized != c.unauthorized,
           listener: (context, state) {
@@ -62,9 +66,12 @@ class _HomeScreenState extends State<HomeScreen> {
           child: BlocBuilder<HomeBloc, HomeState>(
             buildWhen: (previous, current) => previous != current,
             builder: (context, state) {
-              final collapasedNotifier = getIt<HomeStackManager>().collapsedNotifier;
+              final collapasedNotifier =
+                  getIt<HomeStackManager>().collapsedNotifier;
               collapasedNotifier.addPublishListener((isCollapsed) {
-                context.read<HomeBloc>().add(HomeEvent.forceCollapse(isCollapsed));
+                context
+                    .read<HomeBloc>()
+                    .add(HomeEvent.forceCollapse(isCollapsed));
               });
               return FlowyContainer(
                 Theme.of(context).colorScheme.surface,
@@ -74,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ),
-      ),
+      )),
     );
   }
 
@@ -107,7 +114,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildHomeMenu({required HomeLayout layout, required BuildContext context, required HomeState state}) {
+  Widget _buildHomeMenu(
+      {required HomeLayout layout,
+      required BuildContext context,
+      required HomeState state}) {
     final workspaceSetting = state.workspaceSetting;
     if (initialView == null && workspaceSetting.hasLatestView()) {
       initialView = workspaceSetting.latestView;
@@ -124,7 +134,8 @@ class _HomeScreenState extends State<HomeScreen> {
       collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
     );
 
-    final latestView = workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null;
+    final latestView =
+        workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null;
     if (getIt<MenuSharedState>().latestOpenView == null) {
       /// AppFlowy will open the view that the last time the user opened it. The _buildHomeMenu will get called when AppFlowy's screen resizes. So we only set the latestOpenView when it's null.
       getIt<MenuSharedState>().latestOpenView = latestView;
@@ -133,10 +144,14 @@ class _HomeScreenState extends State<HomeScreen> {
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
 
-  Widget _buildEditPannel({required HomeState homeState, required BuildContext context, required HomeLayout layout}) {
+  Widget _buildEditPannel(
+      {required HomeState homeState,
+      required BuildContext context,
+      required HomeLayout layout}) {
     final homeBloc = context.read<HomeBloc>();
     return BlocBuilder<HomeBloc, HomeState>(
-      buildWhen: (previous, current) => previous.pannelContext != current.pannelContext,
+      buildWhen: (previous, current) =>
+          previous.pannelContext != current.pannelContext,
       builder: (context, state) {
         return state.pannelContext.fold(
           () => const SizedBox(),
@@ -144,7 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: RepaintBoundary(
               child: EditPannel(
                 pannelContext: pannelContext,
-                onEndEdit: () => homeBloc.add(const HomeEvent.dismissEditPannel()),
+                onEndEdit: () =>
+                    homeBloc.add(const HomeEvent.dismissEditPannel()),
               ),
             ),
           ),
@@ -161,7 +177,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: GestureDetector(
           dragStartBehavior: DragStartBehavior.down,
           onPanUpdate: ((details) {
-            context.read<HomeBloc>().add(HomeEvent.editPannelResized(details.delta.dx));
+            context
+                .read<HomeBloc>()
+                .add(HomeEvent.editPannelResized(details.delta.dx));
           }),
           behavior: HitTestBehavior.translucent,
           child: SizedBox(
@@ -186,11 +204,21 @@ class _HomeScreenState extends State<HomeScreen> {
               closeX: -layout.menuWidth,
               isClosed: !layout.showMenu,
             )
-            .positioned(left: 0, top: 0, width: layout.menuWidth, bottom: 0, animate: true)
+            .positioned(
+                left: 0,
+                top: 0,
+                width: layout.menuWidth,
+                bottom: 0,
+                animate: true)
             .animate(layout.animDuration, Curves.easeOut),
         homeStack
             .constrained(minWidth: 500)
-            .positioned(left: layout.homePageLOffset, right: layout.homePageROffset, bottom: 0, top: 0, animate: true)
+            .positioned(
+                left: layout.homePageLOffset,
+                right: layout.homePageROffset,
+                bottom: 0,
+                top: 0,
+                animate: true)
             .animate(layout.animDuration, Curves.easeOut),
         homeMenuResizer.positioned(left: layout.homePageLOffset - 5),
         bubble
@@ -206,7 +234,8 @@ class _HomeScreenState extends State<HomeScreen> {
               closeX: layout.editPannelWidth,
               isClosed: !layout.showEditPannel,
             )
-            .positioned(right: 0, top: 0, bottom: 0, width: layout.editPannelWidth),
+            .positioned(
+                right: 0, top: 0, bottom: 0, width: layout.editPannelWidth),
       ],
     );
   }
