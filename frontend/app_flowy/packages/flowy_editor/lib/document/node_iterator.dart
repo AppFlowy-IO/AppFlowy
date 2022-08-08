@@ -43,7 +43,7 @@ class NodeIterator implements Iterator<Node> {
       if (nextOfParent == null) {
         _currentNode = null;
       } else {
-        _currentNode = _findLeadingChild(node);
+        _currentNode = _findLeadingChild(nextOfParent);
       }
     }
 

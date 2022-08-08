@@ -527,6 +527,7 @@ class _FlowySelectionState extends State<FlowySelection>
   ///  currently only single-level nesting is supported
   // find the first node's rect.bottom <= offset.dy
   Node _lowerBound(List<Node> sortedNodes, Offset offset, int start, int end) {
+    assert(start >= 0 && end < sortedNodes.length);
     var min = start;
     var max = end;
     while (min <= max) {
@@ -537,7 +538,12 @@ class _FlowySelectionState extends State<FlowySelection>
         max = mid - 1;
       }
     }
-    return sortedNodes[min];
+    final node = sortedNodes[min];
+    if (node.children.isNotEmpty && node.children.first.rect.top <= offset.dy) {
+      final children = node.children.toList(growable: false);
+      return _lowerBound(children, offset, 0, children.length - 1);
+    }
+    return node;
   }
 
   /// TODO: Supports multi-level nesting,
@@ -549,6 +555,7 @@ class _FlowySelectionState extends State<FlowySelection>
     int start,
     int end,
   ) {
+    assert(start >= 0 && end < sortedNodes.length);
     var min = start;
     var max = end;
     while (min <= max) {
@@ -559,7 +566,12 @@ class _FlowySelectionState extends State<FlowySelection>
         max = mid - 1;
       }
     }
-    return sortedNodes[max];
+    final node = sortedNodes[max];
+    if (node.children.isNotEmpty && node.children.first.rect.top <= offset.dy) {
+      final children = node.children.toList(growable: false);
+      return _lowerBound(children, offset, 0, children.length - 1);
+    }
+    return node;
   }
 }
 
