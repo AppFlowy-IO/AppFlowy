@@ -82,11 +82,15 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
               ..commit();
           },
         ),
-        FlowyRichText(
-          key: _richTextKey,
-          textNode: widget.textNode,
-          editorState: widget.editorState,
-        )
+        Expanded(
+          child: FlowyRichText(
+            key: _richTextKey,
+            placeholderText: 'To-do',
+            textNode: widget.textNode,
+            textSpanDecorator: _textSpanDecorator,
+            editorState: widget.editorState,
+          ),
+        ),
       ],
     );
   }
@@ -118,6 +122,26 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
           ],
         )
       ],
+    );
+  }
+
+  TextSpan _textSpanDecorator(TextSpan textSpan) {
+    return TextSpan(
+      children: textSpan.children
+          ?.whereType<TextSpan>()
+          .map(
+            (span) => TextSpan(
+              text: span.text,
+              style: widget.textNode.attributes.check
+                  ? span.style?.copyWith(
+                      color: Colors.grey,
+                      decoration: TextDecoration.lineThrough,
+                    )
+                  : span.style,
+              recognizer: span.recognizer,
+            ),
+          )
+          .toList(),
     );
   }
 }

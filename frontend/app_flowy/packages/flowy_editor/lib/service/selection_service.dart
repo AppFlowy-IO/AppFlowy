@@ -265,6 +265,8 @@ class _FlowySelectionState extends State<FlowySelection>
     }
     final selection = Selection.collapsed(position);
     editorState.updateCursorSelection(selection);
+
+    editorState.service.keyboardService?.enable();
   }
 
   @override

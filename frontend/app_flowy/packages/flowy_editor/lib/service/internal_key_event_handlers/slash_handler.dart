@@ -208,7 +208,14 @@ class _PopupListWidgetState extends State<PopupListWidget> {
     }
 
     if (event.logicalKey == LogicalKeyboardKey.enter) {
-      widget.items[selectedIndex].handler(widget.editorState);
+      if (0 <= selectedIndex && selectedIndex < widget.items.length) {
+        widget.items[selectedIndex].handler(widget.editorState);
+        return KeyEventResult.handled;
+      }
+    }
+
+    if (event.logicalKey == LogicalKeyboardKey.escape) {
+      clearPopupListOverlay();
       return KeyEventResult.handled;
     }
 
