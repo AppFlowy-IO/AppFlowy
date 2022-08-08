@@ -46,8 +46,14 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
           if (textNode.previous is TextNode) {
             final previous = textNode.previous as TextNode;
             transactionBuilder
+              ..mergeText(previous, textNode)
               ..deleteNode(textNode)
-              ..mergeText(previous, textNode);
+              ..afterSelection = Selection.collapsed(
+                Position(
+                  path: previous.path,
+                  offset: previous.toRawString().length,
+                ),
+              );
             break;
           }
         }

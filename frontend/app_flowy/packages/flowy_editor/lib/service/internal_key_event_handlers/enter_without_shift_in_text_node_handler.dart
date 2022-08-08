@@ -17,7 +17,8 @@ import 'package:flowy_editor/service/keyboard_service.dart';
 /// 2. Single selection and the selected node is [TextNode]
 ///   2.1 split the node into two nodes with style
 ///   2.2 or insert a empty text node before.
-FlowyKeyEventHandler enterWithoutShiftHandler = (editorState, event) {
+FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
+    (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.enter || event.isShiftPressed) {
     return KeyEventResult.ignored;
   }
@@ -87,17 +88,17 @@ FlowyKeyEventHandler enterWithoutShiftHandler = (editorState, event) {
     Position(path: textNode.path.next, offset: 0),
   );
   TransactionBuilder(editorState)
-    ..deleteText(
-      textNode,
-      selection.start.offset,
-      textNode.toRawString().length,
-    )
     ..insertNode(
       textNode.path.next,
       textNode.copyWith(
         attributes: needCopyAttributes ? textNode.attributes : {},
         delta: textNode.delta.slice(selection.end.offset),
       ),
+    )
+    ..deleteText(
+      textNode,
+      selection.start.offset,
+      textNode.toRawString().length - selection.start.offset,
     )
     ..afterSelection = afterSelection
     ..commit();
