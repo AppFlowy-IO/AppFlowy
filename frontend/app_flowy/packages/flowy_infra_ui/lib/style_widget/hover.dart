@@ -9,14 +9,16 @@ class FlowyHover extends StatefulWidget {
   final HoverBuilder? builder;
   final Widget? child;
   final bool Function()? setSelected;
+  final MouseCursor? cursor;
 
-  const FlowyHover({
-    Key? key,
-    this.builder,
-    this.child,
-    required this.style,
-    this.setSelected,
-  }) : super(key: key);
+  const FlowyHover(
+      {Key? key,
+      this.builder,
+      this.child,
+      required this.style,
+      this.setSelected,
+      this.cursor})
+      : super(key: key);
 
   @override
   State<FlowyHover> createState() => _FlowyHoverState();
@@ -28,7 +30,7 @@ class _FlowyHoverState extends State<FlowyHover> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor: widget.cursor != null ? widget.cursor! : SystemMouseCursors.click,
       opaque: false,
       onEnter: (p) => setState(() => _onHover = true),
       onExit: (p) => setState(() => _onHover = false),
