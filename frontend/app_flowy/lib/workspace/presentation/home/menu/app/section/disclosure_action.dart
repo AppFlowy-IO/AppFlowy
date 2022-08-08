@@ -80,7 +80,6 @@ class ViewDisclosureRegion extends StatelessWidget
         if (event.kind == PointerDeviceKind.mouse &&
             event.buttons == kSecondaryMouseButton)
           {
-            print("IN LISTENER RN"),
             show(context),
           }
       },
