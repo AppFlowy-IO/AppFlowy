@@ -211,6 +211,7 @@ class _PopupListWidgetState extends State<PopupListWidget> {
 
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       if (0 <= selectedIndex && selectedIndex < widget.items.length) {
+        _deleteSlash();
         widget.items[selectedIndex].handler(widget.editorState);
         return KeyEventResult.handled;
       }
@@ -238,6 +239,22 @@ class _PopupListWidgetState extends State<PopupListWidget> {
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
+  }
+
+  void _deleteSlash() {
+    final selection =
+        widget.editorState.service.selectionService.currentSelection.value;
+    final nodes =
+        widget.editorState.service.selectionService.currentSelectedNodes;
+    if (selection != null && nodes.length == 1) {
+      TransactionBuilder(widget.editorState)
+        ..deleteText(
+          nodes.first as TextNode,
+          selection.start.offset - 1,
+          1,
+        )
+        ..commit();
+    }
   }
 }
 

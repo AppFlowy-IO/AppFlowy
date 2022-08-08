@@ -35,7 +35,7 @@ class FlowyRichText extends StatefulWidget {
     this.cursorHeight,
     this.cursorWidth = 2.0,
     this.textSpanDecorator,
-    this.placeholderText = ' ',
+    this.placeholderText = 'Type \'/\' for commands',
     this.placeholderTextSpanDecorator,
     required this.textNode,
     required this.editorState,
