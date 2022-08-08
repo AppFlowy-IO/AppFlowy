@@ -1,3 +1,8 @@
+# 0.0.3
+* Support customize UI
+* Update example
+* Add AppFlowy style widget
+
 ## 0.0.2
 
 * Update documentation

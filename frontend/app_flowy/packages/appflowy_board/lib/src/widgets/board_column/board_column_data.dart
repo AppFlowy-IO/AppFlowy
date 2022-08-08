@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import '../../utils/log.dart';
-import '../flex/reorder_flex.dart';
+import '../reorder_flex/reorder_flex.dart';
 
 abstract class ColumnItem extends ReoderFlexItem {
   bool get isPhantom => false;
@@ -92,10 +92,16 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
 
   /// Replace the item at index with the [newItem].
   void replace(int index, ColumnItem newItem) {
-    final removedItem = columnData._items.removeAt(index);
-    columnData._items.insert(index, newItem);
-    Log.debug(
-        '[$BoardColumnDataController] $columnData replace $removedItem with $newItem at $index');
+    if (columnData._items.isEmpty) {
+      columnData._items.add(newItem);
+      Log.debug('[$BoardColumnDataController] $columnData add $newItem');
+    } else {
+      final removedItem = columnData._items.removeAt(index);
+      columnData._items.insert(index, newItem);
+      Log.debug(
+          '[$BoardColumnDataController] $columnData replace $removedItem with $newItem at $index');
+    }
+
     notifyListeners();
   }
 }
@@ -119,6 +125,6 @@ class BoardColumnData extends ReoderFlexItem with EquatableMixin {
 
   @override
   String toString() {
-    return 'Column$id';
+    return 'Column:[$id]';
   }
 }

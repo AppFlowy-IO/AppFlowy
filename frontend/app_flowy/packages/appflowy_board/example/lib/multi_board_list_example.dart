@@ -23,26 +23,18 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
 
   @override
   void initState() {
-    final column1 = BoardColumnData(id: "1", items: [
-      TextItem("a"),
-      TextItem("b"),
-      TextItem("c"),
-      TextItem("d"),
+    final column1 = BoardColumnData(id: "To Do", items: [
+      TextItem("Card 1"),
+      TextItem("Card 2"),
+      TextItem("Card 3"),
+      TextItem("Card 4"),
     ]);
-    final column2 = BoardColumnData(id: "2", items: [
-      TextItem("1"),
-      TextItem("2"),
-      TextItem("3"),
-      TextItem("4"),
-      TextItem("5"),
+    final column2 = BoardColumnData(id: "In Progress", items: [
+      TextItem("Card 5"),
+      TextItem("Card 6"),
     ]);
 
-    final column3 = BoardColumnData(id: "3", items: [
-      TextItem("A"),
-      TextItem("B"),
-      TextItem("C"),
-      TextItem("D"),
-    ]);
+    final column3 = BoardColumnData(id: "Done", items: []);
 
     boardDataController.addColumn(column1);
     boardDataController.addColumn(column2);
@@ -53,40 +45,52 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
 
   @override
   Widget build(BuildContext context) {
-    return Board(
-      dataController: boardDataController,
-      background: Container(color: Colors.red),
-      footBuilder: (context, columnData) {
-        return Container(
-          color: Colors.purple,
-          height: 30,
-        );
-      },
-      headerBuilder: (context, columnData) {
-        return Container(
-          color: Colors.yellow,
-          height: 30,
-        );
-      },
-      cardBuilder: (context, item) {
-        return _RowWidget(item: item as TextItem, key: ObjectKey(item));
-      },
-      columnConstraints: const BoxConstraints.tightFor(width: 240),
+    final config = BoardConfig(
+      columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
     );
-  }
-}
-
-class _RowWidget extends StatelessWidget {
-  final TextItem item;
-  const _RowWidget({Key? key, required this.item}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      key: ObjectKey(item),
-      height: 60,
-      color: Colors.green,
-      child: Center(child: Text(item.s)),
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+        child: Board(
+          dataController: boardDataController,
+          footBuilder: (context, columnData) {
+            return AppFlowyColumnFooter(
+              icon: const Icon(Icons.add, size: 20),
+              title: const Text('New'),
+              height: 50,
+              margin: config.columnItemPadding,
+            );
+          },
+          headerBuilder: (context, columnData) {
+            return AppFlowyColumnHeader(
+              icon: const Icon(Icons.lightbulb_circle),
+              title: Text(columnData.id),
+              addIcon: const Icon(Icons.add, size: 20),
+              moreIcon: const Icon(Icons.more_horiz, size: 20),
+              height: 50,
+              margin: config.columnItemPadding,
+            );
+          },
+          cardBuilder: (context, item) {
+            final textItem = item as TextItem;
+            return AppFlowyColumnItemCard(
+              key: ObjectKey(item),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(textItem.s),
+                ),
+              ),
+            );
+          },
+          columnConstraints: const BoxConstraints.tightFor(width: 240),
+          config: BoardConfig(
+            columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -98,4 +102,13 @@ class TextItem extends ColumnItem {
 
   @override
   String get id => s;
+}
+
+extension HexColor on Color {
+  static Color fromHex(String hexString) {
+    final buffer = StringBuffer();
+    if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    buffer.write(hexString.replaceFirst('#', ''));
+    return Color(int.parse(buffer.toString(), radix: 16));
+  }
 }

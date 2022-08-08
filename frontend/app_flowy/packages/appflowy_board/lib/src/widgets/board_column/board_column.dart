@@ -3,9 +3,9 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import '../../rendering/board_overlay.dart';
 import '../../utils/log.dart';
-import '../phantom/phantom_controller.dart';
-import '../flex/reorder_flex.dart';
-import '../flex/drag_target_inteceptor.dart';
+import '../reorder_phantom/phantom_controller.dart';
+import '../reorder_flex/reorder_flex.dart';
+import '../reorder_flex/drag_target_inteceptor.dart';
 import 'board_column_data.dart';
 
 typedef OnColumnDragStarted = void Function(int index);
@@ -79,7 +79,15 @@ class BoardColumnWidget extends StatefulWidget {
 
   final BoardColumnFooterBuilder? footBuilder;
 
-  BoardColumnWidget({
+  final EdgeInsets margin;
+
+  final EdgeInsets itemMargin;
+
+  final double cornerRadius;
+
+  final Color backgroundColor;
+
+  const BoardColumnWidget({
     Key? key,
     this.headerBuilder,
     this.footBuilder,
@@ -90,8 +98,11 @@ class BoardColumnWidget extends StatefulWidget {
     this.onDragStarted,
     this.scrollController,
     this.onDragEnded,
-    double? spacing,
-  })  : config = ReorderFlexConfig(spacing: spacing),
+    this.margin = EdgeInsets.zero,
+    this.itemMargin = EdgeInsets.zero,
+    this.cornerRadius = 0.0,
+    this.backgroundColor = Colors.transparent,
+  })  : config = const ReorderFlexConfig(),
         super(key: key);
 
   @override
@@ -149,12 +160,25 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
           children: children,
         );
 
-        return Column(
-          children: [
-            if (header != null) header,
-            Expanded(child: reorderFlex),
-            if (footer != null) footer,
-          ],
+        return Container(
+          margin: widget.margin,
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            color: widget.backgroundColor,
+            borderRadius: BorderRadius.circular(widget.cornerRadius),
+          ),
+          child: Column(
+            children: [
+              if (header != null) header,
+              Expanded(
+                child: Padding(
+                  padding: widget.itemMargin,
+                  child: reorderFlex,
+                ),
+              ),
+              if (footer != null) footer,
+            ],
+          ),
         );
       },
       opaque: false,

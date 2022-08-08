@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:provider/provider.dart';
 import '../transitions.dart';
 
 abstract class DragTargetData {
@@ -65,6 +67,8 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   final AnimationController insertAnimationController;
   final AnimationController deleteAnimationController;
 
+  final bool useMoveAnimation;
+
   ReorderDragTarget({
     Key? key,
     required this.child,
@@ -74,6 +78,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
     required this.onWillAccept,
     required this.insertAnimationController,
     required this.deleteAnimationController,
+    required this.useMoveAnimation,
     this.onAccept,
     this.onLeave,
     this.draggableTargetBuilder,
@@ -140,7 +145,10 @@ class _ReorderDragTargetState<T extends DragTargetData>
           data: widget.dragTargetData,
           ignoringFeedbackSemantics: false,
           feedback: feedbackBuilder,
-          childWhenDragging: IgnorePointerWidget(child: widget.child),
+          childWhenDragging: IgnorePointerWidget(
+            useIntrinsicSize: !widget.useMoveAnimation,
+            child: widget.child,
+          ),
           onDragStarted: () {
             _draggingFeedbackSize = widget._indexGlobalKey.currentContext?.size;
             widget.onDragStarted(
@@ -174,11 +182,13 @@ class _ReorderDragTargetState<T extends DragTargetData>
       transform: Matrix4.rotationZ(0),
       alignment: FractionalOffset.topLeft,
       child: Material(
-        elevation: 3.0,
         color: Colors.transparent,
         borderRadius: BorderRadius.zero,
         clipBehavior: Clip.hardEdge,
-        child: ConstrainedBox(constraints: constraints, child: child),
+        child: ConstrainedBox(
+          constraints: constraints,
+          child: Opacity(opacity: 0.6, child: child),
+        ),
       ),
     );
   }
@@ -254,10 +264,12 @@ class IgnorePointerWidget extends StatelessWidget {
     final sizedChild = useIntrinsicSize
         ? child
         : SizedBox(width: 0.0, height: 0.0, child: child);
+
+    final opacity = useIntrinsicSize ? 0.3 : 0.0;
     return IgnorePointer(
       ignoring: true,
       child: Opacity(
-        opacity: 0,
+        opacity: opacity,
         child: sizedChild,
       ),
     );
@@ -278,6 +290,82 @@ class PhantomWidget extends StatelessWidget {
     return Opacity(
       opacity: opacity,
       child: child,
+    );
+  }
+}
+
+abstract class DragTargetMovePlaceholderDelegate {
+  void registerPlaceholder(
+    int dragTargetIndex,
+    void Function(int currentDragTargetIndex) callback,
+  );
+
+  void unregisterPlaceholder(int dragTargetIndex);
+}
+
+class DragTargeMovePlaceholder extends StatefulWidget {
+  final double height;
+  final Color color;
+  final Color highlightColor;
+  final int dragTargetIndex;
+  final DragTargetMovePlaceholderDelegate delegate;
+
+  const DragTargeMovePlaceholder({
+    required this.delegate,
+    required this.dragTargetIndex,
+    this.height = 4,
+    this.color = Colors.transparent,
+    this.highlightColor = Colors.lightBlue,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<DragTargeMovePlaceholder> createState() =>
+      _DragTargeMovePlaceholderState();
+}
+
+class _DragTargeMovePlaceholderState extends State<DragTargeMovePlaceholder> {
+  ValueNotifier<bool> isHighlight = ValueNotifier(false);
+
+  @override
+  void initState() {
+    widget.delegate.registerPlaceholder(
+      widget.dragTargetIndex,
+      (currentDragTargetIndex) {
+        if (!mounted) return;
+
+        SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
+          if (currentDragTargetIndex == -1) {
+            isHighlight.value = false;
+          } else {
+            isHighlight.value =
+                widget.dragTargetIndex == currentDragTargetIndex;
+          }
+        });
+      },
+    );
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    isHighlight.dispose();
+    widget.delegate.unregisterPlaceholder(widget.dragTargetIndex);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: isHighlight,
+      child: Consumer<ValueNotifier<bool>>(
+        builder: (context, notifier, child) {
+          return Container(
+            height: widget.height,
+            color: notifier.value ? widget.highlightColor : widget.color,
+          );
+        },
+      ),
     );
   }
 }
