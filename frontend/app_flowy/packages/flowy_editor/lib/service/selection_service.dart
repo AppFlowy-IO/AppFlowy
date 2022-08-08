@@ -160,6 +160,7 @@ class _FlowySelectionState extends State<FlowySelection>
       onPanEnd: _onPanEnd,
       onTapDown: _onTapDown,
       onDoubleTapDown: _onDoubleTapDown,
+      onTripleTapDown: _onTripleTapDown,
       child: widget.child,
     );
   }
@@ -250,6 +251,25 @@ class _FlowySelectionState extends State<FlowySelection>
     }
     editorState
         .updateCursorSelection(selectable.getWorldBoundaryInOffset(offset));
+  }
+
+  void _onTripleTapDown(TapDownDetails details) {
+    final offset = details.globalPosition;
+    final node = getNodeInOffset(offset);
+    if (node == null) {
+      editorState.updateCursorSelection(null);
+      return;
+    }
+    Selection selection;
+    if (node is TextNode) {
+      final textLen = node.delta.length;
+      selection = Selection(
+          start: Position(path: node.path, offset: 0),
+          end: Position(path: node.path, offset: textLen));
+    } else {
+      selection = Selection.collapsed(Position(path: node.path, offset: 0));
+    }
+    editorState.updateCursorSelection(selection);
   }
 
   void _onTapDown(TapDownDetails details) {
@@ -576,6 +596,7 @@ class _SelectionGestureDetector extends StatefulWidget {
       this.child,
       this.onTapDown,
       this.onDoubleTapDown,
+      this.onTripleTapDown,
       this.onPanStart,
       this.onPanUpdate,
       this.onPanEnd})
@@ -589,14 +610,19 @@ class _SelectionGestureDetector extends StatefulWidget {
 
   final GestureTapDownCallback? onTapDown;
   final GestureTapDownCallback? onDoubleTapDown;
+  final GestureTapDownCallback? onTripleTapDown;
   final GestureDragStartCallback? onPanStart;
   final GestureDragUpdateCallback? onPanUpdate;
   final GestureDragEndCallback? onPanEnd;
 }
 
+const Duration kTripleTapTimeout = Duration(milliseconds: 500);
+
 class _SelectionGestureDetectorState extends State<_SelectionGestureDetector> {
   bool _isDoubleTap = false;
   Timer? _doubleTapTimer;
+  int _tripleTabCount = 0;
+  Timer? _tripleTabTimer;
   @override
   Widget build(BuildContext context) {
     return RawGestureDetector(
@@ -625,13 +651,21 @@ class _SelectionGestureDetectorState extends State<_SelectionGestureDetector> {
   }
 
   _tapDownDelegate(TapDownDetails tapDownDetails) {
-    if (_isDoubleTap) {
+    if (_tripleTabCount == 2) {
+      _tripleTabCount = 0;
+      _tripleTabTimer?.cancel();
+      _tripleTabTimer = null;
+      if (widget.onTripleTapDown != null) {
+        widget.onTripleTapDown!(tapDownDetails);
+      }
+    } else if (_isDoubleTap) {
       _isDoubleTap = false;
       _doubleTapTimer?.cancel();
       _doubleTapTimer = null;
       if (widget.onDoubleTapDown != null) {
         widget.onDoubleTapDown!(tapDownDetails);
       }
+      _tripleTabCount++;
     } else {
       if (widget.onTapDown != null) {
         widget.onTapDown!(tapDownDetails);
@@ -643,12 +677,20 @@ class _SelectionGestureDetectorState extends State<_SelectionGestureDetector> {
         _isDoubleTap = false;
         _doubleTapTimer = null;
       });
+
+      _tripleTabCount = 1;
+      _tripleTabTimer?.cancel();
+      _tripleTabTimer = Timer(kTripleTapTimeout, () {
+        _tripleTabCount = 0;
+        _tripleTabTimer = null;
+      });
     }
   }
 
   @override
   void dispose() {
     _doubleTapTimer?.cancel();
+    _tripleTabTimer?.cancel();
     super.dispose();
   }
 }
