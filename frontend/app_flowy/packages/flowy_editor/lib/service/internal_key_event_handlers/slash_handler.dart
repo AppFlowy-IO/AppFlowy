@@ -72,16 +72,22 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
 
   final rect = selectable.getCursorRectInPosition(selection.start);
   final offset = selectable.localToGlobal(rect.topLeft);
-  if (!selection.isCollapsed) {
-    TransactionBuilder(editorState)
-      ..deleteText(
-        textNode,
-        selection.start.offset,
-        selection.end.offset - selection.start.offset,
-      )
-      ..commit();
-  }
 
+  TransactionBuilder(editorState)
+    ..replaceText(textNode, selection.start.offset,
+        selection.end.offset - selection.start.offset, '/')
+    ..commit();
+
+  _editorState = editorState;
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    showPopupList(context, editorState, offset);
+  });
+
+  return KeyEventResult.handled;
+};
+
+void showPopupList(
+    BuildContext context, EditorState editorState, Offset offset) {
   _popupListOverlay?.remove();
   _popupListOverlay = OverlayEntry(
     builder: (context) => Positioned(
@@ -97,16 +103,12 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
   Overlay.of(context)?.insert(_popupListOverlay!);
 
   editorState.service.selectionService.currentSelection
-      .removeListener(clearPopupListOverlay);
+      .removeListener(clearPopupList);
   editorState.service.selectionService.currentSelection
-      .addListener(clearPopupListOverlay);
-  // editorState.service.keyboardService?.disable();
-  _editorState = editorState;
+      .addListener(clearPopupList);
+}
 
-  return KeyEventResult.handled;
-};
-
-void clearPopupListOverlay() {
+void clearPopupList() {
   _popupListOverlay?.remove();
   _popupListOverlay = null;
 
@@ -215,7 +217,7 @@ class _PopupListWidgetState extends State<PopupListWidget> {
     }
 
     if (event.logicalKey == LogicalKeyboardKey.escape) {
-      clearPopupListOverlay();
+      clearPopupList();
       return KeyEventResult.handled;
     }
 
