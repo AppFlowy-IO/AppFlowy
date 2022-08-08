@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import '../../utils/log.dart';
 import '../board_column/board_column_data.dart';
@@ -204,8 +202,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
 
   @override
   bool canMoveTo(String dragTargetId) {
-    // TODO: implement shouldReceive
-    return delegate.controller(dragTargetId)?.columnData.items.length == 0;
+    return delegate.controller(dragTargetId)?.columnData.items.isEmpty ?? false;
   }
 }
 

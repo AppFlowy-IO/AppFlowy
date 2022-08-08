@@ -500,7 +500,7 @@ class ReorderFlexState extends State<ReorderFlex>
       case Axis.horizontal:
         return Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: widget.mainAxisAlignment,
           children: children,
         );
@@ -508,7 +508,7 @@ class ReorderFlexState extends State<ReorderFlex>
       default:
         return Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: widget.mainAxisAlignment,
           children: children,
         );

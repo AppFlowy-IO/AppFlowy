@@ -26,11 +26,11 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     final column1 = BoardColumnData(id: "To Do", items: [
       TextItem("Card 1"),
       TextItem("Card 2"),
-      TextItem("Card 3"),
+      RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
       TextItem("Card 4"),
     ]);
     final column2 = BoardColumnData(id: "In Progress", items: [
-      TextItem("Card 5"),
+      RichTextItem(title: "Card 5", subtitle: 'Aug 1, 2020 4:05 PM'),
       TextItem("Card 6"),
     ]);
 
@@ -73,16 +73,9 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
             );
           },
           cardBuilder: (context, item) {
-            final textItem = item as TextItem;
             return AppFlowyColumnItemCard(
               key: ObjectKey(item),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(textItem.s),
-                ),
-              ),
+              child: _buildCard(item),
             );
           },
           columnConstraints: const BoxConstraints.tightFor(width: 240),
@@ -93,6 +86,41 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       ),
     );
   }
+
+  Widget _buildCard(ColumnItem item) {
+    if (item is TextItem) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Text(item.s),
+        ),
+      );
+    }
+
+    if (item is RichTextItem) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              item.title,
+              style: const TextStyle(fontSize: 14),
+              textAlign: TextAlign.left,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              item.subtitle,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            )
+          ],
+        ),
+      );
+    }
+
+    throw UnimplementedError();
+  }
 }
 
 class TextItem extends ColumnItem {
@@ -102,6 +130,16 @@ class TextItem extends ColumnItem {
 
   @override
   String get id => s;
+}
+
+class RichTextItem extends ColumnItem {
+  final String title;
+  final String subtitle;
+
+  RichTextItem({required this.title, required this.subtitle});
+
+  @override
+  String get id => title;
 }
 
 extension HexColor on Color {
