@@ -86,8 +86,8 @@ impl OTString {
     /// assert_eq!(iter.skip(OTString::from("ab一二").utf16_len()).next().unwrap(), "👋".to_string());
     /// ```
     #[allow(dead_code)]
-    pub fn utf16_code_point_iter(&self) -> FlowyUtf16CodePointIterator {
-        FlowyUtf16CodePointIterator::new(self, 0)
+    pub fn utf16_code_point_iter(&self) -> OTUtf16CodePointIterator {
+        OTUtf16CodePointIterator::new(self, 0)
     }
 }
 
@@ -218,21 +218,21 @@ impl<'a> Iterator for Utf16CodeUnitIterator<'a> {
     }
 }
 
-pub struct FlowyUtf16CodePointIterator<'a> {
+pub struct OTUtf16CodePointIterator<'a> {
     s: &'a OTString,
     offset: usize,
 }
 
-impl<'a> FlowyUtf16CodePointIterator<'a> {
+impl<'a> OTUtf16CodePointIterator<'a> {
     pub fn new(s: &'a OTString, offset: usize) -> Self {
-        FlowyUtf16CodePointIterator { s, offset }
+        OTUtf16CodePointIterator { s, offset }
     }
 }
 
 use crate::core::interval::Interval;
 use std::str;
 
-impl<'a> Iterator for FlowyUtf16CodePointIterator<'a> {
+impl<'a> Iterator for OTUtf16CodePointIterator<'a> {
     type Item = String;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -278,8 +278,8 @@ pub fn len_utf8_from_first_byte(b: u8) -> usize {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::flowy_str::OTString;
     use crate::core::interval::Interval;
+    use crate::core::ot_str::OTString;
 
     #[test]
     fn flowy_str_code_unit() {

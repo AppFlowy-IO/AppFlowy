@@ -115,12 +115,17 @@ class _DragToExpandLine extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onHorizontalDragUpdate: (value) {
-          context.read<FieldCellBloc>().add(FieldCellEvent.startUpdateWidth(value.delta.dx));
+          context
+              .read<FieldCellBloc>()
+              .add(FieldCellEvent.startUpdateWidth(value.delta.dx));
         },
         onHorizontalDragEnd: (end) {
-          context.read<FieldCellBloc>().add(const FieldCellEvent.endUpdateWidth());
+          context
+              .read<FieldCellBloc>()
+              .add(const FieldCellEvent.endUpdateWidth());
         },
         child: FlowyHover(
+          cursor: SystemMouseCursors.resizeLeftRight,
           style: HoverStyle(
             hoverColor: theme.main1,
             borderRadius: BorderRadius.zero,

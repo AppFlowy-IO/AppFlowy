@@ -762,19 +762,19 @@ fn attributes_preserve_list_format_on_merge() {
 
 #[test]
 fn delta_compose() {
-    let mut delta = RichTextDelta::from_json_str(r#"[{"insert":"\n"}]"#).unwrap();
+    let mut delta = RichTextDelta::from_json(r#"[{"insert":"\n"}]"#).unwrap();
     let deltas = vec![
-        RichTextDelta::from_json_str(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
-        RichTextDelta::from_json_str(r#"[{"insert":"a"}]"#).unwrap(),
-        RichTextDelta::from_json_str(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
-        RichTextDelta::from_json_str(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"insert":"a"}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
+        RichTextDelta::from_json(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
     ];
 
     for d in deltas {
         delta = delta.compose(&d).unwrap();
     }
     assert_eq!(
-        delta.to_json_str(),
+        delta.json_str(),
         r#"[{"insert":"a"},{"insert":"\n","attributes":{"list":"unchecked"}},{"insert":"\n"}]"#
     );
 
