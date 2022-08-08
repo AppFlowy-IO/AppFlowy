@@ -4,6 +4,7 @@ import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
 
@@ -205,20 +206,58 @@ class HTMLConverter {
   }
 }
 
-String deltaToHtml(Delta delta) {
-  var result = "<p>";
+html.Element deltaToHtml(Delta delta, [String? subType]) {
+  final childNodes = <html.Node>[];
+  String tagName = tagParagraph;
+
+  if (subType == "bulleted-list") {
+    tagName = tagList;
+  }
 
   for (final op in delta.operations) {
     if (op is TextInsert) {
       final attributes = op.attributes;
       if (attributes != null && attributes["bold"] == true) {
-        result += '<strong>${op.content}</strong>';
+        final strong = html.Element.tag("strong");
+        strong.append(html.Text(op.content));
+        childNodes.add(strong);
       } else {
-        result += op.content;
+        childNodes.add(html.Text(op.content));
       }
     }
   }
 
-  result += "</p>";
-  return result;
+  if (tagName != tagParagraph) {
+    final p = html.Element.tag(tagParagraph);
+    for (final node in childNodes) {
+      p.append(node);
+    }
+    final result = html.Element.tag("li");
+    result.append(p);
+    return result;
+  } else {
+    final p = html.Element.tag(tagName);
+    for (final node in childNodes) {
+      p.append(node);
+    }
+    return p;
+  }
+}
+
+String stringify(html.Node node) {
+  if (node is html.Element) {
+    String result = '<${node.localName}>';
+
+    for (final node in node.nodes) {
+      result += stringify(node);
+    }
+
+    return result += '</${node.localName}>';
+  }
+
+  if (node is html.Text) {
+    return node.text;
+  }
+
+  return "";
 }
