@@ -81,8 +81,8 @@ pub struct UserTable {
     pub(crate) name: String,
     pub(crate) token: String,
     pub(crate) email: String,
-    pub(crate) icon: String,
     pub(crate) workspace: String, // deprecated
+    pub(crate) icon_url: String,
 }
 
 impl UserTable {
@@ -92,7 +92,7 @@ impl UserTable {
             name,
             email,
             token,
-            icon: "".to_owned(),
+            icon_url: "".to_owned(),
             workspace: "".to_owned(),
         }
     }
@@ -122,7 +122,7 @@ impl std::convert::From<UserTable> for UserProfilePB {
             email: table.email,
             name: table.name,
             token: table.token,
-            icon: table.icon,
+            icon_url: table.icon_url,
         }
     }
 }
@@ -134,7 +134,7 @@ pub struct UserTableChangeset {
     pub workspace: Option<String>, // deprecated
     pub name: Option<String>,
     pub email: Option<String>,
-    pub icon: Option<String>,
+    pub icon_url: Option<String>,
 }
 
 impl UserTableChangeset {
@@ -144,7 +144,7 @@ impl UserTableChangeset {
             workspace: None,
             name: params.name,
             email: params.email,
-            icon: params.icon,
+            icon_url: params.icon_url,
         }
     }
 }

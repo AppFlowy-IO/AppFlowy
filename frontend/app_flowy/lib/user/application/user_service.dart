@@ -11,7 +11,8 @@ class UserService {
   UserService({
     required this.userId,
   });
-  Future<Either<UserProfilePB, FlowyError>> getUserProfile({required String userId}) {
+  Future<Either<UserProfilePB, FlowyError>> getUserProfile(
+      {required String userId}) {
     return UserEventGetUserProfile().send();
   }
 
@@ -19,7 +20,7 @@ class UserService {
     String? name,
     String? password,
     String? email,
-    String? icon,
+    String? iconUrl,
   }) {
     var payload = UpdateUserProfilePayloadPB.create()..id = userId;
 
@@ -35,14 +36,15 @@ class UserService {
       payload.email = email;
     }
 
-    if (icon != null) {
-      payload.icon = icon;
+    if (iconUrl != null) {
+      payload.iconUrl = iconUrl;
     }
 
     return UserEventUpdateUserProfile(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteWorkspace({required String workspaceId}) {
+  Future<Either<Unit, FlowyError>> deleteWorkspace(
+      {required String workspaceId}) {
     throw UnimplementedError();
   }
 
@@ -75,7 +77,8 @@ class UserService {
     });
   }
 
-  Future<Either<WorkspacePB, FlowyError>> createWorkspace(String name, String desc) {
+  Future<Either<WorkspacePB, FlowyError>> createWorkspace(
+      String name, String desc) {
     final request = CreateWorkspacePayloadPB.create()
       ..name = name
       ..desc = desc;

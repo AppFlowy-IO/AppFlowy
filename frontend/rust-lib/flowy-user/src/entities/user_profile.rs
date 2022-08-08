@@ -27,7 +27,7 @@ pub struct UserProfilePB {
     pub token: String,
 
     #[pb(index = 5)]
-    pub icon: String,
+    pub icon_url: String,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -45,7 +45,7 @@ pub struct UpdateUserProfilePayloadPB {
     pub password: Option<String>,
 
     #[pb(index = 5, one_of)]
-    pub icon: Option<String>,
+    pub icon_url: Option<String>,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -71,8 +71,8 @@ impl UpdateUserProfilePayloadPB {
         self
     }
 
-    pub fn icon(mut self, icon: &str) -> Self {
-        self.icon = Some(icon.to_owned());
+    pub fn icon_url(mut self, icon_url: &str) -> Self {
+        self.icon_url = Some(icon_url.to_owned());
         self
     }
 }
@@ -92,7 +92,7 @@ pub struct UpdateUserProfileParams {
     pub password: Option<String>,
 
     #[pb(index = 5, one_of)]
-    pub icon: Option<String>,
+    pub icon_url: Option<String>,
 }
 
 impl UpdateUserProfileParams {
@@ -102,7 +102,7 @@ impl UpdateUserProfileParams {
             name: None,
             email: None,
             password: None,
-            icon: None,
+            icon_url: None,
         }
     }
 
@@ -121,8 +121,8 @@ impl UpdateUserProfileParams {
         self
     }
 
-    pub fn icon(mut self, icon: &str) -> Self {
-        self.icon = Some(icon.to_owned());
+    pub fn icon_url(mut self, icon_url: &str) -> Self {
+        self.icon_url = Some(icon_url.to_owned());
         self
     }
 }
@@ -148,9 +148,9 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
             Some(password) => Some(UserPassword::parse(password)?.0),
         };
 
-        let icon = match self.icon {
+        let icon_url = match self.icon_url {
             None => None,
-            Some(icon) => Some(UserIcon::parse(icon)?.0),
+            Some(icon_url) => Some(UserIcon::parse(icon_url)?.0),
         };
 
         Ok(UpdateUserProfileParams {
@@ -158,7 +158,7 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
             name,
             email,
             password,
-            icon,
+            icon_url,
         })
     }
 }

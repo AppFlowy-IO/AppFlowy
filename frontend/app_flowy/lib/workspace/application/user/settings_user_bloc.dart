@@ -35,8 +35,8 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
             );
           });
         },
-        updateUserIcon: (String icon) {
-          _userService.updateUserProfile(icon: icon).then((result) {
+        updateUserIcon: (String iconUrl) {
+          _userService.updateUserProfile(iconUrl: iconUrl).then((result) {
             result.fold(
               (l) => null,
               (err) => Log.error(err),
@@ -60,7 +60,8 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 
   void _profileUpdated(Either<UserProfilePB, FlowyError> userProfileOrFailed) {
     userProfileOrFailed.fold(
-      (newUserProfile) => add(SettingsUserEvent.didReceiveUserProfile(newUserProfile)),
+      (newUserProfile) =>
+          add(SettingsUserEvent.didReceiveUserProfile(newUserProfile)),
       (err) => Log.error(err),
     );
   }
@@ -70,8 +71,10 @@ class SettingsUserViewBloc extends Bloc<SettingsUserEvent, SettingsUserState> {
 class SettingsUserEvent with _$SettingsUserEvent {
   const factory SettingsUserEvent.initial() = _Initial;
   const factory SettingsUserEvent.updateUserName(String name) = _UpdateUserName;
-  const factory SettingsUserEvent.updateUserIcon(String icon) = _UpdateUserIcon;
-  const factory SettingsUserEvent.didReceiveUserProfile(UserProfilePB newUserProfile) = _DidReceiveUserProfile;
+  const factory SettingsUserEvent.updateUserIcon(String iconUrl) =
+      _UpdateUserIcon;
+  const factory SettingsUserEvent.didReceiveUserProfile(
+      UserProfilePB newUserProfile) = _DidReceiveUserProfile;
 }
 
 @freezed
@@ -81,7 +84,8 @@ class SettingsUserState with _$SettingsUserState {
     required Either<Unit, String> successOrFailure,
   }) = _SettingsUserState;
 
-  factory SettingsUserState.initial(UserProfilePB userProfile) => SettingsUserState(
+  factory SettingsUserState.initial(UserProfilePB userProfile) =>
+      SettingsUserState(
         userProfile: userProfile,
         successOrFailure: left(unit),
       );

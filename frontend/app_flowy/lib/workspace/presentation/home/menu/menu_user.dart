@@ -40,7 +40,7 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderAvatar(BuildContext context) {
-    String icon = context.read<MenuUserBloc>().state.userProfile.icon;
+    String iconUrl = context.read<MenuUserBloc>().state.userProfile.iconUrl;
 
     return SizedBox(
       width: 25,
@@ -49,7 +49,7 @@ class MenuUser extends StatelessWidget {
           borderRadius: Corners.s5Border,
           child: CircleAvatar(
             backgroundColor: Colors.transparent,
-            child: svgWidget('emoji/$icon'),
+            child: svgWidget('emoji/$iconUrl'),
           )),
     );
   }
