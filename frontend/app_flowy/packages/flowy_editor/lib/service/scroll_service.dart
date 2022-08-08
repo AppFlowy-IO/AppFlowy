@@ -6,7 +6,8 @@ mixin FlowyScrollService<T extends StatefulWidget> on State<T> {
 
   void scrollTo(double dy);
 
-  RenderObject? scrollRenderObject();
+  void enable();
+  void disable();
 }
 
 class FlowyScroll extends StatefulWidget {
@@ -24,6 +25,8 @@ class FlowyScroll extends StatefulWidget {
 class _FlowyScrollState extends State<FlowyScroll> with FlowyScrollService {
   final _scrollController = ScrollController();
   final _scrollViewKey = GlobalKey();
+
+  bool _scrollEnabled = true;
 
   @override
   double get dy => _scrollController.position.pixels;
@@ -51,15 +54,22 @@ class _FlowyScrollState extends State<FlowyScroll> with FlowyScrollService {
     );
   }
 
-  void _onPointerSignal(PointerSignalEvent event) {
-    if (event is PointerScrollEvent) {
-      final dy = (_scrollController.position.pixels + event.scrollDelta.dy);
-      scrollTo(dy);
-    }
+  @override
+  void disable() {
+    _scrollEnabled = false;
+    debugPrint('[scroll] $_scrollEnabled');
   }
 
   @override
-  RenderObject? scrollRenderObject() {
-    return _scrollViewKey.currentContext?.findRenderObject();
+  void enable() {
+    _scrollEnabled = true;
+    debugPrint('[scroll] $_scrollEnabled');
+  }
+
+  void _onPointerSignal(PointerSignalEvent event) {
+    if (event is PointerScrollEvent && _scrollEnabled) {
+      final dy = (_scrollController.position.pixels + event.scrollDelta.dy);
+      scrollTo(dy);
+    }
   }
 }

@@ -106,13 +106,19 @@ void showPopupList(
       .removeListener(clearPopupList);
   editorState.service.selectionService.currentSelection
       .addListener(clearPopupList);
+
+  editorState.service.scrollService?.disable();
 }
 
 void clearPopupList() {
+  if (_popupListOverlay == null || _editorState == null) {
+    return;
+  }
   _popupListOverlay?.remove();
   _popupListOverlay = null;
 
   _editorState?.service.keyboardService?.enable();
+  _editorState?.service.scrollService?.enable();
   _editorState = null;
 }
 
@@ -215,10 +221,12 @@ class _PopupListWidgetState extends State<PopupListWidget> {
         widget.items[selectedIndex].handler(widget.editorState);
         return KeyEventResult.handled;
       }
-    }
-
-    if (event.logicalKey == LogicalKeyboardKey.escape) {
+    } else if (event.logicalKey == LogicalKeyboardKey.escape) {
       clearPopupList();
+      return KeyEventResult.handled;
+    } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
+      clearPopupList();
+      _deleteSlash();
       return KeyEventResult.handled;
     }
 

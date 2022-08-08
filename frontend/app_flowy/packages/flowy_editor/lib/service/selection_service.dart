@@ -267,6 +267,7 @@ class _FlowySelectionState extends State<FlowySelection>
     editorState.updateCursorSelection(selection);
 
     editorState.service.keyboardService?.enable();
+    editorState.service.scrollService?.enable();
   }
 
   @override
