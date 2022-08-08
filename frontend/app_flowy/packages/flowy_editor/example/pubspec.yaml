@@ -68,6 +68,7 @@ flutter:
   assets:
     - document.json
     - example.json
+    - big_document.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -62,10 +62,13 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
           size: Size.square(leftPadding),
           name: 'point',
         ),
-        FlowyRichText(
-          key: _richTextKey,
-          textNode: widget.textNode,
-          editorState: widget.editorState,
+        Expanded(
+          child: FlowyRichText(
+            key: _richTextKey,
+            placeholderText: 'List',
+            textNode: widget.textNode,
+            editorState: widget.editorState,
+          ),
         ),
       ],
     );

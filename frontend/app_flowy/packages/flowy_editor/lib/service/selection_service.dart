@@ -17,19 +17,25 @@ import 'package:flowy_editor/render/selection/selection_widget.dart';
 
 /// Process selection and cursor
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
-  /// Returns the currently selected [Node]s.
+  /// Returns the current [Selection]
+  ValueNotifier<Selection?> get currentSelection;
+
+  /// Returns the current selected [Node]s.
   ///
   /// The order of the return is determined according to the selected order.
-  ValueNotifier<List<Node>> get currentSelectedNodes;
-  Selection? get currentSelection;
+  List<Node> get currentSelectedNodes;
 
-  /// ------------------ Selection ------------------------
-
+  /// Update the selection or cursor.
   ///
+  /// If selection is collapsed, this method will
+  ///   update the position of the cursor.
+  /// Otherwise, will update the selection.
   void updateSelection(Selection selection);
 
-  ///
+  /// Clear the selection or cursor.
   void clearSelection();
+
+  /// ------------------ Selection ------------------------
 
   List<Rect> rects();
 
@@ -42,34 +48,22 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
 
   /// ------------------ Offset ------------------------
 
-  /// Returns selected [Node]s. Empty list would be returned
-  ///   if no nodes are being selected.
-  ///
-  ///
-  /// [start] and [end] are the offsets under the global coordinate system.
-  ///
-  /// If end is not null, it means multiple selection,
-  ///   otherwise single selection.
-  List<Node> getNodesInRange(Offset start, [Offset? end]);
-
   /// Return the [Node] or [Null] in single selection.
   ///
-  /// [start] is the offset under the global coordinate system.
-  Node? computeNodeInOffset(Node node, Offset offset);
+  /// [offset] is under the global coordinate system.
+  Node? getNodeInOffset(Offset offset);
 
-  /// Return the [Node]s in multiple selection. Empty list would be returned
+  /// Returns selected [Node]s. Empty list would be returned
   ///   if no nodes are in range.
   ///
-  /// [start] is the offset under the global coordinate system.
-  List<Node> computeNodesInRange(
-    Node node,
-    Offset start,
-    Offset end,
-  );
+  ///
+  /// [start] and [end] are under the global coordinate system.
+  ///
+  List<Node> getNodeInRange(Offset start, Offset end);
 
   /// Return [bool] to identify the [Node] is in Range or not.
   ///
-  /// [start] and [end] are the offsets under the global coordinate system.
+  /// [start] and [end] are under the global coordinate system.
   bool isNodeInRange(
     Node node,
     Offset start,
@@ -78,7 +72,7 @@ mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
 
   /// Return [bool] to identify the [Node] contains [Offset] or not.
   ///
-  /// [start] is the offset under the global coordinate system.
+  /// [offset] is under the global coordinate system.
   bool isNodeInOffset(Node node, Offset offset);
 
   /// ------------------ Offset ------------------------
@@ -124,10 +118,10 @@ class _FlowySelectionState extends State<FlowySelection>
   EditorState get editorState => widget.editorState;
 
   @override
-  Selection? currentSelection;
+  ValueNotifier<Selection?> currentSelection = ValueNotifier(null);
 
   @override
-  ValueNotifier<List<Node>> currentSelectedNodes = ValueNotifier([]);
+  List<Node> currentSelectedNodes = [];
 
   @override
   List<Node> getNodesInSelection(Selection selection) =>
@@ -145,8 +139,8 @@ class _FlowySelectionState extends State<FlowySelection>
     super.didChangeMetrics();
 
     // Need to refresh the selection when the metrics changed.
-    if (currentSelection != null) {
-      updateSelection(currentSelection!);
+    if (currentSelection.value != null) {
+      updateSelection(currentSelection.value!);
     }
   }
 
@@ -192,8 +186,8 @@ class _FlowySelectionState extends State<FlowySelection>
 
   @override
   void clearSelection() {
-    currentSelection = null;
-    currentSelectedNodes.value = [];
+    currentSelectedNodes = [];
+    currentSelection.value = null;
 
     // clear selection
     _selectionOverlays
@@ -208,57 +202,15 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   @override
-  List<Node> getNodesInRange(Offset start, [Offset? end]) {
-    if (end != null) {
-      return computeNodesInRange(editorState.document.root, start, end);
-    } else {
-      final result = computeNodeInOffset(editorState.document.root, start);
-      if (result != null) {
-        return [result];
-      }
-    }
-    return [];
+  Node? getNodeInOffset(Offset offset) {
+    return _lowerBoundInDocument(offset);
   }
 
   @override
-  Node? computeNodeInOffset(Node node, Offset offset) {
-    for (final child in node.children) {
-      final result = computeNodeInOffset(child, offset);
-      if (result != null) {
-        return result;
-      }
-    }
-    if (node.parent != null && node.key != null) {
-      if (isNodeInOffset(node, offset)) {
-        return node;
-      }
-    }
-    return null;
-  }
-
-  @override
-  List<Node> computeNodesInRange(Node node, Offset start, Offset end) {
-    final result = _computeNodesInRange(node, start, end);
-    if (start.dy <= end.dy) {
-      // downward
-      return result;
-    } else {
-      // upward
-      return result.reversed.toList(growable: false);
-    }
-  }
-
-  List<Node> _computeNodesInRange(Node node, Offset start, Offset end) {
-    List<Node> result = [];
-    if (node.parent != null && node.key != null) {
-      if (isNodeInRange(node, start, end)) {
-        result.add(node);
-      }
-    }
-    for (final child in node.children) {
-      result.addAll(_computeNodesInRange(child, start, end));
-    }
-    return result;
+  List<Node> getNodeInRange(Offset start, Offset end) {
+    final startNode = _lowerBoundInDocument(start);
+    final endNode = _upperBoundInDocument(end);
+    return NodeIterator(editorState.document, startNode, endNode).toList();
   }
 
   @override
@@ -286,12 +238,12 @@ class _FlowySelectionState extends State<FlowySelection>
 
   void _onDoubleTapDown(TapDownDetails details) {
     final offset = details.globalPosition;
-    final nodes = getNodesInRange(offset);
-    if (nodes.isEmpty) {
+    final node = getNodeInOffset(offset);
+    if (node == null) {
       editorState.updateCursorSelection(null);
       return;
     }
-    final selectable = nodes.first.selectable;
+    final selectable = node.selectable;
     if (selectable == null) {
       editorState.updateCursorSelection(null);
       return;
@@ -313,6 +265,8 @@ class _FlowySelectionState extends State<FlowySelection>
     }
     final selection = Selection.collapsed(position);
     editorState.updateCursorSelection(selection);
+
+    editorState.service.keyboardService?.enable();
   }
 
   @override
@@ -321,13 +275,12 @@ class _FlowySelectionState extends State<FlowySelection>
       editorState.updateCursorSelection(null);
       return null;
     }
-    final nodes = getNodesInRange(offset);
-    if (nodes.isEmpty) {
+    final node = getNodeInOffset(offset);
+    if (node == null) {
       editorState.updateCursorSelection(null);
       return null;
     }
-    assert(nodes.length == 1);
-    final selectable = nodes.first.selectable;
+    final selectable = node.selectable;
     if (selectable == null) {
       editorState.updateCursorSelection(null);
       return null;
@@ -359,12 +312,14 @@ class _FlowySelectionState extends State<FlowySelection>
       panStartOffsetWithScrollDyGap =
           panStartOffsetWithScrollDyGap.translate(0, panStartScrollDy! - dy);
     }
-    final nodes = getNodesInRange(panStartOffsetWithScrollDyGap, panEndOffset!);
-    if (nodes.isEmpty) {
-      return;
-    }
-    final first = nodes.first.selectable;
-    final last = nodes.last.selectable;
+
+    final sortedNodes =
+        editorState.document.root.children.toList(growable: false);
+    final first = _lowerBound(
+            sortedNodes, panStartOffsetWithScrollDyGap, 0, sortedNodes.length)
+        .selectable;
+    final last = _upperBound(sortedNodes, panEndOffset!, 0, sortedNodes.length)
+        .selectable;
 
     // compute the selection in range.
     if (first != null && last != null) {
@@ -397,8 +352,8 @@ class _FlowySelectionState extends State<FlowySelection>
   void _updateSelection(Selection selection) {
     final nodes = _selectedNodesInSelection(editorState.document, selection);
 
-    currentSelection = selection;
-    currentSelectedNodes.value = nodes;
+    currentSelectedNodes = nodes;
+    currentSelection.value = selection;
 
     Rect? topmostRect;
     LayerLink? layerLink;
@@ -478,8 +433,8 @@ class _FlowySelectionState extends State<FlowySelection>
       return;
     }
 
-    currentSelection = Selection.collapsed(position);
-    currentSelectedNodes.value = [node];
+    currentSelectedNodes = [node];
+    currentSelection.value = Selection.collapsed(position);
 
     final selectable = node.selectable;
     final rect = selectable?.getCursorRectInPosition(position);
@@ -558,6 +513,57 @@ class _FlowySelectionState extends State<FlowySelection>
         _debugOverlay = null;
       }
     }
+  }
+
+  Node _lowerBoundInDocument(Offset offset) {
+    final sortedNodes =
+        editorState.document.root.children.toList(growable: false);
+    return _lowerBound(sortedNodes, offset, 0, sortedNodes.length);
+  }
+
+  Node _upperBoundInDocument(Offset offset) {
+    final sortedNodes =
+        editorState.document.root.children.toList(growable: false);
+    return _upperBound(sortedNodes, offset, 0, sortedNodes.length);
+  }
+
+  /// TODO: Supports multi-level nesting,
+  ///  currently only single-level nesting is supported
+  // find the first node's rect.bottom <= offset.dy
+  Node _lowerBound(List<Node> sortedNodes, Offset offset, int start, int end) {
+    var min = start;
+    var max = end;
+    while (min <= max) {
+      final mid = min + ((max - min) >> 1);
+      if (sortedNodes[mid].rect.bottom <= offset.dy) {
+        min = mid + 1;
+      } else {
+        max = mid - 1;
+      }
+    }
+    return sortedNodes[min];
+  }
+
+  /// TODO: Supports multi-level nesting,
+  ///  currently only single-level nesting is supported
+  // find the first node's rect.top < offset.dy
+  Node _upperBound(
+    List<Node> sortedNodes,
+    Offset offset,
+    int start,
+    int end,
+  ) {
+    var min = start;
+    var max = end;
+    while (min <= max) {
+      final mid = min + ((max - min) >> 1);
+      if (sortedNodes[mid].rect.top < offset.dy) {
+        min = mid + 1;
+      } else {
+        max = mid - 1;
+      }
+    }
+    return sortedNodes[max];
   }
 }
 

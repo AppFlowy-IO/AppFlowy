@@ -63,11 +63,15 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
             top: topPadding,
             bottom: bottomPadding,
           ),
-          child: FlowyRichText(
-            key: _richTextKey,
-            textSpanDecorator: _textSpanDecorator,
-            textNode: widget.textNode,
-            editorState: widget.editorState,
+          child: Expanded(
+            child: FlowyRichText(
+              key: _richTextKey,
+              placeholderText: 'Heading',
+              placeholderTextSpanDecorator: _placeholderTextSpanDecorator,
+              textSpanDecorator: _textSpanDecorator,
+              textNode: widget.textNode,
+              editorState: widget.editorState,
+            ),
           ),
         )
       ],
@@ -75,6 +79,23 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
   }
 
   TextSpan _textSpanDecorator(TextSpan textSpan) {
+    return TextSpan(
+      children: textSpan.children
+          ?.whereType<TextSpan>()
+          .map(
+            (span) => TextSpan(
+              text: span.text,
+              style: span.style?.copyWith(
+                fontSize: widget.textNode.attributes.fontSize,
+              ),
+              recognizer: span.recognizer,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  TextSpan _placeholderTextSpanDecorator(TextSpan textSpan) {
     return TextSpan(
       children: textSpan.children
           ?.whereType<TextSpan>()
