@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 
 class HomeHotKeys extends StatelessWidget {
   final Widget child;
-  const HomeHotKeys({required this.child});
+  const HomeHotKeys({required this.child, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
