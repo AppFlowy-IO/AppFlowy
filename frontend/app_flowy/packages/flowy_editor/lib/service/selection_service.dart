@@ -287,6 +287,7 @@ class _FlowySelectionState extends State<FlowySelection>
     editorState.updateCursorSelection(selection);
 
     editorState.service.keyboardService?.enable();
+    editorState.service.scrollService?.enable();
   }
 
   @override
@@ -333,13 +334,9 @@ class _FlowySelectionState extends State<FlowySelection>
           panStartOffsetWithScrollDyGap.translate(0, panStartScrollDy! - dy);
     }
 
-    final sortedNodes =
-        editorState.document.root.children.toList(growable: false);
-    final first = _lowerBound(
-            sortedNodes, panStartOffsetWithScrollDyGap, 0, sortedNodes.length)
-        .selectable;
-    final last = _upperBound(sortedNodes, panEndOffset!, 0, sortedNodes.length)
-        .selectable;
+    final first =
+        _lowerBoundInDocument(panStartOffsetWithScrollDyGap).selectable;
+    final last = _upperBoundInDocument(panEndOffset!).selectable;
 
     // compute the selection in range.
     if (first != null && last != null) {
@@ -538,19 +535,20 @@ class _FlowySelectionState extends State<FlowySelection>
   Node _lowerBoundInDocument(Offset offset) {
     final sortedNodes =
         editorState.document.root.children.toList(growable: false);
-    return _lowerBound(sortedNodes, offset, 0, sortedNodes.length);
+    return _lowerBound(sortedNodes, offset, 0, sortedNodes.length - 1);
   }
 
   Node _upperBoundInDocument(Offset offset) {
     final sortedNodes =
         editorState.document.root.children.toList(growable: false);
-    return _upperBound(sortedNodes, offset, 0, sortedNodes.length);
+    return _upperBound(sortedNodes, offset, 0, sortedNodes.length - 1);
   }
 
   /// TODO: Supports multi-level nesting,
   ///  currently only single-level nesting is supported
   // find the first node's rect.bottom <= offset.dy
   Node _lowerBound(List<Node> sortedNodes, Offset offset, int start, int end) {
+    assert(start >= 0 && end < sortedNodes.length);
     var min = start;
     var max = end;
     while (min <= max) {
@@ -561,7 +559,12 @@ class _FlowySelectionState extends State<FlowySelection>
         max = mid - 1;
       }
     }
-    return sortedNodes[min];
+    final node = sortedNodes[min];
+    if (node.children.isNotEmpty && node.children.first.rect.top <= offset.dy) {
+      final children = node.children.toList(growable: false);
+      return _lowerBound(children, offset, 0, children.length - 1);
+    }
+    return node;
   }
 
   /// TODO: Supports multi-level nesting,
@@ -573,6 +576,7 @@ class _FlowySelectionState extends State<FlowySelection>
     int start,
     int end,
   ) {
+    assert(start >= 0 && end < sortedNodes.length);
     var min = start;
     var max = end;
     while (min <= max) {
@@ -583,7 +587,12 @@ class _FlowySelectionState extends State<FlowySelection>
         max = mid - 1;
       }
     }
-    return sortedNodes[max];
+    final node = sortedNodes[max];
+    if (node.children.isNotEmpty && node.children.first.rect.top <= offset.dy) {
+      final children = node.children.toList(growable: false);
+      return _lowerBound(children, offset, 0, children.length - 1);
+    }
+    return node;
   }
 }
 
