@@ -268,9 +268,11 @@ class _FlowyInputState extends State<FlowyInput>
       final size = renderBox.size;
       final transform = renderBox.getTransformTo(null);
       final rect = selectable.getCursorRectInPosition(selection.end);
-      _textInputConnection
-        ?..setEditableSizeAndTransform(size, transform)
-        ..setCaretRect(rect);
+      if (rect != null) {
+        _textInputConnection
+          ?..setEditableSizeAndTransform(size, transform)
+          ..setCaretRect(rect);
+      }
     }
   }
 }

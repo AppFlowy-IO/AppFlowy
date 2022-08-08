@@ -21,8 +21,8 @@ mixin DefaultSelectable {
   Position getPositionInOffset(Offset start) =>
       forward.getPositionInOffset(start);
 
-  Rect getCursorRectInPosition(Position position) =>
-      forward.getCursorRectInPosition(position).shift(baseOffset);
+  Rect? getCursorRectInPosition(Position position) =>
+      forward.getCursorRectInPosition(position)?.shift(baseOffset);
 
   List<Rect> getRectsInSelection(Selection selection) => forward
       .getRectsInSelection(selection)

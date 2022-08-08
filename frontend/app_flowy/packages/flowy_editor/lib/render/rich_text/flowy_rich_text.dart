@@ -62,7 +62,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
       path: widget.textNode.path, offset: widget.textNode.toRawString().length);
 
   @override
-  Rect getCursorRectInPosition(Position position) {
+  Rect? getCursorRectInPosition(Position position) {
     final textPosition = TextPosition(offset: position.offset);
     final cursorOffset =
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
