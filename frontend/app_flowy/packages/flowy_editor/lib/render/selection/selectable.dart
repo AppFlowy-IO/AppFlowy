@@ -25,7 +25,9 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
     return null;
   }
 
-  Rect getCursorRectInPosition(Position position);
+  Rect? getCursorRectInPosition(Position position) {
+    return null;
+  }
 
   Offset localToGlobal(Offset offset);
 

@@ -71,6 +71,9 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
   }
 
   final rect = selectable.getCursorRectInPosition(selection.start);
+  if (rect == null) {
+    return KeyEventResult.ignored;
+  }
   final offset = selectable.localToGlobal(rect.topLeft);
   if (!selection.isCollapsed) {
     TransactionBuilder(editorState)
