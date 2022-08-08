@@ -210,7 +210,7 @@ Operation transformOperation(Operation a, Operation b) {
   if (a is InsertOperation) {
     final newPath = transformPath(a.path, b.path);
     return b.copyWithPath(newPath);
-  } else if (b is DeleteOperation) {
+  } else if (a is DeleteOperation) {
     final newPath = transformPath(a.path, b.path, -1);
     return b.copyWithPath(newPath);
   }

@@ -9,8 +9,8 @@ FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
 
-  final selection = editorState.service.selectionService.currentSelection;
-  final nodes = editorState.service.selectionService.currentSelectedNodes.value;
+  final selection = editorState.service.selectionService.currentSelection.value;
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
   final textNodes = nodes.whereType<TextNode>().toList(growable: false);
 
   if (selection == null || textNodes.isEmpty) {

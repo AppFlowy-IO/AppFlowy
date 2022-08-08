@@ -212,8 +212,66 @@ _handlePastePlainText(EditorState editorState, String plainText) {
   }
 }
 
-_handleCut() {
+/// 1. copy the selected content
+/// 2. delete selected content
+_handleCut(EditorState editorState) {
   debugPrint('cut');
+  final selection = editorState.cursorSelection;
+  if (selection == null) {
+    return;
+  }
+
+  if (selection.isCollapsed) {
+    return;
+  }
+
+  _handleCopy(editorState);
+  _deleteSelectedContent(editorState);
+}
+
+_deleteSelectedContent(EditorState editorState) {
+  final selection = editorState.cursorSelection;
+  if (selection == null) {
+    return;
+  }
+  final beginNode = editorState.document.nodeAtPath(selection.start.path)!;
+  final endNode = editorState.document.nodeAtPath(selection.end.path)!;
+  if (pathEquals(selection.start.path, selection.end.path) &&
+      beginNode.type == "text") {
+    final textItem = beginNode as TextNode;
+    final tb = TransactionBuilder(editorState);
+    final len = selection.end.offset - selection.start.offset;
+    tb.textEdit(
+        textItem, () => Delta().retain(selection.start.offset).delete(len));
+    tb.setAfterSelection(Selection.collapsed(selection.start));
+    tb.commit();
+    return;
+  }
+  final traverser = NodeIterator(editorState.document, beginNode, endNode);
+
+  final tb = TransactionBuilder(editorState);
+  while (traverser.moveNext()) {
+    final item = traverser.current;
+    if (item.type == "text" && beginNode == item) {
+      final textItem = item as TextNode;
+      final deleteLen = textItem.delta.length - selection.start.offset;
+      tb.textEdit(textItem, () {
+        final delta = Delta();
+        delta.retain(selection.start.offset).delete(deleteLen);
+
+        if (endNode is TextNode) {
+          final remain = endNode.delta.slice(selection.end.offset);
+          delta.addAll(remain.operations);
+        }
+
+        return delta;
+      });
+      tb.setAfterSelection(Selection.collapsed(selection.start));
+    } else {
+      tb.deleteNode(item);
+    }
+  }
+  tb.commit();
 }
 
 FlowyKeyEventHandler copyPasteKeysHandler = (editorState, event) {
@@ -226,7 +284,7 @@ FlowyKeyEventHandler copyPasteKeysHandler = (editorState, event) {
     return KeyEventResult.handled;
   }
   if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyX) {
-    _handleCut();
+    _handleCut(editorState);
     return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;

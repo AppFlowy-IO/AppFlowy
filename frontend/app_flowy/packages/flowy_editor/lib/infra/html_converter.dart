@@ -18,40 +18,59 @@ const String tagAnchor = "a";
 const String tagBold = "b";
 const String tagStrong = "strong";
 const String tagSpan = "span";
+const String tagCode = "code";
 
 class HTMLConverter {
   final html.Document _document;
+  bool _inParagraph = false;
 
   HTMLConverter(String htmlString) : _document = parse(htmlString);
 
   List<Node> toNodes() {
     final result = <Node>[];
-    final delta = Delta();
 
     final childNodes = _document.body?.nodes.toList() ?? <html.Node>[];
+    _handleContainer(result, childNodes);
+
+    return result;
+  }
+
+  _handleContainer(List<Node> nodes, List<html.Node> childNodes) {
+    final delta = Delta();
     for (final child in childNodes) {
       if (child is html.Element) {
         if (child.localName == tagAnchor ||
             child.localName == tagSpan ||
-            child.localName == tagStrong ||
-            child.localName == tagBold) {
+            child.localName == tagCode ||
+            child.localName == tagStrong) {
           _handleRichTextElement(delta, child);
+        } else if (child.localName == tagBold) {
+          // Google docs wraps the the content inside the <b></b> tag.
+          // It's strange
+          if (!_inParagraph) {
+            _handleBTag(nodes, child);
+          } else {
+            _handleRichText(nodes, child);
+          }
         } else {
-          _handleElement(result, child);
+          _handleElement(nodes, child);
         }
       } else {
         delta.insert(child.text ?? "");
       }
     }
-
     if (delta.operations.isNotEmpty) {
-      result.add(TextNode(type: "text", delta: delta));
+      nodes.add(TextNode(type: "text", delta: delta));
     }
-
-    return result;
   }
 
-  _handleElement(List<Node> nodes, html.Element element) {
+  _handleBTag(List<Node> nodes, html.Element element) {
+    final childNodes = element.nodes;
+    _handleContainer(nodes, childNodes);
+  }
+
+  _handleElement(List<Node> nodes, html.Element element,
+      [Map<String, dynamic>? attributes]) {
     if (element.localName == tagH1) {
       _handleHeadingElement(nodes, element, tagH1);
     } else if (element.localName == tagH2) {
@@ -63,7 +82,7 @@ class HTMLConverter {
     } else if (element.localName == tagList) {
       _handleListElement(nodes, element);
     } else if (element.localName == tagParagraph) {
-      _handleParagraph(nodes, element);
+      _handleParagraph(nodes, element, attributes);
     } else {
       final delta = Delta();
       delta.insert(element.text);
@@ -73,8 +92,11 @@ class HTMLConverter {
     }
   }
 
-  _handleParagraph(List<Node> nodes, html.Element element) {
-    _handleRichText(nodes, element);
+  _handleParagraph(List<Node> nodes, html.Element element,
+      [Map<String, dynamic>? attributes]) {
+    _inParagraph = true;
+    _handleRichText(nodes, element, attributes);
+    _inParagraph = false;
   }
 
   Attributes? _getDeltaAttributesFromHtmlAttributes(
@@ -118,7 +140,8 @@ class HTMLConverter {
     }
   }
 
-  _handleRichText(List<Node> nodes, html.Element element) {
+  _handleRichText(List<Node> nodes, html.Element element,
+      [Map<String, dynamic>? attributes]) {
     final image = element.querySelector(tagImage);
     if (image != null) {
       _handleImage(nodes, image);
@@ -136,7 +159,7 @@ class HTMLConverter {
     }
 
     if (delta.operations.isNotEmpty) {
-      nodes.add(TextNode(type: "text", delta: delta));
+      nodes.add(TextNode(type: "text", delta: delta, attributes: attributes));
     }
   }
 
@@ -176,7 +199,7 @@ class HTMLConverter {
     final childNodes = element.nodes.toList();
     for (final child in childNodes) {
       if (child is html.Element) {
-        _handleRichText(nodes, child);
+        _handleElement(nodes, child, {"subtype": "bulleted-list"});
       }
     }
   }

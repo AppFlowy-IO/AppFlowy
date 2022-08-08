@@ -67,13 +67,13 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
   void initState() {
     super.initState();
 
-    widget.editorState.service.selectionService.currentSelectedNodes
+    widget.editorState.service.selectionService.currentSelection
         .addListener(_onSelectionChange);
   }
 
   @override
   void dispose() {
-    widget.editorState.service.selectionService.currentSelectedNodes
+    widget.editorState.service.selectionService.currentSelection
         .removeListener(_onSelectionChange);
     super.dispose();
   }
@@ -201,6 +201,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
         ),
       );
     });
+    // TODO: disable scrolling.
     Overlay.of(context)?.insert(_listToolbarOverlay!);
   }
 

@@ -9,6 +9,7 @@ extension NodeExtensions on Node {
   RenderBox? get renderBox =>
       key?.currentContext?.findRenderObject()?.unwrapOrNull<RenderBox>();
 
+  BuildContext? get context => key?.currentContext;
   Selectable? get selectable => key?.currentState?.unwrapOrNull<Selectable>();
 
   bool inSelection(Selection selection) {
@@ -17,5 +18,13 @@ extension NodeExtensions on Node {
     } else {
       return selection.end.path <= path && path <= selection.start.path;
     }
+  }
+
+  Rect get rect {
+    if (renderBox != null) {
+      final boxOffset = renderBox!.localToGlobal(Offset.zero);
+      return boxOffset & renderBox!.size;
+    }
+    return Rect.zero;
   }
 }

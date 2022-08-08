@@ -1,8 +1,9 @@
-import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flowy_editor/render/selection/toolbar_widget.dart';
 import 'package:flutter/material.dart';
 
-mixin ToolbarService {
+import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/render/selection/toolbar_widget.dart';
+
+mixin FlowyToolbarService {
   /// Show the toolbar widget beside the offset.
   void showInOffset(Offset offset, LayerLink layerLink);
 
@@ -24,7 +25,7 @@ class FlowyToolbar extends StatefulWidget {
   State<FlowyToolbar> createState() => _FlowyToolbarState();
 }
 
-class _FlowyToolbarState extends State<FlowyToolbar> with ToolbarService {
+class _FlowyToolbarState extends State<FlowyToolbar> with FlowyToolbarService {
   OverlayEntry? _toolbarOverlay;
 
   @override

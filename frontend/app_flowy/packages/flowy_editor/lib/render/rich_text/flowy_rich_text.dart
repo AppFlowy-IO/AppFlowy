@@ -1,15 +1,15 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
 import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flowy_editor/editor_state.dart';
-import 'package:flowy_editor/document/path.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 class RichTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -35,15 +35,19 @@ class FlowyRichText extends StatefulWidget {
     this.cursorHeight,
     this.cursorWidth = 2.0,
     this.textSpanDecorator,
+    this.placeholderText = ' ',
+    this.placeholderTextSpanDecorator,
     required this.textNode,
     required this.editorState,
   }) : super(key: key);
 
-  final double? cursorHeight;
-  final double cursorWidth;
   final TextNode textNode;
   final EditorState editorState;
+  final double? cursorHeight;
+  final double cursorWidth;
   final FlowyTextSpanDecorator? textSpanDecorator;
+  final String placeholderText;
+  final FlowyTextSpanDecorator? placeholderTextSpanDecorator;
 
   @override
   State<FlowyRichText> createState() => _FlowyRichTextState();
@@ -51,9 +55,13 @@ class FlowyRichText extends StatefulWidget {
 
 class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   final _textKey = GlobalKey();
+  final _placeholderTextKey = GlobalKey();
 
   RenderParagraph get _renderParagraph =>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
+
+  RenderParagraph get _placeholderRenderParagraph =>
+      _placeholderTextKey.currentContext?.findRenderObject() as RenderParagraph;
 
   @override
   Widget build(BuildContext context) {
@@ -74,6 +82,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
     final cursorHeight = widget.cursorHeight ??
         _renderParagraph.getFullHeightForCaret(textPosition) ??
+        _placeholderRenderParagraph.getFullHeightForCaret(textPosition) ??
         18.0; // default height
     return Rect.fromLTWH(
       cursorOffset.dx - (widget.cursorWidth / 2),
@@ -129,7 +138,34 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildRichText(BuildContext context) {
-    return _buildSingleRichText(context);
+    return Stack(
+      children: [
+        _buildPlaceholderText(context),
+        _buildSingleRichText(context),
+      ],
+    );
+  }
+
+  Widget _buildPlaceholderText(BuildContext context) {
+    final textSpan = TextSpan(
+      children: [
+        TextSpan(
+          text: widget.placeholderText,
+          style: TextStyle(
+            color: widget.textNode.toRawString().isNotEmpty
+                ? Colors.transparent
+                : Colors.grey,
+            fontSize: baseFontSize,
+          ),
+        ),
+      ],
+    );
+    return RichText(
+      key: _placeholderTextKey,
+      text: widget.placeholderTextSpanDecorator != null
+          ? widget.placeholderTextSpanDecorator!(textSpan)
+          : textSpan,
+    );
   }
 
   Widget _buildSingleRichText(BuildContext context) {
@@ -170,11 +206,12 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   TextSpan get _textSpan => TextSpan(
-      children: widget.textNode.delta.operations
-          .whereType<TextInsert>()
-          .map((insert) => RichTextStyle(
-                attributes: insert.attributes ?? {},
-                text: insert.content,
-              ).toTextSpan())
-          .toList(growable: false));
+        children: widget.textNode.delta.operations
+            .whereType<TextInsert>()
+            .map((insert) => RichTextStyle(
+                  attributes: insert.attributes ?? {},
+                  text: insert.content,
+                ).toTextSpan())
+            .toList(growable: false),
+      );
 }

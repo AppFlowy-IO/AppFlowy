@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
+
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
-import 'package:flutter/material.dart';
 
 class EditorEntryWidgetBuilder extends NodeWidgetBuilder<Node> {
   @override
@@ -31,28 +32,26 @@ class EditorNodeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: node.children
-            .map(
-              (child) =>
-                  editorState.service.renderPluginService.buildPluginWidget(
-                child is TextNode
-                    ? NodeWidgetContext<TextNode>(
-                        context: context,
-                        node: child,
-                        editorState: editorState,
-                      )
-                    : NodeWidgetContext<Node>(
-                        context: context,
-                        node: child,
-                        editorState: editorState,
-                      ),
-              ),
-            )
-            .toList(),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: node.children
+          .map(
+            (child) =>
+                editorState.service.renderPluginService.buildPluginWidget(
+              child is TextNode
+                  ? NodeWidgetContext<TextNode>(
+                      context: context,
+                      node: child,
+                      editorState: editorState,
+                    )
+                  : NodeWidgetContext<Node>(
+                      context: context,
+                      node: child,
+                      editorState: editorState,
+                    ),
+            ),
+          )
+          .toList(),
     );
   }
 }
