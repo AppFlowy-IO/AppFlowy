@@ -141,10 +141,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     return Stack(
       children: [
         _buildPlaceholderText(context),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: _buildSingleRichText(context),
-        )
+        _buildSingleRichText(context),
       ],
     );
   }

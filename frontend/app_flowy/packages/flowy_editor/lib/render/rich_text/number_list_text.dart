@@ -63,11 +63,13 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
           size: Size.square(leftPadding),
           number: widget.textNode.attributes.number,
         ),
-        FlowyRichText(
-          key: _richTextKey,
-          placeholderText: 'List',
-          textNode: widget.textNode,
-          editorState: widget.editorState,
+        Expanded(
+          child: FlowyRichText(
+            key: _richTextKey,
+            placeholderText: 'List',
+            textNode: widget.textNode,
+            editorState: widget.editorState,
+          ),
         ),
       ],
     );

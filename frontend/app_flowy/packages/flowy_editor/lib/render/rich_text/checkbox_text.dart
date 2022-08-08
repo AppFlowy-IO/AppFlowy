@@ -82,13 +82,15 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
               ..commit();
           },
         ),
-        FlowyRichText(
-          key: _richTextKey,
-          placeholderText: 'To-do',
-          textNode: widget.textNode,
-          textSpanDecorator: _textSpanDecorator,
-          editorState: widget.editorState,
-        )
+        Expanded(
+          child: FlowyRichText(
+            key: _richTextKey,
+            placeholderText: 'To-do',
+            textNode: widget.textNode,
+            textSpanDecorator: _textSpanDecorator,
+            editorState: widget.editorState,
+          ),
+        ),
       ],
     );
   }
