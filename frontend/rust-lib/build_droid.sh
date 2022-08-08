@@ -62,7 +62,7 @@ cp -b target/$X86_64/release/libdart_ffi.so $DEST/x86_64
 
 if [ -d $PREFIX ]; then
     echo "Folder exists, remove $PREFIX to rebuild"
-    targetBuild
+    #targetBuild
     #exit 1
 fi
 
@@ -78,6 +78,16 @@ cd openssl
 echo "Building OpenSSL in $(realpath $PWD), building in $PREFIX"
 
 export PATH=$NDK/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+
+function compileSSL(){
+    ./Configure shared android-x86 -D__ANDROID_API__=$ANDROID_API \
+        --prefix=$PREFIX/x86_test
+
+    make clean
+    make depend
+    make -j$(nproc) build_libs
+    make -j$(nproc) install_sw
+}
 
 function buildSSL(){
 #if [[ "$BUILD_ARCHS" = *"arm_32"* ]]; then
@@ -141,7 +151,8 @@ function buildSSL(){
     make -j$(nproc) install_sw
 #fi
 }
-buildSSL
+compileSSL
+#buildSSL
 # Exit folder and begin build?
 cd ../
 
