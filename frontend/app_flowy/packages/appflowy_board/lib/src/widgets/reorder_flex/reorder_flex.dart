@@ -41,16 +41,19 @@ class ReorderFlexConfig {
   // How long an animation to scroll to an off-screen element
   final Duration scrollAnimationDuration = const Duration(milliseconds: 250);
 
-  final double? spacing;
+  final bool useMoveAnimation;
 
-  const ReorderFlexConfig({this.spacing});
+  final bool useMovePlaceholder;
+
+  const ReorderFlexConfig({
+    this.useMoveAnimation = true,
+  }) : useMovePlaceholder = !useMoveAnimation;
 }
 
 class ReorderFlex extends StatefulWidget {
   final ReorderFlexConfig config;
 
   final List<Widget> children;
-  final EdgeInsets? padding;
 
   /// [direction] How to place the children, default is Axis.vertical
   final Axis direction;
@@ -81,7 +84,6 @@ class ReorderFlex extends StatefulWidget {
     this.onDragStarted,
     this.onDragEnded,
     this.interceptor,
-    this.padding,
     this.direction = Axis.vertical,
   }) : super(key: key);
 
@@ -108,8 +110,11 @@ class ReorderFlexState extends State<ReorderFlex>
   /// [_animation] controls the dragging animations
   late DragTargetAnimation _animation;
 
+  late ReorderFlexNotifier _notifier;
+
   @override
   void initState() {
+    _notifier = ReorderFlexNotifier();
     dragState = DraggingState(widget.reorderFlexId);
 
     _animation = DragTargetAnimation(
@@ -154,13 +159,14 @@ class ReorderFlexState extends State<ReorderFlex>
 
     for (int i = 0; i < widget.children.length; i += 1) {
       Widget child = widget.children[i];
+      children.add(_wrap(child, i));
 
-      if (widget.config.spacing != null) {
-        children.add(SizedBox(width: widget.config.spacing!));
-      }
-
-      final wrapChild = _wrap(child, i);
-      children.add(wrapChild);
+      // if (widget.config.useMovePlaceholder) {
+      //   children.add(DragTargeMovePlaceholder(
+      //     dragTargetIndex: i,
+      //     delegate: _notifier,
+      //   ));
+      // }
     }
 
     final child = _wrapContainer(children);
@@ -199,7 +205,8 @@ class ReorderFlexState extends State<ReorderFlex>
   /// [childIndex]: the index of the child in a list
   Widget _wrap(Widget child, int childIndex) {
     return Builder(builder: (context) {
-      final dragTarget = _buildDragTarget(context, child, childIndex);
+      final ReorderDragTarget dragTarget =
+          _buildDragTarget(context, child, childIndex);
       int shiftedIndex = childIndex;
 
       if (dragState.isOverlapWithPhantom()) {
@@ -207,7 +214,7 @@ class ReorderFlexState extends State<ReorderFlex>
       }
 
       Log.trace(
-          'Rebuild: Column${dragState.id} ${dragState.toString()}, childIndex: $childIndex shiftedIndex: $shiftedIndex');
+          'Rebuild: Column:[${dragState.id}] ${dragState.toString()}, childIndex: $childIndex shiftedIndex: $shiftedIndex');
       final currentIndex = dragState.currentIndex;
       final dragPhantomIndex = dragState.phantomIndex;
 
@@ -234,15 +241,18 @@ class ReorderFlexState extends State<ReorderFlex>
         }
 
         /// Determine the size of the drop area to show under the dragging widget.
-        final feedbackSize = dragState.feedbackSize;
+        Size? feedbackSize = Size.zero;
+        if (widget.config.useMoveAnimation) {
+          feedbackSize = dragState.feedbackSize;
+        }
+
         Widget appearSpace = _makeAppearSpace(dragSpace, feedbackSize);
         Widget disappearSpace = _makeDisappearSpace(dragSpace, feedbackSize);
 
         /// When start dragging, the dragTarget, [ReorderDragTarget], will
         /// return a [IgnorePointerWidget] which size is zero.
         if (dragState.isPhantomAboveDragTarget()) {
-          //the phantom is moving down, i.e. the tile below the phantom is moving up
-          Log.trace('index:$childIndex item moving up / phantom moving down');
+          _notifier.updateDragTargetIndex(currentIndex);
           if (shiftedIndex == currentIndex && childIndex == dragPhantomIndex) {
             return _buildDraggingContainer(children: [
               disappearSpace,
@@ -264,8 +274,7 @@ class ReorderFlexState extends State<ReorderFlex>
 
         ///
         if (dragState.isPhantomBelowDragTarget()) {
-          //the phantom is moving up, i.e. the tile above the phantom is moving down
-          Log.trace('index:$childIndex item moving down / phantom moving up');
+          _notifier.updateDragTargetIndex(currentIndex);
           if (shiftedIndex == currentIndex && childIndex == dragPhantomIndex) {
             return _buildDraggingContainer(children: [
               appearSpace,
@@ -303,10 +312,7 @@ class ReorderFlexState extends State<ReorderFlex>
   }
 
   ReorderDragTarget _buildDragTarget(
-    BuildContext builderContext,
-    Widget child,
-    int dragTargetIndex,
-  ) {
+      BuildContext builderContext, Widget child, int dragTargetIndex) {
     final ReoderFlexItem reorderFlexItem =
         widget.dataSource.items[dragTargetIndex];
     return ReorderDragTarget<FlexDragTargetData>(
@@ -319,14 +325,14 @@ class ReorderFlexState extends State<ReorderFlex>
       ),
       onDragStarted: (draggingWidget, draggingIndex, size) {
         Log.debug(
-            "[DragTarget] Column${widget.dataSource.identifier} start dragging item at $draggingIndex");
+            "[DragTarget] Column:[${widget.dataSource.identifier}] start dragging item at $draggingIndex");
         _startDragging(draggingWidget, draggingIndex, size);
         widget.onDragStarted?.call(draggingIndex);
       },
       onDragEnded: (dragTargetData) {
         Log.debug(
-            "[DragTarget]: Column${widget.dataSource.identifier} end dragging");
-
+            "[DragTarget]: Column:[${widget.dataSource.identifier}] end dragging");
+        _notifier.updateDragTargetIndex(-1);
         setState(() {
           if (dragTargetData.reorderFlexId == widget.reorderFlexId) {
             _onReordered(
@@ -340,14 +346,11 @@ class ReorderFlexState extends State<ReorderFlex>
         });
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
-        Log.debug('Insert animation: ${_animation.deleteController.status}');
-
         if (_animation.deleteController.isAnimating) {
           return false;
         }
 
         assert(widget.dataSource.items.length > dragTargetIndex);
-
         if (_interceptDragTarget(
           dragTargetData,
           (interceptor) => interceptor.onWillAccept(
@@ -370,6 +373,7 @@ class ReorderFlexState extends State<ReorderFlex>
         );
       },
       onLeave: (dragTargetData) {
+        _notifier.updateDragTargetIndex(-1);
         _interceptDragTarget(
           dragTargetData,
           (interceptor) => interceptor.onLeave(dragTargetData),
@@ -378,6 +382,7 @@ class ReorderFlexState extends State<ReorderFlex>
       insertAnimationController: _animation.insertController,
       deleteAnimationController: _animation.deleteController,
       draggableTargetBuilder: widget.interceptor?.draggableTargetBuilder,
+      useMoveAnimation: widget.config.useMoveAnimation,
       child: child,
     );
   }
@@ -430,7 +435,7 @@ class ReorderFlexState extends State<ReorderFlex>
     /// The [willAccept] will be true if the dargTarget is the widget that gets
     /// dragged and it is dragged on top of the other dragTargets.
     ///
-    Log.trace(
+    Log.debug(
         '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, dragIndex:$dragIndex, dragTargetIndex:$dragTargetIndex, count: ${widget.dataSource.items.length}');
 
     bool willAccept =
@@ -442,7 +447,6 @@ class ReorderFlexState extends State<ReorderFlex>
       } else {
         dragState.updateNextIndex(dragTargetIndex);
       }
-
       _requestAnimationToNextIndex(isAcceptingNewTarget: true);
     });
 
@@ -467,7 +471,6 @@ class ReorderFlexState extends State<ReorderFlex>
     } else {
       return SingleChildScrollView(
         scrollDirection: widget.direction,
-        padding: widget.padding,
         controller: _scrollController,
         child: child,
       );

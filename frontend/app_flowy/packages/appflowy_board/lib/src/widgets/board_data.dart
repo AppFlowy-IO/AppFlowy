@@ -4,9 +4,9 @@ import 'package:equatable/equatable.dart';
 
 import '../utils/log.dart';
 import 'board_column/board_column_data.dart';
-import 'flex/reorder_flex.dart';
+import 'reorder_flex/reorder_flex.dart';
 import 'package:flutter/material.dart';
-import 'phantom/phantom_controller.dart';
+import 'reorder_phantom/phantom_controller.dart';
 
 typedef OnMoveColumn = void Function(int fromIndex, int toIndex);
 
@@ -79,8 +79,11 @@ class BoardDataController extends ChangeNotifier
     int toColumnIndex,
   ) {
     final item = columnController(fromColumnId).removeAt(fromColumnIndex);
-    assert(
-        columnController(toColumnId).items[toColumnIndex] is PhantomColumnItem);
+
+    if (columnController(toColumnId).items.length > toColumnIndex) {
+      assert(columnController(toColumnId).items[toColumnIndex]
+          is PhantomColumnItem);
+    }
 
     columnController(toColumnId).replace(toColumnIndex, item);
 
@@ -120,7 +123,7 @@ class BoardDataController extends ChangeNotifier
       columnController.removeAt(index);
 
       Log.debug(
-          '[$BoardDataController] Column$columnId remove phantom, current count: ${columnController.items.length}');
+          '[$BoardDataController] Column:[$columnId] remove phantom, current count: ${columnController.items.length}');
     }
     return isExist;
   }

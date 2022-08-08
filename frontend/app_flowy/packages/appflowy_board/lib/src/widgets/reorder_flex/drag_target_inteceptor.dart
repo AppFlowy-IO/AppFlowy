@@ -30,12 +30,14 @@ abstract class DragTargetInterceptor {
 }
 
 abstract class OverlapDragTargetDelegate {
-  void didReturnOriginalDragTarget();
-  void didCrossOtherDragTarget(
+  void cancel();
+  void moveTo(
     String reorderFlexId,
     FlexDragTargetData dragTargetData,
     int dragTargetIndex,
   );
+
+  bool canMoveTo(String dragTargetId);
 }
 
 /// [OverlappingDragTargetInteceptor] is used to receive the overlapping
@@ -68,13 +70,11 @@ class OverlappingDragTargetInteceptor extends DragTargetInterceptor {
       required String dragTargetId,
       required int dragTargetIndex}) {
     if (dragTargetId == dragTargetData.reorderFlexId) {
-      delegate.didReturnOriginalDragTarget();
+      delegate.cancel();
     } else {
-      delegate.didCrossOtherDragTarget(
-        dragTargetId,
-        dragTargetData,
-        dragTargetIndex,
-      );
+      if (delegate.canMoveTo(dragTargetId)) {
+        delegate.moveTo(dragTargetId, dragTargetData, 0);
+      }
     }
 
     return true;
@@ -128,13 +128,13 @@ class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
   @override
   void onAccept(FlexDragTargetData dragTargetData) {
     Log.trace(
-        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on onAccept');
+        '[$CrossReorderFlexDragTargetInterceptor] Column:[$reorderFlexId] on onAccept');
   }
 
   @override
   void onLeave(FlexDragTargetData dragTargetData) {
     Log.trace(
-        '[$CrossReorderFlexDragTargetInterceptor] Column$reorderFlexId on leave');
+        '[$CrossReorderFlexDragTargetInterceptor] Column:[$reorderFlexId] on leave');
   }
 
   @override

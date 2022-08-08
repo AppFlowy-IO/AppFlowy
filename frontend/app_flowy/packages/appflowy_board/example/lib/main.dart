@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
           appBar: AppBar(
-            title: const Text('FlowyBoard example'),
+            title: const Text('AppFlowy Board'),
           ),
           body: _examples[_currentIndex],
           bottomNavigationBar: BottomNavigationBar(
@@ -43,10 +43,10 @@ class _MyAppState extends State<MyApp> {
             items: [
               BottomNavigationBarItem(
                   icon: Icon(Icons.grid_on, color: _bottomNavigationColor),
-                  label: "MultiBoardList"),
+                  label: "MultiColumn"),
               BottomNavigationBarItem(
                   icon: Icon(Icons.grid_on, color: _bottomNavigationColor),
-                  label: "SingleBoardList"),
+                  label: "SingleColumn"),
             ],
             onTap: (int index) {
               setState(() {

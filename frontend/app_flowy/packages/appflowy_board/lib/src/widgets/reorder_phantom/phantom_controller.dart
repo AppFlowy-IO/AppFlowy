@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../utils/log.dart';
 import '../board_column/board_column_data.dart';
-import '../flex/drag_state.dart';
-import '../flex/drag_target.dart';
-import '../flex/drag_target_inteceptor.dart';
+import '../reorder_flex/drag_state.dart';
+import '../reorder_flex/drag_target.dart';
+import '../reorder_flex/drag_target_inteceptor.dart';
 import 'phantom_state.dart';
 
 abstract class BoardPhantomControllerDelegate {
@@ -127,8 +129,8 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     FlexDragTargetData dragTargetData,
     int dragTargetIndex,
   ) {
-    // Log.debug('[$BoardPhantomController] move Column${dragTargetData.reorderFlexId}:${dragTargetData.draggingIndex} '
-    //     'to Column$columnId:$index');
+    // Log.debug('[$BoardPhantomController] move Column:[${dragTargetData.reorderFlexId}]:${dragTargetData.draggingIndex} '
+    //     'to Column:[$columnId]:$index');
 
     phantomRecord = PhantomRecord(
       toColumnId: columnId,
@@ -177,7 +179,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   }
 
   @override
-  void didReturnOriginalDragTarget() {
+  void cancel() {
     if (phantomRecord == null) {
       return;
     }
@@ -188,7 +190,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   }
 
   @override
-  void didCrossOtherDragTarget(
+  void moveTo(
     String reorderFlexId,
     FlexDragTargetData dragTargetData,
     int dragTargetIndex,
@@ -198,6 +200,12 @@ class BoardPhantomController extends OverlapDragTargetDelegate
       dragTargetData,
       dragTargetIndex,
     );
+  }
+
+  @override
+  bool canMoveTo(String dragTargetId) {
+    // TODO: implement shouldReceive
+    return delegate.controller(dragTargetId)?.columnData.items.length == 0;
   }
 }
 
@@ -228,7 +236,7 @@ class PhantomRecord {
       return;
     }
     Log.debug(
-        '[$PhantomRecord] Update Column$fromColumnId remove position to $index');
+        '[$PhantomRecord] Update Column:[$fromColumnId] remove position to $index');
     fromColumnIndex = index;
   }
 
@@ -238,13 +246,13 @@ class PhantomRecord {
     }
 
     Log.debug(
-        '[$PhantomRecord] Column$toColumnId update position $toColumnIndex -> $index');
+        '[$PhantomRecord] Column:[$toColumnId] update position $toColumnIndex -> $index');
     toColumnIndex = index;
   }
 
   @override
   String toString() {
-    return 'Column$fromColumnId:$fromColumnIndex to Column$toColumnId:$toColumnIndex';
+    return 'Column:[$fromColumnId]:$fromColumnIndex to Column:[$toColumnId]:$toColumnIndex';
   }
 }
 
