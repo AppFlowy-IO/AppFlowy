@@ -18,8 +18,8 @@ FlowyKeyEventHandler enterInEdgeOfTextNodeHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
 
-  final nodes = editorState.service.selectionService.currentSelectedNodes.value;
-  final selection = editorState.service.selectionService.currentSelection;
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  final selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null ||
       nodes.length != 1 ||
       nodes.first is! TextNode ||
