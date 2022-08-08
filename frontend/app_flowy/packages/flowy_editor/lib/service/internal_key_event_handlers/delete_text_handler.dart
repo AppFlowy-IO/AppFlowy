@@ -9,12 +9,12 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
 
-  final selection = editorState.service.selectionService.currentSelection;
+  final selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null) {
     return KeyEventResult.ignored;
   }
 
-  final nodes = editorState.service.selectionService.currentSelectedNodes.value;
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
   // make sure all nodes is [TextNode].
   final textNodes = nodes.whereType<TextNode>().toList();
   if (textNodes.length != nodes.length) {
