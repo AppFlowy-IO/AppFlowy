@@ -1,11 +1,12 @@
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class GridCellAccessoryBuildContext {
   final BuildContext anchorContext;
@@ -39,7 +40,13 @@ class PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
       return const SizedBox();
     } else {
       final theme = context.watch<AppTheme>();
-      return svgWidget("grid/expander", color: theme.main1);
+      return Tooltip(
+        message: LocaleKeys.tooltip_openAsPage.tr(),
+        child: svgWidget(
+          "grid/expander",
+          color: theme.main1,
+        ),
+      );
     }
   }
 
@@ -50,7 +57,8 @@ class PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
   bool enable() => !isCellEditing;
 }
 
-typedef AccessoryBuilder = List<GridCellAccessory> Function(GridCellAccessoryBuildContext buildContext);
+typedef AccessoryBuilder = List<GridCellAccessory> Function(
+    GridCellAccessoryBuildContext buildContext);
 
 abstract class CellAccessory extends Widget {
   const CellAccessory({Key? key}) : super(key: key);
@@ -81,7 +89,8 @@ class _AccessoryHoverState extends State<AccessoryHover> {
   @override
   void initState() {
     _hoverState = AccessoryHoverState();
-    _listenerFn = () => _hoverState.onHover = widget.child.onAccessoryHover?.value ?? false;
+    _listenerFn = () =>
+        _hoverState.onHover = widget.child.onAccessoryHover?.value ?? false;
     widget.child.onAccessoryHover?.addListener(_listenerFn!);
 
     super.initState();
@@ -159,7 +168,8 @@ class _Background extends StatelessWidget {
       builder: (context, state, child) {
         if (state.onHover) {
           return FlowyHoverContainer(
-            style: HoverStyle(borderRadius: Corners.s6Border, hoverColor: theme.shader6),
+            style: HoverStyle(
+                borderRadius: Corners.s6Border, hoverColor: theme.shader6),
           );
         } else {
           return const SizedBox();
@@ -171,14 +181,17 @@ class _Background extends StatelessWidget {
 
 class CellAccessoryContainer extends StatelessWidget {
   final List<GridCellAccessory> accessories;
-  const CellAccessoryContainer({required this.accessories, Key? key}) : super(key: key);
+  const CellAccessoryContainer({required this.accessories, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final children = accessories.where((accessory) => accessory.enable()).map((accessory) {
+    final children =
+        accessories.where((accessory) => accessory.enable()).map((accessory) {
       final hover = FlowyHover(
-        style: HoverStyle(hoverColor: theme.bg3, backgroundColor: theme.surface),
+        style:
+            HoverStyle(hoverColor: theme.bg3, backgroundColor: theme.surface),
         builder: (_, onHover) => Container(
           width: 26,
           height: 26,
