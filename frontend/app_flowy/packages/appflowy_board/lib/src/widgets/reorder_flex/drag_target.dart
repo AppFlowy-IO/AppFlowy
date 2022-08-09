@@ -187,7 +187,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
         clipBehavior: Clip.hardEdge,
         child: ConstrainedBox(
           constraints: constraints,
-          child: Opacity(opacity: 0.6, child: child),
+          child: Opacity(opacity: 0.3, child: child),
         ),
       ),
     );
