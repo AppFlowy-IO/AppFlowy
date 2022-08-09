@@ -94,6 +94,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
                   placeholderText: 'To-do',
                   textNode: widget.textNode,
                   textSpanDecorator: _textSpanDecorator,
+                  placeholderTextSpanDecorator: _textSpanDecorator,
                   editorState: widget.editorState,
                 ),
               ),
