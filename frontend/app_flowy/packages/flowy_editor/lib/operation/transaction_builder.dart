@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:math';
 
 import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
@@ -105,7 +106,20 @@ class TransactionBuilder {
 
   insertText(TextNode node, int index, String content,
       [Attributes? attributes]) {
-    textEdit(node, () => Delta().retain(index).insert(content, attributes));
+    textEdit(
+      node,
+      () => Delta().retain(index).insert(
+            content,
+            attributes ??
+                (index == 0
+                    ? null
+                    : node.delta
+                        .slice(max(index - 1, 0), index)
+                        .operations
+                        .first
+                        .attributes),
+          ),
+    );
     afterSelection = Selection.collapsed(
         Position(path: node.path, offset: index + content.length));
   }
@@ -121,10 +135,19 @@ class TransactionBuilder {
         Selection.collapsed(Position(path: node.path, offset: index));
   }
 
-  replaceText(TextNode node, int index, int length, String content) {
+  replaceText(TextNode node, int index, int length, String content,
+      [Attributes? attributes]) {
     textEdit(
       node,
-      () => Delta().retain(index).delete(length).insert(content),
+      () => Delta().retain(index).delete(length).insert(
+            content,
+            attributes ??
+                node.delta
+                    .slice(index, index + length)
+                    .operations
+                    .first
+                    .attributes,
+          ),
     );
     afterSelection = Selection.collapsed(
       Position(
