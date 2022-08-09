@@ -41,6 +41,8 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   final _textKey = GlobalKey();
   final _placeholderTextKey = GlobalKey();
 
+  final lineHeight = 1.5;
+
   RenderParagraph get _renderParagraph =>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
 
@@ -145,6 +147,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
                 ? Colors.transparent
                 : Colors.grey,
             fontSize: baseFontSize,
+            height: lineHeight,
           ),
         ),
       ],
@@ -200,6 +203,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
             .map((insert) => RichTextStyle(
                   attributes: insert.attributes ?? {},
                   text: insert.content,
+                  height: lineHeight,
                 ).toTextSpan())
             .toList(growable: false),
       );
