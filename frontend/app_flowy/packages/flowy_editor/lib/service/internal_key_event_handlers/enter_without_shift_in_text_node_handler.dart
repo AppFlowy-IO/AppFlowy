@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
@@ -91,7 +92,8 @@ FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
     ..insertNode(
       textNode.path.next,
       textNode.copyWith(
-        attributes: needCopyAttributes ? textNode.attributes : {},
+        attributes:
+            needCopyAttributes ? Attributes.from(textNode.attributes) : {},
         delta: textNode.delta.slice(selection.end.offset),
       ),
     )

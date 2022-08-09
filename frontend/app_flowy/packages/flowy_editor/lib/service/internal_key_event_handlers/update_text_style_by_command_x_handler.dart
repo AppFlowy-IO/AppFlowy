@@ -23,6 +23,18 @@ FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
     case 'b':
       formatBold(editorState);
       return KeyEventResult.handled;
+    case 'I':
+    case 'i':
+      formatItalic(editorState);
+      return KeyEventResult.handled;
+    case 'U':
+    case 'u':
+      formatUnderline(editorState);
+      return KeyEventResult.handled;
+    case 'S':
+    case 's':
+      formatStrikethrough(editorState);
+      return KeyEventResult.handled;
     default:
       break;
   }

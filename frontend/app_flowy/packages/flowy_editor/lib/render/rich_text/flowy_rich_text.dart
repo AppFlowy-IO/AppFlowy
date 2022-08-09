@@ -11,22 +11,6 @@ import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
 
-class RichTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
-  @override
-  Widget build(NodeWidgetContext<TextNode> context) {
-    return FlowyRichText(
-      key: context.node.key,
-      textNode: context.node,
-      editorState: context.editorState,
-    );
-  }
-
-  @override
-  NodeValidator<Node> get nodeValidator => ((node) {
-        return true;
-      });
-}
-
 typedef FlowyTextSpanDecorator = TextSpan Function(TextSpan textSpan);
 
 class FlowyRichText extends StatefulWidget {

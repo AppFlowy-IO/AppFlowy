@@ -59,6 +59,8 @@ class StyleKey {
   ];
 }
 
+// TODO: customize
+double maxTextNodeWidth = 780.0;
 double baseFontSize = 16.0;
 // TODO: customize.
 Map<String, double> headingToFontSize = {
@@ -146,7 +148,7 @@ extension DeltaAttributesExtensions on Attributes {
     return null;
   }
 
-  Color? get hightlightColor {
+  Color? get highlightColor {
     if (containsKey(StyleKey.highlightColor) &&
         this[StyleKey.highlightColor] is String) {
       return Color(
@@ -183,19 +185,30 @@ class RichTextStyle {
     return TextSpan(
       text: text,
       style: TextStyle(
-        fontWeight: fontWeight,
-        fontStyle: fontStyle,
-        fontSize: fontSize,
-        color: textColor,
-        backgroundColor: backgroundColor,
-        decoration: textDecoration,
+        fontWeight: _fontWeight,
+        fontStyle: _fontStyle,
+        fontSize: _fontSize,
+        color: _textColor,
+        decoration: _textDecoration,
+        background: _background,
       ),
-      recognizer: recognizer,
+      recognizer: _recognizer,
     );
   }
 
+  Paint? get _background {
+    if (_backgroundColor != null) {
+      return Paint()
+        ..color = _backgroundColor!
+        ..strokeWidth = 24.0
+        ..style = PaintingStyle.fill
+        ..strokeJoin = StrokeJoin.round;
+    }
+    return null;
+  }
+
   // bold
-  FontWeight get fontWeight {
+  FontWeight get _fontWeight {
     if (attributes.bold) {
       return FontWeight.bold;
     }
@@ -203,38 +216,46 @@ class RichTextStyle {
   }
 
   // underline or strikethrough
-  TextDecoration get textDecoration {
+  TextDecoration get _textDecoration {
+    var decorations = [TextDecoration.none];
     if (attributes.underline || attributes.href != null) {
-      return TextDecoration.underline;
-    } else if (attributes.strikethrough) {
-      return TextDecoration.lineThrough;
+      decorations.add(TextDecoration.underline);
+      // TextDecoration.underline;
     }
-    return TextDecoration.none;
+    if (attributes.strikethrough) {
+      decorations.add(TextDecoration.lineThrough);
+    }
+    return TextDecoration.combine(decorations);
   }
 
   // font
-  FontStyle get fontStyle =>
+  FontStyle get _fontStyle =>
       attributes.italic ? FontStyle.italic : FontStyle.normal;
 
   // text color
-  Color get textColor {
+  Color get _textColor {
     if (attributes.href != null) {
       return Colors.lightBlue;
     }
     return attributes.color ?? Colors.black;
   }
 
-  Color get backgroundColor {
-    return attributes.hightlightColor ?? Colors.transparent;
+  Color? get _backgroundColor {
+    if (attributes.highlightColor != null) {
+      return attributes.highlightColor!;
+    } else if (attributes.code) {
+      return Colors.grey.withOpacity(0.4);
+    }
+    return null;
   }
 
   // font size
-  double get fontSize {
+  double get _fontSize {
     return baseFontSize;
   }
 
   // recognizer
-  GestureRecognizer? get recognizer {
+  GestureRecognizer? get _recognizer {
     final href = attributes.href;
     if (href != null) {
       return TapGestureRecognizer()

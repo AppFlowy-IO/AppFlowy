@@ -8,10 +8,10 @@ import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 
-class BulletedListTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
+class RichTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
   Widget build(NodeWidgetContext<TextNode> context) {
-    return BulletedListTextNodeWidget(
+    return RichTextNodeWidget(
       key: context.node.key,
       textNode: context.node,
       editorState: context.editorState,
@@ -24,8 +24,8 @@ class BulletedListTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
       });
 }
 
-class BulletedListTextNodeWidget extends StatefulWidget {
-  const BulletedListTextNodeWidget({
+class RichTextNodeWidget extends StatefulWidget {
+  const RichTextNodeWidget({
     Key? key,
     required this.textNode,
     required this.editorState,
@@ -35,15 +35,14 @@ class BulletedListTextNodeWidget extends StatefulWidget {
   final EditorState editorState;
 
   @override
-  State<BulletedListTextNodeWidget> createState() =>
-      _BulletedListTextNodeWidgetState();
+  State<RichTextNodeWidget> createState() => _RichTextNodeWidgetState();
 }
 
 // customize
 
-class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
+class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
     with Selectable, DefaultSelectable {
-  final _richTextKey = GlobalKey(debugLabel: 'bulleted_list_text');
+  final _richTextKey = GlobalKey(debugLabel: 'rich_text');
   final leftPadding = 20.0;
 
   @override
@@ -52,26 +51,17 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
 
   @override
   Offset get baseOffset {
-    return Offset(leftPadding, 0);
+    return Offset.zero;
   }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: maxTextNodeWidth,
-      child: Row(
-        children: [
-          FlowySvg(
-            size: Size.square(leftPadding),
-            name: 'point',
-          ),
-          FlowyRichText(
-            key: _richTextKey,
-            placeholderText: 'List',
-            textNode: widget.textNode,
-            editorState: widget.editorState,
-          ),
-        ],
+      child: FlowyRichText(
+        key: _richTextKey,
+        textNode: widget.textNode,
+        editorState: widget.editorState,
       ),
     );
   }

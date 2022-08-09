@@ -57,21 +57,22 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FlowySvg(
-          size: Size.square(leftPadding),
-          number: widget.textNode.attributes.number,
-        ),
-        Expanded(
-          child: FlowyRichText(
+    return SizedBox(
+      width: maxTextNodeWidth,
+      child: Row(
+        children: [
+          FlowySvg(
+            size: Size.square(leftPadding),
+            number: widget.textNode.attributes.number,
+          ),
+          FlowyRichText(
             key: _richTextKey,
             placeholderText: 'List',
             textNode: widget.textNode,
             editorState: widget.editorState,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

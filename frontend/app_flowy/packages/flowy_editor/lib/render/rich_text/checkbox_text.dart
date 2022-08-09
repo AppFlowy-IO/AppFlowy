@@ -65,33 +65,34 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
 
   Widget _buildWithSingle(BuildContext context) {
     final check = widget.textNode.attributes.check;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GestureDetector(
-          child: FlowySvg(
-            size: Size.square(leftPadding),
-            name: check ? 'check' : 'uncheck',
+    return SizedBox(
+      width: maxTextNodeWidth,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            child: FlowySvg(
+              size: Size.square(leftPadding),
+              name: check ? 'check' : 'uncheck',
+            ),
+            onTap: () {
+              debugPrint('[Checkbox] onTap...');
+              TransactionBuilder(widget.editorState)
+                ..updateNode(widget.textNode, {
+                  StyleKey.checkbox: !check,
+                })
+                ..commit();
+            },
           ),
-          onTap: () {
-            debugPrint('[Checkbox] onTap...');
-            TransactionBuilder(widget.editorState)
-              ..updateNode(widget.textNode, {
-                StyleKey.checkbox: !check,
-              })
-              ..commit();
-          },
-        ),
-        Expanded(
-          child: FlowyRichText(
+          FlowyRichText(
             key: _richTextKey,
             placeholderText: 'To-do',
             textNode: widget.textNode,
             textSpanDecorator: _textSpanDecorator,
             editorState: widget.editorState,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
