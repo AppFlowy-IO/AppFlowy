@@ -56,25 +56,22 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(
-            top: topPadding,
-            bottom: bottomPadding,
-          ),
-          child: Expanded(
-            child: FlowyRichText(
-              key: _richTextKey,
-              placeholderText: 'Heading',
-              placeholderTextSpanDecorator: _placeholderTextSpanDecorator,
-              textSpanDecorator: _textSpanDecorator,
-              textNode: widget.textNode,
-              editorState: widget.editorState,
-            ),
-          ),
-        )
-      ],
+    return SizedBox(
+      width: maxTextNodeWidth,
+      child: Padding(
+        padding: EdgeInsets.only(
+          top: topPadding,
+          bottom: bottomPadding,
+        ),
+        child: FlowyRichText(
+          key: _richTextKey,
+          placeholderText: 'Heading',
+          placeholderTextSpanDecorator: _placeholderTextSpanDecorator,
+          textSpanDecorator: _textSpanDecorator,
+          textNode: widget.textNode,
+          editorState: widget.editorState,
+        ),
+      ),
     );
   }
 

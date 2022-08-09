@@ -56,24 +56,25 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FlowySvg(
-          size: Size(
-            leftPadding,
-            _quoteHeight,
+    return SizedBox(
+      width: maxTextNodeWidth,
+      child: Row(
+        children: [
+          FlowySvg(
+            size: Size(
+              leftPadding,
+              _quoteHeight,
+            ),
+            name: 'quote',
           ),
-          name: 'quote',
-        ),
-        Expanded(
-          child: FlowyRichText(
+          FlowyRichText(
             key: _richTextKey,
             placeholderText: 'Quote',
             textNode: widget.textNode,
             editorState: widget.editorState,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

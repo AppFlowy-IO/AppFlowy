@@ -59,6 +59,8 @@ class StyleKey {
   ];
 }
 
+// TODO: customize
+double maxTextNodeWidth = 780.0;
 double baseFontSize = 16.0;
 // TODO: customize.
 Map<String, double> headingToFontSize = {

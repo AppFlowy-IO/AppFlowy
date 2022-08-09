@@ -1,10 +1,10 @@
+import 'package:flowy_editor/render/rich_text/rich_text.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/render/editor/editor_entry.dart';
 import 'package:flowy_editor/render/rich_text/bulleted_list_text.dart';
 import 'package:flowy_editor/render/rich_text/checkbox_text.dart';
-import 'package:flowy_editor/render/rich_text/flowy_rich_text.dart';
 import 'package:flowy_editor/render/rich_text/heading_text.dart';
 import 'package:flowy_editor/render/rich_text/number_list_text.dart';
 import 'package:flowy_editor/render/rich_text/quoted_text.dart';
