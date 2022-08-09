@@ -60,16 +60,19 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     return SizedBox(
       width: maxTextNodeWidth,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FlowySvg(
             size: Size.square(leftPadding),
             number: widget.textNode.attributes.number,
           ),
-          FlowyRichText(
-            key: _richTextKey,
-            placeholderText: 'List',
-            textNode: widget.textNode,
-            editorState: widget.editorState,
+          Expanded(
+            child: FlowyRichText(
+              key: _richTextKey,
+              placeholderText: 'List',
+              textNode: widget.textNode,
+              editorState: widget.editorState,
+            ),
           ),
         ],
       ),
