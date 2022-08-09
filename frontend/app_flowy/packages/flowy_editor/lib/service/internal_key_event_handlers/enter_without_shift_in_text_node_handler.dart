@@ -100,6 +100,13 @@ FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
   final needCopyAttributes = StyleKey.globalStyleKeys
       .where((key) => key != StyleKey.heading)
       .contains(textNode.subtype);
+  Attributes attributes = {};
+  if (needCopyAttributes) {
+    attributes = Attributes.from(textNode.attributes);
+    if (attributes.check) {
+      attributes[StyleKey.checkbox] = false;
+    }
+  }
   final afterSelection = Selection.collapsed(
     Position(path: textNode.path.next, offset: 0),
   );
@@ -107,8 +114,7 @@ FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
     ..insertNode(
       textNode.path.next,
       textNode.copyWith(
-        attributes:
-            needCopyAttributes ? Attributes.from(textNode.attributes) : {},
+        attributes: attributes,
         delta: textNode.delta.slice(selection.end.offset),
       ),
     )
