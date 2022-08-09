@@ -11,7 +11,9 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 class DocumentBanner extends StatelessWidget {
   final void Function() onRestore;
   final void Function() onDelete;
-  const DocumentBanner({required this.onRestore, required this.onDelete, Key? key}) : super(key: key);
+  const DocumentBanner(
+      {required this.onRestore, required this.onDelete, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +28,8 @@ class DocumentBanner extends StatelessWidget {
           fit: BoxFit.scaleDown,
           child: Row(
             children: [
-              FlowyText.medium(LocaleKeys.deletePagePrompt_text.tr(), color: Colors.white),
+              FlowyText.medium(LocaleKeys.deletePagePrompt_text.tr(),
+                  color: Colors.white),
               const HSpace(20),
               BaseStyledButton(
                   minWidth: 160,
@@ -37,7 +40,10 @@ class DocumentBanner extends StatelessWidget {
                   downColor: theme.main1,
                   outlineColor: Colors.white,
                   borderRadius: Corners.s8Border,
-                  child: FlowyText.medium(LocaleKeys.deletePagePrompt_restore.tr(), color: Colors.white, fontSize: 14),
+                  child: FlowyText.medium(
+                      LocaleKeys.deletePagePrompt_restore.tr(),
+                      color: Colors.white,
+                      fontSize: 14),
                   onPressed: onRestore),
               const HSpace(20),
               BaseStyledButton(
@@ -49,8 +55,10 @@ class DocumentBanner extends StatelessWidget {
                   downColor: theme.main1,
                   outlineColor: Colors.white,
                   borderRadius: Corners.s8Border,
-                  child: FlowyText.medium(LocaleKeys.deletePagePrompt_deletePermanent.tr(),
-                      color: Colors.white, fontSize: 14),
+                  child: FlowyText.medium(
+                      LocaleKeys.deletePagePrompt_deletePermanent.tr(),
+                      color: Colors.white,
+                      fontSize: 14),
                   onPressed: onDelete),
             ],
           ),

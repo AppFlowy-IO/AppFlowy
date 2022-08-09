@@ -22,11 +22,11 @@ class SelectOptionCellStyle extends GridCellStyle {
 }
 
 class GridSingleSelectCell extends GridCellWidget {
-  final GridCellControllerBuilder cellContorllerBuilder;
+  final GridCellControllerBuilder cellControllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
   GridSingleSelectCell({
-    required this.cellContorllerBuilder,
+    required this.cellControllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -47,7 +47,7 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
   @override
   void initState() {
     final cellContext =
-        widget.cellContorllerBuilder.build() as GridSelectOptionCellController;
+        widget.cellControllerBuilder.build() as GridSelectOptionCellController;
     _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)
       ..add(const SelectOptionCellEvent.initial());
     super.initState();
@@ -63,7 +63,7 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
               onFocus: (value) => widget.onCellEditing.value = value,
-              cellContorllerBuilder: widget.cellContorllerBuilder);
+              cellControllerBuilder: widget.cellControllerBuilder);
         },
       ),
     );
@@ -78,11 +78,11 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
 
 //----------------------------------------------------------------
 class GridMultiSelectCell extends GridCellWidget {
-  final GridCellControllerBuilder cellContorllerBuilder;
+  final GridCellControllerBuilder cellControllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
   GridMultiSelectCell({
-    required this.cellContorllerBuilder,
+    required this.cellControllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -103,7 +103,7 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
   @override
   void initState() {
     final cellContext =
-        widget.cellContorllerBuilder.build() as GridSelectOptionCellController;
+        widget.cellControllerBuilder.build() as GridSelectOptionCellController;
     _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)
       ..add(const SelectOptionCellEvent.initial());
     super.initState();
@@ -119,7 +119,7 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
               onFocus: (value) => widget.onCellEditing.value = value,
-              cellContorllerBuilder: widget.cellContorllerBuilder);
+              cellControllerBuilder: widget.cellControllerBuilder);
         },
       ),
     );
@@ -136,12 +136,12 @@ class _SelectOptionCell extends StatelessWidget {
   final List<SelectOptionPB> selectOptions;
   final void Function(bool) onFocus;
   final SelectOptionCellStyle? cellStyle;
-  final GridCellControllerBuilder cellContorllerBuilder;
+  final GridCellControllerBuilder cellControllerBuilder;
   const _SelectOptionCell({
     required this.selectOptions,
     required this.onFocus,
     required this.cellStyle,
-    required this.cellContorllerBuilder,
+    required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
 
@@ -179,7 +179,7 @@ class _SelectOptionCell extends StatelessWidget {
           onTap: () {
             onFocus(true);
             final cellContext =
-                cellContorllerBuilder.build() as GridSelectOptionCellController;
+                cellControllerBuilder.build() as GridSelectOptionCellController;
             SelectOptionCellEditor.show(
                 context, cellContext, () => onFocus(false));
           },

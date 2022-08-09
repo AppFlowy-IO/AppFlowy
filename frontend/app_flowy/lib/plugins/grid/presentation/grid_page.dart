@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
@@ -79,7 +80,7 @@ class FlowyGrid extends StatefulWidget {
 
 class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController(
-      scrollGroupContorller: LinkedScrollControllerGroup());
+      scrollGroupController: LinkedScrollControllerGroup());
   late ScrollController headerScrollController;
 
   @override
@@ -153,7 +154,7 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 
   Widget _gridHeader(BuildContext context, String gridId) {
-    final fieldCache = context.read<GridBloc>().fieldCache;
+    final fieldCache = context.read<GridBloc>().dataController.fieldCache;
     return GridHeaderSliverAdaptor(
       gridId: gridId,
       fieldCache: fieldCache,
@@ -169,7 +170,7 @@ class _GridToolbarAdaptor extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<GridBloc, GridState, GridToolbarContext>(
       selector: (state) {
-        final fieldCache = context.read<GridBloc>().fieldCache;
+        final fieldCache = context.read<GridBloc>().dataController.fieldCache;
         return GridToolbarContext(
           gridId: state.gridId,
           fieldCache: fieldCache,
@@ -237,14 +238,20 @@ class _GridRowsState extends State<_GridRows> {
   ) {
     final rowCache =
         context.read<GridBloc>().getRowCache(rowInfo.blockId, rowInfo.id);
-    final fieldCache = context.read<GridBloc>().fieldCache;
+
+    final fieldCache = context.read<GridBloc>().dataController.fieldCache;
     if (rowCache != null) {
+      final dataController = GridRowDataController(
+        rowId: rowInfo.id,
+        fieldCache: fieldCache,
+        rowCache: rowCache,
+      );
+
       return SizeTransition(
         sizeFactor: animation,
         child: GridRowWidget(
           rowData: rowInfo,
-          rowCache: rowCache,
-          fieldCache: fieldCache,
+          dataController: dataController,
           key: ValueKey(rowInfo.id),
         ),
       );

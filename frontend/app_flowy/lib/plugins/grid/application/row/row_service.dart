@@ -158,7 +158,7 @@ class GridRowCache {
     void Function(GridCellMap, GridRowChangeReason)? onCellUpdated,
     bool Function()? listenWhen,
   }) {
-    listenrHandler() async {
+    listenerHandler() async {
       if (listenWhen != null && listenWhen() == false) {
         return;
       }
@@ -181,8 +181,8 @@ class GridRowCache {
       );
     }
 
-    _rowChangeReasonNotifier.addListener(listenrHandler);
-    return listenrHandler;
+    _rowChangeReasonNotifier.addListener(listenerHandler);
+    return listenerHandler;
   }
 
   void removeRowListener(VoidCallback callback) {
