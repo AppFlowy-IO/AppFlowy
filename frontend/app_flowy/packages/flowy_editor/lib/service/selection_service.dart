@@ -306,6 +306,9 @@ class _FlowySelectionState extends State<FlowySelection>
       return;
     }
 
+    editorState.service.keyboardService?.enable();
+    editorState.service.scrollService?.enable();
+
     panEndOffset = details.globalPosition;
     final dy = editorState.service.scrollService?.dy;
     var panStartOffsetWithScrollDyGap = panStartOffset!;
