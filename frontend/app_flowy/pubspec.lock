@@ -22,6 +22,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
+  appflowy_board:
+    dependency: "direct main"
+    description:
+      path: "packages/appflowy_board"
+      relative: true
+    source: path
+    version: "0.0.4"
   args:
     dependency: transitive
     description:

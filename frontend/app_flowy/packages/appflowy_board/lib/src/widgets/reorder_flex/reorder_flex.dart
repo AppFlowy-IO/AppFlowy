@@ -33,7 +33,7 @@ abstract class ReoderFlexItem {
 
 class ReorderFlexConfig {
   /// The opacity of the dragging widget
-  final double draggingWidgetOpacity = 0.2;
+  final double draggingWidgetOpacity = 0.3;
 
   // How long an animation to reorder an element
   final Duration reorderAnimationDuration = const Duration(milliseconds: 250);
@@ -499,16 +499,14 @@ class ReorderFlexState extends State<ReorderFlex>
     switch (widget.direction) {
       case Axis.horizontal:
         return Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: widget.mainAxisAlignment,
           children: children,
         );
       case Axis.vertical:
       default:
         return Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: widget.mainAxisAlignment,
           children: children,
         );

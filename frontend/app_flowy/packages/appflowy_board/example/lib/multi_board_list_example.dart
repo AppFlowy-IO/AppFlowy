@@ -99,22 +99,25 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     }
 
     if (item is RichTextItem) {
-      return Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              item.title,
-              style: const TextStyle(fontSize: 14),
-              textAlign: TextAlign.left,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              item.subtitle,
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
-            )
-          ],
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.title,
+                style: const TextStyle(fontSize: 14),
+                textAlign: TextAlign.left,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                item.subtitle,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              )
+            ],
+          ),
         ),
       );
     }

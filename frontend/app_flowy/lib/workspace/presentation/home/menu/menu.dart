@@ -2,9 +2,9 @@ export './app/header/header.dart';
 export './app/menu_app.dart';
 
 import 'dart:io' show Platform;
+import 'package:app_flowy/plugins/trash/menu.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
-import 'package:app_flowy/workspace/presentation/plugins/trash/menu.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
@@ -49,7 +49,8 @@ class HomeMenu extends StatelessWidget {
       providers: [
         BlocProvider<MenuBloc>(
           create: (context) {
-            final menuBloc = getIt<MenuBloc>(param1: user, param2: workspaceSetting.workspace.id);
+            final menuBloc = getIt<MenuBloc>(
+                param1: user, param2: workspaceSetting.workspace.id);
             menuBloc.add(const MenuEvent.initial());
             return menuBloc;
           },
@@ -106,18 +107,22 @@ class HomeMenu extends StatelessWidget {
 
   Widget _renderApps(BuildContext context) {
     return ExpandableTheme(
-      data: ExpandableThemeData(useInkWell: true, animationDuration: Durations.medium),
+      data: ExpandableThemeData(
+          useInkWell: true, animationDuration: Durations.medium),
       child: Expanded(
         child: ScrollConfiguration(
           behavior: const ScrollBehavior().copyWith(scrollbars: false),
           child: BlocSelector<MenuBloc, MenuState, List<Widget>>(
-            selector: (state) => state.apps.map((app) => MenuApp(app, key: ValueKey(app.id))).toList(),
+            selector: (state) => state.apps
+                .map((app) => MenuApp(app, key: ValueKey(app.id)))
+                .toList(),
             builder: (context, menuItems) {
               return ReorderableListView.builder(
                 itemCount: menuItems.length,
                 buildDefaultDragHandles: false,
                 header: Padding(
-                  padding: EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
+                  padding:
+                      EdgeInsets.only(bottom: 20.0 - MenuAppSizes.appVPadding),
                   child: MenuUser(user),
                 ),
                 onReorder: (oldIndex, newIndex) {
@@ -126,7 +131,9 @@ class HomeMenu extends StatelessWidget {
                   //  receive:  oldIndex: 0, newIndex: 2
                   //  Workaround: if newIndex > oldIndex, we just minus one
                   int index = newIndex > oldIndex ? newIndex - 1 : newIndex;
-                  context.read<MenuBloc>().add(MenuEvent.moveApp(oldIndex, index));
+                  context
+                      .read<MenuBloc>()
+                      .add(MenuEvent.moveApp(oldIndex, index));
                 },
                 physics: StyledScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
@@ -134,7 +141,8 @@ class HomeMenu extends StatelessWidget {
                     key: ValueKey(menuItems[index].key),
                     index: index,
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: MenuAppSizes.appVPadding / 2),
+                      padding: EdgeInsets.symmetric(
+                          vertical: MenuAppSizes.appVPadding / 2),
                       child: menuItems[index],
                     ),
                   );
@@ -149,7 +157,8 @@ class HomeMenu extends StatelessWidget {
 
   Widget _renderNewAppButton(BuildContext context) {
     return NewAppButton(
-      press: (appName) => context.read<MenuBloc>().add(MenuEvent.createApp(appName, desc: "")),
+      press: (appName) =>
+          context.read<MenuBloc>().add(MenuEvent.createApp(appName, desc: "")),
     );
   }
 }
@@ -210,7 +219,9 @@ class MenuTopBar extends StatelessWidget {
               const Spacer(),
               FlowyIconButton(
                 width: 28,
-                onPressed: () => context.read<HomeBloc>().add(const HomeEvent.collapseMenu()),
+                onPressed: () => context
+                    .read<HomeBloc>()
+                    .add(const HomeEvent.collapseMenu()),
                 iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
                 icon: svgWidget("home/hide_menu", color: theme.iconColor),
               )
