@@ -1,7 +1,8 @@
-import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/service/keyboard_service.dart';
 
 // Handle delete text.
 FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
@@ -28,9 +29,16 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
     if (index < 0) {
       // 1. style
       if (textNode.subtype != null) {
-        transactionBuilder.updateNode(textNode, {
-          'subtype': null,
-        });
+        transactionBuilder
+          ..updateNode(textNode, {
+            'subtype': null,
+          })
+          ..afterSelection = Selection.collapsed(
+            Position(
+              path: textNode.path,
+              offset: 0,
+            ),
+          );
       } else {
         // 2. non-style
         // find previous text node.
@@ -38,8 +46,14 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
           if (textNode.previous is TextNode) {
             final previous = textNode.previous as TextNode;
             transactionBuilder
+              ..mergeText(previous, textNode)
               ..deleteNode(textNode)
-              ..mergeText(previous, textNode);
+              ..afterSelection = Selection.collapsed(
+                Position(
+                  path: previous.path,
+                  offset: previous.toRawString().length,
+                ),
+              );
             break;
           }
         }
