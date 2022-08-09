@@ -106,18 +106,19 @@ class TransactionBuilder {
 
   insertText(TextNode node, int index, String content,
       [Attributes? attributes]) {
+    var newAttributes = attributes;
+    if (index != 0 && attributes == null) {
+      newAttributes = node.delta
+          .slice(max(index - 1, 0), index)
+          .operations
+          .first
+          .attributes;
+    }
     textEdit(
       node,
       () => Delta().retain(index).insert(
             content,
-            attributes ??
-                (index == 0
-                    ? null
-                    : node.delta
-                        .slice(max(index - 1, 0), index)
-                        .operations
-                        .first
-                        .attributes),
+            newAttributes,
           ),
     );
     afterSelection = Selection.collapsed(
