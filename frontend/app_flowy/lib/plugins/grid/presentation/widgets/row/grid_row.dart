@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -9,24 +10,23 @@ import 'package:provider/provider.dart';
 
 import '../../layout/sizes.dart';
 import '../cell/cell_accessory.dart';
-import '../cell/cell_cotainer.dart';
+import '../cell/cell_container.dart';
 import '../cell/prelude.dart';
 import 'row_action_sheet.dart';
 import 'row_detail.dart';
 
 class GridRowWidget extends StatefulWidget {
   final GridRowInfo rowData;
-  final GridRowCache rowCache;
+  final GridRowDataController dataController;
   final GridCellBuilder cellBuilder;
 
   GridRowWidget({
     required this.rowData,
-    required this.rowCache,
-    required GridFieldCache fieldCache,
+    required this.dataController,
     Key? key,
   })  : cellBuilder = GridCellBuilder(
-          cellCache: rowCache.cellCache,
-          fieldCache: fieldCache,
+          cellCache: dataController.rowCache.cellCache,
+          fieldCache: dataController.fieldCache,
         ),
         super(key: key);
 
@@ -41,7 +41,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   void initState() {
     _rowBloc = RowBloc(
       rowInfo: widget.rowData,
-      rowCache: widget.rowCache,
+      dataController: widget.dataController,
     );
     _rowBloc.add(const RowEvent.initial());
     super.initState();
@@ -81,7 +81,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   void _expandRow(BuildContext context) {
     final page = RowDetailPage(
       rowInfo: widget.rowData,
-      rowCache: widget.rowCache,
+      rowCache: widget.dataController.rowCache,
       cellBuilder: widget.cellBuilder,
     );
     page.show(context);

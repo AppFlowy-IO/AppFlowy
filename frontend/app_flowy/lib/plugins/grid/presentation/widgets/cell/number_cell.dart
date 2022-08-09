@@ -7,10 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'cell_builder.dart';
 
 class GridNumberCell extends GridCellWidget {
-  final GridCellControllerBuilder cellContorllerBuilder;
+  final GridCellControllerBuilder cellControllerBuilder;
 
   GridNumberCell({
-    required this.cellContorllerBuilder,
+    required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
 
@@ -25,7 +25,7 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
 
   @override
   void initState() {
-    final cellContext = widget.cellContorllerBuilder.build();
+    final cellContext = widget.cellControllerBuilder.build();
     _cellBloc = getIt<NumberCellBloc>(param1: cellContext)
       ..add(const NumberCellEvent.initial());
     _controller =

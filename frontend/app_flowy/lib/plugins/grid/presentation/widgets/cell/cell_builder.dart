@@ -27,39 +27,49 @@ class GridCellBuilder {
       cellCache: cellCache,
       fieldCache: fieldCache,
     );
+
     final key = cell.key();
     switch (cell.fieldType) {
       case FieldType.Checkbox:
         return GridCheckboxCell(
-            cellControllerBuilder: cellControllerBuilder, key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
       case FieldType.DateTime:
         return GridDateCell(
-            cellControllerBuilder: cellControllerBuilder,
-            key: key,
-            style: style);
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+          style: style,
+        );
       case FieldType.SingleSelect:
         return GridSingleSelectCell(
-            cellContorllerBuilder: cellControllerBuilder,
-            style: style,
-            key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
       case FieldType.MultiSelect:
         return GridMultiSelectCell(
-            cellContorllerBuilder: cellControllerBuilder,
-            style: style,
-            key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
       case FieldType.Number:
         return GridNumberCell(
-            cellContorllerBuilder: cellControllerBuilder, key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
       case FieldType.RichText:
         return GridTextCell(
-            cellContorllerBuilder: cellControllerBuilder,
-            style: style,
-            key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
       case FieldType.URL:
         return GridURLCell(
-            cellContorllerBuilder: cellControllerBuilder,
-            style: style,
-            key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
     }
     throw UnimplementedError;
   }
@@ -93,7 +103,7 @@ abstract class GridCellWidget extends StatefulWidget
   @override
   final ValueNotifier<bool> onCellFocus = ValueNotifier<bool>(false);
 
-  // When the cell is focused, we assume that the accessory alse be hovered.
+  // When the cell is focused, we assume that the accessory also be hovered.
   @override
   ValueNotifier<bool> get onAccessoryHover => onCellFocus;
 
@@ -150,7 +160,7 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
 
 abstract class GridFocusNodeCellState<T extends GridCellWidget>
     extends GridCellState<T> {
-  SingleListenrFocusNode focusNode = SingleListenrFocusNode();
+  SingleListenerFocusNode focusNode = SingleListenerFocusNode();
 
   @override
   void initState() {
@@ -219,7 +229,7 @@ class GridCellFocusListener extends ChangeNotifier {
 
 abstract class GridCellStyle {}
 
-class SingleListenrFocusNode extends FocusNode {
+class SingleListenerFocusNode extends FocusNode {
   VoidCallback? _listener;
 
   void setListener(VoidCallback listener) {

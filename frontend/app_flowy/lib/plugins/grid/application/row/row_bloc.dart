@@ -5,25 +5,25 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
+import 'row_data_controller.dart';
 import 'row_service.dart';
 
 part 'row_bloc.freezed.dart';
 
 class RowBloc extends Bloc<RowEvent, RowState> {
   final RowService _rowService;
-  final GridRowCache _rowCache;
-  void Function()? _rowListenFn;
+  final GridRowDataController _dataController;
 
   RowBloc({
     required GridRowInfo rowInfo,
-    required GridRowCache rowCache,
+    required GridRowDataController dataController,
   })  : _rowService = RowService(
           gridId: rowInfo.gridId,
           blockId: rowInfo.blockId,
           rowId: rowInfo.id,
         ),
-        _rowCache = rowCache,
-        super(RowState.initial(rowInfo, rowCache.loadGridCells(rowInfo.id))) {
+        _dataController = dataController,
+        super(RowState.initial(rowInfo, dataController.loadData())) {
     on<RowEvent>(
       (event, emit) async {
         await event.map(
@@ -33,7 +33,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           createRow: (_CreateRow value) {
             _rowService.createRow();
           },
-          didReceiveCellDatas: (_DidReceiveCellDatas value) async {
+          didReceiveCells: (_DidReceiveCells value) async {
             final fields = value.gridCellMap.values
                 .map((e) => GridCellEquatable(e.field))
                 .toList();
@@ -51,19 +51,17 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 
   @override
   Future<void> close() async {
-    if (_rowListenFn != null) {
-      _rowCache.removeRowListener(_rowListenFn!);
-    }
-
+    _dataController.dispose();
     return super.close();
   }
 
   Future<void> _startListening() async {
-    _rowListenFn = _rowCache.addListener(
-      rowId: state.rowInfo.id,
-      onCellUpdated: (cellDatas, reason) =>
-          add(RowEvent.didReceiveCellDatas(cellDatas, reason)),
-      listenWhen: () => !isClosed,
+    _dataController.addListener(
+      onRowChanged: (cells, reason) {
+        if (!isClosed) {
+          add(RowEvent.didReceiveCells(cells, reason));
+        }
+      },
     );
   }
 }
@@ -72,9 +70,8 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
-  const factory RowEvent.didReceiveCellDatas(
-          GridCellMap gridCellMap, GridRowChangeReason reason) =
-      _DidReceiveCellDatas;
+  const factory RowEvent.didReceiveCells(
+      GridCellMap gridCellMap, GridRowChangeReason reason) = _DidReceiveCells;
 }
 
 @freezed
