@@ -42,26 +42,26 @@ class RichTextNodeWidget extends StatefulWidget {
 
 class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
     with Selectable, DefaultSelectable {
+  @override
+  GlobalKey? get iconKey => null;
+
   final _richTextKey = GlobalKey(debugLabel: 'rich_text');
-  final leftPadding = 20.0;
 
   @override
   Selectable<StatefulWidget> get forward =>
       _richTextKey.currentState as Selectable;
 
   @override
-  Offset get baseOffset {
-    return Offset.zero;
-  }
-
-  @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: maxTextNodeWidth,
-      child: FlowyRichText(
-        key: _richTextKey,
-        textNode: widget.textNode,
-        editorState: widget.editorState,
+      width: defaultMaxTextNodeWidth,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: defaultLinePadding),
+        child: FlowyRichText(
+          key: _richTextKey,
+          textNode: widget.textNode,
+          editorState: widget.editorState,
+        ),
       ),
     );
   }

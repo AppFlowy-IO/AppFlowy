@@ -326,6 +326,9 @@ class _FlowySelectionState extends State<FlowySelection>
       return;
     }
 
+    editorState.service.keyboardService?.enable();
+    editorState.service.scrollService?.enable();
+
     panEndOffset = details.globalPosition;
     final dy = editorState.service.scrollService?.dy;
     var panStartOffsetWithScrollDyGap = panStartOffset!;
@@ -356,9 +359,10 @@ class _FlowySelectionState extends State<FlowySelection>
           start: isDownward ? start : end, end: isDownward ? end : start);
       debugPrint('[_onPanUpdate] isDownward = $isDownward, $selection');
       editorState.updateCursorSelection(selection);
+
+      _scrollUpOrDownIfNeeded(panEndOffset!, isDownward);
     }
 
-    _scrollUpOrDownIfNeeded(panEndOffset!);
     _showDebugLayerIfNeeded();
   }
 
@@ -483,7 +487,7 @@ class _FlowySelectionState extends State<FlowySelection>
     return NodeIterator(stateTree, startNode, endNode).toList();
   }
 
-  void _scrollUpOrDownIfNeeded(Offset offset) {
+  void _scrollUpOrDownIfNeeded(Offset offset, bool isDownward) {
     final dy = editorState.service.scrollService?.dy;
     if (dy == null) {
       assert(false, 'Dy could not be null');
@@ -495,10 +499,10 @@ class _FlowySelectionState extends State<FlowySelection>
     /// TODO: It is necessary to calculate the relative speed
     ///   according to the gap and move forward more gently.
     final distance = 10.0;
-    if (offset.dy <= topLimit) {
+    if (offset.dy <= topLimit && !isDownward) {
       // up
       editorState.service.scrollService?.scrollTo(dy - distance);
-    } else if (offset.dy >= bottomLimit) {
+    } else if (offset.dy >= bottomLimit && isDownward) {
       //down
       editorState.service.scrollService?.scrollTo(dy + distance);
     }

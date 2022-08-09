@@ -1,4 +1,5 @@
 import 'package:flowy_editor/document/attributes.dart';
+import 'package:flowy_editor/document/node.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -50,6 +51,7 @@ class StyleKey {
   ];
 
   static List<String> globalStyleKeys = [
+    StyleKey.subtype,
     StyleKey.heading,
     StyleKey.checkbox,
     StyleKey.bulletedList,
@@ -60,7 +62,8 @@ class StyleKey {
 }
 
 // TODO: customize
-double maxTextNodeWidth = 780.0;
+double defaultMaxTextNodeWidth = 780.0;
+double defaultLinePadding = 8.0;
 double baseFontSize = 16.0;
 // TODO: customize.
 Map<String, double> headingToFontSize = {
@@ -176,12 +179,33 @@ class RichTextStyle {
   RichTextStyle({
     required this.attributes,
     required this.text,
+    this.height = 1.5,
   });
+
+  RichTextStyle.fromTextNode(TextNode textNode)
+      : this(attributes: textNode.attributes, text: textNode.toRawString());
 
   final Attributes attributes;
   final String text;
+  final double height;
 
-  TextSpan toTextSpan() {
+  TextSpan toTextSpan() => _toTextSpan(height);
+
+  double get topPadding {
+    if (height == 1.0) {
+      return 0;
+    }
+    // TODO: Need to be optimized.
+    final painter =
+        TextPainter(text: _toTextSpan(height), textDirection: TextDirection.ltr)
+          ..layout();
+    final basePainter =
+        TextPainter(text: _toTextSpan(null), textDirection: TextDirection.ltr)
+          ..layout();
+    return painter.height - basePainter.height;
+  }
+
+  TextSpan _toTextSpan(double? height) {
     return TextSpan(
       text: text,
       style: TextStyle(
@@ -191,6 +215,7 @@ class RichTextStyle {
         color: _textColor,
         decoration: _textDecoration,
         background: _background,
+        height: height,
       ),
       recognizer: _recognizer,
     );

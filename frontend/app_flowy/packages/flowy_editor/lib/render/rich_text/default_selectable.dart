@@ -6,7 +6,17 @@ import 'package:flutter/material.dart';
 mixin DefaultSelectable {
   Selectable get forward;
 
-  Offset get baseOffset;
+  GlobalKey? get iconKey;
+
+  Offset get baseOffset {
+    if (iconKey != null) {
+      final renderBox = iconKey!.currentContext?.findRenderObject();
+      if (renderBox is RenderBox) {
+        return Offset(renderBox.size.width, 0);
+      }
+    }
+    return Offset.zero;
+  }
 
   Position getPositionInOffset(Offset start) =>
       forward.getPositionInOffset(start);
