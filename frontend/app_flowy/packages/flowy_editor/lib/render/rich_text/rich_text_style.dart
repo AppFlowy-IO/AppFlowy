@@ -146,7 +146,7 @@ extension DeltaAttributesExtensions on Attributes {
     return null;
   }
 
-  Color? get hightlightColor {
+  Color? get highlightColor {
     if (containsKey(StyleKey.highlightColor) &&
         this[StyleKey.highlightColor] is String) {
       return Color(
@@ -228,7 +228,7 @@ class RichTextStyle {
   }
 
   Color get backgroundColor {
-    return attributes.hightlightColor ?? Colors.transparent;
+    return attributes.highlightColor ?? Colors.transparent;
   }
 
   // font size
