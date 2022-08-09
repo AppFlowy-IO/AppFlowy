@@ -7,7 +7,7 @@ The **appflowy_board** is a package that is used in [AppFlowy](https://github.co
 ## Getting Started
 
 <p>
-<img src="" width="180" title="AppFlowyBoard">
+<img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_board/example/gifs/appflowy_board_video_1.gif?raw=true" width="680" title="AppFlowyBoard">
 </p>
 
 ```dart
