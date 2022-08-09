@@ -67,16 +67,31 @@ FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
   // If selection is collapsed and position.start.offset == 0,
   //  insert a empty text node before.
   if (selection.isCollapsed && selection.start.offset == 0) {
-    final afterSelection = Selection.collapsed(
-      Position(path: textNode.path.next, offset: 0),
-    );
-    TransactionBuilder(editorState)
-      ..insertNode(
-        textNode.path,
-        TextNode.empty(),
-      )
-      ..afterSelection = afterSelection
-      ..commit();
+    if (textNode.toRawString().isEmpty) {
+      final afterSelection = Selection.collapsed(
+        Position(path: textNode.path, offset: 0),
+      );
+      TransactionBuilder(editorState)
+        ..updateNode(
+            textNode,
+            Attributes.fromIterable(
+              StyleKey.globalStyleKeys,
+              value: (_) => null,
+            ))
+        ..afterSelection = afterSelection
+        ..commit();
+    } else {
+      final afterSelection = Selection.collapsed(
+        Position(path: textNode.path.next, offset: 0),
+      );
+      TransactionBuilder(editorState)
+        ..insertNode(
+          textNode.path,
+          TextNode.empty(),
+        )
+        ..afterSelection = afterSelection
+        ..commit();
+    }
     return KeyEventResult.handled;
   }
 

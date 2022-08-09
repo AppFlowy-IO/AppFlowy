@@ -137,17 +137,16 @@ class TransactionBuilder {
 
   replaceText(TextNode node, int index, int length, String content,
       [Attributes? attributes]) {
+    var newAttributes = attributes;
+    if (attributes == null) {
+      final ops = node.delta.slice(index, index + length).operations;
+      if (ops.isNotEmpty) {
+        newAttributes = ops.first.attributes;
+      }
+    }
     textEdit(
       node,
-      () => Delta().retain(index).delete(length).insert(
-            content,
-            attributes ??
-                node.delta
-                    .slice(index, index + length)
-                    .operations
-                    .first
-                    .attributes,
-          ),
+      () => Delta().retain(index).delete(length).insert(content, newAttributes),
     );
     afterSelection = Selection.collapsed(
       Position(
