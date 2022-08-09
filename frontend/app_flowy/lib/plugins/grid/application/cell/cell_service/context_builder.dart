@@ -246,7 +246,7 @@ class IGridCellController<T, D> extends Equatable {
   }
 
   /// Save the cell data to disk
-  /// You can set [dedeplicate] to true (default is false) to reduce the save operation.
+  /// You can set [deduplicate] to true (default is false) to reduce the save operation.
   /// It's useful when you call this method when user editing the [TextField].
   /// The default debounce interval is 300 milliseconds.
   void saveCellData(D data,
@@ -304,7 +304,7 @@ class IGridCellController<T, D> extends Equatable {
       [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.field.id];
 }
 
-class _GridFieldChangedNotifierImpl extends GridFieldChangedNotifier {
+class _GridFieldChangedNotifierImpl extends IGridFieldChangedNotifier {
   final GridFieldCache _cache;
   FieldChangesetCallback? _onChangesetFn;
 

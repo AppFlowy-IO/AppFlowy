@@ -164,18 +164,11 @@ pub struct CreateFieldPayloadPB {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub field_id: String,
-
-    #[pb(index = 3)]
     pub field_type: FieldType,
-
-    #[pb(index = 4)]
-    pub create_if_not_exist: bool,
 }
 
 pub struct CreateFieldParams {
     pub grid_id: String,
-    pub field_id: String,
     pub field_type: FieldType,
 }
 
@@ -184,10 +177,8 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
 
     fn try_into(self) -> Result<CreateFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
         Ok(CreateFieldParams {
             grid_id: grid_id.0,
-            field_id: field_id.0,
             field_type: self.field_type,
         })
     }

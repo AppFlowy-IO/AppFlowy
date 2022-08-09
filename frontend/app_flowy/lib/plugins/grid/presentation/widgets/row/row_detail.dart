@@ -62,8 +62,10 @@ class _RowDetailPageState extends State<RowDetailPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final bloc =
-            RowDetailBloc(rowInfo: widget.rowInfo, rowCache: widget.rowCache);
+        final bloc = RowDetailBloc(
+          rowInfo: widget.rowInfo,
+          rowCache: widget.rowCache,
+        );
         bloc.add(const RowDetailEvent.initial());
         return bloc;
       },
