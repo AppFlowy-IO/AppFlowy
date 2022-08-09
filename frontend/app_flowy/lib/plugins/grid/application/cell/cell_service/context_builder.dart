@@ -7,23 +7,24 @@ typedef GridDateCellController
     = IGridCellController<DateCellDataPB, CalendarData>;
 typedef GridURLCellController = IGridCellController<URLCellDataPB, String>;
 
+abstract class GridCellControllerBuilderDelegate {
+  GridCellFieldNotifier buildFieldNotifier();
+}
+
 class GridCellControllerBuilder {
   final GridCellIdentifier _cellId;
   final GridCellCache _cellCache;
-  final GridFieldCache _fieldCache;
+  final GridCellControllerBuilderDelegate delegate;
 
   GridCellControllerBuilder({
+    required this.delegate,
     required GridCellIdentifier cellId,
     required GridCellCache cellCache,
-    required GridFieldCache fieldCache,
   })  : _cellCache = cellCache,
-        _fieldCache = fieldCache,
         _cellId = cellId;
 
   IGridCellController build() {
-    final cellFieldNotifier =
-        GridCellFieldNotifier(notifier: GridCellFieldNotifierImpl(_fieldCache));
-
+    final cellFieldNotifier = delegate.buildFieldNotifier();
     switch (_cellId.fieldType) {
       case FieldType.Checkbox:
         final cellDataLoader = GridCellDataLoader(

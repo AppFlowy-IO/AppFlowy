@@ -14,22 +14,20 @@ import '../cell/cell_accessory.dart';
 import '../cell/cell_container.dart';
 import '../cell/prelude.dart';
 import 'row_action_sheet.dart';
-import 'row_detail.dart';
 
 class GridRowWidget extends StatefulWidget {
-  final GridRowInfo rowData;
+  final GridRowInfo rowInfo;
   final GridRowDataController dataController;
   final GridCellBuilder cellBuilder;
+  final void Function(BuildContext, GridCellBuilder) openDetailPage;
 
-  GridRowWidget({
-    required this.rowData,
+  const GridRowWidget({
+    required this.rowInfo,
     required this.dataController,
+    required this.cellBuilder,
+    required this.openDetailPage,
     Key? key,
-  })  : cellBuilder = GridCellBuilder(
-          cellCache: dataController.rowCache.cellCache,
-          fieldCache: dataController.fieldCache,
-        ),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   State<GridRowWidget> createState() => _GridRowWidgetState();
@@ -41,7 +39,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   @override
   void initState() {
     _rowBloc = RowBloc(
-      rowInfo: widget.rowData,
+      rowInfo: widget.rowInfo,
       dataController: widget.dataController,
     );
     _rowBloc.add(const RowEvent.initial());
@@ -56,17 +54,20 @@ class _GridRowWidgetState extends State<GridRowWidget> {
         child: BlocBuilder<RowBloc, RowState>(
           buildWhen: (p, c) => p.rowInfo.height != c.rowInfo.height,
           builder: (context, state) {
-            return Row(
-              children: [
-                const _RowLeading(),
-                Expanded(
-                    child: _RowCells(
+            final children = [
+              const _RowLeading(),
+              Expanded(
+                child: RowContent(
                   builder: widget.cellBuilder,
-                  onExpand: () => _expandRow(context),
-                )),
-                const _RowTrailing(),
-              ],
-            );
+                  onExpand: () => widget.openDetailPage(
+                    context,
+                    widget.cellBuilder,
+                  ),
+                ),
+              ),
+              const _RowTrailing(),
+            ];
+            return Row(children: children);
           },
         ),
       ),
@@ -77,15 +78,6 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   Future<void> dispose() async {
     _rowBloc.close();
     super.dispose();
-  }
-
-  void _expandRow(BuildContext context) {
-    final page = RowDetailPage(
-      rowInfo: widget.rowData,
-      rowCache: widget.dataController.rowCache,
-      cellBuilder: widget.cellBuilder,
-    );
-    page.show(context);
   }
 }
 
@@ -159,10 +151,10 @@ class _DeleteRowButton extends StatelessWidget {
   }
 }
 
-class _RowCells extends StatelessWidget {
+class RowContent extends StatelessWidget {
   final VoidCallback onExpand;
   final GridCellBuilder builder;
-  const _RowCells({
+  const RowContent({
     required this.builder,
     required this.onExpand,
     Key? key,

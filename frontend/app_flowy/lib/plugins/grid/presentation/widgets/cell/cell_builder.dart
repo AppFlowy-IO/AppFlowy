@@ -1,5 +1,4 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -13,23 +12,26 @@ import 'select_option_cell/select_option_cell.dart';
 import 'text_cell.dart';
 import 'url_cell/url_cell.dart';
 
+abstract class GridCellBuilderDelegate
+    extends GridCellControllerBuilderDelegate {
+  GridCellCache get cellCache;
+}
+
 class GridCellBuilder {
-  final GridCellCache cellCache;
-  final GridFieldCache fieldCache;
+  final GridCellBuilderDelegate delegate;
   GridCellBuilder({
-    required this.cellCache,
-    required this.fieldCache,
+    required this.delegate,
   });
 
-  GridCellWidget build(GridCellIdentifier cell, {GridCellStyle? style}) {
+  GridCellWidget build(GridCellIdentifier cellId, {GridCellStyle? style}) {
     final cellControllerBuilder = GridCellControllerBuilder(
-      cellId: cell,
-      cellCache: cellCache,
-      fieldCache: fieldCache,
+      cellId: cellId,
+      cellCache: delegate.cellCache,
+      delegate: delegate,
     );
 
-    final key = cell.key();
-    switch (cell.fieldType) {
+    final key = cellId.key();
+    switch (cellId.fieldType) {
       case FieldType.Checkbox:
         return GridCheckboxCell(
           cellControllerBuilder: cellControllerBuilder,
