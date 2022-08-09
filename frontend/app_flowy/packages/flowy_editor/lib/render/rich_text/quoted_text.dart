@@ -42,48 +42,50 @@ class QuotedTextNodeWidget extends StatefulWidget {
 
 class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
     with Selectable, DefaultSelectable {
+  @override
+  final iconKey = GlobalKey();
+
   final _richTextKey = GlobalKey(debugLabel: 'quoted_text');
-  final leftPadding = 20.0;
+  final _iconSize = 20.0;
+  final _iconRightPadding = 5.0;
 
   @override
   Selectable<StatefulWidget> get forward =>
       _richTextKey.currentState as Selectable;
 
   @override
-  Offset get baseOffset {
-    return Offset(leftPadding, 0);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
     return SizedBox(
-      width: maxTextNodeWidth,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FlowySvg(
-            size: Size(
-              leftPadding,
-              _quoteHeight,
-            ),
-            name: 'quote',
+        width: defaultMaxTextNodeWidth,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: defaultLinePadding),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FlowySvg(
+                key: iconKey,
+                size: Size(_iconSize, _quoteHeight),
+                padding:
+                    EdgeInsets.only(top: topPadding, right: _iconRightPadding),
+                name: 'quote',
+              ),
+              Expanded(
+                child: FlowyRichText(
+                  key: _richTextKey,
+                  placeholderText: 'Quote',
+                  textNode: widget.textNode,
+                  editorState: widget.editorState,
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: FlowyRichText(
-              key: _richTextKey,
-              placeholderText: 'Quote',
-              textNode: widget.textNode,
-              editorState: widget.editorState,
-            ),
-          ),
-        ],
-      ),
-    );
+        ));
   }
 
   double get _quoteHeight {
     final lines =
         widget.textNode.toRawString().characters.where((c) => c == '\n').length;
-    return (lines + 1) * leftPadding;
+    return (lines + 1) * _iconSize;
   }
 }

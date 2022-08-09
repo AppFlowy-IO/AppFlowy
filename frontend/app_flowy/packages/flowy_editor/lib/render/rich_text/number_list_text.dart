@@ -43,39 +43,44 @@ class NumberListTextNodeWidget extends StatefulWidget {
 
 class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     with Selectable, DefaultSelectable {
+  @override
+  final iconKey = GlobalKey();
+
   final _richTextKey = GlobalKey(debugLabel: 'number_list_text');
-  final leftPadding = 20.0;
+  final _iconSize = 20.0;
+  final _iconRightPadding = 5.0;
 
   @override
   Selectable<StatefulWidget> get forward =>
       _richTextKey.currentState as Selectable;
 
   @override
-  Offset get baseOffset {
-    return Offset(leftPadding, 0);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: maxTextNodeWidth,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FlowySvg(
-            size: Size.square(leftPadding),
-            number: widget.textNode.attributes.number,
+    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
+    return Padding(
+        padding: EdgeInsets.only(bottom: defaultLinePadding),
+        child: SizedBox(
+          width: defaultMaxTextNodeWidth,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FlowySvg(
+                key: iconKey,
+                size: Size.square(_iconSize),
+                padding:
+                    EdgeInsets.only(top: topPadding, right: _iconRightPadding),
+                number: widget.textNode.attributes.number,
+              ),
+              Expanded(
+                child: FlowyRichText(
+                  key: _richTextKey,
+                  placeholderText: 'List',
+                  textNode: widget.textNode,
+                  editorState: widget.editorState,
+                ),
+              ),
+            ],
           ),
-          Expanded(
-            child: FlowyRichText(
-              key: _richTextKey,
-              placeholderText: 'List',
-              textNode: widget.textNode,
-              editorState: widget.editorState,
-            ),
-          ),
-        ],
-      ),
-    );
+        ));
   }
 }

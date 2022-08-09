@@ -41,9 +41,11 @@ class HeadingTextNodeWidget extends StatefulWidget {
 
 class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
     with Selectable, DefaultSelectable {
+  @override
+  GlobalKey? get iconKey => null;
+
   final _richTextKey = GlobalKey(debugLabel: 'heading_text');
-  final topPadding = 5.0;
-  final bottomPadding = 2.0;
+  final _topPadding = 5.0;
 
   @override
   Selectable<StatefulWidget> get forward =>
@@ -51,18 +53,18 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
 
   @override
   Offset get baseOffset {
-    return Offset(0, topPadding);
+    return Offset(0, _topPadding);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: maxTextNodeWidth,
-      child: Padding(
-        padding: EdgeInsets.only(
-          top: topPadding,
-          bottom: bottomPadding,
-        ),
+    return Padding(
+      padding: EdgeInsets.only(
+        top: _topPadding,
+        bottom: defaultLinePadding,
+      ),
+      child: SizedBox(
+        width: defaultMaxTextNodeWidth,
         child: FlowyRichText(
           key: _richTextKey,
           placeholderText: 'Heading',

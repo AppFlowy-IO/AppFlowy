@@ -8,15 +8,24 @@ class FlowySvg extends StatelessWidget {
     this.size = const Size(20, 20),
     this.color,
     this.number,
+    this.padding,
   }) : super(key: key);
 
   final String? name;
   final Size size;
   final Color? color;
   final int? number;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
+    return Padding(
+      padding: padding ?? const EdgeInsets.all(0),
+      child: _buildSvg(),
+    );
+  }
+
+  Widget _buildSvg() {
     if (name != null) {
       return SizedBox.fromSize(
         size: size,
