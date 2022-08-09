@@ -6,7 +6,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 
-import 'package:app_flowy/plugin/plugin.dart';
+import 'package:app_flowy/startup/plugin/plugin.dart';
 
 class AppService {
   final String appId;
@@ -53,7 +53,8 @@ class AppService {
     return FolderEventDeleteApp(request).send();
   }
 
-  Future<Either<Unit, FlowyError>> updateApp({required String appId, String? name}) {
+  Future<Either<Unit, FlowyError>> updateApp(
+      {required String appId, String? name}) {
     UpdateAppPayloadPB payload = UpdateAppPayloadPB.create()..appId = appId;
 
     if (name != null) {

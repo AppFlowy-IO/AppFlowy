@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/plugins/blank/blank.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/log.dart';
@@ -9,8 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
-import 'package:app_flowy/plugin/plugin.dart';
-import 'package:app_flowy/workspace/presentation/plugins/blank/blank.dart';
+import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/navigation.dart';
 import 'package:app_flowy/core/frameless_window.dart';
@@ -107,7 +107,8 @@ class HomeStackNotifier extends ChangeNotifier {
 
   Widget get titleWidget => _plugin.display.leftBarItem;
 
-  HomeStackNotifier({Plugin? plugin}) : _plugin = plugin ?? makePlugin(pluginType: DefaultPlugin.blank.type());
+  HomeStackNotifier({Plugin? plugin})
+      : _plugin = plugin ?? makePlugin(pluginType: DefaultPlugin.blank.type());
 
   set plugin(Plugin newPlugin) {
     if (newPlugin.id == _plugin.id) {
@@ -166,7 +167,9 @@ class HomeStackManager {
           index: getIt<PluginSandbox>().indexOf(notifier.plugin.ty),
           children: getIt<PluginSandbox>().supportPluginTypes.map((pluginType) {
             if (pluginType == notifier.plugin.ty) {
-              return notifier.plugin.display.buildWidget().padding(horizontal: 40, vertical: 28);
+              return notifier.plugin.display
+                  .buildWidget()
+                  .padding(horizontal: 40, vertical: 28);
             } else {
               return const BlankPage();
             }
@@ -190,7 +193,8 @@ class HomeTopBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           BlocBuilder<HomeBloc, HomeState>(
-              buildWhen: ((previous, current) => previous.isMenuCollapsed != current.isMenuCollapsed),
+              buildWhen: ((previous, current) =>
+                  previous.isMenuCollapsed != current.isMenuCollapsed),
               builder: (context, state) {
                 if (state.isMenuCollapsed && Platform.isMacOS) {
                   return const HSpace(80);
@@ -202,7 +206,8 @@ class HomeTopBar extends StatelessWidget {
           ChangeNotifierProvider.value(
             value: Provider.of<HomeStackNotifier>(context, listen: false),
             child: Consumer(
-              builder: (BuildContext context, HomeStackNotifier notifier, Widget? child) {
+              builder: (BuildContext context, HomeStackNotifier notifier,
+                  Widget? child) {
                 return notifier.plugin.display.rightBarItem ?? const SizedBox();
               },
             ),

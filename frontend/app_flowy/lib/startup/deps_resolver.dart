@@ -2,9 +2,8 @@ import 'package:app_flowy/core/network_monitor.dart';
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/user/application/user_service.dart';
 import 'package:app_flowy/workspace/application/app/prelude.dart';
-import 'package:app_flowy/workspace/application/doc/prelude.dart';
-import 'package:app_flowy/workspace/application/grid/prelude.dart';
-import 'package:app_flowy/workspace/application/trash/prelude.dart';
+import 'package:app_flowy/plugins/doc/application/prelude.dart';
+import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:app_flowy/workspace/application/user/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
 import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
@@ -13,6 +12,7 @@ import 'package:app_flowy/workspace/application/menu/prelude.dart';
 import 'package:app_flowy/workspace/application/settings/prelude.dart';
 import 'package:app_flowy/user/application/prelude.dart';
 import 'package:app_flowy/user/presentation/router.dart';
+import 'package:app_flowy/plugins/trash/application/prelude.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
@@ -76,7 +76,8 @@ void _resolveHomeDeps(GetIt getIt) {
 void _resolveFolderDeps(GetIt getIt) {
   //workspace
   getIt.registerFactoryParam<WorkspaceListener, UserProfilePB, String>(
-      (user, workspaceId) => WorkspaceListener(user: user, workspaceId: workspaceId));
+      (user, workspaceId) =>
+          WorkspaceListener(user: user, workspaceId: workspaceId));
 
   // ViewPB
   getIt.registerFactoryParam<ViewListener, ViewPB, void>(
@@ -171,7 +172,8 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<SelectOptionCellBloc, GridSelectOptionCellController, void>(
+  getIt.registerFactoryParam<SelectOptionCellBloc,
+      GridSelectOptionCellController, void>(
     (context, _) => SelectOptionCellBloc(
       cellContext: context,
     ),
