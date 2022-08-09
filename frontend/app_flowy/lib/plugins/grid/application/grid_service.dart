@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:app_flowy/plugins/grid/application/field/grid_listenr.dart';
+import 'package:app_flowy/plugins/grid/application/field/grid_listener.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
@@ -132,7 +132,7 @@ class GridFieldCache {
 
   void removeListener({
     FieldsCallback? onFieldsListener,
-    FieldChangesetCallback? onChangsetListener,
+    FieldChangesetCallback? onChangesetListener,
   }) {
     if (onFieldsListener != null) {
       final fn = _fieldsCallbackMap.remove(onFieldsListener);
@@ -141,8 +141,8 @@ class GridFieldCache {
       }
     }
 
-    if (onChangsetListener != null) {
-      _changesetCallbackMap.remove(onChangsetListener);
+    if (onChangesetListener != null) {
+      _changesetCallbackMap.remove(onChangesetListener);
     }
   }
 
@@ -225,7 +225,7 @@ class GridRowCacheFieldNotifierImpl extends GridRowCacheFieldNotifier {
     }
 
     if (_onChangesetFn != null) {
-      _cache.removeListener(onChangsetListener: _onChangesetFn!);
+      _cache.removeListener(onChangesetListener: _onChangesetFn!);
       _onChangesetFn = null;
     }
   }

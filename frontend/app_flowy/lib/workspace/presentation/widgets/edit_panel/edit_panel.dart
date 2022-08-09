@@ -1,5 +1,5 @@
-import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
-import 'package:app_flowy/workspace/application/edit_pannel/edit_context.dart';
+import 'package:app_flowy/workspace/application/edit_panel/edit_panel_bloc.dart';
+import 'package:app_flowy/workspace/application/edit_panel/edit_context.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -9,12 +9,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
-class EditPannel extends StatelessWidget {
-  final EditPannelContext pannelContext;
+class EditPanel extends StatelessWidget {
+  final EditPanelContext panelContext;
   final VoidCallback onEndEdit;
-  const EditPannel({
+  const EditPanel({
     Key? key,
-    required this.pannelContext,
+    required this.panelContext,
     required this.onEndEdit,
   }) : super(key: key);
 
@@ -23,15 +23,15 @@ class EditPannel extends StatelessWidget {
     return Container(
       color: Theme.of(context).colorScheme.secondary,
       child: BlocProvider(
-        create: (context) => getIt<EditPannelBloc>(),
-        child: BlocBuilder<EditPannelBloc, EditPannelState>(
+        create: (context) => getIt<EditPanelBloc>(),
+        child: BlocBuilder<EditPanelBloc, EditPanelState>(
           builder: (context, state) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                EditPannelTopBar(onClose: () => onEndEdit()),
+                EditPanelTopBar(onClose: () => onEndEdit()),
                 Expanded(
-                  child: pannelContext.child,
+                  child: panelContext.child,
                 ),
               ],
             );
@@ -42,13 +42,13 @@ class EditPannel extends StatelessWidget {
   }
 }
 
-class EditPannelTopBar extends StatelessWidget {
+class EditPanelTopBar extends StatelessWidget {
   final VoidCallback onClose;
-  const EditPannelTopBar({Key? key, required this.onClose}) : super(key: key);
+  const EditPanelTopBar({Key? key, required this.onClose}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: HomeSizes.editPannelTopBarHeight,
+      height: HomeSizes.editPanelTopBarHeight,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(

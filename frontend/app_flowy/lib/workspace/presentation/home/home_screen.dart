@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
-import 'package:app_flowy/workspace/presentation/widgets/edit_pannel/pannel_animation.dart';
+import 'package:app_flowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:flowy_sdk/log.dart';
@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
-import '../widgets/edit_pannel/edit_pannel.dart';
+import '../widgets/edit_panel/edit_panel.dart';
 
 import 'home_layout.dart';
 import 'home_stack.dart';
@@ -64,9 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
           child: BlocBuilder<HomeBloc, HomeState>(
             buildWhen: (previous, current) => previous != current,
             builder: (context, state) {
-              final collapasedNotifier =
+              final collapsedNotifier =
                   getIt<HomeStackManager>().collapsedNotifier;
-              collapasedNotifier.addPublishListener((isCollapsed) {
+              collapsedNotifier.addPublishListener((isCollapsed) {
                 context
                     .read<HomeBloc>()
                     .add(HomeEvent.forceCollapse(isCollapsed));
@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
           state: state,
         );
         final homeMenuResizer = _buildHomeMenuResizer(context: context);
-        final editPannel = _buildEditPannel(
+        final editPanel = _buildEditPanel(
           homeState: state,
           layout: layout,
           context: context,
@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
           layout: layout,
           homeStack: homeStack,
           homeMenu: menu,
-          editPannel: editPannel,
+          editPanel: editPanel,
           bubble: bubble,
           homeMenuResizer: homeMenuResizer,
         );
@@ -142,23 +142,23 @@ class _HomeScreenState extends State<HomeScreen> {
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
 
-  Widget _buildEditPannel(
+  Widget _buildEditPanel(
       {required HomeState homeState,
       required BuildContext context,
       required HomeLayout layout}) {
     final homeBloc = context.read<HomeBloc>();
     return BlocBuilder<HomeBloc, HomeState>(
       buildWhen: (previous, current) =>
-          previous.pannelContext != current.pannelContext,
+          previous.panelContext != current.panelContext,
       builder: (context, state) {
-        return state.pannelContext.fold(
+        return state.panelContext.fold(
           () => const SizedBox(),
-          (pannelContext) => FocusTraversalGroup(
+          (panelContext) => FocusTraversalGroup(
             child: RepaintBoundary(
-              child: EditPannel(
-                pannelContext: pannelContext,
+              child: EditPanel(
+                panelContext: panelContext,
                 onEndEdit: () =>
-                    homeBloc.add(const HomeEvent.dismissEditPannel()),
+                    homeBloc.add(const HomeEvent.dismissEditPanel()),
               ),
             ),
           ),
@@ -177,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onPanUpdate: ((details) {
             context
                 .read<HomeBloc>()
-                .add(HomeEvent.editPannelResized(details.delta.dx));
+                .add(HomeEvent.editPanelResized(details.delta.dx));
           }),
           behavior: HitTestBehavior.translucent,
           child: SizedBox(
@@ -191,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required HomeLayout layout,
     required Widget homeMenu,
     required Widget homeStack,
-    required Widget editPannel,
+    required Widget editPanel,
     required Widget bubble,
     required Widget homeMenuResizer,
   }) {
@@ -226,14 +226,14 @@ class _HomeScreenState extends State<HomeScreen> {
               animate: true,
             )
             .animate(layout.animDuration, Curves.easeOut),
-        editPannel
+        editPanel
             .animatedPanelX(
               duration: layout.animDuration.inMilliseconds * 0.001,
-              closeX: layout.editPannelWidth,
-              isClosed: !layout.showEditPannel,
+              closeX: layout.editPanelWidth,
+              isClosed: !layout.showEditPanel,
             )
             .positioned(
-                right: 0, top: 0, bottom: 0, width: layout.editPannelWidth),
+                right: 0, top: 0, bottom: 0, width: layout.editPanelWidth),
       ],
     );
   }

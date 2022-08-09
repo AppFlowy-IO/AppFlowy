@@ -113,7 +113,6 @@ class CellEnterRegion extends StatelessWidget {
 
 class CellContainerNotifier extends ChangeNotifier {
   final CellEditable cellEditable;
-  bool mouted = false;
   VoidCallback? _onCellFocusListener;
   bool _isFocus = false;
   bool _onEnter = false;
