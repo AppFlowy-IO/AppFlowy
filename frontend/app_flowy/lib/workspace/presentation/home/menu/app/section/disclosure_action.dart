@@ -76,13 +76,7 @@ class ViewDisclosureRegion extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return Listener(
-      onPointerDown: (event) => {
-        if (event.kind == PointerDeviceKind.mouse &&
-            event.buttons == kSecondaryMouseButton)
-          {
-            show(context),
-          }
-      },
+      onPointerDown: (event) => {_handleClick(event, context)},
       child: child,
     );
   }
@@ -101,6 +95,17 @@ class ViewDisclosureRegion extends StatelessWidget
               (wrapper) => onSelected(dartz.some(wrapper.inner)),
             );
           };
+
+  void _handleClick(PointerDownEvent event, BuildContext context) {
+    if (event.kind == PointerDeviceKind.mouse &&
+        event.buttons == kSecondaryMouseButton) {
+      RenderBox box = context.findRenderObject() as RenderBox;
+      Offset position = box.localToGlobal(Offset.zero);
+      double x = event.position.dx - position.dx - box.size.width;
+      double y = event.position.dy - position.dy - box.size.height;
+      show(context, anchorOffset: Offset(x, y));
+    }
+  }
 }
 
 class ViewDisclosureActionWrapper extends ActionItem {

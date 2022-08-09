@@ -86,7 +86,6 @@ class ViewSectionItem extends StatelessWidget {
     }
 
     return ViewDisclosureRegion(
-        // context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),
         onSelected: (action) {
           context.read<ViewBloc>().add(const ViewEvent.setIsEditing(false));
           _handleAction(context, action);
