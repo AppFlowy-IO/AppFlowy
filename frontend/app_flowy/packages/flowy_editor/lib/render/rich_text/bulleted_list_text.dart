@@ -60,16 +60,19 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
     return SizedBox(
       width: maxTextNodeWidth,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           FlowySvg(
             size: Size.square(leftPadding),
             name: 'point',
           ),
-          FlowyRichText(
-            key: _richTextKey,
-            placeholderText: 'List',
-            textNode: widget.textNode,
-            editorState: widget.editorState,
+          Expanded(
+            child: FlowyRichText(
+              key: _richTextKey,
+              placeholderText: 'List',
+              textNode: widget.textNode,
+              editorState: widget.editorState,
+            ),
           ),
         ],
       ),
