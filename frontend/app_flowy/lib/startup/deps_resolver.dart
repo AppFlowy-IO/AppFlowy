@@ -6,7 +6,7 @@ import 'package:app_flowy/plugins/doc/application/prelude.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:app_flowy/workspace/application/user/prelude.dart';
 import 'package:app_flowy/workspace/application/workspace/prelude.dart';
-import 'package:app_flowy/workspace/application/edit_pannel/edit_pannel_bloc.dart';
+import 'package:app_flowy/workspace/application/edit_panel/edit_panel_bloc.dart';
 import 'package:app_flowy/workspace/application/view/prelude.dart';
 import 'package:app_flowy/workspace/application/menu/prelude.dart';
 import 'package:app_flowy/workspace/application/settings/prelude.dart';
@@ -43,7 +43,7 @@ void _resolveUserDeps(GetIt getIt) {
   getIt.registerFactory<SignUpBloc>(() => SignUpBloc(getIt<AuthService>()));
 
   getIt.registerFactory<SplashRoute>(() => SplashRoute());
-  getIt.registerFactory<EditPannelBloc>(() => EditPannelBloc());
+  getIt.registerFactory<EditPanelBloc>(() => EditPanelBloc());
   getIt.registerFactory<SplashBloc>(() => SplashBloc());
   getIt.registerLazySingleton<NetworkListener>(() => NetworkListener());
 }

@@ -1,8 +1,10 @@
 part of 'cell_service.dart';
 
 typedef GridCellController = IGridCellController<String, String>;
-typedef GridSelectOptionCellController = IGridCellController<SelectOptionCellDataPB, String>;
-typedef GridDateCellController = IGridCellController<DateCellDataPB, CalendarData>;
+typedef GridSelectOptionCellController
+    = IGridCellController<SelectOptionCellDataPB, String>;
+typedef GridDateCellController
+    = IGridCellController<DateCellDataPB, CalendarData>;
 typedef GridURLCellController = IGridCellController<URLCellDataPB, String>;
 
 class GridCellControllerBuilder {
@@ -19,7 +21,8 @@ class GridCellControllerBuilder {
         _cellId = cellId;
 
   IGridCellController build() {
-    final cellFieldNotifier = GridCellFieldNotifier(notifier: _GridFieldChangedNotifierImpl(_fieldCache));
+    final cellFieldNotifier = GridCellFieldNotifier(
+        notifier: _GridFieldChangedNotifierImpl(_fieldCache));
 
     switch (_cellId.fieldType) {
       case FieldType.Checkbox:
@@ -142,8 +145,10 @@ class IGridCellController<T, D> extends Equatable {
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
         _fieldNotifier = fieldNotifier,
-        _fieldService = FieldService(gridId: cellId.gridId, fieldId: cellId.field.id),
-        _cacheKey = GridCellCacheKey(rowId: cellId.rowId, fieldId: cellId.field.id);
+        _fieldService =
+            FieldService(gridId: cellId.gridId, fieldId: cellId.field.id),
+        _cacheKey =
+            GridCellCacheKey(rowId: cellId.rowId, fieldId: cellId.field.id);
 
   IGridCellController<T, D> clone() {
     return IGridCellController(
@@ -164,7 +169,9 @@ class IGridCellController<T, D> extends Equatable {
 
   FieldType get fieldType => cellId.field.fieldType;
 
-  VoidCallback? startListening({required void Function(T?) onCellChanged, VoidCallback? onCellFieldChanged}) {
+  VoidCallback? startListening(
+      {required void Function(T?) onCellChanged,
+      VoidCallback? onCellFieldChanged}) {
     if (isListening) {
       Log.error("Already started. It seems like you should call clone first");
       return null;
@@ -226,8 +233,11 @@ class IGridCellController<T, D> extends Equatable {
 
   /// Return the FieldTypeOptionDataPB that can be parsed into corresponding class using the [parser].
   /// [PD] is the type that the parser return.
-  Future<Either<PD, FlowyError>> getFieldTypeOption<PD, P extends TypeOptionDataParser>(P parser) {
-    return _fieldService.getFieldTypeOptionData(fieldType: fieldType).then((result) {
+  Future<Either<PD, FlowyError>>
+      getFieldTypeOption<PD, P extends TypeOptionDataParser>(P parser) {
+    return _fieldService
+        .getFieldTypeOptionData(fieldType: fieldType)
+        .then((result) {
       return result.fold(
         (data) => parser.fromBuffer(data.typeOptionData),
         (err) => right(err),
@@ -239,7 +249,9 @@ class IGridCellController<T, D> extends Equatable {
   /// You can set [dedeplicate] to true (default is false) to reduce the save operation.
   /// It's useful when you call this method when user editing the [TextField].
   /// The default debounce interval is 300 milliseconds.
-  void saveCellData(D data, {bool deduplicate = false, void Function(Option<FlowyError>)? resultCallback}) async {
+  void saveCellData(D data,
+      {bool deduplicate = false,
+      void Function(Option<FlowyError>)? resultCallback}) async {
     if (deduplicate) {
       _loadDataOperation?.cancel();
 
@@ -288,7 +300,8 @@ class IGridCellController<T, D> extends Equatable {
   }
 
   @override
-  List<Object> get props => [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.field.id];
+  List<Object> get props =>
+      [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.field.id];
 }
 
 class _GridFieldChangedNotifierImpl extends GridFieldChangedNotifier {
@@ -300,7 +313,7 @@ class _GridFieldChangedNotifierImpl extends GridFieldChangedNotifier {
   @override
   void dispose() {
     if (_onChangesetFn != null) {
-      _cache.removeListener(onChangsetListener: _onChangesetFn!);
+      _cache.removeListener(onChangesetListener: _onChangesetFn!);
       _onChangesetFn = null;
     }
   }
