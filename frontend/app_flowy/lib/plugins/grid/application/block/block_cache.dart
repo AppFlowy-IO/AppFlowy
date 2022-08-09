@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'package:app_flowy/plugins/grid/application/grid_service.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 
+import '../field/field_cache.dart';
+import '../row/row_cache.dart';
 import 'block_listener.dart';
 
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information
@@ -24,7 +24,7 @@ class GridBlockCache {
     _rowCache = GridRowCache(
       gridId: gridId,
       block: block,
-      notifier: GridRowCacheFieldNotifierImpl(fieldCache),
+      notifier: GridRowFieldNotifierImpl(fieldCache),
     );
 
     _listener = GridBlockListener(blockId: block.id);

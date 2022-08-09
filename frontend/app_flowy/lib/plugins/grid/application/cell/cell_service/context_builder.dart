@@ -21,8 +21,8 @@ class GridCellControllerBuilder {
         _cellId = cellId;
 
   IGridCellController build() {
-    final cellFieldNotifier = GridCellFieldNotifier(
-        notifier: _GridFieldChangedNotifierImpl(_fieldCache));
+    final cellFieldNotifier =
+        GridCellFieldNotifier(notifier: GridCellFieldNotifierImpl(_fieldCache));
 
     switch (_cellId.fieldType) {
       case FieldType.Checkbox:
@@ -295,6 +295,7 @@ class IGridCellController<T, D> extends Equatable {
 
     if (_onFieldChangedFn != null) {
       _fieldNotifier.unregister(_cacheKey, _onFieldChangedFn!);
+      _fieldNotifier.dispose();
       _onFieldChangedFn = null;
     }
   }
@@ -304,14 +305,14 @@ class IGridCellController<T, D> extends Equatable {
       [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.field.id];
 }
 
-class _GridFieldChangedNotifierImpl extends IGridFieldChangedNotifier {
+class GridCellFieldNotifierImpl extends IGridCellFieldNotifier {
   final GridFieldCache _cache;
   FieldChangesetCallback? _onChangesetFn;
 
-  _GridFieldChangedNotifierImpl(GridFieldCache cache) : _cache = cache;
+  GridCellFieldNotifierImpl(GridFieldCache cache) : _cache = cache;
 
   @override
-  void dispose() {
+  void onCellDispose() {
     if (_onChangesetFn != null) {
       _cache.removeListener(onChangesetListener: _onChangesetFn!);
       _onChangesetFn = null;
@@ -319,7 +320,7 @@ class _GridFieldChangedNotifierImpl extends IGridFieldChangedNotifier {
   }
 
   @override
-  void onFieldChanged(void Function(GridFieldPB p1) callback) {
+  void onCellFieldChanged(void Function(GridFieldPB p1) callback) {
     _onChangesetFn = (GridFieldChangesetPB changeset) {
       for (final updatedField in changeset.updatedFields) {
         callback(updatedField);

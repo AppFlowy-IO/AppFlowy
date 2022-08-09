@@ -1,10 +1,11 @@
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
+
+import '../field/field_cache.dart';
 
 part 'property_bloc.freezed.dart';
 

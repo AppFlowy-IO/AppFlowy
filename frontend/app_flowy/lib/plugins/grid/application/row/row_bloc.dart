@@ -5,6 +5,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
+import 'row_cache.dart';
 import 'row_data_controller.dart';
 import 'row_service.dart';
 

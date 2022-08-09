@@ -6,6 +6,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 
+import 'row_cache.dart';
+
 part 'row_action_sheet_bloc.freezed.dart';
 
 class RowActionSheetBloc

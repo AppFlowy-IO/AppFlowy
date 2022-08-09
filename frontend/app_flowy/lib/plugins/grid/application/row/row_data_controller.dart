@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../cell/cell_service/cell_service.dart';
-import '../grid_service.dart';
-import 'row_service.dart';
+import '../field/field_cache.dart';
+import 'row_cache.dart';
 
 typedef OnRowChanged = void Function(GridCellMap, GridRowChangeReason);
 

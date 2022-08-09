@@ -2,8 +2,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'row_service.dart';
-
+import 'row_cache.dart';
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {

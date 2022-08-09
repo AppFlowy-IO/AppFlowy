@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:collection';
-
-import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
@@ -18,6 +16,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_listener.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'dart:convert' show utf8;
 
+import '../../field/field_cache.dart';
 import '../../field/type_option/type_option_service.dart';
 import 'cell_field_notifier.dart';
 part 'cell_service.freezed.dart';

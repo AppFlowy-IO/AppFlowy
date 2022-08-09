@@ -25,8 +25,8 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
 
   @override
   void initState() {
-    final cellContext = widget.cellControllerBuilder.build();
-    _cellBloc = getIt<NumberCellBloc>(param1: cellContext)
+    final cellController = widget.cellControllerBuilder.build();
+    _cellBloc = getIt<NumberCellBloc>(param1: cellController)
       ..add(const NumberCellEvent.initial());
     _controller =
         TextEditingController(text: contentFromState(_cellBloc.state));

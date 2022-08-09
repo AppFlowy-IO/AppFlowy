@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'block/block_cache.dart';
 import 'grid_data_controller.dart';
-import 'row/row_service.dart';
+import 'row/row_cache.dart';
 import 'dart:collection';
 
 part 'grid_bloc.freezed.dart';

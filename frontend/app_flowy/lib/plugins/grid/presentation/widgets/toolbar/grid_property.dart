@@ -1,6 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/setting/property_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:flowy_infra/image.dart';
@@ -15,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:styled_widget/styled_widget.dart';
 
+import '../../../application/field/field_cache.dart';
 import '../../layout/sizes.dart';
 import '../header/field_editor.dart';
 

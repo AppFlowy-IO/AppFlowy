@@ -21,6 +21,8 @@ import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 
+import '../plugins/grid/application/field/field_cache.dart';
+
 class DependencyResolver {
   static Future<void> resolve(GetIt getIt) async {
     _resolveUserDeps(getIt);

@@ -9,7 +9,9 @@ import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'block/block_cache.dart';
+import 'field/field_cache.dart';
 import 'prelude.dart';
+import 'row/row_cache.dart';
 
 typedef OnFieldsChanged = void Function(UnmodifiableListView<GridFieldPB>);
 typedef OnGridChanged = void Function(GridPB);

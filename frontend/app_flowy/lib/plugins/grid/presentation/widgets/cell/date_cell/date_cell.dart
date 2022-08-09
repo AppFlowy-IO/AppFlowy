@@ -43,8 +43,8 @@ class _DateCellState extends GridCellState<GridDateCell> {
 
   @override
   void initState() {
-    final cellContext = widget.cellControllerBuilder.build();
-    _cellBloc = getIt<DateCellBloc>(param1: cellContext)
+    final cellController = widget.cellControllerBuilder.build();
+    _cellBloc = getIt<DateCellBloc>(param1: cellController)
       ..add(const DateCellEvent.initial());
     super.initState();
   }

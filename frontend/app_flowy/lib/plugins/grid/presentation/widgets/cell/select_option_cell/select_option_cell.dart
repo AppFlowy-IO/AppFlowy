@@ -46,9 +46,9 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
 
   @override
   void initState() {
-    final cellContext =
+    final cellController =
         widget.cellControllerBuilder.build() as GridSelectOptionCellController;
-    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)
+    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellController)
       ..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
@@ -102,9 +102,9 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
 
   @override
   void initState() {
-    final cellContext =
+    final cellController =
         widget.cellControllerBuilder.build() as GridSelectOptionCellController;
-    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)
+    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellController)
       ..add(const SelectOptionCellEvent.initial());
     super.initState();
   }

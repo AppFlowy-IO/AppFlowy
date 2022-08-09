@@ -52,10 +52,10 @@ class GridURLCell extends GridCellWidget {
       GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
     switch (ty) {
       case GridURLCellAccessoryType.edit:
-        final cellContext =
+        final cellController =
             cellControllerBuilder.build() as GridURLCellController;
         return _EditURLAccessory(
-            cellContext: cellContext,
+            cellContext: cellController,
             anchorContext: buildContext.anchorContext);
 
       case GridURLCellAccessoryType.copyURL:
