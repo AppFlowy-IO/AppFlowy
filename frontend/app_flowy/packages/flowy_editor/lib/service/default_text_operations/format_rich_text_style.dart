@@ -97,11 +97,6 @@ bool formatRichTextPartialStyle(EditorState editorState, String styleKey) {
   Attributes attributes = {
     styleKey: value,
   };
-  if (styleKey == StyleKey.underline && value) {
-    attributes[StyleKey.strikethrough] = null;
-  } else if (styleKey == StyleKey.strikethrough && value) {
-    attributes[StyleKey.underline] = null;
-  }
 
   return formatRichTextStyle(editorState, attributes);
 }

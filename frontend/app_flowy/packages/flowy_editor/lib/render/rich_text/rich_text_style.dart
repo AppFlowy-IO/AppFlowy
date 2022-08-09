@@ -204,12 +204,15 @@ class RichTextStyle {
 
   // underline or strikethrough
   TextDecoration get textDecoration {
+    var decorations = [TextDecoration.none];
     if (attributes.underline || attributes.href != null) {
-      return TextDecoration.underline;
-    } else if (attributes.strikethrough) {
-      return TextDecoration.lineThrough;
+      decorations.add(TextDecoration.underline);
+      // TextDecoration.underline;
     }
-    return TextDecoration.none;
+    if (attributes.strikethrough) {
+      decorations.add(TextDecoration.lineThrough);
+    }
+    return TextDecoration.combine(decorations);
   }
 
   // font
