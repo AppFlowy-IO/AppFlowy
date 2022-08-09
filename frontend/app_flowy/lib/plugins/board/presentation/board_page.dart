@@ -1,8 +1,47 @@
 // ignore_for_file: unused_field
 
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../application/board_bloc.dart';
+
+class BoardPage2 extends StatelessWidget {
+  final ViewPB view;
+  const BoardPage2({required this.view, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => BoardBloc(view: view),
+      child: BlocBuilder<BoardBloc, BoardState>(
+        builder: (context, state) {
+          return state.loadingState.map(
+            loading: (_) =>
+                const Center(child: CircularProgressIndicator.adaptive()),
+            finish: (result) {
+              return result.successOrFail.fold(
+                (_) => const BoardContent(),
+                (err) => FlowyErrorPage(err.toString()),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class BoardContent extends StatelessWidget {
+  const BoardContent({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
 
 class BoardPage extends StatefulWidget {
   final ViewPB _view;
