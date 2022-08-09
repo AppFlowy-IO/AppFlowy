@@ -17,6 +17,7 @@ import 'package:flowy_editor/service/internal_key_event_handlers/enter_without_s
 import 'package:flowy_editor/service/internal_key_event_handlers/slash_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/whitespace_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/redo_undo_handler.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
 import 'package:flowy_editor/service/scroll_service.dart';
@@ -39,6 +40,7 @@ List<FlowyKeyEventHandler> defaultKeyEventHandler = [
   flowyDeleteNodesHandler,
   arrowKeysHandler,
   copyPasteKeysHandler,
+  redoUndoKeysHandler,
   enterWithoutShiftInTextNodesHandler,
   updateTextStyleByCommandXHandler,
   whiteSpaceHandler,
