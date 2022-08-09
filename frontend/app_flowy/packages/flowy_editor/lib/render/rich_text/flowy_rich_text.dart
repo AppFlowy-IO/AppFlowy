@@ -35,7 +35,7 @@ class FlowyRichText extends StatefulWidget {
     this.cursorHeight,
     this.cursorWidth = 2.0,
     this.textSpanDecorator,
-    this.placeholderText = 'Type \'/\' for commands',
+    this.placeholderText = ' ',
     this.placeholderTextSpanDecorator,
     required this.textNode,
     required this.editorState,
@@ -138,11 +138,16 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildRichText(BuildContext context) {
-    return Stack(
-      children: [
-        _buildPlaceholderText(context),
-        _buildSingleRichText(context),
-      ],
+    return MouseRegion(
+      cursor: SystemMouseCursors.text,
+      child: widget.textNode.toRawString().isEmpty
+          ? Stack(
+              children: [
+                _buildPlaceholderText(context),
+                _buildSingleRichText(context),
+              ],
+            )
+          : _buildSingleRichText(context),
     );
   }
 
