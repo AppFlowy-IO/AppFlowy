@@ -67,7 +67,7 @@ FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
   // If selection is collapsed and position.start.offset == 0,
   //  insert a empty text node before.
   if (selection.isCollapsed && selection.start.offset == 0) {
-    if (textNode.toRawString().isEmpty) {
+    if (textNode.toRawString().isEmpty && textNode.subtype != null) {
       final afterSelection = Selection.collapsed(
         Position(path: textNode.path, offset: 0),
       );
