@@ -94,7 +94,7 @@ class TransactionBuilder {
       () => Delta()
         ..retain(firstOffset ?? firstLength)
         ..delete(firstLength - (firstOffset ?? firstLength))
-        ..addAll(secondNode.delta.slice(secondOffset, secondLength).operations),
+        ..addAll(secondNode.delta.slice(secondOffset, secondLength)),
     );
     afterSelection = Selection.collapsed(
       Position(
@@ -108,30 +108,37 @@ class TransactionBuilder {
       [Attributes? attributes]) {
     var newAttributes = attributes;
     if (index != 0 && attributes == null) {
-      newAttributes = node.delta
-          .slice(max(index - 1, 0), index)
-          .operations
-          .first
-          .attributes;
+      newAttributes =
+          node.delta.slice(max(index - 1, 0), index).first.attributes;
     }
     textEdit(
       node,
-      () => Delta().retain(index).insert(
-            content,
-            newAttributes,
-          ),
+      () => Delta()
+        ..retain(index)
+        ..insert(
+          content,
+          newAttributes,
+        ),
     );
     afterSelection = Selection.collapsed(
         Position(path: node.path, offset: index + content.length));
   }
 
   formatText(TextNode node, int index, int length, Attributes attributes) {
-    textEdit(node, () => Delta().retain(index).retain(length, attributes));
+    textEdit(
+        node,
+        () => Delta()
+          ..retain(index)
+          ..retain(length, attributes));
     afterSelection = beforeSelection;
   }
 
   deleteText(TextNode node, int index, int length) {
-    textEdit(node, () => Delta().retain(index).delete(length));
+    textEdit(
+        node,
+        () => Delta()
+          ..retain(index)
+          ..delete(length));
     afterSelection =
         Selection.collapsed(Position(path: node.path, offset: index));
   }
@@ -140,14 +147,17 @@ class TransactionBuilder {
       [Attributes? attributes]) {
     var newAttributes = attributes;
     if (attributes == null) {
-      final ops = node.delta.slice(index, index + length).operations;
+      final ops = node.delta.slice(index, index + length);
       if (ops.isNotEmpty) {
         newAttributes = ops.first.attributes;
       }
     }
     textEdit(
       node,
-      () => Delta().retain(index).delete(length).insert(content, newAttributes),
+      () => Delta()
+        ..retain(index)
+        ..delete(length)
+        ..insert(content, newAttributes),
     );
     afterSelection = Selection.collapsed(
       Position(

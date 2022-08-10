@@ -25,7 +25,7 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
   TransactionBuilder transactionBuilder = TransactionBuilder(editorState);
   if (textNodes.length == 1) {
     final textNode = textNodes.first;
-    final index = selection.start.offset - 1;
+    final index = textNode.delta.prevRunePosition(selection.start.offset);
     if (index < 0) {
       // 1. style
       if (textNode.subtype != null) {
@@ -62,8 +62,8 @@ FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
       if (selection.isCollapsed) {
         transactionBuilder.deleteText(
           textNode,
-          selection.start.offset - 1,
-          1,
+          index,
+          selection.start.offset - index,
         );
       } else {
         transactionBuilder.deleteText(

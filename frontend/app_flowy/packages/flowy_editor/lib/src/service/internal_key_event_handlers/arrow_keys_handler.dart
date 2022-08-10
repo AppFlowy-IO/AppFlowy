@@ -12,8 +12,8 @@ int _endOffsetOfNode(Node node) {
 
 extension on Position {
   Position? goLeft(EditorState editorState) {
+    final node = editorState.document.nodeAtPath(path)!;
     if (offset == 0) {
-      final node = editorState.document.nodeAtPath(path)!;
       final prevNode = node.previous;
       if (prevNode != null) {
         return Position(
@@ -22,7 +22,11 @@ extension on Position {
       return null;
     }
 
-    return Position(path: path, offset: offset - 1);
+    if (node is TextNode) {
+      return Position(path: path, offset: node.delta.prevRunePosition(offset));
+    } else {
+      return Position(path: path, offset: offset);
+    }
   }
 
   Position? goRight(EditorState editorState) {
@@ -36,7 +40,11 @@ extension on Position {
       return null;
     }
 
-    return Position(path: path, offset: offset + 1);
+    if (node is TextNode) {
+      return Position(path: path, offset: node.delta.nextRunePosition(offset));
+    } else {
+      return Position(path: path, offset: offset);
+    }
   }
 }
 

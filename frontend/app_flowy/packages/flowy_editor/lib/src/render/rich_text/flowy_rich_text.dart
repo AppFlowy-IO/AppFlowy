@@ -198,7 +198,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   TextSpan get _textSpan => TextSpan(
-        children: widget.textNode.delta.operations
+        children: widget.textNode.delta
             .whereType<TextInsert>()
             .map((insert) => RichTextStyle(
                   attributes: insert.attributes ?? {},
