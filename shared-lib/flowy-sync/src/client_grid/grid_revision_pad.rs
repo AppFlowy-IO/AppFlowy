@@ -53,8 +53,11 @@ impl GridRevisionPad {
 
     pub fn from_delta(delta: GridRevisionDelta) -> CollaborateResult<Self> {
         let content = delta.content()?;
-        let grid: GridRevision = serde_json::from_str(&content)
-            .map_err(|e| CollaborateError::internal().context(format!("Deserialize delta to grid failed: {}", e)))?;
+        let grid: GridRevision = serde_json::from_str(&content).map_err(|e| {
+            let msg = format!("Deserialize delta to grid failed: {}", e);
+            tracing::error!("{}", msg);
+            CollaborateError::internal().context(msg)
+        })?;
 
         Ok(Self {
             grid_rev: Arc::new(grid),
