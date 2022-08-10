@@ -1,4 +1,3 @@
-import 'package:html/dom.dart' as html;
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/infra/html_converter.dart';
@@ -6,50 +5,6 @@ import 'package:flowy_editor/document/node_iterator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
-
-class _HTMLNormalizer {
-  final List<html.Node> nodes;
-  html.Element? _pendingList;
-
-  _HTMLNormalizer(this.nodes);
-
-  List<html.Node> normalize() {
-    final result = <html.Node>[];
-
-    for (final item in nodes) {
-      if (item is Text) {
-        result.add(item);
-        continue;
-      }
-
-      if (item is html.Element) {
-        if (item.localName == "li") {
-          if (_pendingList != null) {
-            _pendingList!.append(item);
-          } else {
-            final ulItem = html.Element.tag("ul");
-            ulItem.append(item);
-
-            _pendingList = ulItem;
-          }
-        } else {
-          _pushList(result);
-          result.add(item);
-        }
-      }
-    }
-
-    return result;
-  }
-
-  _pushList(List<html.Node> result) {
-    if (_pendingList == null) {
-      return;
-    }
-    result.add(_pendingList!);
-    _pendingList = null;
-  }
-}
 
 _handleCopy(EditorState editorState) async {
   final selection = editorState.cursorSelection;
@@ -60,7 +15,7 @@ _handleCopy(EditorState editorState) async {
     final nodeAtPath = editorState.document.nodeAtPath(selection.end.path)!;
     if (nodeAtPath.type == "text") {
       final textNode = nodeAtPath as TextNode;
-      final htmlString = stringify(textNodeToHtml(textNode));
+      final htmlString = NodesToHTMLConverter(nodes: [textNode]).toHTMLString();
       debugPrint('copy html: $htmlString');
       RichClipboard.setData(RichClipboardData(html: htmlString));
     } else {
@@ -71,26 +26,10 @@ _handleCopy(EditorState editorState) async {
 
   final beginNode = editorState.document.nodeAtPath(selection.start.path)!;
   final endNode = editorState.document.nodeAtPath(selection.end.path)!;
-  final traverser = NodeIterator(editorState.document, beginNode, endNode);
 
-  final nodes = <html.Node>[];
-  while (traverser.moveNext()) {
-    final node = traverser.current;
-    if (node.type == "text") {
-      final textNode = node as TextNode;
-      if (node == beginNode) {
-        nodes.add(textNodeToHtml(textNode));
-      } else if (node == endNode) {
-        nodes.add(textNodeToHtml(textNode, end: selection.end.offset));
-      } else {
-        nodes.add(textNodeToHtml(textNode));
-      }
-    }
-    // TODO: handle image and other blocks
-  }
+  final nodes = NodeIterator(editorState.document, beginNode, endNode).toList();
 
-  final copyString = _HTMLNormalizer(nodes).normalize().fold<String>(
-      "", ((previousValue, element) => previousValue + stringify(element)));
+  final copyString = NodesToHTMLConverter(nodes: nodes).toHTMLString();
   debugPrint('copy html: $copyString');
   RichClipboard.setData(RichClipboardData(html: copyString));
 }
@@ -107,8 +46,7 @@ _pasteHTML(EditorState editorState, String html) {
   }
 
   debugPrint('paste html: $html');
-  final converter = HTMLConverter(html);
-  final nodes = converter.toNodes();
+  final nodes = HTMLToNodesConverter(html).toNodes();
 
   if (nodes.isEmpty) {
     return;

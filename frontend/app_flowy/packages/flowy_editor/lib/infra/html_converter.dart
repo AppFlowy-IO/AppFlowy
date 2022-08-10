@@ -4,14 +4,13 @@ import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
 
 const String tagH1 = "h1";
 const String tagH2 = "h2";
 const String tagH3 = "h3";
+const String tagOrderedList = "ol";
 const String tagUnorderedList = "ul";
 const String tagList = "li";
 const String tagParagraph = "p";
@@ -22,23 +21,21 @@ const String tagStrong = "strong";
 const String tagSpan = "span";
 const String tagCode = "code";
 
-class HTMLConverter {
+/// Converting the HTML to nodes
+class HTMLToNodesConverter {
   final html.Document _document;
   bool _inParagraph = false;
 
-  HTMLConverter(String htmlString) : _document = parse(htmlString);
+  HTMLToNodesConverter(String htmlString) : _document = parse(htmlString);
 
   List<Node> toNodes() {
-    final result = <Node>[];
-
     final childNodes = _document.body?.nodes.toList() ?? <html.Node>[];
-    _handleContainer(result, childNodes);
-
-    return result;
+    return _handleContainer(childNodes);
   }
 
-  _handleContainer(List<Node> nodes, List<html.Node> childNodes) {
+  List<Node> _handleContainer(List<html.Node> childNodes) {
     final delta = Delta();
+    final result = <Node>[];
     for (final child in childNodes) {
       if (child is html.Element) {
         if (child.localName == tagAnchor ||
@@ -50,55 +47,60 @@ class HTMLConverter {
           // Google docs wraps the the content inside the <b></b> tag.
           // It's strange
           if (!_inParagraph) {
-            _handleBTag(nodes, child);
+            result.addAll(_handleBTag(child));
           } else {
-            _handleRichText(nodes, child);
+            result.add(_handleRichText(child));
           }
         } else {
-          _handleElement(nodes, child);
+          result.addAll(_handleElement(child));
         }
       } else {
         delta.insert(child.text ?? "");
       }
     }
     if (delta.operations.isNotEmpty) {
-      nodes.add(TextNode(type: "text", delta: delta));
+      result.add(TextNode(type: "text", delta: delta));
     }
+    return result;
   }
 
-  _handleBTag(List<Node> nodes, html.Element element) {
+  List<Node> _handleBTag(html.Element element) {
     final childNodes = element.nodes;
-    _handleContainer(nodes, childNodes);
+    return _handleContainer(childNodes);
   }
 
-  _handleElement(List<Node> nodes, html.Element element,
+  List<Node> _handleElement(html.Element element,
       [Map<String, dynamic>? attributes]) {
     if (element.localName == tagH1) {
-      _handleHeadingElement(nodes, element, tagH1);
+      return [_handleHeadingElement(element, tagH1)];
     } else if (element.localName == tagH2) {
-      _handleHeadingElement(nodes, element, tagH2);
+      return [_handleHeadingElement(element, tagH2)];
     } else if (element.localName == tagH3) {
-      _handleHeadingElement(nodes, element, tagH3);
+      return [_handleHeadingElement(element, tagH3)];
     } else if (element.localName == tagUnorderedList) {
-      _handleUnorderedList(nodes, element);
+      return _handleUnorderedList(element);
+    } else if (element.localName == tagOrderedList) {
+      return _handleOrderedList(element);
     } else if (element.localName == tagList) {
-      _handleListElement(nodes, element);
+      return _handleListElement(element);
     } else if (element.localName == tagParagraph) {
-      _handleParagraph(nodes, element, attributes);
+      return [_handleParagraph(element, attributes)];
     } else {
       final delta = Delta();
       delta.insert(element.text);
       if (delta.operations.isNotEmpty) {
-        nodes.add(TextNode(type: "text", delta: delta));
+        return [TextNode(type: "text", delta: delta)];
       }
     }
+    return [];
   }
 
-  _handleParagraph(List<Node> nodes, html.Element element,
+  Node _handleParagraph(html.Element element,
       [Map<String, dynamic>? attributes]) {
     _inParagraph = true;
-    _handleRichText(nodes, element, attributes);
+    final node = _handleRichText(element, attributes);
     _inParagraph = false;
+    return node;
   }
 
   Attributes? _getDeltaAttributesFromHtmlAttributes(
@@ -142,12 +144,12 @@ class HTMLConverter {
     }
   }
 
-  _handleRichText(List<Node> nodes, html.Element element,
+  Node _handleRichText(html.Element element,
       [Map<String, dynamic>? attributes]) {
     final image = element.querySelector(tagImage);
     if (image != null) {
-      _handleImage(nodes, image);
-      return;
+      final imageNode = _handleImage(image);
+      return imageNode;
     }
     final testInput = element.querySelector("input");
     bool checked = false;
@@ -168,112 +170,197 @@ class HTMLConverter {
       }
     }
 
-    if (delta.operations.isNotEmpty) {
-      final textNode = TextNode(type: "text", delta: delta);
-      if (isCheckbox) {
-        textNode.attributes["subtype"] = StyleKey.checkbox;
-        textNode.attributes["checkbox"] = checked;
-      }
-      nodes.add(textNode);
+    final textNode = TextNode(type: "text", delta: delta);
+    if (isCheckbox) {
+      textNode.attributes["subtype"] = StyleKey.checkbox;
+      textNode.attributes["checkbox"] = checked;
     }
+    return textNode;
   }
 
-  _handleImage(List<Node> nodes, html.Element element) {
+  Node _handleImage(html.Element element) {
     final src = element.attributes["src"];
     final attributes = <String, dynamic>{};
     if (src != null) {
       attributes["image_src"] = src;
     }
-    debugPrint("insert image: $src");
-    nodes.add(
-        Node(type: "image", attributes: attributes, children: LinkedList()));
+    return Node(type: "image", attributes: attributes, children: LinkedList());
   }
 
-  _handleUnorderedList(List<Node> nodes, html.Element element) {
+  List<Node> _handleUnorderedList(html.Element element) {
+    final result = <Node>[];
     element.children.forEach((child) {
-      _handleListElement(nodes, child);
+      result.addAll(
+          _handleListElement(child, {"subtype": StyleKey.bulletedList}));
     });
+    return result;
   }
 
-  _handleHeadingElement(
-    List<Node> nodes,
+  List<Node> _handleOrderedList(html.Element element) {
+    final result = <Node>[];
+    element.children.forEach((child) {
+      result
+          .addAll(_handleListElement(child, {"subtype": StyleKey.numberList}));
+    });
+    return result;
+  }
+
+  Node _handleHeadingElement(
     html.Element element,
     String headingStyle,
   ) {
     final delta = Delta();
     delta.insert(element.text);
-    if (delta.operations.isNotEmpty) {
-      nodes.add(TextNode(
-          type: "text",
-          attributes: {"subtype": "heading", "heading": headingStyle},
-          delta: delta));
-    }
+    return TextNode(
+        type: "text",
+        attributes: {"subtype": "heading", "heading": headingStyle},
+        delta: delta);
   }
 
-  _handleListElement(List<Node> nodes, html.Element element) {
+  List<Node> _handleListElement(html.Element element,
+      [Map<String, dynamic>? attributes]) {
+    final result = <Node>[];
     final childNodes = element.nodes.toList();
     for (final child in childNodes) {
       if (child is html.Element) {
-        _handleElement(nodes, child, {"subtype": "bulleted-list"});
+        result.addAll(_handleElement(child, attributes));
       }
     }
-  }
-}
-
-html.Element textNodeToHtml(TextNode textNode, {int? end, bool? checked}) {
-  String? subType = textNode.attributes["subtype"];
-  return deltaToHtml(textNode.delta,
-      subType: subType,
-      end: end,
-      checked: textNode.attributes["checkbox"] == true);
-}
-
-html.Element deltaToHtml(Delta delta,
-    {String? subType, int? end, bool? checked}) {
-  if (end != null) {
-    delta = delta.slice(0, end);
-  }
-
-  final childNodes = <html.Node>[];
-  String tagName = tagParagraph;
-
-  if (subType == StyleKey.bulletedList) {
-    tagName = tagList;
-  } else if (subType == StyleKey.checkbox) {
-    final node = html.Element.html('<input type="checkbox" />');
-    if (checked != null && checked) {
-      node.attributes["checked"] = "true";
-    }
-    childNodes.add(node);
-  }
-
-  for (final op in delta.operations) {
-    if (op is TextInsert) {
-      final attributes = op.attributes;
-      if (attributes != null && attributes[StyleKey.bold] == true) {
-        final strong = html.Element.tag("strong");
-        strong.append(html.Text(op.content));
-        childNodes.add(strong);
-      } else {
-        childNodes.add(html.Text(op.content));
-      }
-    }
-  }
-
-  if (tagName != tagParagraph) {
-    final p = html.Element.tag(tagParagraph);
-    for (final node in childNodes) {
-      p.append(node);
-    }
-    final result = html.Element.tag("li");
-    result.append(p);
     return result;
-  } else {
-    final p = html.Element.tag(tagName);
-    for (final node in childNodes) {
-      p.append(node);
+  }
+}
+
+class _HTMLNormalizer {
+  final List<html.Node> nodes;
+  html.Element? _pendingList;
+
+  _HTMLNormalizer(this.nodes);
+
+  List<html.Node> normalize() {
+    final result = <html.Node>[];
+
+    for (final item in nodes) {
+      if (item is html.Text) {
+        result.add(item);
+        continue;
+      }
+
+      if (item is html.Element) {
+        if (item.localName == "li") {
+          if (_pendingList != null) {
+            _pendingList!.append(item);
+          } else {
+            final ulItem = html.Element.tag("ul");
+            ulItem.append(item);
+
+            _pendingList = ulItem;
+          }
+        } else {
+          _pushList(result);
+          result.add(item);
+        }
+      }
     }
-    return p;
+
+    return result;
+  }
+
+  _pushList(List<html.Node> result) {
+    if (_pendingList == null) {
+      return;
+    }
+    result.add(_pendingList!);
+    _pendingList = null;
+  }
+}
+
+class NodesToHTMLConverter {
+  final List<Node> nodes;
+  final int? startOffset;
+  final int? endOffset;
+
+  NodesToHTMLConverter({required this.nodes, this.startOffset, this.endOffset});
+
+  List<html.Node> toHTMLNodes() {
+    final result = <html.Node>[];
+    for (final node in nodes) {
+      if (node.type == "text") {
+        final textNode = node as TextNode;
+        if (node == nodes.first) {
+          result.add(_textNodeToHtml(textNode));
+        } else if (node == nodes.last) {
+          result.add(_textNodeToHtml(textNode, end: endOffset));
+        } else {
+          result.add(_textNodeToHtml(textNode));
+        }
+      }
+      // TODO: handle image and other blocks
+    }
+    return result;
+  }
+
+  String toHTMLString() {
+    final elements = toHTMLNodes();
+    final copyString = _HTMLNormalizer(elements).normalize().fold<String>(
+        "", ((previousValue, element) => previousValue + stringify(element)));
+    return copyString;
+  }
+
+  html.Element _textNodeToHtml(TextNode textNode, {int? end}) {
+    String? subType = textNode.attributes["subtype"];
+    return _deltaToHtml(textNode.delta,
+        subType: subType,
+        end: end,
+        checked: textNode.attributes["checkbox"] == true);
+  }
+
+  html.Element _deltaToHtml(Delta delta,
+      {String? subType, int? end, bool? checked}) {
+    if (end != null) {
+      delta = delta.slice(0, end);
+    }
+
+    final childNodes = <html.Node>[];
+    String tagName = tagParagraph;
+
+    if (subType == StyleKey.bulletedList || subType == StyleKey.numberList) {
+      tagName = tagList;
+    } else if (subType == StyleKey.checkbox) {
+      final node = html.Element.html('<input type="checkbox" />');
+      if (checked != null && checked) {
+        node.attributes["checked"] = "true";
+      }
+      childNodes.add(node);
+    }
+
+    for (final op in delta.operations) {
+      if (op is TextInsert) {
+        final attributes = op.attributes;
+        if (attributes != null && attributes[StyleKey.bold] == true) {
+          final strong = html.Element.tag("strong");
+          strong.append(html.Text(op.content));
+          childNodes.add(strong);
+        } else {
+          childNodes.add(html.Text(op.content));
+        }
+      }
+    }
+
+    if (tagName != tagParagraph) {
+      final p = html.Element.tag(tagParagraph);
+      for (final node in childNodes) {
+        p.append(node);
+      }
+      final result = html.Element.tag(tagList);
+      result.append(p);
+      return result;
+    } else {
+      final p = html.Element.tag(tagName);
+      for (final node in childNodes) {
+        p.append(node);
+      }
+      return p;
+    }
   }
 }
 
