@@ -9,7 +9,7 @@ use flowy_folder::entities::{
 use flowy_folder::entities::{
     app::{AppPB, RepeatedAppPB},
     trash::TrashPB,
-    view::{RepeatedViewPB, ViewDataType, ViewPB},
+    view::{RepeatedViewPB, ViewDataTypePB, ViewPB},
     workspace::WorkspacePB,
 };
 use flowy_folder::event_map::FolderEvent::*;
@@ -51,7 +51,7 @@ pub enum FolderScript {
     CreateView {
         name: String,
         desc: String,
-        data_type: ViewDataType,
+        data_type: ViewDataTypePB,
     },
     AssertView(ViewPB),
     ReadView(String),
@@ -98,7 +98,7 @@ impl FolderTest {
             &app.id,
             "Folder View",
             "Folder test view",
-            ViewDataType::TextBlock,
+            ViewDataTypePB::TextBlock,
         )
         .await;
         app.belongings = RepeatedViewPB {
@@ -346,7 +346,13 @@ pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
         .await;
 }
 
-pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, data_type: ViewDataType) -> ViewPB {
+pub async fn create_view(
+    sdk: &FlowySDKTest,
+    app_id: &str,
+    name: &str,
+    desc: &str,
+    data_type: ViewDataTypePB,
+) -> ViewPB {
     let request = CreateViewPayloadPB {
         belong_to_id: app_id.to_string(),
         name: name.to_string(),

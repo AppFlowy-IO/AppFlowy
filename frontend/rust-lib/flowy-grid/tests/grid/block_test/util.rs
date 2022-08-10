@@ -18,7 +18,7 @@ pub struct GridRowTestBuilder<'a> {
 impl<'a> GridRowTestBuilder<'a> {
     pub fn new(block_id: &str, field_revs: &'a [Arc<FieldRevision>]) -> Self {
         assert_eq!(field_revs.len(), FieldType::COUNT);
-        let inner_builder = RowRevisionBuilder::new(field_revs);
+        let inner_builder = RowRevisionBuilder::new(block_id, field_revs);
         Self {
             block_id: block_id.to_owned(),
             field_revs,
@@ -77,8 +77,7 @@ impl<'a> GridRowTestBuilder<'a> {
         let type_option = SingleSelectTypeOptionPB::from(&single_select_field);
         let option = f(type_option.options);
         self.inner_builder
-            .insert_select_option_cell(&single_select_field.id, option.id)
-            .unwrap();
+            .insert_select_option_cell(&single_select_field.id, option.id);
 
         single_select_field.id.clone()
     }
@@ -96,8 +95,7 @@ impl<'a> GridRowTestBuilder<'a> {
             .collect::<Vec<_>>()
             .join(SELECTION_IDS_SEPARATOR);
         self.inner_builder
-            .insert_select_option_cell(&multi_select_field.id, ops_ids)
-            .unwrap();
+            .insert_select_option_cell(&multi_select_field.id, ops_ids);
 
         multi_select_field.id.clone()
     }
@@ -115,7 +113,7 @@ impl<'a> GridRowTestBuilder<'a> {
     }
 
     pub fn build(self) -> RowRevision {
-        self.inner_builder.build(&self.block_id)
+        self.inner_builder.build()
     }
 }
 

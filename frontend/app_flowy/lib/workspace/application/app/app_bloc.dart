@@ -86,6 +86,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       desc: value.desc,
       dataType: value.dataType,
       pluginType: value.pluginType,
+      subDataType: value.subDataType,
     );
     viewOrFailed.fold(
       (view) => emit(state.copyWith(
@@ -138,7 +139,8 @@ class AppEvent with _$AppEvent {
   const factory AppEvent.createView(
     String name,
     String desc,
-    PluginDataType dataType,
+    ViewDataTypePB dataType,
+    SubViewDataTypePB? subDataType,
     PluginType pluginType,
   ) = CreateView;
   const factory AppEvent.delete() = Delete;

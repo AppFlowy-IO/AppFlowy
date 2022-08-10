@@ -138,9 +138,9 @@ fn make_test_grid() -> BuildGridContext {
             FieldType::SingleSelect => {
                 // Single Select
                 let single_select = SingleSelectTypeOptionBuilder::default()
-                    .option(SelectOptionPB::new(COMPLETED))
-                    .option(SelectOptionPB::new(PLANNED))
-                    .option(SelectOptionPB::new(PAUSED));
+                    .add_option(SelectOptionPB::new(COMPLETED))
+                    .add_option(SelectOptionPB::new(PLANNED))
+                    .add_option(SelectOptionPB::new(PAUSED));
                 let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
                 grid_builder.add_field(single_select_field);
             }

@@ -6,6 +6,7 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/b
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
@@ -55,15 +56,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
-          didReceiveFieldUpdate: (UnmodifiableListView<GridFieldPB> fields) {
-            emit(state.copyWith(fields: GridFieldEquatable(fields)));
-          },
-          didReceiveRowUpdate: (
-            List<GridRowInfo> newRowInfos,
-            GridRowChangeReason reason,
-          ) {
-            emit(state.copyWith(rowInfos: newRowInfos, reason: reason));
-          },
         );
       },
     );
@@ -89,16 +81,19 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       },
       onRowsChanged: (rowInfos, reason) {
         if (!isClosed) {
-          add(BoardEvent.didReceiveRowUpdate(rowInfos, reason));
+          _buildColumnItems(rowInfos);
         }
       },
       onFieldsChanged: (fields) {
         if (!isClosed) {
           _buildColumns(fields);
-          add(BoardEvent.didReceiveFieldUpdate(fields));
         }
       },
     );
+  }
+
+  void _buildColumnItems(List<GridRowInfo> rowInfos) {
+    for (final rowInfo in rowInfos) {}
   }
 
   void _buildColumns(UnmodifiableListView<GridFieldPB> fields) {
@@ -127,7 +122,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
         boardDataController.addColumns(columns);
       },
-      onError: (err) {},
+      onError: (err) => Log.error(err),
     );
   }
 
@@ -148,14 +143,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = InitialGrid;
   const factory BoardEvent.createRow() = _CreateRow;
-  const factory BoardEvent.didReceiveRowUpdate(
-    List<GridRowInfo> rows,
-    GridRowChangeReason listState,
-  ) = _DidReceiveRowUpdate;
-  const factory BoardEvent.didReceiveFieldUpdate(
-    UnmodifiableListView<GridFieldPB> fields,
-  ) = _DidReceiveFieldUpdate;
-
+  const factory BoardEvent.groupByField(GridFieldPB field) = _GroupByField;
   const factory BoardEvent.didReceiveGridUpdate(
     GridPB grid,
   ) = _DidReceiveGridUpdate;
@@ -166,19 +154,17 @@ class BoardState with _$BoardState {
   const factory BoardState({
     required String gridId,
     required Option<GridPB> grid,
-    required GridFieldEquatable fields,
+    required Option<GridFieldPB> groupField,
     required List<GridRowInfo> rowInfos,
     required GridLoadingState loadingState,
-    required GridRowChangeReason reason,
   }) = _BoardState;
 
   factory BoardState.initial(String gridId) => BoardState(
-        fields: GridFieldEquatable(UnmodifiableListView([])),
         rowInfos: [],
+        groupField: none(),
         grid: none(),
         gridId: gridId,
         loadingState: const _Loading(),
-        reason: const InitialListState(),
       );
 }
 

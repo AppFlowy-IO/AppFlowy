@@ -133,7 +133,7 @@ mod tests {
         // Single select
         let done_option = SelectOptionPB::new("Done");
         let done_option_id = done_option.id.clone();
-        let single_select = SingleSelectTypeOptionBuilder::default().option(done_option.clone());
+        let single_select = SingleSelectTypeOptionBuilder::default().add_option(done_option.clone());
         let single_select_field_rev = FieldBuilder::new(single_select).build();
 
         assert_eq!(

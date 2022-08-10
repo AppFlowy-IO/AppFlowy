@@ -1,15 +1,17 @@
 // ignore_for_file: unused_field
 
+import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../application/board_bloc.dart';
+import 'card.dart';
 
 class BoardPage extends StatelessWidget {
   final ViewPB view;
-  const BoardPage({required this.view, Key? key}) : super(key: key);
+  BoardPage({required this.view, Key? key}) : super(key: ValueKey(view.id));
 
   @override
   Widget build(BuildContext context) {
@@ -53,12 +55,7 @@ class BoardContent extends StatelessWidget {
               dataController: context.read<BoardBloc>().boardDataController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
-              cardBuilder: (context, item) {
-                return AppFlowyColumnItemCard(
-                  key: ObjectKey(item),
-                  child: _buildCard(item),
-                );
-              },
+              cardBuilder: _buildCard,
               columnConstraints: const BoxConstraints.tightFor(width: 240),
               config: BoardConfig(
                 columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -90,42 +87,12 @@ class BoardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildCard(ColumnItem item) {
-    if (item is TextItem) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Text(item.s),
-        ),
-      );
-    }
-
-    if (item is RichTextItem) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.title,
-                style: const TextStyle(fontSize: 14),
-                textAlign: TextAlign.left,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                item.subtitle,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              )
-            ],
-          ),
-        ),
-      );
-    }
-
-    throw UnimplementedError();
+  Widget _buildCard(BuildContext context, ColumnItem item) {
+    final rowInfo = item as GridRowInfo;
+    return AppFlowyColumnItemCard(
+      key: ObjectKey(item),
+      child: BoardCard(rowInfo: rowInfo),
+    );
   }
 }
 

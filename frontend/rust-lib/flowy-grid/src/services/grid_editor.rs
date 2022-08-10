@@ -272,7 +272,7 @@ impl GridRevisionEditor {
         let block_id = self.block_id().await?;
 
         // insert empty row below the row whose id is upper_row_id
-        let row_rev = RowRevisionBuilder::new(&field_revs).build(&block_id);
+        let row_rev = RowRevisionBuilder::new(&block_id, &field_revs).build();
         let row_order = GridRowPB::from(&row_rev);
 
         // insert the row
