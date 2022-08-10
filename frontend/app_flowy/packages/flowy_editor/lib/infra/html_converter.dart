@@ -170,7 +170,8 @@ class HTMLToNodesConverter {
       }
     }
 
-    final textNode = TextNode(type: "text", delta: delta);
+    final textNode =
+        TextNode(type: "text", delta: delta, attributes: attributes);
     if (isCheckbox) {
       textNode.attributes["subtype"] = StyleKey.checkbox;
       textNode.attributes["checkbox"] = checked;
@@ -198,10 +199,11 @@ class HTMLToNodesConverter {
 
   List<Node> _handleOrderedList(html.Element element) {
     final result = <Node>[];
-    element.children.forEach((child) {
-      result
-          .addAll(_handleListElement(child, {"subtype": StyleKey.numberList}));
-    });
+    for (var i = 0; i < element.children.length; i++) {
+      final child = element.children[i];
+      result.addAll(_handleListElement(
+          child, {"subtype": StyleKey.numberList, "number": i + 1}));
+    }
     return result;
   }
 
@@ -253,6 +255,10 @@ class NodesToHTMLConverter {
       }
       // TODO: handle image and other blocks
     }
+    if (_stashListContainer != null) {
+      _result.add(_stashListContainer!);
+      _stashListContainer = null;
+    }
     return _result;
   }
 
@@ -263,7 +269,8 @@ class NodesToHTMLConverter {
   _addElement(TextNode textNode, html.Element element) {
     if (element.localName == tagList) {
       final isNumbered = textNode.attributes["subtype"] == StyleKey.numberList;
-      _stashListContainer ??= html.Element.tag(isNumbered ? "ol" : "ul");
+      _stashListContainer ??=
+          html.Element.tag(isNumbered ? tagOrderedList : tagUnorderedList);
       _stashListContainer?.append(element);
     } else {
       if (_stashListContainer != null) {
