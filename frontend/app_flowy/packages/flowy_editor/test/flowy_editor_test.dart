@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:flowy_editor/document/node.dart';
-import 'package:flowy_editor/document/state_tree.dart';
-import 'package:flowy_editor/document/path.dart';
-import 'package:flowy_editor/document/position.dart';
-import 'package:flowy_editor/document/selection.dart';
+import 'package:flowy_editor/src/document/node.dart';
+import 'package:flowy_editor/src/document/state_tree.dart';
+import 'package:flowy_editor/src/document/path.dart';
+import 'package:flowy_editor/src/document/position.dart';
+import 'package:flowy_editor/src/document/selection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -1,11 +1,11 @@
 import 'dart:collection';
 
-import 'package:flowy_editor/document/node.dart';
+import 'package:flowy_editor/src/document/node.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flowy_editor/operation/operation.dart';
-import 'package:flowy_editor/operation/transaction_builder.dart';
-import 'package:flowy_editor/editor_state.dart';
-import 'package:flowy_editor/document/state_tree.dart';
+import 'package:flowy_editor/src/operation/operation.dart';
+import 'package:flowy_editor/src/operation/transaction_builder.dart';
+import 'package:flowy_editor/src/document/editor_state.dart';
+import 'package:flowy_editor/src/document/state_tree.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
