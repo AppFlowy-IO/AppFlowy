@@ -15,6 +15,7 @@ class HomeLayout {
   late double editPanelWidth;
   late double homePageLOffset;
   late double homePageROffset;
+  late double menuSpacing;
   late Duration animDuration;
 
   HomeLayout(BuildContext context, BoxConstraints homeScreenConstraint,
@@ -37,6 +38,7 @@ class HomeLayout {
     }
 
     homePageLOffset = showMenu ? menuWidth : 0.0;
+    menuSpacing = showMenu ? 0 : 80.0;
     animDuration = .35.seconds;
 
     editPanelWidth = HomeSizes.editPanelWidth;

@@ -17,11 +17,14 @@ import 'package:app_flowy/core/frameless_window.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_infra_ui/style_widget/extension.dart';
 import 'package:flowy_infra/notifier.dart';
+import 'home_layout.dart';
 
 typedef NavigationCallback = void Function(String id);
 
 class HomeStack extends StatelessWidget {
-  const HomeStack({Key? key}) : super(key: key);
+  const HomeStack({Key? key, required this.layout}) : super(key: key);
+
+  final HomeLayout layout;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,7 @@ class HomeStack extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        getIt<HomeStackManager>().stackTopBar(),
+        getIt<HomeStackManager>().stackTopBar(layout: layout),
         Expanded(
           child: Container(
             color: theme.surface,
@@ -143,7 +146,7 @@ class HomeStackManager {
 
   void setStackWithId(String id) {}
 
-  Widget stackTopBar() {
+  Widget stackTopBar({required HomeLayout layout}) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _notifier),
@@ -151,7 +154,7 @@ class HomeStackManager {
       child: Selector<HomeStackNotifier, Widget>(
         selector: (context, notifier) => notifier.titleWidget,
         builder: (context, widget, child) {
-          return const MoveWindowDetector(child: HomeTopBar());
+          return MoveWindowDetector(child: HomeTopBar(layout: layout));
         },
       ),
     );
@@ -181,7 +184,9 @@ class HomeStackManager {
 }
 
 class HomeTopBar extends StatelessWidget {
-  const HomeTopBar({Key? key}) : super(key: key);
+  const HomeTopBar({Key? key, required this.layout}) : super(key: key);
+
+  final HomeLayout layout;
 
   @override
   Widget build(BuildContext context) {
@@ -192,15 +197,7 @@ class HomeTopBar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          BlocBuilder<HomeBloc, HomeState>(
-              buildWhen: ((previous, current) =>
-                  previous.isMenuCollapsed != current.isMenuCollapsed),
-              builder: (context, state) {
-                if (state.isMenuCollapsed && Platform.isMacOS) {
-                  return const HSpace(80);
-                }
-                return const HSpace(0);
-              }),
+          HSpace(layout.menuSpacing),
           const FlowyNavigation(),
           const HSpace(16),
           ChangeNotifierProvider.value(
