@@ -457,6 +457,7 @@ mod tests {
         AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision,
     };
     use lib_ot::core::{OperationTransform, TextDelta, TextDeltaBuilder};
+    use serde_json::json;
 
     #[test]
     fn folder_add_workspace() {
@@ -846,6 +847,10 @@ mod tests {
 
         let json1 = old.to_json().unwrap();
         let json2 = new.to_json().unwrap();
+
+        // format the json str
+        let folder_rev: FolderRevision = serde_json::from_str(expected).unwrap();
+        let expected = serde_json::to_string(&folder_rev).unwrap();
 
         assert_eq!(json1, expected);
         assert_eq!(json1, json2);
