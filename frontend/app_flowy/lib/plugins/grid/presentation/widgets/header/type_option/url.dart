@@ -1,9 +1,9 @@
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'builder.dart';
 
-typedef URLTypeOptionContext = TypeOptionWidgetContext<URLTypeOption>;
+typedef URLTypeOptionContext = TypeOptionContext<URLTypeOption>;
 
 class URLTypeOptionWidgetDataParser
     extends TypeOptionDataParser<URLTypeOption> {

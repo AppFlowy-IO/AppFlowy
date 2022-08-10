@@ -1,14 +1,14 @@
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/format.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
+import 'type_option_data_controller.dart';
 
 part 'number_bloc.freezed.dart';
 
-typedef NumberTypeOptionContext = TypeOptionWidgetContext<NumberTypeOption>;
+typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOption>;
 
 class NumberTypeOptionWidgetDataParser
     extends TypeOptionDataParser<NumberTypeOption> {

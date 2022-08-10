@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -101,31 +102,33 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void _buildColumns(UnmodifiableListView<GridFieldPB> fields) {
-    List<BoardColumnData> columns = [];
-
     for (final field in fields) {
       if (field.fieldType == FieldType.SingleSelect) {
-        //  return BoardColumnData(customData: field, id: field.id, desc: "1");
+        _buildColumnsFromSingleSelect(field);
       }
     }
+  }
 
-    boardDataController.addColumns(columns);
+  void _buildColumnsFromSingleSelect(GridFieldPB field) {
+    final typeOptionContext = makeTypeOptionContext<SingleSelectTypeOptionPB>(
+      gridId: _gridDataController.gridId,
+      field: field,
+    );
 
-    // final column1 = BoardColumnData(id: "To Do", items: [
-    //   TextItem("Card 1"),
-    //   TextItem("Card 2"),
-    //   RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
-    //   TextItem("Card 4"),
-    // ]);
-    // final column2 = BoardColumnData(id: "In Progress", items: [
-    //   RichTextItem(title: "Card 5", subtitle: 'Aug 1, 2020 4:05 PM'),
-    //   TextItem("Card 6"),
-    // ]);
+    typeOptionContext.loadTypeOptionData(
+      onCompleted: (singleSelect) {
+        List<BoardColumnData> columns = singleSelect.options.map((option) {
+          return BoardColumnData(
+            id: option.id,
+            desc: option.name,
+            customData: option,
+          );
+        }).toList();
 
-    // final column3 = BoardColumnData(id: "Done", items: []);
-    // boardDataController.addColumn(column1);
-    // boardDataController.addColumn(column2);
-    // boardDataController.addColumn(column3);
+        boardDataController.addColumns(columns);
+      },
+      onError: (err) {},
+    );
   }
 
   Future<void> _loadGrid(Emitter<BoardState> emit) async {

@@ -3,7 +3,6 @@
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../application/board_bloc.dart';

@@ -1,9 +1,9 @@
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'builder.dart';
 
-typedef RichTextTypeOptionContext = TypeOptionWidgetContext<RichTextTypeOption>;
+typedef RichTextTypeOptionContext = TypeOptionContext<RichTextTypeOption>;
 
 class RichTextTypeOptionWidgetDataParser
     extends TypeOptionDataParser<RichTextTypeOption> {

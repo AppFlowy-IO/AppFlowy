@@ -1,21 +1,21 @@
-import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/multi_select_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'dart:async';
-import 'package:protobuf/protobuf.dart';
 import 'select_option_type_option_bloc.dart';
+import 'type_option_data_controller.dart';
 import 'type_option_service.dart';
+import 'package:protobuf/protobuf.dart';
 
 class MultiSelectTypeOptionContext
-    extends TypeOptionWidgetContext<MultiSelectTypeOption>
+    extends TypeOptionContext<MultiSelectTypeOption>
     with SelectOptionTypeOptionAction {
-  final TypeOptionService service;
+  final TypeOptionFFIService service;
 
   MultiSelectTypeOptionContext({
     required MultiSelectTypeOptionWidgetDataParser dataParser,
     required TypeOptionDataController dataController,
-  })  : service = TypeOptionService(
+  })  : service = TypeOptionFFIService(
           gridId: dataController.gridId,
           fieldId: dataController.field.id,
         ),
@@ -59,7 +59,7 @@ class MultiSelectTypeOptionContext
   }
 
   @override
-  List<SelectOptionPB> Function(SelectOptionPB) get udpateOption {
+  List<SelectOptionPB> Function(SelectOptionPB) get updateOption {
     return (SelectOptionPB option) {
       typeOption.freeze();
       typeOption = typeOption.rebuild((typeOption) {
