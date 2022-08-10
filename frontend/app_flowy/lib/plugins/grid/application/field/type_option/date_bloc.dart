@@ -5,15 +5,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 
-import 'type_option_data_controller.dart';
+import 'type_option_context.dart';
 part 'date_bloc.freezed.dart';
-
-class DateTypeOptionDataParser extends TypeOptionDataParser<DateTypeOption> {
-  @override
-  DateTypeOption fromBuffer(List<int> buffer) {
-    return DateTypeOption.fromBuffer(buffer);
-  }
-}
 
 class DateTypeOptionBloc
     extends Bloc<DateTypeOptionEvent, DateTypeOptionState> {

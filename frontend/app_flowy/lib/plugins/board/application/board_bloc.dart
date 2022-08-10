@@ -56,6 +56,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
+          groupByField: (GridFieldPB field) {
+            emit(state.copyWith(groupField: Some(field)));
+          },
         );
       },
     );
@@ -97,11 +100,16 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void _buildColumns(UnmodifiableListView<GridFieldPB> fields) {
+    GridFieldPB? groupField;
     for (final field in fields) {
       if (field.fieldType == FieldType.SingleSelect) {
+        groupField = field;
         _buildColumnsFromSingleSelect(field);
       }
     }
+
+    assert(groupField != null);
+    add(BoardEvent.groupByField(groupField!));
   }
 
   void _buildColumnsFromSingleSelect(GridFieldPB field) {

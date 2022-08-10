@@ -4,17 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
-import 'type_option_data_controller.dart';
+import 'type_option_context.dart';
 
 part 'number_bloc.freezed.dart';
-
-class NumberTypeOptionWidgetDataParser
-    extends TypeOptionDataParser<NumberTypeOption> {
-  @override
-  NumberTypeOption fromBuffer(List<int> buffer) {
-    return NumberTypeOption.fromBuffer(buffer);
-  }
-}
 
 class NumberTypeOptionBloc
     extends Bloc<NumberTypeOptionEvent, NumberTypeOptionState> {

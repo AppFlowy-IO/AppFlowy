@@ -2,8 +2,10 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
-import 'type_option/type_option_data_controller.dart';
+import 'type_option/type_option_context.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'type_option/type_option_data_controller.dart';
 
 part 'field_editor_bloc.freezed.dart';
 

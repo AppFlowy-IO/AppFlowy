@@ -3,6 +3,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/multi_select_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'dart:async';
 import 'select_option_type_option_bloc.dart';
+import 'type_option_context.dart';
 import 'type_option_data_controller.dart';
 import 'type_option_service.dart';
 import 'package:protobuf/protobuf.dart';
@@ -70,13 +71,5 @@ class MultiSelectTypeOptionContext
       });
       return typeOption.options;
     };
-  }
-}
-
-class MultiSelectTypeOptionWidgetDataParser
-    extends TypeOptionDataParser<MultiSelectTypeOption> {
-  @override
-  MultiSelectTypeOption fromBuffer(List<int> buffer) {
-    return MultiSelectTypeOption.fromBuffer(buffer);
   }
 }
