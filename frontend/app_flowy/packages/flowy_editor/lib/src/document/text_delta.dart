@@ -259,6 +259,7 @@ TextOperation? _textOperationFromJson(Map<String, dynamic> json) {
 // basically copy from: https://github.com/quilljs/delta
 class Delta extends Iterable<TextOperation> {
   final List<TextOperation> _operations;
+  String? _rawString;
 
   factory Delta.fromJson(List<dynamic> list) {
     final operations = <TextOperation>[];
@@ -284,6 +285,7 @@ class Delta extends Iterable<TextOperation> {
     if (textOp.isEmpty) {
       return this;
     }
+    _rawString = null;
 
     if (_operations.isNotEmpty) {
       final lastOp = _operations.last;
@@ -431,6 +433,7 @@ class Delta extends Iterable<TextOperation> {
     if (_operations.isEmpty) {
       return this;
     }
+    _rawString = null;
     final lastOp = _operations.last;
     if (lastOp is TextRetain && (lastOp.attributes?.length ?? 0) == 0) {
       _operations.removeLast();
@@ -481,9 +484,11 @@ class Delta extends Iterable<TextOperation> {
     return _operations.map((e) => e.toJson()).toList();
   }
 
-  // TODO: It's unneccesry to compute everytime.
-  String toRawString() =>
-      _operations.whereType<TextInsert>().map((op) => op.content).join();
+  String toRawString() {
+    _rawString ??=
+        _operations.whereType<TextInsert>().map((op) => op.content).join();
+    return _rawString!;
+  }
 
   @override
   Iterator<TextOperation> get iterator => _operations.iterator;
