@@ -42,18 +42,28 @@ class ViewSectionItem extends StatelessWidget {
       ],
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: InkWell(
-              onTap: () => onSelected(context.read<ViewBloc>().state.view),
-              child: FlowyHover(
-                style: HoverStyle(hoverColor: theme.bg3),
-                builder: (_, onHover) =>
-                    _render(context, onHover, state, theme.iconColor),
-                setSelected: () => state.isEditing || isSelected,
-              ),
-            ),
-          );
+          return ViewDisclosureRegion(
+              onTap: () => context
+                  .read<ViewBloc>()
+                  .add(const ViewEvent.setIsEditing(true)),
+              onSelected: (action) {
+                context
+                    .read<ViewBloc>()
+                    .add(const ViewEvent.setIsEditing(false));
+                _handleAction(context, action);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: InkWell(
+                  onTap: () => onSelected(context.read<ViewBloc>().state.view),
+                  child: FlowyHover(
+                    style: HoverStyle(hoverColor: theme.bg3),
+                    builder: (_, onHover) =>
+                        _render(context, onHover, state, theme.iconColor),
+                    setSelected: () => state.isEditing || isSelected,
+                  ),
+                ),
+              ));
         },
       ),
     );
@@ -85,20 +95,13 @@ class ViewSectionItem extends StatelessWidget {
       );
     }
 
-    return ViewDisclosureRegion(
-        onTap: () =>
-            context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),
-        onSelected: (action) {
-          context.read<ViewBloc>().add(const ViewEvent.setIsEditing(false));
-          _handleAction(context, action);
-        },
-        child: SizedBox(
-          height: 26,
-          child: Row(children: children).padding(
-            left: MenuAppSizes.expandedPadding,
-            right: MenuAppSizes.headerPadding,
-          ),
-        ));
+    return SizedBox(
+      height: 26,
+      child: Row(children: children).padding(
+        left: MenuAppSizes.expandedPadding,
+        right: MenuAppSizes.headerPadding,
+      ),
+    );
   }
 
   void _handleAction(
