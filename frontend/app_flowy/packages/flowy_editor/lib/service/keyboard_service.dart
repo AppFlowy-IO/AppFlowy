@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../editor_state.dart';
-import 'package:flutter/material.dart';
+import 'package:flowy_editor/editor_state.dart';
+import 'package:flowy_editor/service/default_key_event_handlers.dart';
 
 mixin FlowyKeyboardService<T extends StatefulWidget> on State<T> {
   void enable();
@@ -15,16 +16,18 @@ typedef FlowyKeyEventHandler = KeyEventResult Function(
 
 /// Process keyboard events
 class FlowyKeyboard extends StatefulWidget {
-  const FlowyKeyboard({
+  FlowyKeyboard({
     Key? key,
-    required this.handlers,
+    List<FlowyKeyEventHandler> handlers = const [],
     required this.editorState,
     required this.child,
-  }) : super(key: key);
+  }) : super(key: key) {
+    this.handlers.addAll(handlers);
+  }
 
   final EditorState editorState;
   final Widget child;
-  final List<FlowyKeyEventHandler> handlers;
+  final List<FlowyKeyEventHandler> handlers = defaultKeyEventHandlers;
 
   @override
   State<FlowyKeyboard> createState() => _FlowyKeyboardState();
