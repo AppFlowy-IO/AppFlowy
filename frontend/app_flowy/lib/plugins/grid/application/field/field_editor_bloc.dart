@@ -13,7 +13,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
     required String gridId,
     required String fieldName,
     required IFieldTypeOptionLoader loader,
-  })  : dataController = TypeOptionDataController(gridId: gridId, loader: loader),
+  })  : dataController =
+            TypeOptionDataController(gridId: gridId, loader: loader),
         super(FieldEditorState.initial(gridId, fieldName)) {
     on<FieldEditorEvent>(
       (event, emit) async {
@@ -24,7 +25,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
                 add(FieldEditorEvent.didReceiveFieldChanged(field));
               }
             });
-            await dataController.loadData();
+            await dataController.loadTypeOptionData();
           },
           updateName: (name) {
             dataController.fieldName = name;
@@ -48,7 +49,8 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
   const factory FieldEditorEvent.updateName(String name) = _UpdateName;
-  const factory FieldEditorEvent.didReceiveFieldChanged(GridFieldPB field) = _DidReceiveFieldChanged;
+  const factory FieldEditorEvent.didReceiveFieldChanged(GridFieldPB field) =
+      _DidReceiveFieldChanged;
 }
 
 @freezed

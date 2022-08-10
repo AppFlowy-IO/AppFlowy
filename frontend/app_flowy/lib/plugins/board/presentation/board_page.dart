@@ -3,19 +3,20 @@
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../application/board_bloc.dart';
 
-class BoardPage2 extends StatelessWidget {
+class BoardPage extends StatelessWidget {
   final ViewPB view;
-  const BoardPage2({required this.view, Key? key}) : super(key: key);
+  const BoardPage({required this.view, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => BoardBloc(view: view),
+      create: (context) =>
+          BoardBloc(view: view)..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
         builder: (context, state) {
           return state.loadingState.map(
@@ -23,7 +24,7 @@ class BoardPage2 extends StatelessWidget {
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) {
               return result.successOrFail.fold(
-                (_) => const BoardContent(),
+                (_) => BoardContent(),
                 (err) => FlowyErrorPage(err.toString()),
               );
             },
@@ -35,100 +36,58 @@ class BoardPage2 extends StatelessWidget {
 }
 
 class BoardContent extends StatelessWidget {
-  const BoardContent({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-
-class BoardPage extends StatefulWidget {
-  final ViewPB _view;
-
-  const BoardPage({required ViewPB view, Key? key})
-      : _view = view,
-        super(key: key);
-
-  @override
-  State<BoardPage> createState() => _BoardPageState();
-}
-
-class _BoardPageState extends State<BoardPage> {
-  final BoardDataController boardDataController = BoardDataController(
-    onMoveColumn: (fromIndex, toIndex) {
-      debugPrint('Move column from $fromIndex to $toIndex');
-    },
-    onMoveColumnItem: (columnId, fromIndex, toIndex) {
-      debugPrint('Move $columnId:$fromIndex to $columnId:$toIndex');
-    },
-    onMoveColumnItemToColumn: (fromColumnId, fromIndex, toColumnId, toIndex) {
-      debugPrint('Move $fromColumnId:$fromIndex to $toColumnId:$toIndex');
-    },
+  final config = BoardConfig(
+    columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
   );
 
-  @override
-  void initState() {
-    final column1 = BoardColumnData(id: "To Do", items: [
-      TextItem("Card 1"),
-      TextItem("Card 2"),
-      RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
-      TextItem("Card 4"),
-    ]);
-    final column2 = BoardColumnData(id: "In Progress", items: [
-      RichTextItem(title: "Card 5", subtitle: 'Aug 1, 2020 4:05 PM'),
-      TextItem("Card 6"),
-    ]);
-
-    final column3 = BoardColumnData(id: "Done", items: []);
-
-    boardDataController.addColumn(column1);
-    boardDataController.addColumn(column2);
-    boardDataController.addColumn(column3);
-    super.initState();
-  }
+  BoardContent({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final config = BoardConfig(
-      columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
-    );
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-        child: Board(
-          dataController: boardDataController,
-          footBuilder: (context, columnData) {
-            return AppFlowyColumnFooter(
-              icon: const Icon(Icons.add, size: 20),
-              title: const Text('New'),
-              height: 50,
-              margin: config.columnItemPadding,
-            );
-          },
-          headerBuilder: (context, columnData) {
-            return AppFlowyColumnHeader(
-              icon: const Icon(Icons.lightbulb_circle),
-              title: Text(columnData.id),
-              addIcon: const Icon(Icons.add, size: 20),
-              moreIcon: const Icon(Icons.more_horiz, size: 20),
-              height: 50,
-              margin: config.columnItemPadding,
-            );
-          },
-          cardBuilder: (context, item) {
-            return AppFlowyColumnItemCard(
-              key: ObjectKey(item),
-              child: _buildCard(item),
-            );
-          },
-          columnConstraints: const BoxConstraints.tightFor(width: 240),
-          config: BoardConfig(
-            columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+    return BlocBuilder<BoardBloc, BoardState>(
+      builder: (context, state) {
+        return Container(
+          color: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+            child: Board(
+              dataController: context.read<BoardBloc>().boardDataController,
+              headerBuilder: _buildHeader,
+              footBuilder: _buildFooter,
+              cardBuilder: (context, item) {
+                return AppFlowyColumnItemCard(
+                  key: ObjectKey(item),
+                  child: _buildCard(item),
+                );
+              },
+              columnConstraints: const BoxConstraints.tightFor(width: 240),
+              config: BoardConfig(
+                columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, BoardColumnData columnData) {
+    return AppFlowyColumnHeader(
+      icon: const Icon(Icons.lightbulb_circle),
+      title: Text(columnData.desc),
+      addIcon: const Icon(Icons.add, size: 20),
+      moreIcon: const Icon(Icons.more_horiz, size: 20),
+      height: 50,
+      margin: config.columnItemPadding,
+    );
+  }
+
+  Widget _buildFooter(BuildContext context, BoardColumnData columnData) {
+    return AppFlowyColumnFooter(
+      icon: const Icon(Icons.add, size: 20),
+      title: const Text('New'),
+      height: 50,
+      margin: config.columnItemPadding,
     );
   }
 
@@ -169,25 +128,6 @@ class _BoardPageState extends State<BoardPage> {
 
     throw UnimplementedError();
   }
-}
-
-class TextItem extends ColumnItem {
-  final String s;
-
-  TextItem(this.s);
-
-  @override
-  String get id => s;
-}
-
-class RichTextItem extends ColumnItem {
-  final String title;
-  final String subtitle;
-
-  RichTextItem({required this.title, required this.subtitle});
-
-  @override
-  String get id => title;
 }
 
 extension HexColor on Color {

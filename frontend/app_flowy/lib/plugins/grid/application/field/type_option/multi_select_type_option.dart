@@ -13,13 +13,13 @@ class MultiSelectTypeOptionContext
   final TypeOptionService service;
 
   MultiSelectTypeOptionContext({
-    required MultiSelectTypeOptionWidgetDataParser dataBuilder,
+    required MultiSelectTypeOptionWidgetDataParser dataParser,
     required TypeOptionDataController dataController,
   })  : service = TypeOptionService(
           gridId: dataController.gridId,
           fieldId: dataController.field.id,
         ),
-        super(dataParser: dataBuilder, dataController: dataController);
+        super(dataParser: dataParser, dataController: dataController);
 
   @override
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {

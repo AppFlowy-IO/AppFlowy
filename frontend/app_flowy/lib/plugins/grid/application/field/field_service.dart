@@ -146,7 +146,8 @@ abstract class IFieldTypeOptionLoader {
   String get gridId;
   Future<Either<FieldTypeOptionDataPB, FlowyError>> load();
 
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> switchToField(String fieldId, FieldType fieldType) {
+  Future<Either<FieldTypeOptionDataPB, FlowyError>> switchToField(
+      String fieldId, FieldType fieldType) {
     final payload = EditFieldPayloadPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
@@ -206,7 +207,7 @@ class TypeOptionDataController {
     required IFieldTypeOptionLoader loader,
   }) : _loader = loader;
 
-  Future<Either<Unit, FlowyError>> loadData() async {
+  Future<Either<Unit, FlowyError>> loadTypeOptionData() async {
     final result = await _loader.load();
     return result.fold(
       (data) {
@@ -238,7 +239,8 @@ class TypeOptionDataController {
     _updateData(newTypeOptionData: typeOptionData);
   }
 
-  void _updateData({String? newName, GridFieldPB? newField, List<int>? newTypeOptionData}) {
+  void _updateData(
+      {String? newName, GridFieldPB? newField, List<int>? newTypeOptionData}) {
     _data = _data.rebuild((rebuildData) {
       if (newName != null) {
         rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {

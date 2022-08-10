@@ -56,25 +56,26 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
 
   /// Move the item from [fromIndex] to [toIndex]. It will do nothing if the
   /// [fromIndex] equal to the [toIndex].
-  void move(int fromIndex, int toIndex) {
+  bool move(int fromIndex, int toIndex) {
     assert(fromIndex >= 0);
     assert(toIndex >= 0);
 
     if (fromIndex == toIndex) {
-      return;
+      return false;
     }
     Log.debug(
         '[$BoardColumnDataController] $columnData move item from $fromIndex to $toIndex');
     final item = columnData._items.removeAt(fromIndex);
     columnData._items.insert(toIndex, item);
     notifyListeners();
+    return true;
   }
 
   /// Insert an item to [index] and notify the listen if the value of [notify]
   /// is true.
   ///
   /// The default value of [notify] is true.
-  void insert(int index, ColumnItem item, {bool notify = true}) {
+  bool insert(int index, ColumnItem item, {bool notify = true}) {
     assert(index >= 0);
     Log.debug(
         '[$BoardColumnDataController] $columnData insert $item at $index');
@@ -85,9 +86,14 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
       columnData._items.add(item);
     }
 
-    if (notify) {
-      notifyListeners();
-    }
+    if (notify) notifyListeners();
+    return true;
+  }
+
+  bool add(ColumnItem item, {bool notify = true}) {
+    columnData._items.add(item);
+    if (notify) notifyListeners();
+    return true;
   }
 
   /// Replace the item at index with the [newItem].
@@ -107,14 +113,18 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
 }
 
 /// [BoardColumnData] represents the data of each Column of the Board.
-class BoardColumnData extends ReoderFlexItem with EquatableMixin {
+class BoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
   @override
   final String id;
+  final String desc;
   final List<ColumnItem> _items;
+  final CustomData? customData;
 
   BoardColumnData({
+    this.customData,
     required this.id,
-    required List<ColumnItem> items,
+    this.desc = "",
+    List<ColumnItem> items = const [],
   }) : _items = items;
 
   /// Returns the readonly List<ColumnItem>

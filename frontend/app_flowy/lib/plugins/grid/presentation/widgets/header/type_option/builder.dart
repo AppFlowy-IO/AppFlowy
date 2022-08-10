@@ -65,7 +65,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
       );
     case FieldType.SingleSelect:
       final context = SingleSelectTypeOptionContext(
-        fieldContext: dataController,
+        dataController: dataController,
         dataBuilder: SingleSelectTypeOptionWidgetDataParser(),
       );
       return SingleSelectTypeOptionWidgetBuilder(
@@ -75,7 +75,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
     case FieldType.MultiSelect:
       final context = MultiSelectTypeOptionContext(
         dataController: dataController,
-        dataBuilder: MultiSelectTypeOptionWidgetDataParser(),
+        dataParser: MultiSelectTypeOptionWidgetDataParser(),
       );
       return MultiSelectTypeOptionWidgetBuilder(
         context,
