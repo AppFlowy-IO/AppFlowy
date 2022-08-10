@@ -6,7 +6,7 @@ use flowy_revision::{
 };
 use flowy_sync::util::make_delta_from_revisions;
 use flowy_sync::{
-    client_folder::{FolderChange, FolderPad},
+    client_folder::{FolderChangeset, FolderPad},
     entities::{revision::Revision, ws_data::ServerRevisionWSData},
 };
 use lib_infra::future::FutureResult;
@@ -77,8 +77,8 @@ impl FolderEditor {
         Ok(())
     }
 
-    pub(crate) fn apply_change(&self, change: FolderChange) -> FlowyResult<()> {
-        let FolderChange { delta, md5 } = change;
+    pub(crate) fn apply_change(&self, change: FolderChangeset) -> FlowyResult<()> {
+        let FolderChangeset { delta, md5 } = change;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
         let revision = Revision::new(

@@ -8,26 +8,33 @@ use crate::{
     },
     errors::{CollaborateError, CollaborateResult},
 };
-use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use flowy_folder_data_model::revision::{AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_infra::util::move_vec_element;
 use lib_ot::core::*;
-use serde::{Deserialize, Serialize};
+
 use std::sync::Arc;
 
-#[derive(Debug, Deserialize, Serialize, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FolderPad {
-    pub(crate) workspaces: Vec<Arc<WorkspaceRevision>>,
-    pub(crate) trash: Vec<Arc<TrashRevision>>,
-    #[serde(skip)]
-    pub(crate) delta: FolderDelta,
+    folder_rev: FolderRevision,
+    delta: FolderDelta,
 }
 
 impl FolderPad {
     pub fn new(workspaces: Vec<WorkspaceRevision>, trash: Vec<TrashRevision>) -> CollaborateResult<Self> {
-        FolderPadBuilder::new()
-            .with_workspace(workspaces)
-            .with_trash(trash)
-            .build()
+        let folder_rev = FolderRevision {
+            workspaces: workspaces.into_iter().map(Arc::new).collect(),
+            trash: trash.into_iter().map(Arc::new).collect(),
+        };
+        Self::from_folder_rev(folder_rev)
+    }
+
+    pub fn from_folder_rev(folder_rev: FolderRevision) -> CollaborateResult<Self> {
+        let json = serde_json::to_string(&folder_rev)
+            .map_err(|e| CollaborateError::internal().context(format!("Serialize to folder json str failed: {}", e)))?;
+        let delta = TextDeltaBuilder::new().insert(&json).build();
+
+        Ok(Self { folder_rev, delta })
     }
 
     pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
@@ -35,7 +42,14 @@ impl FolderPad {
     }
 
     pub fn from_delta(delta: FolderDelta) -> CollaborateResult<Self> {
-        FolderPadBuilder::new().build_with_delta(delta)
+        // TODO: Reconvert from history if delta.to_str() failed.
+        let content = delta.content()?;
+        let folder_rev: FolderRevision = serde_json::from_str(&content).map_err(|e| {
+            tracing::error!("Deserialize folder from {} failed", content);
+            return CollaborateError::internal().context(format!("Deserialize delta to folder failed: {}", e));
+        })?;
+
+        Ok(Self { folder_rev, delta })
     }
 
     pub fn delta(&self) -> &FolderDelta {
@@ -44,8 +58,7 @@ impl FolderPad {
 
     pub fn reset_folder(&mut self, delta: FolderDelta) -> CollaborateResult<String> {
         let folder = FolderPad::from_delta(delta)?;
-        self.workspaces = folder.workspaces;
-        self.trash = folder.trash;
+        self.folder_rev = folder.folder_rev;
         self.delta = folder.delta;
 
         Ok(self.md5())
@@ -57,13 +70,13 @@ impl FolderPad {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.workspaces.is_empty() && self.trash.is_empty()
+        self.folder_rev.workspaces.is_empty() && self.folder_rev.trash.is_empty()
     }
 
     #[tracing::instrument(level = "trace", skip(self, workspace_rev), fields(workspace_name=%workspace_rev.name), err)]
-    pub fn create_workspace(&mut self, workspace_rev: WorkspaceRevision) -> CollaborateResult<Option<FolderChange>> {
+    pub fn create_workspace(&mut self, workspace_rev: WorkspaceRevision) -> CollaborateResult<Option<FolderChangeset>> {
         let workspace = Arc::new(workspace_rev);
-        if self.workspaces.contains(&workspace) {
+        if self.folder_rev.workspaces.contains(&workspace) {
             tracing::warn!("[RootFolder]: Duplicate workspace");
             return Ok(None);
         }
@@ -79,7 +92,7 @@ impl FolderPad {
         workspace_id: &str,
         name: Option<String>,
         desc: Option<String>,
-    ) -> CollaborateResult<Option<FolderChange>> {
+    ) -> CollaborateResult<Option<FolderChangeset>> {
         self.with_workspace(workspace_id, |workspace| {
             if let Some(name) = name {
                 workspace.name = name;
@@ -96,6 +109,7 @@ impl FolderPad {
         match workspace_id {
             None => {
                 let workspaces = self
+                    .folder_rev
                     .workspaces
                     .iter()
                     .map(|workspace| workspace.as_ref().clone())
@@ -103,7 +117,12 @@ impl FolderPad {
                 Ok(workspaces)
             }
             Some(workspace_id) => {
-                if let Some(workspace) = self.workspaces.iter().find(|workspace| workspace.id == workspace_id) {
+                if let Some(workspace) = self
+                    .folder_rev
+                    .workspaces
+                    .iter()
+                    .find(|workspace| workspace.id == workspace_id)
+                {
                     Ok(vec![workspace.as_ref().clone()])
                 } else {
                     Err(CollaborateError::record_not_found()
@@ -114,7 +133,7 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub fn delete_workspace(&mut self, workspace_id: &str) -> CollaborateResult<Option<FolderChange>> {
+    pub fn delete_workspace(&mut self, workspace_id: &str) -> CollaborateResult<Option<FolderChangeset>> {
         self.modify_workspaces(|workspaces| {
             workspaces.retain(|w| w.id != workspace_id);
             Ok(Some(()))
@@ -122,7 +141,7 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), fields(app_name=%app_rev.name), err)]
-    pub fn create_app(&mut self, app_rev: AppRevision) -> CollaborateResult<Option<FolderChange>> {
+    pub fn create_app(&mut self, app_rev: AppRevision) -> CollaborateResult<Option<FolderChangeset>> {
         let workspace_id = app_rev.workspace_id.clone();
         self.with_workspace(&workspace_id, move |workspace| {
             if workspace.apps.contains(&app_rev) {
@@ -135,7 +154,7 @@ impl FolderPad {
     }
 
     pub fn read_app(&self, app_id: &str) -> CollaborateResult<AppRevision> {
-        for workspace in &self.workspaces {
+        for workspace in &self.folder_rev.workspaces {
             if let Some(app) = workspace.apps.iter().find(|app| app.id == app_id) {
                 return Ok(app.clone());
             }
@@ -148,7 +167,7 @@ impl FolderPad {
         app_id: &str,
         name: Option<String>,
         desc: Option<String>,
-    ) -> CollaborateResult<Option<FolderChange>> {
+    ) -> CollaborateResult<Option<FolderChangeset>> {
         self.with_app(app_id, move |app| {
             if let Some(name) = name {
                 app.name = name;
@@ -162,7 +181,7 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub fn delete_app(&mut self, app_id: &str) -> CollaborateResult<Option<FolderChange>> {
+    pub fn delete_app(&mut self, app_id: &str) -> CollaborateResult<Option<FolderChangeset>> {
         let app = self.read_app(app_id)?;
         self.with_workspace(&app.workspace_id, |workspace| {
             workspace.apps.retain(|app| app.id != app_id);
@@ -171,7 +190,7 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub fn move_app(&mut self, app_id: &str, from: usize, to: usize) -> CollaborateResult<Option<FolderChange>> {
+    pub fn move_app(&mut self, app_id: &str, from: usize, to: usize) -> CollaborateResult<Option<FolderChangeset>> {
         let app = self.read_app(app_id)?;
         self.with_workspace(&app.workspace_id, |workspace| {
             match move_vec_element(&mut workspace.apps, |app| app.id == app_id, from, to).map_err(internal_error)? {
@@ -182,7 +201,7 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), fields(view_name=%view_rev.name), err)]
-    pub fn create_view(&mut self, view_rev: ViewRevision) -> CollaborateResult<Option<FolderChange>> {
+    pub fn create_view(&mut self, view_rev: ViewRevision) -> CollaborateResult<Option<FolderChangeset>> {
         let app_id = view_rev.belong_to_id.clone();
         self.with_app(&app_id, move |app| {
             if app.belongings.contains(&view_rev) {
@@ -195,7 +214,7 @@ impl FolderPad {
     }
 
     pub fn read_view(&self, view_id: &str) -> CollaborateResult<ViewRevision> {
-        for workspace in &self.workspaces {
+        for workspace in &self.folder_rev.workspaces {
             for app in &(*workspace.apps) {
                 if let Some(view) = app.belongings.iter().find(|b| b.id == view_id) {
                     return Ok(view.clone());
@@ -206,7 +225,7 @@ impl FolderPad {
     }
 
     pub fn read_views(&self, belong_to_id: &str) -> CollaborateResult<Vec<ViewRevision>> {
-        for workspace in &self.workspaces {
+        for workspace in &self.folder_rev.workspaces {
             for app in &(*workspace.apps) {
                 if app.id == belong_to_id {
                     return Ok(app.belongings.to_vec());
@@ -222,7 +241,7 @@ impl FolderPad {
         name: Option<String>,
         desc: Option<String>,
         modified_time: i64,
-    ) -> CollaborateResult<Option<FolderChange>> {
+    ) -> CollaborateResult<Option<FolderChangeset>> {
         let view = self.read_view(view_id)?;
         self.with_view(&view.belong_to_id, view_id, |view| {
             if let Some(name) = name {
@@ -239,7 +258,7 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub fn delete_view(&mut self, view_id: &str) -> CollaborateResult<Option<FolderChange>> {
+    pub fn delete_view(&mut self, view_id: &str) -> CollaborateResult<Option<FolderChangeset>> {
         let view = self.read_view(view_id)?;
         self.with_app(&view.belong_to_id, |app| {
             app.belongings.retain(|view| view.id != view_id);
@@ -248,7 +267,7 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub fn move_view(&mut self, view_id: &str, from: usize, to: usize) -> CollaborateResult<Option<FolderChange>> {
+    pub fn move_view(&mut self, view_id: &str, from: usize, to: usize) -> CollaborateResult<Option<FolderChangeset>> {
         let view = self.read_view(view_id)?;
         self.with_app(&view.belong_to_id, |app| {
             match move_vec_element(&mut app.belongings, |view| view.id == view_id, from, to).map_err(internal_error)? {
@@ -258,7 +277,7 @@ impl FolderPad {
         })
     }
 
-    pub fn create_trash(&mut self, trash: Vec<TrashRevision>) -> CollaborateResult<Option<FolderChange>> {
+    pub fn create_trash(&mut self, trash: Vec<TrashRevision>) -> CollaborateResult<Option<FolderChangeset>> {
         self.with_trash(|t| {
             let mut new_trash = trash.into_iter().map(Arc::new).collect::<Vec<Arc<TrashRevision>>>();
             t.append(&mut new_trash);
@@ -270,18 +289,19 @@ impl FolderPad {
     pub fn read_trash(&self, trash_id: Option<String>) -> CollaborateResult<Vec<TrashRevision>> {
         match trash_id {
             None => Ok(self
+                .folder_rev
                 .trash
                 .iter()
                 .map(|t| t.as_ref().clone())
                 .collect::<Vec<TrashRevision>>()),
-            Some(trash_id) => match self.trash.iter().find(|t| t.id == trash_id) {
+            Some(trash_id) => match self.folder_rev.trash.iter().find(|t| t.id == trash_id) {
                 Some(trash) => Ok(vec![trash.as_ref().clone()]),
                 None => Ok(vec![]),
             },
         }
     }
 
-    pub fn delete_trash(&mut self, trash_ids: Option<Vec<String>>) -> CollaborateResult<Option<FolderChange>> {
+    pub fn delete_trash(&mut self, trash_ids: Option<Vec<String>>) -> CollaborateResult<Option<FolderChangeset>> {
         match trash_ids {
             None => self.with_trash(|trash| {
                 trash.clear();
@@ -299,18 +319,18 @@ impl FolderPad {
     }
 
     pub fn to_json(&self) -> CollaborateResult<String> {
-        serde_json::to_string(self)
+        serde_json::to_string(&self.folder_rev)
             .map_err(|e| CollaborateError::internal().context(format!("serial trash to json failed: {}", e)))
     }
 }
 
 impl FolderPad {
-    fn modify_workspaces<F>(&mut self, f: F) -> CollaborateResult<Option<FolderChange>>
+    fn modify_workspaces<F>(&mut self, f: F) -> CollaborateResult<Option<FolderChangeset>>
     where
         F: FnOnce(&mut Vec<Arc<WorkspaceRevision>>) -> CollaborateResult<Option<()>>,
     {
         let cloned_self = self.clone();
-        match f(&mut self.workspaces)? {
+        match f(&mut self.folder_rev.workspaces)? {
             None => Ok(None),
             Some(_) => {
                 let old = cloned_self.to_json()?;
@@ -319,14 +339,14 @@ impl FolderPad {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(FolderChange { delta, md5: self.md5() }))
+                        Ok(Some(FolderChangeset { delta, md5: self.md5() }))
                     }
                 }
             }
         }
     }
 
-    fn with_workspace<F>(&mut self, workspace_id: &str, f: F) -> CollaborateResult<Option<FolderChange>>
+    fn with_workspace<F>(&mut self, workspace_id: &str, f: F) -> CollaborateResult<Option<FolderChangeset>>
     where
         F: FnOnce(&mut WorkspaceRevision) -> CollaborateResult<Option<()>>,
     {
@@ -340,12 +360,12 @@ impl FolderPad {
         })
     }
 
-    fn with_trash<F>(&mut self, f: F) -> CollaborateResult<Option<FolderChange>>
+    fn with_trash<F>(&mut self, f: F) -> CollaborateResult<Option<FolderChangeset>>
     where
         F: FnOnce(&mut Vec<Arc<TrashRevision>>) -> CollaborateResult<Option<()>>,
     {
         let cloned_self = self.clone();
-        match f(&mut self.trash)? {
+        match f(&mut self.folder_rev.trash)? {
             None => Ok(None),
             Some(_) => {
                 let old = cloned_self.to_json()?;
@@ -354,18 +374,19 @@ impl FolderPad {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(FolderChange { delta, md5: self.md5() }))
+                        Ok(Some(FolderChangeset { delta, md5: self.md5() }))
                     }
                 }
             }
         }
     }
 
-    fn with_app<F>(&mut self, app_id: &str, f: F) -> CollaborateResult<Option<FolderChange>>
+    fn with_app<F>(&mut self, app_id: &str, f: F) -> CollaborateResult<Option<FolderChangeset>>
     where
         F: FnOnce(&mut AppRevision) -> CollaborateResult<Option<()>>,
     {
         let workspace_id = match self
+            .folder_rev
             .workspaces
             .iter()
             .find(|workspace| workspace.apps.iter().any(|app| app.id == app_id))
@@ -383,7 +404,7 @@ impl FolderPad {
         })
     }
 
-    fn with_view<F>(&mut self, belong_to_id: &str, view_id: &str, f: F) -> CollaborateResult<Option<FolderChange>>
+    fn with_view<F>(&mut self, belong_to_id: &str, view_id: &str, f: F) -> CollaborateResult<Option<FolderChangeset>>
     where
         F: FnOnce(&mut ViewRevision) -> CollaborateResult<Option<()>>,
     {
@@ -414,14 +435,13 @@ pub fn initial_folder_delta(folder_pad: &FolderPad) -> CollaborateResult<FolderD
 impl std::default::Default for FolderPad {
     fn default() -> Self {
         FolderPad {
-            workspaces: vec![],
-            trash: vec![],
+            folder_rev: FolderRevision::default(),
             delta: default_folder_delta(),
         }
     }
 }
 
-pub struct FolderChange {
+pub struct FolderChangeset {
     pub delta: FolderDelta,
     /// md5: the md5 of the FolderPad's delta after applying the change.
     pub md5: String,
@@ -433,7 +453,9 @@ mod tests {
     use crate::{client_folder::folder_pad::FolderPad, entities::folder::FolderDelta};
     use chrono::Utc;
 
-    use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+    use flowy_folder_data_model::revision::{
+        AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision,
+    };
     use lib_ot::core::{OperationTransform, TextDelta, TextDeltaBuilder};
 
     #[test]
@@ -747,13 +769,15 @@ mod tests {
     }
 
     fn test_folder() -> (FolderPad, FolderDelta, WorkspaceRevision) {
-        let mut folder = FolderPad::default();
-        let folder_json = serde_json::to_string(&folder).unwrap();
+        let folder_rev = FolderRevision::default();
+        let folder_json = serde_json::to_string(&folder_rev).unwrap();
         let mut delta = TextDeltaBuilder::new().insert(&folder_json).build();
 
         let mut workspace_rev = WorkspaceRevision::default();
         workspace_rev.name = "😁 my first workspace".to_owned();
         workspace_rev.id = "1".to_owned();
+
+        let mut folder = FolderPad::from_folder_rev(folder_rev).unwrap();
 
         delta = delta
             .compose(&folder.create_workspace(workspace_rev.clone()).unwrap().unwrap().delta)
@@ -763,16 +787,16 @@ mod tests {
     }
 
     fn test_app_folder() -> (FolderPad, FolderDelta, AppRevision) {
-        let (mut folder, mut initial_delta, workspace) = test_folder();
+        let (mut folder_rev, mut initial_delta, workspace) = test_folder();
         let mut app_rev = AppRevision::default();
         app_rev.workspace_id = workspace.id;
         app_rev.name = "😁 my first app".to_owned();
 
         initial_delta = initial_delta
-            .compose(&folder.create_app(app_rev.clone()).unwrap().unwrap().delta)
+            .compose(&folder_rev.create_app(app_rev.clone()).unwrap().unwrap().delta)
             .unwrap();
 
-        (folder, initial_delta, app_rev)
+        (folder_rev, initial_delta, app_rev)
     }
 
     fn test_view_folder() -> (FolderPad, FolderDelta, ViewRevision) {
@@ -789,14 +813,14 @@ mod tests {
     }
 
     fn test_trash() -> (FolderPad, FolderDelta, TrashRevision) {
-        let mut folder = FolderPad::default();
-        let folder_json = serde_json::to_string(&folder).unwrap();
+        let folder_rev = FolderRevision::default();
+        let folder_json = serde_json::to_string(&folder_rev).unwrap();
         let mut delta = TextDeltaBuilder::new().insert(&folder_json).build();
 
         let mut trash_rev = TrashRevision::default();
         trash_rev.name = "🚽 my first trash".to_owned();
         trash_rev.id = "1".to_owned();
-
+        let mut folder = FolderPad::from_folder_rev(folder_rev).unwrap();
         delta = delta
             .compose(
                 &folder
@@ -823,8 +847,7 @@ mod tests {
         let json1 = old.to_json().unwrap();
         let json2 = new.to_json().unwrap();
 
-        let expect_folder: FolderPad = serde_json::from_str(expected).unwrap();
-        assert_eq!(json1, expect_folder.to_json().unwrap());
+        assert_eq!(json1, expected);
         assert_eq!(json1, json2);
     }
 }
