@@ -15,24 +15,47 @@ import 'package:flowy_editor/render/selection/cursor_widget.dart';
 import 'package:flowy_editor/render/selection/selectable.dart';
 import 'package:flowy_editor/render/selection/selection_widget.dart';
 
-/// Process selection and cursor
+/// [FlowySelectionService] is responsible for processing
+/// the [Selection] changes and updates.
+///
+/// Usually, this service can be obtained by the following code.
+/// ```dart
+/// final selectionService = editorState.service.selectionService;
+///
+/// /** get current selection value*/
+/// final selection = selectionService.currentSelection.value;
+///
+/// /** get current selected nodes*/
+/// final nodes = selectionService.currentSelectedNodes;
+///
+/// ```
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
-  /// Returns the current [Selection]
+  /// Returns the [ValueNotifier] of current [Selection].
+  ///
+  /// Returns null if there is no nodes are selected.
   ValueNotifier<Selection?> get currentSelection;
 
   /// Returns the current selected [Node]s.
   ///
-  /// The order of the return is determined according to the selected order.
+  /// The order of the result is determined according to the [currentSelection].
+  /// The result are ordered from back to front if the selection is forward.
+  /// The result are ordered from front to back if the selection is backward.
+  ///
+  /// For example, Here is an array of selected nodes, [n1, n2, n3].
+  /// The result will be [n3, n2, n1] if the selection is forward,
+  ///   and [n1, n2, n3] if the selection is backward.
+  ///
+  /// Returns empty result if there is no nodes are selected.
   List<Node> get currentSelectedNodes;
 
-  /// Update the selection or cursor.
+  /// Update the selection.
   ///
-  /// If selection is collapsed, this method will
-  ///   update the position of the cursor.
-  /// Otherwise, will update the selection.
+  /// The editor will update selection area and popup list area
+  /// if the [selection] is not collapsed,
+  /// otherwise, will update the cursor area.
   void updateSelection(Selection selection);
 
-  /// Clear the selection or cursor.
+  /// Clear the selection area, cursor area and the popup list area.
   void clearSelection();
 
   /// ------------------ Selection ------------------------
@@ -395,13 +418,13 @@ class _FlowySelectionState extends State<FlowySelection>
         // text: ghijkl
         // text: mn>opqr
         if (index == 0) {
-          if (selection.isDownward) {
+          if (selection.isBackward) {
             newSelection = selection.copyWith(end: selectable.end());
           } else {
             newSelection = selection.copyWith(start: selectable.start());
           }
         } else if (index == nodes.length - 1) {
-          if (selection.isDownward) {
+          if (selection.isBackward) {
             newSelection = selection.copyWith(start: selectable.start());
           } else {
             newSelection = selection.copyWith(end: selectable.end());
