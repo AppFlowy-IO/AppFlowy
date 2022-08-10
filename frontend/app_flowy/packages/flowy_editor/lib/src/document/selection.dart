@@ -40,9 +40,11 @@ class Selection {
   bool get isCollapsed => start == end;
   bool get isSingle => pathEquals(start.path, end.path);
   bool get isForward =>
-      start.path >= end.path && !pathEquals(start.path, end.path);
+      (start.path >= end.path && !pathEquals(start.path, end.path)) ||
+      (isSingle && start.offset > end.offset);
   bool get isBackward =>
-      start.path <= end.path && !pathEquals(start.path, end.path);
+      (start.path <= end.path && !pathEquals(start.path, end.path)) ||
+      (isSingle && start.offset < end.offset);
 
   Selection collapse({bool atStart = false}) {
     if (atStart) {

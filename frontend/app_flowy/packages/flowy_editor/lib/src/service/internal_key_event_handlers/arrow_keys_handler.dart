@@ -1,5 +1,4 @@
 import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flowy_editor/src/service/keyboard_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -41,25 +40,25 @@ extension on Position {
 }
 
 Position? _goUp(EditorState editorState) {
-  final rects = editorState.service.selectionService.rects();
+  final rects = editorState.service.selectionService.selectionRects;
   if (rects.isEmpty) {
     return null;
   }
   final first = rects.first;
   final firstOffset = Offset(first.left, first.top);
   final hitOffset = firstOffset - Offset(0, first.height * 0.5);
-  return editorState.service.selectionService.hitTest(hitOffset);
+  return editorState.service.selectionService.getPositionInOffset(hitOffset);
 }
 
 Position? _goDown(EditorState editorState) {
-  final rects = editorState.service.selectionService.rects();
+  final rects = editorState.service.selectionService.selectionRects;
   if (rects.isEmpty) {
     return null;
   }
   final first = rects.last;
   final firstOffset = Offset(first.right, first.bottom);
   final hitOffset = firstOffset + Offset(0, first.height * 0.5);
-  return editorState.service.selectionService.hitTest(hitOffset);
+  return editorState.service.selectionService.getPositionInOffset(hitOffset);
 }
 
 KeyEventResult _handleShiftKey(EditorState editorState, RawKeyEvent event) {
