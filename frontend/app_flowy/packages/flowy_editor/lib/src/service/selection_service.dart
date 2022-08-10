@@ -29,7 +29,7 @@ import 'package:flowy_editor/src/render/selection/selection_widget.dart';
 /// final nodes = selectionService.currentSelectedNodes;
 /// ```
 ///
-mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
+abstract class FlowySelectionService {
   /// The current [Selection] in editor.
   ///
   /// The value is null if there is no nodes are selected.
@@ -90,7 +90,8 @@ class FlowySelection extends StatefulWidget {
 }
 
 class _FlowySelectionState extends State<FlowySelection>
-    with FlowySelectionService, WidgetsBindingObserver {
+    with WidgetsBindingObserver
+    implements FlowySelectionService {
   final _cursorKey = GlobalKey(debugLabel: 'cursor');
 
   final List<OverlayEntry> _selectionOverlays = [];

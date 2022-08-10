@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_editor/src/render/selection/toolbar_widget.dart';
 
-mixin FlowyToolbarService {
+abstract class FlowyToolbarService {
   /// Show the toolbar widget beside the offset.
   void showInOffset(Offset offset, LayerLink layerLink);
 
@@ -25,7 +25,8 @@ class FlowyToolbar extends StatefulWidget {
   State<FlowyToolbar> createState() => _FlowyToolbarState();
 }
 
-class _FlowyToolbarState extends State<FlowyToolbar> with FlowyToolbarService {
+class _FlowyToolbarState extends State<FlowyToolbar>
+    implements FlowyToolbarService {
   OverlayEntry? _toolbarOverlay;
 
   @override
