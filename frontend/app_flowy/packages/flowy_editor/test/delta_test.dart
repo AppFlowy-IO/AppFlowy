@@ -279,4 +279,9 @@ void main() {
       expect(delta, expected);
     });
   });
+  test("stringIndexes", () {
+    final indexes = stringIndexes('😊');
+    expect(indexes[0], 0);
+    expect(indexes[1], 0);
+  });
 }

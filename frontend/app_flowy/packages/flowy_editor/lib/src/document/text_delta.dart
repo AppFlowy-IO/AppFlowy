@@ -260,6 +260,7 @@ TextOperation? _textOperationFromJson(Map<String, dynamic> json) {
 class Delta extends Iterable<TextOperation> {
   final List<TextOperation> _operations;
   String? _rawString;
+  List<int>? _runeIndexes;
 
   factory Delta.fromJson(List<dynamic> list) {
     final operations = <TextOperation>[];
@@ -477,9 +478,23 @@ class Delta extends Iterable<TextOperation> {
   String toRawString() {
     _rawString ??=
         _operations.whereType<TextInsert>().map((op) => op.content).join();
+    _runeIndexes ??= stringIndexes(_rawString!);
     return _rawString!;
   }
 
   @override
   Iterator<TextOperation> get iterator => _operations.iterator;
+}
+
+List<int> stringIndexes(String content) {
+  final indexes = List<int>.filled(content.length, 0);
+  final iterator = content.runes.iterator;
+
+  while (iterator.moveNext()) {
+    for (var i = 0; i < iterator.currentSize; i++) {
+      indexes[iterator.rawIndex + i] = iterator.rawIndex;
+    }
+  }
+
+  return indexes;
 }
