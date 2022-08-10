@@ -15,67 +15,60 @@ import 'package:flowy_editor/src/render/selection/cursor_widget.dart';
 import 'package:flowy_editor/src/render/selection/selectable.dart';
 import 'package:flowy_editor/src/render/selection/selection_widget.dart';
 
-/// Process selection and cursor
+/// [FlowySelectionService] is responsible for processing
+/// the [Selection] changes and updates.
+///
+/// Usually, this service can be obtained by the following code.
+/// ```dart
+/// final selectionService = editorState.service.selectionService;
+///
+/// /** get current selection value*/
+/// final selection = selectionService.currentSelection.value;
+///
+/// /** get current selected nodes*/
+/// final nodes = selectionService.currentSelectedNodes;
+/// ```
+///
 mixin FlowySelectionService<T extends StatefulWidget> on State<T> {
-  /// Returns the current [Selection]
+  /// The current [Selection] in editor.
+  ///
+  /// The value is null if there is no nodes are selected.
   ValueNotifier<Selection?> get currentSelection;
 
-  /// Returns the current selected [Node]s.
+  /// The current selected [Node]s in editor.
   ///
-  /// The order of the return is determined according to the selected order.
+  /// The order of the result is determined according to the [currentSelection].
+  /// The result are ordered from back to front if the selection is forward.
+  /// The result are ordered from front to back if the selection is backward.
+  ///
+  /// For example, Here is an array of selected nodes, [n1, n2, n3].
+  /// The result will be [n3, n2, n1] if the selection is forward,
+  ///   and [n1, n2, n3] if the selection is backward.
+  ///
+  /// Returns empty result if there is no nodes are selected.
   List<Node> get currentSelectedNodes;
 
-  /// Update the selection or cursor.
+  /// Updates the selection.
   ///
-  /// If selection is collapsed, this method will
-  ///   update the position of the cursor.
-  /// Otherwise, will update the selection.
+  /// The editor will update selection area and popup list area
+  /// if the [selection] is not collapsed,
+  /// otherwise, will update the cursor area.
   void updateSelection(Selection selection);
 
-  /// Clear the selection or cursor.
+  /// Clears the selection area, cursor area and the popup list area.
   void clearSelection();
 
-  /// ------------------ Selection ------------------------
-
-  List<Rect> rects();
-
-  Position? hitTest(Offset? offset);
-
-  ///
+  /// Returns the [Node]s in [Selection].
   List<Node> getNodesInSelection(Selection selection);
 
-  /// ------------------ Selection ------------------------
-
-  /// ------------------ Offset ------------------------
-
-  /// Return the [Node] or [Null] in single selection.
+  /// Returns the [Node] containing to the offset.
   ///
-  /// [offset] is under the global coordinate system.
+  /// [offset] must be under the global coordinate system.
   Node? getNodeInOffset(Offset offset);
 
-  /// Returns selected [Node]s. Empty list would be returned
-  ///   if no nodes are in range.
-  ///
-  ///
-  /// [start] and [end] are under the global coordinate system.
-  ///
-  List<Node> getNodeInRange(Offset start, Offset end);
-
-  /// Return [bool] to identify the [Node] is in Range or not.
-  ///
-  /// [start] and [end] are under the global coordinate system.
-  bool isNodeInRange(
-    Node node,
-    Offset start,
-    Offset end,
-  );
-
-  /// Return [bool] to identify the [Node] contains [Offset] or not.
-  ///
-  /// [offset] is under the global coordinate system.
-  bool isNodeInOffset(Node node, Offset offset);
-
-  /// ------------------ Offset ------------------------
+  // TODO: need to be documented.
+  List<Rect> rects();
+  Position? hitTest(Offset? offset);
 }
 
 class FlowySelection extends StatefulWidget {
@@ -205,36 +198,6 @@ class _FlowySelectionState extends State<FlowySelection>
   @override
   Node? getNodeInOffset(Offset offset) {
     return _lowerBoundInDocument(offset);
-  }
-
-  @override
-  List<Node> getNodeInRange(Offset start, Offset end) {
-    final startNode = _lowerBoundInDocument(start);
-    final endNode = _upperBoundInDocument(end);
-    return NodeIterator(editorState.document, startNode, endNode).toList();
-  }
-
-  @override
-  bool isNodeInOffset(Node node, Offset offset) {
-    final renderBox = node.renderBox;
-    if (renderBox != null) {
-      final boxOffset = renderBox.localToGlobal(Offset.zero);
-      final boxRect = boxOffset & renderBox.size;
-      return boxRect.contains(offset);
-    }
-    return false;
-  }
-
-  @override
-  bool isNodeInRange(Node node, Offset start, Offset end) {
-    final renderBox = node.renderBox;
-    if (renderBox != null) {
-      final rect = Rect.fromPoints(start, end);
-      final boxOffset = renderBox.localToGlobal(Offset.zero);
-      final boxRect = boxOffset & renderBox.size;
-      return rect.overlaps(boxRect);
-    }
-    return false;
   }
 
   void _onDoubleTapDown(TapDownDetails details) {
@@ -395,13 +358,13 @@ class _FlowySelectionState extends State<FlowySelection>
         // text: ghijkl
         // text: mn>opqr
         if (index == 0) {
-          if (selection.isDownward) {
+          if (selection.isBackward) {
             newSelection = selection.copyWith(end: selectable.end());
           } else {
             newSelection = selection.copyWith(start: selectable.start());
           }
         } else if (index == nodes.length - 1) {
-          if (selection.isDownward) {
+          if (selection.isBackward) {
             newSelection = selection.copyWith(start: selectable.start());
           } else {
             newSelection = selection.copyWith(end: selectable.end());
@@ -498,7 +461,7 @@ class _FlowySelectionState extends State<FlowySelection>
 
     /// TODO: It is necessary to calculate the relative speed
     ///   according to the gap and move forward more gently.
-    final distance = 10.0;
+    const distance = 10.0;
     if (offset.dy <= topLimit && !isDownward) {
       // up
       editorState.service.scrollService?.scrollTo(dy - distance);
