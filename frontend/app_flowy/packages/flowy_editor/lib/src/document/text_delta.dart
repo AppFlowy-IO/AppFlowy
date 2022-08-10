@@ -475,10 +475,35 @@ class Delta extends Iterable<TextOperation> {
     return _operations.map((e) => e.toJson()).toList();
   }
 
-  String toRawString() {
+  int prevRunePosition(int pos) {
+    if (pos == 0) {
+      return pos;
+    }
     _rawString ??=
         _operations.whereType<TextInsert>().map((op) => op.content).join();
     _runeIndexes ??= stringIndexes(_rawString!);
+    return _runeIndexes![pos - 1];
+  }
+
+  int nextRunePosition(int pos) {
+    final stringContent = toRawString();
+    if (pos >= stringContent.length - 1) {
+      return stringContent.length;
+    }
+    _runeIndexes ??= stringIndexes(_rawString!);
+
+    for (var i = pos + 1; i < _runeIndexes!.length; i++) {
+      if (_runeIndexes![i] != pos) {
+        return _runeIndexes![i];
+      }
+    }
+
+    return pos;
+  }
+
+  String toRawString() {
+    _rawString ??=
+        _operations.whereType<TextInsert>().map((op) => op.content).join();
     return _rawString!;
   }
 
