@@ -149,8 +149,16 @@ class HTMLConverter {
       _handleImage(nodes, image);
       return;
     }
+    final testInput = element.querySelector("input");
+    bool checked = false;
+    final isCheckbox =
+        testInput != null && testInput.attributes["type"] == "checkbox";
+    if (isCheckbox) {
+      checked = testInput.attributes.containsKey("checked") &&
+          testInput.attributes["checked"] != "false";
+    }
 
-    var delta = Delta();
+    final delta = Delta();
 
     for (final child in element.nodes.toList()) {
       if (child is html.Element) {
@@ -161,7 +169,12 @@ class HTMLConverter {
     }
 
     if (delta.operations.isNotEmpty) {
-      nodes.add(TextNode(type: "text", delta: delta, attributes: attributes));
+      final textNode = TextNode(type: "text", delta: delta);
+      if (isCheckbox) {
+        textNode.attributes["subtype"] = StyleKey.checkbox;
+        textNode.attributes["checkbox"] = checked;
+      }
+      nodes.add(textNode);
     }
   }
 
@@ -207,12 +220,16 @@ class HTMLConverter {
   }
 }
 
-html.Element textNodeToHtml(TextNode textNode, {int? end}) {
+html.Element textNodeToHtml(TextNode textNode, {int? end, bool? checked}) {
   String? subType = textNode.attributes["subtype"];
-  return deltaToHtml(textNode.delta, subType: subType, end: end);
+  return deltaToHtml(textNode.delta,
+      subType: subType,
+      end: end,
+      checked: textNode.attributes["checkbox"] == true);
 }
 
-html.Element deltaToHtml(Delta delta, {String? subType, int? end}) {
+html.Element deltaToHtml(Delta delta,
+    {String? subType, int? end, bool? checked}) {
   if (end != null) {
     delta = delta.slice(0, end);
   }
@@ -223,7 +240,11 @@ html.Element deltaToHtml(Delta delta, {String? subType, int? end}) {
   if (subType == StyleKey.bulletedList) {
     tagName = tagList;
   } else if (subType == StyleKey.checkbox) {
-    childNodes.add(html.Element.html('<input type="checkbox" />'));
+    final node = html.Element.html('<input type="checkbox" />');
+    if (checked != null && checked) {
+      node.attributes["checked"] = "true";
+    }
+    childNodes.add(node);
   }
 
   for (final op in delta.operations) {
