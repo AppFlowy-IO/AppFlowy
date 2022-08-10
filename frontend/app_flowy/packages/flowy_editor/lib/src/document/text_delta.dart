@@ -276,14 +276,13 @@ class Delta extends Iterable<TextOperation> {
 
   Delta([List<TextOperation>? ops]) : _operations = ops ?? <TextOperation>[];
 
-  Delta addAll(Iterable<TextOperation> textOps) {
+  void addAll(Iterable<TextOperation> textOps) {
     textOps.forEach(add);
-    return this;
   }
 
-  Delta add(TextOperation textOp) {
+  void add(TextOperation textOp) {
     if (textOp.isEmpty) {
-      return this;
+      return;
     }
     _rawString = null;
 
@@ -291,12 +290,12 @@ class Delta extends Iterable<TextOperation> {
       final lastOp = _operations.last;
       if (lastOp is TextDelete && textOp is TextDelete) {
         lastOp.length += textOp.length;
-        return this;
+        return;
       }
       if (mapEquals(lastOp.attributes, textOp.attributes)) {
         if (lastOp is TextInsert && textOp is TextInsert) {
           lastOp.content += textOp.content;
-          return this;
+          return;
         }
         // if there is an delete before the insert
         // swap the order
@@ -304,17 +303,16 @@ class Delta extends Iterable<TextOperation> {
           _operations.removeLast();
           _operations.add(textOp);
           _operations.add(lastOp);
-          return this;
+          return;
         }
         if (lastOp is TextRetain && textOp is TextRetain) {
           lastOp.length += textOp.length;
-          return this;
+          return;
         }
       }
     }
 
     _operations.add(textOp);
-    return this;
   }
 
   Delta slice(int start, [int? end]) {
@@ -337,20 +335,13 @@ class Delta extends Iterable<TextOperation> {
     return result;
   }
 
-  Delta insert(String content, [Attributes? attributes]) {
-    final op = TextInsert(content, attributes);
-    return add(op);
-  }
+  void insert(String content, [Attributes? attributes]) =>
+      add(TextInsert(content, attributes));
 
-  Delta retain(int length, [Attributes? attributes]) {
-    final op = TextRetain(length, attributes);
-    return add(op);
-  }
+  void retain(int length, [Attributes? attributes]) =>
+      add(TextRetain(length, attributes));
 
-  Delta delete(int length) {
-    final op = TextDelete(length);
-    return add(op);
-  }
+  void delete(int length) => add(TextDelete(length));
 
   int get length {
     return _operations.fold(
@@ -409,7 +400,7 @@ class Delta extends Iterable<TextOperation> {
           if (!otherIter.hasNext &&
               delta._operations[delta._operations.length - 1] == newOp) {
             final rest = Delta(thisIter.rest());
-            return delta.concat(rest).chop();
+            return (delta + rest)..chop();
           }
         } else if (otherOp is TextDelete && (thisOp is TextRetain)) {
           delta.add(otherOp);
@@ -417,10 +408,10 @@ class Delta extends Iterable<TextOperation> {
       }
     }
 
-    return delta.chop();
+    return delta..chop();
   }
 
-  Delta concat(Delta other) {
+  Delta operator +(Delta other) {
     var ops = [..._operations];
     if (other._operations.isNotEmpty) {
       ops.add(other._operations[0]);
@@ -429,16 +420,15 @@ class Delta extends Iterable<TextOperation> {
     return Delta(ops);
   }
 
-  Delta chop() {
+  void chop() {
     if (_operations.isEmpty) {
-      return this;
+      return;
     }
     _rawString = null;
     final lastOp = _operations.last;
     if (lastOp is TextRetain && (lastOp.attributes?.length ?? 0) == 0) {
       _operations.removeLast();
     }
-    return this;
   }
 
   @override
@@ -477,7 +467,7 @@ class Delta extends Iterable<TextOperation> {
       }
       return previousValue;
     });
-    return inverted.chop();
+    return inverted..chop();
   }
 
   List<dynamic> toJson() {

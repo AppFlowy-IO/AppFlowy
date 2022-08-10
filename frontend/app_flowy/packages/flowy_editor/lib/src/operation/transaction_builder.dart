@@ -113,22 +113,32 @@ class TransactionBuilder {
     }
     textEdit(
       node,
-      () => Delta().retain(index).insert(
-            content,
-            newAttributes,
-          ),
+      () => Delta()
+        ..retain(index)
+        ..insert(
+          content,
+          newAttributes,
+        ),
     );
     afterSelection = Selection.collapsed(
         Position(path: node.path, offset: index + content.length));
   }
 
   formatText(TextNode node, int index, int length, Attributes attributes) {
-    textEdit(node, () => Delta().retain(index).retain(length, attributes));
+    textEdit(
+        node,
+        () => Delta()
+          ..retain(index)
+          ..retain(length, attributes));
     afterSelection = beforeSelection;
   }
 
   deleteText(TextNode node, int index, int length) {
-    textEdit(node, () => Delta().retain(index).delete(length));
+    textEdit(
+        node,
+        () => Delta()
+          ..retain(index)
+          ..delete(length));
     afterSelection =
         Selection.collapsed(Position(path: node.path, offset: index));
   }
@@ -144,7 +154,10 @@ class TransactionBuilder {
     }
     textEdit(
       node,
-      () => Delta().retain(index).delete(length).insert(content, newAttributes),
+      () => Delta()
+        ..retain(index)
+        ..delete(length)
+        ..insert(content, newAttributes),
     );
     afterSelection = Selection.collapsed(
       Position(

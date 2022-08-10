@@ -67,7 +67,7 @@ _pasteHTML(EditorState editorState, String html) {
       final textNodeAtPath = nodeAtPath as TextNode;
       final firstTextNode = firstNode as TextNode;
       tb.textEdit(textNodeAtPath,
-          () => Delta().retain(startOffset).concat(firstTextNode.delta));
+          () => (Delta()..retain(startOffset)) + firstTextNode.delta);
       tb.setAfterSelection(Selection.collapsed(Position(
           path: path, offset: startOffset + firstTextNode.delta.length)));
       tb.commit();
@@ -93,17 +93,18 @@ _pasteMultipleLinesInText(
 
     tb.textEdit(
         textNodeAtPath,
-        () => Delta()
-            .retain(offset)
-            .delete(remain.length)
-            .concat(firstTextNode.delta));
+        () =>
+            (Delta()
+              ..retain(offset)
+              ..delete(remain.length)) +
+            firstTextNode.delta);
 
     final tailNodes = nodes.sublist(1);
     path[path.length - 1]++;
     if (tailNodes.isNotEmpty) {
       if (tailNodes.last.type == "text") {
         final tailTextNode = tailNodes.last as TextNode;
-        tailTextNode.delta = tailTextNode.delta.concat(remain);
+        tailTextNode.delta = tailTextNode.delta + remain;
       } else if (remain.length > 0) {
         tailNodes.add(TextNode(type: "text", delta: remain));
       }
@@ -151,7 +152,11 @@ _handlePastePlainText(EditorState editorState, String plainText) {
         editorState.document.nodeAtPath(selection.end.path)! as TextNode;
     final beginOffset = selection.end.offset;
     TransactionBuilder(editorState)
-      ..textEdit(node, () => Delta().retain(beginOffset).insert(lines[0]))
+      ..textEdit(
+          node,
+          () => Delta()
+            ..retain(beginOffset)
+            ..insert(lines[0]))
       ..setAfterSelection(Selection.collapsed(Position(
           path: selection.end.path, offset: beginOffset + lines[0].length)))
       ..commit();
@@ -175,17 +180,20 @@ _handlePastePlainText(EditorState editorState, String plainText) {
     final nodes = remains.map((e) {
       if (index++ == remains.length - 1) {
         return TextNode(
-            type: "text", delta: Delta().insert(e).addAll(insertedLineSuffix));
+            type: "text",
+            delta: Delta()
+              ..insert(e)
+              ..addAll(insertedLineSuffix));
       }
-      return TextNode(type: "text", delta: Delta().insert(e));
+      return TextNode(type: "text", delta: Delta()..insert(e));
     }).toList();
     // insert first line
     tb.textEdit(
         node,
         () => Delta()
-            .retain(beginOffset)
-            .insert(firstLine)
-            .delete(node.delta.length - beginOffset));
+          ..retain(beginOffset)
+          ..insert(firstLine)
+          ..delete(node.delta.length - beginOffset));
     // insert remains
     tb.insertNodes(path, nodes);
     tb.commit();
@@ -226,7 +234,10 @@ _deleteSelectedContent(EditorState editorState) {
     final tb = TransactionBuilder(editorState);
     final len = selection.end.offset - selection.start.offset;
     tb.textEdit(
-        textItem, () => Delta().retain(selection.start.offset).delete(len));
+        textItem,
+        () => Delta()
+          ..retain(selection.start.offset)
+          ..delete(len));
     tb.setAfterSelection(Selection.collapsed(selection.start));
     tb.commit();
     return;
@@ -240,8 +251,9 @@ _deleteSelectedContent(EditorState editorState) {
       final textItem = item as TextNode;
       final deleteLen = textItem.delta.length - selection.start.offset;
       tb.textEdit(textItem, () {
-        final delta = Delta();
-        delta.retain(selection.start.offset).delete(deleteLen);
+        final delta = Delta()
+          ..retain(selection.start.offset)
+          ..delete(deleteLen);
 
         if (endNode is TextNode) {
           final remain = endNode.delta.slice(selection.end.offset);
