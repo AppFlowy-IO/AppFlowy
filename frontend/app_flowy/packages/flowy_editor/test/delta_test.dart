@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flowy_editor/document/text_delta.dart';
+import 'package:flowy_editor/src/document/text_delta.dart';
 
 void main() {
   group('compose', () {
