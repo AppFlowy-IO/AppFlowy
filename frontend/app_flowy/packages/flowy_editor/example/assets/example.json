@@ -10,12 +10,6 @@
         }
       },
       {
-        "type": "youtube_link",
-        "attributes": {
-          "youtube_link": "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4"
-        }
-      },
-      {
         "type": "text",
         "delta": [
           {
@@ -43,7 +37,11 @@
         "type": "text",
         "delta": [
           {
-            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
+            "insert": "At "
+          },
+          { "insert": "AppFlowy", "attributes": { "code": true, "bold": true, "color": "0xFFED459C"} },
+          {
+            "insert": ", we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
           }
         ]
       },

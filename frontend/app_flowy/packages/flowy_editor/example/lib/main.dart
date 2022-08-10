@@ -1,12 +1,14 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:example/expandable_floating_action_button.dart';
 import 'package:example/plugin/image_node_widget.dart';
 import 'package:example/plugin/youtube_link_node_widget.dart';
-import 'package:flutter/material.dart';
+
 import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -56,7 +58,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late EditorState _editorState;
   final editorKey = GlobalKey();
   int page = 0;
 
@@ -69,134 +70,135 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: _buildBody(),
-      floatingActionButton: ExpandableFab(
-        distance: 112.0,
-        children: [
-          ActionButton(
-            onPressed: () {
-              if (page == 0) return;
-              setState(() {
-                page = 0;
-              });
-            },
-            icon: const Icon(Icons.note_add),
-          ),
-          ActionButton(
-            icon: const Icon(Icons.document_scanner),
-            onPressed: () {
-              if (page == 1) return;
-              setState(() {
-                page = 1;
-              });
-            },
-          ),
-          ActionButton(
-            onPressed: () {
-              if (page == 2) return;
-              setState(() {
-                page = 2;
-              });
-            },
-            icon: const Icon(Icons.text_fields),
-          ),
-        ],
-      ),
+      floatingActionButton: _buildExpandableFab(),
     );
   }
 
   Widget _buildBody() {
     if (page == 0) {
-      return _buildFlowyEditor();
+      return _buildFlowyEditorWithExample();
     } else if (page == 1) {
       return _buildFlowyEditorWithEmptyDocument();
     } else if (page == 2) {
       return _buildTextField();
+    } else if (page == 3) {
+      return _buildFlowyEditorWithBigDocument();
     }
     return Container();
   }
 
+  Widget _buildExpandableFab() {
+    return ExpandableFab(
+      distance: 112.0,
+      children: [
+        ActionButton(
+          onPressed: () {
+            if (page == 0) return;
+            setState(() {
+              page = 0;
+            });
+          },
+          icon: const Icon(Icons.note_add),
+        ),
+        ActionButton(
+          icon: const Icon(Icons.document_scanner),
+          onPressed: () {
+            if (page == 1) return;
+            setState(() {
+              page = 1;
+            });
+          },
+        ),
+        ActionButton(
+          onPressed: () {
+            if (page == 2) return;
+            setState(() {
+              page = 2;
+            });
+          },
+          icon: const Icon(Icons.text_fields),
+        ),
+        ActionButton(
+          onPressed: () {
+            if (page == 3) return;
+            setState(() {
+              page = 3;
+            });
+          },
+          icon: const Icon(Icons.email),
+        ),
+      ],
+    );
+  }
+
   Widget _buildFlowyEditorWithEmptyDocument() {
-    return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20),
-      child: FlowyEditor(
-        key: editorKey,
-        editorState: EditorState(
-          document: StateTree(
-            root: Node(
-              type: 'editor',
-              children: LinkedList()
-                ..add(
-                  TextNode.empty()
-                    ..delta = Delta(
-                      [TextInsert('')],
-                    ),
-                ),
-              attributes: {},
-            ),
+    return _buildFlowyEditor(
+      EditorState(
+        document: StateTree(
+          root: Node(
+            type: 'editor',
+            children: LinkedList()
+              ..add(
+                TextNode.empty()
+                  ..delta = Delta(
+                    [TextInsert('')],
+                  ),
+              ),
+            attributes: {},
           ),
         ),
-        keyEventHandlers: const [],
-        customBuilders: {
-          'image': ImageNodeBuilder(),
-        },
       ),
     );
   }
 
-  Widget _buildFlowyEditor() {
+  Widget _buildFlowyEditorWithExample() {
     return FutureBuilder<String>(
       future: rootBundle.loadString('assets/example.json'),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.hasData) {
+          final data = Map<String, Object>.from(json.decode(snapshot.data!));
+          return _buildFlowyEditor(EditorState(
+            document: StateTree.fromJson(data),
+          ));
+        } else {
           return const Center(
             child: CircularProgressIndicator(),
           );
-        } else {
+        }
+      },
+    );
+  }
+
+  Widget _buildFlowyEditorWithBigDocument() {
+    return FutureBuilder<String>(
+      future: rootBundle.loadString('assets/big_document.json'),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
           final data = Map<String, Object>.from(json.decode(snapshot.data!));
-          final document = StateTree.fromJson(data);
-          _editorState = EditorState(
-            document: document,
-          );
-          return Container(
-            padding: const EdgeInsets.only(left: 20, right: 20),
-            child: FlowyEditor(
-              key: editorKey,
-              editorState: _editorState,
-              keyEventHandlers: const [],
-              customBuilders: {
-                'image': ImageNodeBuilder(),
-                'youtube_link': YouTubeLinkNodeBuilder()
-              },
-            ),
-            // shortcuts: [
-            //   // TODO: this won't work, just a example for now.
-            //   {
-            //     'h1': (editorState, eventName) {
-            //       debugPrint('shortcut => $eventName');
-            //       final selectedNodes = editorState.selectedNodes;
-            //       if (selectedNodes.isEmpty) {
-            //         return;
-            //       }
-            //       final textNode = selectedNodes.first as TextNode;
-            //       TransactionBuilder(editorState)
-            //         ..formatText(textNode, 0, textNode.toRawString().length, {
-            //           'heading': 'h1',
-            //         })
-            //         ..commit();
-            //     }
-            //   },
-            //   {
-            //     'bold': (editorState, eventName) =>
-            //         debugPrint('shortcut => $eventName')
-            //   },
-            //   {
-            //     'underline': (editorState, eventName) =>
-            //         debugPrint('shortcut => $eventName')
-            //   },
-            // ],
+          return _buildFlowyEditor(EditorState(
+            document: StateTree.fromJson(data),
+          ));
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(),
           );
         }
       },
+    );
+  }
+
+  Widget _buildFlowyEditor(EditorState editorState) {
+    return Container(
+      padding: const EdgeInsets.only(left: 20, right: 20),
+      child: FlowyEditor(
+        key: editorKey,
+        editorState: editorState,
+        keyEventHandlers: const [],
+        customBuilders: {
+          'image': ImageNodeBuilder(),
+          'youtube_link': YouTubeLinkNodeBuilder()
+        },
+      ),
     );
   }
 

@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:app_flowy/plugin/plugin.dart';
+import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/app/app_listener.dart';
 import 'package:app_flowy/workspace/application/app/app_service.dart';
@@ -22,7 +22,9 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   final AppService appService;
   final AppListener appListener;
 
-  AppBloc({required this.app, required this.appService, required this.appListener}) : super(AppState.initial(app)) {
+  AppBloc(
+      {required this.app, required this.appService, required this.appListener})
+      : super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {
       await event.map(initial: (e) async {
         _startListening();
@@ -103,11 +105,13 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     return super.close();
   }
 
-  Future<void> _didReceiveViewUpdated(List<ViewPB> views, Emitter<AppState> emit) async {
+  Future<void> _didReceiveViewUpdated(
+      List<ViewPB> views, Emitter<AppState> emit) async {
     final latestCreatedView = state.latestCreatedView;
     AppState newState = state.copyWith(views: views);
     if (latestCreatedView != null) {
-      final index = views.indexWhere((element) => element.id == latestCreatedView.id);
+      final index =
+          views.indexWhere((element) => element.id == latestCreatedView.id);
       if (index == -1) {
         newState = newState.copyWith(latestCreatedView: null);
       }
@@ -139,7 +143,8 @@ class AppEvent with _$AppEvent {
   ) = CreateView;
   const factory AppEvent.delete() = Delete;
   const factory AppEvent.rename(String newName) = Rename;
-  const factory AppEvent.didReceiveViewUpdated(List<ViewPB> views) = ReceiveViews;
+  const factory AppEvent.didReceiveViewUpdated(List<ViewPB> views) =
+      ReceiveViews;
   const factory AppEvent.appDidUpdate(AppPB app) = AppDidUpdate;
 }
 
@@ -164,11 +169,13 @@ class AppViewDataContext extends ChangeNotifier {
   final ValueNotifier<List<ViewPB>> _viewsNotifier = ValueNotifier([]);
   final ValueNotifier<ViewPB?> _selectedViewNotifier = ValueNotifier(null);
   VoidCallback? _menuSharedStateListener;
-  ExpandableController expandController = ExpandableController(initialExpanded: false);
+  ExpandableController expandController =
+      ExpandableController(initialExpanded: false);
 
   AppViewDataContext({required this.appId}) {
     _setLatestView(getIt<MenuSharedState>().latestOpenView);
-    _menuSharedStateListener = getIt<MenuSharedState>().addLatestViewListener((view) {
+    _menuSharedStateListener =
+        getIt<MenuSharedState>().addLatestViewListener((view) {
       _setLatestView(view);
     });
   }
@@ -206,9 +213,11 @@ class AppViewDataContext extends ChangeNotifier {
     }
   }
 
-  UnmodifiableListView<ViewPB> get views => UnmodifiableListView(_viewsNotifier.value);
+  UnmodifiableListView<ViewPB> get views =>
+      UnmodifiableListView(_viewsNotifier.value);
 
-  VoidCallback addViewsChangeListener(void Function(UnmodifiableListView<ViewPB>) callback) {
+  VoidCallback addViewsChangeListener(
+      void Function(UnmodifiableListView<ViewPB>) callback) {
     listener() {
       callback(views);
     }
@@ -241,7 +250,8 @@ class AppViewDataContext extends ChangeNotifier {
   @override
   void dispose() {
     if (_menuSharedStateListener != null) {
-      getIt<MenuSharedState>().removeLatestViewListener(_menuSharedStateListener!);
+      getIt<MenuSharedState>()
+          .removeLatestViewListener(_menuSharedStateListener!);
     }
     super.dispose();
   }
