@@ -15,7 +15,11 @@ _handleCopy(EditorState editorState) async {
     final nodeAtPath = editorState.document.nodeAtPath(selection.end.path)!;
     if (nodeAtPath.type == "text") {
       final textNode = nodeAtPath as TextNode;
-      final htmlString = NodesToHTMLConverter(nodes: [textNode]).toHTMLString();
+      final htmlString = NodesToHTMLConverter(
+              nodes: [textNode],
+              startOffset: selection.start.offset,
+              endOffset: selection.end.offset)
+          .toHTMLString();
       debugPrint('copy html: $htmlString');
       RichClipboard.setData(RichClipboardData(html: htmlString));
     } else {
@@ -29,7 +33,11 @@ _handleCopy(EditorState editorState) async {
 
   final nodes = NodeIterator(editorState.document, beginNode, endNode).toList();
 
-  final copyString = NodesToHTMLConverter(nodes: nodes).toHTMLString();
+  final copyString = NodesToHTMLConverter(
+          nodes: nodes,
+          startOffset: selection.start.offset,
+          endOffset: selection.end.offset)
+      .toHTMLString();
   debugPrint('copy html: $copyString');
   RichClipboard.setData(RichClipboardData(html: copyString));
 }

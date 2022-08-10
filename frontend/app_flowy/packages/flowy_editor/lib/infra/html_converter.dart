@@ -4,6 +4,7 @@ import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/delete_text_handler.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
 
@@ -239,7 +240,28 @@ class NodesToHTMLConverter {
   final List<html.Node> _result = [];
   html.Element? _stashListContainer;
 
-  NodesToHTMLConverter({required this.nodes, this.startOffset, this.endOffset});
+  NodesToHTMLConverter(
+      {required this.nodes, this.startOffset, this.endOffset}) {
+    if (nodes.isEmpty) {
+      return;
+    } else if (nodes.length == 1) {
+      final first = nodes.first;
+      if (first is TextNode) {
+        nodes[0] = first.copyWith(
+            delta: first.delta.slice(startOffset ?? 0, endOffset));
+      }
+    } else {
+      final first = nodes.first;
+      final last = nodes.last;
+      if (first is TextNode) {
+        nodes[0] = first.copyWith(delta: first.delta.slice(startOffset ?? 0));
+      }
+      if (last is TextNode) {
+        nodes[nodes.length - 1] =
+            last.copyWith(delta: last.delta.slice(0, endOffset));
+      }
+    }
+  }
 
   List<html.Node> toHTMLNodes() {
     for (final node in nodes) {
@@ -296,6 +318,26 @@ class NodesToHTMLConverter {
         checked: textNode.attributes["checkbox"] == true);
   }
 
+  String _attributesToCssStyle(Map<String, dynamic> attributes) {
+    final cssMap = <String, String>{};
+    if (attributes[StyleKey.backgroundColor] != null) {
+      cssMap["background-color"] = attributes[StyleKey.backgroundColor];
+    } else if (attributes[StyleKey.color] != null) {
+      cssMap["color"] = attributes[StyleKey.color];
+    }
+    return _cssMapToCssStyle(cssMap);
+  }
+
+  String _cssMapToCssStyle(Map<String, String> cssMap) {
+    return cssMap.entries.fold("", (previousValue, element) {
+      final kv = '${element.key}: ${element.value}';
+      if (previousValue.isEmpty) {
+        return kv;
+      }
+      return '$previousValue; $kv"';
+    });
+  }
+
   html.Element _deltaToHtml(Delta delta,
       {String? subType, int? end, bool? checked}) {
     if (end != null) {
@@ -319,9 +361,19 @@ class NodesToHTMLConverter {
       if (op is TextInsert) {
         final attributes = op.attributes;
         if (attributes != null && attributes[StyleKey.bold] == true) {
-          final strong = html.Element.tag("strong");
-          strong.append(html.Text(op.content));
-          childNodes.add(strong);
+          if (attributes.length == 1 && attributes[StyleKey.bold] == true) {
+            final strong = html.Element.tag(tagStrong);
+            strong.append(html.Text(op.content));
+            childNodes.add(strong);
+          } else {
+            final span = html.Element.tag(tagSpan);
+            final cssString = _attributesToCssStyle(attributes);
+            if (cssString.isNotEmpty) {
+              span.attributes["style"] = cssString;
+            }
+            span.append(html.Text(op.content));
+            childNodes.add(span);
+          }
         } else {
           childNodes.add(html.Text(op.content));
         }
