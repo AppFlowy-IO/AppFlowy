@@ -73,7 +73,7 @@
           },
           {
             "insert": "  /  ",
-            "attributes": { "highlightColor": "0xFFFFFF00" }
+            "attributes": { "backgroundColor": "0xFFFFFF00" }
           },
           {
             "insert": "to see all the types of content you can add - entity, headers, videos, sub pages, etc."

@@ -22,7 +22,7 @@ class StyleKey {
   static String underline = 'underline';
   static String strikethrough = 'strikethrough';
   static String color = 'color';
-  static String highlightColor = 'highlightColor';
+  static String backgroundColor = 'backgroundColor';
   static String font = 'font';
   static String href = 'href';
 
@@ -151,11 +151,11 @@ extension DeltaAttributesExtensions on Attributes {
     return null;
   }
 
-  Color? get highlightColor {
-    if (containsKey(StyleKey.highlightColor) &&
-        this[StyleKey.highlightColor] is String) {
+  Color? get backgroundColor {
+    if (containsKey(StyleKey.backgroundColor) &&
+        this[StyleKey.backgroundColor] is String) {
       return Color(
-        int.parse(this[StyleKey.highlightColor]),
+        int.parse(this[StyleKey.backgroundColor]),
       );
     }
     return null;
@@ -266,8 +266,8 @@ class RichTextStyle {
   }
 
   Color? get _backgroundColor {
-    if (attributes.highlightColor != null) {
-      return attributes.highlightColor!;
+    if (attributes.backgroundColor != null) {
+      return attributes.backgroundColor!;
     } else if (attributes.code) {
       return Colors.grey.withOpacity(0.4);
     }

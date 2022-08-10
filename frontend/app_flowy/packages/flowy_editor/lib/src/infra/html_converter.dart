@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:flowy_editor/src/document/attributes.dart';
 import 'package:flowy_editor/src/document/node.dart';
 import 'package:flowy_editor/src/document/text_delta.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
@@ -11,6 +11,7 @@ import 'package:html/dom.dart' as html;
 const String tagH1 = "h1";
 const String tagH2 = "h2";
 const String tagH3 = "h3";
+const String tagOrderedList = "ol";
 const String tagUnorderedList = "ul";
 const String tagList = "li";
 const String tagParagraph = "p";
@@ -21,23 +22,33 @@ const String tagStrong = "strong";
 const String tagSpan = "span";
 const String tagCode = "code";
 
-class HTMLConverter {
+extension on Color {
+  String toRgbaString() {
+    return 'rgba($red, $green, $blue, $alpha)';
+  }
+}
+
+/// Converting the HTML to nodes
+class HTMLToNodesConverter {
   final html.Document _document;
+
+  /// This flag is used for parsing HTML pasting from Google Docs
+  /// Google docs wraps the the content inside the `<b></b>` tag. It's strange.
+  ///
+  /// If a `<b>` element is parsing in the <p>, we regard it as as text spans.
+  /// Otherwise, it's parsed as a container.
   bool _inParagraph = false;
 
-  HTMLConverter(String htmlString) : _document = parse(htmlString);
+  HTMLToNodesConverter(String htmlString) : _document = parse(htmlString);
 
   List<Node> toNodes() {
-    final result = <Node>[];
-
     final childNodes = _document.body?.nodes.toList() ?? <html.Node>[];
-    _handleContainer(result, childNodes);
-
-    return result;
+    return _handleContainer(childNodes);
   }
 
-  _handleContainer(List<Node> nodes, List<html.Node> childNodes) {
+  List<Node> _handleContainer(List<html.Node> childNodes) {
     final delta = Delta();
+    final result = <Node>[];
     for (final child in childNodes) {
       if (child is html.Element) {
         if (child.localName == tagAnchor ||
@@ -46,81 +57,137 @@ class HTMLConverter {
             child.localName == tagStrong) {
           _handleRichTextElement(delta, child);
         } else if (child.localName == tagBold) {
-          // Google docs wraps the the content inside the <b></b> tag.
+          // Google docs wraps the the content inside the `<b></b>` tag.
           // It's strange
           if (!_inParagraph) {
-            _handleBTag(nodes, child);
+            result.addAll(_handleBTag(child));
           } else {
-            _handleRichText(nodes, child);
+            result.add(_handleRichText(child));
           }
         } else {
-          _handleElement(nodes, child);
+          result.addAll(_handleElement(child));
         }
       } else {
         delta.insert(child.text ?? "");
       }
     }
     if (delta.operations.isNotEmpty) {
-      nodes.add(TextNode(type: "text", delta: delta));
+      result.add(TextNode(type: "text", delta: delta));
     }
+    return result;
   }
 
-  _handleBTag(List<Node> nodes, html.Element element) {
+  List<Node> _handleBTag(html.Element element) {
     final childNodes = element.nodes;
-    _handleContainer(nodes, childNodes);
+    return _handleContainer(childNodes);
   }
 
-  _handleElement(List<Node> nodes, html.Element element,
+  List<Node> _handleElement(html.Element element,
       [Map<String, dynamic>? attributes]) {
     if (element.localName == tagH1) {
-      _handleHeadingElement(nodes, element, tagH1);
+      return [_handleHeadingElement(element, tagH1)];
     } else if (element.localName == tagH2) {
-      _handleHeadingElement(nodes, element, tagH2);
+      return [_handleHeadingElement(element, tagH2)];
     } else if (element.localName == tagH3) {
-      _handleHeadingElement(nodes, element, tagH3);
+      return [_handleHeadingElement(element, tagH3)];
     } else if (element.localName == tagUnorderedList) {
-      _handleUnorderedList(nodes, element);
+      return _handleUnorderedList(element);
+    } else if (element.localName == tagOrderedList) {
+      return _handleOrderedList(element);
     } else if (element.localName == tagList) {
-      _handleListElement(nodes, element);
+      return _handleListElement(element);
     } else if (element.localName == tagParagraph) {
-      _handleParagraph(nodes, element, attributes);
+      return [_handleParagraph(element, attributes)];
     } else {
       final delta = Delta();
       delta.insert(element.text);
       if (delta.operations.isNotEmpty) {
-        nodes.add(TextNode(type: "text", delta: delta));
+        return [TextNode(type: "text", delta: delta)];
       }
     }
+    return [];
   }
 
-  _handleParagraph(List<Node> nodes, html.Element element,
+  Node _handleParagraph(html.Element element,
       [Map<String, dynamic>? attributes]) {
     _inParagraph = true;
-    _handleRichText(nodes, element, attributes);
+    final node = _handleRichText(element, attributes);
     _inParagraph = false;
+    return node;
+  }
+
+  Map<String, String> _cssStringToMap(String? cssString) {
+    final result = <String, String>{};
+    if (cssString == null) {
+      return result;
+    }
+
+    final entries = cssString.split(";");
+    for (final entry in entries) {
+      final tuples = entry.split(":");
+      if (tuples.length < 2) {
+        continue;
+      }
+      result[tuples[0]] = tuples[1];
+    }
+
+    return result;
   }
 
   Attributes? _getDeltaAttributesFromHtmlAttributes(
       LinkedHashMap<Object, String> htmlAttributes) {
     final attrs = <String, dynamic>{};
     final styleString = htmlAttributes["style"];
-    if (styleString != null) {
-      final entries = styleString.split(";");
-      for (final entry in entries) {
-        final tuples = entry.split(":");
-        if (tuples.length < 2) {
-          continue;
-        }
-        if (tuples[0] == "font-weight") {
-          int? weight = int.tryParse(tuples[1]);
-          if (weight != null && weight > 500) {
-            attrs["bold"] = true;
-          }
-        }
+    final cssMap = _cssStringToMap(styleString);
+
+    final fontWeightStr = cssMap["font-weight"];
+    if (fontWeightStr != null) {
+      int? weight = int.tryParse(fontWeightStr);
+      if (weight != null && weight > 500) {
+        attrs["bold"] = true;
       }
     }
 
+    final backgroundColorStr = cssMap["background-color"];
+    final backgroundColor = _tryParseCssColorString(backgroundColorStr);
+    if (backgroundColor != null) {
+      attrs[StyleKey.backgroundColor] =
+          '0x${backgroundColor.value.toRadixString(16)}';
+    }
+
     return attrs.isEmpty ? null : attrs;
+  }
+
+  /// Try to parse the `rgba(red, greed, blue, alpha)`
+  /// from the string.
+  Color? _tryParseCssColorString(String? colorString) {
+    if (colorString == null) {
+      return null;
+    }
+    final reg = RegExp(r'rgba\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)');
+    final match = reg.firstMatch(colorString);
+    if (match == null) {
+      return null;
+    }
+
+    if (match.groupCount < 4) {
+      return null;
+    }
+    final redStr = match.group(1);
+    final greenStr = match.group(2);
+    final blueStr = match.group(3);
+    final alphaStr = match.group(4);
+
+    final red = redStr != null ? int.tryParse(redStr) : null;
+    final green = greenStr != null ? int.tryParse(greenStr) : null;
+    final blue = blueStr != null ? int.tryParse(blueStr) : null;
+    final alpha = alphaStr != null ? int.tryParse(alphaStr) : null;
+
+    if (red == null || green == null || blue == null || alpha == null) {
+      return null;
+    }
+
+    return Color.fromARGB(alpha, red, green, blue);
   }
 
   _handleRichTextElement(Delta delta, html.Element element) {
@@ -141,15 +208,27 @@ class HTMLConverter {
     }
   }
 
-  _handleRichText(List<Node> nodes, html.Element element,
+  /// A container contains a <input type="checkbox" > will
+  /// be regarded as a checkbox block.
+  ///
+  /// A container contains a <img /> will be regarded as a image block
+  Node _handleRichText(html.Element element,
       [Map<String, dynamic>? attributes]) {
     final image = element.querySelector(tagImage);
     if (image != null) {
-      _handleImage(nodes, image);
-      return;
+      final imageNode = _handleImage(image);
+      return imageNode;
+    }
+    final testInput = element.querySelector("input");
+    bool checked = false;
+    final isCheckbox =
+        testInput != null && testInput.attributes["type"] == "checkbox";
+    if (isCheckbox) {
+      checked = testInput.attributes.containsKey("checked") &&
+          testInput.attributes["checked"] != "false";
     }
 
-    var delta = Delta();
+    final delta = Delta();
 
     for (final child in element.nodes.toList()) {
       if (child is html.Element) {
@@ -159,100 +238,258 @@ class HTMLConverter {
       }
     }
 
-    if (delta.operations.isNotEmpty) {
-      nodes.add(TextNode(type: "text", delta: delta, attributes: attributes));
+    final textNode =
+        TextNode(type: "text", delta: delta, attributes: attributes);
+    if (isCheckbox) {
+      textNode.attributes["subtype"] = StyleKey.checkbox;
+      textNode.attributes["checkbox"] = checked;
     }
+    return textNode;
   }
 
-  _handleImage(List<Node> nodes, html.Element element) {
+  Node _handleImage(html.Element element) {
     final src = element.attributes["src"];
     final attributes = <String, dynamic>{};
     if (src != null) {
       attributes["image_src"] = src;
     }
-    debugPrint("insert image: $src");
-    nodes.add(
-        Node(type: "image", attributes: attributes, children: LinkedList()));
+    return Node(type: "image", attributes: attributes, children: LinkedList());
   }
 
-  _handleUnorderedList(List<Node> nodes, html.Element element) {
+  List<Node> _handleUnorderedList(html.Element element) {
+    final result = <Node>[];
     element.children.forEach((child) {
-      _handleListElement(nodes, child);
+      result.addAll(
+          _handleListElement(child, {"subtype": StyleKey.bulletedList}));
     });
+    return result;
   }
 
-  _handleHeadingElement(
-    List<Node> nodes,
+  List<Node> _handleOrderedList(html.Element element) {
+    final result = <Node>[];
+    for (var i = 0; i < element.children.length; i++) {
+      final child = element.children[i];
+      result.addAll(_handleListElement(
+          child, {"subtype": StyleKey.numberList, "number": i + 1}));
+    }
+    return result;
+  }
+
+  Node _handleHeadingElement(
     html.Element element,
     String headingStyle,
   ) {
     final delta = Delta();
     delta.insert(element.text);
-    if (delta.operations.isNotEmpty) {
-      nodes.add(TextNode(
-          type: "text",
-          attributes: {"subtype": "heading", "heading": headingStyle},
-          delta: delta));
-    }
+    return TextNode(
+        type: "text",
+        attributes: {"subtype": "heading", "heading": headingStyle},
+        delta: delta);
   }
 
-  _handleListElement(List<Node> nodes, html.Element element) {
+  List<Node> _handleListElement(html.Element element,
+      [Map<String, dynamic>? attributes]) {
+    final result = <Node>[];
     final childNodes = element.nodes.toList();
     for (final child in childNodes) {
       if (child is html.Element) {
-        _handleElement(nodes, child, {"subtype": "bulleted-list"});
+        result.addAll(_handleElement(child, attributes));
       }
     }
+    return result;
   }
 }
 
-html.Element deltaToHtml(Delta delta, [String? subType]) {
-  final childNodes = <html.Node>[];
-  String tagName = tagParagraph;
+/// [NodesToHTMLConverter] is used to convert the nodes to HTML.
+/// Can be used to copy & paste, exporting the document.
+class NodesToHTMLConverter {
+  final List<Node> nodes;
+  final int? startOffset;
+  final int? endOffset;
+  final List<html.Node> _result = [];
 
-  if (subType == "bulleted-list") {
-    tagName = tagList;
-  }
+  /// According to the W3C specs. The bullet list should be wrapped as
+  ///
+  /// <ul>
+  ///   <li>xxx</li>
+  ///   <li>xxx</li>
+  ///   <li>xxx</li>
+  /// </ul>
+  ///
+  /// This container is used to save the list elements temporarily.
+  html.Element? _stashListContainer;
 
-  for (final op in delta.operations) {
-    if (op is TextInsert) {
-      final attributes = op.attributes;
-      if (attributes != null && attributes["bold"] == true) {
-        final strong = html.Element.tag("strong");
-        strong.append(html.Text(op.content));
-        childNodes.add(strong);
-      } else {
-        childNodes.add(html.Text(op.content));
+  NodesToHTMLConverter(
+      {required this.nodes, this.startOffset, this.endOffset}) {
+    if (nodes.isEmpty) {
+      return;
+    } else if (nodes.length == 1) {
+      final first = nodes.first;
+      if (first is TextNode) {
+        nodes[0] = first.copyWith(
+            delta: first.delta.slice(startOffset ?? 0, endOffset));
+      }
+    } else {
+      final first = nodes.first;
+      final last = nodes.last;
+      if (first is TextNode) {
+        nodes[0] = first.copyWith(delta: first.delta.slice(startOffset ?? 0));
+      }
+      if (last is TextNode) {
+        nodes[nodes.length - 1] =
+            last.copyWith(delta: last.delta.slice(0, endOffset));
       }
     }
   }
 
-  if (tagName != tagParagraph) {
-    final p = html.Element.tag(tagParagraph);
-    for (final node in childNodes) {
-      p.append(node);
+  List<html.Node> toHTMLNodes() {
+    for (final node in nodes) {
+      if (node.type == "text") {
+        final textNode = node as TextNode;
+        if (node == nodes.first) {
+          _addTextNode(textNode);
+        } else if (node == nodes.last) {
+          _addTextNode(textNode, end: endOffset);
+        } else {
+          _addTextNode(textNode);
+        }
+      }
+      // TODO: handle image and other blocks
     }
-    final result = html.Element.tag("li");
-    result.append(p);
-    return result;
-  } else {
-    final p = html.Element.tag(tagName);
-    for (final node in childNodes) {
-      p.append(node);
+    if (_stashListContainer != null) {
+      _result.add(_stashListContainer!);
+      _stashListContainer = null;
     }
-    return p;
+    return _result;
+  }
+
+  _addTextNode(TextNode textNode, {int? end}) {
+    _addElement(textNode, _textNodeToHtml(textNode, end: end));
+  }
+
+  _addElement(TextNode textNode, html.Element element) {
+    if (element.localName == tagList) {
+      final isNumbered = textNode.attributes["subtype"] == StyleKey.numberList;
+      _stashListContainer ??=
+          html.Element.tag(isNumbered ? tagOrderedList : tagUnorderedList);
+      _stashListContainer?.append(element);
+    } else {
+      if (_stashListContainer != null) {
+        _result.add(_stashListContainer!);
+        _stashListContainer = null;
+      }
+      _result.add(element);
+    }
+  }
+
+  String toHTMLString() {
+    final elements = toHTMLNodes();
+    final copyString = elements.fold<String>(
+        "", ((previousValue, element) => previousValue + stringify(element)));
+    return copyString;
+  }
+
+  html.Element _textNodeToHtml(TextNode textNode, {int? end}) {
+    String? subType = textNode.attributes["subtype"];
+    return _deltaToHtml(textNode.delta,
+        subType: subType,
+        end: end,
+        checked: textNode.attributes["checkbox"] == true);
+  }
+
+  String _attributesToCssStyle(Map<String, dynamic> attributes) {
+    final cssMap = <String, String>{};
+    if (attributes[StyleKey.backgroundColor] != null) {
+      final color = Color(
+        int.parse(attributes[StyleKey.backgroundColor]),
+      );
+      cssMap["background-color"] = color.toRgbaString();
+    }
+    if (attributes[StyleKey.color] != null) {
+      final color = Color(
+        int.parse(attributes[StyleKey.color]),
+      );
+      cssMap["color"] = color.toRgbaString();
+    }
+    if (attributes[StyleKey.bold] == true) {
+      cssMap["font-weight"] = "bold";
+    }
+    return _cssMapToCssStyle(cssMap);
+  }
+
+  String _cssMapToCssStyle(Map<String, String> cssMap) {
+    return cssMap.entries.fold("", (previousValue, element) {
+      final kv = '${element.key}: ${element.value}';
+      if (previousValue.isEmpty) {
+        return kv;
+      }
+      return '$previousValue; $kv';
+    });
+  }
+
+  html.Element _deltaToHtml(Delta delta,
+      {String? subType, int? end, bool? checked}) {
+    if (end != null) {
+      delta = delta.slice(0, end);
+    }
+
+    final childNodes = <html.Node>[];
+    String tagName = tagParagraph;
+
+    if (subType == StyleKey.bulletedList || subType == StyleKey.numberList) {
+      tagName = tagList;
+    } else if (subType == StyleKey.checkbox) {
+      final node = html.Element.html('<input type="checkbox" />');
+      if (checked != null && checked) {
+        node.attributes["checked"] = "true";
+      }
+      childNodes.add(node);
+    }
+
+    for (final op in delta.operations) {
+      if (op is TextInsert) {
+        final attributes = op.attributes;
+        if (attributes != null) {
+          if (attributes.length == 1 && attributes[StyleKey.bold] == true) {
+            final strong = html.Element.tag(tagStrong);
+            strong.append(html.Text(op.content));
+            childNodes.add(strong);
+          } else {
+            final span = html.Element.tag(tagSpan);
+            final cssString = _attributesToCssStyle(attributes);
+            if (cssString.isNotEmpty) {
+              span.attributes["style"] = cssString;
+            }
+            span.append(html.Text(op.content));
+            childNodes.add(span);
+          }
+        } else {
+          childNodes.add(html.Text(op.content));
+        }
+      }
+    }
+
+    if (tagName != tagParagraph) {
+      final p = html.Element.tag(tagParagraph);
+      for (final node in childNodes) {
+        p.append(node);
+      }
+      final result = html.Element.tag(tagList);
+      result.append(p);
+      return result;
+    } else {
+      final p = html.Element.tag(tagName);
+      for (final node in childNodes) {
+        p.append(node);
+      }
+      return p;
+    }
   }
 }
 
 String stringify(html.Node node) {
   if (node is html.Element) {
-    String result = '<${node.localName}>';
-
-    for (final node in node.nodes) {
-      result += stringify(node);
-    }
-
-    return result += '</${node.localName}>';
+    return node.outerHtml;
   }
 
   if (node is html.Text) {
