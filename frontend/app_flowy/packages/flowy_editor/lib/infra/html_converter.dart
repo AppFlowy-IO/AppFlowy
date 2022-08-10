@@ -4,7 +4,7 @@ import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/text_delta.dart';
 import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/delete_text_handler.dart';
+import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
 
@@ -21,6 +21,12 @@ const String tagBold = "b";
 const String tagStrong = "strong";
 const String tagSpan = "span";
 const String tagCode = "code";
+
+extension on Color {
+  String toRgbaString() {
+    return 'rgba($red, $green, $blue, $alpha)';
+  }
+}
 
 /// Converting the HTML to nodes
 class HTMLToNodesConverter {
@@ -104,27 +110,76 @@ class HTMLToNodesConverter {
     return node;
   }
 
+  Map<String, String> _cssStringToMap(String? cssString) {
+    final result = <String, String>{};
+    if (cssString == null) {
+      return result;
+    }
+
+    final entries = cssString.split(";");
+    for (final entry in entries) {
+      final tuples = entry.split(":");
+      if (tuples.length < 2) {
+        continue;
+      }
+      result[tuples[0]] = tuples[1];
+    }
+
+    return result;
+  }
+
   Attributes? _getDeltaAttributesFromHtmlAttributes(
       LinkedHashMap<Object, String> htmlAttributes) {
     final attrs = <String, dynamic>{};
     final styleString = htmlAttributes["style"];
-    if (styleString != null) {
-      final entries = styleString.split(";");
-      for (final entry in entries) {
-        final tuples = entry.split(":");
-        if (tuples.length < 2) {
-          continue;
-        }
-        if (tuples[0] == "font-weight") {
-          int? weight = int.tryParse(tuples[1]);
-          if (weight != null && weight > 500) {
-            attrs["bold"] = true;
-          }
-        }
+    final cssMap = _cssStringToMap(styleString);
+
+    final fontWeightStr = cssMap["font-weight"];
+    if (fontWeightStr != null) {
+      int? weight = int.tryParse(fontWeightStr);
+      if (weight != null && weight > 500) {
+        attrs["bold"] = true;
       }
     }
 
+    final backgroundColorStr = cssMap["background-color"];
+    final backgroundColor = _tryParseCssColorString(backgroundColorStr);
+    if (backgroundColor != null) {
+      attrs[StyleKey.backgroundColor] =
+          '0x${backgroundColor.value.toRadixString(16)}';
+    }
+
     return attrs.isEmpty ? null : attrs;
+  }
+
+  Color? _tryParseCssColorString(String? colorString) {
+    if (colorString == null) {
+      return null;
+    }
+    final reg = RegExp(r'rgba\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)');
+    final match = reg.firstMatch(colorString);
+    if (match == null) {
+      return null;
+    }
+
+    if (match.groupCount < 4) {
+      return null;
+    }
+    final redStr = match.group(1);
+    final greenStr = match.group(2);
+    final blueStr = match.group(3);
+    final alphaStr = match.group(4);
+
+    final red = redStr != null ? int.tryParse(redStr) : null;
+    final green = greenStr != null ? int.tryParse(greenStr) : null;
+    final blue = blueStr != null ? int.tryParse(blueStr) : null;
+    final alpha = alphaStr != null ? int.tryParse(alphaStr) : null;
+
+    if (red == null || green == null || blue == null || alpha == null) {
+      return null;
+    }
+
+    return Color.fromARGB(alpha, red, green, blue);
   }
 
   _handleRichTextElement(Delta delta, html.Element element) {
@@ -321,9 +376,19 @@ class NodesToHTMLConverter {
   String _attributesToCssStyle(Map<String, dynamic> attributes) {
     final cssMap = <String, String>{};
     if (attributes[StyleKey.backgroundColor] != null) {
-      cssMap["background-color"] = attributes[StyleKey.backgroundColor];
-    } else if (attributes[StyleKey.color] != null) {
-      cssMap["color"] = attributes[StyleKey.color];
+      final color = Color(
+        int.parse(attributes[StyleKey.backgroundColor]),
+      );
+      cssMap["background-color"] = color.toRgbaString();
+    }
+    if (attributes[StyleKey.color] != null) {
+      final color = Color(
+        int.parse(attributes[StyleKey.color]),
+      );
+      cssMap["color"] = color.toRgbaString();
+    }
+    if (attributes[StyleKey.bold] == true) {
+      cssMap["font-weight"] = "bold";
     }
     return _cssMapToCssStyle(cssMap);
   }
@@ -334,7 +399,7 @@ class NodesToHTMLConverter {
       if (previousValue.isEmpty) {
         return kv;
       }
-      return '$previousValue; $kv"';
+      return '$previousValue; $kv';
     });
   }
 
@@ -360,7 +425,7 @@ class NodesToHTMLConverter {
     for (final op in delta.operations) {
       if (op is TextInsert) {
         final attributes = op.attributes;
-        if (attributes != null && attributes[StyleKey.bold] == true) {
+        if (attributes != null) {
           if (attributes.length == 1 && attributes[StyleKey.bold] == true) {
             final strong = html.Element.tag(tagStrong);
             strong.append(html.Text(op.content));
