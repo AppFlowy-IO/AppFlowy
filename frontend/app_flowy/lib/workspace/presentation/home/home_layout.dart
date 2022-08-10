@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/time/duration.dart';
@@ -38,7 +40,8 @@ class HomeLayout {
     }
 
     homePageLOffset = showMenu ? menuWidth : 0.0;
-    menuSpacing = showMenu ? 0 : 80.0;
+
+    menuSpacing = !showMenu && Platform.isMacOS ? 80.0 : 0.0;
     animDuration = .35.seconds;
 
     editPanelWidth = HomeSizes.editPanelWidth;
