@@ -64,13 +64,17 @@ class ViewDisclosureButton extends StatelessWidget
 class ViewDisclosureRegion extends StatelessWidget
     with ActionList<ViewDisclosureActionWrapper>, FlowyOverlayDelegate {
   final Widget child;
+  final Function() onTap;
   final Function(dartz.Option<ViewDisclosureAction>) onSelected;
   final _items = ViewDisclosureAction.values
       .map((action) => ViewDisclosureActionWrapper(action))
       .toList();
 
   ViewDisclosureRegion(
-      {Key? key, required this.onSelected, required this.child})
+      {Key? key,
+      required this.onSelected,
+      required this.onTap,
+      required this.child})
       : super(key: key);
 
   @override
@@ -96,6 +100,11 @@ class ViewDisclosureRegion extends StatelessWidget
             );
           };
 
+  @override
+  void didRemove() {
+    onSelected(dartz.none());
+  }
+
   void _handleClick(PointerDownEvent event, BuildContext context) {
     if (event.kind == PointerDeviceKind.mouse &&
         event.buttons == kSecondaryMouseButton) {
@@ -103,6 +112,7 @@ class ViewDisclosureRegion extends StatelessWidget
       Offset position = box.localToGlobal(Offset.zero);
       double x = event.position.dx - position.dx - box.size.width;
       double y = event.position.dy - position.dy - box.size.height;
+      onTap();
       show(context, anchorOffset: Offset(x, y));
     }
   }
