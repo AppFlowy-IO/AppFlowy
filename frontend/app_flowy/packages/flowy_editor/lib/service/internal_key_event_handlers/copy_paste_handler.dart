@@ -60,10 +60,7 @@ _handleCopy(EditorState editorState) async {
     final nodeAtPath = editorState.document.nodeAtPath(selection.end.path)!;
     if (nodeAtPath.type == "text") {
       final textNode = nodeAtPath as TextNode;
-      final delta =
-          textNode.delta.slice(selection.start.offset, selection.end.offset);
-
-      final htmlString = stringify(deltaToHtml(delta));
+      final htmlString = stringify(textNodeToHtml(textNode));
       debugPrint('copy html: $htmlString');
       RichClipboard.setData(RichClipboardData(html: htmlString));
     } else {
@@ -81,18 +78,12 @@ _handleCopy(EditorState editorState) async {
     final node = traverser.current;
     if (node.type == "text") {
       final textNode = node as TextNode;
-      String? subType = textNode.attributes["subtype"];
       if (node == beginNode) {
-        final htmlElement =
-            deltaToHtml(textNode.delta.slice(selection.start.offset), subType);
-        nodes.add(htmlElement);
+        nodes.add(textNodeToHtml(textNode));
       } else if (node == endNode) {
-        final htmlElement =
-            deltaToHtml(textNode.delta.slice(0, selection.end.offset), subType);
-        nodes.add(htmlElement);
+        nodes.add(textNodeToHtml(textNode, end: selection.end.offset));
       } else {
-        final htmlElement = deltaToHtml(textNode.delta, subType);
-        nodes.add(htmlElement);
+        nodes.add(textNodeToHtml(textNode));
       }
     }
     // TODO: handle image and other blocks

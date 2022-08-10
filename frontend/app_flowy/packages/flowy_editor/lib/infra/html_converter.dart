@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flowy_editor/document/attributes.dart';
 import 'package:flowy_editor/document/node.dart';
 import 'package:flowy_editor/document/text_delta.dart';
+import 'package:flowy_editor/render/rich_text/rich_text_style.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
@@ -206,18 +207,29 @@ class HTMLConverter {
   }
 }
 
-html.Element deltaToHtml(Delta delta, [String? subType]) {
+html.Element textNodeToHtml(TextNode textNode, {int? end}) {
+  String? subType = textNode.attributes["subtype"];
+  return deltaToHtml(textNode.delta, subType: subType, end: end);
+}
+
+html.Element deltaToHtml(Delta delta, {String? subType, int? end}) {
+  if (end != null) {
+    delta = delta.slice(0, end);
+  }
+
   final childNodes = <html.Node>[];
   String tagName = tagParagraph;
 
-  if (subType == "bulleted-list") {
+  if (subType == StyleKey.bulletedList) {
     tagName = tagList;
+  } else if (subType == StyleKey.checkbox) {
+    childNodes.add(html.Element.html('<input type="checkbox" />'));
   }
 
   for (final op in delta.operations) {
     if (op is TextInsert) {
       final attributes = op.attributes;
-      if (attributes != null && attributes["bold"] == true) {
+      if (attributes != null && attributes[StyleKey.bold] == true) {
         final strong = html.Element.tag("strong");
         strong.append(html.Text(op.content));
         childNodes.add(strong);
@@ -246,13 +258,7 @@ html.Element deltaToHtml(Delta delta, [String? subType]) {
 
 String stringify(html.Node node) {
   if (node is html.Element) {
-    String result = '<${node.localName}>';
-
-    for (final node in node.nodes) {
-      result += stringify(node);
-    }
-
-    return result += '</${node.localName}>';
+    return node.outerHtml;
   }
 
   if (node is html.Text) {
