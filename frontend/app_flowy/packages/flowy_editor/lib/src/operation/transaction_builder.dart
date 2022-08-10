@@ -94,7 +94,7 @@ class TransactionBuilder {
       () => Delta()
         ..retain(firstOffset ?? firstLength)
         ..delete(firstLength - (firstOffset ?? firstLength))
-        ..addAll(secondNode.delta.slice(secondOffset, secondLength).operations),
+        ..addAll(secondNode.delta.slice(secondOffset, secondLength)),
     );
     afterSelection = Selection.collapsed(
       Position(
@@ -108,11 +108,8 @@ class TransactionBuilder {
       [Attributes? attributes]) {
     var newAttributes = attributes;
     if (index != 0 && attributes == null) {
-      newAttributes = node.delta
-          .slice(max(index - 1, 0), index)
-          .operations
-          .first
-          .attributes;
+      newAttributes =
+          node.delta.slice(max(index - 1, 0), index).first.attributes;
     }
     textEdit(
       node,
@@ -140,7 +137,7 @@ class TransactionBuilder {
       [Attributes? attributes]) {
     var newAttributes = attributes;
     if (attributes == null) {
-      final ops = node.delta.slice(index, index + length).operations;
+      final ops = node.delta.slice(index, index + length);
       if (ops.isNotEmpty) {
         newAttributes = ops.first.attributes;
       }

@@ -19,7 +19,7 @@ void main() {
       }).delete(4);
 
       final restores = delta.compose(death);
-      expect(restores.operations, <TextOperation>[
+      expect(restores.toList(), <TextOperation>[
         TextInsert('Gandalf', {'bold': true}),
         TextInsert(' the '),
         TextInsert('White', {'color': '#fff'}),

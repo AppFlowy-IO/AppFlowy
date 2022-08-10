@@ -219,7 +219,5 @@ class TextNode extends Node {
         delta: delta ?? this.delta,
       );
 
-  // TODO: It's unneccesry to compute everytime.
-  String toRawString() =>
-      _delta.operations.whereType<TextInsert>().map((op) => op.content).join();
+  String toRawString() => _delta.toRawString();
 }

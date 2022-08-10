@@ -71,7 +71,7 @@ class HTMLToNodesConverter {
         delta.insert(child.text ?? "");
       }
     }
-    if (delta.operations.isNotEmpty) {
+    if (delta.isNotEmpty) {
       result.add(TextNode(type: "text", delta: delta));
     }
     return result;
@@ -101,7 +101,7 @@ class HTMLToNodesConverter {
     } else {
       final delta = Delta();
       delta.insert(element.text);
-      if (delta.operations.isNotEmpty) {
+      if (delta.isNotEmpty) {
         return [TextNode(type: "text", delta: delta)];
       }
     }
@@ -446,7 +446,7 @@ class NodesToHTMLConverter {
       childNodes.add(node);
     }
 
-    for (final op in delta.operations) {
+    for (final op in delta) {
       if (op is TextInsert) {
         final attributes = op.attributes;
         if (attributes != null) {

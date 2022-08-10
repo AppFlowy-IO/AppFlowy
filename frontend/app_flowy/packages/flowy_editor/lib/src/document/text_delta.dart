@@ -257,8 +257,8 @@ TextOperation? _textOperationFromJson(Map<String, dynamic> json) {
 }
 
 // basically copy from: https://github.com/quilljs/delta
-class Delta {
-  final List<TextOperation> operations;
+class Delta extends Iterable<TextOperation> {
+  final List<TextOperation> _operations;
 
   factory Delta.fromJson(List<dynamic> list) {
     final operations = <TextOperation>[];
@@ -273,9 +273,9 @@ class Delta {
     return Delta(operations);
   }
 
-  Delta([List<TextOperation>? ops]) : operations = ops ?? <TextOperation>[];
+  Delta([List<TextOperation>? ops]) : _operations = ops ?? <TextOperation>[];
 
-  Delta addAll(List<TextOperation> textOps) {
+  Delta addAll(Iterable<TextOperation> textOps) {
     textOps.forEach(add);
     return this;
   }
@@ -285,8 +285,8 @@ class Delta {
       return this;
     }
 
-    if (operations.isNotEmpty) {
-      final lastOp = operations.last;
+    if (_operations.isNotEmpty) {
+      final lastOp = _operations.last;
       if (lastOp is TextDelete && textOp is TextDelete) {
         lastOp.length += textOp.length;
         return this;
@@ -299,9 +299,9 @@ class Delta {
         // if there is an delete before the insert
         // swap the order
         if (lastOp is TextDelete && textOp is TextInsert) {
-          operations.removeLast();
-          operations.add(textOp);
-          operations.add(lastOp);
+          _operations.removeLast();
+          _operations.add(textOp);
+          _operations.add(lastOp);
           return this;
         }
         if (lastOp is TextRetain && textOp is TextRetain) {
@@ -311,13 +311,13 @@ class Delta {
       }
     }
 
-    operations.add(textOp);
+    _operations.add(textOp);
     return this;
   }
 
   Delta slice(int start, [int? end]) {
     final result = Delta();
-    final iterator = _OpIterator(operations);
+    final iterator = _OpIterator(_operations);
     int index = 0;
 
     while ((end == null || index < end) && iterator.hasNext) {
@@ -351,13 +351,13 @@ class Delta {
   }
 
   int get length {
-    return operations.fold(
+    return _operations.fold(
         0, (previousValue, element) => previousValue + element.length);
   }
 
   Delta compose(Delta other) {
-    final thisIter = _OpIterator(operations);
-    final otherIter = _OpIterator(other.operations);
+    final thisIter = _OpIterator(_operations);
+    final otherIter = _OpIterator(other._operations);
     final ops = <TextOperation>[];
 
     final firstOther = otherIter.peek();
@@ -405,7 +405,7 @@ class Delta {
 
           // Optimization if rest of other is just retain
           if (!otherIter.hasNext &&
-              delta.operations[delta.operations.length - 1] == newOp) {
+              delta._operations[delta._operations.length - 1] == newOp) {
             final rest = Delta(thisIter.rest());
             return delta.concat(rest).chop();
           }
@@ -419,21 +419,21 @@ class Delta {
   }
 
   Delta concat(Delta other) {
-    var ops = [...operations];
-    if (other.operations.isNotEmpty) {
-      ops.add(other.operations[0]);
-      ops.addAll(other.operations.sublist(1));
+    var ops = [..._operations];
+    if (other._operations.isNotEmpty) {
+      ops.add(other._operations[0]);
+      ops.addAll(other._operations.sublist(1));
     }
     return Delta(ops);
   }
 
   Delta chop() {
-    if (operations.isEmpty) {
+    if (_operations.isEmpty) {
       return this;
     }
-    final lastOp = operations.last;
+    final lastOp = _operations.last;
     if (lastOp is TextRetain && (lastOp.attributes?.length ?? 0) == 0) {
-      operations.removeLast();
+      _operations.removeLast();
     }
     return this;
   }
@@ -443,17 +443,17 @@ class Delta {
     if (other is! Delta) {
       return false;
     }
-    return listEquals(operations, other.operations);
+    return listEquals(_operations, other._operations);
   }
 
   @override
   int get hashCode {
-    return hashList(operations);
+    return hashList(_operations);
   }
 
   Delta invert(Delta base) {
     final inverted = Delta();
-    operations.fold(0, (int previousValue, op) {
+    _operations.fold(0, (int previousValue, op) {
       if (op is TextInsert) {
         inverted.delete(op.length);
       } else if (op is TextRetain && op.attributes == null) {
@@ -462,7 +462,7 @@ class Delta {
       } else if (op is TextDelete || op is TextRetain) {
         final length = op.length;
         final slice = base.slice(previousValue, previousValue + length);
-        for (final baseOp in slice.operations) {
+        for (final baseOp in slice._operations) {
           if (op is TextDelete) {
             inverted.add(baseOp);
           } else if (op is TextRetain && op.attributes != null) {
@@ -478,6 +478,13 @@ class Delta {
   }
 
   List<dynamic> toJson() {
-    return operations.map((e) => e.toJson()).toList();
+    return _operations.map((e) => e.toJson()).toList();
   }
+
+  // TODO: It's unneccesry to compute everytime.
+  String toRawString() =>
+      _operations.whereType<TextInsert>().map((op) => op.content).join();
+
+  @override
+  Iterator<TextOperation> get iterator => _operations.iterator;
 }

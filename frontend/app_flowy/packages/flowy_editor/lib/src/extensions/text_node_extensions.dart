@@ -19,7 +19,7 @@ extension TextNodeExtension on TextNode {
       allSatisfyInSelection(StyleKey.strikethrough, selection);
 
   bool allSatisfyInSelection(String styleKey, Selection selection) {
-    final ops = delta.operations.whereType<TextInsert>();
+    final ops = delta.whereType<TextInsert>();
     var start = 0;
     for (final op in ops) {
       if (start >= selection.end.offset) {

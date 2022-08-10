@@ -175,8 +175,7 @@ _handlePastePlainText(EditorState editorState, String plainText) {
     final nodes = remains.map((e) {
       if (index++ == remains.length - 1) {
         return TextNode(
-            type: "text",
-            delta: Delta().insert(e).addAll(insertedLineSuffix.operations));
+            type: "text", delta: Delta().insert(e).addAll(insertedLineSuffix));
       }
       return TextNode(type: "text", delta: Delta().insert(e));
     }).toList();
@@ -246,7 +245,7 @@ _deleteSelectedContent(EditorState editorState) {
 
         if (endNode is TextNode) {
           final remain = endNode.delta.slice(selection.end.offset);
-          delta.addAll(remain.operations);
+          delta.addAll(remain);
         }
 
         return delta;
