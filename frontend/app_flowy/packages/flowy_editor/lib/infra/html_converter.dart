@@ -230,78 +230,53 @@ class HTMLToNodesConverter {
   }
 }
 
-class _HTMLNormalizer {
-  final List<html.Node> nodes;
-  html.Element? _pendingList;
-
-  _HTMLNormalizer(this.nodes);
-
-  List<html.Node> normalize() {
-    final result = <html.Node>[];
-
-    for (final item in nodes) {
-      if (item is html.Text) {
-        result.add(item);
-        continue;
-      }
-
-      if (item is html.Element) {
-        if (item.localName == "li") {
-          if (_pendingList != null) {
-            _pendingList!.append(item);
-          } else {
-            final ulItem = html.Element.tag("ul");
-            ulItem.append(item);
-
-            _pendingList = ulItem;
-          }
-        } else {
-          _pushList(result);
-          result.add(item);
-        }
-      }
-    }
-
-    return result;
-  }
-
-  _pushList(List<html.Node> result) {
-    if (_pendingList == null) {
-      return;
-    }
-    result.add(_pendingList!);
-    _pendingList = null;
-  }
-}
-
 class NodesToHTMLConverter {
   final List<Node> nodes;
   final int? startOffset;
   final int? endOffset;
+  final List<html.Node> _result = [];
+  html.Element? _stashListContainer;
 
   NodesToHTMLConverter({required this.nodes, this.startOffset, this.endOffset});
 
   List<html.Node> toHTMLNodes() {
-    final result = <html.Node>[];
     for (final node in nodes) {
       if (node.type == "text") {
         final textNode = node as TextNode;
         if (node == nodes.first) {
-          result.add(_textNodeToHtml(textNode));
+          _addTextNode(textNode);
         } else if (node == nodes.last) {
-          result.add(_textNodeToHtml(textNode, end: endOffset));
+          _addTextNode(textNode, end: endOffset);
         } else {
-          result.add(_textNodeToHtml(textNode));
+          _addTextNode(textNode);
         }
       }
       // TODO: handle image and other blocks
     }
-    return result;
+    return _result;
+  }
+
+  _addTextNode(TextNode textNode, {int? end}) {
+    _addElement(textNode, _textNodeToHtml(textNode, end: end));
+  }
+
+  _addElement(TextNode textNode, html.Element element) {
+    if (element.localName == tagList) {
+      final isNumbered = textNode.attributes["subtype"] == StyleKey.numberList;
+      _stashListContainer ??= html.Element.tag(isNumbered ? "ol" : "ul");
+      _stashListContainer?.append(element);
+    } else {
+      if (_stashListContainer != null) {
+        _result.add(_stashListContainer!);
+        _stashListContainer = null;
+      }
+      _result.add(element);
+    }
   }
 
   String toHTMLString() {
     final elements = toHTMLNodes();
-    final copyString = _HTMLNormalizer(elements).normalize().fold<String>(
+    final copyString = elements.fold<String>(
         "", ((previousValue, element) => previousValue + stringify(element)));
     return copyString;
   }
