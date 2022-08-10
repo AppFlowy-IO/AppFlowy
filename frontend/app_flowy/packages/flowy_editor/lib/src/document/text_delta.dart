@@ -477,7 +477,7 @@ class Delta extends Iterable<TextOperation> {
 
   int prevRunePosition(int pos) {
     if (pos == 0) {
-      return pos;
+      return pos - 1;
     }
     _rawString ??=
         _operations.whereType<TextInsert>().map((op) => op.content).join();
@@ -498,7 +498,7 @@ class Delta extends Iterable<TextOperation> {
       }
     }
 
-    return pos;
+    return stringContent.length;
   }
 
   String toRawString() {

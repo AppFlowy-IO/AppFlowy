@@ -279,9 +279,35 @@ void main() {
       expect(delta, expected);
     });
   });
-  test("stringIndexes", () {
-    final indexes = stringIndexes('😊');
-    expect(indexes[0], 0);
-    expect(indexes[1], 0);
+  group('runes', () {
+    test("stringIndexes", () {
+      final indexes = stringIndexes('😊');
+      expect(indexes[0], 0);
+      expect(indexes[1], 0);
+    });
+    test("next rune 1", () {
+      final delta = Delta()..insert('😊');
+      expect(delta.nextRunePosition(0), 2);
+    });
+    test("next rune 2", () {
+      final delta = Delta()..insert('😊a');
+      expect(delta.nextRunePosition(0), 2);
+    });
+    test("next rune 3", () {
+      final delta = Delta()..insert('😊陈');
+      expect(delta.nextRunePosition(2), 3);
+    });
+    test("prev rune 1", () {
+      final delta = Delta()..insert('😊陈');
+      expect(delta.prevRunePosition(2), 0);
+    });
+    test("prev rune 2", () {
+      final delta = Delta()..insert('😊');
+      expect(delta.prevRunePosition(2), 0);
+    });
+    test("prev rune 3", () {
+      final delta = Delta()..insert('😊');
+      expect(delta.prevRunePosition(0), -1);
+    });
   });
 }
