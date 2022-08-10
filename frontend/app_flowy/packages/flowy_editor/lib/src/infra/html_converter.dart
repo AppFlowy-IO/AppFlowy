@@ -31,6 +31,12 @@ extension on Color {
 /// Converting the HTML to nodes
 class HTMLToNodesConverter {
   final html.Document _document;
+
+  /// This flag is used for parsing HTML pasting from Google Docs
+  /// Google docs wraps the the content inside the `<b></b>` tag. It's strange.
+  ///
+  /// If a `<b>` element is parsing in the <p>, we regard it as as text spans.
+  /// Otherwise, it's parsed as a container.
   bool _inParagraph = false;
 
   HTMLToNodesConverter(String htmlString) : _document = parse(htmlString);
@@ -51,7 +57,7 @@ class HTMLToNodesConverter {
             child.localName == tagStrong) {
           _handleRichTextElement(delta, child);
         } else if (child.localName == tagBold) {
-          // Google docs wraps the the content inside the <b></b> tag.
+          // Google docs wraps the the content inside the `<b></b>` tag.
           // It's strange
           if (!_inParagraph) {
             result.addAll(_handleBTag(child));
@@ -152,6 +158,8 @@ class HTMLToNodesConverter {
     return attrs.isEmpty ? null : attrs;
   }
 
+  /// Try to parse the `rgba(red, greed, blue, alpha)`
+  /// from the string.
   Color? _tryParseCssColorString(String? colorString) {
     if (colorString == null) {
       return null;
@@ -200,6 +208,10 @@ class HTMLToNodesConverter {
     }
   }
 
+  /// A container contains a <input type="checkbox" > will
+  /// be regarded as a checkbox block.
+  ///
+  /// A container contains a <img /> will be regarded as a image block
   Node _handleRichText(html.Element element,
       [Map<String, dynamic>? attributes]) {
     final image = element.querySelector(tagImage);
@@ -288,11 +300,23 @@ class HTMLToNodesConverter {
   }
 }
 
+/// [NodesToHTMLConverter] is used to convert the nodes to HTML.
+/// Can be used to copy & paste, exporting the document.
 class NodesToHTMLConverter {
   final List<Node> nodes;
   final int? startOffset;
   final int? endOffset;
   final List<html.Node> _result = [];
+
+  /// According to the W3C specs. The bullet list should be wrapped as
+  ///
+  /// <ul>
+  ///   <li>xxx</li>
+  ///   <li>xxx</li>
+  ///   <li>xxx</li>
+  /// </ul>
+  ///
+  /// This container is used to save the list elements temporarily.
   html.Element? _stashListContainer;
 
   NodesToHTMLConverter(
