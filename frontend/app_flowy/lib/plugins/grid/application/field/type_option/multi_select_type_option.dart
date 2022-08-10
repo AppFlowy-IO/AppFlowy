@@ -8,8 +8,7 @@ import 'type_option_service.dart';
 import 'package:protobuf/protobuf.dart';
 
 class MultiSelectTypeOptionContext
-    extends TypeOptionContext<MultiSelectTypeOption>
-    with SelectOptionTypeOptionAction {
+    extends TypeOptionContext<MultiSelectTypeOption> with ISelectOptionAction {
   final TypeOptionFFIService service;
 
   MultiSelectTypeOptionContext({

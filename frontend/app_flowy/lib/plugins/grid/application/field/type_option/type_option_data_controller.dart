@@ -1,15 +1,30 @@
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/single_select_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
 import 'package:protobuf/protobuf.dart';
 import 'package:flowy_sdk/log.dart';
 
 abstract class TypeOptionDataParser<T> {
   T fromBuffer(List<int> buffer);
 }
+
+typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOption>;
+typedef RichTextTypeOptionContext = TypeOptionContext<RichTextTypeOption>;
+typedef CheckboxTypeOptionContext = TypeOptionContext<CheckboxTypeOption>;
+typedef URLTypeOptionContext = TypeOptionContext<URLTypeOption>;
+typedef DateTypeOptionContext = TypeOptionContext<DateTypeOption>;
+
+typedef SingleSelectTypeOptionContext
+    = TypeOptionContext<SingleSelectTypeOptionPB>;
 
 class TypeOptionContext<T extends GeneratedMessage> {
   T? _typeOptionObject;

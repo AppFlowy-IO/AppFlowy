@@ -3,8 +3,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'builder.dart';
 
-typedef URLTypeOptionContext = TypeOptionContext<URLTypeOption>;
-
 class URLTypeOptionWidgetDataParser
     extends TypeOptionDataParser<URLTypeOption> {
   @override

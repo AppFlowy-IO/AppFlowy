@@ -7,9 +7,7 @@ import 'select_option_type_option_bloc.dart';
 import 'type_option_data_controller.dart';
 import 'type_option_service.dart';
 
-class SingleSelectTypeOptionContext
-    extends TypeOptionContext<SingleSelectTypeOptionPB>
-    with SelectOptionTypeOptionAction {
+class SingleSelectTypeOptionContext with ISelectOptionAction {
   final TypeOptionFFIService service;
 
   SingleSelectTypeOptionContext({

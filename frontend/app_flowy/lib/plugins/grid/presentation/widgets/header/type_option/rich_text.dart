@@ -3,8 +3,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'builder.dart';
 
-typedef RichTextTypeOptionContext = TypeOptionContext<RichTextTypeOption>;
-
 class RichTextTypeOptionWidgetDataParser
     extends TypeOptionDataParser<RichTextTypeOption> {
   @override

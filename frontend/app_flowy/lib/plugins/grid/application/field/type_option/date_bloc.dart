@@ -8,8 +8,6 @@ import 'package:protobuf/protobuf.dart';
 import 'type_option_data_controller.dart';
 part 'date_bloc.freezed.dart';
 
-typedef DateTypeOptionContext = TypeOptionContext<DateTypeOption>;
-
 class DateTypeOptionDataParser extends TypeOptionDataParser<DateTypeOption> {
   @override
   DateTypeOption fromBuffer(List<int> buffer) {

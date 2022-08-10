@@ -8,8 +8,6 @@ import 'type_option_data_controller.dart';
 
 part 'number_bloc.freezed.dart';
 
-typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOption>;
-
 class NumberTypeOptionWidgetDataParser
     extends TypeOptionDataParser<NumberTypeOption> {
   @override

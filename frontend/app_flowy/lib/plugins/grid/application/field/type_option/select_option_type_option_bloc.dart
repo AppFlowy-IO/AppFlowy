@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 part 'select_option_type_option_bloc.freezed.dart';
 
-abstract class SelectOptionTypeOptionAction {
+abstract class ISelectOptionAction {
   Future<List<SelectOptionPB>> Function(String) get insertOption;
 
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption;
@@ -15,7 +15,7 @@ abstract class SelectOptionTypeOptionAction {
 
 class SelectOptionTypeOptionBloc
     extends Bloc<SelectOptionTypeOptionEvent, SelectOptionTypeOptionState> {
-  final SelectOptionTypeOptionAction typeOptionAction;
+  final ISelectOptionAction typeOptionAction;
 
   SelectOptionTypeOptionBloc({
     required List<SelectOptionPB> options,
