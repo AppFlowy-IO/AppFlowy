@@ -44,7 +44,6 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   final _placeholderTextKey = GlobalKey();
 
   final _lineHeight = 1.5;
-  double? _cursorHeight;
 
   RenderParagraph get _renderParagraph =>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
@@ -55,13 +54,6 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   @override
   Widget build(BuildContext context) {
     return _buildRichText(context);
-  }
-
-  @override
-  void didUpdateWidget(covariant FlowyRichText oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    _cursorHeight = null;
   }
 
   @override
@@ -76,16 +68,18 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     final textPosition = TextPosition(offset: position.offset);
     final cursorOffset =
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
-    _cursorHeight ??= widget.cursorHeight ??
+    final cursorHeight = widget.cursorHeight ??
         _renderParagraph.getFullHeightForCaret(textPosition) ??
         _placeholderRenderParagraph.getFullHeightForCaret(textPosition) ??
-        18.0; // default height
-    return Rect.fromLTWH(
+        16.0; // default height
+
+    final rect = Rect.fromLTWH(
       cursorOffset.dx - (widget.cursorWidth / 2),
       cursorOffset.dy,
       widget.cursorWidth,
-      _cursorHeight!,
+      cursorHeight,
     );
+    return rect;
   }
 
   @override
@@ -148,24 +142,13 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildPlaceholderText(BuildContext context) {
-    final textSpan = TextSpan(
-      children: [
-        TextSpan(
-          text: widget.placeholderText,
-          style: TextStyle(
-            color: widget.textNode.toRawString().isNotEmpty
-                ? Colors.transparent
-                : Colors.grey,
-            fontSize: baseFontSize,
-            height: _lineHeight,
-          ),
-        ),
-      ],
-    );
+    final textSpan = _placeholderTextSpan;
     return RichText(
       key: _placeholderTextKey,
-      text: widget.placeholderTextSpanDecorator != null
-          ? widget.placeholderTextSpanDecorator!(textSpan)
+      textHeightBehavior: const TextHeightBehavior(
+          applyHeightToFirstAscent: false, applyHeightToLastDescent: false),
+      text: widget.textSpanDecorator != null
+          ? widget.textSpanDecorator!(textSpan)
           : textSpan,
     );
   }
@@ -219,4 +202,14 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
                 ).toTextSpan())
             .toList(growable: false),
       );
+
+  TextSpan get _placeholderTextSpan => TextSpan(children: [
+        RichTextStyle(
+          text: widget.placeholderText,
+          attributes: {
+            StyleKey.color: '0xFF707070',
+          },
+          height: _lineHeight,
+        ).toTextSpan()
+      ]);
 }

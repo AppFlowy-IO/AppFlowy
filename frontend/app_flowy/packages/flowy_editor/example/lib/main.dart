@@ -63,7 +63,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _buildBody(),
+      body: Container(
+        alignment: Alignment.topCenter,
+        child: _buildBody(),
+      ),
       floatingActionButton: _buildExpandableFab(),
     );
   }
