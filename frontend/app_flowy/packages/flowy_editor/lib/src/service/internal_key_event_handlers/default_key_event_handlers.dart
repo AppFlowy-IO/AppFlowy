@@ -8,6 +8,7 @@ import 'package:flowy_editor/src/service/internal_key_event_handlers/slash_handl
 import 'package:flowy_editor/src/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart';
 import 'package:flowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
 import 'package:flowy_editor/src/service/internal_key_event_handlers/select_all_handler.dart';
+import 'package:flowy_editor/src/service/internal_key_event_handlers/page_up_down_handler.dart';
 import 'package:flowy_editor/src/service/keyboard_service.dart';
 
 List<FlowyKeyEventHandler> defaultKeyEventHandlers = [
@@ -21,4 +22,5 @@ List<FlowyKeyEventHandler> defaultKeyEventHandlers = [
   updateTextStyleByCommandXHandler,
   whiteSpaceHandler,
   selectAllHandler,
+  pageUpDownHandler,
 ];
