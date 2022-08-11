@@ -1,9 +1,10 @@
 import 'package:app_flowy/user/application/user_listener.dart';
-import 'package:app_flowy/workspace/application/edit_pannel/edit_context.dart';
+import 'package:app_flowy/workspace/application/edit_panel/edit_context.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart' show CurrentWorkspaceSettingPB;
+import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart'
+    show CurrentWorkspaceSettingPB;
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -24,7 +25,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               onAuthChanged: (result) => _authDidChanged(result),
               onSettingUpdated: (result) {
                 result.fold(
-                  (setting) => add(HomeEvent.didReceiveWorkspaceSetting(setting)),
+                  (setting) =>
+                      add(HomeEvent.didReceiveWorkspaceSetting(setting)),
                   (r) => Log.error(r),
                 );
               },
@@ -33,11 +35,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           showLoading: (e) async {
             emit(state.copyWith(isLoading: e.isLoading));
           },
-          setEditPannel: (e) async {
-            emit(state.copyWith(pannelContext: some(e.editContext)));
+          setEditPanel: (e) async {
+            emit(state.copyWith(panelContext: some(e.editContext)));
           },
-          dismissEditPannel: (value) async {
-            emit(state.copyWith(pannelContext: none()));
+          dismissEditPanel: (value) async {
+            emit(state.copyWith(panelContext: none()));
           },
           forceCollapse: (e) async {
             emit(state.copyWith(forceCollapse: e.forceCollapse));
@@ -51,8 +53,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           collapseMenu: (e) {
             emit(state.copyWith(isMenuCollapsed: !state.isMenuCollapsed));
           },
-          editPannelResized: (e) {
-            final newOffset = (state.resizeOffset + e.offset).clamp(-50, 200).toDouble();
+          editPanelResized: (e) {
+            final newOffset =
+                (state.resizeOffset + e.offset).clamp(-50, 200).toDouble();
             emit(state.copyWith(resizeOffset: newOffset));
           },
         );
@@ -80,12 +83,14 @@ class HomeEvent with _$HomeEvent {
   const factory HomeEvent.initial() = _Initial;
   const factory HomeEvent.showLoading(bool isLoading) = _ShowLoading;
   const factory HomeEvent.forceCollapse(bool forceCollapse) = _ForceCollapse;
-  const factory HomeEvent.setEditPannel(EditPannelContext editContext) = _ShowEditPannel;
-  const factory HomeEvent.dismissEditPannel() = _DismissEditPannel;
-  const factory HomeEvent.didReceiveWorkspaceSetting(CurrentWorkspaceSettingPB setting) = _DidReceiveWorkspaceSetting;
+  const factory HomeEvent.setEditPanel(EditPanelContext editContext) =
+      _ShowEditPanel;
+  const factory HomeEvent.dismissEditPanel() = _DismissEditPanel;
+  const factory HomeEvent.didReceiveWorkspaceSetting(
+      CurrentWorkspaceSettingPB setting) = _DidReceiveWorkspaceSetting;
   const factory HomeEvent.unauthorized(String msg) = _Unauthorized;
   const factory HomeEvent.collapseMenu() = _CollapseMenu;
-  const factory HomeEvent.editPannelResized(double offset) = _EditPannelResized;
+  const factory HomeEvent.editPanelResized(double offset) = _EditPanelResized;
 }
 
 @freezed
@@ -93,17 +98,18 @@ class HomeState with _$HomeState {
   const factory HomeState({
     required bool isLoading,
     required bool forceCollapse,
-    required Option<EditPannelContext> pannelContext,
+    required Option<EditPanelContext> panelContext,
     required CurrentWorkspaceSettingPB workspaceSetting,
     required bool unauthorized,
     required bool isMenuCollapsed,
     required double resizeOffset,
   }) = _HomeState;
 
-  factory HomeState.initial(CurrentWorkspaceSettingPB workspaceSetting) => HomeState(
+  factory HomeState.initial(CurrentWorkspaceSettingPB workspaceSetting) =>
+      HomeState(
         isLoading: false,
         forceCollapse: false,
-        pannelContext: none(),
+        panelContext: none(),
         workspaceSetting: workspaceSetting,
         unauthorized: false,
         isMenuCollapsed: false,

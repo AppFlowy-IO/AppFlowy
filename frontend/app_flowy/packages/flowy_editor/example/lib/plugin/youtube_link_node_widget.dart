@@ -32,7 +32,8 @@ class LinkNodeWidget extends StatefulWidget {
   State<LinkNodeWidget> createState() => _YouTubeLinkNodeWidgetState();
 }
 
-class _YouTubeLinkNodeWidgetState extends State<LinkNodeWidget> with Selectable {
+class _YouTubeLinkNodeWidgetState extends State<LinkNodeWidget>
+    with Selectable {
   Node get node => widget.node;
   EditorState get editorState => widget.editorState;
   String get src => widget.node.attributes['youtube_link'] as String;
@@ -67,12 +68,6 @@ class _YouTubeLinkNodeWidgetState extends State<LinkNodeWidget> with Selectable 
   }
 
   @override
-  Rect getCursorRectInPosition(Position position) {
-    // TODO: implement getCursorRectInPosition
-    throw UnimplementedError();
-  }
-
-  @override
   Position getPositionInOffset(Offset start) {
     // TODO: implement getPositionInOffset
     throw UnimplementedError();
@@ -85,16 +80,16 @@ class _YouTubeLinkNodeWidgetState extends State<LinkNodeWidget> with Selectable 
 
   late final PodPlayerController controller;
 
-@override
+  @override
   void initState() {
     controller = PodPlayerController(
       playVideoFrom: PlayVideoFrom.network(
-       src,
+        src,
       ),
     )..initialise();
-    super.initState();   
+    super.initState();
   }
-  
+
   Widget _build(BuildContext context) {
     return Column(
       children: [

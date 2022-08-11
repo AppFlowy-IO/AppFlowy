@@ -36,37 +36,57 @@ class ViewSectionItem extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (ctx) => getIt<ViewBloc>(param1: view)..add(const ViewEvent.initial())),
+        BlocProvider(
+            create: (ctx) =>
+                getIt<ViewBloc>(param1: view)..add(const ViewEvent.initial())),
       ],
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: InkWell(
-              onTap: () => onSelected(context.read<ViewBloc>().state.view),
-              child: FlowyHover(
-                style: HoverStyle(hoverColor: theme.bg3),
-                builder: (_, onHover) => _render(context, onHover, state, theme.iconColor),
-                setSelected: () => state.isEditing || isSelected,
-              ),
-            ),
-          );
+          return ViewDisclosureRegion(
+              onTap: () => context
+                  .read<ViewBloc>()
+                  .add(const ViewEvent.setIsEditing(true)),
+              onSelected: (action) {
+                context
+                    .read<ViewBloc>()
+                    .add(const ViewEvent.setIsEditing(false));
+                _handleAction(context, action);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: InkWell(
+                  onTap: () => onSelected(context.read<ViewBloc>().state.view),
+                  child: FlowyHover(
+                    style: HoverStyle(hoverColor: theme.bg3),
+                    builder: (_, onHover) =>
+                        _render(context, onHover, state, theme.iconColor),
+                    setSelected: () => state.isEditing || isSelected,
+                  ),
+                ),
+              ));
         },
       ),
     );
   }
 
-  Widget _render(BuildContext context, bool onHover, ViewState state, Color iconColor) {
+  Widget _render(
+      BuildContext context, bool onHover, ViewState state, Color iconColor) {
     List<Widget> children = [
-      SizedBox(width: 16, height: 16, child: state.view.renderThumbnail(iconColor: iconColor)),
+      SizedBox(
+          width: 16,
+          height: 16,
+          child: state.view.renderThumbnail(iconColor: iconColor)),
       const HSpace(2),
-      Expanded(child: FlowyText.regular(state.view.name, fontSize: 12, overflow: TextOverflow.clip)),
+      Expanded(
+          child: FlowyText.regular(state.view.name,
+              fontSize: 12, overflow: TextOverflow.clip)),
     ];
 
     if (onHover || state.isEditing) {
       children.add(
         ViewDisclosureButton(
-          onTap: () => context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),
+          onTap: () =>
+              context.read<ViewBloc>().add(const ViewEvent.setIsEditing(true)),
           onSelected: (action) {
             context.read<ViewBloc>().add(const ViewEvent.setIsEditing(false));
             _handleAction(context, action);
@@ -84,7 +104,8 @@ class ViewSectionItem extends StatelessWidget {
     );
   }
 
-  void _handleAction(BuildContext context, dartz.Option<ViewDisclosureAction> action) {
+  void _handleAction(
+      BuildContext context, dartz.Option<ViewDisclosureAction> action) {
     action.foldRight({}, (action, previous) {
       switch (action) {
         case ViewDisclosureAction.rename:
