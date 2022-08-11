@@ -22,11 +22,15 @@ Attributes invertAttributes(Attributes? attr, Attributes? base) {
   });
 }
 
-Attributes? composeAttributes(Attributes? a, Attributes? b) {
+Attributes? composeAttributes(Attributes? a, Attributes? b,
+    [bool keepNull = false]) {
   a ??= {};
   b ??= {};
-  final Attributes attributes = {};
-  attributes.addAll(Map.from(b)..removeWhere((_, value) => value == null));
+  Attributes attributes = {...b};
+
+  if (!keepNull) {
+    attributes = Map.from(attributes)..removeWhere((_, value) => value == null);
+  }
 
   for (final entry in a.entries) {
     if (!b.containsKey(entry.key)) {
@@ -34,9 +38,5 @@ Attributes? composeAttributes(Attributes? a, Attributes? b) {
     }
   }
 
-  if (attributes.isEmpty) {
-    return null;
-  }
-
-  return attributes;
+  return attributes.isNotEmpty ? attributes : null;
 }

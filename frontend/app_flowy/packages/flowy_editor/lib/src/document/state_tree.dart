@@ -65,16 +65,15 @@ class StateTree {
     }
   }
 
-  Attributes? update(Path path, Attributes attributes) {
+  bool update(Path path, Attributes attributes) {
     if (path.isEmpty) {
-      return null;
+      return false;
     }
     final updatedNode = root.childAtPath(path);
     if (updatedNode == null) {
-      return null;
+      return false;
     }
-    final previousAttributes = Attributes.from(updatedNode.attributes);
     updatedNode.updateAttributes(attributes);
-    return previousAttributes;
+    return true;
   }
 }

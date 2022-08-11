@@ -40,10 +40,12 @@ class TransactionBuilder {
 
   updateNode(Node node, Attributes attributes) {
     beforeSelection = state.cursorSelection;
+
+    final inverted = invertAttributes(attributes, node.attributes);
     add(UpdateOperation(
       node.path,
-      Attributes.from(node.attributes)..addAll(attributes),
-      node.attributes,
+      {...attributes},
+      inverted,
     ));
   }
 
