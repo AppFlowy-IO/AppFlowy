@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/presentation/plugins/doc/document.dart';
+import 'package:app_flowy/plugins/doc/presentation/toolbar/toolbar_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:app_flowy/workspace/presentation/widgets/emoji_picker/emoji_picker.dart';
@@ -88,7 +88,8 @@ class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
       _entry = null;
       setState(() => _isToggled = false);
     } else {
-      RenderBox box = emojiButtonKey.currentContext?.findRenderObject() as RenderBox;
+      RenderBox box =
+          emojiButtonKey.currentContext?.findRenderObject() as RenderBox;
       Offset position = box.localToGlobal(Offset.zero);
 
       // final window = await getWindowInfo();
@@ -118,7 +119,8 @@ class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
 }
 
 class BuildEmojiPickerView extends StatefulWidget {
-  const BuildEmojiPickerView({Key? key, required this.controller, this.offset}) : super(key: key);
+  const BuildEmojiPickerView({Key? key, required this.controller, this.offset})
+      : super(key: key);
 
   final QuillController controller;
   final Offset? offset;
@@ -134,8 +136,11 @@ class _BuildEmojiPickerViewState extends State<BuildEmojiPickerView> {
       children: [
         Positioned(
           //TODO @gaganyadav80: Not sure about the calculated position.
-          top: widget.offset!.dy - MediaQuery.of(context).size.height / 2.83 - 30,
-          left: widget.offset!.dx - MediaQuery.of(context).size.width / 3.92 + 40,
+          top: widget.offset!.dy -
+              MediaQuery.of(context).size.height / 2.83 -
+              30,
+          left:
+              widget.offset!.dx - MediaQuery.of(context).size.width / 3.92 + 40,
           child: Material(
             borderRadius: BorderRadius.circular(8.0),
             child: SizedBox(
@@ -175,6 +180,7 @@ class _BuildEmojiPickerViewState extends State<BuildEmojiPickerView> {
       extentOffset: baseOffset + emoji.emoji.length,
     );
 
-    widget.controller.replaceText(baseOffset, replaceLen, emoji.emoji, selection);
+    widget.controller
+        .replaceText(baseOffset, replaceLen, emoji.emoji, selection);
   }
 }
