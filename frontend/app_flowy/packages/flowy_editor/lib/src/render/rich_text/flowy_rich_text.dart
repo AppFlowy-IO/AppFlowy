@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -17,7 +19,7 @@ class FlowyRichText extends StatefulWidget {
   const FlowyRichText({
     Key? key,
     this.cursorHeight,
-    this.cursorWidth = 2.0,
+    this.cursorWidth = 1.0,
     this.textSpanDecorator,
     this.placeholderText = ' ',
     this.placeholderTextSpanDecorator,
@@ -41,7 +43,8 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   final _textKey = GlobalKey();
   final _placeholderTextKey = GlobalKey();
 
-  final lineHeight = 1.5;
+  final _lineHeight = 1.5;
+  double? _cursorHeight;
 
   RenderParagraph get _renderParagraph =>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
@@ -52,6 +55,13 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   @override
   Widget build(BuildContext context) {
     return _buildRichText(context);
+  }
+
+  @override
+  void didUpdateWidget(covariant FlowyRichText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    _cursorHeight = null;
   }
 
   @override
@@ -66,7 +76,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     final textPosition = TextPosition(offset: position.offset);
     final cursorOffset =
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
-    final cursorHeight = widget.cursorHeight ??
+    _cursorHeight ??= widget.cursorHeight ??
         _renderParagraph.getFullHeightForCaret(textPosition) ??
         _placeholderRenderParagraph.getFullHeightForCaret(textPosition) ??
         18.0; // default height
@@ -74,7 +84,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
       cursorOffset.dx - (widget.cursorWidth / 2),
       cursorOffset.dy,
       widget.cursorWidth,
-      cursorHeight,
+      _cursorHeight!,
     );
   }
 
@@ -105,7 +115,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
       extentOffset: selection.end.offset,
     );
     return _renderParagraph
-        .getBoxesForSelection(textSelection)
+        .getBoxesForSelection(textSelection, boxHeightStyle: BoxHeightStyle.max)
         .map((box) => box.toRect())
         .toList();
   }
@@ -147,7 +157,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
                 ? Colors.transparent
                 : Colors.grey,
             fontSize: baseFontSize,
-            height: lineHeight,
+            height: _lineHeight,
           ),
         ),
       ],
@@ -203,7 +213,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
             .map((insert) => RichTextStyle(
                   attributes: insert.attributes ?? {},
                   text: insert.content,
-                  height: lineHeight,
+                  height: _lineHeight,
                 ).toTextSpan())
             .toList(growable: false),
       );
