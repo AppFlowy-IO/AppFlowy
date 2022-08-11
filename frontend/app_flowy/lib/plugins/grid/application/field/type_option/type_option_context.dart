@@ -176,7 +176,7 @@ class NewFieldTypeOptionLoader extends IFieldTypeOptionLoader {
 class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
   @override
   final String gridId;
-  final GridFieldPB field;
+  final FieldPB field;
 
   FieldTypeOptionLoader({
     required this.gridId,
@@ -185,7 +185,7 @@ class FieldTypeOptionLoader extends IFieldTypeOptionLoader {
 
   @override
   Future<Either<FieldTypeOptionDataPB, FlowyError>> load() {
-    final payload = GridFieldTypeOptionIdPB.create()
+    final payload = FieldTypeOptionIdPB.create()
       ..gridId = gridId
       ..fieldId = field.id
       ..fieldType = field.fieldType;

@@ -4,24 +4,24 @@ use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::RowRevision;
 use std::sync::Arc;
 
-/// [GridBlockPB] contains list of row ids. The rows here does not contain any data, just the id
-/// of the row. Check out [GridRowPB] for more details.
+/// [BlockPB] contains list of row ids. The rows here does not contain any data, just the id
+/// of the row. Check out [RowPB] for more details.
 ///
 ///
 /// A grid can have many rows. Rows are therefore grouped into Blocks in order to make
 /// things more efficient.
 ///                                        |
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridBlockPB {
+pub struct BlockPB {
     #[pb(index = 1)]
     pub id: String,
 
     #[pb(index = 2)]
-    pub rows: Vec<GridRowPB>,
+    pub rows: Vec<RowPB>,
 }
 
-impl GridBlockPB {
-    pub fn new(block_id: &str, rows: Vec<GridRowPB>) -> Self {
+impl BlockPB {
+    pub fn new(block_id: &str, rows: Vec<RowPB>) -> Self {
         Self {
             id: block_id.to_owned(),
             rows,
@@ -29,9 +29,9 @@ impl GridBlockPB {
     }
 }
 
-/// [GridRowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
+/// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
 #[derive(Debug, Default, Clone, ProtoBuf)]
-pub struct GridRowPB {
+pub struct RowPB {
     #[pb(index = 1)]
     pub block_id: String,
 
@@ -42,7 +42,7 @@ pub struct GridRowPB {
     pub height: i32,
 }
 
-impl GridRowPB {
+impl RowPB {
     pub fn row_id(&self) -> &str {
         &self.id
     }
@@ -52,7 +52,7 @@ impl GridRowPB {
     }
 }
 
-impl std::convert::From<&RowRevision> for GridRowPB {
+impl std::convert::From<&RowRevision> for RowPB {
     fn from(rev: &RowRevision) -> Self {
         Self {
             block_id: rev.block_id.clone(),
@@ -62,7 +62,7 @@ impl std::convert::From<&RowRevision> for GridRowPB {
     }
 }
 
-impl std::convert::From<&Arc<RowRevision>> for GridRowPB {
+impl std::convert::From<&Arc<RowRevision>> for RowPB {
     fn from(rev: &Arc<RowRevision>) -> Self {
         Self {
             block_id: rev.block_id.clone(),
@@ -75,30 +75,30 @@ impl std::convert::From<&Arc<RowRevision>> for GridRowPB {
 #[derive(Debug, Default, ProtoBuf)]
 pub struct OptionalRowPB {
     #[pb(index = 1, one_of)]
-    pub row: Option<GridRowPB>,
+    pub row: Option<RowPB>,
 }
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct RepeatedRowPB {
     #[pb(index = 1)]
-    pub items: Vec<GridRowPB>,
+    pub items: Vec<RowPB>,
 }
 
-impl std::convert::From<Vec<GridRowPB>> for RepeatedRowPB {
-    fn from(items: Vec<GridRowPB>) -> Self {
+impl std::convert::From<Vec<RowPB>> for RepeatedRowPB {
+    fn from(items: Vec<RowPB>) -> Self {
         Self { items }
     }
 }
 
-/// [RepeatedGridBlockPB] contains list of [GridBlockPB]
+/// [RepeatedBlockPB] contains list of [BlockPB]
 #[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedGridBlockPB {
+pub struct RepeatedBlockPB {
     #[pb(index = 1)]
-    pub items: Vec<GridBlockPB>,
+    pub items: Vec<BlockPB>,
 }
 
-impl std::convert::From<Vec<GridBlockPB>> for RepeatedGridBlockPB {
-    fn from(items: Vec<GridBlockPB>) -> Self {
+impl std::convert::From<Vec<BlockPB>> for RepeatedBlockPB {
+    fn from(items: Vec<BlockPB>) -> Self {
         Self { items }
     }
 }
@@ -127,11 +127,11 @@ pub struct UpdatedRowPB {
     pub row_id: String,
 
     #[pb(index = 3)]
-    pub row: GridRowPB,
+    pub row: RowPB,
 }
 
 impl UpdatedRowPB {
-    pub fn new(row_rev: &RowRevision, row: GridRowPB) -> Self {
+    pub fn new(row_rev: &RowRevision, row: RowPB) -> Self {
         Self {
             row_id: row_rev.id.clone(),
             block_id: row_rev.block_id.clone(),
@@ -140,8 +140,8 @@ impl UpdatedRowPB {
     }
 }
 
-impl std::convert::From<GridRowPB> for InsertedRowPB {
-    fn from(row_info: GridRowPB) -> Self {
+impl std::convert::From<RowPB> for InsertedRowPB {
+    fn from(row_info: RowPB) -> Self {
         Self {
             row_id: row_info.id,
             block_id: row_info.block_id,
@@ -153,7 +153,7 @@ impl std::convert::From<GridRowPB> for InsertedRowPB {
 
 impl std::convert::From<&RowRevision> for InsertedRowPB {
     fn from(row: &RowRevision) -> Self {
-        let row_order = GridRowPB::from(row);
+        let row_order = RowPB::from(row);
         Self::from(row_order)
     }
 }
@@ -204,10 +204,10 @@ impl GridBlockChangesetPB {
     }
 }
 
-/// [QueryGridBlocksPayloadPB] is used to query the data of the block that belongs to the grid whose
+/// [QueryBlocksPayloadPB] is used to query the data of the block that belongs to the grid whose
 /// id is grid_id.
 #[derive(ProtoBuf, Default)]
-pub struct QueryGridBlocksPayloadPB {
+pub struct QueryBlocksPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -220,7 +220,7 @@ pub struct QueryGridBlocksParams {
     pub block_ids: Vec<String>,
 }
 
-impl TryInto<QueryGridBlocksParams> for QueryGridBlocksPayloadPB {
+impl TryInto<QueryGridBlocksParams> for QueryBlocksPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<QueryGridBlocksParams, Self::Error> {

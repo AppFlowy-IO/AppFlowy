@@ -8,18 +8,18 @@ import 'package:flutter/foundation.dart';
 import '../row/row_cache.dart';
 
 class FieldsNotifier extends ChangeNotifier {
-  List<GridFieldPB> _fields = [];
+  List<FieldPB> _fields = [];
 
-  set fields(List<GridFieldPB> fields) {
+  set fields(List<FieldPB> fields) {
     _fields = fields;
     notifyListeners();
   }
 
-  List<GridFieldPB> get fields => _fields;
+  List<FieldPB> get fields => _fields;
 }
 
-typedef FieldChangesetCallback = void Function(GridFieldChangesetPB);
-typedef FieldsCallback = void Function(List<GridFieldPB>);
+typedef FieldChangesetCallback = void Function(FieldChangesetPB);
+typedef FieldsCallback = void Function(List<FieldPB>);
 
 class GridFieldCache {
   final String gridId;
@@ -52,12 +52,12 @@ class GridFieldCache {
     _fieldNotifier = null;
   }
 
-  UnmodifiableListView<GridFieldPB> get unmodifiableFields =>
+  UnmodifiableListView<FieldPB> get unmodifiableFields =>
       UnmodifiableListView(_fieldNotifier?.fields ?? []);
 
-  List<GridFieldPB> get fields => [..._fieldNotifier?.fields ?? []];
+  List<FieldPB> get fields => [..._fieldNotifier?.fields ?? []];
 
-  set fields(List<GridFieldPB> fields) {
+  set fields(List<FieldPB> fields) {
     _fieldNotifier?.fields = [...fields];
   }
 
@@ -106,12 +106,12 @@ class GridFieldCache {
     }
   }
 
-  void _deleteFields(List<GridFieldIdPB> deletedFields) {
+  void _deleteFields(List<FieldIdPB> deletedFields) {
     if (deletedFields.isEmpty) {
       return;
     }
-    final List<GridFieldPB> newFields = fields;
-    final Map<String, GridFieldIdPB> deletedFieldMap = {
+    final List<FieldPB> newFields = fields;
+    final Map<String, FieldIdPB> deletedFieldMap = {
       for (var fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
     };
 
@@ -123,7 +123,7 @@ class GridFieldCache {
     if (insertedFields.isEmpty) {
       return;
     }
-    final List<GridFieldPB> newFields = fields;
+    final List<FieldPB> newFields = fields;
     for (final indexField in insertedFields) {
       if (newFields.length > indexField.index) {
         newFields.insert(indexField.index, indexField.field_1);
@@ -134,11 +134,11 @@ class GridFieldCache {
     _fieldNotifier?.fields = newFields;
   }
 
-  void _updateFields(List<GridFieldPB> updatedFields) {
+  void _updateFields(List<FieldPB> updatedFields) {
     if (updatedFields.isEmpty) {
       return;
     }
-    final List<GridFieldPB> newFields = fields;
+    final List<FieldPB> newFields = fields;
     for (final updatedField in updatedFields) {
       final index =
           newFields.indexWhere((field) => field.id == updatedField.id);
@@ -158,7 +158,7 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
   GridRowFieldNotifierImpl(GridFieldCache cache) : _cache = cache;
 
   @override
-  UnmodifiableListView<GridFieldPB> get fields => _cache.unmodifiableFields;
+  UnmodifiableListView<FieldPB> get fields => _cache.unmodifiableFields;
 
   @override
   void onRowFieldsChanged(VoidCallback callback) {
@@ -167,8 +167,8 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
   }
 
   @override
-  void onRowFieldChanged(void Function(GridFieldPB) callback) {
-    _onChangesetFn = (GridFieldChangesetPB changeset) {
+  void onRowFieldChanged(void Function(FieldPB) callback) {
+    _onChangesetFn = (FieldChangesetPB changeset) {
       for (final updatedField in changeset.updatedFields) {
         callback(updatedField);
       }

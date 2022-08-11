@@ -20,18 +20,17 @@ class GridService {
     return GridEventGetGrid(payload).send();
   }
 
-  Future<Either<GridRowPB, FlowyError>> createRow(
-      {Option<String>? startRowId}) {
+  Future<Either<RowPB, FlowyError>> createRow({Option<String>? startRowId}) {
     CreateRowPayloadPB payload = CreateRowPayloadPB.create()..gridId = gridId;
     startRowId?.fold(() => null, (id) => payload.startRowId = id);
     return GridEventCreateRow(payload).send();
   }
 
-  Future<Either<RepeatedGridFieldPB, FlowyError>> getFields(
-      {required List<GridFieldIdPB> fieldIds}) {
+  Future<Either<RepeatedFieldPB, FlowyError>> getFields(
+      {required List<FieldIdPB> fieldIds}) {
     final payload = QueryFieldPayloadPB.create()
       ..gridId = gridId
-      ..fieldIds = RepeatedGridFieldIdPB(items: fieldIds);
+      ..fieldIds = RepeatedFieldIdPB(items: fieldIds);
     return GridEventGetFields(payload).send();
   }
 

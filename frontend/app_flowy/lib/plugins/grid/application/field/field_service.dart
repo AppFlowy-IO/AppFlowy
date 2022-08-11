@@ -73,7 +73,7 @@ class FieldService {
   // Create the field if it does not exist. Otherwise, update the field.
   static Future<Either<Unit, FlowyError>> insertField({
     required String gridId,
-    required GridFieldPB field,
+    required FieldPB field,
     List<int>? typeOptionData,
     String? startFieldId,
   }) {
@@ -121,7 +121,7 @@ class FieldService {
   Future<Either<FieldTypeOptionDataPB, FlowyError>> getFieldTypeOptionData({
     required FieldType fieldType,
   }) {
-    final payload = GridFieldTypeOptionIdPB.create()
+    final payload = FieldTypeOptionIdPB.create()
       ..gridId = gridId
       ..fieldId = fieldId
       ..fieldType = fieldType;
@@ -138,6 +138,6 @@ class FieldService {
 class GridFieldCellContext with _$GridFieldCellContext {
   const factory GridFieldCellContext({
     required String gridId,
-    required GridFieldPB field,
+    required FieldPB field,
   }) = _GridFieldCellContext;
 }

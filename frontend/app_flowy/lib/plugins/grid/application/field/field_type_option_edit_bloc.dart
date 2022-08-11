@@ -42,14 +42,14 @@ class FieldTypeOptionEditBloc
 @freezed
 class FieldTypeOptionEditEvent with _$FieldTypeOptionEditEvent {
   const factory FieldTypeOptionEditEvent.initial() = _Initial;
-  const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(
-      GridFieldPB field) = _DidReceiveFieldUpdated;
+  const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(FieldPB field) =
+      _DidReceiveFieldUpdated;
 }
 
 @freezed
 class FieldTypeOptionEditState with _$FieldTypeOptionEditState {
   const factory FieldTypeOptionEditState({
-    required GridFieldPB field,
+    required FieldPB field,
   }) = _FieldTypeOptionEditState;
 
   factory FieldTypeOptionEditState.initial(

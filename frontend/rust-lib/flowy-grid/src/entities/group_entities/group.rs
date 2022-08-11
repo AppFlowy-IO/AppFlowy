@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, GridRowPB};
+use crate::entities::{FieldType, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -44,7 +44,7 @@ pub struct GroupPB {
     pub desc: String,
 
     #[pb(index = 3)]
-    pub rows: Vec<GridRowPB>,
+    pub rows: Vec<RowPB>,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]

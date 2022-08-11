@@ -16,7 +16,7 @@ import 'field_type_extension.dart';
 import 'field_type_list.dart';
 import 'type_option/builder.dart';
 
-typedef UpdateFieldCallback = void Function(GridFieldPB, Uint8List);
+typedef UpdateFieldCallback = void Function(FieldPB, Uint8List);
 typedef SwitchToFieldCallback
     = Future<Either<FieldTypeOptionDataPB, FlowyError>> Function(
   String fieldId,
@@ -64,7 +64,7 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
     );
   }
 
-  Widget _switchFieldTypeButton(BuildContext context, GridFieldPB field) {
+  Widget _switchFieldTypeButton(BuildContext context, FieldPB field) {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,

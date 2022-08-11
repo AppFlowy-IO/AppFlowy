@@ -131,7 +131,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
 
 TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
   required String gridId,
-  required GridFieldPB field,
+  required FieldPB field,
 }) {
   final loader = FieldTypeOptionLoader(gridId: gridId, field: field);
   final dataController = TypeOptionDataController(

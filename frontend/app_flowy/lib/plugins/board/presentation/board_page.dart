@@ -88,7 +88,7 @@ class BoardContent extends StatelessWidget {
   }
 
   Widget _buildCard(BuildContext context, ColumnItem item) {
-    final rowInfo = item as GridRowInfo;
+    final rowInfo = item as RowInfo;
     return AppFlowyColumnItemCard(
       key: ObjectKey(item),
       child: BoardCard(rowInfo: rowInfo),

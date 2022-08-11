@@ -16,7 +16,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   final GridRowDataController _dataController;
 
   RowBloc({
-    required GridRowInfo rowInfo,
+    required RowInfo rowInfo,
     required GridRowDataController dataController,
   })  : _rowService = RowService(
           gridId: rowInfo.gridId,
@@ -72,19 +72,19 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveCells(
-      GridCellMap gridCellMap, GridRowChangeReason reason) = _DidReceiveCells;
+      GridCellMap gridCellMap, RowChangeReason reason) = _DidReceiveCells;
 }
 
 @freezed
 class RowState with _$RowState {
   const factory RowState({
-    required GridRowInfo rowInfo,
+    required RowInfo rowInfo,
     required GridCellMap gridCellMap,
     required UnmodifiableListView<GridCellEquatable> snapshots,
-    GridRowChangeReason? changeReason,
+    RowChangeReason? changeReason,
   }) = _RowState;
 
-  factory RowState.initial(GridRowInfo rowInfo, GridCellMap cellDataMap) =>
+  factory RowState.initial(RowInfo rowInfo, GridCellMap cellDataMap) =>
       RowState(
         rowInfo: rowInfo,
         gridCellMap: cellDataMap,
@@ -94,9 +94,9 @@ class RowState with _$RowState {
 }
 
 class GridCellEquatable extends Equatable {
-  final GridFieldPB _field;
+  final FieldPB _field;
 
-  const GridCellEquatable(GridFieldPB field) : _field = field;
+  const GridCellEquatable(FieldPB field) : _field = field;
 
   @override
   List<Object?> get props => [

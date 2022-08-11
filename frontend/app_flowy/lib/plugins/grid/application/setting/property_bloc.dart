@@ -11,7 +11,7 @@ part 'property_bloc.freezed.dart';
 
 class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   final GridFieldCache _fieldCache;
-  Function(List<GridFieldPB>)? _onFieldsFn;
+  Function(List<FieldPB>)? _onFieldsFn;
 
   GridPropertyBloc({required String gridId, required GridFieldCache fieldCache})
       : _fieldCache = fieldCache,
@@ -67,8 +67,8 @@ class GridPropertyEvent with _$GridPropertyEvent {
   const factory GridPropertyEvent.initial() = _Initial;
   const factory GridPropertyEvent.setFieldVisibility(
       String fieldId, bool visibility) = _SetFieldVisibility;
-  const factory GridPropertyEvent.didReceiveFieldUpdate(
-      List<GridFieldPB> fields) = _DidReceiveFieldUpdate;
+  const factory GridPropertyEvent.didReceiveFieldUpdate(List<FieldPB> fields) =
+      _DidReceiveFieldUpdate;
   const factory GridPropertyEvent.moveField(int fromIndex, int toIndex) =
       _MoveField;
 }
@@ -77,10 +77,10 @@ class GridPropertyEvent with _$GridPropertyEvent {
 class GridPropertyState with _$GridPropertyState {
   const factory GridPropertyState({
     required String gridId,
-    required List<GridFieldPB> fields,
+    required List<FieldPB> fields,
   }) = _GridPropertyState;
 
-  factory GridPropertyState.initial(String gridId, List<GridFieldPB> fields) =>
+  factory GridPropertyState.initial(String gridId, List<FieldPB> fields) =>
       GridPropertyState(
         gridId: gridId,
         fields: fields,

@@ -7,15 +7,17 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 
-typedef UpdateFieldNotifiedValue = Either<GridFieldChangesetPB, FlowyError>;
+typedef UpdateFieldNotifiedValue = Either<FieldChangesetPB, FlowyError>;
 
 class GridFieldsListener {
   final String gridId;
-  PublishNotifier<UpdateFieldNotifiedValue>? updateFieldsNotifier = PublishNotifier();
+  PublishNotifier<UpdateFieldNotifiedValue>? updateFieldsNotifier =
+      PublishNotifier();
   GridNotificationListener? _listener;
   GridFieldsListener({required this.gridId});
 
-  void start({required void Function(UpdateFieldNotifiedValue) onFieldsChanged}) {
+  void start(
+      {required void Function(UpdateFieldNotifiedValue) onFieldsChanged}) {
     updateFieldsNotifier?.addPublishListener(onFieldsChanged);
     _listener = GridNotificationListener(
       objectId: gridId,
@@ -27,7 +29,8 @@ class GridFieldsListener {
     switch (ty) {
       case GridNotification.DidUpdateGridField:
         result.fold(
-          (payload) => updateFieldsNotifier?.value = left(GridFieldChangesetPB.fromBuffer(payload)),
+          (payload) => updateFieldsNotifier?.value =
+              left(FieldChangesetPB.fromBuffer(payload)),
           (error) => updateFieldsNotifier?.value = right(error),
         );
         break;

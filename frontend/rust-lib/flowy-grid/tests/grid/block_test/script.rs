@@ -2,7 +2,7 @@ use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
 
-use flowy_grid::entities::{FieldType, GridCellIdParams, GridRowPB};
+use flowy_grid::entities::{FieldType, GridCellIdParams, RowPB};
 use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
@@ -97,7 +97,7 @@ impl GridRowTest {
                 let row_orders = row_ids
                     .into_iter()
                     .map(|row_id| self.row_order_by_row_id.get(&row_id).unwrap().clone())
-                    .collect::<Vec<GridRowPB>>();
+                    .collect::<Vec<RowPB>>();
 
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;

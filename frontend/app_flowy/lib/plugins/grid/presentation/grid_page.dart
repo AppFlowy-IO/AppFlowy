@@ -225,7 +225,7 @@ class _GridRowsState extends State<_GridRows> {
           initialItemCount: context.read<GridBloc>().state.rowInfos.length,
           itemBuilder:
               (BuildContext context, int index, Animation<double> animation) {
-            final GridRowInfo rowInfo =
+            final RowInfo rowInfo =
                 context.read<GridBloc>().state.rowInfos[index];
             return _renderRow(context, rowInfo, animation);
           },
@@ -236,7 +236,7 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _renderRow(
     BuildContext context,
-    GridRowInfo rowInfo,
+    RowInfo rowInfo,
     Animation<double> animation,
   ) {
     final rowCache =
@@ -274,7 +274,7 @@ class _GridRowsState extends State<_GridRows> {
 
   void _openRowDetailPage(
     BuildContext context,
-    GridRowInfo rowInfo,
+    RowInfo rowInfo,
     GridFieldCache fieldCache,
     GridRowCache rowCache,
     GridCellBuilder cellBuilder,

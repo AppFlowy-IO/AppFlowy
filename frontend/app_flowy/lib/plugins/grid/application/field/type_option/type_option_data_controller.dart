@@ -12,12 +12,12 @@ class TypeOptionDataController {
   final String gridId;
   final IFieldTypeOptionLoader loader;
   late FieldTypeOptionDataPB _data;
-  final PublishNotifier<GridFieldPB> _fieldNotifier = PublishNotifier();
+  final PublishNotifier<FieldPB> _fieldNotifier = PublishNotifier();
 
   TypeOptionDataController({
     required this.gridId,
     required this.loader,
-    GridFieldPB? field,
+    FieldPB? field,
   }) {
     if (field != null) {
       _data = FieldTypeOptionDataPB.create()
@@ -42,11 +42,11 @@ class TypeOptionDataController {
     );
   }
 
-  GridFieldPB get field {
+  FieldPB get field {
     return _data.field_2;
   }
 
-  set field(GridFieldPB field) {
+  set field(FieldPB field) {
     _updateData(newField: field);
   }
 
@@ -64,7 +64,7 @@ class TypeOptionDataController {
 
   void _updateData({
     String? newName,
-    GridFieldPB? newField,
+    FieldPB? newField,
     List<int>? newTypeOptionData,
   }) {
     _data = _data.rebuild((rebuildData) {
@@ -108,7 +108,7 @@ class TypeOptionDataController {
     });
   }
 
-  void Function() addFieldListener(void Function(GridFieldPB) callback) {
+  void Function() addFieldListener(void Function(FieldPB) callback) {
     listener() {
       callback(field);
     }

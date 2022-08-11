@@ -5,10 +5,10 @@ import '../cell/cell_service/cell_service.dart';
 import '../field/field_cache.dart';
 import 'row_cache.dart';
 
-typedef OnRowChanged = void Function(GridCellMap, GridRowChangeReason);
+typedef OnRowChanged = void Function(GridCellMap, RowChangeReason);
 
 class GridRowDataController extends GridCellBuilderDelegate {
-  final GridRowInfo rowInfo;
+  final RowInfo rowInfo;
   final List<VoidCallback> _onRowChangedListeners = [];
   final GridFieldCache _fieldCache;
   final GridRowCache _rowCache;

@@ -170,7 +170,7 @@ class CreateFieldButton extends StatelessWidget {
 class SliverHeaderDelegateImplementation
     extends SliverPersistentHeaderDelegate {
   final String gridId;
-  final List<GridFieldPB> fields;
+  final List<FieldPB> fields;
 
   SliverHeaderDelegateImplementation(
       {required this.gridId, required this.fields});

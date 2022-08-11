@@ -9,11 +9,11 @@ import 'block_listener.dart';
 /// Read https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid for more information
 class GridBlockCache {
   final String gridId;
-  final GridBlockPB block;
+  final BlockPB block;
   late GridRowCache _rowCache;
   late GridBlockListener _listener;
 
-  List<GridRowInfo> get rows => _rowCache.rows;
+  List<RowInfo> get rows => _rowCache.rows;
   GridRowCache get rowCache => _rowCache;
 
   GridBlockCache({
@@ -42,7 +42,7 @@ class GridBlockCache {
   }
 
   void addListener({
-    required void Function(GridRowChangeReason) onChangeReason,
+    required void Function(RowChangeReason) onChangeReason,
     bool Function()? listenWhen,
   }) {
     _rowCache.onRowsChanged((reason) {

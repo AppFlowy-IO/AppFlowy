@@ -2,11 +2,11 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 
 class BoardGroupService {
   final String gridId;
-  GridFieldPB? groupField;
+  FieldPB? groupField;
 
   BoardGroupService(this.gridId);
 
-  void setGroupField(GridFieldPB field) {
+  void setGroupField(FieldPB field) {
     groupField = field;
   }
 }

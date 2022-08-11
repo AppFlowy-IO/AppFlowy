@@ -57,9 +57,9 @@ pub enum GridEvent {
 
     /// [GetGridBlocks] event is used to get the grid's block.
     ///
-    /// The event handler accepts a [QueryGridBlocksPayloadPB] and returns a [RepeatedGridBlockPB]
+    /// The event handler accepts a [QueryBlocksPayloadPB] and returns a [RepeatedBlockPB]
     /// if there are no errors.
-    #[event(input = "QueryGridBlocksPayloadPB", output = "RepeatedGridBlockPB")]
+    #[event(input = "QueryBlocksPayloadPB", output = "RepeatedBlockPB")]
     GetGridBlocks = 1,
 
     /// [GetGridSetting] event is used to get the grid's settings.
@@ -77,9 +77,9 @@ pub enum GridEvent {
 
     /// [GetFields] event is used to get the grid's settings.
     ///
-    /// The event handler accepts a [QueryFieldPayloadPB] and returns a [RepeatedGridFieldPB]
+    /// The event handler accepts a [QueryFieldPayloadPB] and returns a [RepeatedFieldPB]
     /// if there are no errors.
-    #[event(input = "QueryFieldPayloadPB", output = "RepeatedGridFieldPB")]
+    #[event(input = "QueryFieldPayloadPB", output = "RepeatedFieldPB")]
     GetFields = 10,
 
     /// [UpdateField] event is used to update a field's attributes.
@@ -132,13 +132,13 @@ pub enum GridEvent {
     #[event(input = "MoveItemPayloadPB")]
     MoveItem = 22,
 
-    /// [GetFieldTypeOption] event is used to get the FieldTypeOption data for a specific field type.
+    /// [FieldTypeOptionIdPB] event is used to get the FieldTypeOption data for a specific field type.
     ///
     /// Check out the [FieldTypeOptionDataPB] for more details. If the [FieldTypeOptionData] does exist
     /// for the target type, the [TypeOptionBuilder] will create the default data for that type.
     ///
     /// Return the [FieldTypeOptionDataPB] if there are no errors.
-    #[event(input = "GridFieldTypeOptionIdPB", output = "FieldTypeOptionDataPB")]
+    #[event(input = "FieldTypeOptionIdPB", output = "FieldTypeOptionDataPB")]
     GetFieldTypeOption = 23,
 
     /// [CreateFieldTypeOption] event is used to create a new FieldTypeOptionData.
@@ -165,18 +165,18 @@ pub enum GridEvent {
     #[event(input = "SelectOptionChangesetPayloadPB")]
     UpdateSelectOption = 32,
 
-    #[event(input = "CreateRowPayloadPB", output = "GridRowPB")]
+    #[event(input = "CreateRowPayloadPB", output = "RowPB")]
     CreateRow = 50,
 
-    /// [GetRow] event is used to get the row data,[GridRowPB]. [OptionalRowPB] is a wrapper that enables
+    /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
     /// to return a nullable row data.
-    #[event(input = "GridRowIdPB", output = "OptionalRowPB")]
+    #[event(input = "RowIdPB", output = "OptionalRowPB")]
     GetRow = 51,
 
-    #[event(input = "GridRowIdPB")]
+    #[event(input = "RowIdPB")]
     DeleteRow = 52,
 
-    #[event(input = "GridRowIdPB")]
+    #[event(input = "RowIdPB")]
     DuplicateRow = 53,
 
     #[event(input = "GridCellIdPB", output = "GridCellPB")]

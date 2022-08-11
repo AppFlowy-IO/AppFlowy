@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, GridFieldPB};
+use crate::entities::{FieldPB, FieldType};
 use crate::services::field::type_options::*;
 use bytes::Bytes;
 use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
@@ -28,7 +28,7 @@ impl FieldBuilder {
         Self::new(type_option_builder)
     }
 
-    pub fn from_field(field: GridFieldPB, type_option_builder: Box<dyn TypeOptionBuilder>) -> Self {
+    pub fn from_field(field: FieldPB, type_option_builder: Box<dyn TypeOptionBuilder>) -> Self {
         let field_rev = FieldRevision {
             id: field.id,
             name: field.name,

@@ -17,7 +17,7 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
         .protobuf_bytes()
         .to_vec();
 
-    let field = GridFieldPB {
+    let field = FieldPB {
         id: field_rev.id,
         name: field_rev.name,
         desc: field_rev.desc,
@@ -50,7 +50,7 @@ pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRev
         .protobuf_bytes()
         .to_vec();
 
-    let field = GridFieldPB {
+    let field = FieldPB {
         id: field_rev.id,
         name: field_rev.name,
         desc: field_rev.desc,

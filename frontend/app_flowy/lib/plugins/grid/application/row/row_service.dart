@@ -13,7 +13,7 @@ class RowService {
   RowService(
       {required this.gridId, required this.blockId, required this.rowId});
 
-  Future<Either<GridRowPB, FlowyError>> createRow() {
+  Future<Either<RowPB, FlowyError>> createRow() {
     CreateRowPayloadPB payload = CreateRowPayloadPB.create()
       ..gridId = gridId
       ..startRowId = rowId;
@@ -34,7 +34,7 @@ class RowService {
   }
 
   Future<Either<OptionalRowPB, FlowyError>> getRow() {
-    final payload = GridRowIdPB.create()
+    final payload = RowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
       ..rowId = rowId;
@@ -43,7 +43,7 @@ class RowService {
   }
 
   Future<Either<Unit, FlowyError>> deleteRow() {
-    final payload = GridRowIdPB.create()
+    final payload = RowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
       ..rowId = rowId;
@@ -52,7 +52,7 @@ class RowService {
   }
 
   Future<Either<Unit, FlowyError>> duplicateRow() {
-    final payload = GridRowIdPB.create()
+    final payload = RowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
       ..rowId = rowId;

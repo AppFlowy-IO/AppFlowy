@@ -56,7 +56,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
-          groupByField: (GridFieldPB field) {
+          groupByField: (FieldPB field) {
             emit(state.copyWith(groupField: Some(field)));
           },
         );
@@ -95,12 +95,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  void _buildColumnItems(List<GridRowInfo> rowInfos) {
+  void _buildColumnItems(List<RowInfo> rowInfos) {
     for (final rowInfo in rowInfos) {}
   }
 
-  void _buildColumns(UnmodifiableListView<GridFieldPB> fields) {
-    GridFieldPB? groupField;
+  void _buildColumns(UnmodifiableListView<FieldPB> fields) {
+    FieldPB? groupField;
     for (final field in fields) {
       if (field.fieldType == FieldType.SingleSelect) {
         groupField = field;
@@ -112,7 +112,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     add(BoardEvent.groupByField(groupField!));
   }
 
-  void _buildColumnsFromSingleSelect(GridFieldPB field) {
+  void _buildColumnsFromSingleSelect(FieldPB field) {
     final typeOptionContext = makeTypeOptionContext<SingleSelectTypeOptionPB>(
       gridId: _gridDataController.gridId,
       field: field,
@@ -151,7 +151,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = InitialGrid;
   const factory BoardEvent.createRow() = _CreateRow;
-  const factory BoardEvent.groupByField(GridFieldPB field) = _GroupByField;
+  const factory BoardEvent.groupByField(FieldPB field) = _GroupByField;
   const factory BoardEvent.didReceiveGridUpdate(
     GridPB grid,
   ) = _DidReceiveGridUpdate;
@@ -162,8 +162,8 @@ class BoardState with _$BoardState {
   const factory BoardState({
     required String gridId,
     required Option<GridPB> grid,
-    required Option<GridFieldPB> groupField,
-    required List<GridRowInfo> rowInfos,
+    required Option<FieldPB> groupField,
+    required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
   }) = _BoardState;
 
@@ -184,9 +184,9 @@ class GridLoadingState with _$GridLoadingState {
 }
 
 class GridFieldEquatable extends Equatable {
-  final UnmodifiableListView<GridFieldPB> _fields;
+  final UnmodifiableListView<FieldPB> _fields;
   const GridFieldEquatable(
-    UnmodifiableListView<GridFieldPB> fields,
+    UnmodifiableListView<FieldPB> fields,
   ) : _fields = fields;
 
   @override
@@ -203,7 +203,7 @@ class GridFieldEquatable extends Equatable {
     ];
   }
 
-  UnmodifiableListView<GridFieldPB> get value => UnmodifiableListView(_fields);
+  UnmodifiableListView<FieldPB> get value => UnmodifiableListView(_fields);
 }
 
 class TextItem extends ColumnItem {

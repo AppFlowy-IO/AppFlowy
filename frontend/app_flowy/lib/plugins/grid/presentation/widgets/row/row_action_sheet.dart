@@ -15,7 +15,7 @@ import '../../../application/row/row_cache.dart';
 import '../../layout/sizes.dart';
 
 class GridRowActionSheet extends StatelessWidget {
-  final GridRowInfo rowData;
+  final RowInfo rowData;
   const GridRowActionSheet({required this.rowData, Key? key}) : super(key: key);
 
   @override

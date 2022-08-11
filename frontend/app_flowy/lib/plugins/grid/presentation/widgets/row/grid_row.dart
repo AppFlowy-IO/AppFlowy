@@ -16,7 +16,7 @@ import '../cell/prelude.dart';
 import 'row_action_sheet.dart';
 
 class GridRowWidget extends StatefulWidget {
-  final GridRowInfo rowInfo;
+  final RowInfo rowInfo;
   final GridRowDataController dataController;
   final GridCellBuilder cellBuilder;
   final void Function(BuildContext, GridCellBuilder) openDetailPage;
