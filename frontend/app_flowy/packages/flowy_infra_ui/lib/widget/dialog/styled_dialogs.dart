@@ -21,11 +21,8 @@ extension IntoDialog on Widget {
         child: this,
       ),
       context,
-    ).then(
-      (value) {
-        dialogFocusNode.dispose();
-      },
     );
+    dialogFocusNode.dispose();
   }
 }
 
