@@ -52,7 +52,7 @@ abstract class FlowySelectionService {
   /// The editor will update selection area and toolbar area
   /// if the [selection] is not collapsed,
   /// otherwise, will update the cursor area.
-  void updateSelection(Selection selection);
+  void updateSelection(Selection? selection);
 
   /// Clears the selection area, cursor area and the popup list area.
   void clearSelection();
@@ -180,18 +180,20 @@ class _FlowySelectionState extends State<FlowySelection>
   }
 
   @override
-  void updateSelection(Selection selection) {
+  void updateSelection(Selection? selection) {
     selectionRects.clear();
     clearSelection();
 
-    if (selection.isCollapsed) {
-      /// updates cursor area.
-      debugPrint('updating cursor');
-      _updateCursorAreas(selection.start);
-    } else {
-      // updates selection area.
-      debugPrint('updating selection');
-      _updateSelectionAreas(selection);
+    if (selection != null) {
+      if (selection.isCollapsed) {
+        /// updates cursor area.
+        debugPrint('updating cursor');
+        _updateCursorAreas(selection.start);
+      } else {
+        // updates selection area.
+        debugPrint('updating selection');
+        _updateSelectionAreas(selection);
+      }
     }
 
     currentSelection.value = selection;
