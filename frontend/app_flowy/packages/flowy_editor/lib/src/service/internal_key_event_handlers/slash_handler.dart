@@ -47,14 +47,14 @@ final List<PopupListItem> _popupListItems = [
     icon: _popupListIcon('bullets'),
     handler: (editorState) => insertBulletedListAfterSelection(editorState),
   ),
+  // PopupListItem(
+  //   text: 'Numbered list',
+  //   keywords: ['numbered list'],
+  //   icon: _popupListIcon('number'),
+  //   handler: (editorState) => debugPrint('Not implement yet!'),
+  // ),
   PopupListItem(
-    text: 'Numbered list',
-    keywords: ['numbered list'],
-    icon: _popupListIcon('number'),
-    handler: (editorState) => debugPrint('Not implement yet!'),
-  ),
-  PopupListItem(
-    text: 'Checkboxes',
+    text: 'To-do List',
     keywords: ['checkbox'],
     icon: _popupListIcon('checkbox'),
     handler: (editorState) => insertCheckboxAfterSelection(editorState),
