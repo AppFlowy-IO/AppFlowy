@@ -46,6 +46,8 @@ class Selection {
       (start.path <= end.path && !pathEquals(start.path, end.path)) ||
       (isSingle && start.offset < end.offset);
 
+  Selection get reversed => copyWith(start: end, end: start);
+
   Selection collapse({bool atStart = false}) {
     if (atStart) {
       return Selection(start: start, end: start);

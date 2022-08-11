@@ -43,7 +43,7 @@ bool insertTextNodeAfterSelection(
   }
 
   final node = nodes.first;
-  if (node is TextNode && node.delta.length == 0) {
+  if (node is TextNode && node.delta.isEmpty) {
     formatTextNodes(editorState, attributes);
   } else {
     final next = selection.end.path.next;
@@ -157,11 +157,18 @@ bool formatRichTextPartialStyle(EditorState editorState, String styleKey) {
 }
 
 bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
-  final selection = editorState.service.selectionService.currentSelection.value;
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
-  final textNodes = nodes.whereType<TextNode>().toList();
+  var selection = editorState.service.selectionService.currentSelection.value;
+  var nodes = editorState.service.selectionService.currentSelectedNodes;
 
-  if (selection == null || textNodes.isEmpty) {
+  if (selection == null) {
+    return false;
+  }
+
+  nodes = selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
+  selection = selection.isBackward ? selection : selection.reversed;
+
+  var textNodes = nodes.whereType<TextNode>().toList();
+  if (textNodes.isEmpty) {
     return false;
   }
 
@@ -180,28 +187,20 @@ bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
   } else {
     for (var i = 0; i < textNodes.length; i++) {
       final textNode = textNodes[i];
+      var index = 0;
+      var length = textNode.toRawString().length;
       if (i == 0 && textNode == nodes.first) {
-        builder.formatText(
-          textNode,
-          selection.start.offset,
-          textNode.toRawString().length - selection.start.offset,
-          attributes,
-        );
+        index = selection.start.offset;
+        length = textNode.toRawString().length - selection.start.offset;
       } else if (i == textNodes.length - 1 && textNode == nodes.last) {
-        builder.formatText(
-          textNode,
-          0,
-          selection.end.offset,
-          attributes,
-        );
-      } else {
-        builder.formatText(
-          textNode,
-          0,
-          textNode.toRawString().length,
-          attributes,
-        );
+        length = selection.end.offset;
       }
+      builder.formatText(
+        textNode,
+        index,
+        length,
+        attributes,
+      );
     }
   }
 
