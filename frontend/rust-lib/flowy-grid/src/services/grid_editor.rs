@@ -452,7 +452,7 @@ impl GridRevisionEditor {
 
     pub async fn get_grid_setting(&self) -> FlowyResult<GridSettingPB> {
         let read_guard = self.grid_pad.read().await;
-        let grid_setting_rev = read_guard.get_grid_setting_rev();
+        let grid_setting_rev = read_guard.get_setting_rev();
         let field_revs = read_guard.get_field_revs(None)?;
         let grid_setting = make_grid_setting(grid_setting_rev, &field_revs);
         Ok(grid_setting)
@@ -564,8 +564,9 @@ impl GridRevisionEditor {
         })
     }
 
-    pub async fn get_group(&self) -> FlowyResult<RepeatedGridGroupPB> {
-        todo!()
+    pub async fn load_groups(&self) -> FlowyResult<RepeatedGridGroupPB> {
+        let groups = self.group_service.load_groups().await.unwrap_or(vec![]);
+        Ok(RepeatedGridGroupPB { items: groups })
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>

@@ -12,9 +12,9 @@ use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDat
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
-pub struct RichTextTypeOptionBuilder(RichTextTypeOption);
+pub struct RichTextTypeOptionBuilder(RichTextTypeOptionPB);
 impl_into_box_type_option_builder!(RichTextTypeOptionBuilder);
-impl_builder_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTypeOption);
+impl_builder_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTypeOptionPB);
 
 impl TypeOptionBuilder for RichTextTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
@@ -27,13 +27,13 @@ impl TypeOptionBuilder for RichTextTypeOptionBuilder {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct RichTextTypeOption {
+pub struct RichTextTypeOptionPB {
     #[pb(index = 1)]
     data: String, //It's not used yet
 }
-impl_type_option!(RichTextTypeOption, FieldType::RichText);
+impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 
-impl CellDisplayable<String> for RichTextTypeOption {
+impl CellDisplayable<String> for RichTextTypeOptionPB {
     fn display_data(
         &self,
         cell_data: CellData<String>,
@@ -45,7 +45,7 @@ impl CellDisplayable<String> for RichTextTypeOption {
     }
 }
 
-impl CellDataOperation<String, String> for RichTextTypeOption {
+impl CellDataOperation<String, String> for RichTextTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<String>,
@@ -114,7 +114,7 @@ mod tests {
 
     #[test]
     fn text_description_test() {
-        let type_option = RichTextTypeOption::default();
+        let type_option = RichTextTypeOptionPB::default();
 
         // date
         let field_type = FieldType::DateTime;

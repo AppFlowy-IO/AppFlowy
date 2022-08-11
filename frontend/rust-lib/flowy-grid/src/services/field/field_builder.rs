@@ -90,13 +90,13 @@ pub trait TypeOptionBuilder {
 
 pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn TypeOptionBuilder> {
     let s: String = match field_type {
-        FieldType::RichText => RichTextTypeOption::default().into(),
-        FieldType::Number => NumberTypeOption::default().into(),
-        FieldType::DateTime => DateTypeOption::default().into(),
+        FieldType::RichText => RichTextTypeOptionPB::default().into(),
+        FieldType::Number => NumberTypeOptionPB::default().into(),
+        FieldType::DateTime => DateTypeOptionPB::default().into(),
         FieldType::SingleSelect => SingleSelectTypeOptionPB::default().into(),
         FieldType::MultiSelect => MultiSelectTypeOptionPB::default().into(),
         FieldType::Checkbox => CheckboxTypeOption::default().into(),
-        FieldType::URL => URLTypeOption::default().into(),
+        FieldType::URL => URLTypeOptionPB::default().into(),
     };
 
     type_option_builder_from_json_str(&s, field_type)

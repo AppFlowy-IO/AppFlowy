@@ -39,7 +39,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         // Date
         .event(GridEvent::UpdateDateCell, update_date_cell_handler)
         // Group
-        .event(GridEvent::GetGroup, update_date_cell_handler);
+        .event(GridEvent::GetGroup, get_groups_handler);
 
     module
 }

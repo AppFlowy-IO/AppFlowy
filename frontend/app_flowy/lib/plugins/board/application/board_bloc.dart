@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -57,8 +56,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
-          groupByField: (FieldPB field) {
-            emit(state.copyWith(groupField: Some(field)));
+          didReceiveGroups: (List<GroupPB> groups) {
+            emit(state.copyWith(groups: groups));
           },
         );
       },
@@ -83,50 +82,20 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           add(BoardEvent.didReceiveGridUpdate(grid));
         }
       },
-      onFieldsChanged: (fields) {
-        if (!isClosed) {
-          _buildColumns(fields);
-        }
-      },
-      onGroupChanged: (groups) {},
-      onError: (err) {
-        Log.error(err);
-      },
-    );
-  }
-
-  void _buildColumns(UnmodifiableListView<FieldPB> fields) {
-    FieldPB? groupField;
-    for (final field in fields) {
-      if (field.fieldType == FieldType.SingleSelect) {
-        groupField = field;
-        _buildColumnsFromSingleSelect(field);
-      }
-    }
-
-    assert(groupField != null);
-    add(BoardEvent.groupByField(groupField!));
-  }
-
-  void _buildColumnsFromSingleSelect(FieldPB field) {
-    final typeOptionContext = makeTypeOptionContext<SingleSelectTypeOptionPB>(
-      gridId: _dataController.gridId,
-      field: field,
-    );
-
-    typeOptionContext.loadTypeOptionData(
-      onCompleted: (singleSelect) {
-        List<AFBoardColumnData> columns = singleSelect.options.map((option) {
+      onGroupChanged: (groups) {
+        List<AFBoardColumnData> columns = groups.map((group) {
           return AFBoardColumnData(
-            id: option.id,
-            desc: option.name,
-            customData: option,
+            id: group.groupId,
+            desc: group.desc,
+            customData: group,
           );
         }).toList();
 
         boardDataController.addColumns(columns);
       },
-      onError: (err) => Log.error(err),
+      onError: (err) {
+        Log.error(err);
+      },
     );
   }
 
@@ -147,7 +116,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = InitialGrid;
   const factory BoardEvent.createRow() = _CreateRow;
-  const factory BoardEvent.groupByField(FieldPB field) = _GroupByField;
+  const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
+      _DidReceiveGroup;
   const factory BoardEvent.didReceiveGridUpdate(
     GridPB grid,
   ) = _DidReceiveGridUpdate;
@@ -158,14 +128,14 @@ class BoardState with _$BoardState {
   const factory BoardState({
     required String gridId,
     required Option<GridPB> grid,
-    required Option<FieldPB> groupField,
+    required List<GroupPB> groups,
     required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
   }) = _BoardState;
 
   factory BoardState.initial(String gridId) => BoardState(
         rowInfos: [],
-        groupField: none(),
+        groups: [],
         grid: none(),
         gridId: gridId,
         loadingState: const _Loading(),

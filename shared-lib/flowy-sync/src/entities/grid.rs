@@ -31,8 +31,8 @@ pub struct DeleteFilterParams {
 
 pub struct CreateGridGroupParams {
     pub field_id: String,
-    pub sub_field_id: Option<String>,
     pub field_type_rev: FieldTypeRevision,
+    pub content: Option<Vec<u8>>,
 }
 
 pub struct DeleteGroupParams {

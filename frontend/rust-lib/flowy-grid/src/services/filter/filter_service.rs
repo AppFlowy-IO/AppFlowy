@@ -3,8 +3,8 @@ use crate::entities::{FieldType, GridBlockChangesetPB};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::{
-    CheckboxTypeOption, DateTypeOption, MultiSelectTypeOptionPB, NumberTypeOption, RichTextTypeOption,
-    SingleSelectTypeOptionPB, URLTypeOption,
+    CheckboxTypeOption, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB,
+    SingleSelectTypeOptionPB, URLTypeOptionPB,
 };
 use crate::services::filter::filter_cache::{
     refresh_filter_cache, FilterCache, FilterId, FilterResult, FilterResultCache,
@@ -182,7 +182,7 @@ fn filter_cell(
         FieldType::RichText => filter_cache.text_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<RichTextTypeOption>(field_type_rev)?
+                    .get_type_option_entry::<RichTextTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
@@ -190,7 +190,7 @@ fn filter_cell(
         FieldType::Number => filter_cache.number_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<NumberTypeOption>(field_type_rev)?
+                    .get_type_option_entry::<NumberTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
@@ -198,7 +198,7 @@ fn filter_cell(
         FieldType::DateTime => filter_cache.date_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<DateTypeOption>(field_type_rev)?
+                    .get_type_option_entry::<DateTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
@@ -230,7 +230,7 @@ fn filter_cell(
         FieldType::URL => filter_cache.url_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<URLTypeOption>(field_type_rev)?
+                    .get_type_option_entry::<URLTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )

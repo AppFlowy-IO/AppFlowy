@@ -6,9 +6,9 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::revision::{
-    gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, gen_grid_sort_id, FieldRevision,
-    FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridFilterRevision, GridGroupRevision,
-    GridLayoutRevision, GridRevision, GridSettingRevision, GridSortRevision,
+    gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, FieldRevision, FieldTypeRevision,
+    FilterConfigurationRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridLayoutRevision,
+    GridRevision, GridSettingRevision, GroupConfigurationRevision,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
@@ -341,7 +341,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_grid_setting_rev(&self) -> &GridSettingRevision {
+    pub fn get_setting_rev(&self) -> &GridSettingRevision {
         &self.grid_rev.setting
     }
 
@@ -350,7 +350,7 @@ impl GridRevisionPad {
         &self,
         layout: Option<&GridLayoutRevision>,
         field_ids: Option<Vec<String>>,
-    ) -> Option<Vec<Arc<GridFilterRevision>>> {
+    ) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
         let mut filter_revs = vec![];
         let layout_ty = layout.unwrap_or(&self.grid_rev.setting.layout);
         let field_revs = self.get_field_revs(None).ok()?;
@@ -419,7 +419,7 @@ impl GridRevisionPad {
                     groups.retain(|filter| filter.id != params.group_id);
                 }
             }
-            if let Some(sort) = changeset.insert_sort {
+            if let Some(_sort) = changeset.insert_sort {
                 // let rev = GridSortRevision {
                 //     id: gen_grid_sort_id(),
                 //     field_id: sort.field_id,
@@ -434,7 +434,7 @@ impl GridRevisionPad {
                 is_changed = Some(())
             }
 
-            if let Some(delete_sort_id) = changeset.delete_sort {
+            if let Some(_delete_sort_id) = changeset.delete_sort {
                 // match grid_rev.setting.sorts.get_mut(&layout_rev) {
                 //     Some(sorts) => sorts.retain(|sort| sort.id != delete_sort_id),
                 //     None => {
@@ -559,19 +559,20 @@ impl std::default::Default for GridRevisionPad {
     }
 }
 
-fn make_filter_revision(params: &CreateGridFilterParams) -> GridFilterRevision {
-    GridFilterRevision {
+fn make_filter_revision(params: &CreateGridFilterParams) -> FilterConfigurationRevision {
+    FilterConfigurationRevision {
         id: gen_grid_filter_id(),
         field_id: params.field_id.clone(),
-        condition: params.condition.clone(),
+        condition: params.condition,
         content: params.content.clone(),
     }
 }
 
-fn make_group_revision(params: &CreateGridGroupParams) -> GridGroupRevision {
-    GridGroupRevision {
+fn make_group_revision(params: &CreateGridGroupParams) -> GroupConfigurationRevision {
+    GroupConfigurationRevision {
         id: gen_grid_group_id(),
         field_id: params.field_id.clone(),
-        sub_field_id: params.sub_field_id.clone(),
+        field_type_rev: params.field_type_rev.clone(),
+        content: params.content.clone(),
     }
 }

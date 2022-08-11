@@ -2,7 +2,7 @@ use crate::entities::{FieldType, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::GridGroupRevision;
+use flowy_grid_data_model::revision::GroupConfigurationRevision;
 use flowy_sync::entities::grid::{CreateGridGroupParams, DeleteGroupParams};
 use std::convert::TryInto;
 use std::sync::Arc;
@@ -14,17 +14,13 @@ pub struct GridGroupConfigurationPB {
 
     #[pb(index = 2)]
     pub group_field_id: String,
-
-    #[pb(index = 3, one_of)]
-    pub sub_group_field_id: Option<String>,
 }
 
-impl std::convert::From<&GridGroupRevision> for GridGroupConfigurationPB {
-    fn from(rev: &GridGroupRevision) -> Self {
+impl std::convert::From<&GroupConfigurationRevision> for GridGroupConfigurationPB {
+    fn from(rev: &GroupConfigurationRevision) -> Self {
         GridGroupConfigurationPB {
             id: rev.id.clone(),
             group_field_id: rev.field_id.clone(),
-            sub_group_field_id: rev.sub_field_id.clone(),
         }
     }
 }
@@ -32,7 +28,7 @@ impl std::convert::From<&GridGroupRevision> for GridGroupConfigurationPB {
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct RepeatedGridGroupPB {
     #[pb(index = 1)]
-    items: Vec<GroupPB>,
+    pub(crate) items: Vec<GroupPB>,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
@@ -59,8 +55,8 @@ impl std::convert::From<Vec<GridGroupConfigurationPB>> for RepeatedGridGroupConf
     }
 }
 
-impl std::convert::From<Vec<Arc<GridGroupRevision>>> for RepeatedGridGroupConfigurationPB {
-    fn from(revs: Vec<Arc<GridGroupRevision>>) -> Self {
+impl std::convert::From<Vec<Arc<GroupConfigurationRevision>>> for RepeatedGridGroupConfigurationPB {
+    fn from(revs: Vec<Arc<GroupConfigurationRevision>>) -> Self {
         RepeatedGridGroupConfigurationPB {
             items: revs.iter().map(|rev| rev.as_ref().into()).collect(),
         }
@@ -72,11 +68,11 @@ pub struct CreateGridGroupPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
 
-    #[pb(index = 2, one_of)]
-    pub sub_field_id: Option<String>,
-
-    #[pb(index = 3)]
+    #[pb(index = 2)]
     pub field_type: FieldType,
+
+    #[pb(index = 3, one_of)]
+    pub content: Option<Vec<u8>>,
 }
 
 impl TryInto<CreateGridGroupParams> for CreateGridGroupPayloadPB {
@@ -87,15 +83,10 @@ impl TryInto<CreateGridGroupParams> for CreateGridGroupPayloadPB {
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
 
-        let sub_field_id = match self.sub_field_id {
-            None => None,
-            Some(field_id) => Some(NotEmptyStr::parse(field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
-        };
-
         Ok(CreateGridGroupParams {
             field_id,
-            sub_field_id,
             field_type_rev: self.field_type.into(),
+            content: self.content,
         })
     }
 }

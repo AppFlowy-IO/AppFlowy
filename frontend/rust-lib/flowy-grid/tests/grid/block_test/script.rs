@@ -170,7 +170,7 @@ impl GridRowTest {
             FieldType::Number => {
                 let field_rev = self.editor.get_field_rev(&cell_id.field_id).await.unwrap();
                 let number_type_option = field_rev
-                    .get_type_option_entry::<NumberTypeOption>(FieldType::Number.into())
+                    .get_type_option_entry::<NumberTypeOptionPB>(FieldType::Number.into())
                     .unwrap();
                 let cell_data = self
                     .editor

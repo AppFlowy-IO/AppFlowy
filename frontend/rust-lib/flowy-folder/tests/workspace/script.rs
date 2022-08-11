@@ -5,6 +5,7 @@ use flowy_folder::entities::{
     trash::{RepeatedTrashPB, TrashIdPB, TrashType},
     view::{CreateViewPayloadPB, UpdateViewPayloadPB},
     workspace::{CreateWorkspacePayloadPB, RepeatedWorkspacePB},
+    SubViewDataTypePB,
 };
 use flowy_folder::entities::{
     app::{AppPB, RepeatedAppPB},
@@ -353,13 +354,18 @@ pub async fn create_view(
     desc: &str,
     data_type: ViewDataTypePB,
 ) -> ViewPB {
+    let sub_data_type = match data_type {
+        ViewDataTypePB::TextBlock => None,
+        ViewDataTypePB::Database => Some(SubViewDataTypePB::Grid),
+    };
+
     let request = CreateViewPayloadPB {
         belong_to_id: app_id.to_string(),
         name: name.to_string(),
         desc: desc.to_string(),
         thumbnail: None,
         data_type,
-        sub_data_type: None,
+        sub_data_type,
         plugin_type: 0,
         data: vec![],
     };

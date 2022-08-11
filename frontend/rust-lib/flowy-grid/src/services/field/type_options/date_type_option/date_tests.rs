@@ -9,7 +9,7 @@ mod tests {
 
     #[test]
     fn date_type_option_date_format_test() {
-        let mut type_option = DateTypeOption::default();
+        let mut type_option = DateTypeOptionPB::default();
         let field_rev = FieldBuilder::from_field_type(&FieldType::DateTime).build();
         for date_format in DateFormat::iter() {
             type_option.date_format = date_format;
@@ -32,7 +32,7 @@ mod tests {
 
     #[test]
     fn date_type_option_different_time_format_test() {
-        let mut type_option = DateTypeOption::default();
+        let mut type_option = DateTypeOptionPB::default();
         let field_type = FieldType::DateTime;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
@@ -66,7 +66,7 @@ mod tests {
 
     #[test]
     fn date_type_option_invalid_date_str_test() {
-        let type_option = DateTypeOption::default();
+        let type_option = DateTypeOptionPB::default();
         let field_type = FieldType::DateTime;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_date(&type_option, "abc", None, "", &field_rev);
@@ -75,7 +75,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn date_type_option_invalid_include_time_str_test() {
-        let mut type_option = DateTypeOption::new();
+        let mut type_option = DateTypeOptionPB::new();
         type_option.include_time = true;
         let field_rev = FieldBuilder::from_field_type(&FieldType::DateTime).build();
 
@@ -90,7 +90,7 @@ mod tests {
 
     #[test]
     fn date_type_option_empty_include_time_str_test() {
-        let mut type_option = DateTypeOption::new();
+        let mut type_option = DateTypeOptionPB::new();
         type_option.include_time = true;
         let field_rev = FieldBuilder::from_field_type(&FieldType::DateTime).build();
 
@@ -101,7 +101,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn date_type_option_twelve_hours_include_time_str_in_twenty_four_hours_format() {
-        let mut type_option = DateTypeOption::new();
+        let mut type_option = DateTypeOptionPB::new();
         type_option.include_time = true;
         let field_rev = FieldBuilder::from_field_type(&FieldType::DateTime).build();
 
@@ -114,7 +114,7 @@ mod tests {
         );
     }
     fn assert_date<T: ToString>(
-        type_option: &DateTypeOption,
+        type_option: &DateTypeOptionPB,
         timestamp: T,
         include_time_str: Option<String>,
         expected_str: &str,
@@ -133,7 +133,7 @@ mod tests {
         );
     }
 
-    fn decode_cell_data(encoded_data: String, type_option: &DateTypeOption, field_rev: &FieldRevision) -> String {
+    fn decode_cell_data(encoded_data: String, type_option: &DateTypeOptionPB, field_rev: &FieldRevision) -> String {
         let decoded_data = type_option
             .decode_cell_data(encoded_data.into(), &FieldType::DateTime, field_rev)
             .unwrap()

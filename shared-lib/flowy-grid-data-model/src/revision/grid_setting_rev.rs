@@ -1,5 +1,5 @@
-use crate::revision::filter_rev::GridFilterRevision;
-use crate::revision::grid_group::GridGroupRevision;
+use crate::revision::filter_rev::FilterConfigurationRevision;
+use crate::revision::grid_group::GroupConfigurationRevision;
 use crate::revision::{FieldRevision, FieldTypeRevision};
 use indexmap::IndexMap;
 use nanoid::nanoid;
@@ -21,29 +21,29 @@ pub fn gen_grid_sort_id() -> String {
     nanoid!(6)
 }
 
-pub type GridFilters = SettingContainer<GridFilterRevision>;
-pub type GridFilterRevisionMap = GridObjectRevisionMap<GridFilterRevision>;
-pub type FiltersByFieldId = HashMap<String, Vec<Arc<GridFilterRevision>>>;
+pub type FilterConfigurations = SettingConfiguration<FilterConfigurationRevision>;
+pub type FilterConfigurationRevisionMap = GridObjectRevisionMap<FilterConfigurationRevision>;
+pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterConfigurationRevision>>>;
 //
-pub type GridGroups = SettingContainer<GridGroupRevision>;
-pub type GridGroupRevisionMap = GridObjectRevisionMap<GridGroupRevision>;
-pub type GroupsByFieldId = HashMap<String, Vec<Arc<GridGroupRevision>>>;
+pub type GroupConfigurations = SettingConfiguration<GroupConfigurationRevision>;
+pub type GroupConfigurationRevisionMap = GridObjectRevisionMap<GroupConfigurationRevision>;
+pub type GroupConfigurationsByFieldId = HashMap<String, Vec<Arc<GroupConfigurationRevision>>>;
 //
-pub type GridSorts = SettingContainer<GridSortRevision>;
-pub type GridSortRevisionMap = GridObjectRevisionMap<GridSortRevision>;
-pub type SortsByFieldId = HashMap<String, Vec<Arc<GridSortRevision>>>;
+pub type SortConfigurations = SettingConfiguration<SortConfigurationRevision>;
+pub type SortConfigurationRevisionMap = GridObjectRevisionMap<SortConfigurationRevision>;
+pub type SortConfigurationsByFieldId = HashMap<String, Vec<Arc<SortConfigurationRevision>>>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
 pub struct GridSettingRevision {
     pub layout: GridLayoutRevision,
 
-    pub filters: GridFilters,
+    pub filters: FilterConfigurations,
 
     #[serde(default)]
-    pub groups: GridGroups,
+    pub groups: GroupConfigurations,
 
     #[serde(skip)]
-    pub sorts: GridSorts,
+    pub sorts: SortConfigurations,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize_repr, Deserialize_repr)]
@@ -67,7 +67,7 @@ impl std::default::Default for GridLayoutRevision {
 }
 
 impl GridSettingRevision {
-    pub fn get_all_groups(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupsByFieldId> {
+    pub fn get_all_groups(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
         self.groups.get_all_objects(&self.layout, field_revs)
     }
 
@@ -76,7 +76,7 @@ impl GridSettingRevision {
         layout: &GridLayoutRevision,
         field_id: &str,
         field_type_rev: &FieldTypeRevision,
-    ) -> Option<Vec<Arc<GridGroupRevision>>> {
+    ) -> Option<Vec<Arc<GroupConfigurationRevision>>> {
         self.groups.get_objects(layout, field_id, field_type_rev)
     }
 
@@ -85,7 +85,7 @@ impl GridSettingRevision {
         layout: &GridLayoutRevision,
         field_id: &str,
         field_type: &FieldTypeRevision,
-    ) -> Option<&mut Vec<Arc<GridGroupRevision>>> {
+    ) -> Option<&mut Vec<Arc<GroupConfigurationRevision>>> {
         self.groups.get_mut_objects(layout, field_id, field_type)
     }
 
@@ -94,12 +94,13 @@ impl GridSettingRevision {
         layout: &GridLayoutRevision,
         field_id: &str,
         field_type: &FieldTypeRevision,
-        group_rev: GridGroupRevision,
+        group_rev: GroupConfigurationRevision,
     ) {
+        self.groups.remove_all(layout);
         self.groups.insert_object(layout, field_id, field_type, group_rev);
     }
 
-    pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Option<FiltersByFieldId> {
+    pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Option<FilterConfigurationsByFieldId> {
         self.filters.get_all_objects(&self.layout, field_revs)
     }
 
@@ -108,7 +109,7 @@ impl GridSettingRevision {
         layout: &GridLayoutRevision,
         field_id: &str,
         field_type_rev: &FieldTypeRevision,
-    ) -> Option<Vec<Arc<GridFilterRevision>>> {
+    ) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
         self.filters.get_objects(layout, field_id, field_type_rev)
     }
 
@@ -117,7 +118,7 @@ impl GridSettingRevision {
         layout: &GridLayoutRevision,
         field_id: &str,
         field_type: &FieldTypeRevision,
-    ) -> Option<&mut Vec<Arc<GridFilterRevision>>> {
+    ) -> Option<&mut Vec<Arc<FilterConfigurationRevision>>> {
         self.filters.get_mut_objects(layout, field_id, field_type)
     }
 
@@ -126,25 +127,25 @@ impl GridSettingRevision {
         layout: &GridLayoutRevision,
         field_id: &str,
         field_type: &FieldTypeRevision,
-        filter_rev: GridFilterRevision,
+        filter_rev: FilterConfigurationRevision,
     ) {
         self.filters.insert_object(layout, field_id, field_type, filter_rev);
     }
 
-    pub fn get_all_sort(&self) -> Option<SortsByFieldId> {
+    pub fn get_all_sort(&self) -> Option<SortConfigurationsByFieldId> {
         None
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
-pub struct GridSortRevision {
+pub struct SortConfigurationRevision {
     pub id: String,
     pub field_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
 #[serde(transparent)]
-pub struct SettingContainer<T>
+pub struct SettingConfiguration<T>
 where
     T: Debug + Clone + Default + Eq + PartialEq + serde::Serialize + serde::de::DeserializeOwned + 'static,
 {
@@ -157,7 +158,7 @@ where
     inner: IndexMap<GridLayoutRevision, IndexMap<String, GridObjectRevisionMap<T>>>,
 }
 
-impl<T> SettingContainer<T>
+impl<T> SettingConfiguration<T>
 where
     T: Debug + Clone + Default + Eq + PartialEq + serde::Serialize + serde::de::DeserializeOwned + 'static,
 {
@@ -228,6 +229,12 @@ where
             .entry(field_type.to_owned())
             .or_insert_with(Vec::new)
             .push(Arc::new(object))
+    }
+
+    pub fn remove_all(&mut self, layout: &GridLayoutRevision) {
+        if let Some(object_rev_map_by_field_id) = self.inner.get_mut(layout) {
+            object_rev_map_by_field_id.clear()
+        }
     }
 }
 

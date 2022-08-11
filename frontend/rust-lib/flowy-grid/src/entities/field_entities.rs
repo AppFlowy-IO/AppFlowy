@@ -518,6 +518,14 @@ pub enum FieldType {
     URL = 6,
 }
 
+pub const RICH_TEXT_FIELD: FieldType = FieldType::RichText;
+pub const NUMBER_FIELD: FieldType = FieldType::Number;
+pub const DATE_FIELD: FieldType = FieldType::DateTime;
+pub const SINGLE_SELECT_FIELD: FieldType = FieldType::SingleSelect;
+pub const MULTI_SELECT_FIELD: FieldType = FieldType::MultiSelect;
+pub const CHECKBOX_FIELD: FieldType = FieldType::Checkbox;
+pub const URL_FIELD: FieldType = FieldType::URL;
+
 impl std::default::Default for FieldType {
     fn default() -> Self {
         FieldType::RichText
@@ -549,35 +557,39 @@ impl FieldType {
     }
 
     pub fn is_number(&self) -> bool {
-        self == &FieldType::Number
+        self == &NUMBER_FIELD
     }
 
     pub fn is_text(&self) -> bool {
-        self == &FieldType::RichText
+        self == &RICH_TEXT_FIELD
     }
 
     pub fn is_checkbox(&self) -> bool {
-        self == &FieldType::Checkbox
+        self == &CHECKBOX_FIELD
     }
 
     pub fn is_date(&self) -> bool {
-        self == &FieldType::DateTime
+        self == &DATE_FIELD
     }
 
     pub fn is_single_select(&self) -> bool {
-        self == &FieldType::SingleSelect
+        self == &SINGLE_SELECT_FIELD
     }
 
     pub fn is_multi_select(&self) -> bool {
-        self == &FieldType::MultiSelect
+        self == &MULTI_SELECT_FIELD
     }
 
     pub fn is_url(&self) -> bool {
-        self == &FieldType::URL
+        self == &URL_FIELD
     }
 
     pub fn is_select_option(&self) -> bool {
-        self == &FieldType::MultiSelect || self == &FieldType::SingleSelect
+        self == &MULTI_SELECT_FIELD || self == &SINGLE_SELECT_FIELD
+    }
+
+    pub fn can_be_group(&self) -> bool {
+        self.is_select_option()
     }
 }
 

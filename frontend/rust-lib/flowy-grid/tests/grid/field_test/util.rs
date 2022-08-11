@@ -12,7 +12,7 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
     let cloned_field_rev = field_rev.clone();
 
     let type_option_data = field_rev
-        .get_type_option_entry::<RichTextTypeOption>(field_rev.field_type_rev)
+        .get_type_option_entry::<RichTextTypeOptionPB>(field_rev.field_type_rev)
         .unwrap()
         .protobuf_bytes()
         .to_vec();

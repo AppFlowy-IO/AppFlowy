@@ -3,14 +3,14 @@ mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::{CellData, CellDataOperation};
     use crate::services::field::{FieldBuilder, URLCellDataParser};
-    use crate::services::field::{URLCellDataPB, URLTypeOption};
+    use crate::services::field::{URLCellDataPB, URLTypeOptionPB};
     use flowy_grid_data_model::revision::FieldRevision;
 
     /// The expected_str will equal to the input string, but the expected_url will be empty if there's no
     /// http url in the input string.
     #[test]
     fn url_type_option_does_not_contain_url_test() {
-        let type_option = URLTypeOption::default();
+        let type_option = URLTypeOptionPB::default();
         let field_type = FieldType::URL;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_url(&type_option, "123", "123", "", &field_type, &field_rev);
@@ -21,7 +21,7 @@ mod tests {
     /// if there's a http url in the input string.
     #[test]
     fn url_type_option_contains_url_test() {
-        let type_option = URLTypeOption::default();
+        let type_option = URLTypeOptionPB::default();
         let field_type = FieldType::URL;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_url(
@@ -46,7 +46,7 @@ mod tests {
     /// if there's a http url and some words following it in the input string.
     #[test]
     fn url_type_option_contains_url_with_string_after_test() {
-        let type_option = URLTypeOption::default();
+        let type_option = URLTypeOptionPB::default();
         let field_type = FieldType::URL;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_url(
@@ -71,7 +71,7 @@ mod tests {
     /// if there's a http url and special words following it in the input string.
     #[test]
     fn url_type_option_contains_url_with_special_string_after_test() {
-        let type_option = URLTypeOption::default();
+        let type_option = URLTypeOptionPB::default();
         let field_type = FieldType::URL;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_url(
@@ -96,7 +96,7 @@ mod tests {
     /// if there's a level4 url in the input string.
     #[test]
     fn level4_url_type_test() {
-        let type_option = URLTypeOption::default();
+        let type_option = URLTypeOptionPB::default();
         let field_type = FieldType::URL;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_url(
@@ -121,7 +121,7 @@ mod tests {
     /// urls with different top level domains.
     #[test]
     fn different_top_level_domains_test() {
-        let type_option = URLTypeOption::default();
+        let type_option = URLTypeOptionPB::default();
         let field_type = FieldType::URL;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
         assert_url(
@@ -162,7 +162,7 @@ mod tests {
     }
 
     fn assert_url(
-        type_option: &URLTypeOption,
+        type_option: &URLTypeOptionPB,
         input_str: &str,
         expected_str: &str,
         expected_url: &str,
@@ -177,7 +177,7 @@ mod tests {
 
     fn decode_cell_data<T: Into<CellData<URLCellDataPB>>>(
         encoded_data: T,
-        type_option: &URLTypeOption,
+        type_option: &URLTypeOptionPB,
         field_rev: &FieldRevision,
         field_type: &FieldType,
     ) -> URLCellDataPB {
