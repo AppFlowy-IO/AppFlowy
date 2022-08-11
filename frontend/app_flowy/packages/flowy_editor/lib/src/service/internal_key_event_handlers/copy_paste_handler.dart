@@ -1,5 +1,4 @@
 import 'package:flowy_editor/flowy_editor.dart';
-import 'package:flowy_editor/src/service/keyboard_service.dart';
 import 'package:flowy_editor/src/infra/html_converter.dart';
 import 'package:flowy_editor/src/document/node_iterator.dart';
 import 'package:flutter/material.dart';
