@@ -192,17 +192,7 @@ class RichTextStyle {
   TextSpan toTextSpan() => _toTextSpan(height);
 
   double get topPadding {
-    if (height == 1.0) {
-      return 0;
-    }
-    // TODO: Need to be optimized.
-    final painter =
-        TextPainter(text: _toTextSpan(height), textDirection: TextDirection.ltr)
-          ..layout();
-    final basePainter =
-        TextPainter(text: _toTextSpan(null), textDirection: TextDirection.ltr)
-          ..layout();
-    return painter.height - basePainter.height;
+    return 0;
   }
 
   TextSpan _toTextSpan(double? height) {

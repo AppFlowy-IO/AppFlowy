@@ -174,6 +174,8 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     final textSpan = _textSpan;
     return RichText(
       key: _textKey,
+      textHeightBehavior: const TextHeightBehavior(
+          applyHeightToFirstAscent: false, applyHeightToLastDescent: false),
       text: widget.textSpanDecorator != null
           ? widget.textSpanDecorator!(textSpan)
           : textSpan,
