@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:app_flowy/plugin/plugin.dart';
+import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/startup/tasks/prelude.dart';
 import 'package:app_flowy/startup/deps_resolver.dart';
 import 'package:flutter/foundation.dart';

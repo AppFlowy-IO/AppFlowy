@@ -55,36 +55,26 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
 
   @override
   Position end() {
-    // TODO: implement end
-    throw UnimplementedError();
+    return Position(path: node.path, offset: 0);
   }
 
   @override
   Position start() {
-    // TODO: implement start
-    throw UnimplementedError();
+    return Position(path: node.path, offset: 0);
   }
 
   @override
   List<Rect> getRectsInSelection(Selection selection) {
-    // TODO: implement getRectsInSelection
-    throw UnimplementedError();
+    return [];
   }
 
   @override
   Selection getSelectionInRange(Offset start, Offset end) {
-    // TODO: implement getSelectionInRange
-    throw UnimplementedError();
+    return Selection.collapsed(Position(path: node.path, offset: 0));
   }
 
   @override
   Offset localToGlobal(Offset offset) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Rect getCursorRectInPosition(Position position) {
-    // TODO: implement getCursorRectInPosition
     throw UnimplementedError();
   }
 
