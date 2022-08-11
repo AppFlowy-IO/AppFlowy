@@ -21,6 +21,11 @@ class ApplyOptions {
   });
 }
 
+enum CursorUpdateReason {
+  uiEvent,
+  others,
+}
+
 class EditorState {
   final StateTree document;
 
@@ -37,11 +42,10 @@ class EditorState {
   }
 
   /// add the set reason in the future, don't use setter
-  updateCursorSelection(Selection? cursorSelection) {
+  updateCursorSelection(Selection? cursorSelection,
+      [CursorUpdateReason reason = CursorUpdateReason.others]) {
     // broadcast to other users here
-    if (cursorSelection == null) {
-      service.selectionService.clearSelection();
-    } else {
+    if (reason != CursorUpdateReason.uiEvent) {
       service.selectionService.updateSelection(cursorSelection);
     }
     _cursorSelection = cursorSelection;
