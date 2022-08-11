@@ -82,13 +82,10 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
   if (selection == null || context == null || selectable == null) {
     return KeyEventResult.ignored;
   }
-
-  final rect = selectable.getCursorRectInPosition(selection.start);
-  if (rect == null) {
+  final selectionRects = editorState.service.selectionService.selectionRects;
+  if (selectionRects.isEmpty) {
     return KeyEventResult.ignored;
   }
-  final offset = selectable.localToGlobal(rect.topLeft);
-
   TransactionBuilder(editorState)
     ..replaceText(textNode, selection.start.offset,
         selection.end.offset - selection.start.offset, event.character ?? '')
@@ -96,7 +93,8 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
 
   _editorState = editorState;
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    showPopupList(context, editorState, offset);
+    _selectionChangeBySlash = false;
+    showPopupList(context, editorState, selectionRects.first.bottomRight);
   });
 
   return KeyEventResult.handled;
@@ -107,8 +105,8 @@ void showPopupList(
   _popupListOverlay?.remove();
   _popupListOverlay = OverlayEntry(
     builder: (context) => Positioned(
-      top: offset.dy + 20.0,
-      left: offset.dx + 5.0,
+      top: offset.dy,
+      left: offset.dx,
       child: PopupListWidget(
         editorState: editorState,
         items: _popupListItems,
