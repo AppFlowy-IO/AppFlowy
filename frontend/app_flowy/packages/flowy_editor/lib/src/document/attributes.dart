@@ -15,7 +15,7 @@ Attributes invertAttributes(Attributes? attr, Attributes? base) {
     return memo;
   });
   return attr.keys.fold(baseInverted, (memo, key) {
-    if (attr![key] != base![key] && base.containsKey(key)) {
+    if (attr![key] != base![key] && !base.containsKey(key)) {
       memo[key] = null;
     }
     return memo;

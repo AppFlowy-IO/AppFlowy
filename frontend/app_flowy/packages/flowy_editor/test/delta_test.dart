@@ -230,14 +230,18 @@ void main() {
       expect(expected, inverted);
       expect(base.compose(delta).compose(inverted), base);
     });
-    // test('retain', () {
-    //   final delta = Delta().retain(2).retain(3, {'bold': true});
-    //   final base = Delta().insert('123456');
-    //   final expected = Delta().retain(2).retain(3, {'bold': null});
-    //   final inverted = delta.invert(base);
-    //   expect(expected, inverted);
-    //   expect(base.compose(delta).compose(inverted), base);
-    // });
+    test('retain', () {
+      final delta = Delta()
+        ..retain(2)
+        ..retain(3, {'bold': true});
+      final base = Delta()..insert('123456');
+      final expected = Delta()
+        ..retain(2)
+        ..retain(3, {'bold': null});
+      final inverted = delta.invert(base);
+      expect(expected, inverted);
+      expect(base.compose(delta).compose(inverted), base);
+    });
   });
   group('json', () {
     test('toJson()', () {
