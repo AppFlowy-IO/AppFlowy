@@ -55,7 +55,7 @@ final List<PopupListItem> _popupListItems = [
   // ),
   PopupListItem(
     text: 'To-do List',
-    keywords: ['checkbox'],
+    keywords: ['checkbox', 'todo'],
     icon: _popupListIcon('checkbox'),
     handler: (editorState) => insertCheckboxAfterSelection(editorState),
   ),
@@ -165,16 +165,36 @@ class _PopupListWidgetState extends State<PopupListWidget> {
   final _focusNode = FocusNode(debugLabel: 'popup_list_widget');
   int _selectedIndex = 0;
   List<PopupListItem> _items = [];
+
+  int _maxKeywordLength = 0;
+
   String __keyword = '';
   String get _keyword => __keyword;
   set _keyword(String keyword) {
     __keyword = keyword;
-    setState(() {
-      _items = widget.items
-          .where((item) =>
-              item.keywords.any((keyword) => keyword.contains(_keyword)))
-          .toList(growable: false);
-    });
+
+    final items = widget.items
+        .where((item) =>
+            item.keywords.any((keyword) => keyword.contains(_keyword)))
+        .toList(growable: false);
+    if (items.isNotEmpty) {
+      var maxKeywordLength = 0;
+      for (var item in _items) {
+        for (var keyword in item.keywords) {
+          maxKeywordLength = max(maxKeywordLength, keyword.length);
+        }
+      }
+      _maxKeywordLength = maxKeywordLength;
+    }
+
+    if (keyword.length >= _maxKeywordLength + 2) {
+      clearPopupList();
+    } else {
+      setState(() {
+        _selectedIndex = 0;
+        _items = items;
+      });
+    }
   }
 
   @override
@@ -213,10 +233,7 @@ class _PopupListWidgetState extends State<PopupListWidget> {
           borderRadius: BorderRadius.circular(6.0),
         ),
         child: _items.isEmpty
-            ? Align(
-                alignment: Alignment.centerLeft,
-                child: _buildNoResultsWidget(context),
-              )
+            ? _buildNoResultsWidget(context)
             : Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: _buildColumns(_items, _selectedIndex),
@@ -226,11 +243,16 @@ class _PopupListWidgetState extends State<PopupListWidget> {
   }
 
   Widget _buildNoResultsWidget(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(8.0),
-      child: Text(
-        'No results',
-        style: TextStyle(color: Colors.grey, fontSize: 15.0),
+    return const Align(
+      alignment: Alignment.centerLeft,
+      child: Material(
+        child: Padding(
+          padding: EdgeInsets.all(12.0),
+          child: Text(
+            'No results',
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
       ),
     );
   }
@@ -296,15 +318,6 @@ class _PopupListWidgetState extends State<PopupListWidget> {
         !arrowKeys.contains(event.logicalKey)) {
       _keyword += event.character!;
       _insertText(event.character!);
-      var maxKeywordLength = 0;
-      for (final item in _items) {
-        for (final keyword in item.keywords) {
-          maxKeywordLength = max(keyword.length, maxKeywordLength);
-        }
-      }
-      if (_keyword.length >= maxKeywordLength + 2) {
-        clearPopupList();
-      }
       return KeyEventResult.handled;
     }
 
