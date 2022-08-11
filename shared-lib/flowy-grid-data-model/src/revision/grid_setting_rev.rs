@@ -39,6 +39,7 @@ pub struct GridSettingRevision {
 
     pub filters: GridFilters,
 
+    #[serde(default)]
     pub groups: GridGroups,
 
     #[serde(skip)]

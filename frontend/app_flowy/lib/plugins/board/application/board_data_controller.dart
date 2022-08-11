@@ -12,13 +12,8 @@
 // typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldPB>);
 // typedef OnGridChanged = void Function(GridPB);
 
-// typedef OnRowsChanged = void Function(
-//   List<GridRowInfo> rowInfos,
-//   GridRowChangeReason,
-// );
-// typedef ListenONRowChangedCondition = bool Function();
 
-// class GridDataController {
+// class ridDataController {
 //   final String gridId;
 //   final GridService _gridFFIService;
 //   final GridFieldCache fieldCache;

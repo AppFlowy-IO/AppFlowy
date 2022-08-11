@@ -37,7 +37,7 @@ class BoardPage extends StatelessWidget {
 }
 
 class BoardContent extends StatelessWidget {
-  final config = BoardConfig(
+  final config = AFBoardConfig(
     columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
   );
 
@@ -51,13 +51,13 @@ class BoardContent extends StatelessWidget {
           color: Colors.white,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-            child: Board(
+            child: AFBoard(
               dataController: context.read<BoardBloc>().boardDataController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
               cardBuilder: _buildCard,
               columnConstraints: const BoxConstraints.tightFor(width: 240),
-              config: BoardConfig(
+              config: AFBoardConfig(
                 columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
               ),
             ),
@@ -67,7 +67,7 @@ class BoardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, BoardColumnData columnData) {
+  Widget _buildHeader(BuildContext context, AFBoardColumnData columnData) {
     return AppFlowyColumnHeader(
       icon: const Icon(Icons.lightbulb_circle),
       title: Text(columnData.desc),
@@ -78,7 +78,7 @@ class BoardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildFooter(BuildContext context, BoardColumnData columnData) {
+  Widget _buildFooter(BuildContext context, AFBoardColumnData columnData) {
     return AppFlowyColumnFooter(
       icon: const Icon(Icons.add, size: 20),
       title: const Text('New'),

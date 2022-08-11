@@ -12,7 +12,7 @@ abstract class ColumnItem extends ReoderFlexItem {
   String toString() => id;
 }
 
-/// [BoardColumnDataController] is used to handle the [BoardColumnData].
+/// [BoardColumnDataController] is used to handle the [AFBoardColumnData].
 /// * Remove an item by calling [removeAt] method.
 /// * Move item to another position by calling [move] method.
 /// * Insert item to index by calling [insert] method
@@ -21,7 +21,7 @@ abstract class ColumnItem extends ReoderFlexItem {
 /// All there operations will notify listeners by default.
 ///
 class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
-  final BoardColumnData columnData;
+  final AFBoardColumnData columnData;
 
   BoardColumnDataController({
     required this.columnData,
@@ -112,15 +112,15 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
   }
 }
 
-/// [BoardColumnData] represents the data of each Column of the Board.
-class BoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
+/// [AFBoardColumnData] represents the data of each Column of the Board.
+class AFBoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
   @override
   final String id;
   final String desc;
   final List<ColumnItem> _items;
   final CustomData? customData;
 
-  BoardColumnData({
+  AFBoardColumnData({
     this.customData,
     required this.id,
     this.desc = "",

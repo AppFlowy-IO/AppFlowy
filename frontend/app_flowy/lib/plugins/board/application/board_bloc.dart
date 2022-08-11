@@ -18,12 +18,12 @@ part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final GridDataController _gridDataController;
-  late final BoardDataController boardDataController;
+  late final AFBoardDataController boardDataController;
 
   BoardBloc({required ViewPB view})
       : _gridDataController = GridDataController(view: view),
         super(BoardState.initial(view.id)) {
-    boardDataController = BoardDataController(
+    boardDataController = AFBoardDataController(
       onMoveColumn: (
         fromIndex,
         toIndex,
@@ -120,8 +120,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
     typeOptionContext.loadTypeOptionData(
       onCompleted: (singleSelect) {
-        List<BoardColumnData> columns = singleSelect.options.map((option) {
-          return BoardColumnData(
+        List<AFBoardColumnData> columns = singleSelect.options.map((option) {
+          return AFBoardColumnData(
             id: option.id,
             desc: option.name,
             customData: option,

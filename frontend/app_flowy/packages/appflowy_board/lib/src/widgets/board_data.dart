@@ -23,14 +23,14 @@ typedef OnMoveColumnItemToColumn = void Function(
   int toIndex,
 );
 
-class BoardDataController extends ChangeNotifier
+class AFBoardDataController extends ChangeNotifier
     with EquatableMixin, BoardPhantomControllerDelegate, ReoderFlextDataSource {
-  final List<BoardColumnData> _columnDatas = [];
+  final List<AFBoardColumnData> _columnDatas = [];
   final OnMoveColumn? onMoveColumn;
   final OnMoveColumnItem? onMoveColumnItem;
   final OnMoveColumnItemToColumn? onMoveColumnItemToColumn;
 
-  List<BoardColumnData> get columnDatas => _columnDatas;
+  List<AFBoardColumnData> get columnDatas => _columnDatas;
 
   List<String> get columnIds =>
       _columnDatas.map((columnData) => columnData.id).toList();
@@ -38,13 +38,13 @@ class BoardDataController extends ChangeNotifier
   final LinkedHashMap<String, BoardColumnDataController> _columnControllers =
       LinkedHashMap();
 
-  BoardDataController({
+  AFBoardDataController({
     this.onMoveColumn,
     this.onMoveColumnItem,
     this.onMoveColumnItemToColumn,
   });
 
-  void addColumn(BoardColumnData columnData, {bool notify = true}) {
+  void addColumn(AFBoardColumnData columnData, {bool notify = true}) {
     if (_columnControllers[columnData.id] != null) return;
 
     final controller = BoardColumnDataController(columnData: columnData);
@@ -53,7 +53,7 @@ class BoardDataController extends ChangeNotifier
     if (notify) notifyListeners();
   }
 
-  void addColumns(List<BoardColumnData> columns, {bool notify = true}) {
+  void addColumns(List<AFBoardColumnData> columns, {bool notify = true}) {
     for (final column in columns) {
       addColumn(column, notify: false);
     }
@@ -158,7 +158,7 @@ class BoardDataController extends ChangeNotifier
   }
 
   @override
-  String get identifier => '$BoardDataController';
+  String get identifier => '$AFBoardDataController';
 
   @override
   UnmodifiableListView<ReoderFlexItem> get items =>
@@ -175,7 +175,7 @@ class BoardDataController extends ChangeNotifier
       columnController.removeAt(index);
 
       Log.debug(
-          '[$BoardDataController] Column:[$columnId] remove phantom, current count: ${columnController.items.length}');
+          '[$AFBoardDataController] Column:[$columnId] remove phantom, current count: ${columnController.items.length}');
     }
     return isExist;
   }
