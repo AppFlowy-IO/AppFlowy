@@ -1,3 +1,4 @@
+import 'package:flowy_editor/src/document/attributes.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flowy_editor/src/document/text_delta.dart';
 
@@ -240,7 +241,8 @@ void main() {
         ..retain(3, {'bold': null});
       final inverted = delta.invert(base);
       expect(expected, inverted);
-      expect(base.compose(delta).compose(inverted), base);
+      final t = base.compose(delta).compose(inverted);
+      expect(t, base);
     });
   });
   group('json', () {
@@ -312,6 +314,16 @@ void main() {
     test("prev rune 3", () {
       final delta = Delta()..insert('😊');
       expect(delta.prevRunePosition(0), -1);
+    });
+  });
+  group("attributes", () {
+    test("compose", () {
+      final attrs = composeAttributes({"a": null}, {"b": null}, true);
+      expect(attrs != null, true);
+      expect(attrs!.containsKey("a"), true);
+      expect(attrs.containsKey("b"), true);
+      expect(attrs["a"], null);
+      expect(attrs["b"], null);
     });
   });
 }

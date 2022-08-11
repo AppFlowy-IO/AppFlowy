@@ -8,7 +8,7 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   Node? parent;
   final String type;
   final LinkedList<Node> children;
-  final Attributes attributes;
+  Attributes _attributes;
 
   GlobalKey? key;
   // TODO: abstract a selectable node??
@@ -16,22 +16,24 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
 
   String? get subtype {
     // TODO: make 'subtype' as a const value.
-    if (attributes.containsKey('subtype')) {
-      assert(attributes['subtype'] is String?,
+    if (_attributes.containsKey('subtype')) {
+      assert(_attributes['subtype'] is String?,
           'subtype must be a [String] or [null]');
-      return attributes['subtype'] as String?;
+      return _attributes['subtype'] as String?;
     }
     return null;
   }
 
   Path get path => _path();
 
+  Attributes get attributes => _attributes;
+
   Node({
     required this.type,
     required this.children,
-    required this.attributes,
+    required Attributes attributes,
     this.parent,
-  }) {
+  }) : _attributes = attributes {
     for (final child in children) {
       child.parent = this;
     }
@@ -84,16 +86,9 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   }
 
   void updateAttributes(Attributes attributes) {
-    bool shouldNotifyParent =
-        this.attributes['subtype'] != attributes['subtype'];
+    bool shouldNotifyParent = _attributes['subtype'] != attributes['subtype'];
 
-    for (final attribute in attributes.entries) {
-      if (attribute.value == null) {
-        this.attributes.remove(attribute.key);
-      } else {
-        this.attributes[attribute.key] = attribute.value;
-      }
-    }
+    _attributes = composeAttributes(_attributes, attributes) ?? {};
     // Notify the new attributes
     // if attributes contains 'subtype', should notify parent to rebuild node
     // else, just notify current node.
@@ -149,8 +144,8 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     if (children.isNotEmpty) {
       map['children'] = children.map((node) => node.toJson());
     }
-    if (attributes.isNotEmpty) {
-      map['attributes'] = attributes;
+    if (_attributes.isNotEmpty) {
+      map['attributes'] = _attributes;
     }
     return map;
   }
@@ -214,7 +209,7 @@ class TextNode extends Node {
       TextNode(
         type: type ?? this.type,
         children: children ?? this.children,
-        attributes: attributes ?? this.attributes,
+        attributes: attributes ?? _attributes,
         delta: delta ?? this.delta,
       );
 

@@ -383,8 +383,8 @@ class Delta extends Iterable<TextOperation> {
         final length = min(thisIter.peekLength(), otherIter.peekLength());
         final thisOp = thisIter.next(length);
         final otherOp = otherIter.next(length);
-        final attributes =
-            composeAttributes(thisOp.attributes, otherOp.attributes);
+        final attributes = composeAttributes(
+            thisOp.attributes, otherOp.attributes, thisOp is TextRetain);
         if (otherOp is TextRetain && otherOp.length > 0) {
           TextOperation? newOp;
           if (thisOp is TextRetain) {
