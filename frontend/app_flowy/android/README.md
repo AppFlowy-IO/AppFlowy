@@ -137,7 +137,7 @@ Please note that you need to replace 'Android_Device' with the actual name of th
 You need
 
 Currently am trying to update most of the android scripts for it to work as smooth as possible.
-The branch is [here](https://github.com/rileyhawk1417/appflowy/tree/droid_test).
+The branch is [here](https://github.com/rileyhawk1417/appflowy/tree/android_build).
 
 ### Known issues
 
