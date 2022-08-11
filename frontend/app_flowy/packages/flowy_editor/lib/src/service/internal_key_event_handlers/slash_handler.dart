@@ -14,43 +14,56 @@ import 'package:flutter/services.dart';
 final List<PopupListItem> _popupListItems = [
   PopupListItem(
     text: 'Text',
+    keywords: ['text'],
     icon: _popupListIcon('text'),
-    handler: (editorState) => formatText(editorState),
+    handler: (editorState) {
+      insertTextNodeAfterSelection(editorState, {});
+    },
   ),
   PopupListItem(
     text: 'Heading 1',
+    keywords: ['h1', 'heading 1'],
     icon: _popupListIcon('h1'),
-    handler: (editorState) => formatHeading(editorState, StyleKey.h1),
+    handler: (editorState) =>
+        insertHeadingAfterSelection(editorState, StyleKey.h1),
   ),
   PopupListItem(
     text: 'Heading 2',
+    keywords: ['h2', 'heading 2'],
     icon: _popupListIcon('h2'),
-    handler: (editorState) => formatHeading(editorState, StyleKey.h2),
+    handler: (editorState) =>
+        insertHeadingAfterSelection(editorState, StyleKey.h2),
   ),
   PopupListItem(
     text: 'Heading 3',
+    keywords: ['h3', 'heading 3'],
     icon: _popupListIcon('h3'),
-    handler: (editorState) => formatHeading(editorState, StyleKey.h3),
+    handler: (editorState) =>
+        insertHeadingAfterSelection(editorState, StyleKey.h3),
   ),
   PopupListItem(
-    text: 'Bullets',
+    text: 'Bulleted List',
+    keywords: ['bulleted list'],
     icon: _popupListIcon('bullets'),
-    handler: (editorState) => formatBulletedList(editorState),
+    handler: (editorState) => insertBulletedListAfterSelection(editorState),
   ),
   PopupListItem(
     text: 'Numbered list',
+    keywords: ['numbered list'],
     icon: _popupListIcon('number'),
     handler: (editorState) => debugPrint('Not implement yet!'),
   ),
   PopupListItem(
     text: 'Checkboxes',
+    keywords: ['checkbox'],
     icon: _popupListIcon('checkbox'),
-    handler: (editorState) => formatCheckbox(editorState),
+    handler: (editorState) => insertCheckboxAfterSelection(editorState),
   ),
 ];
 
 OverlayEntry? _popupListOverlay;
 EditorState? _editorState;
+bool _selectionChangeBySlash = false;
 FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.slash) {
     return KeyEventResult.ignored;
@@ -78,7 +91,7 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
 
   TransactionBuilder(editorState)
     ..replaceText(textNode, selection.start.offset,
-        selection.end.offset - selection.start.offset, '/')
+        selection.end.offset - selection.start.offset, event.character ?? '')
     ..commit();
 
   _editorState = editorState;
@@ -94,7 +107,7 @@ void showPopupList(
   _popupListOverlay?.remove();
   _popupListOverlay = OverlayEntry(
     builder: (context) => Positioned(
-      top: offset.dy + 15.0,
+      top: offset.dy + 20.0,
       left: offset.dx + 5.0,
       child: PopupListWidget(
         editorState: editorState,
@@ -115,6 +128,15 @@ void showPopupList(
 
 void clearPopupList() {
   if (_popupListOverlay == null || _editorState == null) {
+    return;
+  }
+  final selection =
+      _editorState?.service.selectionService.currentSelection.value;
+  if (selection == null) {
+    return;
+  }
+  if (_selectionChangeBySlash) {
+    _selectionChangeBySlash = false;
     return;
   }
   _popupListOverlay?.remove();
@@ -142,21 +164,35 @@ class PopupListWidget extends StatefulWidget {
 }
 
 class _PopupListWidgetState extends State<PopupListWidget> {
-  final focusNode = FocusNode(debugLabel: 'popup_list_widget');
-  var selectedIndex = 0;
+  final _focusNode = FocusNode(debugLabel: 'popup_list_widget');
+  int _selectedIndex = 0;
+  List<PopupListItem> _items = [];
+  String __keyword = '';
+  String get _keyword => __keyword;
+  set _keyword(String keyword) {
+    __keyword = keyword;
+    setState(() {
+      _items = widget.items
+          .where((item) =>
+              item.keywords.any((keyword) => keyword.contains(_keyword)))
+          .toList(growable: false);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
 
+    _items = widget.items;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      focusNode.requestFocus();
+      _focusNode.requestFocus();
     });
   }
 
   @override
   void dispose() {
-    focusNode.dispose();
+    _focusNode.dispose();
 
     super.dispose();
   }
@@ -164,7 +200,7 @@ class _PopupListWidgetState extends State<PopupListWidget> {
   @override
   Widget build(BuildContext context) {
     return Focus(
-      focusNode: focusNode,
+      focusNode: _focusNode,
       onKey: _onKey,
       child: Container(
         decoration: BoxDecoration(
@@ -178,10 +214,25 @@ class _PopupListWidgetState extends State<PopupListWidget> {
           ],
           borderRadius: BorderRadius.circular(6.0),
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: _buildColumns(widget.items, selectedIndex),
-        ),
+        child: _items.isEmpty
+            ? Align(
+                alignment: Alignment.centerLeft,
+                child: _buildNoResultsWidget(context),
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _buildColumns(_items, _selectedIndex),
+              ),
+      ),
+    );
+  }
+
+  Widget _buildNoResultsWidget(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(8.0),
+      child: Text(
+        'No results',
+        style: TextStyle(color: Colors.grey, fontSize: 15.0),
       ),
     );
   }
@@ -214,26 +265,52 @@ class _PopupListWidgetState extends State<PopupListWidget> {
   }
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
+    debugPrint('slash on key $event');
     if (event is! RawKeyDownEvent) {
       return KeyEventResult.ignored;
     }
 
+    final arrowKeys = [
+      LogicalKeyboardKey.arrowLeft,
+      LogicalKeyboardKey.arrowRight,
+      LogicalKeyboardKey.arrowUp,
+      LogicalKeyboardKey.arrowDown
+    ];
+
     if (event.logicalKey == LogicalKeyboardKey.enter) {
-      if (0 <= selectedIndex && selectedIndex < widget.items.length) {
-        _deleteSlash();
-        widget.items[selectedIndex].handler(widget.editorState);
+      if (0 <= _selectedIndex && _selectedIndex < _items.length) {
+        _deleteLastCharacters(length: _keyword.length + 1);
+        _items[_selectedIndex].handler(widget.editorState);
         return KeyEventResult.handled;
       }
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
       clearPopupList();
       return KeyEventResult.handled;
     } else if (event.logicalKey == LogicalKeyboardKey.backspace) {
-      clearPopupList();
-      _deleteSlash();
+      if (_keyword.isEmpty) {
+        clearPopupList();
+      } else {
+        _keyword = _keyword.substring(0, _keyword.length - 1);
+      }
+      _deleteLastCharacters();
+      return KeyEventResult.handled;
+    } else if (event.character != null &&
+        !arrowKeys.contains(event.logicalKey)) {
+      _keyword += event.character!;
+      _insertText(event.character!);
+      var maxKeywordLength = 0;
+      for (final item in _items) {
+        for (final keyword in item.keywords) {
+          maxKeywordLength = max(keyword.length, maxKeywordLength);
+        }
+      }
+      if (_keyword.length >= maxKeywordLength + 2) {
+        clearPopupList();
+      }
       return KeyEventResult.handled;
     }
 
-    var newSelectedIndex = selectedIndex;
+    var newSelectedIndex = _selectedIndex;
     if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
       newSelectedIndex -= widget.maxItemInRow;
     } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
@@ -243,26 +320,44 @@ class _PopupListWidgetState extends State<PopupListWidget> {
     } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
       newSelectedIndex += 1;
     }
-    if (newSelectedIndex != selectedIndex) {
+    if (newSelectedIndex != _selectedIndex) {
       setState(() {
-        selectedIndex = max(0, min(widget.items.length - 1, newSelectedIndex));
+        _selectedIndex = max(0, min(_items.length - 1, newSelectedIndex));
       });
       return KeyEventResult.handled;
     }
     return KeyEventResult.ignored;
   }
 
-  void _deleteSlash() {
+  void _deleteLastCharacters({int length = 1}) {
     final selection =
         widget.editorState.service.selectionService.currentSelection.value;
     final nodes =
         widget.editorState.service.selectionService.currentSelectedNodes;
     if (selection != null && nodes.length == 1) {
+      _selectionChangeBySlash = true;
       TransactionBuilder(widget.editorState)
         ..deleteText(
           nodes.first as TextNode,
-          selection.start.offset - 1,
-          1,
+          selection.start.offset - length,
+          length,
+        )
+        ..commit();
+    }
+  }
+
+  void _insertText(String text) {
+    final selection =
+        widget.editorState.service.selectionService.currentSelection.value;
+    final nodes =
+        widget.editorState.service.selectionService.currentSelectedNodes;
+    if (selection != null && nodes.length == 1) {
+      _selectionChangeBySlash = true;
+      TransactionBuilder(widget.editorState)
+        ..insertText(
+          nodes.first as TextNode,
+          selection.end.offset,
+          text,
         )
         ..commit();
     }
@@ -318,12 +413,14 @@ class _PopupListItemWidget extends StatelessWidget {
 class PopupListItem {
   PopupListItem({
     required this.text,
+    required this.keywords,
     this.message = '',
     required this.icon,
     required this.handler,
   });
 
   final String text;
+  final List<String> keywords;
   final String message;
   final Widget icon;
   final void Function(EditorState editorState) handler;
