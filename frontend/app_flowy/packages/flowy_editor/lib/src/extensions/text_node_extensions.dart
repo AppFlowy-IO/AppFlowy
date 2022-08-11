@@ -20,14 +20,17 @@ extension TextNodeExtension on TextNode {
 
   bool allSatisfyInSelection(String styleKey, Selection selection) {
     final ops = delta.whereType<TextInsert>();
+    final startOffset =
+        selection.isBackward ? selection.start.offset : selection.end.offset;
+    final endOffset =
+        selection.isBackward ? selection.end.offset : selection.start.offset;
     var start = 0;
     for (final op in ops) {
-      if (start >= selection.end.offset) {
+      if (start >= endOffset) {
         break;
       }
       final length = op.length;
-      if (start < selection.end.offset &&
-          start + length > selection.start.offset) {
+      if (start < endOffset && start + length > startOffset) {
         if (op.attributes == null ||
             !op.attributes!.containsKey(styleKey) ||
             op.attributes![styleKey] == false) {
