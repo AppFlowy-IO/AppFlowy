@@ -1,13 +1,9 @@
-import 'dart:io' show Platform;
-
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/plugins/blank/blank.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
