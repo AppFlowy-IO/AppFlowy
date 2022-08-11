@@ -359,6 +359,7 @@ pub async fn create_view(
         desc: desc.to_string(),
         thumbnail: None,
         data_type,
+        sub_data_type: None,
         plugin_type: 0,
         data: vec![],
     };

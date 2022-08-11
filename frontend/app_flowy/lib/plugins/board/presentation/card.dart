@@ -8,6 +8,6 @@ class BoardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(child: Text('1234'));
+    return const Text('1234');
   }
 }

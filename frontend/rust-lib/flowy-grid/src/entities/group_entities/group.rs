@@ -32,7 +32,7 @@ impl std::convert::From<&GridGroupRevision> for GridGroupConfigurationPB {
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct RepeatedGridGroupPB {
     #[pb(index = 1)]
-    groups: Vec<GroupPB>,
+    items: Vec<GroupPB>,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]

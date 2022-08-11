@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:app_flowy/plugins/grid/application/field/type_option/multi_select_type_option.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pb.dart';
@@ -11,7 +10,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid/single_select_type_option.pb.dart'
 import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
 import 'package:protobuf/protobuf.dart';
-import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'checkbox.dart';

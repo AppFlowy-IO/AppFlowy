@@ -48,19 +48,18 @@ pub fn make_default_board() -> BuildGridContext {
     let done_option = SelectOptionPB::new("Done");
     let single_select = SingleSelectTypeOptionBuilder::default()
         .add_option(not_started_option.clone())
-        .add_option(in_progress_option.clone())
-        .add_option(done_option.clone());
+        .add_option(in_progress_option)
+        .add_option(done_option);
     let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
     let single_select_field_id = single_select_field.id.clone();
     grid_builder.add_field(single_select_field);
 
-    // rows
+    // Insert rows
     for _ in 0..3 {
-        grid_builder.add_row(
-            RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs())
-                .insert_select_option_cell(&single_select_field_id, not_started_option.id.clone())
-                .build(),
-        );
+        let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
+        row_builder.insert_select_option_cell(&single_select_field_id, not_started_option.id.clone());
+        let row = row_builder.build();
+        grid_builder.add_row(row);
     }
 
     grid_builder.build()

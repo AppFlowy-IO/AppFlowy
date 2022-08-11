@@ -75,7 +75,7 @@ class SelectOptionTypeOptionState with _$SelectOptionTypeOptionState {
     required List<SelectOptionPB> options,
     required bool isEditingOption,
     required Option<String> newOptionName,
-  }) = _SelectOptionTyepOptionState;
+  }) = _SelectOptionTypeOptionState;
 
   factory SelectOptionTypeOptionState.initial(List<SelectOptionPB> options) =>
       SelectOptionTypeOptionState(

@@ -6,7 +6,7 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::GridLayoutRevision;
-use flowy_sync::entities::grid::{DeleteGroupParams, GridSettingChangesetParams};
+use flowy_sync::entities::grid::GridSettingChangesetParams;
 use std::collections::HashMap;
 use std::convert::TryInto;
 use strum::IntoEnumIterator;

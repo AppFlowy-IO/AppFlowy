@@ -5,8 +5,11 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub(crate) struct GridGroupService {
+    #[allow(dead_code)]
     scheduler: Arc<dyn GridServiceTaskScheduler>,
+    #[allow(dead_code)]
     grid_pad: Arc<RwLock<GridRevisionPad>>,
+    #[allow(dead_code)]
     block_manager: Arc<GridBlockManager>,
 }
 

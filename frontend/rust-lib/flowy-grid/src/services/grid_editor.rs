@@ -35,6 +35,8 @@ pub struct GridRevisionEditor {
     block_manager: Arc<GridBlockManager>,
     #[allow(dead_code)]
     pub(crate) filter_service: Arc<GridFilterService>,
+
+    #[allow(dead_code)]
     pub(crate) group_service: Arc<GridGroupService>,
 }
 

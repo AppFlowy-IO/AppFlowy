@@ -50,18 +50,16 @@ impl<'a> RowRevisionBuilder<'a> {
         }
     }
 
-    pub fn insert_select_option_cell(mut self, field_id: &str, data: String) -> Self {
+    pub fn insert_select_option_cell(&mut self, field_id: &str, data: String) {
         match self.field_rev_map.get(&field_id.to_owned()) {
             None => {
                 tracing::warn!("Invalid field_id: {}", field_id);
-                self
             }
             Some(field_rev) => {
                 let cell_data = SelectOptionCellChangeset::from_insert(&data).to_str();
                 let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
                 let cell = CellRevision::new(data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
-                self
             }
         }
     }

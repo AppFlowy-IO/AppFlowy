@@ -1,5 +1,5 @@
 pub use crate::entities::view::ViewDataTypePB;
-use crate::entities::{SubViewDataTypePB, ViewInfoPB};
+use crate::entities::ViewInfoPB;
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},

@@ -20,7 +20,7 @@ typedef OnRowsChanged = void Function(
   List<RowInfo> rowInfos,
   RowChangeReason,
 );
-typedef ListenONRowChangedCondition = bool Function();
+typedef ListenOnRowChangedCondition = bool Function();
 
 class GridDataController {
   final String gridId;

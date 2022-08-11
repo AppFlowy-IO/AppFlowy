@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
-import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/type_option/builder.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -14,14 +13,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:collection';
 
+import 'board_data_controller.dart';
+
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
-  final GridDataController _gridDataController;
+  final BoardDataController _dataController;
   late final AFBoardDataController boardDataController;
 
   BoardBloc({required ViewPB view})
-      : _gridDataController = GridDataController(view: view),
+      : _dataController = BoardDataController(view: view),
         super(BoardState.initial(view.id)) {
     boardDataController = AFBoardDataController(
       onMoveColumn: (
@@ -51,7 +52,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             await _loadGrid(emit);
           },
           createRow: () {
-            _gridDataController.createRow();
+            _dataController.createRow();
           },
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
@@ -66,25 +67,20 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   @override
   Future<void> close() async {
-    await _gridDataController.dispose();
+    await _dataController.dispose();
     return super.close();
   }
 
   GridRowCache? getRowCache(String blockId, String rowId) {
-    final GridBlockCache? blockCache = _gridDataController.blocks[blockId];
+    final GridBlockCache? blockCache = _dataController.blocks[blockId];
     return blockCache?.rowCache;
   }
 
   void _startListening() {
-    _gridDataController.addListener(
+    _dataController.addListener(
       onGridChanged: (grid) {
         if (!isClosed) {
           add(BoardEvent.didReceiveGridUpdate(grid));
-        }
-      },
-      onRowsChanged: (rowInfos, reason) {
-        if (!isClosed) {
-          _buildColumnItems(rowInfos);
         }
       },
       onFieldsChanged: (fields) {
@@ -92,11 +88,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           _buildColumns(fields);
         }
       },
+      onGroupChanged: (groups) {},
+      onError: (err) {
+        Log.error(err);
+      },
     );
-  }
-
-  void _buildColumnItems(List<RowInfo> rowInfos) {
-    for (final rowInfo in rowInfos) {}
   }
 
   void _buildColumns(UnmodifiableListView<FieldPB> fields) {
@@ -114,7 +110,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   void _buildColumnsFromSingleSelect(FieldPB field) {
     final typeOptionContext = makeTypeOptionContext<SingleSelectTypeOptionPB>(
-      gridId: _gridDataController.gridId,
+      gridId: _dataController.gridId,
       field: field,
     );
 
@@ -135,7 +131,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   Future<void> _loadGrid(Emitter<BoardState> emit) async {
-    final result = await _gridDataController.loadData();
+    final result = await _dataController.loadData();
     result.fold(
       (grid) => emit(
         state.copyWith(loadingState: GridLoadingState.finish(left(unit))),

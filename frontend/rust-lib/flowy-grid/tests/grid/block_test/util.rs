@@ -10,7 +10,6 @@ use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use strum::EnumCount;
 
 pub struct GridRowTestBuilder<'a> {
-    block_id: String,
     field_revs: &'a [Arc<FieldRevision>],
     inner_builder: RowRevisionBuilder<'a>,
 }
@@ -20,7 +19,6 @@ impl<'a> GridRowTestBuilder<'a> {
         assert_eq!(field_revs.len(), FieldType::COUNT);
         let inner_builder = RowRevisionBuilder::new(block_id, field_revs);
         Self {
-            block_id: block_id.to_owned(),
             field_revs,
             inner_builder,
         }

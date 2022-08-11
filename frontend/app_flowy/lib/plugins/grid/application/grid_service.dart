@@ -5,6 +5,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/group.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 
 class GridService {
@@ -37,5 +38,10 @@ class GridService {
   Future<Either<Unit, FlowyError>> closeGrid() {
     final request = ViewIdPB(value: gridId);
     return FolderEventCloseView(request).send();
+  }
+
+  Future<Either<RepeatedGridGroupPB, FlowyError>> loadGroups() {
+    final payload = GridIdPB(value: gridId);
+    return GridEventGetGroup(payload).send();
   }
 }
