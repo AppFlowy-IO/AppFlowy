@@ -61,7 +61,7 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
         FieldType::SingleSelect => {
             SingleSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev)
         }
-        FieldType::MultiSelect => MultiSelectTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::MultiSelect => MultiSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::Checkbox => CheckboxTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::URL => URLTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
     }?;
@@ -109,7 +109,7 @@ pub fn try_decode_cell_data(
                 .get_type_option_entry::<SingleSelectTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::MultiSelect => field_rev
-                .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
+                .get_type_option_entry::<MultiSelectTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::Checkbox => field_rev
                 .get_type_option_entry::<CheckboxTypeOption>(field_type)?

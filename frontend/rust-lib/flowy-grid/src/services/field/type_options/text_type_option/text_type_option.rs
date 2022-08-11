@@ -159,7 +159,7 @@ mod tests {
             .option(google_option.clone())
             .option(facebook_option.clone());
         let multi_select_field_rev = FieldBuilder::new(multi_select).build();
-        let multi_type_option = MultiSelectTypeOption::from(&multi_select_field_rev);
+        let multi_type_option = MultiSelectTypeOptionPB::from(&multi_select_field_rev);
         let cell_data = multi_type_option
             .apply_changeset(cell_data_changeset.into(), None)
             .unwrap();

@@ -405,3 +405,14 @@ pub(crate) async fn update_date_cell_handler(
     let _ = editor.update_cell(params.into()).await?;
     Ok(())
 }
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_group_handler(
+    data: Data<GridIdPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<RepeatedGridGroupPB, FlowyError> {
+    let params: GridIdPB = data.into_inner();
+    let editor = manager.get_grid_editor(&params.value)?;
+    let group = editor.get_group().await?;
+    data_result(group)
+}

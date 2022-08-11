@@ -1,4 +1,6 @@
-use crate::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
+use crate::entities::grid::{
+    CreateGridFilterParams, CreateGridGroupParams, FieldChangesetParams, GridSettingChangesetParams,
+};
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_delta_from_revisions};
@@ -380,88 +382,65 @@ impl GridRevisionPad {
         self.modify_grid(|grid_rev| {
             let mut is_changed = None;
             let layout_rev = changeset.layout_type;
-
             if let Some(params) = changeset.insert_filter {
-                let filter_rev = GridFilterRevision {
-                    id: gen_grid_filter_id(),
-                    field_id: params.field_id.clone(),
-                    condition: params.condition,
-                    content: params.content,
-                };
-
-                grid_rev
-                    .setting
-                    .insert_filter(&layout_rev, &params.field_id, &params.field_type_rev, filter_rev);
+                grid_rev.setting.insert_filter(
+                    &layout_rev,
+                    &params.field_id,
+                    &params.field_type_rev,
+                    make_filter_revision(&params),
+                );
 
                 is_changed = Some(())
             }
             if let Some(params) = changeset.delete_filter {
-                match grid_rev
-                    .setting
-                    .get_mut_filters(&layout_rev, &params.field_id, &params.field_type_rev)
+                if let Some(filters) =
+                    grid_rev
+                        .setting
+                        .get_mut_filters(&layout_rev, &params.field_id, &params.field_type_rev)
                 {
-                    Some(filters) => {
-                        filters.retain(|filter| filter.id != params.filter_id);
-                    }
-                    None => {
-                        tracing::warn!("Can't find the filter with {:?}", layout_rev);
-                    }
+                    filters.retain(|filter| filter.id != params.filter_id);
                 }
             }
             if let Some(params) = changeset.insert_group {
-                let group_rev = GridGroupRevision {
-                    id: gen_grid_group_id(),
-                    field_id: params.field_id.clone(),
-                    sub_field_id: params.sub_field_id,
-                };
-
-                grid_rev
-                    .setting
-                    .insert_group(&layout_rev, &params.field_id, &params.field_type_rev, group_rev);
+                grid_rev.setting.insert_group(
+                    &layout_rev,
+                    &params.field_id,
+                    &params.field_type_rev,
+                    make_group_revision(&params),
+                );
                 is_changed = Some(());
             }
             if let Some(params) = changeset.delete_group {
-                // match grid_rev.setting.groups.get_mut(&layout_rev) {
-                //     Some(groups) => groups.retain(|group| group.id != delete_group_id),
-                //     None => {
-                //         tracing::warn!("Can't find the group with {:?}", layout_rev);
-                //     }
-                // }
-
-                match grid_rev
-                    .setting
-                    .get_mut_groups(&layout_rev, &params.field_id, &params.field_type_rev)
+                if let Some(groups) =
+                    grid_rev
+                        .setting
+                        .get_mut_groups(&layout_rev, &params.field_id, &params.field_type_rev)
                 {
-                    Some(groups) => {
-                        groups.retain(|filter| filter.id != params.group_id);
-                    }
-                    None => {
-                        tracing::warn!("Can't find the group with {:?}", layout_rev);
-                    }
+                    groups.retain(|filter| filter.id != params.group_id);
                 }
             }
             if let Some(sort) = changeset.insert_sort {
-                let rev = GridSortRevision {
-                    id: gen_grid_sort_id(),
-                    field_id: sort.field_id,
-                };
-
-                grid_rev
-                    .setting
-                    .sorts
-                    .entry(layout_rev.clone())
-                    .or_insert_with(std::vec::Vec::new)
-                    .push(rev);
+                // let rev = GridSortRevision {
+                //     id: gen_grid_sort_id(),
+                //     field_id: sort.field_id,
+                // };
+                //
+                // grid_rev
+                //     .setting
+                //     .sorts
+                //     .entry(layout_rev.clone())
+                //     .or_insert_with(std::vec::Vec::new)
+                //     .push(rev);
                 is_changed = Some(())
             }
 
             if let Some(delete_sort_id) = changeset.delete_sort {
-                match grid_rev.setting.sorts.get_mut(&layout_rev) {
-                    Some(sorts) => sorts.retain(|sort| sort.id != delete_sort_id),
-                    None => {
-                        tracing::warn!("Can't find the sort with {:?}", layout_rev);
-                    }
-                }
+                // match grid_rev.setting.sorts.get_mut(&layout_rev) {
+                //     Some(sorts) => sorts.retain(|sort| sort.id != delete_sort_id),
+                //     None => {
+                //         tracing::warn!("Can't find the sort with {:?}", layout_rev);
+                //     }
+                // }
             }
             Ok(is_changed)
         })
@@ -577,5 +556,22 @@ impl std::default::Default for GridRevisionPad {
             grid_rev: Arc::new(grid),
             delta,
         }
+    }
+}
+
+fn make_filter_revision(params: &CreateGridFilterParams) -> GridFilterRevision {
+    GridFilterRevision {
+        id: gen_grid_filter_id(),
+        field_id: params.field_id.clone(),
+        condition: params.condition.clone(),
+        content: params.content.clone(),
+    }
+}
+
+fn make_group_revision(params: &CreateGridGroupParams) -> GridGroupRevision {
+    GridGroupRevision {
+        id: gen_grid_group_id(),
+        field_id: params.field_id.clone(),
+        sub_field_id: params.sub_field_id.clone(),
     }
 }

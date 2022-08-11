@@ -3,7 +3,7 @@ use crate::entities::{FieldType, GridBlockChangesetPB};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::{
-    CheckboxTypeOption, DateTypeOption, MultiSelectTypeOption, NumberTypeOption, RichTextTypeOption,
+    CheckboxTypeOption, DateTypeOption, MultiSelectTypeOptionPB, NumberTypeOption, RichTextTypeOption,
     SingleSelectTypeOptionPB, URLTypeOption,
 };
 use crate::services::filter::filter_cache::{
@@ -22,8 +22,6 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub(crate) struct GridFilterService {
-    #[allow(dead_code)]
-    grid_id: String,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
     block_manager: Arc<GridBlockManager>,
@@ -36,12 +34,10 @@ impl GridFilterService {
         block_manager: Arc<GridBlockManager>,
         scheduler: S,
     ) -> Self {
-        let grid_id = grid_pad.read().await.grid_id();
         let scheduler = Arc::new(scheduler);
         let filter_cache = FilterCache::from_grid_pad(&grid_pad).await;
         let filter_result_cache = FilterResultCache::new();
         Self {
-            grid_id,
             grid_pad,
             block_manager,
             scheduler,
@@ -134,8 +130,9 @@ impl GridFilterService {
     }
 
     async fn notify(&self, changesets: Vec<GridBlockChangesetPB>) {
+        let grid_id = self.grid_pad.read().await.grid_id();
         for changeset in changesets {
-            send_dart_notification(&self.grid_id, GridNotification::DidUpdateGridBlock)
+            send_dart_notification(&grid_id, GridNotification::DidUpdateGridBlock)
                 .payload(changeset)
                 .send();
         }
@@ -217,7 +214,7 @@ fn filter_cell(
         FieldType::MultiSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<MultiSelectTypeOption>(field_type_rev)?
+                    .get_type_option_entry::<MultiSelectTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )

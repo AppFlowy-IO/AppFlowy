@@ -75,7 +75,7 @@ impl GridEditorTest {
             .row_revs
     }
 
-    pub async fn grid_filters(&self) -> Vec<GridFilter> {
+    pub async fn grid_filters(&self) -> Vec<GridFilterConfiguration> {
         let layout_type = GridLayoutType::Table;
         self.editor.get_grid_filter(&layout_type).await.unwrap()
     }

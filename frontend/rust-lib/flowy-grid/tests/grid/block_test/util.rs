@@ -2,7 +2,7 @@ use flowy_grid::entities::FieldType;
 use std::sync::Arc;
 
 use flowy_grid::services::field::{
-    DateCellChangesetPB, MultiSelectTypeOption, SelectOptionPB, SingleSelectTypeOptionPB, SELECTION_IDS_SEPARATOR,
+    DateCellChangesetPB, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
@@ -87,7 +87,7 @@ impl<'a> GridRowTestBuilder<'a> {
         F: Fn(Vec<SelectOptionPB>) -> Vec<SelectOptionPB>,
     {
         let multi_select_field = self.field_rev_with_type(&FieldType::MultiSelect);
-        let type_option = MultiSelectTypeOption::from(&multi_select_field);
+        let type_option = MultiSelectTypeOptionPB::from(&multi_select_field);
         let options = f(type_option.options);
         let ops_ids = options
             .iter()

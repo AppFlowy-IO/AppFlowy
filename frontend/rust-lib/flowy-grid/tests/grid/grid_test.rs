@@ -2,7 +2,7 @@ use crate::grid::script::EditorScript::*;
 use crate::grid::script::*;
 use chrono::NaiveDateTime;
 use flowy_grid::services::field::{
-    DateCellContentChangeset, DateCellData, MultiSelectTypeOption, SelectOption, SelectOptionCellContentChangeset,
+    DateCellContentChangeset, DateCellData, MultiSelectTypeOptionPB, SelectOption, SelectOptionCellContentChangeset,
     SingleSelectTypeOption, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::{decode_cell_data_from_type_option_cell_data, CreateRowMetaBuilder};
@@ -250,7 +250,7 @@ async fn grid_row_add_cells_test() {
                 builder.add_select_option_cell(&field.id, option.id.clone()).unwrap();
             }
             FieldType::MultiSelect => {
-                let type_option = MultiSelectTypeOption::from(field);
+                let type_option = MultiSelectTypeOptionPB::from(field);
                 let ops_ids = type_option
                     .options
                     .iter()
@@ -327,7 +327,7 @@ async fn grid_cell_update() {
                         SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                     }
                     FieldType::MultiSelect => {
-                        let type_option = MultiSelectTypeOption::from(field_meta);
+                        let type_option = MultiSelectTypeOptionPB::from(field_meta);
                         SelectOptionCellContentChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                     }
                     FieldType::Checkbox => "1".to_string(),

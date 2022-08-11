@@ -37,7 +37,9 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetSelectOptionCellData, get_select_option_handler)
         .event(GridEvent::UpdateSelectOptionCell, update_select_option_cell_handler)
         // Date
-        .event(GridEvent::UpdateDateCell, update_date_cell_handler);
+        .event(GridEvent::UpdateDateCell, update_date_cell_handler)
+        // Group
+        .event(GridEvent::GetGroup, update_date_cell_handler);
 
     module
 }
@@ -204,4 +206,7 @@ pub enum GridEvent {
     /// will be used by the `update_cell` function.
     #[event(input = "DateChangesetPayloadPB")]
     UpdateDateCell = 80,
+
+    #[event(input = "GridIdPB", output = "RepeatedGridGroupPB")]
+    GetGroup = 100,
 }

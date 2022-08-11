@@ -9,7 +9,7 @@ class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   final MultiSelectTypeOptionWidget _widget;
 
   MultiSelectTypeOptionWidgetBuilder(
-    MultiSelectTypeOptionContext typeOptionContext,
+    MultiSelectAction typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
   ) : _widget = MultiSelectTypeOptionWidget(
           typeOptionContext: typeOptionContext,
@@ -21,7 +21,7 @@ class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 }
 
 class MultiSelectTypeOptionWidget extends TypeOptionWidget {
-  final MultiSelectTypeOptionContext typeOptionContext;
+  final MultiSelectAction typeOptionContext;
   final TypeOptionOverlayDelegate overlayDelegate;
 
   const MultiSelectTypeOptionWidget({

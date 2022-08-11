@@ -1,6 +1,6 @@
 use crate::entities::{
     CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, CreateGridSortPayloadPB, DeleteFilterPayloadPB,
-    DeleteGroupPayloadPB, RepeatedGridFilterPB, RepeatedGridGroupPB, RepeatedGridSortPB,
+    DeleteGroupPayloadPB, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RepeatedGridSortPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -22,10 +22,10 @@ pub struct GridSettingPB {
     pub current_layout_type: GridLayoutType,
 
     #[pb(index = 3)]
-    pub filters_by_field_id: HashMap<String, RepeatedGridFilterPB>,
+    pub filter_configuration_by_field_id: HashMap<String, RepeatedGridConfigurationFilterPB>,
 
     #[pb(index = 4)]
-    pub groups_by_field_id: HashMap<String, RepeatedGridGroupPB>,
+    pub group_configuration_by_field_id: HashMap<String, RepeatedGridGroupConfigurationPB>,
 
     #[pb(index = 5)]
     pub sorts_by_field_id: HashMap<String, RepeatedGridSortPB>,

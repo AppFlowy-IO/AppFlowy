@@ -61,7 +61,8 @@ impl GridRevisionEditor {
         let block_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_meta_revs, persistence).await?);
         let filter_service =
             Arc::new(GridFilterService::new(grid_pad.clone(), block_manager.clone(), task_scheduler.clone()).await);
-        let group_service = Arc::new(GridGroupService::new());
+        let group_service =
+            Arc::new(GridGroupService::new(grid_pad.clone(), block_manager.clone(), task_scheduler.clone()).await);
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
@@ -455,14 +456,14 @@ impl GridRevisionEditor {
         Ok(grid_setting)
     }
 
-    pub async fn get_grid_filter(&self, layout_type: &GridLayoutType) -> FlowyResult<Vec<GridFilter>> {
+    pub async fn get_grid_filter(&self, layout_type: &GridLayoutType) -> FlowyResult<Vec<GridFilterConfiguration>> {
         let read_guard = self.grid_pad.read().await;
         let layout_rev = layout_type.clone().into();
         match read_guard.get_filters(Some(&layout_rev), None) {
             Some(filter_revs) => Ok(filter_revs
                 .iter()
                 .map(|filter_rev| filter_rev.as_ref().into())
-                .collect::<Vec<GridFilter>>()),
+                .collect::<Vec<GridFilterConfiguration>>()),
             None => Ok(vec![]),
         }
     }
@@ -559,6 +560,10 @@ impl GridRevisionEditor {
             blocks: duplicated_blocks,
             blocks_meta_data,
         })
+    }
+
+    pub async fn get_group(&self) -> FlowyResult<RepeatedGridGroupPB> {
+        todo!()
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>

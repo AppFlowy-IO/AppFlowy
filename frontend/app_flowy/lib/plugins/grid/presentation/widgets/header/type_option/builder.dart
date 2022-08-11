@@ -92,11 +92,11 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
       );
     case FieldType.MultiSelect:
       return MultiSelectTypeOptionWidgetBuilder(
-        makeTypeOptionContextWithDataController<MultiSelectTypeOption>(
+        makeTypeOptionContextWithDataController<MultiSelectTypeOptionPB>(
           gridId: gridId,
           fieldType: fieldType,
           dataController: dataController,
-        ) as MultiSelectTypeOptionContext,
+        ),
         overlayDelegate,
       );
     case FieldType.Number:

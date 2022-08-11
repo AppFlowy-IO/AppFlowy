@@ -2,7 +2,7 @@
 
 use crate::entities::{GridSelectOptionFilter, SelectOptionCondition};
 use crate::services::cell::{AnyCellData, CellFilterOperation};
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOptionPB};
+use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use crate::services::field::{SelectOptionOperation, SelectedSelectOptions};
 use flowy_error::FlowyResult;
 
@@ -39,7 +39,7 @@ impl GridSelectOptionFilter {
     }
 }
 
-impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
+impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOptionPB {
     fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
         if !any_cell_data.is_multi_select() {
             return Ok(true);
