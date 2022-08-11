@@ -10,6 +10,8 @@ pub enum TaskType {
     Filter,
     /// Generate snapshot for grid, unused by now.
     Snapshot,
+
+    Group,
 }
 
 impl PartialEq for TaskType {
@@ -44,9 +46,15 @@ impl PartialOrd for PendingTask {
 impl Ord for PendingTask {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self.ty, other.ty) {
+            // Snapshot
             (TaskType::Snapshot, TaskType::Snapshot) => Ordering::Equal,
             (TaskType::Snapshot, _) => Ordering::Greater,
             (_, TaskType::Snapshot) => Ordering::Less,
+            // Group
+            (TaskType::Group, TaskType::Group) => self.id.cmp(&other.id).reverse(),
+            (TaskType::Group, _) => Ordering::Greater,
+            (_, TaskType::Group) => Ordering::Greater,
+            // Filter
             (TaskType::Filter, TaskType::Filter) => self.id.cmp(&other.id).reverse(),
         }
     }
@@ -59,6 +67,7 @@ pub(crate) struct FilterTaskContext {
 pub(crate) enum TaskContent {
     #[allow(dead_code)]
     Snapshot,
+    Group,
     Filter(FilterTaskContext),
 }
 

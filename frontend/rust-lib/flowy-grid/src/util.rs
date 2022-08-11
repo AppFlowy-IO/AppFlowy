@@ -54,24 +54,14 @@ pub fn make_default_board() -> BuildGridContext {
     let single_select_field_id = single_select_field.id.clone();
     grid_builder.add_field(single_select_field);
 
-    let field_revs = grid_builder.field_revs();
-    let block_id = grid_builder.block_id();
-
     // rows
-    let row_1 = RowRevisionBuilder::new(block_id, field_revs)
-        .insert_select_option_cell(&single_select_field_id, not_started_option.id.clone())
-        .build();
-    grid_builder.add_row(row_1);
-
-    let row_2 = RowRevisionBuilder::new(block_id, field_revs)
-        .insert_select_option_cell(&single_select_field_id, not_started_option.id.clone())
-        .build();
-    grid_builder.add_row(row_2);
-
-    let row_3 = RowRevisionBuilder::new(block_id, field_revs)
-        .insert_select_option_cell(&single_select_field_id, not_started_option.id.clone())
-        .build();
-    grid_builder.add_row(row_3);
+    for _ in 0..3 {
+        grid_builder.add_row(
+            RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs())
+                .insert_select_option_cell(&single_select_field_id, not_started_option.id.clone())
+                .build(),
+        );
+    }
 
     grid_builder.build()
 }

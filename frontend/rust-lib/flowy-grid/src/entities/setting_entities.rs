@@ -1,12 +1,12 @@
 use crate::entities::{
     CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, CreateGridSortPayloadPB, DeleteFilterPayloadPB,
-    RepeatedGridFilterPB, RepeatedGridGroupPB, RepeatedGridSortPB,
+    DeleteGroupPayloadPB, RepeatedGridFilterPB, RepeatedGridGroupPB, RepeatedGridSortPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::GridLayoutRevision;
-use flowy_sync::entities::grid::GridSettingChangesetParams;
+use flowy_sync::entities::grid::{DeleteGroupParams, GridSettingChangesetParams};
 use std::collections::HashMap;
 use std::convert::TryInto;
 use strum::IntoEnumIterator;
@@ -97,7 +97,7 @@ pub struct GridSettingChangesetPayloadPB {
     pub insert_group: Option<CreateGridGroupPayloadPB>,
 
     #[pb(index = 6, one_of)]
-    pub delete_group: Option<String>,
+    pub delete_group: Option<DeleteGroupPayloadPB>,
 
     #[pb(index = 7, one_of)]
     pub insert_sort: Option<CreateGridSortPayloadPB>,
@@ -130,8 +130,8 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
         };
 
         let delete_group = match self.delete_group {
+            Some(payload) => Some(payload.try_into()?),
             None => None,
-            Some(filter_id) => Some(NotEmptyStr::parse(filter_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
         };
 
         let insert_sort = match self.insert_sort {

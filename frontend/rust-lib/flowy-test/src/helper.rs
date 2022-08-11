@@ -97,6 +97,7 @@ async fn create_view(sdk: &FlowySDKTest, app_id: &str, data_type: ViewDataTypePB
         desc: "".to_string(),
         thumbnail: Some("http://1.png".to_string()),
         data_type,
+        sub_data_type: None,
         plugin_type: 0,
         data,
     };

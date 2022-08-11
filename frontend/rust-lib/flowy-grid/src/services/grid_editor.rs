@@ -6,6 +6,7 @@ use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellBytes};
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::filter::{GridFilterChangeset, GridFilterService};
+use crate::services::group::GridGroupService;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{
     make_grid_blocks, make_row_from_row_rev, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder,
@@ -34,6 +35,7 @@ pub struct GridRevisionEditor {
     block_manager: Arc<GridBlockManager>,
     #[allow(dead_code)]
     pub(crate) filter_service: Arc<GridFilterService>,
+    pub(crate) group_service: Arc<GridGroupService>,
 }
 
 impl Drop for GridRevisionEditor {
@@ -59,6 +61,7 @@ impl GridRevisionEditor {
         let block_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_meta_revs, persistence).await?);
         let filter_service =
             Arc::new(GridFilterService::new(grid_pad.clone(), block_manager.clone(), task_scheduler.clone()).await);
+        let group_service = Arc::new(GridGroupService::new());
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
@@ -66,6 +69,7 @@ impl GridRevisionEditor {
             rev_manager,
             block_manager,
             filter_service,
+            group_service,
         });
 
         Ok(editor)

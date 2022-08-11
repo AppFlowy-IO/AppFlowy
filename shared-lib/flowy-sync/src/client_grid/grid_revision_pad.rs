@@ -409,24 +409,32 @@ impl GridRevisionPad {
                 }
             }
             if let Some(params) = changeset.insert_group {
-                let rev = GridGroupRevision {
+                let group_rev = GridGroupRevision {
                     id: gen_grid_group_id(),
-                    field_id: params.field_id,
+                    field_id: params.field_id.clone(),
                     sub_field_id: params.sub_field_id,
                 };
 
                 grid_rev
                     .setting
-                    .groups
-                    .entry(layout_rev.clone())
-                    .or_insert_with(std::vec::Vec::new)
-                    .push(rev);
-
-                is_changed = Some(())
+                    .insert_group(&layout_rev, &params.field_id, &params.field_type_rev, group_rev);
+                is_changed = Some(());
             }
-            if let Some(delete_group_id) = changeset.delete_group {
-                match grid_rev.setting.groups.get_mut(&layout_rev) {
-                    Some(groups) => groups.retain(|group| group.id != delete_group_id),
+            if let Some(params) = changeset.delete_group {
+                // match grid_rev.setting.groups.get_mut(&layout_rev) {
+                //     Some(groups) => groups.retain(|group| group.id != delete_group_id),
+                //     None => {
+                //         tracing::warn!("Can't find the group with {:?}", layout_rev);
+                //     }
+                // }
+
+                match grid_rev
+                    .setting
+                    .get_mut_groups(&layout_rev, &params.field_id, &params.field_type_rev)
+                {
+                    Some(groups) => {
+                        groups.retain(|filter| filter.id != params.group_id);
+                    }
                     None => {
                         tracing::warn!("Can't find the group with {:?}", layout_rev);
                     }
