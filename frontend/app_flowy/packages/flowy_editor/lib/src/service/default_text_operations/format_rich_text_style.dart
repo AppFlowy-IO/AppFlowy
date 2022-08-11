@@ -4,8 +4,63 @@ import 'package:flowy_editor/src/document/position.dart';
 import 'package:flowy_editor/src/document/selection.dart';
 import 'package:flowy_editor/src/editor_state.dart';
 import 'package:flowy_editor/src/extensions/text_node_extensions.dart';
+import 'package:flowy_editor/src/extensions/path_extensions.dart';
 import 'package:flowy_editor/src/operation/transaction_builder.dart';
 import 'package:flowy_editor/src/render/rich_text/rich_text_style.dart';
+
+void insertHeadingAfterSelection(EditorState editorState, String heading) {
+  insertTextNodeAfterSelection(editorState, {
+    StyleKey.subtype: StyleKey.heading,
+    StyleKey.heading: heading,
+  });
+}
+
+void insertQuoteAfterSelection(EditorState editorState) {
+  insertTextNodeAfterSelection(editorState, {
+    StyleKey.subtype: StyleKey.quote,
+  });
+}
+
+void insertCheckboxAfterSelection(EditorState editorState) {
+  insertTextNodeAfterSelection(editorState, {
+    StyleKey.subtype: StyleKey.checkbox,
+    StyleKey.checkbox: false,
+  });
+}
+
+void insertBulletedListAfterSelection(EditorState editorState) {
+  insertTextNodeAfterSelection(editorState, {
+    StyleKey.subtype: StyleKey.bulletedList,
+  });
+}
+
+bool insertTextNodeAfterSelection(
+    EditorState editorState, Attributes attributes) {
+  final selection = editorState.service.selectionService.currentSelection.value;
+  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  if (selection == null || nodes.isEmpty) {
+    return false;
+  }
+
+  final node = nodes.first;
+  if (node is TextNode && node.delta.length == 0) {
+    formatTextNodes(editorState, attributes);
+  } else {
+    final next = selection.end.path.next;
+    final builder = TransactionBuilder(editorState);
+    builder
+      ..insertNode(
+        next,
+        TextNode.empty(attributes: attributes),
+      )
+      ..afterSelection = Selection.collapsed(
+        Position(path: next, offset: 0),
+      )
+      ..commit();
+  }
+
+  return true;
+}
 
 void formatText(EditorState editorState) {
   formatTextNodes(editorState, {});

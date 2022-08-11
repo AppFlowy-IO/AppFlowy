@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'package:flowy_editor/src/document/path.dart';
 import 'package:flowy_editor/src/document/text_delta.dart';
-import 'package:flowy_editor/src/operation/operation.dart';
 import 'package:flutter/material.dart';
 import './attributes.dart';
 
@@ -182,12 +181,12 @@ class TextNode extends Node {
   })  : _delta = delta,
         super(children: children ?? LinkedList(), attributes: attributes ?? {});
 
-  TextNode.empty()
+  TextNode.empty({Attributes? attributes})
       : _delta = Delta([TextInsert('')]),
         super(
           type: 'text',
           children: LinkedList(),
-          attributes: {},
+          attributes: attributes ?? {},
         );
 
   Delta get delta {

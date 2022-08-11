@@ -39,8 +39,8 @@ FlowyKeyEventHandler whiteSpaceHandler = (editorState, event) {
     return _toCheckboxList(editorState, textNode);
   } else if (_bulletedListSymbols.any(text.startsWith)) {
     return _toBulletedList(editorState, textNode);
-  } else if (_countOfSign(text) != 0) {
-    return _toHeadingStyle(editorState, textNode);
+  } else if (_countOfSign(text, selection) != 0) {
+    return _toHeadingStyle(editorState, textNode, selection);
   }
 
   return KeyEventResult.ignored;
@@ -99,8 +99,12 @@ KeyEventResult _toCheckboxList(EditorState editorState, TextNode textNode) {
   return KeyEventResult.handled;
 }
 
-KeyEventResult _toHeadingStyle(EditorState editorState, TextNode textNode) {
-  final x = _countOfSign(textNode.toRawString());
+KeyEventResult _toHeadingStyle(
+    EditorState editorState, TextNode textNode, Selection selection) {
+  final x = _countOfSign(
+    textNode.toRawString(),
+    selection,
+  );
   final hX = 'h$x';
   if (textNode.attributes.heading == hX) {
     return KeyEventResult.ignored;
@@ -121,9 +125,9 @@ KeyEventResult _toHeadingStyle(EditorState editorState, TextNode textNode) {
   return KeyEventResult.handled;
 }
 
-int _countOfSign(String text) {
+int _countOfSign(String text, Selection selection) {
   for (var i = 6; i >= 0; i--) {
-    if (text.startsWith('#' * i)) {
+    if (text.substring(0, selection.end.offset).startsWith('#' * i)) {
       return i;
     }
   }
