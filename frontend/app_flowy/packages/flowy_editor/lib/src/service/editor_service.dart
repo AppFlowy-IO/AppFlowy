@@ -1,3 +1,4 @@
+import 'package:flowy_editor/src/service/internal_key_event_handlers/default_key_event_handlers.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_editor/src/editor_state.dart';
@@ -9,15 +10,6 @@ import 'package:flowy_editor/src/render/rich_text/number_list_text.dart';
 import 'package:flowy_editor/src/render/rich_text/quoted_text.dart';
 import 'package:flowy_editor/src/render/rich_text/rich_text.dart';
 import 'package:flowy_editor/src/service/input_service.dart';
-import 'package:flowy_editor/src/service/internal_key_event_handlers/arrow_keys_handler.dart';
-import 'package:flowy_editor/src/service/internal_key_event_handlers/copy_paste_handler.dart';
-import 'package:flowy_editor/src/service/internal_key_event_handlers/delete_nodes_handler.dart';
-import 'package:flowy_editor/src/service/internal_key_event_handlers/delete_text_handler.dart';
-import 'package:flowy_editor/src/service/internal_key_event_handlers/enter_without_shift_in_text_node_handler.dart';
-import 'package:flowy_editor/src/service/internal_key_event_handlers/slash_handler.dart';
-import 'package:flowy_editor/src/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart';
-import 'package:flowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
-import 'package:flowy_editor/src/service/internal_key_event_handlers/redo_undo_handler.dart';
 import 'package:flowy_editor/src/service/keyboard_service.dart';
 import 'package:flowy_editor/src/service/render_plugin_service.dart';
 import 'package:flowy_editor/src/service/scroll_service.dart';
@@ -33,18 +25,6 @@ NodeWidgetBuilders defaultBuilders = {
   'text/number-list': NumberListTextNodeWidgetBuilder(),
   'text/quote': QuotedTextNodeWidgetBuilder(),
 };
-
-List<FlowyKeyEventHandler> defaultKeyEventHandler = [
-  deleteTextHandler,
-  slashShortcutHandler,
-  flowyDeleteNodesHandler,
-  arrowKeysHandler,
-  copyPasteKeysHandler,
-  redoUndoKeysHandler,
-  enterWithoutShiftInTextNodesHandler,
-  updateTextStyleByCommandXHandler,
-  whiteSpaceHandler,
-];
 
 class FlowyEditor extends StatefulWidget {
   const FlowyEditor({
@@ -98,7 +78,7 @@ class _FlowyEditorState extends State<FlowyEditor> {
             child: FlowyKeyboard(
               key: editorState.service.keyboardServiceKey,
               handlers: [
-                ...defaultKeyEventHandler,
+                ...defaultKeyEventHandlers,
                 ...widget.keyEventHandlers,
               ],
               editorState: editorState,

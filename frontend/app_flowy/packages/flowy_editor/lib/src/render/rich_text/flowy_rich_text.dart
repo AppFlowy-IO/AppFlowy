@@ -59,7 +59,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
 
   @override
   Position end() => Position(
-      path: widget.textNode.path, offset: widget.textNode.toRawString().length);
+      path: widget.textNode.path, offset: widget.textNode.delta.length);
 
   @override
   Rect? getCursorRectInPosition(Position position) {

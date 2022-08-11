@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 
-mixin FlowyKeyboardService<T extends StatefulWidget> on State<T> {
+abstract class FlowyKeyboardService {
   void enable();
   void disable();
 }
@@ -31,7 +31,7 @@ class FlowyKeyboard extends StatefulWidget {
 }
 
 class _FlowyKeyboardState extends State<FlowyKeyboard>
-    with FlowyKeyboardService {
+    implements FlowyKeyboardService {
   final FocusNode _focusNode = FocusNode(debugLabel: 'flowy_keyboard_service');
 
   bool isFocus = true;

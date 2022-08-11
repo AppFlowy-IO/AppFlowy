@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-mixin FlowyScrollService<T extends StatefulWidget> on State<T> {
+abstract class FlowyScrollService {
   double get dy;
 
   void scrollTo(double dy);
@@ -22,7 +22,8 @@ class FlowyScroll extends StatefulWidget {
   State<FlowyScroll> createState() => _FlowyScrollState();
 }
 
-class _FlowyScrollState extends State<FlowyScroll> with FlowyScrollService {
+class _FlowyScrollState extends State<FlowyScroll>
+    implements FlowyScrollService {
   final _scrollController = ScrollController();
   final _scrollViewKey = GlobalKey();
 

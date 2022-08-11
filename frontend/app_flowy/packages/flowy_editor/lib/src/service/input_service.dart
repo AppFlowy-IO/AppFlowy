@@ -7,7 +7,7 @@ import 'package:flowy_editor/src/editor_state.dart';
 import 'package:flowy_editor/src/extensions/node_extensions.dart';
 import 'package:flowy_editor/src/operation/transaction_builder.dart';
 
-mixin FlowyInputService {
+abstract class FlowyInputService {
   void attach(TextEditingValue textEditingValue);
   void apply(List<TextEditingDelta> deltas);
   void close();
@@ -29,8 +29,7 @@ class FlowyInput extends StatefulWidget {
 }
 
 class _FlowyInputState extends State<FlowyInput>
-    with FlowyInputService
-    implements DeltaTextInputClient {
+    implements FlowyInputService, DeltaTextInputClient {
   TextInputConnection? _textInputConnection;
   TextRange? _composingTextRange;
 
