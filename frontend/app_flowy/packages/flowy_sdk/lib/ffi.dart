@@ -12,13 +12,8 @@ final DynamicLibrary _dl = _open();
 /// Reference to the Dynamic Library, it should be only used for low-level access
 final DynamicLibrary dl = _dl;
 DynamicLibrary _open() {
-  // if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
-  // if (Platform.isAndroid) return DynamicLibrary.open('libssl.so.1.1');
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
     final prefix = "${Directory.current.path}/.sandbox";
-    // if (Platform.isLinux) return DynamicLibrary.open('lib/libdart_ffi.so');
-    // if (Platform.isAndroid)
-    // return DynamicLibrary.open('${prefix}/libdart_ffi.so');
     if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
     if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isIOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
@@ -27,7 +22,6 @@ DynamicLibrary _open() {
   } else {
     if (Platform.isLinux) return DynamicLibrary.open('libdart_ffi.so');
     if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
-    //if (Platform.isAndroid) return DynamicLibrary.open('libssl.so.1.1');
     if (Platform.isMacOS) return DynamicLibrary.executable();
     if (Platform.isIOS) return DynamicLibrary.executable();
     if (Platform.isWindows) return DynamicLibrary.open('dart_ffi.dll');

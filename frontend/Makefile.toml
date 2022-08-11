@@ -161,17 +161,6 @@ TARGET_OS = "ios"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "ipa"
 
-[env.development-android]
-RUST_LOG = "info"
-BUILD_FLAG = "debug"
-TARGET_OS = "android"
-RUST_COMPILE_TARGET = "aarch64-linux-android"
-FLUTTER_OUTPUT_DIR = "debug"
-PRODUCT_EXT = "so"
-# SDK_EXT = "so"
-
-
-
 [tasks.setup-crate-type]
 private = true
 script = [
