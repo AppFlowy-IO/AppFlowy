@@ -3,12 +3,29 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/dialog/dialog_size.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
 
 extension IntoDialog on Widget {
   Future<dynamic> show(BuildContext context) async {
-    await Dialogs.show(this, context);
+    FocusNode dialogFocusNode = FocusNode();
+    await Dialogs.show(
+      RawKeyboardListener(
+        focusNode: dialogFocusNode,
+        onKey: (value) {
+          if (value.isKeyPressed(LogicalKeyboardKey.escape)) {
+            Navigator.of(context).pop();
+          }
+        },
+        child: this,
+      ),
+      context,
+    ).then(
+      (value) {
+        dialogFocusNode.dispose();
+      },
+    );
   }
 }
 
@@ -45,7 +62,8 @@ class StyledDialog extends StatelessWidget {
     );
 
     if (shrinkWrap) {
-      innerContent = IntrinsicWidth(child: IntrinsicHeight(child: innerContent));
+      innerContent =
+          IntrinsicWidth(child: IntrinsicHeight(child: innerContent));
     }
 
     return FocusTraversalGroup(
@@ -80,7 +98,8 @@ class Dialogs {
     return await Navigator.of(context).push(
       StyledDialogRoute(
         barrier: DialogBarrier(color: Colors.black.withOpacity(0.4)),
-        pageBuilder: (BuildContext buildContext, Animation<double> animation, Animation<double> secondaryAnimation) {
+        pageBuilder: (BuildContext buildContext, Animation<double> animation,
+            Animation<double> secondaryAnimation) {
           return SafeArea(child: child);
         },
       ),
@@ -132,7 +151,8 @@ class StyledDialogRoute<T> extends PopupRoute<T> {
   final RouteTransitionsBuilder? _transitionBuilder;
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
     return Semantics(
       child: _pageBuilder(context, animation, secondaryAnimation),
       scopesRoute: true,
@@ -141,10 +161,12 @@ class StyledDialogRoute<T> extends PopupRoute<T> {
   }
 
   @override
-  Widget buildTransitions(
-      BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
     if (_transitionBuilder == null) {
-      return FadeTransition(opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut), child: child);
+      return FadeTransition(
+          opacity: CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+          child: child);
     } else {
       return _transitionBuilder!(context, animation, secondaryAnimation, child);
     } // Some default transition
