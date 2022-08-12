@@ -88,6 +88,7 @@ table! {
         token -> Text,
         email -> Text,
         workspace -> Text,
+        icon_url -> Text,
     }
 }
 
