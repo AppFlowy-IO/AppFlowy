@@ -159,10 +159,8 @@ class HTMLToNodesConverter {
     }
 
     final textDecorationStr = cssMap["text-decoration"];
-    if (textDecorationStr == "line-through") {
-      attrs[StyleKey.strikethrough] = true;
-    } else if (textDecorationStr == "underline") {
-      attrs[StyleKey.underline] = true;
+    if (textDecorationStr != null) {
+      _assignTextDecorations(attrs, textDecorationStr);
     }
 
     final backgroundColorStr = cssMap["background-color"];
@@ -177,6 +175,17 @@ class HTMLToNodesConverter {
     }
 
     return attrs.isEmpty ? null : attrs;
+  }
+
+  _assignTextDecorations(Attributes attrs, String decorationStr) {
+    final decorations = decorationStr.split(" ");
+    for (final d in decorations) {
+      if (d == "line-through") {
+        attrs[StyleKey.strikethrough] = true;
+      } else if (d == "underline") {
+        attrs[StyleKey.underline] = true;
+      }
+    }
   }
 
   /// Try to parse the `rgba(red, greed, blue, alpha)`
@@ -424,6 +433,18 @@ class NodesToHTMLConverter {
         checked: textNode.attributes["checkbox"] == true);
   }
 
+  String _textDecorationsFromAttributes(Attributes attributes) {
+    var textDecoration = <String>[];
+    if (attributes[StyleKey.strikethrough] == true) {
+      textDecoration.add("line-through");
+    }
+    if (attributes[StyleKey.underline] == true) {
+      textDecoration.add("underline");
+    }
+
+    return textDecoration.join(" ");
+  }
+
   String _attributesToCssStyle(Map<String, dynamic> attributes) {
     final cssMap = <String, String>{};
     if (attributes[StyleKey.backgroundColor] != null) {
@@ -441,12 +462,12 @@ class NodesToHTMLConverter {
     if (attributes[StyleKey.bold] == true) {
       cssMap["font-weight"] = "bold";
     }
-    if (attributes[StyleKey.strikethrough] == true) {
-      cssMap["text-decoration"] = "line-through";
+
+    final textDecoration = _textDecorationsFromAttributes(attributes);
+    if (textDecoration.isNotEmpty) {
+      cssMap["text-decoration"] = textDecoration;
     }
-    if (attributes[StyleKey.underline] == true) {
-      cssMap["text-decoration"] = "underline";
-    }
+
     if (attributes[StyleKey.italic] == true) {
       cssMap["font-style"] = "italic";
     }
