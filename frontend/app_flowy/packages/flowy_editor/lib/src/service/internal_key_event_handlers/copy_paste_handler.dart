@@ -6,10 +6,11 @@ import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
 _handleCopy(EditorState editorState) async {
-  final selection = editorState.cursorSelection;
+  var selection = editorState.cursorSelection;
   if (selection == null || selection.isCollapsed) {
     return;
   }
+  selection = selection.normalize();
   if (pathEquals(selection.start.path, selection.end.path)) {
     final nodeAtPath = editorState.document.nodeAtPath(selection.end.path)!;
     if (nodeAtPath.type == "text") {
