@@ -20,6 +20,7 @@ const String tagAnchor = "a";
 const String tagItalic = "i";
 const String tagBold = "b";
 const String tagUnderline = "u";
+const String tagDel = "del";
 const String tagStrong = "strong";
 const String tagSpan = "span";
 const String tagCode = "code";
@@ -58,7 +59,8 @@ class HTMLToNodesConverter {
             child.localName == tagCode ||
             child.localName == tagStrong ||
             child.localName == tagUnderline ||
-            child.localName == tagItalic) {
+            child.localName == tagItalic ||
+            child.localName == tagDel) {
           _handleRichTextElement(delta, child);
         } else if (child.localName == tagBold) {
           // Google docs wraps the the content inside the `<b></b>` tag.
@@ -132,7 +134,7 @@ class HTMLToNodesConverter {
       if (tuples.length < 2) {
         continue;
       }
-      result[tuples[0]] = tuples[1];
+      result[tuples[0].trim()] = tuples[1].trim();
     }
 
     return result;
@@ -146,10 +148,21 @@ class HTMLToNodesConverter {
 
     final fontWeightStr = cssMap["font-weight"];
     if (fontWeightStr != null) {
-      int? weight = int.tryParse(fontWeightStr);
-      if (weight != null && weight > 500) {
-        attrs["bold"] = true;
+      if (fontWeightStr == "bold") {
+        attrs[StyleKey.bold] = true;
+      } else {
+        int? weight = int.tryParse(fontWeightStr);
+        if (weight != null && weight > 500) {
+          attrs[StyleKey.bold] = true;
+        }
       }
+    }
+
+    final textDecorationStr = cssMap["text-decoration"];
+    if (textDecorationStr == "line-through") {
+      attrs[StyleKey.strikethrough] = true;
+    } else if (textDecorationStr == "underline") {
+      attrs[StyleKey.underline] = true;
     }
 
     final backgroundColorStr = cssMap["background-color"];
@@ -157,6 +170,10 @@ class HTMLToNodesConverter {
     if (backgroundColor != null) {
       attrs[StyleKey.backgroundColor] =
           '0x${backgroundColor.value.toRadixString(16)}';
+    }
+
+    if (cssMap["font-style"] == "italic") {
+      attrs[StyleKey.italic] = true;
     }
 
     return attrs.isEmpty ? null : attrs;
@@ -206,11 +223,13 @@ class HTMLToNodesConverter {
       }
       delta.insert(element.text, attributes);
     } else if (element.localName == tagStrong || element.localName == tagBold) {
-      delta.insert(element.text, {"bold": true});
+      delta.insert(element.text, {StyleKey.bold: true});
     } else if (element.localName == tagUnderline) {
-      delta.insert(element.text, {"underline": true});
+      delta.insert(element.text, {StyleKey.underline: true});
     } else if (element.localName == tagItalic) {
-      delta.insert(element.text, {"italic": true});
+      delta.insert(element.text, {StyleKey.italic: true});
+    } else if (element.localName == tagDel) {
+      delta.insert(element.text, {StyleKey.strikethrough: true});
     } else {
       delta.insert(element.text);
     }
@@ -422,6 +441,15 @@ class NodesToHTMLConverter {
     if (attributes[StyleKey.bold] == true) {
       cssMap["font-weight"] = "bold";
     }
+    if (attributes[StyleKey.strikethrough] == true) {
+      cssMap["text-decoration"] = "line-through";
+    }
+    if (attributes[StyleKey.underline] == true) {
+      cssMap["text-decoration"] = "underline";
+    }
+    if (attributes[StyleKey.italic] == true) {
+      cssMap["font-style"] = "italic";
+    }
     return _cssMapToCssStyle(cssMap);
   }
 
@@ -470,6 +498,11 @@ class NodesToHTMLConverter {
           } else if (attributes.length == 1 &&
               attributes[StyleKey.italic] == true) {
             final strong = html.Element.tag(tagItalic);
+            strong.append(html.Text(op.content));
+            childNodes.add(strong);
+          } else if (attributes.length == 1 &&
+              attributes[StyleKey.strikethrough] == true) {
+            final strong = html.Element.tag(tagDel);
             strong.append(html.Text(op.content));
             childNodes.add(strong);
           } else {
