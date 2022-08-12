@@ -203,6 +203,9 @@ class TransactionBuilder {
     for (var i = 0; i < operations.length; i++) {
       op = transformOperation(operations[i], op);
     }
+    if (op is TextEditOperation && op.delta.isEmpty) {
+      return;
+    }
     operations.add(op);
   }
 
