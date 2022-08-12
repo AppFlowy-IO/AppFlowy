@@ -8,13 +8,13 @@ import 'reorder_flex/reorder_flex.dart';
 import 'reorder_phantom/phantom_controller.dart';
 import '../rendering/board_overlay.dart';
 
-class BoardConfig {
+class AFBoardConfig {
   final double cornerRadius;
   final EdgeInsets columnPadding;
   final EdgeInsets columnItemPadding;
   final Color columnBackgroundColor;
 
-  const BoardConfig({
+  const AFBoardConfig({
     this.cornerRadius = 6.0,
     this.columnPadding = const EdgeInsets.symmetric(horizontal: 8),
     this.columnItemPadding = const EdgeInsets.symmetric(horizontal: 10),
@@ -22,7 +22,7 @@ class BoardConfig {
   });
 }
 
-class Board extends StatelessWidget {
+class AFBoard extends StatelessWidget {
   /// The direction to use as the main axis.
   final Axis direction = Axis.vertical;
 
@@ -30,32 +30,32 @@ class Board extends StatelessWidget {
   final Widget? background;
 
   ///
-  final BoardColumnCardBuilder cardBuilder;
+  final AFBoardColumnCardBuilder cardBuilder;
 
   ///
-  final BoardColumnHeaderBuilder? headerBuilder;
+  final AFBoardColumnHeaderBuilder? headerBuilder;
 
   ///
-  final BoardColumnFooterBuilder? footBuilder;
+  final AFBoardColumnFooterBuilder? footBuilder;
 
   ///
-  final BoardDataController dataController;
+  final AFBoardDataController dataController;
 
   final BoxConstraints columnConstraints;
 
   ///
   final BoardPhantomController phantomController;
 
-  final BoardConfig config;
+  final AFBoardConfig config;
 
-  Board({
+  AFBoard({
     required this.dataController,
     required this.cardBuilder,
     this.background,
     this.footBuilder,
     this.headerBuilder,
     this.columnConstraints = const BoxConstraints(maxWidth: 200),
-    this.config = const BoardConfig(),
+    this.config = const AFBoardConfig(),
     Key? key,
   })  : phantomController = BoardPhantomController(delegate: dataController),
         super(key: key);
@@ -64,7 +64,7 @@ class Board extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: dataController,
-      child: Consumer<BoardDataController>(
+      child: Consumer<AFBoardDataController>(
         builder: (context, notifier, child) {
           return BoardContent(
             config: config,
@@ -89,20 +89,20 @@ class BoardContent extends StatefulWidget {
   final OnDragStarted? onDragStarted;
   final OnReorder onReorder;
   final OnDragEnded? onDragEnded;
-  final BoardDataController dataController;
+  final AFBoardDataController dataController;
   final Widget? background;
-  final BoardConfig config;
+  final AFBoardConfig config;
   final ReorderFlexConfig reorderFlexConfig;
   final BoxConstraints columnConstraints;
 
   ///
-  final BoardColumnCardBuilder cardBuilder;
+  final AFBoardColumnCardBuilder cardBuilder;
 
   ///
-  final BoardColumnHeaderBuilder? headerBuilder;
+  final AFBoardColumnHeaderBuilder? headerBuilder;
 
   ///
-  final BoardColumnFooterBuilder? footBuilder;
+  final AFBoardColumnFooterBuilder? footBuilder;
 
   final OverlapDragTargetDelegate delegate;
 
@@ -206,7 +206,7 @@ class _BoardContentState extends State<BoardContent> {
             builder: (context, value, child) {
               return ConstrainedBox(
                 constraints: widget.columnConstraints,
-                child: BoardColumnWidget(
+                child: AFBoardColumnWidget(
                   margin: _marginFromIndex(columnIndex),
                   itemMargin: widget.config.columnItemPadding,
                   headerBuilder: widget.headerBuilder,
@@ -246,9 +246,9 @@ class _BoardContentState extends State<BoardContent> {
   }
 }
 
-class _BoardColumnDataSourceImpl extends BoardColumnDataDataSource {
+class _BoardColumnDataSourceImpl extends AFBoardColumnDataDataSource {
   String columnId;
-  final BoardDataController dataController;
+  final AFBoardDataController dataController;
 
   _BoardColumnDataSourceImpl({
     required this.columnId,
@@ -256,7 +256,7 @@ class _BoardColumnDataSourceImpl extends BoardColumnDataDataSource {
   });
 
   @override
-  BoardColumnData get columnData =>
+  AFBoardColumnData get columnData =>
       dataController.columnController(columnId).columnData;
 
   @override

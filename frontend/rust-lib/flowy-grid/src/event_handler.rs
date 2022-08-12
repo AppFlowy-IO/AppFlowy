@@ -49,9 +49,9 @@ pub(crate) async fn update_grid_setting_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_grid_blocks_handler(
-    data: Data<QueryGridBlocksPayloadPB>,
+    data: Data<QueryBlocksPayloadPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<RepeatedGridBlockPB, FlowyError> {
+) -> DataResult<RepeatedBlockPB, FlowyError> {
     let params: QueryGridBlocksParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let repeated_grid_block = editor.get_blocks(Some(params.block_ids)).await?;
@@ -62,7 +62,7 @@ pub(crate) async fn get_grid_blocks_handler(
 pub(crate) async fn get_fields_handler(
     data: Data<QueryFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<RepeatedGridFieldPB, FlowyError> {
+) -> DataResult<RepeatedFieldPB, FlowyError> {
     let params: QueryFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let field_orders = params
@@ -72,7 +72,7 @@ pub(crate) async fn get_fields_handler(
         .map(|field_order| field_order.field_id)
         .collect();
     let field_revs = editor.get_field_revs(Some(field_orders)).await?;
-    let repeated_field: RepeatedGridFieldPB = field_revs.into_iter().map(GridFieldPB::from).collect::<Vec<_>>().into();
+    let repeated_field: RepeatedFieldPB = field_revs.into_iter().map(FieldPB::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
 }
 
@@ -116,7 +116,7 @@ pub(crate) async fn delete_field_handler(
     data: Data<DeleteFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridFieldIdParams = data.into_inner().try_into()?;
+    let params: FieldIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.delete_field(&params.field_id).await?;
     Ok(())
@@ -154,7 +154,7 @@ pub(crate) async fn duplicate_field_handler(
     data: Data<DuplicateFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridFieldIdParams = data.into_inner().try_into()?;
+    let params: FieldIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.duplicate_field(&params.field_id).await?;
     Ok(())
@@ -163,10 +163,10 @@ pub(crate) async fn duplicate_field_handler(
 /// Return the FieldTypeOptionData if the Field exists otherwise return record not found error.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_field_type_option_data_handler(
-    data: Data<GridFieldTypeOptionIdPB>,
+    data: Data<FieldTypeOptionIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
-    let params: GridFieldTypeOptionIdParams = data.into_inner().try_into()?;
+    let params: FieldTypeOptionIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
@@ -227,10 +227,10 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
-    data: Data<GridRowIdPB>,
+    data: Data<RowIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
-    let params: GridRowIdParams = data.into_inner().try_into()?;
+    let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let row = editor
         .get_row_rev(&params.row_id)
@@ -242,10 +242,10 @@ pub(crate) async fn get_row_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn delete_row_handler(
-    data: Data<GridRowIdPB>,
+    data: Data<RowIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridRowIdParams = data.into_inner().try_into()?;
+    let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.delete_row(&params.row_id).await?;
     Ok(())
@@ -253,10 +253,10 @@ pub(crate) async fn delete_row_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn duplicate_row_handler(
-    data: Data<GridRowIdPB>,
+    data: Data<RowIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridRowIdParams = data.into_inner().try_into()?;
+    let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.duplicate_row(&params.row_id).await?;
     Ok(())
@@ -404,4 +404,15 @@ pub(crate) async fn update_date_cell_handler(
     let editor = manager.get_grid_editor(&params.cell_identifier.grid_id)?;
     let _ = editor.update_cell(params.into()).await?;
     Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_groups_handler(
+    data: Data<GridIdPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<RepeatedGridGroupPB, FlowyError> {
+    let params: GridIdPB = data.into_inner();
+    let editor = manager.get_grid_editor(&params.value)?;
+    let group = editor.load_groups().await?;
+    data_result(group)
 }

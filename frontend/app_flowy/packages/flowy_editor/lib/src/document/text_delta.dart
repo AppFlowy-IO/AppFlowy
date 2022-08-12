@@ -256,7 +256,12 @@ TextOperation? _textOperationFromJson(Map<String, dynamic> json) {
   return result;
 }
 
-// basically copy from: https://github.com/quilljs/delta
+/// Deltas are a simple, yet expressive format that can be used to describe contents and changes.
+/// The format is JSON based, and is human readable, yet easily parsible by machines.
+/// Deltas can describe any rich text document, includes all text and formatting information, without the ambiguity and complexity of HTML.
+///
+
+/// Basically borrowed from: https://github.com/quilljs/delta
 class Delta extends Iterable<TextOperation> {
   final List<TextOperation> _operations;
   String? _rawString;
@@ -316,6 +321,9 @@ class Delta extends Iterable<TextOperation> {
     _operations.add(textOp);
   }
 
+  /// The slice() method does not change the original string.
+  /// The start and end parameters specifies the part of the string to extract.
+  /// The end position is optional.
   Delta slice(int start, [int? end]) {
     final result = Delta();
     final iterator = _OpIterator(_operations);
@@ -336,19 +344,29 @@ class Delta extends Iterable<TextOperation> {
     return result;
   }
 
+  /// Insert operations have an `insert` key defined.
+  /// A String value represents inserting text.
   void insert(String content, [Attributes? attributes]) =>
       add(TextInsert(content, attributes));
 
+  /// Retain operations have a Number `retain` key defined representing the number of characters to keep (other libraries might use the name keep or skip).
+  /// An optional `attributes` key can be defined with an Object to describe formatting changes to the character range.
+  /// A value of `null` in the `attributes` Object represents removal of that key.
+  ///
+  /// *Note: It is not necessary to retain the last characters of a document as this is implied.*
   void retain(int length, [Attributes? attributes]) =>
       add(TextRetain(length, attributes));
 
+  /// Delete operations have a Number `delete` key defined representing the number of characters to delete.
   void delete(int length) => add(TextDelete(length));
 
+  /// The length of the string fo the [Delta].
   int get length {
     return _operations.fold(
         0, (previousValue, element) => previousValue + element.length);
   }
 
+  /// Returns a Delta that is equivalent to applying the operations of own Delta, followed by another Delta.
   Delta compose(Delta other) {
     final thisIter = _OpIterator(_operations);
     final otherIter = _OpIterator(other._operations);
@@ -383,8 +401,8 @@ class Delta extends Iterable<TextOperation> {
         final length = min(thisIter.peekLength(), otherIter.peekLength());
         final thisOp = thisIter.next(length);
         final otherOp = otherIter.next(length);
-        final attributes =
-            composeAttributes(thisOp.attributes, otherOp.attributes);
+        final attributes = composeAttributes(
+            thisOp.attributes, otherOp.attributes, thisOp is TextRetain);
         if (otherOp is TextRetain && otherOp.length > 0) {
           TextOperation? newOp;
           if (thisOp is TextRetain) {
@@ -399,7 +417,8 @@ class Delta extends Iterable<TextOperation> {
 
           // Optimization if rest of other is just retain
           if (!otherIter.hasNext &&
-              delta._operations[delta._operations.length - 1] == newOp) {
+              delta._operations.isNotEmpty &&
+              delta._operations.last == newOp) {
             final rest = Delta(thisIter.rest());
             return (delta + rest)..chop();
           }
@@ -412,6 +431,7 @@ class Delta extends Iterable<TextOperation> {
     return delta..chop();
   }
 
+  /// This method joins two Delta together.
   Delta operator +(Delta other) {
     var ops = [..._operations];
     if (other._operations.isNotEmpty) {
@@ -445,6 +465,7 @@ class Delta extends Iterable<TextOperation> {
     return hashList(_operations);
   }
 
+  /// Returned an inverted delta that has the opposite effect of against a base document delta.
   Delta invert(Delta base) {
     final inverted = Delta();
     _operations.fold(0, (int previousValue, op) {
@@ -475,6 +496,13 @@ class Delta extends Iterable<TextOperation> {
     return _operations.map((e) => e.toJson()).toList();
   }
 
+  /// This method will return the position of the previous rune.
+  ///
+  /// Since the encoding of the [String] in Dart is UTF-16.
+  /// If you want to find the previous character of a position,
+  /// you can' just use the `position - 1` simply.
+  ///
+  /// This method can help you to compute the position of the previous character.
   int prevRunePosition(int pos) {
     if (pos == 0) {
       return pos - 1;
@@ -485,6 +513,13 @@ class Delta extends Iterable<TextOperation> {
     return _runeIndexes![pos - 1];
   }
 
+  /// This method will return the position of the next rune.
+  ///
+  /// Since the encoding of the [String] in Dart is UTF-16.
+  /// If you want to find the previous character of a position,
+  /// you can' just use the `position + 1` simply.
+  ///
+  /// This method can help you to compute the position of the next character.
   int nextRunePosition(int pos) {
     final stringContent = toRawString();
     if (pos >= stringContent.length - 1) {

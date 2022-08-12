@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flowy_editor/src/service/service.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flowy_editor/src/document/node.dart';
 import 'package:flowy_editor/src/document/selection.dart';
 import 'package:flowy_editor/src/document/state_tree.dart';
 import 'package:flowy_editor/src/operation/operation.dart';
@@ -26,10 +25,25 @@ enum CursorUpdateReason {
   others,
 }
 
+/// The state of the editor.
+///
+/// The state including:
+/// - The document to render
+/// - The state of the selection.
+///
+/// [EditorState] also includes the services of the editor:
+/// - Selection service
+/// - Scroll service
+/// - Keyboard service
+/// - Input service
+/// - Toolbar service
+///
+/// In consideration of collaborative editing.
+/// All the mutations should be applied through [Transaction].
+///
+/// Mutating the document with document's API is not recommended.
 class EditorState {
   final StateTree document;
-
-  List<Node> selectedNodes = [];
 
   // Service reference.
   final service = FlowyService();
@@ -41,7 +55,6 @@ class EditorState {
     return _cursorSelection;
   }
 
-  /// add the set reason in the future, don't use setter
   updateCursorSelection(Selection? cursorSelection,
       [CursorUpdateReason reason = CursorUpdateReason.others]) {
     // broadcast to other users here
@@ -59,8 +72,13 @@ class EditorState {
     undoManager.state = this;
   }
 
+  /// Apply the transaction to the state.
+  ///
+  /// The options can be used to determine whether the editor
+  /// should record the transaction in undo/redo stack.
   apply(Transaction transaction,
       [ApplyOptions options = const ApplyOptions()]) {
+    // TODO: validate the transation.
     for (final op in transaction.operations) {
       _applyOperation(op);
     }

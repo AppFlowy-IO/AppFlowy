@@ -1,22 +1,12 @@
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/format.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
+import 'type_option_context.dart';
 
 part 'number_bloc.freezed.dart';
-
-typedef NumberTypeOptionContext = TypeOptionWidgetContext<NumberTypeOption>;
-
-class NumberTypeOptionWidgetDataParser
-    extends TypeOptionDataParser<NumberTypeOption> {
-  @override
-  NumberTypeOption fromBuffer(List<int> buffer) {
-    return NumberTypeOption.fromBuffer(buffer);
-  }
-}
 
 class NumberTypeOptionBloc
     extends Bloc<NumberTypeOptionEvent, NumberTypeOptionState> {
@@ -33,7 +23,7 @@ class NumberTypeOptionBloc
     );
   }
 
-  NumberTypeOption _updateNumberFormat(NumberFormat format) {
+  NumberTypeOptionPB _updateNumberFormat(NumberFormat format) {
     state.typeOption.freeze();
     return state.typeOption.rebuild((typeOption) {
       typeOption.format = format;
@@ -55,10 +45,10 @@ class NumberTypeOptionEvent with _$NumberTypeOptionEvent {
 @freezed
 class NumberTypeOptionState with _$NumberTypeOptionState {
   const factory NumberTypeOptionState({
-    required NumberTypeOption typeOption,
+    required NumberTypeOptionPB typeOption,
   }) = _NumberTypeOptionState;
 
-  factory NumberTypeOptionState.initial(NumberTypeOption typeOption) =>
+  factory NumberTypeOptionState.initial(NumberTypeOptionPB typeOption) =>
       NumberTypeOptionState(
         typeOption: typeOption,
       );

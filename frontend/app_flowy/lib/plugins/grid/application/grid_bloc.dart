@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'block/block_cache.dart';
 import 'grid_data_controller.dart';
-import 'row/row_service.dart';
+import 'row/row_cache.dart';
 import 'dart:collection';
 
 part 'grid_bloc.freezed.dart';
@@ -97,11 +97,11 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
   const factory GridEvent.didReceiveRowUpdate(
-    List<GridRowInfo> rows,
-    GridRowChangeReason listState,
+    List<RowInfo> rows,
+    RowChangeReason listState,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
-    UnmodifiableListView<GridFieldPB> fields,
+    UnmodifiableListView<FieldPB> fields,
   ) = _DidReceiveFieldUpdate;
 
   const factory GridEvent.didReceiveGridUpdate(
@@ -115,9 +115,9 @@ class GridState with _$GridState {
     required String gridId,
     required Option<GridPB> grid,
     required GridFieldEquatable fields,
-    required List<GridRowInfo> rowInfos,
+    required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
-    required GridRowChangeReason reason,
+    required RowChangeReason reason,
   }) = _GridState;
 
   factory GridState.initial(String gridId) => GridState(
@@ -138,9 +138,9 @@ class GridLoadingState with _$GridLoadingState {
 }
 
 class GridFieldEquatable extends Equatable {
-  final UnmodifiableListView<GridFieldPB> _fields;
+  final UnmodifiableListView<FieldPB> _fields;
   const GridFieldEquatable(
-    UnmodifiableListView<GridFieldPB> fields,
+    UnmodifiableListView<FieldPB> fields,
   ) : _fields = fields;
 
   @override
@@ -157,5 +157,5 @@ class GridFieldEquatable extends Equatable {
     ];
   }
 
-  UnmodifiableListView<GridFieldPB> get value => UnmodifiableListView(_fields);
+  UnmodifiableListView<FieldPB> get value => UnmodifiableListView(_fields);
 }

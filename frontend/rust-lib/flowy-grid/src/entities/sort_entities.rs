@@ -1,7 +1,7 @@
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::GridSortRevision;
+use flowy_grid_data_model::revision::SortConfigurationRevision;
 use flowy_sync::entities::grid::CreateGridSortParams;
 use std::convert::TryInto;
 use std::sync::Arc;
@@ -15,8 +15,8 @@ pub struct GridSort {
     pub field_id: Option<String>,
 }
 
-impl std::convert::From<&GridSortRevision> for GridSort {
-    fn from(rev: &GridSortRevision) -> Self {
+impl std::convert::From<&SortConfigurationRevision> for GridSort {
+    fn from(rev: &SortConfigurationRevision) -> Self {
         GridSort {
             id: rev.id.clone(),
 
@@ -31,8 +31,8 @@ pub struct RepeatedGridSortPB {
     pub items: Vec<GridSort>,
 }
 
-impl std::convert::From<Vec<Arc<GridSortRevision>>> for RepeatedGridSortPB {
-    fn from(revs: Vec<Arc<GridSortRevision>>) -> Self {
+impl std::convert::From<Vec<Arc<SortConfigurationRevision>>> for RepeatedGridSortPB {
+    fn from(revs: Vec<Arc<SortConfigurationRevision>>) -> Self {
         RepeatedGridSortPB {
             items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }

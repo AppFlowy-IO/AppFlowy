@@ -8,9 +8,9 @@ use std::sync::Arc;
 
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
-/// [GridFieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
+/// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridFieldPB {
+pub struct FieldPB {
     #[pb(index = 1)]
     pub id: String,
 
@@ -36,7 +36,7 @@ pub struct GridFieldPB {
     pub is_primary: bool,
 }
 
-impl std::convert::From<FieldRevision> for GridFieldPB {
+impl std::convert::From<FieldRevision> for FieldPB {
     fn from(field_rev: FieldRevision) -> Self {
         Self {
             id: field_rev.id,
@@ -51,33 +51,33 @@ impl std::convert::From<FieldRevision> for GridFieldPB {
     }
 }
 
-impl std::convert::From<Arc<FieldRevision>> for GridFieldPB {
+impl std::convert::From<Arc<FieldRevision>> for FieldPB {
     fn from(field_rev: Arc<FieldRevision>) -> Self {
         let field_rev = field_rev.as_ref().clone();
-        GridFieldPB::from(field_rev)
+        FieldPB::from(field_rev)
     }
 }
 
-/// [GridFieldIdPB] id of the [Field]
+/// [FieldIdPB] id of the [Field]
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridFieldIdPB {
+pub struct FieldIdPB {
     #[pb(index = 1)]
     pub field_id: String,
 }
 
-impl std::convert::From<&str> for GridFieldIdPB {
+impl std::convert::From<&str> for FieldIdPB {
     fn from(s: &str) -> Self {
-        GridFieldIdPB { field_id: s.to_owned() }
+        FieldIdPB { field_id: s.to_owned() }
     }
 }
 
-impl std::convert::From<String> for GridFieldIdPB {
+impl std::convert::From<String> for FieldIdPB {
     fn from(s: String) -> Self {
-        GridFieldIdPB { field_id: s }
+        FieldIdPB { field_id: s }
     }
 }
 
-impl std::convert::From<&Arc<FieldRevision>> for GridFieldIdPB {
+impl std::convert::From<&Arc<FieldRevision>> for FieldIdPB {
     fn from(field_rev: &Arc<FieldRevision>) -> Self {
         Self {
             field_id: field_rev.id.clone(),
@@ -85,7 +85,7 @@ impl std::convert::From<&Arc<FieldRevision>> for GridFieldIdPB {
     }
 }
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct GridFieldChangesetPB {
+pub struct FieldChangesetPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -93,13 +93,13 @@ pub struct GridFieldChangesetPB {
     pub inserted_fields: Vec<IndexFieldPB>,
 
     #[pb(index = 3)]
-    pub deleted_fields: Vec<GridFieldIdPB>,
+    pub deleted_fields: Vec<FieldIdPB>,
 
     #[pb(index = 4)]
-    pub updated_fields: Vec<GridFieldPB>,
+    pub updated_fields: Vec<FieldPB>,
 }
 
-impl GridFieldChangesetPB {
+impl FieldChangesetPB {
     pub fn insert(grid_id: &str, inserted_fields: Vec<IndexFieldPB>) -> Self {
         Self {
             grid_id: grid_id.to_owned(),
@@ -109,7 +109,7 @@ impl GridFieldChangesetPB {
         }
     }
 
-    pub fn delete(grid_id: &str, deleted_fields: Vec<GridFieldIdPB>) -> Self {
+    pub fn delete(grid_id: &str, deleted_fields: Vec<FieldIdPB>) -> Self {
         Self {
             grid_id: grid_id.to_string(),
             inserted_fields: vec![],
@@ -118,7 +118,7 @@ impl GridFieldChangesetPB {
         }
     }
 
-    pub fn update(grid_id: &str, updated_fields: Vec<GridFieldPB>) -> Self {
+    pub fn update(grid_id: &str, updated_fields: Vec<FieldPB>) -> Self {
         Self {
             grid_id: grid_id.to_string(),
             inserted_fields: vec![],
@@ -131,7 +131,7 @@ impl GridFieldChangesetPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct IndexFieldPB {
     #[pb(index = 1)]
-    pub field: GridFieldPB,
+    pub field: FieldPB,
 
     #[pb(index = 2)]
     pub index: i32,
@@ -140,7 +140,7 @@ pub struct IndexFieldPB {
 impl IndexFieldPB {
     pub fn from_field_rev(field_rev: &Arc<FieldRevision>, index: usize) -> Self {
         Self {
-            field: GridFieldPB::from(field_rev.as_ref().clone()),
+            field: FieldPB::from(field_rev.as_ref().clone()),
             index: index as i32,
         }
     }
@@ -220,7 +220,7 @@ impl TryInto<EditFieldParams> for EditFieldPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GridFieldTypeOptionIdPB {
+pub struct FieldTypeOptionIdPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -231,19 +231,19 @@ pub struct GridFieldTypeOptionIdPB {
     pub field_type: FieldType,
 }
 
-pub struct GridFieldTypeOptionIdParams {
+pub struct FieldTypeOptionIdParams {
     pub grid_id: String,
     pub field_id: String,
     pub field_type: FieldType,
 }
 
-impl TryInto<GridFieldTypeOptionIdParams> for GridFieldTypeOptionIdPB {
+impl TryInto<FieldTypeOptionIdParams> for FieldTypeOptionIdPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<GridFieldTypeOptionIdParams, Self::Error> {
+    fn try_into(self) -> Result<FieldTypeOptionIdParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-        Ok(GridFieldTypeOptionIdParams {
+        Ok(FieldTypeOptionIdParams {
             grid_id: grid_id.0,
             field_id: field_id.0,
             field_type: self.field_type,
@@ -264,60 +264,60 @@ pub struct FieldTypeOptionDataPB {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub field: GridFieldPB,
+    pub field: FieldPB,
 
     #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
 }
 
-/// Collection of the [GridFieldPB]
+/// Collection of the [FieldPB]
 #[derive(Debug, Default, ProtoBuf)]
-pub struct RepeatedGridFieldPB {
+pub struct RepeatedFieldPB {
     #[pb(index = 1)]
-    pub items: Vec<GridFieldPB>,
+    pub items: Vec<FieldPB>,
 }
-impl std::ops::Deref for RepeatedGridFieldPB {
-    type Target = Vec<GridFieldPB>;
+impl std::ops::Deref for RepeatedFieldPB {
+    type Target = Vec<FieldPB>;
     fn deref(&self) -> &Self::Target {
         &self.items
     }
 }
 
-impl std::ops::DerefMut for RepeatedGridFieldPB {
+impl std::ops::DerefMut for RepeatedFieldPB {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.items
     }
 }
 
-impl std::convert::From<Vec<GridFieldPB>> for RepeatedGridFieldPB {
-    fn from(items: Vec<GridFieldPB>) -> Self {
+impl std::convert::From<Vec<FieldPB>> for RepeatedFieldPB {
+    fn from(items: Vec<FieldPB>) -> Self {
         Self { items }
     }
 }
 
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct RepeatedGridFieldIdPB {
+pub struct RepeatedFieldIdPB {
     #[pb(index = 1)]
-    pub items: Vec<GridFieldIdPB>,
+    pub items: Vec<FieldIdPB>,
 }
 
-impl std::ops::Deref for RepeatedGridFieldIdPB {
-    type Target = Vec<GridFieldIdPB>;
+impl std::ops::Deref for RepeatedFieldIdPB {
+    type Target = Vec<FieldIdPB>;
     fn deref(&self) -> &Self::Target {
         &self.items
     }
 }
 
-impl std::convert::From<Vec<GridFieldIdPB>> for RepeatedGridFieldIdPB {
-    fn from(items: Vec<GridFieldIdPB>) -> Self {
-        RepeatedGridFieldIdPB { items }
+impl std::convert::From<Vec<FieldIdPB>> for RepeatedFieldIdPB {
+    fn from(items: Vec<FieldIdPB>) -> Self {
+        RepeatedFieldIdPB { items }
     }
 }
 
-impl std::convert::From<String> for RepeatedGridFieldIdPB {
+impl std::convert::From<String> for RepeatedFieldIdPB {
     fn from(s: String) -> Self {
-        RepeatedGridFieldIdPB {
-            items: vec![GridFieldIdPB::from(s)],
+        RepeatedFieldIdPB {
+            items: vec![FieldIdPB::from(s)],
         }
     }
 }
@@ -328,7 +328,7 @@ pub struct InsertFieldPayloadPB {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub field: GridFieldPB,
+    pub field: FieldPB,
 
     #[pb(index = 3)]
     pub type_option_data: Vec<u8>,
@@ -340,7 +340,7 @@ pub struct InsertFieldPayloadPB {
 #[derive(Clone)]
 pub struct InsertFieldParams {
     pub grid_id: String,
-    pub field: GridFieldPB,
+    pub field: FieldPB,
     pub type_option_data: Vec<u8>,
     pub start_field_id: Option<String>,
 }
@@ -408,12 +408,12 @@ pub struct QueryFieldPayloadPB {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub field_ids: RepeatedGridFieldIdPB,
+    pub field_ids: RepeatedFieldIdPB,
 }
 
 pub struct QueryFieldParams {
     pub grid_id: String,
-    pub field_ids: RepeatedGridFieldIdPB,
+    pub field_ids: RepeatedFieldIdPB,
 }
 
 impl TryInto<QueryFieldParams> for QueryFieldPayloadPB {
@@ -518,6 +518,14 @@ pub enum FieldType {
     URL = 6,
 }
 
+pub const RICH_TEXT_FIELD: FieldType = FieldType::RichText;
+pub const NUMBER_FIELD: FieldType = FieldType::Number;
+pub const DATE_FIELD: FieldType = FieldType::DateTime;
+pub const SINGLE_SELECT_FIELD: FieldType = FieldType::SingleSelect;
+pub const MULTI_SELECT_FIELD: FieldType = FieldType::MultiSelect;
+pub const CHECKBOX_FIELD: FieldType = FieldType::Checkbox;
+pub const URL_FIELD: FieldType = FieldType::URL;
+
 impl std::default::Default for FieldType {
     fn default() -> Self {
         FieldType::RichText
@@ -549,35 +557,39 @@ impl FieldType {
     }
 
     pub fn is_number(&self) -> bool {
-        self == &FieldType::Number
+        self == &NUMBER_FIELD
     }
 
     pub fn is_text(&self) -> bool {
-        self == &FieldType::RichText
+        self == &RICH_TEXT_FIELD
     }
 
     pub fn is_checkbox(&self) -> bool {
-        self == &FieldType::Checkbox
+        self == &CHECKBOX_FIELD
     }
 
     pub fn is_date(&self) -> bool {
-        self == &FieldType::DateTime
+        self == &DATE_FIELD
     }
 
     pub fn is_single_select(&self) -> bool {
-        self == &FieldType::SingleSelect
+        self == &SINGLE_SELECT_FIELD
     }
 
     pub fn is_multi_select(&self) -> bool {
-        self == &FieldType::MultiSelect
+        self == &MULTI_SELECT_FIELD
     }
 
     pub fn is_url(&self) -> bool {
-        self == &FieldType::URL
+        self == &URL_FIELD
     }
 
     pub fn is_select_option(&self) -> bool {
-        self == &FieldType::MultiSelect || self == &FieldType::SingleSelect
+        self == &MULTI_SELECT_FIELD || self == &SINGLE_SELECT_FIELD
+    }
+
+    pub fn can_be_group(&self) -> bool {
+        self.is_select_option()
     }
 }
 
@@ -633,13 +645,13 @@ pub struct GridFieldIdentifierPayloadPB {
     pub grid_id: String,
 }
 
-impl TryInto<GridFieldIdParams> for DuplicateFieldPayloadPB {
+impl TryInto<FieldIdParams> for DuplicateFieldPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<GridFieldIdParams, Self::Error> {
+    fn try_into(self) -> Result<FieldIdParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-        Ok(GridFieldIdParams {
+        Ok(FieldIdParams {
             grid_id: grid_id.0,
             field_id: field_id.0,
         })
@@ -655,20 +667,20 @@ pub struct DeleteFieldPayloadPB {
     pub grid_id: String,
 }
 
-impl TryInto<GridFieldIdParams> for DeleteFieldPayloadPB {
+impl TryInto<FieldIdParams> for DeleteFieldPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<GridFieldIdParams, Self::Error> {
+    fn try_into(self) -> Result<FieldIdParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let field_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-        Ok(GridFieldIdParams {
+        Ok(FieldIdParams {
             grid_id: grid_id.0,
             field_id: field_id.0,
         })
     }
 }
 
-pub struct GridFieldIdParams {
+pub struct FieldIdParams {
     pub field_id: String,
     pub grid_id: String,
 }

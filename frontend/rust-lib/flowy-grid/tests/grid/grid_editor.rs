@@ -32,7 +32,7 @@ pub struct GridEditorTest {
     pub block_meta_revs: Vec<Arc<GridBlockMetaRevision>>,
     pub row_revs: Vec<Arc<RowRevision>>,
     pub field_count: usize,
-    pub row_order_by_row_id: HashMap<String, GridRowPB>,
+    pub row_order_by_row_id: HashMap<String, RowPB>,
 }
 
 impl GridEditorTest {
@@ -75,7 +75,7 @@ impl GridEditorTest {
             .row_revs
     }
 
-    pub async fn grid_filters(&self) -> Vec<GridFilter> {
+    pub async fn grid_filters(&self) -> Vec<GridFilterConfiguration> {
         let layout_type = GridLayoutType::Table;
         self.editor.get_grid_filter(&layout_type).await.unwrap()
     }
@@ -138,9 +138,9 @@ fn make_test_grid() -> BuildGridContext {
             FieldType::SingleSelect => {
                 // Single Select
                 let single_select = SingleSelectTypeOptionBuilder::default()
-                    .option(SelectOptionPB::new(COMPLETED))
-                    .option(SelectOptionPB::new(PLANNED))
-                    .option(SelectOptionPB::new(PAUSED));
+                    .add_option(SelectOptionPB::new(COMPLETED))
+                    .add_option(SelectOptionPB::new(PLANNED))
+                    .add_option(SelectOptionPB::new(PAUSED));
                 let single_select_field = FieldBuilder::new(single_select).name("Status").visibility(true).build();
                 grid_builder.add_field(single_select_field);
             }

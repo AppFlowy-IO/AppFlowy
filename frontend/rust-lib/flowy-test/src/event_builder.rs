@@ -86,9 +86,13 @@ where
         match response.parse::<R, E>() {
             Ok(Ok(data)) => data,
             Ok(Err(e)) => {
-                panic!("parse failed: {:?}", e)
+                panic!("Parser {:?} failed: {:?}", std::any::type_name::<R>(), e)
             }
-            Err(e) => panic!("Internal error: {:?}", e),
+            Err(e) => panic!(
+                "Internal error: {:?}, parser {:?} failed",
+                e,
+                std::any::type_name::<R>(),
+            ),
         }
     }
 

@@ -11,6 +11,10 @@ pub trait CellFilterOperation<T> {
     fn apply_filter(&self, any_cell_data: AnyCellData, filter: &T) -> FlowyResult<bool>;
 }
 
+pub trait CellGroupOperation {
+    fn apply_group(&self, any_cell_data: AnyCellData, group_content: &str) -> FlowyResult<bool>;
+}
+
 /// Return object that describes the cell.
 pub trait CellDisplayable<CD> {
     fn display_data(
@@ -55,15 +59,15 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
     let changeset = changeset.to_string();
     let field_type = field_rev.field_type_rev.into();
     let s = match field_type {
-        FieldType::RichText => RichTextTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::Number => NumberTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::DateTime => DateTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::RichText => RichTextTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::Number => NumberTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::DateTime => DateTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::SingleSelect => {
             SingleSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev)
         }
-        FieldType::MultiSelect => MultiSelectTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::Checkbox => CheckboxTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::URL => URLTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::MultiSelect => MultiSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::Checkbox => CheckboxTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::URL => URLTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
     }?;
 
     Ok(AnyCellData::new(s, field_type).json())
@@ -97,25 +101,25 @@ pub fn try_decode_cell_data(
         let field_type: FieldTypeRevision = t_field_type.into();
         let data = match t_field_type {
             FieldType::RichText => field_rev
-                .get_type_option_entry::<RichTextTypeOption>(field_type)?
+                .get_type_option_entry::<RichTextTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::Number => field_rev
-                .get_type_option_entry::<NumberTypeOption>(field_type)?
+                .get_type_option_entry::<NumberTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::DateTime => field_rev
-                .get_type_option_entry::<DateTypeOption>(field_type)?
+                .get_type_option_entry::<DateTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::SingleSelect => field_rev
                 .get_type_option_entry::<SingleSelectTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::MultiSelect => field_rev
-                .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
+                .get_type_option_entry::<MultiSelectTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::Checkbox => field_rev
-                .get_type_option_entry::<CheckboxTypeOption>(field_type)?
+                .get_type_option_entry::<CheckboxTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::URL => field_rev
-                .get_type_option_entry::<URLTypeOption>(field_type)?
+                .get_type_option_entry::<URLTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
         };
         Some(data)

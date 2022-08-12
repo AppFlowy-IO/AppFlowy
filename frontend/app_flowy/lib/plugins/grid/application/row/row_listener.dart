@@ -8,12 +8,13 @@ import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 
-typedef UpdateRowNotifiedValue = Either<GridRowPB, FlowyError>;
-typedef UpdateFieldNotifiedValue = Either<List<GridFieldPB>, FlowyError>;
+typedef UpdateRowNotifiedValue = Either<RowPB, FlowyError>;
+typedef UpdateFieldNotifiedValue = Either<List<FieldPB>, FlowyError>;
 
 class RowListener {
   final String rowId;
-  PublishNotifier<UpdateRowNotifiedValue>? updateRowNotifier = PublishNotifier();
+  PublishNotifier<UpdateRowNotifiedValue>? updateRowNotifier =
+      PublishNotifier();
   GridNotificationListener? _listener;
 
   RowListener({required this.rowId});
@@ -26,7 +27,8 @@ class RowListener {
     switch (ty) {
       case GridNotification.DidUpdateRow:
         result.fold(
-          (payload) => updateRowNotifier?.value = left(GridRowPB.fromBuffer(payload)),
+          (payload) =>
+              updateRowNotifier?.value = left(RowPB.fromBuffer(payload)),
           (error) => updateRowNotifier?.value = right(error),
         );
         break;

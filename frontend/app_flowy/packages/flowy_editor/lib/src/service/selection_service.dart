@@ -487,6 +487,7 @@ class _FlowySelectionState extends State<FlowySelection>
         max = mid - 1;
       }
     }
+    min = min.clamp(start, end);
     final node = sortedNodes[min];
     if (node.children.isNotEmpty && node.children.first.rect.top <= offset.dy) {
       final children = node.children.toList(growable: false);

@@ -25,7 +25,10 @@ class GridPluginBuilder implements PluginBuilder {
   PluginType get pluginType => DefaultPlugin.grid.type();
 
   @override
-  ViewDataType get dataType => ViewDataType.Grid;
+  ViewDataTypePB get dataType => ViewDataTypePB.Database;
+
+  @override
+  SubViewDataTypePB? get subDataType => SubViewDataTypePB.Grid;
 }
 
 class GridPluginConfig implements PluginConfig {

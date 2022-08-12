@@ -1,6 +1,6 @@
 use crate::entities::{CellChangesetPB, FieldType, GridCellIdPB, GridCellIdParams};
 use crate::services::cell::{CellBytes, CellBytesParser, CellData, CellDisplayable, FromCellChangeset, FromCellString};
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOptionPB};
+use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
@@ -130,7 +130,7 @@ pub fn select_option_operation(field_rev: &FieldRevision) -> FlowyResult<Box<dyn
             Ok(Box::new(type_option))
         }
         FieldType::MultiSelect => {
-            let type_option = MultiSelectTypeOption::from(field_rev);
+            let type_option = MultiSelectTypeOptionPB::from(field_rev);
             Ok(Box::new(type_option))
         }
         ty => {
@@ -206,7 +206,7 @@ impl std::ops::DerefMut for SelectOptionIds {
 pub struct SelectOptionIdsParser();
 impl CellBytesParser for SelectOptionIdsParser {
     type Object = SelectOptionIds;
-    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+    fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {
             Ok(s) => Ok(SelectOptionIds::from(s)),
             Err(_) => Ok(SelectOptionIds::from("".to_owned())),
@@ -218,7 +218,7 @@ pub struct SelectOptionCellDataParser();
 impl CellBytesParser for SelectOptionCellDataParser {
     type Object = SelectOptionCellDataPB;
 
-    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+    fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         SelectOptionCellDataPB::try_from(bytes.as_ref()).map_err(internal_error)
     }
 }

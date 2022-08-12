@@ -1,4 +1,4 @@
-use crate::entities::{GridBlockPB, GridFieldIdPB};
+use crate::entities::{BlockPB, FieldIdPB};
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -10,10 +10,10 @@ pub struct GridPB {
     pub id: String,
 
     #[pb(index = 2)]
-    pub fields: Vec<GridFieldIdPB>,
+    pub fields: Vec<FieldIdPB>,
 
     #[pb(index = 3)]
-    pub blocks: Vec<GridBlockPB>,
+    pub blocks: Vec<BlockPB>,
 }
 
 #[derive(ProtoBuf, Default)]

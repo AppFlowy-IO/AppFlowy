@@ -21,6 +21,8 @@ import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 
+import '../plugins/grid/application/field/field_cache.dart';
+
 class DependencyResolver {
   static Future<void> resolve(GetIt getIt) async {
     _resolveUserDeps(getIt);
@@ -168,33 +170,33 @@ void _resolveGridDeps(GetIt getIt) {
 
   getIt.registerFactoryParam<TextCellBloc, GridCellController, void>(
     (context, _) => TextCellBloc(
-      cellContext: context,
+      cellController: context,
     ),
   );
 
   getIt.registerFactoryParam<SelectOptionCellBloc,
       GridSelectOptionCellController, void>(
     (context, _) => SelectOptionCellBloc(
-      cellContext: context,
+      cellController: context,
     ),
   );
 
   getIt.registerFactoryParam<NumberCellBloc, GridCellController, void>(
     (context, _) => NumberCellBloc(
-      cellContext: context,
+      cellController: context,
     ),
   );
 
   getIt.registerFactoryParam<DateCellBloc, GridDateCellController, void>(
     (context, _) => DateCellBloc(
-      cellContext: context,
+      cellController: context,
     ),
   );
 
   getIt.registerFactoryParam<CheckboxCellBloc, GridCellController, void>(
     (cellData, _) => CheckboxCellBloc(
       service: CellService(),
-      cellContext: cellData,
+      cellController: cellData,
     ),
   );
 

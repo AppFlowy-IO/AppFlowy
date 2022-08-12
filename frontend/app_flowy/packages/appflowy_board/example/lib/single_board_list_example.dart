@@ -9,11 +9,11 @@ class SingleBoardListExample extends StatefulWidget {
 }
 
 class _SingleBoardListExampleState extends State<SingleBoardListExample> {
-  final BoardDataController boardData = BoardDataController();
+  final AFBoardDataController boardData = AFBoardDataController();
 
   @override
   void initState() {
-    final column = BoardColumnData(id: "1", items: [
+    final column = AFBoardColumnData(id: "1", items: [
       TextItem("a"),
       TextItem("b"),
       TextItem("c"),
@@ -26,7 +26,7 @@ class _SingleBoardListExampleState extends State<SingleBoardListExample> {
 
   @override
   Widget build(BuildContext context) {
-    return Board(
+    return AFBoard(
       dataController: boardData,
       cardBuilder: (context, item) {
         return _RowWidget(item: item as TextItem, key: ObjectKey(item));
@@ -50,7 +50,7 @@ class _RowWidget extends StatelessWidget {
   }
 }
 
-class TextItem extends ColumnItem {
+class TextItem extends AFColumnItem {
   final String s;
 
   TextItem(this.s);

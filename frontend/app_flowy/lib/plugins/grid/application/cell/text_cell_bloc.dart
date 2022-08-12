@@ -6,11 +6,11 @@ import 'cell_service/cell_service.dart';
 part 'text_cell_bloc.freezed.dart';
 
 class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
-  final GridCellController cellContext;
+  final GridCellController cellController;
   void Function()? _onCellChangedFn;
   TextCellBloc({
-    required this.cellContext,
-  }) : super(TextCellState.initial(cellContext)) {
+    required this.cellController,
+  }) : super(TextCellState.initial(cellController)) {
     on<TextCellEvent>(
       (event, emit) async {
         await event.when(
@@ -18,7 +18,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
             _startListening();
           },
           updateText: (text) {
-            cellContext.saveCellData(text);
+            cellController.saveCellData(text);
             emit(state.copyWith(content: text));
           },
           didReceiveCellUpdate: (content) {
@@ -32,15 +32,15 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellContext.removeListener(_onCellChangedFn!);
+      cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    cellContext.dispose();
+    cellController.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(
+    _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cellContent) {
         if (!isClosed) {
           add(TextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
@@ -53,7 +53,8 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 @freezed
 class TextCellEvent with _$TextCellEvent {
   const factory TextCellEvent.initial() = _InitialCell;
-  const factory TextCellEvent.didReceiveCellUpdate(String cellContent) = _DidReceiveCellUpdate;
+  const factory TextCellEvent.didReceiveCellUpdate(String cellContent) =
+      _DidReceiveCellUpdate;
   const factory TextCellEvent.updateText(String text) = _UpdateText;
 }
 

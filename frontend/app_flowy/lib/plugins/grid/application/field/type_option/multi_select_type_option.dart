@@ -1,25 +1,32 @@
-import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/multi_select_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'dart:async';
-import 'package:protobuf/protobuf.dart';
 import 'select_option_type_option_bloc.dart';
+import 'type_option_context.dart';
 import 'type_option_service.dart';
+import 'package:protobuf/protobuf.dart';
 
-class MultiSelectTypeOptionContext
-    extends TypeOptionWidgetContext<MultiSelectTypeOption>
-    with SelectOptionTypeOptionAction {
-  final TypeOptionService service;
+class MultiSelectAction with ISelectOptionAction {
+  final String gridId;
+  final String fieldId;
+  final TypeOptionFFIService service;
+  final MultiSelectTypeOptionContext typeOptionContext;
 
-  MultiSelectTypeOptionContext({
-    required MultiSelectTypeOptionWidgetDataParser dataBuilder,
-    required TypeOptionDataController dataController,
-  })  : service = TypeOptionService(
-          gridId: dataController.gridId,
-          fieldId: dataController.field.id,
-        ),
-        super(dataParser: dataBuilder, dataController: dataController);
+  MultiSelectAction({
+    required this.gridId,
+    required this.fieldId,
+    required this.typeOptionContext,
+  }) : service = TypeOptionFFIService(
+          gridId: gridId,
+          fieldId: fieldId,
+        );
+
+  MultiSelectTypeOptionPB get typeOption => typeOptionContext.typeOption;
+
+  set typeOption(MultiSelectTypeOptionPB newTypeOption) {
+    typeOptionContext.typeOption = newTypeOption;
+  }
 
   @override
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {
@@ -59,7 +66,7 @@ class MultiSelectTypeOptionContext
   }
 
   @override
-  List<SelectOptionPB> Function(SelectOptionPB) get udpateOption {
+  List<SelectOptionPB> Function(SelectOptionPB) get updateOption {
     return (SelectOptionPB option) {
       typeOption.freeze();
       typeOption = typeOption.rebuild((typeOption) {
@@ -71,13 +78,5 @@ class MultiSelectTypeOptionContext
       });
       return typeOption.options;
     };
-  }
-}
-
-class MultiSelectTypeOptionWidgetDataParser
-    extends TypeOptionDataParser<MultiSelectTypeOption> {
-  @override
-  MultiSelectTypeOption fromBuffer(List<int> buffer) {
-    return MultiSelectTypeOption.fromBuffer(buffer);
   }
 }

@@ -5,11 +5,12 @@ use flowy_folder::entities::{
     trash::{RepeatedTrashPB, TrashIdPB, TrashType},
     view::{CreateViewPayloadPB, UpdateViewPayloadPB},
     workspace::{CreateWorkspacePayloadPB, RepeatedWorkspacePB},
+    SubViewDataTypePB,
 };
 use flowy_folder::entities::{
     app::{AppPB, RepeatedAppPB},
     trash::TrashPB,
-    view::{RepeatedViewPB, ViewDataType, ViewPB},
+    view::{RepeatedViewPB, ViewDataTypePB, ViewPB},
     workspace::WorkspacePB,
 };
 use flowy_folder::event_map::FolderEvent::*;
@@ -51,7 +52,7 @@ pub enum FolderScript {
     CreateView {
         name: String,
         desc: String,
-        data_type: ViewDataType,
+        data_type: ViewDataTypePB,
     },
     AssertView(ViewPB),
     ReadView(String),
@@ -98,7 +99,7 @@ impl FolderTest {
             &app.id,
             "Folder View",
             "Folder test view",
-            ViewDataType::TextBlock,
+            ViewDataTypePB::TextBlock,
         )
         .await;
         app.belongings = RepeatedViewPB {
@@ -346,13 +347,25 @@ pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
         .await;
 }
 
-pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, data_type: ViewDataType) -> ViewPB {
+pub async fn create_view(
+    sdk: &FlowySDKTest,
+    app_id: &str,
+    name: &str,
+    desc: &str,
+    data_type: ViewDataTypePB,
+) -> ViewPB {
+    let sub_data_type = match data_type {
+        ViewDataTypePB::TextBlock => None,
+        ViewDataTypePB::Database => Some(SubViewDataTypePB::Grid),
+    };
+
     let request = CreateViewPayloadPB {
         belong_to_id: app_id.to_string(),
         name: name.to_string(),
         desc: desc.to_string(),
         thumbnail: None,
         data_type,
+        sub_data_type,
         plugin_type: 0,
         data: vec![],
     };

@@ -120,6 +120,7 @@ flutter:
     - assets/images/home/
     - assets/images/editor/
     - assets/images/grid/
+    - assets/images/emoji/
     - assets/images/grid/field/
     - assets/images/grid/setting/
     - assets/translations/

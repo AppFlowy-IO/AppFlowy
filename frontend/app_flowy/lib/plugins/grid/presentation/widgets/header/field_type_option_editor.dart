@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -15,7 +16,7 @@ import 'field_type_extension.dart';
 import 'field_type_list.dart';
 import 'type_option/builder.dart';
 
-typedef UpdateFieldCallback = void Function(GridFieldPB, Uint8List);
+typedef UpdateFieldCallback = void Function(FieldPB, Uint8List);
 typedef SwitchToFieldCallback
     = Future<Either<FieldTypeOptionDataPB, FlowyError>> Function(
   String fieldId,
@@ -63,7 +64,7 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
     );
   }
 
-  Widget _switchFieldTypeButton(BuildContext context, GridFieldPB field) {
+  Widget _switchFieldTypeButton(BuildContext context, FieldPB field) {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
@@ -94,8 +95,8 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
 
     return makeTypeOptionWidget(
       context: context,
-      dataController: widget.dataController,
       overlayDelegate: overlayDelegate,
+      dataController: widget.dataController,
     );
   }
 

@@ -17,7 +17,10 @@ const String tagList = "li";
 const String tagParagraph = "p";
 const String tagImage = "img";
 const String tagAnchor = "a";
+const String tagItalic = "i";
 const String tagBold = "b";
+const String tagUnderline = "u";
+const String tagDel = "del";
 const String tagStrong = "strong";
 const String tagSpan = "span";
 const String tagCode = "code";
@@ -54,7 +57,10 @@ class HTMLToNodesConverter {
         if (child.localName == tagAnchor ||
             child.localName == tagSpan ||
             child.localName == tagCode ||
-            child.localName == tagStrong) {
+            child.localName == tagStrong ||
+            child.localName == tagUnderline ||
+            child.localName == tagItalic ||
+            child.localName == tagDel) {
           _handleRichTextElement(delta, child);
         } else if (child.localName == tagBold) {
           // Google docs wraps the the content inside the `<b></b>` tag.
@@ -128,7 +134,7 @@ class HTMLToNodesConverter {
       if (tuples.length < 2) {
         continue;
       }
-      result[tuples[0]] = tuples[1];
+      result[tuples[0].trim()] = tuples[1].trim();
     }
 
     return result;
@@ -142,10 +148,19 @@ class HTMLToNodesConverter {
 
     final fontWeightStr = cssMap["font-weight"];
     if (fontWeightStr != null) {
-      int? weight = int.tryParse(fontWeightStr);
-      if (weight != null && weight > 500) {
-        attrs["bold"] = true;
+      if (fontWeightStr == "bold") {
+        attrs[StyleKey.bold] = true;
+      } else {
+        int? weight = int.tryParse(fontWeightStr);
+        if (weight != null && weight > 500) {
+          attrs[StyleKey.bold] = true;
+        }
       }
+    }
+
+    final textDecorationStr = cssMap["text-decoration"];
+    if (textDecorationStr != null) {
+      _assignTextDecorations(attrs, textDecorationStr);
     }
 
     final backgroundColorStr = cssMap["background-color"];
@@ -155,7 +170,22 @@ class HTMLToNodesConverter {
           '0x${backgroundColor.value.toRadixString(16)}';
     }
 
+    if (cssMap["font-style"] == "italic") {
+      attrs[StyleKey.italic] = true;
+    }
+
     return attrs.isEmpty ? null : attrs;
+  }
+
+  _assignTextDecorations(Attributes attrs, String decorationStr) {
+    final decorations = decorationStr.split(" ");
+    for (final d in decorations) {
+      if (d == "line-through") {
+        attrs[StyleKey.strikethrough] = true;
+      } else if (d == "underline") {
+        attrs[StyleKey.underline] = true;
+      }
+    }
   }
 
   /// Try to parse the `rgba(red, greed, blue, alpha)`
@@ -202,7 +232,13 @@ class HTMLToNodesConverter {
       }
       delta.insert(element.text, attributes);
     } else if (element.localName == tagStrong || element.localName == tagBold) {
-      delta.insert(element.text, {"bold": true});
+      delta.insert(element.text, {StyleKey.bold: true});
+    } else if (element.localName == tagUnderline) {
+      delta.insert(element.text, {StyleKey.underline: true});
+    } else if (element.localName == tagItalic) {
+      delta.insert(element.text, {StyleKey.italic: true});
+    } else if (element.localName == tagDel) {
+      delta.insert(element.text, {StyleKey.strikethrough: true});
     } else {
       delta.insert(element.text);
     }
@@ -397,6 +433,18 @@ class NodesToHTMLConverter {
         checked: textNode.attributes["checkbox"] == true);
   }
 
+  String _textDecorationsFromAttributes(Attributes attributes) {
+    var textDecoration = <String>[];
+    if (attributes[StyleKey.strikethrough] == true) {
+      textDecoration.add("line-through");
+    }
+    if (attributes[StyleKey.underline] == true) {
+      textDecoration.add("underline");
+    }
+
+    return textDecoration.join(" ");
+  }
+
   String _attributesToCssStyle(Map<String, dynamic> attributes) {
     final cssMap = <String, String>{};
     if (attributes[StyleKey.backgroundColor] != null) {
@@ -414,6 +462,15 @@ class NodesToHTMLConverter {
     if (attributes[StyleKey.bold] == true) {
       cssMap["font-weight"] = "bold";
     }
+
+    final textDecoration = _textDecorationsFromAttributes(attributes);
+    if (textDecoration.isNotEmpty) {
+      cssMap["text-decoration"] = textDecoration;
+    }
+
+    if (attributes[StyleKey.italic] == true) {
+      cssMap["font-style"] = "italic";
+    }
     return _cssMapToCssStyle(cssMap);
   }
 
@@ -427,6 +484,22 @@ class NodesToHTMLConverter {
     });
   }
 
+  /// Convert the rich text to HTML
+  ///
+  /// Use `<b>` for bold only.
+  /// Use `<i>` for italic only.
+  /// Use `<del>` for strikethrough only.
+  /// Use `<u>` for underline only.
+  ///
+  /// If the text has multiple styles, use a `<span>`
+  /// to mix the styles.
+  ///
+  /// A CSS style string is used to describe the styles.
+  /// The HTML will be:
+  ///
+  /// ```html
+  /// <span style="...">Text</span>
+  /// ```
   html.Element _deltaToHtml(Delta delta,
       {String? subType, int? end, bool? checked}) {
     if (end != null) {
@@ -452,6 +525,21 @@ class NodesToHTMLConverter {
         if (attributes != null) {
           if (attributes.length == 1 && attributes[StyleKey.bold] == true) {
             final strong = html.Element.tag(tagStrong);
+            strong.append(html.Text(op.content));
+            childNodes.add(strong);
+          } else if (attributes.length == 1 &&
+              attributes[StyleKey.underline] == true) {
+            final strong = html.Element.tag(tagUnderline);
+            strong.append(html.Text(op.content));
+            childNodes.add(strong);
+          } else if (attributes.length == 1 &&
+              attributes[StyleKey.italic] == true) {
+            final strong = html.Element.tag(tagItalic);
+            strong.append(html.Text(op.content));
+            childNodes.add(strong);
+          } else if (attributes.length == 1 &&
+              attributes[StyleKey.strikethrough] == true) {
+            final strong = html.Element.tag(tagDel);
             strong.append(html.Text(op.content));
             childNodes.add(strong);
           } else {

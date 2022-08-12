@@ -18,6 +18,11 @@ class HistoryItem extends LinkedListEntry<HistoryItem> {
 
   HistoryItem();
 
+  /// Seal the history item.
+  /// When an item is sealed, no more operations can be added
+  /// to the item.
+  ///
+  /// The caller should create a new [HistoryItem].
   seal() {
     _sealed = true;
   }
@@ -32,6 +37,7 @@ class HistoryItem extends LinkedListEntry<HistoryItem> {
     operations.addAll(iterable);
   }
 
+  /// Create a new [Transaction] by inverting the operations.
   Transaction toTransaction(EditorState state) {
     final builder = TransactionBuilder(state);
     for (var i = operations.length - 1; i >= 0; i--) {

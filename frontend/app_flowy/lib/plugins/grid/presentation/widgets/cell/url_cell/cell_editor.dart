@@ -64,7 +64,7 @@ class _URLCellEditorState extends State<URLCellEditor> {
 
   @override
   void initState() {
-    _cellBloc = URLCellEditorBloc(cellContext: widget.cellController);
+    _cellBloc = URLCellEditorBloc(cellController: widget.cellController);
     _cellBloc.add(const URLCellEditorEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
 

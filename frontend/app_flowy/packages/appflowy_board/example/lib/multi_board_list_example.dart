@@ -9,7 +9,7 @@ class MultiBoardListExample extends StatefulWidget {
 }
 
 class _MultiBoardListExampleState extends State<MultiBoardListExample> {
-  final BoardDataController boardDataController = BoardDataController(
+  final AFBoardDataController boardDataController = AFBoardDataController(
     onMoveColumn: (fromIndex, toIndex) {
       debugPrint('Move column from $fromIndex to $toIndex');
     },
@@ -23,18 +23,18 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
 
   @override
   void initState() {
-    final column1 = BoardColumnData(id: "To Do", items: [
+    final column1 = AFBoardColumnData(id: "To Do", items: [
       TextItem("Card 1"),
       TextItem("Card 2"),
       RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
       TextItem("Card 4"),
     ]);
-    final column2 = BoardColumnData(id: "In Progress", items: [
+    final column2 = AFBoardColumnData(id: "In Progress", items: [
       RichTextItem(title: "Card 5", subtitle: 'Aug 1, 2020 4:05 PM'),
       TextItem("Card 6"),
     ]);
 
-    final column3 = BoardColumnData(id: "Done", items: []);
+    final column3 = AFBoardColumnData(id: "Done", items: []);
 
     boardDataController.addColumn(column1);
     boardDataController.addColumn(column2);
@@ -45,14 +45,14 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
 
   @override
   Widget build(BuildContext context) {
-    final config = BoardConfig(
+    final config = AFBoardConfig(
       columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
     );
     return Container(
       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-        child: Board(
+        child: AFBoard(
           dataController: boardDataController,
           footBuilder: (context, columnData) {
             return AppFlowyColumnFooter(
@@ -79,7 +79,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
             );
           },
           columnConstraints: const BoxConstraints.tightFor(width: 240),
-          config: BoardConfig(
+          config: AFBoardConfig(
             columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
           ),
         ),
@@ -87,7 +87,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     );
   }
 
-  Widget _buildCard(ColumnItem item) {
+  Widget _buildCard(AFColumnItem item) {
     if (item is TextItem) {
       return Align(
         alignment: Alignment.centerLeft,
@@ -126,7 +126,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
   }
 }
 
-class TextItem extends ColumnItem {
+class TextItem extends AFColumnItem {
   final String s;
 
   TextItem(this.s);
@@ -135,7 +135,7 @@ class TextItem extends ColumnItem {
   String get id => s;
 }
 
-class RichTextItem extends ColumnItem {
+class RichTextItem extends AFColumnItem {
   final String title;
   final String subtitle;
 

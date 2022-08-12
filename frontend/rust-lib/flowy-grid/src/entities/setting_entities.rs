@@ -1,6 +1,6 @@
 use crate::entities::{
     CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, CreateGridSortPayloadPB, DeleteFilterPayloadPB,
-    RepeatedGridFilterPB, RepeatedGridGroupPB, RepeatedGridSortPB,
+    DeleteGroupPayloadPB, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RepeatedGridSortPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -22,10 +22,10 @@ pub struct GridSettingPB {
     pub current_layout_type: GridLayoutType,
 
     #[pb(index = 3)]
-    pub filters_by_field_id: HashMap<String, RepeatedGridFilterPB>,
+    pub filter_configuration_by_field_id: HashMap<String, RepeatedGridConfigurationFilterPB>,
 
     #[pb(index = 4)]
-    pub groups_by_field_id: HashMap<String, RepeatedGridGroupPB>,
+    pub group_configuration_by_field_id: HashMap<String, RepeatedGridGroupConfigurationPB>,
 
     #[pb(index = 5)]
     pub sorts_by_field_id: HashMap<String, RepeatedGridSortPB>,
@@ -97,7 +97,7 @@ pub struct GridSettingChangesetPayloadPB {
     pub insert_group: Option<CreateGridGroupPayloadPB>,
 
     #[pb(index = 6, one_of)]
-    pub delete_group: Option<String>,
+    pub delete_group: Option<DeleteGroupPayloadPB>,
 
     #[pb(index = 7, one_of)]
     pub insert_sort: Option<CreateGridSortPayloadPB>,
@@ -130,8 +130,8 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
         };
 
         let delete_group = match self.delete_group {
+            Some(payload) => Some(payload.try_into()?),
             None => None,
-            Some(filter_id) => Some(NotEmptyStr::parse(filter_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
         };
 
         let insert_sort = match self.insert_sort {

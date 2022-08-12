@@ -1,9 +1,9 @@
-use crate::entities::{GridTextFilter, TextFilterCondition};
+use crate::entities::{TextFilterCondition, TextFilterConfigurationPB};
 use crate::services::cell::{AnyCellData, CellData, CellFilterOperation};
-use crate::services::field::{RichTextTypeOption, TextCellData};
+use crate::services::field::{RichTextTypeOptionPB, TextCellData};
 use flowy_error::FlowyResult;
 
-impl GridTextFilter {
+impl TextFilterConfigurationPB {
     pub fn is_visible<T: AsRef<str>>(&self, cell_data: T) -> bool {
         let cell_data = cell_data.as_ref();
         let s = cell_data.to_lowercase();
@@ -24,8 +24,8 @@ impl GridTextFilter {
     }
 }
 
-impl CellFilterOperation<GridTextFilter> for RichTextTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridTextFilter) -> FlowyResult<bool> {
+impl CellFilterOperation<TextFilterConfigurationPB> for RichTextTypeOptionPB {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &TextFilterConfigurationPB) -> FlowyResult<bool> {
         if !any_cell_data.is_text() {
             return Ok(true);
         }
@@ -38,11 +38,11 @@ impl CellFilterOperation<GridTextFilter> for RichTextTypeOption {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::entities::{GridTextFilter, TextFilterCondition};
+    use crate::entities::{TextFilterCondition, TextFilterConfigurationPB};
 
     #[test]
     fn text_filter_equal_test() {
-        let text_filter = GridTextFilter {
+        let text_filter = TextFilterConfigurationPB {
             condition: TextFilterCondition::Is,
             content: Some("appflowy".to_owned()),
         };
@@ -54,7 +54,7 @@ mod tests {
     }
     #[test]
     fn text_filter_start_with_test() {
-        let text_filter = GridTextFilter {
+        let text_filter = TextFilterConfigurationPB {
             condition: TextFilterCondition::StartsWith,
             content: Some("appflowy".to_owned()),
         };
@@ -66,7 +66,7 @@ mod tests {
 
     #[test]
     fn text_filter_end_with_test() {
-        let text_filter = GridTextFilter {
+        let text_filter = TextFilterConfigurationPB {
             condition: TextFilterCondition::EndsWith,
             content: Some("appflowy".to_owned()),
         };
@@ -77,7 +77,7 @@ mod tests {
     }
     #[test]
     fn text_filter_empty_test() {
-        let text_filter = GridTextFilter {
+        let text_filter = TextFilterConfigurationPB {
             condition: TextFilterCondition::TextIsEmpty,
             content: Some("appflowy".to_owned()),
         };
@@ -87,7 +87,7 @@ mod tests {
     }
     #[test]
     fn text_filter_contain_test() {
-        let text_filter = GridTextFilter {
+        let text_filter = TextFilterConfigurationPB {
             condition: TextFilterCondition::Contains,
             content: Some("appflowy".to_owned()),
         };

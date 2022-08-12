@@ -1,4 +1,4 @@
-pub use crate::entities::view::ViewDataType;
+pub use crate::entities::view::ViewDataTypePB;
 use crate::entities::ViewInfoPB;
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
@@ -61,7 +61,9 @@ impl ViewController {
         let processor = self.get_data_processor(params.data_type.clone())?;
         let user_id = self.user.user_id()?;
         if params.data.is_empty() {
-            let view_data = processor.create_default_view(&user_id, &params.view_id).await?;
+            let view_data = processor
+                .create_default_view(&user_id, &params.view_id, params.sub_data_type.clone())
+                .await?;
             params.data = view_data.to_vec();
         } else {
             let delta_data = processor
@@ -81,7 +83,7 @@ impl ViewController {
     pub(crate) async fn create_view(
         &self,
         view_id: &str,
-        data_type: ViewDataType,
+        data_type: ViewDataTypePB,
         delta_data: Bytes,
     ) -> Result<(), FlowyError> {
         if delta_data.is_empty() {
@@ -217,6 +219,7 @@ impl ViewController {
             desc: view_rev.desc,
             thumbnail: view_rev.thumbnail,
             data_type: view_rev.data_type.into(),
+            sub_data_type: None,
             data: delta_bytes.to_vec(),
             view_id: gen_view_id(),
             plugin_type: view_rev.plugin_type,
@@ -364,7 +367,7 @@ impl ViewController {
     }
 
     #[inline]
-    fn get_data_processor<T: Into<ViewDataType>>(
+    fn get_data_processor<T: Into<ViewDataTypePB>>(
         &self,
         data_type: T,
     ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
@@ -452,7 +455,7 @@ async fn handle_trash_event(
 
 fn get_data_processor(
     data_processors: ViewDataProcessorMap,
-    data_type: &ViewDataType,
+    data_type: &ViewDataTypePB,
 ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
     match data_processors.get(data_type) {
         None => Err(FlowyError::internal().context(format!(

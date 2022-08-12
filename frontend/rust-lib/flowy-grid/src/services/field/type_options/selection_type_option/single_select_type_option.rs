@@ -82,7 +82,7 @@ impl_into_box_type_option_builder!(SingleSelectTypeOptionBuilder);
 impl_builder_from_json_str_and_from_bytes!(SingleSelectTypeOptionBuilder, SingleSelectTypeOptionPB);
 
 impl SingleSelectTypeOptionBuilder {
-    pub fn option(mut self, opt: SelectOptionPB) -> Self {
+    pub fn add_option(mut self, opt: SelectOptionPB) -> Self {
         self.0.options.push(opt);
         self
     }
@@ -113,9 +113,9 @@ mod tests {
         let facebook_option = SelectOptionPB::new("Facebook");
         let twitter_option = SelectOptionPB::new("Twitter");
         let single_select = SingleSelectTypeOptionBuilder::default()
-            .option(google_option.clone())
-            .option(facebook_option.clone())
-            .option(twitter_option);
+            .add_option(google_option.clone())
+            .add_option(facebook_option.clone())
+            .add_option(twitter_option);
 
         let field_rev = FieldBuilder::new(single_select)
             .name("Platform")
@@ -162,7 +162,7 @@ mod tests {
             type_option
                 .decode_cell_data(cell_data.into(), &field_type, field_rev)
                 .unwrap()
-                .with_parser(SelectOptionCellDataParser())
+                .parser::<SelectOptionCellDataParser>()
                 .unwrap()
                 .select_options,
         );

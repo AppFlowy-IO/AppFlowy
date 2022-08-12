@@ -253,7 +253,7 @@ class PhantomRecord {
   }
 }
 
-class PhantomColumnItem extends ColumnItem {
+class PhantomColumnItem extends AFColumnItem {
   final PassthroughPhantomContext phantomContext;
 
   PhantomColumnItem(PassthroughPhantomContext insertedPhantom)
@@ -290,7 +290,7 @@ class PassthroughPhantomContext extends FakeDragTargetEventTrigger
 
   Widget? get draggingWidget => dragTargetData.draggingWidget;
 
-  ColumnItem get itemData => dragTargetData.reorderFlexItem as ColumnItem;
+  AFColumnItem get itemData => dragTargetData.reorderFlexItem as AFColumnItem;
 
   @override
   VoidCallback? onInserted;

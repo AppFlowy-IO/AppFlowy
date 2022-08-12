@@ -9,16 +9,18 @@ import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'block/block_cache.dart';
+import 'field/field_cache.dart';
 import 'prelude.dart';
+import 'row/row_cache.dart';
 
-typedef OnFieldsChanged = void Function(UnmodifiableListView<GridFieldPB>);
+typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldPB>);
 typedef OnGridChanged = void Function(GridPB);
 
 typedef OnRowsChanged = void Function(
-  List<GridRowInfo> rowInfos,
-  GridRowChangeReason,
+  List<RowInfo> rowInfos,
+  RowChangeReason,
 );
-typedef ListenONRowChangedCondition = bool Function();
+typedef ListenOnRowChangedCondition = bool Function();
 
 class GridDataController {
   final String gridId;
@@ -34,8 +36,8 @@ class GridDataController {
   OnFieldsChanged? _onFieldsChanged;
   OnGridChanged? _onGridChanged;
 
-  List<GridRowInfo> get rowInfos {
-    final List<GridRowInfo> rows = [];
+  List<RowInfo> get rowInfos {
+    final List<RowInfo> rows = [];
     for (var block in _blocks.values) {
       rows.addAll(block.rows);
     }
@@ -89,7 +91,7 @@ class GridDataController {
     }
   }
 
-  void _initialBlocks(List<GridBlockPB> blocks) {
+  void _initialBlocks(List<BlockPB> blocks) {
     for (final block in blocks) {
       if (_blocks[block.id] != null) {
         Log.warn("Initial duplicate block's cache: ${block.id}");

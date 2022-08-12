@@ -1,12 +1,12 @@
-use crate::entities::{GridNumberFilter, NumberFilterCondition};
+use crate::entities::{NumberFilterCondition, NumberFilterConfigurationPB};
 use crate::services::cell::{AnyCellData, CellFilterOperation};
-use crate::services::field::{NumberCellData, NumberTypeOption};
+use crate::services::field::{NumberCellData, NumberTypeOptionPB};
 use flowy_error::FlowyResult;
 use rust_decimal::prelude::Zero;
 use rust_decimal::Decimal;
 use std::str::FromStr;
 
-impl GridNumberFilter {
+impl NumberFilterConfigurationPB {
     pub fn is_visible(&self, num_cell_data: &NumberCellData) -> bool {
         if self.content.is_none() {
             return false;
@@ -31,8 +31,8 @@ impl GridNumberFilter {
     }
 }
 
-impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridNumberFilter) -> FlowyResult<bool> {
+impl CellFilterOperation<NumberFilterConfigurationPB> for NumberTypeOptionPB {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &NumberFilterConfigurationPB) -> FlowyResult<bool> {
         if !any_cell_data.is_number() {
             return Ok(true);
         }
@@ -46,11 +46,11 @@ impl CellFilterOperation<GridNumberFilter> for NumberTypeOption {
 
 #[cfg(test)]
 mod tests {
-    use crate::entities::{GridNumberFilter, NumberFilterCondition};
+    use crate::entities::{NumberFilterCondition, NumberFilterConfigurationPB};
     use crate::services::field::{NumberCellData, NumberFormat};
     #[test]
     fn number_filter_equal_test() {
-        let number_filter = GridNumberFilter {
+        let number_filter = NumberFilterConfigurationPB {
             condition: NumberFilterCondition::Equal,
             content: Some("123".to_owned()),
         };
@@ -68,7 +68,7 @@ mod tests {
     }
     #[test]
     fn number_filter_greater_than_test() {
-        let number_filter = GridNumberFilter {
+        let number_filter = NumberFilterConfigurationPB {
             condition: NumberFilterCondition::GreaterThan,
             content: Some("12".to_owned()),
         };
@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn number_filter_less_than_test() {
-        let number_filter = GridNumberFilter {
+        let number_filter = NumberFilterConfigurationPB {
             condition: NumberFilterCondition::LessThan,
             content: Some("100".to_owned()),
         };

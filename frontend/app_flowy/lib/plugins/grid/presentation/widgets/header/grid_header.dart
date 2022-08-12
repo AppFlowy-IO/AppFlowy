@@ -1,3 +1,5 @@
+import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:flowy_infra/image.dart';
@@ -168,7 +170,7 @@ class CreateFieldButton extends StatelessWidget {
 class SliverHeaderDelegateImplementation
     extends SliverPersistentHeaderDelegate {
   final String gridId;
-  final List<GridFieldPB> fields;
+  final List<FieldPB> fields;
 
   SliverHeaderDelegateImplementation(
       {required this.gridId, required this.fields});
