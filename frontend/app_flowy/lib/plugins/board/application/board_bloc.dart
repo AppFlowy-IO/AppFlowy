@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:dartz/dartz.dart';
@@ -19,6 +20,9 @@ part 'board_bloc.freezed.dart';
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final BoardDataController _dataController;
   late final AFBoardDataController boardDataController;
+
+  GridFieldCache get fieldCache => _dataController.fieldCache;
+  String get gridId => _dataController.gridId;
 
   BoardBloc({required ViewPB view})
       : _dataController = BoardDataController(view: view),
@@ -57,6 +61,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           didReceiveGroups: (List<GroupPB> groups) {
             emit(state.copyWith(groups: groups));
           },
+          didReceiveRows: (List<RowInfo> rowInfos) {
+            emit(state.copyWith(rowInfos: rowInfos));
+          },
         );
       },
     );
@@ -68,7 +75,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     return super.close();
   }
 
-  GridRowCache? getRowCache(String blockId, String rowId) {
+  GridRowCache? getRowCache(String blockId) {
     final GridBlockCache? blockCache = _dataController.blocks[blockId];
     return blockCache?.rowCache;
   }
@@ -92,6 +99,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
         boardDataController.addColumns(columns);
       },
+      onRowsChanged: (List<RowInfo> rowInfos, RowChangeReason reason) {
+        add(BoardEvent.didReceiveRows(rowInfos));
+      },
       onError: (err) {
         Log.error(err);
       },
@@ -100,15 +110,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   List<BoardColumnItem> _buildRows(List<RowPB> rows) {
     return rows.map((row) {
-      final rowInfo = RowInfo(
-        gridId: _dataController.gridId,
-        blockId: row.blockId,
-        id: row.id,
-        fields: _dataController.fieldCache.unmodifiableFields,
-        height: row.height.toDouble(),
-        rawRow: row,
-      );
-      return BoardColumnItem(row: rowInfo);
+      // final rowInfo = RowInfo(
+      //   gridId: _dataController.gridId,
+      //   blockId: row.blockId,
+      //   id: row.id,
+      //   fields: _dataController.fieldCache.unmodifiableFields,
+      //   height: row.height.toDouble(),
+      //   rawRow: row,
+      // );
+      return BoardColumnItem(row: row);
     }).toList();
   }
 
@@ -131,6 +141,8 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.createRow() = _CreateRow;
   const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
       _DidReceiveGroup;
+  const factory BoardEvent.didReceiveRows(List<RowInfo> rowInfos) =
+      _DidReceiveRows;
   const factory BoardEvent.didReceiveGridUpdate(
     GridPB grid,
   ) = _DidReceiveGridUpdate;
@@ -186,7 +198,7 @@ class GridFieldEquatable extends Equatable {
 }
 
 class BoardColumnItem extends AFColumnItem {
-  final RowInfo row;
+  final RowPB row;
 
   BoardColumnItem({required this.row});
 

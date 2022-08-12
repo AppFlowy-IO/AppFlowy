@@ -53,7 +53,7 @@ class MenuUser extends StatelessWidget {
           borderRadius: Corners.s5Border,
           child: CircleAvatar(
             backgroundColor: Colors.transparent,
-            child: svgWidget('emoji/$iconUrl'),
+            child: Container(),
           )),
     );
   }

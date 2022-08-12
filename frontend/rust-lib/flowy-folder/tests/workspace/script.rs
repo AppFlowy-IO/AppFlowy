@@ -150,7 +150,7 @@ impl FolderTest {
             //     assert_eq!(json, expected_json);
             // }
             FolderScript::AssertWorkspace(workspace) => {
-                assert_eq!(self.workspace, workspace);
+                assert_eq!(self.workspace, workspace, "Workspace not equal");
             }
             FolderScript::ReadWorkspace(workspace_id) => {
                 let workspace = read_workspace(sdk, workspace_id).await.pop().unwrap();
@@ -166,7 +166,7 @@ impl FolderTest {
             //     assert_eq!(json, expected_json);
             // }
             FolderScript::AssertApp(app) => {
-                assert_eq!(self.app, app);
+                assert_eq!(self.app, app, "App not equal");
             }
             FolderScript::ReadApp(app_id) => {
                 let app = read_app(sdk, &app_id).await;
@@ -184,7 +184,7 @@ impl FolderTest {
                 self.view = view;
             }
             FolderScript::AssertView(view) => {
-                assert_eq!(self.view, view);
+                assert_eq!(self.view, view, "View not equal");
             }
             FolderScript::ReadView(view_id) => {
                 let view = read_view(sdk, &view_id).await;
@@ -215,7 +215,7 @@ impl FolderTest {
             }
             FolderScript::AssertRevisionState { rev_id, state } => {
                 let record = cache.get(rev_id).await.unwrap();
-                assert_eq!(record.state, state);
+                assert_eq!(record.state, state, "Revision state is not match");
                 if let RevisionState::Ack = state {
                     // There is a defer action that writes the revisions to disk, so we wait here.
                     // Make sure everything is written.
@@ -235,7 +235,7 @@ impl FolderTest {
                     .unwrap_or_else(|| panic!("Expected Next revision is {}, but receive None", rev_id.unwrap()));
                 let mut notify = rev_manager.ack_notify();
                 let _ = notify.recv().await;
-                assert_eq!(next_revision.rev_id, rev_id.unwrap());
+                assert_eq!(next_revision.rev_id, rev_id.unwrap(), "Revision id not match");
             }
         }
     }

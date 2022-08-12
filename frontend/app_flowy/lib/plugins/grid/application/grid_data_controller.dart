@@ -46,7 +46,7 @@ class GridDataController {
 
   GridDataController({required ViewPB view})
       : gridId = view.id,
-        _blocks = LinkedHashMap.identity(),
+        _blocks = LinkedHashMap.new(),
         _gridFFIService = GridService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id);
 

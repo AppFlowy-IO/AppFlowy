@@ -164,7 +164,7 @@ class RowContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
       buildWhen: (previous, current) =>
-          !listEquals(previous.snapshots, current.snapshots),
+          !listEquals(previous.cells, current.cells),
       builder: (context, state) {
         return IntrinsicHeight(
             child: Row(

@@ -5,12 +5,12 @@ import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 
-class RowService {
+class RowFFIService {
   final String gridId;
   final String blockId;
   final String rowId;
 
-  RowService(
+  RowFFIService(
       {required this.gridId, required this.blockId, required this.rowId});
 
   Future<Either<RowPB, FlowyError>> createRow() {
