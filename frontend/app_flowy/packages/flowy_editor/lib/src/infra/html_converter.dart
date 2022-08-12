@@ -17,6 +17,7 @@ const String tagList = "li";
 const String tagParagraph = "p";
 const String tagImage = "img";
 const String tagAnchor = "a";
+const String tagItalic = "i";
 const String tagBold = "b";
 const String tagUnderline = "u";
 const String tagStrong = "strong";
@@ -56,7 +57,8 @@ class HTMLToNodesConverter {
             child.localName == tagSpan ||
             child.localName == tagCode ||
             child.localName == tagStrong ||
-            child.localName == tagUnderline) {
+            child.localName == tagUnderline ||
+            child.localName == tagItalic) {
           _handleRichTextElement(delta, child);
         } else if (child.localName == tagBold) {
           // Google docs wraps the the content inside the `<b></b>` tag.
@@ -207,6 +209,8 @@ class HTMLToNodesConverter {
       delta.insert(element.text, {"bold": true});
     } else if (element.localName == tagUnderline) {
       delta.insert(element.text, {"underline": true});
+    } else if (element.localName == tagItalic) {
+      delta.insert(element.text, {"italic": true});
     } else {
       delta.insert(element.text);
     }
@@ -461,6 +465,11 @@ class NodesToHTMLConverter {
           } else if (attributes.length == 1 &&
               attributes[StyleKey.underline] == true) {
             final strong = html.Element.tag(tagUnderline);
+            strong.append(html.Text(op.content));
+            childNodes.add(strong);
+          } else if (attributes.length == 1 &&
+              attributes[StyleKey.italic] == true) {
+            final strong = html.Element.tag(tagItalic);
             strong.append(html.Text(op.content));
             childNodes.add(strong);
           } else {
