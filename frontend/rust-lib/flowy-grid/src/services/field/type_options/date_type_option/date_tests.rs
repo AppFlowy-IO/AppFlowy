@@ -3,7 +3,7 @@ mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
     use crate::services::field::*;
-    // use crate::services::field::{DateCellChangeset, DateCellData, DateFormat, DateTypeOption, TimeFormat};
+    // use crate::services::field::{DateCellChangeset, DateCellData, DateFormat, DateTypeOptionPB, TimeFormat};
     use flowy_grid_data_model::revision::FieldRevision;
     use strum::IntoEnumIterator;
 
@@ -137,7 +137,7 @@ mod tests {
         let decoded_data = type_option
             .decode_cell_data(encoded_data.into(), &FieldType::DateTime, field_rev)
             .unwrap()
-            .with_parser(DateCellDataParser())
+            .parser::<DateCellDataParser>()
             .unwrap();
 
         if type_option.include_time {

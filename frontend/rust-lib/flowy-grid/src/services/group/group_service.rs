@@ -1,15 +1,16 @@
+use crate::services::block_manager::GridBlockManager;
+use crate::services::grid_editor_task::GridServiceTaskScheduler;
+use crate::services::group::{
+    CheckboxGroupController, Group, GroupCellContentProvider, MultiSelectGroupController, SingleSelectGroupController,
+};
+
 use crate::entities::{
     CheckboxGroupConfigurationPB, DateGroupConfigurationPB, FieldType, GroupPB, NumberGroupConfigurationPB,
     SelectOptionGroupConfigurationPB, TextGroupConfigurationPB, UrlGroupConfigurationPB,
 };
-use crate::services::block_manager::GridBlockManager;
-use crate::services::cell::{decode_any_cell_data, CellBytes};
-use crate::services::field::TextCellDataParser;
-use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::group::{GroupAction, GroupCellContentProvider, SingleSelectGroupController};
 use bytes::Bytes;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, GroupConfigurationRevision, RowRevision};
+use flowy_grid_data_model::revision::{gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -39,53 +40,102 @@ impl GridGroupService {
 
     pub(crate) async fn load_groups(&self) -> Option<Vec<GroupPB>> {
         let grid_pad = self.grid_pad.read().await;
-        let field_rev = find_group_field(grid_pad.fields())?;
-        let field_type: FieldType = field_rev.field_type_rev.clone().into();
-        let setting = grid_pad.get_setting_rev();
-        let mut configurations = setting.get_groups(&setting.layout, &field_rev.id, &field_rev.field_type_rev)?;
-
-        if configurations.is_empty() {
-            return None;
-        }
-        assert_eq!(configurations.len(), 1);
-        let configuration = (&*configurations.pop().unwrap()).clone();
+        let field_rev = find_group_field(grid_pad.fields()).unwrap();
+        let field_type: FieldType = field_rev.field_type_rev.into();
+        let configuration = self.get_group_configuration(field_rev).await;
 
         let blocks = self.block_manager.get_block_snapshots(None).await.unwrap();
-
         let row_revs = blocks
             .into_iter()
             .map(|block| block.row_revs)
             .flatten()
             .collect::<Vec<Arc<RowRevision>>>();
 
-        // let a = SingleSelectGroupController::new;
-        // let b = a(field_rev.clone(), configuration, &self.grid_pad);
+        match self.build_groups(&field_type, field_rev, row_revs, configuration) {
+            Ok(groups) => Some(groups),
+            Err(_) => None,
+        }
+    }
 
-        let groups = match field_type {
+    async fn get_group_configuration(&self, field_rev: &FieldRevision) -> GroupConfigurationRevision {
+        let grid_pad = self.grid_pad.read().await;
+        let setting = grid_pad.get_setting_rev();
+        let layout = &setting.layout;
+        let configurations = setting.get_groups(layout, &field_rev.id, &field_rev.field_type_rev);
+        match configurations {
+            None => self.default_group_configuration(field_rev),
+            Some(mut configurations) => {
+                assert_eq!(configurations.len(), 1);
+                (&*configurations.pop().unwrap()).clone()
+            }
+        }
+    }
+
+    fn default_group_configuration(&self, field_rev: &FieldRevision) -> GroupConfigurationRevision {
+        let field_type: FieldType = field_rev.field_type_rev.clone().into();
+        let bytes: Bytes = match field_type {
+            FieldType::RichText => TextGroupConfigurationPB::default().try_into().unwrap(),
+            FieldType::Number => NumberGroupConfigurationPB::default().try_into().unwrap(),
+            FieldType::DateTime => DateGroupConfigurationPB::default().try_into().unwrap(),
+            FieldType::SingleSelect => SelectOptionGroupConfigurationPB::default().try_into().unwrap(),
+            FieldType::MultiSelect => SelectOptionGroupConfigurationPB::default().try_into().unwrap(),
+            FieldType::Checkbox => CheckboxGroupConfigurationPB::default().try_into().unwrap(),
+            FieldType::URL => UrlGroupConfigurationPB::default().try_into().unwrap(),
+        };
+        GroupConfigurationRevision {
+            id: gen_grid_group_id(),
+            field_id: field_rev.id.clone(),
+            field_type_rev: field_rev.field_type_rev.clone(),
+            content: Some(bytes.to_vec()),
+        }
+    }
+
+    #[tracing::instrument(level = "trace", skip_all, err)]
+    fn build_groups(
+        &self,
+        field_type: &FieldType,
+        field_rev: &Arc<FieldRevision>,
+        row_revs: Vec<Arc<RowRevision>>,
+        configuration: GroupConfigurationRevision,
+    ) -> FlowyResult<Vec<GroupPB>> {
+        let groups: Vec<Group> = match field_type {
             FieldType::RichText => {
                 // let generator = GroupGenerator::<TextGroupConfigurationPB>::from_configuration(configuration);
+                vec![]
             }
             FieldType::Number => {
                 // let generator = GroupGenerator::<NumberGroupConfigurationPB>::from_configuration(configuration);
+                vec![]
             }
             FieldType::DateTime => {
                 // let generator = GroupGenerator::<DateGroupConfigurationPB>::from_configuration(configuration);
+                vec![]
             }
             FieldType::SingleSelect => {
-                let group_controller =
-                    SingleSelectGroupController::new(field_rev.clone(), configuration, &self.grid_pad);
+                let mut group_controller =
+                    SingleSelectGroupController::new(field_rev.clone(), configuration, &self.grid_pad)?;
+                let _ = group_controller.group_rows(&row_revs)?;
+                group_controller.take_groups()
             }
             FieldType::MultiSelect => {
-                // let group_generator = MultiSelectGroupControllern(configuration);
+                let mut group_controller =
+                    MultiSelectGroupController::new(field_rev.clone(), configuration, &self.grid_pad)?;
+                let _ = group_controller.group_rows(&row_revs)?;
+                group_controller.take_groups()
             }
             FieldType::Checkbox => {
-                // let generator = GroupGenerator::<CheckboxGroupConfigurationPB>::from_configuration(configuration);
+                let mut group_controller =
+                    CheckboxGroupController::new(field_rev.clone(), configuration, &self.grid_pad)?;
+                let _ = group_controller.group_rows(&row_revs)?;
+                group_controller.take_groups()
             }
             FieldType::URL => {
                 // let generator = GroupGenerator::<UrlGroupConfigurationPB>::from_configuration(configuration);
+                vec![]
             }
         };
-        None
+
+        Ok(groups.into_iter().map(GroupPB::from).collect())
     }
 }
 

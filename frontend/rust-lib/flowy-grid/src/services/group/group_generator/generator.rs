@@ -1,52 +1,70 @@
-use crate::services::cell::{decode_any_cell_data, CellBytes, CellBytesParser};
+use crate::entities::{GroupPB, RowPB};
+use crate::services::cell::{decode_any_cell_data, CellBytesParser};
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
-    CellRevision, FieldRevision, GroupConfigurationRevision, RowRevision, TypeOptionDataDeserializer,
+    FieldRevision, GroupConfigurationRevision, RowRevision, TypeOptionDataDeserializer,
 };
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-pub trait GroupAction<CD> {
-    fn should_group(&self, content: &str, cell_data: CD) -> bool;
+pub trait GroupAction {
+    type CellDataType;
+
+    fn should_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool;
 }
 
 pub trait GroupCellContentProvider {
     /// We need to group the rows base on the deduplication cell content when the field type is
     /// RichText.
-    fn deduplication_cell_content(&self, field_id: &str) -> Vec<String> {
+    fn deduplication_cell_content(&self, _field_id: &str) -> Vec<String> {
         vec![]
     }
 }
 
-pub trait GroupGenerator<C, T> {
+pub trait GroupGenerator {
+    type ConfigurationType;
+    type TypeOptionType;
+
     fn gen_groups(
-        configuration: &Option<C>,
-        type_option: &Option<T>,
+        configuration: &Option<Self::ConfigurationType>,
+        type_option: &Option<Self::TypeOptionType>,
         cell_content_provider: &dyn GroupCellContentProvider,
-    ) -> HashMap<String, Group>;
+    ) -> Vec<Group>;
 }
 
 pub struct GroupController<C, T, G, CP> {
-    field_rev: Arc<FieldRevision>,
-    groups: HashMap<String, Group>,
-    type_option: Option<T>,
-    configuration: Option<C>,
+    pub field_rev: Arc<FieldRevision>,
+    pub groups: IndexMap<String, Group>,
+    pub type_option: Option<T>,
+    pub configuration: Option<C>,
     group_action_phantom: PhantomData<G>,
     cell_parser_phantom: PhantomData<CP>,
 }
 
 pub struct Group {
-    row_ids: Vec<String>,
-    content: String,
+    pub id: String,
+    pub desc: String,
+    pub rows: Vec<RowPB>,
+    pub content: String,
+}
+
+impl std::convert::From<Group> for GroupPB {
+    fn from(group: Group) -> Self {
+        Self {
+            group_id: group.id,
+            desc: group.desc,
+            rows: group.rows,
+        }
+    }
 }
 
 impl<C, T, G, CP> GroupController<C, T, G, CP>
 where
     C: TryFrom<Bytes, Error = protobuf::ProtobufError>,
     T: TypeOptionDataDeserializer,
-    G: GroupGenerator<C, T>,
+    G: GroupGenerator<ConfigurationType = C, TypeOptionType = T>,
 {
     pub fn new(
         field_rev: Arc<FieldRevision>,
@@ -57,46 +75,63 @@ where
             None => None,
             Some(content) => Some(C::try_from(Bytes::from(content))?),
         };
-        let field_type_rev = field_rev.field_type_rev.clone();
+        let field_type_rev = field_rev.field_type_rev;
         let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
+        let groups = G::gen_groups(&configuration, &type_option, cell_content_provider);
         Ok(Self {
             field_rev,
-            groups: G::gen_groups(&configuration, &type_option, cell_content_provider),
+            groups: groups.into_iter().map(|group| (group.id.clone(), group)).collect(),
             type_option,
             configuration,
             group_action_phantom: PhantomData,
             cell_parser_phantom: PhantomData,
         })
     }
+
+    pub fn take_groups(self) -> Vec<Group> {
+        self.groups.into_values().collect()
+    }
 }
 
 impl<C, T, G, CP> GroupController<C, T, G, CP>
 where
     CP: CellBytesParser,
-    Self: GroupAction<CP::Object>,
+    Self: GroupAction<CellDataType = CP::Object>,
 {
-    pub fn group_row(&mut self, row: &RowRevision) {
+    pub fn group_rows(&mut self, rows: &[Arc<RowRevision>]) -> FlowyResult<()> {
         if self.configuration.is_none() {
-            return;
+            return Ok(());
         }
-        if let Some(cell_rev) = row.cells.get(&self.field_rev.id) {
-            let mut group_row_id = None;
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), &self.field_rev);
-            // let cell_data = cell_bytes.with_parser(CP);
-            for group in self.groups.values() {
-                let cell_rev: CellRevision = cell_rev.clone();
 
-                // if self.should_group(&group.content, cell_bytes) {
-                //     group_row_id = Some(row.id.clone());
-                //     break;
-                // }
-            }
+        for row in rows {
+            if let Some(cell_rev) = row.cells.get(&self.field_rev.id) {
+                let mut records: Vec<GroupRecord> = vec![];
 
-            if let Some(group_row_id) = group_row_id {
-                self.groups.get_mut(&group_row_id).map(|group| {
-                    group.row_ids.push(group_row_id);
-                });
+                let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), &self.field_rev);
+                let cell_data = cell_bytes.parser::<CP>()?;
+                for group in self.groups.values() {
+                    if self.should_group(&group.content, &cell_data) {
+                        records.push(GroupRecord {
+                            row: row.into(),
+                            group_id: group.id.clone(),
+                        });
+                        break;
+                    }
+                }
+
+                for record in records {
+                    if let Some(group) = self.groups.get_mut(&record.group_id) {
+                        group.rows.push(record.row);
+                    }
+                }
             }
         }
+
+        Ok(())
     }
+}
+
+struct GroupRecord {
+    row: RowPB,
+    group_id: String,
 }

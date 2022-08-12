@@ -206,7 +206,7 @@ impl std::ops::DerefMut for SelectOptionIds {
 pub struct SelectOptionIdsParser();
 impl CellBytesParser for SelectOptionIdsParser {
     type Object = SelectOptionIds;
-    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+    fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {
             Ok(s) => Ok(SelectOptionIds::from(s)),
             Err(_) => Ok(SelectOptionIds::from("".to_owned())),
@@ -218,7 +218,7 @@ pub struct SelectOptionCellDataParser();
 impl CellBytesParser for SelectOptionCellDataParser {
     type Object = SelectOptionCellDataPB;
 
-    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+    fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         SelectOptionCellDataPB::try_from(bytes.as_ref()).map_err(internal_error)
     }
 }

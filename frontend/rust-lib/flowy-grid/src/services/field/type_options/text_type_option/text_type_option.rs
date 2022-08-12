@@ -96,7 +96,7 @@ impl FromCellString for TextCellData {
 pub struct TextCellDataParser();
 impl CellBytesParser for TextCellDataParser {
     type Object = TextCellData;
-    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+    fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {
             Ok(s) => Ok(TextCellData(s)),
             Err(_) => Ok(TextCellData("".to_owned())),
@@ -124,7 +124,7 @@ mod tests {
             type_option
                 .decode_cell_data(1647251762.to_string().into(), &field_type, &date_time_field_rev)
                 .unwrap()
-                .with_parser(DateCellDataParser())
+                .parser::<DateCellDataParser>()
                 .unwrap()
                 .date,
             "Mar 14,2022".to_owned()
@@ -144,7 +144,7 @@ mod tests {
                     &single_select_field_rev
                 )
                 .unwrap()
-                .with_parser(SelectOptionCellDataParser())
+                .parser::<SelectOptionCellDataParser>()
                 .unwrap()
                 .select_options,
             vec![done_option],
@@ -167,7 +167,7 @@ mod tests {
             type_option
                 .decode_cell_data(cell_data.into(), &FieldType::MultiSelect, &multi_select_field_rev)
                 .unwrap()
-                .with_parser(SelectOptionCellDataParser())
+                .parser::<SelectOptionCellDataParser>()
                 .unwrap()
                 .select_options,
             vec![google_option, facebook_option]

@@ -184,7 +184,7 @@ mod tests {
         type_option
             .decode_cell_data(encoded_data.into(), field_type, field_rev)
             .unwrap()
-            .with_parser(URLCellDataParser())
+            .parser::<URLCellDataParser>()
             .unwrap()
     }
 }

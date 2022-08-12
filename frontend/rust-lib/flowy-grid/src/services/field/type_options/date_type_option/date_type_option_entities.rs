@@ -204,7 +204,7 @@ pub struct DateCellDataParser();
 impl CellBytesParser for DateCellDataParser {
     type Object = DateCellDataPB;
 
-    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+    fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         DateCellDataPB::try_from(bytes.as_ref()).map_err(internal_error)
     }
 }

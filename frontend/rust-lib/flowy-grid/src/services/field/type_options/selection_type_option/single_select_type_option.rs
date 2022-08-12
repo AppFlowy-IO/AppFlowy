@@ -162,7 +162,7 @@ mod tests {
             type_option
                 .decode_cell_data(cell_data.into(), &field_type, field_rev)
                 .unwrap()
-                .with_parser(SelectOptionCellDataParser())
+                .parser::<SelectOptionCellDataParser>()
                 .unwrap()
                 .select_options,
         );

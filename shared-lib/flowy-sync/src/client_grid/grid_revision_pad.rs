@@ -572,7 +572,7 @@ fn make_group_revision(params: &CreateGridGroupParams) -> GroupConfigurationRevi
     GroupConfigurationRevision {
         id: gen_grid_group_id(),
         field_id: params.field_id.clone(),
-        field_type_rev: params.field_type_rev.clone(),
+        field_type_rev: params.field_type_rev,
         content: params.content.clone(),
     }
 }

@@ -115,6 +115,11 @@ pub struct CellBytes(pub Bytes);
 
 pub trait CellBytesParser {
     type Object;
+    fn parser(bytes: &Bytes) -> FlowyResult<Self::Object>;
+}
+
+pub trait CellBytesCustomParser {
+    type Object;
     fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object>;
 }
 
@@ -132,11 +137,18 @@ impl CellBytes {
         Ok(Self(bytes))
     }
 
-    pub fn with_parser<P>(&self) -> FlowyResult<P::Object>
+    pub fn parser<P>(&self) -> FlowyResult<P::Object>
     where
         P: CellBytesParser,
     {
-        P::parse(&self.0)
+        P::parser(&self.0)
+    }
+
+    pub fn custom_parser<P>(&self, parser: P) -> FlowyResult<P::Object>
+    where
+        P: CellBytesCustomParser,
+    {
+        parser.parse(&self.0)
     }
 
     // pub fn parse<'a, T: TryFrom<&'a [u8]>>(&'a self) -> FlowyResult<T>

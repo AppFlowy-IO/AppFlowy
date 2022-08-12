@@ -162,7 +162,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(TextCellDataParser())
+                    .parser::<TextCellDataParser>()
                     .unwrap();
 
                 assert_eq!(cell_data.as_ref(), &expected);
@@ -177,7 +177,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(NumberCellDataParser(number_type_option.format))
+                    .custom_parser(NumberCellCustomDataParser(number_type_option.format))
                     .unwrap();
                 assert_eq!(cell_data.to_string(), expected);
             }
@@ -187,7 +187,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(DateCellDataParser())
+                    .parser::<DateCellDataParser>()
                     .unwrap();
 
                 assert_eq!(cell_data.date, expected);
@@ -198,7 +198,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(SelectOptionCellDataParser())
+                    .parser::<SelectOptionCellDataParser>()
                     .unwrap();
                 let select_option = cell_data.select_options.first().unwrap();
                 assert_eq!(select_option.name, expected);
@@ -209,7 +209,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(SelectOptionCellDataParser())
+                    .parser::<SelectOptionCellDataParser>()
                     .unwrap();
 
                 let s = cell_data
@@ -228,7 +228,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(CheckboxCellDataParser())
+                    .parser::<CheckboxCellDataParser>()
                     .unwrap();
                 assert_eq!(cell_data.to_string(), expected);
             }
@@ -238,7 +238,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(URLCellDataParser())
+                    .parser::<URLCellDataParser>()
                     .unwrap();
 
                 assert_eq!(cell_data.content, expected);

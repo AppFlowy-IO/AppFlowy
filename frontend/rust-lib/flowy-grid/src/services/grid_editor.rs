@@ -564,8 +564,9 @@ impl GridRevisionEditor {
         })
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn load_groups(&self) -> FlowyResult<RepeatedGridGroupPB> {
-        let groups = self.group_service.load_groups().await.unwrap_or(vec![]);
+        let groups = self.group_service.load_groups().await.unwrap_or_default();
         Ok(RepeatedGridGroupPB { items: groups })
     }
 
