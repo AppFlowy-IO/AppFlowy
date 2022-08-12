@@ -24,7 +24,7 @@ typedef OnColumnInserted = void Function(String listId, int insertedIndex);
 
 typedef AFBoardColumnCardBuilder = Widget Function(
   BuildContext context,
-  ColumnItem item,
+  AFColumnItem item,
 );
 
 typedef AFBoardColumnHeaderBuilder = Widget Function(
@@ -46,7 +46,7 @@ abstract class AFBoardColumnDataDataSource extends ReoderFlextDataSource {
   String get identifier => columnData.id;
 
   @override
-  UnmodifiableListView<ColumnItem> get items => columnData.items;
+  UnmodifiableListView<AFColumnItem> get items => columnData.items;
 
   void debugPrint() {
     String msg = '[$AFBoardColumnDataDataSource] $columnData data: ';
@@ -194,7 +194,7 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
     );
   }
 
-  Widget _buildWidget(BuildContext context, ColumnItem item) {
+  Widget _buildWidget(BuildContext context, AFColumnItem item) {
     if (item is PhantomColumnItem) {
       return PassthroughPhantomWidget(
         key: UniqueKey(),

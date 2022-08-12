@@ -7,11 +7,11 @@ import 'cell_service/cell_service.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
-  final GridDateCellController cellContext;
+  final GridDateCellController cellController;
   void Function()? _onCellChangedFn;
 
-  DateCellBloc({required this.cellContext})
-      : super(DateCellState.initial(cellContext)) {
+  DateCellBloc({required this.cellController})
+      : super(DateCellState.initial(cellController)) {
     on<DateCellEvent>(
       (event, emit) async {
         event.when(
@@ -30,15 +30,15 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellContext.removeListener(_onCellChangedFn!);
+      cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    cellContext.dispose();
+    cellController.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(
+    _onCellChangedFn = cellController.startListening(
       onCellChanged: ((data) {
         if (!isClosed) {
           add(DateCellEvent.didReceiveCellUpdate(data));

@@ -32,7 +32,7 @@ class DateTypeOptionBloc
     );
   }
 
-  DateTypeOption _updateTypeOption({
+  DateTypeOptionPB _updateTypeOption({
     DateFormat? dateFormat,
     TimeFormat? timeFormat,
     bool? includeTime,
@@ -72,9 +72,9 @@ class DateTypeOptionEvent with _$DateTypeOptionEvent {
 @freezed
 class DateTypeOptionState with _$DateTypeOptionState {
   const factory DateTypeOptionState({
-    required DateTypeOption typeOption,
+    required DateTypeOptionPB typeOption,
   }) = _DateTypeOptionState;
 
-  factory DateTypeOptionState.initial(DateTypeOption typeOption) =>
+  factory DateTypeOptionState.initial(DateTypeOptionPB typeOption) =>
       DateTypeOptionState(typeOption: typeOption);
 }

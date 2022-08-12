@@ -4,26 +4,24 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 
-part 'select_option_cell_bloc.freezed.dart';
+part 'board_select_option_cell_bloc.freezed.dart';
 
-class SelectOptionCellBloc
-    extends Bloc<SelectOptionCellEvent, SelectOptionCellState> {
+class BoardSelectOptionCellBloc
+    extends Bloc<BoardSelectOptionCellEvent, BoardSelectOptionCellState> {
   final GridSelectOptionCellController cellController;
   void Function()? _onCellChangedFn;
 
-  SelectOptionCellBloc({
+  BoardSelectOptionCellBloc({
     required this.cellController,
-  }) : super(SelectOptionCellState.initial(cellController)) {
-    on<SelectOptionCellEvent>(
+  }) : super(BoardSelectOptionCellState.initial(cellController)) {
+    on<BoardSelectOptionCellEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialCell value) async {
+        await event.when(
+          initial: () async {
             _startListening();
           },
-          didReceiveOptions: (_DidReceiveOptions value) {
-            emit(state.copyWith(
-              selectedOptions: value.selectedOptions,
-            ));
+          didReceiveOptions: (List<SelectOptionPB> selectedOptions) {
+            emit(state.copyWith(selectedOptions: selectedOptions));
           },
         );
       },
@@ -44,7 +42,7 @@ class SelectOptionCellBloc
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((selectOptionContext) {
         if (!isClosed) {
-          add(SelectOptionCellEvent.didReceiveOptions(
+          add(BoardSelectOptionCellEvent.didReceiveOptions(
             selectOptionContext?.selectOptions ?? [],
           ));
         }
@@ -54,24 +52,24 @@ class SelectOptionCellBloc
 }
 
 @freezed
-class SelectOptionCellEvent with _$SelectOptionCellEvent {
-  const factory SelectOptionCellEvent.initial() = _InitialCell;
-  const factory SelectOptionCellEvent.didReceiveOptions(
+class BoardSelectOptionCellEvent with _$BoardSelectOptionCellEvent {
+  const factory BoardSelectOptionCellEvent.initial() = _InitialCell;
+  const factory BoardSelectOptionCellEvent.didReceiveOptions(
     List<SelectOptionPB> selectedOptions,
   ) = _DidReceiveOptions;
 }
 
 @freezed
-class SelectOptionCellState with _$SelectOptionCellState {
-  const factory SelectOptionCellState({
+class BoardSelectOptionCellState with _$BoardSelectOptionCellState {
+  const factory BoardSelectOptionCellState({
     required List<SelectOptionPB> selectedOptions,
-  }) = _SelectOptionCellState;
+  }) = _BoardSelectOptionCellState;
 
-  factory SelectOptionCellState.initial(
+  factory BoardSelectOptionCellState.initial(
       GridSelectOptionCellController context) {
     final data = context.getCellData();
 
-    return SelectOptionCellState(
+    return BoardSelectOptionCellState(
       selectedOptions: data?.selectOptions ?? [],
     );
   }

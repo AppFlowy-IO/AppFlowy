@@ -8,6 +8,6 @@ class BoardCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text('1234');
+    return const SizedBox(height: 20, child: Text('1234'));
   }
 }

@@ -84,7 +84,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
         DateCellEditor(onDismissed: () => widget.onCellEditing.value = false);
     calendar.show(
       context,
-      cellController: bloc.cellContext.clone(),
+      cellController: bloc.cellController.clone(),
     );
   }
 

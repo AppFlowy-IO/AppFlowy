@@ -64,7 +64,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
   switch (dataController.field.fieldType) {
     case FieldType.Checkbox:
       return CheckboxTypeOptionWidgetBuilder(
-        makeTypeOptionContextWithDataController<CheckboxTypeOption>(
+        makeTypeOptionContextWithDataController<CheckboxTypeOptionPB>(
           gridId: gridId,
           fieldType: fieldType,
           dataController: dataController,
@@ -72,7 +72,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
       );
     case FieldType.DateTime:
       return DateTypeOptionWidgetBuilder(
-        makeTypeOptionContextWithDataController<DateTypeOption>(
+        makeTypeOptionContextWithDataController<DateTypeOptionPB>(
           gridId: gridId,
           fieldType: fieldType,
           dataController: dataController,
@@ -99,7 +99,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
       );
     case FieldType.Number:
       return NumberTypeOptionWidgetBuilder(
-        makeTypeOptionContextWithDataController<NumberTypeOption>(
+        makeTypeOptionContextWithDataController<NumberTypeOptionPB>(
           gridId: gridId,
           fieldType: fieldType,
           dataController: dataController,
@@ -108,7 +108,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
       );
     case FieldType.RichText:
       return RichTextTypeOptionWidgetBuilder(
-        makeTypeOptionContextWithDataController<RichTextTypeOption>(
+        makeTypeOptionContextWithDataController<RichTextTypeOptionPB>(
           gridId: gridId,
           fieldType: fieldType,
           dataController: dataController,
@@ -117,7 +117,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
 
     case FieldType.URL:
       return URLTypeOptionWidgetBuilder(
-        makeTypeOptionContextWithDataController<URLTypeOption>(
+        makeTypeOptionContextWithDataController<URLTypeOptionPB>(
           gridId: gridId,
           fieldType: fieldType,
           dataController: dataController,

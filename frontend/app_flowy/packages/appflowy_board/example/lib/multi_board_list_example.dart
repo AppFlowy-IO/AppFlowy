@@ -87,7 +87,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     );
   }
 
-  Widget _buildCard(ColumnItem item) {
+  Widget _buildCard(AFColumnItem item) {
     if (item is TextItem) {
       return Align(
         alignment: Alignment.centerLeft,
@@ -126,7 +126,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
   }
 }
 
-class TextItem extends ColumnItem {
+class TextItem extends AFColumnItem {
   final String s;
 
   TextItem(this.s);
@@ -135,7 +135,7 @@ class TextItem extends ColumnItem {
   String get id => s;
 }
 
-class RichTextItem extends ColumnItem {
+class RichTextItem extends AFColumnItem {
   final String title;
   final String subtitle;
 

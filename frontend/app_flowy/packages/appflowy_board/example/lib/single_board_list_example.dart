@@ -50,7 +50,7 @@ class _RowWidget extends StatelessWidget {
   }
 }
 
-class TextItem extends ColumnItem {
+class TextItem extends AFColumnItem {
   final String s;
 
   TextItem(this.s);

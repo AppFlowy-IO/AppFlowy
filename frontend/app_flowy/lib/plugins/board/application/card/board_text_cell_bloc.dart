@@ -1,25 +1,21 @@
+import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'cell_service/cell_service.dart';
 
-part 'text_cell_bloc.freezed.dart';
+part 'board_text_cell_bloc.freezed.dart';
 
-class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
+class BoardTextCellBloc extends Bloc<BoardTextCellEvent, BoardTextCellState> {
   final GridCellController cellController;
   void Function()? _onCellChangedFn;
-  TextCellBloc({
+  BoardTextCellBloc({
     required this.cellController,
-  }) : super(TextCellState.initial(cellController)) {
-    on<TextCellEvent>(
+  }) : super(BoardTextCellState.initial(cellController)) {
+    on<BoardTextCellEvent>(
       (event, emit) async {
         await event.when(
           initial: () async {
             _startListening();
-          },
-          updateText: (text) {
-            cellController.saveCellData(text);
-            emit(state.copyWith(content: text));
           },
           didReceiveCellUpdate: (content) {
             emit(state.copyWith(content: content));
@@ -43,7 +39,7 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
     _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cellContent) {
         if (!isClosed) {
-          add(TextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
+          add(BoardTextCellEvent.didReceiveCellUpdate(cellContent ?? ""));
         }
       }),
     );
@@ -51,20 +47,20 @@ class TextCellBloc extends Bloc<TextCellEvent, TextCellState> {
 }
 
 @freezed
-class TextCellEvent with _$TextCellEvent {
-  const factory TextCellEvent.initial() = _InitialCell;
-  const factory TextCellEvent.didReceiveCellUpdate(String cellContent) =
+class BoardTextCellEvent with _$BoardTextCellEvent {
+  const factory BoardTextCellEvent.initial() = _InitialCell;
+  const factory BoardTextCellEvent.didReceiveCellUpdate(String cellContent) =
       _DidReceiveCellUpdate;
-  const factory TextCellEvent.updateText(String text) = _UpdateText;
 }
 
 @freezed
-class TextCellState with _$TextCellState {
-  const factory TextCellState({
+class BoardTextCellState with _$BoardTextCellState {
+  const factory BoardTextCellState({
     required String content,
-  }) = _TextCellState;
+  }) = _BoardTextCellState;
 
-  factory TextCellState.initial(GridCellController context) => TextCellState(
+  factory BoardTextCellState.initial(GridCellController context) =>
+      BoardTextCellState(
         content: context.getCellData() ?? "",
       );
 }

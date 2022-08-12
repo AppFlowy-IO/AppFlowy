@@ -1,13 +1,12 @@
 // ignore_for_file: unused_field
 
-import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../application/board_bloc.dart';
-import 'card.dart';
+import 'card/card.dart';
 
 class BoardPage extends StatelessWidget {
   final ViewPB view;
@@ -87,8 +86,8 @@ class BoardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildCard(BuildContext context, ColumnItem item) {
-    final rowInfo = item as RowInfo;
+  Widget _buildCard(BuildContext context, AFColumnItem item) {
+    final rowInfo = (item as BoardColumnItem).row;
     return AppFlowyColumnItemCard(
       key: ObjectKey(item),
       child: BoardCard(rowInfo: rowInfo),

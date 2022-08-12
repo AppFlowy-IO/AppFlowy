@@ -23,7 +23,7 @@ class NumberTypeOptionBloc
     );
   }
 
-  NumberTypeOption _updateNumberFormat(NumberFormat format) {
+  NumberTypeOptionPB _updateNumberFormat(NumberFormat format) {
     state.typeOption.freeze();
     return state.typeOption.rebuild((typeOption) {
       typeOption.format = format;
@@ -45,10 +45,10 @@ class NumberTypeOptionEvent with _$NumberTypeOptionEvent {
 @freezed
 class NumberTypeOptionState with _$NumberTypeOptionState {
   const factory NumberTypeOptionState({
-    required NumberTypeOption typeOption,
+    required NumberTypeOptionPB typeOption,
   }) = _NumberTypeOptionState;
 
-  factory NumberTypeOptionState.initial(NumberTypeOption typeOption) =>
+  factory NumberTypeOptionState.initial(NumberTypeOptionPB typeOption) =>
       NumberTypeOptionState(
         typeOption: typeOption,
       );

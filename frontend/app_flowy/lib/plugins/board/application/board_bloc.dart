@@ -41,8 +41,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       ) {},
     );
 
-    // boardDataController.addColumns(_buildColumns());
-
     on<BoardEvent>(
       (event, emit) async {
         await event.when(
@@ -87,6 +85,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           return AFBoardColumnData(
             id: group.groupId,
             desc: group.desc,
+            items: _buildRows(group.rows),
             customData: group,
           );
         }).toList();
@@ -97,6 +96,20 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         Log.error(err);
       },
     );
+  }
+
+  List<BoardColumnItem> _buildRows(List<RowPB> rows) {
+    return rows.map((row) {
+      final rowInfo = RowInfo(
+        gridId: _dataController.gridId,
+        blockId: row.blockId,
+        id: row.id,
+        fields: _dataController.fieldCache.unmodifiableFields,
+        height: row.height.toDouble(),
+        rawRow: row,
+      );
+      return BoardColumnItem(row: rowInfo);
+    }).toList();
   }
 
   Future<void> _loadGrid(Emitter<BoardState> emit) async {
@@ -172,21 +185,11 @@ class GridFieldEquatable extends Equatable {
   UnmodifiableListView<FieldPB> get value => UnmodifiableListView(_fields);
 }
 
-class TextItem extends ColumnItem {
-  final String s;
+class BoardColumnItem extends AFColumnItem {
+  final RowInfo row;
 
-  TextItem(this.s);
-
-  @override
-  String get id => s;
-}
-
-class RichTextItem extends ColumnItem {
-  final String title;
-  final String subtitle;
-
-  RichTextItem({required this.title, required this.subtitle});
+  BoardColumnItem({required this.row});
 
   @override
-  String get id => title;
+  String get id => row.id;
 }

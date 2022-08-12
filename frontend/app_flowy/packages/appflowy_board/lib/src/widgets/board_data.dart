@@ -110,11 +110,11 @@ class AFBoardDataController extends ChangeNotifier
     }
   }
 
-  void addColumnItem(String columnId, ColumnItem item) {
+  void addColumnItem(String columnId, AFColumnItem item) {
     getColumnController(columnId)?.add(item);
   }
 
-  void insertColumnItem(String columnId, int index, ColumnItem item) {
+  void insertColumnItem(String columnId, int index, AFColumnItem item) {
     getColumnController(columnId)?.insert(index, item);
   }
 

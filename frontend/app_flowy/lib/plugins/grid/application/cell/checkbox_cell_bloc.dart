@@ -6,13 +6,13 @@ import 'cell_service/cell_service.dart';
 part 'checkbox_cell_bloc.freezed.dart';
 
 class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
-  final GridCellController cellContext;
+  final GridCellController cellController;
   void Function()? _onCellChangedFn;
 
   CheckboxCellBloc({
     required CellService service,
-    required this.cellContext,
-  }) : super(CheckboxCellState.initial(cellContext)) {
+    required this.cellController,
+  }) : super(CheckboxCellState.initial(cellController)) {
     on<CheckboxCellEvent>(
       (event, emit) async {
         await event.when(
@@ -33,16 +33,17 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellContext.removeListener(_onCellChangedFn!);
+      cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
 
-    cellContext.dispose();
+    cellController.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(onCellChanged: ((cellData) {
+    _onCellChangedFn =
+        cellController.startListening(onCellChanged: ((cellData) {
       if (!isClosed) {
         add(CheckboxCellEvent.didReceiveCellUpdate(cellData));
       }
@@ -50,7 +51,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
   }
 
   void _updateCellData() {
-    cellContext.saveCellData(!state.isSelected ? "Yes" : "No");
+    cellController.saveCellData(!state.isSelected ? "Yes" : "No");
   }
 }
 
@@ -58,7 +59,8 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
 class CheckboxCellEvent with _$CheckboxCellEvent {
   const factory CheckboxCellEvent.initial() = _Initial;
   const factory CheckboxCellEvent.select() = _Selected;
-  const factory CheckboxCellEvent.didReceiveCellUpdate(String? cellData) = _DidReceiveCellUpdate;
+  const factory CheckboxCellEvent.didReceiveCellUpdate(String? cellData) =
+      _DidReceiveCellUpdate;
 }
 
 @freezed

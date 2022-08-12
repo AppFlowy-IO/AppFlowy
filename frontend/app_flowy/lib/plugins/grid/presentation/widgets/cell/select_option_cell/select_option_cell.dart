@@ -59,7 +59,7 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
       value: _cellBloc,
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
-          return _SelectOptionCell(
+          return SelectOptionWrap(
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
               onFocus: (value) => widget.onCellEditing.value = value,
@@ -115,11 +115,12 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
       value: _cellBloc,
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
-          return _SelectOptionCell(
-              selectOptions: state.selectedOptions,
-              cellStyle: widget.cellStyle,
-              onFocus: (value) => widget.onCellEditing.value = value,
-              cellControllerBuilder: widget.cellControllerBuilder);
+          return SelectOptionWrap(
+            selectOptions: state.selectedOptions,
+            cellStyle: widget.cellStyle,
+            onFocus: (value) => widget.onCellEditing.value = value,
+            cellControllerBuilder: widget.cellControllerBuilder,
+          );
         },
       ),
     );
@@ -132,16 +133,16 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
   }
 }
 
-class _SelectOptionCell extends StatelessWidget {
+class SelectOptionWrap extends StatelessWidget {
   final List<SelectOptionPB> selectOptions;
-  final void Function(bool) onFocus;
+  final void Function(bool)? onFocus;
   final SelectOptionCellStyle? cellStyle;
   final GridCellControllerBuilder cellControllerBuilder;
-  const _SelectOptionCell({
+  const SelectOptionWrap({
     required this.selectOptions,
-    required this.onFocus,
-    required this.cellStyle,
     required this.cellControllerBuilder,
+    this.onFocus,
+    this.cellStyle,
     Key? key,
   }) : super(key: key);
 
@@ -177,11 +178,11 @@ class _SelectOptionCell extends StatelessWidget {
         child,
         InkWell(
           onTap: () {
-            onFocus(true);
+            onFocus?.call(true);
             final cellContext =
                 cellControllerBuilder.build() as GridSelectOptionCellController;
             SelectOptionCellEditor.show(
-                context, cellContext, () => onFocus(false));
+                context, cellContext, () => onFocus?.call(false));
           },
         ),
       ],

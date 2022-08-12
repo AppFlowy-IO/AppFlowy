@@ -18,56 +18,56 @@ abstract class TypeOptionDataParser<T> {
 }
 
 // Number
-typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOption>;
+typedef NumberTypeOptionContext = TypeOptionContext<NumberTypeOptionPB>;
 
 class NumberTypeOptionWidgetDataParser
-    extends TypeOptionDataParser<NumberTypeOption> {
+    extends TypeOptionDataParser<NumberTypeOptionPB> {
   @override
-  NumberTypeOption fromBuffer(List<int> buffer) {
-    return NumberTypeOption.fromBuffer(buffer);
+  NumberTypeOptionPB fromBuffer(List<int> buffer) {
+    return NumberTypeOptionPB.fromBuffer(buffer);
   }
 }
 
 // RichText
-typedef RichTextTypeOptionContext = TypeOptionContext<RichTextTypeOption>;
+typedef RichTextTypeOptionContext = TypeOptionContext<RichTextTypeOptionPB>;
 
 class RichTextTypeOptionWidgetDataParser
-    extends TypeOptionDataParser<RichTextTypeOption> {
+    extends TypeOptionDataParser<RichTextTypeOptionPB> {
   @override
-  RichTextTypeOption fromBuffer(List<int> buffer) {
-    return RichTextTypeOption.fromBuffer(buffer);
+  RichTextTypeOptionPB fromBuffer(List<int> buffer) {
+    return RichTextTypeOptionPB.fromBuffer(buffer);
   }
 }
 
 // Checkbox
-typedef CheckboxTypeOptionContext = TypeOptionContext<CheckboxTypeOption>;
+typedef CheckboxTypeOptionContext = TypeOptionContext<CheckboxTypeOptionPB>;
 
 class CheckboxTypeOptionWidgetDataParser
-    extends TypeOptionDataParser<CheckboxTypeOption> {
+    extends TypeOptionDataParser<CheckboxTypeOptionPB> {
   @override
-  CheckboxTypeOption fromBuffer(List<int> buffer) {
-    return CheckboxTypeOption.fromBuffer(buffer);
+  CheckboxTypeOptionPB fromBuffer(List<int> buffer) {
+    return CheckboxTypeOptionPB.fromBuffer(buffer);
   }
 }
 
 // URL
-typedef URLTypeOptionContext = TypeOptionContext<URLTypeOption>;
+typedef URLTypeOptionContext = TypeOptionContext<URLTypeOptionPB>;
 
 class URLTypeOptionWidgetDataParser
-    extends TypeOptionDataParser<URLTypeOption> {
+    extends TypeOptionDataParser<URLTypeOptionPB> {
   @override
-  URLTypeOption fromBuffer(List<int> buffer) {
-    return URLTypeOption.fromBuffer(buffer);
+  URLTypeOptionPB fromBuffer(List<int> buffer) {
+    return URLTypeOptionPB.fromBuffer(buffer);
   }
 }
 
 // Date
-typedef DateTypeOptionContext = TypeOptionContext<DateTypeOption>;
+typedef DateTypeOptionContext = TypeOptionContext<DateTypeOptionPB>;
 
-class DateTypeOptionDataParser extends TypeOptionDataParser<DateTypeOption> {
+class DateTypeOptionDataParser extends TypeOptionDataParser<DateTypeOptionPB> {
   @override
-  DateTypeOption fromBuffer(List<int> buffer) {
-    return DateTypeOption.fromBuffer(buffer);
+  DateTypeOptionPB fromBuffer(List<int> buffer) {
+    return DateTypeOptionPB.fromBuffer(buffer);
   }
 }
 

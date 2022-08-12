@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../utils/log.dart';
 import '../reorder_flex/reorder_flex.dart';
 
-abstract class ColumnItem extends ReoderFlexItem {
+abstract class AFColumnItem extends ReoderFlexItem {
   bool get isPhantom => false;
 
   @override
@@ -31,7 +31,7 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
   List<Object?> get props => columnData.props;
 
   /// Returns the readonly List<ColumnItem>
-  UnmodifiableListView<ColumnItem> get items =>
+  UnmodifiableListView<AFColumnItem> get items =>
       UnmodifiableListView(columnData.items);
 
   /// Remove the item at [index].
@@ -39,7 +39,7 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
   /// * [notify] the default value of [notify] is true, it will notify the
   /// listener. Set to [false] if you do not want to notify the listeners.
   ///
-  ColumnItem removeAt(int index, {bool notify = true}) {
+  AFColumnItem removeAt(int index, {bool notify = true}) {
     assert(index >= 0);
 
     Log.debug('[$BoardColumnDataController] $columnData remove item at $index');
@@ -50,7 +50,7 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
     return item;
   }
 
-  int removeWhere(bool Function(ColumnItem) condition) {
+  int removeWhere(bool Function(AFColumnItem) condition) {
     return items.indexWhere(condition);
   }
 
@@ -75,7 +75,7 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
   /// is true.
   ///
   /// The default value of [notify] is true.
-  bool insert(int index, ColumnItem item, {bool notify = true}) {
+  bool insert(int index, AFColumnItem item, {bool notify = true}) {
     assert(index >= 0);
     Log.debug(
         '[$BoardColumnDataController] $columnData insert $item at $index');
@@ -90,14 +90,14 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
     return true;
   }
 
-  bool add(ColumnItem item, {bool notify = true}) {
+  bool add(AFColumnItem item, {bool notify = true}) {
     columnData._items.add(item);
     if (notify) notifyListeners();
     return true;
   }
 
   /// Replace the item at index with the [newItem].
-  void replace(int index, ColumnItem newItem) {
+  void replace(int index, AFColumnItem newItem) {
     if (columnData._items.isEmpty) {
       columnData._items.add(newItem);
       Log.debug('[$BoardColumnDataController] $columnData add $newItem');
@@ -117,18 +117,18 @@ class AFBoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
   @override
   final String id;
   final String desc;
-  final List<ColumnItem> _items;
+  final List<AFColumnItem> _items;
   final CustomData? customData;
 
   AFBoardColumnData({
     this.customData,
     required this.id,
     this.desc = "",
-    List<ColumnItem> items = const [],
+    List<AFColumnItem> items = const [],
   }) : _items = items;
 
   /// Returns the readonly List<ColumnItem>
-  UnmodifiableListView<ColumnItem> get items => UnmodifiableListView(_items);
+  UnmodifiableListView<AFColumnItem> get items => UnmodifiableListView(_items);
 
   @override
   List<Object?> get props => [id, ..._items];
