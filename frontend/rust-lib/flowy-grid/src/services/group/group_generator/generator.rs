@@ -1,14 +1,15 @@
-use crate::services::cell::{decode_any_cell_data, CellBytes};
+use crate::services::cell::{decode_any_cell_data, CellBytes, CellBytesParser};
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     CellRevision, FieldRevision, GroupConfigurationRevision, RowRevision, TypeOptionDataDeserializer,
 };
+use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-pub trait GroupAction {
-    fn should_group(&mut self, content: &str, cell_bytes: CellBytes) -> bool;
+pub trait GroupAction<CD> {
+    fn should_group(&self, content: &str, cell_data: CD) -> bool;
 }
 
 pub trait GroupCellContentProvider {
@@ -24,15 +25,16 @@ pub trait GroupGenerator<C, T> {
         configuration: &Option<C>,
         type_option: &Option<T>,
         cell_content_provider: &dyn GroupCellContentProvider,
-    ) -> Vec<Group>;
+    ) -> HashMap<String, Group>;
 }
 
-pub struct GroupController<C, T, G> {
+pub struct GroupController<C, T, G, CP> {
     field_rev: Arc<FieldRevision>,
-    groups: Vec<Group>,
+    groups: HashMap<String, Group>,
     type_option: Option<T>,
     configuration: Option<C>,
-    phantom: PhantomData<G>,
+    group_action_phantom: PhantomData<G>,
+    cell_parser_phantom: PhantomData<CP>,
 }
 
 pub struct Group {
@@ -40,7 +42,7 @@ pub struct Group {
     content: String,
 }
 
-impl<C, T, G> GroupController<C, T, G>
+impl<C, T, G, CP> GroupController<C, T, G, CP>
 where
     C: TryFrom<Bytes, Error = protobuf::ProtobufError>,
     T: TypeOptionDataDeserializer,
@@ -62,26 +64,38 @@ where
             groups: G::gen_groups(&configuration, &type_option, cell_content_provider),
             type_option,
             configuration,
-            phantom: PhantomData,
+            group_action_phantom: PhantomData,
+            cell_parser_phantom: PhantomData,
         })
     }
 }
 
-impl<C, T, G> GroupController<C, T, G>
+impl<C, T, G, CP> GroupController<C, T, G, CP>
 where
-    Self: GroupAction,
+    CP: CellBytesParser,
+    Self: GroupAction<CP::Object>,
 {
     pub fn group_row(&mut self, row: &RowRevision) {
         if self.configuration.is_none() {
             return;
         }
         if let Some(cell_rev) = row.cells.get(&self.field_rev.id) {
-            for group in self.groups.iter_mut() {
+            let mut group_row_id = None;
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), &self.field_rev);
+            // let cell_data = cell_bytes.with_parser(CP);
+            for group in self.groups.values() {
                 let cell_rev: CellRevision = cell_rev.clone();
-                let cell_bytes = decode_any_cell_data(cell_rev.data, &self.field_rev);
+
                 // if self.should_group(&group.content, cell_bytes) {
-                //     group.row_ids.push(row.id.clone());
+                //     group_row_id = Some(row.id.clone());
+                //     break;
                 // }
+            }
+
+            if let Some(group_row_id) = group_row_id {
+                self.groups.get_mut(&group_row_id).map(|group| {
+                    group.row_ids.push(group_row_id);
+                });
             }
         }
     }

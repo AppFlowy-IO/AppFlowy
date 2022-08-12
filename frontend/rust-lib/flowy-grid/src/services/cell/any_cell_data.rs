@@ -132,11 +132,11 @@ impl CellBytes {
         Ok(Self(bytes))
     }
 
-    pub fn with_parser<P>(&self, parser: P) -> FlowyResult<P::Object>
+    pub fn with_parser<P>(&self) -> FlowyResult<P::Object>
     where
         P: CellBytesParser,
     {
-        parser.parse(&self.0)
+        P::parse(&self.0)
     }
 
     // pub fn parse<'a, T: TryFrom<&'a [u8]>>(&'a self) -> FlowyResult<T>
