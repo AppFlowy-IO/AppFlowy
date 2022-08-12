@@ -28,6 +28,62 @@
 			}
 		},
 		{
+			"label": "AF: Clean + Rebuild All Android",
+			"type": "shell",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"AF: Rust Clean",
+				"AF: Flutter Clean",
+				"AF: build_mobile_sdk",
+				"AF: Flutter Pub Get",
+				"AF: Flutter Package Get",
+				"AF: Generate Language Files",
+				"AF: Generate Freezed Files",
+			],
+			"presentation": {
+				"reveal": "always",
+				"panel": "new",
+			},
+		},
+		{
+			"label": "AF: build_mobile_sdk",
+			"type": "shell",
+			"command": "sh ../scripts/build_mobile_sdk.sh",
+			"windows": {
+				"options": {
+					"env": {
+						"FLOWY_DEV_ENV": "Windows"
+					},
+					"shell": {
+						"executable": "cmd.exe",
+						"args": [
+							"/d",
+							"/c",
+							".\\scripts\\build_mobile_sdk.cmd"
+						]
+					}
+				}
+			},
+			"linux": {
+				"options": {
+					"env": {
+						"FLOWY_DEV_ENV": "Linux"
+					}
+				}
+			},
+			"osx": {
+				"options": {
+					"env": {
+						"FLOWY_DEV_ENV": "macOS"
+					}
+				}
+			},
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/rust-lib"
+			}
+		},
+		{
 			"label": "AF: build_flowy_sdk",
 			"type": "shell",
 			"command": "sh ./scripts/build_sdk.sh",

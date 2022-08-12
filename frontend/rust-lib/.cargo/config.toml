@@ -6,3 +6,19 @@ rustflags=["-C", "link-arg=-mmacosx-version-min=10.11"]
 
 [target.aarch64-apple-darwin]
 rustflags=["-C", "link-arg=-mmacosx-version-min=10.11"]
+
+[target.aarch64-linux-android]
+ar = "/home/sean/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+linker = "/home/sean/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android29-clang"
+
+[target.armv7-linux-androideabi]
+ar = "/home/sean/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+linker = "/home/sean/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/armv7a-linux-androideabi29-clang"
+
+[target.i686-linux-android]
+ar = "/home/sean/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+linker = "/home/sean/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android29-clang"
+
+[target.x86_64-linux-android]
+ar = "/home/sean/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar"
+linker = "/home/sean/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android29-clang"
