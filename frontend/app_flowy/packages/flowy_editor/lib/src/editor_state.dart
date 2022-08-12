@@ -26,6 +26,15 @@ enum CursorUpdateReason {
   others,
 }
 
+/// The state of the editor.
+///
+/// The state including:
+/// - The document to render
+/// - The state of the selection.
+///
+/// [EditorState] also includes the services of the editor:
+/// - Selection service
+/// - Scroll service
 class EditorState {
   final StateTree document;
 
