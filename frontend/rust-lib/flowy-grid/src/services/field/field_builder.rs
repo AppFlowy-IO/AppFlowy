@@ -95,7 +95,7 @@ pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn 
         FieldType::DateTime => DateTypeOptionPB::default().into(),
         FieldType::SingleSelect => SingleSelectTypeOptionPB::default().into(),
         FieldType::MultiSelect => MultiSelectTypeOptionPB::default().into(),
-        FieldType::Checkbox => CheckboxTypeOption::default().into(),
+        FieldType::Checkbox => CheckboxTypeOptionPB::default().into(),
         FieldType::URL => URLTypeOptionPB::default().into(),
     };
 

@@ -3,7 +3,7 @@ use crate::entities::{FieldType, GridBlockChangesetPB};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::{
-    CheckboxTypeOption, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB,
+    CheckboxTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB,
     SingleSelectTypeOptionPB, URLTypeOptionPB,
 };
 use crate::services::filter::filter_cache::{
@@ -222,7 +222,7 @@ fn filter_cell(
         FieldType::Checkbox => filter_cache.checkbox_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<CheckboxTypeOption>(field_type_rev)?
+                    .get_type_option_entry::<CheckboxTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
