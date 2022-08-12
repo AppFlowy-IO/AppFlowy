@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:app_flowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
@@ -41,6 +42,9 @@ class MenuUser extends StatelessWidget {
 
   Widget _renderAvatar(BuildContext context) {
     String iconUrl = context.read<MenuUserBloc>().state.userProfile.iconUrl;
+    if (iconUrl.isEmpty) {
+      iconUrl = defaultUserAvatar;
+    }
 
     return SizedBox(
       width: 25,

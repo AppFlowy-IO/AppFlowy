@@ -8,6 +8,8 @@ import 'package:flowy_infra/image.dart';
 
 import 'dart:convert';
 
+const defaultUserAvatar = '1F600';
+
 class SettingsUserView extends StatelessWidget {
   final UserProfilePB user;
   SettingsUserView(this.user, {Key? key}) : super(key: ValueKey(user.id));
@@ -40,6 +42,9 @@ class SettingsUserView extends StatelessWidget {
   Widget _renderCurrentIcon(BuildContext context) {
     String iconUrl =
         context.read<SettingsUserViewBloc>().state.userProfile.iconUrl;
+    if (iconUrl.isEmpty) {
+      iconUrl = defaultUserAvatar;
+    }
     return _CurrentIcon(iconUrl);
   }
 }
