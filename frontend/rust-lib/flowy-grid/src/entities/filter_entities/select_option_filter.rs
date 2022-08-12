@@ -1,11 +1,11 @@
 use crate::services::field::SelectOptionIds;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::revision::GridFilterRevision;
+use flowy_grid_data_model::revision::FilterConfigurationRevision;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridSelectOptionFilter {
+pub struct SelectOptionFilterConfigurationPB {
     #[pb(index = 1)]
     pub condition: SelectOptionCondition,
 
@@ -47,10 +47,10 @@ impl std::convert::TryFrom<u8> for SelectOptionCondition {
     }
 }
 
-impl std::convert::From<Arc<GridFilterRevision>> for GridSelectOptionFilter {
-    fn from(rev: Arc<GridFilterRevision>) -> Self {
+impl std::convert::From<Arc<FilterConfigurationRevision>> for SelectOptionFilterConfigurationPB {
+    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
         let ids = SelectOptionIds::from(rev.content.clone());
-        GridSelectOptionFilter {
+        SelectOptionFilterConfigurationPB {
             condition: SelectOptionCondition::try_from(rev.condition).unwrap_or(SelectOptionCondition::OptionIs),
             option_ids: ids.into_inner(),
         }

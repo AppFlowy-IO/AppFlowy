@@ -15,7 +15,7 @@ class SelectOptionService {
   String get rowId => cellId.rowId;
 
   Future<Either<Unit, FlowyError>> create({required String name}) {
-    return TypeOptionService(gridId: gridId, fieldId: fieldId)
+    return TypeOptionFFIService(gridId: gridId, fieldId: fieldId)
         .newOption(name: name)
         .then(
       (result) {

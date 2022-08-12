@@ -20,7 +20,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
   final List<SelectOptionPB> options;
   final VoidCallback beginEdit;
   final TypeOptionOverlayDelegate overlayDelegate;
-  final SelectOptionTypeOptionAction typeOptionAction;
+  final ISelectOptionAction typeOptionAction;
 
   const SelectOptionTypeOptionWidget({
     required this.options,
@@ -34,7 +34,9 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SelectOptionTypeOptionBloc(
-          options: options, typeOptionAction: typeOptionAction),
+        options: options,
+        typeOptionAction: typeOptionAction,
+      ),
       child:
           BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
         builder: (context, state) {

@@ -23,14 +23,14 @@ typedef OnMoveColumnItemToColumn = void Function(
   int toIndex,
 );
 
-class BoardDataController extends ChangeNotifier
+class AFBoardDataController extends ChangeNotifier
     with EquatableMixin, BoardPhantomControllerDelegate, ReoderFlextDataSource {
-  final List<BoardColumnData> _columnDatas = [];
+  final List<AFBoardColumnData> _columnDatas = [];
   final OnMoveColumn? onMoveColumn;
   final OnMoveColumnItem? onMoveColumnItem;
   final OnMoveColumnItemToColumn? onMoveColumnItemToColumn;
 
-  List<BoardColumnData> get columnDatas => _columnDatas;
+  List<AFBoardColumnData> get columnDatas => _columnDatas;
 
   List<String> get columnIds =>
       _columnDatas.map((columnData) => columnData.id).toList();
@@ -38,36 +38,88 @@ class BoardDataController extends ChangeNotifier
   final LinkedHashMap<String, BoardColumnDataController> _columnControllers =
       LinkedHashMap();
 
-  BoardDataController({
+  AFBoardDataController({
     this.onMoveColumn,
     this.onMoveColumnItem,
     this.onMoveColumnItemToColumn,
   });
 
-  void addColumn(BoardColumnData columnData) {
+  void addColumn(AFBoardColumnData columnData, {bool notify = true}) {
+    if (_columnControllers[columnData.id] != null) return;
+
     final controller = BoardColumnDataController(columnData: columnData);
     _columnDatas.add(columnData);
     _columnControllers[columnData.id] = controller;
+    if (notify) notifyListeners();
+  }
+
+  void addColumns(List<AFBoardColumnData> columns, {bool notify = true}) {
+    for (final column in columns) {
+      addColumn(column, notify: false);
+    }
+
+    if (columns.isNotEmpty && notify) notifyListeners();
+  }
+
+  void removeColumn(String columnId, {bool notify = true}) {
+    final index = _columnDatas.indexWhere((column) => column.id == columnId);
+    if (index == -1) {
+      Log.warn(
+          'Try to remove Column:[$columnId] failed. Column:[$columnId] not exist');
+    }
+
+    if (index != -1) {
+      _columnDatas.removeAt(index);
+      _columnControllers.remove(columnId);
+
+      if (notify) notifyListeners();
+    }
+  }
+
+  void removeColumns(List<String> columnIds, {bool notify = true}) {
+    for (final columnId in columnIds) {
+      removeColumn(columnId, notify: false);
+    }
+
+    if (columnIds.isNotEmpty && notify) notifyListeners();
   }
 
   BoardColumnDataController columnController(String columnId) {
     return _columnControllers[columnId]!;
   }
 
-  void moveColumn(int fromIndex, int toIndex) {
+  BoardColumnDataController? getColumnController(String columnId) {
+    final columnController = _columnControllers[columnId];
+    if (columnController == null) {
+      Log.warn('Column:[$columnId] \'s controller is not exist');
+    }
+
+    return columnController;
+  }
+
+  void moveColumn(int fromIndex, int toIndex, {bool notify = true}) {
     final columnData = _columnDatas.removeAt(fromIndex);
     _columnDatas.insert(toIndex, columnData);
     onMoveColumn?.call(fromIndex, toIndex);
-    notifyListeners();
+    if (notify) notifyListeners();
   }
 
   void moveColumnItem(String columnId, int fromIndex, int toIndex) {
-    final columnController = _columnControllers[columnId];
-    assert(columnController != null);
-    if (columnController != null) {
-      columnController.move(fromIndex, toIndex);
+    if (getColumnController(columnId)?.move(fromIndex, toIndex) ?? false) {
       onMoveColumnItem?.call(columnId, fromIndex, toIndex);
     }
+  }
+
+  void addColumnItem(String columnId, AFColumnItem item) {
+    getColumnController(columnId)?.add(item);
+  }
+
+  void insertColumnItem(String columnId, int index, AFColumnItem item) {
+    getColumnController(columnId)?.insert(index, item);
+  }
+
+  void removeColumnItem(String columnId, String itemId) {
+    getColumnController(columnId)?.removeWhere((item) => item.id == itemId);
   }
 
   @override
@@ -106,7 +158,7 @@ class BoardDataController extends ChangeNotifier
   }
 
   @override
-  String get identifier => '$BoardDataController';
+  String get identifier => '$AFBoardDataController';
 
   @override
   UnmodifiableListView<ReoderFlexItem> get items =>
@@ -123,7 +175,7 @@ class BoardDataController extends ChangeNotifier
       columnController.removeAt(index);
 
       Log.debug(
-          '[$BoardDataController] Column:[$columnId] remove phantom, current count: ${columnController.items.length}');
+          '[$AFBoardDataController] Column:[$columnId] remove phantom, current count: ${columnController.items.length}');
     }
     return isExist;
   }

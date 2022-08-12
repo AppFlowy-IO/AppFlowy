@@ -1,4 +1,3 @@
-import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -12,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import '../../../application/field/field_cache.dart';
 import '../../layout/sizes.dart';
 import 'grid_property.dart';
 

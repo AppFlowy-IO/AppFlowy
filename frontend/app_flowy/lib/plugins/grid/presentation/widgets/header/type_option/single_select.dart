@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/single_select_type_option.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:flutter/material.dart';
 import '../field_type_option_editor.dart';
 import 'builder.dart';
@@ -8,10 +9,14 @@ class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   final SingleSelectTypeOptionWidget _widget;
 
   SingleSelectTypeOptionWidgetBuilder(
-    SingleSelectTypeOptionContext typeOptionContext,
+    SingleSelectTypeOptionContext singleSelectTypeOption,
     TypeOptionOverlayDelegate overlayDelegate,
   ) : _widget = SingleSelectTypeOptionWidget(
-          typeOptionContext: typeOptionContext,
+          selectOptionAction: SingleSelectAction(
+            fieldId: singleSelectTypeOption.fieldId,
+            gridId: singleSelectTypeOption.gridId,
+            typeOptionContext: singleSelectTypeOption,
+          ),
           overlayDelegate: overlayDelegate,
         );
 
@@ -20,11 +25,11 @@ class SingleSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 }
 
 class SingleSelectTypeOptionWidget extends TypeOptionWidget {
-  final SingleSelectTypeOptionContext typeOptionContext;
+  final SingleSelectAction selectOptionAction;
   final TypeOptionOverlayDelegate overlayDelegate;
 
   const SingleSelectTypeOptionWidget({
-    required this.typeOptionContext,
+    required this.selectOptionAction,
     required this.overlayDelegate,
     Key? key,
   }) : super(key: key);
@@ -32,10 +37,10 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
   @override
   Widget build(BuildContext context) {
     return SelectOptionTypeOptionWidget(
-      options: typeOptionContext.typeOption.options,
+      options: selectOptionAction.typeOption.options,
       beginEdit: () => overlayDelegate.hideOverlay(context),
       overlayDelegate: overlayDelegate,
-      typeOptionAction: typeOptionContext,
+      typeOptionAction: selectOptionAction,
       // key: ValueKey(state.typeOption.hashCode),
     );
   }

@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 
 // Date
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct DateTypeOption {
+pub struct DateTypeOptionPB {
     #[pb(index = 1)]
     pub date_format: DateFormat,
 
@@ -24,9 +24,9 @@ pub struct DateTypeOption {
     #[pb(index = 3)]
     pub include_time: bool,
 }
-impl_type_option!(DateTypeOption, FieldType::DateTime);
+impl_type_option!(DateTypeOptionPB, FieldType::DateTime);
 
-impl DateTypeOption {
+impl DateTypeOptionPB {
     #[allow(dead_code)]
     pub fn new() -> Self {
         Self::default()
@@ -116,7 +116,7 @@ impl DateTypeOption {
     }
 }
 
-impl CellDisplayable<DateTimestamp> for DateTypeOption {
+impl CellDisplayable<DateTimestamp> for DateTypeOptionPB {
     fn display_data(
         &self,
         cell_data: CellData<DateTimestamp>,
@@ -129,7 +129,7 @@ impl CellDisplayable<DateTimestamp> for DateTypeOption {
     }
 }
 
-impl CellDataOperation<DateTimestamp, DateCellChangesetPB> for DateTypeOption {
+impl CellDataOperation<DateTimestamp, DateCellChangesetPB> for DateTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<DateTimestamp>,
@@ -169,9 +169,9 @@ impl CellDataOperation<DateTimestamp, DateCellChangesetPB> for DateTypeOption {
 }
 
 #[derive(Default)]
-pub struct DateTypeOptionBuilder(DateTypeOption);
+pub struct DateTypeOptionBuilder(DateTypeOptionPB);
 impl_into_box_type_option_builder!(DateTypeOptionBuilder);
-impl_builder_from_json_str_and_from_bytes!(DateTypeOptionBuilder, DateTypeOption);
+impl_builder_from_json_str_and_from_bytes!(DateTypeOptionBuilder, DateTypeOptionPB);
 
 impl DateTypeOptionBuilder {
     pub fn date_format(mut self, date_format: DateFormat) -> Self {

@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -143,7 +144,7 @@ class _DragToExpandLine extends StatelessWidget {
 
 class FieldCellButton extends StatelessWidget {
   final VoidCallback onTap;
-  final GridFieldPB field;
+  final FieldPB field;
   const FieldCellButton({
     required this.field,
     required this.onTap,

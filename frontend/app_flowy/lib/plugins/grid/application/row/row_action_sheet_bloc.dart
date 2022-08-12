@@ -6,13 +6,15 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 
+import 'row_cache.dart';
+
 part 'row_action_sheet_bloc.freezed.dart';
 
 class RowActionSheetBloc
     extends Bloc<RowActionSheetEvent, RowActionSheetState> {
   final RowService _rowService;
 
-  RowActionSheetBloc({required GridRowInfo rowData})
+  RowActionSheetBloc({required RowInfo rowData})
       : _rowService = RowService(
           gridId: rowData.gridId,
           blockId: rowData.blockId,
@@ -54,11 +56,10 @@ class RowActionSheetEvent with _$RowActionSheetEvent {
 @freezed
 class RowActionSheetState with _$RowActionSheetState {
   const factory RowActionSheetState({
-    required GridRowInfo rowData,
+    required RowInfo rowData,
   }) = _RowActionSheetState;
 
-  factory RowActionSheetState.initial(GridRowInfo rowData) =>
-      RowActionSheetState(
+  factory RowActionSheetState.initial(RowInfo rowData) => RowActionSheetState(
         rowData: rowData,
       );
 }

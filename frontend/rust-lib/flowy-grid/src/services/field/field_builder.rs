@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, GridFieldPB};
+use crate::entities::{FieldPB, FieldType};
 use crate::services::field::type_options::*;
 use bytes::Bytes;
 use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
@@ -28,7 +28,7 @@ impl FieldBuilder {
         Self::new(type_option_builder)
     }
 
-    pub fn from_field(field: GridFieldPB, type_option_builder: Box<dyn TypeOptionBuilder>) -> Self {
+    pub fn from_field(field: FieldPB, type_option_builder: Box<dyn TypeOptionBuilder>) -> Self {
         let field_rev = FieldRevision {
             id: field.id,
             name: field.name,
@@ -90,13 +90,13 @@ pub trait TypeOptionBuilder {
 
 pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn TypeOptionBuilder> {
     let s: String = match field_type {
-        FieldType::RichText => RichTextTypeOption::default().into(),
-        FieldType::Number => NumberTypeOption::default().into(),
-        FieldType::DateTime => DateTypeOption::default().into(),
+        FieldType::RichText => RichTextTypeOptionPB::default().into(),
+        FieldType::Number => NumberTypeOptionPB::default().into(),
+        FieldType::DateTime => DateTypeOptionPB::default().into(),
         FieldType::SingleSelect => SingleSelectTypeOptionPB::default().into(),
-        FieldType::MultiSelect => MultiSelectTypeOption::default().into(),
-        FieldType::Checkbox => CheckboxTypeOption::default().into(),
-        FieldType::URL => URLTypeOption::default().into(),
+        FieldType::MultiSelect => MultiSelectTypeOptionPB::default().into(),
+        FieldType::Checkbox => CheckboxTypeOptionPB::default().into(),
+        FieldType::URL => URLTypeOptionPB::default().into(),
     };
 
     type_option_builder_from_json_str(&s, field_type)

@@ -1632,7 +1632,7 @@ final Map<String, String> activities = Map.fromIterables([
   'Flying Disc',
   'Bowling',
   'Cricket Game',
-  'GridFieldPB Hockey',
+  'FieldPB Hockey',
   'Ice Hockey',
   'Lacrosse',
   'Ping Pong',

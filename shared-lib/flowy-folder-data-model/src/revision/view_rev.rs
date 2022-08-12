@@ -53,7 +53,7 @@ impl std::convert::From<ViewRevision> for TrashRevision {
 #[repr(u8)]
 pub enum ViewDataTypeRevision {
     TextBlock = 0,
-    Grid = 1,
+    Database = 1,
 }
 
 impl std::default::Default for ViewDataTypeRevision {

@@ -4,13 +4,13 @@ export 'row/row_service.dart';
 export 'grid_service.dart';
 export 'grid_header_bloc.dart';
 
-// GridFieldPB
+// FieldPB
 export 'field/field_service.dart';
 export 'field/field_action_sheet_bloc.dart';
 export 'field/field_editor_bloc.dart';
 export 'field/field_type_option_edit_bloc.dart';
 
-// GridFieldPB Type Option
+// FieldPB Type Option
 export 'field/type_option/date_bloc.dart';
 export 'field/type_option/number_bloc.dart';
 export 'field/type_option/single_select_type_option.dart';

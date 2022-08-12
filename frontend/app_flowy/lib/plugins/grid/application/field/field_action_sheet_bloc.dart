@@ -7,11 +7,13 @@ import 'field_service.dart';
 
 part 'field_action_sheet_bloc.freezed.dart';
 
-class FieldActionSheetBloc extends Bloc<FieldActionSheetEvent, FieldActionSheetState> {
+class FieldActionSheetBloc
+    extends Bloc<FieldActionSheetEvent, FieldActionSheetState> {
   final FieldService fieldService;
 
-  FieldActionSheetBloc({required GridFieldPB field, required this.fieldService})
-      : super(FieldActionSheetState.initial(FieldTypeOptionDataPB.create()..field_2 = field)) {
+  FieldActionSheetBloc({required FieldPB field, required this.fieldService})
+      : super(FieldActionSheetState.initial(
+            FieldTypeOptionDataPB.create()..field_2 = field)) {
     on<FieldActionSheetEvent>(
       (event, emit) async {
         await event.map(
@@ -57,7 +59,8 @@ class FieldActionSheetBloc extends Bloc<FieldActionSheetEvent, FieldActionSheetS
 
 @freezed
 class FieldActionSheetEvent with _$FieldActionSheetEvent {
-  const factory FieldActionSheetEvent.updateFieldName(String name) = _UpdateFieldName;
+  const factory FieldActionSheetEvent.updateFieldName(String name) =
+      _UpdateFieldName;
   const factory FieldActionSheetEvent.hideField() = _HideField;
   const factory FieldActionSheetEvent.duplicateField() = _DuplicateField;
   const factory FieldActionSheetEvent.deleteField() = _DeleteField;
@@ -72,7 +75,8 @@ class FieldActionSheetState with _$FieldActionSheetState {
     required String fieldName,
   }) = _FieldActionSheetState;
 
-  factory FieldActionSheetState.initial(FieldTypeOptionDataPB data) => FieldActionSheetState(
+  factory FieldActionSheetState.initial(FieldTypeOptionDataPB data) =>
+      FieldActionSheetState(
         fieldTypeOptionData: data,
         errorText: '',
         fieldName: data.field_2.name,

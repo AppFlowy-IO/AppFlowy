@@ -1,4 +1,5 @@
-use crate::entities::view::ViewDataType;
+use crate::entities::view::ViewDataTypePB;
+use crate::entities::SubViewDataTypePB;
 use crate::services::folder_editor::FolderRevisionCompactor;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -221,7 +222,7 @@ impl DefaultFolderBuilder {
                 };
                 let _ = view_controller.set_latest_view(&view.id);
                 let _ = view_controller
-                    .create_view(&view.id, ViewDataType::TextBlock, Bytes::from(view_data))
+                    .create_view(&view.id, ViewDataTypePB::TextBlock, Bytes::from(view_data))
                     .await?;
             }
         }
@@ -256,7 +257,12 @@ pub trait ViewDataProcessor {
 
     fn get_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
-    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError>;
+    fn create_default_view(
+        &self,
+        user_id: &str,
+        view_id: &str,
+        sub_data_type: Option<SubViewDataTypePB>,
+    ) -> FutureResult<Bytes, FlowyError>;
 
     fn create_view_from_delta_data(
         &self,
@@ -265,7 +271,7 @@ pub trait ViewDataProcessor {
         data: Vec<u8>,
     ) -> FutureResult<Bytes, FlowyError>;
 
-    fn data_type(&self) -> ViewDataType;
+    fn data_type(&self) -> ViewDataTypePB;
 }
 
-pub type ViewDataProcessorMap = Arc<HashMap<ViewDataType, Arc<dyn ViewDataProcessor + Send + Sync>>>;
+pub type ViewDataProcessorMap = Arc<HashMap<ViewDataTypePB, Arc<dyn ViewDataProcessor + Send + Sync>>>;

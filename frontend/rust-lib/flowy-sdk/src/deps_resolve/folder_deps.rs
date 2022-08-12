@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_folder::entities::ViewDataType;
+use flowy_folder::entities::{SubViewDataTypePB, ViewDataTypePB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::{
     errors::{internal_error, FlowyError},
@@ -8,7 +8,7 @@ use flowy_folder::{
     manager::FolderManager,
 };
 use flowy_grid::manager::{make_grid_view_data, GridManager};
-use flowy_grid::util::make_default_grid;
+use flowy_grid::util::{make_default_board, make_default_grid};
 use flowy_grid_data_model::revision::BuildGridContext;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
@@ -66,7 +66,7 @@ fn make_view_data_processor(
     text_block_manager: Arc<TextBlockManager>,
     grid_manager: Arc<GridManager>,
 ) -> ViewDataProcessorMap {
-    let mut map: HashMap<ViewDataType, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
+    let mut map: HashMap<ViewDataTypePB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
     let block_data_impl = TextBlockViewDataProcessor(text_block_manager);
     map.insert(block_data_impl.data_type(), Arc::new(block_data_impl));
@@ -180,7 +180,12 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         })
     }
 
-    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+    fn create_default_view(
+        &self,
+        user_id: &str,
+        view_id: &str,
+        _sub_data_type: Option<SubViewDataTypePB>,
+    ) -> FutureResult<Bytes, FlowyError> {
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let manager = self.0.clone();
@@ -203,8 +208,8 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         FutureResult::new(async move { Ok(Bytes::from(data)) })
     }
 
-    fn data_type(&self) -> ViewDataType {
-        ViewDataType::TextBlock
+    fn data_type(&self) -> ViewDataTypePB {
+        ViewDataTypePB::TextBlock
     }
 }
 
@@ -252,8 +257,16 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn create_default_view(&self, user_id: &str, view_id: &str) -> FutureResult<Bytes, FlowyError> {
-        let build_context = make_default_grid();
+    fn create_default_view(
+        &self,
+        user_id: &str,
+        view_id: &str,
+        sub_data_type: Option<SubViewDataTypePB>,
+    ) -> FutureResult<Bytes, FlowyError> {
+        let build_context = match sub_data_type.unwrap() {
+            SubViewDataTypePB::Grid => make_default_grid(),
+            SubViewDataTypePB::Board => make_default_board(),
+        };
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
@@ -278,7 +291,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn data_type(&self) -> ViewDataType {
-        ViewDataType::Grid
+    fn data_type(&self) -> ViewDataTypePB {
+        ViewDataTypePB::Database
     }
 }

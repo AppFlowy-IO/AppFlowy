@@ -1,12 +1,12 @@
 #![allow(clippy::needless_collect)]
 
-use crate::entities::{GridSelectOptionFilter, SelectOptionCondition};
+use crate::entities::{SelectOptionCondition, SelectOptionFilterConfigurationPB};
 use crate::services::cell::{AnyCellData, CellFilterOperation};
-use crate::services::field::{MultiSelectTypeOption, SingleSelectTypeOptionPB};
+use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use crate::services::field::{SelectOptionOperation, SelectedSelectOptions};
 use flowy_error::FlowyResult;
 
-impl GridSelectOptionFilter {
+impl SelectOptionFilterConfigurationPB {
     pub fn is_visible(&self, selected_options: &SelectedSelectOptions) -> bool {
         let selected_option_ids: Vec<&String> = selected_options.options.iter().map(|option| &option.id).collect();
         match self.condition {
@@ -39,8 +39,12 @@ impl GridSelectOptionFilter {
     }
 }
 
-impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
+impl CellFilterOperation<SelectOptionFilterConfigurationPB> for MultiSelectTypeOptionPB {
+    fn apply_filter(
+        &self,
+        any_cell_data: AnyCellData,
+        filter: &SelectOptionFilterConfigurationPB,
+    ) -> FlowyResult<bool> {
         if !any_cell_data.is_multi_select() {
             return Ok(true);
         }
@@ -50,8 +54,12 @@ impl CellFilterOperation<GridSelectOptionFilter> for MultiSelectTypeOption {
     }
 }
 
-impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOptionPB {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridSelectOptionFilter) -> FlowyResult<bool> {
+impl CellFilterOperation<SelectOptionFilterConfigurationPB> for SingleSelectTypeOptionPB {
+    fn apply_filter(
+        &self,
+        any_cell_data: AnyCellData,
+        filter: &SelectOptionFilterConfigurationPB,
+    ) -> FlowyResult<bool> {
         if !any_cell_data.is_single_select() {
             return Ok(true);
         }
@@ -63,7 +71,7 @@ impl CellFilterOperation<GridSelectOptionFilter> for SingleSelectTypeOptionPB {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::entities::{GridSelectOptionFilter, SelectOptionCondition};
+    use crate::entities::{SelectOptionCondition, SelectOptionFilterConfigurationPB};
     use crate::services::field::selection_type_option::{SelectOptionPB, SelectedSelectOptions};
 
     #[test]
@@ -72,7 +80,7 @@ mod tests {
         let option_2 = SelectOptionPB::new("B");
         let option_3 = SelectOptionPB::new("C");
 
-        let filter_1 = GridSelectOptionFilter {
+        let filter_1 = SelectOptionFilterConfigurationPB {
             condition: SelectOptionCondition::OptionIs,
             option_ids: vec![option_1.id.clone(), option_2.id.clone()],
         };

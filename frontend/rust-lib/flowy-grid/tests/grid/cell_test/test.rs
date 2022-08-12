@@ -3,7 +3,7 @@ use crate::grid::cell_test::script::GridCellTest;
 use crate::grid::field_test::util::make_date_cell_string;
 use flowy_grid::entities::{CellChangesetPB, FieldType};
 use flowy_grid::services::field::selection_type_option::SelectOptionCellChangeset;
-use flowy_grid::services::field::{MultiSelectTypeOption, SingleSelectTypeOptionPB};
+use flowy_grid::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 
 #[tokio::test]
 async fn grid_cell_update() {
@@ -28,7 +28,7 @@ async fn grid_cell_update() {
                     SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                 }
                 FieldType::MultiSelect => {
-                    let type_option = MultiSelectTypeOption::from(field_rev);
+                    let type_option = MultiSelectTypeOptionPB::from(field_rev);
                     SelectOptionCellChangeset::from_insert(&type_option.options.first().unwrap().id).to_str()
                 }
                 FieldType::Checkbox => "1".to_string(),

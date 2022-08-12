@@ -10,7 +10,7 @@ import 'package:flutter/widgets.dart';
 export "./src/sandbox.dart";
 
 enum DefaultPlugin {
-  quill,
+  editor,
   blank,
   trash,
   grid,
@@ -20,7 +20,7 @@ enum DefaultPlugin {
 extension FlowyDefaultPluginExt on DefaultPlugin {
   int type() {
     switch (this) {
-      case DefaultPlugin.quill:
+      case DefaultPlugin.editor:
         return 0;
       case DefaultPlugin.blank:
         return 1;
@@ -35,7 +35,6 @@ extension FlowyDefaultPluginExt on DefaultPlugin {
 }
 
 typedef PluginType = int;
-typedef PluginDataType = ViewDataType;
 typedef PluginId = String;
 
 abstract class Plugin {
@@ -55,7 +54,9 @@ abstract class PluginBuilder {
 
   PluginType get pluginType;
 
-  ViewDataType get dataType => ViewDataType.TextBlock;
+  ViewDataTypePB get dataType => ViewDataTypePB.TextBlock;
+
+  SubViewDataTypePB? get subDataType => null;
 }
 
 abstract class PluginConfig {

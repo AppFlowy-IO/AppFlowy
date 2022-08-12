@@ -23,12 +23,15 @@ class BoardPluginBuilder implements PluginBuilder {
   PluginType get pluginType => DefaultPlugin.board.type();
 
   @override
-  ViewDataType get dataType => ViewDataType.Grid;
+  ViewDataTypePB get dataType => ViewDataTypePB.Database;
+
+  @override
+  SubViewDataTypePB get subDataType => SubViewDataTypePB.Board;
 }
 
 class BoardPluginConfig implements PluginConfig {
   @override
-  bool get creatable => true;
+  bool get creatable => false;
 }
 
 class BoardPlugin extends Plugin {

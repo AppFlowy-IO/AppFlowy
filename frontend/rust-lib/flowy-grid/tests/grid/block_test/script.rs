@@ -2,7 +2,7 @@ use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
 
-use flowy_grid::entities::{FieldType, GridCellIdParams, GridRowPB};
+use flowy_grid::entities::{FieldType, GridCellIdParams, RowPB};
 use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
@@ -97,7 +97,7 @@ impl GridRowTest {
                 let row_orders = row_ids
                     .into_iter()
                     .map(|row_id| self.row_order_by_row_id.get(&row_id).unwrap().clone())
-                    .collect::<Vec<GridRowPB>>();
+                    .collect::<Vec<RowPB>>();
 
                 self.editor.delete_rows(row_orders).await.unwrap();
                 self.row_revs = self.get_row_revs().await;
@@ -162,7 +162,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(TextCellDataParser())
+                    .parser::<TextCellDataParser>()
                     .unwrap();
 
                 assert_eq!(cell_data.as_ref(), &expected);
@@ -170,14 +170,14 @@ impl GridRowTest {
             FieldType::Number => {
                 let field_rev = self.editor.get_field_rev(&cell_id.field_id).await.unwrap();
                 let number_type_option = field_rev
-                    .get_type_option_entry::<NumberTypeOption>(FieldType::Number.into())
+                    .get_type_option_entry::<NumberTypeOptionPB>(FieldType::Number.into())
                     .unwrap();
                 let cell_data = self
                     .editor
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(NumberCellDataParser(number_type_option.format))
+                    .custom_parser(NumberCellCustomDataParser(number_type_option.format))
                     .unwrap();
                 assert_eq!(cell_data.to_string(), expected);
             }
@@ -187,7 +187,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(DateCellDataParser())
+                    .parser::<DateCellDataParser>()
                     .unwrap();
 
                 assert_eq!(cell_data.date, expected);
@@ -198,7 +198,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(SelectOptionCellDataParser())
+                    .parser::<SelectOptionCellDataParser>()
                     .unwrap();
                 let select_option = cell_data.select_options.first().unwrap();
                 assert_eq!(select_option.name, expected);
@@ -209,7 +209,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(SelectOptionCellDataParser())
+                    .parser::<SelectOptionCellDataParser>()
                     .unwrap();
 
                 let s = cell_data
@@ -228,7 +228,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(CheckboxCellDataParser())
+                    .parser::<CheckboxCellDataParser>()
                     .unwrap();
                 assert_eq!(cell_data.to_string(), expected);
             }
@@ -238,7 +238,7 @@ impl GridRowTest {
                     .get_cell_bytes(&cell_id)
                     .await
                     .unwrap()
-                    .with_parser(URLCellDataParser())
+                    .parser::<URLCellDataParser>()
                     .unwrap();
 
                 assert_eq!(cell_data.content, expected);

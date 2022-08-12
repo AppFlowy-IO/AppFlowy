@@ -457,7 +457,6 @@ mod tests {
         AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision,
     };
     use lib_ot::core::{OperationTransform, TextDelta, TextDeltaBuilder};
-    use serde_json::json;
 
     #[test]
     fn folder_add_workspace() {

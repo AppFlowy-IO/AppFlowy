@@ -2,7 +2,7 @@ use flowy_grid::entities::FieldType;
 use std::sync::Arc;
 
 use flowy_grid::services::field::{
-    DateCellChangesetPB, MultiSelectTypeOption, SelectOptionPB, SingleSelectTypeOptionPB, SELECTION_IDS_SEPARATOR,
+    DateCellChangesetPB, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB, SELECTION_IDS_SEPARATOR,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
@@ -10,7 +10,6 @@ use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use strum::EnumCount;
 
 pub struct GridRowTestBuilder<'a> {
-    block_id: String,
     field_revs: &'a [Arc<FieldRevision>],
     inner_builder: RowRevisionBuilder<'a>,
 }
@@ -18,9 +17,8 @@ pub struct GridRowTestBuilder<'a> {
 impl<'a> GridRowTestBuilder<'a> {
     pub fn new(block_id: &str, field_revs: &'a [Arc<FieldRevision>]) -> Self {
         assert_eq!(field_revs.len(), FieldType::COUNT);
-        let inner_builder = RowRevisionBuilder::new(field_revs);
+        let inner_builder = RowRevisionBuilder::new(block_id, field_revs);
         Self {
-            block_id: block_id.to_owned(),
             field_revs,
             inner_builder,
         }
@@ -77,8 +75,7 @@ impl<'a> GridRowTestBuilder<'a> {
         let type_option = SingleSelectTypeOptionPB::from(&single_select_field);
         let option = f(type_option.options);
         self.inner_builder
-            .insert_select_option_cell(&single_select_field.id, option.id)
-            .unwrap();
+            .insert_select_option_cell(&single_select_field.id, option.id);
 
         single_select_field.id.clone()
     }
@@ -88,7 +85,7 @@ impl<'a> GridRowTestBuilder<'a> {
         F: Fn(Vec<SelectOptionPB>) -> Vec<SelectOptionPB>,
     {
         let multi_select_field = self.field_rev_with_type(&FieldType::MultiSelect);
-        let type_option = MultiSelectTypeOption::from(&multi_select_field);
+        let type_option = MultiSelectTypeOptionPB::from(&multi_select_field);
         let options = f(type_option.options);
         let ops_ids = options
             .iter()
@@ -96,8 +93,7 @@ impl<'a> GridRowTestBuilder<'a> {
             .collect::<Vec<_>>()
             .join(SELECTION_IDS_SEPARATOR);
         self.inner_builder
-            .insert_select_option_cell(&multi_select_field.id, ops_ids)
-            .unwrap();
+            .insert_select_option_cell(&multi_select_field.id, ops_ids);
 
         multi_select_field.id.clone()
     }
@@ -115,7 +111,7 @@ impl<'a> GridRowTestBuilder<'a> {
     }
 
     pub fn build(self) -> RowRevision {
-        self.inner_builder.build(&self.block_id)
+        self.inner_builder.build()
     }
 }
 

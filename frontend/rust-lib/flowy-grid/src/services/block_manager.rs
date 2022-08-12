@@ -1,5 +1,5 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{CellChangesetPB, GridBlockChangesetPB, GridRowPB, InsertedRowPB, UpdatedRowPB};
+use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB, UpdatedRowPB};
 use crate::manager::GridUser;
 use crate::services::block_revision_editor::{GridBlockRevisionCompactor, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
@@ -110,7 +110,7 @@ impl GridBlockManager {
 
     pub async fn update_row<F>(&self, changeset: RowMetaChangeset, row_builder: F) -> FlowyResult<()>
     where
-        F: FnOnce(Arc<RowRevision>) -> Option<GridRowPB>,
+        F: FnOnce(Arc<RowRevision>) -> Option<RowPB>,
     {
         let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
         let _ = editor.update_row(changeset.clone()).await?;
@@ -146,10 +146,7 @@ impl GridBlockManager {
         Ok(())
     }
 
-    pub(crate) async fn delete_rows(
-        &self,
-        row_orders: Vec<GridRowPB>,
-    ) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
+    pub(crate) async fn delete_rows(&self, row_orders: Vec<RowPB>) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
         let mut changesets = vec![];
         for grid_block in block_from_row_orders(row_orders) {
             let editor = self.get_editor(&grid_block.id).await?;
@@ -198,7 +195,7 @@ impl GridBlockManager {
 
     pub async fn update_cell<F>(&self, changeset: CellChangesetPB, row_builder: F) -> FlowyResult<()>
     where
-        F: FnOnce(Arc<RowRevision>) -> Option<GridRowPB>,
+        F: FnOnce(Arc<RowRevision>) -> Option<RowPB>,
     {
         let row_changeset: RowMetaChangeset = changeset.clone().into();
         let _ = self.update_row(row_changeset, row_builder).await?;
@@ -217,7 +214,7 @@ impl GridBlockManager {
         }
     }
 
-    pub async fn get_row_orders(&self, block_id: &str) -> FlowyResult<Vec<GridRowPB>> {
+    pub async fn get_row_orders(&self, block_id: &str) -> FlowyResult<Vec<RowPB>> {
         let editor = self.get_editor(block_id).await?;
         editor.get_row_infos::<&str>(None).await
     }

@@ -19,6 +19,7 @@ impl GridTaskHandler for GridRevisionEditor {
         Box::pin(async move {
             match content {
                 TaskContent::Snapshot => {}
+                TaskContent::Group => {}
                 TaskContent::Filter(context) => self.filter_service.process(context).await?,
             }
             Ok(())

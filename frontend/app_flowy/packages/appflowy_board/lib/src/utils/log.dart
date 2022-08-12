@@ -20,6 +20,12 @@ class Log {
     }
   }
 
+  static void warn(String? message) {
+    if (enableLog) {
+      debugPrint('🐛[Warn]=> $message');
+    }
+  }
+
   static void trace(String? message) {
     if (enableLog) {
       // debugPrint('❗️[Trace]=> $message');

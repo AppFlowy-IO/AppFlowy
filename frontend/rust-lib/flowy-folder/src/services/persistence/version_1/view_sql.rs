@@ -88,7 +88,7 @@ impl ViewTable {
     pub fn new(view_rev: ViewRevision) -> Self {
         let data_type = match view_rev.data_type {
             ViewDataTypeRevision::TextBlock => SqlViewDataType::Block,
-            ViewDataTypeRevision::Grid => SqlViewDataType::Grid,
+            ViewDataTypeRevision::Database => SqlViewDataType::Grid,
         };
 
         ViewTable {
@@ -111,7 +111,7 @@ impl std::convert::From<ViewTable> for ViewRevision {
     fn from(table: ViewTable) -> Self {
         let data_type = match table.view_type {
             SqlViewDataType::Block => ViewDataTypeRevision::TextBlock,
-            SqlViewDataType::Grid => ViewDataTypeRevision::Grid,
+            SqlViewDataType::Grid => ViewDataTypeRevision::Database,
         };
 
         ViewRevision {

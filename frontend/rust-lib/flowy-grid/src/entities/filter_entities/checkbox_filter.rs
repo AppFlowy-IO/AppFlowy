@@ -1,10 +1,10 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::revision::GridFilterRevision;
+use flowy_grid_data_model::revision::FilterConfigurationRevision;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridCheckboxFilter {
+pub struct CheckboxFilterConfigurationPB {
     #[pb(index = 1)]
     pub condition: CheckboxCondition,
 }
@@ -40,9 +40,9 @@ impl std::convert::TryFrom<u8> for CheckboxCondition {
     }
 }
 
-impl std::convert::From<Arc<GridFilterRevision>> for GridCheckboxFilter {
-    fn from(rev: Arc<GridFilterRevision>) -> Self {
-        GridCheckboxFilter {
+impl std::convert::From<Arc<FilterConfigurationRevision>> for CheckboxFilterConfigurationPB {
+    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
+        CheckboxFilterConfigurationPB {
             condition: CheckboxCondition::try_from(rev.condition).unwrap_or(CheckboxCondition::IsChecked),
         }
     }

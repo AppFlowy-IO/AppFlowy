@@ -60,7 +60,7 @@ impl ToString for CheckboxCellData {
 pub struct CheckboxCellDataParser();
 impl CellBytesParser for CheckboxCellDataParser {
     type Object = CheckboxCellData;
-    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+    fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {
             Ok(s) => CheckboxCellData::from_str(&s),
             Err(_) => Ok(CheckboxCellData("".to_string())),
