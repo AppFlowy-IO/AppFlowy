@@ -1,6 +1,5 @@
 use crate::services::cell::apply_cell_data_changeset;
-use crate::services::field::SelectOptionCellChangeset;
-use flowy_error::{FlowyError, FlowyResult};
+use crate::services::field::{DateCellChangesetPB, SelectOptionCellChangeset};
 use flowy_grid_data_model::revision::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
 use indexmap::IndexMap;
 use std::collections::HashMap;
@@ -35,17 +34,33 @@ impl<'a> RowRevisionBuilder<'a> {
         }
     }
 
-    pub fn insert_cell(&mut self, field_id: &str, data: String) -> FlowyResult<()> {
+    pub fn insert_cell(&mut self, field_id: &str, data: String) {
         match self.field_rev_map.get(&field_id.to_owned()) {
             None => {
-                let msg = format!("Can't find the field with id: {}", field_id);
-                Err(FlowyError::internal().context(msg))
+                tracing::warn!("Can't find the field with id: {}", field_id);
             }
             Some(field_rev) => {
-                let data = apply_cell_data_changeset(data, None, field_rev)?;
+                let data = apply_cell_data_changeset(data, None, field_rev).unwrap();
                 let cell = CellRevision::new(data);
                 self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
-                Ok(())
+            }
+        }
+    }
+
+    pub fn insert_date_cell(&mut self, field_id: &str, timestamp: i64) {
+        match self.field_rev_map.get(&field_id.to_owned()) {
+            None => {
+                tracing::warn!("Invalid field_id: {}", field_id);
+            }
+            Some(field_rev) => {
+                let cell_data = serde_json::to_string(&DateCellChangesetPB {
+                    date: Some(timestamp.to_string()),
+                    time: None,
+                })
+                .unwrap();
+                let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+                let cell = CellRevision::new(data);
+                self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
             }
         }
     }

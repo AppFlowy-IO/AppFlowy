@@ -40,11 +40,8 @@ class _BoardCardState extends State<BoardCard> {
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
         builder: (context, state) {
-          return SizedBox(
-            height: 100,
-            child: Column(
-              children: _makeCells(context, state.gridCellMap),
-            ),
+          return Column(
+            children: _makeCells(context, state.gridCellMap),
           );
         },
       ),
@@ -56,7 +53,7 @@ class _BoardCardState extends State<BoardCard> {
       (cellId) {
         final child = widget.cellBuilder.buildCell(cellId);
 
-        return SizedBox(height: 39, child: child);
+        return child;
       },
     ).toList();
   }

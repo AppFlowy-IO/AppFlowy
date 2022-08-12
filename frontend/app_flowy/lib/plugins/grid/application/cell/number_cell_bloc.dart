@@ -8,7 +8,7 @@ import 'cell_service/cell_service.dart';
 part 'number_cell_bloc.freezed.dart';
 
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
-  final GridCellController cellController;
+  final GridNumberCellController cellController;
   void Function()? _onCellChangedFn;
 
   NumberCellBloc({

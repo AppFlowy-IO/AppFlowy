@@ -1,5 +1,8 @@
+import 'package:app_flowy/plugins/board/application/card/board_date_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BoardDateCell extends StatefulWidget {
   final GridCellControllerBuilder cellControllerBuilder;
@@ -14,8 +17,46 @@ class BoardDateCell extends StatefulWidget {
 }
 
 class _BoardDateCellState extends State<BoardDateCell> {
+  late BoardDateCellBloc _cellBloc;
+
+  @override
+  void initState() {
+    final cellController =
+        widget.cellControllerBuilder.build() as GridDateCellController;
+
+    _cellBloc = BoardDateCellBloc(cellController: cellController)
+      ..add(const BoardDateCellEvent.initial());
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return BlocProvider.value(
+      value: _cellBloc,
+      child: BlocBuilder<BoardDateCellBloc, BoardDateCellState>(
+        builder: (context, state) {
+          if (state.dateStr.isEmpty) {
+            return const SizedBox();
+          } else {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FlowyText.regular(
+                  state.dateStr,
+                  fontSize: 14,
+                ),
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cellBloc.close();
+    super.dispose();
   }
 }
