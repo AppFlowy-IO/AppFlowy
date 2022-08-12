@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flowy_editor/src/document/node.dart';
 import 'package:flowy_editor/src/document/path.dart';
 import 'package:flowy_editor/src/document/text_delta.dart';
@@ -27,9 +29,16 @@ class StateTree {
       return false;
     }
     Node? insertedNode = root.childAtPath(
-      path.sublist(0, path.length - 1) + [path.last - 1],
+      path.sublist(0, path.length - 1) + [max(0, path.last - 1)],
     );
     if (insertedNode == null) {
+      insertedNode = root.childAtPath(path.sublist(0, path.length - 1));
+      if (insertedNode != null) {
+        for (final node in nodes) {
+          insertedNode.insert(node);
+        }
+        return true;
+      }
       return false;
     }
     for (var i = 0; i < nodes.length; i++) {

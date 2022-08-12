@@ -56,32 +56,66 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
+    final child = widget.textNode.children.isNotEmpty
+        ? _buildBulletedListWithChildren(context)
+        : _buildBulletedList(context);
+    return SizedBox(width: defaultMaxTextNodeWidth, child: child);
+  }
 
-    return SizedBox(
-      width: defaultMaxTextNodeWidth,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: defaultLinePadding),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FlowySvg(
-              key: iconKey,
-              size: Size.square(_iconSize),
-              padding:
-                  EdgeInsets.only(top: topPadding, right: _iconRightPadding),
-              name: 'point',
+  Widget _buildBulletedListWithChildren(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildBulletedList(context),
+        Padding(
+          padding: EdgeInsets.only(left: _iconSize + _iconRightPadding),
+          child: Column(
+            children: widget.textNode.children
+                .map(
+                  (child) => widget.editorState.service.renderPluginService
+                      .buildPluginWidget(
+                    child is TextNode
+                        ? NodeWidgetContext<TextNode>(
+                            context: context,
+                            node: child,
+                            editorState: widget.editorState,
+                          )
+                        : NodeWidgetContext<Node>(
+                            context: context,
+                            node: child,
+                            editorState: widget.editorState,
+                          ),
+                  ),
+                )
+                .toList(),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildBulletedList(BuildContext context) {
+    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
+    return Padding(
+      padding: EdgeInsets.only(bottom: defaultLinePadding),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FlowySvg(
+            key: iconKey,
+            size: Size.square(_iconSize),
+            padding: EdgeInsets.only(top: topPadding, right: _iconRightPadding),
+            name: 'point',
+          ),
+          Expanded(
+            child: FlowyRichText(
+              key: _richTextKey,
+              placeholderText: 'List',
+              textNode: widget.textNode,
+              editorState: widget.editorState,
             ),
-            Expanded(
-              child: FlowyRichText(
-                key: _richTextKey,
-                placeholderText: 'List',
-                textNode: widget.textNode,
-                editorState: widget.editorState,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

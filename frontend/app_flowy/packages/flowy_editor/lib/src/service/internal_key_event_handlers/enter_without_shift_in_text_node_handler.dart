@@ -110,18 +110,20 @@ FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
   final afterSelection = Selection.collapsed(
     Position(path: textNode.path.next, offset: 0),
   );
+  final newTextNode = textNode.copyWith(
+      attributes: attributes,
+      delta: textNode.delta.slice(selection.end.offset),
+      children: textNode.children.copy());
   TransactionBuilder(editorState)
-    ..insertNode(
-      textNode.path.next,
-      textNode.copyWith(
-        attributes: attributes,
-        delta: textNode.delta.slice(selection.end.offset),
-      ),
-    )
     ..deleteText(
       textNode,
       selection.start.offset,
       textNode.toRawString().length - selection.start.offset,
+    )
+    ..deleteNodes(textNode.children.toList(growable: false))
+    ..insertNode(
+      textNode.path.next,
+      newTextNode,
     )
     ..afterSelection = afterSelection
     ..commit();

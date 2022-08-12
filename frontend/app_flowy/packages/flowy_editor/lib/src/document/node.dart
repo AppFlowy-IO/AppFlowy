@@ -111,6 +111,27 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     return childAtIndex(path.first)?.childAtPath(path.sublist(1));
   }
 
+  void insert(Node entry, {int? index}) {
+    index ??= children.length;
+
+    if (children.isEmpty) {
+      entry.parent = this;
+      children.add(entry);
+      notifyListeners();
+      return;
+    }
+
+    final length = children.length;
+
+    if (index > length) {
+      children.last.insertAfter(entry);
+    } else if (index <= 0) {
+      children.first.insertBefore(entry);
+    } else {
+      childAtIndex(index)?.insertBefore(entry);
+    }
+  }
+
   @override
   void insertAfter(Node entry) {
     entry.parent = parent;
@@ -163,6 +184,17 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     }
     return parent!._path([index, ...previous]);
   }
+
+  Node copyWith({
+    String? type,
+    LinkedList<Node>? children,
+    Attributes? attributes,
+  }) =>
+      Node(
+        type: type ?? this.type,
+        children: children ?? this.children,
+        attributes: attributes ?? _attributes,
+      );
 }
 
 class TextNode extends Node {
@@ -200,6 +232,7 @@ class TextNode extends Node {
     return map;
   }
 
+  @override
   TextNode copyWith({
     String? type,
     LinkedList<Node>? children,
@@ -214,4 +247,14 @@ class TextNode extends Node {
       );
 
   String toRawString() => _delta.toRawString();
+}
+
+extension NodeLinkedList on LinkedList<Node> {
+  LinkedList<Node> copy() {
+    final linkedList = LinkedList<Node>();
+    for (final node in this) {
+      linkedList.add(node.copyWith());
+    }
+    return linkedList;
+  }
 }
