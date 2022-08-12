@@ -36,7 +36,7 @@ class TransactionBuilder {
   /// Insert a sequence of nodes at the position of path.
   insertNodes(Path path, List<Node> nodes) {
     beforeSelection = state.cursorSelection;
-    add(InsertOperation(path, nodes));
+    add(InsertOperation(path, nodes.map((node) => node.deepClone()).toList()));
   }
 
   /// Update the attributes of nodes.
@@ -75,7 +75,7 @@ class TransactionBuilder {
       nodes.add(node);
     }
 
-    add(DeleteOperation(path, nodes));
+    add(DeleteOperation(path, nodes.map((node) => node.deepClone()).toList()));
   }
 
   textEdit(TextNode node, Delta Function() f) {
@@ -202,6 +202,9 @@ class TransactionBuilder {
     }
     for (var i = 0; i < operations.length; i++) {
       op = transformOperation(operations[i], op);
+    }
+    if (op is TextEditOperation && op.delta.isEmpty) {
+      return;
     }
     operations.add(op);
   }

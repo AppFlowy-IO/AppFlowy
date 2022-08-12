@@ -6,11 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
 _handleCopy(EditorState editorState) async {
-  var selection = editorState.cursorSelection;
+  final selection = editorState.cursorSelection?.normalize();
   if (selection == null || selection.isCollapsed) {
     return;
   }
-  selection = selection.normalize();
   if (pathEquals(selection.start.path, selection.end.path)) {
     final nodeAtPath = editorState.document.nodeAtPath(selection.end.path)!;
     if (nodeAtPath.type == "text") {
@@ -43,10 +42,12 @@ _handleCopy(EditorState editorState) async {
 }
 
 _pasteHTML(EditorState editorState, String html) {
-  final selection = editorState.cursorSelection;
+  final selection = editorState.cursorSelection?.normalize();
   if (selection == null) {
     return;
   }
+
+  assert(selection.isCollapsed);
 
   final path = [...selection.end.path];
   if (path.isEmpty) {
@@ -124,6 +125,20 @@ _pasteMultipleLinesInText(
 
 _handlePaste(EditorState editorState) async {
   final data = await RichClipboard.getData();
+
+  if (editorState.cursorSelection?.isCollapsed ?? false) {
+    _pastRichClipboard(editorState, data);
+    return;
+  }
+
+  _deleteSelectedContent(editorState);
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _pastRichClipboard(editorState, data);
+  });
+}
+
+_pastRichClipboard(EditorState editorState, RichClipboardData data) {
   if (data.html != null) {
     _pasteHTML(editorState, data.html!);
     return;
@@ -135,7 +150,7 @@ _handlePaste(EditorState editorState) async {
 }
 
 _handlePastePlainText(EditorState editorState, String plainText) {
-  final selection = editorState.cursorSelection;
+  final selection = editorState.cursorSelection?.normalize();
   if (selection == null) {
     return;
   }
@@ -208,22 +223,13 @@ _handlePastePlainText(EditorState editorState, String plainText) {
 /// 2. delete selected content
 _handleCut(EditorState editorState) {
   debugPrint('cut');
-  final selection = editorState.cursorSelection;
-  if (selection == null) {
-    return;
-  }
-
-  if (selection.isCollapsed) {
-    return;
-  }
-
   _handleCopy(editorState);
   _deleteSelectedContent(editorState);
 }
 
 _deleteSelectedContent(EditorState editorState) {
-  final selection = editorState.cursorSelection;
-  if (selection == null) {
+  final selection = editorState.cursorSelection?.normalize();
+  if (selection == null || selection.isCollapsed) {
     return;
   }
   final beginNode = editorState.document.nodeAtPath(selection.start.path)!;
@@ -262,11 +268,11 @@ _deleteSelectedContent(EditorState editorState) {
 
         return delta;
       });
-      tb.setAfterSelection(Selection.collapsed(selection.start));
     } else {
       tb.deleteNode(item);
     }
   }
+  tb.setAfterSelection(Selection.collapsed(selection.start));
   tb.commit();
 }
 

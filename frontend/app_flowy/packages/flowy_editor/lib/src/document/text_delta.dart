@@ -417,7 +417,8 @@ class Delta extends Iterable<TextOperation> {
 
           // Optimization if rest of other is just retain
           if (!otherIter.hasNext &&
-              delta._operations[delta._operations.length - 1] == newOp) {
+              delta._operations.isNotEmpty &&
+              delta._operations.last == newOp) {
             final rest = Delta(thisIter.rest());
             return (delta + rest)..chop();
           }

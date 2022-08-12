@@ -163,6 +163,18 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     }
     return parent!._path([index, ...previous]);
   }
+
+  Node deepClone() {
+    final newNode = Node(
+        type: type, children: LinkedList<Node>(), attributes: {...attributes});
+
+    for (final node in children) {
+      final newNode = node.deepClone();
+      newNode.parent = this;
+      newNode.children.add(newNode);
+    }
+    return newNode;
+  }
 }
 
 class TextNode extends Node {
@@ -212,6 +224,22 @@ class TextNode extends Node {
         attributes: attributes ?? _attributes,
         delta: delta ?? this.delta,
       );
+
+  @override
+  TextNode deepClone() {
+    final newNode = TextNode(
+        type: type,
+        children: LinkedList<Node>(),
+        delta: delta.slice(0),
+        attributes: {...attributes});
+
+    for (final node in children) {
+      final newNode = node.deepClone();
+      newNode.parent = this;
+      newNode.children.add(newNode);
+    }
+    return newNode;
+  }
 
   String toRawString() => _delta.toRawString();
 }
