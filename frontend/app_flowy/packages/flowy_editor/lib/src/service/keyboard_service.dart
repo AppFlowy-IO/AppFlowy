@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 abstract class FlowyKeyboardService {
+  KeyEventResult onKey(RawKeyEvent event);
   void enable();
   void disable();
 }
@@ -65,15 +66,8 @@ class _FlowyKeyboardState extends State<FlowyKeyboard>
     _focusNode.unfocus();
   }
 
-  void _onFocusChange(bool value) {
-    debugPrint('[KeyBoard Service] focus change $value');
-  }
-
-  KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
-    if (!isFocus) {
-      return KeyEventResult.ignored;
-    }
-
+  @override
+  KeyEventResult onKey(RawKeyEvent event) {
     debugPrint('on keyboard event $event');
 
     if (event is! RawKeyDownEvent) {
@@ -96,5 +90,17 @@ class _FlowyKeyboardState extends State<FlowyKeyboard>
     }
 
     return KeyEventResult.ignored;
+  }
+
+  void _onFocusChange(bool value) {
+    debugPrint('[KeyBoard Service] focus change $value');
+  }
+
+  KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
+    if (!isFocus) {
+      return KeyEventResult.ignored;
+    }
+
+    return onKey(event);
   }
 }

@@ -51,6 +51,9 @@ class EditorState {
   final UndoManager undoManager = UndoManager();
   Selection? _cursorSelection;
 
+  /// TODO: only for testing.
+  bool disableSealTimer = false;
+
   Selection? get cursorSelection {
     return _cursorSelection;
   }
@@ -106,6 +109,9 @@ class EditorState {
   }
 
   _debouncedSealHistoryItem() {
+    if (disableSealTimer) {
+      return;
+    }
     _debouncedSealHistoryItemTimer?.cancel();
     _debouncedSealHistoryItemTimer =
         Timer(const Duration(milliseconds: 1000), () {
