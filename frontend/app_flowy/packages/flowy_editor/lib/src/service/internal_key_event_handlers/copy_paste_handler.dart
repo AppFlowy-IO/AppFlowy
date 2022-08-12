@@ -222,7 +222,7 @@ _handleCut(EditorState editorState) {
 }
 
 _deleteSelectedContent(EditorState editorState) {
-  final selection = editorState.cursorSelection;
+  final selection = editorState.cursorSelection?.normalize();
   if (selection == null) {
     return;
   }
