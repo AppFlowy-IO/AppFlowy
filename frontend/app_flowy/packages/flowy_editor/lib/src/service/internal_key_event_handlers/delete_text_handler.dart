@@ -4,12 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:flowy_editor/flowy_editor.dart';
 
 KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
-  final selection = editorState.service.selectionService.currentSelection.value;
+  var selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null) {
     return KeyEventResult.ignored;
   }
-
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  var nodes = editorState.service.selectionService.currentSelectedNodes;
+  nodes = selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
+  selection = selection.isBackward ? selection : selection.reversed;
   // make sure all nodes is [TextNode].
   final textNodes = nodes.whereType<TextNode>().toList();
   if (textNodes.length != nodes.length) {
@@ -20,7 +21,7 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   if (textNodes.length == 1) {
     final textNode = textNodes.first;
     final index = textNode.delta.prevRunePosition(selection.start.offset);
-    if (index < 0) {
+    if (index < 0 && selection.isCollapsed) {
       // 1. style
       if (textNode.subtype != null) {
         transactionBuilder
