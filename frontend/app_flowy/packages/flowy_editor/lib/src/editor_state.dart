@@ -38,8 +38,6 @@ enum CursorUpdateReason {
 class EditorState {
   final StateTree document;
 
-  List<Node> selectedNodes = [];
-
   // Service reference.
   final service = FlowyService();
 
