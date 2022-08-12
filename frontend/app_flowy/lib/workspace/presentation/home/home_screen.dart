@@ -87,7 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final layout = HomeLayout(context, constraints, state.forceCollapse);
-        const homeStack = HomeStack();
+        final homeStack = HomeStack(
+          layout: layout,
+        );
         final menu = _buildHomeMenu(
           layout: layout,
           context: context,
