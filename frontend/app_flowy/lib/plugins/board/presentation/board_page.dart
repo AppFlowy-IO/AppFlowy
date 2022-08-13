@@ -54,10 +54,11 @@ class BoardContent extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: AFBoard(
               key: UniqueKey(),
+              scrollController: ScrollController(),
               dataController: context.read<BoardBloc>().boardDataController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
-              cardBuilder: _buildCard,
+              cardBuilder: (_, data) => _buildCard(context, data),
               columnConstraints: const BoxConstraints.tightFor(width: 240),
               config: AFBoardConfig(
                 columnBackgroundColor: HexColor.fromHex('#F7F8FC'),

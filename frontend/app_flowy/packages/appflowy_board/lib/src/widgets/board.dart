@@ -46,6 +46,8 @@ class AFBoard extends StatelessWidget {
   ///
   final BoardPhantomController phantomController;
 
+  final ScrollController? scrollController;
+
   final AFBoardConfig config;
 
   AFBoard({
@@ -54,6 +56,7 @@ class AFBoard extends StatelessWidget {
     this.background,
     this.footBuilder,
     this.headerBuilder,
+    this.scrollController,
     this.columnConstraints = const BoxConstraints(maxWidth: 200),
     this.config = const AFBoardConfig(),
     Key? key,
@@ -69,6 +72,7 @@ class AFBoard extends StatelessWidget {
           return BoardContent(
             config: config,
             dataController: dataController,
+            scrollController: scrollController,
             background: background,
             delegate: phantomController,
             columnConstraints: columnConstraints,

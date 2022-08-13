@@ -89,8 +89,8 @@ class BoardDataController {
     );
   }
 
-  void createRow() {
-    _gridFFIService.createRow();
+  Future<Either<RowPB, FlowyError>> createRow() {
+    return _gridFFIService.createRow();
   }
 
   Future<void> dispose() async {

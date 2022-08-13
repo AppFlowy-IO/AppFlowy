@@ -207,3 +207,8 @@ class BoardColumnItem extends AFColumnItem {
   @override
   String get id => row.id;
 }
+
+class CreateCardItem extends AFColumnItem {
+  @override
+  String get id => '$CreateCardItem';
+}
