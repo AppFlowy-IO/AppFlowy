@@ -123,7 +123,9 @@ class BoardDataController {
         fieldCache: fieldCache,
       );
 
-      // cache.addListener(onRowsChanged: (rows, reason) {})
+      cache.addListener(onRowsChanged: (reason) {
+        _onRowsChanged?.call(rowInfos, reason);
+      });
       _blocks[block.id] = cache;
     }
 

@@ -266,11 +266,11 @@ pub(crate) async fn duplicate_row_handler(
 pub(crate) async fn create_row_handler(
     data: Data<CreateRowPayloadPB>,
     manager: AppData<Arc<GridManager>>,
-) -> Result<(), FlowyError> {
+) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
-    let _ = editor.create_row(params.start_row_id).await?;
-    Ok(())
+    let row = editor.create_row(params.start_row_id).await?;
+    data_result(row)
 }
 
 // #[tracing::instrument(level = "debug", skip_all, err)]

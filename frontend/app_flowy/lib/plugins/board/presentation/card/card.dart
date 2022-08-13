@@ -9,15 +9,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_cell_builder.dart';
 import 'card_container.dart';
 
+typedef OnEndEditing = void Function(String rowId);
+
 class BoardCard extends StatefulWidget {
   final String gridId;
+  final bool isEditing;
   final CardDataController dataController;
   final BoardCellBuilder cellBuilder;
+  final OnEndEditing onEditEditing;
 
   const BoardCard({
     required this.gridId,
+    required this.isEditing,
     required this.dataController,
     required this.cellBuilder,
+    required this.onEditEditing,
     Key? key,
   }) : super(key: key);
 
@@ -60,7 +66,6 @@ class _BoardCardState extends State<BoardCard> {
     return cellMap.values.map(
       (cellId) {
         final child = widget.cellBuilder.buildCell(cellId);
-
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           child: child,
