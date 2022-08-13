@@ -235,7 +235,7 @@ pub(crate) async fn get_row_handler(
     let row = editor
         .get_row_rev(&params.row_id)
         .await?
-        .and_then(make_row_from_row_rev);
+        .and_then(|row_rev| Some(make_row_from_row_rev(row_rev)));
 
     data_result(OptionalRowPB { row })
 }

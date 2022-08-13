@@ -1,9 +1,9 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB, UpdatedRowPB};
+use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB};
 use crate::manager::GridUser;
 use crate::services::block_revision_editor::{GridBlockRevisionCompactor, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{block_from_row_orders, GridBlockSnapshot};
+use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlockSnapshot};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
@@ -110,20 +110,18 @@ impl GridBlockManager {
 
     pub async fn update_row<F>(&self, changeset: RowMetaChangeset, row_builder: F) -> FlowyResult<()>
     where
-        F: FnOnce(Arc<RowRevision>) -> Option<RowPB>,
+        F: FnOnce(Arc<RowRevision>) -> RowPB,
     {
         let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
         let _ = editor.update_row(changeset.clone()).await?;
         match editor.get_row_rev(&changeset.row_id).await? {
             None => tracing::error!("Internal error: can't find the row with id: {}", changeset.row_id),
             Some(row_rev) => {
-                if let Some(row) = row_builder(row_rev.clone()) {
-                    let row_order = UpdatedRowPB::new(&row_rev, row);
-                    let block_order_changeset = GridBlockChangesetPB::update(&editor.block_id, vec![row_order]);
-                    let _ = self
-                        .notify_did_update_block(&editor.block_id, block_order_changeset)
-                        .await?;
-                }
+                let block_order_changeset =
+                    GridBlockChangesetPB::update(&editor.block_id, vec![row_builder(row_rev.clone())]);
+                let _ = self
+                    .notify_did_update_block(&editor.block_id, block_order_changeset)
+                    .await?;
             }
         }
         Ok(())
@@ -170,17 +168,16 @@ impl GridBlockManager {
         match editor.get_row_revs(Some(vec![Cow::Borrowed(row_id)])).await?.pop() {
             None => {}
             Some(row_rev) => {
+                let delete_row_id = row_rev.id.clone();
                 let insert_row = InsertedRowPB {
-                    block_id: row_rev.block_id.clone(),
-                    row_id: row_rev.id.clone(),
                     index: Some(to as i32),
-                    height: row_rev.height,
+                    row: make_row_from_row_rev(row_rev),
                 };
 
                 let notified_changeset = GridBlockChangesetPB {
                     block_id: editor.block_id.clone(),
                     inserted_rows: vec![insert_row],
-                    deleted_rows: vec![row_rev.id.clone()],
+                    deleted_rows: vec![delete_row_id],
                     ..Default::default()
                 };
 
@@ -195,7 +192,7 @@ impl GridBlockManager {
 
     pub async fn update_cell<F>(&self, changeset: CellChangesetPB, row_builder: F) -> FlowyResult<()>
     where
-        F: FnOnce(Arc<RowRevision>) -> Option<RowPB>,
+        F: FnOnce(Arc<RowRevision>) -> RowPB,
     {
         let row_changeset: RowMetaChangeset = changeset.clone().into();
         let _ = self.update_row(row_changeset, row_builder).await?;

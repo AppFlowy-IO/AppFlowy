@@ -18,7 +18,7 @@ typedef OnGridChanged = void Function(GridPB);
 
 typedef OnRowsChanged = void Function(
   List<RowInfo> rowInfos,
-  RowChangeReason,
+  RowsChangedReason,
 );
 typedef ListenOnRowChangedCondition = bool Function();
 
@@ -105,7 +105,7 @@ class GridDataController {
       );
 
       cache.addListener(
-        onChangeReason: (reason) {
+        onRowsChanged: (reason) {
           _onRowChanged?.call(rowInfos, reason);
         },
       );

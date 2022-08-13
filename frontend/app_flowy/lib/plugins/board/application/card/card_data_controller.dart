@@ -6,7 +6,7 @@ import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 
-typedef OnCardChanged = void Function(GridCellMap, RowChangeReason);
+typedef OnCardChanged = void Function(GridCellMap, RowsChangedReason);
 
 class CardDataController extends BoardCellBuilderDelegate {
   final RowPB rowPB;

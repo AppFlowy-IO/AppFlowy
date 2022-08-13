@@ -4,7 +4,6 @@ import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
 import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
-import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'dart:async';
@@ -15,8 +14,8 @@ typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldPB>);
 typedef OnGridChanged = void Function(GridPB);
 typedef OnGroupChanged = void Function(List<GroupPB>);
 typedef OnRowsChanged = void Function(
-  List<RowInfo> rowInfos,
-  RowChangeReason,
+  List<RowInfo>,
+  RowsChangedReason,
 );
 typedef OnError = void Function(FlowyError);
 
@@ -73,11 +72,11 @@ class BoardDataController {
       () => result.fold(
         (grid) async {
           _onGridChanged?.call(grid);
-          _initialBlocks(grid.blocks);
+
           return await _loadFields(grid).then((result) {
             return result.fold(
               (l) {
-                _loadGroups();
+                _loadGroups(grid.blocks);
                 return left(l);
               },
               (err) => right(err),
@@ -102,29 +101,6 @@ class BoardDataController {
     }
   }
 
-  void _initialBlocks(List<BlockPB> blocks) {
-    for (final block in blocks) {
-      if (_blocks[block.id] != null) {
-        Log.warn("Initial duplicate block's cache: ${block.id}");
-        return;
-      }
-
-      final cache = GridBlockCache(
-        gridId: gridId,
-        block: block,
-        fieldCache: fieldCache,
-      );
-
-      cache.addListener(
-        onChangeReason: (reason) {
-          _onRowsChanged?.call(rowInfos, reason);
-        },
-      );
-
-      _blocks[block.id] = cache;
-    }
-  }
-
   Future<Either<Unit, FlowyError>> _loadFields(GridPB grid) async {
     final result = await _gridFFIService.getFields(fieldIds: grid.fields);
     return Future(
@@ -139,7 +115,18 @@ class BoardDataController {
     );
   }
 
-  Future<void> _loadGroups() async {
+  Future<void> _loadGroups(List<BlockPB> blocks) async {
+    for (final block in blocks) {
+      final cache = GridBlockCache(
+        gridId: gridId,
+        block: block,
+        fieldCache: fieldCache,
+      );
+
+      // cache.addListener(onRowsChanged: (rows, reason) {})
+      _blocks[block.id] = cache;
+    }
+
     final result = await _gridFFIService.loadGroups();
     return Future(
       () => result.fold(

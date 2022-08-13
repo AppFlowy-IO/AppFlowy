@@ -14,13 +14,13 @@ class RowActionSheetBloc
     extends Bloc<RowActionSheetEvent, RowActionSheetState> {
   final RowFFIService _rowService;
 
-  RowActionSheetBloc({required RowInfo rowData})
+  RowActionSheetBloc({required RowInfo rowInfo})
       : _rowService = RowFFIService(
-          gridId: rowData.gridId,
-          blockId: rowData.blockId,
-          rowId: rowData.id,
+          gridId: rowInfo.gridId,
+          blockId: rowInfo.blockId,
+          rowId: rowInfo.rowPB.id,
         ),
-        super(RowActionSheetState.initial(rowData)) {
+        super(RowActionSheetState.initial(rowInfo)) {
     on<RowActionSheetEvent>(
       (event, emit) async {
         await event.map(

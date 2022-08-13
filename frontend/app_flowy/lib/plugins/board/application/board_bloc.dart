@@ -52,8 +52,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             _startListening();
             await _loadGrid(emit);
           },
-          createRow: () {
-            _dataController.createRow();
+          createRow: () async {
+            final result = await _dataController.createRow();
+            result.fold(
+              (rowPB) => null,
+              (err) => Log.error(err),
+            );
           },
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
@@ -99,7 +103,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
         boardDataController.addColumns(columns);
       },
-      onRowsChanged: (List<RowInfo> rowInfos, RowChangeReason reason) {
+      onRowsChanged: (List<RowInfo> rowInfos, RowsChangedReason reason) {
         add(BoardEvent.didReceiveRows(rowInfos));
       },
       onError: (err) {
@@ -156,6 +160,7 @@ class BoardState with _$BoardState {
     required String gridId,
     required Option<GridPB> grid,
     required List<GroupPB> groups,
+    required Option<RowPB> editingRow,
     required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
   }) = _BoardState;
@@ -165,6 +170,7 @@ class BoardState with _$BoardState {
         groups: [],
         grid: none(),
         gridId: gridId,
+        editingRow: none(),
         loadingState: const _Loading(),
       );
 }
