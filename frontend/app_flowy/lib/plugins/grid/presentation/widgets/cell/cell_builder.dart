@@ -94,6 +94,18 @@ abstract class CellEditable {
   ValueNotifier<bool> get onCellEditing;
 }
 
+typedef AccessoryBuilder = List<GridCellAccessory> Function(
+    GridCellAccessoryBuildContext buildContext);
+
+abstract class CellAccessory extends Widget {
+  const CellAccessory({Key? key}) : super(key: key);
+
+  // The hover will show if the isHover's value is true
+  ValueNotifier<bool>? get onAccessoryHover;
+
+  AccessoryBuilder? get accessoryBuilder;
+}
+
 abstract class GridCellWidget extends StatefulWidget
     implements CellAccessory, CellEditable, CellShortcuts {
   GridCellWidget({Key? key}) : super(key: key) {

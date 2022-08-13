@@ -108,8 +108,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  List<BoardColumnItem> _buildRows(List<RowPB> rows) {
-    return rows.map((row) {
+  List<AFColumnItem> _buildRows(List<RowPB> rows) {
+    final items = rows.map((row) {
       // final rowInfo = RowInfo(
       //   gridId: _dataController.gridId,
       //   blockId: row.blockId,
@@ -120,6 +120,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       // );
       return BoardColumnItem(row: row);
     }).toList();
+
+    return <AFColumnItem>[...items];
   }
 
   Future<void> _loadGrid(Emitter<BoardState> emit) async {

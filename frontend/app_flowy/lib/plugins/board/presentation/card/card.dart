@@ -1,10 +1,12 @@
 import 'package:app_flowy/plugins/board/application/card/card_bloc.dart';
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'card_cell_builder.dart';
+import 'card_container.dart';
 
 class BoardCard extends StatefulWidget {
   final String gridId;
@@ -40,8 +42,10 @@ class _BoardCardState extends State<BoardCard> {
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
         builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
+          return BoardCardContainer(
+            accessoryBuilder: (context) {
+              return [const _CardMoreOption()];
+            },
             child: Column(
               children: _makeCells(context, state.gridCellMap),
             ),
@@ -62,5 +66,19 @@ class _BoardCardState extends State<BoardCard> {
         );
       },
     ).toList();
+  }
+}
+
+class _CardMoreOption extends StatelessWidget with CardAccessory {
+  const _CardMoreOption({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return svgWidget('home/details', color: context.read<AppTheme>().iconColor);
+  }
+
+  @override
+  void onTap(BuildContext context) {
+    print('show options');
   }
 }
