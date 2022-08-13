@@ -35,7 +35,7 @@ class AFBoardDataController extends ChangeNotifier
   List<String> get columnIds =>
       _columnDatas.map((columnData) => columnData.id).toList();
 
-  final LinkedHashMap<String, BoardColumnDataController> _columnControllers =
+  final LinkedHashMap<String, AFBoardColumnDataController> _columnControllers =
       LinkedHashMap();
 
   AFBoardDataController({
@@ -47,7 +47,7 @@ class AFBoardDataController extends ChangeNotifier
   void addColumn(AFBoardColumnData columnData, {bool notify = true}) {
     if (_columnControllers[columnData.id] != null) return;
 
-    final controller = BoardColumnDataController(columnData: columnData);
+    final controller = AFBoardColumnDataController(columnData: columnData);
     _columnDatas.add(columnData);
     _columnControllers[columnData.id] = controller;
     if (notify) notifyListeners();
@@ -84,11 +84,11 @@ class AFBoardDataController extends ChangeNotifier
     if (columnIds.isNotEmpty && notify) notifyListeners();
   }
 
-  BoardColumnDataController columnController(String columnId) {
+  AFBoardColumnDataController columnController(String columnId) {
     return _columnControllers[columnId]!;
   }
 
-  BoardColumnDataController? getColumnController(String columnId) {
+  AFBoardColumnDataController? getColumnController(String columnId) {
     final columnController = _columnControllers[columnId];
     if (columnController == null) {
       Log.warn('Column:[$columnId] \'s controller is not exist');
@@ -153,7 +153,7 @@ class AFBoardDataController extends ChangeNotifier
   }
 
   @override
-  BoardColumnDataController? controller(String columnId) {
+  AFBoardColumnDataController? controller(String columnId) {
     return _columnControllers[columnId];
   }
 

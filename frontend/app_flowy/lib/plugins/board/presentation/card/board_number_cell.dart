@@ -1,28 +1,31 @@
-import 'package:app_flowy/plugins/board/application/card/board_text_cell_bloc.dart';
+import 'package:app_flowy/plugins/board/application/card/board_number_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BoardTextCell extends StatefulWidget {
+class BoardNumberCell extends StatefulWidget {
   final GridCellControllerBuilder cellControllerBuilder;
-  const BoardTextCell({required this.cellControllerBuilder, Key? key})
-      : super(key: key);
+
+  const BoardNumberCell({
+    required this.cellControllerBuilder,
+    Key? key,
+  }) : super(key: key);
 
   @override
-  State<BoardTextCell> createState() => _BoardTextCellState();
+  State<BoardNumberCell> createState() => _BoardNumberCellState();
 }
 
-class _BoardTextCellState extends State<BoardTextCell> {
-  late BoardTextCellBloc _cellBloc;
+class _BoardNumberCellState extends State<BoardNumberCell> {
+  late BoardNumberCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellController =
-        widget.cellControllerBuilder.build() as GridCellController;
+        widget.cellControllerBuilder.build() as GridNumberCellController;
 
-    _cellBloc = BoardTextCellBloc(cellController: cellController)
-      ..add(const BoardTextCellEvent.initial());
+    _cellBloc = BoardNumberCellBloc(cellController: cellController)
+      ..add(const BoardNumberCellEvent.initial());
     super.initState();
   }
 
@@ -30,7 +33,7 @@ class _BoardTextCellState extends State<BoardTextCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
+      child: BlocBuilder<BoardNumberCellBloc, BoardNumberCellState>(
         builder: (context, state) {
           if (state.content.isEmpty) {
             return const SizedBox();

@@ -1,31 +1,34 @@
 import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'row_cache.dart';
-import 'row_data_controller.dart';
-import 'row_service.dart';
 
-part 'row_bloc.freezed.dart';
+import 'card_data_controller.dart';
 
-class RowBloc extends Bloc<RowEvent, RowState> {
+part 'card_bloc.freezed.dart';
+
+class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
   final RowFFIService _rowService;
-  final GridRowDataController _dataController;
+  final CardDataController _dataController;
 
-  RowBloc({
-    required RowInfo rowInfo,
-    required GridRowDataController dataController,
+  BoardCardBloc({
+    required String gridId,
+    required CardDataController dataController,
   })  : _rowService = RowFFIService(
-          gridId: rowInfo.gridId,
-          blockId: rowInfo.blockId,
-          rowId: rowInfo.id,
+          gridId: gridId,
+          blockId: dataController.rowPB.blockId,
+          rowId: dataController.rowPB.id,
         ),
         _dataController = dataController,
-        super(RowState.initial(rowInfo, dataController.loadData())) {
-    on<RowEvent>(
+        super(BoardCardState.initial(
+            dataController.rowPB, dataController.loadData())) {
+    on<BoardCardEvent>(
       (event, emit) async {
         await event.map(
           initial: (_InitialRow value) async {
@@ -59,7 +62,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     _dataController.addListener(
       onRowChanged: (cells, reason) {
         if (!isClosed) {
-          add(RowEvent.didReceiveCells(cells, reason));
+          add(BoardCardEvent.didReceiveCells(cells, reason));
         }
       },
     );
@@ -67,25 +70,25 @@ class RowBloc extends Bloc<RowEvent, RowState> {
 }
 
 @freezed
-class RowEvent with _$RowEvent {
-  const factory RowEvent.initial() = _InitialRow;
-  const factory RowEvent.createRow() = _CreateRow;
-  const factory RowEvent.didReceiveCells(
+class BoardCardEvent with _$BoardCardEvent {
+  const factory BoardCardEvent.initial() = _InitialRow;
+  const factory BoardCardEvent.createRow() = _CreateRow;
+  const factory BoardCardEvent.didReceiveCells(
       GridCellMap gridCellMap, RowChangeReason reason) = _DidReceiveCells;
 }
 
 @freezed
-class RowState with _$RowState {
-  const factory RowState({
-    required RowInfo rowInfo,
+class BoardCardState with _$BoardCardState {
+  const factory BoardCardState({
+    required RowPB rowPB,
     required GridCellMap gridCellMap,
     required UnmodifiableListView<GridCellEquatable> cells,
     RowChangeReason? changeReason,
-  }) = _RowState;
+  }) = _BoardCardState;
 
-  factory RowState.initial(RowInfo rowInfo, GridCellMap cellDataMap) =>
-      RowState(
-        rowInfo: rowInfo,
+  factory BoardCardState.initial(RowPB rowPB, GridCellMap cellDataMap) =>
+      BoardCardState(
+        rowPB: rowPB,
         gridCellMap: cellDataMap,
         cells: UnmodifiableListView(
           cellDataMap.values.map((e) => GridCellEquatable(e.field)).toList(),

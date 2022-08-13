@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/board/application/card/board_select_option_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_cell/select_option_cell.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_cell/extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -34,9 +34,15 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
       value: _cellBloc,
       child: BlocBuilder<BoardSelectOptionCellBloc, BoardSelectOptionCellState>(
         builder: (context, state) {
-          return SelectOptionWrap(
-            selectOptions: state.selectedOptions,
-            cellControllerBuilder: widget.cellControllerBuilder,
+          final children = state.selectedOptions
+              .map((option) => SelectOptionTag.fromOption(
+                    context: context,
+                    option: option,
+                  ))
+              .toList();
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Wrap(children: children, spacing: 4, runSpacing: 2),
           );
         },
       ),

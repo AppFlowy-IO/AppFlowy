@@ -90,9 +90,9 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
 
   @override
   void initState() {
-    final cellContext =
+    final cellController =
         widget.cellControllerBuilder.build() as GridURLCellController;
-    _cellBloc = URLCellBloc(cellController: cellContext);
+    _cellBloc = URLCellBloc(cellController: cellController);
     _cellBloc.add(const URLCellEvent.initial());
     super.initState();
   }

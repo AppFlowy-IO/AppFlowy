@@ -1,28 +1,31 @@
-import 'package:app_flowy/plugins/board/application/card/board_text_cell_bloc.dart';
+import 'package:app_flowy/plugins/board/application/card/board_date_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BoardTextCell extends StatefulWidget {
+class BoardDateCell extends StatefulWidget {
   final GridCellControllerBuilder cellControllerBuilder;
-  const BoardTextCell({required this.cellControllerBuilder, Key? key})
-      : super(key: key);
+
+  const BoardDateCell({
+    required this.cellControllerBuilder,
+    Key? key,
+  }) : super(key: key);
 
   @override
-  State<BoardTextCell> createState() => _BoardTextCellState();
+  State<BoardDateCell> createState() => _BoardDateCellState();
 }
 
-class _BoardTextCellState extends State<BoardTextCell> {
-  late BoardTextCellBloc _cellBloc;
+class _BoardDateCellState extends State<BoardDateCell> {
+  late BoardDateCellBloc _cellBloc;
 
   @override
   void initState() {
     final cellController =
-        widget.cellControllerBuilder.build() as GridCellController;
+        widget.cellControllerBuilder.build() as GridDateCellController;
 
-    _cellBloc = BoardTextCellBloc(cellController: cellController)
-      ..add(const BoardTextCellEvent.initial());
+    _cellBloc = BoardDateCellBloc(cellController: cellController)
+      ..add(const BoardDateCellEvent.initial());
     super.initState();
   }
 
@@ -30,15 +33,15 @@ class _BoardTextCellState extends State<BoardTextCell> {
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _cellBloc,
-      child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
+      child: BlocBuilder<BoardDateCellBloc, BoardDateCellState>(
         builder: (context, state) {
-          if (state.content.isEmpty) {
+          if (state.dateStr.isEmpty) {
             return const SizedBox();
           } else {
             return Align(
               alignment: Alignment.centerLeft,
               child: FlowyText.regular(
-                state.content,
+                state.dateStr,
                 fontSize: 14,
               ),
             );

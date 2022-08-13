@@ -13,10 +13,6 @@ class GridRowDataController extends GridCellBuilderDelegate {
   final GridFieldCache _fieldCache;
   final GridRowCache _rowCache;
 
-  GridFieldCache get fieldCache => _fieldCache;
-
-  GridRowCache get rowCache => _rowCache;
-
   GridRowDataController({
     required this.rowInfo,
     required GridFieldCache fieldCache,
@@ -49,5 +45,5 @@ class GridRowDataController extends GridCellBuilderDelegate {
   }
 
   @override
-  GridCellCache get cellCache => rowCache.cellCache;
+  GridCellCache get cellCache => _rowCache.cellCache;
 }
