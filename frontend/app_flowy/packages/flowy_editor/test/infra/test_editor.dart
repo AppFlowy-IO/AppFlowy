@@ -39,15 +39,15 @@ class EditorWidgetTester {
     _editorState = _createEmptyDocument();
   }
 
-  insert<T extends Node>(T node) {
+  void insert<T extends Node>(T node) {
     _editorState.document.root.insert(node);
   }
 
-  insertEmptyTextNode() {
+  void insertEmptyTextNode() {
     insert(TextNode.empty());
   }
 
-  insertTextNode({String? text, Attributes? attributes}) {
+  void insertTextNode(String? text, {Attributes? attributes}) {
     insert(
       TextNode(
         type: 'text',
@@ -102,6 +102,7 @@ class EditorWidgetTester {
 }
 
 extension TestEditorExtension on WidgetTester {
-  EditorWidgetTester get editor => EditorWidgetTester(tester: this);
+  EditorWidgetTester get editor =>
+      EditorWidgetTester(tester: this)..initialize();
   EditorState get editorState => editor.editorState;
 }
