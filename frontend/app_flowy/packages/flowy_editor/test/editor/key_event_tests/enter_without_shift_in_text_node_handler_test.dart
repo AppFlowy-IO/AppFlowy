@@ -52,7 +52,7 @@ void main() async {
         LogicalKeyboardKey.enter,
       );
       lines += 1;
-
+      await tester.pumpAndSettle(const Duration(microseconds: 500));
       expect(editor.documentLength, lines);
       expect(editor.documentSelection,
           Selection.collapsed(Position(path: [lines - 1], offset: 0)));
