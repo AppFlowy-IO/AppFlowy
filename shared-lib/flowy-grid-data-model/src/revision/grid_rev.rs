@@ -88,9 +88,9 @@ pub struct GridBlockMetaRevisionChangeset {
 }
 
 impl GridBlockMetaRevisionChangeset {
-    pub fn from_row_count(block_id: &str, row_count: i32) -> Self {
+    pub fn from_row_count(block_id: String, row_count: i32) -> Self {
         Self {
-            block_id: block_id.to_string(),
+            block_id,
             start_row_index: None,
             row_count: Some(row_count),
         }

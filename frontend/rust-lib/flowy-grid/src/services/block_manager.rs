@@ -62,22 +62,16 @@ impl GridBlockManager {
         Ok(self.get_editor(&block_id).await?)
     }
 
-    pub(crate) async fn create_row(
-        &self,
-        block_id: &str,
-        row_rev: RowRevision,
-        start_row_id: Option<String>,
-    ) -> FlowyResult<i32> {
+    pub(crate) async fn create_row(&self, row_rev: RowRevision, start_row_id: Option<String>) -> FlowyResult<i32> {
+        let block_id = row_rev.block_id.clone();
         let _ = self.persistence.insert(&row_rev.block_id, &row_rev.id)?;
         let editor = self.get_editor(&row_rev.block_id).await?;
 
         let mut index_row_order = InsertedRowPB::from(&row_rev);
         let (row_count, row_index) = editor.create_row(row_rev, start_row_id).await?;
         index_row_order.index = row_index;
-
-        let _ = self
-            .notify_did_update_block(block_id, GridBlockChangesetPB::insert(block_id, vec![index_row_order]))
-            .await?;
+        let changeset = GridBlockChangesetPB::insert(block_id.clone(), vec![index_row_order]);
+        let _ = self.notify_did_update_block(&block_id, changeset).await?;
         Ok(row_count)
     }
 
@@ -98,10 +92,16 @@ impl GridBlockManager {
                 row_order.index = index;
                 inserted_row_orders.push(row_order);
             }
-            changesets.push(GridBlockMetaRevisionChangeset::from_row_count(&block_id, row_count));
+            changesets.push(GridBlockMetaRevisionChangeset::from_row_count(
+                block_id.clone(),
+                row_count,
+            ));
 
             let _ = self
-                .notify_did_update_block(&block_id, GridBlockChangesetPB::insert(&block_id, inserted_row_orders))
+                .notify_did_update_block(
+                    &block_id,
+                    GridBlockChangesetPB::insert(block_id.clone(), inserted_row_orders),
+                )
                 .await?;
         }
 
@@ -154,7 +154,7 @@ impl GridBlockManager {
                 .map(|row_info| Cow::Owned(row_info.row_id().to_owned()))
                 .collect::<Vec<Cow<String>>>();
             let row_count = editor.delete_rows(row_ids).await?;
-            let changeset = GridBlockMetaRevisionChangeset::from_row_count(&grid_block.id, row_count);
+            let changeset = GridBlockMetaRevisionChangeset::from_row_count(grid_block.id.clone(), row_count);
             changesets.push(changeset);
         }
 

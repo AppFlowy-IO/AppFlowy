@@ -146,9 +146,9 @@ pub struct GridBlockChangesetPB {
     pub hide_rows: Vec<String>,
 }
 impl GridBlockChangesetPB {
-    pub fn insert(block_id: &str, inserted_rows: Vec<InsertedRowPB>) -> Self {
+    pub fn insert(block_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {
         Self {
-            block_id: block_id.to_owned(),
+            block_id,
             inserted_rows,
             ..Default::default()
         }

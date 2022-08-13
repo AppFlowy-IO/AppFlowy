@@ -1,9 +1,13 @@
-use crate::entities::SelectOptionGroupConfigurationPB;
+use crate::entities::{RowPB, SelectOptionGroupConfigurationPB};
+use flowy_error::FlowyResult;
+use flowy_grid_data_model::revision::RowRevision;
 
 use crate::services::field::{
     MultiSelectTypeOptionPB, SelectOptionCellDataPB, SelectOptionCellDataParser, SingleSelectTypeOptionPB,
 };
-use crate::services::group::{Group, GroupAction, GroupCellContentProvider, GroupController, GroupGenerator};
+use crate::services::group::{
+    Group, GroupActionHandler, GroupCellContentProvider, GroupController, GroupGenerator, Groupable,
+};
 
 // SingleSelect
 pub type SingleSelectGroupController = GroupController<
@@ -13,11 +17,32 @@ pub type SingleSelectGroupController = GroupController<
     SelectOptionCellDataParser,
 >;
 
+impl Groupable for SingleSelectGroupController {
+    type CellDataType = SelectOptionCellDataPB;
+    fn can_group(&self, content: &str, cell_data: &SelectOptionCellDataPB) -> bool {
+        cell_data.select_options.iter().any(|option| option.id == content)
+    }
+}
+
+impl GroupActionHandler for SingleSelectGroupController {
+    fn get_groups(&self) -> Vec<Group> {
+        self.groups()
+    }
+
+    fn group_row(&mut self, row_rev: &RowRevision) -> FlowyResult<()> {
+        self.handle_row(row_rev)
+    }
+
+    fn create_card(&self, row_rev: &mut RowRevision) {
+        todo!()
+    }
+}
+
 pub struct SingleSelectGroupGenerator();
 impl GroupGenerator for SingleSelectGroupGenerator {
     type ConfigurationType = SelectOptionGroupConfigurationPB;
     type TypeOptionType = SingleSelectTypeOptionPB;
-    fn gen_groups(
+    fn generate_groups(
         _configuration: &Option<Self::ConfigurationType>,
         type_option: &Option<Self::TypeOptionType>,
         _cell_content_provider: &dyn GroupCellContentProvider,
@@ -35,13 +60,6 @@ impl GroupGenerator for SingleSelectGroupGenerator {
                 })
                 .collect(),
         }
-    }
-}
-
-impl GroupAction for SingleSelectGroupController {
-    type CellDataType = SelectOptionCellDataPB;
-    fn should_group(&self, content: &str, cell_data: &SelectOptionCellDataPB) -> bool {
-        cell_data.select_options.iter().any(|option| option.id == content)
     }
 }
 
@@ -53,12 +71,33 @@ pub type MultiSelectGroupController = GroupController<
     SelectOptionCellDataParser,
 >;
 
+impl Groupable for MultiSelectGroupController {
+    type CellDataType = SelectOptionCellDataPB;
+    fn can_group(&self, content: &str, cell_data: &SelectOptionCellDataPB) -> bool {
+        cell_data.select_options.iter().any(|option| option.id == content)
+    }
+}
+
+impl GroupActionHandler for MultiSelectGroupController {
+    fn get_groups(&self) -> Vec<Group> {
+        self.groups()
+    }
+
+    fn group_row(&mut self, row_rev: &RowRevision) -> FlowyResult<()> {
+        self.handle_row(row_rev)
+    }
+
+    fn create_card(&self, row_rev: &mut RowRevision) {
+        todo!()
+    }
+}
+
 pub struct MultiSelectGroupGenerator();
 impl GroupGenerator for MultiSelectGroupGenerator {
     type ConfigurationType = SelectOptionGroupConfigurationPB;
     type TypeOptionType = MultiSelectTypeOptionPB;
 
-    fn gen_groups(
+    fn generate_groups(
         _configuration: &Option<Self::ConfigurationType>,
         type_option: &Option<Self::TypeOptionType>,
         _cell_content_provider: &dyn GroupCellContentProvider,
@@ -76,12 +115,5 @@ impl GroupGenerator for MultiSelectGroupGenerator {
                 })
                 .collect(),
         }
-    }
-}
-
-impl GroupAction for MultiSelectGroupController {
-    type CellDataType = SelectOptionCellDataPB;
-    fn should_group(&self, content: &str, cell_data: &SelectOptionCellDataPB) -> bool {
-        cell_data.select_options.iter().any(|option| option.id == content)
     }
 }

@@ -39,6 +39,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         // Date
         .event(GridEvent::UpdateDateCell, update_date_cell_handler)
         // Group
+        .event(GridEvent::CreateBoardCard, create_row_handler)
         .event(GridEvent::GetGroup, get_groups_handler);
 
     module
@@ -209,4 +210,7 @@ pub enum GridEvent {
 
     #[event(input = "GridIdPB", output = "RepeatedGridGroupPB")]
     GetGroup = 100,
+
+    #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]
+    CreateBoardCard = 110,
 }

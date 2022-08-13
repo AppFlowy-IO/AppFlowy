@@ -416,3 +416,14 @@ pub(crate) async fn get_groups_handler(
     let group = editor.load_groups().await?;
     data_result(group)
 }
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn create_board_card_handler(
+    data: Data<CreateBoardCardPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<RowPB, FlowyError> {
+    let params: CreateBoardCardParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
+    let row = editor.create_board_card().await?;
+    data_result(row)
+}

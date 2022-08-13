@@ -1,17 +1,43 @@
-use crate::entities::CheckboxGroupConfigurationPB;
+use crate::entities::{CheckboxGroupConfigurationPB, RowPB};
+use flowy_error::FlowyResult;
+use flowy_grid_data_model::revision::RowRevision;
 
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
-use crate::services::group::{Group, GroupAction, GroupCellContentProvider, GroupController, GroupGenerator};
+use crate::services::group::{
+    Group, GroupActionHandler, GroupCellContentProvider, GroupController, GroupGenerator, Groupable,
+};
 
 pub type CheckboxGroupController =
     GroupController<CheckboxGroupConfigurationPB, CheckboxTypeOptionPB, CheckboxGroupGenerator, CheckboxCellDataParser>;
+
+impl Groupable for CheckboxGroupController {
+    type CellDataType = CheckboxCellData;
+
+    fn can_group(&self, _content: &str, _cell_data: &Self::CellDataType) -> bool {
+        false
+    }
+}
+
+impl GroupActionHandler for CheckboxGroupController {
+    fn get_groups(&self) -> Vec<Group> {
+        self.groups()
+    }
+
+    fn group_row(&mut self, row_rev: &RowRevision) -> FlowyResult<()> {
+        self.handle_row(row_rev)
+    }
+
+    fn create_card(&self, row_rev: &mut RowRevision) {
+        todo!()
+    }
+}
 
 pub struct CheckboxGroupGenerator();
 impl GroupGenerator for CheckboxGroupGenerator {
     type ConfigurationType = CheckboxGroupConfigurationPB;
     type TypeOptionType = CheckboxTypeOptionPB;
 
-    fn gen_groups(
+    fn generate_groups(
         _configuration: &Option<Self::ConfigurationType>,
         _type_option: &Option<Self::TypeOptionType>,
         _cell_content_provider: &dyn GroupCellContentProvider,
@@ -31,13 +57,5 @@ impl GroupGenerator for CheckboxGroupGenerator {
         };
 
         vec![check_group, uncheck_group]
-    }
-}
-
-impl GroupAction for CheckboxGroupController {
-    type CellDataType = CheckboxCellData;
-
-    fn should_group(&self, _content: &str, _cell_data: &Self::CellDataType) -> bool {
-        false
     }
 }
