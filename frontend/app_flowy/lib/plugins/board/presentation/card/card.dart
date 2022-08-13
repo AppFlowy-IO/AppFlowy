@@ -40,8 +40,11 @@ class _BoardCardState extends State<BoardCard> {
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
         builder: (context, state) {
-          return Column(
-            children: _makeCells(context, state.gridCellMap),
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: _makeCells(context, state.gridCellMap),
+            ),
           );
         },
       ),
@@ -53,7 +56,10 @@ class _BoardCardState extends State<BoardCard> {
       (cellId) {
         final child = widget.cellBuilder.buildCell(cellId);
 
-        return child;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          child: child,
+        );
       },
     ).toList();
   }

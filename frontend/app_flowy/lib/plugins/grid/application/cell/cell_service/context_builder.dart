@@ -1,6 +1,7 @@
 part of 'cell_service.dart';
 
 typedef GridCellController = IGridCellController<String, String>;
+typedef GridCheckboxCellController = IGridCellController<String, String>;
 typedef GridNumberCellController = IGridCellController<String, String>;
 typedef GridSelectOptionCellController
     = IGridCellController<SelectOptionCellDataPB, String>;

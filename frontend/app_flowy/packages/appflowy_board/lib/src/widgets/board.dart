@@ -202,7 +202,7 @@ class _BoardContentState extends State<BoardContent> {
         return ChangeNotifierProvider.value(
           key: ValueKey(columnData.id),
           value: widget.dataController.columnController(columnData.id),
-          child: Consumer<BoardColumnDataController>(
+          child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
               return ConstrainedBox(
                 constraints: widget.columnConstraints,

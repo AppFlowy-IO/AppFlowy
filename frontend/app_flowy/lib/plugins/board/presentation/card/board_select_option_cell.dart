@@ -40,12 +40,9 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
                     option: option,
                   ))
               .toList();
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Wrap(children: children, spacing: 4, runSpacing: 2),
-            ),
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: Wrap(children: children, spacing: 4, runSpacing: 2),
           );
         },
       ),

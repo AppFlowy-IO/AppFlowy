@@ -147,9 +147,9 @@ fn make_test_grid() -> BuildGridContext {
             FieldType::MultiSelect => {
                 // MultiSelect
                 let multi_select = MultiSelectTypeOptionBuilder::default()
-                    .option(SelectOptionPB::new(GOOGLE))
-                    .option(SelectOptionPB::new(FACEBOOK))
-                    .option(SelectOptionPB::new(TWITTER));
+                    .add_option(SelectOptionPB::new(GOOGLE))
+                    .add_option(SelectOptionPB::new(FACEBOOK))
+                    .add_option(SelectOptionPB::new(TWITTER));
                 let multi_select_field = FieldBuilder::new(multi_select)
                     .name("Platform")
                     .visibility(true)

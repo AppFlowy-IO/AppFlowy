@@ -38,14 +38,11 @@ class _BoardDateCellState extends State<BoardDateCell> {
           if (state.dateStr.isEmpty) {
             return const SizedBox();
           } else {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: FlowyText.regular(
-                  state.dateStr,
-                  fontSize: 14,
-                ),
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: FlowyText.regular(
+                state.dateStr,
+                fontSize: 14,
               ),
             );
           }

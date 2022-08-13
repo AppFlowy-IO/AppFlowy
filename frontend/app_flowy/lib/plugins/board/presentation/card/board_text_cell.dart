@@ -35,14 +35,11 @@ class _BoardTextCellState extends State<BoardTextCell> {
           if (state.content.isEmpty) {
             return const SizedBox();
           } else {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: FlowyText.regular(
-                  state.content,
-                  fontSize: 14,
-                ),
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: FlowyText.regular(
+                state.content,
+                fontSize: 14,
               ),
             );
           }

@@ -69,12 +69,66 @@ pub fn make_default_board() -> BuildGridContext {
     let single_select_field_id = single_select_field.id.clone();
     grid_builder.add_field(single_select_field);
 
+    // MultiSelect
+    let apple_option = SelectOptionPB::new("Apple");
+    let banana_option = SelectOptionPB::new("Banana");
+    let pear_option = SelectOptionPB::new("Pear");
+    let multi_select_type_option = MultiSelectTypeOptionBuilder::default()
+        .add_option(banana_option.clone())
+        .add_option(apple_option.clone())
+        .add_option(pear_option.clone());
+    let multi_select_field = FieldBuilder::new(multi_select_type_option)
+        .name("Fruit")
+        .visibility(true)
+        .build();
+    let multi_select_field_id = multi_select_field.id.clone();
+    grid_builder.add_field(multi_select_field);
+
+    // Number
+    let number_type_option = NumberTypeOptionBuilder::default().set_format(NumberFormat::USD);
+    let number_field = FieldBuilder::new(number_type_option)
+        .name("Price")
+        .visibility(true)
+        .build();
+    let number_field_id = number_field.id.clone();
+    grid_builder.add_field(number_field);
+
+    // Checkbox
+    let checkbox_type_option = CheckboxTypeOptionBuilder::default();
+    let checkbox_field = FieldBuilder::new(checkbox_type_option).name("Reimbursement").build();
+    let checkbox_field_id = checkbox_field.id.clone();
+    grid_builder.add_field(checkbox_field);
+
+    // Url
+    let url_type_option = URLTypeOptionBuilder::default();
+    let url_field = FieldBuilder::new(url_type_option).name("Shop Link").build();
+    let url_field_id = url_field.id.clone();
+    grid_builder.add_field(url_field);
+
     // Insert rows
     for i in 0..10 {
+        // insert single select
         let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
         row_builder.insert_select_option_cell(&single_select_field_id, not_started_option.id.clone());
+        // insert multi select
+        row_builder.insert_select_option_cell(&multi_select_field_id, apple_option.id.clone());
+        row_builder.insert_select_option_cell(&multi_select_field_id, banana_option.id.clone());
+        // insert text
         row_builder.insert_cell(&text_field_id, format!("Card {}", i));
+        // insert date
         row_builder.insert_date_cell(&date_field_id, timestamp);
+        // number
+        row_builder.insert_cell(&number_field_id, format!("{}", i));
+        // checkbox
+        let is_check = if i % 2 == 0 {
+            CHECK.to_string()
+        } else {
+            UNCHECK.to_string()
+        };
+        row_builder.insert_cell(&checkbox_field_id, is_check);
+        // url
+        row_builder.insert_cell(&url_field_id, "https://appflowy.io".to_string());
+
         let row = row_builder.build();
         grid_builder.add_row(row);
     }

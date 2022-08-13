@@ -7,7 +7,7 @@ import '../reorder_flex/drag_target_inteceptor.dart';
 import 'phantom_state.dart';
 
 abstract class BoardPhantomControllerDelegate {
-  BoardColumnDataController? controller(String columnId);
+  AFBoardColumnDataController? controller(String columnId);
 
   bool removePhantom(String columnId);
 
