@@ -1,3 +1,4 @@
+use crate::entities::RowPB;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -25,5 +26,45 @@ impl TryInto<CreateBoardCardParams> for CreateBoardCardPayloadPB {
             grid_id: grid_id.0,
             group_id: group_id.0,
         })
+    }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct BoardCardChangesetPB {
+    #[pb(index = 1)]
+    pub group_id: String,
+
+    #[pb(index = 2)]
+    pub inserted_cards: Vec<RowPB>,
+
+    #[pb(index = 3)]
+    pub deleted_cards: Vec<String>,
+
+    #[pb(index = 4)]
+    pub updated_cards: Vec<RowPB>,
+}
+impl BoardCardChangesetPB {
+    pub fn insert(group_id: String, inserted_cards: Vec<RowPB>) -> Self {
+        Self {
+            group_id,
+            inserted_cards,
+            ..Default::default()
+        }
+    }
+
+    pub fn delete(group_id: String, deleted_cards: Vec<String>) -> Self {
+        Self {
+            group_id,
+            deleted_cards,
+            ..Default::default()
+        }
+    }
+
+    pub fn update(group_id: String, updated_cards: Vec<RowPB>) -> Self {
+        Self {
+            group_id,
+            updated_cards,
+            ..Default::default()
+        }
     }
 }

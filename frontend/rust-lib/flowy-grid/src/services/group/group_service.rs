@@ -14,6 +14,7 @@ use bytes::Bytes;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
+use futures::future::BoxFuture;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -61,9 +62,24 @@ impl GridGroupService {
         }
     }
 
-    pub(crate) async fn create_board_card(&self, row_rev: &mut RowRevision) {
+    #[tracing::instrument(level = "debug", skip(self, row_rev))]
+    pub(crate) async fn create_board_card(&self, row_rev: &mut RowRevision, group_id: &str) {
         if let Some(group_action_handler) = self.group_action_handler.as_ref() {
-            group_action_handler.write().await.create_card(row_rev);
+            match self
+                .grid_pad
+                .read()
+                .await
+                .get_field_rev(group_action_handler.read().await.field_id())
+            {
+                None => tracing::warn!("Fail to create card because the field does not exist"),
+                Some((_, field_rev)) => {
+                    tracing::trace!("Create card");
+                    group_action_handler
+                        .write()
+                        .await
+                        .create_card(row_rev, field_rev, group_id);
+                }
+            }
         }
     }
 
@@ -100,15 +116,15 @@ impl GridGroupService {
                 // let generator = GroupGenerator::<DateGroupConfigurationPB>::from_configuration(configuration);
             }
             FieldType::SingleSelect => {
-                let controller = SingleSelectGroupController::new(field_rev.clone(), configuration, &self.grid_pad)?;
+                let controller = SingleSelectGroupController::new(field_rev, configuration, &self.grid_pad)?;
                 self.group_action_handler = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::MultiSelect => {
-                let controller = MultiSelectGroupController::new(field_rev.clone(), configuration, &self.grid_pad)?;
+                let controller = MultiSelectGroupController::new(field_rev, configuration, &self.grid_pad)?;
                 self.group_action_handler = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::Checkbox => {
-                let controller = CheckboxGroupController::new(field_rev.clone(), configuration, &self.grid_pad)?;
+                let controller = CheckboxGroupController::new(field_rev, configuration, &self.grid_pad)?;
                 self.group_action_handler = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::URL => {
@@ -119,7 +135,7 @@ impl GridGroupService {
         let mut groups = vec![];
         if let Some(group_action_handler) = self.group_action_handler.as_ref() {
             let mut write_guard = group_action_handler.write().await;
-            let _ = write_guard.group_rows(&row_revs)?;
+            let _ = write_guard.group_rows(&row_revs, field_rev)?;
             groups = write_guard.get_groups();
             drop(write_guard);
         }

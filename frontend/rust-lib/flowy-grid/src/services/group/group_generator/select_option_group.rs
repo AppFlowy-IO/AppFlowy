@@ -1,6 +1,9 @@
 use crate::entities::{RowPB, SelectOptionGroupConfigurationPB};
-use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::RowRevision;
+use crate::services::cell::insert_select_option_cell;
+use flowy_error::{FlowyError, FlowyResult};
+use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
+use lib_infra::future::FutureResult;
+use std::sync::Arc;
 
 use crate::services::field::{
     MultiSelectTypeOptionPB, SelectOptionCellDataPB, SelectOptionCellDataParser, SingleSelectTypeOptionPB,
@@ -25,16 +28,27 @@ impl Groupable for SingleSelectGroupController {
 }
 
 impl GroupActionHandler for SingleSelectGroupController {
+    fn field_id(&self) -> &str {
+        &self.field_id
+    }
+
     fn get_groups(&self) -> Vec<Group> {
-        self.groups()
+        self.make_groups()
     }
 
-    fn group_row(&mut self, row_rev: &RowRevision) -> FlowyResult<()> {
-        self.handle_row(row_rev)
+    fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()> {
+        self.handle_rows(row_revs, field_rev)
     }
 
-    fn create_card(&self, row_rev: &mut RowRevision) {
-        todo!()
+    fn create_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
+        let group: Option<&Group> = self.groups_map.get(group_id);
+        match group {
+            None => {}
+            Some(group) => {
+                let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
+                row_rev.cells.insert(field_rev.id.clone(), cell_rev);
+            }
+        }
     }
 }
 
@@ -79,16 +93,27 @@ impl Groupable for MultiSelectGroupController {
 }
 
 impl GroupActionHandler for MultiSelectGroupController {
+    fn field_id(&self) -> &str {
+        &self.field_id
+    }
+
     fn get_groups(&self) -> Vec<Group> {
-        self.groups()
+        self.make_groups()
     }
 
-    fn group_row(&mut self, row_rev: &RowRevision) -> FlowyResult<()> {
-        self.handle_row(row_rev)
+    fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()> {
+        self.handle_rows(row_revs, field_rev)
     }
 
-    fn create_card(&self, row_rev: &mut RowRevision) {
-        todo!()
+    fn create_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
+        let group: Option<&Group> = self.groups_map.get(group_id);
+        match group {
+            None => tracing::warn!("Can not find the group: {}", group_id),
+            Some(group) => {
+                let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
+                row_rev.cells.insert(field_rev.id.clone(), cell_rev);
+            }
+        }
     }
 }
 

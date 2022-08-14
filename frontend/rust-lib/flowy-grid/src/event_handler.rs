@@ -424,6 +424,6 @@ pub(crate) async fn create_board_card_handler(
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateBoardCardParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
-    let row = editor.create_board_card().await?;
+    let row = editor.create_board_card(&params.group_id).await?;
     data_result(row)
 }

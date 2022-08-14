@@ -21,7 +21,7 @@ typedef OnError = void Function(FlowyError);
 
 class BoardDataController {
   final String gridId;
-  final GridService _gridFFIService;
+  final GridFFIService _gridFFIService;
   final GridFieldCache fieldCache;
 
   // key: the block id
@@ -45,7 +45,7 @@ class BoardDataController {
   BoardDataController({required ViewPB view})
       : gridId = view.id,
         _blocks = LinkedHashMap.new(),
-        _gridFFIService = GridService(gridId: view.id),
+        _gridFFIService = GridFFIService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id);
 
   void addListener({
@@ -88,8 +88,8 @@ class BoardDataController {
     );
   }
 
-  Future<Either<RowPB, FlowyError>> createRow() {
-    return _gridFFIService.createRow();
+  Future<Either<RowPB, FlowyError>> createBoardCard(String groupId) {
+    return _gridFFIService.createBoardCard(groupId);
   }
 
   Future<void> dispose() async {

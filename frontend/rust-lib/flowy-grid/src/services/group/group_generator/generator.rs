@@ -1,11 +1,13 @@
 use crate::entities::{GroupPB, RowPB};
 use crate::services::cell::{decode_any_cell_data, CellBytesParser};
 use bytes::Bytes;
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
     FieldRevision, GroupConfigurationRevision, RowRevision, TypeOptionDataDeserializer,
 };
+use futures::future::BoxFuture;
 use indexmap::IndexMap;
+use lib_infra::future::{BoxResultFuture, FutureResult};
 use std::marker::PhantomData;
 use std::sync::Arc;
 
@@ -34,15 +36,14 @@ pub trait Groupable {
 }
 
 pub trait GroupActionHandler: Send + Sync {
+    fn field_id(&self) -> &str;
     fn get_groups(&self) -> Vec<Group>;
-    fn group_row(&mut self, row_rev: &RowRevision) -> FlowyResult<()>;
-    fn group_rows(&mut self, row_revs: &[Arc<RowRevision>]) -> FlowyResult<()> {
-        for row_rev in row_revs {
-            let _ = self.group_row(row_rev)?;
-        }
-        Ok(())
-    }
-    fn create_card(&self, row_rev: &mut RowRevision);
+    fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()>;
+    fn create_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
+}
+
+pub trait GroupActionHandler2: Send + Sync {
+    fn create_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
 }
 
 const DEFAULT_GROUP_ID: &str = "default_group";
@@ -52,8 +53,8 @@ const DEFAULT_GROUP_ID: &str = "default_group";
 /// G: the group container generator
 /// P: the parser that impl [CellBytesParser] for the CellBytes
 pub struct GroupController<C, T, G, P> {
-    pub field_rev: Arc<FieldRevision>,
-    groups: IndexMap<String, Group>,
+    pub field_id: String,
+    pub groups_map: IndexMap<String, Group>,
     default_group: Group,
     pub type_option: Option<T>,
     pub configuration: Option<C>,
@@ -86,7 +87,7 @@ where
     G: GroupGenerator<ConfigurationType = C, TypeOptionType = T>,
 {
     pub fn new(
-        field_rev: Arc<FieldRevision>,
+        field_rev: &Arc<FieldRevision>,
         configuration: GroupConfigurationRevision,
         cell_content_provider: &dyn GroupCellContentProvider,
     ) -> FlowyResult<Self> {
@@ -106,8 +107,8 @@ where
         };
 
         Ok(Self {
-            field_rev,
-            groups: groups.into_iter().map(|group| (group.id.clone(), group)).collect(),
+            field_id: field_rev.id.clone(),
+            groups_map: groups.into_iter().map(|group| (group.id.clone(), group)).collect(),
             default_group,
             type_option,
             configuration,
@@ -116,9 +117,9 @@ where
         })
     }
 
-    pub fn groups(&self) -> Vec<Group> {
+    pub fn make_groups(&self) -> Vec<Group> {
         let default_group = self.default_group.clone();
-        let mut groups: Vec<Group> = self.groups.values().cloned().collect();
+        let mut groups: Vec<Group> = self.groups_map.values().cloned().collect();
         if !default_group.rows.is_empty() {
             groups.push(default_group);
         }
@@ -131,34 +132,38 @@ where
     P: CellBytesParser,
     Self: Groupable<CellDataType = P::Object>,
 {
-    pub fn handle_row(&mut self, row: &RowRevision) -> FlowyResult<()> {
+    pub fn handle_rows(&mut self, rows: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()> {
+        // The field_rev might be None if corresponding field_rev is deleted.
         if self.configuration.is_none() {
             return Ok(());
         }
-        if let Some(cell_rev) = row.cells.get(&self.field_rev.id) {
-            let mut records: Vec<GroupRecord> = vec![];
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), &self.field_rev);
-            let cell_data = cell_bytes.parser::<P>()?;
-            for group in self.groups.values() {
-                if self.can_group(&group.content, &cell_data) {
-                    records.push(GroupRecord {
-                        row: row.into(),
-                        group_id: group.id.clone(),
-                    });
-                }
-            }
 
-            if records.is_empty() {
-                self.default_group.rows.push(row.into());
-            } else {
-                for record in records {
-                    if let Some(group) = self.groups.get_mut(&record.group_id) {
-                        group.rows.push(record.row);
+        for row in rows {
+            if let Some(cell_rev) = row.cells.get(&self.field_id) {
+                let mut records: Vec<GroupRecord> = vec![];
+                let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), &field_rev);
+                let cell_data = cell_bytes.parser::<P>()?;
+                for group in self.groups_map.values() {
+                    if self.can_group(&group.content, &cell_data) {
+                        records.push(GroupRecord {
+                            row: row.into(),
+                            group_id: group.id.clone(),
+                        });
                     }
                 }
+
+                if records.is_empty() {
+                    self.default_group.rows.push(row.into());
+                } else {
+                    for record in records {
+                        if let Some(group) = self.groups_map.get_mut(&record.group_id) {
+                            group.rows.push(record.row);
+                        }
+                    }
+                }
+            } else {
+                self.default_group.rows.push(row.into());
             }
-        } else {
-            self.default_group.rows.push(row.into());
         }
 
         Ok(())
@@ -166,7 +171,7 @@ where
 
     pub fn group_rows(&mut self, rows: &[Arc<RowRevision>]) -> FlowyResult<()> {
         for row in rows {
-            let _ = self.handle_row(row)?;
+            // let _ = self.handle_row(row)?;
         }
         Ok(())
     }

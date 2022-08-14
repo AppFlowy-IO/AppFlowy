@@ -88,7 +88,7 @@ class BoardContent extends StatelessWidget {
         height: 50,
         margin: config.columnItemPadding,
         onAddButtonClick: () {
-          context.read<BoardBloc>().add(const BoardEvent.createRow());
+          context.read<BoardBloc>().add(BoardEvent.createRow(columnData.id));
         });
   }
 

@@ -52,8 +52,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             _startListening();
             await _loadGrid(emit);
           },
-          createRow: () async {
-            final result = await _dataController.createRow();
+          createRow: (groupId) async {
+            final result = await _dataController.createBoardCard(groupId);
             result.fold(
               (rowPB) {
                 emit(state.copyWith(editingRow: some(rowPB)));
@@ -153,7 +153,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 @freezed
 class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = InitialGrid;
-  const factory BoardEvent.createRow() = _CreateRow;
+  const factory BoardEvent.createRow(String groupId) = _CreateRow;
   const factory BoardEvent.endEditRow(String rowId) = _EndEditRow;
   const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
       _DidReceiveGroup;

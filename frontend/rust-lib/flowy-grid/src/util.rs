@@ -114,20 +114,15 @@ pub fn make_default_board() -> BuildGridContext {
         row_builder.insert_select_option_cell(&multi_select_field_id, apple_option.id.clone());
         row_builder.insert_select_option_cell(&multi_select_field_id, banana_option.id.clone());
         // insert text
-        row_builder.insert_cell(&text_field_id, format!("Card {}", i));
+        row_builder.insert_text_cell(&text_field_id, format!("Card {}", i));
         // insert date
         row_builder.insert_date_cell(&date_field_id, timestamp);
         // number
-        row_builder.insert_cell(&number_field_id, format!("{}", i));
+        row_builder.insert_number_cell(&number_field_id, i);
         // checkbox
-        let is_check = if i % 2 == 0 {
-            CHECK.to_string()
-        } else {
-            UNCHECK.to_string()
-        };
-        row_builder.insert_cell(&checkbox_field_id, is_check);
+        row_builder.insert_checkbox_cell(&checkbox_field_id, i % 2 == 0);
         // url
-        row_builder.insert_cell(&url_field_id, "https://appflowy.io".to_string());
+        row_builder.insert_url_cell(&url_field_id, "https://appflowy.io".to_string());
 
         let row = row_builder.build();
         grid_builder.add_row(row);

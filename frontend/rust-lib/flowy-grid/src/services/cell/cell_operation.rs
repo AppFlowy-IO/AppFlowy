@@ -135,6 +135,47 @@ pub fn try_decode_cell_data(
     }
 }
 
+pub fn insert_text_cell(s: String, field_rev: &FieldRevision) -> CellRevision {
+    let data = apply_cell_data_changeset(s, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_number_cell(num: i64, field_rev: &FieldRevision) -> CellRevision {
+    let data = apply_cell_data_changeset(num, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_url_cell(url: String, field_rev: &FieldRevision) -> CellRevision {
+    let data = apply_cell_data_changeset(url, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_checkbox_cell(is_check: bool, field_rev: &FieldRevision) -> CellRevision {
+    let s = if is_check {
+        CHECK.to_string()
+    } else {
+        UNCHECK.to_string()
+    };
+    let data = apply_cell_data_changeset(s, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevision {
+    let cell_data = serde_json::to_string(&DateCellChangesetPB {
+        date: Some(timestamp.to_string()),
+        time: None,
+    })
+    .unwrap();
+    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_select_option_cell(option_id: String, field_rev: &FieldRevision) -> CellRevision {
+    let cell_data = SelectOptionCellChangeset::from_insert(&option_id).to_str();
+    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
 /// If the cell data is not String type, it should impl this trait.
 /// Deserialize the String into cell specific data type.  
 pub trait FromCellString {

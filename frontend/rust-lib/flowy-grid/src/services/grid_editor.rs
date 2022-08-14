@@ -552,9 +552,15 @@ impl GridRevisionEditor {
         })
     }
 
-    pub async fn create_board_card(&self) -> FlowyResult<RowPB> {
+    pub async fn create_board_card(&self, group_id: &str) -> FlowyResult<RowPB> {
         let mut row_rev = self.create_row_rev().await?;
-        let _ = self.group_service.write().await.create_board_card(&mut row_rev).await;
+        let _ = self
+            .group_service
+            .write()
+            .await
+            .create_board_card(&mut row_rev, group_id)
+            .await;
+
         self.create_row_pb(row_rev, None).await
     }
 
@@ -573,6 +579,7 @@ impl GridRevisionEditor {
         Ok(row_rev)
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     async fn create_row_pb(&self, row_rev: RowRevision, start_row_id: Option<String>) -> FlowyResult<RowPB> {
         let row_pb = RowPB::from(&row_rev);
         let block_id = row_rev.block_id.clone();

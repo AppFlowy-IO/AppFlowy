@@ -26,14 +26,14 @@ impl<'a> GridRowTestBuilder<'a> {
 
     pub fn insert_text_cell(&mut self, data: &str) -> String {
         let text_field = self.field_rev_with_type(&FieldType::RichText);
-        self.inner_builder.insert_cell(&text_field.id, data.to_string());
+        self.inner_builder.insert_text_cell(&text_field.id, data.to_string());
 
         text_field.id.clone()
     }
 
     pub fn insert_number_cell(&mut self, data: &str) -> String {
         let number_field = self.field_rev_with_type(&FieldType::Number);
-        self.inner_builder.insert_cell(&number_field.id, data.to_string());
+        self.inner_builder.insert_text_cell(&number_field.id, data.to_string());
         number_field.id.clone()
     }
 
@@ -44,20 +44,21 @@ impl<'a> GridRowTestBuilder<'a> {
         })
         .unwrap();
         let date_field = self.field_rev_with_type(&FieldType::DateTime);
-        self.inner_builder.insert_cell(&date_field.id, value);
+        self.inner_builder.insert_text_cell(&date_field.id, value);
         date_field.id.clone()
     }
 
     pub fn insert_checkbox_cell(&mut self, data: &str) -> String {
         let checkbox_field = self.field_rev_with_type(&FieldType::Checkbox);
-        self.inner_builder.insert_cell(&checkbox_field.id, data.to_string());
+        self.inner_builder
+            .insert_text_cell(&checkbox_field.id, data.to_string());
 
         checkbox_field.id.clone()
     }
 
     pub fn insert_url_cell(&mut self, data: &str) -> String {
         let url_field = self.field_rev_with_type(&FieldType::URL);
-        self.inner_builder.insert_cell(&url_field.id, data.to_string());
+        self.inner_builder.insert_text_cell(&url_field.id, data.to_string());
         url_field.id.clone()
     }
 

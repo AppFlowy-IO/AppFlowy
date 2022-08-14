@@ -44,7 +44,7 @@ impl GridRevisionPad {
             .blocks
             .iter()
             .map(|block| {
-                let mut duplicated_block = (&*block.clone()).clone();
+                let mut duplicated_block = (&**block).clone();
                 duplicated_block.block_id = gen_block_id();
                 duplicated_block
             })

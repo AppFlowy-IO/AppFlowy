@@ -24,7 +24,7 @@ typedef ListenOnRowChangedCondition = bool Function();
 
 class GridDataController {
   final String gridId;
-  final GridService _gridFFIService;
+  final GridFFIService _gridFFIService;
   final GridFieldCache fieldCache;
 
   // key: the block id
@@ -47,7 +47,7 @@ class GridDataController {
   GridDataController({required ViewPB view})
       : gridId = view.id,
         _blocks = LinkedHashMap.new(),
-        _gridFFIService = GridService(gridId: view.id),
+        _gridFFIService = GridFFIService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id);
 
   void addListener({
