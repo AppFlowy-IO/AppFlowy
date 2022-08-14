@@ -1,20 +1,21 @@
-use crate::services::block_manager::GridBlockManager;
-use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::group::{
-    CheckboxGroupController, Group, GroupActionHandler, GroupCellContentProvider, MultiSelectGroupController,
-    SingleSelectGroupController,
-};
-
+use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{
-    CheckboxGroupConfigurationPB, CreateBoardCardParams, DateGroupConfigurationPB, FieldType, GroupPB,
+    BoardCardChangesetPB, CheckboxGroupConfigurationPB, DateGroupConfigurationPB, FieldType, GroupPB,
     NumberGroupConfigurationPB, RowPB, SelectOptionGroupConfigurationPB, TextGroupConfigurationPB,
     UrlGroupConfigurationPB,
 };
+use crate::services::block_manager::GridBlockManager;
+use crate::services::grid_editor_task::GridServiceTaskScheduler;
+use crate::services::group::{
+    CheckboxGroupController, GroupActionHandler, GroupCellContentProvider, MultiSelectGroupController,
+    SingleSelectGroupController,
+};
+
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
-use futures::future::BoxFuture;
+
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -63,21 +64,17 @@ impl GridGroupService {
     }
 
     #[tracing::instrument(level = "debug", skip(self, row_rev))]
-    pub(crate) async fn create_board_card(&self, row_rev: &mut RowRevision, group_id: &str) {
+    pub(crate) async fn update_board_card(&self, row_rev: &mut RowRevision, group_id: &str) {
         if let Some(group_action_handler) = self.group_action_handler.as_ref() {
-            match self
-                .grid_pad
-                .read()
-                .await
-                .get_field_rev(group_action_handler.read().await.field_id())
-            {
+            let field_id = group_action_handler.read().await.field_id().to_owned();
+
+            match self.grid_pad.read().await.get_field_rev(&field_id) {
                 None => tracing::warn!("Fail to create card because the field does not exist"),
                 Some((_, field_rev)) => {
-                    tracing::trace!("Create card");
                     group_action_handler
                         .write()
                         .await
-                        .create_card(row_rev, field_rev, group_id);
+                        .update_card(row_rev, field_rev, group_id);
                 }
             }
         }
@@ -95,6 +92,37 @@ impl GridGroupService {
                 (&*configurations.pop().unwrap()).clone()
             }
         }
+    }
+
+    pub async fn move_card(&self, _group_id: &str, _from: i32, _to: i32) {
+        // BoardCardChangesetPB {
+        //     group_id: "".to_string(),
+        //     inserted_cards: vec![],
+        //     deleted_cards: vec![],
+        //     updated_cards: vec![]
+        // }
+        // let row_pb = make_row_from_row_rev(row_rev);
+        todo!()
+    }
+
+    pub async fn did_delete_card(&self, _row_id: String) {
+        // let changeset = BoardCardChangesetPB::delete(group_id.to_owned(), vec![row_id]);
+        // self.notify_did_update_board(changeset).await;
+        todo!()
+    }
+
+    pub async fn did_create_card(&self, group_id: &str, row_pb: &RowPB) {
+        let changeset = BoardCardChangesetPB::insert(group_id.to_owned(), vec![row_pb.clone()]);
+        self.notify_did_update_board(changeset).await;
+    }
+
+    pub async fn notify_did_update_board(&self, changeset: BoardCardChangesetPB) {
+        if self.group_action_handler.is_none() {
+            return;
+        }
+        send_dart_notification(&changeset.group_id, GridNotification::DidUpdateBoard)
+            .payload(changeset)
+            .send();
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
@@ -158,7 +186,7 @@ fn find_group_field(field_revs: &[Arc<FieldRevision>]) -> Option<Arc<FieldRevisi
 impl GroupCellContentProvider for Arc<RwLock<GridRevisionPad>> {}
 
 fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurationRevision {
-    let field_type: FieldType = field_rev.field_type_rev.clone().into();
+    let field_type: FieldType = field_rev.field_type_rev.into();
     let bytes: Bytes = match field_type {
         FieldType::RichText => TextGroupConfigurationPB::default().try_into().unwrap(),
         FieldType::Number => NumberGroupConfigurationPB::default().try_into().unwrap(),
@@ -171,7 +199,7 @@ fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurationR
     GroupConfigurationRevision {
         id: gen_grid_group_id(),
         field_id: field_rev.id.clone(),
-        field_type_rev: field_rev.field_type_rev.clone(),
+        field_type_rev: field_rev.field_type_rev,
         content: Some(bytes.to_vec()),
     }
 }

@@ -232,10 +232,7 @@ pub(crate) async fn get_row_handler(
 ) -> DataResult<OptionalRowPB, FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let row = editor
-        .get_row_rev(&params.row_id)
-        .await?
-        .and_then(|row_rev| Some(make_row_from_row_rev(row_rev)));
+    let row = editor.get_row_rev(&params.row_id).await?.map(make_row_from_row_rev);
 
     data_result(OptionalRowPB { row })
 }

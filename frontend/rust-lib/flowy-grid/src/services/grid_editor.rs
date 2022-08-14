@@ -326,6 +326,7 @@ impl GridRevisionEditor {
 
     pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
         let _ = self.block_manager.delete_row(row_id).await?;
+        self.group_service.read().await.did_delete_card(row_id.to_owned()).await;
         Ok(())
     }
 
@@ -517,10 +518,22 @@ impl GridRevisionEditor {
     }
 
     pub async fn move_row(&self, row_id: &str, from: i32, to: i32) -> FlowyResult<()> {
-        let _ = self.block_manager.move_row(row_id, from as usize, to as usize).await?;
+        match self.block_manager.get_row_rev(row_id).await? {
+            None => tracing::warn!("Move row failed, can not find the row:{}", row_id),
+            Some(row_rev) => {
+                let _ = self
+                    .block_manager
+                    .move_row(row_rev.clone(), from as usize, to as usize)
+                    .await?;
+            }
+        }
         Ok(())
     }
 
+    pub async fn move_board_card(&self, group_id: &str, from: i32, to: i32) -> FlowyResult<()> {
+        self.group_service.write().await.move_card(group_id, from, to).await;
+        Ok(())
+    }
     pub async fn delta_bytes(&self) -> Bytes {
         self.grid_pad.read().await.delta_bytes()
     }
@@ -558,10 +571,12 @@ impl GridRevisionEditor {
             .group_service
             .write()
             .await
-            .create_board_card(&mut row_rev, group_id)
+            .update_board_card(&mut row_rev, group_id)
             .await;
 
-        self.create_row_pb(row_rev, None).await
+        let row_pb = self.create_row_pb(row_rev, None).await?;
+        self.group_service.read().await.did_create_card(group_id, &row_pb).await;
+        Ok(row_pb)
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
@@ -579,7 +594,6 @@ impl GridRevisionEditor {
         Ok(row_rev)
     }
 
-    #[tracing::instrument(level = "trace", skip_all, err)]
     async fn create_row_pb(&self, row_rev: RowRevision, start_row_id: Option<String>) -> FlowyResult<RowPB> {
         let row_pb = RowPB::from(&row_rev);
         let block_id = row_rev.block_id.clone();

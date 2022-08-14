@@ -1,13 +1,13 @@
 use crate::entities::{GroupPB, RowPB};
 use crate::services::cell::{decode_any_cell_data, CellBytesParser};
 use bytes::Bytes;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     FieldRevision, GroupConfigurationRevision, RowRevision, TypeOptionDataDeserializer,
 };
-use futures::future::BoxFuture;
+
 use indexmap::IndexMap;
-use lib_infra::future::{BoxResultFuture, FutureResult};
+
 use std::marker::PhantomData;
 use std::sync::Arc;
 
@@ -39,7 +39,7 @@ pub trait GroupActionHandler: Send + Sync {
     fn field_id(&self) -> &str;
     fn get_groups(&self) -> Vec<Group>;
     fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()>;
-    fn create_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
+    fn update_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
 }
 
 pub trait GroupActionHandler2: Send + Sync {
@@ -141,7 +141,7 @@ where
         for row in rows {
             if let Some(cell_rev) = row.cells.get(&self.field_id) {
                 let mut records: Vec<GroupRecord> = vec![];
-                let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), &field_rev);
+                let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
                 let cell_data = cell_bytes.parser::<P>()?;
                 for group in self.groups_map.values() {
                     if self.can_group(&group.content, &cell_data) {
@@ -166,13 +166,6 @@ where
             }
         }
 
-        Ok(())
-    }
-
-    pub fn group_rows(&mut self, rows: &[Arc<RowRevision>]) -> FlowyResult<()> {
-        for row in rows {
-            // let _ = self.handle_row(row)?;
-        }
         Ok(())
     }
 }

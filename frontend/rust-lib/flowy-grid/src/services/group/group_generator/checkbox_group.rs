@@ -1,4 +1,4 @@
-use crate::entities::{CheckboxGroupConfigurationPB, RowPB};
+use crate::entities::CheckboxGroupConfigurationPB;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use std::sync::Arc;
@@ -32,7 +32,7 @@ impl GroupActionHandler for CheckboxGroupController {
         self.handle_rows(row_revs, field_rev)
     }
 
-    fn create_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
+    fn update_card(&self, _row_rev: &mut RowRevision, _field_rev: &FieldRevision, _group_id: &str) {
         todo!()
     }
 }

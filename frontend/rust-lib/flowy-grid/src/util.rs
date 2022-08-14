@@ -76,7 +76,7 @@ pub fn make_default_board() -> BuildGridContext {
     let multi_select_type_option = MultiSelectTypeOptionBuilder::default()
         .add_option(banana_option.clone())
         .add_option(apple_option.clone())
-        .add_option(pear_option.clone());
+        .add_option(pear_option);
     let multi_select_field = FieldBuilder::new(multi_select_type_option)
         .name("Fruit")
         .visibility(true)

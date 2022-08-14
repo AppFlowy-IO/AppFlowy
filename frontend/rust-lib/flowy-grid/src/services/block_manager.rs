@@ -161,31 +161,26 @@ impl GridBlockManager {
         Ok(changesets)
     }
 
-    pub(crate) async fn move_row(&self, row_id: &str, from: usize, to: usize) -> FlowyResult<()> {
-        let editor = self.get_editor_from_row_id(row_id).await?;
-        let _ = editor.move_row(row_id, from, to).await?;
+    pub(crate) async fn move_row(&self, row_rev: Arc<RowRevision>, from: usize, to: usize) -> FlowyResult<()> {
+        let editor = self.get_editor_from_row_id(&row_rev.id).await?;
+        let _ = editor.move_row(&row_rev.id, from, to).await?;
 
-        match editor.get_row_revs(Some(vec![Cow::Borrowed(row_id)])).await?.pop() {
-            None => {}
-            Some(row_rev) => {
-                let delete_row_id = row_rev.id.clone();
-                let insert_row = InsertedRowPB {
-                    index: Some(to as i32),
-                    row: make_row_from_row_rev(row_rev),
-                };
+        let delete_row_id = row_rev.id.clone();
+        let insert_row = InsertedRowPB {
+            index: Some(to as i32),
+            row: make_row_from_row_rev(row_rev),
+        };
 
-                let notified_changeset = GridBlockChangesetPB {
-                    block_id: editor.block_id.clone(),
-                    inserted_rows: vec![insert_row],
-                    deleted_rows: vec![delete_row_id],
-                    ..Default::default()
-                };
+        let notified_changeset = GridBlockChangesetPB {
+            block_id: editor.block_id.clone(),
+            inserted_rows: vec![insert_row],
+            deleted_rows: vec![delete_row_id],
+            ..Default::default()
+        };
 
-                let _ = self
-                    .notify_did_update_block(&editor.block_id, notified_changeset)
-                    .await?;
-            }
-        }
+        let _ = self
+            .notify_did_update_block(&editor.block_id, notified_changeset)
+            .await?;
 
         Ok(())
     }
