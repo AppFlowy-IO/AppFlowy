@@ -77,7 +77,7 @@ impl GridRevisionPad {
         &mut self,
         new_field_rev: FieldRevision,
         start_field_id: Option<String>,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(|grid_meta| {
             // Check if the field exists or not
             if grid_meta
@@ -102,7 +102,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn delete_field_rev(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn delete_field_rev(&mut self, field_id: &str) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
@@ -118,7 +118,7 @@ impl GridRevisionPad {
         &mut self,
         field_id: &str,
         duplicated_field_id: &str,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
@@ -138,7 +138,7 @@ impl GridRevisionPad {
         field_id: &str,
         field_type: T,
         type_option_json_builder: B,
-    ) -> CollaborateResult<Option<GridChangeset>>
+    ) -> CollaborateResult<Option<GridRevisionChangeset>>
     where
         B: FnOnce(&FieldTypeRevision) -> String,
         T: Into<FieldTypeRevision>,
@@ -169,7 +169,7 @@ impl GridRevisionPad {
         &mut self,
         changeset: FieldChangesetParams,
         deserializer: T,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         let field_id = changeset.field_id.clone();
         self.modify_field(&field_id, |field| {
             let mut is_changed = None;
@@ -228,7 +228,10 @@ impl GridRevisionPad {
             .find(|(_, field)| field.id == field_id)
     }
 
-    pub fn replace_field_rev(&mut self, field_rev: Arc<FieldRevision>) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn replace_field_rev(
+        &mut self,
+        field_rev: Arc<FieldRevision>,
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_rev.id) {
                 None => Ok(None),
@@ -246,7 +249,7 @@ impl GridRevisionPad {
         field_id: &str,
         from_index: usize,
         to_index: usize,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(|grid_meta| {
             match move_vec_element(
                 &mut grid_meta.fields,
@@ -292,7 +295,10 @@ impl GridRevisionPad {
         }
     }
 
-    pub fn create_block_meta_rev(&mut self, block: GridBlockMetaRevision) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_block_meta_rev(
+        &mut self,
+        block: GridBlockMetaRevision,
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(|grid_meta| {
             if grid_meta.blocks.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
@@ -322,7 +328,7 @@ impl GridRevisionPad {
     pub fn update_block_rev(
         &mut self,
         changeset: GridBlockMetaRevisionChangeset,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
             let mut is_changed = None;
@@ -372,7 +378,7 @@ impl GridRevisionPad {
     pub fn update_grid_setting_rev(
         &mut self,
         changeset: GridSettingChangesetParams,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(|grid_rev| {
             let mut is_changed = None;
             if let Some(params) = changeset.insert_filter {
@@ -446,7 +452,7 @@ impl GridRevisionPad {
         &self.grid_rev.fields
     }
 
-    fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridChangeset>>
+    fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridRevisionChangeset>>
     where
         F: FnOnce(&mut GridRevision) -> CollaborateResult<Option<()>>,
     {
@@ -460,14 +466,14 @@ impl GridRevisionPad {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(GridChangeset { delta, md5: self.md5() }))
+                        Ok(Some(GridRevisionChangeset { delta, md5: self.md5() }))
                     }
                 }
             }
         }
     }
 
-    fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
+    fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridRevisionChangeset>>
     where
         F: FnOnce(&mut GridBlockMetaRevision) -> CollaborateResult<Option<()>>,
     {
@@ -485,7 +491,7 @@ impl GridRevisionPad {
         )
     }
 
-    fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
+    fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridRevisionChangeset>>
     where
         F: FnOnce(&mut FieldRevision) -> CollaborateResult<Option<()>>,
     {
@@ -508,13 +514,13 @@ impl GridRevisionPad {
     }
 }
 
-pub fn make_grid_rev_json_str(grid: &GridRevision) -> CollaborateResult<String> {
-    let json = serde_json::to_string(grid)
+pub fn make_grid_rev_json_str(grid_revision: &GridRevision) -> CollaborateResult<String> {
+    let json = serde_json::to_string(grid_revision)
         .map_err(|err| internal_error(format!("Serialize grid to json str failed. {:?}", err)))?;
     Ok(json)
 }
 
-pub struct GridChangeset {
+pub struct GridRevisionChangeset {
     pub delta: GridRevisionDelta,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,

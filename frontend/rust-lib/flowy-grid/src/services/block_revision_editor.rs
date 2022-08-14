@@ -3,7 +3,7 @@ use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision};
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
-use flowy_sync::client_grid::{GridBlockMetaChange, GridBlockRevisionPad};
+use flowy_sync::client_grid::{GridBlockRevisionChangeset, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_delta_from_revisions;
 use lib_infra::future::FutureResult;
@@ -29,8 +29,8 @@ impl GridBlockRevisionEditor {
         let cloud = Arc::new(GridBlockRevisionCloudService {
             token: token.to_owned(),
         });
-        let block_meta_pad = rev_manager.load::<GridBlockMetaPadBuilder>(Some(cloud)).await?;
-        let pad = Arc::new(RwLock::new(block_meta_pad));
+        let block_revision_pad = rev_manager.load::<GridBlockRevisionPadBuilder>(Some(cloud)).await?;
+        let pad = Arc::new(RwLock::new(block_revision_pad));
         let rev_manager = Arc::new(rev_manager);
         let user_id = user_id.to_owned();
         let block_id = block_id.to_owned();
@@ -145,7 +145,7 @@ impl GridBlockRevisionEditor {
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
-        F: for<'a> FnOnce(&'a mut GridBlockRevisionPad) -> FlowyResult<Option<GridBlockMetaChange>>,
+        F: for<'a> FnOnce(&'a mut GridBlockRevisionPad) -> FlowyResult<Option<GridBlockRevisionChangeset>>,
     {
         let mut write_guard = self.pad.write().await;
         match f(&mut *write_guard)? {
@@ -157,8 +157,8 @@ impl GridBlockRevisionEditor {
         Ok(())
     }
 
-    async fn apply_change(&self, change: GridBlockMetaChange) -> FlowyResult<()> {
-        let GridBlockMetaChange { delta, md5 } = change;
+    async fn apply_change(&self, change: GridBlockRevisionChangeset) -> FlowyResult<()> {
+        let GridBlockRevisionChangeset { delta, md5 } = change;
         let user_id = self.user_id.clone();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
@@ -187,8 +187,8 @@ impl RevisionCloudService for GridBlockRevisionCloudService {
     }
 }
 
-struct GridBlockMetaPadBuilder();
-impl RevisionObjectBuilder for GridBlockMetaPadBuilder {
+struct GridBlockRevisionPadBuilder();
+impl RevisionObjectBuilder for GridBlockRevisionPadBuilder {
     type Output = GridBlockRevisionPad;
 
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {

@@ -25,7 +25,7 @@ pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterConfigura
 pub type GroupConfiguration = Configuration<GroupConfigurationRevision>;
 pub type GroupConfigurationsByFieldId = HashMap<String, Vec<Arc<GroupConfigurationRevision>>>;
 //
-pub type SortConfigurations = Configuration<SortConfigurationRevision>;
+pub type SortConfiguration = Configuration<SortConfigurationRevision>;
 pub type SortConfigurationsByFieldId = HashMap<String, Vec<Arc<SortConfigurationRevision>>>;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
@@ -38,7 +38,7 @@ pub struct SettingRevision {
     pub groups: GroupConfiguration,
 
     #[serde(skip)]
-    pub sorts: SortConfigurations,
+    pub sorts: SortConfiguration,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize_repr, Deserialize_repr)]

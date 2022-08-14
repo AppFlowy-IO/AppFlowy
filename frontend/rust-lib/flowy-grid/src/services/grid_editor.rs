@@ -16,7 +16,7 @@ use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::*;
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
-use flowy_sync::client_grid::{GridChangeset, GridRevisionPad, JsonDeserializer};
+use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
 use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::CollaborateResult;
@@ -608,7 +608,7 @@ impl GridRevisionEditor {
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
-        F: for<'a> FnOnce(&'a mut GridRevisionPad) -> FlowyResult<Option<GridChangeset>>,
+        F: for<'a> FnOnce(&'a mut GridRevisionPad) -> FlowyResult<Option<GridRevisionChangeset>>,
     {
         let mut write_guard = self.grid_pad.write().await;
         if let Some(changeset) = f(&mut *write_guard)? {
@@ -617,8 +617,8 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    async fn apply_change(&self, change: GridChangeset) -> FlowyResult<()> {
-        let GridChangeset { delta, md5 } = change;
+    async fn apply_change(&self, change: GridRevisionChangeset) -> FlowyResult<()> {
+        let GridRevisionChangeset { delta, md5 } = change;
         let user_id = self.user.user_id()?;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
