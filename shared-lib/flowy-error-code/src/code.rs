@@ -111,6 +111,9 @@ pub enum ErrorCode {
     #[display(fmt = "Field's type option data should not be empty")]
     TypeOptionDataIsEmpty = 450,
 
+    #[display(fmt = "Group id is empty")]
+    GroupIdIsEmpty = 460,
+
     #[display(fmt = "Invalid date time format")]
     InvalidDateTimeFormat = 500,
 

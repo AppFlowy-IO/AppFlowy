@@ -29,9 +29,13 @@ class BoardCardContainer extends StatelessWidget {
               );
             }
           }
+
           return Padding(
             padding: const EdgeInsets.all(8),
-            child: container,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 30),
+              child: container,
+            ),
           );
         },
       ),

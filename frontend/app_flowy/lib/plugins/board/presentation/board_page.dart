@@ -53,7 +53,7 @@ class BoardContent extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: AFBoard(
-              key: UniqueKey(),
+              // key: UniqueKey(),
               scrollController: ScrollController(),
               dataController: context.read<BoardBloc>().boardDataController,
               headerBuilder: _buildHeader,
@@ -83,11 +83,13 @@ class BoardContent extends StatelessWidget {
 
   Widget _buildFooter(BuildContext context, AFBoardColumnData columnData) {
     return AppFlowyColumnFooter(
-      icon: const Icon(Icons.add, size: 20),
-      title: const Text('New'),
-      height: 50,
-      margin: config.columnItemPadding,
-    );
+        icon: const Icon(Icons.add, size: 20),
+        title: const Text('New'),
+        height: 50,
+        margin: config.columnItemPadding,
+        onAddButtonClick: () {
+          context.read<BoardBloc>().add(BoardEvent.createRow(columnData.id));
+        });
   }
 
   Widget _buildCard(BuildContext context, AFColumnItem item) {
@@ -106,13 +108,21 @@ class BoardContent extends StatelessWidget {
     );
 
     final cellBuilder = BoardCellBuilder(cardController);
+    final isEditing = context.read<BoardBloc>().state.editingRow.fold(
+          () => false,
+          (editingRow) => editingRow.id == rowPB.id,
+        );
 
     return AppFlowyColumnItemCard(
       key: ObjectKey(item),
       child: BoardCard(
+        gridId: gridId,
+        isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,
-        gridId: gridId,
+        onEditEditing: (rowId) {
+          context.read<BoardBloc>().add(BoardEvent.endEditRow(rowId));
+        },
       ),
     );
   }

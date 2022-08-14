@@ -21,7 +21,7 @@ class GridRowActionSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RowActionSheetBloc(rowData: rowData),
+      create: (context) => RowActionSheetBloc(rowInfo: rowData),
       child: BlocBuilder<RowActionSheetBloc, RowActionSheetState>(
         builder: (context, state) {
           final cells = _RowAction.values

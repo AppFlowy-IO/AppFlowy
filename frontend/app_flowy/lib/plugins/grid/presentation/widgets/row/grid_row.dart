@@ -52,7 +52,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
       value: _rowBloc,
       child: _RowEnterRegion(
         child: BlocBuilder<RowBloc, RowState>(
-          buildWhen: (p, c) => p.rowInfo.height != c.rowInfo.height,
+          buildWhen: (p, c) => p.rowInfo.rowPB.height != c.rowInfo.rowPB.height,
           builder: (context, state) {
             final children = [
               const _RowLeading(),

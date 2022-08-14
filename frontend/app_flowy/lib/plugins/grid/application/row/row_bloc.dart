@@ -21,7 +21,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
   })  : _rowService = RowFFIService(
           gridId: rowInfo.gridId,
           blockId: rowInfo.blockId,
-          rowId: rowInfo.id,
+          rowId: rowInfo.rowPB.id,
         ),
         _dataController = dataController,
         super(RowState.initial(rowInfo, dataController.loadData())) {
@@ -71,7 +71,7 @@ class RowEvent with _$RowEvent {
   const factory RowEvent.initial() = _InitialRow;
   const factory RowEvent.createRow() = _CreateRow;
   const factory RowEvent.didReceiveCells(
-      GridCellMap gridCellMap, RowChangeReason reason) = _DidReceiveCells;
+      GridCellMap gridCellMap, RowsChangedReason reason) = _DidReceiveCells;
 }
 
 @freezed
@@ -80,7 +80,7 @@ class RowState with _$RowState {
     required RowInfo rowInfo,
     required GridCellMap gridCellMap,
     required UnmodifiableListView<GridCellEquatable> cells,
-    RowChangeReason? changeReason,
+    RowsChangedReason? changeReason,
   }) = _RowState;
 
   factory RowState.initial(RowInfo rowInfo, GridCellMap cellDataMap) =>

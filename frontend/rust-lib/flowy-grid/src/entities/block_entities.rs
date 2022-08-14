@@ -106,48 +106,15 @@ impl std::convert::From<Vec<BlockPB>> for RepeatedBlockPB {
 #[derive(Debug, Clone, Default, ProtoBuf)]
 pub struct InsertedRowPB {
     #[pb(index = 1)]
-    pub block_id: String,
+    pub row: RowPB,
 
-    #[pb(index = 2)]
-    pub row_id: String,
-
-    #[pb(index = 3)]
-    pub height: i32,
-
-    #[pb(index = 4, one_of)]
+    #[pb(index = 2, one_of)]
     pub index: Option<i32>,
 }
 
-#[derive(Debug, Default, ProtoBuf)]
-pub struct UpdatedRowPB {
-    #[pb(index = 1)]
-    pub block_id: String,
-
-    #[pb(index = 2)]
-    pub row_id: String,
-
-    #[pb(index = 3)]
-    pub row: RowPB,
-}
-
-impl UpdatedRowPB {
-    pub fn new(row_rev: &RowRevision, row: RowPB) -> Self {
-        Self {
-            row_id: row_rev.id.clone(),
-            block_id: row_rev.block_id.clone(),
-            row,
-        }
-    }
-}
-
 impl std::convert::From<RowPB> for InsertedRowPB {
-    fn from(row_info: RowPB) -> Self {
-        Self {
-            row_id: row_info.id,
-            block_id: row_info.block_id,
-            height: row_info.height,
-            index: None,
-        }
+    fn from(row: RowPB) -> Self {
+        Self { row, index: None }
     }
 }
 
@@ -170,7 +137,7 @@ pub struct GridBlockChangesetPB {
     pub deleted_rows: Vec<String>,
 
     #[pb(index = 4)]
-    pub updated_rows: Vec<UpdatedRowPB>,
+    pub updated_rows: Vec<RowPB>,
 
     #[pb(index = 5)]
     pub visible_rows: Vec<String>,
@@ -179,9 +146,9 @@ pub struct GridBlockChangesetPB {
     pub hide_rows: Vec<String>,
 }
 impl GridBlockChangesetPB {
-    pub fn insert(block_id: &str, inserted_rows: Vec<InsertedRowPB>) -> Self {
+    pub fn insert(block_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {
         Self {
-            block_id: block_id.to_owned(),
+            block_id,
             inserted_rows,
             ..Default::default()
         }
@@ -195,7 +162,7 @@ impl GridBlockChangesetPB {
         }
     }
 
-    pub fn update(block_id: &str, updated_rows: Vec<UpdatedRowPB>) -> Self {
+    pub fn update(block_id: &str, updated_rows: Vec<RowPB>) -> Self {
         Self {
             block_id: block_id.to_owned(),
             updated_rows,

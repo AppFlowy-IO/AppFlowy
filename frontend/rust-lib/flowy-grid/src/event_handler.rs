@@ -232,10 +232,7 @@ pub(crate) async fn get_row_handler(
 ) -> DataResult<OptionalRowPB, FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let row = editor
-        .get_row_rev(&params.row_id)
-        .await?
-        .and_then(make_row_from_row_rev);
+    let row = editor.get_row_rev(&params.row_id).await?.map(make_row_from_row_rev);
 
     data_result(OptionalRowPB { row })
 }
@@ -266,11 +263,11 @@ pub(crate) async fn duplicate_row_handler(
 pub(crate) async fn create_row_handler(
     data: Data<CreateRowPayloadPB>,
     manager: AppData<Arc<GridManager>>,
-) -> Result<(), FlowyError> {
+) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
-    let _ = editor.create_row(params.start_row_id).await?;
-    Ok(())
+    let row = editor.create_row(params.start_row_id).await?;
+    data_result(row)
 }
 
 // #[tracing::instrument(level = "debug", skip_all, err)]
@@ -415,4 +412,15 @@ pub(crate) async fn get_groups_handler(
     let editor = manager.get_grid_editor(&params.value)?;
     let group = editor.load_groups().await?;
     data_result(group)
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn create_board_card_handler(
+    data: Data<CreateBoardCardPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<RowPB, FlowyError> {
+    let params: CreateBoardCardParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
+    let row = editor.create_board_card(&params.group_id).await?;
+    data_result(row)
 }

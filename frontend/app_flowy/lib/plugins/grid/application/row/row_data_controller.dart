@@ -5,7 +5,7 @@ import '../cell/cell_service/cell_service.dart';
 import '../field/field_cache.dart';
 import 'row_cache.dart';
 
-typedef OnRowChanged = void Function(GridCellMap, RowChangeReason);
+typedef OnRowChanged = void Function(GridCellMap, RowsChangedReason);
 
 class GridRowDataController extends GridCellBuilderDelegate {
   final RowInfo rowInfo;
@@ -21,12 +21,12 @@ class GridRowDataController extends GridCellBuilderDelegate {
         _rowCache = rowCache;
 
   GridCellMap loadData() {
-    return _rowCache.loadGridCells(rowInfo.id);
+    return _rowCache.loadGridCells(rowInfo.rowPB.id);
   }
 
   void addListener({OnRowChanged? onRowChanged}) {
     _onRowChangedListeners.add(_rowCache.addListener(
-      rowId: rowInfo.id,
+      rowId: rowInfo.rowPB.id,
       onCellUpdated: onRowChanged,
     ));
   }

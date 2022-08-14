@@ -74,7 +74,7 @@ class BoardCardEvent with _$BoardCardEvent {
   const factory BoardCardEvent.initial() = _InitialRow;
   const factory BoardCardEvent.createRow() = _CreateRow;
   const factory BoardCardEvent.didReceiveCells(
-      GridCellMap gridCellMap, RowChangeReason reason) = _DidReceiveCells;
+      GridCellMap gridCellMap, RowsChangedReason reason) = _DidReceiveCells;
 }
 
 @freezed
@@ -83,7 +83,7 @@ class BoardCardState with _$BoardCardState {
     required RowPB rowPB,
     required GridCellMap gridCellMap,
     required UnmodifiableListView<GridCellEquatable> cells,
-    RowChangeReason? changeReason,
+    RowsChangedReason? changeReason,
   }) = _BoardCardState;
 
   factory BoardCardState.initial(RowPB rowPB, GridCellMap cellDataMap) =>

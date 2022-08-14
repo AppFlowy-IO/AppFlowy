@@ -52,8 +52,21 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             _startListening();
             await _loadGrid(emit);
           },
-          createRow: () {
-            _dataController.createRow();
+          createRow: (groupId) async {
+            final result = await _dataController.createBoardCard(groupId);
+            result.fold(
+              (rowPB) {
+                emit(state.copyWith(editingRow: some(rowPB)));
+              },
+              (err) => Log.error(err),
+            );
+          },
+          endEditRow: (rowId) {
+            assert(state.editingRow.isSome());
+            state.editingRow.fold(() => null, (row) {
+              assert(row.id == rowId);
+              emit(state.copyWith(editingRow: none()));
+            });
           },
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
@@ -99,7 +112,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
         boardDataController.addColumns(columns);
       },
-      onRowsChanged: (List<RowInfo> rowInfos, RowChangeReason reason) {
+      onRowsChanged: (List<RowInfo> rowInfos, RowsChangedReason reason) {
         add(BoardEvent.didReceiveRows(rowInfos));
       },
       onError: (err) {
@@ -140,7 +153,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 @freezed
 class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = InitialGrid;
-  const factory BoardEvent.createRow() = _CreateRow;
+  const factory BoardEvent.createRow(String groupId) = _CreateRow;
+  const factory BoardEvent.endEditRow(String rowId) = _EndEditRow;
   const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
       _DidReceiveGroup;
   const factory BoardEvent.didReceiveRows(List<RowInfo> rowInfos) =
@@ -156,6 +170,7 @@ class BoardState with _$BoardState {
     required String gridId,
     required Option<GridPB> grid,
     required List<GroupPB> groups,
+    required Option<RowPB> editingRow,
     required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
   }) = _BoardState;
@@ -165,6 +180,7 @@ class BoardState with _$BoardState {
         groups: [],
         grid: none(),
         gridId: gridId,
+        editingRow: none(),
         loadingState: const _Loading(),
       );
 }
