@@ -22,10 +22,12 @@ pub struct GridViewRevision {
 
 impl GridViewRevision {
     pub fn new(grid_id: String) -> Self {
-        let mut view_rev = GridViewRevision::default();
-        view_rev.grid_id = grid_id;
-        view_rev.view_id = gen_grid_view_id();
-        view_rev
+        GridViewRevision {
+            view_id: gen_grid_view_id(),
+            grid_id,
+            setting: Default::default(),
+            row_orders: vec![],
+        }
     }
 }
 

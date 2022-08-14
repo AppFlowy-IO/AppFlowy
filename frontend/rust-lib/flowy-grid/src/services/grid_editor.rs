@@ -6,6 +6,7 @@ use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellBytes};
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::filter::{GridFilterChangeset, GridFilterService};
+
 use crate::services::group::GridGroupService;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{
@@ -31,8 +32,10 @@ pub struct GridRevisionEditor {
     pub(crate) grid_id: String,
     user: Arc<dyn GridUser>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
+    // view_editor: Arc<GridViewRevisionEditor>,
     rev_manager: Arc<RevisionManager>,
     block_manager: Arc<GridBlockManager>,
+
     #[allow(dead_code)]
     pub(crate) filter_service: Arc<GridFilterService>,
 
@@ -59,6 +62,7 @@ impl GridRevisionEditor {
         let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
+
         let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
         let block_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_meta_revs, persistence).await?);
         let filter_service =

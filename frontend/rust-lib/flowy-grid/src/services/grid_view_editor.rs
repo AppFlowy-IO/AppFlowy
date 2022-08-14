@@ -1,5 +1,5 @@
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::GridViewRevision;
+
 use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::GridViewRevisionPad;
 use flowy_sync::entities::revision::Revision;
@@ -7,12 +7,16 @@ use lib_infra::future::FutureResult;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+#[allow(dead_code)]
 pub struct GridViewRevisionEditor {
+    #[allow(dead_code)]
     pad: Arc<RwLock<GridViewRevisionPad>>,
+    #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
 }
 
 impl GridViewRevisionEditor {
+    #[allow(dead_code)]
     pub async fn new(token: &str, mut rev_manager: RevisionManager) -> FlowyResult<Self> {
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
