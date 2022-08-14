@@ -1,0 +1,37 @@
+name: FlowyEditor test
+
+on:
+  push:
+    branches:
+      - "main"
+
+  pull_request:
+    branches:
+      - "main"
+      - "feat/flowy_editor"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.0.5'
+          cache: true
+
+      - name: Run FlowyEditor tests
+        working-directory: frontend/app_flowy/packages/flowy_editor
+        run: |
+          flutter pub get
+          flutter test

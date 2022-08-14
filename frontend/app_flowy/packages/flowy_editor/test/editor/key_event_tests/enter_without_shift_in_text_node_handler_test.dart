@@ -71,10 +71,6 @@ void main() async {
       expect(lastNode != null, true);
       expect(lastNode is TextNode, true);
       lastNode = lastNode as TextNode;
-      for (final node in editor.root.children) {
-        print(
-            'path = ${node.path}, text = ${(node as TextNode).toRawString()}');
-      }
       expect(lastNode.delta.toRawString(), text);
       expect((lastNode.previous as TextNode).delta.toRawString(), '');
       expect(

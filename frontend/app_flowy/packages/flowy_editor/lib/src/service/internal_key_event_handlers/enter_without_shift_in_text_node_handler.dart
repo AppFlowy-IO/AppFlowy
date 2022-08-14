@@ -86,7 +86,7 @@ FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
       );
       TransactionBuilder(editorState)
         ..insertNode(
-          textNode.path.next,
+          textNode.path,
           TextNode.empty(),
         )
         ..afterSelection = afterSelection
