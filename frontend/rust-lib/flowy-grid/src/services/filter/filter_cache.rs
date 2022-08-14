@@ -108,7 +108,7 @@ pub(crate) async fn refresh_filter_cache(
     grid_pad: &Arc<RwLock<GridRevisionPad>>,
 ) {
     let grid_pad = grid_pad.read().await;
-    let filters_revs = grid_pad.get_filters(None, field_ids).unwrap_or_default();
+    let filters_revs = grid_pad.get_filters(field_ids).unwrap_or_default();
 
     for filter_rev in filters_revs {
         match grid_pad.get_field_rev(&filter_rev.field_id) {

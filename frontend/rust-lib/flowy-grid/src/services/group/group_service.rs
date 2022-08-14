@@ -83,8 +83,7 @@ impl GridGroupService {
     pub(crate) async fn get_group_configuration(&self, field_rev: &FieldRevision) -> GroupConfigurationRevision {
         let grid_pad = self.grid_pad.read().await;
         let setting = grid_pad.get_setting_rev();
-        let layout = &setting.layout;
-        let configurations = setting.get_groups(layout, &field_rev.id, &field_rev.field_type_rev);
+        let configurations = setting.get_groups(&field_rev.id, &field_rev.field_type_rev);
         match configurations {
             None => default_group_configuration(field_rev),
             Some(mut configurations) => {

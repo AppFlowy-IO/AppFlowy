@@ -7,8 +7,8 @@ use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, FieldRevision, FieldTypeRevision,
-    FilterConfigurationRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridLayoutRevision,
-    GridRevision, GridSettingRevision, GroupConfigurationRevision,
+    FilterConfigurationRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridRevision,
+    GroupConfigurationRevision, SettingRevision,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
@@ -341,18 +341,13 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_setting_rev(&self) -> &GridSettingRevision {
+    pub fn get_setting_rev(&self) -> &SettingRevision {
         &self.grid_rev.setting
     }
 
     /// If layout is None, then the default layout will be the read from GridSettingRevision
-    pub fn get_filters(
-        &self,
-        layout: Option<&GridLayoutRevision>,
-        field_ids: Option<Vec<String>>,
-    ) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
+    pub fn get_filters(&self, field_ids: Option<Vec<String>>) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
         let mut filter_revs = vec![];
-        let layout_ty = layout.unwrap_or(&self.grid_rev.setting.layout);
         let field_revs = self.get_field_revs(None).ok()?;
 
         field_revs.iter().for_each(|field_rev| {
@@ -365,8 +360,7 @@ impl GridRevisionPad {
                 // Only return the filters for the current fields' type.
                 let field_id = &field_rev.id;
                 let field_type_rev = &field_rev.field_type_rev;
-                if let Some(mut t_filter_revs) = self.grid_rev.setting.get_filters(layout_ty, field_id, field_type_rev)
-                {
+                if let Some(mut t_filter_revs) = self.grid_rev.setting.get_filters(field_id, field_type_rev) {
                     filter_revs.append(&mut t_filter_revs);
                 }
             }
@@ -381,40 +375,30 @@ impl GridRevisionPad {
     ) -> CollaborateResult<Option<GridChangeset>> {
         self.modify_grid(|grid_rev| {
             let mut is_changed = None;
-            let layout_rev = changeset.layout_type;
             if let Some(params) = changeset.insert_filter {
-                grid_rev.setting.insert_filter(
-                    &layout_rev,
-                    &params.field_id,
-                    &params.field_type_rev,
-                    make_filter_revision(&params),
-                );
-
+                grid_rev
+                    .setting
+                    .insert_filter(&params.field_id, &params.field_type_rev, make_filter_revision(&params));
                 is_changed = Some(())
             }
             if let Some(params) = changeset.delete_filter {
-                if let Some(filters) =
-                    grid_rev
-                        .setting
-                        .get_mut_filters(&layout_rev, &params.field_id, &params.field_type_rev)
+                if let Some(filters) = grid_rev
+                    .setting
+                    .get_mut_filters(&params.field_id, &params.field_type_rev)
                 {
                     filters.retain(|filter| filter.id != params.filter_id);
                 }
             }
             if let Some(params) = changeset.insert_group {
-                grid_rev.setting.insert_group(
-                    &layout_rev,
-                    &params.field_id,
-                    &params.field_type_rev,
-                    make_group_revision(&params),
-                );
+                grid_rev
+                    .setting
+                    .insert_group(&params.field_id, &params.field_type_rev, make_group_revision(&params));
                 is_changed = Some(());
             }
             if let Some(params) = changeset.delete_group {
-                if let Some(groups) =
-                    grid_rev
-                        .setting
-                        .get_mut_groups(&layout_rev, &params.field_id, &params.field_type_rev)
+                if let Some(groups) = grid_rev
+                    .setting
+                    .get_mut_groups(&params.field_id, &params.field_type_rev)
                 {
                     groups.retain(|filter| filter.id != params.group_id);
                 }

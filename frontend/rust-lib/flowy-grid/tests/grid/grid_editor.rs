@@ -76,8 +76,7 @@ impl GridEditorTest {
     }
 
     pub async fn grid_filters(&self) -> Vec<GridFilterConfiguration> {
-        let layout_type = GridLayoutType::Table;
-        self.editor.get_grid_filter(&layout_type).await.unwrap()
+        self.editor.get_grid_filter().await.unwrap()
     }
 
     pub fn get_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {

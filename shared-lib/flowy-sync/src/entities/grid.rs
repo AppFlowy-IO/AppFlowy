@@ -1,8 +1,8 @@
-use flowy_grid_data_model::revision::{FieldTypeRevision, GridLayoutRevision};
+use flowy_grid_data_model::revision::{FieldTypeRevision, LayoutRevision};
 
 pub struct GridSettingChangesetParams {
     pub grid_id: String,
-    pub layout_type: GridLayoutRevision,
+    pub layout_type: LayoutRevision,
     pub insert_filter: Option<CreateGridFilterParams>,
     pub delete_filter: Option<DeleteFilterParams>,
     pub insert_group: Option<CreateGridGroupParams>,

@@ -447,10 +447,9 @@ impl GridRevisionEditor {
         Ok(grid_setting)
     }
 
-    pub async fn get_grid_filter(&self, layout_type: &GridLayoutType) -> FlowyResult<Vec<GridFilterConfiguration>> {
+    pub async fn get_grid_filter(&self) -> FlowyResult<Vec<GridFilterConfiguration>> {
         let read_guard = self.grid_pad.read().await;
-        let layout_rev = layout_type.clone().into();
-        match read_guard.get_filters(Some(&layout_rev), None) {
+        match read_guard.get_filters(None) {
             Some(filter_revs) => Ok(filter_revs
                 .iter()
                 .map(|filter_rev| filter_rev.as_ref().into())

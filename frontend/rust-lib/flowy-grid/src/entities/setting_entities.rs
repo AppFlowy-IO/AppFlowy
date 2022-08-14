@@ -5,7 +5,7 @@ use crate::entities::{
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::GridLayoutRevision;
+use flowy_grid_data_model::revision::LayoutRevision;
 use flowy_sync::entities::grid::GridSettingChangesetParams;
 use std::collections::HashMap;
 use std::convert::TryInto;
@@ -19,7 +19,7 @@ pub struct GridSettingPB {
     pub layouts: Vec<GridLayoutPB>,
 
     #[pb(index = 2)]
-    pub current_layout_type: GridLayoutType,
+    pub current_layout_type: Layout,
 
     #[pb(index = 3)]
     pub filter_configuration_by_field_id: HashMap<String, RepeatedGridConfigurationFilterPB>,
@@ -34,13 +34,13 @@ pub struct GridSettingPB {
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridLayoutPB {
     #[pb(index = 1)]
-    ty: GridLayoutType,
+    ty: Layout,
 }
 
 impl GridLayoutPB {
     pub fn all() -> Vec<GridLayoutPB> {
         let mut layouts = vec![];
-        for layout_ty in GridLayoutType::iter() {
+        for layout_ty in Layout::iter() {
             layouts.push(GridLayoutPB { ty: layout_ty })
         }
 
@@ -50,31 +50,31 @@ impl GridLayoutPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
-pub enum GridLayoutType {
+pub enum Layout {
     Table = 0,
     Board = 1,
 }
 
-impl std::default::Default for GridLayoutType {
+impl std::default::Default for Layout {
     fn default() -> Self {
-        GridLayoutType::Table
+        Layout::Table
     }
 }
 
-impl std::convert::From<GridLayoutRevision> for GridLayoutType {
-    fn from(rev: GridLayoutRevision) -> Self {
+impl std::convert::From<LayoutRevision> for Layout {
+    fn from(rev: LayoutRevision) -> Self {
         match rev {
-            GridLayoutRevision::Table => GridLayoutType::Table,
-            GridLayoutRevision::Board => GridLayoutType::Board,
+            LayoutRevision::Table => Layout::Table,
+            LayoutRevision::Board => Layout::Board,
         }
     }
 }
 
-impl std::convert::From<GridLayoutType> for GridLayoutRevision {
-    fn from(layout: GridLayoutType) -> Self {
+impl std::convert::From<Layout> for LayoutRevision {
+    fn from(layout: Layout) -> Self {
         match layout {
-            GridLayoutType::Table => GridLayoutRevision::Table,
-            GridLayoutType::Board => GridLayoutRevision::Board,
+            Layout::Table => LayoutRevision::Table,
+            Layout::Board => LayoutRevision::Board,
         }
     }
 }
@@ -85,7 +85,7 @@ pub struct GridSettingChangesetPayloadPB {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub layout_type: GridLayoutType,
+    pub layout_type: Layout,
 
     #[pb(index = 3, one_of)]
     pub insert_filter: Option<CreateGridFilterPayloadPB>,
