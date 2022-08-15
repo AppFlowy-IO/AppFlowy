@@ -31,6 +31,7 @@ flutter:
     - assets/images/toolbar/
     - assets/images/popup_list/
     - assets/images/
+    - assets/document.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   #
