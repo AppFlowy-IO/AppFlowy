@@ -9,6 +9,13 @@ import 'package:flowy_editor/src/operation/transaction_builder.dart';
 import 'package:flowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flowy_editor/src/service/keyboard_service.dart';
 
+@visibleForTesting
+List<String> get checkboxListSymbols => _checkboxListSymbols;
+@visibleForTesting
+List<String> get unCheckboxListSymbols => _unCheckboxListSymbols;
+@visibleForTesting
+List<String> get bulletedListSymbols => _bulletedListSymbols;
+
 const _bulletedListSymbols = ['*', '-'];
 const _checkboxListSymbols = ['[x]', '-[x]'];
 const _unCheckboxListSymbols = ['[]', '-[]'];
