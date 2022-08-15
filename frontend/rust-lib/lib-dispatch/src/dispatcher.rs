@@ -54,16 +54,18 @@ impl EventDispatcher {
             callback: Some(Box::new(callback)),
         };
         let join_handle = dispatch.runtime.spawn(async move {
-            service
-                .call(service_ctx)
-                .await
-                .unwrap_or_else(|e| InternalError::Other(format!("{:?}", e)).as_response())
+            service.call(service_ctx).await.unwrap_or_else(|e| {
+                tracing::error!("Dispatch runtime error: {:?}", e);
+                InternalError::Other(format!("{:?}", e)).as_response()
+            })
         });
 
         DispatchFuture {
             fut: Box::pin(async move {
                 join_handle.await.unwrap_or_else(|e| {
-                    let error = InternalError::JoinError(format!("EVENT_DISPATCH join error: {:?}", e));
+                    let msg = format!("EVENT_DISPATCH join error: {:?}", e);
+                    tracing::error!("{}", msg);
+                    let error = InternalError::JoinError(msg);
                     error.as_response()
                 })
             }),

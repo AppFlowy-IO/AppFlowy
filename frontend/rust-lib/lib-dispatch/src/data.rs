@@ -55,7 +55,10 @@ where
 {
     fn respond_to(self, _request: &EventRequest) -> EventResponse {
         match self.into_inner().into_bytes() {
-            Ok(bytes) => ResponseBuilder::Ok().data(bytes).build(),
+            Ok(bytes) => {
+                log::trace!("Serialize Data: {:?} to event response", std::any::type_name::<T>());
+                return ResponseBuilder::Ok().data(bytes).build();
+            }
             Err(e) => e.into(),
         }
     }
@@ -86,7 +89,11 @@ where
     T: FromBytes,
 {
     match payload {
-        Payload::None => Err(InternalError::UnexpectedNone("Parse fail, expected payload".to_string()).into()),
+        Payload::None => Err(InternalError::UnexpectedNone(format!(
+            "Parse fail, expected payload:{:?}",
+            std::any::type_name::<T>()
+        ))
+        .into()),
         Payload::Bytes(bytes) => {
             let data = T::parse_from_bytes(bytes.clone())?;
             Ok(Data(data))
