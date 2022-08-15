@@ -127,6 +127,8 @@ class HTMLToNodesConverter {
       return _handleListElement(element);
     } else if (element.localName == HTMLTag.paragraph) {
       return [_handleParagraph(element, attributes)];
+    } else if (element.localName == HTMLTag.image) {
+      return [_handleImage(element)];
     } else {
       final delta = Delta();
       delta.insert(element.text);
