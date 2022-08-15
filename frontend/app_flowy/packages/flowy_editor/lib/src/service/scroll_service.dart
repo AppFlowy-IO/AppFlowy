@@ -1,8 +1,15 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flowy_editor/src/extensions/object_extensions.dart';
 
 abstract class FlowyScrollService {
   double get dy;
+  double? get onePageHeight;
+
+  int? get page;
+
+  double get maxScrollExtent;
+  double get minScrollExtent;
 
   void scrollTo(double dy);
 
@@ -31,6 +38,27 @@ class _FlowyScrollState extends State<FlowyScroll>
 
   @override
   double get dy => _scrollController.position.pixels;
+
+  @override
+  double? get onePageHeight {
+    final renderBox = context.findRenderObject()?.unwrapOrNull<RenderBox>();
+    return renderBox?.size.height;
+  }
+
+  @override
+  double get maxScrollExtent => _scrollController.position.maxScrollExtent;
+
+  @override
+  double get minScrollExtent => _scrollController.position.minScrollExtent;
+
+  @override
+  int? get page {
+    if (onePageHeight != null) {
+      final scrollExtent = maxScrollExtent - minScrollExtent;
+      return (scrollExtent / onePageHeight!).ceil();
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,25 @@
 import 'package:flutter/services.dart';
 
 class TestRawKeyEvent extends RawKeyDownEvent {
-  const TestRawKeyEvent({required super.data});
+  const TestRawKeyEvent({
+    required super.data,
+    this.isControlPressed = false,
+    this.isShiftPressed = false,
+    this.isAltPressed = false,
+    this.isMetaPressed = false,
+  });
+
+  @override
+  final bool isControlPressed;
+
+  @override
+  final bool isShiftPressed;
+
+  @override
+  final bool isAltPressed;
+
+  @override
+  final bool isMetaPressed;
 }
 
 class TestRawKeyEventData extends RawKeyEventData {
@@ -46,7 +64,13 @@ class TestRawKeyEventData extends RawKeyEventData {
   String get keyLabel => throw UnimplementedError();
 
   RawKeyEvent get toKeyEvent {
-    return TestRawKeyEvent(data: this);
+    return TestRawKeyEvent(
+      data: this,
+      isAltPressed: isAltPressed,
+      isControlPressed: isControlPressed,
+      isMetaPressed: isMetaPressed,
+      isShiftPressed: isShiftPressed,
+    );
   }
 }
 
@@ -60,6 +84,36 @@ extension on LogicalKeyboardKey {
     }
     if (this == LogicalKeyboardKey.delete) {
       return PhysicalKeyboardKey.delete;
+    }
+    if (this == LogicalKeyboardKey.pageDown) {
+      return PhysicalKeyboardKey.pageDown;
+    }
+    if (this == LogicalKeyboardKey.pageUp) {
+      return PhysicalKeyboardKey.pageUp;
+    }
+    if (this == LogicalKeyboardKey.slash) {
+      return PhysicalKeyboardKey.slash;
+    }
+    if (this == LogicalKeyboardKey.arrowDown) {
+      return PhysicalKeyboardKey.arrowDown;
+    }
+    if (this == LogicalKeyboardKey.keyA) {
+      return PhysicalKeyboardKey.keyA;
+    }
+    if (this == LogicalKeyboardKey.keyB) {
+      return PhysicalKeyboardKey.keyB;
+    }
+    if (this == LogicalKeyboardKey.keyI) {
+      return PhysicalKeyboardKey.keyI;
+    }
+    if (this == LogicalKeyboardKey.keyS) {
+      return PhysicalKeyboardKey.keyS;
+    }
+    if (this == LogicalKeyboardKey.keyU) {
+      return PhysicalKeyboardKey.keyU;
+    }
+    if (this == LogicalKeyboardKey.keyZ) {
+      return PhysicalKeyboardKey.keyZ;
     }
     throw UnimplementedError();
   }

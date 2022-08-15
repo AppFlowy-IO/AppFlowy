@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flowy_editor/src/document/node.dart';
 import 'package:flowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
 import 'package:flowy_editor/src/service/keyboard_service.dart';
+import 'package:flutter/services.dart';
 
 FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
-  if (!event.isMetaPressed || event.character == null) {
+  if (!event.isMetaPressed) {
     return KeyEventResult.ignored;
   }
 
@@ -17,26 +18,19 @@ FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
 
-  switch (event.character!) {
-    // bold
-    case 'B':
-    case 'b':
-      formatBold(editorState);
-      return KeyEventResult.handled;
-    case 'I':
-    case 'i':
-      formatItalic(editorState);
-      return KeyEventResult.handled;
-    case 'U':
-    case 'u':
-      formatUnderline(editorState);
-      return KeyEventResult.handled;
-    case 'S':
-    case 's':
-      formatStrikethrough(editorState);
-      return KeyEventResult.handled;
-    default:
-      break;
+  if (event.logicalKey == LogicalKeyboardKey.keyB) {
+    formatBold(editorState);
+    return KeyEventResult.handled;
+  } else if (event.logicalKey == LogicalKeyboardKey.keyI) {
+    formatItalic(editorState);
+    return KeyEventResult.handled;
+  } else if (event.logicalKey == LogicalKeyboardKey.keyU) {
+    formatUnderline(editorState);
+    return KeyEventResult.handled;
+  } else if (event.logicalKey == LogicalKeyboardKey.keyS &&
+      event.isShiftPressed) {
+    formatStrikethrough(editorState);
+    return KeyEventResult.handled;
   }
 
   return KeyEventResult.ignored;

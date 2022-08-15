@@ -11,6 +11,9 @@ import 'package:flowy_editor/src/extensions/node_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+@visibleForTesting
+List<PopupListItem> get popupListItems => _popupListItems;
+
 final List<PopupListItem> _popupListItems = [
   PopupListItem(
     text: 'Text',
@@ -94,6 +97,14 @@ FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
   _editorState = editorState;
   WidgetsBinding.instance.addPostFrameCallback((_) {
     _selectionChangeBySlash = false;
+
+    editorState.service.selectionService.currentSelection
+        .removeListener(clearPopupList);
+    editorState.service.selectionService.currentSelection
+        .addListener(clearPopupList);
+
+    editorState.service.scrollService?.disable();
+
     showPopupList(context, editorState, selectionRects.first.bottomRight);
   });
 
@@ -115,23 +126,20 @@ void showPopupList(
   );
 
   Overlay.of(context)?.insert(_popupListOverlay!);
-
-  editorState.service.selectionService.currentSelection
-      .removeListener(clearPopupList);
-  editorState.service.selectionService.currentSelection
-      .addListener(clearPopupList);
-
-  editorState.service.scrollService?.disable();
 }
 
 void clearPopupList() {
   if (_popupListOverlay == null || _editorState == null) {
     return;
   }
-  final selection =
-      _editorState?.service.selectionService.currentSelection.value;
-  if (selection == null) {
-    return;
+  final isSelectionDisposed =
+      _editorState?.service.selectionServiceKey.currentState != null;
+  if (isSelectionDisposed) {
+    final selection =
+        _editorState?.service.selectionService.currentSelection.value;
+    if (selection == null) {
+      return;
+    }
   }
   if (_selectionChangeBySlash) {
     _selectionChangeBySlash = false;
