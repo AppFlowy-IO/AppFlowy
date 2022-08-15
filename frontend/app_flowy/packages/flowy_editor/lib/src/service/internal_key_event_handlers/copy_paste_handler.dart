@@ -149,6 +149,46 @@ _pastRichClipboard(EditorState editorState, RichClipboardData data) {
   }
 }
 
+_pasteSingleLine(EditorState editorState, Selection selection, String line) {
+  final node = editorState.document.nodeAtPath(selection.end.path)! as TextNode;
+  final beginOffset = selection.end.offset;
+  TransactionBuilder(editorState)
+    ..textEdit(
+        node,
+        () => Delta()
+          ..retain(beginOffset)
+          ..addAll(_lineContentToDelta(line)))
+    ..setAfterSelection(Selection.collapsed(
+        Position(path: selection.end.path, offset: beginOffset + line.length)))
+    ..commit();
+}
+
+/// parse url from the line text
+/// reference: https://stackoverflow.com/questions/59444837/flutter-dart-regex-to-extract-urls-from-a-string
+Delta _lineContentToDelta(String lineContent) {
+  final exp = RegExp(r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+');
+  final Iterable<RegExpMatch> matches = exp.allMatches(lineContent);
+
+  final delta = Delta();
+
+  var lastUrlEndOffset = 0;
+
+  for (final match in matches) {
+    if (lastUrlEndOffset < match.start) {
+      delta.insert(lineContent.substring(lastUrlEndOffset, match.start));
+    }
+    final linkContent = lineContent.substring(match.start, match.end);
+    delta.insert(linkContent, {"href": linkContent});
+    lastUrlEndOffset = match.end;
+  }
+
+  if (lastUrlEndOffset < lineContent.length) {
+    delta.insert(lineContent.substring(lastUrlEndOffset, lineContent.length));
+  }
+
+  return delta;
+}
+
 _handlePastePlainText(EditorState editorState, String plainText) {
   final selection = editorState.cursorSelection?.normalize();
   if (selection == null) {
@@ -163,18 +203,8 @@ _handlePastePlainText(EditorState editorState, String plainText) {
   if (lines.isEmpty) {
     return;
   } else if (lines.length == 1) {
-    final node =
-        editorState.document.nodeAtPath(selection.end.path)! as TextNode;
-    final beginOffset = selection.end.offset;
-    TransactionBuilder(editorState)
-      ..textEdit(
-          node,
-          () => Delta()
-            ..retain(beginOffset)
-            ..insert(lines[0]))
-      ..setAfterSelection(Selection.collapsed(Position(
-          path: selection.end.path, offset: beginOffset + lines[0].length)))
-      ..commit();
+    // single line
+    _pasteSingleLine(editorState, selection, lines.first);
   } else {
     final firstLine = lines[0];
     final beginOffset = selection.end.offset;
@@ -196,11 +226,9 @@ _handlePastePlainText(EditorState editorState, String plainText) {
       if (index++ == remains.length - 1) {
         return TextNode(
             type: "text",
-            delta: Delta()
-              ..insert(e)
-              ..addAll(insertedLineSuffix));
+            delta: _lineContentToDelta(e)..addAll(insertedLineSuffix));
       }
-      return TextNode(type: "text", delta: Delta()..insert(e));
+      return TextNode(type: "text", delta: _lineContentToDelta(e));
     }).toList();
     // insert first line
     tb.textEdit(
