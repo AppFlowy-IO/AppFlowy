@@ -11,12 +11,18 @@ void main() async {
 
   group('enter_without_shift_in_text_node_handler.dart', () {
     testWidgets('Presses enter key in empty document', (tester) async {
+      // Before
+      //
+      // [Empty Line]
+      //
+      // After
+      //
+      // [Empty Line] * 10
+      //
       final editor = tester.editor..insertEmptyTextNode();
       await editor.startTesting();
       await editor.updateSelection(
-        Selection.collapsed(
-          Position(path: [0], offset: 0),
-        ),
+        Selection.single(path: [0], startOffset: 0),
       );
       // Pressing the enter key continuously.
       for (int i = 1; i <= 10; i++) {
@@ -25,7 +31,7 @@ void main() async {
         );
         expect(editor.documentLength, i + 1);
         expect(editor.documentSelection,
-            Selection.collapsed(Position(path: [i], offset: 0)));
+            Selection.single(path: [i], startOffset: 0));
       }
     });
 
@@ -56,9 +62,7 @@ void main() async {
 
       // Presses the enter key in last line.
       await editor.updateSelection(
-        Selection.collapsed(
-          Position(path: [lines - 1], offset: 0),
-        ),
+        Selection.single(path: [lines - 1], startOffset: 0),
       );
       await editor.pressLogicKey(
         LogicalKeyboardKey.enter,
@@ -66,7 +70,7 @@ void main() async {
       lines += 1;
       expect(editor.documentLength, lines);
       expect(editor.documentSelection,
-          Selection.collapsed(Position(path: [lines - 1], offset: 0)));
+          Selection.single(path: [lines - 1], startOffset: 0));
       var lastNode = editor.nodeAtPath([lines - 1]);
       expect(lastNode != null, true);
       expect(lastNode is TextNode, true);
@@ -102,6 +106,16 @@ void main() async {
     testWidgets('Presses enter key in quoted text', (tester) async {
       await _testStyleNeedToBeCopy(tester, StyleKey.quote);
     });
+
+    testWidgets('Presses enter key in multiple selection from top to bottom',
+        (tester) async {
+      _testMultipleSelection(tester, true);
+    });
+
+    testWidgets('Presses enter key in multiple selection from bottom to top',
+        (tester) async {
+      _testMultipleSelection(tester, false);
+    });
   });
 }
 
@@ -111,7 +125,7 @@ Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
     StyleKey.subtype: style,
   };
   if (style == StyleKey.checkbox) {
-    attributes[StyleKey.checkbox] = false;
+    attributes[StyleKey.checkbox] = true;
   } else if (style == StyleKey.numberList) {
     attributes[StyleKey.number] = 1;
   }
@@ -122,32 +136,63 @@ Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
 
   await editor.startTesting();
   await editor.updateSelection(
-    Selection.collapsed(
-      Position(path: [1], offset: 0),
-    ),
+    Selection.single(path: [1], startOffset: 0),
   );
   await editor.pressLogicKey(
     LogicalKeyboardKey.enter,
   );
-  expect(editor.documentSelection,
-      Selection.collapsed(Position(path: [2], offset: 0)));
+  expect(editor.documentSelection, Selection.single(path: [2], startOffset: 0));
 
   await editor.updateSelection(
-    Selection.collapsed(
-      Position(path: [3], offset: text.length),
-    ),
+    Selection.single(path: [3], startOffset: text.length),
   );
   await editor.pressLogicKey(
     LogicalKeyboardKey.enter,
   );
-  expect(editor.documentSelection,
-      Selection.collapsed(Position(path: [4], offset: 0)));
+  expect(editor.documentSelection, Selection.single(path: [4], startOffset: 0));
   expect(editor.nodeAtPath([4])?.subtype, style);
 
   await editor.pressLogicKey(
     LogicalKeyboardKey.enter,
   );
-  expect(editor.documentSelection,
-      Selection.collapsed(Position(path: [4], offset: 0)));
+  expect(editor.documentSelection, Selection.single(path: [4], startOffset: 0));
   expect(editor.nodeAtPath([4])?.subtype, null);
+}
+
+Future<void> _testMultipleSelection(
+    WidgetTester tester, bool isBackwardSelection) async {
+  // Before
+  //
+  // Welcome to Appflowy 😁
+  // Welcome to Appflowy 😁
+  // Welcome to Appflowy 😁
+  // Welcome to Appflowy 😁
+  //
+  // After
+  //
+  // Welcome
+  // to Appflowy 😁
+  //
+  const text = 'Welcome to Appflowy 😁';
+  final editor = tester.editor;
+  var lines = 4;
+
+  for (var i = 1; i <= lines; i++) {
+    editor.insertTextNode(text);
+  }
+
+  await editor.startTesting();
+  final start = Position(path: [0], offset: 7);
+  final end = Position(path: [3], offset: 8);
+  await editor.updateSelection(Selection(
+    start: isBackwardSelection ? start : end,
+    end: isBackwardSelection ? end : start,
+  ));
+  await editor.pressLogicKey(
+    LogicalKeyboardKey.enter,
+  );
+
+  expect(editor.documentLength, 2);
+  expect((editor.nodeAtPath([0]) as TextNode).toRawString(), 'Welcome');
+  expect((editor.nodeAtPath([1]) as TextNode).toRawString(), 'to Appflowy 😁');
 }

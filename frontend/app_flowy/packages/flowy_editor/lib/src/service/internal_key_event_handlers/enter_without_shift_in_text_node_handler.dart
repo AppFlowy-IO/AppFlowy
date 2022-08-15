@@ -24,11 +24,18 @@ FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
     return KeyEventResult.ignored;
   }
 
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  var selection = editorState.service.selectionService.currentSelection.value;
+  var nodes = editorState.service.selectionService.currentSelectedNodes;
+  if (selection == null) {
+    return KeyEventResult.ignored;
+  }
+  if (selection.isForward) {
+    selection = selection.reversed;
+    nodes = nodes.reversed.toList(growable: false);
+  }
   final textNodes = nodes.whereType<TextNode>().toList(growable: false);
-  final selection = editorState.service.selectionService.currentSelection.value;
 
-  if (selection == null || nodes.length != textNodes.length) {
+  if (nodes.length != textNodes.length) {
     return KeyEventResult.ignored;
   }
 
@@ -36,7 +43,7 @@ FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
   if (!selection.isSingle) {
     final length = textNodes.length;
     final List<TextNode> subTextNodes =
-        length >= 3 ? textNodes.sublist(1, textNodes.length - 2) : [];
+        length >= 3 ? textNodes.sublist(1, textNodes.length - 1) : [];
     final afterSelection = Selection.collapsed(
       Position(path: textNodes.first.path.next, offset: 0),
     );
