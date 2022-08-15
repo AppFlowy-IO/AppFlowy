@@ -61,6 +61,12 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.delete) {
       return PhysicalKeyboardKey.delete;
     }
+    if (this == LogicalKeyboardKey.pageDown) {
+      return PhysicalKeyboardKey.pageDown;
+    }
+    if (this == LogicalKeyboardKey.pageUp) {
+      return PhysicalKeyboardKey.pageUp;
+    }
     throw UnimplementedError();
   }
 }
