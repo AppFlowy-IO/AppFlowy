@@ -7,6 +7,7 @@ use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, Cel
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::filter::{GridFilterChangeset, GridFilterService};
 
+use crate::services::grid_view_editor::GridViewRevisionEditor;
 use crate::services::group::GridGroupService;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{
@@ -32,7 +33,7 @@ pub struct GridRevisionEditor {
     pub(crate) grid_id: String,
     user: Arc<dyn GridUser>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
-    // view_editor: Arc<GridViewRevisionEditor>,
+    view_editor: Arc<GridViewRevisionEditor>,
     rev_manager: Arc<RevisionManager>,
     block_manager: Arc<GridBlockManager>,
 
