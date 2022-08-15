@@ -73,13 +73,7 @@ class EditorWidgetTester {
   }
 
   Future<void> pressLogicKey(LogicalKeyboardKey key) async {
-    late RawKeyEvent testRawKeyEventData;
-    if (key == LogicalKeyboardKey.enter) {
-      testRawKeyEventData = const TestRawKeyEventData(
-        logicalKey: LogicalKeyboardKey.enter,
-        physicalKey: PhysicalKeyboardKey.enter,
-      ).toKeyEvent;
-    }
+    final testRawKeyEventData = TestRawKeyEventData(logicalKey: key).toKeyEvent;
     _editorState.service.keyboardService!.onKey(testRawKeyEventData);
     await tester.pumpAndSettle();
   }

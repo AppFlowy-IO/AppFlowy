@@ -7,7 +7,6 @@ class TestRawKeyEvent extends RawKeyDownEvent {
 class TestRawKeyEventData extends RawKeyEventData {
   const TestRawKeyEventData({
     required this.logicalKey,
-    required this.physicalKey,
     this.isControlPressed = false,
     this.isShiftPressed = false,
     this.isAltPressed = false,
@@ -30,7 +29,7 @@ class TestRawKeyEventData extends RawKeyEventData {
   final LogicalKeyboardKey logicalKey;
 
   @override
-  final PhysicalKeyboardKey physicalKey;
+  PhysicalKeyboardKey get physicalKey => logicalKey.toPhysicalKey;
 
   @override
   KeyboardSide? getModifierSide(ModifierKey key) {
@@ -48,5 +47,17 @@ class TestRawKeyEventData extends RawKeyEventData {
 
   RawKeyEvent get toKeyEvent {
     return TestRawKeyEvent(data: this);
+  }
+}
+
+extension on LogicalKeyboardKey {
+  PhysicalKeyboardKey get toPhysicalKey {
+    if (this == LogicalKeyboardKey.enter) {
+      return PhysicalKeyboardKey.enter;
+    }
+    if (this == LogicalKeyboardKey.backspace) {
+      return PhysicalKeyboardKey.backspace;
+    }
+    throw UnimplementedError();
   }
 }

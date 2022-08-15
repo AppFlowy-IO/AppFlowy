@@ -72,7 +72,9 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     _deleteNodes(transactionBuilder, textNodes, selection);
   }
 
-  transactionBuilder.commit();
+  if (transactionBuilder.operations.isNotEmpty) {
+    transactionBuilder.commit();
+  }
 
   return KeyEventResult.handled;
 }
