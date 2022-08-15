@@ -93,6 +93,8 @@ impl fmt::Display for FlowyError {
 impl lib_dispatch::Error for FlowyError {
     fn as_response(&self) -> EventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
+
+        println!("Serialize FlowyError: {:?} to event response", self);
         ResponseBuilder::Err().data(bytes).build()
     }
 }
