@@ -6,6 +6,7 @@ export 'src/document/position.dart';
 export 'src/document/selection.dart';
 export 'src/document/state_tree.dart';
 export 'src/document/text_delta.dart';
+export 'src/document/attributes.dart';
 export 'src/editor_state.dart';
 export 'src/operation/operation.dart';
 export 'src/operation/transaction.dart';

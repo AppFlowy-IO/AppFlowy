@@ -187,11 +187,11 @@ class _FlowySelectionState extends State<FlowySelection>
     if (selection != null) {
       if (selection.isCollapsed) {
         /// updates cursor area.
-        debugPrint('updating cursor');
+        debugPrint('updating cursor, $selection');
         _updateCursorAreas(selection.start);
       } else {
         // updates selection area.
-        debugPrint('updating selection');
+        debugPrint('updating selection, $selection');
         _updateSelectionAreas(selection);
       }
     }

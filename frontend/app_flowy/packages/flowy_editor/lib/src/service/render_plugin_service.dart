@@ -77,7 +77,8 @@ class FlowyRenderPlugin extends FlowyRenderPluginService {
       node.key = key;
       return _autoUpdateNodeWidget(builder, context);
     } else {
-      assert(false, 'Could not query the builder with this $name');
+      assert(false,
+          'Could not query the builder with this $name, or nodeValidator return false.');
       // TODO: return a placeholder widget with tips.
       return Container();
     }
