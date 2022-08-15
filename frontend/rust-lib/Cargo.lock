@@ -935,6 +935,7 @@ dependencies = [
  "atomic_refcell",
  "bytes",
  "chrono",
+ "crossbeam-utils",
  "dart-notify",
  "dashmap",
  "diesel",

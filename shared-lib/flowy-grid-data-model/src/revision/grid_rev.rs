@@ -1,4 +1,4 @@
-use crate::revision::{GridBlockRevision, SettingRevision};
+use crate::revision::GridBlockRevision;
 use bytes::Bytes;
 use indexmap::IndexMap;
 use nanoid::nanoid;
@@ -23,9 +23,6 @@ pub struct GridRevision {
     pub grid_id: String,
     pub fields: Vec<Arc<FieldRevision>>,
     pub blocks: Vec<Arc<GridBlockMetaRevision>>,
-
-    #[serde(default)]
-    pub setting: SettingRevision,
 }
 
 impl GridRevision {
@@ -34,7 +31,6 @@ impl GridRevision {
             grid_id: grid_id.to_owned(),
             fields: vec![],
             blocks: vec![],
-            setting: SettingRevision::default(),
         }
     }
 
@@ -43,7 +39,6 @@ impl GridRevision {
             grid_id: grid_id.to_owned(),
             fields: context.field_revs,
             blocks: context.blocks.into_iter().map(Arc::new).collect(),
-            setting: Default::default(),
         }
     }
 }

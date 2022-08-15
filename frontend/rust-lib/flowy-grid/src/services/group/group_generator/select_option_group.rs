@@ -8,9 +8,7 @@ use std::sync::Arc;
 use crate::services::field::{
     MultiSelectTypeOptionPB, SelectOptionCellDataPB, SelectOptionCellDataParser, SingleSelectTypeOptionPB,
 };
-use crate::services::group::{
-    Group, GroupActionHandler, GroupCellContentProvider, GroupController, GroupGenerator, Groupable,
-};
+use crate::services::group::{Group, GroupActionHandler, GroupController, GroupGenerator, Groupable};
 
 // SingleSelect
 pub type SingleSelectGroupController = GroupController<
@@ -59,7 +57,6 @@ impl GroupGenerator for SingleSelectGroupGenerator {
     fn generate_groups(
         _configuration: &Option<Self::ConfigurationType>,
         type_option: &Option<Self::TypeOptionType>,
-        _cell_content_provider: &dyn GroupCellContentProvider,
     ) -> Vec<Group> {
         match type_option {
             None => vec![],
@@ -125,7 +122,6 @@ impl GroupGenerator for MultiSelectGroupGenerator {
     fn generate_groups(
         _configuration: &Option<Self::ConfigurationType>,
         type_option: &Option<Self::TypeOptionType>,
-        _cell_content_provider: &dyn GroupCellContentProvider,
     ) -> Vec<Group> {
         match type_option {
             None => vec![],

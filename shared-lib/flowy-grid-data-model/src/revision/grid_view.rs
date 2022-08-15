@@ -2,6 +2,7 @@ use crate::revision::SettingRevision;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 
+#[allow(dead_code)]
 pub fn gen_grid_view_id() -> String {
     nanoid!(6)
 }
@@ -21,9 +22,9 @@ pub struct GridViewRevision {
 }
 
 impl GridViewRevision {
-    pub fn new(grid_id: String) -> Self {
+    pub fn new(grid_id: String, view_id: String) -> Self {
         GridViewRevision {
-            view_id: gen_grid_view_id(),
+            view_id,
             grid_id,
             setting: Default::default(),
             row_orders: vec![],

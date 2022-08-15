@@ -1,4 +1,4 @@
-use crate::entities::RowPB;
+use crate::entities::{CreateRowParams, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -11,20 +11,17 @@ pub struct CreateBoardCardPayloadPB {
     #[pb(index = 2)]
     pub group_id: String,
 }
-pub struct CreateBoardCardParams {
-    pub grid_id: String,
-    pub group_id: String,
-}
 
-impl TryInto<CreateBoardCardParams> for CreateBoardCardPayloadPB {
+impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CreateBoardCardParams, Self::Error> {
+    fn try_into(self) -> Result<CreateRowParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let group_id = NotEmptyStr::parse(self.group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
-        Ok(CreateBoardCardParams {
+        Ok(CreateRowParams {
             grid_id: grid_id.0,
-            group_id: group_id.0,
+            start_row_id: None,
+            group_id: Some(group_id.0),
         })
     }
 }

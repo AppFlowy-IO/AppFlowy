@@ -266,7 +266,7 @@ pub(crate) async fn create_row_handler(
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
-    let row = editor.create_row(params.start_row_id).await?;
+    let row = editor.create_row(params).await?;
     data_result(row)
 }
 
@@ -419,8 +419,8 @@ pub(crate) async fn create_board_card_handler(
     data: Data<CreateBoardCardPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RowPB, FlowyError> {
-    let params: CreateBoardCardParams = data.into_inner().try_into()?;
+    let params: CreateRowParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
-    let row = editor.create_board_card(&params.group_id).await?;
+    let row = editor.create_row(params).await?;
     data_result(row)
 }

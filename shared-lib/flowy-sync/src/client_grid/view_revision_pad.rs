@@ -1,9 +1,11 @@
+use crate::entities::grid::{CreateGridFilterParams, CreateGridGroupParams, GridSettingChangesetParams};
 use crate::entities::revision::{md5, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_text_delta_from_revisions};
 use flowy_grid_data_model::revision::{
-    FieldRevision, FieldTypeRevision, FilterConfigurationRevision, FilterConfigurationsByFieldId, GridViewRevision,
-    GroupConfigurationRevision, GroupConfigurationsByFieldId, SortConfigurationsByFieldId,
+    gen_grid_filter_id, gen_grid_group_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision,
+    FilterConfigurationsByFieldId, GridViewRevision, GroupConfigurationRevision, GroupConfigurationsByFieldId,
+    SettingRevision, SortConfigurationsByFieldId,
 };
 use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
 use std::sync::Arc;
@@ -23,8 +25,8 @@ impl std::ops::Deref for GridViewRevisionPad {
 }
 
 impl GridViewRevisionPad {
-    pub fn new(grid_id: String) -> Self {
-        let view = Arc::new(GridViewRevision::new(grid_id));
+    pub fn new(grid_id: String, view_id: String) -> Self {
+        let view = Arc::new(GridViewRevision::new(grid_id, view_id));
         let json = serde_json::to_string(&view).unwrap();
         let delta = TextDeltaBuilder::new().insert(&json).build();
         Self { view, delta }
@@ -46,6 +48,59 @@ impl GridViewRevisionPad {
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
         let delta: TextDelta = make_text_delta_from_revisions(revisions)?;
         Self::from_delta(delta)
+    }
+
+    pub fn get_setting_rev(&self) -> &SettingRevision {
+        &self.view.setting
+    }
+
+    pub fn update_setting(
+        &mut self,
+        changeset: GridSettingChangesetParams,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| {
+            let mut is_changed = None;
+            if let Some(params) = changeset.insert_filter {
+                view.setting.filters.insert_object(
+                    &params.field_id,
+                    &params.field_type_rev,
+                    make_filter_revision(&params),
+                );
+                is_changed = Some(())
+            }
+            if let Some(params) = changeset.delete_filter {
+                if let Some(filters) = view
+                    .setting
+                    .filters
+                    .get_mut_objects(&params.field_id, &params.field_type_rev)
+                {
+                    filters.retain(|filter| filter.id != params.filter_id);
+                    is_changed = Some(())
+                }
+            }
+            if let Some(params) = changeset.insert_group {
+                view.setting.groups.remove_all();
+                view.setting.groups.insert_object(
+                    &params.field_id,
+                    &params.field_type_rev,
+                    make_group_revision(&params),
+                );
+
+                is_changed = Some(());
+            }
+            if let Some(params) = changeset.delete_group {
+                if let Some(groups) = view
+                    .setting
+                    .groups
+                    .get_mut_objects(&params.field_id, &params.field_type_rev)
+                {
+                    groups.retain(|group| group.id != params.group_id);
+                    is_changed = Some(());
+                }
+            }
+
+            Ok(is_changed)
+        })
     }
 
     pub fn get_all_groups(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
@@ -161,6 +216,24 @@ impl GridViewRevisionPad {
     }
 }
 
+fn make_filter_revision(params: &CreateGridFilterParams) -> FilterConfigurationRevision {
+    FilterConfigurationRevision {
+        id: gen_grid_filter_id(),
+        field_id: params.field_id.clone(),
+        condition: params.condition,
+        content: params.content.clone(),
+    }
+}
+
+fn make_group_revision(params: &CreateGridGroupParams) -> GroupConfigurationRevision {
+    GroupConfigurationRevision {
+        id: gen_grid_group_id(),
+        field_id: params.field_id.clone(),
+        field_type_rev: params.field_type_rev,
+        content: params.content.clone(),
+    }
+}
+
 pub struct GridViewRevisionChangeset {
     pub delta: TextDelta,
     pub md5: String,
@@ -170,4 +243,9 @@ pub fn make_grid_view_rev_json_str(grid_revision: &GridViewRevision) -> Collabor
     let json = serde_json::to_string(grid_revision)
         .map_err(|err| internal_error(format!("Serialize grid view to json str failed. {:?}", err)))?;
     Ok(json)
+}
+
+pub fn make_grid_view_delta(grid_view: &GridViewRevision) -> TextDelta {
+    let json = serde_json::to_string(grid_view).unwrap();
+    TextDeltaBuilder::new().insert(&json).build()
 }

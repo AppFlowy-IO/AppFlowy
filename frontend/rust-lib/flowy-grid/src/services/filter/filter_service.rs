@@ -1,3 +1,8 @@
+#![allow(clippy::all)]
+#![allow(unused_attributes)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_results)]
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{FieldType, GridBlockChangesetPB};
 use crate::services::block_manager::GridBlockManager;
@@ -22,8 +27,10 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub(crate) struct GridFilterService {
+    #[allow(dead_code)]
     scheduler: Arc<dyn GridServiceTaskScheduler>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
+    #[allow(dead_code)]
     block_manager: Arc<GridBlockManager>,
     filter_cache: Arc<FilterCache>,
     filter_result_cache: Arc<FilterResultCache>,

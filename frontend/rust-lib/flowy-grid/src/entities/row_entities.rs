@@ -58,6 +58,7 @@ pub struct CreateRowPayloadPB {
 pub struct CreateRowParams {
     pub grid_id: String,
     pub start_row_id: Option<String>,
+    pub group_id: Option<String>,
 }
 
 impl TryInto<CreateRowParams> for CreateRowPayloadPB {
@@ -68,6 +69,7 @@ impl TryInto<CreateRowParams> for CreateRowPayloadPB {
         Ok(CreateRowParams {
             grid_id: grid_id.0,
             start_row_id: self.start_row_id,
+            group_id: None,
         })
     }
 }

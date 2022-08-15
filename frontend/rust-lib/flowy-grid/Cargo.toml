@@ -40,6 +40,7 @@ regex = "1.5.6"
 url = { version = "2"}
 futures = "0.3.15"
 atomic_refcell = "0.1.8"
+crossbeam-utils = "0.8.7"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
