@@ -91,7 +91,7 @@ class HTMLToNodesConverter {
 
     for (final child in element.nodes.toList()) {
       if (child is html.Element) {
-        result.addAll(_handleElement(child, {"subtype": "quote"}));
+        result.addAll(_handleElement(child, {"subtype": StyleKey.quote}));
       }
     }
 
