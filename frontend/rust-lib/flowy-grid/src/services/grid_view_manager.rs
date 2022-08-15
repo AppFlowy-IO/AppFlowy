@@ -140,18 +140,31 @@ where
     DataSource: GridViewRevisionDataSource,
 {
     tracing::trace!("Open view:{} editor", view_id);
+
+    let rev_manager = make_grid_view_rev_manager(user, view_id).await?;
+    let user_id = user.user_id()?;
     let token = user.token()?;
+    let view_id = view_id.to_owned();
+    GridViewRevisionEditor::new(&user_id, &token, view_id, delegate, data_source, scheduler, rev_manager).await
+}
+
+pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str) -> FlowyResult<RevisionManager> {
+    tracing::trace!("Open view:{} editor", view_id);
     let user_id = user.user_id()?;
     let pool = user.db_pool()?;
-    let view_id = view_id.to_owned();
 
     let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
-    let rev_persistence = RevisionPersistence::new(&user_id, &view_id, disk_cache);
+    let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache);
     let rev_compactor = GridViewRevisionCompactor();
 
-    let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(&view_id, pool);
-    let rev_manager = RevisionManager::new(&user_id, &view_id, rev_persistence, rev_compactor, snapshot_persistence);
-    GridViewRevisionEditor::new(&user_id, &token, view_id, delegate, data_source, scheduler, rev_manager).await
+    let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(view_id, pool);
+    Ok(RevisionManager::new(
+        &user_id,
+        view_id,
+        rev_persistence,
+        rev_compactor,
+        snapshot_persistence,
+    ))
 }
 
 pub struct GridViewRevisionCompactor();

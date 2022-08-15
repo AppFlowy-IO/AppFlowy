@@ -22,9 +22,9 @@ pub struct GridViewRevision {
 }
 
 impl GridViewRevision {
-    pub fn new(grid_id: String) -> Self {
+    pub fn new(grid_id: String, view_id: String) -> Self {
         GridViewRevision {
-            view_id: grid_id.clone(),
+            view_id,
             grid_id,
             setting: Default::default(),
             row_orders: vec![],

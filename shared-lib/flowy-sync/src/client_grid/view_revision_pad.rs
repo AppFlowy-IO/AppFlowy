@@ -25,8 +25,8 @@ impl std::ops::Deref for GridViewRevisionPad {
 }
 
 impl GridViewRevisionPad {
-    pub fn new(grid_id: String) -> Self {
-        let view = Arc::new(GridViewRevision::new(grid_id));
+    pub fn new(grid_id: String, view_id: String) -> Self {
+        let view = Arc::new(GridViewRevision::new(grid_id, view_id));
         let json = serde_json::to_string(&view).unwrap();
         let delta = TextDeltaBuilder::new().insert(&json).build();
         Self { view, delta }
@@ -243,4 +243,9 @@ pub fn make_grid_view_rev_json_str(grid_revision: &GridViewRevision) -> Collabor
     let json = serde_json::to_string(grid_revision)
         .map_err(|err| internal_error(format!("Serialize grid view to json str failed. {:?}", err)))?;
     Ok(json)
+}
+
+pub fn make_grid_view_delta(grid_view: &GridViewRevision) -> TextDelta {
+    let json = serde_json::to_string(grid_view).unwrap();
+    TextDeltaBuilder::new().insert(&json).build()
 }
