@@ -95,6 +95,15 @@ class EditorWidgetTester {
   }
 }
 
+extension TestString on String {
+  String safeSubString([int start = 0, int? end]) {
+    end ??= length - 1;
+    end = end.clamp(start, length - 1);
+    final sRunes = runes;
+    return String.fromCharCodes(sRunes, start, end);
+  }
+}
+
 extension TestEditorExtension on WidgetTester {
   EditorWidgetTester get editor =>
       EditorWidgetTester(tester: this)..initialize();

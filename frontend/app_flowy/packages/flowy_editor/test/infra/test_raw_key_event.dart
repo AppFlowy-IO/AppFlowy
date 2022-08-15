@@ -58,6 +58,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.backspace) {
       return PhysicalKeyboardKey.backspace;
     }
+    if (this == LogicalKeyboardKey.delete) {
+      return PhysicalKeyboardKey.delete;
+    }
     throw UnimplementedError();
   }
 }
