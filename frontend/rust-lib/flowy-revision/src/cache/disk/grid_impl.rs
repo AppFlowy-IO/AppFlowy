@@ -1,6 +1,5 @@
 use crate::cache::disk::RevisionDiskCache;
-use crate::disk::{RevisionChangeset, RevisionRecord, RevisionState};
-
+use crate::disk::{RevisionChangeset, RevisionRecord};
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
 use flowy_database::{

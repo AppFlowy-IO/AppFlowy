@@ -5,15 +5,13 @@ use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellBytes};
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
-use crate::services::filter::{GridFilterChangeset, GridFilterService};
-
-use crate::services::grid_view_editor::GridViewRevisionEditor;
-use crate::services::group::GridGroupService;
+use crate::services::filter::GridFilterService;
+use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{
     make_grid_blocks, make_row_from_row_rev, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder,
 };
-use crate::services::setting::make_grid_setting;
+
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::*;
@@ -22,26 +20,23 @@ use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeseri
 use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::CollaborateResult;
-use flowy_sync::util::make_delta_from_revisions;
+use flowy_sync::util::make_text_delta_from_revisions;
 use lib_infra::future::FutureResult;
-use lib_ot::core::PhantomAttributes;
+
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub struct GridRevisionEditor {
-    pub(crate) grid_id: String,
+    pub grid_id: String,
     user: Arc<dyn GridUser>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
-    view_editor: Arc<GridViewRevisionEditor>,
+    view_manager: Arc<GridViewManager>,
     rev_manager: Arc<RevisionManager>,
     block_manager: Arc<GridBlockManager>,
 
     #[allow(dead_code)]
     pub(crate) filter_service: Arc<GridFilterService>,
-
-    #[allow(dead_code)]
-    pub(crate) group_service: Arc<RwLock<GridGroupService>>,
 }
 
 impl Drop for GridRevisionEditor {
@@ -64,20 +59,30 @@ impl GridRevisionEditor {
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
 
+        // Block manager
         let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
-        let block_manager = Arc::new(GridBlockManager::new(grid_id, &user, block_meta_revs, persistence).await?);
+        let block_manager = Arc::new(GridBlockManager::new(&user, block_meta_revs, persistence).await?);
         let filter_service =
             GridFilterService::new(grid_pad.clone(), block_manager.clone(), task_scheduler.clone()).await;
-        let group_service =
-            GridGroupService::new(grid_pad.clone(), block_manager.clone(), task_scheduler.clone()).await;
+
+        // View manager
+        let view_manager = Arc::new(
+            GridViewManager::new(
+                user.clone(),
+                grid_pad.clone(),
+                block_manager.clone(),
+                Arc::new(task_scheduler.clone()),
+            )
+            .await?,
+        );
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
             grid_pad,
             rev_manager,
             block_manager,
+            view_manager,
             filter_service: Arc::new(filter_service),
-            group_service: Arc::new(RwLock::new(group_service)),
         });
 
         Ok(editor)
@@ -279,9 +284,15 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn create_row(&self, start_row_id: Option<String>) -> FlowyResult<RowPB> {
-        let row_rev = self.create_row_rev().await?;
-        self.create_row_pb(row_rev, start_row_id).await
+    pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<RowPB> {
+        let mut row_rev = self.create_row_rev().await?;
+
+        self.view_manager.update_row(&mut row_rev, &params).await;
+
+        let row_pb = self.create_row_pb(row_rev, params.start_row_id.clone()).await?;
+
+        self.view_manager.did_create_row(&row_pb, &params).await;
+        Ok(row_pb)
     }
 
     pub async fn insert_rows(&self, row_revs: Vec<RowRevision>) -> FlowyResult<Vec<RowPB>> {
@@ -331,7 +342,7 @@ impl GridRevisionEditor {
 
     pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
         let _ = self.block_manager.delete_row(row_id).await?;
-        self.group_service.read().await.did_delete_card(row_id.to_owned()).await;
+        self.view_manager.delete_row(row_id).await;
         Ok(())
     }
 
@@ -445,34 +456,15 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_grid_setting(&self) -> FlowyResult<GridSettingPB> {
-        let read_guard = self.grid_pad.read().await;
-        let grid_setting_rev = read_guard.get_setting_rev();
-        let field_revs = read_guard.get_field_revs(None)?;
-        let grid_setting = make_grid_setting(grid_setting_rev, &field_revs);
-        Ok(grid_setting)
+        self.view_manager.get_setting().await
     }
 
     pub async fn get_grid_filter(&self) -> FlowyResult<Vec<GridFilterConfiguration>> {
-        let read_guard = self.grid_pad.read().await;
-        match read_guard.get_filters(None) {
-            Some(filter_revs) => Ok(filter_revs
-                .iter()
-                .map(|filter_rev| filter_rev.as_ref().into())
-                .collect::<Vec<GridFilterConfiguration>>()),
-            None => Ok(vec![]),
-        }
+        self.view_manager.get_filters().await
     }
 
     pub async fn update_grid_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {
-        let filter_changeset = GridFilterChangeset::from(&params);
-        let _ = self
-            .modify(|grid_pad| Ok(grid_pad.update_grid_setting_rev(params)?))
-            .await?;
-
-        let filter_service = self.filter_service.clone();
-        tokio::spawn(async move {
-            filter_service.apply_changeset(filter_changeset).await;
-        });
+        let _ = self.view_manager.update_setting(params).await?;
         Ok(())
     }
 
@@ -522,22 +514,9 @@ impl GridRevisionEditor {
     }
 
     pub async fn move_row(&self, row_id: &str, from: i32, to: i32) -> FlowyResult<()> {
-        match self.block_manager.get_row_rev(row_id).await? {
-            None => tracing::warn!("Move row failed, can not find the row:{}", row_id),
-            Some(row_rev) => {
-                let _ = self
-                    .block_manager
-                    .move_row(row_rev.clone(), from as usize, to as usize)
-                    .await?;
-            }
-        }
-        Ok(())
+        self.view_manager.move_row(row_id, from, to).await
     }
 
-    pub async fn move_board_card(&self, group_id: &str, from: i32, to: i32) -> FlowyResult<()> {
-        self.group_service.write().await.move_card(group_id, from, to).await;
-        Ok(())
-    }
     pub async fn delta_bytes(&self) -> Bytes {
         self.grid_pad.read().await.delta_bytes()
     }
@@ -550,7 +529,10 @@ impl GridRevisionEditor {
         let mut blocks_meta_data = vec![];
         if original_blocks.len() == duplicated_blocks.len() {
             for (index, original_block_meta) in original_blocks.iter().enumerate() {
-                let grid_block_meta_editor = self.block_manager.get_editor(&original_block_meta.block_id).await?;
+                let grid_block_meta_editor = self
+                    .block_manager
+                    .get_block_editor(&original_block_meta.block_id)
+                    .await?;
                 let duplicated_block_id = &duplicated_blocks[index].block_id;
 
                 tracing::trace!("Duplicate block:{} meta data", duplicated_block_id);
@@ -569,24 +551,9 @@ impl GridRevisionEditor {
         })
     }
 
-    pub async fn create_board_card(&self, group_id: &str) -> FlowyResult<RowPB> {
-        let mut row_rev = self.create_row_rev().await?;
-        let _ = self
-            .group_service
-            .write()
-            .await
-            .update_board_card(&mut row_rev, group_id)
-            .await;
-
-        let row_pb = self.create_row_pb(row_rev, None).await?;
-        self.group_service.read().await.did_create_card(group_id, &row_pb).await;
-        Ok(row_pb)
-    }
-
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn load_groups(&self) -> FlowyResult<RepeatedGridGroupPB> {
-        let groups = self.group_service.write().await.load_groups().await.unwrap_or_default();
-        Ok(RepeatedGridGroupPB { items: groups })
+        self.view_manager.load_groups().await
     }
 
     async fn create_row_rev(&self) -> FlowyResult<RowRevision> {
@@ -717,7 +684,7 @@ impl RevisionCloudService for GridRevisionCloudService {
 pub struct GridRevisionCompactor();
 impl RevisionCompactor for GridRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_delta_from_revisions::<PhantomAttributes>(revisions)?;
+        let delta = make_text_delta_from_revisions(revisions)?;
         Ok(delta.json_bytes())
     }
 }

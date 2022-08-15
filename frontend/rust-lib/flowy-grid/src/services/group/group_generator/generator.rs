@@ -11,14 +11,6 @@ use indexmap::IndexMap;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-pub trait GroupCellContentProvider {
-    /// We need to group the rows base on the deduplication cell content when the field type is
-    /// RichText.
-    fn deduplication_cell_content(&self, _field_id: &str) -> Vec<String> {
-        vec![]
-    }
-}
-
 pub trait GroupGenerator {
     type ConfigurationType;
     type TypeOptionType;
@@ -26,7 +18,6 @@ pub trait GroupGenerator {
     fn generate_groups(
         configuration: &Option<Self::ConfigurationType>,
         type_option: &Option<Self::TypeOptionType>,
-        cell_content_provider: &dyn GroupCellContentProvider,
     ) -> Vec<Group>;
 }
 
@@ -86,18 +77,14 @@ where
     T: TypeOptionDataDeserializer,
     G: GroupGenerator<ConfigurationType = C, TypeOptionType = T>,
 {
-    pub fn new(
-        field_rev: &Arc<FieldRevision>,
-        configuration: GroupConfigurationRevision,
-        cell_content_provider: &dyn GroupCellContentProvider,
-    ) -> FlowyResult<Self> {
+    pub fn new(field_rev: &Arc<FieldRevision>, configuration: GroupConfigurationRevision) -> FlowyResult<Self> {
         let configuration = match configuration.content {
             None => None,
             Some(content) => Some(C::try_from(Bytes::from(content))?),
         };
         let field_type_rev = field_rev.field_type_rev;
         let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
-        let groups = G::generate_groups(&configuration, &type_option, cell_content_provider);
+        let groups = G::generate_groups(&configuration, &type_option);
 
         let default_group = Group {
             id: DEFAULT_GROUP_ID.to_owned(),

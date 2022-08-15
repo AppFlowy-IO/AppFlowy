@@ -43,7 +43,7 @@ table! {
 }
 
 table! {
-    grid_view_table (id) {
+    grid_view_rev_table (id) {
         id -> Integer,
         object_id -> Text,
         base_rev_id -> BigInt,
@@ -136,7 +136,7 @@ allow_tables_to_appear_in_same_query!(
     grid_block_index_table,
     grid_meta_rev_table,
     grid_rev_table,
-    grid_view_table,
+    grid_view_rev_table,
     kv_table,
     rev_snapshot,
     rev_table,

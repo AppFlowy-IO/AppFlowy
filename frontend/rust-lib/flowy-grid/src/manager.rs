@@ -1,4 +1,4 @@
-use crate::services::block_revision_editor::GridBlockRevisionCompactor;
+use crate::services::block_editor::GridBlockRevisionCompactor;
 use crate::services::grid_editor::{GridRevisionCompactor, GridRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;

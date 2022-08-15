@@ -4,9 +4,7 @@ use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use std::sync::Arc;
 
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
-use crate::services::group::{
-    Group, GroupActionHandler, GroupCellContentProvider, GroupController, GroupGenerator, Groupable,
-};
+use crate::services::group::{Group, GroupActionHandler, GroupController, GroupGenerator, Groupable};
 
 pub type CheckboxGroupController =
     GroupController<CheckboxGroupConfigurationPB, CheckboxTypeOptionPB, CheckboxGroupGenerator, CheckboxCellDataParser>;
@@ -45,7 +43,6 @@ impl GroupGenerator for CheckboxGroupGenerator {
     fn generate_groups(
         _configuration: &Option<Self::ConfigurationType>,
         _type_option: &Option<Self::TypeOptionType>,
-        _cell_content_provider: &dyn GroupCellContentProvider,
     ) -> Vec<Group> {
         let check_group = Group {
             id: "true".to_string(),

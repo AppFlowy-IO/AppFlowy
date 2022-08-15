@@ -1,14 +1,11 @@
-use crate::entities::grid::{
-    CreateGridFilterParams, CreateGridGroupParams, FieldChangesetParams, GridSettingChangesetParams,
-};
+use crate::entities::grid::FieldChangesetParams;
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
-use crate::util::{cal_diff, make_delta_from_revisions};
+use crate::util::{cal_diff, make_text_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::revision::{
-    gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, FieldRevision, FieldTypeRevision,
-    FilterConfigurationRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridRevision,
-    GroupConfigurationRevision, SettingRevision,
+    gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
+    GridRevision,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
@@ -68,7 +65,7 @@ impl GridRevisionPad {
     }
 
     pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let grid_delta: GridRevisionDelta = make_delta_from_revisions::<PhantomAttributes>(revisions)?;
+        let grid_delta: GridRevisionDelta = make_text_delta_from_revisions(revisions)?;
         Self::from_delta(grid_delta)
     }
 
@@ -347,95 +344,6 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_setting_rev(&self) -> &SettingRevision {
-        &self.grid_rev.setting
-    }
-
-    /// If layout is None, then the default layout will be the read from GridSettingRevision
-    pub fn get_filters(&self, field_ids: Option<Vec<String>>) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
-        let mut filter_revs = vec![];
-        let field_revs = self.get_field_revs(None).ok()?;
-
-        field_revs.iter().for_each(|field_rev| {
-            let mut is_contain = true;
-            if let Some(field_ids) = &field_ids {
-                is_contain = field_ids.contains(&field_rev.id);
-            }
-
-            if is_contain {
-                // Only return the filters for the current fields' type.
-                let field_id = &field_rev.id;
-                let field_type_rev = &field_rev.field_type_rev;
-                if let Some(mut t_filter_revs) = self.grid_rev.setting.get_filters(field_id, field_type_rev) {
-                    filter_revs.append(&mut t_filter_revs);
-                }
-            }
-        });
-
-        Some(filter_revs)
-    }
-
-    pub fn update_grid_setting_rev(
-        &mut self,
-        changeset: GridSettingChangesetParams,
-    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
-        self.modify_grid(|grid_rev| {
-            let mut is_changed = None;
-            if let Some(params) = changeset.insert_filter {
-                grid_rev
-                    .setting
-                    .insert_filter(&params.field_id, &params.field_type_rev, make_filter_revision(&params));
-                is_changed = Some(())
-            }
-            if let Some(params) = changeset.delete_filter {
-                if let Some(filters) = grid_rev
-                    .setting
-                    .get_mut_filters(&params.field_id, &params.field_type_rev)
-                {
-                    filters.retain(|filter| filter.id != params.filter_id);
-                }
-            }
-            if let Some(params) = changeset.insert_group {
-                grid_rev
-                    .setting
-                    .insert_group(&params.field_id, &params.field_type_rev, make_group_revision(&params));
-                is_changed = Some(());
-            }
-            if let Some(params) = changeset.delete_group {
-                if let Some(groups) = grid_rev
-                    .setting
-                    .get_mut_groups(&params.field_id, &params.field_type_rev)
-                {
-                    groups.retain(|filter| filter.id != params.group_id);
-                }
-            }
-            if let Some(_sort) = changeset.insert_sort {
-                // let rev = GridSortRevision {
-                //     id: gen_grid_sort_id(),
-                //     field_id: sort.field_id,
-                // };
-                //
-                // grid_rev
-                //     .setting
-                //     .sorts
-                //     .entry(layout_rev.clone())
-                //     .or_insert_with(std::vec::Vec::new)
-                //     .push(rev);
-                is_changed = Some(())
-            }
-
-            if let Some(_delete_sort_id) = changeset.delete_sort {
-                // match grid_rev.setting.sorts.get_mut(&layout_rev) {
-                //     Some(sorts) => sorts.retain(|sort| sort.id != delete_sort_id),
-                //     None => {
-                //         tracing::warn!("Can't find the sort with {:?}", layout_rev);
-                //     }
-                // }
-            }
-            Ok(is_changed)
-        })
-    }
-
     pub fn md5(&self) -> String {
         md5(&self.delta.json_bytes())
     }
@@ -546,23 +454,5 @@ impl std::default::Default for GridRevisionPad {
             grid_rev: Arc::new(grid),
             delta,
         }
-    }
-}
-
-fn make_filter_revision(params: &CreateGridFilterParams) -> FilterConfigurationRevision {
-    FilterConfigurationRevision {
-        id: gen_grid_filter_id(),
-        field_id: params.field_id.clone(),
-        condition: params.condition,
-        content: params.content.clone(),
-    }
-}
-
-fn make_group_revision(params: &CreateGridGroupParams) -> GroupConfigurationRevision {
-    GroupConfigurationRevision {
-        id: gen_grid_group_id(),
-        field_id: params.field_id.clone(),
-        field_type_rev: params.field_type_rev,
-        content: params.content.clone(),
     }
 }
