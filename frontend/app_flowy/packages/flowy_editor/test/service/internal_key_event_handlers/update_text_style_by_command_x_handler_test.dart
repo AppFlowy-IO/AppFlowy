@@ -22,7 +22,7 @@ void main() async {
     testWidgets('Presses Command + I to update text style', (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
-        StyleKey.bold,
+        StyleKey.italic,
         LogicalKeyboardKey.keyI,
       );
     });
@@ -30,7 +30,7 @@ void main() async {
     testWidgets('Presses Command + U to update text style', (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
-        StyleKey.bold,
+        StyleKey.underline,
         LogicalKeyboardKey.keyU,
       );
     });
@@ -38,7 +38,7 @@ void main() async {
     testWidgets('Presses Command + S to update text style', (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
-        StyleKey.bold,
+        StyleKey.strikethrough,
         LogicalKeyboardKey.keyS,
       );
     });

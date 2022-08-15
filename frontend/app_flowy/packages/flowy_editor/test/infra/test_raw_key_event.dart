@@ -112,6 +112,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.keyU) {
       return PhysicalKeyboardKey.keyU;
     }
+    if (this == LogicalKeyboardKey.keyZ) {
+      return PhysicalKeyboardKey.keyZ;
+    }
     throw UnimplementedError();
   }
 }
