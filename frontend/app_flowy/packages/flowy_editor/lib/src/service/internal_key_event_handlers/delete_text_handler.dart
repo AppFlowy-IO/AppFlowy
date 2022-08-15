@@ -72,17 +72,21 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     _deleteNodes(transactionBuilder, textNodes, selection);
   }
 
-  transactionBuilder.commit();
+  if (transactionBuilder.operations.isNotEmpty) {
+    transactionBuilder.commit();
+  }
 
   return KeyEventResult.handled;
 }
 
 KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
-  final selection = editorState.service.selectionService.currentSelection.value;
+  var selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null) {
     return KeyEventResult.ignored;
   }
-  final nodes = editorState.service.selectionService.currentSelectedNodes;
+  var nodes = editorState.service.selectionService.currentSelectedNodes;
+  nodes = selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
+  selection = selection.isBackward ? selection : selection.reversed;
   // make sure all nodes is [TextNode].
   final textNodes = nodes.whereType<TextNode>().toList();
   if (textNodes.length != nodes.length) {

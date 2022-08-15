@@ -73,13 +73,7 @@ class EditorWidgetTester {
   }
 
   Future<void> pressLogicKey(LogicalKeyboardKey key) async {
-    late RawKeyEvent testRawKeyEventData;
-    if (key == LogicalKeyboardKey.enter) {
-      testRawKeyEventData = const TestRawKeyEventData(
-        logicalKey: LogicalKeyboardKey.enter,
-        physicalKey: PhysicalKeyboardKey.enter,
-      ).toKeyEvent;
-    }
+    final testRawKeyEventData = TestRawKeyEventData(logicalKey: key).toKeyEvent;
     _editorState.service.keyboardService!.onKey(testRawKeyEventData);
     await tester.pumpAndSettle();
   }
@@ -98,6 +92,15 @@ class EditorWidgetTester {
         root: _createEmptyEditorRoot(),
       ),
     )..disableSealTimer = true;
+  }
+}
+
+extension TestString on String {
+  String safeSubString([int start = 0, int? end]) {
+    end ??= length - 1;
+    end = end.clamp(start, length - 1);
+    final sRunes = runes;
+    return String.fromCharCodes(sRunes, start, end);
   }
 }
 
