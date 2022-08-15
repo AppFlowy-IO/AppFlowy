@@ -5,6 +5,7 @@ import 'package:flowy_editor/src/document/attributes.dart';
 import 'package:flowy_editor/src/document/node.dart';
 import 'package:flowy_editor/src/document/text_delta.dart';
 import 'package:flowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:flowy_editor/src/extensions/color_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
@@ -36,12 +37,6 @@ class HTMLTag {
         tag == paragraph ||
         tag == div ||
         tag == blockQuote;
-  }
-}
-
-extension on Color {
-  String toRgbaString() {
-    return 'rgba($red, $green, $blue, $alpha)';
   }
 }
 
@@ -192,7 +187,9 @@ class HTMLToNodesConverter {
     }
 
     final backgroundColorStr = cssMap["background-color"];
-    final backgroundColor = _tryParseCssColorString(backgroundColorStr);
+    final backgroundColor = backgroundColorStr == null
+        ? null
+        : ColorExtension.tryFromRgbaString(backgroundColorStr);
     if (backgroundColor != null) {
       attrs[StyleKey.backgroundColor] =
           '0x${backgroundColor.value.toRadixString(16)}';
@@ -214,38 +211,6 @@ class HTMLToNodesConverter {
         attrs[StyleKey.underline] = true;
       }
     }
-  }
-
-  /// Try to parse the `rgba(red, greed, blue, alpha)`
-  /// from the string.
-  Color? _tryParseCssColorString(String? colorString) {
-    if (colorString == null) {
-      return null;
-    }
-    final reg = RegExp(r'rgba\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)');
-    final match = reg.firstMatch(colorString);
-    if (match == null) {
-      return null;
-    }
-
-    if (match.groupCount < 4) {
-      return null;
-    }
-    final redStr = match.group(1);
-    final greenStr = match.group(2);
-    final blueStr = match.group(3);
-    final alphaStr = match.group(4);
-
-    final red = redStr != null ? int.tryParse(redStr) : null;
-    final green = greenStr != null ? int.tryParse(greenStr) : null;
-    final blue = blueStr != null ? int.tryParse(blueStr) : null;
-    final alpha = alphaStr != null ? int.tryParse(alphaStr) : null;
-
-    if (red == null || green == null || blue == null || alpha == null) {
-      return null;
-    }
-
-    return Color.fromARGB(alpha, red, green, blue);
   }
 
   _handleRichTextElement(Delta delta, html.Element element) {
