@@ -30,7 +30,7 @@ List<String> defaultListToolbarEventNames = [
   'H3',
 ];
 
-mixin ToolBarMixin<T extends StatefulWidget> on State<T> {
+mixin ToolbarMixin<T extends StatefulWidget> on State<T> {
   void hide();
 }
 
@@ -52,7 +52,7 @@ class ToolbarWidget extends StatefulWidget {
   State<ToolbarWidget> createState() => _ToolbarWidgetState();
 }
 
-class _ToolbarWidgetState extends State<ToolbarWidget> with ToolBarMixin {
+class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
   final GlobalKey _listToolbarKey = GlobalKey();
 
   final toolbarHeight = 32.0;

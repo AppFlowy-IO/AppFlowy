@@ -49,7 +49,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
 
   @override
   void hide() {
-    _toolbarWidgetKey.currentState?.unwrapOrNull<ToolBarMixin>()?.hide();
+    _toolbarWidgetKey.currentState?.unwrapOrNull<ToolbarMixin>()?.hide();
     _toolbarOverlay?.remove();
     _toolbarOverlay = null;
   }
