@@ -1,12 +1,10 @@
-mod folder_rev_impl;
-mod grid_block_meta_rev_impl;
-mod grid_rev_impl;
-mod text_rev_impl;
+mod document_impl;
+mod grid_block_impl;
+mod grid_impl;
 
-pub use folder_rev_impl::*;
-pub use grid_block_meta_rev_impl::*;
-pub use grid_rev_impl::*;
-pub use text_rev_impl::*;
+pub use document_impl::*;
+pub use grid_block_impl::*;
+pub use grid_impl::*;
 
 use flowy_error::FlowyResult;
 use flowy_sync::entities::revision::{RevId, Revision, RevisionRange};

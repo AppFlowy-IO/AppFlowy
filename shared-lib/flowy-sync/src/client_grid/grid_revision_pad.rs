@@ -7,8 +7,8 @@ use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_grid_filter_id, gen_grid_group_id, gen_grid_id, FieldRevision, FieldTypeRevision,
-    FilterConfigurationRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridLayoutRevision,
-    GridRevision, GridSettingRevision, GroupConfigurationRevision,
+    FilterConfigurationRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset, GridRevision,
+    GroupConfigurationRevision, SettingRevision,
 };
 use lib_infra::util::move_vec_element;
 use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
@@ -77,7 +77,7 @@ impl GridRevisionPad {
         &mut self,
         new_field_rev: FieldRevision,
         start_field_id: Option<String>,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(|grid_meta| {
             // Check if the field exists or not
             if grid_meta
@@ -102,7 +102,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn delete_field_rev(&mut self, field_id: &str) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn delete_field_rev(&mut self, field_id: &str) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
@@ -118,7 +118,7 @@ impl GridRevisionPad {
         &mut self,
         field_id: &str,
         duplicated_field_id: &str,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
@@ -138,7 +138,7 @@ impl GridRevisionPad {
         field_id: &str,
         field_type: T,
         type_option_json_builder: B,
-    ) -> CollaborateResult<Option<GridChangeset>>
+    ) -> CollaborateResult<Option<GridRevisionChangeset>>
     where
         B: FnOnce(&FieldTypeRevision) -> String,
         T: Into<FieldTypeRevision>,
@@ -169,7 +169,7 @@ impl GridRevisionPad {
         &mut self,
         changeset: FieldChangesetParams,
         deserializer: T,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         let field_id = changeset.field_id.clone();
         self.modify_field(&field_id, |field| {
             let mut is_changed = None;
@@ -228,7 +228,10 @@ impl GridRevisionPad {
             .find(|(_, field)| field.id == field_id)
     }
 
-    pub fn replace_field_rev(&mut self, field_rev: Arc<FieldRevision>) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn replace_field_rev(
+        &mut self,
+        field_rev: Arc<FieldRevision>,
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_rev.id) {
                 None => Ok(None),
@@ -246,7 +249,7 @@ impl GridRevisionPad {
         field_id: &str,
         from_index: usize,
         to_index: usize,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(|grid_meta| {
             match move_vec_element(
                 &mut grid_meta.fields,
@@ -292,7 +295,10 @@ impl GridRevisionPad {
         }
     }
 
-    pub fn create_block_meta_rev(&mut self, block: GridBlockMetaRevision) -> CollaborateResult<Option<GridChangeset>> {
+    pub fn create_block_meta_rev(
+        &mut self,
+        block: GridBlockMetaRevision,
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(|grid_meta| {
             if grid_meta.blocks.iter().any(|b| b.block_id == block.block_id) {
                 tracing::warn!("Duplicate grid block");
@@ -322,7 +328,7 @@ impl GridRevisionPad {
     pub fn update_block_rev(
         &mut self,
         changeset: GridBlockMetaRevisionChangeset,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         let block_id = changeset.block_id.clone();
         self.modify_block(&block_id, |block| {
             let mut is_changed = None;
@@ -341,18 +347,13 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn get_setting_rev(&self) -> &GridSettingRevision {
+    pub fn get_setting_rev(&self) -> &SettingRevision {
         &self.grid_rev.setting
     }
 
     /// If layout is None, then the default layout will be the read from GridSettingRevision
-    pub fn get_filters(
-        &self,
-        layout: Option<&GridLayoutRevision>,
-        field_ids: Option<Vec<String>>,
-    ) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
+    pub fn get_filters(&self, field_ids: Option<Vec<String>>) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
         let mut filter_revs = vec![];
-        let layout_ty = layout.unwrap_or(&self.grid_rev.setting.layout);
         let field_revs = self.get_field_revs(None).ok()?;
 
         field_revs.iter().for_each(|field_rev| {
@@ -365,8 +366,7 @@ impl GridRevisionPad {
                 // Only return the filters for the current fields' type.
                 let field_id = &field_rev.id;
                 let field_type_rev = &field_rev.field_type_rev;
-                if let Some(mut t_filter_revs) = self.grid_rev.setting.get_filters(layout_ty, field_id, field_type_rev)
-                {
+                if let Some(mut t_filter_revs) = self.grid_rev.setting.get_filters(field_id, field_type_rev) {
                     filter_revs.append(&mut t_filter_revs);
                 }
             }
@@ -378,43 +378,33 @@ impl GridRevisionPad {
     pub fn update_grid_setting_rev(
         &mut self,
         changeset: GridSettingChangesetParams,
-    ) -> CollaborateResult<Option<GridChangeset>> {
+    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
         self.modify_grid(|grid_rev| {
             let mut is_changed = None;
-            let layout_rev = changeset.layout_type;
             if let Some(params) = changeset.insert_filter {
-                grid_rev.setting.insert_filter(
-                    &layout_rev,
-                    &params.field_id,
-                    &params.field_type_rev,
-                    make_filter_revision(&params),
-                );
-
+                grid_rev
+                    .setting
+                    .insert_filter(&params.field_id, &params.field_type_rev, make_filter_revision(&params));
                 is_changed = Some(())
             }
             if let Some(params) = changeset.delete_filter {
-                if let Some(filters) =
-                    grid_rev
-                        .setting
-                        .get_mut_filters(&layout_rev, &params.field_id, &params.field_type_rev)
+                if let Some(filters) = grid_rev
+                    .setting
+                    .get_mut_filters(&params.field_id, &params.field_type_rev)
                 {
                     filters.retain(|filter| filter.id != params.filter_id);
                 }
             }
             if let Some(params) = changeset.insert_group {
-                grid_rev.setting.insert_group(
-                    &layout_rev,
-                    &params.field_id,
-                    &params.field_type_rev,
-                    make_group_revision(&params),
-                );
+                grid_rev
+                    .setting
+                    .insert_group(&params.field_id, &params.field_type_rev, make_group_revision(&params));
                 is_changed = Some(());
             }
             if let Some(params) = changeset.delete_group {
-                if let Some(groups) =
-                    grid_rev
-                        .setting
-                        .get_mut_groups(&layout_rev, &params.field_id, &params.field_type_rev)
+                if let Some(groups) = grid_rev
+                    .setting
+                    .get_mut_groups(&params.field_id, &params.field_type_rev)
                 {
                     groups.retain(|filter| filter.id != params.group_id);
                 }
@@ -462,7 +452,7 @@ impl GridRevisionPad {
         &self.grid_rev.fields
     }
 
-    fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridChangeset>>
+    fn modify_grid<F>(&mut self, f: F) -> CollaborateResult<Option<GridRevisionChangeset>>
     where
         F: FnOnce(&mut GridRevision) -> CollaborateResult<Option<()>>,
     {
@@ -476,14 +466,14 @@ impl GridRevisionPad {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(GridChangeset { delta, md5: self.md5() }))
+                        Ok(Some(GridRevisionChangeset { delta, md5: self.md5() }))
                     }
                 }
             }
         }
     }
 
-    fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
+    fn modify_block<F>(&mut self, block_id: &str, f: F) -> CollaborateResult<Option<GridRevisionChangeset>>
     where
         F: FnOnce(&mut GridBlockMetaRevision) -> CollaborateResult<Option<()>>,
     {
@@ -501,7 +491,7 @@ impl GridRevisionPad {
         )
     }
 
-    fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridChangeset>>
+    fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridRevisionChangeset>>
     where
         F: FnOnce(&mut FieldRevision) -> CollaborateResult<Option<()>>,
     {
@@ -524,13 +514,13 @@ impl GridRevisionPad {
     }
 }
 
-pub fn make_grid_rev_json_str(grid: &GridRevision) -> CollaborateResult<String> {
-    let json = serde_json::to_string(grid)
+pub fn make_grid_rev_json_str(grid_revision: &GridRevision) -> CollaborateResult<String> {
+    let json = serde_json::to_string(grid_revision)
         .map_err(|err| internal_error(format!("Serialize grid to json str failed. {:?}", err)))?;
     Ok(json)
 }
 
-pub struct GridChangeset {
+pub struct GridRevisionChangeset {
     pub delta: GridRevisionDelta,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,

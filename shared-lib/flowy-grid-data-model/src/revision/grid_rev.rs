@@ -1,12 +1,9 @@
-use crate::revision::GridSettingRevision;
+use crate::revision::{GridBlockRevision, SettingRevision};
 use bytes::Bytes;
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::sync::Arc;
-
-pub const DEFAULT_ROW_HEIGHT: i32 = 42;
 
 pub fn gen_grid_id() -> String {
     // nanoid calculator https://zelark.github.io/nano-id-cc/
@@ -15,10 +12,6 @@ pub fn gen_grid_id() -> String {
 
 pub fn gen_block_id() -> String {
     nanoid!(10)
-}
-
-pub fn gen_row_id() -> String {
-    nanoid!(6)
 }
 
 pub fn gen_field_id() -> String {
@@ -32,7 +25,7 @@ pub struct GridRevision {
     pub blocks: Vec<Arc<GridBlockMetaRevision>>,
 
     #[serde(default)]
-    pub setting: GridSettingRevision,
+    pub setting: SettingRevision,
 }
 
 impl GridRevision {
@@ -41,7 +34,7 @@ impl GridRevision {
             grid_id: grid_id.to_owned(),
             fields: vec![],
             blocks: vec![],
-            setting: GridSettingRevision::default(),
+            setting: SettingRevision::default(),
         }
     }
 
@@ -95,12 +88,6 @@ impl GridBlockMetaRevisionChangeset {
             row_count: Some(row_count),
         }
     }
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-pub struct GridBlockRevision {
-    pub block_id: String,
-    pub rows: Vec<Arc<RowRevision>>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, Eq, PartialEq)]
@@ -199,50 +186,6 @@ pub trait TypeOptionDataEntry {
 pub trait TypeOptionDataDeserializer {
     fn from_json_str(s: &str) -> Self;
     fn from_protobuf_bytes(bytes: Bytes) -> Self;
-}
-
-pub type FieldId = String;
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
-pub struct RowRevision {
-    pub id: String,
-    pub block_id: String,
-    /// cells contains key/value pairs.
-    /// key: field id,
-    /// value: CellMeta
-    #[serde(with = "indexmap::serde_seq")]
-    pub cells: IndexMap<FieldId, CellRevision>,
-    pub height: i32,
-    pub visibility: bool,
-}
-
-impl RowRevision {
-    pub fn new(block_id: &str) -> Self {
-        Self {
-            id: gen_row_id(),
-            block_id: block_id.to_owned(),
-            cells: Default::default(),
-            height: DEFAULT_ROW_HEIGHT,
-            visibility: true,
-        }
-    }
-}
-#[derive(Debug, Clone, Default)]
-pub struct RowMetaChangeset {
-    pub row_id: String,
-    pub height: Option<i32>,
-    pub visibility: Option<bool>,
-    pub cell_by_field_id: HashMap<FieldId, CellRevision>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]
-pub struct CellRevision {
-    pub data: String,
-}
-
-impl CellRevision {
-    pub fn new(data: String) -> Self {
-        Self { data }
-    }
 }
 
 #[derive(Clone, Default, Deserialize, Serialize)]

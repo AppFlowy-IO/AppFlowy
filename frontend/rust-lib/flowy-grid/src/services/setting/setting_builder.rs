@@ -1,8 +1,8 @@
 use crate::entities::{
-    GridLayoutPB, GridLayoutType, GridSettingPB, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB,
+    GridLayoutPB, GridSettingPB, Layout, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB,
     RepeatedGridSortPB,
 };
-use flowy_grid_data_model::revision::{FieldRevision, GridSettingRevision};
+use flowy_grid_data_model::revision::{FieldRevision, SettingRevision};
 use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -12,7 +12,7 @@ pub struct GridSettingChangesetBuilder {
 }
 
 impl GridSettingChangesetBuilder {
-    pub fn new(grid_id: &str, layout_type: &GridLayoutType) -> Self {
+    pub fn new(grid_id: &str, layout_type: &Layout) -> Self {
         let params = GridSettingChangesetParams {
             grid_id: grid_id.to_string(),
             layout_type: layout_type.clone().into(),
@@ -41,8 +41,8 @@ impl GridSettingChangesetBuilder {
     }
 }
 
-pub fn make_grid_setting(grid_setting_rev: &GridSettingRevision, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
-    let current_layout_type: GridLayoutType = grid_setting_rev.layout.clone().into();
+pub fn make_grid_setting(grid_setting_rev: &SettingRevision, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
+    let current_layout_type: Layout = grid_setting_rev.layout.clone().into();
     let filters_by_field_id = grid_setting_rev
         .get_all_filters(field_revs)
         .map(|filters_by_field_id| {
