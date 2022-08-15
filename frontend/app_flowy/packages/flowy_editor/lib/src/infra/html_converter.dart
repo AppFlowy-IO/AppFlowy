@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:ui';
 
 import 'package:flowy_editor/src/document/attributes.dart';
 import 'package:flowy_editor/src/document/node.dart';
@@ -8,23 +9,35 @@ import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
 
-const String tagH1 = "h1";
-const String tagH2 = "h2";
-const String tagH3 = "h3";
-const String tagOrderedList = "ol";
-const String tagUnorderedList = "ul";
-const String tagList = "li";
-const String tagParagraph = "p";
-const String tagImage = "img";
-const String tagAnchor = "a";
-const String tagItalic = "i";
-const String tagBold = "b";
-const String tagUnderline = "u";
-const String tagDel = "del";
-const String tagStrong = "strong";
-const String tagSpan = "span";
-const String tagCode = "code";
-const String tagBlockQuote = "blockquote";
+class HTMLTag {
+  static const h1 = "h1";
+  static const h2 = "h2";
+  static const h3 = "h3";
+  static const orderedList = "ol";
+  static const unorderedList = "ul";
+  static const list = "li";
+  static const paragraph = "p";
+  static const image = "img";
+  static const anchor = "a";
+  static const italic = "i";
+  static const bold = "b";
+  static const underline = "u";
+  static const del = "del";
+  static const strong = "strong";
+  static const span = "span";
+  static const code = "code";
+  static const blockQuote = "blockquote";
+  static const div = "div";
+
+  static bool isTopLevel(String tag) {
+    return tag == h1 ||
+        tag == h2 ||
+        tag == h3 ||
+        tag == paragraph ||
+        tag == div ||
+        tag == blockQuote;
+  }
+}
 
 extension on Color {
   String toRgbaString() {
@@ -55,15 +68,15 @@ class HTMLToNodesConverter {
     final result = <Node>[];
     for (final child in childNodes) {
       if (child is html.Element) {
-        if (child.localName == tagAnchor ||
-            child.localName == tagSpan ||
-            child.localName == tagCode ||
-            child.localName == tagStrong ||
-            child.localName == tagUnderline ||
-            child.localName == tagItalic ||
-            child.localName == tagDel) {
+        if (child.localName == HTMLTag.anchor ||
+            child.localName == HTMLTag.span ||
+            child.localName == HTMLTag.code ||
+            child.localName == HTMLTag.strong ||
+            child.localName == HTMLTag.underline ||
+            child.localName == HTMLTag.italic ||
+            child.localName == HTMLTag.del) {
           _handleRichTextElement(delta, child);
-        } else if (child.localName == tagBold) {
+        } else if (child.localName == HTMLTag.bold) {
           // Google docs wraps the the content inside the `<b></b>` tag.
           // It's strange
           if (!_inParagraph) {
@@ -71,7 +84,7 @@ class HTMLToNodesConverter {
           } else {
             result.add(_handleRichText(child));
           }
-        } else if (child.localName == tagBlockQuote) {
+        } else if (child.localName == HTMLTag.blockQuote) {
           result.addAll(_handleBlockQuote(child));
         } else {
           result.addAll(_handleElement(child));
@@ -105,19 +118,19 @@ class HTMLToNodesConverter {
 
   List<Node> _handleElement(html.Element element,
       [Map<String, dynamic>? attributes]) {
-    if (element.localName == tagH1) {
-      return [_handleHeadingElement(element, tagH1)];
-    } else if (element.localName == tagH2) {
-      return [_handleHeadingElement(element, tagH2)];
-    } else if (element.localName == tagH3) {
-      return [_handleHeadingElement(element, tagH3)];
-    } else if (element.localName == tagUnorderedList) {
+    if (element.localName == HTMLTag.h1) {
+      return [_handleHeadingElement(element, HTMLTag.h1)];
+    } else if (element.localName == HTMLTag.h2) {
+      return [_handleHeadingElement(element, HTMLTag.h2)];
+    } else if (element.localName == HTMLTag.h3) {
+      return [_handleHeadingElement(element, HTMLTag.h3)];
+    } else if (element.localName == HTMLTag.unorderedList) {
       return _handleUnorderedList(element);
-    } else if (element.localName == tagOrderedList) {
+    } else if (element.localName == HTMLTag.orderedList) {
       return _handleOrderedList(element);
-    } else if (element.localName == tagList) {
+    } else if (element.localName == HTMLTag.list) {
       return _handleListElement(element);
-    } else if (element.localName == tagParagraph) {
+    } else if (element.localName == HTMLTag.paragraph) {
       return [_handleParagraph(element, attributes)];
     } else {
       final delta = Delta();
@@ -236,23 +249,24 @@ class HTMLToNodesConverter {
   }
 
   _handleRichTextElement(Delta delta, html.Element element) {
-    if (element.localName == tagSpan) {
+    if (element.localName == HTMLTag.span) {
       delta.insert(element.text,
           _getDeltaAttributesFromHtmlAttributes(element.attributes));
-    } else if (element.localName == tagAnchor) {
+    } else if (element.localName == HTMLTag.anchor) {
       final hyperLink = element.attributes["href"];
       Map<String, dynamic>? attributes;
       if (hyperLink != null) {
         attributes = {"href": hyperLink};
       }
       delta.insert(element.text, attributes);
-    } else if (element.localName == tagStrong || element.localName == tagBold) {
+    } else if (element.localName == HTMLTag.strong ||
+        element.localName == HTMLTag.bold) {
       delta.insert(element.text, {StyleKey.bold: true});
-    } else if (element.localName == tagUnderline) {
+    } else if (element.localName == HTMLTag.underline) {
       delta.insert(element.text, {StyleKey.underline: true});
-    } else if (element.localName == tagItalic) {
+    } else if (element.localName == HTMLTag.italic) {
       delta.insert(element.text, {StyleKey.italic: true});
-    } else if (element.localName == tagDel) {
+    } else if (element.localName == HTMLTag.del) {
       delta.insert(element.text, {StyleKey.strikethrough: true});
     } else {
       delta.insert(element.text);
@@ -265,7 +279,7 @@ class HTMLToNodesConverter {
   /// A container contains a <img /> will be regarded as a image block
   Node _handleRichText(html.Element element,
       [Map<String, dynamic>? attributes]) {
-    final image = element.querySelector(tagImage);
+    final image = element.querySelector(HTMLTag.image);
     if (image != null) {
       final imageNode = _handleImage(image);
       return imageNode;
@@ -419,10 +433,10 @@ class NodesToHTMLConverter {
   }
 
   _addElement(TextNode textNode, html.Element element) {
-    if (element.localName == tagList) {
+    if (element.localName == HTMLTag.list) {
       final isNumbered = textNode.attributes["subtype"] == StyleKey.numberList;
-      _stashListContainer ??=
-          html.Element.tag(isNumbered ? tagOrderedList : tagUnorderedList);
+      _stashListContainer ??= html.Element.tag(
+          isNumbered ? HTMLTag.orderedList : HTMLTag.unorderedList);
       _stashListContainer?.append(element);
     } else {
       if (_stashListContainer != null) {
@@ -524,10 +538,10 @@ class NodesToHTMLConverter {
     }
 
     final childNodes = <html.Node>[];
-    String tagName = tagParagraph;
+    String tagName = HTMLTag.paragraph;
 
     if (subType == StyleKey.bulletedList || subType == StyleKey.numberList) {
-      tagName = tagList;
+      tagName = HTMLTag.list;
     } else if (subType == StyleKey.checkbox) {
       final node = html.Element.html('<input type="checkbox" />');
       if (checked != null && checked) {
@@ -536,14 +550,14 @@ class NodesToHTMLConverter {
       childNodes.add(node);
     } else if (subType == StyleKey.heading) {
       if (heading == StyleKey.h1) {
-        tagName = tagH1;
+        tagName = HTMLTag.h1;
       } else if (heading == StyleKey.h2) {
-        tagName = tagH2;
+        tagName = HTMLTag.h2;
       } else if (heading == StyleKey.h3) {
-        tagName = tagH3;
+        tagName = HTMLTag.h3;
       }
     } else if (subType == StyleKey.quote) {
-      tagName = tagBlockQuote;
+      tagName = HTMLTag.blockQuote;
     }
 
     for (final op in delta) {
@@ -551,26 +565,26 @@ class NodesToHTMLConverter {
         final attributes = op.attributes;
         if (attributes != null) {
           if (attributes.length == 1 && attributes[StyleKey.bold] == true) {
-            final strong = html.Element.tag(tagStrong);
+            final strong = html.Element.tag(HTMLTag.strong);
             strong.append(html.Text(op.content));
             childNodes.add(strong);
           } else if (attributes.length == 1 &&
               attributes[StyleKey.underline] == true) {
-            final strong = html.Element.tag(tagUnderline);
+            final strong = html.Element.tag(HTMLTag.underline);
             strong.append(html.Text(op.content));
             childNodes.add(strong);
           } else if (attributes.length == 1 &&
               attributes[StyleKey.italic] == true) {
-            final strong = html.Element.tag(tagItalic);
+            final strong = html.Element.tag(HTMLTag.italic);
             strong.append(html.Text(op.content));
             childNodes.add(strong);
           } else if (attributes.length == 1 &&
               attributes[StyleKey.strikethrough] == true) {
-            final strong = html.Element.tag(tagDel);
+            final strong = html.Element.tag(HTMLTag.del);
             strong.append(html.Text(op.content));
             childNodes.add(strong);
           } else {
-            final span = html.Element.tag(tagSpan);
+            final span = html.Element.tag(HTMLTag.span);
             final cssString = _attributesToCssStyle(attributes);
             if (cssString.isNotEmpty) {
               span.attributes["style"] = cssString;
@@ -584,24 +598,20 @@ class NodesToHTMLConverter {
       }
     }
 
-    if (tagName == tagBlockQuote) {
-      final p = html.Element.tag(tagParagraph);
+    if (tagName == HTMLTag.blockQuote) {
+      final p = html.Element.tag(HTMLTag.paragraph);
       for (final node in childNodes) {
         p.append(node);
       }
       final blockQuote = html.Element.tag(tagName);
       blockQuote.append(p);
       return blockQuote;
-    } else if (tagName != tagParagraph &&
-        tagName != tagH1 &&
-        tagName != tagH2 &&
-        tagName != tagH3 &&
-        tagName != tagBlockQuote) {
-      final p = html.Element.tag(tagParagraph);
+    } else if (!HTMLTag.isTopLevel(tagName)) {
+      final p = html.Element.tag(HTMLTag.paragraph);
       for (final node in childNodes) {
         p.append(node);
       }
-      final result = html.Element.tag(tagList);
+      final result = html.Element.tag(HTMLTag.list);
       result.append(p);
       return result;
     } else {
