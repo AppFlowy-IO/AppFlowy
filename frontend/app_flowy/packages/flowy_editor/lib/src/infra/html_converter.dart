@@ -24,6 +24,7 @@ const String tagDel = "del";
 const String tagStrong = "strong";
 const String tagSpan = "span";
 const String tagCode = "code";
+const String tagBlockQuote = "blockquote";
 
 extension on Color {
   String toRgbaString() {
@@ -70,6 +71,8 @@ class HTMLToNodesConverter {
           } else {
             result.add(_handleRichText(child));
           }
+        } else if (child.localName == tagBlockQuote) {
+          result.addAll(_handleBlockQuote(child));
         } else {
           result.addAll(_handleElement(child));
         }
@@ -80,6 +83,18 @@ class HTMLToNodesConverter {
     if (delta.isNotEmpty) {
       result.add(TextNode(type: "text", delta: delta));
     }
+    return result;
+  }
+
+  List<Node> _handleBlockQuote(html.Element element) {
+    final result = <Node>[];
+
+    for (final child in element.nodes.toList()) {
+      if (child is html.Element) {
+        result.addAll(_handleElement(child, {"subtype": "quote"}));
+      }
+    }
+
     return result;
   }
 
@@ -527,6 +542,8 @@ class NodesToHTMLConverter {
       } else if (heading == StyleKey.h3) {
         tagName = tagH3;
       }
+    } else if (subType == StyleKey.quote) {
+      tagName = tagBlockQuote;
     }
 
     for (final op in delta) {
@@ -567,10 +584,19 @@ class NodesToHTMLConverter {
       }
     }
 
-    if (tagName != tagParagraph &&
+    if (tagName == tagBlockQuote) {
+      final p = html.Element.tag(tagParagraph);
+      for (final node in childNodes) {
+        p.append(node);
+      }
+      final blockQuote = html.Element.tag(tagName);
+      blockQuote.append(p);
+      return blockQuote;
+    } else if (tagName != tagParagraph &&
         tagName != tagH1 &&
         tagName != tagH2 &&
-        tagName != tagH3) {
+        tagName != tagH3 &&
+        tagName != tagBlockQuote) {
       final p = html.Element.tag(tagParagraph);
       for (final node in childNodes) {
         p.append(node);
