@@ -91,11 +91,26 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.pageUp) {
       return PhysicalKeyboardKey.pageUp;
     }
-    if (this == LogicalKeyboardKey.keyZ) {
-      return PhysicalKeyboardKey.keyZ;
+    if (this == LogicalKeyboardKey.slash) {
+      return PhysicalKeyboardKey.slash;
+    }
+    if (this == LogicalKeyboardKey.arrowDown) {
+      return PhysicalKeyboardKey.arrowDown;
     }
     if (this == LogicalKeyboardKey.keyA) {
       return PhysicalKeyboardKey.keyA;
+    }
+    if (this == LogicalKeyboardKey.keyB) {
+      return PhysicalKeyboardKey.keyB;
+    }
+    if (this == LogicalKeyboardKey.keyI) {
+      return PhysicalKeyboardKey.keyI;
+    }
+    if (this == LogicalKeyboardKey.keyS) {
+      return PhysicalKeyboardKey.keyS;
+    }
+    if (this == LogicalKeyboardKey.keyU) {
+      return PhysicalKeyboardKey.keyU;
     }
     throw UnimplementedError();
   }
