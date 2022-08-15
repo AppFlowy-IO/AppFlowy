@@ -72,8 +72,20 @@ class EditorWidgetTester {
     await tester.pumpAndSettle();
   }
 
-  Future<void> pressLogicKey(LogicalKeyboardKey key) async {
-    final testRawKeyEventData = TestRawKeyEventData(logicalKey: key).toKeyEvent;
+  Future<void> pressLogicKey(
+    LogicalKeyboardKey key, {
+    bool isControlPressed = false,
+    bool isShiftPressed = false,
+    bool isAltPressed = false,
+    bool isMetaPressed = false,
+  }) async {
+    final testRawKeyEventData = TestRawKeyEventData(
+      logicalKey: key,
+      isControlPressed: isControlPressed,
+      isShiftPressed: isShiftPressed,
+      isAltPressed: isAltPressed,
+      isMetaPressed: isMetaPressed,
+    ).toKeyEvent;
     _editorState.service.keyboardService!.onKey(testRawKeyEventData);
     await tester.pumpAndSettle();
   }

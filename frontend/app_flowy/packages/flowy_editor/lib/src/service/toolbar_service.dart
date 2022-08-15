@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_editor/src/render/selection/toolbar_widget.dart';
+import 'package:flowy_editor/src/extensions/object_extensions.dart';
 
 abstract class FlowyToolbarService {
   /// Show the toolbar widget beside the offset.
@@ -28,12 +29,15 @@ class FlowyToolbar extends StatefulWidget {
 class _FlowyToolbarState extends State<FlowyToolbar>
     implements FlowyToolbarService {
   OverlayEntry? _toolbarOverlay;
+  final _toolbarWidgetKey = GlobalKey(debugLabel: '_toolbar_widget');
 
   @override
   void showInOffset(Offset offset, LayerLink layerLink) {
-    _toolbarOverlay?.remove();
+    hide();
+
     _toolbarOverlay = OverlayEntry(
       builder: (context) => ToolbarWidget(
+        key: _toolbarWidgetKey,
         editorState: widget.editorState,
         layerLink: layerLink,
         offset: offset.translate(0, -37.0),
@@ -45,6 +49,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
 
   @override
   void hide() {
+    _toolbarWidgetKey.currentState?.unwrapOrNull<ToolBarMixin>()?.hide();
     _toolbarOverlay?.remove();
     _toolbarOverlay = null;
   }
@@ -54,5 +59,12 @@ class _FlowyToolbarState extends State<FlowyToolbar>
     return Container(
       child: widget.child,
     );
+  }
+
+  @override
+  void dispose() {
+    hide();
+
+    super.dispose();
   }
 }

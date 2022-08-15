@@ -1,7 +1,25 @@
 import 'package:flutter/services.dart';
 
 class TestRawKeyEvent extends RawKeyDownEvent {
-  const TestRawKeyEvent({required super.data});
+  const TestRawKeyEvent({
+    required super.data,
+    this.isControlPressed = false,
+    this.isShiftPressed = false,
+    this.isAltPressed = false,
+    this.isMetaPressed = false,
+  });
+
+  @override
+  final bool isControlPressed;
+
+  @override
+  final bool isShiftPressed;
+
+  @override
+  final bool isAltPressed;
+
+  @override
+  final bool isMetaPressed;
 }
 
 class TestRawKeyEventData extends RawKeyEventData {
@@ -46,7 +64,13 @@ class TestRawKeyEventData extends RawKeyEventData {
   String get keyLabel => throw UnimplementedError();
 
   RawKeyEvent get toKeyEvent {
-    return TestRawKeyEvent(data: this);
+    return TestRawKeyEvent(
+      data: this,
+      isAltPressed: isAltPressed,
+      isControlPressed: isControlPressed,
+      isMetaPressed: isMetaPressed,
+      isShiftPressed: isShiftPressed,
+    );
   }
 }
 
@@ -66,6 +90,9 @@ extension on LogicalKeyboardKey {
     }
     if (this == LogicalKeyboardKey.pageUp) {
       return PhysicalKeyboardKey.pageUp;
+    }
+    if (this == LogicalKeyboardKey.keyZ) {
+      return PhysicalKeyboardKey.keyZ;
     }
     throw UnimplementedError();
   }

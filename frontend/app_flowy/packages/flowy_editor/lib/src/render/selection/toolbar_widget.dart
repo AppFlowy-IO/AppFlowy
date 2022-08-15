@@ -28,9 +28,11 @@ List<String> defaultListToolbarEventNames = [
   'H1',
   'H2',
   'H3',
-  // 'B-List',
-  // 'N-List',
 ];
+
+mixin ToolBarMixin<T extends StatefulWidget> on State<T> {
+  void hide();
+}
 
 class ToolbarWidget extends StatefulWidget {
   const ToolbarWidget({
@@ -50,7 +52,7 @@ class ToolbarWidget extends StatefulWidget {
   State<ToolbarWidget> createState() => _ToolbarWidgetState();
 }
 
-class _ToolbarWidgetState extends State<ToolbarWidget> {
+class _ToolbarWidgetState extends State<ToolbarWidget> with ToolBarMixin {
   final GlobalKey _listToolbarKey = GlobalKey();
 
   final toolbarHeight = 32.0;
@@ -64,21 +66,6 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
   OverlayEntry? _listToolbarOverlay;
 
   @override
-  void initState() {
-    super.initState();
-
-    widget.editorState.service.selectionService.currentSelection
-        .addListener(_onSelectionChange);
-  }
-
-  @override
-  void dispose() {
-    widget.editorState.service.selectionService.currentSelection
-        .removeListener(_onSelectionChange);
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Positioned(
       top: widget.offset.dx,
@@ -90,6 +77,12 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
         child: _buildToolbar(context),
       ),
     );
+  }
+
+  @override
+  void hide() {
+    _listToolbarOverlay?.remove();
+    _listToolbarOverlay = null;
   }
 
   Widget _buildToolbar(BuildContext context) {
@@ -211,10 +204,5 @@ class _ToolbarWidgetState extends State<ToolbarWidget> {
       return;
     }
     assert(false, 'Could not find the event handler for $eventName');
-  }
-
-  void _onSelectionChange() {
-    _listToolbarOverlay?.remove();
-    _listToolbarOverlay = null;
   }
 }
