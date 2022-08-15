@@ -427,8 +427,10 @@ class NodesToHTMLConverter {
 
   html.Element _textNodeToHtml(TextNode textNode, {int? end}) {
     String? subType = textNode.attributes["subtype"];
+    String? heading = textNode.attributes["heading"];
     return _deltaToHtml(textNode.delta,
         subType: subType,
+        heading: heading,
         end: end,
         checked: textNode.attributes["checkbox"] == true);
   }
@@ -501,7 +503,7 @@ class NodesToHTMLConverter {
   /// <span style="...">Text</span>
   /// ```
   html.Element _deltaToHtml(Delta delta,
-      {String? subType, int? end, bool? checked}) {
+      {String? subType, String? heading, int? end, bool? checked}) {
     if (end != null) {
       delta = delta.slice(0, end);
     }
@@ -517,6 +519,14 @@ class NodesToHTMLConverter {
         node.attributes["checked"] = "true";
       }
       childNodes.add(node);
+    } else if (subType == StyleKey.heading) {
+      if (heading == StyleKey.h1) {
+        tagName = tagH1;
+      } else if (heading == StyleKey.h2) {
+        tagName = tagH2;
+      } else if (heading == StyleKey.h3) {
+        tagName = tagH3;
+      }
     }
 
     for (final op in delta) {
@@ -557,7 +567,10 @@ class NodesToHTMLConverter {
       }
     }
 
-    if (tagName != tagParagraph) {
+    if (tagName != tagParagraph &&
+        tagName != tagH1 &&
+        tagName != tagH2 &&
+        tagName != tagH3) {
       final p = html.Element.tag(tagParagraph);
       for (final node in childNodes) {
         p.append(node);
