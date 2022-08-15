@@ -34,6 +34,8 @@ class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
       });
 }
 
+const double placeholderHeight = 132;
+
 class ImageNodeWidget extends StatefulWidget {
   final Node node;
   final EditorState editorState;
@@ -49,6 +51,7 @@ class ImageNodeWidget extends StatefulWidget {
 }
 
 class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
+  bool isHovered = false;
   Node get node => widget.node;
   EditorState get editorState => widget.editorState;
   String get src => widget.node.attributes['image_src'] as String;
@@ -88,13 +91,73 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
     return _build(context);
   }
 
+  Widget _loadingBuilder(
+      BuildContext context, Widget widget, ImageChunkEvent? evt) {
+    if (evt == null) {
+      return widget;
+    }
+    return Container(
+      alignment: Alignment.center,
+      height: placeholderHeight,
+      child: const Text("Loading..."),
+    );
+  }
+
+  Widget _errorBuilder(
+      BuildContext context, Object obj, StackTrace? stackTrace) {
+    return Container(
+      alignment: Alignment.center,
+      height: placeholderHeight,
+      child: const Text("Error..."),
+    );
+  }
+
+  Widget _frameBuilder(
+    BuildContext context,
+    Widget child,
+    int? frame,
+    bool wasSynchronouslyLoaded,
+  ) {
+    if (frame == null) {
+      return Container(
+        alignment: Alignment.center,
+        height: placeholderHeight,
+        child: const Text("Loading..."),
+      );
+    }
+
+    return child;
+  }
+
   Widget _build(BuildContext context) {
     return Column(
       children: [
-        Image.network(
-          src,
-          width: MediaQuery.of(context).size.width,
-        )
+        MouseRegion(
+            onEnter: (event) {
+              setState(() {
+                isHovered = true;
+              });
+            },
+            onExit: (event) {
+              setState(() {
+                isHovered = false;
+              });
+            },
+            child: Container(
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                  border: Border.all(
+                    color: isHovered ? Colors.blue : Colors.grey,
+                  ),
+                  borderRadius: const BorderRadius.all(Radius.circular(20))),
+              child: Image.network(
+                src,
+                width: MediaQuery.of(context).size.width,
+                frameBuilder: _frameBuilder,
+                loadingBuilder: _loadingBuilder,
+                errorBuilder: _errorBuilder,
+              ),
+            )),
       ],
     );
   }
