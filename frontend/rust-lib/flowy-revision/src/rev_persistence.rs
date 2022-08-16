@@ -28,9 +28,17 @@ impl RevisionPersistence {
     where
         C: 'static + RevisionDiskCache<Error = FlowyError>,
     {
+        let disk_cache = Arc::new(disk_cache) as Arc<dyn RevisionDiskCache<Error = FlowyError>>;
+        Self::from_disk_cache(user_id, object_id, disk_cache)
+    }
+
+    pub fn from_disk_cache(
+        user_id: &str,
+        object_id: &str,
+        disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
+    ) -> RevisionPersistence {
         let object_id = object_id.to_owned();
         let user_id = user_id.to_owned();
-        let disk_cache = Arc::new(disk_cache) as Arc<dyn RevisionDiskCache<Error = FlowyError>>;
         let sync_seq = RwLock::new(RevisionSyncSequence::new());
         let memory_cache = Arc::new(RevisionMemoryCache::new(&object_id, Arc::new(disk_cache.clone())));
         Self {

@@ -546,8 +546,8 @@ impl GridRevisionEditor {
 
         Ok(BuildGridContext {
             field_revs: duplicated_fields.into_iter().map(Arc::new).collect(),
-            blocks: duplicated_blocks,
-            blocks_meta_data,
+            block_metas: duplicated_blocks,
+            blocks: blocks_meta_data,
         })
     }
 

@@ -57,7 +57,7 @@ where
         match self.into_inner().into_bytes() {
             Ok(bytes) => {
                 log::trace!("Serialize Data: {:?} to event response", std::any::type_name::<T>());
-                return ResponseBuilder::Ok().data(bytes).build();
+                ResponseBuilder::Ok().data(bytes).build()
             }
             Err(e) => e.into(),
         }

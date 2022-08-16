@@ -18,7 +18,7 @@ pub struct ViewRevision {
     #[serde(default)]
     pub data_type: ViewDataTypeRevision,
 
-    pub version: i64,
+    pub version: i64, // Deprecated
 
     pub belongings: Vec<ViewRevision>,
 
