@@ -319,9 +319,14 @@ impl FolderPad {
     }
 
     pub fn to_json(&self) -> CollaborateResult<String> {
-        serde_json::to_string(&self.folder_rev)
-            .map_err(|e| CollaborateError::internal().context(format!("serial trash to json failed: {}", e)))
+        make_folder_rev_json_str(&self.folder_rev)
     }
+}
+
+pub fn make_folder_rev_json_str(folder_rev: &FolderRevision) -> CollaborateResult<String> {
+    let json = serde_json::to_string(folder_rev)
+        .map_err(|err| internal_error(format!("Serialize folder to json str failed. {:?}", err)))?;
+    Ok(json)
 }
 
 impl FolderPad {
