@@ -1,23 +1,18 @@
+use crate::entities::{CreateRowParams, GridFilterConfiguration, GridSettingPB, RepeatedGridGroupPB, RowPB};
 use crate::manager::GridUser;
+use crate::services::block_manager::GridBlockManager;
+use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_editor::{GridViewRevisionDataSource, GridViewRevisionDelegate, GridViewRevisionEditor};
 use bytes::Bytes;
-
-use crate::entities::{CreateRowParams, GridFilterConfiguration, GridSettingPB, RepeatedGridGroupPB, RowPB};
-use crate::services::grid_editor_task::GridServiceTaskScheduler;
-
-use crate::services::block_manager::GridBlockManager;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
 use flowy_revision::{RevisionCompactor, RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
 use flowy_sync::client_grid::GridRevisionPad;
-use flowy_sync::entities::revision::Revision;
-
-use flowy_sync::util::make_text_delta_from_revisions;
-
 use flowy_sync::entities::grid::GridSettingChangesetParams;
-
+use flowy_sync::entities::revision::Revision;
+use flowy_sync::util::make_text_delta_from_revisions;
 use lib_infra::future::{wrap_future, AFFuture};
 use std::sync::Arc;
 use tokio::sync::RwLock;

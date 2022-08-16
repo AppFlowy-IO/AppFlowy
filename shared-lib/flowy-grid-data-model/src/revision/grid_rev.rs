@@ -38,7 +38,7 @@ impl GridRevision {
         Self {
             grid_id: grid_id.to_owned(),
             fields: context.field_revs,
-            blocks: context.blocks.into_iter().map(Arc::new).collect(),
+            blocks: context.block_metas.into_iter().map(Arc::new).collect(),
         }
     }
 }
@@ -186,8 +186,8 @@ pub trait TypeOptionDataDeserializer {
 #[derive(Clone, Default, Deserialize, Serialize)]
 pub struct BuildGridContext {
     pub field_revs: Vec<Arc<FieldRevision>>,
-    pub blocks: Vec<GridBlockMetaRevision>,
-    pub blocks_meta_data: Vec<GridBlockRevision>,
+    pub block_metas: Vec<GridBlockMetaRevision>,
+    pub blocks: Vec<GridBlockRevision>,
 }
 
 impl BuildGridContext {

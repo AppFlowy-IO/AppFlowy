@@ -11,19 +11,31 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-一个易于扩展，测试覆盖的 flutter 富文本编辑组件
+<center><big><b>FlowyEditor</b></big></center>
+
+<p align="center">An easily extensible, test-covered rich text editing component for Flutter</p>
+
+![](documentation/images/example.png)
 
 ## Features
 
-* 易于扩展的
+* Extensible
+    * Support for extending different styles of views.
     * 支持扩展不同样式的视图
-    * 支持定制快捷键解析
-    * 支持扩展toolbar/popup list样式(WIP)
+    * Support extending custom shortcut key parsing
+    * 支持扩展自定义快捷键解析
+    * Support extending toolbar/popup list(WIP)
+    * 支持扩展toolbar/popup list(WIP)
     * ...
-* 协同结构 ready
-    * 
-* 质量保证的
-    * 由于可扩展的结构，以及随着功能的增多，我们鼓励每个提交的文件或者代码段，都可以在test下增加对应的测试用例代码，尽可能得保证提交者不需要担心自己的代码影响了已有的逻辑。
+* Collaboration Ready
+    * All changes to the document are based on **operation**. Theoretically, collaborative editing will be supported in the future.
+    * 所有对文档的修改都是基于operation。理论上未来会支持协同编辑。
+* Good stability guarantees
+    * Current code coverage >= 60%, we will still continue to add more test cases.
+
+> 由于可扩展的结构，以及随着功能的增多，我们鼓励每个提交的文件或者代码段，都可以在test下增加对应的测试用例代码，尽可能得保证提交者不需要担心自己的代码影响了已有的逻辑。
+
+> Due to the extensible structure and the increase in functionality, we encourage each commit to add test case code under test to ensure that the committer does not have to worry about their code affecting the existing logic as much as possible.
 
 
 ## Getting started
@@ -35,7 +47,7 @@ flutter pub get
 
 ## Usage
 
-Empty document
+Creates editor with empty document
 ```dart
 final editorState = EditorState.empty();
 final editor = FlowyEditor(
@@ -45,7 +57,7 @@ final editor = FlowyEditor(
 );
 ```
 
-从JSON文件中读取
+Creates editor from JSON file
 ```dart
 final json = ...;
 final editorState = EditorState(StateTree.fromJson(data));
@@ -71,16 +83,10 @@ flutter run
     * BUIS - 展示如何通过快捷键对文字进行加粗/下划线/斜体/加粗
     * 粘贴HTML - 展示如何通过快捷键处理粘贴的样式
 
-## Documentation
-* 术语表
+## Glossary
 
 
 
-## Additional information
 
-目前正在完善更多的文档信息
-* Selection
-* 
-
-我们还有很多工作需要继续完成，链接到contributing.md
-Project checker link.
+## Contributing
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are greatly appreciated. Please look at [CONTRIBUTING.md](documentation/contributing.md) for details.

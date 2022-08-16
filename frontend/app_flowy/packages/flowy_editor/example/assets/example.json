@@ -37,7 +37,15 @@
         "type": "text",
         "delta": [
           {
-            "insert": "We are still developing more features. Please give us a star if the "
+            "insert": "Since we are a community-driven open source editor, we very welcome and appreciate every pull request submissions from everyone.😄😄😄"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "To be honest, we are still in the alpha stage, there are still many functions that need to be completed. And we are still developing more features. Please give us a star if the "
           },
           {
             "insert": "FlowyEditor",
@@ -46,7 +54,7 @@
             }
           },
           {
-            "insert": " helps you."
+            "insert": " helps you. 😊😊😊"
           }
         ]
       },

@@ -96,7 +96,7 @@ impl GridManager {
     pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<GridRevisionEditor>> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
-        let _ = self.migration.migration_grid_if_need(grid_id).await;
+        let _ = self.migration.run_v1_migration(grid_id).await;
         self.get_or_create_grid_editor(grid_id).await
     }
 
@@ -193,7 +193,7 @@ pub async fn make_grid_view_data(
     grid_manager: Arc<GridManager>,
     build_context: BuildGridContext,
 ) -> FlowyResult<Bytes> {
-    for block_meta_data in &build_context.blocks_meta_data {
+    for block_meta_data in &build_context.blocks {
         let block_id = &block_meta_data.block_id;
         // Indexing the block's rows
         block_meta_data.rows.iter().for_each(|row| {
@@ -208,6 +208,7 @@ pub async fn make_grid_view_data(
         let _ = grid_manager.create_grid_block(&block_id, repeated_revision).await?;
     }
 
+    // Will replace the grid_id with the value returned by the gen_grid_id()
     let grid_id = view_id.to_owned();
     let grid_rev = GridRevision::from_build_context(&grid_id, build_context);
 
@@ -219,7 +220,7 @@ pub async fn make_grid_view_data(
     let _ = grid_manager.create_grid(&grid_id, repeated_revision).await?;
 
     // Create grid view
-    let grid_view = GridViewRevision::new(view_id.to_owned(), view_id.to_owned());
+    let grid_view = GridViewRevision::new(grid_id, view_id.to_owned());
     let grid_view_delta = make_grid_view_delta(&grid_view);
     let grid_view_delta_bytes = grid_view_delta.json_bytes();
     let repeated_revision: RepeatedRevision =
