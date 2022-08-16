@@ -40,9 +40,9 @@ abstract class FlowySelectionService {
   /// The result are ordered from back to front if the selection is forward.
   /// The result are ordered from front to back if the selection is backward.
   ///
-  /// For example, Here is an array of selected nodes, [n1, n2, n3].
-  /// The result will be [n3, n2, n1] if the selection is forward,
-  ///   and [n1, n2, n3] if the selection is backward.
+  /// For example, Here is an array of selected nodes, `[n1, n2, n3]`.
+  /// The result will be `[n3, n2, n1]` if the selection is forward,
+  ///   and `[n1, n2, n3]` if the selection is backward.
   ///
   /// Returns empty result if there is no nodes are selected.
   List<Node> get currentSelectedNodes;

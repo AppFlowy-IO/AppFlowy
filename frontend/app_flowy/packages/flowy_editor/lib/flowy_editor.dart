@@ -1,3 +1,4 @@
+/// FlowyEditor library
 library flowy_editor;
 
 export 'src/document/node.dart';

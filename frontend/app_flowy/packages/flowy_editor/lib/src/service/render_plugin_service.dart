@@ -17,7 +17,7 @@ abstract class FlowyRenderPluginService {
   /// Register render plugin with specified [name].
   ///
   /// [name] should be [Node].type
-  ///   or [Node].type + '/' + [Node].attributes['subtype'].
+  ///   or `[Node].type + '/' + [Node].attributes['subtype']`.
   ///
   /// e.g. 'text', 'text/checkbox', or 'text/heading'
   ///

@@ -15,7 +15,10 @@ and the Flutter guide for
 
 <p align="center">An easily extensible, test-covered rich text editing component for Flutter</p>
 
-![](documentation/images/example.png)
+
+<div align="center">
+    <img src="https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/documentation/images/example.png?raw=true" width = "600"/>
+</div>
 
 ## Features
 
@@ -77,16 +80,16 @@ flutter run
 
 ## Examples
 * 样式扩展
-    * Checkbox text - 展示如何基于已有的富文本组件扩展新的样式，
-    * Image - 展示如何扩展新的节点，并且渲染
+    * [Checkbox Text](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text/checkbox_text.dart) - 展示如何基于已有的富文本组件扩展新的样式，
+    * [Image](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/example/lib/plugin/image_node_widget.dart) - 展示如何扩展新的节点，并且渲染
+    * 更多请参照 [rich text plugins](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text)
 * 快捷键扩展
-    * BUIS - 展示如何通过快捷键对文字进行加粗/下划线/斜体/加粗
-    * 粘贴HTML - 展示如何通过快捷键处理粘贴的样式
+    * [BUIS](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart) - 展示如何通过快捷键对文字进行加粗/下划线/斜体/加粗
+    * [粘贴HTML](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers/copy_paste_handler.dart) - 展示如何通过快捷键处理粘贴的样式
+    * 更多请参照 [internal key event handlers](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers)
 
 ## Glossary
-
-
-
+我们正在编写更详细的说明，目前使用请查照API文档
 
 ## Contributing
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are greatly appreciated. Please look at [CONTRIBUTING.md](documentation/contributing.md) for details.

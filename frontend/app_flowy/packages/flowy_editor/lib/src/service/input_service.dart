@@ -7,13 +7,38 @@ import 'package:flowy_editor/src/editor_state.dart';
 import 'package:flowy_editor/src/extensions/node_extensions.dart';
 import 'package:flowy_editor/src/operation/transaction_builder.dart';
 
+/// [FlowyInputService] is responsible for processing text input,
+///   including text insertion, deletion and replacement.
+///
+/// Usually, this service can be obtained by the following code.
+/// ```dart
+/// final inputService = editorState.service.inputService;
+///
+/// /** update text editing value*/
+/// inputService?.attach(...);
+///
+/// /** apply text editing deltas*/
+/// inputService?.apply(...);
+/// ```
+///
 abstract class FlowyInputService {
+  /// Updates the [TextEditingValue] of the text currently being edited.
+  ///
+  /// Note that if there are IME-related requirements,
+  ///   please config `composing` value within [TextEditingValue]
   void attach(TextEditingValue textEditingValue);
+
+  /// Applies insertion, deletion and replacement
+  ///   to the text currently being edited.
+  ///
+  /// For more information, please check [TextEditingDelta].
   void apply(List<TextEditingDelta> deltas);
+
+  /// Closes the editing state of the text currently being edited.
   void close();
 }
 
-/// process input
+/// Processes text input
 class FlowyInput extends StatefulWidget {
   const FlowyInput({
     Key? key,
