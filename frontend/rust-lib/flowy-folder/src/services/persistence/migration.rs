@@ -5,15 +5,12 @@ use crate::{
 };
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
-
 use flowy_folder_data_model::revision::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevision};
 use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
-
 use flowy_sync::client_folder::make_folder_rev_json_str;
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::{client_folder::FolderPad, entities::revision::md5};
-
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";
@@ -35,7 +32,7 @@ impl FolderMigration {
     }
 
     pub fn run_v1_migration(&self) -> FlowyResult<Option<FolderPad>> {
-        let key = md5(format!("{}{}", self.user_id, V1_MIGRATION));
+        let key = migration_flag_key(&self.user_id, V1_MIGRATION);
         if KV::get_bool(&key) {
             return Ok(None);
         }
@@ -86,28 +83,29 @@ impl FolderMigration {
     }
 
     pub async fn run_v2_migration(&self, folder_id: &FolderId) -> FlowyResult<()> {
-        let key = md5(format!("{}{}", self.user_id, V2_MIGRATION));
+        let key = migration_flag_key(&self.user_id, V2_MIGRATION);
         if KV::get_bool(&key) {
             return Ok(());
         }
-        let _ = self.migration_folder_rev_struct_if_need(folder_id).await?;
+        let _ = self.migration_folder_rev_struct(folder_id).await?;
         KV::set_bool(&key, true);
         tracing::trace!("Run folder v2 migration");
         Ok(())
     }
+
     #[allow(dead_code)]
     pub async fn run_v3_migration(&self, folder_id: &FolderId) -> FlowyResult<()> {
-        let key = md5(format!("{}{}", self.user_id, V3_MIGRATION));
+        let key = migration_flag_key(&self.user_id, V3_MIGRATION);
         if KV::get_bool(&key) {
             return Ok(());
         }
-        let _ = self.migration_folder_rev_struct_if_need(folder_id).await?;
+        let _ = self.migration_folder_rev_struct(folder_id).await?;
         KV::set_bool(&key, true);
         tracing::trace!("Run folder v3 migration");
         Ok(())
     }
 
-    pub async fn migration_folder_rev_struct_if_need(&self, folder_id: &FolderId) -> FlowyResult<()> {
+    pub async fn migration_folder_rev_struct(&self, folder_id: &FolderId) -> FlowyResult<()> {
         let object = FolderRevisionResettable {
             folder_id: folder_id.as_ref().to_owned(),
         };
@@ -117,6 +115,10 @@ impl FolderMigration {
         let reset = RevisionStructReset::new(&self.user_id, object, Arc::new(disk_cache));
         reset.run().await
     }
+}
+
+fn migration_flag_key(user_id: &str, version: &str) -> String {
+    md5(format!("{}{}", user_id, version,))
 }
 
 pub struct FolderRevisionResettable {
