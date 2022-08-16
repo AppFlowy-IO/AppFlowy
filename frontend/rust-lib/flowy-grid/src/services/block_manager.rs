@@ -122,6 +122,7 @@ impl GridBlockManager {
         Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
         let row_id = row_id.to_owned();
         let block_id = self.persistence.get_block_id(&row_id)?;

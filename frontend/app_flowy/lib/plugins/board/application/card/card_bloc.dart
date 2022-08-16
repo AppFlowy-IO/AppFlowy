@@ -58,6 +58,17 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     return super.close();
   }
 
+  RowInfo rowInfo() {
+    return RowInfo(
+      gridId: _rowService.gridId,
+      blockId: _rowService.blockId,
+      fields: UnmodifiableListView(
+        state.cells.map((cell) => cell._field).toList(),
+      ),
+      rowPB: state.rowPB,
+    );
+  }
+
   Future<void> _startListening() async {
     _dataController.addListener(
       onRowChanged: (cells, reason) {

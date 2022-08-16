@@ -53,7 +53,10 @@ class GridRowActionSheet extends StatelessWidget {
     );
   }
 
-  void show(BuildContext overlayContext) {
+  void show(
+    BuildContext overlayContext, {
+    AnchorDirection direction = AnchorDirection.leftWithCenterAligned,
+  }) {
     FlowyOverlay.of(overlayContext).insertWithAnchor(
       widget: OverlayContainer(
         child: this,
@@ -61,7 +64,7 @@ class GridRowActionSheet extends StatelessWidget {
       ),
       identifier: GridRowActionSheet.identifier(),
       anchorContext: overlayContext,
-      anchorDirection: AnchorDirection.leftWithCenterAligned,
+      anchorDirection: direction,
     );
   }
 
