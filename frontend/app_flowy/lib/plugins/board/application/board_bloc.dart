@@ -253,5 +253,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
   }
 
   @override
-  void updateRow(String groupId, RowPB row) {}
+  void updateRow(String groupId, RowPB row) {
+    //
+  }
 }

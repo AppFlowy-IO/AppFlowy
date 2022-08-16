@@ -15,7 +15,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
-
 import '../../../layout/sizes.dart';
 import '../../header/type_option/date.dart';
 
@@ -39,6 +38,7 @@ class DateCellEditor with FlowyOverlayDelegate {
 
     final result =
         await cellController.getFieldTypeOption(DateTypeOptionDataParser());
+
     result.fold(
       (dateTypeOptionPB) {
         final calendar = _CellCalendarWidget(

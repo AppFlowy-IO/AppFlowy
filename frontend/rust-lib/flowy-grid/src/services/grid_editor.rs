@@ -287,7 +287,7 @@ impl GridRevisionEditor {
     pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<RowPB> {
         let mut row_rev = self.create_row_rev().await?;
 
-        self.view_manager.update_row(&mut row_rev, &params).await;
+        self.view_manager.fill_row(&mut row_rev, &params).await;
 
         let row_pb = self.create_row_pb(row_rev, params.start_row_id.clone()).await?;
 
@@ -314,7 +314,10 @@ impl GridRevisionEditor {
     }
 
     pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
-        self.block_manager.update_row(changeset, make_row_from_row_rev).await
+        let row_id = changeset.row_id.clone();
+        let _ = self.block_manager.update_row(changeset, make_row_from_row_rev).await?;
+        self.view_manager.did_update_row(&row_id).await;
+        Ok(())
     }
 
     pub async fn get_rows(&self, block_id: &str) -> FlowyResult<RepeatedRowPB> {

@@ -49,8 +49,10 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
           controller: _controller,
           focusNode: focusNode,
           onEditingComplete: () => focusNode.unfocus(),
-          maxLines: null,
+          onSubmitted: (_) => focusNode.unfocus(),
+          maxLines: 1,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textInputAction: TextInputAction.done,
           decoration: const InputDecoration(
             contentPadding: EdgeInsets.zero,
             border: InputBorder.none,
@@ -63,8 +65,6 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
 
   @override
   Future<void> dispose() async {
-    _delayOperation?.cancel();
-    _cellBloc.close();
     super.dispose();
   }
 
@@ -76,6 +76,11 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
         if (_cellBloc.isClosed == false &&
             _controller.text != contentFromState(_cellBloc.state)) {
           _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
+
+          if (!mounted) {
+            _delayOperation = null;
+            _cellBloc.close();
+          }
         }
       });
     }

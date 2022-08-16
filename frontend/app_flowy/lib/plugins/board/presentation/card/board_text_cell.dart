@@ -37,9 +37,14 @@ class _BoardTextCellState extends State<BoardTextCell> {
           } else {
             return Align(
               alignment: Alignment.centerLeft,
-              child: FlowyText.regular(
-                state.content,
-                fontSize: 14,
+              child: ConstrainedBox(
+                constraints: BoxConstraints.loose(
+                  const Size(double.infinity, 100),
+                ),
+                child: FlowyText.regular(
+                  state.content,
+                  fontSize: 14,
+                ),
               ),
             );
           }
