@@ -138,14 +138,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   List<AFColumnItem> _buildRows(List<RowPB> rows) {
     final items = rows.map((row) {
-      // final rowInfo = RowInfo(
-      //   gridId: _dataController.gridId,
-      //   blockId: row.blockId,
-      //   id: row.id,
-      //   fields: _dataController.fieldCache.unmodifiableFields,
-      //   height: row.height.toDouble(),
-      //   rawRow: row,
-      // );
       return BoardColumnItem(row: row);
     }).toList();
 

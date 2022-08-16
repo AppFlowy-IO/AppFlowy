@@ -51,8 +51,11 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
     return item;
   }
 
-  int removeWhere(bool Function(AFColumnItem) condition) {
-    return items.indexWhere(condition);
+  void removeWhere(bool Function(AFColumnItem) condition) {
+    final index = items.indexWhere(condition);
+    if (index != -1) {
+      removeAt(index);
+    }
   }
 
   /// Move the item from [fromIndex] to [toIndex]. It will do nothing if the
