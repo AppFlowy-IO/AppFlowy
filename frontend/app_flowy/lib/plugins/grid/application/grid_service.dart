@@ -23,9 +23,9 @@ class GridFFIService {
   }
 
   Future<Either<RowPB, FlowyError>> createRow({Option<String>? startRowId}) {
-    CreateRowPayloadPB payload = CreateRowPayloadPB.create()..gridId = gridId;
+    var payload = CreateTableRowPayloadPB.create()..gridId = gridId;
     startRowId?.fold(() => null, (id) => payload.startRowId = id);
-    return GridEventCreateRow(payload).send();
+    return GridEventCreateTableRow(payload).send();
   }
 
   Future<Either<RowPB, FlowyError>> createBoardCard(String groupId) {

@@ -5,7 +5,7 @@ import '../../rendering/board_overlay.dart';
 import '../../utils/log.dart';
 import '../reorder_phantom/phantom_controller.dart';
 import '../reorder_flex/reorder_flex.dart';
-import '../reorder_flex/drag_target_inteceptor.dart';
+import '../reorder_flex/drag_target_interceptor.dart';
 import 'board_column_data.dart';
 
 typedef OnColumnDragStarted = void Function(int index);
@@ -37,7 +37,7 @@ typedef AFBoardColumnFooterBuilder = Widget Function(
   AFBoardColumnData columnData,
 );
 
-abstract class AFBoardColumnDataDataSource extends ReoderFlextDataSource {
+abstract class AFBoardColumnDataDataSource extends ReoderFlexDataSource {
   AFBoardColumnData get columnData;
 
   List<String> get acceptedColumnIds;

@@ -55,7 +55,7 @@ class BoardContent extends StatelessWidget {
             child: AFBoard(
               // key: UniqueKey(),
               scrollController: ScrollController(),
-              dataController: context.read<BoardBloc>().boardDataController,
+              dataController: context.read<BoardBloc>().afBoardDataController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
               cardBuilder: (_, data) => _buildCard(context, data),

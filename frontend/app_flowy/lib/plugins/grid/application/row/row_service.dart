@@ -15,11 +15,11 @@ class RowFFIService {
       {required this.gridId, required this.blockId, required this.rowId});
 
   Future<Either<RowPB, FlowyError>> createRow() {
-    CreateRowPayloadPB payload = CreateRowPayloadPB.create()
+    final payload = CreateTableRowPayloadPB.create()
       ..gridId = gridId
       ..startRowId = rowId;
 
-    return GridEventCreateRow(payload).send();
+    return GridEventCreateTableRow(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> moveRow({

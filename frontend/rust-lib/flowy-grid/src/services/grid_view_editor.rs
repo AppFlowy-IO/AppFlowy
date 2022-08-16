@@ -1,7 +1,8 @@
 use flowy_error::{FlowyError, FlowyResult};
 
 use crate::entities::{
-    CreateRowParams, GridFilterConfiguration, GridLayout, GridSettingPB, GroupPB, GroupRowsChangesetPB, RowPB,
+    CreateRowParams, GridFilterConfiguration, GridLayout, GridSettingPB, GroupPB, GroupRowsChangesetPB, InsertedRowPB,
+    RowPB,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::group::{default_group_configuration, Group, GroupConfigurationDelegate, GroupService};
@@ -91,8 +92,6 @@ impl GridViewRevisionEditor {
                 }
             },
         }
-
-        todo!()
     }
 
     pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
@@ -100,7 +99,11 @@ impl GridViewRevisionEditor {
         match params.group_id.as_ref() {
             None => {}
             Some(group_id) => {
-                let changeset = GroupRowsChangesetPB::insert(group_id.clone(), vec![row_pb.clone()]);
+                let inserted_row = InsertedRowPB {
+                    row: row_pb.clone(),
+                    index: None,
+                };
+                let changeset = GroupRowsChangesetPB::insert(group_id.clone(), vec![inserted_row]);
                 self.notify_did_update_group(changeset).await;
             }
         }
@@ -120,7 +123,7 @@ impl GridViewRevisionEditor {
     async fn group_id_of_row(&self, row_id: &str) -> Option<String> {
         let read_guard = self.groups.read().await;
         for group in read_guard.iter() {
-            if group.rows.iter().find(|row| row.id == row_id).is_some() {
+            if group.rows.iter().any(|row| row.id == row_id) {
                 return Some(group.id.clone());
             }
         }
@@ -167,7 +170,7 @@ impl GridViewRevisionEditor {
     }
 
     async fn notify_did_update_group(&self, changeset: GroupRowsChangesetPB) {
-        send_dart_notification(&changeset.group_id, GridNotification::DidUpdateBoard)
+        send_dart_notification(&changeset.group_id, GridNotification::DidUpdateGroup)
             .payload(changeset)
             .send();
     }
