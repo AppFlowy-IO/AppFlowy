@@ -11,13 +11,11 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-一个可扩展，测试覆盖的 flutter 富文本编辑组件
+一个易于扩展，测试覆盖的 flutter 富文本编辑组件
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-* 可扩展的
+* 易于扩展的
     * 支持扩展不同样式的视图
     * 支持定制快捷键解析
     * 支持扩展toolbar/popup list样式(WIP)
@@ -35,13 +33,7 @@ flutter pub add flowy_editor
 flutter pub get
 ```
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
 ## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
 
 Empty document
 ```dart
@@ -72,18 +64,23 @@ flutter run
 ```
 
 ## Examples
+* 样式扩展
+    * Checkbox text - 展示如何基于已有的富文本组件扩展新的样式，
+    * Image - 展示如何扩展新的节点，并且渲染
+* 快捷键扩展
+    * BUIS - 展示如何通过快捷键对文字进行加粗/下划线/斜体/加粗
+    * 粘贴HTML - 展示如何通过快捷键处理粘贴的样式
 
 ## Documentation
 * 术语表
 
+
+
 ## Additional information
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
 
 目前正在完善更多的文档信息
 * Selection
 * 
 
-我们还有很多工作需要继续完成，
+我们还有很多工作需要继续完成，链接到contributing.md
 Project checker link.
