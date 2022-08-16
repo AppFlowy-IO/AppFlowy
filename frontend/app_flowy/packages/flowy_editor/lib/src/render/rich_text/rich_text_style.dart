@@ -2,6 +2,7 @@ import 'package:flowy_editor/src/document/attributes.dart';
 import 'package:flowy_editor/src/document/node.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 ///
 /// Supported partial rendering types:
@@ -235,7 +236,6 @@ class RichTextStyle {
     var decorations = [TextDecoration.none];
     if (attributes.underline || attributes.href != null) {
       decorations.add(TextDecoration.underline);
-      // TextDecoration.underline;
     }
     if (attributes.strikethrough) {
       decorations.add(TextDecoration.lineThrough);
@@ -275,7 +275,7 @@ class RichTextStyle {
     if (href != null) {
       return TapGestureRecognizer()
         ..onTap = () async {
-          // FIXME: launch the url
+          await launchUrlString(href);
         };
     }
     return null;

@@ -6,7 +6,7 @@
       {
         "type": "image",
         "attributes": {
-          "image_src": "https://s1.ax1x.com/2022/07/28/vCgz1x.png"
+          "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png?format=500w"
         }
       },
       {
@@ -25,7 +25,7 @@
         "type": "text",
         "delta": [
           {
-            "insert": "👋 Welcome to Appflowy"
+            "insert": "👋 Welcome to FlowyEditor"
           }
         ],
         "attributes": {
@@ -37,11 +37,16 @@
         "type": "text",
         "delta": [
           {
-            "insert": "At "
+            "insert": "We are still developing more features. Please give us a star if the "
           },
-          { "insert": "AppFlowy", "attributes": { "code": true, "bold": true, "color": "0xFFED459C"} },
           {
-            "insert": ", we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
+            "insert": "FlowyEditor",
+            "attributes": {
+              "href": "https://github.com/AppFlowy-IO/AppFlowy"
+            }
+          },
+          {
+            "insert": " helps you."
           }
         ]
       },
@@ -76,7 +81,7 @@
             "attributes": { "backgroundColor": "0xFFFFFF00" }
           },
           {
-            "insert": "to see all the types of content you can add - entity, headers, videos, sub pages, etc."
+            "insert": "to see all the types of content you can add - headers, bulleted lists, checkboxes, etc."
           }
         ]
       },
@@ -84,7 +89,11 @@
         "type": "text",
         "delta": [
           {
-            "insert": "Highlight any text, and use the menu that pops up to "
+            "insert": "Highlight",
+            "attributes": { "backgroundColor": "0xFF00BCFB" }
+          },
+          {
+            "insert": " any text, and use the menu that pops up to "
           },
           { "insert": "style", "attributes": { "bold": true } },
           { "insert": " your ", "attributes": { "italic": true } },
@@ -245,62 +254,6 @@
           "subtype": "number-list",
           "number": 3
         }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "At AppFlowy, we embody what we value deep in our hearts, taking inspiration from other great companies while forging our own path. AppFlowy’s five core values are Mission Driven, Aim High & Iterate, Transparency, Collaboration, and Honesty. Together, they spell MATCH. We will continue to iterate and refine these values as we grow."
-          }
-        ]
       }
     ]
   }
