@@ -17,19 +17,19 @@ class RowActionSheetBloc
   RowActionSheetBloc({required RowInfo rowInfo})
       : _rowService = RowFFIService(
           gridId: rowInfo.gridId,
-          blockId: rowInfo.blockId,
-          rowId: rowInfo.rowPB.id,
+          blockId: rowInfo.rowPB.blockId,
         ),
         super(RowActionSheetState.initial(rowInfo)) {
     on<RowActionSheetEvent>(
       (event, emit) async {
         await event.map(
           deleteRow: (_DeleteRow value) async {
-            final result = await _rowService.deleteRow();
+            final result = await _rowService.deleteRow(state.rowData.rowPB.id);
             logResult(result);
           },
           duplicateRow: (_DuplicateRow value) async {
-            final result = await _rowService.duplicateRow();
+            final result =
+                await _rowService.duplicateRow(state.rowData.rowPB.id);
             logResult(result);
           },
         );

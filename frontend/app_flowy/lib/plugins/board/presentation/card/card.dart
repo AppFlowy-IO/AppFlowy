@@ -18,6 +18,7 @@ class BoardCard extends StatefulWidget {
   final CardDataController dataController;
   final BoardCellBuilder cellBuilder;
   final OnEndEditing onEditEditing;
+  final void Function(BuildContext) openCard;
 
   const BoardCard({
     required this.gridId,
@@ -25,6 +26,7 @@ class BoardCard extends StatefulWidget {
     required this.dataController,
     required this.cellBuilder,
     required this.onEditEditing,
+    required this.openCard,
     Key? key,
   }) : super(key: key);
 
@@ -53,6 +55,9 @@ class _BoardCardState extends State<BoardCard> {
           return BoardCardContainer(
             accessoryBuilder: (context) {
               return [const _CardMoreOption()];
+            },
+            onTap: (context) {
+              widget.openCard(context);
             },
             child: Column(
               children: _makeCells(context, state.gridCellMap),

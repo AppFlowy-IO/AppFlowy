@@ -255,7 +255,6 @@ class GridRowCache {
   RowInfo buildGridRow(RowPB rowPB) {
     return RowInfo(
       gridId: gridId,
-      blockId: block.id,
       fields: _fieldNotifier.fields,
       rowPB: rowPB,
     );
@@ -283,7 +282,6 @@ class _RowChangesetNotifier extends ChangeNotifier {
 class RowInfo with _$RowInfo {
   const factory RowInfo({
     required String gridId,
-    required String blockId,
     required UnmodifiableListView<FieldPB> fields,
     required RowPB rowPB,
   }) = _RowInfo;
