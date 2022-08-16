@@ -76,7 +76,7 @@ impl GridViewRevisionEditor {
         })
     }
 
-    pub(crate) async fn update_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
+    pub(crate) async fn fill_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         match params.layout {
             GridLayout::Table => {
                 // Table can be grouped too

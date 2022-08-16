@@ -35,22 +35,24 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
       value: _cellBloc,
       child: BlocBuilder<BoardURLCellBloc, BoardURLCellState>(
         builder: (context, state) {
-          final richText = RichText(
-            textAlign: TextAlign.left,
-            text: TextSpan(
-              text: state.content,
-              style: TextStyle(
-                color: theme.main2,
-                fontSize: 14,
-                decoration: TextDecoration.underline,
+          if (state.content.isEmpty) {
+            return const SizedBox();
+          } else {
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: RichText(
+                textAlign: TextAlign.left,
+                text: TextSpan(
+                  text: state.content,
+                  style: TextStyle(
+                    color: theme.main2,
+                    fontSize: 14,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
-            ),
-          );
-
-          return Align(
-            alignment: Alignment.centerLeft,
-            child: richText,
-          );
+            );
+          }
         },
       ),
     );

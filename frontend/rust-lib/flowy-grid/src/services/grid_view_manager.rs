@@ -47,10 +47,14 @@ impl GridViewManager {
         })
     }
 
-    pub(crate) async fn update_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
+    pub(crate) async fn fill_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         for view_editor in self.view_editors.iter() {
-            view_editor.update_row(row_rev, params).await;
+            view_editor.fill_row(row_rev, params).await;
         }
+    }
+
+    pub(crate) async fn did_update_row(&self, row_id: &str) {
+        let row = self.block_manager.get_row_rev(row_id).await;
     }
 
     pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {

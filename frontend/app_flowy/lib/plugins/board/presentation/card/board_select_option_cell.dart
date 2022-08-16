@@ -42,7 +42,13 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
               .toList();
           return Align(
             alignment: Alignment.centerLeft,
-            child: Wrap(children: children, spacing: 4, runSpacing: 2),
+            child: AbsorbPointer(
+              child: Wrap(
+                children: children,
+                spacing: 4,
+                runSpacing: 2,
+              ),
+            ),
           );
         },
       ),
