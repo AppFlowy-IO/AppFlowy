@@ -1,14 +1,17 @@
 # Contributing
 
 ## Reporting Bugs
-补充截图，在 Appflowy 仓库增加一个 editor bug 的截图
+Please click this [link](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=bug,editor&template=bug_report.md&title=%5BFlowyEditor%20Bug%5D+Untitled+Bug+Issue) to report bugs.
 
-## 技术讨论与支持
-补充discord截图，editor那个群
+![](../documentation/images/reporting_bugs.png)
 
-## 提交PR
-我们很欢迎和appreciate大家提交的PR。我们也有很多first-contributor-welcome or help-wanted 的 issue 欢迎大家一起来实现。
+## Technical Discussion And Support
+Discord link ...
 
-BTW: 正如ReadMe所说，我们想保证大家提交的代码不会影响到现有的代码逻辑和功能，所以每次提交PR请附上对应的test，建议在test加上对测试用例，范围的简单描述。更多细节请看test.md
+## Submitting Pull Request
 
-最后，重复一句，由于我们是社区驱动的开源编辑器，所以我们会认真对待每一个PR以及每一次的PR，非常感觉大家的贡献。
+We welcome and appreciate your pull request submissions, and we have many good-first-issue-for-devs or help-wanted issues that we welcome you to implement.
+
+As [README](../README.md) said, we want to make sure that the code you submit will not affect the existing code logic and functionality, so please attach the corresponding test for each PR submission, and it is recommended to add a brief description of the test case and scope to the test. For more details, please see [TESTING.md](./testing.md)
+
+Finally, to repeat, since the FlowyEditor is a community-driven open source editor, we take every PR seriously and feel very much for everyone's contribution.

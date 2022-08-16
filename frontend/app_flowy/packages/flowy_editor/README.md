@@ -11,20 +11,20 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-<center><big><b>FlowyEditor</b></big></center>
+<h1 align="center"><b>FlowyEditor</b></h1>
 
 <p align="center">An easily extensible, test-covered rich text editing component for Flutter</p>
 
 
 <div align="center">
-    <img src="https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/documentation/images/example.png?raw=true" width = "600"/>
+    <img src="https://raw.githubusercontent.com/LucasXu0/AppFlowy/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/documentation/images/example.png" width = "900"/>
 </div>
 
 ## Features
 
 * Extensible
-    * Support for extending different styles of views.
-    * 支持扩展不同样式的视图
+    * Support extending custom components.
+    * 支持扩展自定义的组件
     * Support extending custom shortcut key parsing
     * 支持扩展自定义快捷键解析
     * Support extending toolbar/popup list(WIP)
@@ -34,11 +34,9 @@ and the Flutter guide for
     * All changes to the document are based on **operation**. Theoretically, collaborative editing will be supported in the future.
     * 所有对文档的修改都是基于operation。理论上未来会支持协同编辑。
 * Good stability guarantees
-    * Current code coverage >= 60%, we will still continue to add more test cases.
+    * Current code coverage >= 63%, we will still continue to add more test cases.
 
-> 由于可扩展的结构，以及随着功能的增多，我们鼓励每个提交的文件或者代码段，都可以在test下增加对应的测试用例代码，尽可能得保证提交者不需要担心自己的代码影响了已有的逻辑。
-
-> Due to the extensible structure and the increase in functionality, we encourage each commit to add test case code under test to ensure that the committer does not have to worry about their code affecting the existing logic as much as possible.
+> Due to the extensible structure and the increase in functionality, we encourage each commit to add test case code under test to ensure that the other committer does not have to worry about their code affecting the existing logic as much as possible. For more testing information, please check [TESTING.md](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/documentation/testing.md)
 
 
 ## Getting started
@@ -79,17 +77,17 @@ flutter run
 ```
 
 ## Examples
-* 样式扩展
-    * [Checkbox Text](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text/checkbox_text.dart) - 展示如何基于已有的富文本组件扩展新的样式，
-    * [Image](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/example/lib/plugin/image_node_widget.dart) - 展示如何扩展新的节点，并且渲染
-    * 更多请参照 [rich text plugins](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text)
-* 快捷键扩展
-    * [BUIS](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart) - 展示如何通过快捷键对文字进行加粗/下划线/斜体/加粗
-    * [粘贴HTML](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers/copy_paste_handler.dart) - 展示如何通过快捷键处理粘贴的样式
-    * 更多请参照 [internal key event handlers](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers)
+* Extends custom components.
+    * [Checkbox Text](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text/checkbox_text.dart) - Showing how to extend new styles based on existing rich text components.
+    * [Image](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/example/lib/plugin/image_node_widget.dart) - Showing how to extend a new node and render it.
+    * More examples. [rich text plugins](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text)
+* Extends custom shortcut keys.
+    * [BUIS](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart) - Showing how to make text bold/underline/italic/strikethrough through shortcut keys
+    * [Paste HTML](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers/copy_paste_handler.dart) - Showing how to handle pasted styles through shortcut keys
+    * More examples. [internal key event handlers](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers)
 
 ## Glossary
-我们正在编写更详细的说明，目前使用请查照API文档
+We are working on more detailed instructions, for now please refer to the API documentation.
 
 ## Contributing
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are greatly appreciated. Please look at [CONTRIBUTING.md](documentation/contributing.md) for details.

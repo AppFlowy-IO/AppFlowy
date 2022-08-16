@@ -31,7 +31,7 @@ abstract class FlowyKeyboardService {
   ///   keyboard events separately,
   ///   you can disable the keyboard service of flowy_editor.
   /// But you need to call the `enable` function to restore after exiting
-  ///   your custom component, otherwise the keyboard service will fail.
+  ///   your custom component, otherwise the keyboard service will fails.
   void disable();
 }
 

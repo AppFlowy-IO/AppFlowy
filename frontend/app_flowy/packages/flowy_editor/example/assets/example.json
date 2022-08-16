@@ -6,7 +6,7 @@
       {
         "type": "image",
         "attributes": {
-          "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png?format=500w"
+          "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png"
         }
       },
       {
@@ -37,15 +37,7 @@
         "type": "text",
         "delta": [
           {
-            "insert": "Since we are a community-driven open source editor, we very welcome and appreciate every pull request submissions from everyone.😄😄😄"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "To be honest, we are still in the alpha stage, there are still many functions that need to be completed. And we are still developing more features. Please give us a star if the "
+            "insert": "To be honest, we are still in the alpha stage. There are still many functions that need to be completed. And we are developing more features. Please give us a star if the "
           },
           {
             "insert": "FlowyEditor",
@@ -55,6 +47,14 @@
           },
           {
             "insert": " helps you. 😊😊😊"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Since the FlowyEditor are a community-driven open source editor, we very welcome and appreciate every pull request submissions from everyone.😄😄😄"
           }
         ]
       },
