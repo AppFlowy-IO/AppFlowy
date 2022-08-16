@@ -4,36 +4,47 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/setting_entities.pb.dart';
 
 class RowFFIService {
   final String gridId;
   final String blockId;
-  final String rowId;
 
-  RowFFIService(
-      {required this.gridId, required this.blockId, required this.rowId});
+  RowFFIService({
+    required this.gridId,
+    required this.blockId,
+  });
 
-  Future<Either<RowPB, FlowyError>> createRow() {
-    CreateRowPayloadPB payload = CreateRowPayloadPB.create()
+  Future<Either<RowPB, FlowyError>> createRow(String rowId) {
+    final payload = CreateTableRowPayloadPB.create()
       ..gridId = gridId
       ..startRowId = rowId;
 
-    return GridEventCreateRow(payload).send();
+    return GridEventCreateTableRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> moveRow(
-      String rowId, int fromIndex, int toIndex) {
-    final payload = MoveItemPayloadPB.create()
-      ..gridId = gridId
-      ..itemId = rowId
-      ..ty = MoveItemTypePB.MoveRow
+  Future<Either<Unit, FlowyError>> moveRow({
+    required String rowId,
+    required int fromIndex,
+    required int toIndex,
+    required GridLayout layout,
+    String? upperRowId,
+  }) {
+    var payload = MoveRowPayloadPB.create()
+      ..viewId = gridId
+      ..rowId = rowId
+      ..layout = layout
       ..fromIndex = fromIndex
       ..toIndex = toIndex;
 
-    return GridEventMoveItem(payload).send();
+    if (upperRowId != null) {
+      payload.upperRowId = upperRowId;
+    }
+
+    return GridEventMoveRow(payload).send();
   }
 
-  Future<Either<OptionalRowPB, FlowyError>> getRow() {
+  Future<Either<OptionalRowPB, FlowyError>> getRow(String rowId) {
     final payload = RowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
@@ -42,7 +53,7 @@ class RowFFIService {
     return GridEventGetRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteRow() {
+  Future<Either<Unit, FlowyError>> deleteRow(String rowId) {
     final payload = RowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
@@ -51,7 +62,7 @@ class RowFFIService {
     return GridEventDeleteRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicateRow() {
+  Future<Either<Unit, FlowyError>> duplicateRow(String rowId) {
     final payload = RowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId

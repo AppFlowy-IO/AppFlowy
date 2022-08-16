@@ -1,11 +1,20 @@
 // ignore_for_file: unused_field
 
+import 'dart:collection';
+
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_detail.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../grid/application/row/row_cache.dart';
 import '../application/board_bloc.dart';
 import 'card/card.dart';
 import 'card/card_cell_builder.dart';
@@ -55,7 +64,7 @@ class BoardContent extends StatelessWidget {
             child: AFBoard(
               // key: UniqueKey(),
               scrollController: ScrollController(),
-              dataController: context.read<BoardBloc>().boardDataController,
+              dataController: context.read<BoardBloc>().afBoardDataController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
               cardBuilder: (_, data) => _buildCard(context, data),
@@ -123,8 +132,35 @@ class BoardContent extends StatelessWidget {
         onEditEditing: (rowId) {
           context.read<BoardBloc>().add(BoardEvent.endEditRow(rowId));
         },
+        openCard: (context) => _openCard(
+          gridId,
+          fieldCache,
+          rowPB,
+          rowCache,
+          context,
+        ),
       ),
     );
+  }
+
+  void _openCard(String gridId, GridFieldCache fieldCache, RowPB rowPB,
+      GridRowCache rowCache, BuildContext context) {
+    final rowInfo = RowInfo(
+      gridId: gridId,
+      fields: UnmodifiableListView(fieldCache.fields),
+      rowPB: rowPB,
+    );
+
+    final dataController = GridRowDataController(
+      rowInfo: rowInfo,
+      fieldCache: fieldCache,
+      rowCache: rowCache,
+    );
+
+    RowDetailPage(
+      cellBuilder: GridCellBuilder(delegate: dataController),
+      dataController: dataController,
+    ).show(context);
   }
 }
 

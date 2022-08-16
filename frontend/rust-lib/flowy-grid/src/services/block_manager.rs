@@ -52,7 +52,7 @@ impl GridBlockManager {
         }
     }
 
-    async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<GridBlockRevisionEditor>> {
+    pub(crate) async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<GridBlockRevisionEditor>> {
         let block_id = self.persistence.get_block_id(row_id)?;
         Ok(self.get_block_editor(&block_id).await?)
     }
@@ -122,6 +122,7 @@ impl GridBlockManager {
         Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
         let row_id = row_id.to_owned();
         let block_id = self.persistence.get_block_id(&row_id)?;
@@ -155,7 +156,7 @@ impl GridBlockManager {
 
         Ok(changesets)
     }
-
+    // This function will be moved to GridViewRevisionEditor
     pub(crate) async fn move_row(&self, row_rev: Arc<RowRevision>, from: usize, to: usize) -> FlowyResult<()> {
         let editor = self.get_editor_from_row_id(&row_rev.id).await?;
         let _ = editor.move_row(&row_rev.id, from, to).await?;
@@ -178,6 +179,14 @@ impl GridBlockManager {
             .await?;
 
         Ok(())
+    }
+
+    // This function will be moved to GridViewRevisionEditor.
+    pub async fn index_of_row(&self, row_id: &str) -> Option<usize> {
+        match self.get_editor_from_row_id(row_id).await {
+            Ok(editor) => editor.index_of_row(row_id).await,
+            Err(_) => None,
+        }
     }
 
     pub async fn update_cell<F>(&self, changeset: CellChangesetPB, row_builder: F) -> FlowyResult<()>

@@ -20,8 +20,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
     required GridRowDataController dataController,
   })  : _rowService = RowFFIService(
           gridId: rowInfo.gridId,
-          blockId: rowInfo.blockId,
-          rowId: rowInfo.rowPB.id,
+          blockId: rowInfo.rowPB.blockId,
         ),
         _dataController = dataController,
         super(RowState.initial(rowInfo, dataController.loadData())) {
@@ -32,7 +31,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
             await _startListening();
           },
           createRow: (_CreateRow value) {
-            _rowService.createRow();
+            _rowService.createRow(rowInfo.rowPB.id);
           },
           didReceiveCells: (_DidReceiveCells value) async {
             final cells = value.gridCellMap.values

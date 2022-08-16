@@ -23,7 +23,6 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
   })  : _rowService = RowFFIService(
           gridId: gridId,
           blockId: dataController.rowPB.blockId,
-          rowId: dataController.rowPB.id,
         ),
         _dataController = dataController,
         super(BoardCardState.initial(
@@ -33,9 +32,6 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
         await event.map(
           initial: (_InitialRow value) async {
             await _startListening();
-          },
-          createRow: (_CreateRow value) {
-            _rowService.createRow();
           },
           didReceiveCells: (_DidReceiveCells value) async {
             final cells = value.gridCellMap.values
@@ -58,6 +54,16 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     return super.close();
   }
 
+  RowInfo rowInfo() {
+    return RowInfo(
+      gridId: _rowService.gridId,
+      fields: UnmodifiableListView(
+        state.cells.map((cell) => cell._field).toList(),
+      ),
+      rowPB: state.rowPB,
+    );
+  }
+
   Future<void> _startListening() async {
     _dataController.addListener(
       onRowChanged: (cells, reason) {
@@ -72,7 +78,6 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
 @freezed
 class BoardCardEvent with _$BoardCardEvent {
   const factory BoardCardEvent.initial() = _InitialRow;
-  const factory BoardCardEvent.createRow() = _CreateRow;
   const factory BoardCardEvent.didReceiveCells(
       GridCellMap gridCellMap, RowsChangedReason reason) = _DidReceiveCells;
 }

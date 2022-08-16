@@ -1,9 +1,10 @@
 import 'package:app_flowy/plugins/board/application/card/card_bloc.dart';
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_action_sheet.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_sdk/log.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_cell_builder.dart';
@@ -17,6 +18,7 @@ class BoardCard extends StatefulWidget {
   final CardDataController dataController;
   final BoardCellBuilder cellBuilder;
   final OnEndEditing onEditEditing;
+  final void Function(BuildContext) openCard;
 
   const BoardCard({
     required this.gridId,
@@ -24,6 +26,7 @@ class BoardCard extends StatefulWidget {
     required this.dataController,
     required this.cellBuilder,
     required this.onEditEditing,
+    required this.openCard,
     Key? key,
   }) : super(key: key);
 
@@ -52,6 +55,9 @@ class _BoardCardState extends State<BoardCard> {
           return BoardCardContainer(
             accessoryBuilder: (context) {
               return [const _CardMoreOption()];
+            },
+            onTap: (context) {
+              widget.openCard(context);
             },
             child: Column(
               children: _makeCells(context, state.gridCellMap),
@@ -85,6 +91,8 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
 
   @override
   void onTap(BuildContext context) {
-    Log.debug('show options');
+    GridRowActionSheet(
+      rowData: context.read<BoardCardBloc>().rowInfo(),
+    ).show(context, direction: AnchorDirection.bottomWithCenterAligned);
   }
 }

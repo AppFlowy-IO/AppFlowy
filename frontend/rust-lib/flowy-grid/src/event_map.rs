@@ -20,14 +20,15 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::DeleteField, delete_field_handler)
         .event(GridEvent::SwitchToField, switch_to_field_handler)
         .event(GridEvent::DuplicateField, duplicate_field_handler)
-        .event(GridEvent::MoveItem, move_item_handler)
+        .event(GridEvent::MoveField, move_field_handler)
         .event(GridEvent::GetFieldTypeOption, get_field_type_option_data_handler)
         .event(GridEvent::CreateFieldTypeOption, create_field_type_option_data_handler)
         // Row
-        .event(GridEvent::CreateRow, create_row_handler)
+        .event(GridEvent::CreateTableRow, create_table_row_handler)
         .event(GridEvent::GetRow, get_row_handler)
         .event(GridEvent::DeleteRow, delete_row_handler)
         .event(GridEvent::DuplicateRow, duplicate_row_handler)
+        .event(GridEvent::MoveRow, move_row_handler)
         // Cell
         .event(GridEvent::GetCell, get_cell_handler)
         .event(GridEvent::UpdateCell, update_cell_handler)
@@ -130,8 +131,8 @@ pub enum GridEvent {
 
     /// [MoveItem] event is used to move an item. For the moment, Item has two types defined in
     /// [MoveItemTypePB].
-    #[event(input = "MoveItemPayloadPB")]
-    MoveItem = 22,
+    #[event(input = "MoveFieldPayloadPB")]
+    MoveField = 22,
 
     /// [FieldTypeOptionIdPB] event is used to get the FieldTypeOption data for a specific field type.
     ///
@@ -166,8 +167,8 @@ pub enum GridEvent {
     #[event(input = "SelectOptionChangesetPayloadPB")]
     UpdateSelectOption = 32,
 
-    #[event(input = "CreateRowPayloadPB", output = "RowPB")]
-    CreateRow = 50,
+    #[event(input = "CreateTableRowPayloadPB", output = "RowPB")]
+    CreateTableRow = 50,
 
     /// [GetRow] event is used to get the row data,[RowPB]. [OptionalRowPB] is a wrapper that enables
     /// to return a nullable row data.
@@ -179,6 +180,9 @@ pub enum GridEvent {
 
     #[event(input = "RowIdPB")]
     DuplicateRow = 53,
+
+    #[event(input = "MoveRowPayloadPB")]
+    MoveRow = 54,
 
     #[event(input = "GridCellIdPB", output = "GridCellPB")]
     GetCell = 70,
