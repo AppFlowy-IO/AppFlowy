@@ -12,7 +12,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 
 typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldPB>);
 typedef OnGridChanged = void Function(GridPB);
-typedef OnGroupChanged = void Function(List<GroupPB>);
+typedef DidLoadGroups = void Function(List<GroupPB>);
 typedef OnRowsChanged = void Function(
   List<RowInfo>,
   RowsChangedReason,
@@ -30,7 +30,7 @@ class BoardDataController {
 
   OnFieldsChanged? _onFieldsChanged;
   OnGridChanged? _onGridChanged;
-  OnGroupChanged? _onGroupChanged;
+  DidLoadGroups? _didLoadGroup;
   OnRowsChanged? _onRowsChanged;
   OnError? _onError;
 
@@ -51,13 +51,13 @@ class BoardDataController {
   void addListener({
     OnGridChanged? onGridChanged,
     OnFieldsChanged? onFieldsChanged,
-    OnGroupChanged? onGroupChanged,
+    DidLoadGroups? didLoadGroups,
     OnRowsChanged? onRowsChanged,
     OnError? onError,
   }) {
     _onGridChanged = onGridChanged;
     _onFieldsChanged = onFieldsChanged;
-    _onGroupChanged = onGroupChanged;
+    _didLoadGroup = didLoadGroups;
     _onRowsChanged = onRowsChanged;
     _onError = onError;
 
@@ -133,7 +133,7 @@ class BoardDataController {
     return Future(
       () => result.fold(
         (groups) {
-          _onGroupChanged?.call(groups.items);
+          _didLoadGroup?.call(groups.items);
         },
         (err) => _onError?.call(err),
       ),

@@ -7,25 +7,25 @@ import '../../utils/log.dart';
 import 'reorder_mixin.dart';
 import 'drag_target.dart';
 import 'drag_state.dart';
-import 'drag_target_inteceptor.dart';
+import 'drag_target_interceptor.dart';
 
 typedef OnDragStarted = void Function(int index);
 typedef OnDragEnded = void Function();
 typedef OnReorder = void Function(int fromIndex, int toIndex);
 typedef OnDeleted = void Function(int deletedIndex);
 typedef OnInserted = void Function(int insertedIndex);
-typedef OnReveivePassedInPhantom = void Function(
+typedef OnReceivePassedInPhantom = void Function(
     FlexDragTargetData dragTargetData, int phantomIndex);
 
-abstract class ReoderFlextDataSource {
+abstract class ReoderFlexDataSource {
   /// [identifier] represents the id the [ReorderFlex]. It must be unique.
   String get identifier;
 
-  /// The number of [ReoderFlexItem]s will be displaied in the [ReorderFlex].
+  /// The number of [ReoderFlexItem]s will be displayed in the [ReorderFlex].
   UnmodifiableListView<ReoderFlexItem> get items;
 }
 
-/// Each item displaied in the [ReorderFlex] required to implement the [ReoderFlexItem].
+/// Each item displayed in the [ReorderFlex] required to implement the [ReoderFlexItem].
 abstract class ReoderFlexItem {
   /// [id] is used to identify the item. It must be unique.
   String get id;
@@ -70,7 +70,7 @@ class ReorderFlex extends StatefulWidget {
   /// [onDragEnded] is called when dragTarget did end dragging
   final OnDragEnded? onDragEnded;
 
-  final ReoderFlextDataSource dataSource;
+  final ReoderFlexDataSource dataSource;
 
   final DragTargetInterceptor? interceptor;
 
@@ -187,7 +187,7 @@ class ReorderFlexState extends State<ReorderFlex>
   void _requestAnimationToNextIndex({bool isAcceptingNewTarget = false}) {
     /// Update the dragState and animate to the next index if the current
     /// dragging animation is completed. Otherwise, it will get called again
-    /// when the animation finishs.
+    /// when the animation finish.
 
     if (_animation.entranceController.isCompleted) {
       dragState.removePhantom();
@@ -425,7 +425,7 @@ class ReorderFlexState extends State<ReorderFlex>
   ) {
     setState(() {
       dragState.startDragging(draggingWidget, dragIndex, feedbackSize);
-      _animation.startDargging();
+      _animation.startDragging();
     });
   }
 

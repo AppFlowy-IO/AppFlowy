@@ -14,12 +14,14 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:collection';
 
 import 'board_data_controller.dart';
+import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final BoardDataController _dataController;
-  late final AFBoardDataController boardDataController;
+  late final AFBoardDataController afBoardDataController;
+  List<GroupController> groupControllers = [];
 
   GridFieldCache get fieldCache => _dataController.fieldCache;
   String get gridId => _dataController.gridId;
@@ -27,7 +29,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   BoardBloc({required ViewPB view})
       : _dataController = BoardDataController(view: view),
         super(BoardState.initial(view.id)) {
-    boardDataController = AFBoardDataController(
+    afBoardDataController = AFBoardDataController(
       onMoveColumn: (
         fromIndex,
         toIndex,
@@ -71,9 +73,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
-          didReceiveGroups: (List<GroupPB> groups) {
-            emit(state.copyWith(groups: groups));
-          },
           didReceiveRows: (List<RowInfo> rowInfos) {
             emit(state.copyWith(rowInfos: rowInfos));
           },
@@ -85,7 +84,22 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   @override
   Future<void> close() async {
     await _dataController.dispose();
+    for (final controller in groupControllers) {
+      controller.dispose();
+    }
     return super.close();
+  }
+
+  void initializeGroups(List<GroupPB> groups) {
+    for (final group in groups) {
+      final delegate = GroupControllerDelegateImpl(afBoardDataController);
+      final controller = GroupController(
+        group: group,
+        delegate: delegate,
+      );
+      controller.startListening();
+      groupControllers.add(controller);
+    }
   }
 
   GridRowCache? getRowCache(String blockId) {
@@ -100,7 +114,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           add(BoardEvent.didReceiveGridUpdate(grid));
         }
       },
-      onGroupChanged: (groups) {
+      didLoadGroups: (groups) {
         List<AFBoardColumnData> columns = groups.map((group) {
           return AFBoardColumnData(
             id: group.groupId,
@@ -110,7 +124,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           );
         }).toList();
 
-        boardDataController.addColumns(columns);
+        afBoardDataController.addColumns(columns);
+        initializeGroups(groups);
       },
       onRowsChanged: (List<RowInfo> rowInfos, RowsChangedReason reason) {
         add(BoardEvent.didReceiveRows(rowInfos));
@@ -155,8 +170,6 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = InitialGrid;
   const factory BoardEvent.createRow(String groupId) = _CreateRow;
   const factory BoardEvent.endEditRow(String rowId) = _EndEditRow;
-  const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
-      _DidReceiveGroup;
   const factory BoardEvent.didReceiveRows(List<RowInfo> rowInfos) =
       _DidReceiveRows;
   const factory BoardEvent.didReceiveGridUpdate(
@@ -169,7 +182,6 @@ class BoardState with _$BoardState {
   const factory BoardState({
     required String gridId,
     required Option<GridPB> grid,
-    required List<GroupPB> groups,
     required Option<RowPB> editingRow,
     required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
@@ -177,7 +189,6 @@ class BoardState with _$BoardState {
 
   factory BoardState.initial(String gridId) => BoardState(
         rowInfos: [],
-        groups: [],
         grid: none(),
         gridId: gridId,
         editingRow: none(),
@@ -227,4 +238,28 @@ class BoardColumnItem extends AFColumnItem {
 class CreateCardItem extends AFColumnItem {
   @override
   String get id => '$CreateCardItem';
+}
+
+class GroupControllerDelegateImpl extends GroupControllerDelegate {
+  final AFBoardDataController controller;
+
+  GroupControllerDelegateImpl(this.controller);
+
+  @override
+  void insertRow(String groupId, RowPB row, int? index) {
+    final item = BoardColumnItem(row: row);
+    if (index != null) {
+      controller.insertColumnItem(groupId, index, item);
+    } else {
+      controller.addColumnItem(groupId, item);
+    }
+  }
+
+  @override
+  void removeRow(String groupId, String rowId) {
+    controller.removeColumnItem(groupId, rowId);
+  }
+
+  @override
+  void updateRow(String groupId, RowPB row) {}
 }

@@ -28,7 +28,7 @@ pub trait Groupable {
 
 pub trait GroupActionHandler: Send + Sync {
     fn field_id(&self) -> &str;
-    fn get_groups(&self) -> Vec<Group>;
+    fn build_groups(&self) -> Vec<Group>;
     fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()>;
     fn update_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
 }

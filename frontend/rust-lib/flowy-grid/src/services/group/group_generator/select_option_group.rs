@@ -30,7 +30,7 @@ impl GroupActionHandler for SingleSelectGroupController {
         &self.field_id
     }
 
-    fn get_groups(&self) -> Vec<Group> {
+    fn build_groups(&self) -> Vec<Group> {
         self.make_groups()
     }
 
@@ -94,7 +94,7 @@ impl GroupActionHandler for MultiSelectGroupController {
         &self.field_id
     }
 
-    fn get_groups(&self) -> Vec<Group> {
+    fn build_groups(&self) -> Vec<Group> {
         self.make_groups()
     }
 

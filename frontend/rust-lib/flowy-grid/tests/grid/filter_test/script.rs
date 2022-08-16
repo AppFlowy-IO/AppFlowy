@@ -3,7 +3,7 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
-use flowy_grid::entities::{CreateGridFilterPayloadPB, Layout, GridSettingPB};
+use flowy_grid::entities::{CreateGridFilterPayloadPB, GridLayout, GridSettingPB};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
 use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
@@ -55,7 +55,7 @@ impl GridFilterTest {
             }
             FilterScript::InsertGridTableFilter { payload } => {
                 let params: CreateGridFilterParams = payload.try_into().unwrap();
-                let layout_type = Layout::Table;
+                let layout_type = GridLayout::Table;
                 let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
                     .insert_filter(params)
                     .build();
@@ -66,7 +66,7 @@ impl GridFilterTest {
                 assert_eq!(count as usize, filters.len());
             }
             FilterScript::DeleteGridTableFilter { filter_id, field_rev} => {
-                let layout_type = Layout::Table;
+                let layout_type = GridLayout::Table;
                 let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
                     .delete_filter(DeleteFilterParams { field_id: field_rev.id, filter_id, field_type_rev: field_rev.field_type_rev })
                     .build();

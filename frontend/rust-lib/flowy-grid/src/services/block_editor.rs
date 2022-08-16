@@ -59,7 +59,7 @@ impl GridBlockRevisionEditor {
                 if let Some(start_row_id) = prev_row_id.as_ref() {
                     match block_pad.index_of_row(start_row_id) {
                         None => {}
-                        Some(index) => row_index = Some(index + 1),
+                        Some(index) => row_index = Some(index as i32 + 1),
                     }
                 }
 
@@ -98,6 +98,10 @@ impl GridBlockRevisionEditor {
             .modify(|block_pad| Ok(block_pad.move_row(row_id, from, to)?))
             .await?;
         Ok(())
+    }
+
+    pub async fn index_of_row(&self, row_id: &str) -> Option<usize> {
+        self.pad.read().await.index_of_row(row_id)
     }
 
     pub async fn get_row_rev(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {

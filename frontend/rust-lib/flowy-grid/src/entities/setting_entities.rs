@@ -19,7 +19,7 @@ pub struct GridSettingPB {
     pub layouts: Vec<GridLayoutPB>,
 
     #[pb(index = 2)]
-    pub current_layout_type: Layout,
+    pub current_layout_type: GridLayout,
 
     #[pb(index = 3)]
     pub filter_configuration_by_field_id: HashMap<String, RepeatedGridConfigurationFilterPB>,
@@ -34,13 +34,13 @@ pub struct GridSettingPB {
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridLayoutPB {
     #[pb(index = 1)]
-    ty: Layout,
+    ty: GridLayout,
 }
 
 impl GridLayoutPB {
     pub fn all() -> Vec<GridLayoutPB> {
         let mut layouts = vec![];
-        for layout_ty in Layout::iter() {
+        for layout_ty in GridLayout::iter() {
             layouts.push(GridLayoutPB { ty: layout_ty })
         }
 
@@ -50,31 +50,31 @@ impl GridLayoutPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
-pub enum Layout {
+pub enum GridLayout {
     Table = 0,
     Board = 1,
 }
 
-impl std::default::Default for Layout {
+impl std::default::Default for GridLayout {
     fn default() -> Self {
-        Layout::Table
+        GridLayout::Table
     }
 }
 
-impl std::convert::From<LayoutRevision> for Layout {
+impl std::convert::From<LayoutRevision> for GridLayout {
     fn from(rev: LayoutRevision) -> Self {
         match rev {
-            LayoutRevision::Table => Layout::Table,
-            LayoutRevision::Board => Layout::Board,
+            LayoutRevision::Table => GridLayout::Table,
+            LayoutRevision::Board => GridLayout::Board,
         }
     }
 }
 
-impl std::convert::From<Layout> for LayoutRevision {
-    fn from(layout: Layout) -> Self {
+impl std::convert::From<GridLayout> for LayoutRevision {
+    fn from(layout: GridLayout) -> Self {
         match layout {
-            Layout::Table => LayoutRevision::Table,
-            Layout::Board => LayoutRevision::Board,
+            GridLayout::Table => LayoutRevision::Table,
+            GridLayout::Board => LayoutRevision::Board,
         }
     }
 }
@@ -85,7 +85,7 @@ pub struct GridSettingChangesetPayloadPB {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub layout_type: Layout,
+    pub layout_type: GridLayout,
 
     #[pb(index = 3, one_of)]
     pub insert_filter: Option<CreateGridFilterPayloadPB>,

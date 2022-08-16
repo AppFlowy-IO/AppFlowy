@@ -40,18 +40,18 @@ abstract class OverlapDragTargetDelegate {
   bool canMoveTo(String dragTargetId);
 }
 
-/// [OverlappingDragTargetInteceptor] is used to receive the overlapping
+/// [OverlappingDragTargetInterceptor] is used to receive the overlapping
 /// [DragTarget] event. If a [DragTarget] child is [DragTarget], it will
 /// receive the [DragTarget] event when being dragged.
 ///
 /// Receive the [DragTarget] event if the [acceptedReorderFlexId] contains
 /// the passed in dragTarget' reorderFlexId.
-class OverlappingDragTargetInteceptor extends DragTargetInterceptor {
+class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapDragTargetDelegate delegate;
 
-  OverlappingDragTargetInteceptor({
+  OverlappingDragTargetInterceptor({
     required this.delegate,
     required this.reorderFlexId,
     required this.acceptedReorderFlexId,

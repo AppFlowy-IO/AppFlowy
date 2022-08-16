@@ -24,7 +24,7 @@ typedef OnMoveColumnItemToColumn = void Function(
 );
 
 class AFBoardDataController extends ChangeNotifier
-    with EquatableMixin, BoardPhantomControllerDelegate, ReoderFlextDataSource {
+    with EquatableMixin, BoardPhantomControllerDelegate, ReoderFlexDataSource {
   final List<AFBoardColumnData> _columnDatas = [];
   final OnMoveColumn? onMoveColumn;
   final OnMoveColumnItem? onMoveColumnItem;

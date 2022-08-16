@@ -342,7 +342,7 @@ impl GridRevisionEditor {
 
     pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
         let _ = self.block_manager.delete_row(row_id).await?;
-        self.view_manager.delete_row(row_id).await;
+        self.view_manager.did_delete_row(row_id).await;
         Ok(())
     }
 
@@ -484,21 +484,22 @@ impl GridRevisionEditor {
         Ok(snapshots)
     }
 
-    pub async fn move_item(&self, params: MoveItemParams) -> FlowyResult<()> {
-        match params.ty {
-            MoveItemTypePB::MoveField => {
-                self.move_field(&params.item_id, params.from_index, params.to_index)
-                    .await
-            }
-            MoveItemTypePB::MoveRow => self.move_row(&params.item_id, params.from_index, params.to_index).await,
-        }
+    pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {
+        self.view_manager.move_row(params).await
     }
 
-    pub async fn move_field(&self, field_id: &str, from: i32, to: i32) -> FlowyResult<()> {
+    pub async fn move_field(&self, params: MoveFieldParams) -> FlowyResult<()> {
+        let MoveFieldParams {
+            grid_id: _,
+            field_id,
+            from_index,
+            to_index,
+        } = params;
+
         let _ = self
-            .modify(|grid_pad| Ok(grid_pad.move_field(field_id, from as usize, to as usize)?))
+            .modify(|grid_pad| Ok(grid_pad.move_field(&field_id, from_index as usize, to_index as usize)?))
             .await?;
-        if let Some((index, field_rev)) = self.grid_pad.read().await.get_field_rev(field_id) {
+        if let Some((index, field_rev)) = self.grid_pad.read().await.get_field_rev(&field_id) {
             let delete_field_order = FieldIdPB::from(field_id);
             let insert_field = IndexFieldPB::from_field_rev(field_rev, index);
             let notified_changeset = FieldChangesetPB {
@@ -511,10 +512,6 @@ impl GridRevisionEditor {
             let _ = self.notify_did_update_grid(notified_changeset).await?;
         }
         Ok(())
-    }
-
-    pub async fn move_row(&self, row_id: &str, from: i32, to: i32) -> FlowyResult<()> {
-        self.view_manager.move_row(row_id, from, to).await
     }
 
     pub async fn delta_bytes(&self) -> Bytes {

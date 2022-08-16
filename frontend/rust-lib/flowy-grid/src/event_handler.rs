@@ -203,13 +203,13 @@ pub(crate) async fn create_field_type_option_data_handler(
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn move_item_handler(
-    data: Data<MoveItemPayloadPB>,
+pub(crate) async fn move_field_handler(
+    data: Data<MoveFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: MoveItemParams = data.into_inner().try_into()?;
+    let params: MoveFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let _ = editor.move_item(params).await?;
+    let _ = editor.move_field(params).await?;
     Ok(())
 }
 
@@ -260,8 +260,19 @@ pub(crate) async fn duplicate_row_handler(
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn create_row_handler(
-    data: Data<CreateRowPayloadPB>,
+pub(crate) async fn move_row_handler(
+    data: Data<MoveRowPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> Result<(), FlowyError> {
+    let params: MoveRowParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.view_id)?;
+    let _ = editor.move_row(params).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn create_table_row_handler(
+    data: Data<CreateTableRowPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
