@@ -47,13 +47,11 @@ class EditorWidgetTester {
     insert(TextNode.empty());
   }
 
-  void insertTextNode(String? text, {Attributes? attributes}) {
+  void insertTextNode(String? text, {Attributes? attributes, Delta? delta}) {
     insert(
       TextNode(
         type: 'text',
-        delta: Delta(
-          [TextInsert(text ?? 'Test')],
-        ),
+        delta: delta ?? Delta([TextInsert(text ?? 'Test')]),
         attributes: attributes,
       ),
     );
