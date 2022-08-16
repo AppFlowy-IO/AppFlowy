@@ -1,11 +1,11 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{
-    BoardCardChangesetPB, CheckboxGroupConfigurationPB, DateGroupConfigurationPB, FieldType, GroupPB,
+    CheckboxGroupConfigurationPB, DateGroupConfigurationPB, FieldType, GroupPB, GroupRowsChangesetPB,
     NumberGroupConfigurationPB, RowPB, SelectOptionGroupConfigurationPB, TextGroupConfigurationPB,
     UrlGroupConfigurationPB,
 };
 use crate::services::group::{
-    CheckboxGroupController, GroupActionHandler, MultiSelectGroupController, SingleSelectGroupController,
+    CheckboxGroupController, Group, GroupActionHandler, MultiSelectGroupController, SingleSelectGroupController,
 };
 use bytes::Bytes;
 use flowy_error::FlowyResult;
@@ -36,7 +36,7 @@ impl GroupService {
         &mut self,
         field_revs: &[Arc<FieldRevision>],
         row_revs: Vec<Arc<RowRevision>>,
-    ) -> Option<Vec<GroupPB>> {
+    ) -> Option<Vec<Group>> {
         let field_rev = find_group_field(field_revs).unwrap();
         let field_type: FieldType = field_rev.field_type_rev.into();
         let configuration = self.delegate.get_group_configuration(field_rev.clone()).await;
@@ -79,26 +79,6 @@ impl GroupService {
         // let row_pb = make_row_from_row_rev(row_rev);
         todo!()
     }
-    #[allow(dead_code)]
-    pub async fn did_delete_card(&self, _row_id: String) {
-        // let changeset = BoardCardChangesetPB::delete(group_id.to_owned(), vec![row_id]);
-        // self.notify_did_update_board(changeset).await;
-        todo!()
-    }
-
-    pub async fn did_create_row(&self, group_id: &str, row_pb: &RowPB) {
-        let changeset = BoardCardChangesetPB::insert(group_id.to_owned(), vec![row_pb.clone()]);
-        self.notify_did_update_board(changeset).await;
-    }
-
-    pub async fn notify_did_update_board(&self, changeset: BoardCardChangesetPB) {
-        if self.action_handler.is_none() {
-            return;
-        }
-        send_dart_notification(&changeset.group_id, GridNotification::DidUpdateBoard)
-            .payload(changeset)
-            .send();
-    }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
     async fn build_groups(
@@ -107,7 +87,7 @@ impl GroupService {
         field_rev: &Arc<FieldRevision>,
         row_revs: Vec<Arc<RowRevision>>,
         configuration: GroupConfigurationRevision,
-    ) -> FlowyResult<Vec<GroupPB>> {
+    ) -> FlowyResult<Vec<Group>> {
         match field_type {
             FieldType::RichText => {
                 // let generator = GroupGenerator::<TextGroupConfigurationPB>::from_configuration(configuration);
@@ -139,11 +119,11 @@ impl GroupService {
         if let Some(group_action_handler) = self.action_handler.as_ref() {
             let mut write_guard = group_action_handler.write().await;
             let _ = write_guard.group_rows(&row_revs, field_rev)?;
-            groups = write_guard.get_groups();
+            groups = write_guard.build_groups();
             drop(write_guard);
         }
 
-        Ok(groups.into_iter().map(GroupPB::from).collect())
+        Ok(groups)
     }
 }
 

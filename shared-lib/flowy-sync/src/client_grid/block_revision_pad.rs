@@ -139,12 +139,8 @@ impl GridBlockRevisionPad {
         self.block.rows.len() as i32
     }
 
-    pub fn index_of_row(&self, row_id: &str) -> Option<i32> {
-        self.block
-            .rows
-            .iter()
-            .position(|row| row.id == row_id)
-            .map(|index| index as i32)
+    pub fn index_of_row(&self, row_id: &str) -> Option<usize> {
+        self.block.rows.iter().position(|row| row.id == row_id)
     }
 
     pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<GridBlockRevisionChangeset>> {

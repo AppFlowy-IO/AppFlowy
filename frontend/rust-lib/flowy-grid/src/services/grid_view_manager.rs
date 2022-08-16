@@ -1,8 +1,12 @@
-use crate::entities::{CreateRowParams, GridFilterConfiguration, GridSettingPB, RepeatedGridGroupPB, RowPB};
+use crate::entities::{
+    CreateRowParams, GridFilterConfiguration, GridLayout, GridSettingPB, MoveRowParams, RepeatedGridGroupPB, RowPB,
+};
 use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockManager;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::grid_view_editor::{GridViewRevisionDataSource, GridViewRevisionDelegate, GridViewRevisionEditor};
+use crate::services::grid_view_editor::{
+    GridViewRevisionDelegate, GridViewRevisionEditor, GridViewRevisionRowDataSource,
+};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
@@ -45,7 +49,7 @@ impl GridViewManager {
 
     pub(crate) async fn update_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         for view_editor in self.view_editors.iter() {
-            view_editor.create_row(row_rev, params).await;
+            view_editor.update_row(row_rev, params).await;
         }
     }
 
@@ -55,9 +59,9 @@ impl GridViewManager {
         }
     }
 
-    pub(crate) async fn delete_row(&self, row_id: &str) {
+    pub(crate) async fn did_delete_row(&self, row_id: &str) {
         for view_editor in self.view_editors.iter() {
-            view_editor.delete_row(row_id).await;
+            view_editor.did_delete_row(row_id).await;
         }
     }
 
@@ -83,15 +87,35 @@ impl GridViewManager {
         Ok(RepeatedGridGroupPB { items: groups })
     }
 
-    pub(crate) async fn move_row(&self, row_id: &str, from: i32, to: i32) -> FlowyResult<()> {
-        match self.block_manager.get_row_rev(row_id).await? {
+    pub(crate) async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {
+        let MoveRowParams {
+            view_id: _,
+            row_id,
+            from_index,
+            to_index,
+            layout,
+            upper_row_id,
+        } = params;
+
+        let from_index = from_index as usize;
+
+        match self.block_manager.get_row_rev(&row_id).await? {
             None => tracing::warn!("Move row failed, can not find the row:{}", row_id),
-            Some(row_rev) => {
-                let _ = self
-                    .block_manager
-                    .move_row(row_rev.clone(), from as usize, to as usize)
-                    .await?;
-            }
+            Some(row_rev) => match layout {
+                GridLayout::Table => {
+                    tracing::trace!("Move row from {} to {}", from_index, to_index);
+                    let to_index = to_index as usize;
+                    let _ = self.block_manager.move_row(row_rev, from_index, to_index).await?;
+                }
+                GridLayout::Board => {
+                    if let Some(upper_row_id) = upper_row_id {
+                        if let Some(to_index) = self.block_manager.index_of_row(&upper_row_id).await {
+                            tracing::trace!("Move row from {} to {}", from_index, to_index);
+                            let _ = self.block_manager.move_row(row_rev, from_index, to_index).await?;
+                        }
+                    }
+                }
+            },
         }
         Ok(())
     }
@@ -132,7 +156,7 @@ async fn make_view_editor<Delegate, DataSource>(
 ) -> FlowyResult<GridViewRevisionEditor>
 where
     Delegate: GridViewRevisionDelegate,
-    DataSource: GridViewRevisionDataSource,
+    DataSource: GridViewRevisionRowDataSource,
 {
     tracing::trace!("Open view:{} editor", view_id);
 
@@ -170,7 +194,7 @@ impl RevisionCompactor for GridViewRevisionCompactor {
     }
 }
 
-impl GridViewRevisionDataSource for Arc<GridBlockManager> {
+impl GridViewRevisionRowDataSource for Arc<GridBlockManager> {
     fn row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>> {
         let block_manager = self.clone();
 

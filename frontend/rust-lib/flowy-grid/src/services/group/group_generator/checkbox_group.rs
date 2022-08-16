@@ -22,7 +22,7 @@ impl GroupActionHandler for CheckboxGroupController {
         &self.field_id
     }
 
-    fn get_groups(&self) -> Vec<Group> {
+    fn build_groups(&self) -> Vec<Group> {
         self.make_groups()
     }
 

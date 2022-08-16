@@ -1,5 +1,5 @@
 use crate::entities::{
-    GridLayoutPB, GridSettingPB, Layout, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB,
+    GridLayout, GridLayoutPB, GridSettingPB, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB,
     RepeatedGridSortPB,
 };
 use flowy_grid_data_model::revision::{FieldRevision, SettingRevision};
@@ -12,7 +12,7 @@ pub struct GridSettingChangesetBuilder {
 }
 
 impl GridSettingChangesetBuilder {
-    pub fn new(grid_id: &str, layout_type: &Layout) -> Self {
+    pub fn new(grid_id: &str, layout_type: &GridLayout) -> Self {
         let params = GridSettingChangesetParams {
             grid_id: grid_id.to_string(),
             layout_type: layout_type.clone().into(),
@@ -42,7 +42,7 @@ impl GridSettingChangesetBuilder {
 }
 
 pub fn make_grid_setting(grid_setting_rev: &SettingRevision, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
-    let current_layout_type: Layout = grid_setting_rev.layout.clone().into();
+    let current_layout_type: GridLayout = grid_setting_rev.layout.clone().into();
     let filters_by_field_id = grid_setting_rev
         .get_all_filters(field_revs)
         .map(|filters_by_field_id| {

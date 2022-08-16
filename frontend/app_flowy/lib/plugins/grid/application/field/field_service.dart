@@ -18,14 +18,13 @@ class FieldService {
   FieldService({required this.gridId, required this.fieldId});
 
   Future<Either<Unit, FlowyError>> moveField(int fromIndex, int toIndex) {
-    final payload = MoveItemPayloadPB.create()
+    final payload = MoveFieldPayloadPB.create()
       ..gridId = gridId
-      ..itemId = fieldId
-      ..ty = MoveItemTypePB.MoveField
+      ..fieldId = fieldId
       ..fromIndex = fromIndex
       ..toIndex = toIndex;
 
-    return GridEventMoveItem(payload).send();
+    return GridEventMoveField(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> updateField({

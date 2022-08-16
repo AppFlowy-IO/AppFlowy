@@ -4,6 +4,7 @@ import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/setting_entities.pb.dart';
 
 class RowFFIService {
   final String gridId;
@@ -21,16 +22,25 @@ class RowFFIService {
     return GridEventCreateRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> moveRow(
-      String rowId, int fromIndex, int toIndex) {
-    final payload = MoveItemPayloadPB.create()
-      ..gridId = gridId
-      ..itemId = rowId
-      ..ty = MoveItemTypePB.MoveRow
+  Future<Either<Unit, FlowyError>> moveRow({
+    required String rowId,
+    required int fromIndex,
+    required int toIndex,
+    required GridLayout layout,
+    String? upperRowId,
+  }) {
+    var payload = MoveRowPayloadPB.create()
+      ..viewId = gridId
+      ..rowId = rowId
+      ..layout = layout
       ..fromIndex = fromIndex
       ..toIndex = toIndex;
 
-    return GridEventMoveItem(payload).send();
+    if (upperRowId != null) {
+      payload.upperRowId = upperRowId;
+    }
+
+    return GridEventMoveRow(payload).send();
   }
 
   Future<Either<OptionalRowPB, FlowyError>> getRow() {

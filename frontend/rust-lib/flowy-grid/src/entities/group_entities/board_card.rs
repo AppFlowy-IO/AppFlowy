@@ -1,4 +1,4 @@
-use crate::entities::{CreateRowParams, RowPB};
+use crate::entities::{CreateRowParams, GridLayout, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -22,45 +22,46 @@ impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
             grid_id: grid_id.0,
             start_row_id: None,
             group_id: Some(group_id.0),
+            layout: GridLayout::Board,
         })
     }
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct BoardCardChangesetPB {
+pub struct GroupRowsChangesetPB {
     #[pb(index = 1)]
     pub group_id: String,
 
     #[pb(index = 2)]
-    pub inserted_cards: Vec<RowPB>,
+    pub inserted_rows: Vec<RowPB>,
 
     #[pb(index = 3)]
-    pub deleted_cards: Vec<String>,
+    pub deleted_rows: Vec<String>,
 
     #[pb(index = 4)]
-    pub updated_cards: Vec<RowPB>,
+    pub updated_rows: Vec<RowPB>,
 }
-impl BoardCardChangesetPB {
-    pub fn insert(group_id: String, inserted_cards: Vec<RowPB>) -> Self {
+impl GroupRowsChangesetPB {
+    pub fn insert(group_id: String, inserted_rows: Vec<RowPB>) -> Self {
         Self {
             group_id,
-            inserted_cards,
+            inserted_rows,
             ..Default::default()
         }
     }
 
-    pub fn delete(group_id: String, deleted_cards: Vec<String>) -> Self {
+    pub fn delete(group_id: String, deleted_rows: Vec<String>) -> Self {
         Self {
             group_id,
-            deleted_cards,
+            deleted_rows,
             ..Default::default()
         }
     }
 
-    pub fn update(group_id: String, updated_cards: Vec<RowPB>) -> Self {
+    pub fn update(group_id: String, updated_rows: Vec<RowPB>) -> Self {
         Self {
             group_id,
-            updated_cards,
+            updated_rows,
             ..Default::default()
         }
     }

@@ -1,13 +1,16 @@
 use flowy_error::{FlowyError, FlowyResult};
 
-use crate::entities::{CreateRowParams, GridFilterConfiguration, GridSettingPB, GroupPB, RowPB};
+use crate::entities::{
+    CreateRowParams, GridFilterConfiguration, GridLayout, GridSettingPB, GroupPB, GroupRowsChangesetPB, RowPB,
+};
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::group::{default_group_configuration, GroupConfigurationDelegate, GroupService};
+use crate::services::group::{default_group_configuration, Group, GroupConfigurationDelegate, GroupService};
 use flowy_grid_data_model::revision::{FieldRevision, GroupConfigurationRevision, RowRevision};
 use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::entities::revision::Revision;
 
+use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::services::setting::make_grid_setting;
 use flowy_sync::entities::grid::GridSettingChangesetParams;
 use lib_infra::future::{wrap_future, AFFuture, FutureResult};
@@ -19,7 +22,7 @@ pub trait GridViewRevisionDelegate: Send + Sync + 'static {
     fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>>;
 }
 
-pub trait GridViewRevisionDataSource: Send + Sync + 'static {
+pub trait GridViewRevisionRowDataSource: Send + Sync + 'static {
     fn row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>>;
 }
 
@@ -30,8 +33,9 @@ pub struct GridViewRevisionEditor {
     pad: Arc<RwLock<GridViewRevisionPad>>,
     rev_manager: Arc<RevisionManager>,
     delegate: Arc<dyn GridViewRevisionDelegate>,
-    data_source: Arc<dyn GridViewRevisionDataSource>,
+    data_source: Arc<dyn GridViewRevisionRowDataSource>,
     group_service: Arc<RwLock<GroupService>>,
+    groups: Arc<RwLock<Vec<Group>>>,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
 }
 
@@ -47,7 +51,7 @@ impl GridViewRevisionEditor {
     ) -> FlowyResult<Self>
     where
         Delegate: GridViewRevisionDelegate,
-        DataSource: GridViewRevisionDataSource,
+        DataSource: GridViewRevisionRowDataSource,
     {
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
@@ -57,52 +61,85 @@ impl GridViewRevisionEditor {
         let rev_manager = Arc::new(rev_manager);
         let group_service = GroupService::new(Box::new(pad.clone())).await;
         let user_id = user_id.to_owned();
+        let groups = Arc::new(RwLock::new(vec![]));
         Ok(Self {
             pad,
             user_id,
             view_id,
             rev_manager,
             scheduler,
+            groups,
             delegate: Arc::new(delegate),
             data_source: Arc::new(data_source),
             group_service: Arc::new(RwLock::new(group_service)),
         })
     }
 
-    pub(crate) async fn create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
-        match params.group_id.as_ref() {
-            None => {}
-            Some(group_id) => {
-                self.group_service
-                    .read()
-                    .await
-                    .update_row(row_rev, group_id, |field_id| self.delegate.get_field_rev(&field_id))
-                    .await;
+    pub(crate) async fn update_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
+        match params.layout {
+            GridLayout::Table => {
+                // Table can be grouped too
             }
+            GridLayout::Board => match params.group_id.as_ref() {
+                None => {}
+                Some(group_id) => {
+                    self.group_service
+                        .read()
+                        .await
+                        .update_row(row_rev, group_id, |field_id| self.delegate.get_field_rev(&field_id))
+                        .await;
+                }
+            },
         }
+
         todo!()
     }
 
     pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
+        // Send the group notification if the current view has groups
         match params.group_id.as_ref() {
             None => {}
             Some(group_id) => {
-                self.group_service.read().await.did_create_row(group_id, row_pb).await;
+                let changeset = GroupRowsChangesetPB::insert(group_id.clone(), vec![row_pb.clone()]);
+                self.notify_did_update_group(changeset).await;
             }
         }
     }
 
-    pub(crate) async fn delete_row(&self, row_id: &str) {
-        self.group_service.read().await.did_delete_card(row_id.to_owned()).await;
+    pub(crate) async fn did_delete_row(&self, row_id: &str) {
+        // Send the group notification if the current view has groups;
+        match self.group_id_of_row(row_id).await {
+            None => {}
+            Some(group_id) => {
+                let changeset = GroupRowsChangesetPB::delete(group_id, vec![row_id.to_owned()]);
+                self.notify_did_update_group(changeset).await;
+            }
+        }
+    }
+
+    async fn group_id_of_row(&self, row_id: &str) -> Option<String> {
+        let read_guard = self.groups.read().await;
+        for group in read_guard.iter() {
+            if group.rows.iter().find(|row| row.id == row_id).is_some() {
+                return Some(group.id.clone());
+            }
+        }
+
+        None
     }
 
     pub(crate) async fn load_groups(&self) -> FlowyResult<Vec<GroupPB>> {
         let field_revs = self.delegate.get_field_revs().await;
         let row_revs = self.data_source.row_revs().await;
+
+        //
         let mut write_guard = self.group_service.write().await;
         match write_guard.load_groups(&field_revs, row_revs).await {
             None => Ok(vec![]),
-            Some(groups) => Ok(groups),
+            Some(groups) => {
+                *self.groups.write().await = groups.clone();
+                Ok(groups.into_iter().map(GroupPB::from).collect())
+            }
         }
     }
 
@@ -127,6 +164,12 @@ impl GridViewRevisionEditor {
                 .map(|filter| GridFilterConfiguration::from(filter.as_ref()))
                 .collect(),
         }
+    }
+
+    async fn notify_did_update_group(&self, changeset: GroupRowsChangesetPB) {
+        send_dart_notification(&changeset.group_id, GridNotification::DidUpdateBoard)
+            .payload(changeset)
+            .send();
     }
 
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
