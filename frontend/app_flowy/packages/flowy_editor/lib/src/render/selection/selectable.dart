@@ -2,33 +2,40 @@ import 'package:flowy_editor/src/document/position.dart';
 import 'package:flowy_editor/src/document/selection.dart';
 import 'package:flutter/material.dart';
 
+/// [Selectable] is used for the editor to calculate the position
+///   and size of the selection.
+///
+/// The widget returned by NodeWidgetBuilder must be with [Selectable],
+///   otherwise the [FlowySelectionService] will not work properly.
 ///
 mixin Selectable<T extends StatefulWidget> on State<T> {
-  /// Returns a [List] of the [Rect] selection surrounded by start and end
+  /// Returns the [Selection] surrounded by start and end
   ///   in current widget.
   ///
   /// [start] and [end] are the offsets under the global coordinate system.
   ///
-  /// The return result must be a [List] of the [Rect]
-  ///   under the local coordinate system.
   Selection getSelectionInRange(Offset start, Offset end);
 
+  /// Returns a [List] of the [Rect] area within selection
+  ///   in current widget.
+  ///
+  /// The return result must be a [List] of the [Rect]
+  ///   under the local coordinate system.
   List<Rect> getRectsInSelection(Selection selection);
 
-  /// Returns a [Rect] for the offset in current widget.
+  /// Returns [Position] for the offset in current widget.
   ///
   /// [start] is the offset of the global coordination system.
+  Position getPositionInOffset(Offset start);
+
+  /// Returns [Rect] for the position in current widget.
   ///
   /// The return result must be an offset of the local coordinate system.
-  Position getPositionInOffset(Offset start);
-  Selection? getWorldBoundaryInOffset(Offset start) {
-    return null;
-  }
-
   Rect? getCursorRectInPosition(Position position) {
     return null;
   }
 
+  /// Return global offset from local offset.
   Offset localToGlobal(Offset offset);
 
   Position start();
@@ -36,9 +43,15 @@ mixin Selectable<T extends StatefulWidget> on State<T> {
 
   /// For [TextNode] only.
   ///
-  /// Returns a [TextSelection] or [Null].
-  ///
   /// Only the widget rendered by [TextNode] need to implement the detail,
   ///   and the rest can return null.
   TextSelection? getTextSelectionInSelection(Selection selection) => null;
+
+  /// For [TextNode] only.
+  ///
+  /// Only the widget rendered by [TextNode] need to implement the detail,
+  ///   and the rest can return null.
+  Selection? getWorldBoundaryInOffset(Offset start) {
+    return null;
+  }
 }
