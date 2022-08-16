@@ -7,8 +7,10 @@ import 'package:styled_widget/styled_widget.dart';
 class BoardCardContainer extends StatelessWidget {
   final Widget child;
   final CardAccessoryBuilder? accessoryBuilder;
+  final void Function(BuildContext) onTap;
   const BoardCardContainer({
     required this.child,
+    required this.onTap,
     this.accessoryBuilder,
     Key? key,
   }) : super(key: key);
@@ -30,11 +32,14 @@ class BoardCardContainer extends StatelessWidget {
             }
           }
 
-          return Padding(
-            padding: const EdgeInsets.all(8),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 30),
-              child: container,
+          return GestureDetector(
+            onTap: () => onTap(context),
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 30),
+                child: container,
+              ),
             ),
           );
         },

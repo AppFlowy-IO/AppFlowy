@@ -9,12 +9,13 @@ import 'package:flowy_sdk/protobuf/flowy-grid/setting_entities.pb.dart';
 class RowFFIService {
   final String gridId;
   final String blockId;
-  final String rowId;
 
-  RowFFIService(
-      {required this.gridId, required this.blockId, required this.rowId});
+  RowFFIService({
+    required this.gridId,
+    required this.blockId,
+  });
 
-  Future<Either<RowPB, FlowyError>> createRow() {
+  Future<Either<RowPB, FlowyError>> createRow(String rowId) {
     final payload = CreateTableRowPayloadPB.create()
       ..gridId = gridId
       ..startRowId = rowId;
@@ -43,7 +44,7 @@ class RowFFIService {
     return GridEventMoveRow(payload).send();
   }
 
-  Future<Either<OptionalRowPB, FlowyError>> getRow() {
+  Future<Either<OptionalRowPB, FlowyError>> getRow(String rowId) {
     final payload = RowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
@@ -52,7 +53,7 @@ class RowFFIService {
     return GridEventGetRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> deleteRow() {
+  Future<Either<Unit, FlowyError>> deleteRow(String rowId) {
     final payload = RowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId
@@ -61,7 +62,7 @@ class RowFFIService {
     return GridEventDeleteRow(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> duplicateRow() {
+  Future<Either<Unit, FlowyError>> duplicateRow(String rowId) {
     final payload = RowIdPB.create()
       ..gridId = gridId
       ..blockId = blockId

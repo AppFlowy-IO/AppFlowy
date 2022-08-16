@@ -239,8 +239,10 @@ class _GridRowsState extends State<_GridRows> {
     RowInfo rowInfo,
     Animation<double> animation,
   ) {
-    final rowCache =
-        context.read<GridBloc>().getRowCache(rowInfo.blockId, rowInfo.rowPB.id);
+    final rowCache = context.read<GridBloc>().getRowCache(
+          rowInfo.rowPB.blockId,
+          rowInfo.rowPB.id,
+        );
 
     /// Return placeholder widget if the rowCache is null.
     if (rowCache == null) return const SizedBox();
