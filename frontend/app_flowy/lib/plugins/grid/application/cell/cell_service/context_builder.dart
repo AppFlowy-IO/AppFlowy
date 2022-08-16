@@ -242,7 +242,7 @@ class IGridCellController<T, D> extends Equatable {
         .getFieldTypeOptionData(fieldType: fieldType)
         .then((result) {
       return result.fold(
-        (data) => parser.fromBuffer(data.typeOptionData),
+        (data) => left(parser.fromBuffer(data.typeOptionData)),
         (err) => right(err),
       );
     });
