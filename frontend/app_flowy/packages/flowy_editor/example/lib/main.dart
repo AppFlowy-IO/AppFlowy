@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -77,8 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
     } else if (page == 1) {
       return _buildFlowyEditorWithEmptyDocument();
     } else if (page == 2) {
-      return _buildTextField();
-    } else if (page == 3) {
       return _buildFlowyEditorWithBigDocument();
     }
     return Container();
@@ -115,37 +112,18 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           icon: const Icon(Icons.text_fields),
         ),
-        ActionButton(
-          onPressed: () {
-            if (page == 3) return;
-            setState(() {
-              page = 3;
-            });
-          },
-          icon: const Icon(Icons.email),
-        ),
       ],
     );
   }
 
   Widget _buildFlowyEditorWithEmptyDocument() {
-    return _buildFlowyEditor(
-      EditorState(
-        document: StateTree(
-          root: Node(
-            type: 'editor',
-            children: LinkedList()
-              ..add(
-                TextNode.empty()
-                  ..delta = Delta(
-                    [TextInsert('')],
-                  ),
-              ),
-            attributes: {},
-          ),
-        ),
-      ),
+    final editorState = EditorState.empty();
+    final editor = FlowyEditor(
+      editorState: editorState,
+      keyEventHandlers: const [],
+      customBuilders: const {},
     );
+    return editor;
   }
 
   Widget _buildFlowyEditorWithExample() {
@@ -196,12 +174,6 @@ class _MyHomePageState extends State<MyHomePage> {
           'youtube_link': YouTubeLinkNodeBuilder()
         },
       ),
-    );
-  }
-
-  Widget _buildTextField() {
-    return const Center(
-      child: TextField(),
     );
   }
 }

@@ -12,6 +12,19 @@ class StateTree {
     required this.root,
   });
 
+  factory StateTree.empty() {
+    return StateTree(
+      root: Node.fromJson({
+        'type': 'editor',
+        'children': [
+          {
+            'type': 'text',
+          }
+        ]
+      }),
+    );
+  }
+
   factory StateTree.fromJson(Attributes json) {
     assert(json['document'] is Map);
 

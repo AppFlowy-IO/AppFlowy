@@ -75,6 +75,10 @@ class EditorState {
     undoManager.state = this;
   }
 
+  factory EditorState.empty() {
+    return EditorState(document: StateTree.empty());
+  }
+
   /// Apply the transaction to the state.
   ///
   /// The options can be used to determine whether the editor
