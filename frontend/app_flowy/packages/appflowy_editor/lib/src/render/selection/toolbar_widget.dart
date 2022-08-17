@@ -18,9 +18,9 @@ ToolbarEventHandlers defaultToolbarEventHandlers = {
   'bulleted_list': (editorState) => formatBulletedList(editorState),
   'highlight': (editorState) => formatHighlight(editorState),
   'Text': (editorState) => formatText(editorState),
-  'H1': (editorState) => formatHeading(editorState, StyleKey.h1),
-  'H2': (editorState) => formatHeading(editorState, StyleKey.h2),
-  'H3': (editorState) => formatHeading(editorState, StyleKey.h3),
+  'h1': (editorState) => formatHeading(editorState, StyleKey.h1),
+  'h2': (editorState) => formatHeading(editorState, StyleKey.h2),
+  'h3': (editorState) => formatHeading(editorState, StyleKey.h3),
 };
 
 List<String> defaultListToolbarEventNames = [
@@ -95,7 +95,10 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // _listToolbar(context),
-            // _centerToolbarIcon('divider', width: 10),
+            _centerToolbarIcon('h1', tooltipMessage: 'Heading 1'),
+            _centerToolbarIcon('h2', tooltipMessage: 'Heading 2'),
+            _centerToolbarIcon('h3', tooltipMessage: 'Heading 3'),
+            _centerToolbarIcon('divider', width: 2),
             _centerToolbarIcon('bold', tooltipMessage: 'Bold'),
             _centerToolbarIcon('italic', tooltipMessage: 'Italic'),
             _centerToolbarIcon('strikethrough',
@@ -134,11 +137,11 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
           child: GestureDetector(
             onTap: onTap ?? () => _onTap(name),
             child: SizedBox.fromSize(
-              size: width != null
-                  ? Size(width, toolbarHeight)
-                  : Size.square(toolbarHeight),
+              size:
+                  Size(toolbarHeight - (width != null ? 20 : 0), toolbarHeight),
               child: Center(
                 child: FlowySvg(
+                  size: Size(width ?? 20, 20),
                   name: 'toolbar/$name',
                 ),
               ),
