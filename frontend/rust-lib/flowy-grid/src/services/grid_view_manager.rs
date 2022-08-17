@@ -4,9 +4,7 @@ use crate::entities::{
 use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockManager;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::grid_view_editor::{
-    GridViewRevisionDelegate, GridViewRevisionEditor, GridViewRevisionRowDataSource,
-};
+use crate::services::grid_view_editor::GridViewRevisionEditor;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
@@ -23,26 +21,48 @@ use tokio::sync::RwLock;
 
 type ViewId = String;
 
+pub trait GridViewFieldDelegate: Send + Sync + 'static {
+    fn get_field_revs(&self) -> AFFuture<Vec<Arc<FieldRevision>>>;
+    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>>;
+}
+
+pub trait GridViewRowDelegate: Send + Sync + 'static {
+    fn gv_index_of_row(&self, row_id: &str) -> AFFuture<Option<usize>>;
+    fn gv_get_row_rev(&self, row_id: &str) -> AFFuture<Option<Arc<RowRevision>>>;
+    fn gv_row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>>;
+}
+
+pub trait GridViewRowOperation: Send + Sync + 'static {
+    // Will be removed in the future.
+    fn gv_move_row(&self, row_rev: Arc<RowRevision>, from: usize, to: usize) -> AFFuture<FlowyResult<()>>;
+}
+
 pub(crate) struct GridViewManager {
+    grid_id: String,
     user: Arc<dyn GridUser>,
-    grid_pad: Arc<RwLock<GridRevisionPad>>,
-    block_manager: Arc<GridBlockManager>,
+    field_delegate: Arc<dyn GridViewFieldDelegate>,
+    row_delegate: Arc<dyn GridViewRowDelegate>,
+    row_operation: Arc<dyn GridViewRowOperation>,
     view_editors: DashMap<ViewId, Arc<GridViewRevisionEditor>>,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
 }
 
 impl GridViewManager {
     pub(crate) async fn new(
+        grid_id: String,
         user: Arc<dyn GridUser>,
-        grid_pad: Arc<RwLock<GridRevisionPad>>,
-        block_manager: Arc<GridBlockManager>,
+        field_delegate: Arc<dyn GridViewFieldDelegate>,
+        row_delegate: Arc<dyn GridViewRowDelegate>,
+        row_operation: Arc<dyn GridViewRowOperation>,
         scheduler: Arc<dyn GridServiceTaskScheduler>,
     ) -> FlowyResult<Self> {
         Ok(Self {
+            grid_id,
             user,
-            grid_pad,
             scheduler,
-            block_manager,
+            field_delegate,
+            row_delegate,
+            row_operation,
             view_editors: DashMap::default(),
         })
     }
@@ -54,7 +74,7 @@ impl GridViewManager {
     }
 
     pub(crate) async fn did_update_row(&self, row_id: &str) {
-        let row = self.block_manager.get_row_rev(row_id).await;
+        let row = self.row_delegate.gv_get_row_rev(row_id).await;
     }
 
     pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
@@ -103,19 +123,19 @@ impl GridViewManager {
 
         let from_index = from_index as usize;
 
-        match self.block_manager.get_row_rev(&row_id).await? {
+        match self.row_delegate.gv_get_row_rev(&row_id).await {
             None => tracing::warn!("Move row failed, can not find the row:{}", row_id),
             Some(row_rev) => match layout {
                 GridLayout::Table => {
                     tracing::trace!("Move row from {} to {}", from_index, to_index);
                     let to_index = to_index as usize;
-                    let _ = self.block_manager.move_row(row_rev, from_index, to_index).await?;
+                    let _ = self.row_operation.gv_move_row(row_rev, from_index, to_index).await?;
                 }
                 GridLayout::Board => {
                     if let Some(upper_row_id) = upper_row_id {
-                        if let Some(to_index) = self.block_manager.index_of_row(&upper_row_id).await {
+                        if let Some(to_index) = self.row_delegate.gv_index_of_row(&upper_row_id).await {
                             tracing::trace!("Move row from {} to {}", from_index, to_index);
-                            let _ = self.block_manager.move_row(row_rev, from_index, to_index).await?;
+                            let _ = self.row_operation.gv_move_row(row_rev, from_index, to_index).await?;
                         }
                     }
                 }
@@ -132,8 +152,8 @@ impl GridViewManager {
                     make_view_editor(
                         &self.user,
                         view_id,
-                        self.grid_pad.clone(),
-                        self.block_manager.clone(),
+                        self.field_delegate.clone(),
+                        self.row_delegate.clone(),
                         self.scheduler.clone(),
                     )
                     .await?,
@@ -146,29 +166,33 @@ impl GridViewManager {
     }
 
     async fn get_default_view_editor(&self) -> FlowyResult<Arc<GridViewRevisionEditor>> {
-        let grid_id = self.grid_pad.read().await.grid_id();
-        self.get_view_editor(&grid_id).await
+        self.get_view_editor(&self.grid_id).await
     }
 }
 
-async fn make_view_editor<Delegate, DataSource>(
+async fn make_view_editor(
     user: &Arc<dyn GridUser>,
     view_id: &str,
-    delegate: Delegate,
-    data_source: DataSource,
+    field_delegate: Arc<dyn GridViewFieldDelegate>,
+    row_delegate: Arc<dyn GridViewRowDelegate>,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
-) -> FlowyResult<GridViewRevisionEditor>
-where
-    Delegate: GridViewRevisionDelegate,
-    DataSource: GridViewRevisionRowDataSource,
-{
+) -> FlowyResult<GridViewRevisionEditor> {
     tracing::trace!("Open view:{} editor", view_id);
 
     let rev_manager = make_grid_view_rev_manager(user, view_id).await?;
     let user_id = user.user_id()?;
     let token = user.token()?;
     let view_id = view_id.to_owned();
-    GridViewRevisionEditor::new(&user_id, &token, view_id, delegate, data_source, scheduler, rev_manager).await
+    GridViewRevisionEditor::new(
+        &user_id,
+        &token,
+        view_id,
+        field_delegate,
+        row_delegate,
+        scheduler,
+        rev_manager,
+    )
+    .await
 }
 
 pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str) -> FlowyResult<RevisionManager> {
@@ -195,46 +219,5 @@ impl RevisionCompactor for GridViewRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let delta = make_text_delta_from_revisions(revisions)?;
         Ok(delta.json_bytes())
-    }
-}
-
-impl GridViewRevisionRowDataSource for Arc<GridBlockManager> {
-    fn row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>> {
-        let block_manager = self.clone();
-
-        wrap_future(async move {
-            let blocks = block_manager.get_block_snapshots(None).await.unwrap();
-            blocks
-                .into_iter()
-                .map(|block| block.row_revs)
-                .flatten()
-                .collect::<Vec<Arc<RowRevision>>>()
-        })
-    }
-}
-
-impl GridViewRevisionDelegate for Arc<RwLock<GridRevisionPad>> {
-    fn get_field_revs(&self) -> AFFuture<Vec<Arc<FieldRevision>>> {
-        let pad = self.clone();
-        wrap_future(async move {
-            match pad.read().await.get_field_revs(None) {
-                Ok(field_revs) => field_revs,
-                Err(e) => {
-                    tracing::error!("[GridViewRevisionDelegate] get field revisions failed: {}", e);
-                    vec![]
-                }
-            }
-        })
-    }
-
-    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>> {
-        let pad = self.clone();
-        let field_id = field_id.to_owned();
-        wrap_future(async move {
-            pad.read()
-                .await
-                .get_field_rev(&field_id)
-                .map(|(_, field_rev)| field_rev.clone())
-        })
     }
 }

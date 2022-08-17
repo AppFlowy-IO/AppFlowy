@@ -38,7 +38,7 @@ impl GroupActionHandler for SingleSelectGroupController {
         self.handle_rows(row_revs, field_rev)
     }
 
-    fn update_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
+    fn fill_row(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
         let group: Option<&Group> = self.groups_map.get(group_id);
         match group {
             None => {}
@@ -102,7 +102,7 @@ impl GroupActionHandler for MultiSelectGroupController {
         self.handle_rows(row_revs, field_rev)
     }
 
-    fn update_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
+    fn fill_row(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
         let group: Option<&Group> = self.groups_map.get(group_id);
         match group {
             None => tracing::warn!("Can not find the group: {}", group_id),

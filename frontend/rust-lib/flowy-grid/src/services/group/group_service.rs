@@ -18,15 +18,17 @@ pub trait GroupConfigurationDelegate: Send + Sync + 'static {
 }
 
 pub(crate) struct GroupService {
+    pub groups: Vec<Group>,
     delegate: Box<dyn GroupConfigurationDelegate>,
-    action_handler: Option<Arc<RwLock<dyn GroupActionHandler>>>,
+    group_action: Option<Arc<RwLock<dyn GroupActionHandler>>>,
 }
 
 impl GroupService {
     pub(crate) async fn new(delegate: Box<dyn GroupConfigurationDelegate>) -> Self {
         Self {
+            groups: vec![],
             delegate,
-            action_handler: None,
+            group_action: None,
         }
     }
 
@@ -35,47 +37,39 @@ impl GroupService {
         field_revs: &[Arc<FieldRevision>],
         row_revs: Vec<Arc<RowRevision>>,
     ) -> Option<Vec<Group>> {
-        let field_rev = find_group_field(field_revs).unwrap();
+        let field_rev = find_group_field(field_revs)?;
         let field_type: FieldType = field_rev.field_type_rev.into();
         let configuration = self.delegate.get_group_configuration(field_rev.clone()).await;
-
         match self
             .build_groups(&field_type, &field_rev, row_revs, configuration)
             .await
         {
-            Ok(groups) => Some(groups),
+            Ok(groups) => {
+                self.groups = groups.clone();
+                Some(groups)
+            }
             Err(_) => None,
         }
     }
 
-    pub(crate) async fn update_row<F, O>(&self, row_rev: &mut RowRevision, group_id: &str, f: F)
+    pub(crate) async fn fill_row<F, O>(&self, row_rev: &mut RowRevision, group_id: &str, f: F)
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
     {
-        if let Some(group_action_handler) = self.action_handler.as_ref() {
-            let field_id = group_action_handler.read().await.field_id().to_owned();
+        if let Some(group_action) = self.group_action.as_ref() {
+            let field_id = group_action.read().await.field_id().to_owned();
             match f(field_id).await {
                 None => {}
                 Some(field_rev) => {
-                    group_action_handler
-                        .write()
-                        .await
-                        .update_card(row_rev, &field_rev, group_id);
+                    group_action.write().await.fill_row(row_rev, &field_rev, group_id);
                 }
             }
         }
     }
-    #[allow(dead_code)]
-    pub async fn move_card(&self, _group_id: &str, _from: i32, _to: i32) {
-        // BoardCardChangesetPB {
-        //     group_id: "".to_string(),
-        //     inserted_cards: vec![],
-        //     deleted_cards: vec![],
-        //     updated_cards: vec![]
-        // }
-        // let row_pb = make_row_from_row_rev(row_rev);
-        todo!()
+
+    pub(crate) async fn did_update_row(&self, row_rev: Arc<RowRevision>) {
+        if let Some(group_action) = self.group_action.as_ref() {}
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
@@ -98,15 +92,15 @@ impl GroupService {
             }
             FieldType::SingleSelect => {
                 let controller = SingleSelectGroupController::new(field_rev, configuration)?;
-                self.action_handler = Some(Arc::new(RwLock::new(controller)));
+                self.group_action = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::MultiSelect => {
                 let controller = MultiSelectGroupController::new(field_rev, configuration)?;
-                self.action_handler = Some(Arc::new(RwLock::new(controller)));
+                self.group_action = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::Checkbox => {
                 let controller = CheckboxGroupController::new(field_rev, configuration)?;
-                self.action_handler = Some(Arc::new(RwLock::new(controller)));
+                self.group_action = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::URL => {
                 // let generator = GroupGenerator::<UrlGroupConfigurationPB>::from_configuration(configuration);
@@ -114,7 +108,7 @@ impl GroupService {
         };
 
         let mut groups = vec![];
-        if let Some(group_action_handler) = self.action_handler.as_ref() {
+        if let Some(group_action_handler) = self.group_action.as_ref() {
             let mut write_guard = group_action_handler.write().await;
             let _ = write_guard.group_rows(&row_revs, field_rev)?;
             groups = write_guard.build_groups();
