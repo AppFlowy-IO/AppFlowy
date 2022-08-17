@@ -1,11 +1,12 @@
-# How to customizing ...
+# How to customize ...
 
-## Customizing a shortcut event
-we will use a simple example to describe how to quickly extend shortcut event.
+## Customize a shortcut event
+
+We will use a simple example to illustrate how to quickly add a shortcut event.
 
 For example, typing `_xxx_` will be converted into _xxx_.
 
-To start with, we build the simplest example, just a blank document.
+Let's start with a blank document.
 
 ```dart
 @override
@@ -22,11 +23,11 @@ Widget build(BuildContext context) {
 }
 ```
 
-Nothing will happen after typing `_xxx_`.
+At this point, nothing magic will happen after typing `_xxx_`.
 
 ![Before](./images/customizing_a_shortcut_event_before.gif)
 
-Next, we will create a function to handler underscore input.
+Next, we will create a function to handle an underscore input.
 
 ```dart
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -42,7 +43,7 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
 };
 ```
 
-Then, we need to determine if the currently selected node is `TextNode` and is a single-select case, because for the multi-select case, underscore input should be considered as replacement.
+Then, we need to determine if the currently selected node is `TextNode` and the selection is collapsed.
 
 ```dart
 // ...
@@ -50,7 +51,7 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
   // ...
   
   // Obtaining the selection and selected nodes of the current document through `selectionService`.
-  // And determine whether it is a single selection and whether the selected node is a text node.
+  // And determine whether the selection is collapsed and whether the selected node is a text node.
   final selectionService = editorState.service.selectionService;
   final selection = selectionService.currentSelection.value;
   final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
@@ -59,7 +60,11 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
   }
 ```
 
-Now, we start working on underscore logic by looking for the position of the previous underscore and returning if not found. If found, the text wrapped in the two underscores will be converted info italic.
+Now, we start dealing with underscore. 
+
+Look for the position of the previous underscore and 
+1. return, if not found. 
+2. if found, the text wrapped in between two underscores will be displayed in italic.
 
 ```dart
 // ...
@@ -94,7 +99,7 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
 };
 ```
 
-So far, the 'underscore handler' function has completed and only needs to be injected info AppFlowyEditor.
+So far, the 'underscore handler' function is done and the only task left is to inject it into the AppFlowyEditor.
 
 ```dart
 @override
@@ -117,12 +122,12 @@ Widget build(BuildContext context) {
 
 [Complete code example]()
 
-## Customizing a component
-we will use a simple example to describe how to quickly extend custom component.
+## Customize a component
+We will use a simple example to showcase how to quickly add a custom component.
 
-For example, we want to render an image from network.
+For example, we want to render an image from the network.
 
-To start with, we build the simplest example, just a blank document.
+To start with, let's create an empty document by running commands as follows:
 
 ```dart
 @override
@@ -139,7 +144,7 @@ Widget build(BuildContext context) {
 }
 ```
 
-Next, we choose a unique string for the type of the custom node and use `network_image` in this case. And we add `network_image_src` to the `attributes` to describe the link of the image.
+Next, we choose a unique string for your custom node's type. We use `network_image` in this case. And we add `network_image_src` to the `attributes` to describe the link of the image.
 
 > For the definition of the [Node](), please refer to this [link]().
 
@@ -152,7 +157,9 @@ Next, we choose a unique string for the type of the custom node and use `network
 }
 ```
 
-Then, we create a class that inherits [NodeWidgetBuilder](). As shown in the autoprompt, we need to implement two functions, one that returns a widget and the other that verifies the correctness of the [Node]().
+Then, we create a class that inherits [NodeWidgetBuilder](). As shown in the autoprompt, we need to implement two functions:
+1. one returns a widget 
+2. the other verifies the correctness of the [Node]().
 
 
 ```dart
@@ -276,4 +283,4 @@ return AppFlowyEditor(
 
 ![](./images/customizing_a_component.gif)
 
-[Complete code example]()
+[Here you can check out the complete code file of this example]()
