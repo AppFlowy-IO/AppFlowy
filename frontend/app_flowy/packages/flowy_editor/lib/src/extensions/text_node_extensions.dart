@@ -41,6 +41,30 @@ extension TextNodeExtension on TextNode {
     }
     return true;
   }
+
+  bool allNotSatisfyInSelection(String styleKey, Selection selection) {
+    final ops = delta.whereType<TextInsert>();
+    final startOffset =
+        selection.isBackward ? selection.start.offset : selection.end.offset;
+    final endOffset =
+        selection.isBackward ? selection.end.offset : selection.start.offset;
+    var start = 0;
+    for (final op in ops) {
+      if (start >= endOffset) {
+        break;
+      }
+      final length = op.length;
+      if (start < endOffset && start + length > startOffset) {
+        if (op.attributes != null &&
+            op.attributes!.containsKey(styleKey) &&
+            op.attributes![styleKey] == true) {
+          return false;
+        }
+      }
+      start += length;
+    }
+    return true;
+  }
 }
 
 extension TextNodesExtension on List<TextNode> {

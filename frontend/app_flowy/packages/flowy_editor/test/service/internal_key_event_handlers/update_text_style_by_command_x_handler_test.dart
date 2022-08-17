@@ -18,7 +18,6 @@ void main() async {
         LogicalKeyboardKey.keyB,
       );
     });
-
     testWidgets('Presses Command + I to update text style', (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
@@ -26,7 +25,6 @@ void main() async {
         LogicalKeyboardKey.keyI,
       );
     });
-
     testWidgets('Presses Command + U to update text style', (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
@@ -34,7 +32,6 @@ void main() async {
         LogicalKeyboardKey.keyU,
       );
     });
-
     testWidgets('Presses Command + S to update text style', (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
@@ -83,5 +80,49 @@ Future<void> _testUpdateTextStyleByCommandX(
     isMetaPressed: true,
   );
   textNode = editor.nodeAtPath([1]) as TextNode;
-  expect(textNode.allSatisfyInSelection(matchStyle, selection), false);
+  expect(textNode.allNotSatisfyInSelection(matchStyle, selection), true);
+
+  selection = Selection(
+    start: Position(path: [0], offset: 0),
+    end: Position(path: [2], offset: text.length),
+  );
+  await editor.updateSelection(selection);
+  await editor.pressLogicKey(
+    key,
+    isShiftPressed: key == LogicalKeyboardKey.keyS,
+    isMetaPressed: true,
+  );
+  var nodes = editor.editorState.service.selectionService.currentSelectedNodes
+      .whereType<TextNode>();
+  expect(nodes.length, 3);
+  for (final node in nodes) {
+    expect(
+      node.allSatisfyInSelection(
+        matchStyle,
+        Selection.single(
+            path: node.path, startOffset: 0, endOffset: text.length),
+      ),
+      true,
+    );
+  }
+
+  await editor.updateSelection(selection);
+  await editor.pressLogicKey(
+    key,
+    isShiftPressed: key == LogicalKeyboardKey.keyS,
+    isMetaPressed: true,
+  );
+  nodes = editor.editorState.service.selectionService.currentSelectedNodes
+      .whereType<TextNode>();
+  expect(nodes.length, 3);
+  for (final node in nodes) {
+    expect(
+      node.allNotSatisfyInSelection(
+        matchStyle,
+        Selection.single(
+            path: node.path, startOffset: 0, endOffset: text.length),
+      ),
+      true,
+    );
+  }
 }

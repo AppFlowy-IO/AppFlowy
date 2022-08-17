@@ -1,7 +1,4 @@
-import 'package:flowy_editor/src/service/keyboard_service.dart';
-import 'package:flowy_editor/src/service/render_plugin_service.dart';
-import 'package:flowy_editor/src/service/scroll_service.dart';
-import 'package:flowy_editor/src/service/selection_service.dart';
+import 'package:flowy_editor/flowy_editor.dart';
 import 'package:flowy_editor/src/service/toolbar_service.dart';
 import 'package:flutter/material.dart';
 
@@ -26,6 +23,13 @@ class FlowyService {
 
   // input service
   final inputServiceKey = GlobalKey(debugLabel: 'flowy_input_service');
+  FlowyInputService? get inputService {
+    if (inputServiceKey.currentState != null &&
+        inputServiceKey.currentState is FlowyInputService) {
+      return inputServiceKey.currentState! as FlowyInputService;
+    }
+    return null;
+  }
 
   // render plugin service
   late FlowyRenderPlugin renderPluginService;

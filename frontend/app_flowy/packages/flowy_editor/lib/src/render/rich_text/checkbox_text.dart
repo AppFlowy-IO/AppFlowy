@@ -72,8 +72,8 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
+                key: iconKey,
                 child: FlowySvg(
-                  key: iconKey,
                   size: Size.square(_iconSize),
                   padding: EdgeInsets.only(
                       top: topPadding, right: _iconRightPadding),
@@ -149,7 +149,11 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
               style: widget.textNode.attributes.check
                   ? span.style?.copyWith(
                       color: Colors.grey,
-                      decoration: TextDecoration.lineThrough,
+                      decoration: TextDecoration.combine([
+                        TextDecoration.lineThrough,
+                        if (span.style?.decoration != null)
+                          span.style!.decoration!
+                      ]),
                     )
                   : span.style,
               recognizer: span.recognizer,

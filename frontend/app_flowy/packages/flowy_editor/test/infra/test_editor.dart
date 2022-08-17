@@ -47,13 +47,11 @@ class EditorWidgetTester {
     insert(TextNode.empty());
   }
 
-  void insertTextNode(String? text, {Attributes? attributes}) {
+  void insertTextNode(String? text, {Attributes? attributes, Delta? delta}) {
     insert(
       TextNode(
         type: 'text',
-        delta: Delta(
-          [TextInsert(text ?? 'Test')],
-        ),
+        delta: delta ?? Delta([TextInsert(text ?? 'Test')]),
         attributes: attributes,
       ),
     );
@@ -69,6 +67,31 @@ class EditorWidgetTester {
     } else {
       _editorState.service.selectionService.updateSelection(selection);
     }
+    await tester.pumpAndSettle();
+
+    expect(_editorState.service.selectionService.currentSelection.value,
+        selection);
+  }
+
+  Future<void> insertText(TextNode textNode, String text, int offset,
+      {Selection? selection}) async {
+    await apply([
+      TextEditingDeltaInsertion(
+        oldText: textNode.toRawString(),
+        textInserted: text,
+        insertionOffset: offset,
+        selection: selection != null
+            ? TextSelection(
+                baseOffset: selection.start.offset,
+                extentOffset: selection.end.offset)
+            : TextSelection.collapsed(offset: offset),
+        composing: TextRange.empty,
+      )
+    ]);
+  }
+
+  Future<void> apply(List<TextEditingDelta> deltas) async {
+    _editorState.service.inputService?.apply(deltas);
     await tester.pumpAndSettle();
   }
 
