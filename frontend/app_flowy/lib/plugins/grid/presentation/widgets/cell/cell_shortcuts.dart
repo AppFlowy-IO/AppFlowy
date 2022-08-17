@@ -24,14 +24,16 @@ class GridCellShortcuts extends StatelessWidget {
     return Shortcuts(
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.enter): const GridCellEnterIdent(),
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyC): const GridCellCopyIntent(),
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyV): const GridCellInsertIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyC):
+            const GridCellCopyIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyV):
+            const GridCellPasteIntent(),
       },
       child: Actions(
         actions: {
           GridCellEnterIdent: GridCellEnterAction(child: child),
           GridCellCopyIntent: GridCellCopyAction(child: child),
-          GridCellInsertIntent: GridCellInsertAction(child: child),
+          GridCellPasteIntent: GridCellPasteAction(child: child),
         },
         child: child,
       ),
@@ -78,16 +80,16 @@ class GridCellCopyAction extends Action<GridCellCopyIntent> {
   }
 }
 
-class GridCellInsertIntent extends Intent {
-  const GridCellInsertIntent();
+class GridCellPasteIntent extends Intent {
+  const GridCellPasteIntent();
 }
 
-class GridCellInsertAction extends Action<GridCellInsertIntent> {
+class GridCellPasteAction extends Action<GridCellPasteIntent> {
   final CellShortcuts child;
-  GridCellInsertAction({required this.child});
+  GridCellPasteAction({required this.child});
 
   @override
-  void invoke(covariant GridCellInsertIntent intent) {
+  void invoke(covariant GridCellPasteIntent intent) {
     final callback = child.shortcutHandlers[CellKeyboardKey.onInsert];
     if (callback != null) {
       callback();
