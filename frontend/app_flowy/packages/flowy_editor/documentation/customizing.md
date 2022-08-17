@@ -1,6 +1,6 @@
-# How to extends
+# How to customizing ...
 
-## Extending a custom shortcut event
+## Customizing a shortcut event
 we will use a simple example to describe how to quickly extend shortcut event.
 
 For example, typing `_xxx_` will be converted into _xxx_.
@@ -24,7 +24,7 @@ Widget build(BuildContext context) {
 
 Nothing will happen after typing `_xxx_`.
 
-![Before](./images/extend_a_custom_shortcut_key_before.gif)
+![Before](./images/customizing_a_shortcut_event_before.gif)
 
 Next, we will create a function to handler underscore input.
 
@@ -113,11 +113,11 @@ Widget build(BuildContext context) {
 }
 ```
 
-![After](./images/extend_a_custom_shortcut_key_after.gif)
+![After](./images/customizing_a_shortcut_event_after.gif)
 
 [Complete code example]()
 
-## Extending a custom component
+## Customizing a component
 we will use a simple example to describe how to quickly extend custom component.
 
 For example, we want to render an image from network.
@@ -274,6 +274,6 @@ return FlowyEditor(
 );
 ```
 
-![](./images/extend_a_custom_component.gif)
+![](./images/customizing_a_component.gif)
 
 [Complete code example]()

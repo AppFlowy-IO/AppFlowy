@@ -13,7 +13,7 @@ and the Flutter guide for
 
 <h1 align="center"><b>FlowyEditor</b></h1>
 
-<p align="center">An easily extensible, test-covered rich text editing component for Flutter</p>
+<p align="center">An completely customize, test-covered rich text editing component for Flutter</p>
 
 
 <div align="center">
@@ -22,18 +22,12 @@ and the Flutter guide for
 
 ## Features
 
-* Extensible
-    * Support extending custom components.
-    * 支持扩展自定义的组件
-    * Support extending custom shortcut key parsing
-    * 支持扩展自定义快捷键解析
-    * Support extending toolbar/popup list(WIP)
-    * 支持扩展toolbar/popup list(WIP)
-    * ...
-* Collaboration Ready
-    * All changes to the document are based on **operation**. Theoretically, collaborative editing will be supported in the future.
-    * 所有对文档的修改都是基于operation。理论上未来会支持协同编辑。
-* Good stability guarantees
+* Customize
+    * Support customizing components.
+    * Support customizing shortcut event.
+    * Support customizing toolbar and popup list. (WIP)
+    * Support customizing theme and any styles. (WIP)
+* Test-covered
     * Current code coverage >= 63%, we will still continue to add more test cases.
 
 > Due to the extensible structure and the increase in functionality, we encourage each commit to add test case code under test to ensure that the other committer does not have to worry about their code affecting the existing logic as much as possible. For more testing information, please check [TESTING.md](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/documentation/testing.md)
@@ -76,21 +70,24 @@ cd frontend/app_flowy/packages/flowy_editor/example
 flutter run
 ```
 
-## How to extends
-### Extending a custom components
-Please refer to [extending.md](documentation/extending.md#extending-a-custom-component) for more details.
 
-### Extending a custom shortcut event
-Please refer to [extending.md](documentation/extending.md#extending-a-custom-shortcut-event) for more details.
-## Examples
-* Extends a custom component.
+## How to customizes ...
+### Customizing a component
+Please refer to [customizing.md](documentation/extending.md#extending-a-custom-component) for more details.
+
+
+### Customizing a shortcut event
+Please refer to [customizing.md](documentation/extending.md#extending-a-custom-shortcut-event) for more details.
+
+## Code Examples
+* Customizing a component.
     * [Checkbox Text](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text/checkbox_text.dart) - Showing how to extend new styles based on existing rich text components.
     * [Image](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/example/lib/plugin/image_node_widget.dart) - Showing how to extend a new node and render it.
-    * More examples. [rich text plugins](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text)
-* Extends a custom shortcut key.
-    * [BUIS](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart) - Showing how to make text bold/underline/italic/strikethrough through shortcut keys
+    * More examples. [Rich text plugins](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text)
+* Customizing a shortcut event.
+    * [BIUS](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart) - Showing how to make text bold/italic/underline/strikethrough through shortcut keys
     * [Paste HTML](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers/copy_paste_handler.dart) - Showing how to handle pasted styles through shortcut keys
-    * More examples. [internal key event handlers](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers)
+    * More examples. [Internal key event handlers](https://github.com/LucasXu0/AppFlowy/tree/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/service/internal_key_event_handlers)
 
 ## Glossary
 We are working on more detailed instructions, for now please refer to the API documentation.
