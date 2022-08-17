@@ -43,7 +43,6 @@ print(length);
 
 **Get the node of the specified path**
 ```dart
-// 获取上述文档结构中的第一个文本节点
 final firstTextNode = editor.nodeAtPath([0]) as TextNode;
 ```
 
