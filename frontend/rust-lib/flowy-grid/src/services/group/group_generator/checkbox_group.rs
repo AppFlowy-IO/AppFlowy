@@ -19,13 +19,33 @@ impl Groupable for CheckboxGroupController {
         false
     }
 
-    fn group_row(&mut self, _row_rev: &RowRevision, _cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
+    fn add_row_if_match(
+        &mut self,
+        _row_rev: &RowRevision,
+        _cell_data: &Self::CellDataType,
+    ) -> Vec<GroupRowsChangesetPB> {
+        todo!()
+    }
+
+    fn remove_row_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+    ) -> Vec<GroupRowsChangesetPB> {
+        todo!()
+    }
+
+    fn move_row_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+    ) -> Vec<GroupRowsChangesetPB> {
         todo!()
     }
 }
 
 impl GroupController for CheckboxGroupController {
-    fn fill_row(&self, _row_rev: &mut RowRevision, _field_rev: &FieldRevision, _group_id: &str) {
+    fn will_create_row(&mut self, _row_rev: &mut RowRevision, _field_rev: &FieldRevision, _group_id: &str) {
         todo!()
     }
 }

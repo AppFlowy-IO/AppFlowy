@@ -1,7 +1,7 @@
 mod checkbox_group;
-mod generator;
+mod group_controller;
 mod select_option_group;
 
 pub use checkbox_group::*;
-pub use generator::*;
+pub use group_controller::*;
 pub use select_option_group::*;

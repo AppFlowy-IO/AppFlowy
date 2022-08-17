@@ -59,23 +59,18 @@ impl GridViewRevisionEditor {
         })
     }
 
-    pub(crate) async fn fill_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
-        match params.layout {
-            GridLayout::Table => {
-                // Table can be grouped too
+    pub(crate) async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
+        match params.group_id.as_ref() {
+            None => {}
+            Some(group_id) => {
+                self.group_service
+                    .read()
+                    .await
+                    .will_create_row(row_rev, group_id, |field_id| {
+                        self.field_delegate.get_field_rev(&field_id)
+                    })
+                    .await;
             }
-            GridLayout::Board => match params.group_id.as_ref() {
-                None => {}
-                Some(group_id) => {
-                    self.group_service
-                        .read()
-                        .await
-                        .fill_row(row_rev, group_id, |field_id| {
-                            self.field_delegate.get_field_rev(&field_id)
-                        })
-                        .await;
-                }
-            },
         }
     }
 
@@ -94,12 +89,16 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn did_delete_row(&self, row_id: &str) {
+    pub(crate) async fn did_delete_row(&self, row_rev: &RowRevision) {
         // Send the group notification if the current view has groups;
-        match self.group_id_of_row(row_id).await {
-            None => {}
-            Some(group_id) => {
-                let changeset = GroupRowsChangesetPB::delete(group_id, vec![row_id.to_owned()]);
+        if let Some(changesets) = self
+            .group_service
+            .write()
+            .await
+            .did_delete_row(row_rev, |field_id| self.field_delegate.get_field_rev(&field_id))
+            .await
+        {
+            for changeset in changesets {
                 self.notify_did_update_group(changeset).await;
             }
         }
@@ -117,16 +116,6 @@ impl GridViewRevisionEditor {
                 self.notify_did_update_group(changeset).await;
             }
         }
-    }
-
-    async fn group_id_of_row(&self, row_id: &str) -> Option<String> {
-        let read_guard = &self.group_service.read().await.groups;
-        for group in read_guard.iter() {
-            if group.contains_row(row_id) {
-                return Some(group.id.clone());
-            }
-        }
-        None
     }
 
     // async fn get_mut_group<F>(&self, group_id: &str, f: F) -> FlowyResult<()>

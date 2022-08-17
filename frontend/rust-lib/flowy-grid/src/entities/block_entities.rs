@@ -62,6 +62,16 @@ impl std::convert::From<&RowRevision> for RowPB {
     }
 }
 
+impl std::convert::From<&mut RowRevision> for RowPB {
+    fn from(rev: &mut RowRevision) -> Self {
+        Self {
+            block_id: rev.block_id.clone(),
+            id: rev.id.clone(),
+            height: rev.height,
+        }
+    }
+}
+
 impl std::convert::From<&Arc<RowRevision>> for RowPB {
     fn from(rev: &Arc<RowRevision>) -> Self {
         Self {

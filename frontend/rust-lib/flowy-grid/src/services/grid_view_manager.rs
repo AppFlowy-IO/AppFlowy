@@ -66,9 +66,15 @@ impl GridViewManager {
         })
     }
 
-    pub(crate) async fn fill_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
+    pub(crate) async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         for view_editor in self.view_editors.iter() {
-            view_editor.fill_row(row_rev, params).await;
+            view_editor.will_create_row(row_rev, params).await;
+        }
+    }
+
+    pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
+        for view_editor in self.view_editors.iter() {
+            view_editor.did_create_row(row_pb, params).await;
         }
     }
 
@@ -85,15 +91,9 @@ impl GridViewManager {
         }
     }
 
-    pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
+    pub(crate) async fn did_delete_row(&self, row_rev: Arc<RowRevision>) {
         for view_editor in self.view_editors.iter() {
-            view_editor.did_create_row(row_pb, params).await;
-        }
-    }
-
-    pub(crate) async fn did_delete_row(&self, row_id: &str) {
-        for view_editor in self.view_editors.iter() {
-            view_editor.did_delete_row(row_id).await;
+            view_editor.did_delete_row(&row_rev).await;
         }
     }
 

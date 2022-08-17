@@ -22,11 +22,19 @@ pub trait GroupGenerator {
 pub trait Groupable: Send + Sync {
     type CellDataType;
     fn can_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool;
-    fn group_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB>;
+    fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB>;
+    fn remove_row_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+    ) -> Vec<GroupRowsChangesetPB>;
+
+    fn move_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType)
+        -> Vec<GroupRowsChangesetPB>;
 }
 
 pub trait GroupController: GroupControllerSharedAction + Send + Sync {
-    fn fill_row(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
+    fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
 }
 
 pub trait GroupControllerSharedAction: Send + Sync {
@@ -35,6 +43,12 @@ pub trait GroupControllerSharedAction: Send + Sync {
     fn build_groups(&self) -> Vec<Group>;
     fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()>;
     fn did_update_row(
+        &mut self,
+        row_rev: &RowRevision,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
+
+    fn did_delete_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
@@ -203,7 +217,21 @@ where
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
-            Ok(self.group_row(row_rev, &cell_data))
+            Ok(self.add_row_if_match(row_rev, &cell_data))
+        } else {
+            Ok(vec![])
+        }
+    }
+
+    fn did_delete_row(
+        &mut self,
+        row_rev: &RowRevision,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
+        if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_data = cell_bytes.parser::<P>()?;
+            Ok(self.remove_row_if_match(row_rev, &cell_data))
         } else {
             Ok(vec![])
         }

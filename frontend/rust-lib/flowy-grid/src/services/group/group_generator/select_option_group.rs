@@ -21,23 +21,44 @@ impl Groupable for SingleSelectGroupController {
         cell_data.select_options.iter().any(|option| option.id == content)
     }
 
-    fn group_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
+    fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
         let mut changesets = vec![];
         self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
-            group_select_option_row(group, &mut changesets, cell_data, row_rev);
+            add_row(group, &mut changesets, cell_data, row_rev);
         });
         changesets
+    }
+
+    fn remove_row_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+    ) -> Vec<GroupRowsChangesetPB> {
+        let mut changesets = vec![];
+        self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
+            remove_row(group, &mut changesets, cell_data, row_rev);
+        });
+        changesets
+    }
+
+    fn move_row_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+    ) -> Vec<GroupRowsChangesetPB> {
+        todo!()
     }
 }
 
 impl GroupController for SingleSelectGroupController {
-    fn fill_row(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
-        let group: Option<&Group> = self.groups_map.get(group_id);
+    fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
+        let group: Option<&mut Group> = self.groups_map.get_mut(group_id);
         match group {
             None => {}
             Some(group) => {
                 let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
                 row_rev.cells.insert(field_rev.id.clone(), cell_rev);
+                group.add_row(RowPB::from(row_rev));
             }
         }
     }
@@ -77,18 +98,38 @@ impl Groupable for MultiSelectGroupController {
         cell_data.select_options.iter().any(|option| option.id == content)
     }
 
-    fn group_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
+    fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
         let mut changesets = vec![];
 
         self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
-            group_select_option_row(group, &mut changesets, cell_data, row_rev);
+            add_row(group, &mut changesets, cell_data, row_rev);
         });
         changesets
+    }
+
+    fn remove_row_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+    ) -> Vec<GroupRowsChangesetPB> {
+        let mut changesets = vec![];
+        self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
+            remove_row(group, &mut changesets, cell_data, row_rev);
+        });
+        changesets
+    }
+
+    fn move_row_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+    ) -> Vec<GroupRowsChangesetPB> {
+        todo!()
     }
 }
 
 impl GroupController for MultiSelectGroupController {
-    fn fill_row(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
+    fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
         let group: Option<&Group> = self.groups_map.get(group_id);
         match group {
             None => tracing::warn!("Can not find the group: {}", group_id),
@@ -120,7 +161,7 @@ impl GroupGenerator for MultiSelectGroupGenerator {
     }
 }
 
-fn group_select_option_row(
+fn add_row(
     group: &mut Group,
     changesets: &mut Vec<GroupRowsChangesetPB>,
     cell_data: &SelectOptionCellDataPB,
@@ -136,9 +177,27 @@ fn group_select_option_row(
                 ));
                 group.add_row(row_pb);
             }
-        } else if group.contains_row(&row_rev.id) {
-            group.remove_row(&row_rev.id);
-            changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+        }
+
+        // else if group.contains_row(&row_rev.id) {
+        //     group.remove_row(&row_rev.id);
+        //     changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+        // }
+    });
+}
+
+fn remove_row(
+    group: &mut Group,
+    changesets: &mut Vec<GroupRowsChangesetPB>,
+    cell_data: &SelectOptionCellDataPB,
+    row_rev: &RowRevision,
+) {
+    cell_data.select_options.iter().for_each(|option| {
+        if option.id == group.id {
+            if group.contains_row(&row_rev.id) {
+                changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+                group.remove_row(&row_rev.id);
+            }
         }
     });
 }

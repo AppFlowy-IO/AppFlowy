@@ -127,7 +127,7 @@ impl GridBlockRevisionEditor {
         Ok(cell_revs)
     }
 
-    pub async fn get_row_info(&self, row_id: &str) -> FlowyResult<Option<RowPB>> {
+    pub async fn get_row_pb(&self, row_id: &str) -> FlowyResult<Option<RowPB>> {
         let row_ids = Some(vec![Cow::Borrowed(row_id)]);
         Ok(self.get_row_infos(row_ids).await?.pop())
     }

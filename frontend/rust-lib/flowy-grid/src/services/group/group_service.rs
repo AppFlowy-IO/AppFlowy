@@ -52,7 +52,7 @@ impl GroupService {
         }
     }
 
-    pub(crate) async fn fill_row<F, O>(&self, row_rev: &mut RowRevision, group_id: &str, get_field_fn: F)
+    pub(crate) async fn will_create_row<F, O>(&self, row_rev: &mut RowRevision, group_id: &str, get_field_fn: F)
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
@@ -62,8 +62,33 @@ impl GroupService {
             match get_field_fn(field_id).await {
                 None => {}
                 Some(field_rev) => {
-                    group_controller.write().await.fill_row(row_rev, &field_rev, group_id);
+                    group_controller
+                        .write()
+                        .await
+                        .will_create_row(row_rev, &field_rev, group_id);
                 }
+            }
+        }
+    }
+
+    pub(crate) async fn did_delete_row<F, O>(
+        &self,
+        row_rev: &RowRevision,
+        get_field_fn: F,
+    ) -> Option<Vec<GroupRowsChangesetPB>>
+    where
+        F: FnOnce(String) -> O,
+        O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
+    {
+        let group_controller = self.group_controller.as_ref()?;
+        let field_id = group_controller.read().await.field_id().to_owned();
+        let field_rev = get_field_fn(field_id).await?;
+
+        match group_controller.write().await.did_delete_row(row_rev, &field_rev) {
+            Ok(changesets) => Some(changesets),
+            Err(e) => {
+                tracing::error!("Update group data failed, {:?}", e);
+                None
             }
         }
     }

@@ -289,7 +289,7 @@ impl GridRevisionEditor {
     pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<RowPB> {
         let mut row_rev = self.create_row_rev().await?;
 
-        self.view_manager.fill_row(&mut row_rev, &params).await;
+        self.view_manager.will_create_row(&mut row_rev, &params).await;
 
         let row_pb = self.create_row_pb(row_rev, params.start_row_id.clone()).await?;
 
@@ -346,8 +346,10 @@ impl GridRevisionEditor {
     }
 
     pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
-        let _ = self.block_manager.delete_row(row_id).await?;
-        self.view_manager.did_delete_row(row_id).await;
+        let row_rev = self.block_manager.delete_row(row_id).await?;
+        if let Some(row_rev) = row_rev {
+            self.view_manager.did_delete_row(row_rev).await;
+        }
         Ok(())
     }
 

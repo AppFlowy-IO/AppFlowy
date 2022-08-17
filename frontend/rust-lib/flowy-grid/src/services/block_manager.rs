@@ -123,21 +123,23 @@ impl GridBlockManager {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
+    pub async fn delete_row(&self, row_id: &str) -> FlowyResult<Option<Arc<RowRevision>>> {
         let row_id = row_id.to_owned();
         let block_id = self.persistence.get_block_id(&row_id)?;
         let editor = self.get_block_editor(&block_id).await?;
-        match editor.get_row_info(&row_id).await? {
-            None => {}
-            Some(row_info) => {
+        match editor.get_row_rev(&row_id).await? {
+            None => Ok(None),
+            Some(row_rev) => {
                 let _ = editor.delete_rows(vec![Cow::Borrowed(&row_id)]).await?;
                 let _ = self
-                    .notify_did_update_block(&block_id, GridBlockChangesetPB::delete(&block_id, vec![row_info.id]))
+                    .notify_did_update_block(
+                        &block_id,
+                        GridBlockChangesetPB::delete(&block_id, vec![row_rev.id.clone()]),
+                    )
                     .await?;
+                Ok(Some(row_rev))
             }
         }
-
-        Ok(())
     }
 
     pub(crate) async fn delete_rows(&self, row_orders: Vec<RowPB>) -> FlowyResult<Vec<GridBlockMetaRevisionChangeset>> {
