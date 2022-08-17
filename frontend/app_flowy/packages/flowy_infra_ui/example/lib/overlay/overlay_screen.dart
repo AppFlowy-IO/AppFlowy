@@ -53,7 +53,8 @@ class OverlayScreen extends StatelessWidget {
         title: const Text('Overlay Demo'),
       ),
       body: ChangeNotifierProvider(
-        create: (context) => OverlayDemoConfiguration(AnchorDirection.rightWithTopAligned, OverlapBehaviour.stretch),
+        create: (context) => OverlayDemoConfiguration(
+            AnchorDirection.rightWithTopAligned, OverlapBehaviour.stretch),
         child: Builder(builder: (providerContext) {
           return Center(
             child: ConstrainedBox(
@@ -77,7 +78,8 @@ class OverlayScreen extends StatelessWidget {
                               child: GestureDetector(
                                 // ignore: avoid_print
                                 onTapDown: (_) => print('Hello Flutter'),
-                                child: const Center(child: FlutterLogo(size: 100)),
+                                child:
+                                    const Center(child: FlutterLogo(size: 100)),
                               ),
                             ),
                           ),
@@ -90,26 +92,38 @@ class OverlayScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24.0),
                   DropdownButton<AnchorDirection>(
-                    value: providerContext.watch<OverlayDemoConfiguration>().anchorDirection,
+                    value: providerContext
+                        .watch<OverlayDemoConfiguration>()
+                        .anchorDirection,
                     onChanged: (AnchorDirection? newValue) {
                       if (newValue != null) {
-                        providerContext.read<OverlayDemoConfiguration>().anchorDirection = newValue;
+                        providerContext
+                            .read<OverlayDemoConfiguration>()
+                            .anchorDirection = newValue;
                       }
                     },
-                    items: AnchorDirection.values.map((AnchorDirection classType) {
-                      return DropdownMenuItem<AnchorDirection>(value: classType, child: Text(classType.toString()));
+                    items:
+                        AnchorDirection.values.map((AnchorDirection classType) {
+                      return DropdownMenuItem<AnchorDirection>(
+                          value: classType, child: Text(classType.toString()));
                     }).toList(),
                   ),
                   const SizedBox(height: 24.0),
                   DropdownButton<OverlapBehaviour>(
-                    value: providerContext.watch<OverlayDemoConfiguration>().overlapBehaviour,
+                    value: providerContext
+                        .watch<OverlayDemoConfiguration>()
+                        .overlapBehaviour,
                     onChanged: (OverlapBehaviour? newValue) {
                       if (newValue != null) {
-                        providerContext.read<OverlayDemoConfiguration>().overlapBehaviour = newValue;
+                        providerContext
+                            .read<OverlayDemoConfiguration>()
+                            .overlapBehaviour = newValue;
                       }
                     },
-                    items: OverlapBehaviour.values.map((OverlapBehaviour classType) {
-                      return DropdownMenuItem<OverlapBehaviour>(value: classType, child: Text(classType.toString()));
+                    items: OverlapBehaviour.values
+                        .map((OverlapBehaviour classType) {
+                      return DropdownMenuItem<OverlapBehaviour>(
+                          value: classType, child: Text(classType.toString()));
                     }).toList(),
                   ),
                   const SizedBox(height: 24.0),
@@ -127,15 +141,20 @@ class OverlayScreen extends StatelessWidget {
                                 child: GestureDetector(
                                   // ignore: avoid_print
                                   onTapDown: (_) => print('Hello Flutter'),
-                                  child: const Center(child: FlutterLogo(size: 50)),
+                                  child: const Center(
+                                      child: FlutterLogo(size: 50)),
                                 ),
                               ),
                             ),
                             identifier: 'overlay_anchored_card',
                             delegate: null,
                             anchorContext: buttonContext,
-                            anchorDirection: providerContext.read<OverlayDemoConfiguration>().anchorDirection,
-                            overlapBehaviour: providerContext.read<OverlayDemoConfiguration>().overlapBehaviour,
+                            anchorDirection: providerContext
+                                .read<OverlayDemoConfiguration>()
+                                .anchorDirection,
+                            overlapBehaviour: providerContext
+                                .read<OverlayDemoConfiguration>()
+                                .overlapBehaviour,
                           );
                         },
                         child: const Text('Show Anchored Overlay'),
@@ -155,7 +174,8 @@ class OverlayScreen extends StatelessWidget {
                             child: GestureDetector(
                               // ignore: avoid_print
                               onTapDown: (_) => debugPrint('Hello Flutter'),
-                              child: const Center(child: FlutterLogo(size: 100)),
+                              child:
+                                  const Center(child: FlutterLogo(size: 100)),
                             ),
                           ),
                         ),
@@ -163,8 +183,12 @@ class OverlayScreen extends StatelessWidget {
                         delegate: null,
                         anchorPosition: Offset(0, windowSize.height - 200),
                         anchorSize: Size.zero,
-                        anchorDirection: providerContext.read<OverlayDemoConfiguration>().anchorDirection,
-                        overlapBehaviour: providerContext.read<OverlayDemoConfiguration>().overlapBehaviour,
+                        anchorDirection: providerContext
+                            .read<OverlayDemoConfiguration>()
+                            .anchorDirection,
+                        overlapBehaviour: providerContext
+                            .read<OverlayDemoConfiguration>()
+                            .overlapBehaviour,
                       );
                     },
                     child: const Text('Show Positioned Overlay'),
@@ -176,18 +200,24 @@ class OverlayScreen extends StatelessWidget {
                         ListOverlay.showWithAnchor(
                           context,
                           itemBuilder: (_, index) => Card(
-                            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 12.0),
                             elevation: 0,
                             child: Text(
                               'Option $index',
-                              style: const TextStyle(fontSize: 20.0, color: Colors.black),
+                              style: const TextStyle(
+                                  fontSize: 20.0, color: Colors.black),
                             ),
                           ),
                           itemCount: 10,
                           identifier: 'overlay_list_menu',
                           anchorContext: buttonContext,
-                          anchorDirection: providerContext.read<OverlayDemoConfiguration>().anchorDirection,
-                          overlapBehaviour: providerContext.read<OverlayDemoConfiguration>().overlapBehaviour,
+                          anchorDirection: providerContext
+                              .read<OverlayDemoConfiguration>()
+                              .anchorDirection,
+                          overlapBehaviour: providerContext
+                              .read<OverlayDemoConfiguration>()
+                              .overlapBehaviour,
                           width: 200.0,
                           height: 200.0,
                         );
@@ -201,13 +231,28 @@ class OverlayScreen extends StatelessWidget {
                       onPressed: () {
                         OptionOverlay.showWithAnchor(
                           context,
-                          items: <String>['Alpha', 'Beta', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel'],
-                          onHover: (value, index) => debugPrint('Did hover option $index, value $value'),
-                          onTap: (value, index) => debugPrint('Did tap option $index, value $value'),
+                          items: <String>[
+                            'Alpha',
+                            'Beta',
+                            'Charlie',
+                            'Delta',
+                            'Echo',
+                            'Foxtrot',
+                            'Golf',
+                            'Hotel'
+                          ],
+                          onHover: (value, index) => debugPrint(
+                              'Did hover option $index, value $value'),
+                          onTap: (value, index) =>
+                              debugPrint('Did tap option $index, value $value'),
                           identifier: 'overlay_options',
                           anchorContext: buttonContext,
-                          anchorDirection: providerContext.read<OverlayDemoConfiguration>().anchorDirection,
-                          overlapBehaviour: providerContext.read<OverlayDemoConfiguration>().overlapBehaviour,
+                          anchorDirection: providerContext
+                              .read<OverlayDemoConfiguration>()
+                              .anchorDirection,
+                          overlapBehaviour: providerContext
+                              .read<OverlayDemoConfiguration>()
+                              .overlapBehaviour,
                         );
                       },
                       child: const Text('Show Options Overlay'),
