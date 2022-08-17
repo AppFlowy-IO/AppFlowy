@@ -1,10 +1,10 @@
 # Testing
 
-> The directory structure of test files is consistent with the code files, makes it easy for us to judge the test status of the new added files and to retrieve the test code path of the corresponding file.
+> The directory structure of test files is consistent with the code files, making it easy for us to map a file with the corresponding test and check if the test is updated
 
 ## Testing Functions
 
-**Construct document for testing**
+**Construct a document for testing**
 ```dart
 const text = 'Welcome to Appflowy 😁';
 // Get the instance of editor.
@@ -35,13 +35,13 @@ editor.insertTextNode(
 await editor.startTesting();
 ```
 
-**Get the number of nodes in document**
+**Get the number of nodes in the document**
 ```dart
 final length = editor.documentLength;
 print(length);
 ```
 
-**Get the node of the specified path**
+**Get the node of a defined path**
 ```dart
 final firstTextNode = editor.nodeAtPath([0]) as TextNode;
 ```
@@ -59,7 +59,7 @@ final selection = editor.documentSelection;
 print(selection);
 ```
 
-**Simulate shortcut event input**
+**Simulate shortcut event inputs**
 ```dart
 // Command + A.
 await editor.pressLogicKey(LogicalKeyboardKey.keyA, isMetaPressed: true);
@@ -71,7 +71,7 @@ await editor.pressLogicKey(
 );
 ```
 
-**Simulate text input**
+**Simulate a text input**
 ```dart
 // Insert 'Hello World' at the beginning of the first node.
 editor.insertText(firstTextNode, 'Hello World', 0);
@@ -88,9 +88,9 @@ print(attributes);
 ```
 
 ## Example
-For example, we are going to test the file `select_all_handler.dart`
+For example, we are going to test `select_all_handler.dart`
 
-**Full code example**
+
 ```dart
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
@@ -125,4 +125,4 @@ void main() async {
 }
 ```
 
-For the rest of the information on testing, such as simulated clicks, please refer to [An introduction to widget testing](https://docs.flutter.dev/cookbook/testing/widget/introduction) 
+For more information about testing, such as simulating a click, please refer to [An introduction to widget testing](https://docs.flutter.dev/cookbook/testing/widget/introduction) 
