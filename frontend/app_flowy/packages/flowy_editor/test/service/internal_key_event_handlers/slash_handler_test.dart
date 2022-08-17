@@ -1,4 +1,4 @@
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 import 'package:flowy_editor/src/service/internal_key_event_handlers/slash_handler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

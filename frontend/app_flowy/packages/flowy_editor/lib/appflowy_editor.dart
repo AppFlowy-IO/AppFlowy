@@ -1,5 +1,5 @@
-/// FlowyEditor library
-library flowy_editor;
+/// AppFlowyEditor library
+library appflowy_editor;
 
 export 'src/document/node.dart';
 export 'src/document/path.dart';

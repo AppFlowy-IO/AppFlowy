@@ -13,7 +13,7 @@ Widget build(BuildContext context) {
   return Scaffold(
     body: Container(
       alignment: Alignment.topCenter,
-      child: FlowyEditor(
+      child: AppFlowyEditor(
         editorState: EditorState.empty(),
         keyEventHandlers: const [],
       ),
@@ -29,7 +29,7 @@ Nothing will happen after typing `_xxx_`.
 Next, we will create a function to handler underscore input.
 
 ```dart
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -102,7 +102,7 @@ Widget build(BuildContext context) {
   return Scaffold(
     body: Container(
       alignment: Alignment.topCenter,
-      child: FlowyEditor(
+      child: AppFlowyEditor(
         editorState: EditorState.empty(),
         keyEventHandlers: [
             underscoreToItalicHandler,
@@ -130,7 +130,7 @@ Widget build(BuildContext context) {
   return Scaffold(
     body: Container(
       alignment: Alignment.topCenter,
-      child: FlowyEditor(
+      child: AppFlowyEditor(
         editorState: EditorState.empty(),
         keyEventHandlers: const [],
       ),
@@ -156,7 +156,7 @@ Then, we create a class that inherits [NodeWidgetBuilder](). As shown in the aut
 
 
 ```dart
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 
 class NetworkImageNodeWidgetBuilder extends NodeWidgetBuilder {
@@ -266,7 +266,7 @@ final editorState = EditorState(
       ],
     ),
 );
-return FlowyEditor(
+return AppFlowyEditor(
   editorState: editorState,
   customBuilders: {
     'network_image': NetworkImageNodeWidgetBuilder(),

@@ -14,4 +14,4 @@ We welcome and appreciate your pull request submissions, and we have many good-f
 
 As [README](../README.md) said, we want to make sure that the code you submit will not affect the existing code logic and functionality, so please attach the corresponding test for each PR submission, and it is recommended to add a brief description of the test case and scope to the test. For more details, please see [TESTING.md](./testing.md)
 
-Finally, to repeat, since the FlowyEditor is a community-driven open source editor, we take every PR seriously and feel very much for everyone's contribution.
+Finally, to repeat, since the AppFlowyEditor is a community-driven open source editor, we take every PR seriously and feel very much for everyone's contribution.

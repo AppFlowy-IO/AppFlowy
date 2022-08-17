@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 
 KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   var selection = editorState.service.selectionService.currentSelection.value;

@@ -26,8 +26,8 @@ NodeWidgetBuilders defaultBuilders = {
   'text/quote': QuotedTextNodeWidgetBuilder(),
 };
 
-class FlowyEditor extends StatefulWidget {
-  const FlowyEditor({
+class AppFlowyEditor extends StatefulWidget {
+  const AppFlowyEditor({
     Key? key,
     required this.editorState,
     this.customBuilders = const {},
@@ -43,10 +43,10 @@ class FlowyEditor extends StatefulWidget {
   final List<FlowyKeyEventHandler> keyEventHandlers;
 
   @override
-  State<FlowyEditor> createState() => _FlowyEditorState();
+  State<AppFlowyEditor> createState() => _AppFlowyEditorState();
 }
 
-class _FlowyEditorState extends State<FlowyEditor> {
+class _AppFlowyEditorState extends State<AppFlowyEditor> {
   EditorState get editorState => widget.editorState;
 
   @override
@@ -57,7 +57,7 @@ class _FlowyEditorState extends State<FlowyEditor> {
   }
 
   @override
-  void didUpdateWidget(covariant FlowyEditor oldWidget) {
+  void didUpdateWidget(covariant AppFlowyEditor oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (editorState.service != oldWidget.editorState.service) {

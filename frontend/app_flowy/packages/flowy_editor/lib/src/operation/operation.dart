@@ -1,5 +1,4 @@
-import 'package:flowy_editor/src/document/attributes.dart';
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 
 abstract class Operation {
   factory Operation.fromJson(Map<String, dynamic> map) {

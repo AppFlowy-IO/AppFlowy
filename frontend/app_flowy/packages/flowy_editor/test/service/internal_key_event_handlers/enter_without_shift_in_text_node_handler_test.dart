@@ -1,4 +1,4 @@
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 import 'package:flowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';

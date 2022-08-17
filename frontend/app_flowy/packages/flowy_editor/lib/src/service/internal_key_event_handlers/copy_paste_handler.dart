@@ -1,4 +1,4 @@
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 import 'package:flowy_editor/src/infra/html_converter.dart';
 import 'package:flowy_editor/src/document/node_iterator.dart';
 import 'package:flutter/material.dart';
@@ -106,7 +106,7 @@ _pasteMultipleLinesInText(
       if (tailNodes.last.type == "text") {
         final tailTextNode = tailNodes.last as TextNode;
         tailTextNode.delta = tailTextNode.delta + remain;
-      } else if (remain.length > 0) {
+      } else if (remain.isNotEmpty) {
         tailNodes.add(TextNode(type: "text", delta: remain));
       }
     } else {

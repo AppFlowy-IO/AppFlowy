@@ -11,7 +11,7 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-<h1 align="center"><b>FlowyEditor</b></h1>
+<h1 align="center"><b>AppFlowyEditor</b></h1>
 
 <p align="center">An completely customize, test-covered rich text editing component for Flutter</p>
 
@@ -45,7 +45,7 @@ flutter pub get
 Creates editor with empty document
 ```dart
 final editorState = EditorState.empty();
-final editor = FlowyEditor(
+final editor = AppFlowyEditor(
     editorState: editorState,
     keyEventHandlers: const [],
     customBuilders: const {},
@@ -56,7 +56,7 @@ Creates editor from JSON file
 ```dart
 final json = ...;
 final editorState = EditorState(StateTree.fromJson(data));
-final editor = FlowyEditor(
+final editor = AppFlowyEditor(
     editorState: editorState,
     keyEventHandlers: const [],
     customBuilders: const {},

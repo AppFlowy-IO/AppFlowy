@@ -1,4 +1,4 @@
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 import 'package:flowy_editor/src/service/toolbar_service.dart';
 import 'package:flutter/material.dart';
 

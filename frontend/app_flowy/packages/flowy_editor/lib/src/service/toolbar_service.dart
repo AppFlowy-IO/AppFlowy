@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 import 'package:flowy_editor/src/render/selection/toolbar_widget.dart';
 import 'package:flowy_editor/src/extensions/object_extensions.dart';
 

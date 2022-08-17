@@ -7,7 +7,7 @@ import 'package:example/expandable_floating_action_button.dart';
 import 'package:example/plugin/image_node_widget.dart';
 import 'package:example/plugin/youtube_link_node_widget.dart';
 
-import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flowy_editor/appflowy_editor.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'FlowyEditor Example'),
+      home: const MyHomePage(title: 'AppFlowyEditor Example'),
     );
   }
 }
@@ -72,11 +72,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildBody() {
     if (page == 0) {
-      return _buildFlowyEditorWithExample();
+      return _buildAppFlowyEditorWithExample();
     } else if (page == 1) {
-      return _buildFlowyEditorWithEmptyDocument();
+      return _buildAppFlowyEditorWithEmptyDocument();
     } else if (page == 2) {
-      return _buildFlowyEditorWithBigDocument();
+      return _buildAppFlowyEditorWithBigDocument();
     }
     return Container();
   }
@@ -116,9 +116,9 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildFlowyEditorWithEmptyDocument() {
+  Widget _buildAppFlowyEditorWithEmptyDocument() {
     final editorState = EditorState.empty();
-    final editor = FlowyEditor(
+    final editor = AppFlowyEditor(
       editorState: editorState,
       keyEventHandlers: const [],
       customBuilders: const {},
@@ -126,13 +126,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return editor;
   }
 
-  Widget _buildFlowyEditorWithExample() {
+  Widget _buildAppFlowyEditorWithExample() {
     return FutureBuilder<String>(
       future: rootBundle.loadString('assets/example.json'),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final data = Map<String, Object>.from(json.decode(snapshot.data!));
-          return _buildFlowyEditor(EditorState(
+          return _buildAppFlowyEditor(EditorState(
             document: StateTree.fromJson(data),
           ));
         } else {
@@ -144,13 +144,13 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildFlowyEditorWithBigDocument() {
+  Widget _buildAppFlowyEditorWithBigDocument() {
     return FutureBuilder<String>(
       future: rootBundle.loadString('assets/big_document.json'),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final data = Map<String, Object>.from(json.decode(snapshot.data!));
-          return _buildFlowyEditor(EditorState(
+          return _buildAppFlowyEditor(EditorState(
             document: StateTree.fromJson(data),
           ));
         } else {
@@ -162,10 +162,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildFlowyEditor(EditorState editorState) {
+  Widget _buildAppFlowyEditor(EditorState editorState) {
     return Container(
       padding: const EdgeInsets.only(left: 20, right: 20),
-      child: FlowyEditor(
+      child: AppFlowyEditor(
         key: editorKey,
         editorState: editorState,
         keyEventHandlers: const [],
