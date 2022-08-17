@@ -29,8 +29,12 @@ pub trait Groupable: Send + Sync {
         cell_data: &Self::CellDataType,
     ) -> Vec<GroupRowsChangesetPB>;
 
-    fn move_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType)
-        -> Vec<GroupRowsChangesetPB>;
+    fn move_row_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+        to_row_id: &str,
+    ) -> Vec<GroupRowsChangesetPB>;
 }
 
 pub trait GroupController: GroupControllerSharedAction + Send + Sync {
@@ -52,6 +56,13 @@ pub trait GroupControllerSharedAction: Send + Sync {
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
+    ) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
+
+    fn did_move_row(
+        &mut self,
+        row_rev: &RowRevision,
+        field_rev: &FieldRevision,
+        to_row_id: &str,
     ) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
 }
 
@@ -119,6 +130,18 @@ impl Group {
             }
             Some(_) => {}
         }
+    }
+
+    pub fn insert_row(&mut self, index: usize, row_pb: RowPB) {
+        if index < self.rows.len() {
+            self.rows.insert(index, row_pb);
+        } else {
+            tracing::error!("Insert row index:{} beyond the bounds:{},", index, self.rows.len());
+        }
+    }
+
+    pub fn index_of_row(&self, row_id: &str) -> Option<usize> {
+        self.rows.iter().position(|row| row.id == row_id)
     }
 }
 
@@ -232,6 +255,21 @@ where
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.remove_row_if_match(row_rev, &cell_data))
+        } else {
+            Ok(vec![])
+        }
+    }
+
+    fn did_move_row(
+        &mut self,
+        row_rev: &RowRevision,
+        field_rev: &FieldRevision,
+        to_row_id: &str,
+    ) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
+        if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_data = cell_bytes.parser::<P>()?;
+            Ok(self.move_row_if_match(row_rev, &cell_data, to_row_id))
         } else {
             Ok(vec![])
         }

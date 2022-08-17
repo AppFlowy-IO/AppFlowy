@@ -87,7 +87,34 @@ impl GroupService {
         match group_controller.write().await.did_delete_row(row_rev, &field_rev) {
             Ok(changesets) => Some(changesets),
             Err(e) => {
-                tracing::error!("Update group data failed, {:?}", e);
+                tracing::error!("Delete group data failed, {:?}", e);
+                None
+            }
+        }
+    }
+
+    pub(crate) async fn did_move_row<F, O>(
+        &self,
+        row_rev: &RowRevision,
+        upper_row_id: &str,
+        get_field_fn: F,
+    ) -> Option<Vec<GroupRowsChangesetPB>>
+    where
+        F: FnOnce(String) -> O,
+        O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
+    {
+        let group_controller = self.group_controller.as_ref()?;
+        let field_id = group_controller.read().await.field_id().to_owned();
+        let field_rev = get_field_fn(field_id).await?;
+
+        match group_controller
+            .write()
+            .await
+            .did_move_row(row_rev, &field_rev, upper_row_id)
+        {
+            Ok(changesets) => Some(changesets),
+            Err(e) => {
+                tracing::error!("Move group data failed, {:?}", e);
                 None
             }
         }

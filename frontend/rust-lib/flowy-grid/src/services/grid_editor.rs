@@ -72,7 +72,6 @@ impl GridRevisionEditor {
                 user.clone(),
                 Arc::new(grid_pad.clone()),
                 Arc::new(block_manager.clone()),
-                Arc::new(block_manager.clone()),
                 Arc::new(task_scheduler.clone()),
             )
             .await?,
@@ -494,7 +493,42 @@ impl GridRevisionEditor {
     }
 
     pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {
-        self.view_manager.move_row(params).await
+        let MoveRowParams {
+            view_id: _,
+            from_row_id: row_id,
+            from_index,
+            to_index,
+            layout: _,
+            to_row_id: upper_row_id,
+        } = params;
+
+        let from_index = from_index as usize;
+        let to_index = to_index as usize;
+
+        match self.block_manager.get_row_rev(&row_id).await? {
+            None => tracing::warn!("Move row failed, can not find the row:{}", row_id),
+            Some(row_rev) => match upper_row_id {
+                None => {
+                    tracing::trace!("Move row from {} to {}", from_index, to_index);
+                    let _ = self
+                        .block_manager
+                        .move_row(row_rev.clone(), from_index, to_index)
+                        .await?;
+                }
+                Some(to_row_id) => match self.block_manager.index_of_row(&to_row_id).await {
+                    None => tracing::error!("Can not find the row: {} when moving the row", to_row_id),
+                    Some(to_row_index) => {
+                        tracing::trace!("Move row from {} to {}", from_index, to_row_index);
+                        let _ = self
+                            .block_manager
+                            .move_row(row_rev.clone(), from_index, to_row_index)
+                            .await?;
+                        self.view_manager.move_row(row_rev, to_row_id).await;
+                    }
+                },
+            },
+        }
+        Ok(())
     }
 
     pub async fn move_field(&self, params: MoveFieldParams) -> FlowyResult<()> {

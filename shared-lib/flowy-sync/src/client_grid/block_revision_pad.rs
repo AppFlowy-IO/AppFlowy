@@ -178,8 +178,12 @@ impl GridBlockRevisionPad {
             if let Some(position) = row_revs.iter().position(|row_rev| row_rev.id == row_id) {
                 debug_assert_eq!(from, position);
                 let row_rev = row_revs.remove(position);
-                row_revs.insert(to, row_rev);
-                Ok(Some(()))
+                if to > row_revs.len() {
+                    return Err(CollaborateError::out_of_bound());
+                } else {
+                    row_revs.insert(to, row_rev);
+                    Ok(Some(()))
+                }
             } else {
                 Ok(None)
             }

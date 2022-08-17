@@ -21,7 +21,7 @@ part 'board_bloc.freezed.dart';
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final BoardDataController _dataController;
   late final AFBoardDataController afBoardDataController;
-  List<GroupController> groupControllers = [];
+  Map<String, GroupController> groupControllers = {};
 
   GridFieldCache get fieldCache => _dataController.fieldCache;
   String get gridId => _dataController.gridId;
@@ -38,13 +38,17 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         columnId,
         fromIndex,
         toIndex,
-      ) {},
+      ) {
+        groupControllers[columnId]?.moveRow(fromIndex, toIndex);
+      },
       onMoveColumnItemToColumn: (
         fromColumnId,
         fromIndex,
         toColumnId,
         toIndex,
-      ) {},
+      ) {
+        //
+      },
     );
 
     on<BoardEvent>(
@@ -84,7 +88,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   @override
   Future<void> close() async {
     await _dataController.dispose();
-    for (final controller in groupControllers) {
+    for (final controller in groupControllers.values) {
       controller.dispose();
     }
     return super.close();
@@ -94,11 +98,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     for (final group in groups) {
       final delegate = GroupControllerDelegateImpl(afBoardDataController);
       final controller = GroupController(
+        gridId: state.gridId,
         group: group,
         delegate: delegate,
       );
       controller.startListening();
-      groupControllers.add(controller);
+      groupControllers[controller.group.groupId] = (controller);
     }
   }
 

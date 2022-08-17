@@ -118,17 +118,22 @@ impl GridViewRevisionEditor {
         }
     }
 
-    // async fn get_mut_group<F>(&self, group_id: &str, f: F) -> FlowyResult<()>
-    // where
-    //     F: Fn(&mut Group) -> FlowyResult<()>,
-    // {
-    //     for group in self.groups.write().await.iter_mut() {
-    //         if group.id == group_id {
-    //             let _ = f(group)?;
-    //         }
-    //     }
-    //     Ok(())
-    // }
+    pub(crate) async fn did_move_row(&self, row_rev: &RowRevision, upper_row_id: &str) {
+        if let Some(changesets) = self
+            .group_service
+            .write()
+            .await
+            .did_move_row(row_rev, upper_row_id, |field_id| {
+                self.field_delegate.get_field_rev(&field_id)
+            })
+            .await
+        {
+            for changeset in changesets {
+                tracing::trace!("Group changeset: {}", changeset);
+                self.notify_did_update_group(changeset).await;
+            }
+        }
+    }
 
     pub(crate) async fn load_groups(&self) -> FlowyResult<Vec<GroupPB>> {
         let field_revs = self.field_delegate.get_field_revs().await;

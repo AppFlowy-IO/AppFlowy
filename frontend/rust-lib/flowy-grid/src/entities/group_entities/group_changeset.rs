@@ -1,5 +1,6 @@
 use crate::entities::{InsertedRowPB, RowPB};
 use flowy_derive::ProtoBuf;
+use std::fmt::Formatter;
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct GroupRowsChangesetPB {
@@ -14,6 +15,14 @@ pub struct GroupRowsChangesetPB {
 
     #[pb(index = 4)]
     pub updated_rows: Vec<RowPB>,
+}
+
+impl std::fmt::Display for GroupRowsChangesetPB {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let _ = f.write_fmt(format_args!("Group:{}", self.group_id))?;
+        let _ = f.write_fmt(format_args!("Insert:{:?}", self.inserted_rows))?;
+        f.write_fmt(format_args!("Delete:{:?}", self.deleted_rows))
+    }
 }
 
 impl GroupRowsChangesetPB {

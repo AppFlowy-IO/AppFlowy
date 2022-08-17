@@ -71,3 +71,32 @@ class RowFFIService {
     return GridEventDuplicateRow(payload).send();
   }
 }
+
+class MoveRowFFIService {
+  final String gridId;
+
+  MoveRowFFIService({
+    required this.gridId,
+  });
+
+  Future<Either<Unit, FlowyError>> moveRow({
+    required String rowId,
+    required int fromIndex,
+    required int toIndex,
+    required GridLayout layout,
+    String? upperRowId,
+  }) {
+    var payload = MoveRowPayloadPB.create()
+      ..viewId = gridId
+      ..rowId = rowId
+      ..layout = layout
+      ..fromIndex = fromIndex
+      ..toIndex = toIndex;
+
+    if (upperRowId != null) {
+      payload.upperRowId = upperRowId;
+    }
+
+    return GridEventMoveRow(payload).send();
+  }
+}

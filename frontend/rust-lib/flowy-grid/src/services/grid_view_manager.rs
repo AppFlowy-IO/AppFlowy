@@ -31,17 +31,11 @@ pub trait GridViewRowDelegate: Send + Sync + 'static {
     fn gv_row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>>;
 }
 
-pub trait GridViewRowOperation: Send + Sync + 'static {
-    // Will be removed in the future.
-    fn gv_move_row(&self, row_rev: Arc<RowRevision>, from: usize, to: usize) -> AFFuture<FlowyResult<()>>;
-}
-
 pub(crate) struct GridViewManager {
     grid_id: String,
     user: Arc<dyn GridUser>,
     field_delegate: Arc<dyn GridViewFieldDelegate>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
-    row_operation: Arc<dyn GridViewRowOperation>,
     view_editors: DashMap<ViewId, Arc<GridViewRevisionEditor>>,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
 }
@@ -52,7 +46,6 @@ impl GridViewManager {
         user: Arc<dyn GridUser>,
         field_delegate: Arc<dyn GridViewFieldDelegate>,
         row_delegate: Arc<dyn GridViewRowDelegate>,
-        row_operation: Arc<dyn GridViewRowOperation>,
         scheduler: Arc<dyn GridServiceTaskScheduler>,
     ) -> FlowyResult<Self> {
         Ok(Self {
@@ -61,7 +54,6 @@ impl GridViewManager {
             scheduler,
             field_delegate,
             row_delegate,
-            row_operation,
             view_editors: DashMap::default(),
         })
     }
@@ -119,37 +111,10 @@ impl GridViewManager {
         Ok(RepeatedGridGroupPB { items: groups })
     }
 
-    pub(crate) async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {
-        let MoveRowParams {
-            view_id: _,
-            row_id,
-            from_index,
-            to_index,
-            layout,
-            upper_row_id,
-        } = params;
-
-        let from_index = from_index as usize;
-
-        match self.row_delegate.gv_get_row_rev(&row_id).await {
-            None => tracing::warn!("Move row failed, can not find the row:{}", row_id),
-            Some(row_rev) => match layout {
-                GridLayout::Table => {
-                    tracing::trace!("Move row from {} to {}", from_index, to_index);
-                    let to_index = to_index as usize;
-                    let _ = self.row_operation.gv_move_row(row_rev, from_index, to_index).await?;
-                }
-                GridLayout::Board => {
-                    if let Some(upper_row_id) = upper_row_id {
-                        if let Some(to_index) = self.row_delegate.gv_index_of_row(&upper_row_id).await {
-                            tracing::trace!("Move row from {} to {}", from_index, to_index);
-                            let _ = self.row_operation.gv_move_row(row_rev, from_index, to_index).await?;
-                        }
-                    }
-                }
-            },
+    pub(crate) async fn move_row(&self, row_rev: Arc<RowRevision>, to_row_id: String) {
+        for view_editor in self.view_editors.iter() {
+            view_editor.did_move_row(&row_rev, &to_row_id).await;
         }
-        Ok(())
     }
 
     pub(crate) async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<GridViewRevisionEditor>> {

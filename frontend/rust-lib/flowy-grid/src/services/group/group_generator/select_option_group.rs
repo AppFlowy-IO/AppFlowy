@@ -45,8 +45,13 @@ impl Groupable for SingleSelectGroupController {
         &mut self,
         row_rev: &RowRevision,
         cell_data: &Self::CellDataType,
+        to_row_id: &str,
     ) -> Vec<GroupRowsChangesetPB> {
-        todo!()
+        let mut changesets = vec![];
+        self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
+            move_row(group, &mut changesets, cell_data, row_rev, to_row_id);
+        });
+        changesets
     }
 }
 
@@ -100,7 +105,6 @@ impl Groupable for MultiSelectGroupController {
 
     fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
         let mut changesets = vec![];
-
         self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
             add_row(group, &mut changesets, cell_data, row_rev);
         });
@@ -123,8 +127,13 @@ impl Groupable for MultiSelectGroupController {
         &mut self,
         row_rev: &RowRevision,
         cell_data: &Self::CellDataType,
+        to_row_id: &str,
     ) -> Vec<GroupRowsChangesetPB> {
-        todo!()
+        let mut changesets = vec![];
+        self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
+            move_row(group, &mut changesets, cell_data, row_rev, to_row_id);
+        });
+        changesets
     }
 }
 
@@ -178,11 +187,6 @@ fn add_row(
                 group.add_row(row_pb);
             }
         }
-
-        // else if group.contains_row(&row_rev.id) {
-        //     group.remove_row(&row_rev.id);
-        //     changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
-        // }
     });
 }
 
@@ -198,6 +202,33 @@ fn remove_row(
                 changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
                 group.remove_row(&row_rev.id);
             }
+        }
+    });
+}
+
+fn move_row(
+    group: &mut Group,
+    changesets: &mut Vec<GroupRowsChangesetPB>,
+    cell_data: &SelectOptionCellDataPB,
+    row_rev: &RowRevision,
+    upper_row_id: &str,
+) {
+    cell_data.select_options.iter().for_each(|option| {
+        if option.id == group.id {
+            if group.contains_row(&row_rev.id) {
+                changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+                group.remove_row(&row_rev.id);
+            }
+        }
+
+        if let Some(index) = group.index_of_row(upper_row_id) {
+            let row_pb = RowPB::from(row_rev);
+            let inserted_row = InsertedRowPB {
+                row: row_pb.clone(),
+                index: Some(index as i32),
+            };
+            changesets.push(GroupRowsChangesetPB::insert(group.id.clone(), vec![inserted_row]));
+            group.insert_row(index, row_pb);
         }
     });
 }

@@ -39,6 +39,7 @@ impl Groupable for CheckboxGroupController {
         &mut self,
         row_rev: &RowRevision,
         cell_data: &Self::CellDataType,
+        to_row_id: &str,
     ) -> Vec<GroupRowsChangesetPB> {
         todo!()
     }
