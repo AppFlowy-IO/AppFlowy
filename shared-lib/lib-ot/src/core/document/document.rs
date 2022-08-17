@@ -1,5 +1,5 @@
 use crate::core::document::position::Position;
-use crate::core::NodeData;
+use crate::core::{NodeData, Transaction};
 use indextree::{Arena, NodeId};
 
 pub struct DocumentTree {
@@ -35,6 +35,42 @@ impl DocumentTree {
         Some(iterate_node)
     }
 
+    pub fn path_of_node(&self, node_id: NodeId) -> Position {
+        let mut path: Vec<usize> = Vec::new();
+
+        let mut ancestors = node_id.ancestors(&self.arena);
+        let mut current_node = node_id;
+        let mut parent = ancestors.next();
+
+        while parent.is_some() {
+            let parent_node = parent.unwrap();
+            let counter = self.index_of_node(parent_node, current_node);
+            path.push(counter);
+            current_node = parent_node;
+            parent = ancestors.next();
+        }
+
+        Position(path)
+    }
+
+    fn index_of_node(&self, parent_node: NodeId, child_node: NodeId) -> usize {
+        let mut counter: usize = 0;
+
+        let mut children_iterator = parent_node.children(&self.arena);
+        let mut node = children_iterator.next();
+
+        while node.is_some() {
+            if node.unwrap() == child_node {
+                return counter;
+            }
+
+            node = children_iterator.next();
+            counter += 1;
+        }
+
+        counter
+    }
+
     fn child_at_index_of_path(&self, at_node: NodeId, index: usize) -> Option<NodeId> {
         let children = at_node.children(&self.arena);
 
@@ -48,5 +84,9 @@ impl DocumentTree {
         }
 
         None
+    }
+
+    pub fn apply(&self, _transaction: Transaction) {
+        unimplemented!()
     }
 }
