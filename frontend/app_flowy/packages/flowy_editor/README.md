@@ -73,11 +73,11 @@ flutter run
 
 ## How to customizes ...
 ### Customizing a component
-Please refer to [customizing.md](documentation/extending.md#extending-a-custom-component) for more details.
+Please refer to [customizing a component](documentation/customizing.md#customizing-a-custom-component) for more details.
 
 
 ### Customizing a shortcut event
-Please refer to [customizing.md](documentation/extending.md#extending-a-custom-shortcut-event) for more details.
+Please refer to [customizing a shortcut event](documentation/customizing.md#customizing-a-custom-shortcut-event) for more details.
 
 ## Code Examples
 * Customizing a component.
