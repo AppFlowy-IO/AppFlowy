@@ -24,7 +24,7 @@ Widget build(BuildContext context) {
 
 Nothing will happen after typing `_xxx_`.
 
-![Before](./images/custom_a_shortcut_key_before.gif)
+![Before](./images/extend_a_custom_shortcut_key_before.gif)
 
 Next, we will create a function to handler underscore input.
 
@@ -113,26 +113,167 @@ Widget build(BuildContext context) {
 }
 ```
 
-![After](./images/custom_a_shortcut_key_after.gif)
+![After](./images/extend_a_custom_shortcut_key_after.gif)
 
 [Complete code example]()
 
 ## Extending a custom component
 we will use a simple example to describe how to quickly extend custom component.
-/// 1. define your custom type in example.json
-///   For example I need to define an image plugin, then I define type equals
-///   "image", and add "image_src" into "attributes".
-///   {
-///     "type": "image",
-///     "attributes", { "image_src": "https://s1.ax1x.com/2022/07/28/vCgz1x.png" }
-///   }
-/// 2. create a class extends [NodeWidgetBuilder]
-/// 3. override the function `Widget build(NodeWidgetContext<Node> context)`
-///     and return a widget to render. The returned widget should be
-///     a StatefulWidget and mixin with [Selectable].
-///
-/// 4. override the getter `nodeValidator`
-///     to verify the data structure in [Node].
-/// 5. register the plugin with `type` to `flowy_editor` in `main.dart`.
-/// 6. Congratulations!
-1. define your custom `type`. 
+
+For example, we want to render an image from network.
+
+To start with, we build the simplest example, just a blank document.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Container(
+      alignment: Alignment.topCenter,
+      child: FlowyEditor(
+        editorState: EditorState.empty(),
+        keyEventHandlers: const [],
+      ),
+    ),
+  );
+}
+```
+
+Next, we choose a unique string for the type of the custom node and use `network_image` in this case. And we add `network_image_src` to the `attributes` to describe the link of the image.
+
+> For the definition of the [Node](), please refer to this [link]().
+
+```JSON
+{
+  "type": "network_image",
+  "attributes": {
+    "network_image_src": "https://docs.flutter.dev/assets/images/dash/dash-fainting.gif"
+  }
+}
+```
+
+Then, we create a class that inherits [NodeWidgetBuilder](). As shown in the autoprompt, we need to implement two functions, one that returns a widget and the other that verifies the correctness of the [Node]().
+
+
+```dart
+import 'package:flowy_editor/flowy_editor.dart';
+import 'package:flutter/material.dart';
+
+class NetworkImageNodeWidgetBuilder extends NodeWidgetBuilder {
+  @override
+  Widget build(NodeWidgetContext<Node> context) {
+    throw UnimplementedError();
+  }
+
+  @override
+  NodeValidator<Node> get nodeValidator => throw UnimplementedError();
+}
+```
+
+Now, let's implement a simple image widget based on `Image`.
+
+**It is important to note that the `State` of the returned `Widget` must be with [Selectable]().**
+
+> For the definition of the [Selectable](), please refer to this [link]().
+
+```dart
+class _NetworkImageNodeWidget extends StatefulWidget {
+  const _NetworkImageNodeWidget({
+    Key? key,
+    required this.node,
+  }) : super(key: key);
+
+  final Node node;
+
+  @override
+  State<_NetworkImageNodeWidget> createState() =>
+      __NetworkImageNodeWidgetState();
+}
+
+class __NetworkImageNodeWidgetState extends State<_NetworkImageNodeWidget>
+    with Selectable {
+  RenderBox get _renderBox => context.findRenderObject() as RenderBox;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      widget.node.attributes['network_image_src'],
+      height: 200,
+      loadingBuilder: (context, child, loadingProgress) =>
+          loadingProgress == null ? child : const CircularProgressIndicator(),
+    );
+  }
+
+  @override
+  Position start() => Position(path: widget.node.path, offset: 0);
+
+  @override
+  Position end() => Position(path: widget.node.path, offset: 1);
+
+  @override
+  Position getPositionInOffset(Offset start) => end();
+
+  @override
+  List<Rect> getRectsInSelection(Selection selection) =>
+      [Offset.zero & _renderBox.size];
+
+  @override
+  Selection getSelectionInRange(Offset start, Offset end) => Selection.single(
+        path: widget.node.path,
+        startOffset: 0,
+        endOffset: 1,
+      );
+
+  @override
+  Offset localToGlobal(Offset offset) => _renderBox.localToGlobal(offset);
+}
+```
+
+Finally, we return `_NetworkImageNodeWidget` in the `build` function of `NetworkImageNodeWidgetBuilder` and register `NetworkImageNodeWidgetBuilder` into `AppFlowyEditor`.
+
+```dart
+class NetworkImageNodeWidgetBuilder extends NodeWidgetBuilder {
+  @override
+  Widget build(NodeWidgetContext<Node> context) {
+    return _NetworkImageNodeWidget(
+      key: context.node.key,
+      node: context.node,
+    );
+  }
+
+  @override
+  NodeValidator<Node> get nodeValidator => (node) {
+        return node.type == 'network_image' &&
+            node.attributes['network_image_src'] is String;
+      };
+}
+```
+
+```dart
+final editorState = EditorState(
+  document: StateTree.empty()
+    ..insert(
+      [0],
+      [
+        TextNode.empty(),
+        Node.fromJson({
+          'type': 'network_image',
+          'attributes': {
+            'network_image_src':
+                'https://docs.flutter.dev/assets/images/dash/dash-fainting.gif'
+          }
+        })
+      ],
+    ),
+);
+return FlowyEditor(
+  editorState: editorState,
+  customBuilders: {
+    'network_image': NetworkImageNodeWidgetBuilder(),
+  },
+);
+```
+
+![](./images/extend_a_custom_component.gif)
+
+[Complete code example]()

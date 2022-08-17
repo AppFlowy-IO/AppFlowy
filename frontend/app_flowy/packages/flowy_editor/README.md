@@ -78,8 +78,10 @@ flutter run
 
 ## How to extends
 ### Extending a custom components
-Please look at [extending.md](documentation/extending.md) for more details.
+Please refer to [extending.md](documentation/extending.md#extending-a-custom-component) for more details.
 
+### Extending a custom shortcut event
+Please refer to [extending.md](documentation/extending.md#extending-a-custom-shortcut-event) for more details.
 ## Examples
 * Extends a custom component.
     * [Checkbox Text](https://github.com/LucasXu0/AppFlowy/blob/documentation/flowy_editor/frontend/app_flowy/packages/flowy_editor/lib/src/render/rich_text/checkbox_text.dart) - Showing how to extend new styles based on existing rich text components.
