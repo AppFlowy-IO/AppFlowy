@@ -30,7 +30,7 @@ impl GroupActionHandler for CheckboxGroupController {
         self.handle_rows(row_revs, field_rev)
     }
 
-    fn update_card(&self, _row_rev: &mut RowRevision, _field_rev: &FieldRevision, _group_id: &str) {
+    fn fill_row(&self, _row_rev: &mut RowRevision, _field_rev: &FieldRevision, _group_id: &str) {
         todo!()
     }
 }

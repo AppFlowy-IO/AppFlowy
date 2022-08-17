@@ -27,10 +27,11 @@ pub trait Groupable {
 }
 
 pub trait GroupActionHandler: Send + Sync {
+    // The field that is used for grouping the rows
     fn field_id(&self) -> &str;
     fn build_groups(&self) -> Vec<Group>;
     fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()>;
-    fn update_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
+    fn fill_row(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
 }
 
 pub trait GroupActionHandler2: Send + Sync {
