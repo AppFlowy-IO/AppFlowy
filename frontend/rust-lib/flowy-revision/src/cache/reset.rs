@@ -38,7 +38,6 @@ where
     pub async fn run(&self) -> FlowyResult<()> {
         match KV::get_str(self.target.target_id()) {
             None => {
-                tracing::trace!("😁 reset object");
                 let _ = self.reset_object().await?;
                 let _ = self.save_migrate_record()?;
             }

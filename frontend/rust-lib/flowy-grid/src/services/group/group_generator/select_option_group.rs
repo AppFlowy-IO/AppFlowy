@@ -1,17 +1,14 @@
-use crate::entities::SelectOptionGroupConfigurationPB;
+use crate::entities::{GroupRowsChangesetPB, InsertedRowPB, RowPB, SelectOptionGroupConfigurationPB};
 use crate::services::cell::insert_select_option_cell;
-use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
-
-use std::sync::Arc;
-
 use crate::services::field::{
     MultiSelectTypeOptionPB, SelectOptionCellDataPB, SelectOptionCellDataParser, SingleSelectTypeOptionPB,
 };
-use crate::services::group::{Group, GroupActionHandler, GroupController, GroupGenerator, Groupable};
+use crate::services::group::{GenericGroupController, Group, GroupController, GroupGenerator, Groupable};
+
+use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 
 // SingleSelect
-pub type SingleSelectGroupController = GroupController<
+pub type SingleSelectGroupController = GenericGroupController<
     SelectOptionGroupConfigurationPB,
     SingleSelectTypeOptionPB,
     SingleSelectGroupGenerator,
@@ -23,22 +20,18 @@ impl Groupable for SingleSelectGroupController {
     fn can_group(&self, content: &str, cell_data: &SelectOptionCellDataPB) -> bool {
         cell_data.select_options.iter().any(|option| option.id == content)
     }
+
+    fn group_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
+        let mut changesets = vec![];
+        self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
+            group_select_option_row(group, &mut changesets, cell_data, row_rev);
+        });
+        changesets
+    }
 }
 
-impl GroupActionHandler for SingleSelectGroupController {
-    fn field_id(&self) -> &str {
-        &self.field_id
-    }
-
-    fn build_groups(&self) -> Vec<Group> {
-        self.make_groups()
-    }
-
-    fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()> {
-        self.handle_rows(row_revs, field_rev)
-    }
-
-    fn update_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
+impl GroupController for SingleSelectGroupController {
+    fn fill_row(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
         let group: Option<&Group> = self.groups_map.get(group_id);
         match group {
             None => {}
@@ -63,19 +56,14 @@ impl GroupGenerator for SingleSelectGroupGenerator {
             Some(type_option) => type_option
                 .options
                 .iter()
-                .map(|option| Group {
-                    id: option.id.clone(),
-                    desc: option.name.clone(),
-                    rows: vec![],
-                    content: option.id.clone(),
-                })
+                .map(|option| Group::new(option.id.clone(), option.name.clone(), option.id.clone()))
                 .collect(),
         }
     }
 }
 
 // MultiSelect
-pub type MultiSelectGroupController = GroupController<
+pub type MultiSelectGroupController = GenericGroupController<
     SelectOptionGroupConfigurationPB,
     MultiSelectTypeOptionPB,
     MultiSelectGroupGenerator,
@@ -84,25 +72,23 @@ pub type MultiSelectGroupController = GroupController<
 
 impl Groupable for MultiSelectGroupController {
     type CellDataType = SelectOptionCellDataPB;
+
     fn can_group(&self, content: &str, cell_data: &SelectOptionCellDataPB) -> bool {
         cell_data.select_options.iter().any(|option| option.id == content)
     }
+
+    fn group_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
+        let mut changesets = vec![];
+
+        self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
+            group_select_option_row(group, &mut changesets, cell_data, row_rev);
+        });
+        changesets
+    }
 }
 
-impl GroupActionHandler for MultiSelectGroupController {
-    fn field_id(&self) -> &str {
-        &self.field_id
-    }
-
-    fn build_groups(&self) -> Vec<Group> {
-        self.make_groups()
-    }
-
-    fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()> {
-        self.handle_rows(row_revs, field_rev)
-    }
-
-    fn update_card(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
+impl GroupController for MultiSelectGroupController {
+    fn fill_row(&self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
         let group: Option<&Group> = self.groups_map.get(group_id);
         match group {
             None => tracing::warn!("Can not find the group: {}", group_id),
@@ -128,13 +114,31 @@ impl GroupGenerator for MultiSelectGroupGenerator {
             Some(type_option) => type_option
                 .options
                 .iter()
-                .map(|option| Group {
-                    id: option.id.clone(),
-                    desc: option.name.clone(),
-                    rows: vec![],
-                    content: option.id.clone(),
-                })
+                .map(|option| Group::new(option.id.clone(), option.name.clone(), option.id.clone()))
                 .collect(),
         }
     }
+}
+
+fn group_select_option_row(
+    group: &mut Group,
+    changesets: &mut Vec<GroupRowsChangesetPB>,
+    cell_data: &SelectOptionCellDataPB,
+    row_rev: &RowRevision,
+) {
+    cell_data.select_options.iter().for_each(|option| {
+        if option.id == group.id {
+            if !group.contains_row(&row_rev.id) {
+                let row_pb = RowPB::from(row_rev);
+                changesets.push(GroupRowsChangesetPB::insert(
+                    group.id.clone(),
+                    vec![InsertedRowPB::new(row_pb.clone())],
+                ));
+                group.add_row(row_pb);
+            }
+        } else if group.contains_row(&row_rev.id) {
+            group.remove_row(&row_rev.id);
+            changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+        }
+    });
 }

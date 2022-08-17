@@ -112,6 +112,12 @@ pub struct InsertedRowPB {
     pub index: Option<i32>,
 }
 
+impl InsertedRowPB {
+    pub fn new(row: RowPB) -> Self {
+        Self { row, index: None }
+    }
+}
+
 impl std::convert::From<RowPB> for InsertedRowPB {
     fn from(row: RowPB) -> Self {
         Self { row, index: None }

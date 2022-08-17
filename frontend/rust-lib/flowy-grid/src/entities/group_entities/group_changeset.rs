@@ -17,6 +17,9 @@ pub struct GroupRowsChangesetPB {
 }
 
 impl GroupRowsChangesetPB {
+    pub fn is_empty(&self) -> bool {
+        self.inserted_rows.is_empty() && self.deleted_rows.is_empty() && self.updated_rows.is_empty()
+    }
     pub fn insert(group_id: String, inserted_rows: Vec<InsertedRowPB>) -> Self {
         Self {
             group_id,

@@ -3,6 +3,7 @@ use crate::entities::GridCellIdParams;
 use crate::entities::*;
 use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
+
 use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellBytes};
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::filter::GridFilterService;
@@ -11,7 +12,6 @@ use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{
     make_grid_blocks, make_row_from_row_rev, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder,
 };
-
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::*;
@@ -68,9 +68,11 @@ impl GridRevisionEditor {
         // View manager
         let view_manager = Arc::new(
             GridViewManager::new(
+                grid_id.to_owned(),
                 user.clone(),
-                grid_pad.clone(),
-                block_manager.clone(),
+                Arc::new(grid_pad.clone()),
+                Arc::new(block_manager.clone()),
+                Arc::new(block_manager.clone()),
                 Arc::new(task_scheduler.clone()),
             )
             .await?,
@@ -403,7 +405,7 @@ impl GridRevisionEditor {
                 content = Some(apply_cell_data_changeset(content.unwrap(), cell_rev, field_rev)?);
                 let cell_changeset = CellChangesetPB {
                     grid_id,
-                    row_id,
+                    row_id: row_id.clone(),
                     field_id,
                     content,
                 };
@@ -411,6 +413,8 @@ impl GridRevisionEditor {
                     .block_manager
                     .update_cell(cell_changeset, make_row_from_row_rev)
                     .await?;
+
+                self.view_manager.did_update_row(&row_id).await;
                 Ok(())
             }
         }
