@@ -65,42 +65,45 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
     final check = widget.textNode.attributes.check;
     final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
     return SizedBox(
-        width: defaultMaxTextNodeWidth,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: defaultLinePadding),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                key: iconKey,
-                child: FlowySvg(
-                  size: Size.square(_iconSize),
-                  padding: EdgeInsets.only(
-                      top: topPadding, right: _iconRightPadding),
-                  name: check ? 'check' : 'uncheck',
+      width: defaultMaxTextNodeWidth,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: defaultLinePadding),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GestureDetector(
+              key: iconKey,
+              child: FlowySvg(
+                size: Size.square(_iconSize),
+                padding: EdgeInsets.only(
+                  top: topPadding,
+                  right: _iconRightPadding,
                 ),
-                onTap: () {
-                  debugPrint('[Checkbox] onTap...');
-                  TransactionBuilder(widget.editorState)
-                    ..updateNode(widget.textNode, {
-                      StyleKey.checkbox: !check,
-                    })
-                    ..commit();
-                },
+                name: check ? 'check' : 'uncheck',
               ),
-              Expanded(
-                child: FlowyRichText(
-                  key: _richTextKey,
-                  placeholderText: 'To-do',
-                  textNode: widget.textNode,
-                  textSpanDecorator: _textSpanDecorator,
-                  placeholderTextSpanDecorator: _textSpanDecorator,
-                  editorState: widget.editorState,
-                ),
+              onTap: () {
+                debugPrint('[Checkbox] onTap...');
+                TransactionBuilder(widget.editorState)
+                  ..updateNode(widget.textNode, {
+                    StyleKey.checkbox: !check,
+                  })
+                  ..commit();
+              },
+            ),
+            Expanded(
+              child: FlowyRichText(
+                key: _richTextKey,
+                placeholderText: 'To-do',
+                textNode: widget.textNode,
+                textSpanDecorator: _textSpanDecorator,
+                placeholderTextSpanDecorator: _textSpanDecorator,
+                editorState: widget.editorState,
               ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildWithChildren(BuildContext context) {
