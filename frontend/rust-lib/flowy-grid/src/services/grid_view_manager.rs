@@ -2,7 +2,7 @@ use crate::entities::{
     CreateRowParams, GridFilterConfiguration, GridLayout, GridSettingPB, MoveRowParams, RepeatedGridGroupPB, RowPB,
 };
 use crate::manager::GridUser;
-use crate::services::block_manager::GridBlockManager;
+
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_editor::GridViewRevisionEditor;
 use bytes::Bytes;
@@ -11,13 +11,12 @@ use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
 use flowy_revision::{RevisionCompactor, RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
-use flowy_sync::client_grid::GridRevisionPad;
+
 use flowy_sync::entities::grid::GridSettingChangesetParams;
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_text_delta_from_revisions;
-use lib_infra::future::{wrap_future, AFFuture};
+use lib_infra::future::AFFuture;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 type ViewId = String;
 
@@ -74,7 +73,16 @@ impl GridViewManager {
     }
 
     pub(crate) async fn did_update_row(&self, row_id: &str) {
-        let row = self.row_delegate.gv_get_row_rev(row_id).await;
+        match self.row_delegate.gv_get_row_rev(row_id).await {
+            None => {
+                tracing::warn!("Can not find the row in grid view");
+            }
+            Some(row_rev) => {
+                for view_editor in self.view_editors.iter() {
+                    view_editor.did_update_row(&row_rev).await;
+                }
+            }
+        }
     }
 
     pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {

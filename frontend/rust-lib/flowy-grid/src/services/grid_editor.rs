@@ -3,7 +3,7 @@ use crate::entities::GridCellIdParams;
 use crate::entities::*;
 use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
-use crate::services::block_manager_trait_impl::*;
+
 use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellBytes};
 use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
 use crate::services::filter::GridFilterService;
@@ -405,7 +405,7 @@ impl GridRevisionEditor {
                 content = Some(apply_cell_data_changeset(content.unwrap(), cell_rev, field_rev)?);
                 let cell_changeset = CellChangesetPB {
                     grid_id,
-                    row_id,
+                    row_id: row_id.clone(),
                     field_id,
                     content,
                 };
@@ -413,6 +413,8 @@ impl GridRevisionEditor {
                     .block_manager
                     .update_cell(cell_changeset, make_row_from_row_rev)
                     .await?;
+
+                self.view_manager.did_update_row(&row_id).await;
                 Ok(())
             }
         }

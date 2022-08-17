@@ -5,7 +5,7 @@ use crate::entities::{
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
-use crate::services::group::{default_group_configuration, Group, GroupConfigurationDelegate, GroupService};
+use crate::services::group::{default_group_configuration, GroupConfigurationDelegate, GroupService};
 use crate::services::setting::make_grid_setting;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{FieldRevision, GroupConfigurationRevision, RowRevision};
@@ -105,11 +105,16 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn did_update_row(&self, row_rev: Arc<RowRevision>) {
-        match self.group_id_of_row(&row_rev.id).await {
-            None => {}
-            Some(group_id) => {
-                // self.get_mut_group(&group_id, |group| Ok(()));
+    pub(crate) async fn did_update_row(&self, row_rev: &RowRevision) {
+        if let Some(changesets) = self
+            .group_service
+            .write()
+            .await
+            .did_update_row(row_rev, |field_id| self.field_delegate.get_field_rev(&field_id))
+            .await
+        {
+            for changeset in changesets {
+                self.notify_did_update_group(changeset).await;
             }
         }
     }
@@ -117,7 +122,7 @@ impl GridViewRevisionEditor {
     async fn group_id_of_row(&self, row_id: &str) -> Option<String> {
         let read_guard = &self.group_service.read().await.groups;
         for group in read_guard.iter() {
-            if group.rows.iter().any(|row| row.id == row_id) {
+            if group.contains_row(row_id) {
                 return Some(group.id.clone());
             }
         }
