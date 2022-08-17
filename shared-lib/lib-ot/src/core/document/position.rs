@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Position(pub Vec<usize>);
 
 impl Position {
