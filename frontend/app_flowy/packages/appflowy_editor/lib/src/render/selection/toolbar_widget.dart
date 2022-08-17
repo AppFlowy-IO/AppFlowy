@@ -96,16 +96,18 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
           children: [
             // _listToolbar(context),
             // _centerToolbarIcon('divider', width: 10),
-            _centerToolbarIcon('bold'),
-            _centerToolbarIcon('italic'),
-            _centerToolbarIcon('strikethrough'),
-            _centerToolbarIcon('underline'),
+            _centerToolbarIcon('bold', tooltipMessage: 'Bold'),
+            _centerToolbarIcon('italic', tooltipMessage: 'Italic'),
+            _centerToolbarIcon('strikethrough',
+                tooltipMessage: 'Strikethrough'),
+            _centerToolbarIcon('underline', tooltipMessage: 'Underline'),
             _centerToolbarIcon('divider', width: 2),
-            _centerToolbarIcon('quote'),
+            _centerToolbarIcon('quote', tooltipMessage: 'Quote'),
             // _centerToolbarIcon('number_list'),
-            _centerToolbarIcon('bulleted_list'),
+            _centerToolbarIcon('bulleted_list',
+                tooltipMessage: 'Bulleted List'),
             _centerToolbarIcon('divider', width: 2),
-            _centerToolbarIcon('highlight'),
+            _centerToolbarIcon('highlight', tooltipMessage: 'Highlight'),
           ],
         ),
       ),
@@ -122,25 +124,27 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
   }
 
   Widget _centerToolbarIcon(String name,
-      {Key? key, double? width, VoidCallback? onTap}) {
+      {Key? key, String? tooltipMessage, double? width, VoidCallback? onTap}) {
     return Tooltip(
-      key: key,
-      preferBelow: false,
-      message: name,
-      child: GestureDetector(
-        onTap: onTap ?? () => _onTap(name),
-        child: SizedBox.fromSize(
-          size: width != null
-              ? Size(width, toolbarHeight)
-              : Size.square(toolbarHeight),
-          child: Center(
-            child: FlowySvg(
-              name: 'toolbar/$name',
+        key: key,
+        preferBelow: false,
+        message: tooltipMessage ?? '',
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: onTap ?? () => _onTap(name),
+            child: SizedBox.fromSize(
+              size: width != null
+                  ? Size(width, toolbarHeight)
+                  : Size.square(toolbarHeight),
+              child: Center(
+                child: FlowySvg(
+                  name: 'toolbar/$name',
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   void _onTapListToolbar(BuildContext context) {
