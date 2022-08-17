@@ -29,17 +29,17 @@ impl Groupable for CheckboxGroupController {
 
     fn remove_row_if_match(
         &mut self,
-        row_rev: &RowRevision,
-        cell_data: &Self::CellDataType,
+        _row_rev: &RowRevision,
+        _cell_data: &Self::CellDataType,
     ) -> Vec<GroupRowsChangesetPB> {
         todo!()
     }
 
     fn move_row_if_match(
         &mut self,
-        row_rev: &RowRevision,
-        cell_data: &Self::CellDataType,
-        to_row_id: &str,
+        _row_rev: &RowRevision,
+        _cell_data: &Self::CellDataType,
+        _to_row_id: &str,
     ) -> Vec<GroupRowsChangesetPB> {
         todo!()
     }

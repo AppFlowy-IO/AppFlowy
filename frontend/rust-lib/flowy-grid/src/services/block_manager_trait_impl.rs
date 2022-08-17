@@ -1,6 +1,6 @@
 use crate::services::block_manager::GridBlockManager;
 use crate::services::grid_view_manager::GridViewRowDelegate;
-use flowy_error::FlowyResult;
+
 use flowy_grid_data_model::revision::RowRevision;
 use lib_infra::future::{wrap_future, AFFuture};
 use std::sync::Arc;

@@ -1,8 +1,7 @@
 use crate::entities::{
-    CreateRowParams, GridFilterConfiguration, GridLayout, GridSettingPB, MoveRowParams, RepeatedGridGroupPB, RowPB,
+    CreateRowParams, GridFilterConfiguration, GridSettingPB, RepeatedGridGroupPB, RowPB,
 };
 use crate::manager::GridUser;
-
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_editor::GridViewRevisionEditor;
 use bytes::Bytes;
@@ -11,7 +10,6 @@ use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
 use flowy_revision::{RevisionCompactor, RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
-
 use flowy_sync::entities::grid::GridSettingChangesetParams;
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_text_delta_from_revisions;

@@ -6,7 +6,7 @@ const DART_LOG = "Dart_LOG";
 class Log {
   // static const enableLog = bool.hasEnvironment(DART_LOG);
   // static final shared = Log();
-  static const enableLog = true;
+  static const enableLog = false;
 
   static void info(String? message) {
     if (enableLog) {

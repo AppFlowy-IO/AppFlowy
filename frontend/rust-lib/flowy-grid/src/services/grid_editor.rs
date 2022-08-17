@@ -495,38 +495,29 @@ impl GridRevisionEditor {
     pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {
         let MoveRowParams {
             view_id: _,
-            from_row_id: row_id,
-            from_index,
-            to_index,
-            layout: _,
-            to_row_id: upper_row_id,
+            from_row_id,
+            to_row_id,
         } = params;
 
-        let from_index = from_index as usize;
-        let to_index = to_index as usize;
-
-        match self.block_manager.get_row_rev(&row_id).await? {
-            None => tracing::warn!("Move row failed, can not find the row:{}", row_id),
-            Some(row_rev) => match upper_row_id {
-                None => {
-                    tracing::trace!("Move row from {} to {}", from_index, to_index);
-                    let _ = self
-                        .block_manager
-                        .move_row(row_rev.clone(), from_index, to_index)
-                        .await?;
-                }
-                Some(to_row_id) => match self.block_manager.index_of_row(&to_row_id).await {
-                    None => tracing::error!("Can not find the row: {} when moving the row", to_row_id),
-                    Some(to_row_index) => {
-                        tracing::trace!("Move row from {} to {}", from_index, to_row_index);
+        match self.block_manager.get_row_rev(&from_row_id).await? {
+            None => tracing::warn!("Move row failed, can not find the row:{}", from_row_id),
+            Some(row_rev) => {
+                match (
+                    self.block_manager.index_of_row(&from_row_id).await,
+                    self.block_manager.index_of_row(&to_row_id).await,
+                ) {
+                    (Some(from_index), Some(to_index)) => {
+                        tracing::trace!("Move row from {} to {}", from_index, to_index);
                         let _ = self
                             .block_manager
-                            .move_row(row_rev.clone(), from_index, to_row_index)
+                            .move_row(row_rev.clone(), from_index, to_index)
                             .await?;
-                        self.view_manager.move_row(row_rev, to_row_id).await;
+                        self.view_manager.move_row(row_rev, to_row_id.clone()).await;
                     }
-                },
-            },
+                    (_, None) => tracing::error!("Can not find the from row id: {}", from_row_id),
+                    (None, _) => tracing::error!("Can not find the to row id: {}", to_row_id),
+                }
+            }
         }
         Ok(())
     }

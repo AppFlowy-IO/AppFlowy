@@ -1,7 +1,6 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{
-    CreateRowParams, GridFilterConfiguration, GridLayout, GridSettingPB, GroupPB, GroupRowsChangesetPB, InsertedRowPB,
-    RowPB,
+    CreateRowParams, GridFilterConfiguration, GridSettingPB, GroupPB, GroupRowsChangesetPB, InsertedRowPB, RowPB,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};

@@ -177,15 +177,13 @@ fn add_row(
     row_rev: &RowRevision,
 ) {
     cell_data.select_options.iter().for_each(|option| {
-        if option.id == group.id {
-            if !group.contains_row(&row_rev.id) {
-                let row_pb = RowPB::from(row_rev);
-                changesets.push(GroupRowsChangesetPB::insert(
-                    group.id.clone(),
-                    vec![InsertedRowPB::new(row_pb.clone())],
-                ));
-                group.add_row(row_pb);
-            }
+        if option.id == group.id && !group.contains_row(&row_rev.id) {
+            let row_pb = RowPB::from(row_rev);
+            changesets.push(GroupRowsChangesetPB::insert(
+                group.id.clone(),
+                vec![InsertedRowPB::new(row_pb.clone())],
+            ));
+            group.add_row(row_pb);
         }
     });
 }
@@ -197,11 +195,9 @@ fn remove_row(
     row_rev: &RowRevision,
 ) {
     cell_data.select_options.iter().for_each(|option| {
-        if option.id == group.id {
-            if group.contains_row(&row_rev.id) {
-                changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
-                group.remove_row(&row_rev.id);
-            }
+        if option.id == group.id && group.contains_row(&row_rev.id) {
+            changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+            group.remove_row(&row_rev.id);
         }
     });
 }
@@ -214,11 +210,9 @@ fn move_row(
     upper_row_id: &str,
 ) {
     cell_data.select_options.iter().for_each(|option| {
-        if option.id == group.id {
-            if group.contains_row(&row_rev.id) {
-                changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
-                group.remove_row(&row_rev.id);
-            }
+        if option.id == group.id && group.contains_row(&row_rev.id) {
+            changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+            group.remove_row(&row_rev.id);
         }
 
         if let Some(index) = group.index_of_row(upper_row_id) {

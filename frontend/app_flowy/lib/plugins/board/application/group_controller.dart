@@ -1,4 +1,3 @@
-import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
@@ -16,36 +15,23 @@ abstract class GroupControllerDelegate {
 class GroupController {
   final GroupPB group;
   final GroupListener _listener;
-  final MoveRowFFIService _rowService;
   final GroupControllerDelegate delegate;
-  OnGroupError? _onError;
 
   GroupController({
     required String gridId,
     required this.group,
     required this.delegate,
-  })  : _rowService = MoveRowFFIService(gridId: gridId),
-        _listener = GroupListener(group);
+  }) : _listener = GroupListener(group);
 
-  Future<void> moveRow(int fromIndex, int toIndex) async {
-    if (fromIndex < group.rows.length && toIndex < group.rows.length) {
-      final fromRow = group.rows[fromIndex];
-      final toRow = group.rows[toIndex];
-
-      final result = await _rowService.moveRow(
-        rowId: fromRow.id,
-        fromIndex: fromIndex,
-        toIndex: toIndex,
-        upperRowId: toRow.id,
-        layout: GridLayout.Board,
-      );
-
-      result.fold((l) => null, (r) => _onError?.call(r));
+  RowPB? rowAtIndex(int index) {
+    if (index < group.rows.length) {
+      return group.rows[index];
+    } else {
+      return null;
     }
   }
 
-  void startListening({OnGroupError? onError}) {
-    _onError = onError;
+  void startListening() {
     _listener.start(onGroupChanged: (result) {
       result.fold(
         (GroupRowsChangesetPB changeset) {
