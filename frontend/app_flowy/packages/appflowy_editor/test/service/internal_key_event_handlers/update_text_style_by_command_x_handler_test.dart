@@ -15,6 +15,7 @@ void main() async {
       await _testUpdateTextStyleByCommandX(
         tester,
         StyleKey.bold,
+        true,
         LogicalKeyboardKey.keyB,
       );
     });
@@ -22,6 +23,7 @@ void main() async {
       await _testUpdateTextStyleByCommandX(
         tester,
         StyleKey.italic,
+        true,
         LogicalKeyboardKey.keyI,
       );
     });
@@ -29,21 +31,40 @@ void main() async {
       await _testUpdateTextStyleByCommandX(
         tester,
         StyleKey.underline,
+        true,
         LogicalKeyboardKey.keyU,
       );
     });
-    testWidgets('Presses Command + S to update text style', (tester) async {
+    testWidgets('Presses Command + Shift + S to update text style',
+        (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
         StyleKey.strikethrough,
+        true,
         LogicalKeyboardKey.keyS,
+      );
+    });
+
+    testWidgets('Presses Command + Shift + H to update text style',
+        (tester) async {
+      await _testUpdateTextStyleByCommandX(
+        tester,
+        StyleKey.backgroundColor,
+        defaultHighlightColor,
+        LogicalKeyboardKey.keyH,
       );
     });
   });
 }
 
 Future<void> _testUpdateTextStyleByCommandX(
-    WidgetTester tester, String matchStyle, LogicalKeyboardKey key) async {
+  WidgetTester tester,
+  String matchStyle,
+  dynamic matchValue,
+  LogicalKeyboardKey key,
+) async {
+  final isShiftPressed =
+      key == LogicalKeyboardKey.keyS || key == LogicalKeyboardKey.keyH;
   const text = 'Welcome to Appflowy 😁';
   final editor = tester.editor
     ..insertTextNode(text)
@@ -56,31 +77,34 @@ Future<void> _testUpdateTextStyleByCommandX(
   await editor.updateSelection(selection);
   await editor.pressLogicKey(
     key,
-    isShiftPressed: key == LogicalKeyboardKey.keyS,
+    isShiftPressed: isShiftPressed,
     isMetaPressed: true,
   );
   var textNode = editor.nodeAtPath([1]) as TextNode;
-  expect(textNode.allSatisfyInSelection(matchStyle, selection), true);
+  expect(
+      textNode.allSatisfyInSelection(matchStyle, matchValue, selection), true);
 
   selection =
       Selection.single(path: [1], startOffset: 0, endOffset: text.length);
   await editor.updateSelection(selection);
   await editor.pressLogicKey(
     key,
-    isShiftPressed: key == LogicalKeyboardKey.keyS,
+    isShiftPressed: isShiftPressed,
     isMetaPressed: true,
   );
   textNode = editor.nodeAtPath([1]) as TextNode;
-  expect(textNode.allSatisfyInSelection(matchStyle, selection), true);
+  expect(
+      textNode.allSatisfyInSelection(matchStyle, matchValue, selection), true);
 
   await editor.updateSelection(selection);
   await editor.pressLogicKey(
     key,
-    isShiftPressed: key == LogicalKeyboardKey.keyS,
+    isShiftPressed: isShiftPressed,
     isMetaPressed: true,
   );
   textNode = editor.nodeAtPath([1]) as TextNode;
-  expect(textNode.allNotSatisfyInSelection(matchStyle, selection), true);
+  expect(textNode.allNotSatisfyInSelection(matchStyle, matchValue, selection),
+      true);
 
   selection = Selection(
     start: Position(path: [0], offset: 0),
@@ -89,7 +113,7 @@ Future<void> _testUpdateTextStyleByCommandX(
   await editor.updateSelection(selection);
   await editor.pressLogicKey(
     key,
-    isShiftPressed: key == LogicalKeyboardKey.keyS,
+    isShiftPressed: isShiftPressed,
     isMetaPressed: true,
   );
   var nodes = editor.editorState.service.selectionService.currentSelectedNodes
@@ -99,6 +123,7 @@ Future<void> _testUpdateTextStyleByCommandX(
     expect(
       node.allSatisfyInSelection(
         matchStyle,
+        matchValue,
         Selection.single(
             path: node.path, startOffset: 0, endOffset: text.length),
       ),
@@ -109,7 +134,7 @@ Future<void> _testUpdateTextStyleByCommandX(
   await editor.updateSelection(selection);
   await editor.pressLogicKey(
     key,
-    isShiftPressed: key == LogicalKeyboardKey.keyS,
+    isShiftPressed: isShiftPressed,
     isMetaPressed: true,
   );
   nodes = editor.editorState.service.selectionService.currentSelectedNodes
@@ -119,6 +144,7 @@ Future<void> _testUpdateTextStyleByCommandX(
     expect(
       node.allNotSatisfyInSelection(
         matchStyle,
+        matchValue,
         Selection.single(
             path: node.path, startOffset: 0, endOffset: text.length),
       ),

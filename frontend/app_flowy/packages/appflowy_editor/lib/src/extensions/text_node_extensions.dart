@@ -7,18 +7,22 @@ import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 
 extension TextNodeExtension on TextNode {
   bool allSatisfyBoldInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.bold, selection);
+      allSatisfyInSelection(StyleKey.bold, true, selection);
 
   bool allSatisfyItalicInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.italic, selection);
+      allSatisfyInSelection(StyleKey.italic, true, selection);
 
   bool allSatisfyUnderlineInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.underline, selection);
+      allSatisfyInSelection(StyleKey.underline, true, selection);
 
   bool allSatisfyStrikethroughInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.strikethrough, selection);
+      allSatisfyInSelection(StyleKey.strikethrough, true, selection);
 
-  bool allSatisfyInSelection(String styleKey, Selection selection) {
+  bool allSatisfyInSelection(
+    String styleKey,
+    dynamic value,
+    Selection selection,
+  ) {
     final ops = delta.whereType<TextInsert>();
     final startOffset =
         selection.isBackward ? selection.start.offset : selection.end.offset;
@@ -33,7 +37,7 @@ extension TextNodeExtension on TextNode {
       if (start < endOffset && start + length > startOffset) {
         if (op.attributes == null ||
             !op.attributes!.containsKey(styleKey) ||
-            op.attributes![styleKey] == false) {
+            op.attributes![styleKey] != value) {
           return false;
         }
       }
@@ -42,7 +46,11 @@ extension TextNodeExtension on TextNode {
     return true;
   }
 
-  bool allNotSatisfyInSelection(String styleKey, Selection selection) {
+  bool allNotSatisfyInSelection(
+    String styleKey,
+    dynamic value,
+    Selection selection,
+  ) {
     final ops = delta.whereType<TextInsert>();
     final startOffset =
         selection.isBackward ? selection.start.offset : selection.end.offset;
@@ -57,7 +65,7 @@ extension TextNodeExtension on TextNode {
       if (start < endOffset && start + length > startOffset) {
         if (op.attributes != null &&
             op.attributes!.containsKey(styleKey) &&
-            op.attributes![styleKey] == true) {
+            op.attributes![styleKey] == value) {
           return false;
         }
       }
@@ -69,23 +77,27 @@ extension TextNodeExtension on TextNode {
 
 extension TextNodesExtension on List<TextNode> {
   bool allSatisfyBoldInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.bold, selection);
+      allSatisfyInSelection(StyleKey.bold, selection, true);
 
   bool allSatisfyItalicInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.italic, selection);
+      allSatisfyInSelection(StyleKey.italic, selection, true);
 
   bool allSatisfyUnderlineInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.underline, selection);
+      allSatisfyInSelection(StyleKey.underline, selection, true);
 
   bool allSatisfyStrikethroughInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.strikethrough, selection);
+      allSatisfyInSelection(StyleKey.strikethrough, selection, true);
 
-  bool allSatisfyInSelection(String styleKey, Selection selection) {
+  bool allSatisfyInSelection(
+    String styleKey,
+    Selection selection,
+    dynamic value,
+  ) {
     if (isEmpty) {
       return false;
     }
     if (length == 1) {
-      return first.allSatisfyInSelection(styleKey, selection);
+      return first.allSatisfyInSelection(styleKey, value, selection);
     } else {
       for (var i = 0; i < length; i++) {
         final node = this[i];
@@ -105,7 +117,7 @@ extension TextNodesExtension on List<TextNode> {
             end: Position(path: node.path, offset: node.toRawString().length),
           );
         }
-        if (!node.allSatisfyInSelection(styleKey, newSelection)) {
+        if (!node.allSatisfyInSelection(styleKey, value, newSelection)) {
           return false;
         }
       }

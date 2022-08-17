@@ -80,7 +80,7 @@ class FlowySelection extends StatefulWidget {
   const FlowySelection({
     Key? key,
     this.cursorColor = Colors.black,
-    this.selectionColor = const Color.fromARGB(60, 61, 61, 213),
+    this.selectionColor = const Color.fromARGB(53, 111, 201, 231),
     required this.editorState,
     required this.child,
   }) : super(key: key);

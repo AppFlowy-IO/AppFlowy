@@ -31,6 +31,10 @@ FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
       event.isShiftPressed) {
     formatStrikethrough(editorState);
     return KeyEventResult.handled;
+  } else if (event.logicalKey == LogicalKeyboardKey.keyH &&
+      event.isShiftPressed) {
+    formatHighlight(editorState);
+    return KeyEventResult.handled;
   }
 
   return KeyEventResult.ignored;

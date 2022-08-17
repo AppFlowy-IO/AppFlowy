@@ -66,6 +66,8 @@ class StyleKey {
 double defaultMaxTextNodeWidth = 780.0;
 double defaultLinePadding = 8.0;
 double baseFontSize = 16.0;
+String defaultHighlightColor = '0x6000BCF0';
+String defaultBackgroundColor = '0x00000000';
 // TODO: customize.
 Map<String, double> headingToFontSize = {
   StyleKey.h1: baseFontSize + 15,

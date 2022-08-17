@@ -139,7 +139,25 @@ bool formatStrikethrough(EditorState editorState) {
   return formatRichTextPartialStyle(editorState, StyleKey.strikethrough);
 }
 
-bool formatRichTextPartialStyle(EditorState editorState, String styleKey) {
+bool formatHighlight(EditorState editorState) {
+  bool value = _allSatisfyInSelection(
+      editorState, StyleKey.backgroundColor, defaultHighlightColor);
+  return formatRichTextPartialStyle(editorState, StyleKey.backgroundColor,
+      customValue: value ? defaultBackgroundColor : defaultHighlightColor);
+}
+
+bool formatRichTextPartialStyle(EditorState editorState, String styleKey,
+    {Object? customValue}) {
+  Attributes attributes = {
+    styleKey: customValue ??
+        !_allSatisfyInSelection(editorState, styleKey, customValue ?? true),
+  };
+
+  return formatRichTextStyle(editorState, attributes);
+}
+
+bool _allSatisfyInSelection(
+    EditorState editorState, String styleKey, dynamic value) {
   final selection = editorState.service.selectionService.currentSelection.value;
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final textNodes = nodes.whereType<TextNode>().toList(growable: false);
@@ -148,12 +166,7 @@ bool formatRichTextPartialStyle(EditorState editorState, String styleKey) {
     return false;
   }
 
-  bool value = !textNodes.allSatisfyInSelection(styleKey, selection);
-  Attributes attributes = {
-    styleKey: value,
-  };
-
-  return formatRichTextStyle(editorState, attributes);
+  return textNodes.allSatisfyInSelection(styleKey, selection, value);
 }
 
 bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
