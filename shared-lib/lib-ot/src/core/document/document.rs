@@ -1,5 +1,5 @@
 use crate::core::document::position::Position;
-use crate::core::{NodeData, Transaction};
+use crate::core::{DeleteOperation, DocumentOperation, InsertOperation, NodeData, TextEditOperation, Transaction, UpdateOperation};
 use indextree::{Arena, NodeId};
 
 pub struct DocumentTree {
@@ -86,7 +86,54 @@ impl DocumentTree {
         None
     }
 
-    pub fn apply(&self, _transaction: Transaction) {
+    pub fn apply(&mut self, transaction: Transaction) {
+        for op in &transaction.operations {
+            self.apply_op(op);
+        }
+    }
+
+    fn apply_op(&mut self, op: &DocumentOperation) {
+        match op  {
+            DocumentOperation::Insert(op) => self.apply_insert(op),
+            DocumentOperation::Update(op) => self.apply_update(op),
+            DocumentOperation::Delete(op) => self.apply_delete(op),
+            DocumentOperation::TextEdit(op) => self.apply_text_edit(op),
+        }
+    }
+
+    fn apply_insert(&mut self, op: &InsertOperation) {
+        let parent_path = &op.path.0[0..(op.path.0.len() - 1)];
+        let last_index = op.path.0[op.path.0.len() - 1];
+        let parent_node = self.node_at_path(&Position(parent_path.to_vec()));
+        if let Some(parent_node) = parent_node {
+            self.insert_child_at_index(parent_node, last_index, &op.nodes);
+        }
+    }
+
+    fn insert_child_at_index(&mut self, parent: NodeId, index: usize, insert_children: &[NodeId]) {
+        if index == 0 && insert_children.len() == 0 {
+            for id in insert_children {
+                parent.append(*id, &mut self.arena);
+            }
+            return;
+        }
+
+        let node_to_insert = self.child_at_index_of_path(parent, index).unwrap();
+
+        for id in insert_children {
+            node_to_insert.insert_before(*id, &mut self.arena);
+        }
+    }
+
+    fn apply_update(&self, _op: &UpdateOperation) {
+        unimplemented!()
+    }
+
+    fn apply_delete(&self, _op: &DeleteOperation) {
+        unimplemented!()
+    }
+
+    fn apply_text_edit(&self, _op: &TextEditOperation) {
         unimplemented!()
     }
 }

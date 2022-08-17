@@ -8,7 +8,7 @@ fn main() {
 
 #[test]
 fn test_documents() {
-    let document = DocumentTree::new();
+    let mut document = DocumentTree::new();
     let tb = TransactionBuilder::new();
     document.apply(tb.finalize());
 }

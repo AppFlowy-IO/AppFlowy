@@ -35,23 +35,23 @@ impl DocumentOperation {
 }
 
 pub struct InsertOperation {
-    path: Position,
-    nodes: Vec<NodeId>,
+    pub path: Position,
+    pub nodes: Vec<NodeId>,
 }
 
 pub struct UpdateOperation {
-    path: Position,
-    attributes: NodeAttributes,
-    old_attributes: NodeAttributes,
+    pub path: Position,
+    pub attributes: NodeAttributes,
+    pub old_attributes: NodeAttributes,
 }
 
 pub struct DeleteOperation {
-    path: Position,
-    nodes: Vec<NodeId>,
+    pub path: Position,
+    pub nodes: Vec<NodeId>,
 }
 
 pub struct TextEditOperation {
-    path: Position,
-    delta: TextDelta,
-    inverted: TextDelta,
+    pub path: Position,
+    pub delta: TextDelta,
+    pub inverted: TextDelta,
 }
