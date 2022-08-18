@@ -53,7 +53,7 @@ class ToolbarWidget extends StatefulWidget {
 }
 
 class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
-  final GlobalKey _listToolbarKey = GlobalKey();
+  // final GlobalKey _listToolbarKey = GlobalKey();
 
   final toolbarHeight = 32.0;
   final topPadding = 5.0;
@@ -117,14 +117,14 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
     );
   }
 
-  Widget _listToolbar(BuildContext context) {
-    return _centerToolbarIcon(
-      'quote',
-      key: _listToolbarKey,
-      width: listToolbarWidth,
-      onTap: () => _onTapListToolbar(context),
-    );
-  }
+  // Widget _listToolbar(BuildContext context) {
+  //   return _centerToolbarIcon(
+  //     'quote',
+  //     key: _listToolbarKey,
+  //     width: listToolbarWidth,
+  //     onTap: () => _onTapListToolbar(context),
+  //   );
+  // }
 
   Widget _centerToolbarIcon(String name,
       {Key? key, String? tooltipMessage, double? width, VoidCallback? onTap}) {
@@ -150,62 +150,62 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
         ));
   }
 
-  void _onTapListToolbar(BuildContext context) {
-    // TODO: implement more detailed UI.
-    final items = defaultListToolbarEventNames;
-    final renderBox =
-        _listToolbarKey.currentContext?.findRenderObject() as RenderBox;
-    final offset = renderBox
-        .localToGlobal(Offset.zero)
-        .translate(0, toolbarHeight - cornerRadius);
-    final rect = offset & Size(listToolbarWidth, listToolbarHeight);
+  // void _onTapListToolbar(BuildContext context) {
+  //   // TODO: implement more detailed UI.
+  //   final items = defaultListToolbarEventNames;
+  //   final renderBox =
+  //       _listToolbarKey.currentContext?.findRenderObject() as RenderBox;
+  //   final offset = renderBox
+  //       .localToGlobal(Offset.zero)
+  //       .translate(0, toolbarHeight - cornerRadius);
+  //   final rect = offset & Size(listToolbarWidth, listToolbarHeight);
 
-    _listToolbarOverlay?.remove();
-    _listToolbarOverlay = OverlayEntry(builder: (context) {
-      return Positioned.fromRect(
-        rect: rect,
-        child: Material(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(cornerRadius),
-            bottomRight: Radius.circular(cornerRadius),
-          ),
-          color: const Color(0xFF333333),
-          child: SingleChildScrollView(
-            child: ListView.builder(
-              itemExtent: toolbarHeight,
-              padding: const EdgeInsets.only(bottom: 10.0),
-              shrinkWrap: true,
-              itemCount: items.length,
-              itemBuilder: ((context, index) {
-                return ListTile(
-                  contentPadding: const EdgeInsets.only(
-                    left: 3.0,
-                    right: 3.0,
-                  ),
-                  minVerticalPadding: 0.0,
-                  title: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      items[index],
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  onTap: () {
-                    _onTap(items[index]);
-                  },
-                );
-              }),
-            ),
-          ),
-        ),
-      );
-    });
-    // TODO: disable scrolling.
-    Overlay.of(context)?.insert(_listToolbarOverlay!);
-  }
+  //   _listToolbarOverlay?.remove();
+  //   _listToolbarOverlay = OverlayEntry(builder: (context) {
+  //     return Positioned.fromRect(
+  //       rect: rect,
+  //       child: Material(
+  //         borderRadius: BorderRadius.only(
+  //           bottomLeft: Radius.circular(cornerRadius),
+  //           bottomRight: Radius.circular(cornerRadius),
+  //         ),
+  //         color: const Color(0xFF333333),
+  //         child: SingleChildScrollView(
+  //           child: ListView.builder(
+  //             itemExtent: toolbarHeight,
+  //             padding: const EdgeInsets.only(bottom: 10.0),
+  //             shrinkWrap: true,
+  //             itemCount: items.length,
+  //             itemBuilder: ((context, index) {
+  //               return ListTile(
+  //                 contentPadding: const EdgeInsets.only(
+  //                   left: 3.0,
+  //                   right: 3.0,
+  //                 ),
+  //                 minVerticalPadding: 0.0,
+  //                 title: FittedBox(
+  //                   fit: BoxFit.scaleDown,
+  //                   child: Text(
+  //                     items[index],
+  //                     textAlign: TextAlign.center,
+  //                     style: const TextStyle(
+  //                       color: Colors.white,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 onTap: () {
+  //                   _onTap(items[index]);
+  //                 },
+  //               );
+  //             }),
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   });
+  //   // TODO: disable scrolling.
+  //   Overlay.of(context)?.insert(_listToolbarOverlay!);
+  // }
 
   void _onTap(String eventName) {
     if (defaultToolbarEventHandlers.containsKey(eventName)) {

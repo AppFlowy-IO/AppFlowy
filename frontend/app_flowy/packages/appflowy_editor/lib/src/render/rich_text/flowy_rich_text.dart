@@ -11,7 +11,6 @@ import 'package:appflowy_editor/src/document/text_delta.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
-import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 
 typedef FlowyTextSpanDecorator = TextSpan Function(TextSpan textSpan);
 
@@ -166,26 +165,26 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   // unused now.
-  Widget _buildRichTextWithChildren(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSingleRichText(context),
-        ...widget.textNode.children
-            .map(
-              (child) => widget.editorState.service.renderPluginService
-                  .buildPluginWidget(
-                NodeWidgetContext(
-                  context: context,
-                  node: child,
-                  editorState: widget.editorState,
-                ),
-              ),
-            )
-            .toList()
-      ],
-    );
-  }
+  // Widget _buildRichTextWithChildren(BuildContext context) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       _buildSingleRichText(context),
+  //       ...widget.textNode.children
+  //           .map(
+  //             (child) => widget.editorState.service.renderPluginService
+  //                 .buildPluginWidget(
+  //               NodeWidgetContext(
+  //                 context: context,
+  //                 node: child,
+  //                 editorState: widget.editorState,
+  //               ),
+  //             ),
+  //           )
+  //           .toList()
+  //     ],
+  //   );
+  // }
 
   @override
   Offset localToGlobal(Offset offset) {

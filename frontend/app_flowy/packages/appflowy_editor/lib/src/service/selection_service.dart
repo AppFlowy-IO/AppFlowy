@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/document/node.dart';
@@ -104,7 +103,7 @@ class _FlowySelectionState extends State<FlowySelection>
   final List<OverlayEntry> _selectionAreas = [];
   final List<OverlayEntry> _cursorAreas = [];
 
-  OverlayEntry? _debugOverlay;
+  // OverlayEntry? _debugOverlay;
 
   /// Pan
   Offset? _panStartOffset;
@@ -517,38 +516,38 @@ class _FlowySelectionState extends State<FlowySelection>
 
   void _showDebugLayerIfNeeded({Offset? offset}) {
     // remove false to show debug overlay.
-    if (kDebugMode && false) {
-      _debugOverlay?.remove();
-      if (offset != null) {
-        _debugOverlay = OverlayEntry(
-          builder: (context) => Positioned.fromRect(
-            rect: Rect.fromPoints(offset, offset.translate(20, 20)),
-            child: Container(
-              color: Colors.red.withOpacity(0.2),
-            ),
-          ),
-        );
-        Overlay.of(context)?.insert(_debugOverlay!);
-      } else if (_panStartOffset != null) {
-        _debugOverlay = OverlayEntry(
-          builder: (context) => Positioned.fromRect(
-            rect: Rect.fromPoints(
-                _panStartOffset?.translate(
-                      0,
-                      -(editorState.service.scrollService!.dy -
-                          _panStartScrollDy!),
-                    ) ??
-                    Offset.zero,
-                offset ?? Offset.zero),
-            child: Container(
-              color: Colors.red.withOpacity(0.2),
-            ),
-          ),
-        );
-        Overlay.of(context)?.insert(_debugOverlay!);
-      } else {
-        _debugOverlay = null;
-      }
-    }
+    // if (kDebugMode && false) {
+    //   _debugOverlay?.remove();
+    //   if (offset != null) {
+    //     _debugOverlay = OverlayEntry(
+    //       builder: (context) => Positioned.fromRect(
+    //         rect: Rect.fromPoints(offset, offset.translate(20, 20)),
+    //         child: Container(
+    //           color: Colors.red.withOpacity(0.2),
+    //         ),
+    //       ),
+    //     );
+    //     Overlay.of(context)?.insert(_debugOverlay!);
+    //   } else if (_panStartOffset != null) {
+    //     _debugOverlay = OverlayEntry(
+    //       builder: (context) => Positioned.fromRect(
+    //         rect: Rect.fromPoints(
+    //             _panStartOffset?.translate(
+    //                   0,
+    //                   -(editorState.service.scrollService!.dy -
+    //                       _panStartScrollDy!),
+    //                 ) ??
+    //                 Offset.zero,
+    //             offset ?? Offset.zero),
+    //         child: Container(
+    //           color: Colors.red.withOpacity(0.2),
+    //         ),
+    //       ),
+    //     );
+    //     Overlay.of(context)?.insert(_debugOverlay!);
+    //   } else {
+    //     _debugOverlay = null;
+    //   }
+    // }
   }
 }

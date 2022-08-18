@@ -290,10 +290,10 @@ class HTMLToNodesConverter {
 
   List<Node> _handleUnorderedList(html.Element element) {
     final result = <Node>[];
-    element.children.forEach((child) {
+    for (var child in element.children) {
       result.addAll(
           _handleListElement(child, {"subtype": StyleKey.bulletedList}));
-    });
+    }
     return result;
   }
 
