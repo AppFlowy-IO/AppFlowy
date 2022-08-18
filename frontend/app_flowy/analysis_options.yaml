@@ -14,7 +14,7 @@ analyzer:
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
-    - "packages/flowy_editor/**"
+    - "packages/appflowy_editor/**"
     - "packages/editor/**"
     # - "packages/flowy_infra_ui/**"
 linter:

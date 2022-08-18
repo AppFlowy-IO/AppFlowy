@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   flowy_infra_ui
+  rich_clipboard_linux
   url_launcher_linux
   window_size
 )

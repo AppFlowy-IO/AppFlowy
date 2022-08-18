@@ -30,7 +30,7 @@ jobs:
           cache: true
 
       - name: Run FlowyEditor tests
-        working-directory: frontend/app_flowy/packages/flowy_editor
+        working-directory: frontend/app_flowy/packages/appflowy_editor
         run: |
           flutter pub get
           flutter test
