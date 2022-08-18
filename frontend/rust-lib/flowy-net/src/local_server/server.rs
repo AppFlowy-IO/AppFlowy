@@ -305,7 +305,7 @@ impl FolderCouldServiceV1 for LocalServer {
         let time = timestamp();
         let view = ViewRevision {
             id: params.view_id,
-            belong_to_id: params.belong_to_id,
+            app_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,
             data_type: params.data_type.into(),

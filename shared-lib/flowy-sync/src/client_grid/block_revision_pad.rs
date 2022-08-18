@@ -204,10 +204,6 @@ impl GridBlockRevisionPad {
                     None => Ok(None),
                     Some(delta) => {
                         tracing::trace!("[GridBlockRevision] Composing delta {}", delta.json_str());
-                        // tracing::debug!(
-                        //     "[GridBlockMeta] current delta: {}",
-                        //     self.delta.to_str().unwrap_or_else(|_| "".to_string())
-                        // );
                         self.delta = self.delta.compose(&delta)?;
                         Ok(Some(GridBlockRevisionChangeset {
                             delta,

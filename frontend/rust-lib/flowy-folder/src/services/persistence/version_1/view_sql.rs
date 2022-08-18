@@ -87,13 +87,13 @@ pub(crate) struct ViewTable {
 impl ViewTable {
     pub fn new(view_rev: ViewRevision) -> Self {
         let data_type = match view_rev.data_type {
-            ViewDataTypeRevision::TextBlock => SqlViewDataType::Block,
+            ViewDataTypeRevision::Document => SqlViewDataType::Block,
             ViewDataTypeRevision::Database => SqlViewDataType::Grid,
         };
 
         ViewTable {
             id: view_rev.id,
-            belong_to_id: view_rev.belong_to_id,
+            belong_to_id: view_rev.app_id,
             name: view_rev.name,
             desc: view_rev.desc,
             modified_time: view_rev.modified_time,
@@ -110,13 +110,13 @@ impl ViewTable {
 impl std::convert::From<ViewTable> for ViewRevision {
     fn from(table: ViewTable) -> Self {
         let data_type = match table.view_type {
-            SqlViewDataType::Block => ViewDataTypeRevision::TextBlock,
+            SqlViewDataType::Block => ViewDataTypeRevision::Document,
             SqlViewDataType::Grid => ViewDataTypeRevision::Database,
         };
 
         ViewRevision {
             id: table.id,
-            belong_to_id: table.belong_to_id,
+            app_id: table.belong_to_id,
             name: table.name,
             desc: table.desc,
             data_type,

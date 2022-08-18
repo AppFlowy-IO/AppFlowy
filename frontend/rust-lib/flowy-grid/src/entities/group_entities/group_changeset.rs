@@ -19,9 +19,18 @@ pub struct GroupRowsChangesetPB {
 
 impl std::fmt::Display for GroupRowsChangesetPB {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let _ = f.write_fmt(format_args!("Group:{}", self.group_id))?;
-        let _ = f.write_fmt(format_args!("Insert:{:?}", self.inserted_rows))?;
-        f.write_fmt(format_args!("Delete:{:?}", self.deleted_rows))
+        for inserted_row in &self.inserted_rows {
+            let _ = f.write_fmt(format_args!(
+                "Insert: {} row at {:?}",
+                inserted_row.row.id, inserted_row.index
+            ))?;
+        }
+
+        for deleted_row in &self.deleted_rows {
+            let _ = f.write_fmt(format_args!("Delete: {} row", deleted_row))?;
+        }
+
+        Ok(())
     }
 }
 

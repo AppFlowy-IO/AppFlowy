@@ -5,7 +5,7 @@ use flowy_folder::entities::{
     trash::{RepeatedTrashPB, TrashIdPB, TrashType},
     view::{CreateViewPayloadPB, UpdateViewPayloadPB},
     workspace::{CreateWorkspacePayloadPB, RepeatedWorkspacePB},
-    SubViewDataTypePB,
+    ViewLayoutTypePB,
 };
 use flowy_folder::entities::{
     app::{AppPB, RepeatedAppPB},
@@ -99,7 +99,7 @@ impl FolderTest {
             &app.id,
             "Folder View",
             "Folder test view",
-            ViewDataTypePB::TextBlock,
+            ViewDataTypePB::Document,
         )
         .await;
         app.belongings = RepeatedViewPB {
@@ -355,8 +355,8 @@ pub async fn create_view(
     data_type: ViewDataTypePB,
 ) -> ViewPB {
     let sub_data_type = match data_type {
-        ViewDataTypePB::TextBlock => None,
-        ViewDataTypePB::Database => Some(SubViewDataTypePB::Grid),
+        ViewDataTypePB::Document => None,
+        ViewDataTypePB::Database => Some(ViewLayoutTypePB::Grid),
     };
 
     let request = CreateViewPayloadPB {
@@ -365,9 +365,9 @@ pub async fn create_view(
         desc: desc.to_string(),
         thumbnail: None,
         data_type,
-        sub_data_type,
+        layout: sub_data_type,
         plugin_type: 0,
-        data: vec![],
+        view_content_data: vec![],
     };
     let view = FolderEventBuilder::new(sdk.clone())
         .event(CreateView)

@@ -248,11 +248,15 @@ fn move_row(
     to_row_id: &str,
 ) {
     cell_data.select_options.iter().for_each(|option| {
-        if option.id == group.id && group.contains_row(&row_rev.id) {
-            group_changeset.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
-            group.remove_row(&row_rev.id);
+        // Remove the row in which group contains the row
+        if option.id == group.id {
+            if group.contains_row(&row_rev.id) {
+                group_changeset.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+                group.remove_row(&row_rev.id);
+            }
         }
 
+        // Find the inserted group
         if let Some(index) = group.index_of_row(to_row_id) {
             let row_pb = RowPB::from(row_rev);
             let inserted_row = InsertedRowPB {
@@ -262,8 +266,12 @@ fn move_row(
             group_changeset.push(GroupRowsChangesetPB::insert(group.id.clone(), vec![inserted_row]));
             group.insert_row(index, row_pb);
 
-            let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
-            row_changeset.cell_by_field_id.insert(field_rev.id.clone(), cell_rev);
+            // If the inserted row comes from other group, it needs to update the corresponding cell content.
+            if option.id != group.id {
+                // Update the corresponding row's cell content.
+                let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
+                row_changeset.cell_by_field_id.insert(field_rev.id.clone(), cell_rev);
+            }
         }
     });
 }

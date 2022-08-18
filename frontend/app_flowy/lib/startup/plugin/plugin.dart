@@ -56,7 +56,7 @@ abstract class PluginBuilder {
 
   ViewDataTypePB get dataType => ViewDataTypePB.TextBlock;
 
-  SubViewDataTypePB? get subDataType => null;
+  SubViewDataTypePB get subDataType;
 }
 
 abstract class PluginConfig {

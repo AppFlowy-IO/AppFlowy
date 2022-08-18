@@ -117,7 +117,12 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn did_move_row(&self, row_rev: &RowRevision, row_changeset: &mut RowChangeset, upper_row_id: &str) {
+    pub(crate) async fn did_move_row(
+        &self,
+        row_rev: &RowRevision,
+        row_changeset: &mut RowChangeset,
+        upper_row_id: &str,
+    ) {
         if let Some(changesets) = self
             .group_service
             .write()
@@ -128,7 +133,7 @@ impl GridViewRevisionEditor {
             .await
         {
             for changeset in changesets {
-                tracing::trace!("Group changeset: {}", changeset);
+                tracing::trace!("Group: {} changeset: {}", changeset.group_id, changeset);
                 self.notify_did_update_group(changeset).await;
             }
         }

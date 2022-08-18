@@ -140,7 +140,7 @@ class AppEvent with _$AppEvent {
     String name,
     String desc,
     ViewDataTypePB dataType,
-    SubViewDataTypePB? subDataType,
+    SubViewDataTypePB subDataType,
     PluginType pluginType,
   ) = CreateView;
   const factory AppEvent.delete() = Delete;

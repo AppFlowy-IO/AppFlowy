@@ -46,10 +46,10 @@ fn create_default_view(app_id: String, time: chrono::DateTime<Utc>) -> ViewRevis
 
     ViewRevision {
         id: view_id,
-        belong_to_id: app_id,
+        app_id: app_id,
         name,
         desc: "".to_string(),
-        data_type: ViewDataTypeRevision::TextBlock,
+        data_type: ViewDataTypeRevision::Document,
         version: 0,
         belongings: vec![],
         modified_time: time.timestamp(),

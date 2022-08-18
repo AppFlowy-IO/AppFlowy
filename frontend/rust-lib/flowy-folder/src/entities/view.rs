@@ -16,7 +16,7 @@ pub struct ViewPB {
     pub id: String,
 
     #[pb(index = 2)]
-    pub belong_to_id: String,
+    pub app_id: String,
 
     #[pb(index = 3)]
     pub name: String,
@@ -38,7 +38,7 @@ impl std::convert::From<ViewRevision> for ViewPB {
     fn from(rev: ViewRevision) -> Self {
         ViewPB {
             id: rev.id,
-            belong_to_id: rev.belong_to_id,
+            app_id: rev.app_id,
             name: rev.name,
             data_type: rev.data_type.into(),
             modified_time: rev.modified_time,
@@ -50,14 +50,8 @@ impl std::convert::From<ViewRevision> for ViewPB {
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
 pub enum ViewDataTypePB {
-    TextBlock = 0,
+    Document = 0,
     Database = 1,
-}
-
-#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
-pub enum SubViewDataTypePB {
-    Grid = 0,
-    Board = 1,
 }
 
 impl std::default::Default for ViewDataTypePB {
@@ -69,7 +63,7 @@ impl std::default::Default for ViewDataTypePB {
 impl std::convert::From<ViewDataTypeRevision> for ViewDataTypePB {
     fn from(rev: ViewDataTypeRevision) -> Self {
         match rev {
-            ViewDataTypeRevision::TextBlock => ViewDataTypePB::TextBlock,
+            ViewDataTypeRevision::Document => ViewDataTypePB::Document,
             ViewDataTypeRevision::Database => ViewDataTypePB::Database,
         }
     }
@@ -78,9 +72,21 @@ impl std::convert::From<ViewDataTypeRevision> for ViewDataTypePB {
 impl std::convert::From<ViewDataTypePB> for ViewDataTypeRevision {
     fn from(ty: ViewDataTypePB) -> Self {
         match ty {
-            ViewDataTypePB::TextBlock => ViewDataTypeRevision::TextBlock,
+            ViewDataTypePB::Document => ViewDataTypeRevision::Document,
             ViewDataTypePB::Database => ViewDataTypeRevision::Database,
         }
+    }
+}
+
+#[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
+pub enum ViewLayoutTypePB {
+    Grid = 0,
+    Board = 1,
+}
+
+impl std::default::Default for ViewLayoutTypePB {
+    fn default() -> Self {
+        ViewLayoutTypePB::Grid
     }
 }
 
@@ -121,14 +127,14 @@ pub struct CreateViewPayloadPB {
     #[pb(index = 5)]
     pub data_type: ViewDataTypePB,
 
-    #[pb(index = 6, one_of)]
-    pub sub_data_type: Option<SubViewDataTypePB>,
+    #[pb(index = 6)]
+    pub layout: ViewLayoutTypePB,
 
     #[pb(index = 7)]
     pub plugin_type: i32,
 
     #[pb(index = 8)]
-    pub data: Vec<u8>,
+    pub view_content_data: Vec<u8>,
 }
 
 #[derive(Debug, Clone)]
@@ -138,9 +144,9 @@ pub struct CreateViewParams {
     pub desc: String,
     pub thumbnail: String,
     pub data_type: ViewDataTypePB,
-    pub sub_data_type: Option<SubViewDataTypePB>,
+    pub layout: ViewLayoutTypePB,
     pub view_id: String,
-    pub data: Vec<u8>,
+    pub view_content_data: Vec<u8>,
     pub plugin_type: i32,
 }
 
@@ -161,10 +167,10 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
             name,
             desc: self.desc,
             data_type: self.data_type,
-            sub_data_type: self.sub_data_type,
+            layout: self.layout,
             thumbnail,
             view_id,
-            data: self.data,
+            view_content_data: self.view_content_data,
             plugin_type: self.plugin_type,
         })
     }

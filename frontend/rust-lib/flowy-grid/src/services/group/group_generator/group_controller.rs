@@ -277,6 +277,7 @@ where
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
+            tracing::trace!("Move row:{} to row:{}", row_rev.id, to_row_id);
             Ok(self.move_row_if_match(field_rev, row_rev, row_changeset, &cell_data, to_row_id))
         } else {
             Ok(vec![])

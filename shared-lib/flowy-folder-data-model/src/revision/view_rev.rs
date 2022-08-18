@@ -9,7 +9,9 @@ pub fn gen_view_id() -> String {
 pub struct ViewRevision {
     pub id: String,
 
-    pub belong_to_id: String,
+    // Maybe app_id or vi
+    #[serde(rename = "belong_to_id")]
+    pub app_id: String,
 
     pub name: String,
 
@@ -52,12 +54,12 @@ impl std::convert::From<ViewRevision> for TrashRevision {
 #[derive(Eq, PartialEq, Debug, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum ViewDataTypeRevision {
-    TextBlock = 0,
+    Document = 0,
     Database = 1,
 }
 
 impl std::default::Default for ViewDataTypeRevision {
     fn default() -> Self {
-        ViewDataTypeRevision::TextBlock
+        ViewDataTypeRevision::Document
     }
 }

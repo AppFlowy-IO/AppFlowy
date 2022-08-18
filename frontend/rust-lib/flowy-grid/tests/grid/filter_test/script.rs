@@ -36,7 +36,7 @@ pub struct GridFilterTest {
 
 impl GridFilterTest {
     pub async fn new() -> Self {
-     let editor_test =  GridEditorTest::new().await;
+        let editor_test =  GridEditorTest::new().await;
         Self {
             inner: editor_test
         }

@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_folder::entities::{SubViewDataTypePB, ViewDataTypePB};
+use flowy_folder::entities::{ViewDataTypePB, ViewLayoutTypePB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::{
     errors::{internal_error, FlowyError},
@@ -184,7 +184,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         &self,
         user_id: &str,
         view_id: &str,
-        _sub_data_type: Option<SubViewDataTypePB>,
+        sub_data_type: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError> {
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
@@ -209,7 +209,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
     }
 
     fn data_type(&self) -> ViewDataTypePB {
-        ViewDataTypePB::TextBlock
+        ViewDataTypePB::Document
     }
 }
 
@@ -261,11 +261,11 @@ impl ViewDataProcessor for GridViewDataProcessor {
         &self,
         user_id: &str,
         view_id: &str,
-        sub_data_type: Option<SubViewDataTypePB>,
+        sub_data_type: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError> {
-        let build_context = match sub_data_type.unwrap() {
-            SubViewDataTypePB::Grid => make_default_grid(),
-            SubViewDataTypePB::Board => make_default_board(),
+        let build_context = match sub_data_type {
+            ViewLayoutTypePB::Grid => make_default_grid(),
+            ViewLayoutTypePB::Board => make_default_board(),
         };
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();

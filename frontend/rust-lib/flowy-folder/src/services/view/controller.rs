@@ -1,5 +1,5 @@
 pub use crate::entities::view::ViewDataTypePB;
-use crate::entities::ViewInfoPB;
+use crate::entities::{ViewInfoPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -19,6 +19,7 @@ use flowy_database::kv::KV;
 use flowy_folder_data_model::revision::{gen_view_id, ViewRevision};
 use flowy_sync::entities::text_block::TextBlockIdPB;
 use futures::{FutureExt, StreamExt};
+use lib_infra::util::timestamp;
 use std::{collections::HashSet, sync::Arc};
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
@@ -60,14 +61,14 @@ impl ViewController {
     ) -> Result<ViewRevision, FlowyError> {
         let processor = self.get_data_processor(params.data_type.clone())?;
         let user_id = self.user.user_id()?;
-        if params.data.is_empty() {
+        if params.view_content_data.is_empty() {
             let view_data = processor
-                .create_default_view(&user_id, &params.view_id, params.sub_data_type.clone())
+                .create_default_view(&user_id, &params.view_id, params.layout.clone())
                 .await?;
-            params.data = view_data.to_vec();
+            params.view_content_data = view_data.to_vec();
         } else {
             let delta_data = processor
-                .create_view_from_delta_data(&user_id, &params.view_id, params.data.clone())
+                .create_view_from_delta_data(&user_id, &params.view_id, params.view_content_data.clone())
                 .await?;
             let _ = self
                 .create_view(&params.view_id, params.data_type.clone(), delta_data)
@@ -99,7 +100,7 @@ impl ViewController {
         let trash_controller = self.trash_controller.clone();
         self.persistence
             .begin_transaction(|transaction| {
-                let belong_to_id = view_rev.belong_to_id.clone();
+                let belong_to_id = view_rev.app_id.clone();
                 let _ = transaction.create_view(view_rev)?;
                 let _ = notify_views_changed(&belong_to_id, trash_controller, &transaction)?;
                 Ok(())
@@ -139,7 +140,7 @@ impl ViewController {
 
                 let view_info = ViewInfoPB {
                     id: view_rev.id,
-                    belong_to_id: view_rev.belong_to_id,
+                    belong_to_id: view_rev.app_id,
                     name: view_rev.name,
                     desc: view_rev.desc,
                     data_type: view_rev.data_type.into(),
@@ -197,7 +198,7 @@ impl ViewController {
             .begin_transaction(|transaction| {
                 let _ = transaction.move_view(view_id, from, to)?;
                 let view = transaction.read_view(view_id)?;
-                let _ = notify_views_changed(&view.belong_to_id, self.trash_controller.clone(), &transaction)?;
+                let _ = notify_views_changed(&view.app_id, self.trash_controller.clone(), &transaction)?;
                 Ok(())
             })
             .await?;
@@ -214,13 +215,13 @@ impl ViewController {
         let processor = self.get_data_processor(view_rev.data_type.clone())?;
         let delta_bytes = processor.get_delta_data(view_id).await?;
         let duplicate_params = CreateViewParams {
-            belong_to_id: view_rev.belong_to_id.clone(),
+            belong_to_id: view_rev.app_id.clone(),
             name: format!("{} (copy)", &view_rev.name),
             desc: view_rev.desc,
             thumbnail: view_rev.thumbnail,
             data_type: view_rev.data_type.into(),
-            sub_data_type: None,
-            data: delta_bytes.to_vec(),
+            layout: ViewLayoutTypePB::Board,
+            view_content_data: delta_bytes.to_vec(),
             view_id: gen_view_id(),
             plugin_type: view_rev.plugin_type,
         };
@@ -252,7 +253,7 @@ impl ViewController {
                 send_dart_notification(&view_id, FolderNotification::ViewUpdated)
                     .payload(view)
                     .send();
-                let _ = notify_views_changed(&view_rev.belong_to_id, self.trash_controller.clone(), &transaction)?;
+                let _ = notify_views_changed(&view_rev.app_id, self.trash_controller.clone(), &transaction)?;
                 Ok(view_rev)
             })
             .await?;
@@ -395,7 +396,7 @@ async fn handle_trash_event(
                 .begin_transaction(|transaction| {
                     let view_revs = read_local_views_with_transaction(identifiers, &transaction)?;
                     for view_rev in view_revs {
-                        let _ = notify_views_changed(&view_rev.belong_to_id, trash_can.clone(), &transaction)?;
+                        let _ = notify_views_changed(&view_rev.app_id, trash_can.clone(), &transaction)?;
                         notify_dart(view_rev.into(), FolderNotification::ViewDeleted);
                     }
                     Ok(())
@@ -408,7 +409,7 @@ async fn handle_trash_event(
                 .begin_transaction(|transaction| {
                     let view_revs = read_local_views_with_transaction(identifiers, &transaction)?;
                     for view_rev in view_revs {
-                        let _ = notify_views_changed(&view_rev.belong_to_id, trash_can.clone(), &transaction)?;
+                        let _ = notify_views_changed(&view_rev.app_id, trash_can.clone(), &transaction)?;
                         notify_dart(view_rev.into(), FolderNotification::ViewRestored);
                     }
                     Ok(())
@@ -425,7 +426,7 @@ async fn handle_trash_event(
                         for identifier in identifiers.items {
                             let view = transaction.read_view(&identifier.id)?;
                             let _ = transaction.delete_view(&view.id)?;
-                            notify_ids.insert(view.belong_to_id.clone());
+                            notify_ids.insert(view.app_id.clone());
                             views.push(view);
                         }
                         for notify_id in notify_ids {
@@ -450,6 +451,24 @@ async fn handle_trash_event(
             };
             let _ = ret.send(result().await).await;
         }
+    }
+}
+
+fn make_view_rev_from(params: CreateViewParams) -> ViewRevision {
+    let time = timestamp();
+    ViewRevision {
+        id: params.view_id,
+        app_id: params.belong_to_id,
+        name: params.name,
+        desc: params.desc,
+        data_type: params.data_type.into(),
+        version: 0,
+        belongings: vec![],
+        modified_time: time,
+        create_time: time,
+        ext_data: "".to_string(),
+        thumbnail: params.thumbnail,
+        plugin_type: params.plugin_type,
     }
 }
 

@@ -25,11 +25,16 @@ pub struct ViewTest {
 
 impl ViewTest {
     #[allow(dead_code)]
-    pub async fn new(sdk: &FlowySDKTest, data_type: ViewDataTypePB, data: Vec<u8>) -> Self {
+    pub async fn new(
+        sdk: &FlowySDKTest,
+        data_type: ViewDataTypePB,
+        sub_data_type: ViewLayoutTypePB,
+        data: Vec<u8>,
+    ) -> Self {
         let workspace = create_workspace(sdk, "Workspace", "").await;
         open_workspace(sdk, &workspace.id).await;
         let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
-        let view = create_view(sdk, &app.id, data_type, data).await;
+        let view = create_view(sdk, &app.id, data_type, sub_data_type, data).await;
         Self {
             sdk: sdk.clone(),
             workspace,
@@ -39,11 +44,15 @@ impl ViewTest {
     }
 
     pub async fn new_grid_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
-        Self::new(sdk, ViewDataTypePB::Database, data).await
+        Self::new(sdk, ViewDataTypePB::Database, ViewLayoutTypePB::Grid, data).await
+    }
+
+    pub async fn new_board_view(sdk: &FlowySDKTest, data: Vec<u8>) -> Self {
+        Self::new(sdk, ViewDataTypePB::Database, ViewLayoutTypePB::Board, data).await
     }
 
     pub async fn new_text_block_view(sdk: &FlowySDKTest) -> Self {
-        Self::new(sdk, ViewDataTypePB::TextBlock, vec![]).await
+        Self::new(sdk, ViewDataTypePB::Document, ViewLayoutTypePB::Grid, vec![]).await
     }
 }
 
@@ -90,16 +99,22 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
     app
 }
 
-async fn create_view(sdk: &FlowySDKTest, app_id: &str, data_type: ViewDataTypePB, data: Vec<u8>) -> ViewPB {
+async fn create_view(
+    sdk: &FlowySDKTest,
+    app_id: &str,
+    data_type: ViewDataTypePB,
+    sub_data_type: ViewLayoutTypePB,
+    data: Vec<u8>,
+) -> ViewPB {
     let request = CreateViewPayloadPB {
         belong_to_id: app_id.to_string(),
         name: "View A".to_string(),
         desc: "".to_string(),
         thumbnail: Some("http://1.png".to_string()),
         data_type,
-        sub_data_type: None,
+        layout: sub_data_type,
         plugin_type: 0,
-        data,
+        view_content_data: data,
     };
 
     let view = FolderEventBuilder::new(sdk.clone())

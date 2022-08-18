@@ -1,5 +1,5 @@
 use crate::entities::view::ViewDataTypePB;
-use crate::entities::SubViewDataTypePB;
+use crate::entities::ViewLayoutTypePB;
 use crate::services::folder_editor::FolderRevisionCompactor;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -222,7 +222,7 @@ impl DefaultFolderBuilder {
                 };
                 let _ = view_controller.set_latest_view(&view.id);
                 let _ = view_controller
-                    .create_view(&view.id, ViewDataTypePB::TextBlock, Bytes::from(view_data))
+                    .create_view(&view.id, ViewDataTypePB::Document, Bytes::from(view_data))
                     .await?;
             }
         }
@@ -261,7 +261,7 @@ pub trait ViewDataProcessor {
         &self,
         user_id: &str,
         view_id: &str,
-        sub_data_type: Option<SubViewDataTypePB>,
+        sub_data_type: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError>;
 
     fn create_view_from_delta_data(
