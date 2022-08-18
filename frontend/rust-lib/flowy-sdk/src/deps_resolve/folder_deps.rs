@@ -184,7 +184,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         &self,
         user_id: &str,
         view_id: &str,
-        _sub_data_type: ViewLayoutTypePB,
+        layout: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError> {
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();

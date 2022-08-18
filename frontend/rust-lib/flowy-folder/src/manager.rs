@@ -261,7 +261,7 @@ pub trait ViewDataProcessor {
         &self,
         user_id: &str,
         view_id: &str,
-        sub_data_type: ViewLayoutTypePB,
+        layout: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError>;
 
     fn create_view_from_delta_data(
