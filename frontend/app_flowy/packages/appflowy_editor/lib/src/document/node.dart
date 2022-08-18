@@ -89,7 +89,7 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     bool shouldNotifyParent = _attributes['subtype'] != attributes['subtype'];
 
     _attributes = composeAttributes(_attributes, attributes) ?? {};
-    // Notify the new attributes
+    // Notifies the new attributes
     // if attributes contains 'subtype', should notify parent to rebuild node
     // else, just notify current node.
     shouldNotifyParent ? parent?.notifyListeners() : notifyListeners();
@@ -137,7 +137,7 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     entry.parent = parent;
     super.insertAfter(entry);
 
-    // Notify the new node.
+    // Notifies the new node.
     parent?.notifyListeners();
   }
 
@@ -146,7 +146,7 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     entry.parent = parent;
     super.insertBefore(entry);
 
-    // Notify the new node.
+    // Notifies the new node.
     parent?.notifyListeners();
   }
 

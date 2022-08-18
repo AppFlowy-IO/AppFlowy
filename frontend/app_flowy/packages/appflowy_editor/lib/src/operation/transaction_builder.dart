@@ -12,8 +12,8 @@ import 'package:appflowy_editor/src/operation/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction.dart';
 
 /// A [TransactionBuilder] is used to build the transaction from the state.
-/// It will save make a snapshot of the cursor selection state automatically.
-/// The cursor can be resorted if the transaction is undo.
+/// It will save a snapshot of the cursor selection state automatically.
+/// The cursor can be restored if the transaction is undo.
 class TransactionBuilder {
   final List<Operation> operations = [];
   EditorState state;
@@ -22,24 +22,24 @@ class TransactionBuilder {
 
   TransactionBuilder(this.state);
 
-  /// Commit the operations to the state
+  /// Commits the operations to the state
   commit() {
     final transaction = finish();
     state.apply(transaction);
   }
 
-  /// Insert the nodes at the position of path.
+  /// Inserts the nodes at the position of path.
   insertNode(Path path, Node node) {
     insertNodes(path, [node]);
   }
 
-  /// Insert a sequence of nodes at the position of path.
+  /// Inserts a sequence of nodes at the position of path.
   insertNodes(Path path, List<Node> nodes) {
     beforeSelection = state.cursorSelection;
     add(InsertOperation(path, nodes.map((node) => node.deepClone()).toList()));
   }
 
-  /// Update the attributes of nodes.
+  /// Updates the attributes of nodes.
   updateNode(Node node, Attributes attributes) {
     beforeSelection = state.cursorSelection;
 
@@ -51,7 +51,7 @@ class TransactionBuilder {
     ));
   }
 
-  /// Delete a node in the document.
+  /// Deletes a node in the document.
   deleteNode(Node node) {
     deleteNodesAtPath(node.path);
   }
@@ -60,8 +60,8 @@ class TransactionBuilder {
     nodes.forEach(deleteNode);
   }
 
-  /// Delete a sequence of nodes at the path of the document.
-  /// The length specific the length of the following nodes to delete(
+  /// Deletes a sequence of nodes at the path of the document.
+  /// The length specifies the length of the following nodes to delete(
   /// including the start one).
   deleteNodesAtPath(Path path, [int length = 1]) {
     if (path.isEmpty) {
@@ -112,7 +112,7 @@ class TransactionBuilder {
     );
   }
 
-  /// Insert content at a specified index.
+  /// Inserts content at a specified index.
   /// Optionally, you may specify formatting attributes that are applied to the inserted string.
   /// By default, the formatting attributes before the insert position will be used.
   insertText(TextNode node, int index, String content,
@@ -135,7 +135,7 @@ class TransactionBuilder {
         Position(path: node.path, offset: index + content.length));
   }
 
-  /// Assign formatting attributes to a range of text.
+  /// Assigns formatting attributes to a range of text.
   formatText(TextNode node, int index, int length, Attributes attributes) {
     textEdit(
         node,
@@ -145,7 +145,7 @@ class TransactionBuilder {
     afterSelection = beforeSelection;
   }
 
-  /// Delete length characters starting from index.
+  /// Deletes length characters starting from index.
   deleteText(TextNode node, int index, int length) {
     textEdit(
         node,
@@ -180,7 +180,7 @@ class TransactionBuilder {
     );
   }
 
-  /// Add an operation to the transaction.
+  /// Adds an operation to the transaction.
   /// This method will merge operations if they are both TextEdits.
   ///
   /// Also, this method will transform the path of the operations
@@ -209,7 +209,7 @@ class TransactionBuilder {
     operations.add(op);
   }
 
-  /// Generate a immutable [Transaction] to apply or transmit.
+  /// Generates a immutable [Transaction] to apply or transmit.
   Transaction finish() {
     return Transaction(
       operations: UnmodifiableListView(operations),

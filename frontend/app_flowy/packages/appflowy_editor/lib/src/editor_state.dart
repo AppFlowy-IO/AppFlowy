@@ -11,7 +11,7 @@ import 'package:appflowy_editor/src/undo_manager.dart';
 class ApplyOptions {
   /// This flag indicates that
   /// whether the transaction should be recorded into
-  /// the undo stack.
+  /// the undo stack
   final bool recordUndo;
   final bool recordRedo;
   const ApplyOptions({
@@ -27,9 +27,9 @@ enum CursorUpdateReason {
 
 /// The state of the editor.
 ///
-/// The state including:
+/// The state includes:
 /// - The document to render
-/// - The state of the selection.
+/// - The state of the selection
 ///
 /// [EditorState] also includes the services of the editor:
 /// - Selection service
@@ -38,8 +38,8 @@ enum CursorUpdateReason {
 /// - Input service
 /// - Toolbar service
 ///
-/// In consideration of collaborative editing.
-/// All the mutations should be applied through [Transaction].
+/// In consideration of collaborative editing,
+/// all the mutations should be applied through [Transaction].
 ///
 /// Mutating the document with document's API is not recommended.
 class EditorState {

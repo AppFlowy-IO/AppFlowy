@@ -455,8 +455,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     final topLimit = size * 0.3;
     final bottomLimit = size * 0.8;
 
-    /// TODO: It is necessary to calculate the relative speed
-    ///   according to the gap and move forward more gently.
+    // TODO: It is necessary to calculate the relative speed
+    //   according to the gap and move forward more gently.
     if (rect.top >= bottomLimit) {
       if (selection.isSingle) {
         editorState.service.scrollService?.scrollTo(dy + size * 0.2);
