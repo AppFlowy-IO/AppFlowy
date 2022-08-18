@@ -88,3 +88,6 @@ Please refer to the API documentation (link).
 
 ## Contributing
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are greatly appreciated. Please look at [CONTRIBUTING.md](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/contributing-to-appflowy) for details.
+
+## License
+Distributed under the AGPLv3 License. See LICENSE for more information.
