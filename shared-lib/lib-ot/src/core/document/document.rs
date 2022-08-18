@@ -1,5 +1,5 @@
 use crate::core::document::position::Position;
-use crate::core::{DeleteOperation, DocumentOperation, InsertOperation, NodeData, TextEditOperation, Transaction, UpdateOperation};
+use crate::core::{DeleteOperation, DocumentOperation, InsertOperation, NodeAttributes, NodeData, TextEditOperation, Transaction, UpdateOperation};
 use indextree::{Arena, NodeId};
 
 pub struct DocumentTree {
@@ -125,12 +125,19 @@ impl DocumentTree {
         }
     }
 
-    fn apply_update(&self, _op: &UpdateOperation) {
-        unimplemented!()
+    fn apply_update(&self, op: &UpdateOperation) {
+        let update_node = self.node_at_path(&op.path).unwrap();
+        let node_data = self.arena.get(update_node).unwrap();
+        let new_attributes = {
+            let old_attributes = node_data.get().attributes.borrow();
+            NodeAttributes::compose(&old_attributes, &op.attributes)
+        };
+        node_data.get().attributes.replace(new_attributes);
     }
 
-    fn apply_delete(&self, _op: &DeleteOperation) {
-        unimplemented!()
+    fn apply_delete(&mut self, op: &DeleteOperation) {
+        let update_node = self.node_at_path(&op.path).unwrap();
+        update_node.remove_subtree(&mut self.arena);
     }
 
     fn apply_text_edit(&self, _op: &TextEditOperation) {

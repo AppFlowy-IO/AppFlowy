@@ -1,16 +1,30 @@
-use crate::core::DocumentOperation;
+use crate::core::{DocumentOperation, DocumentTree};
 
 pub struct Transaction {
     pub operations: Vec<DocumentOperation>,
 }
 
-pub struct TransactionBuilder {
+impl Transaction {
+
+    fn new(operations: Vec<DocumentOperation>) -> Transaction {
+        Transaction {
+            operations,
+        }
+    }
+
+}
+
+pub struct TransactionBuilder<'a> {
+    document: &'a DocumentTree,
     operations: Vec<DocumentOperation>,
 }
 
-impl TransactionBuilder {
-    pub fn new() -> TransactionBuilder {
-        TransactionBuilder { operations: Vec::new() }
+impl<'a> TransactionBuilder<'a> {
+    pub fn new(document: &'a DocumentTree) -> TransactionBuilder {
+        TransactionBuilder {
+            document,
+            operations: Vec::new()
+        }
     }
 
     pub fn push(&mut self, op: DocumentOperation) {
