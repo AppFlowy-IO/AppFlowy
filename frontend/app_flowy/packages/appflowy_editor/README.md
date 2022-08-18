@@ -15,6 +15,10 @@ and the Flutter guide for
 
 <p align="center">A highly customizable rich-text editor for Flutter</p>
 
+<p align="center">
+    <a href="https://discord.gg/ZCCYN4Anzq"><b>Discord</b></a> •
+    <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
+</p>
 
 <div align="center">
     <img src="https://raw.githubusercontent.com/AppFlowy-IO/AppFlowy/main/frontend/app_flowy/packages/appflowy_editor/documentation/images/example.png" width = "900"/>
