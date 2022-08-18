@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 ///   and size of the selection.
 ///
 /// The widget returned by NodeWidgetBuilder must be with [Selectable],
-///   otherwise the [FlowySelectionService] will not work properly.
-///
+///   otherwise the [AppFlowySelectionService] will not work properly.
 mixin Selectable<T extends StatefulWidget> on State<T> {
   /// Returns the [Selection] surrounded by start and end
   ///   in current widget.
