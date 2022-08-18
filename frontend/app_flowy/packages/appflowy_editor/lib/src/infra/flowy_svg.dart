@@ -5,17 +5,22 @@ class FlowySvg extends StatelessWidget {
   const FlowySvg({
     Key? key,
     this.name,
-    this.size = const Size(20, 20),
+    this.width,
+    this.height,
     this.color,
     this.number,
     this.padding,
   }) : super(key: key);
 
   final String? name;
-  final Size size;
+  final double? width;
+  final double? height;
   final Color? color;
   final int? number;
   final EdgeInsets? padding;
+
+  final _defaultWidth = 20.0;
+  final _defaultHeight = 20.0;
 
   @override
   Widget build(BuildContext context) {
@@ -27,22 +32,21 @@ class FlowySvg extends StatelessWidget {
 
   Widget _buildSvg() {
     if (name != null) {
-      return SizedBox.fromSize(
-        size: size,
-        child: SvgPicture.asset(
-          'assets/images/$name.svg',
-          color: color,
-          package: 'appflowy_editor',
-          fit: BoxFit.fill,
-        ),
+      return SvgPicture.asset(
+        'assets/images/$name.svg',
+        color: color,
+        fit: BoxFit.fill,
+        height: height,
+        width: width,
+        package: 'appflowy_editor',
       );
     } else if (number != null) {
       final numberText =
           '<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><text x="30" y="150" fill="black" font-size="160">$number.</text></svg>';
       return SvgPicture.string(
         numberText,
-        width: size.width,
-        height: size.width,
+        width: width ?? _defaultWidth,
+        height: height ?? _defaultHeight,
       );
     }
     return Container();

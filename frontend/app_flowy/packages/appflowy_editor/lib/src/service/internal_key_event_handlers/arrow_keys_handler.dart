@@ -120,8 +120,9 @@ AppFlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
         editorState.updateCursorSelection(Selection.collapsed(leftPosition));
       }
     } else {
-      editorState
-          .updateCursorSelection(currentSelection.collapse(atStart: true));
+      editorState.updateCursorSelection(
+        currentSelection.collapse(atStart: currentSelection.isBackward),
+      );
     }
     return KeyEventResult.handled;
   } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
@@ -131,7 +132,9 @@ AppFlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
         editorState.updateCursorSelection(Selection.collapsed(rightPosition));
       }
     } else {
-      editorState.updateCursorSelection(currentSelection.collapse());
+      editorState.updateCursorSelection(
+        currentSelection.collapse(atStart: !currentSelection.isBackward),
+      );
     }
     return KeyEventResult.handled;
   } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {

@@ -47,7 +47,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
   final iconKey = GlobalKey();
 
   final _richTextKey = GlobalKey(debugLabel: 'number_list_text');
-  final _iconSize = 20.0;
+  final _iconWidth = 20.0;
   final _iconRightPadding = 5.0;
 
   @override
@@ -66,7 +66,8 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
             children: [
               FlowySvg(
                 key: iconKey,
-                size: Size.square(_iconSize),
+                width: _iconWidth,
+                height: _iconWidth,
                 padding:
                     EdgeInsets.only(top: topPadding, right: _iconRightPadding),
                 number: widget.textNode.attributes.number,

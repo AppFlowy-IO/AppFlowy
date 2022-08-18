@@ -448,5 +448,6 @@ class PopupListItem {
 Widget _popupListIcon(String name) => FlowySvg(
       name: 'popup_list/$name',
       color: Colors.black,
-      size: const Size.square(18.0),
+      width: 18.0,
+      height: 18.0,
     );
