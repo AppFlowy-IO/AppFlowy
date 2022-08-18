@@ -45,7 +45,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
   final iconKey = GlobalKey();
 
   final _richTextKey = GlobalKey(debugLabel: 'checkbox_text');
-  final _iconSize = 20.0;
+  final _iconWidth = 20.0;
   final _iconRightPadding = 5.0;
 
   @override
@@ -74,7 +74,8 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
             GestureDetector(
               key: iconKey,
               child: FlowySvg(
-                size: Size.square(_iconSize),
+                width: _iconWidth,
+                height: _iconWidth,
                 padding: EdgeInsets.only(
                   top: topPadding,
                   right: _iconRightPadding,

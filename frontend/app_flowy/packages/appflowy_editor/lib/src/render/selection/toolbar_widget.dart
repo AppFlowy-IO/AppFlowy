@@ -141,7 +141,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
                   Size(toolbarHeight - (width != null ? 20 : 0), toolbarHeight),
               child: Center(
                 child: FlowySvg(
-                  size: Size(width ?? 20, 20),
+                  width: width ?? 20,
                   name: 'toolbar/$name',
                 ),
               ),

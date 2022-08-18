@@ -46,7 +46,7 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
   final iconKey = GlobalKey();
 
   final _richTextKey = GlobalKey(debugLabel: 'quoted_text');
-  final _iconSize = 20.0;
+  final _iconWidth = 20.0;
   final _iconRightPadding = 5.0;
 
   @override
@@ -60,25 +60,27 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
         width: defaultMaxTextNodeWidth,
         child: Padding(
           padding: EdgeInsets.only(bottom: defaultLinePadding),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FlowySvg(
-                key: iconKey,
-                size: Size(_iconSize, _quoteHeight),
-                padding:
-                    EdgeInsets.only(top: topPadding, right: _iconRightPadding),
-                name: 'quote',
-              ),
-              Expanded(
-                child: FlowyRichText(
-                  key: _richTextKey,
-                  placeholderText: 'Quote',
-                  textNode: widget.textNode,
-                  editorState: widget.editorState,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FlowySvg(
+                  key: iconKey,
+                  width: _iconWidth,
+                  padding: EdgeInsets.only(
+                      top: topPadding, right: _iconRightPadding),
+                  name: 'quote',
                 ),
-              ),
-            ],
+                Expanded(
+                  child: FlowyRichText(
+                    key: _richTextKey,
+                    placeholderText: 'Quote',
+                    textNode: widget.textNode,
+                    editorState: widget.editorState,
+                  ),
+                ),
+              ],
+            ),
           ),
         ));
   }
@@ -86,6 +88,6 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
   double get _quoteHeight {
     final lines =
         widget.textNode.toRawString().characters.where((c) => c == '\n').length;
-    return (lines + 1) * _iconSize;
+    return (lines + 1) * _iconWidth;
   }
 }

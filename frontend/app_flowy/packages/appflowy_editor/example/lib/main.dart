@@ -81,41 +81,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return Container();
   }
 
-  Widget _buildExpandableFab() {
-    return ExpandableFab(
-      distance: 112.0,
-      children: [
-        ActionButton(
-          onPressed: () {
-            if (page == 0) return;
-            setState(() {
-              page = 0;
-            });
-          },
-          icon: const Icon(Icons.note_add),
-        ),
-        ActionButton(
-          icon: const Icon(Icons.document_scanner),
-          onPressed: () {
-            if (page == 1) return;
-            setState(() {
-              page = 1;
-            });
-          },
-        ),
-        ActionButton(
-          onPressed: () {
-            if (page == 2) return;
-            setState(() {
-              page = 2;
-            });
-          },
-          icon: const Icon(Icons.text_fields),
-        ),
-      ],
-    );
-  }
-
   Widget _buildAppFlowyEditorWithEmptyDocument() {
     final editorState = EditorState.empty();
     final editor = AppFlowyEditor(
@@ -174,6 +139,41 @@ class _MyHomePageState extends State<MyHomePage> {
           'youtube_link': YouTubeLinkNodeBuilder()
         },
       ),
+    );
+  }
+
+  Widget _buildExpandableFab() {
+    return ExpandableFab(
+      distance: 112.0,
+      children: [
+        ActionButton(
+          onPressed: () {
+            if (page == 0) return;
+            setState(() {
+              page = 0;
+            });
+          },
+          icon: const Icon(Icons.note_add),
+        ),
+        ActionButton(
+          icon: const Icon(Icons.document_scanner),
+          onPressed: () {
+            if (page == 1) return;
+            setState(() {
+              page = 1;
+            });
+          },
+        ),
+        ActionButton(
+          onPressed: () {
+            if (page == 2) return;
+            setState(() {
+              page = 2;
+            });
+          },
+          icon: const Icon(Icons.text_fields),
+        ),
+      ],
     );
   }
 }

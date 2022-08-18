@@ -47,7 +47,7 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
   final iconKey = GlobalKey();
 
   final _richTextKey = GlobalKey(debugLabel: 'bulleted_list_text');
-  final _iconSize = 20.0;
+  final _iconWidth = 20.0;
   final _iconRightPadding = 5.0;
 
   @override
@@ -67,7 +67,8 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
           children: [
             FlowySvg(
               key: iconKey,
-              size: Size.square(_iconSize),
+              width: _iconWidth,
+              height: _iconWidth,
               padding:
                   EdgeInsets.only(top: topPadding, right: _iconRightPadding),
               name: 'point',

@@ -88,6 +88,12 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.delete) {
       return PhysicalKeyboardKey.delete;
     }
+    if (this == LogicalKeyboardKey.arrowRight) {
+      return PhysicalKeyboardKey.arrowRight;
+    }
+    if (this == LogicalKeyboardKey.arrowLeft) {
+      return PhysicalKeyboardKey.arrowLeft;
+    }
     if (this == LogicalKeyboardKey.pageDown) {
       return PhysicalKeyboardKey.pageDown;
     }
