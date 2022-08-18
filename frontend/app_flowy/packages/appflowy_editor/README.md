@@ -22,8 +22,8 @@ and the Flutter guide for
 
 ## Key Features
 
-* Allow you to build rich, intuitive editors like those in Notion
-* Customize to your needs by customizing components, shortcut events, and many more coming soon including menu options and themes
+* Allow you to build rich, intuitive editors
+* Design and modify it your way by customizing components, shortcut events, and many more coming soon including menu options and themes
 * [Test-covered](https://github.com/LucasXu0/AppFlowy/blob/documentation/appflowy_editor/frontend/app_flowy/packages/appflowy_editor/documentation/testing.md) and maintained by AppFlowy's core team along with a community of more than 1,000 builders
 
 
