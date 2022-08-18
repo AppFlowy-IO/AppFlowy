@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 
-/// [FlowyKeyboardService] is responsible for processing shortcut keys,
+/// [AppFlowyKeyboardService] is responsible for processing shortcut keys,
 ///   like command, shift, control keys.
 ///
 /// Usually, this service can be obtained by the following code.
@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 /// keyboardService?.disable();
 /// ```
 ///
-abstract class FlowyKeyboardService {
+abstract class AppFlowyKeyboardService {
   /// Processes shortcut key input.
   KeyEventResult onKey(RawKeyEvent event);
 
@@ -35,14 +35,14 @@ abstract class FlowyKeyboardService {
   void disable();
 }
 
-typedef FlowyKeyEventHandler = KeyEventResult Function(
+typedef AppFlowyKeyEventHandler = KeyEventResult Function(
   EditorState editorState,
   RawKeyEvent event,
 );
 
 /// Process keyboard events
-class FlowyKeyboard extends StatefulWidget {
-  const FlowyKeyboard({
+class AppFlowyKeyboard extends StatefulWidget {
+  const AppFlowyKeyboard({
     Key? key,
     required this.handlers,
     required this.editorState,
@@ -51,14 +51,14 @@ class FlowyKeyboard extends StatefulWidget {
 
   final EditorState editorState;
   final Widget child;
-  final List<FlowyKeyEventHandler> handlers;
+  final List<AppFlowyKeyEventHandler> handlers;
 
   @override
-  State<FlowyKeyboard> createState() => _FlowyKeyboardState();
+  State<AppFlowyKeyboard> createState() => _AppFlowyKeyboardState();
 }
 
-class _FlowyKeyboardState extends State<FlowyKeyboard>
-    implements FlowyKeyboardService {
+class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
+    implements AppFlowyKeyboardService {
   final FocusNode _focusNode = FocusNode(debugLabel: 'flowy_keyboard_service');
 
   bool isFocus = true;

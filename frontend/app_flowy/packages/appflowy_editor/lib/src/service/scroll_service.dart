@@ -2,14 +2,14 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 
-/// [FlowyScrollService] is responsible for processing document scrolling.
+/// [AppFlowyScrollService] is responsible for processing document scrolling.
 ///
 /// Usually, this service can be obtained by the following code.
 /// ```dart
 /// final keyboardService = editorState.service.scrollService;
 /// ```
 ///
-abstract class FlowyScrollService {
+abstract class AppFlowyScrollService {
   /// Returns the offset of the current document on the vertical axis.
   double get dy;
 
@@ -44,8 +44,8 @@ abstract class FlowyScrollService {
   void disable();
 }
 
-class FlowyScroll extends StatefulWidget {
-  const FlowyScroll({
+class AppFlowyScroll extends StatefulWidget {
+  const AppFlowyScroll({
     Key? key,
     required this.child,
   }) : super(key: key);
@@ -53,11 +53,11 @@ class FlowyScroll extends StatefulWidget {
   final Widget child;
 
   @override
-  State<FlowyScroll> createState() => _FlowyScrollState();
+  State<AppFlowyScroll> createState() => _AppFlowyScrollState();
 }
 
-class _FlowyScrollState extends State<FlowyScroll>
-    implements FlowyScrollService {
+class _AppFlowyScrollState extends State<AppFlowyScroll>
+    implements AppFlowyScrollService {
   final _scrollController = ScrollController();
   final _scrollViewKey = GlobalKey();
 

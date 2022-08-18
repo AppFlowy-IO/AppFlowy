@@ -304,7 +304,7 @@ _deleteSelectedContent(EditorState editorState) {
   tb.commit();
 }
 
-FlowyKeyEventHandler copyPasteKeysHandler = (editorState, event) {
+AppFlowyKeyEventHandler copyPasteKeysHandler = (editorState, event) {
   if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyC) {
     _handleCopy(editorState);
     return KeyEventResult.handled;

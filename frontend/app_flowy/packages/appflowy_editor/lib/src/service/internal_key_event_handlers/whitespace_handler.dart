@@ -20,7 +20,7 @@ const _bulletedListSymbols = ['*', '-'];
 const _checkboxListSymbols = ['[x]', '-[x]'];
 const _unCheckboxListSymbols = ['[]', '-[]'];
 
-FlowyKeyEventHandler whiteSpaceHandler = (editorState, event) {
+AppFlowyKeyEventHandler whiteSpaceHandler = (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.space) {
     return KeyEventResult.ignored;
   }

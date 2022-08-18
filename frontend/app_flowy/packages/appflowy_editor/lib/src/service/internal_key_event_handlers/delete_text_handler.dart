@@ -150,7 +150,7 @@ void _deleteNodes(TransactionBuilder transactionBuilder,
 }
 
 // Handle delete text.
-FlowyKeyEventHandler deleteTextHandler = (editorState, event) {
+AppFlowyKeyEventHandler deleteTextHandler = (editorState, event) {
   if (event.logicalKey == LogicalKeyboardKey.backspace) {
     return _handleBackspace(editorState, event);
   }

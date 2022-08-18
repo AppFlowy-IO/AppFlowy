@@ -18,7 +18,7 @@ import 'package:appflowy_editor/src/service/keyboard_service.dart';
 /// 2. Single selection and the selected node is [TextNode]
 ///   2.1 split the node into two nodes with style
 ///   2.2 or insert a empty text node before.
-FlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
+AppFlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
     (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.enter || event.isShiftPressed) {
     return KeyEventResult.ignored;

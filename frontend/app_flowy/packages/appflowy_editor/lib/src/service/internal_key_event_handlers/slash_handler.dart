@@ -67,7 +67,7 @@ final List<PopupListItem> _popupListItems = [
 OverlayEntry? _popupListOverlay;
 EditorState? _editorState;
 bool _selectionChangeBySlash = false;
-FlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
+AppFlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.slash) {
     return KeyEventResult.ignored;
   }

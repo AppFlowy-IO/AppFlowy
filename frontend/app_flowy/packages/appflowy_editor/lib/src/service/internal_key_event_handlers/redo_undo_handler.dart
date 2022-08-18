@@ -2,7 +2,7 @@ import 'package:appflowy_editor/src/service/keyboard_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-FlowyKeyEventHandler redoUndoKeysHandler = (editorState, event) {
+AppFlowyKeyEventHandler redoUndoKeysHandler = (editorState, event) {
   if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyZ) {
     if (event.isShiftPressed) {
       editorState.undoManager.redo();

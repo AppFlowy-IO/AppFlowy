@@ -40,7 +40,7 @@ class AppFlowyEditor extends StatefulWidget {
   final NodeWidgetBuilders customBuilders;
 
   /// Keyboard event handlers.
-  final List<FlowyKeyEventHandler> keyEventHandlers;
+  final List<AppFlowyKeyEventHandler> keyEventHandlers;
 
   @override
   State<AppFlowyEditor> createState() => _AppFlowyEditorState();
@@ -67,15 +67,15 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyScroll(
+    return AppFlowyScroll(
         key: editorState.service.scrollServiceKey,
-        child: FlowySelection(
+        child: AppFlowySelection(
           key: editorState.service.selectionServiceKey,
           editorState: editorState,
-          child: FlowyInput(
+          child: AppFlowyInput(
             key: editorState.service.inputServiceKey,
             editorState: editorState,
-            child: FlowyKeyboard(
+            child: AppFlowyKeyboard(
               key: editorState.service.keyboardServiceKey,
               handlers: [
                 ...defaultKeyEventHandlers,
@@ -99,7 +99,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
         ));
   }
 
-  FlowyRenderPlugin _createRenderPlugin() => FlowyRenderPlugin(
+  AppFlowyRenderPlugin _createRenderPlugin() => AppFlowyRenderPlugin(
         editorState: editorState,
         builders: {
           ...defaultBuilders,

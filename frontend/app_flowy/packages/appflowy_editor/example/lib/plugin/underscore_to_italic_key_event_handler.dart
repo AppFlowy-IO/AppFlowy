@@ -2,7 +2,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
+AppFlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
   // Since we only need to handler the input of `underscore`.
   // All inputs except `underscore` will be ignored directly.
   if (event.logicalKey != LogicalKeyboardKey.underscore) {

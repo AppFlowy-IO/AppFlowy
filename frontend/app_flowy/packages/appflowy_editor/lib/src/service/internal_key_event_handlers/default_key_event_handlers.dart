@@ -10,7 +10,7 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/select_a
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/page_up_down_handler.dart';
 import 'package:appflowy_editor/src/service/keyboard_service.dart';
 
-List<FlowyKeyEventHandler> defaultKeyEventHandlers = [
+List<AppFlowyKeyEventHandler> defaultKeyEventHandlers = [
   deleteTextHandler,
   slashShortcutHandler,
   arrowKeysHandler,

@@ -103,7 +103,7 @@ KeyEventResult _handleShiftKey(EditorState editorState, RawKeyEvent event) {
   return KeyEventResult.ignored;
 }
 
-FlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
+AppFlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
   if (event.isShiftPressed) {
     return _handleShiftKey(editorState, event);
   }

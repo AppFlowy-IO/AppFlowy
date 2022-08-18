@@ -5,7 +5,8 @@ import 'package:appflowy_editor/src/service/default_text_operations/format_rich_
 import 'package:appflowy_editor/src/service/keyboard_service.dart';
 import 'package:flutter/services.dart';
 
-FlowyKeyEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
+AppFlowyKeyEventHandler updateTextStyleByCommandXHandler =
+    (editorState, event) {
   if (!event.isMetaPressed) {
     return KeyEventResult.ignored;
   }

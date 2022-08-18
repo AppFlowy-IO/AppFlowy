@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 ///
 /// 4. override the getter `nodeValidator`
 ///     to verify the data structure in [Node].
-/// 5. register the plugin with `type` to `flowy_editor` in `main.dart`.
+/// 5. register the plugin with `type` to `AppFlowyEditor` in `main.dart`.
 /// 6. Congratulations!
 
 class ImageNodeBuilder extends NodeWidgetBuilder<Node> {

@@ -13,7 +13,7 @@ import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:appflowy_editor/src/render/selection/selection_widget.dart';
 import 'package:appflowy_editor/src/service/selection/selection_gesture.dart';
 
-/// [FlowySelectionService] is responsible for processing
+/// [AppFlowySelectionService] is responsible for processing
 /// the [Selection] changes and updates.
 ///
 /// Usually, this service can be obtained by the following code.
@@ -27,7 +27,7 @@ import 'package:appflowy_editor/src/service/selection/selection_gesture.dart';
 /// final nodes = selectionService.currentSelectedNodes;
 /// ```
 ///
-abstract class FlowySelectionService {
+abstract class AppFlowySelectionService {
   /// The current [Selection] in editor.
   ///
   /// The value is null if there is no nodes are selected.
@@ -75,8 +75,8 @@ abstract class FlowySelectionService {
   List<Rect> get selectionRects;
 }
 
-class FlowySelection extends StatefulWidget {
-  const FlowySelection({
+class AppFlowySelection extends StatefulWidget {
+  const AppFlowySelection({
     Key? key,
     this.cursorColor = Colors.black,
     this.selectionColor = const Color.fromARGB(53, 111, 201, 231),
@@ -90,12 +90,12 @@ class FlowySelection extends StatefulWidget {
   final Color selectionColor;
 
   @override
-  State<FlowySelection> createState() => _FlowySelectionState();
+  State<AppFlowySelection> createState() => _AppFlowySelectionState();
 }
 
-class _FlowySelectionState extends State<FlowySelection>
+class _AppFlowySelectionState extends State<AppFlowySelection>
     with WidgetsBindingObserver
-    implements FlowySelectionService {
+    implements AppFlowySelectionService {
   final _cursorKey = GlobalKey(debugLabel: 'cursor');
 
   @override

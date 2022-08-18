@@ -13,7 +13,7 @@ abstract class NodeWidgetBuilder<T extends Node> {
 
 typedef NodeWidgetBuilders = Map<String, NodeWidgetBuilder>;
 
-abstract class FlowyRenderPluginService {
+abstract class AppFlowyRenderPluginService {
   /// Register render plugin with specified [name].
   ///
   /// [name] should be [Node].type
@@ -55,8 +55,8 @@ class NodeWidgetContext<T extends Node> {
   }
 }
 
-class FlowyRenderPlugin extends FlowyRenderPluginService {
-  FlowyRenderPlugin({
+class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
+  AppFlowyRenderPlugin({
     required this.editorState,
     required NodeWidgetBuilders builders,
   }) {

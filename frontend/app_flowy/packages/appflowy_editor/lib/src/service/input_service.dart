@@ -7,7 +7,7 @@ import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 
-/// [FlowyInputService] is responsible for processing text input,
+/// [AppFlowyInputService] is responsible for processing text input,
 ///   including text insertion, deletion and replacement.
 ///
 /// Usually, this service can be obtained by the following code.
@@ -21,7 +21,7 @@ import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 /// inputService?.apply(...);
 /// ```
 ///
-abstract class FlowyInputService {
+abstract class AppFlowyInputService {
   /// Updates the [TextEditingValue] of the text currently being edited.
   ///
   /// Note that if there are IME-related requirements,
@@ -39,8 +39,8 @@ abstract class FlowyInputService {
 }
 
 /// Processes text input
-class FlowyInput extends StatefulWidget {
-  const FlowyInput({
+class AppFlowyInput extends StatefulWidget {
+  const AppFlowyInput({
     Key? key,
     required this.editorState,
     required this.child,
@@ -50,11 +50,11 @@ class FlowyInput extends StatefulWidget {
   final Widget child;
 
   @override
-  State<FlowyInput> createState() => _FlowyInputState();
+  State<AppFlowyInput> createState() => _AppFlowyInputState();
 }
 
-class _FlowyInputState extends State<FlowyInput>
-    implements FlowyInputService, DeltaTextInputClient {
+class _AppFlowyInputState extends State<AppFlowyInput>
+    implements AppFlowyInputService, DeltaTextInputClient {
   TextInputConnection? _textInputConnection;
   TextRange? _composingTextRange;
 

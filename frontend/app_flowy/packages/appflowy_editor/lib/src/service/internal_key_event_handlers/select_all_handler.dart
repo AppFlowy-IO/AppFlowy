@@ -18,7 +18,7 @@ KeyEventResult _selectAll(EditorState editorState) {
   return KeyEventResult.handled;
 }
 
-FlowyKeyEventHandler selectAllHandler = (editorState, event) {
+AppFlowyKeyEventHandler selectAllHandler = (editorState, event) {
   if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyA) {
     return _selectAll(editorState);
   }
