@@ -17,7 +17,7 @@ and the Flutter guide for
 
 
 <div align="center">
-    <img src="https://raw.githubusercontent.com/LucasXu0/AppFlowy/documentation/appflowy_editor/frontend/app_flowy/packages/appflowy_editor/documentation/images/example.png" width = "900"/>
+    <img src="documentation/images/example.png" width = "900"/>
 </div>
 
 ## Key Features
