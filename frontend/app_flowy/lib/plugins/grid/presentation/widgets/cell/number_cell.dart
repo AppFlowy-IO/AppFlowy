@@ -65,6 +65,8 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
 
   @override
   Future<void> dispose() async {
+    _delayOperation = null;
+    _cellBloc.close();
     super.dispose();
   }
 
@@ -72,15 +74,10 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
   Future<void> focusChanged() async {
     if (mounted) {
       _delayOperation?.cancel();
-      _delayOperation = Timer(const Duration(milliseconds: 300), () {
+      _delayOperation = Timer(const Duration(milliseconds: 30), () {
         if (_cellBloc.isClosed == false &&
             _controller.text != contentFromState(_cellBloc.state)) {
           _cellBloc.add(NumberCellEvent.updateCell(_controller.text));
-
-          if (!mounted) {
-            _delayOperation = null;
-            _cellBloc.close();
-          }
         }
       });
     }

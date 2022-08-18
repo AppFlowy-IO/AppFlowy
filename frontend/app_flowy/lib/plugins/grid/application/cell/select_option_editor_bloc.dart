@@ -111,7 +111,7 @@ class SelectOptionCellEditorBloc
   void _loadOptions() {
     _delayOperation?.cancel();
     _delayOperation = Timer(const Duration(milliseconds: 10), () {
-      _selectOptionService.getOpitonContext().then((result) {
+      _selectOptionService.getOptionContext().then((result) {
         if (isClosed) {
           return;
         }
