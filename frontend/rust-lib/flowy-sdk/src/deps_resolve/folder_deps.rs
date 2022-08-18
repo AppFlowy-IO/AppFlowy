@@ -209,7 +209,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
     }
 
     fn data_type(&self) -> ViewDataTypePB {
-        ViewDataTypePB::Document
+        ViewDataTypePB::Text
     }
 }
 
@@ -261,16 +261,20 @@ impl ViewDataProcessor for GridViewDataProcessor {
         &self,
         user_id: &str,
         view_id: &str,
-        sub_data_type: ViewLayoutTypePB,
+        layout: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError> {
-        let build_context = match sub_data_type {
+        let build_context = match layout {
             ViewLayoutTypePB::Grid => make_default_grid(),
             ViewLayoutTypePB::Board => make_default_board(),
+            ViewLayoutTypePB::Document => {
+                return FutureResult::new(async move {
+                    Err(FlowyError::internal().context(format!("Can't handle {:?} layout type", layout)))
+                });
+            }
         };
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
-
         FutureResult::new(async move { make_grid_view_data(&user_id, &view_id, grid_manager, build_context).await })
     }
 

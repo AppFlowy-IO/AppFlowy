@@ -7,7 +7,7 @@ use crate::{
     impl_def_and_def_mut,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_folder_data_model::revision::{gen_view_id, ViewDataTypeRevision, ViewRevision};
+use flowy_folder_data_model::revision::{gen_view_id, ViewDataTypeRevision, ViewLayoutTypeRevision, ViewRevision};
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -31,7 +31,7 @@ pub struct ViewPB {
     pub create_time: i64,
 
     #[pb(index = 7)]
-    pub plugin_type: i32,
+    pub layout: ViewLayoutTypePB,
 }
 
 impl std::convert::From<ViewRevision> for ViewPB {
@@ -43,14 +43,14 @@ impl std::convert::From<ViewRevision> for ViewPB {
             data_type: rev.data_type.into(),
             modified_time: rev.modified_time,
             create_time: rev.create_time,
-            plugin_type: rev.plugin_type,
+            layout: rev.layout.into(),
         }
     }
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
 pub enum ViewDataTypePB {
-    Document = 0,
+    Text = 0,
     Database = 1,
 }
 
@@ -63,7 +63,7 @@ impl std::default::Default for ViewDataTypePB {
 impl std::convert::From<ViewDataTypeRevision> for ViewDataTypePB {
     fn from(rev: ViewDataTypeRevision) -> Self {
         match rev {
-            ViewDataTypeRevision::Document => ViewDataTypePB::Document,
+            ViewDataTypeRevision::Text => ViewDataTypePB::Text,
             ViewDataTypeRevision::Database => ViewDataTypePB::Database,
         }
     }
@@ -72,7 +72,7 @@ impl std::convert::From<ViewDataTypeRevision> for ViewDataTypePB {
 impl std::convert::From<ViewDataTypePB> for ViewDataTypeRevision {
     fn from(ty: ViewDataTypePB) -> Self {
         match ty {
-            ViewDataTypePB::Document => ViewDataTypeRevision::Document,
+            ViewDataTypePB::Text => ViewDataTypeRevision::Text,
             ViewDataTypePB::Database => ViewDataTypeRevision::Database,
         }
     }
@@ -80,13 +80,34 @@ impl std::convert::From<ViewDataTypePB> for ViewDataTypeRevision {
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
 pub enum ViewLayoutTypePB {
-    Grid = 0,
-    Board = 1,
+    Document = 0,
+    Grid = 3,
+    Board = 4,
 }
 
 impl std::default::Default for ViewLayoutTypePB {
     fn default() -> Self {
         ViewLayoutTypePB::Grid
+    }
+}
+
+impl std::convert::From<ViewLayoutTypeRevision> for ViewLayoutTypePB {
+    fn from(rev: ViewLayoutTypeRevision) -> Self {
+        match rev {
+            ViewLayoutTypeRevision::Grid => ViewLayoutTypePB::Grid,
+            ViewLayoutTypeRevision::Board => ViewLayoutTypePB::Board,
+            ViewLayoutTypeRevision::Document => ViewLayoutTypePB::Document,
+        }
+    }
+}
+
+impl std::convert::From<ViewLayoutTypePB> for ViewLayoutTypeRevision {
+    fn from(rev: ViewLayoutTypePB) -> Self {
+        match rev {
+            ViewLayoutTypePB::Grid => ViewLayoutTypeRevision::Grid,
+            ViewLayoutTypePB::Board => ViewLayoutTypeRevision::Board,
+            ViewLayoutTypePB::Document => ViewLayoutTypeRevision::Document,
+        }
     }
 }
 
@@ -131,9 +152,6 @@ pub struct CreateViewPayloadPB {
     pub layout: ViewLayoutTypePB,
 
     #[pb(index = 7)]
-    pub plugin_type: i32,
-
-    #[pb(index = 8)]
     pub view_content_data: Vec<u8>,
 }
 
@@ -147,7 +165,6 @@ pub struct CreateViewParams {
     pub layout: ViewLayoutTypePB,
     pub view_id: String,
     pub view_content_data: Vec<u8>,
-    pub plugin_type: i32,
 }
 
 impl TryInto<CreateViewParams> for CreateViewPayloadPB {
@@ -171,7 +188,6 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
             thumbnail,
             view_id,
             view_content_data: self.view_content_data,
-            plugin_type: self.plugin_type,
         })
     }
 }

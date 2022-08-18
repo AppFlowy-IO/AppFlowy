@@ -220,10 +220,9 @@ impl ViewController {
             desc: view_rev.desc,
             thumbnail: view_rev.thumbnail,
             data_type: view_rev.data_type.into(),
-            layout: ViewLayoutTypePB::Board,
+            layout: view_rev.layout.into(),
             view_content_data: delta_bytes.to_vec(),
             view_id: gen_view_id(),
-            plugin_type: view_rev.plugin_type,
         };
 
         let _ = self.create_view_from_params(duplicate_params).await?;
@@ -468,7 +467,7 @@ fn make_view_rev_from(params: CreateViewParams) -> ViewRevision {
         create_time: time,
         ext_data: "".to_string(),
         thumbnail: params.thumbnail,
-        plugin_type: params.plugin_type,
+        layout: params.layout.into(),
     }
 }
 

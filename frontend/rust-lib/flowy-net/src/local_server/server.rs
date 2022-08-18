@@ -315,7 +315,7 @@ impl FolderCouldServiceV1 for LocalServer {
             create_time: time,
             ext_data: "".to_string(),
             thumbnail: params.thumbnail,
-            plugin_type: params.plugin_type,
+            layout: params.layout.into(),
         };
         FutureResult::new(async { Ok(view) })
     }

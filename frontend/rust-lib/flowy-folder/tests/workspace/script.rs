@@ -53,6 +53,7 @@ pub enum FolderScript {
         name: String,
         desc: String,
         data_type: ViewDataTypePB,
+        layout: ViewLayoutTypePB,
     },
     AssertView(ViewPB),
     ReadView(String),
@@ -99,7 +100,8 @@ impl FolderTest {
             &app.id,
             "Folder View",
             "Folder test view",
-            ViewDataTypePB::Document,
+            ViewDataTypePB::Text,
+            ViewLayoutTypePB::Document,
         )
         .await;
         app.belongings = RepeatedViewPB {
@@ -179,8 +181,13 @@ impl FolderTest {
                 delete_app(sdk, &self.app.id).await;
             }
 
-            FolderScript::CreateView { name, desc, data_type } => {
-                let view = create_view(sdk, &self.app.id, &name, &desc, data_type).await;
+            FolderScript::CreateView {
+                name,
+                desc,
+                data_type,
+                layout,
+            } => {
+                let view = create_view(sdk, &self.app.id, &name, &desc, data_type, layout).await;
                 self.view = view;
             }
             FolderScript::AssertView(view) => {
@@ -353,20 +360,15 @@ pub async fn create_view(
     name: &str,
     desc: &str,
     data_type: ViewDataTypePB,
+    layout: ViewLayoutTypePB,
 ) -> ViewPB {
-    let sub_data_type = match data_type {
-        ViewDataTypePB::Document => None,
-        ViewDataTypePB::Database => Some(ViewLayoutTypePB::Grid),
-    };
-
     let request = CreateViewPayloadPB {
         belong_to_id: app_id.to_string(),
         name: name.to_string(),
         desc: desc.to_string(),
         thumbnail: None,
         data_type,
-        layout: sub_data_type,
-        plugin_type: 0,
+        layout,
         view_content_data: vec![],
     };
     let view = FolderEventBuilder::new(sdk.clone())

@@ -13,7 +13,7 @@ use flowy_database::{
     SqliteConnection,
 };
 
-use flowy_folder_data_model::revision::{ViewDataTypeRevision, ViewRevision};
+use flowy_folder_data_model::revision::{ViewDataTypeRevision, ViewLayoutTypeRevision, ViewRevision};
 use lib_infra::util::timestamp;
 
 pub struct ViewTableSql();
@@ -87,7 +87,7 @@ pub(crate) struct ViewTable {
 impl ViewTable {
     pub fn new(view_rev: ViewRevision) -> Self {
         let data_type = match view_rev.data_type {
-            ViewDataTypeRevision::Document => SqlViewDataType::Block,
+            ViewDataTypeRevision::Text => SqlViewDataType::Block,
             ViewDataTypeRevision::Database => SqlViewDataType::Grid,
         };
 
@@ -110,7 +110,7 @@ impl ViewTable {
 impl std::convert::From<ViewTable> for ViewRevision {
     fn from(table: ViewTable) -> Self {
         let data_type = match table.view_type {
-            SqlViewDataType::Block => ViewDataTypeRevision::Document,
+            SqlViewDataType::Block => ViewDataTypeRevision::Text,
             SqlViewDataType::Grid => ViewDataTypeRevision::Database,
         };
 
@@ -127,8 +127,8 @@ impl std::convert::From<ViewTable> for ViewRevision {
             ext_data: "".to_string(),
             thumbnail: table.thumbnail,
             // Store the view in ViewTable was deprecated since v0.0.2.
-            // No need to worry about plugin_type.
-            plugin_type: 0,
+            // No need to worry about layout.
+            layout: ViewLayoutTypeRevision::Document,
         }
     }
 }

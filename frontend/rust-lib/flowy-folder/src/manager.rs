@@ -222,7 +222,7 @@ impl DefaultFolderBuilder {
                 };
                 let _ = view_controller.set_latest_view(&view.id);
                 let _ = view_controller
-                    .create_view(&view.id, ViewDataTypePB::Document, Bytes::from(view_data))
+                    .create_view(&view.id, ViewDataTypePB::Text, Bytes::from(view_data))
                     .await?;
             }
         }

@@ -52,7 +52,7 @@ impl ViewTest {
     }
 
     pub async fn new_text_block_view(sdk: &FlowySDKTest) -> Self {
-        Self::new(sdk, ViewDataTypePB::Document, ViewLayoutTypePB::Grid, vec![]).await
+        Self::new(sdk, ViewDataTypePB::Text, ViewLayoutTypePB::Grid, vec![]).await
     }
 }
 
@@ -103,7 +103,7 @@ async fn create_view(
     sdk: &FlowySDKTest,
     app_id: &str,
     data_type: ViewDataTypePB,
-    sub_data_type: ViewLayoutTypePB,
+    layout: ViewLayoutTypePB,
     data: Vec<u8>,
 ) -> ViewPB {
     let request = CreateViewPayloadPB {
@@ -112,8 +112,7 @@ async fn create_view(
         desc: "".to_string(),
         thumbnail: Some("http://1.png".to_string()),
         data_type,
-        layout: sub_data_type,
-        plugin_type: 0,
+        layout,
         view_content_data: data,
     };
 
