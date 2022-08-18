@@ -9,4 +9,5 @@ pub use attributes::*;
 pub use document::*;
 pub use document_operation::*;
 pub use node::*;
+pub use position::*;
 pub use transaction::*;

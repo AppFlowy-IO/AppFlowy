@@ -1,6 +1,7 @@
+use crate::core::{NodeAttributes, TextDelta};
 use std::cell::RefCell;
-use crate::core::{TextDelta, NodeAttributes};
 
+#[derive(Clone)]
 pub struct NodeData {
     pub node_type: String,
     pub attributes: RefCell<NodeAttributes>,

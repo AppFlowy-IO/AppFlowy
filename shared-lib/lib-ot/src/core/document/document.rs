@@ -1,25 +1,25 @@
 use crate::core::document::position::Position;
-use crate::core::{DeleteOperation, DocumentOperation, InsertOperation, NodeAttributes, NodeData, TextEditOperation, Transaction, UpdateOperation};
+use crate::core::{
+    DeleteOperation, DocumentOperation, InsertOperation, NodeAttributes, NodeData, TextEditOperation, Transaction,
+    UpdateOperation,
+};
 use indextree::{Arena, NodeId};
 
 pub struct DocumentTree {
-    arena: Arena<NodeData>,
-    root: NodeId,
+    pub arena: Arena<NodeData>,
+    pub root: NodeId,
 }
 
 impl DocumentTree {
     pub fn new() -> DocumentTree {
         let mut arena = Arena::new();
         let root = arena.new_node(NodeData::new("root".into()));
-        DocumentTree {
-            arena: Arena::new(),
-            root,
-        }
+        DocumentTree { arena, root }
     }
 
     pub fn node_at_path(&self, position: &Position) -> Option<NodeId> {
         if position.is_empty() {
-            return None;
+            return Some(self.root);
         }
 
         let mut iterate_node = self.root;
@@ -93,7 +93,7 @@ impl DocumentTree {
     }
 
     fn apply_op(&mut self, op: &DocumentOperation) {
-        match op  {
+        match op {
             DocumentOperation::Insert(op) => self.apply_insert(op),
             DocumentOperation::Update(op) => self.apply_update(op),
             DocumentOperation::Delete(op) => self.apply_delete(op),
@@ -106,12 +106,18 @@ impl DocumentTree {
         let last_index = op.path.0[op.path.0.len() - 1];
         let parent_node = self.node_at_path(&Position(parent_path.to_vec()));
         if let Some(parent_node) = parent_node {
-            self.insert_child_at_index(parent_node, last_index, &op.nodes);
+            let mut inserted_nodes = Vec::new();
+
+            for node in &op.nodes {
+                inserted_nodes.push(self.arena.new_node(node.clone()));
+            }
+
+            self.insert_child_at_index(parent_node, last_index, &inserted_nodes);
         }
     }
 
     fn insert_child_at_index(&mut self, parent: NodeId, index: usize, insert_children: &[NodeId]) {
-        if index == 0 && insert_children.len() == 0 {
+        if index == 0 && parent.children(&self.arena).next().is_none() {
             for id in insert_children {
                 parent.append(*id, &mut self.arena);
             }

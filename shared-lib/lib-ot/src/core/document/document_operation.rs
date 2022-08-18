@@ -1,6 +1,5 @@
 use crate::core::document::position::Position;
-use crate::core::{NodeAttributes, TextDelta};
-use indextree::NodeId;
+use crate::core::{NodeAttributes, NodeData, TextDelta};
 
 pub enum DocumentOperation {
     Insert(InsertOperation),
@@ -36,7 +35,7 @@ impl DocumentOperation {
 
 pub struct InsertOperation {
     pub path: Position,
-    pub nodes: Vec<NodeId>,
+    pub nodes: Vec<NodeData>,
 }
 
 pub struct UpdateOperation {
@@ -47,7 +46,7 @@ pub struct UpdateOperation {
 
 pub struct DeleteOperation {
     pub path: Position,
-    pub nodes: Vec<NodeId>,
+    pub nodes: Vec<NodeData>,
 }
 
 pub struct TextEditOperation {
