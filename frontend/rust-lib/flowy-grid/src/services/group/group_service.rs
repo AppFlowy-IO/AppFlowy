@@ -7,7 +7,7 @@ use crate::services::group::{
 };
 use bytes::Bytes;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowRevision};
+use flowy_grid_data_model::revision::{gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowRevision, RowChangeset};
 use lib_infra::future::AFFuture;
 use std::future::Future;
 use std::sync::Arc;
@@ -96,6 +96,7 @@ impl GroupService {
     pub(crate) async fn did_move_row<F, O>(
         &self,
         row_rev: &RowRevision,
+        row_changeset: &mut RowChangeset,
         upper_row_id: &str,
         get_field_fn: F,
     ) -> Option<Vec<GroupRowsChangesetPB>>
@@ -110,7 +111,7 @@ impl GroupService {
         match group_controller
             .write()
             .await
-            .did_move_row(row_rev, &field_rev, upper_row_id)
+            .did_move_row(row_rev, row_changeset, &field_rev, upper_row_id)
         {
             Ok(changesets) => Some(changesets),
             Err(e) => {

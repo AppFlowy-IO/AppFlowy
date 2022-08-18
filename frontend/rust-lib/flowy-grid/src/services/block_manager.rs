@@ -7,7 +7,7 @@ use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlo
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
-    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
+    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
 };
 use flowy_revision::disk::SQLiteGridBlockRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
@@ -103,17 +103,15 @@ impl GridBlockManager {
         Ok(changesets)
     }
 
-    pub async fn update_row<F>(&self, changeset: RowMetaChangeset, row_builder: F) -> FlowyResult<()>
-    where
-        F: FnOnce(Arc<RowRevision>) -> RowPB,
-    {
+    pub async fn update_row(&self, changeset: RowChangeset) -> FlowyResult<()> {
         let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
         let _ = editor.update_row(changeset.clone()).await?;
         match editor.get_row_rev(&changeset.row_id).await? {
             None => tracing::error!("Internal error: can't find the row with id: {}", changeset.row_id),
             Some(row_rev) => {
+                let row_pb = make_row_from_row_rev(row_rev.clone());
                 let block_order_changeset =
-                    GridBlockChangesetPB::update(&editor.block_id, vec![row_builder(row_rev.clone())]);
+                    GridBlockChangesetPB::update(&editor.block_id, vec![row_pb]);
                 let _ = self
                     .notify_did_update_block(&editor.block_id, block_order_changeset)
                     .await?;
@@ -191,12 +189,10 @@ impl GridBlockManager {
         }
     }
 
-    pub async fn update_cell<F>(&self, changeset: CellChangesetPB, row_builder: F) -> FlowyResult<()>
-    where
-        F: FnOnce(Arc<RowRevision>) -> RowPB,
+    pub async fn update_cell(&self, changeset: CellChangesetPB ) -> FlowyResult<()>
     {
-        let row_changeset: RowMetaChangeset = changeset.clone().into();
-        let _ = self.update_row(row_changeset, row_builder).await?;
+        let row_changeset: RowChangeset = changeset.clone().into();
+        let _ = self.update_row(row_changeset, ).await?;
         self.notify_did_update_cell(changeset).await?;
         Ok(())
     }

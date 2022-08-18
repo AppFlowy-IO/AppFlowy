@@ -84,20 +84,28 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
     Log.debug(
         '[$AFBoardColumnDataController] $columnData insert $item at $index');
 
-    if (columnData._items.length > index) {
-      columnData._items.insert(index, item);
+    if (_containsItem(item)) {
+      return false;
     } else {
-      columnData._items.add(item);
-    }
+      if (columnData._items.length > index) {
+        columnData._items.insert(index, item);
+      } else {
+        columnData._items.add(item);
+      }
 
-    if (notify) notifyListeners();
-    return true;
+      if (notify) notifyListeners();
+      return true;
+    }
   }
 
   bool add(AFColumnItem item, {bool notify = true}) {
-    columnData._items.add(item);
-    if (notify) notifyListeners();
-    return true;
+    if (_containsItem(item)) {
+      return false;
+    } else {
+      columnData._items.add(item);
+      if (notify) notifyListeners();
+      return true;
+    }
   }
 
   /// Replace the item at index with the [newItem].
@@ -113,6 +121,11 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
     }
 
     notifyListeners();
+  }
+
+  bool _containsItem(AFColumnItem item) {
+    return columnData._items.indexWhere((element) => element.id == item.id) !=
+        -1;
   }
 }
 

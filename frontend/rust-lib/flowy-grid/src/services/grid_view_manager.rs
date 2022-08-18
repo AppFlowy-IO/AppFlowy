@@ -1,13 +1,11 @@
-use crate::entities::{
-    CreateRowParams, GridFilterConfiguration, GridSettingPB, RepeatedGridGroupPB, RowPB,
-};
+use crate::entities::{CreateRowParams, GridFilterConfiguration, GridSettingPB, RepeatedGridGroupPB, RowPB};
 use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_editor::GridViewRevisionEditor;
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
+use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
 use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
 use flowy_revision::{RevisionCompactor, RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
 use flowy_sync::entities::grid::GridSettingChangesetParams;
@@ -56,18 +54,21 @@ impl GridViewManager {
         })
     }
 
+    /// When the row was created, we may need to modify the [RowRevision] according to the [CreateRowParams].
     pub(crate) async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         for view_editor in self.view_editors.iter() {
             view_editor.will_create_row(row_rev, params).await;
         }
     }
 
+    /// Notify the view that the row was created. For the moment, the view is just sending notifications.
     pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
         for view_editor in self.view_editors.iter() {
             view_editor.did_create_row(row_pb, params).await;
         }
     }
 
+    /// Insert/Delete the group's row if the corresponding data was changed.  
     pub(crate) async fn did_update_row(&self, row_id: &str) {
         match self.row_delegate.gv_get_row_rev(row_id).await {
             None => {
@@ -109,9 +110,19 @@ impl GridViewManager {
         Ok(RepeatedGridGroupPB { items: groups })
     }
 
-    pub(crate) async fn move_row(&self, row_rev: Arc<RowRevision>, to_row_id: String) {
+    /// It may generate a RowChangeset when the Row was moved from one group to another.
+    /// The return value, [RowChangeset], contains the changes made by the groups.
+    ///
+    pub(crate) async fn move_row(&self, row_rev: Arc<RowRevision>, to_row_id: String) -> Option<RowChangeset> {
+        let mut row_changeset = RowChangeset::new(row_rev.id.clone());
         for view_editor in self.view_editors.iter() {
-            view_editor.did_move_row(&row_rev, &to_row_id).await;
+            view_editor.did_move_row(&row_rev, &mut row_changeset, &to_row_id).await;
+        }
+
+        if row_changeset.has_changed() {
+            Some(row_changeset)
+        } else {
+            None
         }
     }
 

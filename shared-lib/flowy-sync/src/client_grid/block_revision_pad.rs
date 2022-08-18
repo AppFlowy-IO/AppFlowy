@@ -2,7 +2,7 @@ use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_text_delta_from_revisions};
 use flowy_grid_data_model::revision::{
-    gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision,
+    gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision,
 };
 use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
 use std::borrow::Cow;
@@ -143,7 +143,7 @@ impl GridBlockRevisionPad {
         self.block.rows.iter().position(|row| row.id == row_id)
     }
 
-    pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<GridBlockRevisionChangeset>> {
+    pub fn update_row(&mut self, changeset: RowChangeset) -> CollaborateResult<Option<GridBlockRevisionChangeset>> {
         let row_id = changeset.row_id.clone();
         self.modify_row(&row_id, |row| {
             let mut is_changed = None;

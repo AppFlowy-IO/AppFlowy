@@ -314,9 +314,9 @@ impl GridRevisionEditor {
         Ok(row_orders)
     }
 
-    pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
+    pub async fn update_row(&self, changeset: RowChangeset) -> FlowyResult<()> {
         let row_id = changeset.row_id.clone();
-        let _ = self.block_manager.update_row(changeset, make_row_from_row_rev).await?;
+        let _ = self.block_manager.update_row(changeset).await?;
         self.view_manager.did_update_row(&row_id).await;
         Ok(())
     }
@@ -395,12 +395,11 @@ impl GridRevisionEditor {
 
         match self.grid_pad.read().await.get_field_rev(&field_id) {
             None => {
-                let msg = format!("Field not found with id: {}", &field_id);
+                let msg = format!("Field:{} not found", &field_id);
                 Err(FlowyError::internal().context(msg))
             }
             Some((_, field_rev)) => {
                 tracing::trace!("field changeset: id:{} / value:{:?}", &field_id, content);
-
                 let cell_rev = self.get_cell_rev(&row_id, &field_id).await?;
                 // Update the changeset.data property with the return value.
                 content = Some(apply_cell_data_changeset(content.unwrap(), cell_rev, field_rev)?);
@@ -410,11 +409,7 @@ impl GridRevisionEditor {
                     field_id,
                     content,
                 };
-                let _ = self
-                    .block_manager
-                    .update_cell(cell_changeset, make_row_from_row_rev)
-                    .await?;
-
+                let _ = self.block_manager.update_cell(cell_changeset).await?;
                 self.view_manager.did_update_row(&row_id).await;
                 Ok(())
             }
@@ -512,10 +507,19 @@ impl GridRevisionEditor {
                             .block_manager
                             .move_row(row_rev.clone(), from_index, to_index)
                             .await?;
-                        self.view_manager.move_row(row_rev, to_row_id.clone()).await;
+
+                        if let Some(row_changeset) = self.view_manager.move_row(row_rev, to_row_id.clone()).await {
+                            tracing::trace!("Receive row changeset after moving the row");
+                            match self.block_manager.update_row(row_changeset).await {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    tracing::error!("Apply row changeset error:{:?}", e);
+                                }
+                            }
+                        }
                     }
-                    (_, None) => tracing::error!("Can not find the from row id: {}", from_row_id),
-                    (None, _) => tracing::error!("Can not find the to row id: {}", to_row_id),
+                    (_, None) => tracing::warn!("Can not find the from row id: {}", from_row_id),
+                    (None, _) => tracing::warn!("Can not find the to row id: {}", to_row_id),
                 }
             }
         }

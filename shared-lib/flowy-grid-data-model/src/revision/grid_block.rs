@@ -42,11 +42,26 @@ impl RowRevision {
     }
 }
 #[derive(Debug, Clone, Default)]
-pub struct RowMetaChangeset {
+pub struct RowChangeset {
     pub row_id: String,
     pub height: Option<i32>,
     pub visibility: Option<bool>,
     pub cell_by_field_id: HashMap<FieldId, CellRevision>,
+}
+
+impl RowChangeset {
+    pub fn new(row_id: String) -> Self {
+        Self {
+            row_id,
+            height: None,
+            visibility: None,
+            cell_by_field_id: Default::default()
+        }
+    }
+
+    pub fn has_changed(&self) -> bool {
+        self.height.is_some() || self.visibility.is_some() || !self.cell_by_field_id.is_empty()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize)]

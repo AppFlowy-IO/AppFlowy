@@ -1,6 +1,6 @@
 use crate::entities::{CheckboxGroupConfigurationPB, GroupRowsChangesetPB};
 
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
+use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
 
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
 use crate::services::group::{GenericGroupController, Group, GroupController, GroupGenerator, Groupable};
@@ -37,7 +37,9 @@ impl Groupable for CheckboxGroupController {
 
     fn move_row_if_match(
         &mut self,
+        field_rev: &FieldRevision,
         _row_rev: &RowRevision,
+        row_changeset: &mut RowChangeset,
         _cell_data: &Self::CellDataType,
         _to_row_id: &str,
     ) -> Vec<GroupRowsChangesetPB> {
@@ -57,11 +59,22 @@ impl GroupGenerator for CheckboxGroupGenerator {
     type TypeOptionType = CheckboxTypeOptionPB;
 
     fn generate_groups(
+        field_id: &str,
         _configuration: &Option<Self::ConfigurationType>,
         _type_option: &Option<Self::TypeOptionType>,
     ) -> Vec<Group> {
-        let check_group = Group::new("true".to_string(), "".to_string(), CHECK.to_string());
-        let uncheck_group = Group::new("false".to_string(), "".to_string(), UNCHECK.to_string());
+        let check_group = Group::new(
+            "true".to_string(),
+            field_id.to_owned(),
+            "".to_string(),
+            CHECK.to_string(),
+        );
+        let uncheck_group = Group::new(
+            "false".to_string(),
+            field_id.to_owned(),
+            "".to_string(),
+            UNCHECK.to_string(),
+        );
         vec![check_group, uncheck_group]
     }
 }
