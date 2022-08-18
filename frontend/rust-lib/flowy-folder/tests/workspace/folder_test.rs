@@ -1,6 +1,7 @@
 use crate::script::{invalid_workspace_name_test_case, FolderScript::*, FolderTest};
 use flowy_folder::entities::view::ViewDataTypePB;
 use flowy_folder::entities::workspace::CreateWorkspacePayloadPB;
+use flowy_folder::entities::ViewLayoutTypePB;
 
 use flowy_revision::disk::RevisionState;
 use flowy_test::{event_builder::*, FlowySDKTest};
@@ -135,11 +136,13 @@ async fn app_create_with_view() {
             name: "View A".to_owned(),
             desc: "View A description".to_owned(),
             data_type: ViewDataTypePB::Text,
+            layout: ViewLayoutTypePB::Document,
         },
         CreateView {
             name: "Grid".to_owned(),
             desc: "Grid description".to_owned(),
             data_type: ViewDataTypePB::Database,
+            layout: ViewLayoutTypePB::Document,
         },
         ReadApp(app.id),
     ])
@@ -199,11 +202,13 @@ async fn view_delete_all() {
             name: "View A".to_owned(),
             desc: "View A description".to_owned(),
             data_type: ViewDataTypePB::Text,
+            layout: ViewLayoutTypePB::Document,
         },
         CreateView {
             name: "Grid".to_owned(),
             desc: "Grid description".to_owned(),
             data_type: ViewDataTypePB::Database,
+            layout: ViewLayoutTypePB::Document,
         },
         ReadApp(app.id.clone()),
     ])
@@ -232,6 +237,7 @@ async fn view_delete_all_permanent() {
             name: "View A".to_owned(),
             desc: "View A description".to_owned(),
             data_type: ViewDataTypePB::Text,
+            layout: ViewLayoutTypePB::Document,
         },
         ReadApp(app.id.clone()),
     ])
@@ -331,6 +337,7 @@ async fn folder_sync_revision_with_new_view() {
             name: view_name.clone(),
             desc: view_desc.clone(),
             data_type: ViewDataTypePB::Text,
+            layout: ViewLayoutTypePB::Document,
         },
         AssertCurrentRevId(3),
         AssertNextSyncRevId(Some(3)),

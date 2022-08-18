@@ -47,7 +47,7 @@ pub trait GroupController: GroupControllerSharedAction + Send + Sync {
 pub trait GroupControllerSharedAction: Send + Sync {
     // The field that is used for grouping the rows
     fn field_id(&self) -> &str;
-    fn build_groups(&self) -> Vec<Group>;
+    fn groups(&self) -> Vec<Group>;
     fn group_rows(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()>;
     fn did_update_row(
         &mut self,
@@ -194,7 +194,7 @@ where
         &self.field_id
     }
 
-    fn build_groups(&self) -> Vec<Group> {
+    fn groups(&self) -> Vec<Group> {
         let default_group = self.default_group.clone();
         let mut groups: Vec<Group> = self.groups_map.values().cloned().collect();
         if !default_group.rows.is_empty() {

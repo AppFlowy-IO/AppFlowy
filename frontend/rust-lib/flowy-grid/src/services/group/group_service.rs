@@ -7,7 +7,9 @@ use crate::services::group::{
 };
 use bytes::Bytes;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowRevision, RowChangeset};
+use flowy_grid_data_model::revision::{
+    gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowChangeset, RowRevision,
+};
 use lib_infra::future::AFFuture;
 use std::future::Future;
 use std::sync::Arc;
@@ -18,7 +20,6 @@ pub trait GroupConfigurationDelegate: Send + Sync + 'static {
 }
 
 pub(crate) struct GroupService {
-    pub groups: Vec<Group>,
     delegate: Box<dyn GroupConfigurationDelegate>,
     group_controller: Option<Arc<RwLock<dyn GroupController>>>,
 }
@@ -26,9 +27,16 @@ pub(crate) struct GroupService {
 impl GroupService {
     pub(crate) async fn new(delegate: Box<dyn GroupConfigurationDelegate>) -> Self {
         Self {
-            groups: vec![],
             delegate,
             group_controller: None,
+        }
+    }
+
+    pub(crate) async fn groups(&self) -> Vec<Group> {
+        if let Some(group_action_handler) = self.group_controller.as_ref() {
+            group_action_handler.read().await.groups()
+        } else {
+            vec![]
         }
     }
 
@@ -44,10 +52,7 @@ impl GroupService {
             .build_groups(&field_type, &field_rev, row_revs, configuration)
             .await
         {
-            Ok(groups) => {
-                self.groups = groups.clone();
-                Some(groups)
-            }
+            Ok(groups) => Some(groups),
             Err(_) => None,
         }
     }
@@ -183,7 +188,7 @@ impl GroupService {
         if let Some(group_action_handler) = self.group_controller.as_ref() {
             let mut write_guard = group_action_handler.write().await;
             let _ = write_guard.group_rows(&row_revs, field_rev)?;
-            groups = write_guard.build_groups();
+            groups = write_guard.groups();
             drop(write_guard);
         }
 

@@ -56,7 +56,7 @@ pub struct GridRowTest {
 
 impl GridRowTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new().await;
+        let editor_test = GridEditorTest::new_table().await;
         Self { inner: editor_test }
     }
 

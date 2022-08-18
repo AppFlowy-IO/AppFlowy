@@ -249,11 +249,9 @@ fn move_row(
 ) {
     cell_data.select_options.iter().for_each(|option| {
         // Remove the row in which group contains the row
-        if option.id == group.id {
-            if group.contains_row(&row_rev.id) {
-                group_changeset.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
-                group.remove_row(&row_rev.id);
-            }
+        if option.id == group.id && group.contains_row(&row_rev.id) {
+            group_changeset.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+            group.remove_row(&row_rev.id);
         }
 
         // Find the inserted group

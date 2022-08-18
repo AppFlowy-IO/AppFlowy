@@ -275,7 +275,7 @@ impl std::default::Default for GridBlockRevisionPad {
 #[cfg(test)]
 mod tests {
     use crate::client_grid::GridBlockRevisionPad;
-    use flowy_grid_data_model::revision::{RowMetaChangeset, RowRevision};
+    use flowy_grid_data_model::revision::{RowChangeset, RowRevision};
     use lib_ot::core::TextDelta;
     use std::borrow::Cow;
 
@@ -400,7 +400,7 @@ mod tests {
             visibility: false,
         };
 
-        let changeset = RowMetaChangeset {
+        let changeset = RowChangeset {
             row_id: row.id.clone(),
             height: Some(100),
             visibility: Some(true),

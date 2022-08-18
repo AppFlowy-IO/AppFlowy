@@ -37,9 +37,9 @@ impl Groupable for CheckboxGroupController {
 
     fn move_row_if_match(
         &mut self,
-        field_rev: &FieldRevision,
+        _field_rev: &FieldRevision,
         _row_rev: &RowRevision,
-        row_changeset: &mut RowChangeset,
+        _row_changeset: &mut RowChangeset,
         _cell_data: &Self::CellDataType,
         _to_row_id: &str,
     ) -> Vec<GroupRowsChangesetPB> {
