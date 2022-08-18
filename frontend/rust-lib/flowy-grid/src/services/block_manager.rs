@@ -110,8 +110,7 @@ impl GridBlockManager {
             None => tracing::error!("Internal error: can't find the row with id: {}", changeset.row_id),
             Some(row_rev) => {
                 let row_pb = make_row_from_row_rev(row_rev.clone());
-                let block_order_changeset =
-                    GridBlockChangesetPB::update(&editor.block_id, vec![row_pb]);
+                let block_order_changeset = GridBlockChangesetPB::update(&editor.block_id, vec![row_pb]);
                 let _ = self
                     .notify_did_update_block(&editor.block_id, block_order_changeset)
                     .await?;
@@ -189,10 +188,9 @@ impl GridBlockManager {
         }
     }
 
-    pub async fn update_cell(&self, changeset: CellChangesetPB ) -> FlowyResult<()>
-    {
+    pub async fn update_cell(&self, changeset: CellChangesetPB) -> FlowyResult<()> {
         let row_changeset: RowChangeset = changeset.clone().into();
-        let _ = self.update_row(row_changeset, ).await?;
+        let _ = self.update_row(row_changeset).await?;
         self.notify_did_update_cell(changeset).await?;
         Ok(())
     }

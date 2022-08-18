@@ -55,7 +55,7 @@ impl RowChangeset {
             row_id,
             height: None,
             visibility: None,
-            cell_by_field_id: Default::default()
+            cell_by_field_id: Default::default(),
         }
     }
 

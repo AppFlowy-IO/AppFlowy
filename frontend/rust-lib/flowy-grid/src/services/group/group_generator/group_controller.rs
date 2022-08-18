@@ -149,6 +149,10 @@ impl Group {
     pub fn index_of_row(&self, row_id: &str) -> Option<usize> {
         self.rows.iter().position(|row| row.id == row_id)
     }
+
+    pub fn number_of_row(&self) -> usize {
+        self.rows.len()
+    }
 }
 
 impl<C, T, G, P> GenericGroupController<C, T, G, P>

@@ -53,7 +53,6 @@ pub enum FolderScript {
         name: String,
         desc: String,
         data_type: ViewDataTypePB,
-        layout: ViewLayoutTypePB,
     },
     AssertView(ViewPB),
     ReadView(String),
@@ -181,12 +180,11 @@ impl FolderTest {
                 delete_app(sdk, &self.app.id).await;
             }
 
-            FolderScript::CreateView {
-                name,
-                desc,
-                data_type,
-                layout,
-            } => {
+            FolderScript::CreateView { name, desc, data_type } => {
+                let layout = match data_type {
+                    ViewDataTypePB::Text => ViewLayoutTypePB::Document,
+                    ViewDataTypePB::Database => ViewLayoutTypePB::Grid,
+                };
                 let view = create_view(sdk, &self.app.id, &name, &desc, data_type, layout).await;
                 self.view = view;
             }

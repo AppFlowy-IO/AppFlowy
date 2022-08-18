@@ -320,9 +320,7 @@ impl RevisionSyncSequence {
     fn compact(&self) -> Option<(RevisionRange, VecDeque<i64>)> {
         // Make sure there are two rev_id going to sync. No need to compact if there is only
         // one rev_id in queue.
-        if self.next_rev_id().is_none() {
-            return None;
-        }
+        self.next_rev_id()?;
 
         let mut new_seq = self.0.clone();
         let mut drained = new_seq.drain(1..).collect::<VecDeque<_>>();

@@ -186,6 +186,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         view_id: &str,
         layout: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError> {
+        debug_assert_eq!(layout, ViewLayoutTypePB::Document);
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let manager = self.0.clone();

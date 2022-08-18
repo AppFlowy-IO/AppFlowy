@@ -249,27 +249,34 @@ fn move_row(
 ) {
     cell_data.select_options.iter().for_each(|option| {
         // Remove the row in which group contains the row
-        if option.id == group.id && group.contains_row(&row_rev.id) {
+        let is_group_contains = group.contains_row(&row_rev.id);
+        let to_index = group.index_of_row(to_row_id);
+
+        if option.id == group.id && is_group_contains {
             group_changeset.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
             group.remove_row(&row_rev.id);
         }
 
         // Find the inserted group
-        if let Some(index) = group.index_of_row(to_row_id) {
+        if let Some(to_index) = to_index {
             let row_pb = RowPB::from(row_rev);
             let inserted_row = InsertedRowPB {
                 row: row_pb.clone(),
-                index: Some(index as i32),
+                index: Some(to_index as i32),
             };
             group_changeset.push(GroupRowsChangesetPB::insert(group.id.clone(), vec![inserted_row]));
-            group.insert_row(index, row_pb);
-
-            // If the inserted row comes from other group, it needs to update the corresponding cell content.
-            if option.id != group.id {
-                // Update the corresponding row's cell content.
-                let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
-                row_changeset.cell_by_field_id.insert(field_rev.id.clone(), cell_rev);
+            if group.number_of_row() == to_index {
+                group.add_row(row_pb);
+            } else {
+                group.insert_row(to_index, row_pb);
             }
+        }
+
+        // If the inserted row comes from other group, it needs to update the corresponding cell content.
+        if to_index.is_some() && option.id != group.id {
+            // Update the corresponding row's cell content.
+            let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
+            row_changeset.cell_by_field_id.insert(field_rev.id.clone(), cell_rev);
         }
     });
 }

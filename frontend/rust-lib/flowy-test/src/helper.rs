@@ -25,16 +25,11 @@ pub struct ViewTest {
 
 impl ViewTest {
     #[allow(dead_code)]
-    pub async fn new(
-        sdk: &FlowySDKTest,
-        data_type: ViewDataTypePB,
-        sub_data_type: ViewLayoutTypePB,
-        data: Vec<u8>,
-    ) -> Self {
+    pub async fn new(sdk: &FlowySDKTest, data_type: ViewDataTypePB, layout: ViewLayoutTypePB, data: Vec<u8>) -> Self {
         let workspace = create_workspace(sdk, "Workspace", "").await;
         open_workspace(sdk, &workspace.id).await;
         let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
-        let view = create_view(sdk, &app.id, data_type, sub_data_type, data).await;
+        let view = create_view(sdk, &app.id, data_type, layout, data).await;
         Self {
             sdk: sdk.clone(),
             workspace,
@@ -52,7 +47,7 @@ impl ViewTest {
     }
 
     pub async fn new_text_block_view(sdk: &FlowySDKTest) -> Self {
-        Self::new(sdk, ViewDataTypePB::Text, ViewLayoutTypePB::Grid, vec![]).await
+        Self::new(sdk, ViewDataTypePB::Text, ViewLayoutTypePB::Document, vec![]).await
     }
 }
 

@@ -19,7 +19,6 @@ use flowy_database::kv::KV;
 use flowy_folder_data_model::revision::{gen_view_id, ViewRevision};
 use flowy_sync::entities::text_block::TextBlockIdPB;
 use futures::{FutureExt, StreamExt};
-use lib_infra::util::timestamp;
 use std::{collections::HashSet, sync::Arc};
 
 const LATEST_VIEW_ID: &str = "latest_view_id";
@@ -450,24 +449,6 @@ async fn handle_trash_event(
             };
             let _ = ret.send(result().await).await;
         }
-    }
-}
-
-fn make_view_rev_from(params: CreateViewParams) -> ViewRevision {
-    let time = timestamp();
-    ViewRevision {
-        id: params.view_id,
-        app_id: params.belong_to_id,
-        name: params.name,
-        desc: params.desc,
-        data_type: params.data_type.into(),
-        version: 0,
-        belongings: vec![],
-        modified_time: time,
-        create_time: time,
-        ext_data: "".to_string(),
-        thumbnail: params.thumbnail,
-        layout: params.layout.into(),
     }
 }
 
