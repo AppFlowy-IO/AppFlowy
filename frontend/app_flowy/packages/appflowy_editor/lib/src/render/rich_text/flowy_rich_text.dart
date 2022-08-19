@@ -65,18 +65,35 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   @override
   Rect? getCursorRectInPosition(Position position) {
     final textPosition = TextPosition(offset: position.offset);
-    final cursorOffset =
-        _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
-    final cursorHeight = widget.cursorHeight ??
-        _renderParagraph.getFullHeightForCaret(textPosition) ??
-        _placeholderRenderParagraph.getFullHeightForCaret(textPosition) ??
-        16.0; // default height
 
+    var cursorHeight = _renderParagraph.getFullHeightForCaret(textPosition);
+    var cursorOffset =
+        _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
+    if (cursorHeight == null) {
+      cursorHeight =
+          _placeholderRenderParagraph.getFullHeightForCaret(textPosition);
+      cursorOffset = _placeholderRenderParagraph.getOffsetForCaret(
+          textPosition, Rect.zero);
+    }
+    if (cursorHeight != null) {
+      // workaround: Calling the `getFullHeightForCaret` function will return
+      // the full height of rich text component instead of the plain text
+      // if we set the line height.
+      // So need to divide by the line height to get the expected value.
+      //
+      // And the default height of plain text is too short. Add a magic height
+      // to expand it.
+      const magicHeight = 3.0;
+      cursorOffset = cursorOffset.translate(
+          0, (cursorHeight - cursorHeight / _lineHeight) / 2.0);
+      cursorHeight /= _lineHeight;
+      cursorHeight += magicHeight;
+    }
     final rect = Rect.fromLTWH(
       cursorOffset.dx - (widget.cursorWidth / 2),
       cursorOffset.dy,
       widget.cursorWidth,
-      cursorHeight,
+      widget.cursorHeight ?? cursorHeight ?? 16.0,
     );
     return rect;
   }
