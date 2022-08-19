@@ -178,7 +178,7 @@ fn filter_cell(
     cell_rev: &CellRevision,
 ) -> Option<()> {
     let field_rev = field_revs.get(field_id)?;
-    let field_type = FieldType::from(field_rev.field_type_rev);
+    let field_type = FieldType::from(field_rev.ty);
     let field_type_rev = field_type.clone().into();
     let filter_id = FilterId {
         field_id: field_id.to_owned(),

@@ -123,7 +123,7 @@ where
 }
 
 pub fn select_option_operation(field_rev: &FieldRevision) -> FlowyResult<Box<dyn SelectOptionOperation>> {
-    let field_type: FieldType = field_rev.field_type_rev.into();
+    let field_type: FieldType = field_rev.ty.into();
     match &field_type {
         FieldType::SingleSelect => {
             let type_option = SingleSelectTypeOptionPB::from(field_rev);
@@ -247,12 +247,12 @@ impl std::convert::From<SelectOptionCellChangesetParams> for CellChangesetPB {
             insert_option_id: params.insert_option_id,
             delete_option_id: params.delete_option_id,
         };
-        let s = serde_json::to_string(&changeset).unwrap();
+        let content = serde_json::to_string(&changeset).unwrap();
         CellChangesetPB {
             grid_id: params.cell_identifier.grid_id,
             row_id: params.cell_identifier.row_id,
             field_id: params.cell_identifier.field_id,
-            content: Some(s),
+            content,
         }
     }
 }

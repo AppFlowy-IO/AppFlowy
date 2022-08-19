@@ -82,6 +82,10 @@ impl GridViewManager {
         }
     }
 
+    pub(crate) async fn did_update_cell(&self, row_id: &str, _field_id: &str) {
+        self.did_update_row(row_id).await
+    }
+
     pub(crate) async fn did_delete_row(&self, row_rev: Arc<RowRevision>) {
         for view_editor in self.view_editors.iter() {
             view_editor.did_delete_row(&row_rev).await;

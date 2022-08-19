@@ -33,7 +33,7 @@ impl FieldBuilder {
             id: field.id,
             name: field.name,
             desc: field.desc,
-            field_type_rev: field.field_type.into(),
+            ty: field.field_type.into(),
             frozen: field.frozen,
             visibility: field.visibility,
             width: field.width,

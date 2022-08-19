@@ -18,7 +18,7 @@ async fn grid_cell_update() {
     let mut scripts = vec![];
     for (_, row_rev) in row_revs.iter().enumerate() {
         for field_rev in field_revs {
-            let field_type: FieldType = field_rev.field_type_rev.into();
+            let field_type: FieldType = field_rev.ty.into();
             let data = match field_type {
                 FieldType::RichText => "".to_string(),
                 FieldType::Number => "123".to_string(),
@@ -40,7 +40,7 @@ async fn grid_cell_update() {
                     grid_id: block_id.to_string(),
                     row_id: row_rev.id.clone(),
                     field_id: field_rev.id.clone(),
-                    content: Some(data),
+                    content: data,
                 },
                 is_err: false,
             });

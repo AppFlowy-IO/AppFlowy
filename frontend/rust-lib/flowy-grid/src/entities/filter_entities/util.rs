@@ -92,7 +92,7 @@ impl CreateGridFilterPayloadPB {
     pub fn new<T: Into<i32>>(field_rev: &FieldRevision, condition: T, content: Option<String>) -> Self {
         Self {
             field_id: field_rev.id.clone(),
-            field_type: field_rev.field_type_rev.into(),
+            field_type: field_rev.ty.into(),
             condition: condition.into(),
             content,
         }

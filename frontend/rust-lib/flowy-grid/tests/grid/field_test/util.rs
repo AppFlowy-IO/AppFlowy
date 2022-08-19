@@ -12,7 +12,7 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
     let cloned_field_rev = field_rev.clone();
 
     let type_option_data = field_rev
-        .get_type_option_entry::<RichTextTypeOptionPB>(field_rev.field_type_rev)
+        .get_type_option_entry::<RichTextTypeOptionPB>(field_rev.ty)
         .unwrap()
         .protobuf_bytes()
         .to_vec();
@@ -21,7 +21,7 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
         id: field_rev.id,
         name: field_rev.name,
         desc: field_rev.desc,
-        field_type: field_rev.field_type_rev.into(),
+        field_type: field_rev.ty.into(),
         frozen: field_rev.frozen,
         visibility: field_rev.visibility,
         width: field_rev.width,
@@ -45,7 +45,7 @@ pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRev
     let field_rev = FieldBuilder::new(single_select).name("Name").visibility(true).build();
     let cloned_field_rev = field_rev.clone();
     let type_option_data = field_rev
-        .get_type_option_entry::<SingleSelectTypeOptionPB>(field_rev.field_type_rev)
+        .get_type_option_entry::<SingleSelectTypeOptionPB>(field_rev.ty)
         .unwrap()
         .protobuf_bytes()
         .to_vec();
@@ -54,7 +54,7 @@ pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRev
         id: field_rev.id,
         name: field_rev.name,
         desc: field_rev.desc,
-        field_type: field_rev.field_type_rev.into(),
+        field_type: field_rev.ty.into(),
         frozen: field_rev.frozen,
         visibility: field_rev.visibility,
         width: field_rev.width,

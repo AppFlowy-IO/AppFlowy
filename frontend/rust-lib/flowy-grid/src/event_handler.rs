@@ -171,7 +171,7 @@ pub(crate) async fn get_field_type_option_data_handler(
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
         Some(field_rev) => {
-            let field_type = field_rev.field_type_rev.into();
+            let field_type = field_rev.ty.into();
             let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
             let data = FieldTypeOptionDataPB {
                 grid_id: params.grid_id,
@@ -192,7 +192,7 @@ pub(crate) async fn create_field_type_option_data_handler(
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let field_rev = editor.create_next_field_rev(&params.field_type).await?;
-    let field_type: FieldType = field_rev.field_type_rev.into();
+    let field_type: FieldType = field_rev.ty.into();
     let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 
     data_result(FieldTypeOptionDataPB {
@@ -218,7 +218,7 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
     let s = field_rev
         .get_type_option_str(field_type)
         .unwrap_or_else(|| default_type_option_builder_from_type(field_type).entry().json_str());
-    let field_type: FieldType = field_rev.field_type_rev.into();
+    let field_type: FieldType = field_rev.ty.into();
     let builder = type_option_builder_from_json_str(&s, &field_type);
     let type_option_data = builder.entry().protobuf_bytes().to_vec();
 
@@ -352,13 +352,15 @@ pub(crate) async fn update_select_option_handler(
         mut_field_rev.insert_type_option_entry(&*type_option);
         let _ = editor.replace_field(field_rev).await?;
 
-        let changeset = CellChangesetPB {
-            grid_id: changeset.cell_identifier.grid_id,
-            row_id: changeset.cell_identifier.row_id,
-            field_id: changeset.cell_identifier.field_id,
-            content: cell_content_changeset,
-        };
-        let _ = editor.update_cell(changeset).await?;
+        if let Some(cell_content_changeset) = cell_content_changeset {
+            let changeset = CellChangesetPB {
+                grid_id: changeset.cell_identifier.grid_id,
+                row_id: changeset.cell_identifier.row_id,
+                field_id: changeset.cell_identifier.field_id,
+                content: cell_content_changeset,
+            };
+            let _ = editor.update_cell(changeset).await?;
+        }
     }
     Ok(())
 }
@@ -382,7 +384,7 @@ pub(crate) async fn get_select_option_handler(
             let any_cell_data: AnyCellData = match cell_rev {
                 None => AnyCellData {
                     data: "".to_string(),
-                    field_type: field_rev.field_type_rev.into(),
+                    field_type: field_rev.ty.into(),
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };

@@ -96,7 +96,7 @@ impl GridEditorTest {
         self.field_revs
             .iter()
             .filter(|field_rev| {
-                let t_field_type: FieldType = field_rev.field_type_rev.into();
+                let t_field_type: FieldType = field_rev.ty.into();
                 t_field_type == field_type
             })
             .collect::<Vec<_>>()

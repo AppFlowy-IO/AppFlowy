@@ -118,7 +118,7 @@ pub(crate) async fn refresh_filter_cache(
             None => {}
             Some((_, field_rev)) => {
                 let filter_id = FilterId::from(field_rev);
-                let field_type: FieldType = field_rev.field_type_rev.into();
+                let field_type: FieldType = field_rev.ty.into();
                 match &field_type {
                     FieldType::RichText => {
                         let _ = cache
@@ -165,7 +165,7 @@ impl std::convert::From<&Arc<FieldRevision>> for FilterId {
     fn from(rev: &Arc<FieldRevision>) -> Self {
         Self {
             field_id: rev.id.clone(),
-            field_type: rev.field_type_rev.into(),
+            field_type: rev.ty.into(),
         }
     }
 }

@@ -47,12 +47,15 @@ impl std::ops::DerefMut for RepeatedGridGroupPB {
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct GroupPB {
     #[pb(index = 1)]
-    pub group_id: String,
+    pub field_id: String,
 
     #[pb(index = 2)]
-    pub desc: String,
+    pub group_id: String,
 
     #[pb(index = 3)]
+    pub desc: String,
+
+    #[pb(index = 4)]
     pub rows: Vec<RowPB>,
 }
 

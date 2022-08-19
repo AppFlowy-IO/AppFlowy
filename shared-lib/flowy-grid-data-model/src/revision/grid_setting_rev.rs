@@ -173,7 +173,7 @@ where
         let objects_by_field_id = field_revs
             .iter()
             .flat_map(|field_rev| {
-                let field_type = &field_rev.field_type_rev;
+                let field_type = &field_rev.ty;
                 let field_id = &field_rev.id;
 
                 let object_rev_map = self.inner.get(field_id)?;

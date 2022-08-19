@@ -46,7 +46,7 @@ impl GroupService {
         row_revs: Vec<Arc<RowRevision>>,
     ) -> Option<Vec<Group>> {
         let field_rev = find_group_field(field_revs)?;
-        let field_type: FieldType = field_rev.field_type_rev.into();
+        let field_type: FieldType = field_rev.ty.into();
         let configuration = self.delegate.get_group_configuration(field_rev.clone()).await;
         match self
             .build_groups(&field_type, &field_rev, row_revs, configuration)
@@ -200,7 +200,7 @@ fn find_group_field(field_revs: &[Arc<FieldRevision>]) -> Option<Arc<FieldRevisi
     let field_rev = field_revs
         .iter()
         .find(|field_rev| {
-            let field_type: FieldType = field_rev.field_type_rev.into();
+            let field_type: FieldType = field_rev.ty.into();
             field_type.can_be_group()
         })
         .cloned();
@@ -208,7 +208,7 @@ fn find_group_field(field_revs: &[Arc<FieldRevision>]) -> Option<Arc<FieldRevisi
 }
 
 pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurationRevision {
-    let field_type: FieldType = field_rev.field_type_rev.into();
+    let field_type: FieldType = field_rev.ty.into();
     let bytes: Bytes = match field_type {
         FieldType::RichText => TextGroupConfigurationPB::default().try_into().unwrap(),
         FieldType::Number => NumberGroupConfigurationPB::default().try_into().unwrap(),
@@ -221,7 +221,7 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
     GroupConfigurationRevision {
         id: gen_grid_group_id(),
         field_id: field_rev.id.clone(),
-        field_type_rev: field_rev.field_type_rev,
+        field_type_rev: field_rev.ty,
         content: Some(bytes.to_vec()),
     }
 }
