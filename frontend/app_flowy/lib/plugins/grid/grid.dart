@@ -22,13 +22,13 @@ class GridPluginBuilder implements PluginBuilder {
   String get menuName => LocaleKeys.grid_menuName.tr();
 
   @override
-  PluginType get pluginType => DefaultPlugin.grid.type();
+  PluginType get pluginType => PluginType.grid;
 
   @override
   ViewDataTypePB get dataType => ViewDataTypePB.Database;
 
   @override
-  SubViewDataTypePB? get subDataType => SubViewDataTypePB.Grid;
+  ViewLayoutTypePB? get subDataType => ViewLayoutTypePB.Grid;
 }
 
 class GridPluginConfig implements PluginConfig {

@@ -1,7 +1,10 @@
 import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 
 import 'group_listener.dart';
+
+typedef OnGroupError = void Function(FlowyError);
 
 abstract class GroupControllerDelegate {
   void removeRow(String groupId, String rowId);
@@ -14,8 +17,19 @@ class GroupController {
   final GroupListener _listener;
   final GroupControllerDelegate delegate;
 
-  GroupController({required this.group, required this.delegate})
-      : _listener = GroupListener(group);
+  GroupController({
+    required String gridId,
+    required this.group,
+    required this.delegate,
+  }) : _listener = GroupListener(group);
+
+  RowPB? rowAtIndex(int index) {
+    if (index < group.rows.length) {
+      return group.rows[index];
+    } else {
+      return null;
+    }
+  }
 
   void startListening() {
     _listener.start(onGroupChanged: (result) {

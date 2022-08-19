@@ -5,7 +5,7 @@ use flowy_folder::entities::{
     trash::{RepeatedTrashPB, TrashIdPB, TrashType},
     view::{CreateViewPayloadPB, UpdateViewPayloadPB},
     workspace::{CreateWorkspacePayloadPB, RepeatedWorkspacePB},
-    SubViewDataTypePB,
+    ViewLayoutTypePB,
 };
 use flowy_folder::entities::{
     app::{AppPB, RepeatedAppPB},
@@ -99,7 +99,8 @@ impl FolderTest {
             &app.id,
             "Folder View",
             "Folder test view",
-            ViewDataTypePB::TextBlock,
+            ViewDataTypePB::Text,
+            ViewLayoutTypePB::Document,
         )
         .await;
         app.belongings = RepeatedViewPB {
@@ -180,7 +181,11 @@ impl FolderTest {
             }
 
             FolderScript::CreateView { name, desc, data_type } => {
-                let view = create_view(sdk, &self.app.id, &name, &desc, data_type).await;
+                let layout = match data_type {
+                    ViewDataTypePB::Text => ViewLayoutTypePB::Document,
+                    ViewDataTypePB::Database => ViewLayoutTypePB::Grid,
+                };
+                let view = create_view(sdk, &self.app.id, &name, &desc, data_type, layout).await;
                 self.view = view;
             }
             FolderScript::AssertView(view) => {
@@ -353,21 +358,16 @@ pub async fn create_view(
     name: &str,
     desc: &str,
     data_type: ViewDataTypePB,
+    layout: ViewLayoutTypePB,
 ) -> ViewPB {
-    let sub_data_type = match data_type {
-        ViewDataTypePB::TextBlock => None,
-        ViewDataTypePB::Database => Some(SubViewDataTypePB::Grid),
-    };
-
     let request = CreateViewPayloadPB {
         belong_to_id: app_id.to_string(),
         name: name.to_string(),
         desc: desc.to_string(),
         thumbnail: None,
         data_type,
-        sub_data_type,
-        plugin_type: 0,
-        data: vec![],
+        layout,
+        view_content_data: vec![],
     };
     let view = FolderEventBuilder::new(sdk.clone())
         .event(CreateView)

@@ -29,7 +29,7 @@
             "program": "./lib/main.dart",
             "type": "dart",
             "env": {
-                "RUST_LOG": "debug"
+                "RUST_LOG": "trace"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },

@@ -40,6 +40,19 @@ extension ViewExtension on ViewPB {
     return widget;
   }
 
+  PluginType get pluginType {
+    switch (layout) {
+      case ViewLayoutTypePB.Board:
+        return PluginType.board;
+      case ViewLayoutTypePB.Document:
+        return PluginType.editor;
+      case ViewLayoutTypePB.Grid:
+        return PluginType.grid;
+    }
+
+    throw UnimplementedError;
+  }
+
   Plugin plugin() {
     final plugin = makePlugin(pluginType: pluginType, data: this);
     return plugin;

@@ -2,7 +2,7 @@ use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_text_delta_from_revisions};
 use flowy_grid_data_model::revision::{
-    gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowMetaChangeset, RowRevision,
+    gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision,
 };
 use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
 use std::borrow::Cow;
@@ -143,7 +143,7 @@ impl GridBlockRevisionPad {
         self.block.rows.iter().position(|row| row.id == row_id)
     }
 
-    pub fn update_row(&mut self, changeset: RowMetaChangeset) -> CollaborateResult<Option<GridBlockRevisionChangeset>> {
+    pub fn update_row(&mut self, changeset: RowChangeset) -> CollaborateResult<Option<GridBlockRevisionChangeset>> {
         let row_id = changeset.row_id.clone();
         self.modify_row(&row_id, |row| {
             let mut is_changed = None;
@@ -178,8 +178,12 @@ impl GridBlockRevisionPad {
             if let Some(position) = row_revs.iter().position(|row_rev| row_rev.id == row_id) {
                 debug_assert_eq!(from, position);
                 let row_rev = row_revs.remove(position);
-                row_revs.insert(to, row_rev);
-                Ok(Some(()))
+                if to > row_revs.len() {
+                    Err(CollaborateError::out_of_bound())
+                } else {
+                    row_revs.insert(to, row_rev);
+                    Ok(Some(()))
+                }
             } else {
                 Ok(None)
             }
@@ -200,10 +204,6 @@ impl GridBlockRevisionPad {
                     None => Ok(None),
                     Some(delta) => {
                         tracing::trace!("[GridBlockRevision] Composing delta {}", delta.json_str());
-                        // tracing::debug!(
-                        //     "[GridBlockMeta] current delta: {}",
-                        //     self.delta.to_str().unwrap_or_else(|_| "".to_string())
-                        // );
                         self.delta = self.delta.compose(&delta)?;
                         Ok(Some(GridBlockRevisionChangeset {
                             delta,
@@ -275,7 +275,7 @@ impl std::default::Default for GridBlockRevisionPad {
 #[cfg(test)]
 mod tests {
     use crate::client_grid::GridBlockRevisionPad;
-    use flowy_grid_data_model::revision::{RowMetaChangeset, RowRevision};
+    use flowy_grid_data_model::revision::{RowChangeset, RowRevision};
     use lib_ot::core::TextDelta;
     use std::borrow::Cow;
 
@@ -400,7 +400,7 @@ mod tests {
             visibility: false,
         };
 
-        let changeset = RowMetaChangeset {
+        let changeset = RowChangeset {
             row_id: row.id.clone(),
             height: Some(100),
             visibility: Some(true),

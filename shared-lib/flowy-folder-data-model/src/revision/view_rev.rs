@@ -9,7 +9,9 @@ pub fn gen_view_id() -> String {
 pub struct ViewRevision {
     pub id: String,
 
-    pub belong_to_id: String,
+    // Maybe app_id or vi
+    #[serde(rename = "belong_to_id")]
+    pub app_id: String,
 
     pub name: String,
 
@@ -33,9 +35,10 @@ pub struct ViewRevision {
     pub thumbnail: String,
 
     #[serde(default = "DEFAULT_PLUGIN_TYPE")]
-    pub plugin_type: i32,
+    #[serde(rename = "plugin_type")]
+    pub layout: ViewLayoutTypeRevision,
 }
-const DEFAULT_PLUGIN_TYPE: fn() -> i32 = || 0;
+const DEFAULT_PLUGIN_TYPE: fn() -> ViewLayoutTypeRevision = || ViewLayoutTypeRevision::Document;
 
 impl std::convert::From<ViewRevision> for TrashRevision {
     fn from(view_rev: ViewRevision) -> Self {
@@ -52,12 +55,27 @@ impl std::convert::From<ViewRevision> for TrashRevision {
 #[derive(Eq, PartialEq, Debug, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
 pub enum ViewDataTypeRevision {
-    TextBlock = 0,
+    Text = 0,
     Database = 1,
 }
 
 impl std::default::Default for ViewDataTypeRevision {
     fn default() -> Self {
-        ViewDataTypeRevision::TextBlock
+        ViewDataTypeRevision::Text
+    }
+}
+
+#[derive(Eq, PartialEq, Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
+pub enum ViewLayoutTypeRevision {
+    Document = 0,
+    // The for historical reasons, the value of Grid is not 1.
+    Grid = 3,
+    Board = 4,
+}
+
+impl std::default::Default for ViewLayoutTypeRevision {
+    fn default() -> Self {
+        ViewLayoutTypeRevision::Document
     }
 }

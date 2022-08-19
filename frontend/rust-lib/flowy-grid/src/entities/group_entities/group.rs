@@ -28,7 +28,20 @@ impl std::convert::From<&GroupConfigurationRevision> for GridGroupConfigurationP
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct RepeatedGridGroupPB {
     #[pb(index = 1)]
-    pub(crate) items: Vec<GroupPB>,
+    pub items: Vec<GroupPB>,
+}
+
+impl std::ops::Deref for RepeatedGridGroupPB {
+    type Target = Vec<GroupPB>;
+    fn deref(&self) -> &Self::Target {
+        &self.items
+    }
+}
+
+impl std::ops::DerefMut for RepeatedGridGroupPB {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.items
+    }
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]

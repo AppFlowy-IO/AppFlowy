@@ -7,7 +7,9 @@ use crate::services::group::{
 };
 use bytes::Bytes;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowRevision};
+use flowy_grid_data_model::revision::{
+    gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowChangeset, RowRevision,
+};
 use lib_infra::future::AFFuture;
 use std::future::Future;
 use std::sync::Arc;
@@ -18,7 +20,6 @@ pub trait GroupConfigurationDelegate: Send + Sync + 'static {
 }
 
 pub(crate) struct GroupService {
-    pub groups: Vec<Group>,
     delegate: Box<dyn GroupConfigurationDelegate>,
     group_controller: Option<Arc<RwLock<dyn GroupController>>>,
 }
@@ -26,9 +27,16 @@ pub(crate) struct GroupService {
 impl GroupService {
     pub(crate) async fn new(delegate: Box<dyn GroupConfigurationDelegate>) -> Self {
         Self {
-            groups: vec![],
             delegate,
             group_controller: None,
+        }
+    }
+
+    pub(crate) async fn groups(&self) -> Vec<Group> {
+        if let Some(group_action_handler) = self.group_controller.as_ref() {
+            group_action_handler.read().await.groups()
+        } else {
+            vec![]
         }
     }
 
@@ -44,15 +52,12 @@ impl GroupService {
             .build_groups(&field_type, &field_rev, row_revs, configuration)
             .await
         {
-            Ok(groups) => {
-                self.groups = groups.clone();
-                Some(groups)
-            }
+            Ok(groups) => Some(groups),
             Err(_) => None,
         }
     }
 
-    pub(crate) async fn fill_row<F, O>(&self, row_rev: &mut RowRevision, group_id: &str, get_field_fn: F)
+    pub(crate) async fn will_create_row<F, O>(&self, row_rev: &mut RowRevision, group_id: &str, get_field_fn: F)
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
@@ -62,8 +67,61 @@ impl GroupService {
             match get_field_fn(field_id).await {
                 None => {}
                 Some(field_rev) => {
-                    group_controller.write().await.fill_row(row_rev, &field_rev, group_id);
+                    group_controller
+                        .write()
+                        .await
+                        .will_create_row(row_rev, &field_rev, group_id);
                 }
+            }
+        }
+    }
+
+    pub(crate) async fn did_delete_row<F, O>(
+        &self,
+        row_rev: &RowRevision,
+        get_field_fn: F,
+    ) -> Option<Vec<GroupRowsChangesetPB>>
+    where
+        F: FnOnce(String) -> O,
+        O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
+    {
+        let group_controller = self.group_controller.as_ref()?;
+        let field_id = group_controller.read().await.field_id().to_owned();
+        let field_rev = get_field_fn(field_id).await?;
+
+        match group_controller.write().await.did_delete_row(row_rev, &field_rev) {
+            Ok(changesets) => Some(changesets),
+            Err(e) => {
+                tracing::error!("Delete group data failed, {:?}", e);
+                None
+            }
+        }
+    }
+
+    pub(crate) async fn did_move_row<F, O>(
+        &self,
+        row_rev: &RowRevision,
+        row_changeset: &mut RowChangeset,
+        upper_row_id: &str,
+        get_field_fn: F,
+    ) -> Option<Vec<GroupRowsChangesetPB>>
+    where
+        F: FnOnce(String) -> O,
+        O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
+    {
+        let group_controller = self.group_controller.as_ref()?;
+        let field_id = group_controller.read().await.field_id().to_owned();
+        let field_rev = get_field_fn(field_id).await?;
+
+        match group_controller
+            .write()
+            .await
+            .did_move_row(row_rev, row_changeset, &field_rev, upper_row_id)
+        {
+            Ok(changesets) => Some(changesets),
+            Err(e) => {
+                tracing::error!("Move group data failed, {:?}", e);
+                None
             }
         }
     }
@@ -130,7 +188,7 @@ impl GroupService {
         if let Some(group_action_handler) = self.group_controller.as_ref() {
             let mut write_guard = group_action_handler.write().await;
             let _ = write_guard.group_rows(&row_revs, field_rev)?;
-            groups = write_guard.build_groups();
+            groups = write_guard.groups();
             drop(write_guard);
         }
 

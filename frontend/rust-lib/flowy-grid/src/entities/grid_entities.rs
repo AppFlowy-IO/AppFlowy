@@ -1,4 +1,4 @@
-use crate::entities::{BlockPB, FieldIdPB, GridLayout};
+use crate::entities::{BlockPB, FieldIdPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -96,28 +96,16 @@ pub struct MoveRowPayloadPB {
     pub view_id: String,
 
     #[pb(index = 2)]
-    pub row_id: String,
-
-    #[pb(index = 3)]
-    pub from_index: i32,
+    pub from_row_id: String,
 
     #[pb(index = 4)]
-    pub to_index: i32,
-
-    #[pb(index = 5)]
-    pub layout: GridLayout,
-
-    #[pb(index = 6, one_of)]
-    pub upper_row_id: Option<String>,
+    pub to_row_id: String,
 }
 
 pub struct MoveRowParams {
     pub view_id: String,
-    pub row_id: String,
-    pub from_index: i32,
-    pub to_index: i32,
-    pub layout: GridLayout,
-    pub upper_row_id: Option<String>,
+    pub from_row_id: String,
+    pub to_row_id: String,
 }
 
 impl TryInto<MoveRowParams> for MoveRowPayloadPB {
@@ -125,18 +113,13 @@ impl TryInto<MoveRowParams> for MoveRowPayloadPB {
 
     fn try_into(self) -> Result<MoveRowParams, Self::Error> {
         let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::GridViewIdIsEmpty)?;
-        let row_id = NotEmptyStr::parse(self.row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
-        let upper_row_id = match self.upper_row_id {
-            None => None,
-            Some(upper_row_id) => Some(NotEmptyStr::parse(upper_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?.0),
-        };
+        let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+        let to_row_id = NotEmptyStr::parse(self.to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+
         Ok(MoveRowParams {
             view_id: view_id.0,
-            row_id: row_id.0,
-            from_index: self.from_index,
-            to_index: self.to_index,
-            layout: self.layout,
-            upper_row_id,
+            from_row_id: from_row_id.0,
+            to_row_id: to_row_id.0,
         })
     }
 }

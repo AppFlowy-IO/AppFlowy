@@ -42,10 +42,10 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
-  PluginType get pluginType => DefaultPlugin.editor.type();
+  PluginType get pluginType => PluginType.editor;
 
   @override
-  ViewDataTypePB get dataType => ViewDataTypePB.TextBlock;
+  ViewDataTypePB get dataType => ViewDataTypePB.Text;
 }
 
 class DocumentPlugin implements Plugin {

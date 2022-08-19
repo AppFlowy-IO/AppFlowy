@@ -5,7 +5,7 @@ use crate::grid::grid_editor::GridEditorTest;
 use flowy_grid::entities::{CreateRowParams, FieldType, GridCellIdParams, GridLayout, RowPB};
 use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::{
-    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
+    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
 };
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -17,7 +17,7 @@ pub enum RowScript {
         row_rev: RowRevision,
     },
     UpdateRow {
-        changeset: RowMetaChangeset,
+        changeset: RowChangeset,
     },
     AssertRow {
         expected_row: RowRevision,
@@ -56,7 +56,7 @@ pub struct GridRowTest {
 
 impl GridRowTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new().await;
+        let editor_test = GridEditorTest::new_table().await;
         Self { inner: editor_test }
     }
 

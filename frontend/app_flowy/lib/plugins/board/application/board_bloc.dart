@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -21,13 +22,15 @@ part 'board_bloc.freezed.dart';
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final BoardDataController _dataController;
   late final AFBoardDataController afBoardDataController;
-  List<GroupController> groupControllers = [];
+  final MoveRowFFIService _rowService;
+  Map<String, GroupController> groupControllers = {};
 
   GridFieldCache get fieldCache => _dataController.fieldCache;
   String get gridId => _dataController.gridId;
 
   BoardBloc({required ViewPB view})
-      : _dataController = BoardDataController(view: view),
+      : _rowService = MoveRowFFIService(gridId: view.id),
+        _dataController = BoardDataController(view: view),
         super(BoardState.initial(view.id)) {
     afBoardDataController = AFBoardDataController(
       onMoveColumn: (
@@ -38,13 +41,21 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         columnId,
         fromIndex,
         toIndex,
-      ) {},
+      ) {
+        final fromRow = groupControllers[columnId]?.rowAtIndex(fromIndex);
+        final toRow = groupControllers[columnId]?.rowAtIndex(toIndex);
+        _moveRow(fromRow, toRow);
+      },
       onMoveColumnItemToColumn: (
         fromColumnId,
         fromIndex,
         toColumnId,
         toIndex,
-      ) {},
+      ) {
+        final fromRow = groupControllers[fromColumnId]?.rowAtIndex(fromIndex);
+        final toRow = groupControllers[toColumnId]?.rowAtIndex(toIndex);
+        _moveRow(fromRow, toRow);
+      },
     );
 
     on<BoardEvent>(
@@ -76,15 +87,31 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           didReceiveRows: (List<RowInfo> rowInfos) {
             emit(state.copyWith(rowInfos: rowInfos));
           },
+          didReceiveError: (FlowyError error) {
+            emit(state.copyWith(noneOrError: some(error)));
+          },
         );
       },
     );
   }
 
+  void _moveRow(RowPB? fromRow, RowPB? toRow) {
+    if (fromRow != null && toRow != null) {
+      _rowService
+          .moveRow(
+        fromRowId: fromRow.id,
+        toRowId: toRow.id,
+      )
+          .then((result) {
+        result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
+      });
+    }
+  }
+
   @override
   Future<void> close() async {
     await _dataController.dispose();
-    for (final controller in groupControllers) {
+    for (final controller in groupControllers.values) {
       controller.dispose();
     }
     return super.close();
@@ -94,11 +121,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     for (final group in groups) {
       final delegate = GroupControllerDelegateImpl(afBoardDataController);
       final controller = GroupController(
+        gridId: state.gridId,
         group: group,
         delegate: delegate,
       );
       controller.startListening();
-      groupControllers.add(controller);
+      groupControllers[controller.group.groupId] = (controller);
     }
   }
 
@@ -162,6 +190,7 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = InitialGrid;
   const factory BoardEvent.createRow(String groupId) = _CreateRow;
   const factory BoardEvent.endEditRow(String rowId) = _EndEditRow;
+  const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
   const factory BoardEvent.didReceiveRows(List<RowInfo> rowInfos) =
       _DidReceiveRows;
   const factory BoardEvent.didReceiveGridUpdate(
@@ -177,6 +206,7 @@ class BoardState with _$BoardState {
     required Option<RowPB> editingRow,
     required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
+    required Option<FlowyError> noneOrError,
   }) = _BoardState;
 
   factory BoardState.initial(String gridId) => BoardState(
@@ -184,6 +214,7 @@ class BoardState with _$BoardState {
         grid: none(),
         gridId: gridId,
         editingRow: none(),
+        noneOrError: none(),
         loadingState: const _Loading(),
       );
 }

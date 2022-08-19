@@ -9,9 +9,7 @@ use crate::services::field::{default_type_option_builder_from_type, type_option_
 use crate::services::filter::GridFilterService;
 use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{
-    make_grid_blocks, make_row_from_row_rev, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder,
-};
+use crate::services::row::{make_grid_blocks, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder};
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::*;
@@ -71,7 +69,6 @@ impl GridRevisionEditor {
                 grid_id.to_owned(),
                 user.clone(),
                 Arc::new(grid_pad.clone()),
-                Arc::new(block_manager.clone()),
                 Arc::new(block_manager.clone()),
                 Arc::new(task_scheduler.clone()),
             )
@@ -289,7 +286,7 @@ impl GridRevisionEditor {
     pub async fn create_row(&self, params: CreateRowParams) -> FlowyResult<RowPB> {
         let mut row_rev = self.create_row_rev().await?;
 
-        self.view_manager.fill_row(&mut row_rev, &params).await;
+        self.view_manager.will_create_row(&mut row_rev, &params).await;
 
         let row_pb = self.create_row_pb(row_rev, params.start_row_id.clone()).await?;
 
@@ -315,9 +312,9 @@ impl GridRevisionEditor {
         Ok(row_orders)
     }
 
-    pub async fn update_row(&self, changeset: RowMetaChangeset) -> FlowyResult<()> {
+    pub async fn update_row(&self, changeset: RowChangeset) -> FlowyResult<()> {
         let row_id = changeset.row_id.clone();
-        let _ = self.block_manager.update_row(changeset, make_row_from_row_rev).await?;
+        let _ = self.block_manager.update_row(changeset).await?;
         self.view_manager.did_update_row(&row_id).await;
         Ok(())
     }
@@ -346,8 +343,10 @@ impl GridRevisionEditor {
     }
 
     pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
-        let _ = self.block_manager.delete_row(row_id).await?;
-        self.view_manager.did_delete_row(row_id).await;
+        let row_rev = self.block_manager.delete_row(row_id).await?;
+        if let Some(row_rev) = row_rev {
+            self.view_manager.did_delete_row(row_rev).await;
+        }
         Ok(())
     }
 
@@ -394,12 +393,11 @@ impl GridRevisionEditor {
 
         match self.grid_pad.read().await.get_field_rev(&field_id) {
             None => {
-                let msg = format!("Field not found with id: {}", &field_id);
+                let msg = format!("Field:{} not found", &field_id);
                 Err(FlowyError::internal().context(msg))
             }
             Some((_, field_rev)) => {
                 tracing::trace!("field changeset: id:{} / value:{:?}", &field_id, content);
-
                 let cell_rev = self.get_cell_rev(&row_id, &field_id).await?;
                 // Update the changeset.data property with the return value.
                 content = Some(apply_cell_data_changeset(content.unwrap(), cell_rev, field_rev)?);
@@ -409,11 +407,7 @@ impl GridRevisionEditor {
                     field_id,
                     content,
                 };
-                let _ = self
-                    .block_manager
-                    .update_cell(cell_changeset, make_row_from_row_rev)
-                    .await?;
-
+                let _ = self.block_manager.update_cell(cell_changeset).await?;
                 self.view_manager.did_update_row(&row_id).await;
                 Ok(())
             }
@@ -492,7 +486,42 @@ impl GridRevisionEditor {
     }
 
     pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {
-        self.view_manager.move_row(params).await
+        let MoveRowParams {
+            view_id: _,
+            from_row_id,
+            to_row_id,
+        } = params;
+
+        match self.block_manager.get_row_rev(&from_row_id).await? {
+            None => tracing::warn!("Move row failed, can not find the row:{}", from_row_id),
+            Some(row_rev) => {
+                match (
+                    self.block_manager.index_of_row(&from_row_id).await,
+                    self.block_manager.index_of_row(&to_row_id).await,
+                ) {
+                    (Some(from_index), Some(to_index)) => {
+                        tracing::trace!("Move row from {} to {}", from_index, to_index);
+                        let _ = self
+                            .block_manager
+                            .move_row(row_rev.clone(), from_index, to_index)
+                            .await?;
+
+                        if let Some(row_changeset) = self.view_manager.move_row(row_rev, to_row_id.clone()).await {
+                            tracing::trace!("Receive row changeset after moving the row");
+                            match self.block_manager.update_row(row_changeset).await {
+                                Ok(_) => {}
+                                Err(e) => {
+                                    tracing::error!("Apply row changeset error:{:?}", e);
+                                }
+                            }
+                        }
+                    }
+                    (_, None) => tracing::warn!("Can not find the from row id: {}", from_row_id),
+                    (None, _) => tracing::warn!("Can not find the to row id: {}", to_row_id),
+                }
+            }
+        }
+        Ok(())
     }
 
     pub async fn move_field(&self, params: MoveFieldParams) -> FlowyResult<()> {

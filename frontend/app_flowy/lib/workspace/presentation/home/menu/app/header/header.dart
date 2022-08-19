@@ -114,7 +114,7 @@ class MenuAppHeader extends StatelessWidget {
                 LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                 "",
                 pluginBuilder.dataType,
-                pluginBuilder.subDataType,
+                pluginBuilder.subDataType!,
                 pluginBuilder.pluginType,
               ));
         },

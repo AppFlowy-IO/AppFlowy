@@ -36,12 +36,25 @@ pub struct GridEditorTest {
 }
 
 impl GridEditorTest {
-    pub async fn new() -> Self {
+    pub async fn new_table() -> Self {
+        Self::new(GridLayout::Table).await
+    }
+
+    pub async fn new_board() -> Self {
+        Self::new(GridLayout::Board).await
+    }
+
+    pub async fn new(layout: GridLayout) -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let build_context = make_test_grid();
         let view_data: Bytes = build_context.into();
-        let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
+
+        let test = match layout {
+            GridLayout::Table => ViewTest::new_grid_view(&sdk, view_data.to_vec()).await,
+            GridLayout::Board => ViewTest::new_board_view(&sdk, view_data.to_vec()).await,
+        };
+
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();

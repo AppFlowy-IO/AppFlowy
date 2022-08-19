@@ -113,6 +113,6 @@ class MenuState with _$MenuState {
   factory MenuState.initial() => MenuState(
         apps: [],
         successOrFailure: left(unit),
-        plugin: makePlugin(pluginType: DefaultPlugin.blank.type()),
+        plugin: makePlugin(pluginType: PluginType.blank),
       );
 }

@@ -1,6 +1,6 @@
 use crate::services::block_manager::GridBlockManager;
-use crate::services::grid_view_manager::{GridViewRowDelegate, GridViewRowOperation};
-use flowy_error::FlowyResult;
+use crate::services::grid_view_manager::GridViewRowDelegate;
+
 use flowy_grid_data_model::revision::RowRevision;
 use lib_infra::future::{wrap_future, AFFuture};
 use std::sync::Arc;
@@ -34,12 +34,5 @@ impl GridViewRowDelegate for Arc<GridBlockManager> {
                 .flatten()
                 .collect::<Vec<Arc<RowRevision>>>()
         })
-    }
-}
-
-impl GridViewRowOperation for Arc<GridBlockManager> {
-    fn gv_move_row(&self, row_rev: Arc<RowRevision>, from: usize, to: usize) -> AFFuture<FlowyResult<()>> {
-        let block_manager = self.clone();
-        wrap_future(async move { block_manager.move_row(row_rev, from, to).await })
     }
 }

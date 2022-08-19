@@ -225,7 +225,7 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
     Ok(type_option_data)
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+// #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
     data: Data<RowIdPB>,
     manager: AppData<Arc<GridManager>>,
