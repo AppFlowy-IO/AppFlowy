@@ -1,5 +1,6 @@
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
+import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -86,7 +87,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
 
   @override
   void register(String name, NodeWidgetBuilder builder) {
-    debugPrint('[Plugins] registering $name...');
+    Log.editor.info('registers plugin($name)...');
     _validatePlugin(name);
     _builders[name] = builder;
   }
@@ -111,7 +112,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
           builder: (_, child) {
             return Consumer<TextNode>(
               builder: ((_, value, child) {
-                debugPrint('Text Node is rebuilding...');
+                Log.ui.debug('TextNode is rebuilding...');
                 return builder.build(context);
               }),
             );
@@ -122,7 +123,7 @@ class AppFlowyRenderPlugin extends AppFlowyRenderPluginService {
           builder: (_, child) {
             return Consumer<Node>(
               builder: ((_, value, child) {
-                debugPrint('Node is rebuilding...');
+                Log.ui.debug('Node is rebuilding...');
                 return builder.build(context);
               }),
             );

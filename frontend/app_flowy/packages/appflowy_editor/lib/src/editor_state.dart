@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/service/service.dart';
 import 'package:flutter/material.dart';
 
@@ -48,10 +49,15 @@ class EditorState {
   // Service reference.
   final service = FlowyService();
 
+  /// Configures log output parameters,
+  /// such as log level and log output callbacks,
+  /// with this variable.
+  LogConfiguration get logConfiguration => LogConfiguration();
+
   final UndoManager undoManager = UndoManager();
   Selection? _cursorSelection;
 
-  /// TODO: only for testing.
+  // TODO: only for testing.
   bool disableSealTimer = false;
 
   Selection? get cursorSelection {
@@ -120,7 +126,7 @@ class EditorState {
     _debouncedSealHistoryItemTimer =
         Timer(const Duration(milliseconds: 1000), () {
       if (undoManager.undoStack.isNonEmpty) {
-        debugPrint('Seal history item');
+        Log.editor.debug('Seal history item');
         final last = undoManager.undoStack.last;
         last.seal();
       }

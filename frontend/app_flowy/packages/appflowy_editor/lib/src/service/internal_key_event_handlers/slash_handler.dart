@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
+import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
@@ -50,12 +51,6 @@ final List<PopupListItem> _popupListItems = [
     icon: _popupListIcon('bullets'),
     handler: (editorState) => insertBulletedListAfterSelection(editorState),
   ),
-  // PopupListItem(
-  //   text: 'Numbered list',
-  //   keywords: ['numbered list'],
-  //   icon: _popupListIcon('number'),
-  //   handler: (editorState) => debugPrint('Not implement yet!'),
-  // ),
   PopupListItem(
     text: 'To-do List',
     keywords: ['checkbox', 'todo'],
@@ -293,7 +288,7 @@ class _PopupListWidgetState extends State<PopupListWidget> {
   }
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
-    debugPrint('slash on key $event');
+    Log.keyboard.debug('slash command, on key $event');
     if (event is! RawKeyDownEvent) {
       return KeyEventResult.ignored;
     }

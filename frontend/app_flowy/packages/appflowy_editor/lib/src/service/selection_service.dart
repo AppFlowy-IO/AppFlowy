@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/document/node.dart';
@@ -185,12 +186,12 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     if (selection != null) {
       if (selection.isCollapsed) {
-        /// updates cursor area.
-        debugPrint('updating cursor, $selection');
+        // updates cursor area.
+        Log.selection.debug('update cursor area, $selection');
         _updateCursorAreas(selection.start);
       } else {
         // updates selection area.
-        debugPrint('updating selection, $selection');
+        Log.selection.debug('update cursor area, $selection');
         _updateSelectionAreas(selection);
       }
     }
@@ -312,14 +313,10 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     // compute the selection in range.
     if (first != null && last != null) {
-      bool isDownward = (identical(first, last))
-          ? panStartOffset.dx < panEndOffset.dx
-          : panStartOffset.dy < panEndOffset.dy;
       final start =
           first.getSelectionInRange(panStartOffset, panEndOffset).start;
       final end = last.getSelectionInRange(panStartOffset, panEndOffset).end;
       final selection = Selection(start: start, end: end);
-      debugPrint('[_onPanUpdate] isDownward = $isDownward, $selection');
       updateSelection(selection);
     }
 

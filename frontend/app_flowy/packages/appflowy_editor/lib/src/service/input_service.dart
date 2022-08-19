@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -243,7 +244,8 @@ class _AppFlowyInputState extends State<AppFlowyInput>
 
   @override
   void updateEditingValueWithDeltas(List<TextEditingDelta> textEditingDeltas) {
-    debugPrint(textEditingDeltas.map((delta) => delta.toString()).toString());
+    Log.input
+        .debug(textEditingDeltas.map((delta) => delta.toString()).toString());
 
     apply(textEditingDeltas);
   }

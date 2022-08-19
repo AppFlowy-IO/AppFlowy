@@ -16,6 +16,7 @@ dependencies:
   flutter_svg: ^1.1.1+1
   provider: ^6.0.3
   url_launcher: ^6.1.5
+  logging: ^1.0.2
 
 dev_dependencies:
   flutter_test:
