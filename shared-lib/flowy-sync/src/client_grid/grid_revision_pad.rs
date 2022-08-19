@@ -155,7 +155,7 @@ impl GridRevisionPad {
                         mut_field_rev.insert_type_option_str(&field_type, type_option_json);
                     }
 
-                    mut_field_rev.field_type_rev = field_type;
+                    mut_field_rev.ty = field_type;
                     Ok(Some(()))
                 }
             }
@@ -181,7 +181,7 @@ impl GridRevisionPad {
             }
 
             if let Some(field_type) = changeset.field_type {
-                field.field_type_rev = field_type;
+                field.ty = field_type;
                 is_changed = Some(())
             }
 
@@ -203,7 +203,7 @@ impl GridRevisionPad {
             if let Some(type_option_data) = changeset.type_option_data {
                 match deserializer.deserialize(type_option_data) {
                     Ok(json_str) => {
-                        let field_type = field.field_type_rev;
+                        let field_type = field.ty;
                         field.insert_type_option_str(&field_type, json_str);
                         is_changed = Some(())
                     }

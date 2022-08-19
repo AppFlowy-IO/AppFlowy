@@ -253,7 +253,7 @@ impl GroupConfigurationDelegate for Arc<RwLock<GridViewRevisionPad>> {
         let view_pad = self.clone();
         wrap_future(async move {
             let grid_pad = view_pad.read().await;
-            let configurations = grid_pad.get_groups(&field_rev.id, &field_rev.field_type_rev);
+            let configurations = grid_pad.get_groups(&field_rev.id, &field_rev.ty);
             match configurations {
                 None => default_group_configuration(&field_rev),
                 Some(mut configurations) => {

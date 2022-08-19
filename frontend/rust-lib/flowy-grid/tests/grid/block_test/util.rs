@@ -97,7 +97,7 @@ impl<'a> GridRowTestBuilder<'a> {
         self.field_revs
             .iter()
             .find(|field_rev| {
-                let t_field_type: FieldType = field_rev.field_type_rev.into();
+                let t_field_type: FieldType = field_rev.ty.into();
                 &t_field_type == field_type
             })
             .unwrap()

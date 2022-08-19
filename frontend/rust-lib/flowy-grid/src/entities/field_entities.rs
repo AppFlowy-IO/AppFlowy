@@ -42,7 +42,7 @@ impl std::convert::From<FieldRevision> for FieldPB {
             id: field_rev.id,
             name: field_rev.name,
             desc: field_rev.desc,
-            field_type: field_rev.field_type_rev.into(),
+            field_type: field_rev.ty.into(),
             frozen: field_rev.frozen,
             visibility: field_rev.visibility,
             width: field_rev.width,

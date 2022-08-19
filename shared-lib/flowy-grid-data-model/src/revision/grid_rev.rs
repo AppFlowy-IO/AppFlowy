@@ -94,7 +94,7 @@ pub struct FieldRevision {
     pub desc: String,
 
     #[serde(rename = "field_type")]
-    pub field_type_rev: FieldTypeRevision,
+    pub ty: FieldTypeRevision,
 
     pub frozen: bool,
 
@@ -134,7 +134,7 @@ impl FieldRevision {
             id: gen_field_id(),
             name: name.to_string(),
             desc: desc.to_string(),
-            field_type_rev: field_type.into(),
+            ty: field_type.into(),
             frozen: false,
             visibility: true,
             width,
@@ -147,7 +147,7 @@ impl FieldRevision {
     where
         T: TypeOptionDataEntry + ?Sized,
     {
-        let id = self.field_type_rev.to_string();
+        let id = self.ty.to_string();
         self.type_options.insert(id, entry.json_str());
     }
 

@@ -68,7 +68,7 @@ impl GridFilterTest {
             FilterScript::DeleteGridTableFilter { filter_id, field_rev} => {
                 let layout_type = GridLayout::Table;
                 let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
-                    .delete_filter(DeleteFilterParams { field_id: field_rev.id, filter_id, field_type_rev: field_rev.field_type_rev })
+                    .delete_filter(DeleteFilterParams { field_id: field_rev.id, filter_id, field_type_rev: field_rev.ty })
                     .build();
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
             }

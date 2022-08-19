@@ -154,7 +154,7 @@ mod tests {
         field_rev: &FieldRevision,
         expected: Vec<SelectOptionPB>,
     ) {
-        let field_type: FieldType = field_rev.field_type_rev.into();
+        let field_type: FieldType = field_rev.ty.into();
         assert_eq!(
             expected,
             type_option

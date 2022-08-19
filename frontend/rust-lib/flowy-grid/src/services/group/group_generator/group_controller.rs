@@ -98,6 +98,7 @@ pub struct Group {
 impl std::convert::From<Group> for GroupPB {
     fn from(group: Group) -> Self {
         Self {
+            field_id: group.field_id,
             group_id: group.id,
             desc: group.desc,
             rows: group.rows,
@@ -166,7 +167,7 @@ where
             None => None,
             Some(content) => Some(C::try_from(Bytes::from(content))?),
         };
-        let field_type_rev = field_rev.field_type_rev;
+        let field_type_rev = field_rev.ty;
         let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
 

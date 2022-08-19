@@ -142,7 +142,7 @@ impl GridRevisionEditor {
         let field_rev = result.unwrap();
         let _ = self
             .modify(|grid| {
-                let field_type = field_rev.field_type_rev.into();
+                let field_type = field_rev.ty.into();
                 let deserializer = TypeOptionJsonDeserializer(field_type);
                 let changeset = FieldChangesetParams {
                     field_id: field_id.to_owned(),
@@ -181,7 +181,7 @@ impl GridRevisionEditor {
         let field_id = params.field_id.clone();
         let json_deserializer = match self.grid_pad.read().await.get_field_rev(params.field_id.as_str()) {
             None => return Err(ErrorCode::FieldDoesNotExist.into()),
-            Some((_, field_rev)) => TypeOptionJsonDeserializer(field_rev.field_type_rev.into()),
+            Some((_, field_rev)) => TypeOptionJsonDeserializer(field_rev.ty.into()),
         };
 
         let _ = self
@@ -380,10 +380,6 @@ impl GridRevisionEditor {
 
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn update_cell(&self, cell_changeset: CellChangesetPB) -> FlowyResult<()> {
-        if cell_changeset.content.as_ref().is_none() {
-            return Ok(());
-        }
-
         let CellChangesetPB {
             grid_id,
             row_id,
@@ -400,15 +396,15 @@ impl GridRevisionEditor {
                 tracing::trace!("field changeset: id:{} / value:{:?}", &field_id, content);
                 let cell_rev = self.get_cell_rev(&row_id, &field_id).await?;
                 // Update the changeset.data property with the return value.
-                content = Some(apply_cell_data_changeset(content.unwrap(), cell_rev, field_rev)?);
+                content = apply_cell_data_changeset(content, cell_rev, field_rev)?;
                 let cell_changeset = CellChangesetPB {
                     grid_id,
                     row_id: row_id.clone(),
-                    field_id,
+                    field_id: field_id.clone(),
                     content,
                 };
                 let _ = self.block_manager.update_cell(cell_changeset).await?;
-                self.view_manager.did_update_row(&row_id).await;
+                self.view_manager.did_update_cell(&row_id, &field_id).await;
                 Ok(())
             }
         }
