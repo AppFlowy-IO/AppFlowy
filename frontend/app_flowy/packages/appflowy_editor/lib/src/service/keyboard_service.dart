@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
@@ -75,6 +74,13 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    enable();
+  }
+
+  @override
   void dispose() {
     _focusNode.dispose();
 
@@ -95,6 +101,10 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
 
   @override
   KeyEventResult onKey(RawKeyEvent event) {
+    if (!isFocus) {
+      return KeyEventResult.ignored;
+    }
+
     Log.keyboard.debug('on keyboard event $event');
 
     if (event is! RawKeyDownEvent) {
@@ -122,10 +132,6 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
   }
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
-    if (!isFocus) {
-      return KeyEventResult.ignored;
-    }
-
     return onKey(event);
   }
 }

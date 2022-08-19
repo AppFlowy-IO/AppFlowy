@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:appflowy_editor/src/infra/log.dart';
+import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:appflowy_editor/src/service/service.dart';
 import 'package:flutter/material.dart';
 
@@ -53,6 +54,9 @@ class EditorState {
   /// such as log level and log output callbacks,
   /// with this variable.
   LogConfiguration get logConfiguration => LogConfiguration();
+
+  /// Stores the selection menu items.
+  List<SelectionMenuItem> selectionMenuItems = [];
 
   final UndoManager undoManager = UndoManager();
   Selection? _cursorSelection;

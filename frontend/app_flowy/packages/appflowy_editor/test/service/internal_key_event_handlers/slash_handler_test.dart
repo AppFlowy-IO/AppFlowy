@@ -1,5 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/service/internal_key_event_handlers/slash_handler.dart';
+import 'package:appflowy_editor/src/render/selection_menu/selection_menu_item_widget.dart';
+import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
+import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
@@ -10,7 +12,7 @@ void main() async {
   });
 
   group('slash_handler.dart', () {
-    testWidgets('Presses / to trigger popup list ', (tester) async {
+    testWidgets('Presses / to trigger selection menu', (tester) async {
       const text = 'Welcome to Appflowy 😁';
       const lines = 3;
       final editor = tester.editor;
@@ -23,9 +25,12 @@ void main() async {
 
       await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
-      expect(find.byType(PopupListWidget, skipOffstage: false), findsOneWidget);
+      expect(
+        find.byType(SelectionMenuWidget, skipOffstage: false),
+        findsOneWidget,
+      );
 
-      for (final item in popupListItems) {
+      for (final item in defaultSelectionMenuItems) {
         expect(find.byWidget(item.icon), findsOneWidget);
       }
 
@@ -33,7 +38,10 @@ void main() async {
 
       await tester.pumpAndSettle(const Duration(milliseconds: 200));
 
-      expect(find.byType(PopupListWidget, skipOffstage: false), findsNothing);
+      expect(
+        find.byType(SelectionMenuItemWidget, skipOffstage: false),
+        findsNothing,
+      );
     });
   });
 }
