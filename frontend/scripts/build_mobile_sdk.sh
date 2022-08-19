@@ -2,8 +2,6 @@
 set -u
 set -e
 
-
-
 # Check if rust targets are installed
 rustup target add \
 aarch64-linux-android \

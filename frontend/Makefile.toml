@@ -161,6 +161,32 @@ TARGET_OS = "ios"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "ipa"
 
+[env.production-android]
+run_task = {name = ["setup-crate-android"]}
+script_runner="@duckscript"
+BUILD_FLAG = "release"
+TARGET_OS = "android"
+FLUTTER_OUTPUT_DIR = "Release"
+PRODUCT_EXT = "so"
+script = [
+    """ 
+    cd rust-lib
+    bash ../scripts/build_mobile_sdk.sh
+    """,
+]
+
+[tasks.setup-crate-android]
+private = true
+script_runner = "@duckscript"
+script = [
+    """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} "cdylib" ${CRATE_TYPE}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
+
 [tasks.setup-crate-type]
 private = true
 script = [
