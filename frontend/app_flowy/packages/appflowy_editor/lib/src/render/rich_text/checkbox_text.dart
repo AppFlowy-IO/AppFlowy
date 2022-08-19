@@ -83,7 +83,6 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
                 name: check ? 'check' : 'uncheck',
               ),
               onTap: () {
-                debugPrint('[Checkbox] onTap...');
                 TransactionBuilder(widget.editorState)
                   ..updateNode(widget.textNode, {
                     StyleKey.checkbox: !check,

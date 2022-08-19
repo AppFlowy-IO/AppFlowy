@@ -1,11 +1,11 @@
 import 'dart:collection';
 
 import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/operation/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/operation/transaction.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:flutter/foundation.dart';
 
 /// A [HistoryItem] contains list of operations committed by users.
 /// If a [HistoryItem] is not sealed, operations can be added sequentially.
@@ -112,7 +112,7 @@ class UndoManager {
   }
 
   undo() {
-    debugPrint('undo');
+    Log.editor.debug('undo');
     final s = state;
     if (s == null) {
       return;
@@ -131,7 +131,7 @@ class UndoManager {
   }
 
   redo() {
-    debugPrint('redo');
+    Log.editor.debug('redo');
     final s = state;
     if (s == null) {
       return;

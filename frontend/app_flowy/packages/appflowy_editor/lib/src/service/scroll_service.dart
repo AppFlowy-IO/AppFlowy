@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
@@ -113,13 +114,13 @@ class _AppFlowyScrollState extends State<AppFlowyScroll>
   @override
   void disable() {
     _scrollEnabled = false;
-    debugPrint('[scroll] $_scrollEnabled');
+    Log.scroll.debug('disable scroll service');
   }
 
   @override
   void enable() {
     _scrollEnabled = true;
-    debugPrint('[scroll] $_scrollEnabled');
+    Log.scroll.debug('enable scroll service');
   }
 
   void _onPointerSignal(PointerSignalEvent event) {

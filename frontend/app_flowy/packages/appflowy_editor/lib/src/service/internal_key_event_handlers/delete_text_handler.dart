@@ -97,7 +97,6 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
   if (textNodes.length == 1) {
     final textNode = textNodes.first;
     if (selection.start.offset >= textNode.delta.length) {
-      debugPrint("merge next line");
       final nextNode = textNode.next;
       if (nextNode == null) {
         return KeyEventResult.ignored;

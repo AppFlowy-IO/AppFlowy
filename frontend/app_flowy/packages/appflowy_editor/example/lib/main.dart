@@ -97,9 +97,13 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final data = Map<String, Object>.from(json.decode(snapshot.data!));
-          return _buildAppFlowyEditor(EditorState(
-            document: StateTree.fromJson(data),
-          ));
+          final editorState = EditorState(document: StateTree.fromJson(data));
+          editorState.logConfiguration
+            ..level = LogLevel.all
+            ..handler = (message) {
+              debugPrint(message);
+            };
+          return _buildAppFlowyEditor(editorState);
         } else {
           return const Center(
             child: CircularProgressIndicator(),

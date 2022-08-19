@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
@@ -94,15 +95,13 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
 
   @override
   KeyEventResult onKey(RawKeyEvent event) {
-    debugPrint('on keyboard event $event');
+    Log.keyboard.debug('on keyboard event $event');
 
     if (event is! RawKeyDownEvent) {
       return KeyEventResult.ignored;
     }
 
     for (final handler in widget.handlers) {
-      // debugPrint('handle keyboard event $event by $handler');
-
       KeyEventResult result = handler(widget.editorState, event);
 
       switch (result) {
@@ -119,7 +118,7 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
   }
 
   void _onFocusChange(bool value) {
-    debugPrint('[KeyBoard Service] focus change $value');
+    Log.keyboard.debug('on keyboard event focus change $value');
   }
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {

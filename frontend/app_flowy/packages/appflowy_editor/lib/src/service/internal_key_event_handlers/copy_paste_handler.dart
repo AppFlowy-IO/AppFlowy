@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/html_converter.dart';
 import 'package:appflowy_editor/src/document/node_iterator.dart';
+import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
@@ -19,10 +20,10 @@ _handleCopy(EditorState editorState) async {
               startOffset: selection.start.offset,
               endOffset: selection.end.offset)
           .toHTMLString();
-      debugPrint('copy html: $htmlString');
+      Log.keyboard.debug('copy html: $htmlString');
       RichClipboard.setData(RichClipboardData(html: htmlString));
     } else {
-      debugPrint("unimplemented: copy non-text");
+      Log.keyboard.debug('unimplemented: copy non-text');
     }
     return;
   }
@@ -37,7 +38,7 @@ _handleCopy(EditorState editorState) async {
           startOffset: selection.start.offset,
           endOffset: selection.end.offset)
       .toHTMLString();
-  debugPrint('copy html: $copyString');
+  Log.keyboard.debug('copy html: $copyString');
   RichClipboard.setData(RichClipboardData(html: copyString));
 }
 
@@ -54,7 +55,7 @@ _pasteHTML(EditorState editorState, String html) {
     return;
   }
 
-  debugPrint('paste html: $html');
+  Log.keyboard.debug('paste html: $html');
   final nodes = HTMLToNodesConverter(html).toNodes();
 
   if (nodes.isEmpty) {
@@ -250,7 +251,6 @@ _handlePastePlainText(EditorState editorState, String plainText) {
 /// 1. copy the selected content
 /// 2. delete selected content
 _handleCut(EditorState editorState) {
-  debugPrint('cut');
   _handleCopy(editorState);
   _deleteSelectedContent(editorState);
 }
