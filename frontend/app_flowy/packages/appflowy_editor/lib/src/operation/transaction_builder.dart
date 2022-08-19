@@ -23,7 +23,7 @@ class TransactionBuilder {
   TransactionBuilder(this.state);
 
   /// Commits the operations to the state
-  commit() {
+  Future<void> commit() async {
     final transaction = finish();
     state.apply(transaction);
   }
