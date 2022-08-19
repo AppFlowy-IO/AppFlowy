@@ -1,6 +1,8 @@
-use std::collections::HashMap;
 use crate::core::document::position::Position;
-use crate::core::{DeleteOperation, DocumentOperation, DocumentTree, InsertOperation, NodeAttributes, NodeData, UpdateOperation};
+use crate::core::{
+    DeleteOperation, DocumentOperation, DocumentTree, InsertOperation, NodeAttributes, NodeData, UpdateOperation,
+};
+use std::collections::HashMap;
 
 pub struct Transaction {
     pub operations: Vec<DocumentOperation>,

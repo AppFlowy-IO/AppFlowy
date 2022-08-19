@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use lib_ot::core::{DocumentTree, NodeData, TransactionBuilder};
+use std::collections::HashMap;
 
 #[test]
 fn main() {
@@ -21,9 +21,10 @@ fn test_documents() {
     assert_eq!(node_data.node_type, "text");
 
     let mut tb = TransactionBuilder::new(&document);
-    tb.update_attributes(&vec![0].into(), HashMap::from([
-        ("subtype".into(), Some("bullet-list".into())),
-    ]));
+    tb.update_attributes(
+        &vec![0].into(),
+        HashMap::from([("subtype".into(), Some("bullet-list".into()))]),
+    );
     let transaction = tb.finalize();
     document.apply(transaction);
 

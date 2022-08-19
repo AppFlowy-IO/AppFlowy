@@ -1,6 +1,7 @@
 use crate::core::document::position::Position;
 use crate::core::{NodeAttributes, NodeData, TextDelta};
 
+#[derive(Clone)]
 pub enum DocumentOperation {
     Insert(InsertOperation),
     Update(UpdateOperation),
@@ -31,24 +32,31 @@ impl DocumentOperation {
             }),
         }
     }
+    pub fn transform(_a: &DocumentOperation, b: &DocumentOperation) -> DocumentOperation {
+        b.clone()
+    }
 }
 
+#[derive(Clone)]
 pub struct InsertOperation {
     pub path: Position,
     pub nodes: Vec<NodeData>,
 }
 
+#[derive(Clone)]
 pub struct UpdateOperation {
     pub path: Position,
     pub attributes: NodeAttributes,
     pub old_attributes: NodeAttributes,
 }
 
+#[derive(Clone)]
 pub struct DeleteOperation {
     pub path: Position,
     pub nodes: Vec<NodeData>,
 }
 
+#[derive(Clone)]
 pub struct TextEditOperation {
     pub path: Position,
     pub delta: TextDelta,
