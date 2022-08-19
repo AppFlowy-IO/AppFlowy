@@ -6,3 +6,9 @@ impl Position {
         self.0.is_empty()
     }
 }
+
+impl From<Vec<usize>> for Position {
+    fn from(v: Vec<usize>) -> Self {
+        Position(v)
+    }
+}
