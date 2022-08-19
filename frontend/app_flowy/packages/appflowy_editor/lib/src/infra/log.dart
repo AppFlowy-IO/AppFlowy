@@ -11,12 +11,16 @@ enum LogLevel {
 
 typedef LogHandler = void Function(String message);
 
+/// Manages log service for [AppFlowyEditor]
+///
+/// Set the log level and config the handler depending on your need.
 class LogConfiguration {
   LogConfiguration._() {
     Logger.root.onRecord.listen((record) {
       if (handler != null) {
         handler!(
-            '[${record.level.toLogLevel().name}][${record.loggerName}]: ${record.time}: ${record.message}');
+          '[${record.level.toLogLevel().name}][${record.loggerName}]: ${record.time}: ${record.message}',
+        );
       }
     });
   }
@@ -36,6 +40,7 @@ class LogConfiguration {
   }
 }
 
+/// For logging message in AppFlowyEditor
 class Log {
   Log._({
     required this.name,
@@ -44,11 +49,35 @@ class Log {
   final String name;
   late final Logger _logger;
 
+  /// For logging message related to [AppFlowyEditor].
+  ///
+  /// For example, uses the logger when registering plugins
+  ///   or handling something related to [EditorState].
   static Log editor = Log._(name: 'editor');
+
+  /// For logging message related to [AppFlowySelectionService].
+  ///
+  /// For example, uses the logger when updating or clearing selection.
   static Log selection = Log._(name: 'selection');
+
+  /// For logging message related to [AppFlowyKeyboardService].
+  ///
+  /// For example, uses the logger when processing shortcut events.
   static Log keyboard = Log._(name: 'keyboard');
+
+  /// For logging message related to [AppFlowyInputService].
+  ///
+  /// For example, uses the logger when processing text inputs.
   static Log input = Log._(name: 'input');
+
+  /// For logging message related to [AppFlowyScrollService].
+  ///
+  /// For example, uses the logger when processing scroll events.
   static Log scroll = Log._(name: 'scroll');
+
+  /// For logging message related to UI.
+  ///
+  /// For example, uses the logger when building the widget.
   static Log ui = Log._(name: 'ui');
 
   void error(String message) => _logger.severe(message);
