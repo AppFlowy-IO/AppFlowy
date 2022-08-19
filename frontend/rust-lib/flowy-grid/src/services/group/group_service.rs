@@ -8,7 +8,9 @@ use crate::services::group::{
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
-    gen_grid_group_id, FieldRevision, GroupConfigurationRevision, RowChangeset, RowRevision,
+    gen_grid_group_id, CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision,
+    GroupConfigurationRevision, NumberGroupConfigurationRevision, RowChangeset, RowRevision,
+    SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
 };
 use lib_infra::future::AFFuture;
 use std::future::Future;
@@ -208,20 +210,41 @@ fn find_group_field(field_revs: &[Arc<FieldRevision>]) -> Option<Arc<FieldRevisi
 }
 
 pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurationRevision {
+    let field_id = field_rev.id.clone();
+    let field_type_rev = field_rev.ty.clone();
     let field_type: FieldType = field_rev.ty.into();
-    let bytes: Bytes = match field_type {
-        FieldType::RichText => TextGroupConfigurationPB::default().try_into().unwrap(),
-        FieldType::Number => NumberGroupConfigurationPB::default().try_into().unwrap(),
-        FieldType::DateTime => DateGroupConfigurationPB::default().try_into().unwrap(),
-        FieldType::SingleSelect => SelectOptionGroupConfigurationPB::default().try_into().unwrap(),
-        FieldType::MultiSelect => SelectOptionGroupConfigurationPB::default().try_into().unwrap(),
-        FieldType::Checkbox => CheckboxGroupConfigurationPB::default().try_into().unwrap(),
-        FieldType::URL => UrlGroupConfigurationPB::default().try_into().unwrap(),
-    };
-    GroupConfigurationRevision {
-        id: gen_grid_group_id(),
-        field_id: field_rev.id.clone(),
-        field_type_rev: field_rev.ty,
-        content: Some(bytes.to_vec()),
+    match field_type {
+        FieldType::RichText => {
+            GroupConfigurationRevision::new(field_id, field_type_rev, TextGroupConfigurationRevision::default())
+                .unwrap()
+        }
+        FieldType::Number => {
+            GroupConfigurationRevision::new(field_id, field_type_rev, NumberGroupConfigurationRevision::default())
+                .unwrap()
+        }
+        FieldType::DateTime => {
+            GroupConfigurationRevision::new(field_id, field_type_rev, DateGroupConfigurationRevision::default())
+                .unwrap()
+        }
+
+        FieldType::SingleSelect => GroupConfigurationRevision::new(
+            field_id,
+            field_type_rev,
+            SelectOptionGroupConfigurationRevision::default(),
+        )
+        .unwrap(),
+        FieldType::MultiSelect => GroupConfigurationRevision::new(
+            field_id,
+            field_type_rev,
+            SelectOptionGroupConfigurationRevision::default(),
+        )
+        .unwrap(),
+        FieldType::Checkbox => {
+            GroupConfigurationRevision::new(field_id, field_type_rev, CheckboxGroupConfigurationRevision::default())
+                .unwrap()
+        }
+        FieldType::URL => {
+            GroupConfigurationRevision::new(field_id, field_type_rev, UrlGroupConfigurationRevision::default()).unwrap()
+        }
     }
 }

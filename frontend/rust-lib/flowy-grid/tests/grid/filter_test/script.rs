@@ -6,7 +6,7 @@
 use flowy_grid::entities::{CreateGridFilterPayloadPB, GridLayout, GridSettingPB};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
-use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
+use flowy_sync::entities::grid::{CreateFilterParams, DeleteFilterParams, GridSettingChangesetParams};
 use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {
@@ -54,7 +54,7 @@ impl GridFilterTest {
                 let _ = self.editor.update_grid_setting(params).await.unwrap();
             }
             FilterScript::InsertGridTableFilter { payload } => {
-                let params: CreateGridFilterParams = payload.try_into().unwrap();
+                let params: CreateFilterParams = payload.try_into().unwrap();
                 let layout_type = GridLayout::Table;
                 let params = GridSettingChangesetBuilder::new(&self.grid_id, &layout_type)
                     .insert_filter(params)

@@ -172,9 +172,14 @@ impl GridViewRevisionEditor {
     }
 
     pub(crate) async fn update_setting(&self, changeset: GridSettingChangesetParams) -> FlowyResult<()> {
-        let _ = self.modify(|pad| Ok(pad.update_setting(changeset)?)).await;
-        Ok(())
+        // let _ = self.modify(|pad| Ok(pad.update_setting(changeset)?)).await;
+        // Ok(())
+        todo!()
     }
+
+    // pub(crate) async fn insert_group(&self, params: CreateGroupParams) -> FlowyResult<()> {
+    //
+    // }
 
     pub(crate) async fn get_filters(&self) -> Vec<GridFilterConfiguration> {
         let field_revs = self.field_delegate.get_field_revs().await;

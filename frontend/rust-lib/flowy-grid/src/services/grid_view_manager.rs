@@ -130,6 +130,8 @@ impl GridViewManager {
         }
     }
 
+    pub(crate) async fn move_group(&self) {}
+
     pub(crate) async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<GridViewRevisionEditor>> {
         debug_assert!(!view_id.is_empty());
         match self.view_editors.get(view_id) {

@@ -41,6 +41,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::UpdateDateCell, update_date_cell_handler)
         // Group
         .event(GridEvent::CreateBoardCard, create_board_card_handler)
+        .event(GridEvent::MoveGroup, move_group_handler)
         .event(GridEvent::GetGroup, get_groups_handler);
 
     module
@@ -217,4 +218,7 @@ pub enum GridEvent {
 
     #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]
     CreateBoardCard = 110,
+
+    #[event(input = "MoveGroupPayloadPB", output = "GroupsChangesetPB")]
+    MoveGroup = 111,
 }

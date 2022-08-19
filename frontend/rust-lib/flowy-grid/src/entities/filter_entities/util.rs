@@ -5,8 +5,7 @@ use crate::entities::{
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{FieldRevision, FilterConfigurationRevision};
-use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams};
+use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision, FilterConfigurationRevision};
 use std::convert::TryInto;
 use std::sync::Arc;
 
@@ -72,6 +71,12 @@ impl TryInto<DeleteFilterParams> for DeleteFilterPayloadPB {
     }
 }
 
+pub struct DeleteFilterParams {
+    pub field_id: String,
+    pub filter_id: String,
+    pub field_type_rev: FieldTypeRevision,
+}
+
 #[derive(ProtoBuf, Debug, Default, Clone)]
 pub struct CreateGridFilterPayloadPB {
     #[pb(index = 1)]
@@ -99,10 +104,10 @@ impl CreateGridFilterPayloadPB {
     }
 }
 
-impl TryInto<CreateGridFilterParams> for CreateGridFilterPayloadPB {
+impl TryInto<CreateFilterParams> for CreateGridFilterPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CreateGridFilterParams, Self::Error> {
+    fn try_into(self) -> Result<CreateFilterParams, Self::Error> {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
@@ -125,11 +130,18 @@ impl TryInto<CreateGridFilterParams> for CreateGridFilterPayloadPB {
             }
         }
 
-        Ok(CreateGridFilterParams {
+        Ok(CreateFilterParams {
             field_id,
             field_type_rev: self.field_type.into(),
             condition,
             content: self.content,
         })
     }
+}
+
+pub struct CreateFilterParams {
+    pub field_id: String,
+    pub field_type_rev: FieldTypeRevision,
+    pub condition: u8,
+    pub content: Option<String>,
 }

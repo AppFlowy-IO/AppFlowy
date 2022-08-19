@@ -4,7 +4,6 @@ use crate::services::field::{
     MultiSelectTypeOptionPB, SelectOptionCellDataPB, SelectOptionCellDataParser, SingleSelectTypeOptionPB,
 };
 use crate::services::group::{GenericGroupController, Group, GroupController, GroupGenerator, Groupable};
-
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
 
 // SingleSelect

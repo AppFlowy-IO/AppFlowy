@@ -294,6 +294,11 @@ impl GridRevisionEditor {
         Ok(row_pb)
     }
 
+    pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<GroupsChangesetPB> {
+        //
+        todo!()
+    }
+
     pub async fn insert_rows(&self, row_revs: Vec<RowRevision>) -> FlowyResult<Vec<RowPB>> {
         let block_id = self.block_id().await?;
         let mut rows_by_block_id: HashMap<String, Vec<RowRevision>> = HashMap::new();

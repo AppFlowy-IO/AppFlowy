@@ -1,5 +1,7 @@
-use crate::entities::{InsertedRowPB, RowPB};
+use crate::entities::{GroupPB, InsertedRowPB, RowPB};
 use flowy_derive::ProtoBuf;
+use flowy_error::ErrorCode;
+use flowy_grid_data_model::parser::NotEmptyStr;
 use std::fmt::Formatter;
 
 #[derive(Debug, Default, ProtoBuf)]
@@ -62,3 +64,55 @@ impl GroupRowsChangesetPB {
         }
     }
 }
+#[derive(Debug, Default, ProtoBuf)]
+pub struct MoveGroupPayloadPB {
+    #[pb(index = 1)]
+    pub view_id: String,
+
+    #[pb(index = 2)]
+    pub from_group_id: String,
+
+    #[pb(index = 3)]
+    pub to_group_id: String,
+}
+
+pub struct MoveGroupParams {
+    pub view_id: String,
+    pub from_group_id: String,
+    pub to_group_id: String,
+}
+
+impl TryInto<MoveGroupParams> for MoveGroupPayloadPB {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<MoveGroupParams, Self::Error> {
+        let view_id = NotEmptyStr::parse(self.view_id)
+            .map_err(|_| ErrorCode::GridViewIdIsEmpty)?
+            .0;
+        let from_group_id = NotEmptyStr::parse(self.from_group_id)
+            .map_err(|_| ErrorCode::GroupIdIsEmpty)?
+            .0;
+        let to_group_id = NotEmptyStr::parse(self.to_group_id)
+            .map_err(|_| ErrorCode::GroupIdIsEmpty)?
+            .0;
+        Ok(MoveGroupParams {
+            view_id,
+            from_group_id,
+            to_group_id,
+        })
+    }
+}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct GroupsChangesetPB {
+    #[pb(index = 1)]
+    pub view_id: String,
+
+    #[pb(index = 2)]
+    pub inserted_groups: Vec<GroupPB>,
+
+    #[pb(index = 3)]
+    pub deleted_groups: Vec<String>,
+}
+
+impl GroupsChangesetPB {}

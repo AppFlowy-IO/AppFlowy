@@ -437,3 +437,14 @@ pub(crate) async fn create_board_card_handler(
     let row = editor.create_row(params).await?;
     data_result(row)
 }
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn move_group_handler(
+    data: Data<MoveGroupPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<GroupsChangesetPB, FlowyError> {
+    let params: MoveGroupParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(params.view_id.as_ref())?;
+    let changeset = editor.move_group(params).await?;
+    data_result(changeset)
+}

@@ -240,12 +240,29 @@ where
     }
 }
 
+pub trait GroupConfigurationSerde {}
+
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct GroupConfigurationRevision {
     pub id: String,
     pub field_id: String,
     pub field_type_rev: FieldTypeRevision,
-    pub content: Option<Vec<u8>>,
+    pub content: String,
+}
+
+impl GroupConfigurationRevision {
+    pub fn new<T>(field_id: String, field_type: FieldTypeRevision, content: T) -> Result<Self, serde_json::Error>
+    where
+        T: serde::Serialize,
+    {
+        let content = serde_json::to_string(&content)?;
+        Ok(Self {
+            id: gen_grid_group_id(),
+            field_id,
+            field_type_rev: field_type,
+            content,
+        })
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, Hash)]

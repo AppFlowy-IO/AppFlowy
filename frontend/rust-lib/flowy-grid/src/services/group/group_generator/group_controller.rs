@@ -163,10 +163,12 @@ where
     G: GroupGenerator<ConfigurationType = C, TypeOptionType = T>,
 {
     pub fn new(field_rev: &Arc<FieldRevision>, configuration: GroupConfigurationRevision) -> FlowyResult<Self> {
-        let configuration = match configuration.content {
-            None => None,
-            Some(content) => Some(C::try_from(Bytes::from(content))?),
-        };
+        // let configuration = match configuration.content {
+        //     None => None,
+        //     Some(content) => Some(C::try_from(Bytes::from(content))?),
+        // };
+
+        let configuration = None;
         let field_type_rev = field_rev.ty;
         let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);

@@ -3,7 +3,7 @@ use crate::entities::{
     RepeatedGridSortPB,
 };
 use flowy_grid_data_model::revision::{FieldRevision, SettingRevision};
-use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
+use flowy_sync::entities::grid::{CreateFilterParams, DeleteFilterParams, GridSettingChangesetParams};
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -26,7 +26,7 @@ impl GridSettingChangesetBuilder {
         Self { params }
     }
 
-    pub fn insert_filter(mut self, params: CreateGridFilterParams) -> Self {
+    pub fn insert_filter(mut self, params: CreateFilterParams) -> Self {
         self.params.insert_filter = Some(params);
         self
     }

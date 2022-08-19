@@ -2,7 +2,6 @@ use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::SortConfigurationRevision;
-use flowy_sync::entities::grid::CreateGridSortParams;
 use std::convert::TryInto;
 use std::sync::Arc;
 
@@ -51,15 +50,19 @@ pub struct CreateGridSortPayloadPB {
     pub field_id: Option<String>,
 }
 
-impl TryInto<CreateGridSortParams> for CreateGridSortPayloadPB {
+impl TryInto<CreateSortParams> for CreateGridSortPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CreateGridSortParams, Self::Error> {
+    fn try_into(self) -> Result<CreateSortParams, Self::Error> {
         let field_id = match self.field_id {
             None => None,
             Some(field_id) => Some(NotEmptyStr::parse(field_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
         };
 
-        Ok(CreateGridSortParams { field_id })
+        Ok(CreateSortParams { field_id })
     }
+}
+
+pub struct CreateSortParams {
+    pub field_id: Option<String>,
 }

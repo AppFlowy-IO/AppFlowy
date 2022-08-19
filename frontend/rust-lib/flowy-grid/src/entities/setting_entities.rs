@@ -1,6 +1,7 @@
 use crate::entities::{
-    CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, CreateGridSortPayloadPB, DeleteFilterPayloadPB,
-    DeleteGroupPayloadPB, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RepeatedGridSortPB,
+    CreatGroupParams, CreateFilterParams, CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, CreateGridSortPayloadPB,
+    CreateSortParams, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB,
+    RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RepeatedGridSortPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
@@ -154,5 +155,22 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
             insert_sort,
             delete_sort,
         })
+    }
+}
+
+pub struct GridSettingChangesetParams {
+    pub grid_id: String,
+    pub layout_type: LayoutRevision,
+    pub insert_filter: Option<CreateFilterParams>,
+    pub delete_filter: Option<DeleteFilterParams>,
+    pub insert_group: Option<CreatGroupParams>,
+    pub delete_group: Option<DeleteGroupParams>,
+    pub insert_sort: Option<CreateSortParams>,
+    pub delete_sort: Option<String>,
+}
+
+impl GridSettingChangesetParams {
+    pub fn is_filter_changed(&self) -> bool {
+        self.insert_filter.is_some() || self.delete_filter.is_some()
     }
 }

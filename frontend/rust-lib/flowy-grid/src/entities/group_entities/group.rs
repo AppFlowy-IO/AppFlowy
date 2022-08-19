@@ -2,8 +2,7 @@ use crate::entities::{FieldType, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::GroupConfigurationRevision;
-use flowy_sync::entities::grid::{CreateGridGroupParams, DeleteGroupParams};
+use flowy_grid_data_model::revision::{FieldTypeRevision, GroupConfigurationRevision};
 use std::convert::TryInto;
 use std::sync::Arc;
 
@@ -86,25 +85,26 @@ pub struct CreateGridGroupPayloadPB {
 
     #[pb(index = 2)]
     pub field_type: FieldType,
-
-    #[pb(index = 3, one_of)]
-    pub content: Option<Vec<u8>>,
 }
 
-impl TryInto<CreateGridGroupParams> for CreateGridGroupPayloadPB {
+impl TryInto<CreatGroupParams> for CreateGridGroupPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CreateGridGroupParams, Self::Error> {
+    fn try_into(self) -> Result<CreatGroupParams, Self::Error> {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
 
-        Ok(CreateGridGroupParams {
+        Ok(CreatGroupParams {
             field_id,
             field_type_rev: self.field_type.into(),
-            content: self.content,
         })
     }
+}
+
+pub struct CreatGroupParams {
+    pub field_id: String,
+    pub field_type_rev: FieldTypeRevision,
 }
 
 #[derive(ProtoBuf, Debug, Default, Clone)]
@@ -136,4 +136,10 @@ impl TryInto<DeleteGroupParams> for DeleteGroupPayloadPB {
             group_id,
         })
     }
+}
+
+pub struct DeleteGroupParams {
+    pub field_id: String,
+    pub group_id: String,
+    pub field_type_rev: FieldTypeRevision,
 }

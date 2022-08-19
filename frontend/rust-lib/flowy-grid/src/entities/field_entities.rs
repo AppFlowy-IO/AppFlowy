@@ -491,6 +491,27 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPayloadPB {
     }
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct FieldChangesetParams {
+    pub field_id: String,
+
+    pub grid_id: String,
+
+    pub name: Option<String>,
+
+    pub desc: Option<String>,
+
+    pub field_type: Option<FieldTypeRevision>,
+
+    pub frozen: Option<bool>,
+
+    pub visibility: Option<bool>,
+
+    pub width: Option<i32>,
+
+    pub type_option_data: Option<Vec<u8>>,
+}
+
 #[derive(
     Debug,
     Clone,
