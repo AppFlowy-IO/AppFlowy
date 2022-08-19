@@ -1,11 +1,9 @@
-use crate::entities::grid::{CreatGroupParams, CreateFilterParams, GridSettingChangesetParams};
 use crate::entities::revision::{md5, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_text_delta_from_revisions};
 use flowy_grid_data_model::revision::{
-    gen_grid_filter_id, gen_grid_group_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision,
-    FilterConfigurationsByFieldId, GridViewRevision, GroupConfigurationRevision, GroupConfigurationsByFieldId,
-    SettingRevision, SortConfigurationsByFieldId,
+    FieldRevision, FieldTypeRevision, FilterConfigurationRevision, FilterConfigurationsByFieldId, GridViewRevision,
+    GroupConfigurationRevision, GroupConfigurationsByFieldId, SettingRevision, SortConfigurationsByFieldId,
 };
 use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
 use std::sync::Arc;
@@ -164,24 +162,6 @@ impl GridViewRevisionPad {
                 }
             }
         }
-    }
-}
-
-fn make_filter_revision(params: &CreateFilterParams) -> FilterConfigurationRevision {
-    FilterConfigurationRevision {
-        id: gen_grid_filter_id(),
-        field_id: params.field_id.clone(),
-        condition: params.condition,
-        content: params.content.clone(),
-    }
-}
-
-fn make_group_revision(params: &CreatGroupParams) -> GroupConfigurationRevision {
-    GroupConfigurationRevision {
-        id: gen_grid_group_id(),
-        field_id: params.field_id.clone(),
-        field_type_rev: params.field_type_rev,
-        content: params.content.clone(),
     }
 }
 

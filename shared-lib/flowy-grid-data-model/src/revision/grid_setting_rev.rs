@@ -240,7 +240,9 @@ where
     }
 }
 
-pub trait GroupConfigurationSerde {}
+pub trait GroupConfigurationSerde {
+    fn from_configuration(s: &str) -> Result<Self, serde_json::Error>;
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct GroupConfigurationRevision {
