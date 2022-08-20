@@ -15,7 +15,6 @@ use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::*;
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
-use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::CollaborateResult;
 use flowy_sync::util::make_text_delta_from_revisions;
@@ -101,14 +100,14 @@ impl GridRevisionEditor {
                 grid_id,
                 name: Some(field.name),
                 desc: Some(field.desc),
-                field_type: Some(field.field_type.into()),
+                field_type: Some(field.field_type.clone().into()),
                 frozen: Some(field.frozen),
                 visibility: Some(field.visibility),
                 width: Some(field.width),
                 type_option_data: Some(type_option_data),
             };
 
-            let _ = self.update_field_rev(changeset, field.field_type.clone()).await?;
+            let _ = self.update_field_rev(changeset, field.field_type).await?;
             let _ = self.notify_did_update_grid_field(&field_id).await?;
         } else {
             let _ = self
@@ -262,60 +261,59 @@ impl GridRevisionEditor {
     }
 
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
-        let _ = self
-            .modify(|grid| {
-                let deserializer = TypeOptionJsonDeserializer(field_type);
+        self.modify(|grid| {
+            let deserializer = TypeOptionJsonDeserializer(field_type);
 
-                let changeset = grid.modify_field(&params.field_id, |field| {
-                    let mut is_changed = None;
-                    if let Some(name) = changeset.name {
-                        field.name = name;
-                        is_changed = Some(())
-                    }
+            let changeset = grid.modify_field(&params.field_id, |field| {
+                let mut is_changed = None;
+                if let Some(name) = params.name {
+                    field.name = name;
+                    is_changed = Some(())
+                }
 
-                    if let Some(desc) = changeset.desc {
-                        field.desc = desc;
-                        is_changed = Some(())
-                    }
+                if let Some(desc) = params.desc {
+                    field.desc = desc;
+                    is_changed = Some(())
+                }
 
-                    if let Some(field_type) = changeset.field_type {
-                        field.ty = field_type;
-                        is_changed = Some(())
-                    }
+                if let Some(field_type) = params.field_type {
+                    field.ty = field_type;
+                    is_changed = Some(())
+                }
 
-                    if let Some(frozen) = changeset.frozen {
-                        field.frozen = frozen;
-                        is_changed = Some(())
-                    }
+                if let Some(frozen) = params.frozen {
+                    field.frozen = frozen;
+                    is_changed = Some(())
+                }
 
-                    if let Some(visibility) = changeset.visibility {
-                        field.visibility = visibility;
-                        is_changed = Some(())
-                    }
+                if let Some(visibility) = params.visibility {
+                    field.visibility = visibility;
+                    is_changed = Some(())
+                }
 
-                    if let Some(width) = changeset.width {
-                        field.width = width;
-                        is_changed = Some(())
-                    }
+                if let Some(width) = params.width {
+                    field.width = width;
+                    is_changed = Some(())
+                }
 
-                    if let Some(type_option_data) = changeset.type_option_data {
-                        match deserializer.deserialize(type_option_data) {
-                            Ok(json_str) => {
-                                let field_type = field.ty;
-                                field.insert_type_option_str(&field_type, json_str);
-                                is_changed = Some(())
-                            }
-                            Err(err) => {
-                                tracing::error!("Deserialize data to type option json failed: {}", err);
-                            }
+                if let Some(type_option_data) = params.type_option_data {
+                    match deserializer.deserialize(type_option_data) {
+                        Ok(json_str) => {
+                            let field_type = field.ty;
+                            field.insert_type_option_str(&field_type, json_str);
+                            is_changed = Some(())
+                        }
+                        Err(err) => {
+                            tracing::error!("Deserialize data to type option json failed: {}", err);
                         }
                     }
+                }
 
-                    Ok(is_changed)
-                })?;
-                Ok(changeset)
-            })
-            .await?;
+                Ok(is_changed)
+            })?;
+            Ok(changeset)
+        })
+        .await
     }
 
     pub async fn create_block(&self, block_meta_rev: GridBlockMetaRevision) -> FlowyResult<()> {

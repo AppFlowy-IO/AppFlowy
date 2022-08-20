@@ -1,20 +1,42 @@
-use crate::entities::{CheckboxGroupConfigurationPB, GroupRowsChangesetPB};
-
-use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
-
+use crate::entities::GroupRowsChangesetPB;
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
-use crate::services::group::{GenericGroupController, Group, GroupController, GroupGenerator, Groupable};
+use crate::services::group::action::GroupAction;
+use crate::services::group::configuration::{GenericGroupConfiguration, GroupConfigurationAction};
+use crate::services::group::entities::Group;
+use crate::services::group::group_controller::{GenericGroupController, GroupController, GroupGenerator};
+use flowy_error::FlowyResult;
+use flowy_grid_data_model::revision::{
+    CheckboxGroupConfigurationRevision, FieldRevision, GroupRecordRevision, RowChangeset, RowRevision,
+};
 
 pub type CheckboxGroupController = GenericGroupController<
-    CheckboxGroupConfigurationPB,
+    CheckboxGroupConfigurationRevision,
     CheckboxTypeOptionPB,
     CheckboxGroupGenerator,
     CheckboxCellDataParser,
 >;
 
-impl Groupable for CheckboxGroupController {
-    type CellDataType = CheckboxCellData;
+pub type CheckboxGroupConfiguration = GenericGroupConfiguration<CheckboxGroupConfigurationRevision>;
+impl GroupConfigurationAction for CheckboxGroupConfiguration {
+    fn group_records(&self) -> &[GroupRecordRevision] {
+        todo!()
+    }
 
+    fn save_groups(&self) -> FlowyResult<()> {
+        todo!()
+    }
+
+    fn hide_group(&self, group_id: &str) -> FlowyResult<()> {
+        todo!()
+    }
+
+    fn show_group(&self, group_id: &str) -> FlowyResult<()> {
+        todo!()
+    }
+}
+
+impl GroupAction for CheckboxGroupController {
+    type CellDataType = CheckboxCellData;
     fn can_group(&self, _content: &str, _cell_data: &Self::CellDataType) -> bool {
         false
     }
@@ -55,13 +77,13 @@ impl GroupController for CheckboxGroupController {
 
 pub struct CheckboxGroupGenerator();
 impl GroupGenerator for CheckboxGroupGenerator {
-    type ConfigurationType = CheckboxGroupConfigurationPB;
+    type ConfigurationType = CheckboxGroupConfiguration;
     type TypeOptionType = CheckboxTypeOptionPB;
 
     fn generate_groups(
         field_id: &str,
-        _configuration: &Option<Self::ConfigurationType>,
-        _type_option: &Option<Self::TypeOptionType>,
+        configuration: &Self::ConfigurationType,
+        type_option: &Option<Self::TypeOptionType>,
     ) -> Vec<Group> {
         let check_group = Group::new(
             "true".to_string(),

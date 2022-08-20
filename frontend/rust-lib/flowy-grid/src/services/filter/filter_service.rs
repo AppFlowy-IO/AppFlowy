@@ -4,7 +4,7 @@
 #![allow(unused_imports)]
 #![allow(unused_results)]
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{FieldType, GridBlockChangesetPB};
+use crate::entities::{FieldType, GridBlockChangesetPB, GridSettingChangesetParams};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::{
@@ -20,7 +20,6 @@ use crate::services::tasks::{FilterTaskContext, Task, TaskContent};
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{CellRevision, FieldId, FieldRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
-use flowy_sync::entities::grid::GridSettingChangesetParams;
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::sync::Arc;

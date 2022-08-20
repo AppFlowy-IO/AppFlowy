@@ -10,7 +10,6 @@ use crate::services::field::{
 use crate::services::row::make_row_from_row_rev;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::FieldRevision;
-use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 

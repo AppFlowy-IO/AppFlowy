@@ -1,8 +1,7 @@
-use crate::revision::{FieldRevision, FieldTypeRevision};
+use crate::revision::{FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision};
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-use serde_repr::*;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::sync::Arc;
@@ -15,6 +14,7 @@ pub fn gen_grid_group_id() -> String {
     nanoid!(6)
 }
 
+#[allow(dead_code)]
 pub fn gen_grid_sort_id() -> String {
     nanoid!(6)
 }
@@ -24,114 +24,6 @@ pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterConfigura
 //
 pub type GroupConfiguration = Configuration<GroupConfigurationRevision>;
 pub type GroupConfigurationsByFieldId = HashMap<String, Vec<Arc<GroupConfigurationRevision>>>;
-//
-pub type SortConfiguration = Configuration<SortConfigurationRevision>;
-pub type SortConfigurationsByFieldId = HashMap<String, Vec<Arc<SortConfigurationRevision>>>;
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
-pub struct SettingRevision {
-    pub layout: LayoutRevision,
-
-    pub filters: FilterConfiguration,
-
-    #[serde(default)]
-    pub groups: GroupConfiguration,
-
-    #[serde(skip)]
-    pub sorts: SortConfiguration,
-}
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Serialize_repr, Deserialize_repr)]
-#[repr(u8)]
-pub enum LayoutRevision {
-    Table = 0,
-    Board = 1,
-}
-
-impl ToString for LayoutRevision {
-    fn to_string(&self) -> String {
-        let layout_rev = self.clone() as u8;
-        layout_rev.to_string()
-    }
-}
-
-impl std::default::Default for LayoutRevision {
-    fn default() -> Self {
-        LayoutRevision::Table
-    }
-}
-
-impl SettingRevision {
-    pub fn get_all_groups(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
-        self.groups.get_all_objects(field_revs)
-    }
-
-    pub fn get_groups(
-        &self,
-        field_id: &str,
-        field_type_rev: &FieldTypeRevision,
-    ) -> Option<Vec<Arc<GroupConfigurationRevision>>> {
-        self.groups.get_objects(field_id, field_type_rev)
-    }
-
-    pub fn get_mut_groups(
-        &mut self,
-        field_id: &str,
-        field_type: &FieldTypeRevision,
-    ) -> Option<&mut Vec<Arc<GroupConfigurationRevision>>> {
-        self.groups.get_mut_objects(field_id, field_type)
-    }
-
-    pub fn insert_group(
-        &mut self,
-        field_id: &str,
-        field_type: &FieldTypeRevision,
-        group_rev: GroupConfigurationRevision,
-    ) {
-        // only one group can be set
-        self.groups.remove_all();
-        self.groups.insert_object(field_id, field_type, group_rev);
-    }
-
-    pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Option<FilterConfigurationsByFieldId> {
-        self.filters.get_all_objects(field_revs)
-    }
-
-    pub fn get_filters(
-        &self,
-        field_id: &str,
-        field_type_rev: &FieldTypeRevision,
-    ) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
-        self.filters.get_objects(field_id, field_type_rev)
-    }
-
-    pub fn get_mut_filters(
-        &mut self,
-        field_id: &str,
-        field_type: &FieldTypeRevision,
-    ) -> Option<&mut Vec<Arc<FilterConfigurationRevision>>> {
-        self.filters.get_mut_objects(field_id, field_type)
-    }
-
-    pub fn insert_filter(
-        &mut self,
-        field_id: &str,
-        field_type: &FieldTypeRevision,
-        filter_rev: FilterConfigurationRevision,
-    ) {
-        self.filters.insert_object(field_id, field_type, filter_rev);
-    }
-
-    pub fn get_all_sort(&self) -> Option<SortConfigurationsByFieldId> {
-        None
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
-pub struct SortConfigurationRevision {
-    pub id: String,
-    pub field_id: Option<String>,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
 #[serde(transparent)]
@@ -238,39 +130,4 @@ where
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.object_by_field_type
     }
-}
-
-pub trait GroupConfigurationSerde {
-    fn from_configuration(s: &str) -> Result<Self, serde_json::Error>;
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
-pub struct GroupConfigurationRevision {
-    pub id: String,
-    pub field_id: String,
-    pub field_type_rev: FieldTypeRevision,
-    pub content: String,
-}
-
-impl GroupConfigurationRevision {
-    pub fn new<T>(field_id: String, field_type: FieldTypeRevision, content: T) -> Result<Self, serde_json::Error>
-    where
-        T: serde::Serialize,
-    {
-        let content = serde_json::to_string(&content)?;
-        Ok(Self {
-            id: gen_grid_group_id(),
-            field_id,
-            field_type_rev: field_type,
-            content,
-        })
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq, Hash)]
-pub struct FilterConfigurationRevision {
-    pub id: String,
-    pub field_id: String,
-    pub condition: u8,
-    pub content: Option<String>,
 }

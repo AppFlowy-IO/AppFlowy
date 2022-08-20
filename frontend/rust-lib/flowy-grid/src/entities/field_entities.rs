@@ -2,7 +2,6 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
-use flowy_sync::entities::grid::FieldChangesetParams;
 use serde_repr::*;
 use std::sync::Arc;
 

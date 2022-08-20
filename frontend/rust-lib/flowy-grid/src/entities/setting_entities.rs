@@ -1,13 +1,12 @@
 use crate::entities::{
-    CreatGroupParams, CreateFilterParams, CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, CreateGridSortPayloadPB,
-    CreateSortParams, DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB,
-    RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RepeatedGridSortPB,
+    CreatGroupParams, CreateFilterParams, CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, DeleteFilterParams,
+    DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, RepeatedGridConfigurationFilterPB,
+    RepeatedGridGroupConfigurationPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::LayoutRevision;
-use flowy_sync::entities::grid::GridSettingChangesetParams;
 use std::collections::HashMap;
 use std::convert::TryInto;
 use strum::IntoEnumIterator;
@@ -27,9 +26,6 @@ pub struct GridSettingPB {
 
     #[pb(index = 4)]
     pub group_configuration_by_field_id: HashMap<String, RepeatedGridGroupConfigurationPB>,
-
-    #[pb(index = 5)]
-    pub sorts_by_field_id: HashMap<String, RepeatedGridSortPB>,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -99,12 +95,6 @@ pub struct GridSettingChangesetPayloadPB {
 
     #[pb(index = 6, one_of)]
     pub delete_group: Option<DeleteGroupPayloadPB>,
-
-    #[pb(index = 7, one_of)]
-    pub insert_sort: Option<CreateGridSortPayloadPB>,
-
-    #[pb(index = 8, one_of)]
-    pub delete_sort: Option<String>,
 }
 
 impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
@@ -135,16 +125,6 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
             None => None,
         };
 
-        let insert_sort = match self.insert_sort {
-            None => None,
-            Some(payload) => Some(payload.try_into()?),
-        };
-
-        let delete_sort = match self.delete_sort {
-            None => None,
-            Some(filter_id) => Some(NotEmptyStr::parse(filter_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
-        };
-
         Ok(GridSettingChangesetParams {
             grid_id: view_id,
             layout_type: self.layout_type.into(),
@@ -152,8 +132,6 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
             delete_filter,
             insert_group,
             delete_group,
-            insert_sort,
-            delete_sort,
         })
     }
 }
@@ -165,8 +143,6 @@ pub struct GridSettingChangesetParams {
     pub delete_filter: Option<DeleteFilterParams>,
     pub insert_group: Option<CreatGroupParams>,
     pub delete_group: Option<DeleteGroupParams>,
-    pub insert_sort: Option<CreateSortParams>,
-    pub delete_sort: Option<String>,
 }
 
 impl GridSettingChangesetParams {

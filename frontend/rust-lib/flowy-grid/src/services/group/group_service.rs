@@ -2,44 +2,48 @@ use crate::entities::{
     CheckboxGroupConfigurationPB, DateGroupConfigurationPB, FieldType, GroupRowsChangesetPB,
     NumberGroupConfigurationPB, SelectOptionGroupConfigurationPB, TextGroupConfigurationPB, UrlGroupConfigurationPB,
 };
+use crate::services::group::configuration::GroupConfigurationReader;
+use crate::services::group::group_controller::GroupController;
 use crate::services::group::{
-    CheckboxGroupController, Group, GroupController, MultiSelectGroupController, SingleSelectGroupController,
+    CheckboxGroupController, Group, GroupConfigurationWriter, MultiSelectGroupController, SingleSelectGroupController,
 };
-use bytes::Bytes;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
-    gen_grid_group_id, CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision,
-    GroupConfigurationRevision, NumberGroupConfigurationRevision, RowChangeset, RowRevision,
-    SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
+    CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision, GroupConfigurationRevision,
+    NumberGroupConfigurationRevision, RowChangeset, RowRevision, SelectOptionGroupConfigurationRevision,
+    TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
 };
-use lib_infra::future::AFFuture;
+
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub trait GroupConfigurationDelegate: Send + Sync + 'static {
-    fn get_group_configuration(&self, field_rev: Arc<FieldRevision>) -> AFFuture<GroupConfigurationRevision>;
-}
-
 pub(crate) struct GroupService {
-    delegate: Box<dyn GroupConfigurationDelegate>,
+    configuration_reader: Arc<dyn GroupConfigurationReader>,
+    configuration_writer: Arc<dyn GroupConfigurationWriter>,
     group_controller: Option<Arc<RwLock<dyn GroupController>>>,
 }
 
 impl GroupService {
-    pub(crate) async fn new(delegate: Box<dyn GroupConfigurationDelegate>) -> Self {
+    pub(crate) async fn new<R, W>(configuration_reader: R, configuration_writer: W) -> Self
+    where
+        R: GroupConfigurationReader,
+        W: GroupConfigurationWriter,
+    {
         Self {
-            delegate,
+            configuration_reader: Arc::new(configuration_reader),
+            configuration_writer: Arc::new(configuration_writer),
             group_controller: None,
         }
     }
 
     pub(crate) async fn groups(&self) -> Vec<Group> {
-        if let Some(group_action_handler) = self.group_controller.as_ref() {
-            group_action_handler.read().await.groups()
-        } else {
-            vec![]
-        }
+        // if let Some(group_action_handler) = self.group_controller.as_ref() {
+        //     group_action_handler.read().await.groups()
+        // } else {
+        //     vec![]
+        // }
+        todo!()
     }
 
     pub(crate) async fn load_groups(
@@ -49,13 +53,25 @@ impl GroupService {
     ) -> Option<Vec<Group>> {
         let field_rev = find_group_field(field_revs)?;
         let field_type: FieldType = field_rev.ty.into();
-        let configuration = self.delegate.get_group_configuration(field_rev.clone()).await;
-        match self
-            .build_groups(&field_type, &field_rev, row_revs, configuration)
-            .await
-        {
-            Ok(groups) => Some(groups),
-            Err(_) => None,
+        match self.make_group_controller(&field_type, &field_rev).await {
+            Ok(group_controller) => {
+                self.group_controller = group_controller;
+                let mut groups = vec![];
+                if let Some(group_action_handler) = self.group_controller.as_ref() {
+                    let mut write_guard = group_action_handler.write().await;
+                    groups = match write_guard.fill_groups(&row_revs, &field_rev) {
+                        Ok(groups) => groups,
+                        Err(e) => {
+                            tracing::error!("Fill groups failed:{:?}", e);
+                            vec![]
+                        }
+                    };
+
+                    drop(write_guard);
+                }
+                Some(groups)
+            }
+            Err(_) => Some(vec![]),
         }
     }
 
@@ -151,14 +167,13 @@ impl GroupService {
         }
     }
 
-    #[tracing::instrument(level = "trace", skip_all, err)]
-    async fn build_groups(
+    #[tracing::instrument(level = "trace", skip_all)]
+    async fn make_group_controller(
         &mut self,
         field_type: &FieldType,
         field_rev: &Arc<FieldRevision>,
-        row_revs: Vec<Arc<RowRevision>>,
-        configuration: GroupConfigurationRevision,
-    ) -> FlowyResult<Vec<Group>> {
+    ) -> FlowyResult<Option<Arc<RwLock<dyn GroupController>>>> {
+        let mut group_controller: Option<Arc<RwLock<dyn GroupController>>> = None;
         match field_type {
             FieldType::RichText => {
                 // let generator = GroupGenerator::<TextGroupConfigurationPB>::from_configuration(configuration);
@@ -170,31 +185,37 @@ impl GroupService {
                 // let generator = GroupGenerator::<DateGroupConfigurationPB>::from_configuration(configuration);
             }
             FieldType::SingleSelect => {
-                let controller = SingleSelectGroupController::new(field_rev, configuration)?;
-                self.group_controller = Some(Arc::new(RwLock::new(controller)));
+                let controller = SingleSelectGroupController::new(
+                    field_rev,
+                    self.configuration_reader.clone(),
+                    self.configuration_writer.clone(),
+                )
+                .await?;
+                group_controller = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::MultiSelect => {
-                let controller = MultiSelectGroupController::new(field_rev, configuration)?;
-                self.group_controller = Some(Arc::new(RwLock::new(controller)));
+                let controller = MultiSelectGroupController::new(
+                    field_rev,
+                    self.configuration_reader.clone(),
+                    self.configuration_writer.clone(),
+                )
+                .await?;
+                group_controller = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::Checkbox => {
-                let controller = CheckboxGroupController::new(field_rev, configuration)?;
-                self.group_controller = Some(Arc::new(RwLock::new(controller)));
+                let controller = CheckboxGroupController::new(
+                    field_rev,
+                    self.configuration_reader.clone(),
+                    self.configuration_writer.clone(),
+                )
+                .await?;
+                group_controller = Some(Arc::new(RwLock::new(controller)))
             }
             FieldType::URL => {
                 // let generator = GroupGenerator::<UrlGroupConfigurationPB>::from_configuration(configuration);
             }
-        };
-
-        let mut groups = vec![];
-        if let Some(group_action_handler) = self.group_controller.as_ref() {
-            let mut write_guard = group_action_handler.write().await;
-            let _ = write_guard.group_rows(&row_revs, field_rev)?;
-            groups = write_guard.groups();
-            drop(write_guard);
         }
-
-        Ok(groups)
+        Ok(group_controller)
     }
 }
 
