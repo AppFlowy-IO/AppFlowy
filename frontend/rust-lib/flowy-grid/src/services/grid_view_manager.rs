@@ -131,6 +131,7 @@ impl GridViewManager {
         }
     }
 
+    #[allow(dead_code)]
     pub(crate) async fn move_group(&self) {}
 
     pub(crate) async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<GridViewRevisionEditor>> {

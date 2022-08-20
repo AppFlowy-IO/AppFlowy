@@ -168,10 +168,12 @@ impl GridRevisionEditor {
 
     pub async fn update_field(&self, params: FieldChangesetParams) -> FlowyResult<()> {
         let field_id = params.field_id.clone();
-        let field_type: Option<FieldType> = match self.grid_pad.read().await.get_field_rev(params.field_id.as_str()) {
-            None => None,
-            Some((_, field_rev)) => Some(field_rev.ty.into()),
-        };
+        let field_type: Option<FieldType> = self
+            .grid_pad
+            .read()
+            .await
+            .get_field_rev(params.field_id.as_str())
+            .map(|(_, field_rev)| field_rev.ty.into());
 
         match field_type {
             None => Err(ErrorCode::FieldDoesNotExist.into()),
@@ -341,7 +343,7 @@ impl GridRevisionEditor {
         Ok(row_pb)
     }
 
-    pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<GroupsChangesetPB> {
+    pub async fn move_group(&self, _params: MoveGroupParams) -> FlowyResult<GroupsChangesetPB> {
         //
         todo!()
     }

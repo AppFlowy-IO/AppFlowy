@@ -1,8 +1,8 @@
 mod action;
 mod configuration;
+mod controller;
 mod controller_impls;
 mod entities;
-mod group_controller;
 mod group_service;
 
 pub(crate) use configuration::*;

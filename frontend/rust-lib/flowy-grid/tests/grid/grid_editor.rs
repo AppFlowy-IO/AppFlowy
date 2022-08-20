@@ -12,9 +12,6 @@ use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::*;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::client_grid::GridBuilder;
-use flowy_sync::entities::grid::{
-    CreateFilterParams, DeleteFilterParams, FieldChangesetParams, GridSettingChangesetParams,
-};
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use std::collections::HashMap;

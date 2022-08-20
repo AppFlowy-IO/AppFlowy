@@ -1,33 +1,14 @@
 use crate::entities::{GroupRowsChangesetPB, InsertedRowPB, RowPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::SelectOptionCellDataPB;
-use crate::services::group::configuration::{GenericGroupConfiguration, GroupConfigurationAction};
+use crate::services::group::configuration::GenericGroupConfiguration;
 use crate::services::group::Group;
-use flowy_error::FlowyResult;
+
 use flowy_grid_data_model::revision::{
-    FieldRevision, GroupRecordRevision, RowChangeset, RowRevision, SelectOptionGroupConfigurationRevision,
+    FieldRevision, RowChangeset, RowRevision, SelectOptionGroupConfigurationRevision,
 };
 
 pub type SelectOptionGroupConfiguration = GenericGroupConfiguration<SelectOptionGroupConfigurationRevision>;
-impl GroupConfigurationAction for SelectOptionGroupConfiguration {
-    fn group_records(&self) -> &[GroupRecordRevision] {
-        // self.configuration.as_slice()
-        todo!()
-    }
-
-    fn merge_groups(&self, groups: Vec<Group>) -> FlowyResult<()> {
-        // self.writer.save_group_configuration()
-        todo!()
-    }
-
-    fn hide_group(&self, group_id: &str) -> FlowyResult<()> {
-        todo!()
-    }
-
-    fn show_group(&self, group_id: &str) -> FlowyResult<()> {
-        todo!()
-    }
-}
 
 pub fn add_row(
     group: &mut Group,

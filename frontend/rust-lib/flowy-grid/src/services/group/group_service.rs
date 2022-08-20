@@ -1,7 +1,8 @@
 use crate::services::group::configuration::GroupConfigurationReader;
-use crate::services::group::group_controller::GroupController;
+use crate::services::group::controller::GroupController;
 use crate::services::group::{
-    CheckboxGroupController, Group, GroupConfigurationWriter, MultiSelectGroupController, SingleSelectGroupController,
+    CheckboxGroupConfiguration, CheckboxGroupController, Group, GroupConfigurationWriter, MultiSelectGroupController,
+    SelectOptionGroupConfiguration, SingleSelectGroupController,
 };
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
@@ -35,8 +36,8 @@ impl GroupService {
     }
 
     pub(crate) async fn groups(&self) -> Vec<Group> {
-        // if let Some(group_action_handler) = self.group_controller.as_ref() {
-        //     group_action_handler.read().await.groups()
+        // if let Some(group_controller) = self.group_controller.as_ref() {
+        //     group_controller.read().await.groups()
         // } else {
         //     vec![]
         // }
@@ -182,30 +183,33 @@ impl GroupService {
                 // let generator = GroupGenerator::<DateGroupConfigurationPB>::from_configuration(configuration);
             }
             FieldType::SingleSelect => {
-                let controller = SingleSelectGroupController::new(
-                    field_rev,
+                let configuration = SelectOptionGroupConfiguration::new(
+                    field_rev.clone(),
                     self.configuration_reader.clone(),
                     self.configuration_writer.clone(),
                 )
                 .await?;
+                let controller = SingleSelectGroupController::new(field_rev, configuration).await?;
                 group_controller = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::MultiSelect => {
-                let controller = MultiSelectGroupController::new(
-                    field_rev,
+                let configuration = SelectOptionGroupConfiguration::new(
+                    field_rev.clone(),
                     self.configuration_reader.clone(),
                     self.configuration_writer.clone(),
                 )
                 .await?;
+                let controller = MultiSelectGroupController::new(field_rev, configuration).await?;
                 group_controller = Some(Arc::new(RwLock::new(controller)));
             }
             FieldType::Checkbox => {
-                let controller = CheckboxGroupController::new(
-                    field_rev,
+                let configuration = CheckboxGroupConfiguration::new(
+                    field_rev.clone(),
                     self.configuration_reader.clone(),
                     self.configuration_writer.clone(),
                 )
                 .await?;
+                let controller = CheckboxGroupController::new(field_rev, configuration).await?;
                 group_controller = Some(Arc::new(RwLock::new(controller)))
             }
             FieldType::URL => {
@@ -229,7 +233,7 @@ fn find_group_field(field_revs: &[Arc<FieldRevision>]) -> Option<Arc<FieldRevisi
 
 pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurationRevision {
     let field_id = field_rev.id.clone();
-    let field_type_rev = field_rev.ty.clone();
+    let field_type_rev = field_rev.ty;
     let field_type: FieldType = field_rev.ty.into();
     match field_type {
         FieldType::RichText => {

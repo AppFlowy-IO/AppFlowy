@@ -3,10 +3,9 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
-use flowy_grid::entities::{CreateGridFilterPayloadPB, GridLayout, GridSettingPB};
+use flowy_grid::entities::{CreateFilterParams, CreateGridFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
-use flowy_sync::entities::grid::{CreateFilterParams, DeleteFilterParams, GridSettingChangesetParams};
 use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {

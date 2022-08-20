@@ -1,13 +1,11 @@
 use crate::entities::GroupRowsChangesetPB;
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
 use crate::services::group::action::GroupAction;
-use crate::services::group::configuration::{GenericGroupConfiguration, GroupConfigurationAction};
+use crate::services::group::configuration::GenericGroupConfiguration;
+use crate::services::group::controller::{GenericGroupController, GroupController, GroupGenerator};
 use crate::services::group::entities::Group;
-use crate::services::group::group_controller::{GenericGroupController, GroupController, GroupGenerator};
-use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{
-    CheckboxGroupConfigurationRevision, FieldRevision, GroupRecordRevision, RowChangeset, RowRevision,
-};
+
+use flowy_grid_data_model::revision::{CheckboxGroupConfigurationRevision, FieldRevision, RowChangeset, RowRevision};
 
 pub type CheckboxGroupController = GenericGroupController<
     CheckboxGroupConfigurationRevision,
@@ -17,23 +15,6 @@ pub type CheckboxGroupController = GenericGroupController<
 >;
 
 pub type CheckboxGroupConfiguration = GenericGroupConfiguration<CheckboxGroupConfigurationRevision>;
-impl GroupConfigurationAction for CheckboxGroupConfiguration {
-    fn group_records(&self) -> &[GroupRecordRevision] {
-        &[]
-    }
-
-    fn merge_groups(&self, groups: Vec<Group>) -> FlowyResult<()> {
-        Ok(())
-    }
-
-    fn hide_group(&self, group_id: &str) -> FlowyResult<()> {
-        Ok(())
-    }
-
-    fn show_group(&self, group_id: &str) -> FlowyResult<()> {
-        Ok(())
-    }
-}
 
 impl GroupAction for CheckboxGroupController {
     type CellDataType = CheckboxCellData;
@@ -82,8 +63,8 @@ impl GroupGenerator for CheckboxGroupGenerator {
 
     fn generate_groups(
         field_id: &str,
-        configuration: &Self::ConfigurationType,
-        type_option: &Option<Self::TypeOptionType>,
+        _configuration: &Self::ConfigurationType,
+        _type_option: &Option<Self::TypeOptionType>,
     ) -> Vec<Group> {
         let check_group = Group::new(
             "true".to_string(),

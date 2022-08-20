@@ -70,15 +70,15 @@ impl GridViewRevisionPad {
         &mut self,
         field_id: &str,
         field_type: &FieldTypeRevision,
-        group_id: &str,
-        mut_group_fn: F,
+        configuration_id: &str,
+        mut_configuration_fn: F,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| match view.groups.get_mut_objects(field_id, field_type) {
             None => Ok(None),
-            Some(groups) => {
-                for mut group in groups {
-                    if group.id == group_id {
-                        mut_group_fn(Arc::make_mut(&mut group));
+            Some(configurations_revs) => {
+                for configuration_rev in configurations_revs {
+                    if configuration_rev.id == configuration_id {
+                        mut_configuration_fn(Arc::make_mut(configuration_rev));
                         return Ok(Some(()));
                     }
                 }
@@ -170,6 +170,7 @@ impl GridViewRevisionPad {
     }
 }
 
+#[derive(Debug)]
 pub struct GridViewRevisionChangeset {
     pub delta: TextDelta,
     pub md5: String,

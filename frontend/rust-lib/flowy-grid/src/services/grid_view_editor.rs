@@ -183,7 +183,7 @@ impl GridViewRevisionEditor {
         grid_setting
     }
 
-    pub(crate) async fn update_setting(&self, changeset: GridSettingChangesetParams) -> FlowyResult<()> {
+    pub(crate) async fn update_setting(&self, _changeset: GridSettingChangesetParams) -> FlowyResult<()> {
         // let _ = self.modify(|pad| Ok(pad.update_setting(changeset)?)).await;
         // Ok(())
         todo!()
@@ -207,6 +207,7 @@ impl GridViewRevisionEditor {
             .send();
     }
 
+    #[allow(dead_code)]
     async fn modify<F>(&self, f: F) -> FlowyResult<()>
     where
         F: for<'a> FnOnce(&'a mut GridViewRevisionPad) -> FlowyResult<Option<GridViewRevisionChangeset>>,
@@ -230,7 +231,7 @@ async fn apply_change(
     let GridViewRevisionChangeset { delta, md5 } = change;
     let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
     let delta_data = delta.json_bytes();
-    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, &user_id, md5);
+    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, user_id, md5);
     let _ = rev_manager.add_local_revision(&revision).await?;
     Ok(())
 }
@@ -287,49 +288,29 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         &self,
         field_id: &str,
         field_type: FieldTypeRevision,
-        group_id: &str,
-        mut_fn: impl FnOnce(&mut GroupConfigurationRevision),
+        configuration_id: &str,
+        content: String,
     ) -> AFFuture<FlowyResult<()>> {
         let user_id = self.user_id.clone();
-        let group_id = group_id.to_owned();
+        let configuration_id = configuration_id.to_owned();
         let rev_manager = self.rev_manager.clone();
         let view_pad = self.view_pad.clone();
         let field_id = field_id.to_owned();
 
         wrap_future(async move {
-            match view_pad
-                .write()
-                .await
-                .get_mut_group(&field_id, &field_type, &group_id, mut_fn)?
-            {
+            match view_pad.write().await.get_mut_group(
+                &field_id,
+                &field_type,
+                &configuration_id,
+                |group_configuration| {
+                    group_configuration.content = content;
+                },
+            )? {
                 None => Ok(()),
                 Some(changeset) => apply_change(&user_id, rev_manager, changeset).await,
             }
         })
     }
-    // fn save_group_configuration(
-    //     &self,
-    //     field_id: &str,
-    //     field_type: FieldTypeRevision,
-    //
-    //     configuration: GroupConfigurationRevision,
-    // ) -> AFFuture<FlowyResult<()>> {
-    //     let user_id = self.user_id.clone();
-    //     let rev_manager = self.rev_manager.clone();
-    //     let view_pad = self.view_pad.clone();
-    //     let field_id = field_id.to_owned();
-    //
-    //     wrap_future(async move {
-    //         match view_pad
-    //             .write()
-    //             .await
-    //             .insert_group_configuration(&field_id, &field_type, configuration)?
-    //         {
-    //             None => Ok(()),
-    //             Some(changeset) => apply_change(&user_id, rev_manager, changeset).await,
-    //         }
-    //     })
-    // }
 }
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {

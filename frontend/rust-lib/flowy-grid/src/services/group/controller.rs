@@ -1,15 +1,14 @@
 use crate::entities::{GroupRowsChangesetPB, RowPB};
 use crate::services::cell::{decode_any_cell_data, CellBytesParser};
 use crate::services::group::action::GroupAction;
-use crate::services::group::configuration::{GenericGroupConfiguration, GroupConfigurationReader};
+use crate::services::group::configuration::GenericGroupConfiguration;
 use crate::services::group::entities::Group;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
-    FieldRevision, GroupConfigurationContentSerde, RowChangeset, RowRevision, TypeOptionDataDeserializer,
+    FieldRevision, GroupConfigurationContent, RowChangeset, RowRevision, TypeOptionDataDeserializer,
 };
 use indexmap::IndexMap;
 
-use crate::services::group::GroupConfigurationWriter;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
@@ -18,7 +17,7 @@ const DEFAULT_GROUP_ID: &str = "default_group";
 // Each kind of group must implement this trait to provide custom group
 // operations. For example, insert cell data to the row_rev when creating
 // a new row.
-pub trait GroupController: GroupControllerSharedAction + Send + Sync {
+pub trait GroupController: GroupControllerSharedOperation + Send + Sync {
     fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
 }
 
@@ -34,9 +33,10 @@ pub trait GroupGenerator {
 }
 
 // Defines the shared actions each group controller can perform.
-pub trait GroupControllerSharedAction: Send + Sync {
+pub trait GroupControllerSharedOperation: Send + Sync {
     // The field that is used for grouping the rows
     fn field_id(&self) -> &str;
+    fn groups(&self) -> &[Group];
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<Vec<Group>>;
     fn did_update_row(
         &mut self,
@@ -66,32 +66,28 @@ pub trait GroupControllerSharedAction: Send + Sync {
 pub struct GenericGroupController<C, T, G, P> {
     pub field_id: String,
     pub groups_map: IndexMap<String, Group>,
-
-    /// default_group is used to store the rows that don't belong to any groups.
-    default_group: Group,
     pub type_option: Option<T>,
     pub configuration: GenericGroupConfiguration<C>,
+    /// default_group is used to store the rows that don't belong to any groups.
+    default_group: Group,
     group_action_phantom: PhantomData<G>,
     cell_parser_phantom: PhantomData<P>,
 }
 
 impl<C, T, G, P> GenericGroupController<C, T, G, P>
 where
-    C: GroupConfigurationContentSerde,
+    C: GroupConfigurationContent,
     T: TypeOptionDataDeserializer,
     G: GroupGenerator<ConfigurationType = GenericGroupConfiguration<C>, TypeOptionType = T>,
 {
     pub async fn new(
         field_rev: &Arc<FieldRevision>,
-        configuration_reader: Arc<dyn GroupConfigurationReader>,
-        configuration_writer: Arc<dyn GroupConfigurationWriter>,
+        mut configuration: GenericGroupConfiguration<C>,
     ) -> FlowyResult<Self> {
-        let configuration =
-            GenericGroupConfiguration::<C>::new(field_rev.clone(), configuration_reader, configuration_writer).await?;
         let field_type_rev = field_rev.ty;
         let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
-
+        let _ = configuration.merge_groups(&groups).await?;
         let default_group = Group::new(
             DEFAULT_GROUP_ID.to_owned(),
             field_rev.id.clone(),
@@ -111,20 +107,21 @@ where
     }
 }
 
-impl<C, T, G, P> GroupControllerSharedAction for GenericGroupController<C, T, G, P>
+impl<C, T, G, P> GroupControllerSharedOperation for GenericGroupController<C, T, G, P>
 where
     P: CellBytesParser,
+    C: GroupConfigurationContent,
     Self: GroupAction<CellDataType = P::Object>,
 {
     fn field_id(&self) -> &str {
         &self.field_id
     }
 
-    fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<Vec<Group>> {
-        // if self.configuration.is_none() {
-        //     return Ok(vec![]);
-        // }
+    fn groups(&self) -> &[Group] {
+        todo!()
+    }
 
+    fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<Vec<Group>> {
         for row_rev in row_revs {
             if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
                 let mut group_rows: Vec<GroupRow> = vec![];

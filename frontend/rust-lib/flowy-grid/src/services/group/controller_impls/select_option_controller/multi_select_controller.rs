@@ -3,9 +3,9 @@ use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{MultiSelectTypeOptionPB, SelectOptionCellDataPB, SelectOptionCellDataParser};
 use crate::services::group::action::GroupAction;
 
+use crate::services::group::controller::{GenericGroupController, GroupController, GroupGenerator};
 use crate::services::group::controller_impls::select_option_controller::util::*;
 use crate::services::group::entities::Group;
-use crate::services::group::group_controller::{GenericGroupController, GroupController, GroupGenerator};
 use flowy_grid_data_model::revision::{
     FieldRevision, RowChangeset, RowRevision, SelectOptionGroupConfigurationRevision,
 };
@@ -88,7 +88,7 @@ impl GroupGenerator for MultiSelectGroupGenerator {
     type TypeOptionType = MultiSelectTypeOptionPB;
     fn generate_groups(
         field_id: &str,
-        configuration: &Self::ConfigurationType,
+        _configuration: &Self::ConfigurationType,
         type_option: &Option<Self::TypeOptionType>,
     ) -> Vec<Group> {
         match type_option {
