@@ -287,7 +287,7 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         &self,
         field_id: &str,
         field_type: FieldTypeRevision,
-        configuration: Arc<GroupConfigurationRevision>,
+        configuration: GroupConfigurationRevision,
     ) -> AFFuture<FlowyResult<()>> {
         let user_id = self.user_id.clone();
         let rev_manager = self.rev_manager.clone();
@@ -295,7 +295,6 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         let field_id = field_id.to_owned();
 
         wrap_future(async move {
-            let configuration = (&*configuration).clone();
             match view_pad
                 .write()
                 .await

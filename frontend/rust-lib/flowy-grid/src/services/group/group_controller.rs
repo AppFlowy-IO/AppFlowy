@@ -5,11 +5,11 @@ use crate::services::group::configuration::{GenericGroupConfiguration, GroupConf
 use crate::services::group::entities::Group;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
-    FieldRevision, GroupConfigurationContentSerde, GroupConfigurationRevision, RowChangeset, RowRevision,
-    TypeOptionDataDeserializer,
+    FieldRevision, GroupConfigurationContentSerde, RowChangeset, RowRevision, TypeOptionDataDeserializer,
 };
 use indexmap::IndexMap;
-use lib_infra::future::AFFuture;
+
+use crate::services::group::GroupConfigurationWriter;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
@@ -84,7 +84,7 @@ where
     pub async fn new(
         field_rev: &Arc<FieldRevision>,
         configuration_reader: Arc<dyn GroupConfigurationReader>,
-        configuration_writer: Arc<dyn GroupConfigurationReader>,
+        configuration_writer: Arc<dyn GroupConfigurationWriter>,
     ) -> FlowyResult<Self> {
         let configuration =
             GenericGroupConfiguration::<C>::new(field_rev.clone(), configuration_reader, configuration_writer).await?;

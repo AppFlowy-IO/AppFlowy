@@ -1,7 +1,3 @@
-use crate::entities::{
-    CheckboxGroupConfigurationPB, DateGroupConfigurationPB, FieldType, GroupRowsChangesetPB,
-    NumberGroupConfigurationPB, SelectOptionGroupConfigurationPB, TextGroupConfigurationPB, UrlGroupConfigurationPB,
-};
 use crate::services::group::configuration::GroupConfigurationReader;
 use crate::services::group::group_controller::GroupController;
 use crate::services::group::{
@@ -14,6 +10,7 @@ use flowy_grid_data_model::revision::{
     TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
 };
 
+use crate::entities::{FieldType, GroupRowsChangesetPB};
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;

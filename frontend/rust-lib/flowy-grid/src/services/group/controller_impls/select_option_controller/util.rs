@@ -11,10 +11,11 @@ use flowy_grid_data_model::revision::{
 pub type SelectOptionGroupConfiguration = GenericGroupConfiguration<SelectOptionGroupConfigurationRevision>;
 impl GroupConfigurationAction for SelectOptionGroupConfiguration {
     fn group_records(&self) -> &[GroupRecordRevision] {
-        todo!()
+        self.configuration.as_slice()
     }
 
-    fn save_groups(&self) -> FlowyResult<()> {
+    fn merge_groups(&self, groups: Vec<Group>) -> FlowyResult<()> {
+        // self.writer.save_group_configuration()
         todo!()
     }
 

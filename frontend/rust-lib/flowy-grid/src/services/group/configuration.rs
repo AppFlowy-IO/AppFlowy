@@ -1,3 +1,4 @@
+use crate::services::group::Group;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision, GroupRecordRevision,
@@ -14,13 +15,13 @@ pub trait GroupConfigurationWriter: Send + Sync + 'static {
         &self,
         field_id: &str,
         field_type: FieldTypeRevision,
-        configuration: Arc<GroupConfigurationRevision>,
+        configuration: GroupConfigurationRevision,
     ) -> AFFuture<FlowyResult<()>>;
 }
 
 pub trait GroupConfigurationAction: Send + Sync {
     fn group_records(&self) -> &[GroupRecordRevision];
-    fn save_groups(&self) -> FlowyResult<()>;
+    fn merge_groups(&self, groups: Vec<Group>) -> FlowyResult<()>;
     fn hide_group(&self, group_id: &str) -> FlowyResult<()>;
     fn show_group(&self, group_id: &str) -> FlowyResult<()>;
 }
@@ -28,8 +29,9 @@ pub trait GroupConfigurationAction: Send + Sync {
 pub struct GenericGroupConfiguration<C> {
     field_rev: Arc<FieldRevision>,
     reader: Arc<dyn GroupConfigurationReader>,
+    configuration_rev: Arc<GroupConfigurationRevision>,
     writer: Arc<dyn GroupConfigurationWriter>,
-    configuration: C,
+    pub(crate) configuration: C,
 }
 
 impl<C> GenericGroupConfiguration<C>
@@ -41,15 +43,18 @@ where
         reader: Arc<dyn GroupConfigurationReader>,
         writer: Arc<dyn GroupConfigurationWriter>,
     ) -> FlowyResult<Self> {
-        let configuration = reader.get_group_configuration(field_rev.clone()).await;
-        let configuration = C::from_configuration(&configuration.content)?;
+        let configuration_rev = reader.get_group_configuration(field_rev.clone()).await;
+        let configuration = C::from_configuration_content(&configuration.content)?;
         Ok(Self {
             field_rev,
+            configuration_rev,
             reader,
             writer,
             configuration,
         })
     }
+
+    pub async fn save_configuration(&self) {}
 }
 
 impl<T> GroupConfigurationReader for Arc<T>
@@ -69,7 +74,7 @@ where
         &self,
         field_id: &str,
         field_type: FieldTypeRevision,
-        configuration: Arc<GroupConfigurationRevision>,
+        configuration: GroupConfigurationRevision,
     ) -> AFFuture<FlowyResult<()>> {
         (**self).save_group_configuration(field_id, field_type, configuration)
     }

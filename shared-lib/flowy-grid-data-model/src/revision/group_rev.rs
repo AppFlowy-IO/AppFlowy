@@ -4,7 +4,8 @@ use serde_json::Error;
 use serde_repr::*;
 
 pub trait GroupConfigurationContentSerde: Sized {
-    fn from_configuration(s: &str) -> Result<Self, serde_json::Error>;
+    fn from_configuration_content(s: &str) -> Result<Self, serde_json::Error>;
+    fn to_configuration_content(&self) -> Result<String, serde_json::Error>;
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
@@ -36,8 +37,11 @@ pub struct TextGroupConfigurationRevision {
 }
 
 impl GroupConfigurationContentSerde for TextGroupConfigurationRevision {
-    fn from_configuration(s: &str) -> Result<Self, Error> {
+    fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
+    }
+    fn to_configuration_content(&self) -> Result<String, Error> {
+        serde_json::to_string(self)
     }
 }
 
@@ -47,8 +51,11 @@ pub struct NumberGroupConfigurationRevision {
 }
 
 impl GroupConfigurationContentSerde for NumberGroupConfigurationRevision {
-    fn from_configuration(s: &str) -> Result<Self, Error> {
+    fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
+    }
+    fn to_configuration_content(&self) -> Result<String, Error> {
+        serde_json::to_string(self)
     }
 }
 
@@ -58,8 +65,11 @@ pub struct UrlGroupConfigurationRevision {
 }
 
 impl GroupConfigurationContentSerde for UrlGroupConfigurationRevision {
-    fn from_configuration(s: &str) -> Result<Self, Error> {
+    fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
+    }
+    fn to_configuration_content(&self) -> Result<String, Error> {
+        serde_json::to_string(self)
     }
 }
 
@@ -69,8 +79,12 @@ pub struct CheckboxGroupConfigurationRevision {
 }
 
 impl GroupConfigurationContentSerde for CheckboxGroupConfigurationRevision {
-    fn from_configuration(s: &str) -> Result<Self, Error> {
+    fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
+    }
+
+    fn to_configuration_content(&self) -> Result<String, Error> {
+        serde_json::to_string(self)
     }
 }
 
@@ -81,8 +95,12 @@ pub struct SelectOptionGroupConfigurationRevision {
 }
 
 impl GroupConfigurationContentSerde for SelectOptionGroupConfigurationRevision {
-    fn from_configuration(s: &str) -> Result<Self, Error> {
+    fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
+    }
+
+    fn to_configuration_content(&self) -> Result<String, Error> {
+        serde_json::to_string(self)
     }
 }
 
@@ -102,8 +120,11 @@ pub struct DateGroupConfigurationRevision {
 }
 
 impl GroupConfigurationContentSerde for DateGroupConfigurationRevision {
-    fn from_configuration(s: &str) -> Result<Self, Error> {
+    fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
+    }
+    fn to_configuration_content(&self) -> Result<String, Error> {
+        serde_json::to_string(self)
     }
 }
 
