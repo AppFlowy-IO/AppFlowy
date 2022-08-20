@@ -66,6 +66,27 @@ impl GridViewRevisionPad {
         })
     }
 
+    pub fn get_mut_group<F: FnOnce(&mut GroupConfigurationRevision)>(
+        &mut self,
+        field_id: &str,
+        field_type: &FieldTypeRevision,
+        group_id: &str,
+        mut_group_fn: F,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| match view.groups.get_mut_objects(field_id, field_type) {
+            None => Ok(None),
+            Some(groups) => {
+                for mut group in groups {
+                    if group.id == group_id {
+                        mut_group_fn(Arc::make_mut(&mut group));
+                        return Ok(Some(()));
+                    }
+                }
+                Ok(None)
+            }
+        })
+    }
+
     pub fn delete_group(
         &mut self,
         field_id: &str,

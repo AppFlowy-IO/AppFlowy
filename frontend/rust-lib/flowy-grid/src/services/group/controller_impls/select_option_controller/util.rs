@@ -11,7 +11,8 @@ use flowy_grid_data_model::revision::{
 pub type SelectOptionGroupConfiguration = GenericGroupConfiguration<SelectOptionGroupConfigurationRevision>;
 impl GroupConfigurationAction for SelectOptionGroupConfiguration {
     fn group_records(&self) -> &[GroupRecordRevision] {
-        self.configuration.as_slice()
+        // self.configuration.as_slice()
+        todo!()
     }
 
     fn merge_groups(&self, groups: Vec<Group>) -> FlowyResult<()> {

@@ -19,7 +19,7 @@ pub type CheckboxGroupController = GenericGroupController<
 pub type CheckboxGroupConfiguration = GenericGroupConfiguration<CheckboxGroupConfigurationRevision>;
 impl GroupConfigurationAction for CheckboxGroupConfiguration {
     fn group_records(&self) -> &[GroupRecordRevision] {
-        vec![].as_slice()
+        &[]
     }
 
     fn merge_groups(&self, groups: Vec<Group>) -> FlowyResult<()> {

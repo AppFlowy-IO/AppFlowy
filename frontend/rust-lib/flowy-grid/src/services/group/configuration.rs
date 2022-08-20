@@ -10,12 +10,13 @@ pub trait GroupConfigurationReader: Send + Sync + 'static {
     fn get_group_configuration(&self, field_rev: Arc<FieldRevision>) -> AFFuture<Arc<GroupConfigurationRevision>>;
 }
 
-pub trait GroupConfigurationWriter: Send + Sync + 'static {
+pub trait GroupConfigurationWriter: Send + Sync + 'static + ?Sized {
     fn save_group_configuration(
         &self,
         field_id: &str,
         field_type: FieldTypeRevision,
-        configuration: GroupConfigurationRevision,
+        group_id: &str,
+        mut_fn: fn(&mut GroupConfigurationRevision),
     ) -> AFFuture<FlowyResult<()>>;
 }
 
@@ -44,7 +45,7 @@ where
         writer: Arc<dyn GroupConfigurationWriter>,
     ) -> FlowyResult<Self> {
         let configuration_rev = reader.get_group_configuration(field_rev.clone()).await;
-        let configuration = C::from_configuration_content(&configuration.content)?;
+        let configuration = C::from_configuration_content(&configuration_rev.content)?;
         Ok(Self {
             field_rev,
             configuration_rev,
@@ -74,8 +75,17 @@ where
         &self,
         field_id: &str,
         field_type: FieldTypeRevision,
-        configuration: GroupConfigurationRevision,
+        group_id: &str,
+        mut_fn: impl FnOnce(&mut GroupConfigurationRevision),
     ) -> AFFuture<FlowyResult<()>> {
-        (**self).save_group_configuration(field_id, field_type, configuration)
+        todo!()
     }
+    // fn save_group_configuration(
+    //     &self,
+    //     field_id: &str,
+    //     field_type: FieldTypeRevision,
+    //     configuration: GroupConfigurationRevision,
+    // ) -> AFFuture<FlowyResult<()>> {
+    //     (**self).save_group_configuration(field_id, field_type, configuration)
+    // }
 }

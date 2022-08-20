@@ -287,9 +287,11 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         &self,
         field_id: &str,
         field_type: FieldTypeRevision,
-        configuration: GroupConfigurationRevision,
+        group_id: &str,
+        mut_fn: impl FnOnce(&mut GroupConfigurationRevision),
     ) -> AFFuture<FlowyResult<()>> {
         let user_id = self.user_id.clone();
+        let group_id = group_id.to_owned();
         let rev_manager = self.rev_manager.clone();
         let view_pad = self.view_pad.clone();
         let field_id = field_id.to_owned();
@@ -298,13 +300,36 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
             match view_pad
                 .write()
                 .await
-                .insert_group_configuration(&field_id, &field_type, configuration)?
+                .get_mut_group(&field_id, &field_type, &group_id, mut_fn)?
             {
                 None => Ok(()),
                 Some(changeset) => apply_change(&user_id, rev_manager, changeset).await,
             }
         })
     }
+    // fn save_group_configuration(
+    //     &self,
+    //     field_id: &str,
+    //     field_type: FieldTypeRevision,
+    //
+    //     configuration: GroupConfigurationRevision,
+    // ) -> AFFuture<FlowyResult<()>> {
+    //     let user_id = self.user_id.clone();
+    //     let rev_manager = self.rev_manager.clone();
+    //     let view_pad = self.view_pad.clone();
+    //     let field_id = field_id.to_owned();
+    //
+    //     wrap_future(async move {
+    //         match view_pad
+    //             .write()
+    //             .await
+    //             .insert_group_configuration(&field_id, &field_type, configuration)?
+    //         {
+    //             None => Ok(()),
+    //             Some(changeset) => apply_change(&user_id, rev_manager, changeset).await,
+    //         }
+    //     })
+    // }
 }
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
