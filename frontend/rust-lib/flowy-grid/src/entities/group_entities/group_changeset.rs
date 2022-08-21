@@ -109,10 +109,19 @@ pub struct GroupViewChangesetPB {
     pub view_id: String,
 
     #[pb(index = 2)]
-    pub inserted_groups: Vec<GroupPB>,
+    pub inserted_groups: Vec<InsertedGroupPB>,
 
     #[pb(index = 3)]
     pub deleted_groups: Vec<String>,
 }
 
 impl GroupViewChangesetPB {}
+
+#[derive(Debug, Default, ProtoBuf)]
+pub struct InsertedGroupPB {
+    #[pb(index = 1)]
+    pub group: GroupPB,
+
+    #[pb(index = 2)]
+    pub index: i32,
+}

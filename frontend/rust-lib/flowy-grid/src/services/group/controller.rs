@@ -36,7 +36,9 @@ pub trait GroupControllerSharedOperation: Send + Sync {
     // The field that is used for grouping the rows
     fn field_id(&self) -> &str;
     fn groups(&self) -> Vec<Group>;
+    fn get_group(&self, group_id: &str) -> Option<(usize, Group)>;
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<Vec<Group>>;
+    fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()>;
     fn did_update_row(
         &mut self,
         row_rev: &RowRevision,
@@ -118,6 +120,11 @@ where
         self.configuration.clone_groups()
     }
 
+    fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
+        let group = self.configuration.get_group(group_id)?;
+        Some((group.0, group.1.clone()))
+    }
+
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<Vec<Group>> {
         for row_rev in row_revs {
             if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
@@ -154,6 +161,10 @@ where
         }
 
         Ok(groups)
+    }
+
+    fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
+        self.configuration.move_group(from_group_id, to_group_id)
     }
 
     fn did_update_row(

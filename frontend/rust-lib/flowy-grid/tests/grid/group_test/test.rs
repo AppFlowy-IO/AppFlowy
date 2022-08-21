@@ -6,15 +6,15 @@ async fn board_init_test() {
     let mut test = GridGroupTest::new().await;
     let scripts = vec![
         AssertGroupCount(3),
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 0,
             row_count: 2,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 1,
             row_count: 2,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 2,
             row_count: 1,
         },
@@ -34,7 +34,7 @@ async fn board_move_row_test() {
             to_group_index: 0,
             to_row_index: 1,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 0,
             row_count: 2,
         },
@@ -58,11 +58,11 @@ async fn board_move_row_to_other_group_test() {
             to_group_index: 1,
             to_row_index: 1,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 0,
             row_count: 1,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 1,
             row_count: 3,
         },
@@ -106,13 +106,13 @@ async fn board_create_row_test() {
     let mut test = GridGroupTest::new().await;
     let scripts = vec![
         CreateRow { group_index: 0 },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 0,
             row_count: 3,
         },
         CreateRow { group_index: 1 },
         CreateRow { group_index: 1 },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 1,
             row_count: 4,
         },
@@ -128,7 +128,7 @@ async fn board_delete_row_test() {
             group_index: 0,
             row_index: 0,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 0,
             row_count: 1,
         },
@@ -148,7 +148,7 @@ async fn board_delete_all_row_test() {
             group_index: 0,
             row_index: 0,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 0,
             row_count: 0,
         },
@@ -166,11 +166,11 @@ async fn board_update_row_test() {
             row_index: 0,
             to_group_index: 1,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 0,
             row_count: 1,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 1,
             row_count: 3,
         },
@@ -188,13 +188,35 @@ async fn board_reorder_group_test() {
             row_index: 0,
             to_group_index: 1,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 0,
             row_count: 1,
         },
-        AssertGroup {
+        AssertGroupRowCount {
             group_index: 1,
             row_count: 3,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn board_move_group_test() {
+    let mut test = GridGroupTest::new().await;
+    let group_0 = test.group_at_index(0).await;
+    let group_1 = test.group_at_index(1).await;
+    let scripts = vec![
+        MoveGroup {
+            from_group_index: 0,
+            to_group_index: 1,
+        },
+        AssertGroup {
+            group_index: 0,
+            expected_group: group_1,
+        },
+        AssertGroup {
+            group_index: 1,
+            expected_group: group_0,
         },
     ];
     test.run_scripts(scripts).await;

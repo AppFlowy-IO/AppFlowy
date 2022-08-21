@@ -71,10 +71,9 @@ impl GroupAction for MultiSelectGroupController {
 
 impl GroupController for MultiSelectGroupController {
     fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
-        let group: Option<&Group> = self.configuration.get_group(group_id);
-        match group {
+        match self.configuration.get_group(group_id) {
             None => tracing::warn!("Can not find the group: {}", group_id),
-            Some(group) => {
+            Some((_, group)) => {
                 let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
                 row_rev.cells.insert(field_rev.id.clone(), cell_rev);
             }

@@ -4,11 +4,15 @@ use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid_data_model::revision::RowChangeset;
 
 pub enum GroupScript {
-    AssertGroup {
+    AssertGroupRowCount {
         group_index: usize,
         row_count: usize,
     },
     AssertGroupCount(usize),
+    AssertGroup {
+        group_index: usize,
+        expected_group: GroupPB,
+    },
     AssertRow {
         group_index: usize,
         row_index: usize,
@@ -56,7 +60,7 @@ impl GridGroupTest {
 
     pub async fn run_script(&mut self, script: GroupScript) {
         match script {
-            GroupScript::AssertGroup { group_index, row_count } => {
+            GroupScript::AssertGroupRowCount { group_index, row_count } => {
                 assert_eq!(row_count, self.group_at_index(group_index).await.rows.len());
             }
             GroupScript::AssertGroupCount(count) => {
@@ -141,6 +145,13 @@ impl GridGroupTest {
                 };
                 self.editor.move_group(params).await.unwrap();
                 //
+            }
+            GroupScript::AssertGroup {
+                group_index,
+                expected_group: group_pb,
+            } => {
+                let group = self.group_at_index(group_index).await;
+                assert_eq!(group.group_id, group_pb.group_id);
             }
         }
     }

@@ -43,6 +43,14 @@ impl GroupService {
         }
     }
 
+    pub(crate) async fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
+        if let Some(group_controller) = self.group_controller.as_ref() {
+            group_controller.read().await.get_group(group_id)
+        } else {
+            None
+        }
+    }
+
     pub(crate) async fn load_groups(
         &mut self,
         field_revs: &[Arc<FieldRevision>],
@@ -165,8 +173,19 @@ impl GroupService {
     }
 
     #[tracing::instrument(level = "trace", skip_all)]
+    pub(crate) async fn move_group(&self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
+        match self.group_controller.as_ref() {
+            None => Ok(()),
+            Some(group_controller) => {
+                let _ = group_controller.write().await.move_group(from_group_id, to_group_id)?;
+                Ok(())
+            }
+        }
+    }
+
+    #[tracing::instrument(level = "trace", skip_all)]
     async fn make_group_controller(
-        &mut self,
+        &self,
         field_type: &FieldType,
         field_rev: &Arc<FieldRevision>,
     ) -> FlowyResult<Option<Arc<RwLock<dyn GroupController>>>> {

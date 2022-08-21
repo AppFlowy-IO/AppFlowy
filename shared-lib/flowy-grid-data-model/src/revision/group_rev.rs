@@ -12,7 +12,22 @@ pub trait GroupConfigurationContent: Sized {
         &[]
     }
 
+    fn mut_groups(&mut self) -> &mut Vec<GroupRecordRevision> {
+        todo!()
+    }
+
     fn set_groups(&mut self, _new_groups: Vec<GroupRecordRevision>) {}
+
+    fn swap_group(&mut self, from_group_id: &str, to_group_id: &str) {
+        let from_index = self
+            .get_groups()
+            .iter()
+            .position(|group| group.group_id == from_group_id);
+        let to_index = self.get_groups().iter().position(|group| group.group_id == to_group_id);
+        if let (Some(from), Some(to)) = (from_index, to_index) {
+            self.mut_groups().swap(from, to);
+        }
+    }
 
     fn with_mut_group<F>(&mut self, _group_id: &str, _f: F)
     where
@@ -118,6 +133,10 @@ impl GroupConfigurationContent for SelectOptionGroupConfigurationRevision {
 
     fn get_groups(&self) -> &[GroupRecordRevision] {
         &self.groups
+    }
+
+    fn mut_groups(&mut self) -> &mut Vec<GroupRecordRevision> {
+        &mut self.groups
     }
 
     fn set_groups(&mut self, new_groups: Vec<GroupRecordRevision>) {

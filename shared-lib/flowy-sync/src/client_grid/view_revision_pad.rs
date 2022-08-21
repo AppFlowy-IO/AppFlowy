@@ -52,7 +52,26 @@ impl GridViewRevisionPad {
         self.groups.get_all_objects(field_revs)
     }
 
-    pub fn get_mut_group<F: FnOnce(&mut GroupConfigurationRevision)>(
+    #[tracing::instrument(level = "trace", skip_all, err)]
+    pub fn insert_group(
+        &mut self,
+        field_id: &str,
+        field_type: &FieldTypeRevision,
+        group_rev: GroupConfigurationRevision,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| {
+            view.groups.insert_object(field_id, field_type, group_rev);
+            Ok(Some(()))
+        })
+    }
+
+    #[tracing::instrument(level = "trace", skip_all)]
+    pub fn contains_group(&self, field_id: &str, field_type: &FieldTypeRevision) -> bool {
+        self.view.groups.get_objects(field_id, field_type).is_some()
+    }
+
+    #[tracing::instrument(level = "trace", skip_all, err)]
+    pub fn with_mut_group<F: FnOnce(&mut GroupConfigurationRevision)>(
         &mut self,
         field_id: &str,
         field_type: &FieldTypeRevision,
@@ -147,6 +166,8 @@ impl GridViewRevisionPad {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
+                        tracing::info!("GridView: {:?}", delta);
+
                         let md5 = md5(&self.delta.json_bytes());
                         Ok(Some(GridViewRevisionChangeset { delta, md5 }))
                     }

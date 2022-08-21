@@ -1,5 +1,5 @@
-use crate::services::group::Group;
-use flowy_error::FlowyResult;
+use crate::services::group::{default_group_configuration, Group};
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
     FieldRevision, FieldTypeRevision, GroupConfigurationContent, GroupConfigurationRevision, GroupRecordRevision,
 };
@@ -9,7 +9,10 @@ use lib_infra::future::AFFuture;
 use std::sync::Arc;
 
 pub trait GroupConfigurationReader: Send + Sync + 'static {
-    fn get_group_configuration(&self, field_rev: Arc<FieldRevision>) -> AFFuture<Arc<GroupConfigurationRevision>>;
+    fn get_group_configuration(
+        &self,
+        field_rev: Arc<FieldRevision>,
+    ) -> AFFuture<Option<Arc<GroupConfigurationRevision>>>;
 }
 
 pub trait GroupConfigurationWriter: Send + Sync + 'static {
@@ -39,7 +42,22 @@ where
         reader: Arc<dyn GroupConfigurationReader>,
         writer: Arc<dyn GroupConfigurationWriter>,
     ) -> FlowyResult<Self> {
-        let configuration_rev = reader.get_group_configuration(field_rev.clone()).await;
+        let configuration_rev = match reader.get_group_configuration(field_rev.clone()).await {
+            None => {
+                let default_group_configuration = default_group_configuration(&field_rev);
+                writer
+                    .save_group_configuration(
+                        &field_rev.id,
+                        field_rev.ty,
+                        &default_group_configuration.id,
+                        default_group_configuration.content.clone(),
+                    )
+                    .await?;
+                Arc::new(default_group_configuration)
+            }
+            Some(configuration) => configuration,
+        };
+
         let configuration_id = configuration_rev.id.clone();
         let configuration = C::from_configuration_content(&configuration_rev.content)?;
         Ok(Self {
@@ -63,6 +81,8 @@ where
         let (group_revs, groups) = merge_groups(self.configuration.get_groups(), groups);
         self.configuration.set_groups(group_revs);
         let _ = self.save_configuration().await?;
+
+        tracing::trace!("merge new groups: {}", groups.len());
         groups.into_iter().for_each(|group| {
             self.groups_map.insert(group.id.clone(), group);
         });
@@ -97,8 +117,25 @@ where
         self.groups_map.get_mut(group_id)
     }
 
-    pub(crate) fn get_group(&mut self, group_id: &str) -> Option<&Group> {
-        self.groups_map.get(group_id)
+    pub(crate) fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
+        let from_group_index = self.groups_map.get_index_of(from_group_id);
+        let to_group_index = self.groups_map.get_index_of(to_group_id);
+        match (from_group_index, to_group_index) {
+            (Some(from_index), Some(to_index)) => {
+                self.groups_map.swap_indices(from_index, to_index);
+                self.configuration.swap_group(from_group_id, to_group_id);
+                Ok(())
+            }
+            _ => Err(FlowyError::out_of_bounds()),
+        }
+    }
+
+    // Returns the index and group specified by the group_id
+    pub(crate) fn get_group(&self, group_id: &str) -> Option<(usize, &Group)> {
+        match (self.groups_map.get_index_of(group_id), self.groups_map.get(group_id)) {
+            (Some(index), Some(group)) => Some((index, group)),
+            _ => None,
+        }
     }
 
     pub async fn save_configuration(&self) -> FlowyResult<()> {
@@ -111,17 +148,17 @@ where
     }
 }
 
-impl<T> GroupConfigurationReader for Arc<T>
-where
-    T: GroupConfigurationReader,
-{
-    fn get_group_configuration(&self, field_rev: Arc<FieldRevision>) -> AFFuture<Arc<GroupConfigurationRevision>> {
-        (**self).get_group_configuration(field_rev)
-    }
-}
+// impl<T> GroupConfigurationReader for Arc<T>
+// where
+//     T: GroupConfigurationReader,
+// {
+//     fn get_group_configuration(&self, field_rev: Arc<FieldRevision>) -> AFFuture<Arc<GroupConfigurationRevision>> {
+//         (**self).get_group_configuration(field_rev)
+//     }
+// }
 
 fn merge_groups(old_group_revs: &[GroupRecordRevision], groups: Vec<Group>) -> (Vec<GroupRecordRevision>, Vec<Group>) {
-    // tracing::trace!("Merge group: old: {}, new: {}", old_group.len(), groups.len());
+    tracing::trace!("Merge group: old: {}, new: {}", old_group_revs.len(), groups.len());
     if old_group_revs.is_empty() {
         let new_groups = groups
             .iter()

@@ -1,6 +1,6 @@
 use crate::entities::{
-    CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfiguration, GridSettingChangesetParams,
-    GridSettingPB, MoveGroupParams, RepeatedGridGroupPB, RowPB,
+    CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfiguration, GridSettingPB, MoveGroupParams,
+    RepeatedGridGroupPB, RowPB,
 };
 use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
@@ -122,7 +122,7 @@ impl GridViewManager {
 
     pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _s = view_editor.move_group(params).await?;
+        let _ = view_editor.move_group(params).await?;
         Ok(())
     }
 
@@ -175,12 +175,11 @@ async fn make_view_editor(
     row_delegate: Arc<dyn GridViewRowDelegate>,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
 ) -> FlowyResult<GridViewRevisionEditor> {
-    tracing::trace!("Open view:{} editor", view_id);
-
     let rev_manager = make_grid_view_rev_manager(user, view_id).await?;
     let user_id = user.user_id()?;
     let token = user.token()?;
     let view_id = view_id.to_owned();
+
     GridViewRevisionEditor::new(
         &user_id,
         &token,
@@ -194,7 +193,6 @@ async fn make_view_editor(
 }
 
 pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str) -> FlowyResult<RevisionManager> {
-    tracing::trace!("Open view:{} editor", view_id);
     let user_id = user.user_id()?;
     let pool = user.db_pool()?;
 

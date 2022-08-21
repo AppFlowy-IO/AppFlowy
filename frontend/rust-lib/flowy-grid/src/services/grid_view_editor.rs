@@ -1,14 +1,12 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{
     CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfiguration, GridLayout, GridLayoutPB,
-    GridSettingChangesetParams, GridSettingPB, GroupPB, GroupRowsChangesetPB, GroupViewChangesetPB, InsertedRowPB,
+    GridSettingPB, GroupPB, GroupRowsChangesetPB, GroupViewChangesetPB, InsertedGroupPB, InsertedRowPB,
     MoveGroupParams, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RowPB,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
-use crate::services::group::{
-    default_group_configuration, GroupConfigurationReader, GroupConfigurationWriter, GroupService,
-};
+use crate::services::group::{GroupConfigurationReader, GroupConfigurationWriter, GroupService};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
     gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
@@ -19,6 +17,7 @@ use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use lib_infra::future::{wrap_future, AFFuture, FutureResult};
 use std::collections::HashMap;
+
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -37,6 +36,7 @@ pub struct GridViewRevisionEditor {
 }
 
 impl GridViewRevisionEditor {
+    #[tracing::instrument(level = "trace", skip_all, err)]
     pub(crate) async fn new(
         user_id: &str,
         token: &str,
@@ -109,7 +109,7 @@ impl GridViewRevisionEditor {
         // Send the group notification if the current view has groups;
         if let Some(changesets) = self
             .group_service
-            .write()
+            .read()
             .await
             .did_delete_row(row_rev, |field_id| self.field_delegate.get_field_rev(&field_id))
             .await
@@ -123,7 +123,7 @@ impl GridViewRevisionEditor {
     pub(crate) async fn did_update_row(&self, row_rev: &RowRevision) {
         if let Some(changesets) = self
             .group_service
-            .write()
+            .read()
             .await
             .did_update_row(row_rev, |field_id| self.field_delegate.get_field_rev(&field_id))
             .await
@@ -142,7 +142,7 @@ impl GridViewRevisionEditor {
     ) {
         if let Some(changesets) = self
             .group_service
-            .write()
+            .read()
             .await
             .did_move_row(row_rev, row_changeset, upper_row_id, |field_id| {
                 self.field_delegate.get_field_rev(&field_id)
@@ -156,11 +156,13 @@ impl GridViewRevisionEditor {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip(self))]
     pub(crate) async fn load_groups(&self) -> FlowyResult<Vec<GroupPB>> {
         let groups = if !self.did_load_group.load(Ordering::SeqCst) {
             self.did_load_group.store(true, Ordering::SeqCst);
             let field_revs = self.field_delegate.get_field_revs().await;
             let row_revs = self.row_delegate.gv_row_revs().await;
+
             match self
                 .group_service
                 .write()
@@ -174,11 +176,37 @@ impl GridViewRevisionEditor {
         } else {
             self.group_service.read().await.groups().await
         };
+
+        tracing::trace!("Number of groups: {}", groups.len());
         Ok(groups.into_iter().map(GroupPB::from).collect())
     }
 
     pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
-        todo!()
+        let _ = self
+            .group_service
+            .read()
+            .await
+            .move_group(&params.from_group_id, &params.to_group_id)
+            .await?;
+
+        match self.group_service.read().await.get_group(&params.from_group_id).await {
+            None => {}
+            Some((index, group)) => {
+                let inserted_group = InsertedGroupPB {
+                    group: GroupPB::from(group),
+                    index: index as i32,
+                };
+
+                let changeset = GroupViewChangesetPB {
+                    view_id: "".to_string(),
+                    inserted_groups: vec![inserted_group],
+                    deleted_groups: vec![params.from_group_id.clone()],
+                };
+
+                self.notify_did_update_view(changeset).await;
+            }
+        }
+        Ok(())
     }
 
     pub(crate) async fn get_setting(&self) -> GridSettingPB {
@@ -291,17 +319,19 @@ impl RevisionObjectBuilder for GridViewRevisionPadBuilder {
 struct GroupConfigurationReaderImpl(Arc<RwLock<GridViewRevisionPad>>);
 
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
-    fn get_group_configuration(&self, field_rev: Arc<FieldRevision>) -> AFFuture<Arc<GroupConfigurationRevision>> {
+    fn get_group_configuration(
+        &self,
+        field_rev: Arc<FieldRevision>,
+    ) -> AFFuture<Option<Arc<GroupConfigurationRevision>>> {
         let view_pad = self.0.clone();
         wrap_future(async move {
-            let view_pad = view_pad.read().await;
-            let configurations = view_pad.get_groups(&field_rev.id, &field_rev.ty);
-            match configurations {
-                None => {
-                    let default_configuration = default_group_configuration(&field_rev);
-                    Arc::new(default_configuration)
-                }
-                Some(configuration) => configuration,
+            let mut groups = view_pad.read().await.groups.get_objects(&field_rev.id, &field_rev.ty)?;
+
+            if groups.is_empty() {
+                None
+            } else {
+                debug_assert_eq!(groups.len(), 1);
+                Some(groups.pop().unwrap())
             }
         })
     }
@@ -328,17 +358,25 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         let field_id = field_id.to_owned();
 
         wrap_future(async move {
-            match view_pad.write().await.get_mut_group(
-                &field_id,
-                &field_type,
-                &configuration_id,
-                |group_configuration| {
-                    group_configuration.content = content;
-                },
-            )? {
-                None => Ok(()),
-                Some(changeset) => apply_change(&user_id, rev_manager, changeset).await,
+            let is_contained = view_pad.read().await.contains_group(&field_id, &field_type);
+            let changeset = if is_contained {
+                view_pad.write().await.with_mut_group(
+                    &field_id,
+                    &field_type,
+                    &configuration_id,
+                    |group_configuration| {
+                        group_configuration.content = content;
+                    },
+                )?
+            } else {
+                let group_rev = GroupConfigurationRevision::new(field_id.clone(), field_type, content)?;
+                view_pad.write().await.insert_group(&field_id, &field_type, group_rev)?
+            };
+
+            if let Some(changeset) = changeset {
+                let _ = apply_change(&user_id, rev_manager, changeset).await?;
             }
+            Ok(())
         })
     }
 }
@@ -369,5 +407,19 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
         current_layout_type,
         filter_configuration_by_field_id: filters_by_field_id,
         group_configuration_by_field_id: groups_by_field_id,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use lib_ot::core::TextDelta;
+
+    #[test]
+    fn test() {
+        let s1 = r#"[{"insert":"{\"view_id\":\"fTURELffPr\",\"grid_id\":\"fTURELffPr\",\"layout\":0,\"filters\":[],\"groups\":[]}"}]"#;
+        let _delta_1 = TextDelta::from_json(s1).unwrap();
+
+        let s2 = r#"[{"retain":195},{"insert":"{\\\"group_id\\\":\\\"wD9i\\\",\\\"visible\\\":true},{\\\"group_id\\\":\\\"xZtv\\\",\\\"visible\\\":true},{\\\"group_id\\\":\\\"tFV2\\\",\\\"visible\\\":true}"},{"retain":10}]"#;
+        let _delta_2 = TextDelta::from_json(s2).unwrap();
     }
 }
