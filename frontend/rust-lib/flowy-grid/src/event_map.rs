@@ -11,7 +11,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         .event(GridEvent::GetGrid, get_grid_handler)
         .event(GridEvent::GetGridBlocks, get_grid_blocks_handler)
         .event(GridEvent::GetGridSetting, get_grid_setting_handler)
-        .event(GridEvent::UpdateGridSetting, update_grid_setting_handler)
+        // .event(GridEvent::UpdateGridSetting, update_grid_setting_handler)
         // Field
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
@@ -219,6 +219,6 @@ pub enum GridEvent {
     #[event(input = "CreateBoardCardPayloadPB", output = "RowPB")]
     CreateBoardCard = 110,
 
-    #[event(input = "MoveGroupPayloadPB", output = "GroupsChangesetPB")]
+    #[event(input = "MoveGroupPayloadPB")]
     MoveGroup = 111,
 }

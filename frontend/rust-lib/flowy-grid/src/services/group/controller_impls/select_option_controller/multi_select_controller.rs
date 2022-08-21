@@ -27,7 +27,7 @@ impl GroupAction for MultiSelectGroupController {
 
     fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
         let mut changesets = vec![];
-        self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
+        self.configuration.with_mut_groups(|group| {
             add_row(group, &mut changesets, cell_data, row_rev);
         });
         changesets
@@ -39,7 +39,7 @@ impl GroupAction for MultiSelectGroupController {
         cell_data: &Self::CellDataType,
     ) -> Vec<GroupRowsChangesetPB> {
         let mut changesets = vec![];
-        self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
+        self.configuration.with_mut_groups(|group| {
             remove_row(group, &mut changesets, cell_data, row_rev);
         });
         changesets
@@ -54,7 +54,7 @@ impl GroupAction for MultiSelectGroupController {
         to_row_id: &str,
     ) -> Vec<GroupRowsChangesetPB> {
         let mut group_changeset = vec![];
-        self.groups_map.iter_mut().for_each(|(_, group): (_, &mut Group)| {
+        self.configuration.with_mut_groups(|group| {
             move_row(
                 group,
                 &mut group_changeset,
@@ -71,7 +71,7 @@ impl GroupAction for MultiSelectGroupController {
 
 impl GroupController for MultiSelectGroupController {
     fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
-        let group: Option<&Group> = self.groups_map.get(group_id);
+        let group: Option<&Group> = self.configuration.get_group(group_id);
         match group {
             None => tracing::warn!("Can not find the group: {}", group_id),
             Some(group) => {

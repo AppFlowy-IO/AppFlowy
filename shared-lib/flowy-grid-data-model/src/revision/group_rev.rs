@@ -6,19 +6,19 @@ use serde_repr::*;
 pub trait GroupConfigurationContent: Sized {
     fn from_configuration_content(s: &str) -> Result<Self, serde_json::Error>;
 
+    fn to_configuration_content(&self) -> Result<String, serde_json::Error>;
+
     fn get_groups(&self) -> &[GroupRecordRevision] {
         &[]
     }
 
-    fn mut_group<F>(&mut self, _group_id: &str, _f: F)
+    fn set_groups(&mut self, _new_groups: Vec<GroupRecordRevision>) {}
+
+    fn with_mut_group<F>(&mut self, _group_id: &str, _f: F)
     where
         F: FnOnce(&mut GroupRecordRevision),
     {
     }
-
-    fn set_groups(&mut self, _new_groups: Vec<GroupRecordRevision>) {}
-
-    fn to_configuration_content(&self) -> Result<String, serde_json::Error>;
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
@@ -112,11 +112,19 @@ impl GroupConfigurationContent for SelectOptionGroupConfigurationRevision {
         serde_json::from_str(s)
     }
 
+    fn to_configuration_content(&self) -> Result<String, Error> {
+        serde_json::to_string(self)
+    }
+
     fn get_groups(&self) -> &[GroupRecordRevision] {
         &self.groups
     }
 
-    fn mut_group<F>(&mut self, group_id: &str, f: F)
+    fn set_groups(&mut self, new_groups: Vec<GroupRecordRevision>) {
+        self.groups = new_groups;
+    }
+
+    fn with_mut_group<F>(&mut self, group_id: &str, f: F)
     where
         F: FnOnce(&mut GroupRecordRevision),
     {
@@ -124,14 +132,6 @@ impl GroupConfigurationContent for SelectOptionGroupConfigurationRevision {
             None => {}
             Some(group) => f(group),
         }
-    }
-
-    fn set_groups(&mut self, new_groups: Vec<GroupRecordRevision>) {
-        self.groups = new_groups;
-    }
-
-    fn to_configuration_content(&self) -> Result<String, Error> {
-        serde_json::to_string(self)
     }
 }
 
@@ -142,6 +142,7 @@ pub struct GroupRecordRevision {
     #[serde(default = "DEFAULT_GROUP_RECORD_VISIBILITY")]
     pub visible: bool,
 }
+
 const DEFAULT_GROUP_RECORD_VISIBILITY: fn() -> bool = || true;
 
 impl GroupRecordRevision {

@@ -1,5 +1,5 @@
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::{CreateRowParams, FieldType, GridLayout, GroupPB, MoveRowParams, RowPB};
+use flowy_grid::entities::{CreateRowParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveRowParams, RowPB};
 use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid_data_model::revision::RowChangeset;
 
@@ -30,6 +30,10 @@ pub enum GroupScript {
     UpdateRow {
         from_group_index: usize,
         row_index: usize,
+        to_group_index: usize,
+    },
+    MoveGroup {
+        from_group_index: usize,
         to_group_index: usize,
     },
 }
@@ -84,7 +88,6 @@ impl GridGroupTest {
                 //
                 let group = self.group_at_index(group_index).await;
                 let compare_row = group.rows.get(row_index).unwrap().clone();
-
                 assert_eq!(row.id, compare_row.id);
             }
             GroupScript::CreateRow { group_index } => {
@@ -124,6 +127,20 @@ impl GridGroupTest {
                 let mut row_changeset = RowChangeset::new(row_id);
                 row_changeset.cell_by_field_id.insert(field_id, cell_rev);
                 self.editor.update_row(row_changeset).await.unwrap();
+            }
+            GroupScript::MoveGroup {
+                from_group_index,
+                to_group_index,
+            } => {
+                let from_group = self.group_at_index(from_group_index).await;
+                let to_group = self.group_at_index(to_group_index).await;
+                let params = MoveGroupParams {
+                    view_id: self.editor.grid_id.clone(),
+                    from_group_id: from_group.group_id,
+                    to_group_id: to_group.group_id,
+                };
+                self.editor.move_group(params).await.unwrap();
+                //
             }
         }
     }

@@ -104,7 +104,7 @@ impl TryInto<MoveGroupParams> for MoveGroupPayloadPB {
 }
 
 #[derive(Debug, Default, ProtoBuf)]
-pub struct GroupsChangesetPB {
+pub struct GroupViewChangesetPB {
     #[pb(index = 1)]
     pub view_id: String,
 
@@ -115,4 +115,4 @@ pub struct GroupsChangesetPB {
     pub deleted_groups: Vec<String>,
 }
 
-impl GroupsChangesetPB {}
+impl GroupViewChangesetPB {}

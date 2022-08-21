@@ -7,7 +7,6 @@ use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     FieldRevision, GroupConfigurationContent, RowChangeset, RowRevision, TypeOptionDataDeserializer,
 };
-use indexmap::IndexMap;
 
 use std::marker::PhantomData;
 use std::sync::Arc;
@@ -36,7 +35,7 @@ pub trait GroupGenerator {
 pub trait GroupControllerSharedOperation: Send + Sync {
     // The field that is used for grouping the rows
     fn field_id(&self) -> &str;
-    fn groups(&self) -> &[Group];
+    fn groups(&self) -> Vec<Group>;
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<Vec<Group>>;
     fn did_update_row(
         &mut self,
@@ -65,7 +64,6 @@ pub trait GroupControllerSharedOperation: Send + Sync {
 /// P: the parser that impl [CellBytesParser] for the CellBytes
 pub struct GenericGroupController<C, T, G, P> {
     pub field_id: String,
-    pub groups_map: IndexMap<String, Group>,
     pub type_option: Option<T>,
     pub configuration: GenericGroupConfiguration<C>,
     /// default_group is used to store the rows that don't belong to any groups.
@@ -87,7 +85,7 @@ where
         let field_type_rev = field_rev.ty;
         let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
-        let _ = configuration.merge_groups(&groups).await?;
+        let _ = configuration.merge_groups(groups).await?;
         let default_group = Group::new(
             DEFAULT_GROUP_ID.to_owned(),
             field_rev.id.clone(),
@@ -97,7 +95,6 @@ where
 
         Ok(Self {
             field_id: field_rev.id.clone(),
-            groups_map: groups.into_iter().map(|group| (group.id.clone(), group)).collect(),
             default_group,
             type_option,
             configuration,
@@ -117,8 +114,8 @@ where
         &self.field_id
     }
 
-    fn groups(&self) -> &[Group] {
-        todo!()
+    fn groups(&self) -> Vec<Group> {
+        self.configuration.clone_groups()
     }
 
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<Vec<Group>> {
@@ -127,7 +124,7 @@ where
                 let mut group_rows: Vec<GroupRow> = vec![];
                 let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
                 let cell_data = cell_bytes.parser::<P>()?;
-                for group in self.groups_map.values() {
+                for group in self.configuration.groups() {
                     if self.can_group(&group.content, &cell_data) {
                         group_rows.push(GroupRow {
                             row: row_rev.into(),
@@ -140,7 +137,7 @@ where
                     self.default_group.add_row(row_rev.into());
                 } else {
                     for group_row in group_rows {
-                        if let Some(group) = self.groups_map.get_mut(&group_row.group_id) {
+                        if let Some(group) = self.configuration.get_mut_group(&group_row.group_id) {
                             group.add_row(group_row.row);
                         }
                     }
@@ -151,7 +148,7 @@ where
         }
 
         let default_group = self.default_group.clone();
-        let mut groups: Vec<Group> = self.groups_map.values().cloned().collect();
+        let mut groups: Vec<Group> = self.configuration.clone_groups();
         if !default_group.number_of_row() == 0 {
             groups.push(default_group);
         }

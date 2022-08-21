@@ -1,8 +1,8 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{
-    CreateRowParams, GridFilterConfiguration, GridLayout, GridLayoutPB, GridSettingChangesetParams, GridSettingPB,
-    GroupPB, GroupRowsChangesetPB, InsertedRowPB, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB,
-    RowPB,
+    CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfiguration, GridLayout, GridLayoutPB,
+    GridSettingChangesetParams, GridSettingPB, GroupPB, GroupRowsChangesetPB, GroupViewChangesetPB, InsertedRowPB,
+    MoveGroupParams, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RowPB,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
@@ -11,7 +11,8 @@ use crate::services::group::{
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
-    FieldRevision, FieldTypeRevision, GroupConfigurationRevision, RowChangeset, RowRevision,
+    gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
+    RowChangeset, RowRevision,
 };
 use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
@@ -99,7 +100,7 @@ impl GridViewRevisionEditor {
                     index: None,
                 };
                 let changeset = GroupRowsChangesetPB::insert(group_id.clone(), vec![inserted_row]);
-                self.notify_did_update_group(changeset).await;
+                self.notify_did_update_group_rows(changeset).await;
             }
         }
     }
@@ -114,7 +115,7 @@ impl GridViewRevisionEditor {
             .await
         {
             for changeset in changesets {
-                self.notify_did_update_group(changeset).await;
+                self.notify_did_update_group_rows(changeset).await;
             }
         }
     }
@@ -128,7 +129,7 @@ impl GridViewRevisionEditor {
             .await
         {
             for changeset in changesets {
-                self.notify_did_update_group(changeset).await;
+                self.notify_did_update_group_rows(changeset).await;
             }
         }
     }
@@ -150,7 +151,7 @@ impl GridViewRevisionEditor {
         {
             for changeset in changesets {
                 tracing::trace!("Group: {} changeset: {}", changeset.group_id, changeset);
-                self.notify_did_update_group(changeset).await;
+                self.notify_did_update_group_rows(changeset).await;
             }
         }
     }
@@ -173,20 +174,17 @@ impl GridViewRevisionEditor {
         } else {
             self.group_service.read().await.groups().await
         };
-
         Ok(groups.into_iter().map(GroupPB::from).collect())
+    }
+
+    pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
+        todo!()
     }
 
     pub(crate) async fn get_setting(&self) -> GridSettingPB {
         let field_revs = self.field_delegate.get_field_revs().await;
         let grid_setting = make_grid_setting(&*self.pad.read().await, &field_revs);
         grid_setting
-    }
-
-    pub(crate) async fn update_setting(&self, _changeset: GridSettingChangesetParams) -> FlowyResult<()> {
-        // let _ = self.modify(|pad| Ok(pad.update_setting(changeset)?)).await;
-        // Ok(())
-        todo!()
     }
 
     pub(crate) async fn get_filters(&self) -> Vec<GridFilterConfiguration> {
@@ -201,8 +199,40 @@ impl GridViewRevisionEditor {
         }
     }
 
-    async fn notify_did_update_group(&self, changeset: GroupRowsChangesetPB) {
+    pub(crate) async fn insert_filter(&self, insert_filter: CreateFilterParams) -> FlowyResult<()> {
+        self.modify(|pad| {
+            let filter_rev = FilterConfigurationRevision {
+                id: gen_grid_filter_id(),
+                field_id: insert_filter.field_id.clone(),
+                condition: insert_filter.condition,
+                content: insert_filter.content,
+            };
+            let changeset = pad.insert_filter(&insert_filter.field_id, &insert_filter.field_type_rev, filter_rev)?;
+            Ok(changeset)
+        })
+        .await
+    }
+
+    pub(crate) async fn delete_filter(&self, delete_filter: DeleteFilterParams) -> FlowyResult<()> {
+        self.modify(|pad| {
+            let changeset = pad.delete_filter(
+                &delete_filter.field_id,
+                &delete_filter.field_type_rev,
+                &delete_filter.filter_id,
+            )?;
+            Ok(changeset)
+        })
+        .await
+    }
+
+    async fn notify_did_update_group_rows(&self, changeset: GroupRowsChangesetPB) {
         send_dart_notification(&changeset.group_id, GridNotification::DidUpdateGroup)
+            .payload(changeset)
+            .send();
+    }
+
+    async fn notify_did_update_view(&self, changeset: GroupViewChangesetPB) {
+        send_dart_notification(&self.view_id, GridNotification::DidUpdateGroupView)
             .payload(changeset)
             .send();
     }

@@ -343,9 +343,9 @@ impl GridRevisionEditor {
         Ok(row_pb)
     }
 
-    pub async fn move_group(&self, _params: MoveGroupParams) -> FlowyResult<GroupsChangesetPB> {
-        //
-        todo!()
+    pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
+        let _ = self.view_manager.move_group(params).await?;
+        Ok(())
     }
 
     pub async fn insert_rows(&self, row_revs: Vec<RowRevision>) -> FlowyResult<Vec<RowPB>> {
@@ -514,8 +514,13 @@ impl GridRevisionEditor {
         self.view_manager.get_filters().await
     }
 
-    pub async fn update_grid_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {
-        let _ = self.view_manager.update_setting(params).await?;
+    pub async fn update_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
+        let _ = self.view_manager.update_filter(params).await?;
+        Ok(())
+    }
+
+    pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+        let _ = self.view_manager.delete_filter(params).await?;
         Ok(())
     }
 

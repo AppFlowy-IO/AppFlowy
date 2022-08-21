@@ -52,20 +52,6 @@ impl GridViewRevisionPad {
         self.groups.get_all_objects(field_revs)
     }
 
-    pub fn insert_group_configuration(
-        &mut self,
-        field_id: &str,
-        field_type: &FieldTypeRevision,
-        group_rev: GroupConfigurationRevision,
-    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
-        self.modify(|view| {
-            // only one group can be set
-            view.groups.remove_all();
-            view.groups.insert_object(field_id, field_type, group_rev);
-            Ok(Some(()))
-        })
-    }
-
     pub fn get_mut_group<F: FnOnce(&mut GroupConfigurationRevision)>(
         &mut self,
         field_id: &str,

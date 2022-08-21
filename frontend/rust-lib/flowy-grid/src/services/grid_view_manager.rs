@@ -1,5 +1,6 @@
 use crate::entities::{
-    CreateRowParams, GridFilterConfiguration, GridSettingChangesetParams, GridSettingPB, RepeatedGridGroupPB, RowPB,
+    CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfiguration, GridSettingChangesetParams,
+    GridSettingPB, MoveGroupParams, RepeatedGridGroupPB, RowPB,
 };
 use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
@@ -98,21 +99,31 @@ impl GridViewManager {
         Ok(view_editor.get_setting().await)
     }
 
-    pub(crate) async fn update_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {
-        let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.update_setting(params).await?;
-        Ok(())
-    }
-
     pub(crate) async fn get_filters(&self) -> FlowyResult<Vec<GridFilterConfiguration>> {
         let view_editor = self.get_default_view_editor().await?;
         Ok(view_editor.get_filters().await)
+    }
+
+    pub(crate) async fn update_filter(&self, insert_filter: CreateFilterParams) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        view_editor.insert_filter(insert_filter).await
+    }
+
+    pub(crate) async fn delete_filter(&self, delete_filter: DeleteFilterParams) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        view_editor.delete_filter(delete_filter).await
     }
 
     pub(crate) async fn load_groups(&self) -> FlowyResult<RepeatedGridGroupPB> {
         let view_editor = self.get_default_view_editor().await?;
         let groups = view_editor.load_groups().await?;
         Ok(RepeatedGridGroupPB { items: groups })
+    }
+
+    pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        let _s = view_editor.move_group(params).await?;
+        Ok(())
     }
 
     /// It may generate a RowChangeset when the Row was moved from one group to another.
@@ -130,9 +141,6 @@ impl GridViewManager {
             None
         }
     }
-
-    #[allow(dead_code)]
-    pub(crate) async fn move_group(&self) {}
 
     pub(crate) async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<GridViewRevisionEditor>> {
         debug_assert!(!view_id.is_empty());

@@ -35,17 +35,6 @@ pub(crate) async fn get_grid_setting_handler(
     data_result(grid_setting)
 }
 
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn update_grid_setting_handler(
-    data: Data<GridSettingChangesetPayloadPB>,
-    manager: AppData<Arc<GridManager>>,
-) -> Result<(), FlowyError> {
-    let params: GridSettingChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.open_grid(&params.grid_id).await?;
-    let _ = editor.update_grid_setting(params).await?;
-    Ok(())
-}
-
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_grid_blocks_handler(
     data: Data<QueryBlocksPayloadPB>,
@@ -441,9 +430,9 @@ pub(crate) async fn create_board_card_handler(
 pub(crate) async fn move_group_handler(
     data: Data<MoveGroupPayloadPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<GroupsChangesetPB, FlowyError> {
+) -> FlowyResult<()> {
     let params: MoveGroupParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(params.view_id.as_ref())?;
-    let changeset = editor.move_group(params).await?;
-    data_result(changeset)
+    let _ = editor.move_group(params).await?;
+    Ok(())
 }

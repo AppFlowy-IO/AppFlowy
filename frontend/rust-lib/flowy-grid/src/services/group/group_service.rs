@@ -36,12 +36,11 @@ impl GroupService {
     }
 
     pub(crate) async fn groups(&self) -> Vec<Group> {
-        // if let Some(group_controller) = self.group_controller.as_ref() {
-        //     group_controller.read().await.groups()
-        // } else {
-        //     vec![]
-        // }
-        todo!()
+        if let Some(group_controller) = self.group_controller.as_ref() {
+            group_controller.read().await.groups()
+        } else {
+            vec![]
+        }
     }
 
     pub(crate) async fn load_groups(

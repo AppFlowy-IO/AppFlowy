@@ -4,6 +4,7 @@ use flowy_grid_data_model::revision::{
     FieldRevision, FieldTypeRevision, GroupConfigurationContent, GroupConfigurationRevision, GroupRecordRevision,
 };
 
+use indexmap::IndexMap;
 use lib_infra::future::AFFuture;
 use std::sync::Arc;
 
@@ -23,10 +24,9 @@ pub trait GroupConfigurationWriter: Send + Sync + 'static {
 
 pub struct GenericGroupConfiguration<C> {
     pub configuration: C,
-    // pub groups_map: IndexMap<String, Group>,
     configuration_id: String,
     field_rev: Arc<FieldRevision>,
-    reader: Arc<dyn GroupConfigurationReader>,
+    groups_map: IndexMap<String, Group>,
     writer: Arc<dyn GroupConfigurationWriter>,
 }
 
@@ -45,30 +45,33 @@ where
         Ok(Self {
             configuration_id,
             field_rev,
-            reader,
+            groups_map: IndexMap::new(),
             writer,
             configuration,
         })
     }
 
-    #[allow(dead_code)]
-    fn group_records(&self) -> &[GroupRecordRevision] {
-        todo!()
+    pub(crate) fn groups(&self) -> Vec<&Group> {
+        self.groups_map.values().collect()
     }
-    pub(crate) async fn merge_groups(&mut self, groups: &[Group]) -> FlowyResult<()> {
-        match merge_groups(self.configuration.get_groups(), groups) {
-            None => Ok(()),
-            Some(new_groups) => {
-                self.configuration.set_groups(new_groups);
-                let _ = self.save_configuration().await?;
-                Ok(())
-            }
-        }
+
+    pub(crate) fn clone_groups(&self) -> Vec<Group> {
+        self.groups_map.values().cloned().collect()
+    }
+
+    pub(crate) async fn merge_groups(&mut self, groups: Vec<Group>) -> FlowyResult<()> {
+        let (group_revs, groups) = merge_groups(self.configuration.get_groups(), groups);
+        self.configuration.set_groups(group_revs);
+        let _ = self.save_configuration().await?;
+        groups.into_iter().for_each(|group| {
+            self.groups_map.insert(group.id.clone(), group);
+        });
+        Ok(())
     }
 
     #[allow(dead_code)]
     pub(crate) async fn hide_group(&mut self, group_id: &str) -> FlowyResult<()> {
-        self.configuration.mut_group(group_id, |group_rev| {
+        self.configuration.with_mut_group(group_id, |group_rev| {
             group_rev.visible = false;
         });
         let _ = self.save_configuration().await?;
@@ -77,11 +80,25 @@ where
 
     #[allow(dead_code)]
     pub(crate) async fn show_group(&mut self, group_id: &str) -> FlowyResult<()> {
-        self.configuration.mut_group(group_id, |group_rev| {
+        self.configuration.with_mut_group(group_id, |group_rev| {
             group_rev.visible = true;
         });
         let _ = self.save_configuration().await?;
         Ok(())
+    }
+
+    pub(crate) fn with_mut_groups(&mut self, mut mut_groups_fn: impl FnMut(&mut Group)) {
+        self.groups_map.iter_mut().for_each(|(_, group)| {
+            mut_groups_fn(group);
+        })
+    }
+
+    pub(crate) fn get_mut_group(&mut self, group_id: &str) -> Option<&mut Group> {
+        self.groups_map.get_mut(group_id)
+    }
+
+    pub(crate) fn get_group(&mut self, group_id: &str) -> Option<&Group> {
+        self.groups_map.get(group_id)
     }
 
     pub async fn save_configuration(&self) -> FlowyResult<()> {
@@ -103,29 +120,32 @@ where
     }
 }
 
-fn merge_groups(old_group: &[GroupRecordRevision], groups: &[Group]) -> Option<Vec<GroupRecordRevision>> {
+fn merge_groups(old_group_revs: &[GroupRecordRevision], groups: Vec<Group>) -> (Vec<GroupRecordRevision>, Vec<Group>) {
     // tracing::trace!("Merge group: old: {}, new: {}", old_group.len(), groups.len());
-    if old_group.is_empty() {
+    if old_group_revs.is_empty() {
         let new_groups = groups
             .iter()
             .map(|group| GroupRecordRevision::new(group.id.clone()))
             .collect();
-        return Some(new_groups);
+        return (new_groups, groups);
     }
 
-    let new_groups = groups
-        .iter()
-        .filter(|group| !old_group.iter().any(|group_rev| group_rev.group_id == group.id))
-        .collect::<Vec<&Group>>();
+    let mut group_map: IndexMap<String, Group> = IndexMap::new();
+    groups.into_iter().for_each(|group| {
+        group_map.insert(group.id.clone(), group);
+    });
 
-    if new_groups.is_empty() {
-        return None;
+    let mut sorted_groups: Vec<Group> = vec![];
+    for group_rev in old_group_revs {
+        if let Some(group) = group_map.remove(&group_rev.group_id) {
+            sorted_groups.push(group);
+        }
     }
-
-    let mut old_group = old_group.to_vec();
-    let new_groups = new_groups
+    sorted_groups.extend(group_map.into_values().collect::<Vec<Group>>());
+    let new_group_revs = sorted_groups
         .iter()
-        .map(|group| GroupRecordRevision::new(group.id.clone()));
-    old_group.extend(new_groups);
-    Some(old_group)
+        .map(|group| GroupRecordRevision::new(group.id.clone()))
+        .collect::<Vec<GroupRecordRevision>>();
+
+    (new_group_revs, sorted_groups)
 }
