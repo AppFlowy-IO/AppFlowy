@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flowy_editor/document/node.dart';
-import 'package:flowy_editor/document/path.dart';
-import 'package:flowy_editor/document/position.dart';
 import 'package:flowy_editor/document/selection.dart';
 import 'package:flowy_editor/editor_state.dart';
 import 'package:flowy_editor/extensions/node_extensions.dart';
@@ -83,22 +81,29 @@ class _FlowyInputState extends State<FlowyInput>
   void apply(List<TextEditingDelta> deltas) {
     // TODO: implement the detail
     for (final delta in deltas) {
-      if (delta is TextEditingDeltaInsertion) {
-        if (_composingTextRange != null) {
-          _composingTextRange = TextRange(
-            start: _composingTextRange!.start,
-            end: delta.composing.end,
-          );
-        } else {
-          _composingTextRange = delta.composing;
-        }
+      _updateComposing(delta);
 
+      if (delta is TextEditingDeltaInsertion) {
         _applyInsert(delta);
       } else if (delta is TextEditingDeltaDeletion) {
+        _applyDelete(delta);
       } else if (delta is TextEditingDeltaReplacement) {
         _applyReplacement(delta);
-      } else if (delta is TextEditingDeltaNonTextUpdate) {
-        _composingTextRange = null;
+      } else if (delta is TextEditingDeltaNonTextUpdate) {}
+    }
+  }
+
+  void _updateComposing(TextEditingDelta delta) {
+    if (delta is! TextEditingDeltaNonTextUpdate) {
+      if (_composingTextRange != null &&
+          delta.composing.end != -1 &&
+          _composingTextRange!.start != -1) {
+        _composingTextRange = TextRange(
+          start: _composingTextRange!.start,
+          end: delta.composing.end,
+        );
+      } else {
+        _composingTextRange = delta.composing;
       }
     }
   }
@@ -117,6 +122,23 @@ class _FlowyInputState extends State<FlowyInput>
           delta.insertionOffset,
           delta.textInserted,
         )
+        ..commit();
+    } else {
+      // TODO: implement
+    }
+  }
+
+  void _applyDelete(TextEditingDeltaDeletion delta) {
+    final selectionService = _editorState.service.selectionService;
+    final currentSelection = selectionService.currentSelection.value;
+    if (currentSelection == null) {
+      return;
+    }
+    if (currentSelection.isSingle) {
+      final textNode = selectionService.currentSelectedNodes.first as TextNode;
+      final length = delta.deletedRange.end - delta.deletedRange.start;
+      TransactionBuilder(_editorState)
+        ..deleteText(textNode, delta.deletedRange.start, length)
         ..commit();
     } else {
       // TODO: implement
@@ -246,9 +268,11 @@ class _FlowyInputState extends State<FlowyInput>
       final size = renderBox.size;
       final transform = renderBox.getTransformTo(null);
       final rect = selectable.getCursorRectInPosition(selection.end);
-      _textInputConnection
-        ?..setEditableSizeAndTransform(size, transform)
-        ..setCaretRect(rect);
+      if (rect != null) {
+        _textInputConnection
+          ?..setEditableSizeAndTransform(size, transform)
+          ..setCaretRect(rect);
+      }
     }
   }
 }

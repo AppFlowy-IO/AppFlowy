@@ -3,9 +3,9 @@ export './app/menu_app.dart';
 
 import 'dart:io' show Platform;
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:app_flowy/plugins/trash/menu.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
-import 'package:app_flowy/workspace/presentation/plugins/trash/menu.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';

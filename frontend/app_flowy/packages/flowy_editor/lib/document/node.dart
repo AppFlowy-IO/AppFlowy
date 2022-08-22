@@ -183,7 +183,7 @@ class TextNode extends Node {
         super(children: children ?? LinkedList(), attributes: attributes ?? {});
 
   TextNode.empty()
-      : _delta = Delta([TextInsert(' ')]),
+      : _delta = Delta([TextInsert('')]),
         super(
           type: 'text',
           children: LinkedList(),

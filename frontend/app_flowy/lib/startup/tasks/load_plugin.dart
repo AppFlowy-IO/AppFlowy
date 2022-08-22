@@ -1,10 +1,10 @@
-import 'package:app_flowy/plugin/plugin.dart';
+import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/presentation/plugins/blank/blank.dart';
-import 'package:app_flowy/workspace/presentation/plugins/board/board.dart';
-import 'package:app_flowy/workspace/presentation/plugins/doc/document.dart';
-import 'package:app_flowy/workspace/presentation/plugins/grid/grid.dart';
-import 'package:app_flowy/workspace/presentation/plugins/trash/trash.dart';
+import 'package:app_flowy/plugins/blank/blank.dart';
+import 'package:app_flowy/plugins/board/board.dart';
+import 'package:app_flowy/plugins/doc/document.dart';
+import 'package:app_flowy/plugins/grid/grid.dart';
+import 'package:app_flowy/plugins/trash/trash.dart';
 
 class PluginLoadTask extends LaunchTask {
   @override

@@ -77,7 +77,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
             debugPrint('[Checkbox] onTap...');
             TransactionBuilder(widget.editorState)
               ..updateNode(widget.textNode, {
-                'checkbox': !check,
+                StyleKey.checkbox: !check,
               })
               ..commit();
           },
@@ -110,11 +110,17 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
                   .map(
                     (child) => widget.editorState.service.renderPluginService
                         .buildPluginWidget(
-                      NodeWidgetContext(
-                        context: context,
-                        node: child,
-                        editorState: widget.editorState,
-                      ),
+                      child is TextNode
+                          ? NodeWidgetContext<TextNode>(
+                              context: context,
+                              node: child,
+                              editorState: widget.editorState,
+                            )
+                          : NodeWidgetContext<Node>(
+                              context: context,
+                              node: child,
+                              editorState: widget.editorState,
+                            ),
                     ),
                   )
                   .toList(),

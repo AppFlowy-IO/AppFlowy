@@ -76,7 +76,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
       path: widget.textNode.path, offset: widget.textNode.toRawString().length);
 
   @override
-  Rect getCursorRectInPosition(Position position) {
+  Rect? getCursorRectInPosition(Position position) {
     final textPosition = TextPosition(offset: position.offset);
     final cursorOffset =
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
@@ -138,11 +138,16 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
   }
 
   Widget _buildRichText(BuildContext context) {
-    return Stack(
-      children: [
-        _buildPlaceholderText(context),
-        _buildSingleRichText(context),
-      ],
+    return MouseRegion(
+      cursor: SystemMouseCursors.text,
+      child: widget.textNode.toRawString().isEmpty
+          ? Stack(
+              children: [
+                _buildPlaceholderText(context),
+                _buildSingleRichText(context),
+              ],
+            )
+          : _buildSingleRichText(context),
     );
   }
 

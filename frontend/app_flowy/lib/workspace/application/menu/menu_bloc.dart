@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:app_flowy/plugin/plugin.dart';
+import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/workspace/workspace_listener.dart';
 import 'package:app_flowy/workspace/application/workspace/workspace_service.dart';
 import 'package:dartz/dartz.dart';
@@ -40,7 +40,10 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
         moveApp: (_MoveApp value) {
           if (state.apps.length > value.fromIndex) {
             final app = state.apps[value.fromIndex];
-            _workspaceService.moveApp(appId: app.id, fromIndex: value.fromIndex, toIndex: value.toIndex);
+            _workspaceService.moveApp(
+                appId: app.id,
+                fromIndex: value.fromIndex,
+                toIndex: value.toIndex);
             final apps = List<AppPB>.from(state.apps);
             apps.insert(value.toIndex, apps.removeAt(value.fromIndex));
             emit(state.copyWith(apps: apps));
@@ -56,8 +59,10 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
     return super.close();
   }
 
-  Future<void> _performActionOnCreateApp(_CreateApp event, Emitter<MenuState> emit) async {
-    final result = await _workspaceService.createApp(name: event.name, desc: event.desc ?? "");
+  Future<void> _performActionOnCreateApp(
+      _CreateApp event, Emitter<MenuState> emit) async {
+    final result = await _workspaceService.createApp(
+        name: event.name, desc: event.desc ?? "");
     result.fold(
       (app) => {},
       (error) {
@@ -93,7 +98,8 @@ class MenuEvent with _$MenuEvent {
   const factory MenuEvent.openPage(Plugin plugin) = _OpenPage;
   const factory MenuEvent.createApp(String name, {String? desc}) = _CreateApp;
   const factory MenuEvent.moveApp(int fromIndex, int toIndex) = _MoveApp;
-  const factory MenuEvent.didReceiveApps(Either<List<AppPB>, FlowyError> appsOrFail) = _ReceiveApps;
+  const factory MenuEvent.didReceiveApps(
+      Either<List<AppPB>, FlowyError> appsOrFail) = _ReceiveApps;
 }
 
 @freezed

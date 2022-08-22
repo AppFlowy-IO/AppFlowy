@@ -13,9 +13,10 @@ import 'package:flowy_editor/service/internal_key_event_handlers/arrow_keys_hand
 import 'package:flowy_editor/service/internal_key_event_handlers/copy_paste_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/delete_nodes_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/delete_text_handler.dart';
-import 'package:flowy_editor/service/internal_key_event_handlers/enter_in_edge_of_text_node_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/enter_without_shift_in_text_node_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/slash_handler.dart';
 import 'package:flowy_editor/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart';
+import 'package:flowy_editor/service/internal_key_event_handlers/whitespace_handler.dart';
 import 'package:flowy_editor/service/keyboard_service.dart';
 import 'package:flowy_editor/service/render_plugin_service.dart';
 import 'package:flowy_editor/service/scroll_service.dart';
@@ -38,8 +39,9 @@ List<FlowyKeyEventHandler> defaultKeyEventHandler = [
   flowyDeleteNodesHandler,
   arrowKeysHandler,
   copyPasteKeysHandler,
-  enterInEdgeOfTextNodeHandler,
+  enterWithoutShiftInTextNodesHandler,
   updateTextStyleByCommandXHandler,
+  whiteSpaceHandler,
 ];
 
 class FlowyEditor extends StatefulWidget {

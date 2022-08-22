@@ -50,7 +50,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.0.0'
+          flutter-version: '3.0.5'
 
       - name: Pre build
         working-directory: frontend
@@ -99,7 +99,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.0.0'
+          flutter-version: '3.0.5'
 
       - name: Pre build
         working-directory: frontend
