@@ -124,6 +124,15 @@ impl DocumentTree {
             return;
         }
 
+        let children_length = parent.children(&self.arena).fold(0, |counter, _| counter + 1);
+
+        if index == children_length {
+            for id in insert_children {
+                parent.append(*id, &mut self.arena);
+            }
+            return;
+        }
+
         let node_to_insert = self.child_at_index_of_path(parent, index).unwrap();
 
         for id in insert_children {

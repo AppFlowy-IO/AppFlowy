@@ -10,6 +10,14 @@ pub enum DocumentOperation {
 }
 
 impl DocumentOperation {
+    pub fn path(&self) -> &Position {
+        match self {
+            DocumentOperation::Insert(insert) => &insert.path,
+            DocumentOperation::Update(update) => &update.path,
+            DocumentOperation::Delete(delete) => &delete.path,
+            DocumentOperation::TextEdit(text_edit) => &text_edit.path,
+        }
+    }
     pub fn invert(&self) -> DocumentOperation {
         match self {
             DocumentOperation::Insert(insert_operation) => DocumentOperation::Delete(DeleteOperation {
@@ -32,8 +40,40 @@ impl DocumentOperation {
             }),
         }
     }
-    pub fn transform(_a: &DocumentOperation, b: &DocumentOperation) -> DocumentOperation {
-        b.clone()
+    pub fn clone_with_new_path(&self, path: Position) -> DocumentOperation {
+        match self {
+            DocumentOperation::Insert(insert) => DocumentOperation::Insert(InsertOperation {
+                path,
+                nodes: insert.nodes.clone(),
+            }),
+            DocumentOperation::Update(update) => DocumentOperation::Update(UpdateOperation {
+                path,
+                attributes: update.attributes.clone(),
+                old_attributes: update.old_attributes.clone(),
+            }),
+            DocumentOperation::Delete(delete) => DocumentOperation::Delete(DeleteOperation {
+                path,
+                nodes: delete.nodes.clone(),
+            }),
+            DocumentOperation::TextEdit(text_edit) => DocumentOperation::TextEdit(TextEditOperation {
+                path,
+                delta: text_edit.delta.clone(),
+                inverted: text_edit.inverted.clone(),
+            }),
+        }
+    }
+    pub fn transform(a: &DocumentOperation, b: &DocumentOperation) -> DocumentOperation {
+        match a {
+            DocumentOperation::Insert(insert_op) => {
+                let new_path = Position::transform(a.path(), b.path(), insert_op.nodes.len() as i64);
+                b.clone_with_new_path(new_path)
+            }
+            DocumentOperation::Delete(delete_op) => {
+                let new_path = Position::transform(a.path(), b.path(), delete_op.nodes.len() as i64);
+                b.clone_with_new_path(new_path)
+            }
+            _ => b.clone(),
+        }
     }
 }
 

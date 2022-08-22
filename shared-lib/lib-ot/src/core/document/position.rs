@@ -12,7 +12,7 @@ impl Position {
 
 impl Position {
     // delta is default to be 1
-    pub fn transform(pre_insert_path: &Position, b: &Position, delta: usize) -> Position {
+    pub fn transform(pre_insert_path: &Position, b: &Position, delta: i64) -> Position {
         if pre_insert_path.len() > b.len() {
             return b.clone();
         }
@@ -30,7 +30,7 @@ impl Position {
         let prev_insert_last: usize = *pre_insert_path.0.last().unwrap();
         let b_at_index = b.0[pre_insert_path.0.len() - 1];
         if prev_insert_last <= b_at_index {
-            prefix.push(b_at_index + delta);
+            prefix.push(((b_at_index as i64) + delta) as usize);
         } else {
             prefix.push(b_at_index);
         }

@@ -207,10 +207,10 @@ Path transformPath(Path preInsertPath, Path b, [int delta = 1]) {
 
 Operation transformOperation(Operation a, Operation b) {
   if (a is InsertOperation) {
-    final newPath = transformPath(a.path, b.path);
+    final newPath = transformPath(a.path, b.path, a.nodes.length);
     return b.copyWithPath(newPath);
   } else if (a is DeleteOperation) {
-    final newPath = transformPath(a.path, b.path, -1);
+    final newPath = transformPath(a.path, b.path, -1 * a.nodes.length);
     return b.copyWithPath(newPath);
   }
   // TODO: transform update and textedit
