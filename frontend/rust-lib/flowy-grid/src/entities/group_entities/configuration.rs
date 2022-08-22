@@ -17,16 +17,12 @@ pub struct TextGroupConfigurationPB {
 pub struct SelectOptionGroupConfigurationPB {
     #[pb(index = 1)]
     hide_empty: bool,
-
-    #[pb(index = 2)]
-    groups: Vec<GroupRecordPB>,
 }
 
 impl std::convert::From<SelectOptionGroupConfigurationRevision> for SelectOptionGroupConfigurationPB {
     fn from(rev: SelectOptionGroupConfigurationRevision) -> Self {
         Self {
             hide_empty: rev.hide_empty,
-            groups: rev.groups.into_iter().map(GroupRecordPB::from).collect(),
         }
     }
 }

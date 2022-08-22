@@ -131,7 +131,6 @@ impl GridManager {
     async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
         match self.grid_editors.get(grid_id) {
             None => {
-                tracing::trace!("Create grid editor with id: {}", grid_id);
                 let db_pool = self.grid_user.db_pool()?;
                 let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
 

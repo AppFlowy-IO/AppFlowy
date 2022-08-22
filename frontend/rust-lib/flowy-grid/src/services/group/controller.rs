@@ -5,7 +5,7 @@ use crate::services::group::configuration::GenericGroupConfiguration;
 use crate::services::group::entities::Group;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
-    FieldRevision, GroupConfigurationContent, RowChangeset, RowRevision, TypeOptionDataDeserializer,
+    FieldRevision, GroupConfigurationContentSerde, RowChangeset, RowRevision, TypeOptionDataDeserializer,
 };
 
 use std::marker::PhantomData;
@@ -76,7 +76,7 @@ pub struct GenericGroupController<C, T, G, P> {
 
 impl<C, T, G, P> GenericGroupController<C, T, G, P>
 where
-    C: GroupConfigurationContent,
+    C: GroupConfigurationContentSerde,
     T: TypeOptionDataDeserializer,
     G: GroupGenerator<ConfigurationType = GenericGroupConfiguration<C>, TypeOptionType = T>,
 {
@@ -109,7 +109,7 @@ where
 impl<C, T, G, P> GroupControllerSharedOperation for GenericGroupController<C, T, G, P>
 where
     P: CellBytesParser,
-    C: GroupConfigurationContent,
+    C: GroupConfigurationContentSerde,
     Self: GroupAction<CellDataType = P::Object>,
 {
     fn field_id(&self) -> &str {

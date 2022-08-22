@@ -3,57 +3,32 @@ use serde::{Deserialize, Serialize};
 use serde_json::Error;
 use serde_repr::*;
 
-pub trait GroupConfigurationContent: Sized {
+pub trait GroupConfigurationContentSerde: Sized + Send + Sync {
     fn from_configuration_content(s: &str) -> Result<Self, serde_json::Error>;
 
     fn to_configuration_content(&self) -> Result<String, serde_json::Error>;
-
-    fn get_groups(&self) -> &[GroupRecordRevision] {
-        &[]
-    }
-
-    fn mut_groups(&mut self) -> &mut Vec<GroupRecordRevision> {
-        todo!()
-    }
-
-    fn set_groups(&mut self, _new_groups: Vec<GroupRecordRevision>) {}
-
-    fn swap_group(&mut self, from_group_id: &str, to_group_id: &str) {
-        let from_index = self
-            .get_groups()
-            .iter()
-            .position(|group| group.group_id == from_group_id);
-        let to_index = self.get_groups().iter().position(|group| group.group_id == to_group_id);
-        if let (Some(from), Some(to)) = (from_index, to_index) {
-            self.mut_groups().swap(from, to);
-        }
-    }
-
-    fn with_mut_group<F>(&mut self, _group_id: &str, _f: F)
-    where
-        F: FnOnce(&mut GroupRecordRevision),
-    {
-    }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct GroupConfigurationRevision {
     pub id: String,
     pub field_id: String,
     pub field_type_rev: FieldTypeRevision,
+    pub groups: Vec<GroupRecordRevision>,
     pub content: String,
 }
 
 impl GroupConfigurationRevision {
     pub fn new<T>(field_id: String, field_type: FieldTypeRevision, content: T) -> Result<Self, serde_json::Error>
     where
-        T: serde::Serialize,
+        T: GroupConfigurationContentSerde,
     {
-        let content = serde_json::to_string(&content)?;
+        let content = content.to_configuration_content()?;
         Ok(Self {
             id: gen_grid_group_id(),
             field_id,
             field_type_rev: field_type,
+            groups: vec![],
             content,
         })
     }
@@ -64,7 +39,7 @@ pub struct TextGroupConfigurationRevision {
     pub hide_empty: bool,
 }
 
-impl GroupConfigurationContent for TextGroupConfigurationRevision {
+impl GroupConfigurationContentSerde for TextGroupConfigurationRevision {
     fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
     }
@@ -78,7 +53,7 @@ pub struct NumberGroupConfigurationRevision {
     pub hide_empty: bool,
 }
 
-impl GroupConfigurationContent for NumberGroupConfigurationRevision {
+impl GroupConfigurationContentSerde for NumberGroupConfigurationRevision {
     fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
     }
@@ -92,7 +67,7 @@ pub struct UrlGroupConfigurationRevision {
     pub hide_empty: bool,
 }
 
-impl GroupConfigurationContent for UrlGroupConfigurationRevision {
+impl GroupConfigurationContentSerde for UrlGroupConfigurationRevision {
     fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
     }
@@ -106,7 +81,7 @@ pub struct CheckboxGroupConfigurationRevision {
     pub hide_empty: bool,
 }
 
-impl GroupConfigurationContent for CheckboxGroupConfigurationRevision {
+impl GroupConfigurationContentSerde for CheckboxGroupConfigurationRevision {
     fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
     }
@@ -119,10 +94,9 @@ impl GroupConfigurationContent for CheckboxGroupConfigurationRevision {
 #[derive(Default, Serialize, Deserialize)]
 pub struct SelectOptionGroupConfigurationRevision {
     pub hide_empty: bool,
-    pub groups: Vec<GroupRecordRevision>,
 }
 
-impl GroupConfigurationContent for SelectOptionGroupConfigurationRevision {
+impl GroupConfigurationContentSerde for SelectOptionGroupConfigurationRevision {
     fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
     }
@@ -130,31 +104,9 @@ impl GroupConfigurationContent for SelectOptionGroupConfigurationRevision {
     fn to_configuration_content(&self) -> Result<String, Error> {
         serde_json::to_string(self)
     }
-
-    fn get_groups(&self) -> &[GroupRecordRevision] {
-        &self.groups
-    }
-
-    fn mut_groups(&mut self) -> &mut Vec<GroupRecordRevision> {
-        &mut self.groups
-    }
-
-    fn set_groups(&mut self, new_groups: Vec<GroupRecordRevision>) {
-        self.groups = new_groups;
-    }
-
-    fn with_mut_group<F>(&mut self, group_id: &str, f: F)
-    where
-        F: FnOnce(&mut GroupRecordRevision),
-    {
-        match self.groups.iter_mut().find(|group| group.group_id == group_id) {
-            None => {}
-            Some(group) => f(group),
-        }
-    }
 }
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct GroupRecordRevision {
     pub group_id: String,
 
@@ -179,7 +131,7 @@ pub struct DateGroupConfigurationRevision {
     pub condition: DateCondition,
 }
 
-impl GroupConfigurationContent for DateGroupConfigurationRevision {
+impl GroupConfigurationContentSerde for DateGroupConfigurationRevision {
     fn from_configuration_content(s: &str) -> Result<Self, Error> {
         serde_json::from_str(s)
     }

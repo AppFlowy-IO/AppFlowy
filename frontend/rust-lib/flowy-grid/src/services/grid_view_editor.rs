@@ -348,30 +348,18 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         &self,
         field_id: &str,
         field_type: FieldTypeRevision,
-        configuration_id: &str,
-        content: String,
+        group_configuration: GroupConfigurationRevision,
     ) -> AFFuture<FlowyResult<()>> {
         let user_id = self.user_id.clone();
-        let configuration_id = configuration_id.to_owned();
         let rev_manager = self.rev_manager.clone();
         let view_pad = self.view_pad.clone();
         let field_id = field_id.to_owned();
 
         wrap_future(async move {
-            let is_contained = view_pad.read().await.contains_group(&field_id, &field_type);
-            let changeset = if is_contained {
-                view_pad.write().await.with_mut_group(
-                    &field_id,
-                    &field_type,
-                    &configuration_id,
-                    |group_configuration| {
-                        group_configuration.content = content;
-                    },
-                )?
-            } else {
-                let group_rev = GroupConfigurationRevision::new(field_id.clone(), field_type, content)?;
-                view_pad.write().await.insert_group(&field_id, &field_type, group_rev)?
-            };
+            let changeset = view_pad
+                .write()
+                .await
+                .insert_group(&field_id, &field_type, group_configuration)?;
 
             if let Some(changeset) = changeset {
                 let _ = apply_change(&user_id, rev_manager, changeset).await?;

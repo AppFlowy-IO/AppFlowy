@@ -71,12 +71,14 @@ impl GroupService {
                             vec![]
                         }
                     };
-
                     drop(write_guard);
                 }
                 Some(groups)
             }
-            Err(_) => Some(vec![]),
+            Err(err) => {
+                tracing::error!("Load group failed: {}", err);
+                Some(vec![])
+            }
         }
     }
 
@@ -183,7 +185,7 @@ impl GroupService {
         }
     }
 
-    #[tracing::instrument(level = "trace", skip_all)]
+    #[tracing::instrument(level = "trace", skip(self, field_rev), err)]
     async fn make_group_controller(
         &self,
         field_type: &FieldType,

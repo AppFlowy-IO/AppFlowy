@@ -25,11 +25,11 @@ pub type FilterConfigurationsByFieldId = HashMap<String, Vec<Arc<FilterConfigura
 pub type GroupConfiguration = Configuration<GroupConfigurationRevision>;
 pub type GroupConfigurationsByFieldId = HashMap<String, Vec<Arc<GroupConfigurationRevision>>>;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(transparent)]
 pub struct Configuration<T>
 where
-    T: Debug + Clone + Default + Eq + PartialEq + serde::Serialize + serde::de::DeserializeOwned + 'static,
+    T: Debug + Clone + Default + serde::Serialize + serde::de::DeserializeOwned + 'static,
 {
     /// Key:    field_id
     /// Value:  this value contains key/value.
@@ -41,7 +41,7 @@ where
 
 impl<T> Configuration<T>
 where
-    T: Debug + Clone + Default + Eq + PartialEq + serde::Serialize + serde::de::DeserializeOwned + 'static,
+    T: Debug + Clone + Default + serde::Serialize + serde::de::DeserializeOwned + 'static,
 {
     pub fn get_mut_objects(&mut self, field_id: &str, field_type: &FieldTypeRevision) -> Option<&mut Vec<Arc<T>>> {
         let value = self
@@ -93,11 +93,11 @@ where
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default, Eq, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[serde(transparent)]
 pub struct ObjectIndexMap<T>
 where
-    T: Debug + Clone + Default + Eq + PartialEq + serde::Serialize + serde::de::DeserializeOwned + 'static,
+    T: Debug + Clone + Default + serde::Serialize + serde::de::DeserializeOwned + 'static,
 {
     #[serde(with = "indexmap::serde_seq")]
     pub object_by_field_type: IndexMap<FieldTypeRevision, Vec<Arc<T>>>,
@@ -105,7 +105,7 @@ where
 
 impl<T> ObjectIndexMap<T>
 where
-    T: Debug + Clone + Default + Eq + PartialEq + serde::Serialize + serde::de::DeserializeOwned + 'static,
+    T: Debug + Clone + Default + serde::Serialize + serde::de::DeserializeOwned + 'static,
 {
     pub fn new() -> Self {
         ObjectIndexMap::default()
@@ -114,7 +114,7 @@ where
 
 impl<T> std::ops::Deref for ObjectIndexMap<T>
 where
-    T: Debug + Clone + Default + Eq + PartialEq + serde::Serialize + serde::de::DeserializeOwned + 'static,
+    T: Debug + Clone + Default + serde::Serialize + serde::de::DeserializeOwned + 'static,
 {
     type Target = IndexMap<FieldTypeRevision, Vec<Arc<T>>>;
 
@@ -125,7 +125,7 @@ where
 
 impl<T> std::ops::DerefMut for ObjectIndexMap<T>
 where
-    T: Debug + Clone + Default + Eq + PartialEq + serde::Serialize + serde::de::DeserializeOwned + 'static,
+    T: Debug + Clone + Default + serde::Serialize + serde::de::DeserializeOwned + 'static,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.object_by_field_type
