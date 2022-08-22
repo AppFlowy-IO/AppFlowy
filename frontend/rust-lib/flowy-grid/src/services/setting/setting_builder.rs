@@ -1,7 +1,8 @@
 use crate::entities::{
-    GridLayoutPB, GridLayoutType, GridSettingPB, RepeatedGridFilterPB, RepeatedGridGroupPB, RepeatedGridSortPB,
+    GridLayout, GridLayoutPB, GridSettingPB, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB,
+    RepeatedGridSortPB,
 };
-use flowy_grid_data_model::revision::{FieldRevision, GridSettingRevision};
+use flowy_grid_data_model::revision::{FieldRevision, SettingRevision};
 use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams, GridSettingChangesetParams};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -11,7 +12,7 @@ pub struct GridSettingChangesetBuilder {
 }
 
 impl GridSettingChangesetBuilder {
-    pub fn new(grid_id: &str, layout_type: &GridLayoutType) -> Self {
+    pub fn new(grid_id: &str, layout_type: &GridLayout) -> Self {
         let params = GridSettingChangesetParams {
             grid_id: grid_id.to_string(),
             layout_type: layout_type.clone().into(),
@@ -40,24 +41,24 @@ impl GridSettingChangesetBuilder {
     }
 }
 
-pub fn make_grid_setting(grid_setting_rev: &GridSettingRevision, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
-    let current_layout_type: GridLayoutType = grid_setting_rev.layout.clone().into();
+pub fn make_grid_setting(grid_setting_rev: &SettingRevision, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
+    let current_layout_type: GridLayout = grid_setting_rev.layout.clone().into();
     let filters_by_field_id = grid_setting_rev
-        .get_all_filter(field_revs)
+        .get_all_filters(field_revs)
         .map(|filters_by_field_id| {
             filters_by_field_id
                 .into_iter()
                 .map(|(k, v)| (k, v.into()))
-                .collect::<HashMap<String, RepeatedGridFilterPB>>()
+                .collect::<HashMap<String, RepeatedGridConfigurationFilterPB>>()
         })
         .unwrap_or_default();
     let groups_by_field_id = grid_setting_rev
-        .get_all_group()
+        .get_all_groups(field_revs)
         .map(|groups_by_field_id| {
             groups_by_field_id
                 .into_iter()
                 .map(|(k, v)| (k, v.into()))
-                .collect::<HashMap<String, RepeatedGridGroupPB>>()
+                .collect::<HashMap<String, RepeatedGridGroupConfigurationPB>>()
         })
         .unwrap_or_default();
     let sorts_by_field_id = grid_setting_rev
@@ -73,8 +74,8 @@ pub fn make_grid_setting(grid_setting_rev: &GridSettingRevision, field_revs: &[A
     GridSettingPB {
         layouts: GridLayoutPB::all(),
         current_layout_type,
-        filters_by_field_id,
-        groups_by_field_id,
+        filter_configuration_by_field_id: filters_by_field_id,
+        group_configuration_by_field_id: groups_by_field_id,
         sorts_by_field_id,
     }
 }

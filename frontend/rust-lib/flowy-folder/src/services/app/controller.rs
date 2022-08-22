@@ -68,7 +68,9 @@ impl AppController {
                 let app = transaction.read_app(&params.value)?;
                 let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
                 if trash_ids.contains(&app.id) {
-                    return Err(FlowyError::record_not_found());
+                    return Err(
+                        FlowyError::record_not_found().context(format!("Can not find the app:{}", params.value))
+                    );
                 }
                 Ok(app)
             })

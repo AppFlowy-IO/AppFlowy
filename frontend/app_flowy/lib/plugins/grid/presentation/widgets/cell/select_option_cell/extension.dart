@@ -73,7 +73,7 @@ class SelectOptionTag extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  factory SelectOptionTag.fromSelectOption({
+  factory SelectOptionTag.fromOption({
     required BuildContext context,
     required SelectOptionPB option,
     VoidCallback? onSelected,
@@ -91,7 +91,8 @@ class SelectOptionTag extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChoiceChip(
       pressElevation: 1,
-      label: FlowyText.medium(name, fontSize: 12, overflow: TextOverflow.ellipsis),
+      label:
+          FlowyText.medium(name, fontSize: 12, overflow: TextOverflow.ellipsis),
       selectedColor: color,
       backgroundColor: color,
       labelPadding: const EdgeInsets.symmetric(horizontal: 6),
@@ -133,7 +134,7 @@ class SelectOptionTagCell extends StatelessWidget {
                   Flexible(
                     fit: FlexFit.loose,
                     flex: 2,
-                    child: SelectOptionTag.fromSelectOption(
+                    child: SelectOptionTag.fromOption(
                       context: context,
                       option: option,
                       onSelected: () => onSelected(option),

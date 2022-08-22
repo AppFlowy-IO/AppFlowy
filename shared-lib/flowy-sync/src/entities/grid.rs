@@ -1,12 +1,12 @@
-use flowy_grid_data_model::revision::{FieldTypeRevision, GridLayoutRevision};
+use flowy_grid_data_model::revision::{FieldTypeRevision, LayoutRevision};
 
 pub struct GridSettingChangesetParams {
     pub grid_id: String,
-    pub layout_type: GridLayoutRevision,
+    pub layout_type: LayoutRevision,
     pub insert_filter: Option<CreateGridFilterParams>,
     pub delete_filter: Option<DeleteFilterParams>,
     pub insert_group: Option<CreateGridGroupParams>,
-    pub delete_group: Option<String>,
+    pub delete_group: Option<DeleteGroupParams>,
     pub insert_sort: Option<CreateGridSortParams>,
     pub delete_sort: Option<String>,
 }
@@ -28,10 +28,19 @@ pub struct DeleteFilterParams {
     pub filter_id: String,
     pub field_type_rev: FieldTypeRevision,
 }
+
 pub struct CreateGridGroupParams {
-    pub field_id: Option<String>,
-    pub sub_field_id: Option<String>,
+    pub field_id: String,
+    pub field_type_rev: FieldTypeRevision,
+    pub content: Option<Vec<u8>>,
 }
+
+pub struct DeleteGroupParams {
+    pub field_id: String,
+    pub group_id: String,
+    pub field_type_rev: FieldTypeRevision,
+}
+
 pub struct CreateGridSortParams {
     pub field_id: Option<String>,
 }

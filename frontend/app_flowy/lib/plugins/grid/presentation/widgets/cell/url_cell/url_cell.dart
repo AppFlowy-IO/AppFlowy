@@ -31,10 +31,10 @@ enum GridURLCellAccessoryType {
 }
 
 class GridURLCell extends GridCellWidget {
-  final GridCellControllerBuilder cellContorllerBuilder;
+  final GridCellControllerBuilder cellControllerBuilder;
   late final GridURLCellStyle? cellStyle;
   GridURLCell({
-    required this.cellContorllerBuilder,
+    required this.cellControllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -52,15 +52,15 @@ class GridURLCell extends GridCellWidget {
       GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
     switch (ty) {
       case GridURLCellAccessoryType.edit:
-        final cellContext =
-            cellContorllerBuilder.build() as GridURLCellController;
+        final cellController =
+            cellControllerBuilder.build() as GridURLCellController;
         return _EditURLAccessory(
-            cellContext: cellContext,
+            cellContext: cellController,
             anchorContext: buildContext.anchorContext);
 
       case GridURLCellAccessoryType.copyURL:
         final cellContext =
-            cellContorllerBuilder.build() as GridURLCellController;
+            cellControllerBuilder.build() as GridURLCellController;
         return _CopyURLAccessory(cellContext: cellContext);
     }
   }
@@ -90,9 +90,9 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
 
   @override
   void initState() {
-    final cellContext =
-        widget.cellContorllerBuilder.build() as GridURLCellController;
-    _cellBloc = URLCellBloc(cellContext: cellContext);
+    final cellController =
+        widget.cellControllerBuilder.build() as GridURLCellController;
+    _cellBloc = URLCellBloc(cellController: cellController);
     _cellBloc.add(const URLCellEvent.initial());
     super.initState();
   }
@@ -141,7 +141,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
       await launchUrl(uri);
     } else {
       final cellContext =
-          widget.cellContorllerBuilder.build() as GridURLCellController;
+          widget.cellControllerBuilder.build() as GridURLCellController;
       widget.onCellEditing.value = true;
       URLCellEditor.show(context, cellContext, () {
         widget.onCellEditing.value = false;

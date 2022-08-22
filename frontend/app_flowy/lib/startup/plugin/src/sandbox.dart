@@ -6,8 +6,10 @@ import '../plugin.dart';
 import 'runner.dart';
 
 class PluginSandbox {
-  final LinkedHashMap<PluginType, PluginBuilder> _pluginBuilders = LinkedHashMap();
-  final Map<PluginType, PluginConfig> _pluginConfigs = <PluginType, PluginConfig>{};
+  final LinkedHashMap<PluginType, PluginBuilder> _pluginBuilders =
+      LinkedHashMap();
+  final Map<PluginType, PluginConfig> _pluginConfigs =
+      <PluginType, PluginConfig>{};
   late PluginRunner pluginRunner;
 
   PluginSandbox() {
@@ -15,9 +17,11 @@ class PluginSandbox {
   }
 
   int indexOf(PluginType pluginType) {
-    final index = _pluginBuilders.keys.toList().indexWhere((ty) => ty == pluginType);
+    final index =
+        _pluginBuilders.keys.toList().indexWhere((ty) => ty == pluginType);
     if (index == -1) {
-      throw PlatformException(code: '-1', message: "Can't find the flowy plugin type: $pluginType");
+      throw PlatformException(
+          code: '-1', message: "Can't find the flowy plugin type: $pluginType");
     }
     return index;
   }
@@ -27,9 +31,11 @@ class PluginSandbox {
     return plugin;
   }
 
-  void registerPlugin(PluginType pluginType, PluginBuilder builder, {PluginConfig? config}) {
+  void registerPlugin(PluginType pluginType, PluginBuilder builder,
+      {PluginConfig? config}) {
     if (_pluginBuilders.containsKey(pluginType)) {
-      throw PlatformException(code: '-1', message: "$pluginType was registered before");
+      throw PlatformException(
+          code: '-1', message: "$pluginType was registered before");
     }
     _pluginBuilders[pluginType] = builder;
 
@@ -38,7 +44,7 @@ class PluginSandbox {
     }
   }
 
-  List<int> get supportPluginTypes => _pluginBuilders.keys.toList();
+  List<PluginType> get supportPluginTypes => _pluginBuilders.keys.toList();
 
   List<PluginBuilder> get builders => _pluginBuilders.values.toList();
 

@@ -91,6 +91,9 @@ pub enum ErrorCode {
 
     #[display(fmt = "Grid id is empty")]
     GridIdIsEmpty = 410,
+    #[display(fmt = "Grid view id is empty")]
+    GridViewIdIsEmpty = 411,
+
     #[display(fmt = "Grid block id is empty")]
     BlockIdIsEmpty = 420,
     #[display(fmt = "Row id is empty")]
@@ -110,6 +113,9 @@ pub enum ErrorCode {
 
     #[display(fmt = "Field's type option data should not be empty")]
     TypeOptionDataIsEmpty = 450,
+
+    #[display(fmt = "Group id is empty")]
+    GroupIdIsEmpty = 460,
 
     #[display(fmt = "Invalid date time format")]
     InvalidDateTimeFormat = 500,

@@ -9,33 +9,32 @@ import 'package:flutter/widgets.dart';
 
 export "./src/sandbox.dart";
 
-enum DefaultPlugin {
-  quill,
+enum PluginType {
+  editor,
   blank,
   trash,
   grid,
   board,
 }
 
-extension FlowyDefaultPluginExt on DefaultPlugin {
-  int type() {
-    switch (this) {
-      case DefaultPlugin.quill:
-        return 0;
-      case DefaultPlugin.blank:
-        return 1;
-      case DefaultPlugin.trash:
-        return 2;
-      case DefaultPlugin.grid:
-        return 3;
-      case DefaultPlugin.board:
-        return 4;
-    }
-  }
-}
+// extension FlowyDefaultPluginExt on DefaultPlugin {
+//   int type() {
+//     switch (this) {
+//       case DefaultPlugin.editor:
+//         return 0;
+//       case DefaultPlugin.blank:
+//         return 1;
+//       case DefaultPlugin.trash:
+//         return 2;
+//       case DefaultPlugin.grid:
+//         return 3;
+//       case DefaultPlugin.board:
+//         return 4;
+//     }
+//   }
+// }
 
-typedef PluginType = int;
-typedef PluginDataType = ViewDataType;
+// typedef PluginType = int;
 typedef PluginId = String;
 
 abstract class Plugin {
@@ -55,7 +54,9 @@ abstract class PluginBuilder {
 
   PluginType get pluginType;
 
-  ViewDataType get dataType => ViewDataType.TextBlock;
+  ViewDataTypePB get dataType => ViewDataTypePB.Text;
+
+  ViewLayoutTypePB? get subDataType => null;
 }
 
 abstract class PluginConfig {

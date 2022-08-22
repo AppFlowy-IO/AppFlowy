@@ -1,5 +1,4 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -13,53 +12,66 @@ import 'select_option_cell/select_option_cell.dart';
 import 'text_cell.dart';
 import 'url_cell/url_cell.dart';
 
+abstract class GridCellBuilderDelegate
+    extends GridCellControllerBuilderDelegate {
+  GridCellCache get cellCache;
+}
+
 class GridCellBuilder {
-  final GridCellCache cellCache;
-  final GridFieldCache fieldCache;
+  final GridCellBuilderDelegate delegate;
   GridCellBuilder({
-    required this.cellCache,
-    required this.fieldCache,
+    required this.delegate,
   });
 
-  GridCellWidget build(GridCellIdentifier cell, {GridCellStyle? style}) {
+  GridCellWidget build(GridCellIdentifier cellId, {GridCellStyle? style}) {
     final cellControllerBuilder = GridCellControllerBuilder(
-      cellId: cell,
-      cellCache: cellCache,
-      fieldCache: fieldCache,
+      cellId: cellId,
+      cellCache: delegate.cellCache,
+      delegate: delegate,
     );
-    final key = cell.key();
-    switch (cell.fieldType) {
+
+    final key = cellId.key();
+    switch (cellId.fieldType) {
       case FieldType.Checkbox:
         return GridCheckboxCell(
-            cellControllerBuilder: cellControllerBuilder, key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
       case FieldType.DateTime:
         return GridDateCell(
-            cellControllerBuilder: cellControllerBuilder,
-            key: key,
-            style: style);
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+          style: style,
+        );
       case FieldType.SingleSelect:
         return GridSingleSelectCell(
-            cellContorllerBuilder: cellControllerBuilder,
-            style: style,
-            key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
       case FieldType.MultiSelect:
         return GridMultiSelectCell(
-            cellContorllerBuilder: cellControllerBuilder,
-            style: style,
-            key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
       case FieldType.Number:
         return GridNumberCell(
-            cellContorllerBuilder: cellControllerBuilder, key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          key: key,
+        );
       case FieldType.RichText:
         return GridTextCell(
-            cellContorllerBuilder: cellControllerBuilder,
-            style: style,
-            key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
       case FieldType.URL:
         return GridURLCell(
-            cellContorllerBuilder: cellControllerBuilder,
-            style: style,
-            key: key);
+          cellControllerBuilder: cellControllerBuilder,
+          style: style,
+          key: key,
+        );
     }
     throw UnimplementedError;
   }
@@ -82,6 +94,18 @@ abstract class CellEditable {
   ValueNotifier<bool> get onCellEditing;
 }
 
+typedef AccessoryBuilder = List<GridCellAccessory> Function(
+    GridCellAccessoryBuildContext buildContext);
+
+abstract class CellAccessory extends Widget {
+  const CellAccessory({Key? key}) : super(key: key);
+
+  // The hover will show if the isHover's value is true
+  ValueNotifier<bool>? get onAccessoryHover;
+
+  AccessoryBuilder? get accessoryBuilder;
+}
+
 abstract class GridCellWidget extends StatefulWidget
     implements CellAccessory, CellEditable, CellShortcuts {
   GridCellWidget({Key? key}) : super(key: key) {
@@ -93,7 +117,7 @@ abstract class GridCellWidget extends StatefulWidget
   @override
   final ValueNotifier<bool> onCellFocus = ValueNotifier<bool>(false);
 
-  // When the cell is focused, we assume that the accessory alse be hovered.
+  // When the cell is focused, we assume that the accessory also be hovered.
   @override
   ValueNotifier<bool> get onAccessoryHover => onCellFocus;
 
@@ -150,7 +174,7 @@ abstract class GridCellState<T extends GridCellWidget> extends State<T> {
 
 abstract class GridFocusNodeCellState<T extends GridCellWidget>
     extends GridCellState<T> {
-  SingleListenrFocusNode focusNode = SingleListenrFocusNode();
+  SingleListenerFocusNode focusNode = SingleListenerFocusNode();
 
   @override
   void initState() {
@@ -219,7 +243,7 @@ class GridCellFocusListener extends ChangeNotifier {
 
 abstract class GridCellStyle {}
 
-class SingleListenrFocusNode extends FocusNode {
+class SingleListenerFocusNode extends FocusNode {
   VoidCallback? _listener;
 
   void setListener(VoidCallback listener) {

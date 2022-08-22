@@ -1,7 +1,15 @@
 import 'dart:typed_data';
 
-import 'package:app_flowy/plugins/grid/application/field/type_option/multi_select_type_option.dart';
-import 'package:app_flowy/plugins/grid/application/prelude.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/multi_select_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/number_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/single_select_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/text_type_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/url_type_option.pb.dart';
+import 'package:protobuf/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'checkbox.dart';
@@ -39,70 +47,147 @@ Widget? makeTypeOptionWidget({
   required TypeOptionDataController dataController,
   required TypeOptionOverlayDelegate overlayDelegate,
 }) {
-  final builder = makeTypeOptionWidgetBuilder(dataController, overlayDelegate);
+  final builder = makeTypeOptionWidgetBuilder(
+    dataController: dataController,
+    overlayDelegate: overlayDelegate,
+  );
   return builder.build(context);
 }
 
-TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
-  TypeOptionDataController dataController,
-  TypeOptionOverlayDelegate overlayDelegate,
-) {
+TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
+  required TypeOptionDataController dataController,
+  required TypeOptionOverlayDelegate overlayDelegate,
+}) {
+  final gridId = dataController.gridId;
+  final fieldType = dataController.field.fieldType;
+
   switch (dataController.field.fieldType) {
     case FieldType.Checkbox:
-      final context = CheckboxTypeOptionContext(
-        dataController: dataController,
-        dataParser: CheckboxTypeOptionWidgetDataParser(),
+      return CheckboxTypeOptionWidgetBuilder(
+        makeTypeOptionContextWithDataController<CheckboxTypeOptionPB>(
+          gridId: gridId,
+          fieldType: fieldType,
+          dataController: dataController,
+        ),
       );
-      return CheckboxTypeOptionWidgetBuilder(context);
     case FieldType.DateTime:
-      final context = DateTypeOptionContext(
-        dataController: dataController,
-        dataParser: DateTypeOptionDataParser(),
-      );
       return DateTypeOptionWidgetBuilder(
-        context,
+        makeTypeOptionContextWithDataController<DateTypeOptionPB>(
+          gridId: gridId,
+          fieldType: fieldType,
+          dataController: dataController,
+        ),
         overlayDelegate,
       );
     case FieldType.SingleSelect:
-      final context = SingleSelectTypeOptionContext(
-        fieldContext: dataController,
-        dataBuilder: SingleSelectTypeOptionWidgetDataParser(),
-      );
       return SingleSelectTypeOptionWidgetBuilder(
-        context,
+        makeTypeOptionContextWithDataController<SingleSelectTypeOptionPB>(
+          gridId: gridId,
+          fieldType: fieldType,
+          dataController: dataController,
+        ),
         overlayDelegate,
       );
     case FieldType.MultiSelect:
-      final context = MultiSelectTypeOptionContext(
-        dataController: dataController,
-        dataBuilder: MultiSelectTypeOptionWidgetDataParser(),
-      );
       return MultiSelectTypeOptionWidgetBuilder(
-        context,
+        makeTypeOptionContextWithDataController<MultiSelectTypeOptionPB>(
+          gridId: gridId,
+          fieldType: fieldType,
+          dataController: dataController,
+        ),
         overlayDelegate,
       );
     case FieldType.Number:
-      final context = NumberTypeOptionContext(
-        dataController: dataController,
-        dataParser: NumberTypeOptionWidgetDataParser(),
-      );
       return NumberTypeOptionWidgetBuilder(
-        context,
+        makeTypeOptionContextWithDataController<NumberTypeOptionPB>(
+          gridId: gridId,
+          fieldType: fieldType,
+          dataController: dataController,
+        ),
         overlayDelegate,
       );
     case FieldType.RichText:
-      final context = RichTextTypeOptionContext(
-        dataController: dataController,
-        dataParser: RichTextTypeOptionWidgetDataParser(),
+      return RichTextTypeOptionWidgetBuilder(
+        makeTypeOptionContextWithDataController<RichTextTypeOptionPB>(
+          gridId: gridId,
+          fieldType: fieldType,
+          dataController: dataController,
+        ),
       );
-      return RichTextTypeOptionWidgetBuilder(context);
 
     case FieldType.URL:
-      final context = URLTypeOptionContext(
+      return URLTypeOptionWidgetBuilder(
+        makeTypeOptionContextWithDataController<URLTypeOptionPB>(
+          gridId: gridId,
+          fieldType: fieldType,
+          dataController: dataController,
+        ),
+      );
+  }
+  throw UnimplementedError;
+}
+
+TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
+  required String gridId,
+  required FieldPB field,
+}) {
+  final loader = FieldTypeOptionLoader(gridId: gridId, field: field);
+  final dataController = TypeOptionDataController(
+    gridId: gridId,
+    loader: loader,
+    field: field,
+  );
+  return makeTypeOptionContextWithDataController(
+    gridId: gridId,
+    fieldType: field.fieldType,
+    dataController: dataController,
+  );
+}
+
+TypeOptionContext<T>
+    makeTypeOptionContextWithDataController<T extends GeneratedMessage>({
+  required String gridId,
+  required FieldType fieldType,
+  required TypeOptionDataController dataController,
+}) {
+  switch (fieldType) {
+    case FieldType.Checkbox:
+      return CheckboxTypeOptionContext(
+        dataController: dataController,
+        dataParser: CheckboxTypeOptionWidgetDataParser(),
+      ) as TypeOptionContext<T>;
+    case FieldType.DateTime:
+      return DateTypeOptionContext(
+        dataController: dataController,
+        dataParser: DateTypeOptionDataParser(),
+      ) as TypeOptionContext<T>;
+    case FieldType.SingleSelect:
+      return SingleSelectTypeOptionContext(
+        dataController: dataController,
+        dataParser: SingleSelectTypeOptionWidgetDataParser(),
+      ) as TypeOptionContext<T>;
+    case FieldType.MultiSelect:
+      return MultiSelectTypeOptionContext(
+        dataController: dataController,
+        dataParser: MultiSelectTypeOptionWidgetDataParser(),
+      ) as TypeOptionContext<T>;
+    case FieldType.Number:
+      return NumberTypeOptionContext(
+        dataController: dataController,
+        dataParser: NumberTypeOptionWidgetDataParser(),
+      ) as TypeOptionContext<T>;
+    case FieldType.RichText:
+      return RichTextTypeOptionContext(
+        dataController: dataController,
+        dataParser: RichTextTypeOptionWidgetDataParser(),
+      ) as TypeOptionContext<T>;
+
+    case FieldType.URL:
+      return URLTypeOptionContext(
         dataController: dataController,
         dataParser: URLTypeOptionWidgetDataParser(),
-      );
-      return URLTypeOptionWidgetBuilder(context);
+      ) as TypeOptionContext<T>;
   }
+
   throw UnimplementedError;
 }

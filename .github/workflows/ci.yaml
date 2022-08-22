@@ -3,11 +3,11 @@ name: CI
 on:
   push:
     branches:
-      - 'main'
-      
+      - "main"
+
   pull_request:
     branches:
-      - 'main'
+      - "main"
 
 jobs:
   build:
@@ -23,36 +23,37 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+
       - id: rust_toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 'stable-2022-01-20'
-      
+          toolchain: "stable-2022-01-20"
+
       - id: flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: "stable"
           cache: true
-          flutter-version: '3.0.5'
+          flutter-version: "3.0.5"
 
       - name: Cache Cargo
+        id: cache-cargo
         uses: actions/cache@v2
-        with: 
+        with:
           path: |
             ~/.cargo
           key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
 
       - name: Cache Rust
         uses: actions/cache@v2
-        with: 
+        with:
           path: |
             frontend/rust-lib/target
             shared-lib/target
-          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
+          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
 
       - name: Setup Environment
-        run:   |
+        run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
             sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
@@ -64,11 +65,16 @@ jobs:
           fi
         shell: bash
 
-      - name: Deps
+      - if: steps.cache-cargo.outputs.cache-hit != 'true'
+        name: Deps
         working-directory: frontend
         run: |
           cargo install cargo-make
           cargo install duckscript_cli
+
+      - name: Cargo make flowy_dev
+        working-directory: frontend
+        run: |
           cargo make flowy_dev
 
       - name: Config Flutter

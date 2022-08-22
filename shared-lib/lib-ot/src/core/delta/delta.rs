@@ -604,7 +604,7 @@ where
         serde_json::to_string(self).unwrap_or_else(|_| "".to_owned())
     }
 
-    /// Get the content the [Delta] represents.
+    /// Get the content that the [Delta] represents.
     pub fn content(&self) -> Result<String, OTError> {
         self.apply("")
     }

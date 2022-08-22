@@ -28,9 +28,17 @@ impl RevisionPersistence {
     where
         C: 'static + RevisionDiskCache<Error = FlowyError>,
     {
+        let disk_cache = Arc::new(disk_cache) as Arc<dyn RevisionDiskCache<Error = FlowyError>>;
+        Self::from_disk_cache(user_id, object_id, disk_cache)
+    }
+
+    pub fn from_disk_cache(
+        user_id: &str,
+        object_id: &str,
+        disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
+    ) -> RevisionPersistence {
         let object_id = object_id.to_owned();
         let user_id = user_id.to_owned();
-        let disk_cache = Arc::new(disk_cache) as Arc<dyn RevisionDiskCache<Error = FlowyError>>;
         let sync_seq = RwLock::new(RevisionSyncSequence::new());
         let memory_cache = Arc::new(RevisionMemoryCache::new(&object_id, Arc::new(disk_cache.clone())));
         Self {
@@ -65,12 +73,13 @@ impl RevisionPersistence {
         revision: &'a Revision,
         compactor: &Arc<dyn RevisionCompactor + 'a>,
     ) -> FlowyResult<i64> {
-        let result = self.sync_seq.read().await.compact();
+        let mut sync_seq_write_guard = self.sync_seq.write().await;
+        let result = sync_seq_write_guard.compact();
         match result {
             None => {
                 tracing::Span::current().record("rev_id", &revision.rev_id);
                 self.add(revision.clone(), RevisionState::Sync, true).await?;
-                self.sync_seq.write().await.add(revision.rev_id)?;
+                sync_seq_write_guard.add(revision.rev_id)?;
                 Ok(revision.rev_id)
             }
             Some((range, mut compact_seq)) => {
@@ -93,8 +102,10 @@ impl RevisionPersistence {
 
                 // replace the revisions in range with compact revision
                 self.compact(&range, compact_revision).await?;
-                debug_assert_eq!(self.sync_seq.read().await.len(), compact_seq.len());
-                self.sync_seq.write().await.reset(compact_seq);
+                //
+                debug_assert_eq!(compact_seq.len(), 2);
+                debug_assert_eq!(sync_seq_write_guard.len(), compact_seq.len());
+                sync_seq_write_guard.reset(compact_seq);
                 Ok(rev_id)
             }
         }
@@ -307,6 +318,8 @@ impl RevisionSyncSequence {
 
     // Compact the rev_ids into one except the current synchronizing rev_id.
     fn compact(&self) -> Option<(RevisionRange, VecDeque<i64>)> {
+        // Make sure there are two rev_id going to sync. No need to compact if there is only
+        // one rev_id in queue.
         self.next_rev_id()?;
 
         let mut new_seq = self.0.clone();

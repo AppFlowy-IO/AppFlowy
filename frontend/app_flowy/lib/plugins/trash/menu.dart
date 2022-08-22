@@ -23,7 +23,7 @@ class MenuTrash extends StatelessWidget {
         onTap: () {
           getIt<MenuSharedState>().latestOpenView = null;
           getIt<HomeStackManager>()
-              .setPlugin(makePlugin(pluginType: DefaultPlugin.trash.type()));
+              .setPlugin(makePlugin(pluginType: PluginType.trash));
         },
         child: _render(context),
       ),

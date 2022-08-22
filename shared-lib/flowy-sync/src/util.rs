@@ -7,7 +7,7 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 use dissimilar::Chunk;
-use lib_ot::core::{DeltaBuilder, OTString};
+use lib_ot::core::{DeltaBuilder, OTString, PhantomAttributes, TextDelta};
 use lib_ot::{
     core::{Attributes, Delta, OperationTransform, NEW_LINE, WHITESPACE},
     rich_text::RichTextDelta,
@@ -79,6 +79,10 @@ where
         delta = delta.compose(&revision_delta)?;
     }
     Ok(delta)
+}
+
+pub fn make_text_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<TextDelta> {
+    make_delta_from_revisions::<PhantomAttributes>(revisions)
 }
 
 pub fn make_delta_from_revision_pb<T>(revisions: Vec<Revision>) -> CollaborateResult<Delta<T>>

@@ -1,2 +1,2 @@
 -- This file should undo anything in `up.sql`
-DROP TABLE user_table;
+ALTER TABLE user_table DROP COLUMN workspace;

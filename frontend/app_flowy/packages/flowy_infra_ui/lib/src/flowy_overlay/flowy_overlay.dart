@@ -3,6 +3,7 @@
 import 'dart:ui';
 import 'package:flowy_infra_ui/src/flowy_overlay/layout.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 export './overlay_container.dart';
 
 /// Specifies how overlay are anchored to the SourceWidget
@@ -59,7 +60,8 @@ class FlowyOverlayStyle {
   final Color barrierColor;
   bool blur;
 
-  FlowyOverlayStyle({this.barrierColor = Colors.transparent, this.blur = false});
+  FlowyOverlayStyle(
+      {this.barrierColor = Colors.transparent, this.blur = false});
 }
 
 final GlobalKey<FlowyOverlayState> _key = GlobalKey<FlowyOverlayState>();
@@ -82,7 +84,8 @@ class FlowyOverlay extends StatefulWidget {
 
   final Widget child;
 
-  static FlowyOverlayState of(BuildContext context, {bool rootOverlay = false}) {
+  static FlowyOverlayState of(BuildContext context,
+      {bool rootOverlay = false}) {
     FlowyOverlayState? state = maybeOf(context, rootOverlay: rootOverlay);
     assert(() {
       if (state == null) {
@@ -95,7 +98,8 @@ class FlowyOverlay extends StatefulWidget {
     return state!;
   }
 
-  static FlowyOverlayState? maybeOf(BuildContext context, {bool rootOverlay = false}) {
+  static FlowyOverlayState? maybeOf(BuildContext context,
+      {bool rootOverlay = false}) {
     FlowyOverlayState? state;
     if (rootOverlay) {
       state = context.findRootAncestorStateOfType<FlowyOverlayState>();
@@ -113,20 +117,29 @@ class OverlayItem {
   Widget widget;
   String identifier;
   FlowyOverlayDelegate? delegate;
+  FocusNode focusNode;
 
   OverlayItem({
     required this.widget,
     required this.identifier,
+    required this.focusNode,
     this.delegate,
   });
+
+  void dispose() {
+    focusNode.dispose();
+  }
 }
 
 class FlowyOverlayState extends State<FlowyOverlay> {
   final List<OverlayItem> _overlayList = [];
   FlowyOverlayStyle style = FlowyOverlayStyle();
 
+  final Map<ShortcutActivator, void Function(String)>
+      _keyboardShortcutBindings = {};
+
   /// Insert a overlay widget which frame is set by the widget, not the component.
-  /// Be sure to specify the offset and size using a anchorable widget (like `Postition`, `CompositedTransformFollower`)
+  /// Be sure to specify the offset and size using a anchorable widget (like `Position`, `CompositedTransformFollower`)
   void insertCustom({
     required Widget widget,
     required String identifier,
@@ -192,9 +205,12 @@ class FlowyOverlayState extends State<FlowyOverlay> {
 
   void remove(String identifier) {
     setState(() {
-      final index = _overlayList.indexWhere((item) => item.identifier == identifier);
+      final index =
+          _overlayList.indexWhere((item) => item.identifier == identifier);
       if (index != -1) {
-        _overlayList.removeAt(index).delegate?.didRemove();
+        final OverlayItem item = _overlayList.removeAt(index);
+        item.delegate?.didRemove();
+        item.dispose();
       }
     });
   }
@@ -210,6 +226,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       _overlayList.remove(firstItem);
       if (firstItem.delegate != null) {
         firstItem.delegate!.didRemove();
+        firstItem.dispose();
         if (firstItem.delegate!.asBarrier()) {
           return;
         }
@@ -220,6 +237,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
           return;
         } else {
           element.delegate?.didRemove();
+          element.dispose();
           _overlayList.remove(element);
         }
       }
@@ -247,7 +265,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
     debugPrint("Show overlay: $identifier");
     Widget overlay = widget;
     final offset = anchorOffset ?? Offset.zero;
-
+    final focusNode = FocusNode();
     if (shouldAnchor) {
       assert(
         anchorPosition != null || anchorContext != null,
@@ -259,7 +277,7 @@ class FlowyOverlayState extends State<FlowyOverlay> {
         RenderObject renderObject = anchorContext.findRenderObject()!;
         assert(
           renderObject is RenderBox,
-          'Unexpect non-RenderBox render object caught.',
+          'Unexpected non-RenderBox render object caught.',
         );
         final renderBox = renderObject as RenderBox;
         targetAnchorPosition = renderBox.localToGlobal(Offset.zero);
@@ -271,13 +289,28 @@ class FlowyOverlayState extends State<FlowyOverlay> {
         targetAnchorSize.width,
         targetAnchorSize.height,
       );
+
       overlay = CustomSingleChildLayout(
         delegate: OverlayLayoutDelegate(
           anchorRect: anchorRect,
-          anchorDirection: anchorDirection ?? AnchorDirection.rightWithTopAligned,
+          anchorDirection:
+              anchorDirection ?? AnchorDirection.rightWithTopAligned,
           overlapBehaviour: overlapBehaviour ?? OverlapBehaviour.stretch,
         ),
-        child: widget,
+        child: Focus(
+            focusNode: focusNode,
+            onKey: (node, event) {
+              KeyEventResult result = KeyEventResult.ignored;
+              for (final ShortcutActivator activator
+                  in _keyboardShortcutBindings.keys) {
+                if (activator.accepts(event, RawKeyboard.instance)) {
+                  _keyboardShortcutBindings[activator]!.call(identifier);
+                  result = KeyEventResult.handled;
+                }
+              }
+              return result;
+            },
+            child: widget),
       );
     }
 
@@ -285,15 +318,27 @@ class FlowyOverlayState extends State<FlowyOverlay> {
       _overlayList.add(OverlayItem(
         widget: overlay,
         identifier: identifier,
+        focusNode: focusNode,
         delegate: delegate,
       ));
     });
   }
 
   @override
+  void initState() {
+    _keyboardShortcutBindings.addAll({
+      LogicalKeySet(LogicalKeyboardKey.escape): (identifier) {
+        remove(identifier);
+      },
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final overlays = _overlayList.map((item) {
       var widget = item.widget;
+      item.focusNode.requestFocus();
       if (item.delegate?.asBarrier() ?? false) {
         widget = Container(
           color: style.barrierColor,

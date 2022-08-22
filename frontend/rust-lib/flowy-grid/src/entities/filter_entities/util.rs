@@ -5,39 +5,39 @@ use crate::entities::{
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{FieldRevision, GridFilterRevision};
+use flowy_grid_data_model::revision::{FieldRevision, FilterConfigurationRevision};
 use flowy_sync::entities::grid::{CreateGridFilterParams, DeleteFilterParams};
 use std::convert::TryInto;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridFilter {
+pub struct GridFilterConfiguration {
     #[pb(index = 1)]
     pub id: String,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGridFilterPB {
+pub struct RepeatedGridConfigurationFilterPB {
     #[pb(index = 1)]
-    pub items: Vec<GridFilter>,
+    pub items: Vec<GridFilterConfiguration>,
 }
 
-impl std::convert::From<&GridFilterRevision> for GridFilter {
-    fn from(rev: &GridFilterRevision) -> Self {
+impl std::convert::From<&FilterConfigurationRevision> for GridFilterConfiguration {
+    fn from(rev: &FilterConfigurationRevision) -> Self {
         Self { id: rev.id.clone() }
     }
 }
 
-impl std::convert::From<Vec<Arc<GridFilterRevision>>> for RepeatedGridFilterPB {
-    fn from(revs: Vec<Arc<GridFilterRevision>>) -> Self {
-        RepeatedGridFilterPB {
+impl std::convert::From<Vec<Arc<FilterConfigurationRevision>>> for RepeatedGridConfigurationFilterPB {
+    fn from(revs: Vec<Arc<FilterConfigurationRevision>>) -> Self {
+        RepeatedGridConfigurationFilterPB {
             items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }
 
-impl std::convert::From<Vec<GridFilter>> for RepeatedGridFilterPB {
-    fn from(items: Vec<GridFilter>) -> Self {
+impl std::convert::From<Vec<GridFilterConfiguration>> for RepeatedGridConfigurationFilterPB {
+    fn from(items: Vec<GridFilterConfiguration>) -> Self {
         Self { items }
     }
 }
@@ -92,7 +92,7 @@ impl CreateGridFilterPayloadPB {
     pub fn new<T: Into<i32>>(field_rev: &FieldRevision, condition: T, content: Option<String>) -> Self {
         Self {
             field_id: field_rev.id.clone(),
-            field_type: field_rev.field_type_rev.into(),
+            field_type: field_rev.ty.into(),
             condition: condition.into(),
             content,
         }

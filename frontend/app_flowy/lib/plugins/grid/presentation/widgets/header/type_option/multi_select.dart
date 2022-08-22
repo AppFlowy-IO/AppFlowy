@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/multi_select_type_option.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:flutter/material.dart';
 
 import '../field_type_option_editor.dart';
@@ -12,7 +13,11 @@ class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
     MultiSelectTypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
   ) : _widget = MultiSelectTypeOptionWidget(
-          typeOptionContext: typeOptionContext,
+          selectOptionAction: MultiSelectAction(
+            fieldId: typeOptionContext.fieldId,
+            gridId: typeOptionContext.gridId,
+            typeOptionContext: typeOptionContext,
+          ),
           overlayDelegate: overlayDelegate,
         );
 
@@ -21,11 +26,11 @@ class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 }
 
 class MultiSelectTypeOptionWidget extends TypeOptionWidget {
-  final MultiSelectTypeOptionContext typeOptionContext;
+  final MultiSelectAction selectOptionAction;
   final TypeOptionOverlayDelegate overlayDelegate;
 
   const MultiSelectTypeOptionWidget({
-    required this.typeOptionContext,
+    required this.selectOptionAction,
     required this.overlayDelegate,
     Key? key,
   }) : super(key: key);
@@ -33,10 +38,10 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
   @override
   Widget build(BuildContext context) {
     return SelectOptionTypeOptionWidget(
-      options: typeOptionContext.typeOption.options,
+      options: selectOptionAction.typeOption.options,
       beginEdit: () => overlayDelegate.hideOverlay(context),
       overlayDelegate: overlayDelegate,
-      typeOptionAction: typeOptionContext,
+      typeOptionAction: selectOptionAction,
       // key: ValueKey(state.typeOption.hashCode),
     );
   }

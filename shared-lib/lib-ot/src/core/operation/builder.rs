@@ -4,6 +4,7 @@ use crate::rich_text::RichTextAttributes;
 pub type RichTextOpBuilder = OperationsBuilder<RichTextAttributes>;
 pub type PlainTextOpBuilder = OperationsBuilder<PhantomAttributes>;
 
+#[derive(Default)]
 pub struct OperationsBuilder<T: Attributes> {
     operations: Vec<Operation<T>>,
 }
@@ -13,17 +14,17 @@ where
     T: Attributes,
 {
     pub fn new() -> OperationsBuilder<T> {
-        OperationsBuilder { operations: vec![] }
+        OperationsBuilder::default()
     }
 
     pub fn retain_with_attributes(mut self, n: usize, attributes: T) -> OperationsBuilder<T> {
-        let retain = Operation::retain_with_attributes(n.into(), attributes);
+        let retain = Operation::retain_with_attributes(n, attributes);
         self.operations.push(retain);
         self
     }
 
     pub fn retain(mut self, n: usize) -> OperationsBuilder<T> {
-        let retain = Operation::retain(n.into());
+        let retain = Operation::retain(n);
         self.operations.push(retain);
         self
     }
@@ -34,13 +35,13 @@ where
     }
 
     pub fn insert_with_attributes(mut self, s: &str, attributes: T) -> OperationsBuilder<T> {
-        let insert = Operation::insert_with_attributes(s.into(), attributes);
+        let insert = Operation::insert_with_attributes(s, attributes);
         self.operations.push(insert);
         self
     }
 
     pub fn insert(mut self, s: &str) -> OperationsBuilder<T> {
-        let insert = Operation::insert(s.into());
+        let insert = Operation::insert(s);
         self.operations.push(insert);
         self
     }

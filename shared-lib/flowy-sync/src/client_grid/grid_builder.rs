@@ -18,8 +18,8 @@ impl std::default::Default for GridBuilder {
             rows: vec![],
         };
 
-        build_context.blocks.push(block_meta);
-        build_context.blocks_meta_data.push(block_meta_data);
+        build_context.block_metas.push(block_meta);
+        build_context.blocks.push(block_meta_data);
 
         GridBuilder { build_context }
     }
@@ -34,8 +34,8 @@ impl GridBuilder {
     }
 
     pub fn add_row(&mut self, row_rev: RowRevision) {
-        let block_meta_rev = self.build_context.blocks.first_mut().unwrap();
-        let block_rev = self.build_context.blocks_meta_data.first_mut().unwrap();
+        let block_meta_rev = self.build_context.block_metas.first_mut().unwrap();
+        let block_rev = self.build_context.blocks.first_mut().unwrap();
         block_rev.rows.push(Arc::new(row_rev));
         block_meta_rev.row_count += 1;
     }
@@ -50,7 +50,7 @@ impl GridBuilder {
     }
 
     pub fn block_id(&self) -> &str {
-        &self.build_context.blocks.first().unwrap().block_id
+        &self.build_context.block_metas.first().unwrap().block_id
     }
 
     pub fn build(self) -> BuildGridContext {

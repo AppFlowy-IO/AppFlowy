@@ -1,11 +1,11 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::revision::GridFilterRevision;
+use flowy_grid_data_model::revision::FilterConfigurationRevision;
 
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridNumberFilter {
+pub struct NumberFilterConfigurationPB {
     #[pb(index = 1)]
     pub condition: NumberFilterCondition,
 
@@ -55,9 +55,9 @@ impl std::convert::TryFrom<u8> for NumberFilterCondition {
     }
 }
 
-impl std::convert::From<Arc<GridFilterRevision>> for GridNumberFilter {
-    fn from(rev: Arc<GridFilterRevision>) -> Self {
-        GridNumberFilter {
+impl std::convert::From<Arc<FilterConfigurationRevision>> for NumberFilterConfigurationPB {
+    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
+        NumberFilterConfigurationPB {
             condition: NumberFilterCondition::try_from(rev.condition).unwrap_or(NumberFilterCondition::Equal),
             content: rev.content.clone(),
         }

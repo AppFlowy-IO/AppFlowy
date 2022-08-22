@@ -2,7 +2,7 @@ use flowy_derive::ProtoBuf;
 use std::convert::TryInto;
 
 use crate::{
-    entities::parser::{UserEmail, UserId, UserName, UserPassword},
+    entities::parser::{UserEmail, UserIcon, UserId, UserName, UserPassword},
     errors::ErrorCode,
 };
 
@@ -25,6 +25,9 @@ pub struct UserProfilePB {
 
     #[pb(index = 4)]
     pub token: String,
+
+    #[pb(index = 5)]
+    pub icon_url: String,
 }
 
 #[derive(ProtoBuf, Default)]
@@ -40,6 +43,9 @@ pub struct UpdateUserProfilePayloadPB {
 
     #[pb(index = 4, one_of)]
     pub password: Option<String>,
+
+    #[pb(index = 5, one_of)]
+    pub icon_url: Option<String>,
 }
 
 impl UpdateUserProfilePayloadPB {
@@ -64,6 +70,11 @@ impl UpdateUserProfilePayloadPB {
         self.password = Some(password.to_owned());
         self
     }
+
+    pub fn icon_url(mut self, icon_url: &str) -> Self {
+        self.icon_url = Some(icon_url.to_owned());
+        self
+    }
 }
 
 #[derive(ProtoBuf, Default, Clone, Debug)]
@@ -79,6 +90,9 @@ pub struct UpdateUserProfileParams {
 
     #[pb(index = 4, one_of)]
     pub password: Option<String>,
+
+    #[pb(index = 5, one_of)]
+    pub icon_url: Option<String>,
 }
 
 impl UpdateUserProfileParams {
@@ -88,6 +102,7 @@ impl UpdateUserProfileParams {
             name: None,
             email: None,
             password: None,
+            icon_url: None,
         }
     }
 
@@ -103,6 +118,11 @@ impl UpdateUserProfileParams {
 
     pub fn password(mut self, password: &str) -> Self {
         self.password = Some(password.to_owned());
+        self
+    }
+
+    pub fn icon_url(mut self, icon_url: &str) -> Self {
+        self.icon_url = Some(icon_url.to_owned());
         self
     }
 }
@@ -128,11 +148,17 @@ impl TryInto<UpdateUserProfileParams> for UpdateUserProfilePayloadPB {
             Some(password) => Some(UserPassword::parse(password)?.0),
         };
 
+        let icon_url = match self.icon_url {
+            None => None,
+            Some(icon_url) => Some(UserIcon::parse(icon_url)?.0),
+        };
+
         Ok(UpdateUserProfileParams {
             id,
             name,
             email,
             password,
+            icon_url,
         })
     }
 }

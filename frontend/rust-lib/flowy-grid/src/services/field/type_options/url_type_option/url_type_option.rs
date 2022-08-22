@@ -11,9 +11,9 @@ use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
-pub struct URLTypeOptionBuilder(URLTypeOption);
+pub struct URLTypeOptionBuilder(URLTypeOptionPB);
 impl_into_box_type_option_builder!(URLTypeOptionBuilder);
-impl_builder_from_json_str_and_from_bytes!(URLTypeOptionBuilder, URLTypeOption);
+impl_builder_from_json_str_and_from_bytes!(URLTypeOptionBuilder, URLTypeOptionPB);
 
 impl TypeOptionBuilder for URLTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
@@ -26,13 +26,13 @@ impl TypeOptionBuilder for URLTypeOptionBuilder {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
-pub struct URLTypeOption {
+pub struct URLTypeOptionPB {
     #[pb(index = 1)]
     data: String, //It's not used yet.
 }
-impl_type_option!(URLTypeOption, FieldType::URL);
+impl_type_option!(URLTypeOptionPB, FieldType::URL);
 
-impl CellDisplayable<URLCellDataPB> for URLTypeOption {
+impl CellDisplayable<URLCellDataPB> for URLTypeOptionPB {
     fn display_data(
         &self,
         cell_data: CellData<URLCellDataPB>,
@@ -44,7 +44,7 @@ impl CellDisplayable<URLCellDataPB> for URLTypeOption {
     }
 }
 
-impl CellDataOperation<URLCellDataPB, String> for URLTypeOption {
+impl CellDataOperation<URLCellDataPB, String> for URLTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<URLCellDataPB>,

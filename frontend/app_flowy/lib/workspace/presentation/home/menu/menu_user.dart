@@ -1,6 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/menu/menu_user_bloc.dart';
 import 'package:app_flowy/workspace/presentation/settings/settings_dialog.dart';
+import 'package:app_flowy/workspace/presentation/settings/widgets/settings_user_view.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
@@ -19,7 +20,8 @@ class MenuUser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<MenuUserBloc>(
-      create: (context) => getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
+      create: (context) =>
+          getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
           children: [
@@ -39,20 +41,19 @@ class MenuUser extends StatelessWidget {
   }
 
   Widget _renderAvatar(BuildContext context) {
-    return const SizedBox(
+    String iconUrl = context.read<MenuUserBloc>().state.userProfile.iconUrl;
+    if (iconUrl.isEmpty) {
+      iconUrl = defaultUserAvatar;
+    }
+
+    return SizedBox(
       width: 25,
       height: 25,
       child: ClipRRect(
           borderRadius: Corners.s5Border,
           child: CircleAvatar(
-            backgroundColor: Color.fromRGBO(132, 39, 224, 1.0),
-            child: Text(
-              'M',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w300,
-              ),
-            ),
+            backgroundColor: Colors.transparent,
+            child: svgWidget('emoji/$iconUrl'),
           )),
     );
   }

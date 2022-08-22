@@ -18,14 +18,14 @@ import 'package:fixnum/fixnum.dart' as $fixnum;
 part 'date_cal_bloc.freezed.dart';
 
 class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
-  final GridDateCellController cellContext;
+  final GridDateCellController cellController;
   void Function()? _onCellChangedFn;
 
   DateCalBloc({
-    required DateTypeOption dateTypeOption,
+    required DateTypeOptionPB dateTypeOptionPB,
     required DateCellDataPB? cellData,
-    required this.cellContext,
-  }) : super(DateCalState.initial(dateTypeOption, cellData)) {
+    required this.cellController,
+  }) : super(DateCalState.initial(dateTypeOptionPB, cellData)) {
     on<DateCalEvent>(
       (event, emit) async {
         await event.when(
@@ -102,7 +102,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
       }
     }
 
-    cellContext.saveCellData(newCalData, resultCallback: (result) {
+    cellController.saveCellData(newCalData, resultCallback: (result) {
       result.fold(
         () => updateCalData(Some(newCalData), none()),
         (err) {
@@ -120,7 +120,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
 
   String timeFormatPrompt(FlowyError error) {
     String msg = LocaleKeys.grid_field_invalidTimeFormat.tr() + ". ";
-    switch (state.dateTypeOption.timeFormat) {
+    switch (state.dateTypeOptionPB.timeFormat) {
       case TimeFormat.TwelveHour:
         msg = msg + "e.g. 01: 00 AM";
         break;
@@ -136,15 +136,15 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellContext.removeListener(_onCellChangedFn!);
+      cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    cellContext.dispose();
+    cellController.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(
+    _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cell) {
         if (!isClosed) {
           add(DateCalEvent.didReceiveCellUpdate(cell));
@@ -159,8 +159,8 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     TimeFormat? timeFormat,
     bool? includeTime,
   }) async {
-    state.dateTypeOption.freeze();
-    final newDateTypeOption = state.dateTypeOption.rebuild((typeOption) {
+    state.dateTypeOptionPB.freeze();
+    final newDateTypeOption = state.dateTypeOptionPB.rebuild((typeOption) {
       if (dateFormat != null) {
         typeOption.dateFormat = dateFormat;
       }
@@ -175,14 +175,14 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
     });
 
     final result = await FieldService.updateFieldTypeOption(
-      gridId: cellContext.gridId,
-      fieldId: cellContext.field.id,
+      gridId: cellController.gridId,
+      fieldId: cellController.field.id,
       typeOptionData: newDateTypeOption.writeToBuffer(),
     );
 
     result.fold(
       (l) => emit(state.copyWith(
-          dateTypeOption: newDateTypeOption,
+          dateTypeOptionPB: newDateTypeOption,
           timeHintText: _timeHintText(newDateTypeOption))),
       (err) => Log.error(err),
     );
@@ -210,7 +210,7 @@ class DateCalEvent with _$DateCalEvent {
 @freezed
 class DateCalState with _$DateCalState {
   const factory DateCalState({
-    required DateTypeOption dateTypeOption,
+    required DateTypeOptionPB dateTypeOptionPB,
     required CalendarFormat format,
     required DateTime focusedDay,
     required Option<String> timeFormatError,
@@ -220,24 +220,24 @@ class DateCalState with _$DateCalState {
   }) = _DateCalState;
 
   factory DateCalState.initial(
-    DateTypeOption dateTypeOption,
+    DateTypeOptionPB dateTypeOptionPB,
     DateCellDataPB? cellData,
   ) {
     Option<CalendarData> calData = calDataFromCellData(cellData);
     final time = calData.foldRight("", (dateData, previous) => dateData.time);
     return DateCalState(
-      dateTypeOption: dateTypeOption,
+      dateTypeOptionPB: dateTypeOptionPB,
       format: CalendarFormat.month,
       focusedDay: DateTime.now(),
       time: time,
       calData: calData,
       timeFormatError: none(),
-      timeHintText: _timeHintText(dateTypeOption),
+      timeHintText: _timeHintText(dateTypeOptionPB),
     );
   }
 }
 
-String _timeHintText(DateTypeOption typeOption) {
+String _timeHintText(DateTypeOptionPB typeOption) {
   switch (typeOption.timeFormat) {
     case TimeFormat.TwelveHour:
       return LocaleKeys.document_date_timeHintTextInTwelveHour.tr();

@@ -8,7 +8,7 @@ mod tests {
 
     #[test]
     fn checkout_box_description_test() {
-        let type_option = CheckboxTypeOption::default();
+        let type_option = CheckboxTypeOptionPB::default();
         let field_type = FieldType::Checkbox;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
@@ -27,7 +27,7 @@ mod tests {
     }
 
     fn assert_checkbox(
-        type_option: &CheckboxTypeOption,
+        type_option: &CheckboxTypeOptionPB,
         input_str: &str,
         expected_str: &str,
         field_type: &FieldType,

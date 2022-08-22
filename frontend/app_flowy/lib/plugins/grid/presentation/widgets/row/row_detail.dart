@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_detail_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -21,13 +21,11 @@ import '../header/field_cell.dart';
 import '../header/field_editor.dart';
 
 class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
-  final GridRowInfo rowInfo;
-  final GridRowCache rowCache;
+  final GridRowDataController dataController;
   final GridCellBuilder cellBuilder;
 
   const RowDetailPage({
-    required this.rowInfo,
-    required this.rowCache,
+    required this.dataController,
     required this.cellBuilder,
     Key? key,
   }) : super(key: key);
@@ -62,8 +60,9 @@ class _RowDetailPageState extends State<RowDetailPage> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        final bloc =
-            RowDetailBloc(rowInfo: widget.rowInfo, rowCache: widget.rowCache);
+        final bloc = RowDetailBloc(
+          dataController: widget.dataController,
+        );
         bloc.add(const RowDetailEvent.initial());
         return bloc;
       },

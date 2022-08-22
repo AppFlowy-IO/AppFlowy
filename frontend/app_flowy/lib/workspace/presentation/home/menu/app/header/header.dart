@@ -49,7 +49,9 @@ class MenuAppHeader extends StatelessWidget {
       height: MenuAppSizes.headerHeight,
       child: InkWell(
         onTap: () {
-          ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle();
+          ExpandableController.of(context,
+                  rebuildOnChange: false, required: true)
+              ?.toggle();
         },
         child: ExpandableIcon(
           theme: ExpandableThemeData(
@@ -68,18 +70,23 @@ class MenuAppHeader extends StatelessWidget {
   Widget _renderTitle(BuildContext context, AppTheme theme) {
     return Expanded(
       child: BlocListener<AppBloc, AppState>(
-        listenWhen: (p, c) => (p.latestCreatedView == null && c.latestCreatedView != null),
+        listenWhen: (p, c) =>
+            (p.latestCreatedView == null && c.latestCreatedView != null),
         listener: (context, state) {
-          final expandableController = ExpandableController.of(context, rebuildOnChange: false, required: true)!;
+          final expandableController = ExpandableController.of(context,
+              rebuildOnChange: false, required: true)!;
           if (!expandableController.expanded) {
             expandableController.toggle();
           }
         },
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: () => ExpandableController.of(context, rebuildOnChange: false, required: true)?.toggle(),
+          onTap: () => ExpandableController.of(context,
+                  rebuildOnChange: false, required: true)
+              ?.toggle(),
           onSecondaryTap: () {
-            final actionList = AppDisclosureActionSheet(onSelected: (action) => _handleAction(context, action));
+            final actionList = AppDisclosureActionSheet(
+                onSelected: (action) => _handleAction(context, action));
             actionList.show(
               context,
               anchorDirection: AnchorDirection.bottomWithCenterAligned,
@@ -107,6 +114,7 @@ class MenuAppHeader extends StatelessWidget {
                 LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
                 "",
                 pluginBuilder.dataType,
+                pluginBuilder.subDataType!,
                 pluginBuilder.pluginType,
               ));
         },

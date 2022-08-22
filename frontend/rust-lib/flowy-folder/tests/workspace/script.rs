@@ -5,11 +5,12 @@ use flowy_folder::entities::{
     trash::{RepeatedTrashPB, TrashIdPB, TrashType},
     view::{CreateViewPayloadPB, UpdateViewPayloadPB},
     workspace::{CreateWorkspacePayloadPB, RepeatedWorkspacePB},
+    ViewLayoutTypePB,
 };
 use flowy_folder::entities::{
     app::{AppPB, RepeatedAppPB},
     trash::TrashPB,
-    view::{RepeatedViewPB, ViewDataType, ViewPB},
+    view::{RepeatedViewPB, ViewDataTypePB, ViewPB},
     workspace::WorkspacePB,
 };
 use flowy_folder::event_map::FolderEvent::*;
@@ -51,7 +52,7 @@ pub enum FolderScript {
     CreateView {
         name: String,
         desc: String,
-        data_type: ViewDataType,
+        data_type: ViewDataTypePB,
     },
     AssertView(ViewPB),
     ReadView(String),
@@ -98,7 +99,8 @@ impl FolderTest {
             &app.id,
             "Folder View",
             "Folder test view",
-            ViewDataType::TextBlock,
+            ViewDataTypePB::Text,
+            ViewLayoutTypePB::Document,
         )
         .await;
         app.belongings = RepeatedViewPB {
@@ -149,7 +151,7 @@ impl FolderTest {
             //     assert_eq!(json, expected_json);
             // }
             FolderScript::AssertWorkspace(workspace) => {
-                assert_eq!(self.workspace, workspace);
+                assert_eq!(self.workspace, workspace, "Workspace not equal");
             }
             FolderScript::ReadWorkspace(workspace_id) => {
                 let workspace = read_workspace(sdk, workspace_id).await.pop().unwrap();
@@ -165,7 +167,7 @@ impl FolderTest {
             //     assert_eq!(json, expected_json);
             // }
             FolderScript::AssertApp(app) => {
-                assert_eq!(self.app, app);
+                assert_eq!(self.app, app, "App not equal");
             }
             FolderScript::ReadApp(app_id) => {
                 let app = read_app(sdk, &app_id).await;
@@ -179,11 +181,15 @@ impl FolderTest {
             }
 
             FolderScript::CreateView { name, desc, data_type } => {
-                let view = create_view(sdk, &self.app.id, &name, &desc, data_type).await;
+                let layout = match data_type {
+                    ViewDataTypePB::Text => ViewLayoutTypePB::Document,
+                    ViewDataTypePB::Database => ViewLayoutTypePB::Grid,
+                };
+                let view = create_view(sdk, &self.app.id, &name, &desc, data_type, layout).await;
                 self.view = view;
             }
             FolderScript::AssertView(view) => {
-                assert_eq!(self.view, view);
+                assert_eq!(self.view, view, "View not equal");
             }
             FolderScript::ReadView(view_id) => {
                 let view = read_view(sdk, &view_id).await;
@@ -214,7 +220,7 @@ impl FolderTest {
             }
             FolderScript::AssertRevisionState { rev_id, state } => {
                 let record = cache.get(rev_id).await.unwrap();
-                assert_eq!(record.state, state);
+                assert_eq!(record.state, state, "Revision state is not match");
                 if let RevisionState::Ack = state {
                     // There is a defer action that writes the revisions to disk, so we wait here.
                     // Make sure everything is written.
@@ -234,7 +240,7 @@ impl FolderTest {
                     .unwrap_or_else(|| panic!("Expected Next revision is {}, but receive None", rev_id.unwrap()));
                 let mut notify = rev_manager.ack_notify();
                 let _ = notify.recv().await;
-                assert_eq!(next_revision.rev_id, rev_id.unwrap());
+                assert_eq!(next_revision.rev_id, rev_id.unwrap(), "Revision id not match");
             }
         }
     }
@@ -346,15 +352,22 @@ pub async fn delete_app(sdk: &FlowySDKTest, app_id: &str) {
         .await;
 }
 
-pub async fn create_view(sdk: &FlowySDKTest, app_id: &str, name: &str, desc: &str, data_type: ViewDataType) -> ViewPB {
+pub async fn create_view(
+    sdk: &FlowySDKTest,
+    app_id: &str,
+    name: &str,
+    desc: &str,
+    data_type: ViewDataTypePB,
+    layout: ViewLayoutTypePB,
+) -> ViewPB {
     let request = CreateViewPayloadPB {
         belong_to_id: app_id.to_string(),
         name: name.to_string(),
         desc: desc.to_string(),
         thumbnail: None,
         data_type,
-        plugin_type: 0,
-        data: vec![],
+        layout,
+        view_content_data: vec![],
     };
     let view = FolderEventBuilder::new(sdk.clone())
         .event(CreateView)

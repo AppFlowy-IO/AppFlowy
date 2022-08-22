@@ -1,16 +1,17 @@
-mod folder_rev_impl;
-mod grid_block_meta_rev_impl;
-mod grid_rev_impl;
-mod text_rev_impl;
+mod document_impl;
+mod grid_block_impl;
+mod grid_impl;
+mod grid_view_impl;
 
-pub use folder_rev_impl::*;
-pub use grid_block_meta_rev_impl::*;
-pub use grid_rev_impl::*;
-pub use text_rev_impl::*;
+pub use document_impl::*;
+pub use grid_block_impl::*;
+pub use grid_impl::*;
+pub use grid_view_impl::*;
 
-use flowy_error::FlowyResult;
+use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::entities::revision::{RevId, Revision, RevisionRange};
 use std::fmt::Debug;
+use std::sync::Arc;
 
 pub trait RevisionDiskCache: Sync + Send {
     type Error: Debug;
@@ -43,6 +44,50 @@ pub trait RevisionDiskCache: Sync + Send {
         deleted_rev_ids: Option<Vec<i64>>,
         inserted_records: Vec<RevisionRecord>,
     ) -> Result<(), Self::Error>;
+}
+
+impl<T> RevisionDiskCache for Arc<T>
+where
+    T: RevisionDiskCache<Error = FlowyError>,
+{
+    type Error = FlowyError;
+
+    fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
+        (**self).create_revision_records(revision_records)
+    }
+
+    fn read_revision_records(
+        &self,
+        object_id: &str,
+        rev_ids: Option<Vec<i64>>,
+    ) -> Result<Vec<RevisionRecord>, Self::Error> {
+        (**self).read_revision_records(object_id, rev_ids)
+    }
+
+    fn read_revision_records_with_range(
+        &self,
+        object_id: &str,
+        range: &RevisionRange,
+    ) -> Result<Vec<RevisionRecord>, Self::Error> {
+        (**self).read_revision_records_with_range(object_id, range)
+    }
+
+    fn update_revision_record(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()> {
+        (**self).update_revision_record(changesets)
+    }
+
+    fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
+        (**self).delete_revision_records(object_id, rev_ids)
+    }
+
+    fn delete_and_insert_records(
+        &self,
+        object_id: &str,
+        deleted_rev_ids: Option<Vec<i64>>,
+        inserted_records: Vec<RevisionRecord>,
+    ) -> Result<(), Self::Error> {
+        (**self).delete_and_insert_records(object_id, deleted_rev_ids, inserted_records)
+    }
 }
 
 #[derive(Clone, Debug)]

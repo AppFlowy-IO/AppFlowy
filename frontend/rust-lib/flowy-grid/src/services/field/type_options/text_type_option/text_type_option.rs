@@ -12,9 +12,9 @@ use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDat
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
-pub struct RichTextTypeOptionBuilder(RichTextTypeOption);
+pub struct RichTextTypeOptionBuilder(RichTextTypeOptionPB);
 impl_into_box_type_option_builder!(RichTextTypeOptionBuilder);
-impl_builder_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTypeOption);
+impl_builder_from_json_str_and_from_bytes!(RichTextTypeOptionBuilder, RichTextTypeOptionPB);
 
 impl TypeOptionBuilder for RichTextTypeOptionBuilder {
     fn field_type(&self) -> FieldType {
@@ -27,13 +27,13 @@ impl TypeOptionBuilder for RichTextTypeOptionBuilder {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct RichTextTypeOption {
+pub struct RichTextTypeOptionPB {
     #[pb(index = 1)]
     data: String, //It's not used yet
 }
-impl_type_option!(RichTextTypeOption, FieldType::RichText);
+impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 
-impl CellDisplayable<String> for RichTextTypeOption {
+impl CellDisplayable<String> for RichTextTypeOptionPB {
     fn display_data(
         &self,
         cell_data: CellData<String>,
@@ -45,7 +45,7 @@ impl CellDisplayable<String> for RichTextTypeOption {
     }
 }
 
-impl CellDataOperation<String, String> for RichTextTypeOption {
+impl CellDataOperation<String, String> for RichTextTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<String>,
@@ -96,7 +96,7 @@ impl FromCellString for TextCellData {
 pub struct TextCellDataParser();
 impl CellBytesParser for TextCellDataParser {
     type Object = TextCellData;
-    fn parse(&self, bytes: &Bytes) -> FlowyResult<Self::Object> {
+    fn parser(bytes: &Bytes) -> FlowyResult<Self::Object> {
         match String::from_utf8(bytes.to_vec()) {
             Ok(s) => Ok(TextCellData(s)),
             Err(_) => Ok(TextCellData("".to_owned())),
@@ -114,7 +114,7 @@ mod tests {
 
     #[test]
     fn text_description_test() {
-        let type_option = RichTextTypeOption::default();
+        let type_option = RichTextTypeOptionPB::default();
 
         // date
         let field_type = FieldType::DateTime;
@@ -124,7 +124,7 @@ mod tests {
             type_option
                 .decode_cell_data(1647251762.to_string().into(), &field_type, &date_time_field_rev)
                 .unwrap()
-                .with_parser(DateCellDataParser())
+                .parser::<DateCellDataParser>()
                 .unwrap()
                 .date,
             "Mar 14,2022".to_owned()
@@ -133,7 +133,7 @@ mod tests {
         // Single select
         let done_option = SelectOptionPB::new("Done");
         let done_option_id = done_option.id.clone();
-        let single_select = SingleSelectTypeOptionBuilder::default().option(done_option.clone());
+        let single_select = SingleSelectTypeOptionBuilder::default().add_option(done_option.clone());
         let single_select_field_rev = FieldBuilder::new(single_select).build();
 
         assert_eq!(
@@ -144,7 +144,7 @@ mod tests {
                     &single_select_field_rev
                 )
                 .unwrap()
-                .with_parser(SelectOptionCellDataParser())
+                .parser::<SelectOptionCellDataParser>()
                 .unwrap()
                 .select_options,
             vec![done_option],
@@ -156,10 +156,10 @@ mod tests {
         let ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
         let cell_data_changeset = SelectOptionCellChangeset::from_insert(&ids).to_str();
         let multi_select = MultiSelectTypeOptionBuilder::default()
-            .option(google_option.clone())
-            .option(facebook_option.clone());
+            .add_option(google_option.clone())
+            .add_option(facebook_option.clone());
         let multi_select_field_rev = FieldBuilder::new(multi_select).build();
-        let multi_type_option = MultiSelectTypeOption::from(&multi_select_field_rev);
+        let multi_type_option = MultiSelectTypeOptionPB::from(&multi_select_field_rev);
         let cell_data = multi_type_option
             .apply_changeset(cell_data_changeset.into(), None)
             .unwrap();
@@ -167,7 +167,7 @@ mod tests {
             type_option
                 .decode_cell_data(cell_data.into(), &FieldType::MultiSelect, &multi_select_field_rev)
                 .unwrap()
-                .with_parser(SelectOptionCellDataParser())
+                .parser::<SelectOptionCellDataParser>()
                 .unwrap()
                 .select_options,
             vec![google_option, facebook_option]

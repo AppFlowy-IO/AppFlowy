@@ -1,6 +1,7 @@
+import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
@@ -11,12 +12,15 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+import '../application/row/row_cache.dart';
 import 'controller/grid_scroll.dart';
 import 'layout/layout.dart';
 import 'layout/sizes.dart';
+import 'widgets/cell/cell_builder.dart';
 import 'widgets/row/grid_row.dart';
 import 'widgets/footer/grid_footer.dart';
 import 'widgets/header/grid_header.dart';
+import 'widgets/row/row_detail.dart';
 import 'widgets/shortcuts.dart';
 import 'widgets/toolbar/grid_toolbar.dart';
 
@@ -79,7 +83,7 @@ class FlowyGrid extends StatefulWidget {
 
 class _FlowyGridState extends State<FlowyGrid> {
   final _scrollController = GridScrollController(
-      scrollGroupContorller: LinkedScrollControllerGroup());
+      scrollGroupController: LinkedScrollControllerGroup());
   late ScrollController headerScrollController;
 
   @override
@@ -153,7 +157,7 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 
   Widget _gridHeader(BuildContext context, String gridId) {
-    final fieldCache = context.read<GridBloc>().fieldCache;
+    final fieldCache = context.read<GridBloc>().dataController.fieldCache;
     return GridHeaderSliverAdaptor(
       gridId: gridId,
       fieldCache: fieldCache,
@@ -169,7 +173,7 @@ class _GridToolbarAdaptor extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<GridBloc, GridState, GridToolbarContext>(
       selector: (state) {
-        final fieldCache = context.read<GridBloc>().fieldCache;
+        final fieldCache = context.read<GridBloc>().dataController.fieldCache;
         return GridToolbarContext(
           gridId: state.gridId,
           fieldCache: fieldCache,
@@ -221,7 +225,7 @@ class _GridRowsState extends State<_GridRows> {
           initialItemCount: context.read<GridBloc>().state.rowInfos.length,
           itemBuilder:
               (BuildContext context, int index, Animation<double> animation) {
-            final GridRowInfo rowInfo =
+            final RowInfo rowInfo =
                 context.read<GridBloc>().state.rowInfos[index];
             return _renderRow(context, rowInfo, animation);
           },
@@ -232,25 +236,61 @@ class _GridRowsState extends State<_GridRows> {
 
   Widget _renderRow(
     BuildContext context,
-    GridRowInfo rowInfo,
+    RowInfo rowInfo,
     Animation<double> animation,
   ) {
-    final rowCache =
-        context.read<GridBloc>().getRowCache(rowInfo.blockId, rowInfo.id);
-    final fieldCache = context.read<GridBloc>().fieldCache;
-    if (rowCache != null) {
-      return SizeTransition(
-        sizeFactor: animation,
-        child: GridRowWidget(
-          rowData: rowInfo,
-          rowCache: rowCache,
-          fieldCache: fieldCache,
-          key: ValueKey(rowInfo.id),
-        ),
-      );
-    } else {
-      return const SizedBox();
-    }
+    final rowCache = context.read<GridBloc>().getRowCache(
+          rowInfo.rowPB.blockId,
+          rowInfo.rowPB.id,
+        );
+
+    /// Return placeholder widget if the rowCache is null.
+    if (rowCache == null) return const SizedBox();
+
+    final fieldCache = context.read<GridBloc>().dataController.fieldCache;
+    final dataController = GridRowDataController(
+      rowInfo: rowInfo,
+      fieldCache: fieldCache,
+      rowCache: rowCache,
+    );
+
+    return SizeTransition(
+      sizeFactor: animation,
+      child: GridRowWidget(
+        rowInfo: rowInfo,
+        dataController: dataController,
+        cellBuilder: GridCellBuilder(delegate: dataController),
+        openDetailPage: (context, cellBuilder) {
+          _openRowDetailPage(
+            context,
+            rowInfo,
+            fieldCache,
+            rowCache,
+            cellBuilder,
+          );
+        },
+        key: ValueKey(rowInfo.rowPB.id),
+      ),
+    );
+  }
+
+  void _openRowDetailPage(
+    BuildContext context,
+    RowInfo rowInfo,
+    GridFieldCache fieldCache,
+    GridRowCache rowCache,
+    GridCellBuilder cellBuilder,
+  ) {
+    final dataController = GridRowDataController(
+      rowInfo: rowInfo,
+      fieldCache: fieldCache,
+      rowCache: rowCache,
+    );
+
+    RowDetailPage(
+      cellBuilder: cellBuilder,
+      dataController: dataController,
+    ).show(context);
   }
 }
 

@@ -3,19 +3,22 @@ import 'package:flutter/foundation.dart';
 
 import 'cell_service.dart';
 
-abstract class GridFieldChangedNotifier {
-  void onFieldChanged(void Function(GridFieldPB) callback);
-  void dispose();
+abstract class IGridCellFieldNotifier {
+  void onCellFieldChanged(void Function(FieldPB) callback);
+  void onCellDispose();
 }
 
 /// GridPB's cell helper wrapper that enables each cell will get notified when the corresponding field was changed.
 /// You Register an onFieldChanged callback to listen to the cell changes, and unregister if you don't want to listen.
 class GridCellFieldNotifier {
-  /// fieldId: {objectId: callback}
-  final Map<String, Map<String, List<VoidCallback>>> _fieldListenerByFieldId = {};
+  final IGridCellFieldNotifier notifier;
 
-  GridCellFieldNotifier({required GridFieldChangedNotifier notifier}) {
-    notifier.onFieldChanged(
+  /// fieldId: {objectId: callback}
+  final Map<String, Map<String, List<VoidCallback>>> _fieldListenerByFieldId =
+      {};
+
+  GridCellFieldNotifier({required this.notifier}) {
+    notifier.onCellFieldChanged(
       (field) {
         final map = _fieldListenerByFieldId[field.id];
         if (map != null) {
@@ -55,6 +58,7 @@ class GridCellFieldNotifier {
   }
 
   Future<void> dispose() async {
+    notifier.onCellDispose();
     _fieldListenerByFieldId.clear();
   }
 }

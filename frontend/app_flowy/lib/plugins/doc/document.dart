@@ -1,4 +1,4 @@
-library docuemnt_plugin;
+library document_plugin;
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
@@ -42,10 +42,10 @@ class DocumentPluginBuilder extends PluginBuilder {
   String get menuName => LocaleKeys.document_menuName.tr();
 
   @override
-  PluginType get pluginType => DefaultPlugin.quill.type();
+  PluginType get pluginType => PluginType.editor;
 
   @override
-  ViewDataType get dataType => ViewDataType.TextBlock;
+  ViewDataTypePB get dataType => ViewDataTypePB.Text;
 }
 
 class DocumentPlugin implements Plugin {

@@ -1,5 +1,6 @@
 use crate::revision::{
-    gen_app_id, gen_view_id, gen_workspace_id, AppRevision, ViewDataTypeRevision, ViewRevision, WorkspaceRevision,
+    gen_app_id, gen_view_id, gen_workspace_id, AppRevision, ViewDataTypeRevision, ViewLayoutTypeRevision, ViewRevision,
+    WorkspaceRevision,
 };
 use chrono::Utc;
 
@@ -46,16 +47,16 @@ fn create_default_view(app_id: String, time: chrono::DateTime<Utc>) -> ViewRevis
 
     ViewRevision {
         id: view_id,
-        belong_to_id: app_id,
+        app_id,
         name,
         desc: "".to_string(),
-        data_type: ViewDataTypeRevision::TextBlock,
+        data_type: ViewDataTypeRevision::Text,
         version: 0,
         belongings: vec![],
         modified_time: time.timestamp(),
         create_time: time.timestamp(),
         ext_data: "".to_string(),
         thumbnail: "".to_string(),
-        plugin_type: 0,
+        layout: ViewLayoutTypeRevision::Document,
     }
 }

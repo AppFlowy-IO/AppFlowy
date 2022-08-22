@@ -2,13 +2,13 @@ use crate::entities::FieldType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::GridFilterRevision;
+use flowy_grid_data_model::revision::FilterConfigurationRevision;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridDateFilter {
+pub struct DateFilterConfigurationPB {
     #[pb(index = 1)]
     pub condition: DateFilterCondition,
 
@@ -120,10 +120,10 @@ impl std::convert::TryFrom<u8> for DateFilterCondition {
         }
     }
 }
-impl std::convert::From<Arc<GridFilterRevision>> for GridDateFilter {
-    fn from(rev: Arc<GridFilterRevision>) -> Self {
+impl std::convert::From<Arc<FilterConfigurationRevision>> for DateFilterConfigurationPB {
+    fn from(rev: Arc<FilterConfigurationRevision>) -> Self {
         let condition = DateFilterCondition::try_from(rev.condition).unwrap_or(DateFilterCondition::DateIs);
-        let mut filter = GridDateFilter {
+        let mut filter = DateFilterConfigurationPB {
             condition,
             ..Default::default()
         };

@@ -1,6 +1,8 @@
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+
 import 'package:app_flowy/workspace/presentation/home/hotkeys.dart';
+import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/startup/startup.dart';
@@ -89,7 +91,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final layout = HomeLayout(context, constraints, state.forceCollapse);
-        const homeStack = HomeStack();
+        final homeStack = HomeStack(
+          layout: layout,
+        );
         final menu = _buildHomeMenu(
           layout: layout,
           context: context,

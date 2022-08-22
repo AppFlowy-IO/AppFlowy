@@ -29,7 +29,7 @@
             "program": "./lib/main.dart",
             "type": "dart",
             "env": {
-                "RUST_LOG": "debug"
+                "RUST_LOG": "trace"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },
@@ -44,7 +44,7 @@
             "type": "dart",
             "preLaunchTask": "AF: Clean + Rebuild All",
             "env": {
-                "RUST_LOG": "info"
+                "RUST_LOG": "trace"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },

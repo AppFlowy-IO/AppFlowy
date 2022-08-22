@@ -14,16 +14,16 @@ use serde::{Deserialize, Serialize};
 
 // Multiple select
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ProtoBuf)]
-pub struct MultiSelectTypeOption {
+pub struct MultiSelectTypeOptionPB {
     #[pb(index = 1)]
     pub options: Vec<SelectOptionPB>,
 
     #[pb(index = 2)]
     pub disable_color: bool,
 }
-impl_type_option!(MultiSelectTypeOption, FieldType::MultiSelect);
+impl_type_option!(MultiSelectTypeOptionPB, FieldType::MultiSelect);
 
-impl SelectOptionOperation for MultiSelectTypeOption {
+impl SelectOptionOperation for MultiSelectTypeOptionPB {
     fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
         let select_options = make_selected_select_options(cell_data, &self.options);
         SelectOptionCellDataPB {
@@ -41,7 +41,7 @@ impl SelectOptionOperation for MultiSelectTypeOption {
     }
 }
 
-impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSelectTypeOption {
+impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSelectTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<SelectOptionIds>,
@@ -93,11 +93,11 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
 }
 
 #[derive(Default)]
-pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOption);
+pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOptionPB);
 impl_into_box_type_option_builder!(MultiSelectTypeOptionBuilder);
-impl_builder_from_json_str_and_from_bytes!(MultiSelectTypeOptionBuilder, MultiSelectTypeOption);
+impl_builder_from_json_str_and_from_bytes!(MultiSelectTypeOptionBuilder, MultiSelectTypeOptionPB);
 impl MultiSelectTypeOptionBuilder {
-    pub fn option(mut self, opt: SelectOptionPB) -> Self {
+    pub fn add_option(mut self, opt: SelectOptionPB) -> Self {
         self.0.options.push(opt);
         self
     }
@@ -118,7 +118,7 @@ mod tests {
     use crate::services::cell::CellDataOperation;
     use crate::services::field::type_options::selection_type_option::*;
     use crate::services::field::FieldBuilder;
-    use crate::services::field::{MultiSelectTypeOption, MultiSelectTypeOptionBuilder};
+    use crate::services::field::{MultiSelectTypeOptionBuilder, MultiSelectTypeOptionPB};
     use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
@@ -127,16 +127,16 @@ mod tests {
         let facebook_option = SelectOptionPB::new("Facebook");
         let twitter_option = SelectOptionPB::new("Twitter");
         let multi_select = MultiSelectTypeOptionBuilder::default()
-            .option(google_option.clone())
-            .option(facebook_option.clone())
-            .option(twitter_option);
+            .add_option(google_option.clone())
+            .add_option(facebook_option.clone())
+            .add_option(twitter_option);
 
         let field_rev = FieldBuilder::new(multi_select)
             .name("Platform")
             .visibility(true)
             .build();
 
-        let type_option = MultiSelectTypeOption::from(&field_rev);
+        let type_option = MultiSelectTypeOptionPB::from(&field_rev);
 
         let option_ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
         let data = SelectOptionCellChangeset::from_insert(&option_ids).to_str();
@@ -170,17 +170,17 @@ mod tests {
 
     fn assert_multi_select_options(
         cell_data: String,
-        type_option: &MultiSelectTypeOption,
+        type_option: &MultiSelectTypeOptionPB,
         field_rev: &FieldRevision,
         expected: Vec<SelectOptionPB>,
     ) {
-        let field_type: FieldType = field_rev.field_type_rev.into();
+        let field_type: FieldType = field_rev.ty.into();
         assert_eq!(
             expected,
             type_option
                 .decode_cell_data(cell_data.into(), &field_type, field_rev)
                 .unwrap()
-                .with_parser(SelectOptionCellDataParser())
+                .parser::<SelectOptionCellDataParser>()
                 .unwrap()
                 .select_options,
         );

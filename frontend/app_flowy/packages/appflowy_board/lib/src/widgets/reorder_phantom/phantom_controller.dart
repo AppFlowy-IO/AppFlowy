@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
 import '../../utils/log.dart';
 import '../board_column/board_column_data.dart';
 import '../reorder_flex/drag_state.dart';
 import '../reorder_flex/drag_target.dart';
-import '../reorder_flex/drag_target_inteceptor.dart';
+import '../reorder_flex/drag_target_interceptor.dart';
 import 'phantom_state.dart';
 
 abstract class BoardPhantomControllerDelegate {
-  BoardColumnDataController? controller(String columnId);
+  AFBoardColumnDataController? controller(String columnId);
 
   bool removePhantom(String columnId);
 
@@ -61,7 +62,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     columnsState.setColumnIsDragging(columnId, false);
   }
 
-  /// Remove the phanton in the column when the column is end dragging.
+  /// Remove the phantom in the column when the column is end dragging.
   void columnEndDragging(String columnId) {
     columnsState.setColumnIsDragging(columnId, true);
     if (phantomRecord == null) return;
@@ -253,7 +254,7 @@ class PhantomRecord {
   }
 }
 
-class PhantomColumnItem extends ColumnItem {
+class PhantomColumnItem extends AFColumnItem {
   final PassthroughPhantomContext phantomContext;
 
   PhantomColumnItem(PassthroughPhantomContext insertedPhantom)
@@ -290,7 +291,7 @@ class PassthroughPhantomContext extends FakeDragTargetEventTrigger
 
   Widget? get draggingWidget => dragTargetData.draggingWidget;
 
-  ColumnItem get itemData => dragTargetData.reorderFlexItem as ColumnItem;
+  AFColumnItem get itemData => dragTargetData.reorderFlexItem as AFColumnItem;
 
   @override
   VoidCallback? onInserted;
@@ -331,7 +332,7 @@ class PhantomDraggableBuilder extends ReorderFlexDraggableTargetBuilder {
     Widget child,
     DragTargetOnStarted onDragStarted,
     DragTargetOnEnded<T> onDragEnded,
-    DragTargetWillAccpet<T> onWillAccept,
+    DragTargetWillAccepted<T> onWillAccept,
     AnimationController insertAnimationController,
     AnimationController deleteAnimationController,
   ) {

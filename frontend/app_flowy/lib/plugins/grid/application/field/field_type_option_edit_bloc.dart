@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
-import 'field_service.dart';
-
+import 'type_option/type_option_data_controller.dart';
 part 'field_type_option_edit_bloc.freezed.dart';
 
-class FieldTypeOptionEditBloc extends Bloc<FieldTypeOptionEditEvent, FieldTypeOptionEditState> {
+class FieldTypeOptionEditBloc
+    extends Bloc<FieldTypeOptionEditEvent, FieldTypeOptionEditState> {
   final TypeOptionDataController _dataController;
   void Function()? _fieldListenFn;
 
@@ -42,16 +42,19 @@ class FieldTypeOptionEditBloc extends Bloc<FieldTypeOptionEditEvent, FieldTypeOp
 @freezed
 class FieldTypeOptionEditEvent with _$FieldTypeOptionEditEvent {
   const factory FieldTypeOptionEditEvent.initial() = _Initial;
-  const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(GridFieldPB field) = _DidReceiveFieldUpdated;
+  const factory FieldTypeOptionEditEvent.didReceiveFieldUpdated(FieldPB field) =
+      _DidReceiveFieldUpdated;
 }
 
 @freezed
 class FieldTypeOptionEditState with _$FieldTypeOptionEditState {
   const factory FieldTypeOptionEditState({
-    required GridFieldPB field,
+    required FieldPB field,
   }) = _FieldTypeOptionEditState;
 
-  factory FieldTypeOptionEditState.initial(TypeOptionDataController fieldContext) => FieldTypeOptionEditState(
+  factory FieldTypeOptionEditState.initial(
+          TypeOptionDataController fieldContext) =>
+      FieldTypeOptionEditState(
         field: fieldContext.field,
       );
 }

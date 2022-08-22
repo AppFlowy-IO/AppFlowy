@@ -5,16 +5,17 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 part 'select_option_type_option_bloc.freezed.dart';
 
-abstract class SelectOptionTypeOptionAction {
+abstract class ISelectOptionAction {
   Future<List<SelectOptionPB>> Function(String) get insertOption;
 
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption;
 
-  List<SelectOptionPB> Function(SelectOptionPB) get udpateOption;
+  List<SelectOptionPB> Function(SelectOptionPB) get updateOption;
 }
 
-class SelectOptionTypeOptionBloc extends Bloc<SelectOptionTypeOptionEvent, SelectOptionTypeOptionState> {
-  final SelectOptionTypeOptionAction typeOptionAction;
+class SelectOptionTypeOptionBloc
+    extends Bloc<SelectOptionTypeOptionEvent, SelectOptionTypeOptionState> {
+  final ISelectOptionAction typeOptionAction;
 
   SelectOptionTypeOptionBloc({
     required List<SelectOptionPB> options,
@@ -24,7 +25,8 @@ class SelectOptionTypeOptionBloc extends Bloc<SelectOptionTypeOptionEvent, Selec
       (event, emit) async {
         await event.when(
           createOption: (optionName) async {
-            final List<SelectOptionPB> options = await typeOptionAction.insertOption(optionName);
+            final List<SelectOptionPB> options =
+                await typeOptionAction.insertOption(optionName);
             emit(state.copyWith(options: options));
           },
           addingOption: () {
@@ -34,11 +36,13 @@ class SelectOptionTypeOptionBloc extends Bloc<SelectOptionTypeOptionEvent, Selec
             emit(state.copyWith(isEditingOption: false, newOptionName: none()));
           },
           updateOption: (option) {
-            final List<SelectOptionPB> options = typeOptionAction.udpateOption(option);
+            final List<SelectOptionPB> options =
+                typeOptionAction.updateOption(option);
             emit(state.copyWith(options: options));
           },
           deleteOption: (option) {
-            final List<SelectOptionPB> options = typeOptionAction.deleteOption(option);
+            final List<SelectOptionPB> options =
+                typeOptionAction.deleteOption(option);
             emit(state.copyWith(options: options));
           },
         );
@@ -54,11 +58,15 @@ class SelectOptionTypeOptionBloc extends Bloc<SelectOptionTypeOptionEvent, Selec
 
 @freezed
 class SelectOptionTypeOptionEvent with _$SelectOptionTypeOptionEvent {
-  const factory SelectOptionTypeOptionEvent.createOption(String optionName) = _CreateOption;
+  const factory SelectOptionTypeOptionEvent.createOption(String optionName) =
+      _CreateOption;
   const factory SelectOptionTypeOptionEvent.addingOption() = _AddingOption;
-  const factory SelectOptionTypeOptionEvent.endAddingOption() = _EndAddingOption;
-  const factory SelectOptionTypeOptionEvent.updateOption(SelectOptionPB option) = _UpdateOption;
-  const factory SelectOptionTypeOptionEvent.deleteOption(SelectOptionPB option) = _DeleteOption;
+  const factory SelectOptionTypeOptionEvent.endAddingOption() =
+      _EndAddingOption;
+  const factory SelectOptionTypeOptionEvent.updateOption(
+      SelectOptionPB option) = _UpdateOption;
+  const factory SelectOptionTypeOptionEvent.deleteOption(
+      SelectOptionPB option) = _DeleteOption;
 }
 
 @freezed
@@ -67,9 +75,10 @@ class SelectOptionTypeOptionState with _$SelectOptionTypeOptionState {
     required List<SelectOptionPB> options,
     required bool isEditingOption,
     required Option<String> newOptionName,
-  }) = _SelectOptionTyepOptionState;
+  }) = _SelectOptionTypeOptionState;
 
-  factory SelectOptionTypeOptionState.initial(List<SelectOptionPB> options) => SelectOptionTypeOptionState(
+  factory SelectOptionTypeOptionState.initial(List<SelectOptionPB> options) =>
+      SelectOptionTypeOptionState(
         options: options,
         isEditingOption: false,
         newOptionName: none(),

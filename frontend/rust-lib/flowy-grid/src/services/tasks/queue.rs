@@ -27,6 +27,7 @@ impl GridTaskQueue {
 
         let task_type = match task.content.as_ref().unwrap() {
             TaskContent::Snapshot => TaskType::Snapshot,
+            TaskContent::Group => TaskType::Group,
             TaskContent::Filter { .. } => TaskType::Filter,
         };
         let pending_task = PendingTask {

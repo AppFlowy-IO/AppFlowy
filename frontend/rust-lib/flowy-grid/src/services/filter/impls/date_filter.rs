@@ -1,9 +1,9 @@
-use crate::entities::{DateFilterCondition, GridDateFilter};
+use crate::entities::{DateFilterCondition, DateFilterConfigurationPB};
 use crate::services::cell::{AnyCellData, CellData, CellFilterOperation};
-use crate::services::field::{DateTimestamp, DateTypeOption};
+use crate::services::field::{DateTimestamp, DateTypeOptionPB};
 use flowy_error::FlowyResult;
 
-impl GridDateFilter {
+impl DateFilterConfigurationPB {
     pub fn is_visible<T: Into<i64>>(&self, cell_timestamp: T) -> bool {
         if self.start.is_none() {
             return false;
@@ -29,8 +29,8 @@ impl GridDateFilter {
     }
 }
 
-impl CellFilterOperation<GridDateFilter> for DateTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridDateFilter) -> FlowyResult<bool> {
+impl CellFilterOperation<DateFilterConfigurationPB> for DateTypeOptionPB {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &DateFilterConfigurationPB) -> FlowyResult<bool> {
         if !any_cell_data.is_date() {
             return Ok(true);
         }
@@ -43,11 +43,11 @@ impl CellFilterOperation<GridDateFilter> for DateTypeOption {
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::entities::{DateFilterCondition, GridDateFilter};
+    use crate::entities::{DateFilterCondition, DateFilterConfigurationPB};
 
     #[test]
     fn date_filter_is_test() {
-        let filter = GridDateFilter {
+        let filter = DateFilterConfigurationPB {
             condition: DateFilterCondition::DateIs,
             start: Some(123),
             end: None,
@@ -59,7 +59,7 @@ mod tests {
     }
     #[test]
     fn date_filter_before_test() {
-        let filter = GridDateFilter {
+        let filter = DateFilterConfigurationPB {
             condition: DateFilterCondition::DateBefore,
             start: Some(123),
             end: None,
@@ -71,7 +71,7 @@ mod tests {
     }
     #[test]
     fn date_filter_before_or_on_test() {
-        let filter = GridDateFilter {
+        let filter = DateFilterConfigurationPB {
             condition: DateFilterCondition::DateOnOrBefore,
             start: Some(123),
             end: None,
@@ -83,7 +83,7 @@ mod tests {
     }
     #[test]
     fn date_filter_after_test() {
-        let filter = GridDateFilter {
+        let filter = DateFilterConfigurationPB {
             condition: DateFilterCondition::DateAfter,
             start: Some(123),
             end: None,
@@ -95,7 +95,7 @@ mod tests {
     }
     #[test]
     fn date_filter_within_test() {
-        let filter = GridDateFilter {
+        let filter = DateFilterConfigurationPB {
             condition: DateFilterCondition::DateWithIn,
             start: Some(123),
             end: Some(130),

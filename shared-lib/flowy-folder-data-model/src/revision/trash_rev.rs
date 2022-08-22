@@ -33,7 +33,7 @@ impl<'de> serde::Deserialize<'de> for TrashTypeRevision {
             type Value = TrashTypeRevision;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("u8")
+                formatter.write_str("expected enum TrashTypeRevision with type: u8")
             }
 
             fn visit_i8<E>(self, v: i8) -> Result<Self::Value, E>

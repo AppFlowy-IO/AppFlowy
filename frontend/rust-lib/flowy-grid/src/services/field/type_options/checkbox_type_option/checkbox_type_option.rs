@@ -10,9 +10,9 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 #[derive(Default)]
-pub struct CheckboxTypeOptionBuilder(CheckboxTypeOption);
+pub struct CheckboxTypeOptionBuilder(CheckboxTypeOptionPB);
 impl_into_box_type_option_builder!(CheckboxTypeOptionBuilder);
-impl_builder_from_json_str_and_from_bytes!(CheckboxTypeOptionBuilder, CheckboxTypeOption);
+impl_builder_from_json_str_and_from_bytes!(CheckboxTypeOptionBuilder, CheckboxTypeOptionPB);
 
 impl CheckboxTypeOptionBuilder {
     pub fn set_selected(mut self, is_selected: bool) -> Self {
@@ -32,13 +32,13 @@ impl TypeOptionBuilder for CheckboxTypeOptionBuilder {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, ProtoBuf)]
-pub struct CheckboxTypeOption {
+pub struct CheckboxTypeOptionPB {
     #[pb(index = 1)]
     pub is_selected: bool,
 }
-impl_type_option!(CheckboxTypeOption, FieldType::Checkbox);
+impl_type_option!(CheckboxTypeOptionPB, FieldType::Checkbox);
 
-impl CellDisplayable<CheckboxCellData> for CheckboxTypeOption {
+impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
     fn display_data(
         &self,
         cell_data: CellData<CheckboxCellData>,
@@ -50,7 +50,7 @@ impl CellDisplayable<CheckboxCellData> for CheckboxTypeOption {
     }
 }
 
-impl CellDataOperation<CheckboxCellData, String> for CheckboxTypeOption {
+impl CellDataOperation<CheckboxCellData, String> for CheckboxTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<CheckboxCellData>,

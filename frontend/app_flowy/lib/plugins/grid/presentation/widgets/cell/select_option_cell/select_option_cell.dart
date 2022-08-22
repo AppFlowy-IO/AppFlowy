@@ -22,11 +22,11 @@ class SelectOptionCellStyle extends GridCellStyle {
 }
 
 class GridSingleSelectCell extends GridCellWidget {
-  final GridCellControllerBuilder cellContorllerBuilder;
+  final GridCellControllerBuilder cellControllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
   GridSingleSelectCell({
-    required this.cellContorllerBuilder,
+    required this.cellControllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -46,9 +46,9 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
 
   @override
   void initState() {
-    final cellContext =
-        widget.cellContorllerBuilder.build() as GridSelectOptionCellController;
-    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)
+    final cellController =
+        widget.cellControllerBuilder.build() as GridSelectOptionCellController;
+    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellController)
       ..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
@@ -59,11 +59,11 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
       value: _cellBloc,
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
-          return _SelectOptionCell(
+          return SelectOptionWrap(
               selectOptions: state.selectedOptions,
               cellStyle: widget.cellStyle,
               onFocus: (value) => widget.onCellEditing.value = value,
-              cellContorllerBuilder: widget.cellContorllerBuilder);
+              cellControllerBuilder: widget.cellControllerBuilder);
         },
       ),
     );
@@ -78,11 +78,11 @@ class _SingleSelectCellState extends State<GridSingleSelectCell> {
 
 //----------------------------------------------------------------
 class GridMultiSelectCell extends GridCellWidget {
-  final GridCellControllerBuilder cellContorllerBuilder;
+  final GridCellControllerBuilder cellControllerBuilder;
   late final SelectOptionCellStyle? cellStyle;
 
   GridMultiSelectCell({
-    required this.cellContorllerBuilder,
+    required this.cellControllerBuilder,
     GridCellStyle? style,
     Key? key,
   }) : super(key: key) {
@@ -102,9 +102,9 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
 
   @override
   void initState() {
-    final cellContext =
-        widget.cellContorllerBuilder.build() as GridSelectOptionCellController;
-    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellContext)
+    final cellController =
+        widget.cellControllerBuilder.build() as GridSelectOptionCellController;
+    _cellBloc = getIt<SelectOptionCellBloc>(param1: cellController)
       ..add(const SelectOptionCellEvent.initial());
     super.initState();
   }
@@ -115,11 +115,12 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
       value: _cellBloc,
       child: BlocBuilder<SelectOptionCellBloc, SelectOptionCellState>(
         builder: (context, state) {
-          return _SelectOptionCell(
-              selectOptions: state.selectedOptions,
-              cellStyle: widget.cellStyle,
-              onFocus: (value) => widget.onCellEditing.value = value,
-              cellContorllerBuilder: widget.cellContorllerBuilder);
+          return SelectOptionWrap(
+            selectOptions: state.selectedOptions,
+            cellStyle: widget.cellStyle,
+            onFocus: (value) => widget.onCellEditing.value = value,
+            cellControllerBuilder: widget.cellControllerBuilder,
+          );
         },
       ),
     );
@@ -132,16 +133,16 @@ class _MultiSelectCellState extends State<GridMultiSelectCell> {
   }
 }
 
-class _SelectOptionCell extends StatelessWidget {
+class SelectOptionWrap extends StatelessWidget {
   final List<SelectOptionPB> selectOptions;
-  final void Function(bool) onFocus;
+  final void Function(bool)? onFocus;
   final SelectOptionCellStyle? cellStyle;
-  final GridCellControllerBuilder cellContorllerBuilder;
-  const _SelectOptionCell({
+  final GridCellControllerBuilder cellControllerBuilder;
+  const SelectOptionWrap({
     required this.selectOptions,
-    required this.onFocus,
-    required this.cellStyle,
-    required this.cellContorllerBuilder,
+    required this.cellControllerBuilder,
+    this.onFocus,
+    this.cellStyle,
     Key? key,
   }) : super(key: key);
 
@@ -152,21 +153,25 @@ class _SelectOptionCell extends StatelessWidget {
     if (selectOptions.isEmpty && cellStyle != null) {
       child = Align(
         alignment: Alignment.centerLeft,
-        child: FlowyText.medium(cellStyle!.placeholder,
-            fontSize: 14, color: theme.shader3),
+        child: FlowyText.medium(
+          cellStyle!.placeholder,
+          fontSize: 14,
+          color: theme.shader3,
+        ),
       );
     } else {
-      final tags = selectOptions
-          .map(
-            (option) => SelectOptionTag.fromSelectOption(
-              context: context,
-              option: option,
-            ),
-          )
-          .toList();
       child = Align(
         alignment: Alignment.centerLeft,
-        child: Wrap(children: tags, spacing: 4, runSpacing: 2),
+        child: Wrap(
+          children: selectOptions
+              .map((option) => SelectOptionTag.fromOption(
+                    context: context,
+                    option: option,
+                  ))
+              .toList(),
+          spacing: 4,
+          runSpacing: 2,
+        ),
       );
     }
 
@@ -175,15 +180,14 @@ class _SelectOptionCell extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         child,
-        InkWell(
-          onTap: () {
-            onFocus(true);
-            final cellContext =
-                cellContorllerBuilder.build() as GridSelectOptionCellController;
-            SelectOptionCellEditor.show(
-                context, cellContext, () => onFocus(false));
-          },
-        ),
+        InkWell(onTap: () {
+          onFocus?.call(true);
+          SelectOptionCellEditor.show(
+            context,
+            cellControllerBuilder.build() as GridSelectOptionCellController,
+            () => onFocus?.call(false),
+          );
+        }),
       ],
     );
   }
