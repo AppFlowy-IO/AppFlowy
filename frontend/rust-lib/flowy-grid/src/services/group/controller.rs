@@ -31,6 +31,14 @@ pub trait GroupGenerator {
     ) -> Vec<Group>;
 }
 
+pub struct MoveGroupRowContext<'a> {
+    pub row_rev: &'a RowRevision,
+    pub row_changeset: &'a mut RowChangeset,
+    pub field_rev: &'a FieldRevision,
+    pub to_group_id: &'a str,
+    pub to_row_id: Option<String>,
+}
+
 // Defines the shared actions each group controller can perform.
 pub trait GroupControllerSharedOperation: Send + Sync {
     // The field that is used for grouping the rows
@@ -51,13 +59,7 @@ pub trait GroupControllerSharedOperation: Send + Sync {
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
 
-    fn did_move_row(
-        &mut self,
-        row_rev: &RowRevision,
-        row_changeset: &mut RowChangeset,
-        field_rev: &FieldRevision,
-        to_row_id: &str,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
@@ -195,18 +197,11 @@ where
         }
     }
 
-    fn did_move_row(
-        &mut self,
-        row_rev: &RowRevision,
-        row_changeset: &mut RowChangeset,
-        field_rev: &FieldRevision,
-        to_row_id: &str,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
-        if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
+        if let Some(cell_rev) = context.row_rev.cells.get(&self.field_id) {
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), context.field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
-            tracing::trace!("Move row:{} to row:{}", row_rev.id, to_row_id);
-            Ok(self.move_row_if_match(field_rev, row_rev, row_changeset, &cell_data, to_row_id))
+            Ok(self.move_row(&cell_data, context))
         } else {
             Ok(vec![])
         }

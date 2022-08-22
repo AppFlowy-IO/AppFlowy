@@ -436,3 +436,14 @@ pub(crate) async fn move_group_handler(
     let _ = editor.move_group(params).await?;
     Ok(())
 }
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn move_group_row_handler(
+    data: Data<MoveGroupRowPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> FlowyResult<()> {
+    let params: MoveGroupRowParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(params.view_id.as_ref())?;
+    let _ = editor.move_group_row(params).await?;
+    Ok(())
+}

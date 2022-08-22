@@ -80,7 +80,7 @@ impl GridViewRevisionEditor {
             None => {}
             Some(group_id) => {
                 self.group_service
-                    .read()
+                    .write()
                     .await
                     .will_create_row(row_rev, group_id, |field_id| {
                         self.field_delegate.get_field_rev(&field_id)
@@ -109,7 +109,7 @@ impl GridViewRevisionEditor {
         // Send the group notification if the current view has groups;
         if let Some(changesets) = self
             .group_service
-            .read()
+            .write()
             .await
             .did_delete_row(row_rev, |field_id| self.field_delegate.get_field_rev(&field_id))
             .await
@@ -123,7 +123,7 @@ impl GridViewRevisionEditor {
     pub(crate) async fn did_update_row(&self, row_rev: &RowRevision) {
         if let Some(changesets) = self
             .group_service
-            .read()
+            .write()
             .await
             .did_update_row(row_rev, |field_id| self.field_delegate.get_field_rev(&field_id))
             .await
@@ -134,23 +134,23 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn did_move_row(
+    pub(crate) async fn move_group_row(
         &self,
         row_rev: &RowRevision,
         row_changeset: &mut RowChangeset,
-        upper_row_id: &str,
+        to_group_id: &str,
+        to_row_id: Option<String>,
     ) {
         if let Some(changesets) = self
             .group_service
-            .read()
+            .write()
             .await
-            .did_move_row(row_rev, row_changeset, upper_row_id, |field_id| {
+            .move_group_row(row_rev, row_changeset, to_group_id, to_row_id, |field_id| {
                 self.field_delegate.get_field_rev(&field_id)
             })
             .await
         {
             for changeset in changesets {
-                tracing::trace!("Group: {} changeset: {}", changeset.group_id, changeset);
                 self.notify_did_update_group_rows(changeset).await;
             }
         }
@@ -184,7 +184,7 @@ impl GridViewRevisionEditor {
     pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let _ = self
             .group_service
-            .read()
+            .write()
             .await
             .move_group(&params.from_group_id, &params.to_group_id)
             .await?;
@@ -326,7 +326,6 @@ impl GroupConfigurationReader for GroupConfigurationReaderImpl {
         let view_pad = self.0.clone();
         wrap_future(async move {
             let mut groups = view_pad.read().await.groups.get_objects(&field_rev.id, &field_rev.ty)?;
-
             if groups.is_empty() {
                 None
             } else {

@@ -23,7 +23,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final BoardDataController _dataController;
   late final AFBoardDataController afBoardDataController;
   final MoveRowFFIService _rowService;
-  Map<String, GroupController> groupControllers = {};
+  LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap.new();
 
   GridFieldCache get fieldCache => _dataController.fieldCache;
   String get gridId => _dataController.gridId;
@@ -34,9 +34,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         super(BoardState.initial(view.id)) {
     afBoardDataController = AFBoardDataController(
       onMoveColumn: (
+        fromColumnId,
         fromIndex,
+        toColumnId,
         toIndex,
-      ) {},
+      ) {
+        _moveGroup(fromColumnId, toColumnId);
+      },
       onMoveColumnItem: (
         columnId,
         fromIndex,
@@ -44,7 +48,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       ) {
         final fromRow = groupControllers[columnId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[columnId]?.rowAtIndex(toIndex);
-        _moveRow(fromRow, toRow);
+        _moveRow(fromRow, columnId, toRow);
       },
       onMoveColumnItemToColumn: (
         fromColumnId,
@@ -54,7 +58,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       ) {
         final fromRow = groupControllers[fromColumnId]?.rowAtIndex(fromIndex);
         final toRow = groupControllers[toColumnId]?.rowAtIndex(toIndex);
-        _moveRow(fromRow, toRow);
+        _moveRow(fromRow, toColumnId, toRow);
       },
     );
 
@@ -95,17 +99,29 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  void _moveRow(RowPB? fromRow, RowPB? toRow) {
-    if (fromRow != null && toRow != null) {
+  void _moveRow(RowPB? fromRow, String columnId, RowPB? toRow) {
+    if (fromRow != null) {
       _rowService
-          .moveRow(
+          .moveGroupRow(
         fromRowId: fromRow.id,
-        toRowId: toRow.id,
+        toGroupId: columnId,
+        toRowId: toRow?.id,
       )
           .then((result) {
         result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
       });
     }
+  }
+
+  void _moveGroup(String fromColumnId, String toColumnId) {
+    _rowService
+        .moveGroup(
+      fromGroupId: fromColumnId,
+      toGroupId: toColumnId,
+    )
+        .then((result) {
+      result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
+    });
   }
 
   @override

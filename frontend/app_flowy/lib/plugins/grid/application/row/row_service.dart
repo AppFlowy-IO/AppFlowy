@@ -3,6 +3,7 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/group_changeset.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/row_entities.pb.dart';
 
 class RowFFIService {
@@ -67,5 +68,34 @@ class MoveRowFFIService {
       ..toRowId = toRowId;
 
     return GridEventMoveRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> moveGroupRow({
+    required String fromRowId,
+    required String toGroupId,
+    required String? toRowId,
+  }) {
+    var payload = MoveGroupRowPayloadPB.create()
+      ..viewId = gridId
+      ..fromRowId = fromRowId
+      ..toGroupId = toGroupId;
+
+    if (toRowId != null) {
+      payload.toRowId = toRowId;
+    }
+
+    return GridEventMoveGroupRow(payload).send();
+  }
+
+  Future<Either<Unit, FlowyError>> moveGroup({
+    required String fromGroupId,
+    required String toGroupId,
+  }) {
+    final payload = MoveGroupPayloadPB.create()
+      ..viewId = gridId
+      ..fromGroupId = fromGroupId
+      ..toGroupId = toGroupId;
+
+    return GridEventMoveGroup(payload).send();
   }
 }

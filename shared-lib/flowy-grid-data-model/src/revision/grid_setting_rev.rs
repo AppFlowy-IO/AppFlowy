@@ -76,7 +76,8 @@ where
         Some(objects_by_field_id)
     }
 
-    pub fn insert_object(&mut self, field_id: &str, field_type: &FieldTypeRevision, object: T) {
+    /// add object to the end of the list
+    pub fn add_object(&mut self, field_id: &str, field_type: &FieldTypeRevision, object: T) {
         let object_rev_map = self
             .inner
             .entry(field_id.to_string())
@@ -88,7 +89,7 @@ where
             .push(Arc::new(object))
     }
 
-    pub fn remove_all(&mut self) {
+    pub fn clear(&mut self) {
         self.inner.clear()
     }
 }

@@ -155,3 +155,27 @@ impl std::default::Default for DateCondition {
         DateCondition::Relative
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::revision::{GroupConfigurationRevision, SelectOptionGroupConfigurationRevision};
+
+    #[test]
+    fn group_configuration_serde_test() {
+        let content = SelectOptionGroupConfigurationRevision { hide_empty: false };
+        let rev = GroupConfigurationRevision::new("1".to_owned(), 2, content).unwrap();
+        let json = serde_json::to_string(&rev).unwrap();
+
+        let rev: GroupConfigurationRevision = serde_json::from_str(&json).unwrap();
+        let _content: SelectOptionGroupConfigurationRevision = serde_json::from_str(&rev.content).unwrap();
+    }
+
+    #[test]
+    fn group_configuration_serde_test2() {
+        let content = SelectOptionGroupConfigurationRevision { hide_empty: false };
+        let content_json = serde_json::to_string(&content).unwrap();
+        let rev = GroupConfigurationRevision::new("1".to_owned(), 2, content).unwrap();
+
+        assert_eq!(rev.content, content_json);
+    }
+}

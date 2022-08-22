@@ -2,10 +2,12 @@ use crate::entities::GroupRowsChangesetPB;
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
 use crate::services::group::action::GroupAction;
 use crate::services::group::configuration::GenericGroupConfiguration;
-use crate::services::group::controller::{GenericGroupController, GroupController, GroupGenerator};
+use crate::services::group::controller::{
+    GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
+};
 use crate::services::group::entities::Group;
 
-use flowy_grid_data_model::revision::{CheckboxGroupConfigurationRevision, FieldRevision, RowChangeset, RowRevision};
+use flowy_grid_data_model::revision::{CheckboxGroupConfigurationRevision, FieldRevision, RowRevision};
 
 pub type CheckboxGroupController = GenericGroupController<
     CheckboxGroupConfigurationRevision,
@@ -38,13 +40,10 @@ impl GroupAction for CheckboxGroupController {
         todo!()
     }
 
-    fn move_row_if_match(
+    fn move_row(
         &mut self,
-        _field_rev: &FieldRevision,
-        _row_rev: &RowRevision,
-        _row_changeset: &mut RowChangeset,
         _cell_data: &Self::CellDataType,
-        _to_row_id: &str,
+        _context: MoveGroupRowContext,
     ) -> Vec<GroupRowsChangesetPB> {
         todo!()
     }

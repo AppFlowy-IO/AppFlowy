@@ -1,6 +1,7 @@
 use crate::entities::GroupRowsChangesetPB;
 
-use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
+use crate::services::group::controller::MoveGroupRowContext;
+use flowy_grid_data_model::revision::RowRevision;
 
 pub trait GroupAction: Send + Sync {
     type CellDataType;
@@ -12,12 +13,5 @@ pub trait GroupAction: Send + Sync {
         cell_data: &Self::CellDataType,
     ) -> Vec<GroupRowsChangesetPB>;
 
-    fn move_row_if_match(
-        &mut self,
-        field_rev: &FieldRevision,
-        row_rev: &RowRevision,
-        row_changeset: &mut RowChangeset,
-        cell_data: &Self::CellDataType,
-        to_row_id: &str,
-    ) -> Vec<GroupRowsChangesetPB>;
+    fn move_row(&mut self, cell_data: &Self::CellDataType, context: MoveGroupRowContext) -> Vec<GroupRowsChangesetPB>;
 }

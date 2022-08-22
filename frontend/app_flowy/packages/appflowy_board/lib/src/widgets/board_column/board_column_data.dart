@@ -145,7 +145,8 @@ class AFBoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
   }) : _items = items;
 
   /// Returns the readonly List<ColumnItem>
-  UnmodifiableListView<AFColumnItem> get items => UnmodifiableListView(_items);
+  UnmodifiableListView<AFColumnItem> get items =>
+      UnmodifiableListView([..._items]);
 
   @override
   List<Object?> get props => [id, ..._items];

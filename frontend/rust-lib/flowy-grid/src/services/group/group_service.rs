@@ -1,5 +1,6 @@
+use crate::entities::{FieldType, GroupRowsChangesetPB};
 use crate::services::group::configuration::GroupConfigurationReader;
-use crate::services::group::controller::GroupController;
+use crate::services::group::controller::{GroupController, MoveGroupRowContext};
 use crate::services::group::{
     CheckboxGroupConfiguration, CheckboxGroupController, Group, GroupConfigurationWriter, MultiSelectGroupController,
     SelectOptionGroupConfiguration, SingleSelectGroupController,
@@ -10,16 +11,13 @@ use flowy_grid_data_model::revision::{
     NumberGroupConfigurationRevision, RowChangeset, RowRevision, SelectOptionGroupConfigurationRevision,
     TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
 };
-
-use crate::entities::{FieldType, GroupRowsChangesetPB};
 use std::future::Future;
 use std::sync::Arc;
-use tokio::sync::RwLock;
 
 pub(crate) struct GroupService {
     configuration_reader: Arc<dyn GroupConfigurationReader>,
     configuration_writer: Arc<dyn GroupConfigurationWriter>,
-    group_controller: Option<Arc<RwLock<dyn GroupController>>>,
+    group_controller: Option<Box<dyn GroupController>>,
 }
 
 impl GroupService {
@@ -36,19 +34,16 @@ impl GroupService {
     }
 
     pub(crate) async fn groups(&self) -> Vec<Group> {
-        if let Some(group_controller) = self.group_controller.as_ref() {
-            group_controller.read().await.groups()
-        } else {
-            vec![]
-        }
+        self.group_controller
+            .as_ref()
+            .and_then(|group_controller| Some(group_controller.groups()))
+            .unwrap_or(vec![])
     }
 
     pub(crate) async fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
-        if let Some(group_controller) = self.group_controller.as_ref() {
-            group_controller.read().await.get_group(group_id)
-        } else {
-            None
-        }
+        self.group_controller
+            .as_ref()
+            .and_then(|group_controller| group_controller.get_group(group_id))
     }
 
     pub(crate) async fn load_groups(
@@ -58,51 +53,37 @@ impl GroupService {
     ) -> Option<Vec<Group>> {
         let field_rev = find_group_field(field_revs)?;
         let field_type: FieldType = field_rev.ty.into();
-        match self.make_group_controller(&field_type, &field_rev).await {
-            Ok(group_controller) => {
-                self.group_controller = group_controller;
-                let mut groups = vec![];
-                if let Some(group_action_handler) = self.group_controller.as_ref() {
-                    let mut write_guard = group_action_handler.write().await;
-                    groups = match write_guard.fill_groups(&row_revs, &field_rev) {
-                        Ok(groups) => groups,
-                        Err(e) => {
-                            tracing::error!("Fill groups failed:{:?}", e);
-                            vec![]
-                        }
-                    };
-                    drop(write_guard);
-                }
-                Some(groups)
+
+        let mut group_controller = self.make_group_controller(&field_type, &field_rev).await.ok()??;
+        let groups = match group_controller.fill_groups(&row_revs, &field_rev) {
+            Ok(groups) => groups,
+            Err(e) => {
+                tracing::error!("Fill groups failed:{:?}", e);
+                vec![]
             }
-            Err(err) => {
-                tracing::error!("Load group failed: {}", err);
-                Some(vec![])
-            }
-        }
+        };
+        self.group_controller = Some(group_controller);
+        Some(groups)
     }
 
-    pub(crate) async fn will_create_row<F, O>(&self, row_rev: &mut RowRevision, group_id: &str, get_field_fn: F)
+    pub(crate) async fn will_create_row<F, O>(&mut self, row_rev: &mut RowRevision, group_id: &str, get_field_fn: F)
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
     {
-        if let Some(group_controller) = self.group_controller.as_ref() {
-            let field_id = group_controller.read().await.field_id().to_owned();
+        if let Some(group_controller) = self.group_controller.as_mut() {
+            let field_id = group_controller.field_id().to_owned();
             match get_field_fn(field_id).await {
                 None => {}
                 Some(field_rev) => {
-                    group_controller
-                        .write()
-                        .await
-                        .will_create_row(row_rev, &field_rev, group_id);
+                    group_controller.will_create_row(row_rev, &field_rev, group_id);
                 }
             }
         }
     }
 
     pub(crate) async fn did_delete_row<F, O>(
-        &self,
+        &mut self,
         row_rev: &RowRevision,
         get_field_fn: F,
     ) -> Option<Vec<GroupRowsChangesetPB>>
@@ -110,11 +91,11 @@ impl GroupService {
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
     {
-        let group_controller = self.group_controller.as_ref()?;
-        let field_id = group_controller.read().await.field_id().to_owned();
+        let group_controller = self.group_controller.as_mut()?;
+        let field_id = group_controller.field_id().to_owned();
         let field_rev = get_field_fn(field_id).await?;
 
-        match group_controller.write().await.did_delete_row(row_rev, &field_rev) {
+        match group_controller.did_delete_row(row_rev, &field_rev) {
             Ok(changesets) => Some(changesets),
             Err(e) => {
                 tracing::error!("Delete group data failed, {:?}", e);
@@ -123,26 +104,30 @@ impl GroupService {
         }
     }
 
-    pub(crate) async fn did_move_row<F, O>(
-        &self,
+    pub(crate) async fn move_group_row<F, O>(
+        &mut self,
         row_rev: &RowRevision,
         row_changeset: &mut RowChangeset,
-        upper_row_id: &str,
+        to_group_id: &str,
+        to_row_id: Option<String>,
         get_field_fn: F,
     ) -> Option<Vec<GroupRowsChangesetPB>>
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
     {
-        let group_controller = self.group_controller.as_ref()?;
-        let field_id = group_controller.read().await.field_id().to_owned();
+        let group_controller = self.group_controller.as_mut()?;
+        let field_id = group_controller.field_id().to_owned();
         let field_rev = get_field_fn(field_id).await?;
+        let move_row_context = MoveGroupRowContext {
+            row_rev,
+            row_changeset,
+            field_rev: field_rev.as_ref(),
+            to_group_id,
+            to_row_id,
+        };
 
-        match group_controller
-            .write()
-            .await
-            .did_move_row(row_rev, row_changeset, &field_rev, upper_row_id)
-        {
+        match group_controller.move_group_row(move_row_context) {
             Ok(changesets) => Some(changesets),
             Err(e) => {
                 tracing::error!("Move group data failed, {:?}", e);
@@ -153,7 +138,7 @@ impl GroupService {
 
     #[tracing::instrument(level = "trace", skip_all)]
     pub(crate) async fn did_update_row<F, O>(
-        &self,
+        &mut self,
         row_rev: &RowRevision,
         get_field_fn: F,
     ) -> Option<Vec<GroupRowsChangesetPB>>
@@ -161,11 +146,11 @@ impl GroupService {
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
     {
-        let group_controller = self.group_controller.as_ref()?;
-        let field_id = group_controller.read().await.field_id().to_owned();
+        let group_controller = self.group_controller.as_mut()?;
+        let field_id = group_controller.field_id().to_owned();
         let field_rev = get_field_fn(field_id).await?;
 
-        match group_controller.write().await.did_update_row(row_rev, &field_rev) {
+        match group_controller.did_update_row(row_rev, &field_rev) {
             Ok(changeset) => Some(changeset),
             Err(e) => {
                 tracing::error!("Update group data failed, {:?}", e);
@@ -175,11 +160,11 @@ impl GroupService {
     }
 
     #[tracing::instrument(level = "trace", skip_all)]
-    pub(crate) async fn move_group(&self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
-        match self.group_controller.as_ref() {
+    pub(crate) async fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
+        match self.group_controller.as_mut() {
             None => Ok(()),
             Some(group_controller) => {
-                let _ = group_controller.write().await.move_group(from_group_id, to_group_id)?;
+                let _ = group_controller.move_group(from_group_id, to_group_id)?;
                 Ok(())
             }
         }
@@ -190,8 +175,8 @@ impl GroupService {
         &self,
         field_type: &FieldType,
         field_rev: &Arc<FieldRevision>,
-    ) -> FlowyResult<Option<Arc<RwLock<dyn GroupController>>>> {
-        let mut group_controller: Option<Arc<RwLock<dyn GroupController>>> = None;
+    ) -> FlowyResult<Option<Box<dyn GroupController>>> {
+        let mut group_controller: Option<Box<dyn GroupController>> = None;
         match field_type {
             FieldType::RichText => {
                 // let generator = GroupGenerator::<TextGroupConfigurationPB>::from_configuration(configuration);
@@ -210,7 +195,7 @@ impl GroupService {
                 )
                 .await?;
                 let controller = SingleSelectGroupController::new(field_rev, configuration).await?;
-                group_controller = Some(Arc::new(RwLock::new(controller)));
+                group_controller = Some(Box::new(controller));
             }
             FieldType::MultiSelect => {
                 let configuration = SelectOptionGroupConfiguration::new(
@@ -220,7 +205,7 @@ impl GroupService {
                 )
                 .await?;
                 let controller = MultiSelectGroupController::new(field_rev, configuration).await?;
-                group_controller = Some(Arc::new(RwLock::new(controller)));
+                group_controller = Some(Box::new(controller));
             }
             FieldType::Checkbox => {
                 let configuration = CheckboxGroupConfiguration::new(
@@ -230,7 +215,7 @@ impl GroupService {
                 )
                 .await?;
                 let controller = CheckboxGroupController::new(field_rev, configuration).await?;
-                group_controller = Some(Arc::new(RwLock::new(controller)))
+                group_controller = Some(Box::new(controller));
             }
             FieldType::URL => {
                 // let generator = GroupGenerator::<UrlGroupConfigurationPB>::from_configuration(configuration);

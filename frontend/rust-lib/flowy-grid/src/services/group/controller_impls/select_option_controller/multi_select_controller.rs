@@ -3,12 +3,12 @@ use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{MultiSelectTypeOptionPB, SelectOptionCellDataPB, SelectOptionCellDataParser};
 use crate::services::group::action::GroupAction;
 
-use crate::services::group::controller::{GenericGroupController, GroupController, GroupGenerator};
+use crate::services::group::controller::{
+    GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
+};
 use crate::services::group::controller_impls::select_option_controller::util::*;
 use crate::services::group::entities::Group;
-use flowy_grid_data_model::revision::{
-    FieldRevision, RowChangeset, RowRevision, SelectOptionGroupConfigurationRevision,
-};
+use flowy_grid_data_model::revision::{FieldRevision, RowRevision, SelectOptionGroupConfigurationRevision};
 
 // MultiSelect
 pub type MultiSelectGroupController = GenericGroupController<
@@ -45,25 +45,14 @@ impl GroupAction for MultiSelectGroupController {
         changesets
     }
 
-    fn move_row_if_match(
+    fn move_row(
         &mut self,
-        field_rev: &FieldRevision,
-        row_rev: &RowRevision,
-        row_changeset: &mut RowChangeset,
         cell_data: &Self::CellDataType,
-        to_row_id: &str,
+        mut context: MoveGroupRowContext,
     ) -> Vec<GroupRowsChangesetPB> {
         let mut group_changeset = vec![];
         self.configuration.with_mut_groups(|group| {
-            move_row(
-                group,
-                &mut group_changeset,
-                field_rev,
-                row_rev,
-                row_changeset,
-                cell_data,
-                to_row_id,
-            );
+            move_select_option_row(group, &mut group_changeset, cell_data, &mut context);
         });
         group_changeset
     }

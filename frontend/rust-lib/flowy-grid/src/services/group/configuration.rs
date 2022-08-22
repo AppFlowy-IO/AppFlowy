@@ -101,9 +101,9 @@ where
         Ok(())
     }
 
-    pub(crate) fn with_mut_groups(&mut self, mut mut_groups_fn: impl FnMut(&mut Group)) {
+    pub(crate) fn with_mut_groups(&mut self, mut each: impl FnMut(&mut Group)) {
         self.groups_map.iter_mut().for_each(|(_, group)| {
-            mut_groups_fn(group);
+            each(group);
         })
     }
 
@@ -111,22 +111,16 @@ where
         self.groups_map.get_mut(group_id)
     }
 
-    pub(crate) fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
-        let from_group_index = self.groups_map.get_index_of(from_group_id);
-        let to_group_index = self.groups_map.get_index_of(to_group_id);
-        match (from_group_index, to_group_index) {
+    pub(crate) fn move_group(&mut self, from_id: &str, to_id: &str) -> FlowyResult<()> {
+        let from_index = self.groups_map.get_index_of(from_id);
+        let to_index = self.groups_map.get_index_of(to_id);
+        match (from_index, to_index) {
             (Some(from_index), Some(to_index)) => {
                 self.groups_map.swap_indices(from_index, to_index);
 
                 self.mut_configuration(|configuration| {
-                    let from_index = configuration
-                        .groups
-                        .iter()
-                        .position(|group| group.group_id == from_group_id);
-                    let to_index = configuration
-                        .groups
-                        .iter()
-                        .position(|group| group.group_id == to_group_id);
+                    let from_index = configuration.groups.iter().position(|group| group.group_id == from_id);
+                    let to_index = configuration.groups.iter().position(|group| group.group_id == to_id);
                     if let (Some(from), Some(to)) = (from_index, to_index) {
                         configuration.groups.swap(from, to);
                     }
@@ -150,7 +144,7 @@ where
         let configuration = (&*self.configuration).clone();
         let writer = self.writer.clone();
         let field_id = self.field_rev.id.clone();
-        let field_type = self.field_rev.ty.clone();
+        let field_type = self.field_rev.ty;
         tokio::spawn(async move {
             match writer
                 .save_group_configuration(&field_id, field_type, configuration)
@@ -196,7 +190,6 @@ where
 }
 
 fn merge_groups(old_group_revs: &[GroupRecordRevision], groups: Vec<Group>) -> (Vec<GroupRecordRevision>, Vec<Group>) {
-    tracing::trace!("Merge group: old: {}, new: {}", old_group_revs.len(), groups.len());
     if old_group_revs.is_empty() {
         let new_groups = groups
             .iter()

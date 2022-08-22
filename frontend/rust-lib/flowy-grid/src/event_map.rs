@@ -42,6 +42,7 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         // Group
         .event(GridEvent::CreateBoardCard, create_board_card_handler)
         .event(GridEvent::MoveGroup, move_group_handler)
+        .event(GridEvent::MoveGroupRow, move_group_row_handler)
         .event(GridEvent::GetGroup, get_groups_handler);
 
     module
@@ -221,4 +222,7 @@ pub enum GridEvent {
 
     #[event(input = "MoveGroupPayloadPB")]
     MoveGroup = 111,
+
+    #[event(input = "MoveGroupRowPayloadPB")]
+    MoveGroupRow = 112,
 }

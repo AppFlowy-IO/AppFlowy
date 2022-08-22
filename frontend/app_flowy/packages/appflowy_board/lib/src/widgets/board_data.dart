@@ -8,7 +8,12 @@ import 'reorder_flex/reorder_flex.dart';
 import 'package:flutter/material.dart';
 import 'reorder_phantom/phantom_controller.dart';
 
-typedef OnMoveColumn = void Function(int fromIndex, int toIndex);
+typedef OnMoveColumn = void Function(
+  String fromColumnId,
+  int fromIndex,
+  String toColumnId,
+  int toIndex,
+);
 
 typedef OnMoveColumnItem = void Function(
   String columnId,
@@ -98,9 +103,11 @@ class AFBoardDataController extends ChangeNotifier
   }
 
   void moveColumn(int fromIndex, int toIndex, {bool notify = true}) {
-    final columnData = _columnDatas.removeAt(fromIndex);
-    _columnDatas.insert(toIndex, columnData);
-    onMoveColumn?.call(fromIndex, toIndex);
+    final toColumnData = _columnDatas[toIndex];
+    final fromColumnData = _columnDatas.removeAt(fromIndex);
+
+    _columnDatas.insert(toIndex, fromColumnData);
+    onMoveColumn?.call(fromColumnData.id, fromIndex, toColumnData.id, toIndex);
     if (notify) notifyListeners();
   }
 

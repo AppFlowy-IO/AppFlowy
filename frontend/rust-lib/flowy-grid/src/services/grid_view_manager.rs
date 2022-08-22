@@ -129,10 +129,17 @@ impl GridViewManager {
     /// It may generate a RowChangeset when the Row was moved from one group to another.
     /// The return value, [RowChangeset], contains the changes made by the groups.
     ///
-    pub(crate) async fn move_row(&self, row_rev: Arc<RowRevision>, to_row_id: String) -> Option<RowChangeset> {
+    pub(crate) async fn move_group_row(
+        &self,
+        row_rev: Arc<RowRevision>,
+        to_group_id: String,
+        to_row_id: Option<String>,
+    ) -> Option<RowChangeset> {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
         for view_editor in self.view_editors.iter() {
-            view_editor.did_move_row(&row_rev, &mut row_changeset, &to_row_id).await;
+            view_editor
+                .move_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
+                .await;
         }
 
         if row_changeset.has_changed() {

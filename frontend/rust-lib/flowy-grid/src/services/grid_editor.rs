@@ -560,22 +560,41 @@ impl GridRevisionEditor {
                             .block_manager
                             .move_row(row_rev.clone(), from_index, to_index)
                             .await?;
-
-                        if let Some(row_changeset) = self.view_manager.move_row(row_rev, to_row_id.clone()).await {
-                            tracing::trace!("Receive row changeset after moving the row");
-                            match self.block_manager.update_row(row_changeset).await {
-                                Ok(_) => {}
-                                Err(e) => {
-                                    tracing::error!("Apply row changeset error:{:?}", e);
-                                }
-                            }
-                        }
                     }
                     (_, None) => tracing::warn!("Can not find the from row id: {}", from_row_id),
                     (None, _) => tracing::warn!("Can not find the to row id: {}", to_row_id),
                 }
             }
         }
+        Ok(())
+    }
+
+    pub async fn move_group_row(&self, params: MoveGroupRowParams) -> FlowyResult<()> {
+        let MoveGroupRowParams {
+            view_id: _,
+            from_row_id,
+            to_group_id,
+            to_row_id,
+        } = params;
+
+        match self.block_manager.get_row_rev(&from_row_id).await? {
+            None => tracing::warn!("Move row failed, can not find the row:{}", from_row_id),
+            Some(row_rev) => {
+                if let Some(row_changeset) = self
+                    .view_manager
+                    .move_group_row(row_rev, to_group_id, to_row_id.clone())
+                    .await
+                {
+                    match self.block_manager.update_row(row_changeset).await {
+                        Ok(_) => {}
+                        Err(e) => {
+                            tracing::error!("Apply row changeset error:{:?}", e);
+                        }
+                    }
+                }
+            }
+        }
+
         Ok(())
     }
 

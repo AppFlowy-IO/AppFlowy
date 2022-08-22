@@ -1,5 +1,7 @@
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::{CreateRowParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveRowParams, RowPB};
+use flowy_grid::entities::{
+    CreateRowParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
+};
 use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid_data_model::revision::RowChangeset;
 
@@ -75,14 +77,16 @@ impl GridGroupTest {
             } => {
                 let groups: Vec<GroupPB> = self.editor.load_groups().await.unwrap().items;
                 let from_row = groups.get(from_group_index).unwrap().rows.get(from_row_index).unwrap();
-                let to_row = groups.get(to_group_index).unwrap().rows.get(to_row_index).unwrap();
-                let params = MoveRowParams {
+                let to_group = groups.get(to_group_index).unwrap();
+                let to_row = to_group.rows.get(to_row_index).unwrap();
+                let params = MoveGroupRowParams {
                     view_id: self.inner.grid_id.clone(),
                     from_row_id: from_row.id.clone(),
-                    to_row_id: to_row.id.clone(),
+                    to_group_id: to_group.group_id.clone(),
+                    to_row_id: Some(to_row.id.clone()),
                 };
 
-                self.editor.move_row(params).await.unwrap();
+                self.editor.move_group_row(params).await.unwrap();
             }
             GroupScript::AssertRow {
                 group_index,

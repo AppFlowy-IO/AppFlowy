@@ -60,7 +60,9 @@ impl GridViewRevisionPad {
         group_rev: GroupConfigurationRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
-            view.groups.insert_object(field_id, field_type, group_rev);
+            // Only save one group
+            view.groups.clear();
+            view.groups.add_object(field_id, field_type, group_rev);
             Ok(Some(()))
         })
     }
@@ -127,7 +129,7 @@ impl GridViewRevisionPad {
         filter_rev: FilterConfigurationRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
-            view.filters.insert_object(field_id, field_type, filter_rev);
+            view.filters.add_object(field_id, field_type, filter_rev);
             Ok(Some(()))
         })
     }
@@ -166,8 +168,6 @@ impl GridViewRevisionPad {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
-                        tracing::info!("GridView: {:?}", delta);
-
                         let md5 = md5(&self.delta.json_bytes());
                         Ok(Some(GridViewRevisionChangeset { delta, md5 }))
                     }
