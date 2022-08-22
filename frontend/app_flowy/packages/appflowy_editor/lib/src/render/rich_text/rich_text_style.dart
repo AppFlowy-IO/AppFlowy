@@ -1,8 +1,6 @@
 import 'package:appflowy_editor/src/document/attributes.dart';
-import 'package:appflowy_editor/src/document/node.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 ///
 /// Supported partial rendering types:
@@ -182,14 +180,13 @@ class RichTextStyle {
   RichTextStyle({
     required this.attributes,
     required this.text,
+    this.gestureRecognizer,
     this.height = 1.5,
   });
 
-  RichTextStyle.fromTextNode(TextNode textNode)
-      : this(attributes: textNode.attributes, text: textNode.toRawString());
-
   final Attributes attributes;
   final String text;
+  final GestureRecognizer? gestureRecognizer;
   final double height;
 
   TextSpan toTextSpan() => _toTextSpan(height);
@@ -201,6 +198,7 @@ class RichTextStyle {
   TextSpan _toTextSpan(double? height) {
     return TextSpan(
       text: text,
+      recognizer: _recognizer,
       style: TextStyle(
         fontWeight: _fontWeight,
         fontStyle: _fontStyle,
@@ -210,7 +208,6 @@ class RichTextStyle {
         background: _background,
         height: height,
       ),
-      recognizer: _recognizer,
     );
   }
 
@@ -273,19 +270,6 @@ class RichTextStyle {
 
   // recognizer
   GestureRecognizer? get _recognizer {
-    final href = attributes.href;
-    if (href != null) {
-      return TapGestureRecognizer()
-        ..onTap = () async {
-          final uri = Uri.parse(href);
-          // url_launcher cannot open a link without scheme.
-          final newHref =
-              (uri.scheme.isNotEmpty ? href : 'http://$href').trim();
-          if (await canLaunchUrlString(newHref)) {
-            await launchUrlString(newHref);
-          }
-        };
-    }
-    return null;
+    return gestureRecognizer;
   }
 }

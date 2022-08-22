@@ -56,7 +56,6 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
     return Padding(
         padding: EdgeInsets.only(bottom: defaultLinePadding),
         child: SizedBox(
@@ -68,8 +67,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
                 key: iconKey,
                 width: _iconWidth,
                 height: _iconWidth,
-                padding:
-                    EdgeInsets.only(top: topPadding, right: _iconRightPadding),
+                padding: EdgeInsets.only(right: _iconRightPadding),
                 number: widget.textNode.attributes.number,
               ),
               Expanded(

@@ -50,9 +50,6 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
   }
 
   Widget _buildToolbar(BuildContext context) {
-    final items = widget.items.where(
-      (item) => item.validator(widget.editorState),
-    );
     return Material(
       borderRadius: BorderRadius.circular(8.0),
       color: const Color(0xFF333333),
@@ -62,7 +59,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
           height: 32.0,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: items
+            children: widget.items
                 .map(
                   (item) => Center(
                     child: ToolbarItemWidget(

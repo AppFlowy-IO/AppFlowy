@@ -14,6 +14,7 @@ typedef ToolbarShowValidator = bool Function(EditorState editorState);
 class ToolbarItem {
   ToolbarItem({
     required this.id,
+    required this.type,
     required this.icon,
     this.tooltipsMessage = '',
     required this.validator,
@@ -21,6 +22,7 @@ class ToolbarItem {
   });
 
   final String id;
+  final int type;
   final Widget icon;
   final String tooltipsMessage;
   final ToolbarShowValidator validator;
@@ -29,16 +31,32 @@ class ToolbarItem {
   factory ToolbarItem.divider() {
     return ToolbarItem(
       id: 'divider',
+      type: -1,
       icon: const FlowySvg(name: 'toolbar/divider'),
       validator: (editorState) => true,
       handler: (editorState, context) {},
     );
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! ToolbarItem) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return id == other.id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }
 
 List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.h1',
+    type: 1,
     tooltipsMessage: 'Heading 1',
     icon: const FlowySvg(name: 'toolbar/h1'),
     validator: _onlyShowInSingleTextSelection,
@@ -46,6 +64,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.h2',
+    type: 1,
     tooltipsMessage: 'Heading 2',
     icon: const FlowySvg(name: 'toolbar/h2'),
     validator: _onlyShowInSingleTextSelection,
@@ -53,14 +72,15 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.h3',
+    type: 1,
     tooltipsMessage: 'Heading 3',
     icon: const FlowySvg(name: 'toolbar/h3'),
     validator: _onlyShowInSingleTextSelection,
     handler: (editorState, context) => formatHeading(editorState, StyleKey.h3),
   ),
-  ToolbarItem.divider(),
   ToolbarItem(
     id: 'appflowy.toolbar.bold',
+    type: 2,
     tooltipsMessage: 'Bold',
     icon: const FlowySvg(name: 'toolbar/bold'),
     validator: _showInTextSelection,
@@ -68,6 +88,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.italic',
+    type: 2,
     tooltipsMessage: 'Italic',
     icon: const FlowySvg(name: 'toolbar/italic'),
     validator: _showInTextSelection,
@@ -75,6 +96,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.underline',
+    type: 2,
     tooltipsMessage: 'Underline',
     icon: const FlowySvg(name: 'toolbar/underline'),
     validator: _showInTextSelection,
@@ -82,14 +104,15 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.strikethrough',
+    type: 2,
     tooltipsMessage: 'Strikethrough',
     icon: const FlowySvg(name: 'toolbar/strikethrough'),
     validator: _showInTextSelection,
     handler: (editorState, context) => formatStrikethrough(editorState),
   ),
-  ToolbarItem.divider(),
   ToolbarItem(
     id: 'appflowy.toolbar.quote',
+    type: 3,
     tooltipsMessage: 'Quote',
     icon: const FlowySvg(name: 'toolbar/quote'),
     validator: _onlyShowInSingleTextSelection,
@@ -97,14 +120,15 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.bulleted_list',
+    type: 3,
     tooltipsMessage: 'Bulleted list',
     icon: const FlowySvg(name: 'toolbar/bulleted_list'),
     validator: _onlyShowInSingleTextSelection,
     handler: (editorState, context) => formatBulletedList(editorState),
   ),
-  ToolbarItem.divider(),
   ToolbarItem(
     id: 'appflowy.toolbar.link',
+    type: 4,
     tooltipsMessage: 'Link',
     icon: const FlowySvg(name: 'toolbar/link'),
     validator: _onlyShowInSingleTextSelection,
@@ -112,6 +136,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.highlight',
+    type: 4,
     tooltipsMessage: 'Highlight',
     icon: const FlowySvg(name: 'toolbar/highlight'),
     validator: _showInTextSelection,
@@ -159,7 +184,7 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
   final linkText = node.getAttributeInSelection(selection, StyleKey.href);
   _linkMenuOverlay = OverlayEntry(builder: (context) {
     return Positioned(
-      top: matchRect.bottom,
+      top: matchRect.bottom + 5.0,
       left: matchRect.left,
       child: Material(
         child: LinkMenu(

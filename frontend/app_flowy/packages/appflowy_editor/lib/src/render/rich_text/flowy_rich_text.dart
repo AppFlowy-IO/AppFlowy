@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -11,6 +13,7 @@ import 'package:appflowy_editor/src/document/text_delta.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 typedef FlowyTextSpanDecorator = TextSpan Function(TextSpan textSpan);
 
@@ -143,6 +146,11 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     );
   }
 
+  @override
+  Offset localToGlobal(Offset offset) {
+    return _renderParagraph.localToGlobal(offset);
+  }
+
   Widget _buildRichText(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.text,
@@ -181,43 +189,62 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     );
   }
 
-  // unused now.
-  // Widget _buildRichTextWithChildren(BuildContext context) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       _buildSingleRichText(context),
-  //       ...widget.textNode.children
-  //           .map(
-  //             (child) => widget.editorState.service.renderPluginService
-  //                 .buildPluginWidget(
-  //               NodeWidgetContext(
-  //                 context: context,
-  //                 node: child,
-  //                 editorState: widget.editorState,
-  //               ),
-  //             ),
-  //           )
-  //           .toList()
-  //     ],
-  //   );
-  // }
+  TextSpan get _textSpan {
+    var offset = 0;
+    return TextSpan(
+      children: widget.textNode.delta.whereType<TextInsert>().map((insert) {
+        GestureRecognizer? gestureDetector;
+        if (insert.attributes?[StyleKey.href] != null) {
+          final startOffset = offset;
+          Timer? timer;
+          var tapCount = 0;
+          gestureDetector = TapGestureRecognizer()
+            ..onTap = () async {
+              // implement a simple double tap logic
+              tapCount += 1;
+              timer?.cancel();
 
-  @override
-  Offset localToGlobal(Offset offset) {
-    return _renderParagraph.localToGlobal(offset);
+              if (tapCount == 2) {
+                tapCount = 0;
+                final href = insert.attributes![StyleKey.href];
+                final uri = Uri.parse(href);
+                // url_launcher cannot open a link without scheme.
+                final newHref =
+                    (uri.scheme.isNotEmpty ? href : 'http://$href').trim();
+                if (await canLaunchUrlString(newHref)) {
+                  await launchUrlString(newHref);
+                }
+                return;
+              }
+
+              timer = Timer(const Duration(milliseconds: 200), () {
+                tapCount = 0;
+                // update selection
+                final selection = Selection.single(
+                  path: widget.textNode.path,
+                  startOffset: startOffset,
+                  endOffset: startOffset + insert.length,
+                );
+                widget.editorState.service.selectionService
+                    .updateSelection(selection);
+                WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+                  widget.editorState.service.toolbarService
+                      ?.triggerHandler('appflowy.toolbar.link');
+                });
+              });
+            };
+        }
+        offset += insert.length;
+        final textSpan = RichTextStyle(
+          attributes: insert.attributes ?? {},
+          text: insert.content,
+          height: _lineHeight,
+          gestureRecognizer: gestureDetector,
+        ).toTextSpan();
+        return textSpan;
+      }).toList(growable: false),
+    );
   }
-
-  TextSpan get _textSpan => TextSpan(
-        children: widget.textNode.delta
-            .whereType<TextInsert>()
-            .map((insert) => RichTextStyle(
-                  attributes: insert.attributes ?? {},
-                  text: insert.content,
-                  height: _lineHeight,
-                ).toTextSpan())
-            .toList(growable: false),
-      );
 
   TextSpan get _placeholderTextSpan => TextSpan(children: [
         RichTextStyle(

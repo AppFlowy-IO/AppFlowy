@@ -55,7 +55,6 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
     return SizedBox(
         width: defaultMaxTextNodeWidth,
         child: Padding(
@@ -67,8 +66,7 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
                 FlowySvg(
                   key: iconKey,
                   width: _iconWidth,
-                  padding: EdgeInsets.only(
-                      top: topPadding, right: _iconRightPadding),
+                  padding: EdgeInsets.only(right: _iconRightPadding),
                   name: 'quote',
                 ),
                 Expanded(
