@@ -277,7 +277,13 @@ class RichTextStyle {
     if (href != null) {
       return TapGestureRecognizer()
         ..onTap = () async {
-          await launchUrlString(href);
+          final uri = Uri.parse(href);
+          // url_launcher cannot open a link without scheme.
+          final newHref =
+              (uri.scheme.isNotEmpty ? href : 'http://$href').trim();
+          if (await canLaunchUrlString(newHref)) {
+            await launchUrlString(newHref);
+          }
         };
     }
     return null;
