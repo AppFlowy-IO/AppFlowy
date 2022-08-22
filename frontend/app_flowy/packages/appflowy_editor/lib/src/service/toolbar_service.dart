@@ -1,7 +1,8 @@
+import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/render/selection/toolbar_widget.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 
 abstract class FlowyToolbarService {
@@ -41,7 +42,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
         editorState: widget.editorState,
         layerLink: layerLink,
         offset: offset.translate(0, -37.0),
-        handlers: const {},
+        items: defaultToolbarItems,
       ),
     );
     Overlay.of(context)?.insert(_toolbarOverlay!);
