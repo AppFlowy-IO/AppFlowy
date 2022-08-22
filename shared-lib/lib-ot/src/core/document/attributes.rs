@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct NodeAttributes(pub HashMap<String, Option<String>>);
 
 impl NodeAttributes {

@@ -1,4 +1,4 @@
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct Position(pub Vec<usize>);
 
 impl Position {
@@ -20,7 +20,7 @@ impl Position {
             return b.clone();
         }
         // check the prefix
-        for i in 0..(pre_insert_path.len()) {
+        for i in 0..(pre_insert_path.len() - 1) {
             if pre_insert_path.0[i] != b.0[i] {
                 return b.clone();
             }

@@ -1,6 +1,6 @@
 use crate::core::{NodeAttributes, TextDelta};
 
-#[derive(Clone)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct NodeData {
     pub node_type: String,
     pub attributes: NodeAttributes,
