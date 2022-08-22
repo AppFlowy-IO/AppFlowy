@@ -338,7 +338,9 @@ class FlowyOverlayState extends State<FlowyOverlay> {
   Widget build(BuildContext context) {
     final overlays = _overlayList.map((item) {
       var widget = item.widget;
-      item.focusNode.requestFocus();
+
+      // requestFocus will cause the children weird focus behaviors.
+      // item.focusNode.requestFocus();
       if (item.delegate?.asBarrier() ?? false) {
         widget = Container(
           color: style.barrierColor,
