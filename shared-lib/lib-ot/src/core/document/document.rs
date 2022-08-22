@@ -1,8 +1,6 @@
 use crate::core::document::position::Position;
-use crate::core::{
-    DeleteOperation, DocumentOperation, InsertOperation, NodeAttributes, NodeData, TextEditOperation, Transaction,
-    UpdateOperation,
-};
+use crate::core::{DocumentOperation, NodeAttributes, NodeData, OperationTransform, TextDelta, Transaction};
+use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, NodeId};
 
 pub struct DocumentTree {
@@ -86,42 +84,48 @@ impl DocumentTree {
         None
     }
 
-    pub fn apply(&mut self, transaction: Transaction) {
+    pub fn apply(&mut self, transaction: Transaction) -> Result<(), OTError> {
         for op in &transaction.operations {
-            self.apply_op(op);
+            self.apply_op(op)?;
         }
+        Ok(())
     }
 
-    fn apply_op(&mut self, op: &DocumentOperation) {
+    fn apply_op(&mut self, op: &DocumentOperation) -> Result<(), OTError> {
         match op {
-            DocumentOperation::Insert(op) => self.apply_insert(op),
-            DocumentOperation::Update(op) => self.apply_update(op),
-            DocumentOperation::Delete(op) => self.apply_delete(op),
-            DocumentOperation::TextEdit(op) => self.apply_text_edit(op),
+            DocumentOperation::Insert { path, nodes } => self.apply_insert(path, nodes),
+            DocumentOperation::Update { path, attributes, .. } => self.apply_update(path, attributes),
+            DocumentOperation::Delete { path, nodes } => self.apply_delete(path, nodes.len()),
+            DocumentOperation::TextEdit { path, delta, .. } => self.apply_text_edit(path, delta),
         }
     }
 
-    fn apply_insert(&mut self, op: &InsertOperation) {
-        let parent_path = &op.path.0[0..(op.path.0.len() - 1)];
-        let last_index = op.path.0[op.path.0.len() - 1];
-        let parent_node = self.node_at_path(&Position(parent_path.to_vec()));
-        if let Some(parent_node) = parent_node {
-            let mut inserted_nodes = Vec::new();
+    fn apply_insert(&mut self, path: &Position, nodes: &Vec<NodeData>) -> Result<(), OTError> {
+        let parent_path = &path.0[0..(path.0.len() - 1)];
+        let last_index = path.0[path.0.len() - 1];
+        let parent_node = self
+            .node_at_path(&Position(parent_path.to_vec()))
+            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+        let mut inserted_nodes = Vec::new();
 
-            for node in &op.nodes {
-                inserted_nodes.push(self.arena.new_node(node.clone()));
-            }
-
-            self.insert_child_at_index(parent_node, last_index, &inserted_nodes);
+        for node in nodes {
+            inserted_nodes.push(self.arena.new_node(node.clone()));
         }
+
+        self.insert_child_at_index(parent_node, last_index, &inserted_nodes)
     }
 
-    fn insert_child_at_index(&mut self, parent: NodeId, index: usize, insert_children: &[NodeId]) {
+    fn insert_child_at_index(
+        &mut self,
+        parent: NodeId,
+        index: usize,
+        insert_children: &[NodeId],
+    ) -> Result<(), OTError> {
         if index == 0 && parent.children(&self.arena).next().is_none() {
             for id in insert_children {
                 parent.append(*id, &mut self.arena);
             }
-            return;
+            return Ok(());
         }
 
         let children_length = parent.children(&self.arena).fold(0, |counter, _| counter + 1);
@@ -130,32 +134,72 @@ impl DocumentTree {
             for id in insert_children {
                 parent.append(*id, &mut self.arena);
             }
-            return;
+            return Ok(());
         }
 
-        let node_to_insert = self.child_at_index_of_path(parent, index).unwrap();
+        let node_to_insert = self
+            .child_at_index_of_path(parent, index)
+            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         for id in insert_children {
             node_to_insert.insert_before(*id, &mut self.arena);
         }
+        Ok(())
     }
 
-    fn apply_update(&self, op: &UpdateOperation) {
-        let update_node = self.node_at_path(&op.path).unwrap();
-        let node_data = self.arena.get(update_node).unwrap();
-        let new_attributes = {
-            let old_attributes = node_data.get().attributes.borrow();
-            NodeAttributes::compose(&old_attributes, &op.attributes)
+    fn apply_update(&mut self, path: &Position, attributes: &NodeAttributes) -> Result<(), OTError> {
+        let update_node = self
+            .node_at_path(path)
+            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+        let node_data = self.arena.get_mut(update_node).unwrap();
+        // let new_node = NodeData {
+        //     ..node_data.get().clone()
+        //     attributes:
+        // };
+        let new_node = {
+            let old_attributes = &node_data.get().attributes;
+            let new_attributes = NodeAttributes::compose(&old_attributes, attributes);
+            NodeData {
+                attributes: new_attributes,
+                ..node_data.get().clone()
+            }
         };
-        node_data.get().attributes.replace(new_attributes);
+        *node_data.get_mut() = new_node;
+        Ok(())
     }
 
-    fn apply_delete(&mut self, op: &DeleteOperation) {
-        let update_node = self.node_at_path(&op.path).unwrap();
-        update_node.remove_subtree(&mut self.arena);
+    fn apply_delete(&mut self, path: &Position, len: usize) -> Result<(), OTError> {
+        let mut update_node = self
+            .node_at_path(path)
+            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+        for _ in 0..len {
+            let next = update_node.following_siblings(&self.arena).next();
+            update_node.remove_subtree(&mut self.arena);
+            if let Some(next_id) = next {
+                update_node = next_id;
+            } else {
+                break;
+            }
+        }
+        Ok(())
     }
 
-    fn apply_text_edit(&self, _op: &TextEditOperation) {
-        unimplemented!()
+    fn apply_text_edit(&mut self, path: &Position, delta: &TextDelta) -> Result<(), OTError> {
+        let edit_node = self
+            .node_at_path(path)
+            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+        let node_data = self.arena.get_mut(edit_node).unwrap();
+        let new_delta = if let Some(old_delta) = &node_data.get().delta {
+            Some(old_delta.compose(delta)?)
+        } else {
+            None
+        };
+        if let Some(new_delta) = new_delta {
+            *node_data.get_mut() = NodeData {
+                delta: Some(new_delta),
+                ..node_data.get().clone()
+            };
+        };
+        Ok(())
     }
 }

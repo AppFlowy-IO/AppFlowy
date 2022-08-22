@@ -1,7 +1,5 @@
 use crate::core::document::position::Position;
-use crate::core::{
-    DeleteOperation, DocumentOperation, DocumentTree, InsertOperation, NodeAttributes, NodeData, UpdateOperation,
-};
+use crate::core::{DocumentOperation, DocumentTree, NodeAttributes, NodeData};
 use std::collections::HashMap;
 
 pub struct Transaction {
@@ -28,10 +26,10 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     pub fn insert_nodes_at_path(&mut self, path: &Position, nodes: &[NodeData]) {
-        self.push(DocumentOperation::Insert(InsertOperation {
+        self.push(DocumentOperation::Insert {
             path: path.clone(),
             nodes: nodes.to_vec(),
-        }));
+        });
     }
 
     pub fn update_attributes_at_path(&mut self, path: &Position, attributes: HashMap<String, Option<String>>) {
@@ -40,7 +38,7 @@ impl<'a> TransactionBuilder<'a> {
         let node_data = self.document.arena.get(node).unwrap().get();
 
         for key in attributes.keys() {
-            let old_attrs = node_data.attributes.borrow();
+            let old_attrs = &node_data.attributes;
             let old_value = match old_attrs.0.get(key.as_str()) {
                 Some(value) => value.clone(),
                 None => None,
@@ -48,11 +46,11 @@ impl<'a> TransactionBuilder<'a> {
             old_attributes.insert(key.clone(), old_value);
         }
 
-        self.push(DocumentOperation::Update(UpdateOperation {
+        self.push(DocumentOperation::Update {
             path: path.clone(),
             attributes: NodeAttributes(attributes),
             old_attributes: NodeAttributes(old_attributes),
-        }))
+        })
     }
 
     pub fn delete_node_at_path(&mut self, path: &Position) {
@@ -69,10 +67,10 @@ impl<'a> TransactionBuilder<'a> {
             node = node.following_siblings(&self.document.arena).next().unwrap();
         }
 
-        self.operations.push(DocumentOperation::Delete(DeleteOperation {
+        self.operations.push(DocumentOperation::Delete {
             path: path.clone(),
             nodes: deleted_nodes,
-        }))
+        })
     }
 
     pub fn push(&mut self, op: DocumentOperation) {

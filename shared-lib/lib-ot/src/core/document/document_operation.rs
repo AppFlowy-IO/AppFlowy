@@ -3,102 +3,98 @@ use crate::core::{NodeAttributes, NodeData, TextDelta};
 
 #[derive(Clone)]
 pub enum DocumentOperation {
-    Insert(InsertOperation),
-    Update(UpdateOperation),
-    Delete(DeleteOperation),
-    TextEdit(TextEditOperation),
+    Insert {
+        path: Position,
+        nodes: Vec<NodeData>,
+    },
+    Update {
+        path: Position,
+        attributes: NodeAttributes,
+        old_attributes: NodeAttributes,
+    },
+    Delete {
+        path: Position,
+        nodes: Vec<NodeData>,
+    },
+    TextEdit {
+        path: Position,
+        delta: TextDelta,
+        inverted: TextDelta,
+    },
 }
 
 impl DocumentOperation {
     pub fn path(&self) -> &Position {
         match self {
-            DocumentOperation::Insert(insert) => &insert.path,
-            DocumentOperation::Update(update) => &update.path,
-            DocumentOperation::Delete(delete) => &delete.path,
-            DocumentOperation::TextEdit(text_edit) => &text_edit.path,
+            DocumentOperation::Insert { path, .. } => path,
+            DocumentOperation::Update { path, .. } => path,
+            DocumentOperation::Delete { path, .. } => path,
+            DocumentOperation::TextEdit { path, .. } => path,
         }
     }
     pub fn invert(&self) -> DocumentOperation {
         match self {
-            DocumentOperation::Insert(insert_operation) => DocumentOperation::Delete(DeleteOperation {
-                path: insert_operation.path.clone(),
-                nodes: insert_operation.nodes.clone(),
-            }),
-            DocumentOperation::Update(update_operation) => DocumentOperation::Update(UpdateOperation {
-                path: update_operation.path.clone(),
-                attributes: update_operation.old_attributes.clone(),
-                old_attributes: update_operation.attributes.clone(),
-            }),
-            DocumentOperation::Delete(delete_operation) => DocumentOperation::Insert(InsertOperation {
-                path: delete_operation.path.clone(),
-                nodes: delete_operation.nodes.clone(),
-            }),
-            DocumentOperation::TextEdit(text_edit_operation) => DocumentOperation::TextEdit(TextEditOperation {
-                path: text_edit_operation.path.clone(),
-                delta: text_edit_operation.inverted.clone(),
-                inverted: text_edit_operation.delta.clone(),
-            }),
+            DocumentOperation::Insert { path, nodes } => DocumentOperation::Delete {
+                path: path.clone(),
+                nodes: nodes.clone(),
+            },
+            DocumentOperation::Update {
+                path,
+                attributes,
+                old_attributes,
+            } => DocumentOperation::Update {
+                path: path.clone(),
+                attributes: old_attributes.clone(),
+                old_attributes: attributes.clone(),
+            },
+            DocumentOperation::Delete { path, nodes } => DocumentOperation::Insert {
+                path: path.clone(),
+                nodes: nodes.clone(),
+            },
+            DocumentOperation::TextEdit { path, delta, inverted } => DocumentOperation::TextEdit {
+                path: path.clone(),
+                delta: inverted.clone(),
+                inverted: delta.clone(),
+            },
         }
     }
     pub fn clone_with_new_path(&self, path: Position) -> DocumentOperation {
         match self {
-            DocumentOperation::Insert(insert) => DocumentOperation::Insert(InsertOperation {
+            DocumentOperation::Insert { nodes, .. } => DocumentOperation::Insert {
                 path,
-                nodes: insert.nodes.clone(),
-            }),
-            DocumentOperation::Update(update) => DocumentOperation::Update(UpdateOperation {
+                nodes: nodes.clone(),
+            },
+            DocumentOperation::Update {
+                attributes,
+                old_attributes,
+                ..
+            } => DocumentOperation::Update {
                 path,
-                attributes: update.attributes.clone(),
-                old_attributes: update.old_attributes.clone(),
-            }),
-            DocumentOperation::Delete(delete) => DocumentOperation::Delete(DeleteOperation {
+                attributes: attributes.clone(),
+                old_attributes: old_attributes.clone(),
+            },
+            DocumentOperation::Delete { nodes, .. } => DocumentOperation::Delete {
                 path,
-                nodes: delete.nodes.clone(),
-            }),
-            DocumentOperation::TextEdit(text_edit) => DocumentOperation::TextEdit(TextEditOperation {
+                nodes: nodes.clone(),
+            },
+            DocumentOperation::TextEdit { delta, inverted, .. } => DocumentOperation::TextEdit {
                 path,
-                delta: text_edit.delta.clone(),
-                inverted: text_edit.inverted.clone(),
-            }),
+                delta: delta.clone(),
+                inverted: inverted.clone(),
+            },
         }
     }
     pub fn transform(a: &DocumentOperation, b: &DocumentOperation) -> DocumentOperation {
         match a {
-            DocumentOperation::Insert(insert_op) => {
-                let new_path = Position::transform(a.path(), b.path(), insert_op.nodes.len() as i64);
+            DocumentOperation::Insert { path: a_path, nodes } => {
+                let new_path = Position::transform(a_path, b.path(), nodes.len() as i64);
                 b.clone_with_new_path(new_path)
             }
-            DocumentOperation::Delete(delete_op) => {
-                let new_path = Position::transform(a.path(), b.path(), delete_op.nodes.len() as i64);
+            DocumentOperation::Delete { path: a_path, nodes } => {
+                let new_path = Position::transform(a_path, b.path(), nodes.len() as i64);
                 b.clone_with_new_path(new_path)
             }
             _ => b.clone(),
         }
     }
-}
-
-#[derive(Clone)]
-pub struct InsertOperation {
-    pub path: Position,
-    pub nodes: Vec<NodeData>,
-}
-
-#[derive(Clone)]
-pub struct UpdateOperation {
-    pub path: Position,
-    pub attributes: NodeAttributes,
-    pub old_attributes: NodeAttributes,
-}
-
-#[derive(Clone)]
-pub struct DeleteOperation {
-    pub path: Position,
-    pub nodes: Vec<NodeData>,
-}
-
-#[derive(Clone)]
-pub struct TextEditOperation {
-    pub path: Position,
-    pub delta: TextDelta,
-    pub inverted: TextDelta,
 }
