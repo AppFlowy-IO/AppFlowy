@@ -40,33 +40,30 @@ class _LinkMenuState extends State<LinkMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 350,
-      height: 200,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              blurRadius: 5,
-              spreadRadius: 1,
-              color: Colors.black.withOpacity(0.1),
-            ),
-          ],
-          borderRadius: BorderRadius.circular(6.0),
-        ),
-        child: SizedBox(
-          width: 350,
-          height: 200,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 16.0),
-                _buildInput(),
-                const SizedBox(height: 16.0),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 5,
+            spreadRadius: 1,
+            color: Colors.black.withOpacity(0.1),
+          ),
+        ],
+        borderRadius: BorderRadius.circular(6.0),
+      ),
+      child: SizedBox(
+        width: 350,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 16.0),
+              _buildInput(),
+              const SizedBox(height: 16.0),
+              if (widget.linkText != null) ...[
                 _buildIconButton(
                   iconName: 'link',
                   text: 'Copy link',
@@ -77,8 +74,8 @@ class _LinkMenuState extends State<LinkMenu> {
                   text: 'Remove link',
                   onPressed: widget.onRemoveLink,
                 ),
-              ],
-            ),
+              ]
+            ],
           ),
         ),
       ),
