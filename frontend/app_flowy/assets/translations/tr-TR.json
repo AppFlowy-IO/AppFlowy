@@ -141,5 +141,9 @@
       "lightLabel": "Aydınlık Mod",
       "darkLabel": "Karanlık Mod"
     }
+  },
+  "sideBar": {
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar"
   }
 }

@@ -2,6 +2,7 @@ export './app/header/header.dart';
 export './app/menu_app.dart';
 
 import 'dart:io' show Platform;
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/plugins/trash/menu.dart';
@@ -219,7 +220,8 @@ class MenuTopBar extends StatelessWidget {
               const Spacer(),
               Tooltip(
                   richMessage: TextSpan(children: [
-                    const TextSpan(text: "Close sidebar\n"),
+                    const TextSpan(
+                        text: LocaleKeys.sideBar_closeSidebar + "\n"),
                     TextSpan(
                       text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
                       style: const TextStyle(color: Colors.white60),

@@ -141,5 +141,9 @@
       "lightLabel": "日间模式",
       "darkLabel": "夜间模式"
     }
+  },
+  "sideBar": {
+    "openSidebar": "打开侧边栏",
+    "closeSidebar": "关闭侧边栏"
   }
 }

@@ -195,5 +195,9 @@
       "pannelTitle": "選択候補を検索 または 作成する",
       "searchOption": "選択候補を検索"
     }
+  },
+  "sideBar": {
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar"
   }
 }

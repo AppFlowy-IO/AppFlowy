@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/image.dart';
@@ -99,7 +100,7 @@ class FlowyNavigation extends StatelessWidget {
               turns: const AlwaysStoppedAnimation(180 / 360),
               child: Tooltip(
                   richMessage: TextSpan(children: [
-                    const TextSpan(text: "Open sidebar\n"),
+                    const TextSpan(text: LocaleKeys.sideBar_openSidebar + "\n"),
                     TextSpan(
                       text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
                       style: const TextStyle(color: Colors.white60),
