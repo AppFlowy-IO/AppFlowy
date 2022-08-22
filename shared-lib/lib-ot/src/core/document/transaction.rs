@@ -27,14 +27,14 @@ impl<'a> TransactionBuilder<'a> {
         }
     }
 
-    pub fn insert_nodes(&mut self, path: &Position, nodes: &[NodeData]) {
+    pub fn insert_nodes_at_path(&mut self, path: &Position, nodes: &[NodeData]) {
         self.push(DocumentOperation::Insert(InsertOperation {
             path: path.clone(),
             nodes: nodes.to_vec(),
         }));
     }
 
-    pub fn update_attributes(&mut self, path: &Position, attributes: HashMap<String, Option<String>>) {
+    pub fn update_attributes_at_path(&mut self, path: &Position, attributes: HashMap<String, Option<String>>) {
         let mut old_attributes: HashMap<String, Option<String>> = HashMap::new();
         let node = self.document.node_at_path(path).unwrap();
         let node_data = self.document.arena.get(node).unwrap().get();
@@ -55,11 +55,11 @@ impl<'a> TransactionBuilder<'a> {
         }))
     }
 
-    pub fn delete_node(&mut self, path: &Position) {
-        self.delete_nodes(path, 1);
+    pub fn delete_node_at_path(&mut self, path: &Position) {
+        self.delete_nodes_at_path(path, 1);
     }
 
-    pub fn delete_nodes(&mut self, path: &Position, length: usize) {
+    pub fn delete_nodes_at_path(&mut self, path: &Position, length: usize) {
         let mut node = self.document.node_at_path(path).unwrap();
         let mut deleted_nodes: Vec<NodeData> = Vec::new();
 
