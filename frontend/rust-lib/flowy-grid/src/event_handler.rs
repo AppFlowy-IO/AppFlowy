@@ -10,7 +10,6 @@ use crate::services::field::{
 use crate::services::row::make_row_from_row_rev;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::FieldRevision;
-use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
@@ -34,17 +33,6 @@ pub(crate) async fn get_grid_setting_handler(
     let editor = manager.open_grid(grid_id).await?;
     let grid_setting = editor.get_grid_setting().await?;
     data_result(grid_setting)
-}
-
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn update_grid_setting_handler(
-    data: Data<GridSettingChangesetPayloadPB>,
-    manager: AppData<Arc<GridManager>>,
-) -> Result<(), FlowyError> {
-    let params: GridSettingChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.open_grid(&params.grid_id).await?;
-    let _ = editor.update_grid_setting(params).await?;
-    Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
@@ -436,4 +424,26 @@ pub(crate) async fn create_board_card_handler(
     let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
     let row = editor.create_row(params).await?;
     data_result(row)
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn move_group_handler(
+    data: Data<MoveGroupPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> FlowyResult<()> {
+    let params: MoveGroupParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(params.view_id.as_ref())?;
+    let _ = editor.move_group(params).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn move_group_row_handler(
+    data: Data<MoveGroupRowPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> FlowyResult<()> {
+    let params: MoveGroupRowParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(params.view_id.as_ref())?;
+    let _ = editor.move_group_row(params).await?;
+    Ok(())
 }

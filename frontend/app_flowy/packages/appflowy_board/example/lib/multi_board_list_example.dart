@@ -10,7 +10,7 @@ class MultiBoardListExample extends StatefulWidget {
 
 class _MultiBoardListExampleState extends State<MultiBoardListExample> {
   final AFBoardDataController boardDataController = AFBoardDataController(
-    onMoveColumn: (fromIndex, toIndex) {
+    onMoveColumn: (fromColumnId, fromIndex, toColumnId, toIndex) {
       debugPrint('Move column from $fromIndex to $toIndex');
     },
     onMoveColumnItem: (columnId, fromIndex, toIndex) {

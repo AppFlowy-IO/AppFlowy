@@ -1,11 +1,9 @@
-use crate::entities::grid::{CreateGridFilterParams, CreateGridGroupParams, GridSettingChangesetParams};
 use crate::entities::revision::{md5, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_text_delta_from_revisions};
 use flowy_grid_data_model::revision::{
-    gen_grid_filter_id, gen_grid_group_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision,
-    FilterConfigurationsByFieldId, GridViewRevision, GroupConfigurationRevision, GroupConfigurationsByFieldId,
-    SettingRevision, SortConfigurationsByFieldId,
+    FieldRevision, FieldTypeRevision, FilterConfigurationRevision, FilterConfigurationsByFieldId, GridViewRevision,
+    GroupConfigurationRevision, GroupConfigurationsByFieldId,
 };
 use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
 use std::sync::Arc;
@@ -50,71 +48,11 @@ impl GridViewRevisionPad {
         Self::from_delta(delta)
     }
 
-    pub fn get_setting_rev(&self) -> &SettingRevision {
-        &self.view.setting
-    }
-
-    pub fn update_setting(
-        &mut self,
-        changeset: GridSettingChangesetParams,
-    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
-        self.modify(|view| {
-            let mut is_changed = None;
-            if let Some(params) = changeset.insert_filter {
-                view.setting.filters.insert_object(
-                    &params.field_id,
-                    &params.field_type_rev,
-                    make_filter_revision(&params),
-                );
-                is_changed = Some(())
-            }
-            if let Some(params) = changeset.delete_filter {
-                if let Some(filters) = view
-                    .setting
-                    .filters
-                    .get_mut_objects(&params.field_id, &params.field_type_rev)
-                {
-                    filters.retain(|filter| filter.id != params.filter_id);
-                    is_changed = Some(())
-                }
-            }
-            if let Some(params) = changeset.insert_group {
-                view.setting.groups.remove_all();
-                view.setting.groups.insert_object(
-                    &params.field_id,
-                    &params.field_type_rev,
-                    make_group_revision(&params),
-                );
-
-                is_changed = Some(());
-            }
-            if let Some(params) = changeset.delete_group {
-                if let Some(groups) = view
-                    .setting
-                    .groups
-                    .get_mut_objects(&params.field_id, &params.field_type_rev)
-                {
-                    groups.retain(|group| group.id != params.group_id);
-                    is_changed = Some(());
-                }
-            }
-
-            Ok(is_changed)
-        })
-    }
-
     pub fn get_all_groups(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
-        self.setting.groups.get_all_objects(field_revs)
+        self.groups.get_all_objects(field_revs)
     }
 
-    pub fn get_groups(
-        &self,
-        field_id: &str,
-        field_type_rev: &FieldTypeRevision,
-    ) -> Option<Vec<Arc<GroupConfigurationRevision>>> {
-        self.setting.groups.get_objects(field_id, field_type_rev)
-    }
-
+    #[tracing::instrument(level = "trace", skip_all, err)]
     pub fn insert_group(
         &mut self,
         field_id: &str,
@@ -122,10 +60,37 @@ impl GridViewRevisionPad {
         group_rev: GroupConfigurationRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
-            // only one group can be set
-            view.setting.groups.remove_all();
-            view.setting.groups.insert_object(field_id, field_type, group_rev);
+            // Only save one group
+            view.groups.clear();
+            view.groups.add_object(field_id, field_type, group_rev);
             Ok(Some(()))
+        })
+    }
+
+    #[tracing::instrument(level = "trace", skip_all)]
+    pub fn contains_group(&self, field_id: &str, field_type: &FieldTypeRevision) -> bool {
+        self.view.groups.get_objects(field_id, field_type).is_some()
+    }
+
+    #[tracing::instrument(level = "trace", skip_all, err)]
+    pub fn with_mut_group<F: FnOnce(&mut GroupConfigurationRevision)>(
+        &mut self,
+        field_id: &str,
+        field_type: &FieldTypeRevision,
+        configuration_id: &str,
+        mut_configuration_fn: F,
+    ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
+        self.modify(|view| match view.groups.get_mut_objects(field_id, field_type) {
+            None => Ok(None),
+            Some(configurations_revs) => {
+                for configuration_rev in configurations_revs {
+                    if configuration_rev.id == configuration_id {
+                        mut_configuration_fn(Arc::make_mut(configuration_rev));
+                        return Ok(Some(()));
+                    }
+                }
+                Ok(None)
+            }
         })
     }
 
@@ -136,7 +101,7 @@ impl GridViewRevisionPad {
         group_id: &str,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
-            if let Some(groups) = view.setting.groups.get_mut_objects(field_id, field_type) {
+            if let Some(groups) = view.groups.get_mut_objects(field_id, field_type) {
                 groups.retain(|group| group.id != group_id);
                 Ok(Some(()))
             } else {
@@ -146,7 +111,7 @@ impl GridViewRevisionPad {
     }
 
     pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Option<FilterConfigurationsByFieldId> {
-        self.setting.filters.get_all_objects(field_revs)
+        self.filters.get_all_objects(field_revs)
     }
 
     pub fn get_filters(
@@ -154,7 +119,7 @@ impl GridViewRevisionPad {
         field_id: &str,
         field_type_rev: &FieldTypeRevision,
     ) -> Option<Vec<Arc<FilterConfigurationRevision>>> {
-        self.setting.filters.get_objects(field_id, field_type_rev)
+        self.filters.get_objects(field_id, field_type_rev)
     }
 
     pub fn insert_filter(
@@ -164,7 +129,7 @@ impl GridViewRevisionPad {
         filter_rev: FilterConfigurationRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
-            view.setting.filters.insert_object(field_id, field_type, filter_rev);
+            view.filters.add_object(field_id, field_type, filter_rev);
             Ok(Some(()))
         })
     }
@@ -176,17 +141,13 @@ impl GridViewRevisionPad {
         filter_id: &str,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
-            if let Some(filters) = view.setting.filters.get_mut_objects(field_id, field_type) {
+            if let Some(filters) = view.filters.get_mut_objects(field_id, field_type) {
                 filters.retain(|filter| filter.id != filter_id);
                 Ok(Some(()))
             } else {
                 Ok(None)
             }
         })
-    }
-
-    pub fn get_all_sort(&self) -> Option<SortConfigurationsByFieldId> {
-        None
     }
 
     pub fn json_str(&self) -> CollaborateResult<String> {
@@ -216,24 +177,7 @@ impl GridViewRevisionPad {
     }
 }
 
-fn make_filter_revision(params: &CreateGridFilterParams) -> FilterConfigurationRevision {
-    FilterConfigurationRevision {
-        id: gen_grid_filter_id(),
-        field_id: params.field_id.clone(),
-        condition: params.condition,
-        content: params.content.clone(),
-    }
-}
-
-fn make_group_revision(params: &CreateGridGroupParams) -> GroupConfigurationRevision {
-    GroupConfigurationRevision {
-        id: gen_grid_group_id(),
-        field_id: params.field_id.clone(),
-        field_type_rev: params.field_type_rev,
-        content: params.content.clone(),
-    }
-}
-
+#[derive(Debug)]
 pub struct GridViewRevisionChangeset {
     pub delta: TextDelta,
     pub md5: String,

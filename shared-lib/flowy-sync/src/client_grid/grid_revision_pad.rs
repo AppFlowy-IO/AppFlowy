@@ -1,4 +1,3 @@
-use crate::entities::grid::FieldChangesetParams;
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_text_delta_from_revisions};
@@ -159,61 +158,6 @@ impl GridRevisionPad {
                     Ok(Some(()))
                 }
             }
-        })
-    }
-
-    pub fn update_field_rev<T: JsonDeserializer>(
-        &mut self,
-        changeset: FieldChangesetParams,
-        deserializer: T,
-    ) -> CollaborateResult<Option<GridRevisionChangeset>> {
-        let field_id = changeset.field_id.clone();
-        self.modify_field(&field_id, |field| {
-            let mut is_changed = None;
-            if let Some(name) = changeset.name {
-                field.name = name;
-                is_changed = Some(())
-            }
-
-            if let Some(desc) = changeset.desc {
-                field.desc = desc;
-                is_changed = Some(())
-            }
-
-            if let Some(field_type) = changeset.field_type {
-                field.ty = field_type;
-                is_changed = Some(())
-            }
-
-            if let Some(frozen) = changeset.frozen {
-                field.frozen = frozen;
-                is_changed = Some(())
-            }
-
-            if let Some(visibility) = changeset.visibility {
-                field.visibility = visibility;
-                is_changed = Some(())
-            }
-
-            if let Some(width) = changeset.width {
-                field.width = width;
-                is_changed = Some(())
-            }
-
-            if let Some(type_option_data) = changeset.type_option_data {
-                match deserializer.deserialize(type_option_data) {
-                    Ok(json_str) => {
-                        let field_type = field.ty;
-                        field.insert_type_option_str(&field_type, json_str);
-                        is_changed = Some(())
-                    }
-                    Err(err) => {
-                        tracing::error!("Deserialize data to type option json failed: {}", err);
-                    }
-                }
-            }
-
-            Ok(is_changed)
         })
     }
 
@@ -399,7 +343,7 @@ impl GridRevisionPad {
         )
     }
 
-    fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridRevisionChangeset>>
+    pub fn modify_field<F>(&mut self, field_id: &str, f: F) -> CollaborateResult<Option<GridRevisionChangeset>>
     where
         F: FnOnce(&mut FieldRevision) -> CollaborateResult<Option<()>>,
     {

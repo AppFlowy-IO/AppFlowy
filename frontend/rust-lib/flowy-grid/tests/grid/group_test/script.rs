@@ -1,14 +1,20 @@
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::{CreateRowParams, FieldType, GridLayout, GroupPB, MoveRowParams, RowPB};
+use flowy_grid::entities::{
+    CreateRowParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
+};
 use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid_data_model::revision::RowChangeset;
 
 pub enum GroupScript {
-    AssertGroup {
+    AssertGroupRowCount {
         group_index: usize,
         row_count: usize,
     },
     AssertGroupCount(usize),
+    AssertGroup {
+        group_index: usize,
+        expected_group: GroupPB,
+    },
     AssertRow {
         group_index: usize,
         row_index: usize,
@@ -32,6 +38,10 @@ pub enum GroupScript {
         row_index: usize,
         to_group_index: usize,
     },
+    MoveGroup {
+        from_group_index: usize,
+        to_group_index: usize,
+    },
 }
 
 pub struct GridGroupTest {
@@ -52,7 +62,7 @@ impl GridGroupTest {
 
     pub async fn run_script(&mut self, script: GroupScript) {
         match script {
-            GroupScript::AssertGroup { group_index, row_count } => {
+            GroupScript::AssertGroupRowCount { group_index, row_count } => {
                 assert_eq!(row_count, self.group_at_index(group_index).await.rows.len());
             }
             GroupScript::AssertGroupCount(count) => {
@@ -67,14 +77,16 @@ impl GridGroupTest {
             } => {
                 let groups: Vec<GroupPB> = self.editor.load_groups().await.unwrap().items;
                 let from_row = groups.get(from_group_index).unwrap().rows.get(from_row_index).unwrap();
-                let to_row = groups.get(to_group_index).unwrap().rows.get(to_row_index).unwrap();
-                let params = MoveRowParams {
+                let to_group = groups.get(to_group_index).unwrap();
+                let to_row = to_group.rows.get(to_row_index).unwrap();
+                let params = MoveGroupRowParams {
                     view_id: self.inner.grid_id.clone(),
                     from_row_id: from_row.id.clone(),
-                    to_row_id: to_row.id.clone(),
+                    to_group_id: to_group.group_id.clone(),
+                    to_row_id: Some(to_row.id.clone()),
                 };
 
-                self.editor.move_row(params).await.unwrap();
+                self.editor.move_group_row(params).await.unwrap();
             }
             GroupScript::AssertRow {
                 group_index,
@@ -84,7 +96,6 @@ impl GridGroupTest {
                 //
                 let group = self.group_at_index(group_index).await;
                 let compare_row = group.rows.get(row_index).unwrap().clone();
-
                 assert_eq!(row.id, compare_row.id);
             }
             GroupScript::CreateRow { group_index } => {
@@ -124,6 +135,27 @@ impl GridGroupTest {
                 let mut row_changeset = RowChangeset::new(row_id);
                 row_changeset.cell_by_field_id.insert(field_id, cell_rev);
                 self.editor.update_row(row_changeset).await.unwrap();
+            }
+            GroupScript::MoveGroup {
+                from_group_index,
+                to_group_index,
+            } => {
+                let from_group = self.group_at_index(from_group_index).await;
+                let to_group = self.group_at_index(to_group_index).await;
+                let params = MoveGroupParams {
+                    view_id: self.editor.grid_id.clone(),
+                    from_group_id: from_group.group_id,
+                    to_group_id: to_group.group_id,
+                };
+                self.editor.move_group(params).await.unwrap();
+                //
+            }
+            GroupScript::AssertGroup {
+                group_index,
+                expected_group: group_pb,
+            } => {
+                let group = self.group_at_index(group_index).await;
+                assert_eq!(group.group_id, group_pb.group_id);
             }
         }
     }

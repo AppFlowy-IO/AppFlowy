@@ -2,7 +2,6 @@ use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
-use flowy_sync::entities::grid::FieldChangesetParams;
 use serde_repr::*;
 use std::sync::Arc;
 
@@ -489,6 +488,27 @@ impl TryInto<FieldChangesetParams> for FieldChangesetPayloadPB {
             type_option_data: self.type_option_data,
         })
     }
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct FieldChangesetParams {
+    pub field_id: String,
+
+    pub grid_id: String,
+
+    pub name: Option<String>,
+
+    pub desc: Option<String>,
+
+    pub field_type: Option<FieldTypeRevision>,
+
+    pub frozen: Option<bool>,
+
+    pub visibility: Option<bool>,
+
+    pub width: Option<i32>,
+
+    pub type_option_data: Option<Vec<u8>>,
 }
 
 #[derive(
