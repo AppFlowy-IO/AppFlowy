@@ -21,12 +21,21 @@ class LinkMenu extends StatefulWidget {
 
 class _LinkMenuState extends State<LinkMenu> {
   final _textEditingController = TextEditingController();
+  final _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
 
     _textEditingController.text = widget.linkText ?? '';
+    _focusNode.requestFocus();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -88,7 +97,7 @@ class _LinkMenuState extends State<LinkMenu> {
 
   Widget _buildInput() {
     return TextField(
-      autofocus: true,
+      focusNode: _focusNode,
       style: const TextStyle(fontSize: 14.0),
       textAlign: TextAlign.left,
       controller: _textEditingController,
@@ -112,11 +121,7 @@ class _LinkMenuState extends State<LinkMenu> {
     required VoidCallback onPressed,
   }) {
     return TextButton.icon(
-      icon: FlowySvg(
-        name: iconName,
-        width: 20.0,
-        height: 20.0,
-      ),
+      icon: FlowySvg(name: iconName),
       style: TextButton.styleFrom(
         minimumSize: const Size.fromHeight(40),
         padding: EdgeInsets.zero,

@@ -11,6 +11,9 @@ abstract class FlowyToolbarService {
 
   /// Hide the toolbar widget.
   void hide();
+
+  /// Trigger the specified handler.
+  bool triggerHandler(String id);
 }
 
 class FlowyToolbar extends StatefulWidget {
@@ -53,6 +56,17 @@ class _FlowyToolbarState extends State<FlowyToolbar>
     _toolbarWidgetKey.currentState?.unwrapOrNull<ToolbarMixin>()?.hide();
     _toolbarOverlay?.remove();
     _toolbarOverlay = null;
+  }
+
+  @override
+  bool triggerHandler(String id) {
+    final items = defaultToolbarItems.where((item) => item.id == id);
+    if (items.length != 1) {
+      assert(items.length == 1, 'The toolbar item\'s id must be unique');
+      return false;
+    }
+    items.first.handler(widget.editorState, context);
+    return true;
   }
 
   @override

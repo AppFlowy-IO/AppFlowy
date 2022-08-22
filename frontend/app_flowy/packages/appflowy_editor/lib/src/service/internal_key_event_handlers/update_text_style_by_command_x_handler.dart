@@ -36,6 +36,12 @@ AppFlowyKeyEventHandler updateTextStyleByCommandXHandler =
       event.isShiftPressed) {
     formatHighlight(editorState);
     return KeyEventResult.handled;
+  } else if (event.logicalKey == LogicalKeyboardKey.keyK) {
+    if (editorState.service.toolbarService
+            ?.triggerHandler('appflowy.toolbar.link') ==
+        true) {
+      return KeyEventResult.handled;
+    }
   }
 
   return KeyEventResult.ignored;

@@ -13,12 +13,14 @@ typedef ToolbarShowValidator = bool Function(EditorState editorState);
 
 class ToolbarItem {
   ToolbarItem({
+    required this.id,
     required this.icon,
     this.tooltipsMessage = '',
     required this.validator,
     required this.handler,
   });
 
+  final String id;
   final Widget icon;
   final String tooltipsMessage;
   final ToolbarShowValidator validator;
@@ -26,6 +28,7 @@ class ToolbarItem {
 
   factory ToolbarItem.divider() {
     return ToolbarItem(
+      id: 'divider',
       icon: const FlowySvg(name: 'toolbar/divider'),
       validator: (editorState) => true,
       handler: (editorState, context) {},
@@ -35,18 +38,21 @@ class ToolbarItem {
 
 List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
+    id: 'appflowy.toolbar.h1',
     tooltipsMessage: 'Heading 1',
     icon: const FlowySvg(name: 'toolbar/h1'),
     validator: _onlyShowInSingleTextSelection,
     handler: (editorState, context) => formatHeading(editorState, StyleKey.h1),
   ),
   ToolbarItem(
+    id: 'appflowy.toolbar.h2',
     tooltipsMessage: 'Heading 2',
     icon: const FlowySvg(name: 'toolbar/h2'),
     validator: _onlyShowInSingleTextSelection,
     handler: (editorState, context) => formatHeading(editorState, StyleKey.h2),
   ),
   ToolbarItem(
+    id: 'appflowy.toolbar.h3',
     tooltipsMessage: 'Heading 3',
     icon: const FlowySvg(name: 'toolbar/h3'),
     validator: _onlyShowInSingleTextSelection,
@@ -54,24 +60,28 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem.divider(),
   ToolbarItem(
+    id: 'appflowy.toolbar.bold',
     tooltipsMessage: 'Bold',
     icon: const FlowySvg(name: 'toolbar/bold'),
     validator: _showInTextSelection,
     handler: (editorState, context) => formatBold(editorState),
   ),
   ToolbarItem(
+    id: 'appflowy.toolbar.italic',
     tooltipsMessage: 'Italic',
     icon: const FlowySvg(name: 'toolbar/italic'),
     validator: _showInTextSelection,
     handler: (editorState, context) => formatItalic(editorState),
   ),
   ToolbarItem(
+    id: 'appflowy.toolbar.underline',
     tooltipsMessage: 'Underline',
     icon: const FlowySvg(name: 'toolbar/underline'),
     validator: _showInTextSelection,
     handler: (editorState, context) => formatUnderline(editorState),
   ),
   ToolbarItem(
+    id: 'appflowy.toolbar.strikethrough',
     tooltipsMessage: 'Strikethrough',
     icon: const FlowySvg(name: 'toolbar/strikethrough'),
     validator: _showInTextSelection,
@@ -79,12 +89,14 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem.divider(),
   ToolbarItem(
+    id: 'appflowy.toolbar.quote',
     tooltipsMessage: 'Quote',
     icon: const FlowySvg(name: 'toolbar/quote'),
     validator: _onlyShowInSingleTextSelection,
     handler: (editorState, context) => formatQuote(editorState),
   ),
   ToolbarItem(
+    id: 'appflowy.toolbar.bulleted_list',
     tooltipsMessage: 'Bulleted list',
     icon: const FlowySvg(name: 'toolbar/bulleted_list'),
     validator: _onlyShowInSingleTextSelection,
@@ -92,12 +104,14 @@ List<ToolbarItem> defaultToolbarItems = [
   ),
   ToolbarItem.divider(),
   ToolbarItem(
+    id: 'appflowy.toolbar.link',
     tooltipsMessage: 'Link',
     icon: const FlowySvg(name: 'toolbar/link'),
     validator: _onlyShowInSingleTextSelection,
     handler: (editorState, context) => _showLinkMenu(editorState, context),
   ),
   ToolbarItem(
+    id: 'appflowy.toolbar.highlight',
     tooltipsMessage: 'Highlight',
     icon: const FlowySvg(name: 'toolbar/highlight'),
     validator: _showInTextSelection,
@@ -152,9 +166,7 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
           linkText: linkText,
           onSubmitted: (text) {
             TransactionBuilder(editorState)
-              ..formatText(node, index, length, {
-                StyleKey.href: text,
-              })
+              ..formatText(node, index, length, {StyleKey.href: text})
               ..commit();
             _dismissLinkMenu();
           },
@@ -164,9 +176,7 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
           },
           onRemoveLink: () {
             TransactionBuilder(editorState)
-              ..formatText(node, index, length, {
-                StyleKey.href: null,
-              })
+              ..formatText(node, index, length, {StyleKey.href: null})
               ..commit();
             _dismissLinkMenu();
           },
@@ -177,6 +187,7 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
   Overlay.of(context)?.insert(_linkMenuOverlay!);
 
   editorState.service.scrollService?.disable();
+  editorState.service.keyboardService?.disable();
   editorState.service.selectionService.currentSelection
       .addListener(_dismissLinkMenu);
 }
@@ -186,6 +197,7 @@ void _dismissLinkMenu() {
   _linkMenuOverlay = null;
 
   _editorState?.service.scrollService?.enable();
+  _editorState?.service.keyboardService?.enable();
   _editorState?.service.selectionService.currentSelection
       .removeListener(_dismissLinkMenu);
   _editorState = null;
