@@ -39,27 +39,13 @@ class _FlowyToolbarState extends State<FlowyToolbar>
   void showInOffset(Offset offset, LayerLink layerLink) {
     hide();
 
-    final items = defaultToolbarItems
-        .where((item) => item.validator(widget.editorState))
-        .toList(growable: false)
-      ..sort((a, b) => a.type.compareTo(b.type));
-    if (items.isEmpty) {
-      return;
-    }
-    final List<ToolbarItem> dividedItems = [items.first];
-    for (var i = 1; i < items.length; i++) {
-      if (items[i].type != items[i - 1].type) {
-        dividedItems.add(ToolbarItem.divider());
-      }
-      dividedItems.add(items[i]);
-    }
     _toolbarOverlay = OverlayEntry(
       builder: (context) => ToolbarWidget(
         key: _toolbarWidgetKey,
         editorState: widget.editorState,
         layerLink: layerLink,
         offset: offset.translate(0, -37.0),
-        items: dividedItems,
+        items: _filterItems(defaultToolbarItems),
       ),
     );
     Overlay.of(context)?.insert(_toolbarOverlay!);
@@ -95,5 +81,25 @@ class _FlowyToolbarState extends State<FlowyToolbar>
     hide();
 
     super.dispose();
+  }
+
+  // Filter items that should not be displayed, sort according to type,
+  // and insert dividers between different types.
+  List<ToolbarItem> _filterItems(List<ToolbarItem> items) {
+    final filterItems = items
+        .where((item) => item.validator(widget.editorState))
+        .toList(growable: false)
+      ..sort((a, b) => a.type.compareTo(b.type));
+    if (items.isEmpty) {
+      return [];
+    }
+    final List<ToolbarItem> dividedItems = [filterItems.first];
+    for (var i = 1; i < filterItems.length; i++) {
+      if (filterItems[i].type != filterItems[i - 1].type) {
+        dividedItems.add(ToolbarItem.divider());
+      }
+      dividedItems.add(filterItems[i]);
+    }
+    return dividedItems;
   }
 }
