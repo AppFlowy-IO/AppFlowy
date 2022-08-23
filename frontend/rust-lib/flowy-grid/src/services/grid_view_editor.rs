@@ -1,8 +1,8 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{
     CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfiguration, GridLayout, GridLayoutPB,
-    GridSettingPB, GroupPB, GroupRowsChangesetPB, GroupViewChangesetPB, InsertedGroupPB, InsertedRowPB,
-    MoveGroupParams, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RowPB,
+    GridSettingPB, GroupChangesetPB, GroupPB, GroupViewChangesetPB, InsertedGroupPB, InsertedRowPB, MoveGroupParams,
+    RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RowPB,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
@@ -99,8 +99,8 @@ impl GridViewRevisionEditor {
                     row: row_pb.clone(),
                     index: None,
                 };
-                let changeset = GroupRowsChangesetPB::insert(group_id.clone(), vec![inserted_row]);
-                self.notify_did_update_group_rows(changeset).await;
+                let changeset = GroupChangesetPB::insert(group_id.clone(), vec![inserted_row]);
+                self.notify_did_update_group(changeset).await;
             }
         }
     }
@@ -115,7 +115,7 @@ impl GridViewRevisionEditor {
             .await
         {
             for changeset in changesets {
-                self.notify_did_update_group_rows(changeset).await;
+                self.notify_did_update_group(changeset).await;
             }
         }
     }
@@ -129,7 +129,7 @@ impl GridViewRevisionEditor {
             .await
         {
             for changeset in changesets {
-                self.notify_did_update_group_rows(changeset).await;
+                self.notify_did_update_group(changeset).await;
             }
         }
     }
@@ -151,7 +151,7 @@ impl GridViewRevisionEditor {
             .await
         {
             for changeset in changesets {
-                self.notify_did_update_group_rows(changeset).await;
+                self.notify_did_update_group(changeset).await;
             }
         }
     }
@@ -253,7 +253,14 @@ impl GridViewRevisionEditor {
         .await
     }
 
-    async fn notify_did_update_group_rows(&self, changeset: GroupRowsChangesetPB) {
+    pub(crate) async fn did_update_field(&self, field_id: &str) -> FlowyResult<()> {
+        if let Some(field_rev) = self.field_delegate.get_field_rev(&field_id).await {
+            let _ = self.group_service.write().await.did_update_field(&field_rev).await?;
+        }
+        Ok(())
+    }
+
+    async fn notify_did_update_group(&self, changeset: GroupChangesetPB) {
         send_dart_notification(&changeset.group_id, GridNotification::DidUpdateGroup)
             .payload(changeset)
             .send();

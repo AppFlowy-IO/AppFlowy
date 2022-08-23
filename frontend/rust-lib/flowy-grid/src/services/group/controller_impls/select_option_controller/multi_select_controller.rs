@@ -1,4 +1,4 @@
-use crate::entities::GroupRowsChangesetPB;
+use crate::entities::GroupChangesetPB;
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{MultiSelectTypeOptionPB, SelectOptionCellDataPB, SelectOptionCellDataParser};
 use crate::services::group::action::GroupAction;
@@ -25,7 +25,7 @@ impl GroupAction for MultiSelectGroupController {
         cell_data.select_options.iter().any(|option| option.id == content)
     }
 
-    fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupRowsChangesetPB> {
+    fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
         self.configuration.with_mut_groups(|group| {
             add_row(group, &mut changesets, cell_data, row_rev);
@@ -33,11 +33,7 @@ impl GroupAction for MultiSelectGroupController {
         changesets
     }
 
-    fn remove_row_if_match(
-        &mut self,
-        row_rev: &RowRevision,
-        cell_data: &Self::CellDataType,
-    ) -> Vec<GroupRowsChangesetPB> {
+    fn remove_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
         self.configuration.with_mut_groups(|group| {
             remove_row(group, &mut changesets, cell_data, row_rev);
@@ -45,11 +41,7 @@ impl GroupAction for MultiSelectGroupController {
         changesets
     }
 
-    fn move_row(
-        &mut self,
-        cell_data: &Self::CellDataType,
-        mut context: MoveGroupRowContext,
-    ) -> Vec<GroupRowsChangesetPB> {
+    fn move_row(&mut self, cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
         let mut group_changeset = vec![];
         self.configuration.with_mut_groups(|group| {
             move_select_option_row(group, &mut group_changeset, cell_data, &mut context);

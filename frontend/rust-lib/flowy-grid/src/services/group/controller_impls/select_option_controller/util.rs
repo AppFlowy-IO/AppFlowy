@@ -1,4 +1,4 @@
-use crate::entities::{GroupRowsChangesetPB, InsertedRowPB, RowPB};
+use crate::entities::{GroupChangesetPB, InsertedRowPB, RowPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::SelectOptionCellDataPB;
 use crate::services::group::configuration::GenericGroupConfiguration;
@@ -11,7 +11,7 @@ pub type SelectOptionGroupConfiguration = GenericGroupConfiguration<SelectOption
 
 pub fn add_row(
     group: &mut Group,
-    changesets: &mut Vec<GroupRowsChangesetPB>,
+    changesets: &mut Vec<GroupChangesetPB>,
     cell_data: &SelectOptionCellDataPB,
     row_rev: &RowRevision,
 ) {
@@ -19,14 +19,14 @@ pub fn add_row(
         if option.id == group.id {
             if !group.contains_row(&row_rev.id) {
                 let row_pb = RowPB::from(row_rev);
-                changesets.push(GroupRowsChangesetPB::insert(
+                changesets.push(GroupChangesetPB::insert(
                     group.id.clone(),
                     vec![InsertedRowPB::new(row_pb.clone())],
                 ));
                 group.add_row(row_pb);
             }
         } else if group.contains_row(&row_rev.id) {
-            changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+            changesets.push(GroupChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
             group.remove_row(&row_rev.id);
         }
     });
@@ -34,13 +34,13 @@ pub fn add_row(
 
 pub fn remove_row(
     group: &mut Group,
-    changesets: &mut Vec<GroupRowsChangesetPB>,
+    changesets: &mut Vec<GroupChangesetPB>,
     cell_data: &SelectOptionCellDataPB,
     row_rev: &RowRevision,
 ) {
     cell_data.select_options.iter().for_each(|option| {
         if option.id == group.id && group.contains_row(&row_rev.id) {
-            changesets.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+            changesets.push(GroupChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
             group.remove_row(&row_rev.id);
         }
     });
@@ -48,7 +48,7 @@ pub fn remove_row(
 
 pub fn move_select_option_row(
     group: &mut Group,
-    group_changeset: &mut Vec<GroupRowsChangesetPB>,
+    group_changeset: &mut Vec<GroupChangesetPB>,
     _cell_data: &SelectOptionCellDataPB,
     context: &mut MoveGroupRowContext,
 ) {
@@ -68,7 +68,7 @@ pub fn move_select_option_row(
 
     // Remove the row in which group contains it
     if from_index.is_some() {
-        group_changeset.push(GroupRowsChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
+        group_changeset.push(GroupChangesetPB::delete(group.id.clone(), vec![row_rev.id.clone()]));
         tracing::debug!("Group:{} remove row:{}", group.id, row_rev.id);
         group.remove_row(&row_rev.id);
     }
@@ -78,7 +78,7 @@ pub fn move_select_option_row(
         let mut inserted_row = InsertedRowPB::new(row_pb.clone());
         match to_index {
             None => {
-                group_changeset.push(GroupRowsChangesetPB::insert(group.id.clone(), vec![inserted_row]));
+                group_changeset.push(GroupChangesetPB::insert(group.id.clone(), vec![inserted_row]));
                 tracing::debug!("Group:{} append row:{}", group.id, row_rev.id);
                 group.add_row(row_pb);
             }
@@ -91,7 +91,7 @@ pub fn move_select_option_row(
                     tracing::debug!("Group:{} append row:{}", group.id, row_rev.id);
                     group.add_row(row_pb);
                 }
-                group_changeset.push(GroupRowsChangesetPB::insert(group.id.clone(), vec![inserted_row]));
+                group_changeset.push(GroupChangesetPB::insert(group.id.clone(), vec![inserted_row]));
             }
         }
 

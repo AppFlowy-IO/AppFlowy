@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, GroupRowsChangesetPB};
+use crate::entities::{FieldType, GroupChangesetPB};
 use crate::services::group::configuration::GroupConfigurationReader;
 use crate::services::group::controller::{GroupController, MoveGroupRowContext};
 use crate::services::group::{
@@ -86,7 +86,7 @@ impl GroupService {
         &mut self,
         row_rev: &RowRevision,
         get_field_fn: F,
-    ) -> Option<Vec<GroupRowsChangesetPB>>
+    ) -> Option<Vec<GroupChangesetPB>>
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
@@ -111,7 +111,7 @@ impl GroupService {
         to_group_id: &str,
         to_row_id: Option<String>,
         get_field_fn: F,
-    ) -> Option<Vec<GroupRowsChangesetPB>>
+    ) -> Option<Vec<GroupChangesetPB>>
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
@@ -141,7 +141,7 @@ impl GroupService {
         &mut self,
         row_rev: &RowRevision,
         get_field_fn: F,
-    ) -> Option<Vec<GroupRowsChangesetPB>>
+    ) -> Option<Vec<GroupChangesetPB>>
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
@@ -167,6 +167,13 @@ impl GroupService {
                 let _ = group_controller.move_group(from_group_id, to_group_id)?;
                 Ok(())
             }
+        }
+    }
+
+    pub(crate) async fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<()> {
+        match self.group_controller.as_mut() {
+            None => Ok(()),
+            Some(group_controller) => group_controller.did_update_field(field_rev),
         }
     }
 

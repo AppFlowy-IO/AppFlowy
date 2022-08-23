@@ -1,4 +1,4 @@
-use crate::entities::{GroupRowsChangesetPB, RowPB};
+use crate::entities::{GroupChangesetPB, RowPB};
 use crate::services::cell::{decode_any_cell_data, CellBytesParser};
 use crate::services::group::action::GroupAction;
 use crate::services::group::configuration::GenericGroupConfiguration;
@@ -51,15 +51,17 @@ pub trait GroupControllerSharedOperation: Send + Sync {
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
+    ) -> FlowyResult<Vec<GroupChangesetPB>>;
 
     fn did_delete_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
+    ) -> FlowyResult<Vec<GroupChangesetPB>>;
 
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>>;
+
+    fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<()>;
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
@@ -173,7 +175,7 @@ where
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
+    ) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
@@ -187,7 +189,7 @@ where
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
+    ) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
@@ -197,7 +199,7 @@ where
         }
     }
 
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = context.row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), context.field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
@@ -205,6 +207,10 @@ where
         } else {
             Ok(vec![])
         }
+    }
+
+    fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<()> {
+        todo!()
     }
 }
 
