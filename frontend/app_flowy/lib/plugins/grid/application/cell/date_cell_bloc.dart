@@ -7,18 +7,21 @@ import 'cell_service/cell_service.dart';
 part 'date_cell_bloc.freezed.dart';
 
 class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
-  final GridDateCellController cellContext;
+  final GridDateCellController cellController;
   void Function()? _onCellChangedFn;
 
-  DateCellBloc({required this.cellContext}) : super(DateCellState.initial(cellContext)) {
+  DateCellBloc({required this.cellController})
+      : super(DateCellState.initial(cellController)) {
     on<DateCellEvent>(
       (event, emit) async {
         event.when(
           initial: () => _startListening(),
           didReceiveCellUpdate: (DateCellDataPB? cellData) {
-            emit(state.copyWith(data: cellData, dateStr: _dateStrFromCellData(cellData)));
+            emit(state.copyWith(
+                data: cellData, dateStr: _dateStrFromCellData(cellData)));
           },
-          didReceiveFieldUpdate: (GridFieldPB value) => emit(state.copyWith(field: value)),
+          didReceiveFieldUpdate: (FieldPB value) =>
+              emit(state.copyWith(field: value)),
         );
       },
     );
@@ -27,15 +30,15 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellContext.removeListener(_onCellChangedFn!);
+      cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    cellContext.dispose();
+    cellController.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(
+    _onCellChangedFn = cellController.startListening(
       onCellChanged: ((data) {
         if (!isClosed) {
           add(DateCellEvent.didReceiveCellUpdate(data));
@@ -48,8 +51,10 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
 @freezed
 class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
-  const factory DateCellEvent.didReceiveCellUpdate(DateCellDataPB? data) = _DidReceiveCellUpdate;
-  const factory DateCellEvent.didReceiveFieldUpdate(GridFieldPB field) = _DidReceiveFieldUpdate;
+  const factory DateCellEvent.didReceiveCellUpdate(DateCellDataPB? data) =
+      _DidReceiveCellUpdate;
+  const factory DateCellEvent.didReceiveFieldUpdate(FieldPB field) =
+      _DidReceiveFieldUpdate;
 }
 
 @freezed
@@ -57,7 +62,7 @@ class DateCellState with _$DateCellState {
   const factory DateCellState({
     required DateCellDataPB? data,
     required String dateStr,
-    required GridFieldPB field,
+    required FieldPB field,
   }) = _DateCellState;
 
   factory DateCellState.initial(GridDateCellController context) {

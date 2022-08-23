@@ -1,25 +1,29 @@
-import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/single_select_type_option.pb.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
 import 'select_option_type_option_bloc.dart';
+import 'type_option_context.dart';
 import 'type_option_service.dart';
 
-class SingleSelectTypeOptionContext
-    extends TypeOptionWidgetContext<SingleSelectTypeOptionPB>
-    with SelectOptionTypeOptionAction {
-  final TypeOptionService service;
+class SingleSelectAction with ISelectOptionAction {
+  final String gridId;
+  final String fieldId;
+  final SingleSelectTypeOptionContext typeOptionContext;
+  final TypeOptionFFIService service;
 
-  SingleSelectTypeOptionContext({
-    required SingleSelectTypeOptionWidgetDataParser dataBuilder,
-    required TypeOptionDataController fieldContext,
-  })  : service = TypeOptionService(
-          gridId: fieldContext.gridId,
-          fieldId: fieldContext.field.id,
-        ),
-        super(dataParser: dataBuilder, dataController: fieldContext);
+  SingleSelectAction({
+    required this.gridId,
+    required this.fieldId,
+    required this.typeOptionContext,
+  }) : service = TypeOptionFFIService(gridId: gridId, fieldId: fieldId);
+
+  SingleSelectTypeOptionPB get typeOption => typeOptionContext.typeOption;
+
+  set typeOption(SingleSelectTypeOptionPB newTypeOption) {
+    typeOptionContext.typeOption = newTypeOption;
+  }
 
   @override
   List<SelectOptionPB> Function(SelectOptionPB) get deleteOption {
@@ -59,7 +63,7 @@ class SingleSelectTypeOptionContext
   }
 
   @override
-  List<SelectOptionPB> Function(SelectOptionPB) get udpateOption {
+  List<SelectOptionPB> Function(SelectOptionPB) get updateOption {
     return (SelectOptionPB option) {
       typeOption.freeze();
       typeOption = typeOption.rebuild((typeOption) {
@@ -71,13 +75,5 @@ class SingleSelectTypeOptionContext
       });
       return typeOption.options;
     };
-  }
-}
-
-class SingleSelectTypeOptionWidgetDataParser
-    extends TypeOptionDataParser<SingleSelectTypeOptionPB> {
-  @override
-  SingleSelectTypeOptionPB fromBuffer(List<int> buffer) {
-    return SingleSelectTypeOptionPB.fromBuffer(buffer);
   }
 }

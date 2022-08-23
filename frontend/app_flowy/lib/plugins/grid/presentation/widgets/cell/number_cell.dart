@@ -25,8 +25,8 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
 
   @override
   void initState() {
-    final cellContext = widget.cellControllerBuilder.build();
-    _cellBloc = getIt<NumberCellBloc>(param1: cellContext)
+    final cellController = widget.cellControllerBuilder.build();
+    _cellBloc = getIt<NumberCellBloc>(param1: cellController)
       ..add(const NumberCellEvent.initial());
     _controller =
         TextEditingController(text: contentFromState(_cellBloc.state));
@@ -49,8 +49,10 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
           controller: _controller,
           focusNode: focusNode,
           onEditingComplete: () => focusNode.unfocus(),
-          maxLines: null,
+          onSubmitted: (_) => focusNode.unfocus(),
+          maxLines: 1,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          textInputAction: TextInputAction.done,
           decoration: const InputDecoration(
             contentPadding: EdgeInsets.zero,
             border: InputBorder.none,
@@ -63,7 +65,7 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
 
   @override
   Future<void> dispose() async {
-    _delayOperation?.cancel();
+    _delayOperation = null;
     _cellBloc.close();
     super.dispose();
   }
@@ -72,7 +74,7 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
   Future<void> focusChanged() async {
     if (mounted) {
       _delayOperation?.cancel();
-      _delayOperation = Timer(const Duration(milliseconds: 300), () {
+      _delayOperation = Timer(const Duration(milliseconds: 30), () {
         if (_cellBloc.isClosed == false &&
             _controller.text != contentFromState(_cellBloc.state)) {
           _cellBloc.add(NumberCellEvent.updateCell(_controller.text));

@@ -13,14 +13,14 @@ abstract class ReorderFlexDraggableTargetBuilder {
     Widget child,
     DragTargetOnStarted onDragStarted,
     DragTargetOnEnded<T> onDragEnded,
-    DragTargetWillAccpet<T> onWillAccept,
+    DragTargetWillAccepted<T> onWillAccept,
     AnimationController insertAnimationController,
     AnimationController deleteAnimationController,
   );
 }
 
 ///
-typedef DragTargetWillAccpet<T extends DragTargetData> = bool Function(
+typedef DragTargetWillAccepted<T extends DragTargetData> = bool Function(
     T dragTargetData);
 
 ///
@@ -51,7 +51,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   ///
   /// [toAccept] represents the dragTarget index, which is the value passed in
   /// when creating the [ReorderDragTarget].
-  final DragTargetWillAccpet<T> onWillAccept;
+  final DragTargetWillAccepted<T> onWillAccept;
 
   /// Called when an acceptable piece of data was dropped over this drag target.
   ///
@@ -222,13 +222,13 @@ class DragTargetAnimation {
         value: 0, vsync: vsync, duration: reorderAnimationDuration);
 
     insertController = AnimationController(
-        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 100));
+        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 200));
 
     deleteController = AnimationController(
-        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 10));
+        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 1));
   }
 
-  void startDargging() {
+  void startDragging() {
     entranceController.value = 1.0;
   }
 
@@ -268,6 +268,31 @@ class IgnorePointerWidget extends StatelessWidget {
     final opacity = useIntrinsicSize ? 0.3 : 0.0;
     return IgnorePointer(
       ignoring: true,
+      child: Opacity(
+        opacity: opacity,
+        child: sizedChild,
+      ),
+    );
+  }
+}
+
+class AbsorbPointerWidget extends StatelessWidget {
+  final Widget? child;
+  final bool useIntrinsicSize;
+  const AbsorbPointerWidget({
+    required this.child,
+    this.useIntrinsicSize = false,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final sizedChild = useIntrinsicSize
+        ? child
+        : SizedBox(width: 0.0, height: 0.0, child: child);
+
+    final opacity = useIntrinsicSize ? 0.3 : 0.0;
+    return AbsorbPointer(
       child: Opacity(
         opacity: opacity,
         child: sizedChild,
@@ -371,6 +396,7 @@ class _DragTargeMovePlaceholderState extends State<DragTargeMovePlaceholder> {
 }
 
 abstract class FakeDragTargetEventTrigger {
+  void fakeOnDragStart(void Function(int?) callback);
   void fakeOnDragEnded(VoidCallback callback);
 }
 
@@ -386,7 +412,7 @@ class FakeDragTarget<T extends DragTargetData> extends StatefulWidget {
   final FakeDragTargetEventData eventData;
   final DragTargetOnStarted onDragStarted;
   final DragTargetOnEnded<T> onDragEnded;
-  final DragTargetWillAccpet<T> onWillAccept;
+  final DragTargetWillAccepted<T> onWillAccept;
   final Widget child;
   final AnimationController insertAnimationController;
   final AnimationController deleteAnimationController;
@@ -421,6 +447,10 @@ class _FakeDragTargetState<T extends DragTargetData>
     /// Start insert animation
     widget.insertAnimationController.forward(from: 0.0);
 
+    // widget.eventTrigger.fakeOnDragStart((insertIndex) {
+    //   Log.trace("[$FakeDragTarget] on drag $insertIndex");
+    // });
+
     widget.eventTrigger.fakeOnDragEnded(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onDragEnded(widget.eventData.dragTargetData as T);
@@ -436,7 +466,7 @@ class _FakeDragTargetState<T extends DragTargetData>
       return SizeTransitionWithIntrinsicSize(
         sizeFactor: widget.deleteAnimationController,
         axis: Axis.vertical,
-        child: IgnorePointerWidget(
+        child: AbsorbPointerWidget(
           child: widget.child,
         ),
       );
@@ -444,7 +474,7 @@ class _FakeDragTargetState<T extends DragTargetData>
       return SizeTransitionWithIntrinsicSize(
         sizeFactor: widget.insertAnimationController,
         axis: Axis.vertical,
-        child: IgnorePointerWidget(
+        child: AbsorbPointerWidget(
           useIntrinsicSize: true,
           child: widget.child,
         ),

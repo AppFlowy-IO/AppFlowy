@@ -23,6 +23,7 @@ dashmap = "5"
 serde = { version = "1.0", features = ["derive"] }
 futures-util = "0.3.15"
 async-stream = "0.3.2"
+serde_json = {version = "1.0"}
 
 [features]
 flowy_unit_test = ["lib-ot/flowy_unit_test"]

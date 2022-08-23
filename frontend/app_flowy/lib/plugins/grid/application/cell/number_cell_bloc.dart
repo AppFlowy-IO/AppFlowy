@@ -8,12 +8,12 @@ import 'cell_service/cell_service.dart';
 part 'number_cell_bloc.freezed.dart';
 
 class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
-  final GridCellController cellContext;
+  final GridNumberCellController cellController;
   void Function()? _onCellChangedFn;
 
   NumberCellBloc({
-    required this.cellContext,
-  }) : super(NumberCellState.initial(cellContext)) {
+    required this.cellController,
+  }) : super(NumberCellState.initial(cellController)) {
     on<NumberCellEvent>(
       (event, emit) async {
         event.when(
@@ -24,11 +24,13 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
             emit(state.copyWith(content: content));
           },
           updateCell: (text) {
-            cellContext.saveCellData(text, resultCallback: (result) {
+            cellController.saveCellData(text, resultCallback: (result) {
               result.fold(
                 () => null,
                 (err) {
-                  if (!isClosed) add(NumberCellEvent.didReceiveCellUpdate(right(err)));
+                  if (!isClosed) {
+                    add(NumberCellEvent.didReceiveCellUpdate(right(err)));
+                  }
                 },
               );
             });
@@ -41,15 +43,15 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellContext.removeListener(_onCellChangedFn!);
+      cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    cellContext.dispose();
+    cellController.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(
+    _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cellContent) {
         if (!isClosed) {
           add(NumberCellEvent.didReceiveCellUpdate(left(cellContent ?? "")));
@@ -63,7 +65,8 @@ class NumberCellBloc extends Bloc<NumberCellEvent, NumberCellState> {
 class NumberCellEvent with _$NumberCellEvent {
   const factory NumberCellEvent.initial() = _Initial;
   const factory NumberCellEvent.updateCell(String text) = _UpdateCell;
-  const factory NumberCellEvent.didReceiveCellUpdate(Either<String, FlowyError> cellContent) = _DidReceiveCellUpdate;
+  const factory NumberCellEvent.didReceiveCellUpdate(
+      Either<String, FlowyError> cellContent) = _DidReceiveCellUpdate;
 }
 
 @freezed

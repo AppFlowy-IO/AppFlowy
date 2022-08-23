@@ -3,14 +3,14 @@ mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
     use crate::services::field::FieldBuilder;
-    use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOption};
+    use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOptionPB};
     use flowy_grid_data_model::revision::FieldRevision;
     use strum::IntoEnumIterator;
 
     /// Testing when the input is not a number.
     #[test]
     fn number_type_option_invalid_input_test() {
-        let type_option = NumberTypeOption::default();
+        let type_option = NumberTypeOptionPB::default();
         let field_type = FieldType::Number;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
@@ -33,7 +33,7 @@ mod tests {
     /// Format the input number to the corresponding format string.
     #[test]
     fn number_type_option_format_number_test() {
-        let mut type_option = NumberTypeOption::default();
+        let mut type_option = NumberTypeOptionPB::default();
         let field_type = FieldType::Number;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
@@ -63,7 +63,7 @@ mod tests {
     /// Format the input String to the corresponding format string.
     #[test]
     fn number_type_option_format_str_test() {
-        let mut type_option = NumberTypeOption::default();
+        let mut type_option = NumberTypeOptionPB::default();
         let field_type = FieldType::Number;
         let field_rev = FieldBuilder::from_field_type(&field_type).build();
 
@@ -101,7 +101,7 @@ mod tests {
     /// Carry out the sign positive to input number
     #[test]
     fn number_description_sign_test() {
-        let mut type_option = NumberTypeOption {
+        let mut type_option = NumberTypeOptionPB {
             sign_positive: false,
             ..Default::default()
         };
@@ -129,7 +129,7 @@ mod tests {
     }
 
     fn assert_number(
-        type_option: &NumberTypeOption,
+        type_option: &NumberTypeOptionPB,
         input_str: &str,
         expected_str: &str,
         field_type: &FieldType,

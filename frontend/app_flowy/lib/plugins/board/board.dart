@@ -20,15 +20,18 @@ class BoardPluginBuilder implements PluginBuilder {
   String get menuName => "Board";
 
   @override
-  PluginType get pluginType => DefaultPlugin.board.type();
+  PluginType get pluginType => PluginType.board;
 
   @override
-  ViewDataType get dataType => ViewDataType.Grid;
+  ViewDataTypePB get dataType => ViewDataTypePB.Database;
+
+  @override
+  ViewLayoutTypePB? get subDataType => ViewLayoutTypePB.Board;
 }
 
 class BoardPluginConfig implements PluginConfig {
   @override
-  bool get creatable => true;
+  bool get creatable => false;
 }
 
 class BoardPlugin extends Plugin {

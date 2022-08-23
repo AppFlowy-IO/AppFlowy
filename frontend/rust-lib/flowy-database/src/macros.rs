@@ -177,20 +177,20 @@ macro_rules! impl_rev_state_map {
             }
         }
 
-        impl std::convert::From<$target> for RevisionState {
+        impl std::convert::From<$target> for crate::disk::RevisionState {
             fn from(s: $target) -> Self {
                 match s {
-                    $target::Sync => RevisionState::Sync,
-                    $target::Ack => RevisionState::Ack,
+                    $target::Sync => crate::disk::RevisionState::Sync,
+                    $target::Ack => crate::disk::RevisionState::Ack,
                 }
             }
         }
 
-        impl std::convert::From<RevisionState> for $target {
-            fn from(s: RevisionState) -> Self {
+        impl std::convert::From<crate::disk::RevisionState> for $target {
+            fn from(s: crate::disk::RevisionState) -> Self {
                 match s {
-                    RevisionState::Sync => $target::Sync,
-                    RevisionState::Ack => $target::Ack,
+                    crate::disk::RevisionState::Sync => $target::Sync,
+                    crate::disk::RevisionState::Ack => $target::Ack,
                 }
             }
         }

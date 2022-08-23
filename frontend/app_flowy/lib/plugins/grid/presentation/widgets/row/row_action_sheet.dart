@@ -1,5 +1,4 @@
 import 'package:app_flowy/plugins/grid/application/row/row_action_sheet_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';
@@ -12,16 +11,17 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../application/row/row_cache.dart';
 import '../../layout/sizes.dart';
 
 class GridRowActionSheet extends StatelessWidget {
-  final GridRowInfo rowData;
+  final RowInfo rowData;
   const GridRowActionSheet({required this.rowData, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RowActionSheetBloc(rowData: rowData),
+      create: (context) => RowActionSheetBloc(rowInfo: rowData),
       child: BlocBuilder<RowActionSheetBloc, RowActionSheetState>(
         builder: (context, state) {
           final cells = _RowAction.values
@@ -53,7 +53,10 @@ class GridRowActionSheet extends StatelessWidget {
     );
   }
 
-  void show(BuildContext overlayContext) {
+  void show(
+    BuildContext overlayContext, {
+    AnchorDirection direction = AnchorDirection.leftWithCenterAligned,
+  }) {
     FlowyOverlay.of(overlayContext).insertWithAnchor(
       widget: OverlayContainer(
         child: this,
@@ -61,7 +64,7 @@ class GridRowActionSheet extends StatelessWidget {
       ),
       identifier: GridRowActionSheet.identifier(),
       anchorContext: overlayContext,
-      anchorDirection: AnchorDirection.leftWithCenterAligned,
+      anchorDirection: direction,
     );
   }
 

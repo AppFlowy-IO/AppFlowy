@@ -3,18 +3,18 @@ import 'package:provider/provider.dart';
 import 'board_column/board_column.dart';
 import 'board_column/board_column_data.dart';
 import 'board_data.dart';
-import 'reorder_flex/drag_target_inteceptor.dart';
+import 'reorder_flex/drag_target_interceptor.dart';
 import 'reorder_flex/reorder_flex.dart';
 import 'reorder_phantom/phantom_controller.dart';
 import '../rendering/board_overlay.dart';
 
-class BoardConfig {
+class AFBoardConfig {
   final double cornerRadius;
   final EdgeInsets columnPadding;
   final EdgeInsets columnItemPadding;
   final Color columnBackgroundColor;
 
-  const BoardConfig({
+  const AFBoardConfig({
     this.cornerRadius = 6.0,
     this.columnPadding = const EdgeInsets.symmetric(horizontal: 8),
     this.columnItemPadding = const EdgeInsets.symmetric(horizontal: 10),
@@ -22,7 +22,7 @@ class BoardConfig {
   });
 }
 
-class Board extends StatelessWidget {
+class AFBoard extends StatelessWidget {
   /// The direction to use as the main axis.
   final Axis direction = Axis.vertical;
 
@@ -30,32 +30,35 @@ class Board extends StatelessWidget {
   final Widget? background;
 
   ///
-  final BoardColumnCardBuilder cardBuilder;
+  final AFBoardColumnCardBuilder cardBuilder;
 
   ///
-  final BoardColumnHeaderBuilder? headerBuilder;
+  final AFBoardColumnHeaderBuilder? headerBuilder;
 
   ///
-  final BoardColumnFooterBuilder? footBuilder;
+  final AFBoardColumnFooterBuilder? footBuilder;
 
   ///
-  final BoardDataController dataController;
+  final AFBoardDataController dataController;
 
   final BoxConstraints columnConstraints;
 
   ///
   final BoardPhantomController phantomController;
 
-  final BoardConfig config;
+  final ScrollController? scrollController;
 
-  Board({
+  final AFBoardConfig config;
+
+  AFBoard({
     required this.dataController,
     required this.cardBuilder,
     this.background,
     this.footBuilder,
     this.headerBuilder,
+    this.scrollController,
     this.columnConstraints = const BoxConstraints(maxWidth: 200),
-    this.config = const BoardConfig(),
+    this.config = const AFBoardConfig(),
     Key? key,
   })  : phantomController = BoardPhantomController(delegate: dataController),
         super(key: key);
@@ -64,11 +67,12 @@ class Board extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: dataController,
-      child: Consumer<BoardDataController>(
+      child: Consumer<AFBoardDataController>(
         builder: (context, notifier, child) {
           return BoardContent(
             config: config,
             dataController: dataController,
+            scrollController: scrollController,
             background: background,
             delegate: phantomController,
             columnConstraints: columnConstraints,
@@ -89,20 +93,20 @@ class BoardContent extends StatefulWidget {
   final OnDragStarted? onDragStarted;
   final OnReorder onReorder;
   final OnDragEnded? onDragEnded;
-  final BoardDataController dataController;
+  final AFBoardDataController dataController;
   final Widget? background;
-  final BoardConfig config;
+  final AFBoardConfig config;
   final ReorderFlexConfig reorderFlexConfig;
   final BoxConstraints columnConstraints;
 
   ///
-  final BoardColumnCardBuilder cardBuilder;
+  final AFBoardColumnCardBuilder cardBuilder;
 
   ///
-  final BoardColumnHeaderBuilder? headerBuilder;
+  final AFBoardColumnHeaderBuilder? headerBuilder;
 
   ///
-  final BoardColumnFooterBuilder? footBuilder;
+  final AFBoardColumnFooterBuilder? footBuilder;
 
   final OverlapDragTargetDelegate delegate;
 
@@ -139,7 +143,7 @@ class _BoardContentState extends State<BoardContent> {
   void initState() {
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
-        final interceptor = OverlappingDragTargetInteceptor(
+        final interceptor = OverlappingDragTargetInterceptor(
           reorderFlexId: widget.dataController.identifier,
           acceptedReorderFlexId: widget.dataController.columnIds,
           delegate: widget.delegate,
@@ -155,7 +159,7 @@ class _BoardContentState extends State<BoardContent> {
           dataSource: widget.dataController,
           direction: Axis.horizontal,
           interceptor: interceptor,
-          children: _buildColumns(),
+          children: _buildColumns(interceptor.columnKeys),
         );
 
         return Stack(
@@ -187,7 +191,7 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  List<Widget> _buildColumns() {
+  List<Widget> _buildColumns(List<ColumnKey> columnKeys) {
     final List<Widget> children =
         widget.dataController.columnDatas.asMap().entries.map(
       (item) {
@@ -202,23 +206,35 @@ class _BoardContentState extends State<BoardContent> {
         return ChangeNotifierProvider.value(
           key: ValueKey(columnData.id),
           value: widget.dataController.columnController(columnData.id),
-          child: Consumer<BoardColumnDataController>(
+          child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
+              final boardColumn = AFBoardColumnWidget(
+                margin: _marginFromIndex(columnIndex),
+                itemMargin: widget.config.columnItemPadding,
+                headerBuilder: widget.headerBuilder,
+                footBuilder: widget.footBuilder,
+                cardBuilder: widget.cardBuilder,
+                dataSource: dataSource,
+                scrollController: ScrollController(),
+                phantomController: widget.phantomController,
+                onReorder: widget.dataController.moveColumnItem,
+                cornerRadius: widget.config.cornerRadius,
+                backgroundColor: widget.config.columnBackgroundColor,
+              );
+
+              // columnKeys
+              //     .removeWhere((element) => element.columnId == columnData.id);
+
+              // columnKeys.add(
+              //   ColumnKey(
+              //     columnId: columnData.id,
+              //     key: boardColumn.columnGlobalKey,
+              //   ),
+              // );
+
               return ConstrainedBox(
                 constraints: widget.columnConstraints,
-                child: BoardColumnWidget(
-                  margin: _marginFromIndex(columnIndex),
-                  itemMargin: widget.config.columnItemPadding,
-                  headerBuilder: widget.headerBuilder,
-                  footBuilder: widget.footBuilder,
-                  cardBuilder: widget.cardBuilder,
-                  dataSource: dataSource,
-                  scrollController: ScrollController(),
-                  phantomController: widget.phantomController,
-                  onReorder: widget.dataController.moveColumnItem,
-                  cornerRadius: widget.config.cornerRadius,
-                  backgroundColor: widget.config.columnBackgroundColor,
-                ),
+                child: boardColumn,
               );
             },
           ),
@@ -246,9 +262,9 @@ class _BoardContentState extends State<BoardContent> {
   }
 }
 
-class _BoardColumnDataSourceImpl extends BoardColumnDataDataSource {
+class _BoardColumnDataSourceImpl extends AFBoardColumnDataDataSource {
   String columnId;
-  final BoardDataController dataController;
+  final AFBoardDataController dataController;
 
   _BoardColumnDataSourceImpl({
     required this.columnId,
@@ -256,7 +272,7 @@ class _BoardColumnDataSourceImpl extends BoardColumnDataDataSource {
   });
 
   @override
-  BoardColumnData get columnData =>
+  AFBoardColumnData get columnData =>
       dataController.columnController(columnId).columnData;
 
   @override

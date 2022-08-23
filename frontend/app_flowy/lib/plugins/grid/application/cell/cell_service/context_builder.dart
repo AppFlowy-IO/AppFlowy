@@ -1,29 +1,32 @@
 part of 'cell_service.dart';
 
 typedef GridCellController = IGridCellController<String, String>;
+typedef GridCheckboxCellController = IGridCellController<String, String>;
+typedef GridNumberCellController = IGridCellController<String, String>;
 typedef GridSelectOptionCellController
     = IGridCellController<SelectOptionCellDataPB, String>;
 typedef GridDateCellController
     = IGridCellController<DateCellDataPB, CalendarData>;
 typedef GridURLCellController = IGridCellController<URLCellDataPB, String>;
 
+abstract class GridCellControllerBuilderDelegate {
+  GridCellFieldNotifier buildFieldNotifier();
+}
+
 class GridCellControllerBuilder {
   final GridCellIdentifier _cellId;
   final GridCellCache _cellCache;
-  final GridFieldCache _fieldCache;
+  final GridCellControllerBuilderDelegate delegate;
 
   GridCellControllerBuilder({
+    required this.delegate,
     required GridCellIdentifier cellId,
     required GridCellCache cellCache,
-    required GridFieldCache fieldCache,
   })  : _cellCache = cellCache,
-        _fieldCache = fieldCache,
         _cellId = cellId;
 
   IGridCellController build() {
-    final cellFieldNotifier = GridCellFieldNotifier(
-        notifier: _GridFieldChangedNotifierImpl(_fieldCache));
-
+    final cellFieldNotifier = delegate.buildFieldNotifier();
     switch (_cellId.fieldType) {
       case FieldType.Checkbox:
         final cellDataLoader = GridCellDataLoader(
@@ -57,7 +60,7 @@ class GridCellControllerBuilder {
           parser: StringCellDataParser(),
           reloadOnFieldChanged: true,
         );
-        return GridCellController(
+        return GridNumberCellController(
           cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
@@ -126,7 +129,7 @@ class IGridCellController<T, D> extends Equatable {
   final GridCellDataLoader<T> _cellDataLoader;
   final IGridCellDataPersistence<D> _cellDataPersistence;
 
-  late final CellListener _cellListener;
+  CellListener? _cellListener;
   ValueNotifier<T?>? _cellDataNotifier;
 
   bool isListening = false;
@@ -165,7 +168,7 @@ class IGridCellController<T, D> extends Equatable {
 
   String get fieldId => cellId.field.id;
 
-  GridFieldPB get field => cellId.field;
+  FieldPB get field => cellId.field;
 
   FieldType get fieldType => cellId.field.fieldType;
 
@@ -185,7 +188,7 @@ class IGridCellController<T, D> extends Equatable {
     /// For example:
     ///  user input: 12
     ///  cell display: $12
-    _cellListener.start(onCellChanged: (result) {
+    _cellListener?.start(onCellChanged: (result) {
       result.fold(
         (_) => _loadData(),
         (err) => Log.error(err),
@@ -239,7 +242,7 @@ class IGridCellController<T, D> extends Equatable {
         .getFieldTypeOptionData(fieldType: fieldType)
         .then((result) {
       return result.fold(
-        (data) => parser.fromBuffer(data.typeOptionData),
+        (data) => left(parser.fromBuffer(data.typeOptionData)),
         (err) => right(err),
       );
     });
@@ -288,13 +291,14 @@ class IGridCellController<T, D> extends Equatable {
       return;
     }
     _isDispose = true;
-    _cellListener.stop();
+    _cellListener?.stop();
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();
     _cellDataNotifier = null;
 
     if (_onFieldChangedFn != null) {
       _fieldNotifier.unregister(_cacheKey, _onFieldChangedFn!);
+      _fieldNotifier.dispose();
       _onFieldChangedFn = null;
     }
   }
@@ -304,14 +308,14 @@ class IGridCellController<T, D> extends Equatable {
       [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.field.id];
 }
 
-class _GridFieldChangedNotifierImpl extends IGridFieldChangedNotifier {
+class GridCellFieldNotifierImpl extends IGridCellFieldNotifier {
   final GridFieldCache _cache;
   FieldChangesetCallback? _onChangesetFn;
 
-  _GridFieldChangedNotifierImpl(GridFieldCache cache) : _cache = cache;
+  GridCellFieldNotifierImpl(GridFieldCache cache) : _cache = cache;
 
   @override
-  void dispose() {
+  void onCellDispose() {
     if (_onChangesetFn != null) {
       _cache.removeListener(onChangesetListener: _onChangesetFn!);
       _onChangesetFn = null;
@@ -319,8 +323,8 @@ class _GridFieldChangedNotifierImpl extends IGridFieldChangedNotifier {
   }
 
   @override
-  void onFieldChanged(void Function(GridFieldPB p1) callback) {
-    _onChangesetFn = (GridFieldChangesetPB changeset) {
+  void onCellFieldChanged(void Function(FieldPB p1) callback) {
+    _onChangesetFn = (FieldChangesetPB changeset) {
       for (final updatedField in changeset.updatedFields) {
         callback(updatedField);
       }

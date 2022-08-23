@@ -141,5 +141,71 @@
       "lightLabel": "Mode clair",
       "darkLabel": "Mode sombre"
     }
+  },
+  "grid": {
+    "settings": {
+      "filter": "Filtrer",
+      "sortBy": "Trier par",
+      "Properties": "Propriétés"
+    },
+    "field": {
+      "hide": "Cacher",
+      "insertLeft": "Insérer à gauche",
+      "insertRight": "Insérer à droite",
+      "duplicate": "Dupliquer",
+      "delete": "Supprimer",
+      "textFieldName": "Texte",
+      "checkboxFieldName": "Case à cocher",
+      "dateFieldName": "Date",
+      "numberFieldName": "Nombre",
+      "singleSelectFieldName": "Sélectionner",
+      "multiSelectFieldName": "Multisélection",
+      "urlFieldName": "URL",
+      "numberFormat": " Format du nombre",
+      "dateFormat": " Format de la date",
+      "includeTime": " Inclure l'heure",
+      "dateFormatFriendly": "Mois Jour, Année",
+      "dateFormatISO": "Année-Mois-Jour",
+      "dateFormatLocal": "Année/Mois/Jour",
+      "dateFormatUS": "Année/Mois/Jour",
+      "timeFormat": " Format du temps",
+      "invalidTimeFormat": "Format invalide",
+      "timeFormatTwelveHour": "12 heures",
+      "timeFormatTwentyFourHour": "24 heures",
+      "addSelectOption": "Ajouter une option",
+      "optionTitle": "Options",
+      "addOption": "Ajouter une option",
+      "editProperty": "Modifier la propriété"
+    },
+    "row": {
+      "duplicate": "Dupliquer",
+      "delete": "Supprimer",
+      "textPlaceholder": "Vide",
+      "copyProperty": "Copie de la propriété dans le presse-papiers"
+    },
+    "selectOption": {
+      "create": "Créer",
+      "purpleColor": "Violet",
+      "pinkColor": "Rose",
+      "lightPinkColor": "Rose clair",
+      "orangeColor": "Orange",
+      "yellowColor": "Jaune",
+      "limeColor": "Citron vert",
+      "greenColor": "Vert",
+      "aquaColor": "Aqua",
+      "blueColor": "Bleu",
+      "deleteTag": "Supprimer l'étiquette",
+      "colorPannelTitle": "Couleurs",
+      "pannelTitle": "Sélectionnez une option ou créez-en une",
+      "searchOption": "Rechercher une option"
+    },
+    "menuName": "Grille"
+  },
+  "document": {
+    "menuName": "Doc",
+    "date": {
+      "timeHintTextInTwelveHour": "12:00 AM",
+      "timeHintTextInTwentyFourHour": "12:00"
+    }
   }
 }

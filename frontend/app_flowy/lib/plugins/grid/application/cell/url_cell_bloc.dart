@@ -7,11 +7,11 @@ import 'cell_service/cell_service.dart';
 part 'url_cell_bloc.freezed.dart';
 
 class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
-  final GridURLCellController cellContext;
+  final GridURLCellController cellController;
   void Function()? _onCellChangedFn;
   URLCellBloc({
-    required this.cellContext,
-  }) : super(URLCellState.initial(cellContext)) {
+    required this.cellController,
+  }) : super(URLCellState.initial(cellController)) {
     on<URLCellEvent>(
       (event, emit) async {
         event.when(
@@ -25,7 +25,7 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
             ));
           },
           updateURL: (String url) {
-            cellContext.saveCellData(url, deduplicate: true);
+            cellController.saveCellData(url, deduplicate: true);
           },
         );
       },
@@ -35,15 +35,15 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellContext.removeListener(_onCellChangedFn!);
+      cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    cellContext.dispose();
+    cellController.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(
+    _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cellData) {
         if (!isClosed) {
           add(URLCellEvent.didReceiveCellUpdate(cellData));
@@ -57,7 +57,8 @@ class URLCellBloc extends Bloc<URLCellEvent, URLCellState> {
 class URLCellEvent with _$URLCellEvent {
   const factory URLCellEvent.initial() = _InitialCell;
   const factory URLCellEvent.updateURL(String url) = _UpdateURL;
-  const factory URLCellEvent.didReceiveCellUpdate(URLCellDataPB? cell) = _DidReceiveCellUpdate;
+  const factory URLCellEvent.didReceiveCellUpdate(URLCellDataPB? cell) =
+      _DidReceiveCellUpdate;
 }
 
 @freezed

@@ -10,7 +10,6 @@ use crate::services::field::{
 use crate::services::row::make_row_from_row_rev;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::FieldRevision;
-use flowy_sync::entities::grid::{FieldChangesetParams, GridSettingChangesetParams};
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
@@ -36,22 +35,11 @@ pub(crate) async fn get_grid_setting_handler(
     data_result(grid_setting)
 }
 
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn update_grid_setting_handler(
-    data: Data<GridSettingChangesetPayloadPB>,
-    manager: AppData<Arc<GridManager>>,
-) -> Result<(), FlowyError> {
-    let params: GridSettingChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.open_grid(&params.grid_id).await?;
-    let _ = editor.update_grid_setting(params).await?;
-    Ok(())
-}
-
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_grid_blocks_handler(
-    data: Data<QueryGridBlocksPayloadPB>,
+    data: Data<QueryBlocksPayloadPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<RepeatedGridBlockPB, FlowyError> {
+) -> DataResult<RepeatedBlockPB, FlowyError> {
     let params: QueryGridBlocksParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let repeated_grid_block = editor.get_blocks(Some(params.block_ids)).await?;
@@ -62,7 +50,7 @@ pub(crate) async fn get_grid_blocks_handler(
 pub(crate) async fn get_fields_handler(
     data: Data<QueryFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<RepeatedGridFieldPB, FlowyError> {
+) -> DataResult<RepeatedFieldPB, FlowyError> {
     let params: QueryFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let field_orders = params
@@ -72,7 +60,7 @@ pub(crate) async fn get_fields_handler(
         .map(|field_order| field_order.field_id)
         .collect();
     let field_revs = editor.get_field_revs(Some(field_orders)).await?;
-    let repeated_field: RepeatedGridFieldPB = field_revs.into_iter().map(GridFieldPB::from).collect::<Vec<_>>().into();
+    let repeated_field: RepeatedFieldPB = field_revs.into_iter().map(FieldPB::from).collect::<Vec<_>>().into();
     data_result(repeated_field)
 }
 
@@ -116,7 +104,7 @@ pub(crate) async fn delete_field_handler(
     data: Data<DeleteFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridFieldIdParams = data.into_inner().try_into()?;
+    let params: FieldIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.delete_field(&params.field_id).await?;
     Ok(())
@@ -154,7 +142,7 @@ pub(crate) async fn duplicate_field_handler(
     data: Data<DuplicateFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridFieldIdParams = data.into_inner().try_into()?;
+    let params: FieldIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.duplicate_field(&params.field_id).await?;
     Ok(())
@@ -163,15 +151,15 @@ pub(crate) async fn duplicate_field_handler(
 /// Return the FieldTypeOptionData if the Field exists otherwise return record not found error.
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn get_field_type_option_data_handler(
-    data: Data<GridFieldTypeOptionIdPB>,
+    data: Data<FieldTypeOptionIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
-    let params: GridFieldTypeOptionIdParams = data.into_inner().try_into()?;
+    let params: FieldTypeOptionIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
         Some(field_rev) => {
-            let field_type = field_rev.field_type_rev.into();
+            let field_type = field_rev.ty.into();
             let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
             let data = FieldTypeOptionDataPB {
                 grid_id: params.grid_id,
@@ -192,7 +180,7 @@ pub(crate) async fn create_field_type_option_data_handler(
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let field_rev = editor.create_next_field_rev(&params.field_type).await?;
-    let field_type: FieldType = field_rev.field_type_rev.into();
+    let field_type: FieldType = field_rev.ty.into();
     let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 
     data_result(FieldTypeOptionDataPB {
@@ -203,13 +191,13 @@ pub(crate) async fn create_field_type_option_data_handler(
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn move_item_handler(
-    data: Data<MoveItemPayloadPB>,
+pub(crate) async fn move_field_handler(
+    data: Data<MoveFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: MoveItemParams = data.into_inner().try_into()?;
+    let params: MoveFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let _ = editor.move_item(params).await?;
+    let _ = editor.move_field(params).await?;
     Ok(())
 }
 
@@ -218,34 +206,31 @@ async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType)
     let s = field_rev
         .get_type_option_str(field_type)
         .unwrap_or_else(|| default_type_option_builder_from_type(field_type).entry().json_str());
-    let field_type: FieldType = field_rev.field_type_rev.into();
+    let field_type: FieldType = field_rev.ty.into();
     let builder = type_option_builder_from_json_str(&s, &field_type);
     let type_option_data = builder.entry().protobuf_bytes().to_vec();
 
     Ok(type_option_data)
 }
 
-#[tracing::instrument(level = "debug", skip(data, manager), err)]
+// #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn get_row_handler(
-    data: Data<GridRowIdPB>,
+    data: Data<RowIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
-    let params: GridRowIdParams = data.into_inner().try_into()?;
+    let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let row = editor
-        .get_row_rev(&params.row_id)
-        .await?
-        .and_then(make_row_from_row_rev);
+    let row = editor.get_row_rev(&params.row_id).await?.map(make_row_from_row_rev);
 
     data_result(OptionalRowPB { row })
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn delete_row_handler(
-    data: Data<GridRowIdPB>,
+    data: Data<RowIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridRowIdParams = data.into_inner().try_into()?;
+    let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.delete_row(&params.row_id).await?;
     Ok(())
@@ -253,24 +238,35 @@ pub(crate) async fn delete_row_handler(
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
 pub(crate) async fn duplicate_row_handler(
-    data: Data<GridRowIdPB>,
+    data: Data<RowIdPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
-    let params: GridRowIdParams = data.into_inner().try_into()?;
+    let params: RowIdParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     let _ = editor.duplicate_row(&params.row_id).await?;
     Ok(())
 }
 
 #[tracing::instrument(level = "debug", skip(data, manager), err)]
-pub(crate) async fn create_row_handler(
-    data: Data<CreateRowPayloadPB>,
+pub(crate) async fn move_row_handler(
+    data: Data<MoveRowPayloadPB>,
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
+    let params: MoveRowParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(&params.view_id)?;
+    let _ = editor.move_row(params).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn create_table_row_handler(
+    data: Data<CreateTableRowPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
-    let _ = editor.create_row(params.start_row_id).await?;
-    Ok(())
+    let row = editor.create_row(params).await?;
+    data_result(row)
 }
 
 // #[tracing::instrument(level = "debug", skip_all, err)]
@@ -344,13 +340,15 @@ pub(crate) async fn update_select_option_handler(
         mut_field_rev.insert_type_option_entry(&*type_option);
         let _ = editor.replace_field(field_rev).await?;
 
-        let changeset = CellChangesetPB {
-            grid_id: changeset.cell_identifier.grid_id,
-            row_id: changeset.cell_identifier.row_id,
-            field_id: changeset.cell_identifier.field_id,
-            content: cell_content_changeset,
-        };
-        let _ = editor.update_cell(changeset).await?;
+        if let Some(cell_content_changeset) = cell_content_changeset {
+            let changeset = CellChangesetPB {
+                grid_id: changeset.cell_identifier.grid_id,
+                row_id: changeset.cell_identifier.row_id,
+                field_id: changeset.cell_identifier.field_id,
+                content: cell_content_changeset,
+            };
+            let _ = editor.update_cell(changeset).await?;
+        }
     }
     Ok(())
 }
@@ -374,7 +372,7 @@ pub(crate) async fn get_select_option_handler(
             let any_cell_data: AnyCellData = match cell_rev {
                 None => AnyCellData {
                     data: "".to_string(),
-                    field_type: field_rev.field_type_rev.into(),
+                    field_type: field_rev.ty.into(),
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };
@@ -403,5 +401,49 @@ pub(crate) async fn update_date_cell_handler(
     let params: DateChangesetParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.cell_identifier.grid_id)?;
     let _ = editor.update_cell(params.into()).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub(crate) async fn get_groups_handler(
+    data: Data<GridIdPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<RepeatedGridGroupPB, FlowyError> {
+    let params: GridIdPB = data.into_inner();
+    let editor = manager.get_grid_editor(&params.value)?;
+    let group = editor.load_groups().await?;
+    data_result(group)
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn create_board_card_handler(
+    data: Data<CreateBoardCardPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> DataResult<RowPB, FlowyError> {
+    let params: CreateRowParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
+    let row = editor.create_row(params).await?;
+    data_result(row)
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn move_group_handler(
+    data: Data<MoveGroupPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> FlowyResult<()> {
+    let params: MoveGroupParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(params.view_id.as_ref())?;
+    let _ = editor.move_group(params).await?;
+    Ok(())
+}
+
+#[tracing::instrument(level = "debug", skip(data, manager), err)]
+pub(crate) async fn move_group_row_handler(
+    data: Data<MoveGroupRowPayloadPB>,
+    manager: AppData<Arc<GridManager>>,
+) -> FlowyResult<()> {
+    let params: MoveGroupRowParams = data.into_inner().try_into()?;
+    let editor = manager.get_grid_editor(params.view_id.as_ref())?;
+    let _ = editor.move_group_row(params).await?;
     Ok(())
 }

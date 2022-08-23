@@ -259,7 +259,7 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldMeta) {
     let cloned_field_meta = field_meta.clone();
 
     let type_option_data = field_meta
-        .get_type_option_entry::<RichTextTypeOption>(&field_meta.field_type)
+        .get_type_option_entry::<RichTextTypeOptionPB>(&field_meta.field_type)
         .unwrap()
         .protobuf_bytes()
         .to_vec();

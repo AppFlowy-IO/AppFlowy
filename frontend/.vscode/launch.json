@@ -56,7 +56,7 @@
             "type": "dart",
             "preLaunchTask": "AF: Clean + Rebuild All",
             "env": {
-                "RUST_LOG": "info"
+                "RUST_LOG": "trace"
             },
             "cwd": "${workspaceRoot}/app_flowy"
         },

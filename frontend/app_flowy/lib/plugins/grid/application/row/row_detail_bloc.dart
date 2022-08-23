@@ -2,26 +2,24 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-import 'row_service.dart';
-
+import 'row_data_controller.dart';
 part 'row_detail_bloc.freezed.dart';
 
 class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
-  final GridRowInfo rowInfo;
-  final GridRowCache _rowCache;
-  void Function()? _rowListenFn;
+  final GridRowDataController dataController;
 
   RowDetailBloc({
-    required this.rowInfo,
-    required GridRowCache rowCache,
-  })  : _rowCache = rowCache,
-        super(RowDetailState.initial()) {
+    required this.dataController,
+  }) : super(RowDetailState.initial()) {
     on<RowDetailEvent>(
       (event, emit) async {
         await event.map(
           initial: (_Initial value) async {
             await _startListening();
-            _loadCellData();
+            final cells = dataController.loadData();
+            if (!isClosed) {
+              add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
+            }
           },
           didReceiveCellDatas: (_DidReceiveCellDatas value) {
             emit(state.copyWith(gridCells: value.gridCells));
@@ -33,26 +31,18 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 
   @override
   Future<void> close() async {
-    if (_rowListenFn != null) {
-      _rowCache.removeRowListener(_rowListenFn!);
-    }
+    dataController.dispose();
     return super.close();
   }
 
   Future<void> _startListening() async {
-    _rowListenFn = _rowCache.addListener(
-      rowId: rowInfo.id,
-      onCellUpdated: (cellDatas, reason) =>
-          add(RowDetailEvent.didReceiveCellDatas(cellDatas.values.toList())),
-      listenWhen: () => !isClosed,
+    dataController.addListener(
+      onRowChanged: (cells, reason) {
+        if (!isClosed) {
+          add(RowDetailEvent.didReceiveCellDatas(cells.values.toList()));
+        }
+      },
     );
-  }
-
-  Future<void> _loadCellData() async {
-    final cellDataMap = _rowCache.loadGridCells(rowInfo.id);
-    if (!isClosed) {
-      add(RowDetailEvent.didReceiveCellDatas(cellDataMap.values.toList()));
-    }
   }
 }
 

@@ -14,7 +14,7 @@ class GridAddRowButton extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return FlowyButton(
       text: const FlowyText.medium('New row', fontSize: 12),
-      hoverColor: theme.hover,
+      hoverColor: theme.shader6,
       onTap: () => context.read<GridBloc>().add(const GridEvent.createRow()),
       leftIcon: svgWidget("home/add"),
     );

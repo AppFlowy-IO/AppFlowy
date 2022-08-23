@@ -1,0 +1,268 @@
+{
+  "document": {
+    "type": "editor",
+    "attributes": {},
+    "children": [
+      {
+        "type": "image",
+        "attributes": {
+          "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "🌶 Read Me"
+          }
+        ],
+        "attributes": {
+          "subtype": "heading",
+          "heading": "h1"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "👋 Welcome to FlowyEditor"
+          }
+        ],
+        "attributes": {
+          "subtype": "heading",
+          "heading": "h2"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "To be honest, we are still in the alpha stage. There are still many functions that need to be completed. And we are developing more features. Please give us a star if the "
+          },
+          {
+            "insert": "FlowyEditor",
+            "attributes": {
+              "href": "https://github.com/AppFlowy-IO/AppFlowy"
+            }
+          },
+          {
+            "insert": " helps you. 😊😊😊"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Since the FlowyEditor are a community-driven open source editor, we very welcome and appreciate every pull request submissions from everyone.😄😄😄"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Here are the basics:"
+          }
+        ],
+        "attributes": {
+          "subtype": "heading",
+          "heading": "h3"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          { "insert": "Click " },
+          { "insert": "anywhere", "attributes": { "underline": true } },
+          { "insert": " and just typing." }
+        ]
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hit"
+          },
+          {
+            "insert": "  /  ",
+            "attributes": { "backgroundColor": "0xFFFFFF00" }
+          },
+          {
+            "insert": "to see all the types of content you can add - headers, bulleted lists, checkboxes, etc."
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Highlight",
+            "attributes": { "backgroundColor": "0xFF00BCFB" }
+          },
+          {
+            "insert": " any text, and use the menu that pops up to "
+          },
+          { "insert": "style", "attributes": { "bold": true } },
+          { "insert": " your ", "attributes": { "italic": true } },
+          { "insert": "writing", "attributes": { "strikethrough": true } },
+          { "insert": "." }
+        ]
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Here are the plugins:"
+          }
+        ],
+        "attributes": {
+          "subtype": "heading",
+          "heading": "h3"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "checkbox",
+          "checkbox": false
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "checkbox",
+          "checkbox": false
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "checkbox",
+          "checkbox": false
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "bulleted-list"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "bulleted-list"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello "
+          },
+          {
+            "insert": "world",
+            "attributes": { "bold": true }
+          }
+        ],
+        "attributes": {
+          "subtype": "bulleted-list"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "quote"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "quote"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "quote"
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "number-list",
+          "number": 1
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "number-list",
+          "number": 2
+        }
+      },
+      {
+        "type": "text",
+        "delta": [
+          {
+            "insert": "Hello world"
+          }
+        ],
+        "attributes": {
+          "subtype": "number-list",
+          "number": 3
+        }
+      }
+    ]
+  }
+}

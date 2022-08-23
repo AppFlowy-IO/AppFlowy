@@ -63,7 +63,7 @@ class FieldCellBloc extends Bloc<FieldCellEvent, FieldCellState> {
 @freezed
 class FieldCellEvent with _$FieldCellEvent {
   const factory FieldCellEvent.initial() = _InitialCell;
-  const factory FieldCellEvent.didReceiveFieldUpdate(GridFieldPB field) =
+  const factory FieldCellEvent.didReceiveFieldUpdate(FieldPB field) =
       _DidReceiveFieldUpdate;
   const factory FieldCellEvent.startUpdateWidth(double offset) =
       _StartUpdateWidth;
@@ -74,7 +74,7 @@ class FieldCellEvent with _$FieldCellEvent {
 class FieldCellState with _$FieldCellState {
   const factory FieldCellState({
     required String gridId,
-    required GridFieldPB field,
+    required FieldPB field,
     required double width,
   }) = _FieldCellState;
 

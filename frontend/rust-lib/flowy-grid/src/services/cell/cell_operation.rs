@@ -11,6 +11,10 @@ pub trait CellFilterOperation<T> {
     fn apply_filter(&self, any_cell_data: AnyCellData, filter: &T) -> FlowyResult<bool>;
 }
 
+pub trait CellGroupOperation {
+    fn apply_group(&self, any_cell_data: AnyCellData, group_content: &str) -> FlowyResult<bool>;
+}
+
 /// Return object that describes the cell.
 pub trait CellDisplayable<CD> {
     fn display_data(
@@ -53,17 +57,17 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
 ) -> Result<String, FlowyError> {
     let field_rev = field_rev.as_ref();
     let changeset = changeset.to_string();
-    let field_type = field_rev.field_type_rev.into();
+    let field_type = field_rev.ty.into();
     let s = match field_type {
-        FieldType::RichText => RichTextTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::Number => NumberTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::DateTime => DateTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::RichText => RichTextTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::Number => NumberTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::DateTime => DateTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
         FieldType::SingleSelect => {
             SingleSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev)
         }
-        FieldType::MultiSelect => MultiSelectTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::Checkbox => CheckboxTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
-        FieldType::URL => URLTypeOption::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::MultiSelect => MultiSelectTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::Checkbox => CheckboxTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
+        FieldType::URL => URLTypeOptionPB::from(field_rev).apply_changeset(changeset.into(), cell_rev),
     }?;
 
     Ok(AnyCellData::new(s, field_type).json())
@@ -72,7 +76,7 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
 pub fn decode_any_cell_data<T: TryInto<AnyCellData>>(data: T, field_rev: &FieldRevision) -> CellBytes {
     if let Ok(any_cell_data) = data.try_into() {
         let AnyCellData { data, field_type } = any_cell_data;
-        let to_field_type = field_rev.field_type_rev.into();
+        let to_field_type = field_rev.ty.into();
         match try_decode_cell_data(data.into(), field_rev, &field_type, &to_field_type) {
             Ok(cell_bytes) => cell_bytes,
             Err(e) => {
@@ -97,25 +101,25 @@ pub fn try_decode_cell_data(
         let field_type: FieldTypeRevision = t_field_type.into();
         let data = match t_field_type {
             FieldType::RichText => field_rev
-                .get_type_option_entry::<RichTextTypeOption>(field_type)?
+                .get_type_option_entry::<RichTextTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::Number => field_rev
-                .get_type_option_entry::<NumberTypeOption>(field_type)?
+                .get_type_option_entry::<NumberTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::DateTime => field_rev
-                .get_type_option_entry::<DateTypeOption>(field_type)?
+                .get_type_option_entry::<DateTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::SingleSelect => field_rev
                 .get_type_option_entry::<SingleSelectTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::MultiSelect => field_rev
-                .get_type_option_entry::<MultiSelectTypeOption>(field_type)?
+                .get_type_option_entry::<MultiSelectTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::Checkbox => field_rev
-                .get_type_option_entry::<CheckboxTypeOption>(field_type)?
+                .get_type_option_entry::<CheckboxTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::URL => field_rev
-                .get_type_option_entry::<URLTypeOption>(field_type)?
+                .get_type_option_entry::<URLTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
         };
         Some(data)
@@ -129,6 +133,47 @@ pub fn try_decode_cell_data(
         }
         None => Ok(CellBytes::default()),
     }
+}
+
+pub fn insert_text_cell(s: String, field_rev: &FieldRevision) -> CellRevision {
+    let data = apply_cell_data_changeset(s, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_number_cell(num: i64, field_rev: &FieldRevision) -> CellRevision {
+    let data = apply_cell_data_changeset(num, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_url_cell(url: String, field_rev: &FieldRevision) -> CellRevision {
+    let data = apply_cell_data_changeset(url, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_checkbox_cell(is_check: bool, field_rev: &FieldRevision) -> CellRevision {
+    let s = if is_check {
+        CHECK.to_string()
+    } else {
+        UNCHECK.to_string()
+    };
+    let data = apply_cell_data_changeset(s, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevision {
+    let cell_data = serde_json::to_string(&DateCellChangesetPB {
+        date: Some(timestamp.to_string()),
+        time: None,
+    })
+    .unwrap();
+    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
+pub fn insert_select_option_cell(option_id: String, field_rev: &FieldRevision) -> CellRevision {
+    let cell_data = SelectOptionCellChangeset::from_insert(&option_id).to_str();
+    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    CellRevision::new(data)
 }
 
 /// If the cell data is not String type, it should impl this trait.

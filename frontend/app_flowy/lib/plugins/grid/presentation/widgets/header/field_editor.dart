@@ -1,5 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';

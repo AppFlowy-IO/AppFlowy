@@ -1,8 +1,9 @@
 use crate::entities::{
-    FieldType, GridCheckboxFilter, GridDateFilter, GridNumberFilter, GridSelectOptionFilter, GridTextFilter,
+    CheckboxFilterConfigurationPB, DateFilterConfigurationPB, FieldType, NumberFilterConfigurationPB,
+    SelectOptionFilterConfigurationPB, TextFilterConfigurationPB,
 };
 use dashmap::DashMap;
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
+use flowy_grid_data_model::revision::{FieldRevision, FilterConfigurationRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -58,12 +59,12 @@ impl FilterResult {
 
 #[derive(Default)]
 pub(crate) struct FilterCache {
-    pub(crate) text_filter: DashMap<FilterId, GridTextFilter>,
-    pub(crate) url_filter: DashMap<FilterId, GridTextFilter>,
-    pub(crate) number_filter: DashMap<FilterId, GridNumberFilter>,
-    pub(crate) date_filter: DashMap<FilterId, GridDateFilter>,
-    pub(crate) select_option_filter: DashMap<FilterId, GridSelectOptionFilter>,
-    pub(crate) checkbox_filter: DashMap<FilterId, GridCheckboxFilter>,
+    pub(crate) text_filter: DashMap<FilterId, TextFilterConfigurationPB>,
+    pub(crate) url_filter: DashMap<FilterId, TextFilterConfigurationPB>,
+    pub(crate) number_filter: DashMap<FilterId, NumberFilterConfigurationPB>,
+    pub(crate) date_filter: DashMap<FilterId, DateFilterConfigurationPB>,
+    pub(crate) select_option_filter: DashMap<FilterId, SelectOptionFilterConfigurationPB>,
+    pub(crate) checkbox_filter: DashMap<FilterId, CheckboxFilterConfigurationPB>,
 }
 
 impl FilterCache {
@@ -73,6 +74,7 @@ impl FilterCache {
         this
     }
 
+    #[allow(dead_code)]
     pub(crate) fn remove(&self, filter_id: &FilterId) {
         let _ = match filter_id.field_type {
             FieldType::RichText => {
@@ -103,42 +105,50 @@ impl FilterCache {
 /// Refresh the filter according to the field id.
 pub(crate) async fn refresh_filter_cache(
     cache: Arc<FilterCache>,
-    field_ids: Option<Vec<String>>,
+    _field_ids: Option<Vec<String>>,
     grid_pad: &Arc<RwLock<GridRevisionPad>>,
 ) {
     let grid_pad = grid_pad.read().await;
-    let filters_revs = grid_pad.get_filters(None, field_ids).unwrap_or_default();
+    // let filters_revs = grid_pad.get_filters(field_ids).unwrap_or_default();
+    // TODO nathan
+    let filter_revs: Vec<Arc<FilterConfigurationRevision>> = vec![];
 
-    for filter_rev in filters_revs {
+    for filter_rev in filter_revs {
         match grid_pad.get_field_rev(&filter_rev.field_id) {
             None => {}
             Some((_, field_rev)) => {
                 let filter_id = FilterId::from(field_rev);
-                let field_type: FieldType = field_rev.field_type_rev.into();
+                let field_type: FieldType = field_rev.ty.into();
                 match &field_type {
                     FieldType::RichText => {
-                        let _ = cache.text_filter.insert(filter_id, GridTextFilter::from(filter_rev));
+                        let _ = cache
+                            .text_filter
+                            .insert(filter_id, TextFilterConfigurationPB::from(filter_rev));
                     }
                     FieldType::Number => {
                         let _ = cache
                             .number_filter
-                            .insert(filter_id, GridNumberFilter::from(filter_rev));
+                            .insert(filter_id, NumberFilterConfigurationPB::from(filter_rev));
                     }
                     FieldType::DateTime => {
-                        let _ = cache.date_filter.insert(filter_id, GridDateFilter::from(filter_rev));
+                        let _ = cache
+                            .date_filter
+                            .insert(filter_id, DateFilterConfigurationPB::from(filter_rev));
                     }
                     FieldType::SingleSelect | FieldType::MultiSelect => {
                         let _ = cache
                             .select_option_filter
-                            .insert(filter_id, GridSelectOptionFilter::from(filter_rev));
+                            .insert(filter_id, SelectOptionFilterConfigurationPB::from(filter_rev));
                     }
                     FieldType::Checkbox => {
                         let _ = cache
                             .checkbox_filter
-                            .insert(filter_id, GridCheckboxFilter::from(filter_rev));
+                            .insert(filter_id, CheckboxFilterConfigurationPB::from(filter_rev));
                     }
                     FieldType::URL => {
-                        let _ = cache.url_filter.insert(filter_id, GridTextFilter::from(filter_rev));
+                        let _ = cache
+                            .url_filter
+                            .insert(filter_id, TextFilterConfigurationPB::from(filter_rev));
                     }
                 }
             }
@@ -155,7 +165,7 @@ impl std::convert::From<&Arc<FieldRevision>> for FilterId {
     fn from(rev: &Arc<FieldRevision>) -> Self {
         Self {
             field_id: rev.id.clone(),
-            field_type: rev.field_type_rev.into(),
+            field_type: rev.ty.into(),
         }
     }
 }

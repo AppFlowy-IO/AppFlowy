@@ -43,6 +43,17 @@ table! {
 }
 
 table! {
+    grid_view_rev_table (id) {
+        id -> Integer,
+        object_id -> Text,
+        base_rev_id -> BigInt,
+        rev_id -> BigInt,
+        data -> Binary,
+        state -> Integer,
+    }
+}
+
+table! {
     kv_table (key) {
         key -> Text,
         value -> Binary,
@@ -88,6 +99,7 @@ table! {
         token -> Text,
         email -> Text,
         workspace -> Text,
+        icon_url -> Text,
     }
 }
 
@@ -124,6 +136,7 @@ allow_tables_to_appear_in_same_query!(
     grid_block_index_table,
     grid_meta_rev_table,
     grid_rev_table,
+    grid_view_rev_table,
     kv_table,
     rev_snapshot,
     rev_table,

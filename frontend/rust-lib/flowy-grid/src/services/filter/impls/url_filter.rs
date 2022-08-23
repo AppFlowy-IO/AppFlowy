@@ -1,10 +1,10 @@
-use crate::entities::GridTextFilter;
+use crate::entities::TextFilterConfigurationPB;
 use crate::services::cell::{AnyCellData, CellData, CellFilterOperation};
-use crate::services::field::{TextCellData, URLTypeOption};
+use crate::services::field::{TextCellData, URLTypeOptionPB};
 use flowy_error::FlowyResult;
 
-impl CellFilterOperation<GridTextFilter> for URLTypeOption {
-    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &GridTextFilter) -> FlowyResult<bool> {
+impl CellFilterOperation<TextFilterConfigurationPB> for URLTypeOptionPB {
+    fn apply_filter(&self, any_cell_data: AnyCellData, filter: &TextFilterConfigurationPB) -> FlowyResult<bool> {
         if !any_cell_data.is_url() {
             return Ok(true);
         }

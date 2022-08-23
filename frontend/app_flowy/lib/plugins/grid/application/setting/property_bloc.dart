@@ -1,16 +1,17 @@
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
+import '../field/field_cache.dart';
+
 part 'property_bloc.freezed.dart';
 
 class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   final GridFieldCache _fieldCache;
-  Function(List<GridFieldPB>)? _onFieldsFn;
+  Function(List<FieldPB>)? _onFieldsFn;
 
   GridPropertyBloc({required String gridId, required GridFieldCache fieldCache})
       : _fieldCache = fieldCache,
@@ -66,8 +67,8 @@ class GridPropertyEvent with _$GridPropertyEvent {
   const factory GridPropertyEvent.initial() = _Initial;
   const factory GridPropertyEvent.setFieldVisibility(
       String fieldId, bool visibility) = _SetFieldVisibility;
-  const factory GridPropertyEvent.didReceiveFieldUpdate(
-      List<GridFieldPB> fields) = _DidReceiveFieldUpdate;
+  const factory GridPropertyEvent.didReceiveFieldUpdate(List<FieldPB> fields) =
+      _DidReceiveFieldUpdate;
   const factory GridPropertyEvent.moveField(int fromIndex, int toIndex) =
       _MoveField;
 }
@@ -76,10 +77,10 @@ class GridPropertyEvent with _$GridPropertyEvent {
 class GridPropertyState with _$GridPropertyState {
   const factory GridPropertyState({
     required String gridId,
-    required List<GridFieldPB> fields,
+    required List<FieldPB> fields,
   }) = _GridPropertyState;
 
-  factory GridPropertyState.initial(String gridId, List<GridFieldPB> fields) =>
+  factory GridPropertyState.initial(String gridId, List<FieldPB> fields) =>
       GridPropertyState(
         gridId: gridId,
         fields: fields,

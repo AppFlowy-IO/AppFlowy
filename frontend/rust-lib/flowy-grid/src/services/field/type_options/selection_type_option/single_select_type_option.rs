@@ -65,10 +65,8 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         let select_option_changeset = changeset.try_into_inner()?;
         let new_cell_data: String;
         if let Some(insert_option_id) = select_option_changeset.insert_option_id {
-            tracing::trace!("Insert single select option: {}", &insert_option_id);
             new_cell_data = insert_option_id;
         } else {
-            tracing::trace!("Delete single select option");
             new_cell_data = "".to_string()
         }
 
@@ -82,7 +80,7 @@ impl_into_box_type_option_builder!(SingleSelectTypeOptionBuilder);
 impl_builder_from_json_str_and_from_bytes!(SingleSelectTypeOptionBuilder, SingleSelectTypeOptionPB);
 
 impl SingleSelectTypeOptionBuilder {
-    pub fn option(mut self, opt: SelectOptionPB) -> Self {
+    pub fn add_option(mut self, opt: SelectOptionPB) -> Self {
         self.0.options.push(opt);
         self
     }
@@ -113,9 +111,9 @@ mod tests {
         let facebook_option = SelectOptionPB::new("Facebook");
         let twitter_option = SelectOptionPB::new("Twitter");
         let single_select = SingleSelectTypeOptionBuilder::default()
-            .option(google_option.clone())
-            .option(facebook_option.clone())
-            .option(twitter_option);
+            .add_option(google_option.clone())
+            .add_option(facebook_option.clone())
+            .add_option(twitter_option);
 
         let field_rev = FieldBuilder::new(single_select)
             .name("Platform")
@@ -156,13 +154,13 @@ mod tests {
         field_rev: &FieldRevision,
         expected: Vec<SelectOptionPB>,
     ) {
-        let field_type: FieldType = field_rev.field_type_rev.into();
+        let field_type: FieldType = field_rev.ty.into();
         assert_eq!(
             expected,
             type_option
                 .decode_cell_data(cell_data.into(), &field_type, field_rev)
                 .unwrap()
-                .with_parser(SelectOptionCellDataParser())
+                .parser::<SelectOptionCellDataParser>()
                 .unwrap()
                 .select_options,
         );

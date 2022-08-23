@@ -83,12 +83,22 @@ where
         R: FromBytes,
     {
         let response = self.get_response();
-        match response.parse::<R, E>() {
+        match response.clone().parse::<R, E>() {
             Ok(Ok(data)) => data,
             Ok(Err(e)) => {
-                panic!("parse failed: {:?}", e)
+                panic!(
+                    "Parser {:?} failed: {:?}, response {:?}",
+                    std::any::type_name::<R>(),
+                    e,
+                    response
+                )
             }
-            Err(e) => panic!("Internal error: {:?}", e),
+            Err(e) => panic!(
+                "Dispatch {:?} failed: {:?}, response {:?}",
+                std::any::type_name::<R>(),
+                e,
+                response
+            ),
         }
     }
 

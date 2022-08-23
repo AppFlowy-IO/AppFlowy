@@ -1,20 +1,12 @@
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_service.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
+
+import 'type_option_context.dart';
 part 'date_bloc.freezed.dart';
-
-typedef DateTypeOptionContext = TypeOptionWidgetContext<DateTypeOption>;
-
-class DateTypeOptionDataParser extends TypeOptionDataParser<DateTypeOption> {
-  @override
-  DateTypeOption fromBuffer(List<int> buffer) {
-    return DateTypeOption.fromBuffer(buffer);
-  }
-}
 
 class DateTypeOptionBloc
     extends Bloc<DateTypeOptionEvent, DateTypeOptionState> {
@@ -40,7 +32,7 @@ class DateTypeOptionBloc
     );
   }
 
-  DateTypeOption _updateTypeOption({
+  DateTypeOptionPB _updateTypeOption({
     DateFormat? dateFormat,
     TimeFormat? timeFormat,
     bool? includeTime,
@@ -80,9 +72,9 @@ class DateTypeOptionEvent with _$DateTypeOptionEvent {
 @freezed
 class DateTypeOptionState with _$DateTypeOptionState {
   const factory DateTypeOptionState({
-    required DateTypeOption typeOption,
+    required DateTypeOptionPB typeOption,
   }) = _DateTypeOptionState;
 
-  factory DateTypeOptionState.initial(DateTypeOption typeOption) =>
+  factory DateTypeOptionState.initial(DateTypeOptionPB typeOption) =>
       DateTypeOptionState(typeOption: typeOption);
 }

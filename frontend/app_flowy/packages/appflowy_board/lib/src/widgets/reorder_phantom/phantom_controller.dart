@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
 import '../../utils/log.dart';
 import '../board_column/board_column_data.dart';
 import '../reorder_flex/drag_state.dart';
 import '../reorder_flex/drag_target.dart';
-import '../reorder_flex/drag_target_inteceptor.dart';
+import '../reorder_flex/drag_target_interceptor.dart';
 import 'phantom_state.dart';
 
 abstract class BoardPhantomControllerDelegate {
-  BoardColumnDataController? controller(String columnId);
+  AFBoardColumnDataController? controller(String columnId);
 
   bool removePhantom(String columnId);
 
@@ -58,12 +59,13 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   }
 
   void columnStartDragging(String columnId) {
-    columnsState.setColumnIsDragging(columnId, false);
+    columnsState.setColumnIsDragging(columnId, true);
   }
 
-  /// Remove the phanton in the column when the column is end dragging.
+  /// Remove the phantom in the column when the column is end dragging.
   void columnEndDragging(String columnId) {
-    columnsState.setColumnIsDragging(columnId, true);
+    columnsState.setColumnIsDragging(columnId, false);
+
     if (phantomRecord == null) return;
 
     final fromColumnId = phantomRecord!.fromColumnId;
@@ -72,19 +74,18 @@ class BoardPhantomController extends OverlapDragTargetDelegate
       columnsState.notifyDidRemovePhantom(toColumnId);
     }
 
-    if (columnsState.isDragging(fromColumnId) == false) {
-      return;
+    if (phantomRecord!.toColumnId == columnId) {
+      delegate.swapColumnItem(
+        fromColumnId,
+        phantomRecord!.fromColumnIndex,
+        toColumnId,
+        phantomRecord!.toColumnIndex,
+      );
+
+      Log.debug(
+          "[$BoardPhantomController] did move ${phantomRecord.toString()}");
+      phantomRecord = null;
     }
-
-    delegate.swapColumnItem(
-      fromColumnId,
-      phantomRecord!.fromColumnIndex,
-      toColumnId,
-      phantomRecord!.toColumnIndex,
-    );
-
-    Log.debug("[$BoardPhantomController] did move ${phantomRecord.toString()}");
-    phantomRecord = null;
   }
 
   /// Remove the phantom in the column if it contains phantom
@@ -112,7 +113,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
       PhantomColumnItem(phantomContext),
     );
 
-    columnsState.notifyDidInsertPhantom(toColumnId);
+    columnsState.notifyDidInsertPhantom(toColumnId, phantomIndex);
   }
 
   /// Reset or initial the [PhantomRecord]
@@ -127,8 +128,9 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     FlexDragTargetData dragTargetData,
     int dragTargetIndex,
   ) {
-    // Log.debug('[$BoardPhantomController] move Column:[${dragTargetData.reorderFlexId}]:${dragTargetData.draggingIndex} '
-    //     'to Column:[$columnId]:$index');
+    // Log.debug(
+    //     '[$BoardPhantomController] move Column:[${dragTargetData.reorderFlexId}]:${dragTargetData.draggingIndex} '
+    //     'to Column:[$columnId]:$dragTargetIndex');
 
     phantomRecord = PhantomRecord(
       toColumnId: columnId,
@@ -201,8 +203,17 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   }
 
   @override
-  bool canMoveTo(String dragTargetId) {
-    return delegate.controller(dragTargetId)?.columnData.items.isEmpty ?? false;
+  int canMoveTo(String dragTargetId) {
+    if (columnsState.isDragging(dragTargetId)) {
+      return -1;
+    }
+
+    final controller = delegate.controller(dragTargetId);
+    if (controller != null) {
+      return controller.columnData.items.length;
+    } else {
+      return 0;
+    }
   }
 }
 
@@ -253,7 +264,7 @@ class PhantomRecord {
   }
 }
 
-class PhantomColumnItem extends ColumnItem {
+class PhantomColumnItem extends AFColumnItem {
   final PassthroughPhantomContext phantomContext;
 
   PhantomColumnItem(PassthroughPhantomContext insertedPhantom)
@@ -290,10 +301,10 @@ class PassthroughPhantomContext extends FakeDragTargetEventTrigger
 
   Widget? get draggingWidget => dragTargetData.draggingWidget;
 
-  ColumnItem get itemData => dragTargetData.reorderFlexItem as ColumnItem;
+  AFColumnItem get itemData => dragTargetData.reorderFlexItem as AFColumnItem;
 
   @override
-  VoidCallback? onInserted;
+  void Function(int?)? onInserted;
 
   @override
   VoidCallback? onDragEnded;
@@ -306,6 +317,11 @@ class PassthroughPhantomContext extends FakeDragTargetEventTrigger
   @override
   void fakeOnDragEnded(VoidCallback callback) {
     onDragEnded = callback;
+  }
+
+  @override
+  void fakeOnDragStart(void Function(int? index) callback) {
+    onInserted = callback;
   }
 }
 
@@ -331,7 +347,7 @@ class PhantomDraggableBuilder extends ReorderFlexDraggableTargetBuilder {
     Widget child,
     DragTargetOnStarted onDragStarted,
     DragTargetOnEnded<T> onDragEnded,
-    DragTargetWillAccpet<T> onWillAccept,
+    DragTargetWillAccepted<T> onWillAccept,
     AnimationController insertAnimationController,
     AnimationController deleteAnimationController,
   ) {

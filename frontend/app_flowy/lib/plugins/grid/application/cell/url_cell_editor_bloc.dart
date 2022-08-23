@@ -7,11 +7,11 @@ import 'cell_service/cell_service.dart';
 part 'url_cell_editor_bloc.freezed.dart';
 
 class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
-  final GridURLCellController cellContext;
+  final GridURLCellController cellController;
   void Function()? _onCellChangedFn;
   URLCellEditorBloc({
-    required this.cellContext,
-  }) : super(URLCellEditorState.initial(cellContext)) {
+    required this.cellController,
+  }) : super(URLCellEditorState.initial(cellController)) {
     on<URLCellEditorEvent>(
       (event, emit) async {
         event.when(
@@ -19,7 +19,7 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
             _startListening();
           },
           updateText: (text) {
-            cellContext.saveCellData(text, deduplicate: true);
+            cellController.saveCellData(text, deduplicate: true);
             emit(state.copyWith(content: text));
           },
           didReceiveCellUpdate: (cellData) {
@@ -33,15 +33,15 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
   @override
   Future<void> close() async {
     if (_onCellChangedFn != null) {
-      cellContext.removeListener(_onCellChangedFn!);
+      cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    cellContext.dispose();
+    cellController.dispose();
     return super.close();
   }
 
   void _startListening() {
-    _onCellChangedFn = cellContext.startListening(
+    _onCellChangedFn = cellController.startListening(
       onCellChanged: ((cellData) {
         if (!isClosed) {
           add(URLCellEditorEvent.didReceiveCellUpdate(cellData));
@@ -54,7 +54,8 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
 @freezed
 class URLCellEditorEvent with _$URLCellEditorEvent {
   const factory URLCellEditorEvent.initial() = _InitialCell;
-  const factory URLCellEditorEvent.didReceiveCellUpdate(URLCellDataPB? cell) = _DidReceiveCellUpdate;
+  const factory URLCellEditorEvent.didReceiveCellUpdate(URLCellDataPB? cell) =
+      _DidReceiveCellUpdate;
   const factory URLCellEditorEvent.updateText(String text) = _UpdateText;
 }
 

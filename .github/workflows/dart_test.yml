@@ -3,12 +3,12 @@ name: Unit test(Flutter)
 on:
   push:
     branches:
-      - 'main'
-      
+      - "main"
+
   pull_request:
     branches:
-      - 'main'
-      - 'feat/flowy_editor'
+      - "main"
+      - "feat/flowy_editor"
 
 env:
   CARGO_TERM_COLOR: always
@@ -18,42 +18,49 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
+
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 'stable-2022-01-20'
-      
+          toolchain: "stable-2022-01-20"
+
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          flutter-version: '3.0.5'
+          channel: "stable"
+          flutter-version: "3.0.5"
           cache: true
 
       - name: Cache Cargo
         uses: actions/cache@v2
-        with: 
+        with:
           path: |
             ~/.cargo
           key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
 
       - name: Cache Rust
+        id: cache-rust-target
         uses: actions/cache@v2
-        with: 
+        with:
           path: |
             frontend/rust-lib/target
             shared-lib/target
-          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
+          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+
+      - if: steps.cache-cargo.outputs.cache-hit != 'true'
+        name: Rust Deps
+        working-directory: frontend
+        run: |
+          cargo install cargo-make
+
+      - name: Cargo make flowy dev
+        working-directory: frontend
+        run: |
+          cargo make flowy_dev
 
       - name: Flutter Deps
         working-directory: frontend/app_flowy
         run: |
           flutter config --enable-linux-desktop
-        
-      - name: Rust Deps
-        working-directory: frontend
-        run: |
-          cargo install cargo-make
-          cargo make flowy_dev
+
       - name: Build FlowySDK
         working-directory: frontend
         run: |
@@ -65,15 +72,9 @@ jobs:
           flutter packages pub get
           flutter packages pub run easy_localization:generate -f keys -o locale_keys.g.dart -S assets/translations -s en.json
           flutter packages pub run build_runner build --delete-conflicting-outputs
-      
+
       - name: Run bloc tests
         working-directory: frontend/app_flowy
-        run: |
-          flutter pub get
-          flutter test
-
-      - name: Run FlowyEditor tests
-        working-directory: frontend/app_flowy/packages/flowy_editor
         run: |
           flutter pub get
           flutter test

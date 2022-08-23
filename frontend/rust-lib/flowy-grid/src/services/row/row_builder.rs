@@ -1,18 +1,21 @@
-use crate::services::cell::apply_cell_data_changeset;
-use crate::services::field::SelectOptionCellChangeset;
-use flowy_error::{FlowyError, FlowyResult};
+use crate::services::cell::{
+    insert_checkbox_cell, insert_date_cell, insert_number_cell, insert_select_option_cell, insert_text_cell,
+    insert_url_cell,
+};
+
 use flowy_grid_data_model::revision::{gen_row_id, CellRevision, FieldRevision, RowRevision, DEFAULT_ROW_HEIGHT};
 use indexmap::IndexMap;
 use std::collections::HashMap;
 use std::sync::Arc;
 
 pub struct RowRevisionBuilder<'a> {
+    block_id: String,
     field_rev_map: HashMap<&'a String, Arc<FieldRevision>>,
     payload: CreateRowRevisionPayload,
 }
 
 impl<'a> RowRevisionBuilder<'a> {
-    pub fn new(fields: &'a [Arc<FieldRevision>]) -> Self {
+    pub fn new(block_id: &str, fields: &'a [Arc<FieldRevision>]) -> Self {
         let field_rev_map = fields
             .iter()
             .map(|field| (&field.id, field.clone()))
@@ -25,36 +28,77 @@ impl<'a> RowRevisionBuilder<'a> {
             visibility: true,
         };
 
-        Self { field_rev_map, payload }
+        let block_id = block_id.to_string();
+
+        Self {
+            block_id,
+            field_rev_map,
+            payload,
+        }
     }
 
-    pub fn insert_cell(&mut self, field_id: &str, data: String) -> FlowyResult<()> {
+    pub fn insert_text_cell(&mut self, field_id: &str, data: String) {
         match self.field_rev_map.get(&field_id.to_owned()) {
-            None => {
-                let msg = format!("Can't find the field with id: {}", field_id);
-                Err(FlowyError::internal().context(msg))
-            }
+            None => tracing::warn!("Can't find the text field with id: {}", field_id),
             Some(field_rev) => {
-                let data = apply_cell_data_changeset(data, None, field_rev)?;
-                let cell = CellRevision::new(data);
-                self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
-                Ok(())
+                self.payload
+                    .cell_by_field_id
+                    .insert(field_id.to_owned(), insert_text_cell(data, field_rev));
             }
         }
     }
 
-    pub fn insert_select_option_cell(&mut self, field_id: &str, data: String) -> FlowyResult<()> {
+    pub fn insert_url_cell(&mut self, field_id: &str, data: String) {
         match self.field_rev_map.get(&field_id.to_owned()) {
-            None => {
-                let msg = format!("Invalid field_id: {}", field_id);
-                Err(FlowyError::internal().context(msg))
-            }
+            None => tracing::warn!("Can't find the url field with id: {}", field_id),
             Some(field_rev) => {
-                let cell_data = SelectOptionCellChangeset::from_insert(&data).to_str();
-                let data = apply_cell_data_changeset(cell_data, None, field_rev)?;
-                let cell = CellRevision::new(data);
-                self.payload.cell_by_field_id.insert(field_id.to_owned(), cell);
-                Ok(())
+                self.payload
+                    .cell_by_field_id
+                    .insert(field_id.to_owned(), insert_url_cell(data, field_rev));
+            }
+        }
+    }
+
+    pub fn insert_number_cell(&mut self, field_id: &str, num: i64) {
+        match self.field_rev_map.get(&field_id.to_owned()) {
+            None => tracing::warn!("Can't find the number field with id: {}", field_id),
+            Some(field_rev) => {
+                self.payload
+                    .cell_by_field_id
+                    .insert(field_id.to_owned(), insert_number_cell(num, field_rev));
+            }
+        }
+    }
+
+    pub fn insert_checkbox_cell(&mut self, field_id: &str, is_check: bool) {
+        match self.field_rev_map.get(&field_id.to_owned()) {
+            None => tracing::warn!("Can't find the checkbox field with id: {}", field_id),
+            Some(field_rev) => {
+                self.payload
+                    .cell_by_field_id
+                    .insert(field_id.to_owned(), insert_checkbox_cell(is_check, field_rev));
+            }
+        }
+    }
+
+    pub fn insert_date_cell(&mut self, field_id: &str, timestamp: i64) {
+        match self.field_rev_map.get(&field_id.to_owned()) {
+            None => tracing::warn!("Can't find the date field with id: {}", field_id),
+            Some(field_rev) => {
+                self.payload
+                    .cell_by_field_id
+                    .insert(field_id.to_owned(), insert_date_cell(timestamp, field_rev));
+            }
+        }
+    }
+
+    pub fn insert_select_option_cell(&mut self, field_id: &str, data: String) {
+        match self.field_rev_map.get(&field_id.to_owned()) {
+            None => tracing::warn!("Can't find the select option field with id: {}", field_id),
+            Some(field_rev) => {
+                self.payload
+                    .cell_by_field_id
+                    .insert(field_id.to_owned(), insert_select_option_cell(data, field_rev));
             }
         }
     }
@@ -71,10 +115,10 @@ impl<'a> RowRevisionBuilder<'a> {
         self
     }
 
-    pub fn build(self, block_id: &str) -> RowRevision {
+    pub fn build(self) -> RowRevision {
         RowRevision {
             id: self.payload.row_id,
-            block_id: block_id.to_owned(),
+            block_id: self.block_id,
             cells: self.payload.cell_by_field_id,
             height: self.payload.height,
             visibility: self.payload.visibility,

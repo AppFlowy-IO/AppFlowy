@@ -6,28 +6,30 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 
+import 'row_cache.dart';
+
 part 'row_action_sheet_bloc.freezed.dart';
 
 class RowActionSheetBloc
     extends Bloc<RowActionSheetEvent, RowActionSheetState> {
-  final RowService _rowService;
+  final RowFFIService _rowService;
 
-  RowActionSheetBloc({required GridRowInfo rowData})
-      : _rowService = RowService(
-          gridId: rowData.gridId,
-          blockId: rowData.blockId,
-          rowId: rowData.id,
+  RowActionSheetBloc({required RowInfo rowInfo})
+      : _rowService = RowFFIService(
+          gridId: rowInfo.gridId,
+          blockId: rowInfo.rowPB.blockId,
         ),
-        super(RowActionSheetState.initial(rowData)) {
+        super(RowActionSheetState.initial(rowInfo)) {
     on<RowActionSheetEvent>(
       (event, emit) async {
         await event.map(
           deleteRow: (_DeleteRow value) async {
-            final result = await _rowService.deleteRow();
+            final result = await _rowService.deleteRow(state.rowData.rowPB.id);
             logResult(result);
           },
           duplicateRow: (_DuplicateRow value) async {
-            final result = await _rowService.duplicateRow();
+            final result =
+                await _rowService.duplicateRow(state.rowData.rowPB.id);
             logResult(result);
           },
         );
@@ -54,11 +56,10 @@ class RowActionSheetEvent with _$RowActionSheetEvent {
 @freezed
 class RowActionSheetState with _$RowActionSheetState {
   const factory RowActionSheetState({
-    required GridRowInfo rowData,
+    required RowInfo rowData,
   }) = _RowActionSheetState;
 
-  factory RowActionSheetState.initial(GridRowInfo rowData) =>
-      RowActionSheetState(
+  factory RowActionSheetState.initial(RowInfo rowData) => RowActionSheetState(
         rowData: rowData,
       );
 }

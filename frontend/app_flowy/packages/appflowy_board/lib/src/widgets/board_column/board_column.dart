@@ -5,7 +5,7 @@ import '../../rendering/board_overlay.dart';
 import '../../utils/log.dart';
 import '../reorder_phantom/phantom_controller.dart';
 import '../reorder_flex/reorder_flex.dart';
-import '../reorder_flex/drag_target_inteceptor.dart';
+import '../reorder_flex/drag_target_interceptor.dart';
 import 'board_column_data.dart';
 
 typedef OnColumnDragStarted = void Function(int index);
@@ -22,23 +22,23 @@ typedef OnColumnDeleted = void Function(String listId, int deletedIndex);
 
 typedef OnColumnInserted = void Function(String listId, int insertedIndex);
 
-typedef BoardColumnCardBuilder = Widget Function(
+typedef AFBoardColumnCardBuilder = Widget Function(
   BuildContext context,
-  ColumnItem item,
+  AFColumnItem item,
 );
 
-typedef BoardColumnHeaderBuilder = Widget Function(
+typedef AFBoardColumnHeaderBuilder = Widget Function(
   BuildContext context,
-  BoardColumnData columnData,
+  AFBoardColumnData columnData,
 );
 
-typedef BoardColumnFooterBuilder = Widget Function(
+typedef AFBoardColumnFooterBuilder = Widget Function(
   BuildContext context,
-  BoardColumnData columnData,
+  AFBoardColumnData columnData,
 );
 
-abstract class BoardColumnDataDataSource extends ReoderFlextDataSource {
-  BoardColumnData get columnData;
+abstract class AFBoardColumnDataDataSource extends ReoderFlexDataSource {
+  AFBoardColumnData get columnData;
 
   List<String> get acceptedColumnIds;
 
@@ -46,10 +46,10 @@ abstract class BoardColumnDataDataSource extends ReoderFlextDataSource {
   String get identifier => columnData.id;
 
   @override
-  UnmodifiableListView<ColumnItem> get items => columnData.items;
+  UnmodifiableListView<AFColumnItem> get items => columnData.items;
 
   void debugPrint() {
-    String msg = '[$BoardColumnDataDataSource] $columnData data: ';
+    String msg = '[$AFBoardColumnDataDataSource] $columnData data: ';
     for (var element in items) {
       msg = '$msg$element,';
     }
@@ -58,10 +58,10 @@ abstract class BoardColumnDataDataSource extends ReoderFlextDataSource {
   }
 }
 
-/// [BoardColumnWidget] represents the column of the Board.
+/// [AFBoardColumnWidget] represents the column of the Board.
 ///
-class BoardColumnWidget extends StatefulWidget {
-  final BoardColumnDataDataSource dataSource;
+class AFBoardColumnWidget extends StatefulWidget {
+  final AFBoardColumnDataDataSource dataSource;
   final ScrollController? scrollController;
   final ReorderFlexConfig config;
 
@@ -73,11 +73,11 @@ class BoardColumnWidget extends StatefulWidget {
 
   String get columnId => dataSource.columnData.id;
 
-  final BoardColumnCardBuilder cardBuilder;
+  final AFBoardColumnCardBuilder cardBuilder;
 
-  final BoardColumnHeaderBuilder? headerBuilder;
+  final AFBoardColumnHeaderBuilder? headerBuilder;
 
-  final BoardColumnFooterBuilder? footBuilder;
+  final AFBoardColumnFooterBuilder? footBuilder;
 
   final EdgeInsets margin;
 
@@ -87,7 +87,9 @@ class BoardColumnWidget extends StatefulWidget {
 
   final Color backgroundColor;
 
-  const BoardColumnWidget({
+  final GlobalKey columnGlobalKey = GlobalKey();
+
+  AFBoardColumnWidget({
     Key? key,
     this.headerBuilder,
     this.footBuilder,
@@ -106,12 +108,12 @@ class BoardColumnWidget extends StatefulWidget {
         super(key: key);
 
   @override
-  State<BoardColumnWidget> createState() => _BoardColumnWidgetState();
+  State<AFBoardColumnWidget> createState() => _AFBoardColumnWidgetState();
 }
 
-class _BoardColumnWidgetState extends State<BoardColumnWidget> {
+class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
   final GlobalKey _columnOverlayKey =
-      GlobalKey(debugLabel: '$BoardColumnWidget overlay key');
+      GlobalKey(debugLabel: '$AFBoardColumnWidget overlay key');
 
   late BoardOverlayEntry _overlayEntry;
 
@@ -136,8 +138,8 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
           draggableTargetBuilder: PhantomDraggableBuilder(),
         );
 
-        final reorderFlex = ReorderFlex(
-          key: widget.key,
+        Widget reorderFlex = ReorderFlex(
+          key: widget.columnGlobalKey,
           scrollController: widget.scrollController,
           config: widget.config,
           onDragStarted: (index) {
@@ -159,6 +161,9 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
           interceptor: interceptor,
           children: children,
         );
+
+        // reorderFlex =
+        //     KeyedSubtree(key: widget.columnGlobalKey, child: reorderFlex);
 
         return Container(
           margin: widget.margin,
@@ -194,7 +199,7 @@ class _BoardColumnWidgetState extends State<BoardColumnWidget> {
     );
   }
 
-  Widget _buildWidget(BuildContext context, ColumnItem item) {
+  Widget _buildWidget(BuildContext context, AFColumnItem item) {
     if (item is PhantomColumnItem) {
       return PassthroughPhantomWidget(
         key: UniqueKey(),

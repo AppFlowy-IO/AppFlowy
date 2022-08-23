@@ -39,8 +39,8 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
 
   @override
   void initState() {
-    final cellContext = widget.cellControllerBuilder.build();
-    _cellBloc = getIt<TextCellBloc>(param1: cellContext);
+    final cellController = widget.cellControllerBuilder.build();
+    _cellBloc = getIt<TextCellBloc>(param1: cellController);
     _cellBloc.add(const TextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
     super.initState();
@@ -76,7 +76,7 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
 
   @override
   Future<void> dispose() async {
-    _delayOperation?.cancel();
+    _delayOperation = null;
     _cellBloc.close();
     super.dispose();
   }
@@ -85,7 +85,7 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
   Future<void> focusChanged() async {
     if (mounted) {
       _delayOperation?.cancel();
-      _delayOperation = Timer(const Duration(milliseconds: 300), () {
+      _delayOperation = Timer(const Duration(milliseconds: 30), () {
         if (_cellBloc.isClosed == false &&
             _controller.text != _cellBloc.state.content) {
           _cellBloc.add(TextCellEvent.updateText(_controller.text));

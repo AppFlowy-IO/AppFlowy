@@ -14,9 +14,9 @@ use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
 #[derive(Default)]
-pub struct NumberTypeOptionBuilder(NumberTypeOption);
+pub struct NumberTypeOptionBuilder(NumberTypeOptionPB);
 impl_into_box_type_option_builder!(NumberTypeOptionBuilder);
-impl_builder_from_json_str_and_from_bytes!(NumberTypeOptionBuilder, NumberTypeOption);
+impl_builder_from_json_str_and_from_bytes!(NumberTypeOptionBuilder, NumberTypeOptionPB);
 
 impl NumberTypeOptionBuilder {
     pub fn name(mut self, name: &str) -> Self {
@@ -52,7 +52,7 @@ impl TypeOptionBuilder for NumberTypeOptionBuilder {
 
 // Number
 #[derive(Clone, Debug, Serialize, Deserialize, ProtoBuf)]
-pub struct NumberTypeOption {
+pub struct NumberTypeOptionPB {
     #[pb(index = 1)]
     pub format: NumberFormat,
 
@@ -68,9 +68,9 @@ pub struct NumberTypeOption {
     #[pb(index = 5)]
     pub name: String,
 }
-impl_type_option!(NumberTypeOption, FieldType::Number);
+impl_type_option!(NumberTypeOptionPB, FieldType::Number);
 
-impl NumberTypeOption {
+impl NumberTypeOptionPB {
     pub fn new() -> Self {
         Self::default()
     }
@@ -102,7 +102,7 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
     s
 }
 
-impl CellDataOperation<String, String> for NumberTypeOption {
+impl CellDataOperation<String, String> for NumberTypeOptionPB {
     fn decode_cell_data(
         &self,
         cell_data: CellData<String>,
@@ -132,11 +132,11 @@ impl CellDataOperation<String, String> for NumberTypeOption {
     }
 }
 
-impl std::default::Default for NumberTypeOption {
+impl std::default::Default for NumberTypeOptionPB {
     fn default() -> Self {
         let format = NumberFormat::default();
         let symbol = format.symbol();
-        NumberTypeOption {
+        NumberTypeOptionPB {
             format,
             scale: 0,
             symbol,
