@@ -19,6 +19,7 @@ impl NodeData {
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct NodeSubTree {
+    #[serde(rename = "type")]
     pub node_type: String,
     pub attributes: NodeAttributes,
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -1,7 +1,7 @@
 use crate::core::document::position::Position;
 use crate::core::{DocumentOperation, DocumentTree, NodeAttributes, NodeSubTree};
-use std::collections::HashMap;
 use indextree::NodeId;
+use std::collections::HashMap;
 
 pub struct Transaction {
     pub operations: Vec<DocumentOperation>,
@@ -86,7 +86,7 @@ impl<'a> TransactionBuilder<'a> {
             } else {
                 break;
             }
-        };
+        }
 
         Box::new(NodeSubTree {
             node_type: node_data.node_type.clone(),

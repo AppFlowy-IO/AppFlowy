@@ -5,7 +5,10 @@ use crate::core::{NodeAttributes, NodeSubTree, TextDelta};
 #[serde(tag = "type")]
 pub enum DocumentOperation {
     #[serde(rename = "insert-operation")]
-    Insert { path: Position, nodes: Vec<Box<NodeSubTree>> },
+    Insert {
+        path: Position,
+        nodes: Vec<Box<NodeSubTree>>,
+    },
     #[serde(rename = "update-operation")]
     Update {
         path: Position,
@@ -14,7 +17,10 @@ pub enum DocumentOperation {
         old_attributes: NodeAttributes,
     },
     #[serde(rename = "delete-operation")]
-    Delete { path: Position, nodes: Vec<Box<NodeSubTree>> },
+    Delete {
+        path: Position,
+        nodes: Vec<Box<NodeSubTree>>,
+    },
     #[serde(rename = "text-edit-operation")]
     TextEdit {
         path: Position,
@@ -160,7 +166,25 @@ mod tests {
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(
             result,
-            r#"{"type":"insert-operation","path":[0,1],"nodes":[{"node_type":"text","attributes":{}}]}"#
+            r#"{"type":"insert-operation","path":[0,1],"nodes":[{"type":"text","attributes":{}}]}"#
+        );
+    }
+
+    #[test]
+    fn test_serialize_insert_sub_trees() {
+        let insert = DocumentOperation::Insert {
+            path: Position(vec![0, 1]),
+            nodes: vec![Box::new(NodeSubTree {
+                node_type: "text".into(),
+                attributes: NodeAttributes::new(),
+                delta: None,
+                children: vec![Box::new(NodeSubTree::new("text".into()))],
+            })],
+        };
+        let result = serde_json::to_string(&insert).unwrap();
+        assert_eq!(
+            result,
+            r#"{"type":"insert-operation","path":[0,1],"nodes":[{"type":"text","attributes":{},"children":[{"type":"text","attributes":{}}]}]}"#
         );
     }
 
