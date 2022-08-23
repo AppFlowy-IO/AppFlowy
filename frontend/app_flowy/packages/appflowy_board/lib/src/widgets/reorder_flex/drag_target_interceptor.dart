@@ -55,6 +55,7 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapDragTargetDelegate delegate;
+  final List<ColumnKey> columnKeys = [];
   Timer? _delayOperation;
 
   OverlappingDragTargetInterceptor({
@@ -87,12 +88,27 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
           Log.trace(
               '[$OverlappingDragTargetInterceptor] move to $dragTargetId at $index');
           delegate.moveTo(dragTargetId, dragTargetData, index);
+
+          // final columnIndex = columnKeys
+          //     .indexWhere((element) => element.columnId == dragTargetId);
+          // if (columnIndex != -1) {
+          //   final state = columnKeys[columnIndex].key.currentState;
+          //   if (state is ReorderFlexState) {
+          //     state.handleOnWillAccept(context, index);
+          //   }
+          // }
         }
       });
     }
 
     return true;
   }
+}
+
+class ColumnKey {
+  String columnId;
+  GlobalKey key;
+  ColumnKey({required this.columnId, required this.key});
 }
 
 abstract class CrossReorderFlexDragTargetDelegate {

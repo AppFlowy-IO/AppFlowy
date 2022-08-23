@@ -214,12 +214,6 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     } else {
       return 0;
     }
-
-    if (delegate.controller(dragTargetId)?.columnData.items.isEmpty ?? false) {
-      return 0;
-    } else {
-      return -1;
-    }
   }
 }
 

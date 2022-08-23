@@ -1,4 +1,3 @@
-import 'package:appflowy_board/src/utils/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -448,9 +447,9 @@ class _FakeDragTargetState<T extends DragTargetData>
     /// Start insert animation
     widget.insertAnimationController.forward(from: 0.0);
 
-    widget.eventTrigger.fakeOnDragStart((insertIndex) {
-      Log.debug("[$FakeDragTarget] on drag $insertIndex");
-    });
+    // widget.eventTrigger.fakeOnDragStart((insertIndex) {
+    //   Log.trace("[$FakeDragTarget] on drag $insertIndex");
+    // });
 
     widget.eventTrigger.fakeOnDragEnded(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {

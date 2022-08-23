@@ -132,7 +132,7 @@ class DraggingState {
   }
 
   void updateNextIndex(int index) {
-    Log.trace('$reorderFlexId updateNextIndex: $index');
+    Log.debug('$reorderFlexId updateNextIndex: $index');
     nextIndex = index;
   }
 

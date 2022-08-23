@@ -213,8 +213,8 @@ class ReorderFlexState extends State<ReorderFlex>
         shiftedIndex = dragState.calculateShiftedIndex(childIndex);
       }
 
-      // Log.trace(
-      //     'Rebuild: Column:[${dragState.id}] ${dragState.toString()}, childIndex: $childIndex shiftedIndex: $shiftedIndex');
+      Log.trace(
+          'Rebuild: Column:[${dragState.reorderFlexId}] ${dragState.toString()}, childIndex: $childIndex shiftedIndex: $shiftedIndex');
       final currentIndex = dragState.currentIndex;
       final dragPhantomIndex = dragState.phantomIndex;
 
