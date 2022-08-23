@@ -108,11 +108,6 @@ impl DocumentTree {
         let parent_node = self
             .node_at_path(&Position(parent_path.to_vec()))
             .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
-        // let mut inserted_nodes = Vec::new();
-        //
-        // for node in nodes {
-        //     inserted_nodes.push(self.arena.new_node(node.to_node_data()));
-        // }
 
         self.insert_child_at_index(parent_node, last_index, nodes.as_ref())
     }
@@ -167,10 +162,6 @@ impl DocumentTree {
             .node_at_path(path)
             .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
         let node_data = self.arena.get_mut(update_node).unwrap();
-        // let new_node = NodeData {
-        //     ..node_data.get().clone()
-        //     attributes:
-        // };
         let new_node = {
             let old_attributes = &node_data.get().attributes;
             let new_attributes = NodeAttributes::compose(&old_attributes, attributes);

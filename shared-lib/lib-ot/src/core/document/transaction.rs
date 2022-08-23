@@ -1,6 +1,7 @@
 use crate::core::document::position::Position;
 use crate::core::{DocumentOperation, DocumentTree, NodeAttributes, NodeSubTree};
 use std::collections::HashMap;
+use indextree::NodeId;
 
 pub struct Transaction {
     pub operations: Vec<DocumentOperation>,
@@ -62,20 +63,36 @@ impl<'a> TransactionBuilder<'a> {
         let mut deleted_nodes: Vec<Box<NodeSubTree>> = Vec::new();
 
         for _ in 0..length {
-            let node_data = self.document.arena.get(node).unwrap();
-            let data = node_data.get();
-            deleted_nodes.push(Box::new(NodeSubTree {
-                node_type: data.node_type.clone(),
-                attributes: data.attributes.clone(),
-                delta: data.delta.clone(),
-                children: vec![],
-            }));
+            deleted_nodes.push(self.get_deleted_nodes(node.clone()));
             node = node.following_siblings(&self.document.arena).next().unwrap();
         }
 
         self.operations.push(DocumentOperation::Delete {
             path: path.clone(),
             nodes: deleted_nodes,
+        })
+    }
+
+    fn get_deleted_nodes(&self, node_id: NodeId) -> Box<NodeSubTree> {
+        let node = self.document.arena.get(node_id.clone()).unwrap();
+        let node_data = node.get();
+        let mut children: Vec<Box<NodeSubTree>> = vec![];
+
+        let mut children_iterators = node_id.children(&self.document.arena);
+        loop {
+            let next_child = children_iterators.next();
+            if let Some(child_id) = next_child {
+                children.push(self.get_deleted_nodes(child_id));
+            } else {
+                break;
+            }
+        };
+
+        Box::new(NodeSubTree {
+            node_type: node_data.node_type.clone(),
+            attributes: node_data.attributes.clone(),
+            delta: node_data.delta.clone(),
+            children,
         })
     }
 
