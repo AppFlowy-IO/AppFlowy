@@ -181,7 +181,12 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
   final length = (selection.start.offset - selection.end.offset).abs();
   final node = editorState.service.selectionService.currentSelectedNodes.first
       as TextNode;
-  final linkText = node.getAttributeInSelection(selection, StyleKey.href);
+  final String linkText;
+  if (node.allSatisfyLinkInSelection(selection)) {
+    linkText = node.getAttributeInSelection(selection, StyleKey.href);
+  } else {
+    linkText = '';
+  }
   _linkMenuOverlay = OverlayEntry(builder: (context) {
     return Positioned(
       top: matchRect.bottom + 5.0,

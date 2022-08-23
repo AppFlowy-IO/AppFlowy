@@ -82,7 +82,14 @@ Future<void> _testUpdateTextStyleByCommandX(
   );
   var textNode = editor.nodeAtPath([1]) as TextNode;
   expect(
-      textNode.allSatisfyInSelection(matchStyle, matchValue, selection), true);
+      textNode.allSatisfyInSelection(
+        matchStyle,
+        selection,
+        (value) {
+          return value == matchValue;
+        },
+      ),
+      true);
 
   selection =
       Selection.single(path: [1], startOffset: 0, endOffset: text.length);
@@ -94,7 +101,14 @@ Future<void> _testUpdateTextStyleByCommandX(
   );
   textNode = editor.nodeAtPath([1]) as TextNode;
   expect(
-      textNode.allSatisfyInSelection(matchStyle, matchValue, selection), true);
+      textNode.allSatisfyInSelection(
+        matchStyle,
+        selection,
+        (value) {
+          return value == matchValue;
+        },
+      ),
+      true);
 
   await editor.updateSelection(selection);
   await editor.pressLogicKey(
@@ -123,9 +137,14 @@ Future<void> _testUpdateTextStyleByCommandX(
     expect(
       node.allSatisfyInSelection(
         matchStyle,
-        matchValue,
         Selection.single(
-            path: node.path, startOffset: 0, endOffset: text.length),
+          path: node.path,
+          startOffset: 0,
+          endOffset: text.length,
+        ),
+        (value) {
+          return value == matchValue;
+        },
       ),
       true,
     );

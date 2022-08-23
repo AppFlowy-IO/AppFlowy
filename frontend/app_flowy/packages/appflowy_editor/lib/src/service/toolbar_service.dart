@@ -5,7 +5,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 
-abstract class FlowyToolbarService {
+abstract class AppFlowyToolbarService {
   /// Show the toolbar widget beside the offset.
   void showInOffset(Offset offset, LayerLink layerLink);
 
@@ -31,7 +31,7 @@ class FlowyToolbar extends StatefulWidget {
 }
 
 class _FlowyToolbarState extends State<FlowyToolbar>
-    implements FlowyToolbarService {
+    implements AppFlowyToolbarService {
   OverlayEntry? _toolbarOverlay;
   final _toolbarWidgetKey = GlobalKey(debugLabel: '_toolbar_widget');
 
