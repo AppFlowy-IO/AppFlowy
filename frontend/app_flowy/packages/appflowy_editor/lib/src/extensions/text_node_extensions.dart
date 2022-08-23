@@ -56,7 +56,7 @@ extension TextNodeExtension on TextNode {
   bool allSatisfyInSelection(
     String styleKey,
     Selection selection,
-    bool Function(dynamic value) compare,
+    bool Function(dynamic value) test,
   ) {
     final ops = delta.whereType<TextInsert>();
     final startOffset =
@@ -72,7 +72,7 @@ extension TextNodeExtension on TextNode {
       if (start < endOffset && start + length > startOffset) {
         if (op.attributes == null ||
             !op.attributes!.containsKey(styleKey) ||
-            !compare(op.attributes![styleKey])) {
+            !test(op.attributes![styleKey])) {
           return false;
         }
       }
