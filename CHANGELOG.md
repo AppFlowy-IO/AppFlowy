@@ -40,7 +40,7 @@ v0.0.4 - beta.1 is pre-release
 
 New features
 - Table-view database
-   - supported column types: Text, Checbox, Single-select, Multi-select, Numbers
+   - supported column types: Text, Checkbox, Single-select, Multi-select, Numbers
    - hide / delete columns
    - insert rows
 
