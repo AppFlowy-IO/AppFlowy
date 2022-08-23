@@ -36,10 +36,10 @@ class ReorderFlexConfig {
   final double draggingWidgetOpacity = 0.3;
 
   // How long an animation to reorder an element
-  final Duration reorderAnimationDuration = const Duration(milliseconds: 250);
+  final Duration reorderAnimationDuration = const Duration(milliseconds: 300);
 
   // How long an animation to scroll to an off-screen element
-  final Duration scrollAnimationDuration = const Duration(milliseconds: 250);
+  final Duration scrollAnimationDuration = const Duration(milliseconds: 300);
 
   final bool useMoveAnimation;
 
@@ -214,7 +214,7 @@ class ReorderFlexState extends State<ReorderFlex>
       }
 
       Log.trace(
-          'Rebuild: Column:[${dragState.id}] ${dragState.toString()}, childIndex: $childIndex shiftedIndex: $shiftedIndex');
+          'Rebuild: Column:[${dragState.reorderFlexId}] ${dragState.toString()}, childIndex: $childIndex shiftedIndex: $shiftedIndex');
       final currentIndex = dragState.currentIndex;
       final dragPhantomIndex = dragState.phantomIndex;
 
@@ -330,6 +330,8 @@ class ReorderFlexState extends State<ReorderFlex>
         widget.onDragStarted?.call(draggingIndex);
       },
       onDragEnded: (dragTargetData) {
+        if (!mounted) return;
+
         Log.debug(
             "[DragTarget]: Column:[${widget.dataSource.identifier}] end dragging");
         _notifier.updateDragTargetIndex(-1);
@@ -346,21 +348,21 @@ class ReorderFlexState extends State<ReorderFlex>
         });
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
+        // Do not receive any events if the Insert item is animating.
         if (_animation.deleteController.isAnimating) {
           return false;
         }
 
         assert(widget.dataSource.items.length > dragTargetIndex);
-        if (_interceptDragTarget(
-          dragTargetData,
-          (interceptor) => interceptor.onWillAccept(
+        if (_interceptDragTarget(dragTargetData, (interceptor) {
+          interceptor.onWillAccept(
             context: builderContext,
             reorderFlexState: this,
             dragTargetData: dragTargetData,
             dragTargetId: reorderFlexItem.id,
             dragTargetIndex: dragTargetIndex,
-          ),
-        )) {
+          );
+        })) {
           return true;
         } else {
           return handleOnWillAccept(builderContext, dragTargetIndex);
@@ -435,7 +437,7 @@ class ReorderFlexState extends State<ReorderFlex>
     /// The [willAccept] will be true if the dargTarget is the widget that gets
     /// dragged and it is dragged on top of the other dragTargets.
     ///
-    Log.debug(
+    Log.trace(
         '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, dragIndex:$dragIndex, dragTargetIndex:$dragTargetIndex, count: ${widget.dataSource.items.length}');
 
     bool willAccept =
@@ -524,7 +526,7 @@ class ReorderFlexState extends State<ReorderFlex>
     // screen, then it is already on-screen.
     final double margin = widget.direction == Axis.horizontal
         ? dragState.dropAreaSize.width
-        : dragState.dropAreaSize.height;
+        : dragState.dropAreaSize.height / 2.0;
     if (_scrollController.hasClients) {
       final double scrollOffset = _scrollController.offset;
       final double topOffset = max(

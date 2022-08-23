@@ -26,13 +26,18 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     List<AFColumnItem> a = [
       TextItem("Card 1"),
       TextItem("Card 2"),
-      // RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
+      RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
       TextItem("Card 4"),
+      TextItem("Card 5"),
+      TextItem("Card 6"),
+      RichTextItem(title: "Card 7", subtitle: 'Aug 1, 2020 4:05 PM'),
+      RichTextItem(title: "Card 8", subtitle: 'Aug 1, 2020 4:05 PM'),
+      TextItem("Card 9"),
     ];
     final column1 = AFBoardColumnData(id: "To Do", items: a);
     final column2 = AFBoardColumnData(id: "In Progress", items: <AFColumnItem>[
-      // RichTextItem(title: "Card 5", subtitle: 'Aug 1, 2020 4:05 PM'),
-      // TextItem("Card 6"),
+      RichTextItem(title: "Card 10", subtitle: 'Aug 1, 2020 4:05 PM'),
+      TextItem("Card 11"),
     ]);
 
     final column3 = AFBoardColumnData(id: "Done", items: <AFColumnItem>[]);
@@ -93,7 +98,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       return Align(
         alignment: Alignment.centerLeft,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
           child: Text(item.s),
         ),
       );
