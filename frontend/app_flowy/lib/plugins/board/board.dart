@@ -20,13 +20,13 @@ class BoardPluginBuilder implements PluginBuilder {
   String get menuName => "Board";
 
   @override
-  PluginType get pluginType => DefaultPlugin.board.type();
+  PluginType get pluginType => PluginType.board;
 
   @override
   ViewDataTypePB get dataType => ViewDataTypePB.Database;
 
   @override
-  SubViewDataTypePB get subDataType => SubViewDataTypePB.Board;
+  ViewLayoutTypePB? get subDataType => ViewLayoutTypePB.Board;
 }
 
 class BoardPluginConfig implements PluginConfig {

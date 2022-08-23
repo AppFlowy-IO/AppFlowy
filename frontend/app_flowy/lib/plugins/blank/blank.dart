@@ -16,7 +16,7 @@ class BlankPluginBuilder extends PluginBuilder {
   String get menuName => "Blank";
 
   @override
-  PluginType get pluginType => DefaultPlugin.blank.type();
+  PluginType get pluginType => PluginType.blank;
 }
 
 class BlankPluginConfig implements PluginConfig {

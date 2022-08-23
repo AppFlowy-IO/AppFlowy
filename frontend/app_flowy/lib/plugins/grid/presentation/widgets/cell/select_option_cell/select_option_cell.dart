@@ -153,21 +153,25 @@ class SelectOptionWrap extends StatelessWidget {
     if (selectOptions.isEmpty && cellStyle != null) {
       child = Align(
         alignment: Alignment.centerLeft,
-        child: FlowyText.medium(cellStyle!.placeholder,
-            fontSize: 14, color: theme.shader3),
+        child: FlowyText.medium(
+          cellStyle!.placeholder,
+          fontSize: 14,
+          color: theme.shader3,
+        ),
       );
     } else {
-      final tags = selectOptions
-          .map(
-            (option) => SelectOptionTag.fromSelectOption(
-              context: context,
-              option: option,
-            ),
-          )
-          .toList();
       child = Align(
         alignment: Alignment.centerLeft,
-        child: Wrap(children: tags, spacing: 4, runSpacing: 2),
+        child: Wrap(
+          children: selectOptions
+              .map((option) => SelectOptionTag.fromOption(
+                    context: context,
+                    option: option,
+                  ))
+              .toList(),
+          spacing: 4,
+          runSpacing: 2,
+        ),
       );
     }
 
@@ -176,15 +180,14 @@ class SelectOptionWrap extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         child,
-        InkWell(
-          onTap: () {
-            onFocus?.call(true);
-            final cellContext =
-                cellControllerBuilder.build() as GridSelectOptionCellController;
-            SelectOptionCellEditor.show(
-                context, cellContext, () => onFocus?.call(false));
-          },
-        ),
+        InkWell(onTap: () {
+          onFocus?.call(true);
+          SelectOptionCellEditor.show(
+            context,
+            cellControllerBuilder.build() as GridSelectOptionCellController,
+            () => onFocus?.call(false),
+          );
+        }),
       ],
     );
   }

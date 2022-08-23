@@ -1,6 +1,8 @@
 part of 'cell_service.dart';
 
 typedef GridCellController = IGridCellController<String, String>;
+typedef GridCheckboxCellController = IGridCellController<String, String>;
+typedef GridNumberCellController = IGridCellController<String, String>;
 typedef GridSelectOptionCellController
     = IGridCellController<SelectOptionCellDataPB, String>;
 typedef GridDateCellController
@@ -58,7 +60,7 @@ class GridCellControllerBuilder {
           parser: StringCellDataParser(),
           reloadOnFieldChanged: true,
         );
-        return GridCellController(
+        return GridNumberCellController(
           cellId: _cellId,
           cellCache: _cellCache,
           cellDataLoader: cellDataLoader,
@@ -127,7 +129,7 @@ class IGridCellController<T, D> extends Equatable {
   final GridCellDataLoader<T> _cellDataLoader;
   final IGridCellDataPersistence<D> _cellDataPersistence;
 
-  late final CellListener _cellListener;
+  CellListener? _cellListener;
   ValueNotifier<T?>? _cellDataNotifier;
 
   bool isListening = false;
@@ -186,7 +188,7 @@ class IGridCellController<T, D> extends Equatable {
     /// For example:
     ///  user input: 12
     ///  cell display: $12
-    _cellListener.start(onCellChanged: (result) {
+    _cellListener?.start(onCellChanged: (result) {
       result.fold(
         (_) => _loadData(),
         (err) => Log.error(err),
@@ -240,7 +242,7 @@ class IGridCellController<T, D> extends Equatable {
         .getFieldTypeOptionData(fieldType: fieldType)
         .then((result) {
       return result.fold(
-        (data) => parser.fromBuffer(data.typeOptionData),
+        (data) => left(parser.fromBuffer(data.typeOptionData)),
         (err) => right(err),
       );
     });
@@ -289,7 +291,7 @@ class IGridCellController<T, D> extends Equatable {
       return;
     }
     _isDispose = true;
-    _cellListener.stop();
+    _cellListener?.stop();
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();
     _cellDataNotifier = null;

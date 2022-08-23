@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
 import 'package:app_flowy/startup/startup.dart';

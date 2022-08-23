@@ -98,7 +98,7 @@ class GridEvent with _$GridEvent {
   const factory GridEvent.createRow() = _CreateRow;
   const factory GridEvent.didReceiveRowUpdate(
     List<RowInfo> rows,
-    RowChangeReason listState,
+    RowsChangedReason listState,
   ) = _DidReceiveRowUpdate;
   const factory GridEvent.didReceiveFieldUpdate(
     UnmodifiableListView<FieldPB> fields,
@@ -117,7 +117,7 @@ class GridState with _$GridState {
     required GridFieldEquatable fields,
     required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
-    required RowChangeReason reason,
+    required RowsChangedReason reason,
   }) = _GridState;
 
   factory GridState.initial(String gridId) => GridState(

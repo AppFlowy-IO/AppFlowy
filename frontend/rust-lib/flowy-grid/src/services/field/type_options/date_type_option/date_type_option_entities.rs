@@ -58,12 +58,12 @@ impl std::convert::From<DateChangesetParams> for CellChangesetPB {
             date: params.date,
             time: params.time,
         };
-        let s = serde_json::to_string(&changeset).unwrap();
+        let content = serde_json::to_string(&changeset).unwrap();
         CellChangesetPB {
             grid_id: params.cell_identifier.grid_id,
             row_id: params.cell_identifier.row_id,
             field_id: params.cell_identifier.field_id,
-            content: Some(s),
+            content,
         }
     }
 }

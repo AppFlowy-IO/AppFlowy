@@ -55,7 +55,7 @@ class SelectOptionService {
     return GridEventUpdateSelectOption(payload).send();
   }
 
-  Future<Either<SelectOptionCellDataPB, FlowyError>> getOpitonContext() {
+  Future<Either<SelectOptionCellDataPB, FlowyError>> getOptionContext() {
     final payload = GridCellIdPB.create()
       ..gridId = gridId
       ..fieldId = fieldId

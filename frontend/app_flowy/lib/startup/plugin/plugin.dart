@@ -9,7 +9,7 @@ import 'package:flutter/widgets.dart';
 
 export "./src/sandbox.dart";
 
-enum DefaultPlugin {
+enum PluginType {
   editor,
   blank,
   trash,
@@ -17,24 +17,24 @@ enum DefaultPlugin {
   board,
 }
 
-extension FlowyDefaultPluginExt on DefaultPlugin {
-  int type() {
-    switch (this) {
-      case DefaultPlugin.editor:
-        return 0;
-      case DefaultPlugin.blank:
-        return 1;
-      case DefaultPlugin.trash:
-        return 2;
-      case DefaultPlugin.grid:
-        return 3;
-      case DefaultPlugin.board:
-        return 4;
-    }
-  }
-}
+// extension FlowyDefaultPluginExt on DefaultPlugin {
+//   int type() {
+//     switch (this) {
+//       case DefaultPlugin.editor:
+//         return 0;
+//       case DefaultPlugin.blank:
+//         return 1;
+//       case DefaultPlugin.trash:
+//         return 2;
+//       case DefaultPlugin.grid:
+//         return 3;
+//       case DefaultPlugin.board:
+//         return 4;
+//     }
+//   }
+// }
 
-typedef PluginType = int;
+// typedef PluginType = int;
 typedef PluginId = String;
 
 abstract class Plugin {
@@ -54,9 +54,9 @@ abstract class PluginBuilder {
 
   PluginType get pluginType;
 
-  ViewDataTypePB get dataType => ViewDataTypePB.TextBlock;
+  ViewDataTypePB get dataType => ViewDataTypePB.Text;
 
-  SubViewDataTypePB? get subDataType => null;
+  ViewLayoutTypePB? get subDataType => ViewLayoutTypePB.Document;
 }
 
 abstract class PluginConfig {

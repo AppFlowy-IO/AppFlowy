@@ -12,9 +12,6 @@ use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::*;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::client_grid::GridBuilder;
-use flowy_sync::entities::grid::{
-    CreateGridFilterParams, DeleteFilterParams, FieldChangesetParams, GridSettingChangesetParams,
-};
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use std::collections::HashMap;
@@ -36,12 +33,25 @@ pub struct GridEditorTest {
 }
 
 impl GridEditorTest {
-    pub async fn new() -> Self {
+    pub async fn new_table() -> Self {
+        Self::new(GridLayout::Table).await
+    }
+
+    pub async fn new_board() -> Self {
+        Self::new(GridLayout::Board).await
+    }
+
+    pub async fn new(layout: GridLayout) -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let build_context = make_test_grid();
         let view_data: Bytes = build_context.into();
-        let test = ViewTest::new_grid_view(&sdk, view_data.to_vec()).await;
+
+        let test = match layout {
+            GridLayout::Table => ViewTest::new_grid_view(&sdk, view_data.to_vec()).await,
+            GridLayout::Board => ViewTest::new_board_view(&sdk, view_data.to_vec()).await,
+        };
+
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
@@ -76,15 +86,14 @@ impl GridEditorTest {
     }
 
     pub async fn grid_filters(&self) -> Vec<GridFilterConfiguration> {
-        let layout_type = GridLayoutType::Table;
-        self.editor.get_grid_filter(&layout_type).await.unwrap()
+        self.editor.get_grid_filter().await.unwrap()
     }
 
     pub fn get_field_rev(&self, field_type: FieldType) -> &Arc<FieldRevision> {
         self.field_revs
             .iter()
             .filter(|field_rev| {
-                let t_field_type: FieldType = field_rev.field_type_rev.into();
+                let t_field_type: FieldType = field_rev.ty.into();
                 t_field_type == field_type
             })
             .collect::<Vec<_>>()
@@ -147,9 +156,9 @@ fn make_test_grid() -> BuildGridContext {
             FieldType::MultiSelect => {
                 // MultiSelect
                 let multi_select = MultiSelectTypeOptionBuilder::default()
-                    .option(SelectOptionPB::new(GOOGLE))
-                    .option(SelectOptionPB::new(FACEBOOK))
-                    .option(SelectOptionPB::new(TWITTER));
+                    .add_option(SelectOptionPB::new(GOOGLE))
+                    .add_option(SelectOptionPB::new(FACEBOOK))
+                    .add_option(SelectOptionPB::new(TWITTER));
                 let multi_select_field = FieldBuilder::new(multi_select)
                     .name("Platform")
                     .visibility(true)

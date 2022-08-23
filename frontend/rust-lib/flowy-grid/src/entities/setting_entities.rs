@@ -1,12 +1,12 @@
 use crate::entities::{
-    CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, CreateGridSortPayloadPB, DeleteFilterPayloadPB,
-    DeleteGroupPayloadPB, RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RepeatedGridSortPB,
+    CreatGroupParams, CreateFilterParams, CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, DeleteFilterParams,
+    DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, RepeatedGridConfigurationFilterPB,
+    RepeatedGridGroupConfigurationPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::GridLayoutRevision;
-use flowy_sync::entities::grid::GridSettingChangesetParams;
+use flowy_grid_data_model::revision::LayoutRevision;
 use std::collections::HashMap;
 use std::convert::TryInto;
 use strum::IntoEnumIterator;
@@ -19,28 +19,25 @@ pub struct GridSettingPB {
     pub layouts: Vec<GridLayoutPB>,
 
     #[pb(index = 2)]
-    pub current_layout_type: GridLayoutType,
+    pub current_layout_type: GridLayout,
 
     #[pb(index = 3)]
     pub filter_configuration_by_field_id: HashMap<String, RepeatedGridConfigurationFilterPB>,
 
     #[pb(index = 4)]
     pub group_configuration_by_field_id: HashMap<String, RepeatedGridGroupConfigurationPB>,
-
-    #[pb(index = 5)]
-    pub sorts_by_field_id: HashMap<String, RepeatedGridSortPB>,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct GridLayoutPB {
     #[pb(index = 1)]
-    ty: GridLayoutType,
+    ty: GridLayout,
 }
 
 impl GridLayoutPB {
     pub fn all() -> Vec<GridLayoutPB> {
         let mut layouts = vec![];
-        for layout_ty in GridLayoutType::iter() {
+        for layout_ty in GridLayout::iter() {
             layouts.push(GridLayoutPB { ty: layout_ty })
         }
 
@@ -50,31 +47,31 @@ impl GridLayoutPB {
 
 #[derive(Debug, Clone, PartialEq, Eq, ProtoBuf_Enum, EnumIter)]
 #[repr(u8)]
-pub enum GridLayoutType {
+pub enum GridLayout {
     Table = 0,
     Board = 1,
 }
 
-impl std::default::Default for GridLayoutType {
+impl std::default::Default for GridLayout {
     fn default() -> Self {
-        GridLayoutType::Table
+        GridLayout::Table
     }
 }
 
-impl std::convert::From<GridLayoutRevision> for GridLayoutType {
-    fn from(rev: GridLayoutRevision) -> Self {
+impl std::convert::From<LayoutRevision> for GridLayout {
+    fn from(rev: LayoutRevision) -> Self {
         match rev {
-            GridLayoutRevision::Table => GridLayoutType::Table,
-            GridLayoutRevision::Board => GridLayoutType::Board,
+            LayoutRevision::Table => GridLayout::Table,
+            LayoutRevision::Board => GridLayout::Board,
         }
     }
 }
 
-impl std::convert::From<GridLayoutType> for GridLayoutRevision {
-    fn from(layout: GridLayoutType) -> Self {
+impl std::convert::From<GridLayout> for LayoutRevision {
+    fn from(layout: GridLayout) -> Self {
         match layout {
-            GridLayoutType::Table => GridLayoutRevision::Table,
-            GridLayoutType::Board => GridLayoutRevision::Board,
+            GridLayout::Table => LayoutRevision::Table,
+            GridLayout::Board => LayoutRevision::Board,
         }
     }
 }
@@ -85,7 +82,7 @@ pub struct GridSettingChangesetPayloadPB {
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub layout_type: GridLayoutType,
+    pub layout_type: GridLayout,
 
     #[pb(index = 3, one_of)]
     pub insert_filter: Option<CreateGridFilterPayloadPB>,
@@ -98,12 +95,6 @@ pub struct GridSettingChangesetPayloadPB {
 
     #[pb(index = 6, one_of)]
     pub delete_group: Option<DeleteGroupPayloadPB>,
-
-    #[pb(index = 7, one_of)]
-    pub insert_sort: Option<CreateGridSortPayloadPB>,
-
-    #[pb(index = 8, one_of)]
-    pub delete_sort: Option<String>,
 }
 
 impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
@@ -134,16 +125,6 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
             None => None,
         };
 
-        let insert_sort = match self.insert_sort {
-            None => None,
-            Some(payload) => Some(payload.try_into()?),
-        };
-
-        let delete_sort = match self.delete_sort {
-            None => None,
-            Some(filter_id) => Some(NotEmptyStr::parse(filter_id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
-        };
-
         Ok(GridSettingChangesetParams {
             grid_id: view_id,
             layout_type: self.layout_type.into(),
@@ -151,8 +132,21 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
             delete_filter,
             insert_group,
             delete_group,
-            insert_sort,
-            delete_sort,
         })
+    }
+}
+
+pub struct GridSettingChangesetParams {
+    pub grid_id: String,
+    pub layout_type: LayoutRevision,
+    pub insert_filter: Option<CreateFilterParams>,
+    pub delete_filter: Option<DeleteFilterParams>,
+    pub insert_group: Option<CreatGroupParams>,
+    pub delete_group: Option<DeleteGroupParams>,
+}
+
+impl GridSettingChangesetParams {
+    pub fn is_filter_changed(&self) -> bool {
+        self.insert_filter.is_some() || self.delete_filter.is_some()
     }
 }

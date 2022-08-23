@@ -1,12 +1,23 @@
 // ignore_for_file: unused_field
 
+import 'dart:collection';
+
+import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_detail.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../grid/application/row/row_cache.dart';
 import '../application/board_bloc.dart';
 import 'card/card.dart';
+import 'card/card_cell_builder.dart';
 
 class BoardPage extends StatelessWidget {
   final ViewPB view;
@@ -49,12 +60,14 @@ class BoardContent extends StatelessWidget {
         return Container(
           color: Colors.white,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: AFBoard(
-              dataController: context.read<BoardBloc>().boardDataController,
+              // key: UniqueKey(),
+              scrollController: ScrollController(),
+              dataController: context.read<BoardBloc>().afBoardDataController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
-              cardBuilder: _buildCard,
+              cardBuilder: (_, data) => _buildCard(context, data),
               columnConstraints: const BoxConstraints.tightFor(width: 240),
               config: AFBoardConfig(
                 columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -79,19 +92,75 @@ class BoardContent extends StatelessWidget {
 
   Widget _buildFooter(BuildContext context, AFBoardColumnData columnData) {
     return AppFlowyColumnFooter(
-      icon: const Icon(Icons.add, size: 20),
-      title: const Text('New'),
-      height: 50,
-      margin: config.columnItemPadding,
-    );
+        icon: const Icon(Icons.add, size: 20),
+        title: const Text('New'),
+        height: 50,
+        margin: config.columnItemPadding,
+        onAddButtonClick: () {
+          context.read<BoardBloc>().add(BoardEvent.createRow(columnData.id));
+        });
   }
 
   Widget _buildCard(BuildContext context, AFColumnItem item) {
-    final rowInfo = (item as BoardColumnItem).row;
+    final rowPB = (item as BoardColumnItem).row;
+    final rowCache = context.read<BoardBloc>().getRowCache(rowPB.blockId);
+
+    /// Return placeholder widget if the rowCache is null.
+    if (rowCache == null) return SizedBox(key: ObjectKey(item));
+
+    final fieldCache = context.read<BoardBloc>().fieldCache;
+    final gridId = context.read<BoardBloc>().gridId;
+    final cardController = CardDataController(
+      fieldCache: fieldCache,
+      rowCache: rowCache,
+      rowPB: rowPB,
+    );
+
+    final cellBuilder = BoardCellBuilder(cardController);
+    final isEditing = context.read<BoardBloc>().state.editingRow.fold(
+          () => false,
+          (editingRow) => editingRow.id == rowPB.id,
+        );
+
     return AppFlowyColumnItemCard(
       key: ObjectKey(item),
-      child: BoardCard(rowInfo: rowInfo),
+      child: BoardCard(
+        gridId: gridId,
+        isEditing: isEditing,
+        cellBuilder: cellBuilder,
+        dataController: cardController,
+        onEditEditing: (rowId) {
+          context.read<BoardBloc>().add(BoardEvent.endEditRow(rowId));
+        },
+        openCard: (context) => _openCard(
+          gridId,
+          fieldCache,
+          rowPB,
+          rowCache,
+          context,
+        ),
+      ),
     );
+  }
+
+  void _openCard(String gridId, GridFieldCache fieldCache, RowPB rowPB,
+      GridRowCache rowCache, BuildContext context) {
+    final rowInfo = RowInfo(
+      gridId: gridId,
+      fields: UnmodifiableListView(fieldCache.fields),
+      rowPB: rowPB,
+    );
+
+    final dataController = GridRowDataController(
+      rowInfo: rowInfo,
+      fieldCache: fieldCache,
+      rowCache: rowCache,
+    );
+
+    RowDetailPage(
+      cellBuilder: GridCellBuilder(delegate: dataController),
+      dataController: dataController,
+    ).show(context);
   }
 }
 

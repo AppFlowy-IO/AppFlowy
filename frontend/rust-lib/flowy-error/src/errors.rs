@@ -66,6 +66,7 @@ impl FlowyError {
     static_flowy_error!(user_not_exist, ErrorCode::UserNotExist);
     static_flowy_error!(text_too_long, ErrorCode::TextTooLong);
     static_flowy_error!(invalid_data, ErrorCode::InvalidData);
+    static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {
@@ -93,6 +94,8 @@ impl fmt::Display for FlowyError {
 impl lib_dispatch::Error for FlowyError {
     fn as_response(&self) -> EventResponse {
         let bytes: Bytes = self.clone().try_into().unwrap();
+
+        println!("Serialize FlowyError: {:?} to event response", self);
         ResponseBuilder::Err().data(bytes).build()
     }
 }

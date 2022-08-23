@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
+import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
@@ -13,32 +15,51 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:collection';
 
 import 'board_data_controller.dart';
+import 'group_controller.dart';
 
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final BoardDataController _dataController;
-  late final AFBoardDataController boardDataController;
+  late final AFBoardDataController afBoardDataController;
+  final MoveRowFFIService _rowService;
+  LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap.new();
+
+  GridFieldCache get fieldCache => _dataController.fieldCache;
+  String get gridId => _dataController.gridId;
 
   BoardBloc({required ViewPB view})
-      : _dataController = BoardDataController(view: view),
+      : _rowService = MoveRowFFIService(gridId: view.id),
+        _dataController = BoardDataController(view: view),
         super(BoardState.initial(view.id)) {
-    boardDataController = AFBoardDataController(
+    afBoardDataController = AFBoardDataController(
       onMoveColumn: (
+        fromColumnId,
         fromIndex,
+        toColumnId,
         toIndex,
-      ) {},
+      ) {
+        _moveGroup(fromColumnId, toColumnId);
+      },
       onMoveColumnItem: (
         columnId,
         fromIndex,
         toIndex,
-      ) {},
+      ) {
+        final fromRow = groupControllers[columnId]?.rowAtIndex(fromIndex);
+        final toRow = groupControllers[columnId]?.rowAtIndex(toIndex);
+        _moveRow(fromRow, columnId, toRow);
+      },
       onMoveColumnItemToColumn: (
         fromColumnId,
         fromIndex,
         toColumnId,
         toIndex,
-      ) {},
+      ) {
+        final fromRow = groupControllers[fromColumnId]?.rowAtIndex(fromIndex);
+        final toRow = groupControllers[toColumnId]?.rowAtIndex(toIndex);
+        _moveRow(fromRow, toColumnId, toRow);
+      },
     );
 
     on<BoardEvent>(
@@ -48,27 +69,84 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             _startListening();
             await _loadGrid(emit);
           },
-          createRow: () {
-            _dataController.createRow();
+          createRow: (groupId) async {
+            final result = await _dataController.createBoardCard(groupId);
+            result.fold(
+              (rowPB) {
+                emit(state.copyWith(editingRow: some(rowPB)));
+              },
+              (err) => Log.error(err),
+            );
+          },
+          endEditRow: (rowId) {
+            assert(state.editingRow.isSome());
+            state.editingRow.fold(() => null, (row) {
+              assert(row.id == rowId);
+              emit(state.copyWith(editingRow: none()));
+            });
           },
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
-          didReceiveGroups: (List<GroupPB> groups) {
-            emit(state.copyWith(groups: groups));
+          didReceiveRows: (List<RowInfo> rowInfos) {
+            emit(state.copyWith(rowInfos: rowInfos));
+          },
+          didReceiveError: (FlowyError error) {
+            emit(state.copyWith(noneOrError: some(error)));
           },
         );
       },
     );
   }
 
+  void _moveRow(RowPB? fromRow, String columnId, RowPB? toRow) {
+    if (fromRow != null) {
+      _rowService
+          .moveGroupRow(
+        fromRowId: fromRow.id,
+        toGroupId: columnId,
+        toRowId: toRow?.id,
+      )
+          .then((result) {
+        result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
+      });
+    }
+  }
+
+  void _moveGroup(String fromColumnId, String toColumnId) {
+    _rowService
+        .moveGroup(
+      fromGroupId: fromColumnId,
+      toGroupId: toColumnId,
+    )
+        .then((result) {
+      result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
+    });
+  }
+
   @override
   Future<void> close() async {
     await _dataController.dispose();
+    for (final controller in groupControllers.values) {
+      controller.dispose();
+    }
     return super.close();
   }
 
-  GridRowCache? getRowCache(String blockId, String rowId) {
+  void initializeGroups(List<GroupPB> groups) {
+    for (final group in groups) {
+      final delegate = GroupControllerDelegateImpl(afBoardDataController);
+      final controller = GroupController(
+        gridId: state.gridId,
+        group: group,
+        delegate: delegate,
+      );
+      controller.startListening();
+      groupControllers[controller.group.groupId] = (controller);
+    }
+  }
+
+  GridRowCache? getRowCache(String blockId) {
     final GridBlockCache? blockCache = _dataController.blocks[blockId];
     return blockCache?.rowCache;
   }
@@ -80,7 +158,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           add(BoardEvent.didReceiveGridUpdate(grid));
         }
       },
-      onGroupChanged: (groups) {
+      didLoadGroups: (groups) {
         List<AFBoardColumnData> columns = groups.map((group) {
           return AFBoardColumnData(
             id: group.groupId,
@@ -90,7 +168,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           );
         }).toList();
 
-        boardDataController.addColumns(columns);
+        afBoardDataController.addColumns(columns);
+        initializeGroups(groups);
+      },
+      onRowsChanged: (List<RowInfo> rowInfos, RowsChangedReason reason) {
+        add(BoardEvent.didReceiveRows(rowInfos));
       },
       onError: (err) {
         Log.error(err);
@@ -98,18 +180,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  List<BoardColumnItem> _buildRows(List<RowPB> rows) {
-    return rows.map((row) {
-      final rowInfo = RowInfo(
-        gridId: _dataController.gridId,
-        blockId: row.blockId,
-        id: row.id,
-        fields: _dataController.fieldCache.unmodifiableFields,
-        height: row.height.toDouble(),
-        rawRow: row,
-      );
-      return BoardColumnItem(row: rowInfo);
+  List<AFColumnItem> _buildRows(List<RowPB> rows) {
+    final items = rows.map((row) {
+      return BoardColumnItem(row: row);
     }).toList();
+
+    return <AFColumnItem>[...items];
   }
 
   Future<void> _loadGrid(Emitter<BoardState> emit) async {
@@ -128,9 +204,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 @freezed
 class BoardEvent with _$BoardEvent {
   const factory BoardEvent.initial() = InitialGrid;
-  const factory BoardEvent.createRow() = _CreateRow;
-  const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
-      _DidReceiveGroup;
+  const factory BoardEvent.createRow(String groupId) = _CreateRow;
+  const factory BoardEvent.endEditRow(String rowId) = _EndEditRow;
+  const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
+  const factory BoardEvent.didReceiveRows(List<RowInfo> rowInfos) =
+      _DidReceiveRows;
   const factory BoardEvent.didReceiveGridUpdate(
     GridPB grid,
   ) = _DidReceiveGridUpdate;
@@ -141,16 +219,18 @@ class BoardState with _$BoardState {
   const factory BoardState({
     required String gridId,
     required Option<GridPB> grid,
-    required List<GroupPB> groups,
+    required Option<RowPB> editingRow,
     required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
+    required Option<FlowyError> noneOrError,
   }) = _BoardState;
 
   factory BoardState.initial(String gridId) => BoardState(
         rowInfos: [],
-        groups: [],
         grid: none(),
         gridId: gridId,
+        editingRow: none(),
+        noneOrError: none(),
         loadingState: const _Loading(),
       );
 }
@@ -186,10 +266,41 @@ class GridFieldEquatable extends Equatable {
 }
 
 class BoardColumnItem extends AFColumnItem {
-  final RowInfo row;
+  final RowPB row;
 
   BoardColumnItem({required this.row});
 
   @override
   String get id => row.id;
+}
+
+class CreateCardItem extends AFColumnItem {
+  @override
+  String get id => '$CreateCardItem';
+}
+
+class GroupControllerDelegateImpl extends GroupControllerDelegate {
+  final AFBoardDataController controller;
+
+  GroupControllerDelegateImpl(this.controller);
+
+  @override
+  void insertRow(String groupId, RowPB row, int? index) {
+    final item = BoardColumnItem(row: row);
+    if (index != null) {
+      controller.insertColumnItem(groupId, index, item);
+    } else {
+      controller.addColumnItem(groupId, item);
+    }
+  }
+
+  @override
+  void removeRow(String groupId, String rowId) {
+    controller.removeColumnItem(groupId, rowId);
+  }
+
+  @override
+  void updateRow(String groupId, RowPB row) {
+    //
+  }
 }

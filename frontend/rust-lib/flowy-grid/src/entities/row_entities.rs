@@ -1,3 +1,4 @@
+use crate::entities::GridLayout;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -46,7 +47,7 @@ pub struct BlockRowIdPB {
 }
 
 #[derive(ProtoBuf, Default)]
-pub struct CreateRowPayloadPB {
+pub struct CreateTableRowPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
@@ -58,16 +59,21 @@ pub struct CreateRowPayloadPB {
 pub struct CreateRowParams {
     pub grid_id: String,
     pub start_row_id: Option<String>,
+    pub group_id: Option<String>,
+    pub layout: GridLayout,
 }
 
-impl TryInto<CreateRowParams> for CreateRowPayloadPB {
+impl TryInto<CreateRowParams> for CreateTableRowPayloadPB {
     type Error = ErrorCode;
 
     fn try_into(self) -> Result<CreateRowParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
+
         Ok(CreateRowParams {
             grid_id: grid_id.0,
             start_row_id: self.start_row_id,
+            group_id: None,
+            layout: GridLayout::Table,
         })
     }
 }

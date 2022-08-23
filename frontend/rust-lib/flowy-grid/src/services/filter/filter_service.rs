@@ -1,5 +1,10 @@
+#![allow(clippy::all)]
+#![allow(unused_attributes)]
+#![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_results)]
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{FieldType, GridBlockChangesetPB};
+use crate::entities::{FieldType, GridBlockChangesetPB, GridSettingChangesetParams};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::{
@@ -15,15 +20,16 @@ use crate::services::tasks::{FilterTaskContext, Task, TaskContent};
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{CellRevision, FieldId, FieldRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
-use flowy_sync::entities::grid::GridSettingChangesetParams;
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub(crate) struct GridFilterService {
+    #[allow(dead_code)]
     scheduler: Arc<dyn GridServiceTaskScheduler>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
+    #[allow(dead_code)]
     block_manager: Arc<GridBlockManager>,
     filter_cache: Arc<FilterCache>,
     filter_result_cache: Arc<FilterResultCache>,
@@ -171,7 +177,7 @@ fn filter_cell(
     cell_rev: &CellRevision,
 ) -> Option<()> {
     let field_rev = field_revs.get(field_id)?;
-    let field_type = FieldType::from(field_rev.field_type_rev);
+    let field_type = FieldType::from(field_rev.ty);
     let field_type_rev = field_type.clone().into();
     let filter_id = FilterId {
         field_id: field_id.to_owned(),

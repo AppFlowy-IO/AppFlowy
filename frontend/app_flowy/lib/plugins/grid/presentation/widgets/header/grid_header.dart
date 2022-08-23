@@ -156,7 +156,7 @@ class CreateFieldButton extends StatelessWidget {
 
     return FlowyButton(
       text: const FlowyText.medium('New column', fontSize: 12),
-      hoverColor: theme.hover,
+      hoverColor: theme.shader6,
       onTap: () => FieldEditor(
         gridId: gridId,
         fieldName: "",

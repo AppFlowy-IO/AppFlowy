@@ -26,18 +26,14 @@ class AppService {
     required String desc,
     required ViewDataTypePB dataType,
     required PluginType pluginType,
-    SubViewDataTypePB? subDataType,
+    required ViewLayoutTypePB layout,
   }) {
     var payload = CreateViewPayloadPB.create()
       ..belongToId = appId
       ..name = name
       ..desc = desc
       ..dataType = dataType
-      ..pluginType = pluginType;
-
-    if (subDataType != null) {
-      payload.subDataType = subDataType;
-    }
+      ..layout = layout;
 
     return FolderEventCreateView(payload).send();
   }

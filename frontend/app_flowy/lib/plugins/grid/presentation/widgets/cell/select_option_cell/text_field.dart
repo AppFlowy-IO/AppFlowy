@@ -49,7 +49,8 @@ class SelectOptionTextField extends StatelessWidget {
       initialTags: selectedOptionMap.keys.toList(),
       focusNode: _focusNode,
       textSeparators: const [' ', ','],
-      inputfieldBuilder: (BuildContext context, editController, focusNode, error, onChanged, onSubmitted) {
+      inputfieldBuilder: (BuildContext context, editController, focusNode,
+          error, onChanged, onSubmitted) {
         return ((context, sc, tags, onTagDelegate) {
           return TextField(
             autofocus: true,
@@ -99,7 +100,8 @@ class SelectOptionTextField extends StatelessWidget {
     }
 
     final children = selectedOptionMap.values
-        .map((option) => SelectOptionTag.fromSelectOption(context: context, option: option))
+        .map((option) =>
+            SelectOptionTag.fromOption(context: context, option: option))
         .toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),

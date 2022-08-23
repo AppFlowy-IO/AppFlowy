@@ -97,7 +97,7 @@ pub struct MultiSelectTypeOptionBuilder(MultiSelectTypeOptionPB);
 impl_into_box_type_option_builder!(MultiSelectTypeOptionBuilder);
 impl_builder_from_json_str_and_from_bytes!(MultiSelectTypeOptionBuilder, MultiSelectTypeOptionPB);
 impl MultiSelectTypeOptionBuilder {
-    pub fn option(mut self, opt: SelectOptionPB) -> Self {
+    pub fn add_option(mut self, opt: SelectOptionPB) -> Self {
         self.0.options.push(opt);
         self
     }
@@ -127,9 +127,9 @@ mod tests {
         let facebook_option = SelectOptionPB::new("Facebook");
         let twitter_option = SelectOptionPB::new("Twitter");
         let multi_select = MultiSelectTypeOptionBuilder::default()
-            .option(google_option.clone())
-            .option(facebook_option.clone())
-            .option(twitter_option);
+            .add_option(google_option.clone())
+            .add_option(facebook_option.clone())
+            .add_option(twitter_option);
 
         let field_rev = FieldBuilder::new(multi_select)
             .name("Platform")
@@ -174,7 +174,7 @@ mod tests {
         field_rev: &FieldRevision,
         expected: Vec<SelectOptionPB>,
     ) {
-        let field_type: FieldType = field_rev.field_type_rev.into();
+        let field_type: FieldType = field_rev.ty.into();
         assert_eq!(
             expected,
             type_option

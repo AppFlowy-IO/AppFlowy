@@ -12,7 +12,7 @@ abstract class AFColumnItem extends ReoderFlexItem {
   String toString() => id;
 }
 
-/// [BoardColumnDataController] is used to handle the [AFBoardColumnData].
+/// [AFBoardColumnDataController] is used to handle the [AFBoardColumnData].
 /// * Remove an item by calling [removeAt] method.
 /// * Move item to another position by calling [move] method.
 /// * Insert item to index by calling [insert] method
@@ -20,10 +20,10 @@ abstract class AFColumnItem extends ReoderFlexItem {
 ///
 /// All there operations will notify listeners by default.
 ///
-class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
+class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
   final AFBoardColumnData columnData;
 
-  BoardColumnDataController({
+  AFBoardColumnDataController({
     required this.columnData,
   });
 
@@ -42,7 +42,8 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
   AFColumnItem removeAt(int index, {bool notify = true}) {
     assert(index >= 0);
 
-    Log.debug('[$BoardColumnDataController] $columnData remove item at $index');
+    Log.debug(
+        '[$AFBoardColumnDataController] $columnData remove item at $index');
     final item = columnData._items.removeAt(index);
     if (notify) {
       notifyListeners();
@@ -50,8 +51,11 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
     return item;
   }
 
-  int removeWhere(bool Function(AFColumnItem) condition) {
-    return items.indexWhere(condition);
+  void removeWhere(bool Function(AFColumnItem) condition) {
+    final index = items.indexWhere(condition);
+    if (index != -1) {
+      removeAt(index);
+    }
   }
 
   /// Move the item from [fromIndex] to [toIndex]. It will do nothing if the
@@ -64,7 +68,7 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
       return false;
     }
     Log.debug(
-        '[$BoardColumnDataController] $columnData move item from $fromIndex to $toIndex');
+        '[$AFBoardColumnDataController] $columnData move item from $fromIndex to $toIndex');
     final item = columnData._items.removeAt(fromIndex);
     columnData._items.insert(toIndex, item);
     notifyListeners();
@@ -78,37 +82,50 @@ class BoardColumnDataController extends ChangeNotifier with EquatableMixin {
   bool insert(int index, AFColumnItem item, {bool notify = true}) {
     assert(index >= 0);
     Log.debug(
-        '[$BoardColumnDataController] $columnData insert $item at $index');
+        '[$AFBoardColumnDataController] $columnData insert $item at $index');
 
-    if (columnData._items.length > index) {
-      columnData._items.insert(index, item);
+    if (_containsItem(item)) {
+      return false;
     } else {
-      columnData._items.add(item);
-    }
+      if (columnData._items.length > index) {
+        columnData._items.insert(index, item);
+      } else {
+        columnData._items.add(item);
+      }
 
-    if (notify) notifyListeners();
-    return true;
+      if (notify) notifyListeners();
+      return true;
+    }
   }
 
   bool add(AFColumnItem item, {bool notify = true}) {
-    columnData._items.add(item);
-    if (notify) notifyListeners();
-    return true;
+    if (_containsItem(item)) {
+      return false;
+    } else {
+      columnData._items.add(item);
+      if (notify) notifyListeners();
+      return true;
+    }
   }
 
   /// Replace the item at index with the [newItem].
   void replace(int index, AFColumnItem newItem) {
     if (columnData._items.isEmpty) {
       columnData._items.add(newItem);
-      Log.debug('[$BoardColumnDataController] $columnData add $newItem');
+      Log.debug('[$AFBoardColumnDataController] $columnData add $newItem');
     } else {
       final removedItem = columnData._items.removeAt(index);
       columnData._items.insert(index, newItem);
       Log.debug(
-          '[$BoardColumnDataController] $columnData replace $removedItem with $newItem at $index');
+          '[$AFBoardColumnDataController] $columnData replace $removedItem with $newItem at $index');
     }
 
     notifyListeners();
+  }
+
+  bool _containsItem(AFColumnItem item) {
+    return columnData._items.indexWhere((element) => element.id == item.id) !=
+        -1;
   }
 }
 
@@ -128,7 +145,8 @@ class AFBoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
   }) : _items = items;
 
   /// Returns the readonly List<ColumnItem>
-  UnmodifiableListView<AFColumnItem> get items => UnmodifiableListView(_items);
+  UnmodifiableListView<AFColumnItem> get items =>
+      UnmodifiableListView([..._items]);
 
   @override
   List<Object?> get props => [id, ..._items];

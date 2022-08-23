@@ -52,7 +52,7 @@ class _GridRowWidgetState extends State<GridRowWidget> {
       value: _rowBloc,
       child: _RowEnterRegion(
         child: BlocBuilder<RowBloc, RowState>(
-          buildWhen: (p, c) => p.rowInfo.height != c.rowInfo.height,
+          buildWhen: (p, c) => p.rowInfo.rowPB.height != c.rowInfo.rowPB.height,
           builder: (context, state) {
             final children = [
               const _RowLeading(),
@@ -164,7 +164,7 @@ class RowContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<RowBloc, RowState>(
       buildWhen: (previous, current) =>
-          !listEquals(previous.snapshots, current.snapshots),
+          !listEquals(previous.cells, current.cells),
       builder: (context, state) {
         return IntrinsicHeight(
             child: Row(
@@ -181,28 +181,27 @@ class RowContent extends StatelessWidget {
     return gridCellMap.values.map(
       (cellId) {
         final GridCellWidget child = builder.build(cellId);
-        accessoryBuilder(GridCellAccessoryBuildContext buildContext) {
-          final builder = child.accessoryBuilder;
-          List<GridCellAccessory> accessories = [];
-          if (cellId.field.isPrimary) {
-            accessories.add(PrimaryCellAccessory(
-              onTapCallback: onExpand,
-              isCellEditing: buildContext.isCellEditing,
-            ));
-          }
-
-          if (builder != null) {
-            accessories.addAll(builder(buildContext));
-          }
-          return accessories;
-        }
 
         return CellContainer(
           width: cellId.field.width.toDouble(),
           child: child,
           rowStateNotifier:
               Provider.of<RegionStateNotifier>(context, listen: false),
-          accessoryBuilder: accessoryBuilder,
+          accessoryBuilder: (buildContext) {
+            final builder = child.accessoryBuilder;
+            List<GridCellAccessory> accessories = [];
+            if (cellId.field.isPrimary) {
+              accessories.add(PrimaryCellAccessory(
+                onTapCallback: onExpand,
+                isCellEditing: buildContext.isCellEditing,
+              ));
+            }
+
+            if (builder != null) {
+              accessories.addAll(builder(buildContext));
+            }
+            return accessories;
+          },
         );
       },
     ).toList();

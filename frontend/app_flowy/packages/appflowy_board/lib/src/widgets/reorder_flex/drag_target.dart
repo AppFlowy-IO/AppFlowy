@@ -13,14 +13,14 @@ abstract class ReorderFlexDraggableTargetBuilder {
     Widget child,
     DragTargetOnStarted onDragStarted,
     DragTargetOnEnded<T> onDragEnded,
-    DragTargetWillAccpet<T> onWillAccept,
+    DragTargetWillAccepted<T> onWillAccept,
     AnimationController insertAnimationController,
     AnimationController deleteAnimationController,
   );
 }
 
 ///
-typedef DragTargetWillAccpet<T extends DragTargetData> = bool Function(
+typedef DragTargetWillAccepted<T extends DragTargetData> = bool Function(
     T dragTargetData);
 
 ///
@@ -51,7 +51,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   ///
   /// [toAccept] represents the dragTarget index, which is the value passed in
   /// when creating the [ReorderDragTarget].
-  final DragTargetWillAccpet<T> onWillAccept;
+  final DragTargetWillAccepted<T> onWillAccept;
 
   /// Called when an acceptable piece of data was dropped over this drag target.
   ///
@@ -228,7 +228,7 @@ class DragTargetAnimation {
         value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 10));
   }
 
-  void startDargging() {
+  void startDragging() {
     entranceController.value = 1.0;
   }
 
@@ -386,7 +386,7 @@ class FakeDragTarget<T extends DragTargetData> extends StatefulWidget {
   final FakeDragTargetEventData eventData;
   final DragTargetOnStarted onDragStarted;
   final DragTargetOnEnded<T> onDragEnded;
-  final DragTargetWillAccpet<T> onWillAccept;
+  final DragTargetWillAccepted<T> onWillAccept;
   final Widget child;
   final AnimationController insertAnimationController;
   final AnimationController deleteAnimationController;

@@ -202,7 +202,7 @@ impl FolderPad {
 
     #[tracing::instrument(level = "trace", skip(self), fields(view_name=%view_rev.name), err)]
     pub fn create_view(&mut self, view_rev: ViewRevision) -> CollaborateResult<Option<FolderChangeset>> {
-        let app_id = view_rev.belong_to_id.clone();
+        let app_id = view_rev.app_id.clone();
         self.with_app(&app_id, move |app| {
             if app.belongings.contains(&view_rev) {
                 tracing::warn!("[RootFolder]: Duplicate view");
@@ -243,7 +243,7 @@ impl FolderPad {
         modified_time: i64,
     ) -> CollaborateResult<Option<FolderChangeset>> {
         let view = self.read_view(view_id)?;
-        self.with_view(&view.belong_to_id, view_id, |view| {
+        self.with_view(&view.app_id, view_id, |view| {
             if let Some(name) = name {
                 view.name = name;
             }
@@ -260,7 +260,7 @@ impl FolderPad {
     #[tracing::instrument(level = "trace", skip(self), err)]
     pub fn delete_view(&mut self, view_id: &str) -> CollaborateResult<Option<FolderChangeset>> {
         let view = self.read_view(view_id)?;
-        self.with_app(&view.belong_to_id, |app| {
+        self.with_app(&view.app_id, |app| {
             app.belongings.retain(|view| view.id != view_id);
             Ok(Some(()))
         })
@@ -269,7 +269,7 @@ impl FolderPad {
     #[tracing::instrument(level = "trace", skip(self), err)]
     pub fn move_view(&mut self, view_id: &str, from: usize, to: usize) -> CollaborateResult<Option<FolderChangeset>> {
         let view = self.read_view(view_id)?;
-        self.with_app(&view.belong_to_id, |app| {
+        self.with_app(&view.app_id, |app| {
             match move_vec_element(&mut app.belongings, |view| view.id == view_id, from, to).map_err(internal_error)? {
                 true => Ok(Some(())),
                 false => Ok(None),
@@ -319,9 +319,14 @@ impl FolderPad {
     }
 
     pub fn to_json(&self) -> CollaborateResult<String> {
-        serde_json::to_string(&self.folder_rev)
-            .map_err(|e| CollaborateError::internal().context(format!("serial trash to json failed: {}", e)))
+        make_folder_rev_json_str(&self.folder_rev)
     }
+}
+
+pub fn make_folder_rev_json_str(folder_rev: &FolderRevision) -> CollaborateResult<String> {
+    let json = serde_json::to_string(folder_rev)
+        .map_err(|err| internal_error(format!("Serialize folder to json str failed. {:?}", err)))?;
+    Ok(json)
 }
 
 impl FolderPad {
@@ -802,7 +807,7 @@ mod tests {
     fn test_view_folder() -> (FolderPad, FolderDelta, ViewRevision) {
         let (mut folder, mut initial_delta, app) = test_app_folder();
         let mut view_rev = ViewRevision::default();
-        view_rev.belong_to_id = app.id.clone();
+        view_rev.app_id = app.id.clone();
         view_rev.name = "🎃 my first view".to_owned();
 
         initial_delta = initial_delta

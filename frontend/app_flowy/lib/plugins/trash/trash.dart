@@ -34,7 +34,7 @@ class TrashPluginBuilder extends PluginBuilder {
   String get menuName => "TrashPB";
 
   @override
-  PluginType get pluginType => DefaultPlugin.trash.type();
+  PluginType get pluginType => PluginType.trash;
 }
 
 class TrashPluginConfig implements PluginConfig {

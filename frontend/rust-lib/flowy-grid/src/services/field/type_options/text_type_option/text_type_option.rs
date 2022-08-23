@@ -156,8 +156,8 @@ mod tests {
         let ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
         let cell_data_changeset = SelectOptionCellChangeset::from_insert(&ids).to_str();
         let multi_select = MultiSelectTypeOptionBuilder::default()
-            .option(google_option.clone())
-            .option(facebook_option.clone());
+            .add_option(google_option.clone())
+            .add_option(facebook_option.clone());
         let multi_select_field_rev = FieldBuilder::new(multi_select).build();
         let multi_type_option = MultiSelectTypeOptionPB::from(&multi_select_field_rev);
         let cell_data = multi_type_option

@@ -11,7 +11,7 @@ pub struct GridCellTest {
 
 impl GridCellTest {
     pub async fn new() -> Self {
-        let inner = GridEditorTest::new().await;
+        let inner = GridEditorTest::new_table().await;
         Self { inner }
     }
 

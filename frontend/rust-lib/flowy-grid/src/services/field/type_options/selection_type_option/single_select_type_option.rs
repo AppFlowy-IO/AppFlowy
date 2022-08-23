@@ -65,10 +65,8 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         let select_option_changeset = changeset.try_into_inner()?;
         let new_cell_data: String;
         if let Some(insert_option_id) = select_option_changeset.insert_option_id {
-            tracing::trace!("Insert single select option: {}", &insert_option_id);
             new_cell_data = insert_option_id;
         } else {
-            tracing::trace!("Delete single select option");
             new_cell_data = "".to_string()
         }
 
@@ -156,7 +154,7 @@ mod tests {
         field_rev: &FieldRevision,
         expected: Vec<SelectOptionPB>,
     ) {
-        let field_type: FieldType = field_rev.field_type_rev.into();
+        let field_type: FieldType = field_rev.ty.into();
         assert_eq!(
             expected,
             type_option

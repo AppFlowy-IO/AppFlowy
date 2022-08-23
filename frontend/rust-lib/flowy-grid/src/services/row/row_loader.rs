@@ -39,8 +39,8 @@ pub(crate) fn make_row_orders_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Ve
     row_revs.iter().map(RowPB::from).collect::<Vec<_>>()
 }
 
-pub(crate) fn make_row_from_row_rev(row_rev: Arc<RowRevision>) -> Option<RowPB> {
-    make_rows_from_row_revs(&[row_rev]).pop()
+pub(crate) fn make_row_from_row_rev(row_rev: Arc<RowRevision>) -> RowPB {
+    make_rows_from_row_revs(&[row_rev]).pop().unwrap()
 }
 
 pub(crate) fn make_rows_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowPB> {

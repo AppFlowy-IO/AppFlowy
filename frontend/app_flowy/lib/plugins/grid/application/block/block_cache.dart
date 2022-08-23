@@ -42,7 +42,7 @@ class GridBlockCache {
   }
 
   void addListener({
-    required void Function(RowChangeReason) onChangeReason,
+    required void Function(RowsChangedReason) onRowsChanged,
     bool Function()? listenWhen,
   }) {
     _rowCache.onRowsChanged((reason) {
@@ -50,7 +50,7 @@ class GridBlockCache {
         return;
       }
 
-      onChangeReason(reason);
+      onRowsChanged(reason);
     });
   }
 }

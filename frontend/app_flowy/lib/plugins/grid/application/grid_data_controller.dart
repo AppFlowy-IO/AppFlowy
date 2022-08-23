@@ -18,13 +18,13 @@ typedef OnGridChanged = void Function(GridPB);
 
 typedef OnRowsChanged = void Function(
   List<RowInfo> rowInfos,
-  RowChangeReason,
+  RowsChangedReason,
 );
 typedef ListenOnRowChangedCondition = bool Function();
 
 class GridDataController {
   final String gridId;
-  final GridService _gridFFIService;
+  final GridFFIService _gridFFIService;
   final GridFieldCache fieldCache;
 
   // key: the block id
@@ -46,8 +46,8 @@ class GridDataController {
 
   GridDataController({required ViewPB view})
       : gridId = view.id,
-        _blocks = LinkedHashMap.identity(),
-        _gridFFIService = GridService(gridId: view.id),
+        _blocks = LinkedHashMap.new(),
+        _gridFFIService = GridFFIService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id);
 
   void addListener({
@@ -105,7 +105,7 @@ class GridDataController {
       );
 
       cache.addListener(
-        onChangeReason: (reason) {
+        onRowsChanged: (reason) {
           _onRowChanged?.call(rowInfos, reason);
         },
       );

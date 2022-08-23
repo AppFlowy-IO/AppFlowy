@@ -32,10 +32,22 @@ class _BoardTextCellState extends State<BoardTextCell> {
       value: _cellBloc,
       child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
         builder: (context, state) {
-          return SizedBox(
-            height: 30,
-            child: FlowyText.medium(state.content),
-          );
+          if (state.content.isEmpty) {
+            return const SizedBox();
+          } else {
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: ConstrainedBox(
+                constraints: BoxConstraints.loose(
+                  const Size(double.infinity, 100),
+                ),
+                child: FlowyText.regular(
+                  state.content,
+                  fontSize: 14,
+                ),
+              ),
+            );
+          }
         },
       ),
     );

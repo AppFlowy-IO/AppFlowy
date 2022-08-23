@@ -37,8 +37,8 @@ impl UserDB {
             Some(database) => return Ok(database.get_pool()),
         }
 
-        tracing::trace!("open user db {}", user_id);
         let dir = format!("{}/{}", self.db_dir, user_id);
+        tracing::trace!("open user db {} at path: {}", user_id, dir);
         let db = flowy_database::init(&dir).map_err(|e| {
             log::error!("open user: {} db failed, {:?}", user_id, e);
             FlowyError::internal().context(e)

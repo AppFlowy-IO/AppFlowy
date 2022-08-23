@@ -3,7 +3,7 @@ use crate::entities::{
     SelectOptionFilterConfigurationPB, TextFilterConfigurationPB,
 };
 use dashmap::DashMap;
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
+use flowy_grid_data_model::revision::{FieldRevision, FilterConfigurationRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -74,6 +74,7 @@ impl FilterCache {
         this
     }
 
+    #[allow(dead_code)]
     pub(crate) fn remove(&self, filter_id: &FilterId) {
         let _ = match filter_id.field_type {
             FieldType::RichText => {
@@ -104,18 +105,20 @@ impl FilterCache {
 /// Refresh the filter according to the field id.
 pub(crate) async fn refresh_filter_cache(
     cache: Arc<FilterCache>,
-    field_ids: Option<Vec<String>>,
+    _field_ids: Option<Vec<String>>,
     grid_pad: &Arc<RwLock<GridRevisionPad>>,
 ) {
     let grid_pad = grid_pad.read().await;
-    let filters_revs = grid_pad.get_filters(None, field_ids).unwrap_or_default();
+    // let filters_revs = grid_pad.get_filters(field_ids).unwrap_or_default();
+    // TODO nathan
+    let filter_revs: Vec<Arc<FilterConfigurationRevision>> = vec![];
 
-    for filter_rev in filters_revs {
+    for filter_rev in filter_revs {
         match grid_pad.get_field_rev(&filter_rev.field_id) {
             None => {}
             Some((_, field_rev)) => {
                 let filter_id = FilterId::from(field_rev);
-                let field_type: FieldType = field_rev.field_type_rev.into();
+                let field_type: FieldType = field_rev.ty.into();
                 match &field_type {
                     FieldType::RichText => {
                         let _ = cache
@@ -162,7 +165,7 @@ impl std::convert::From<&Arc<FieldRevision>> for FilterId {
     fn from(rev: &Arc<FieldRevision>) -> Self {
         Self {
             field_id: rev.id.clone(),
-            field_type: rev.field_type_rev.into(),
+            field_type: rev.ty.into(),
         }
     }
 }

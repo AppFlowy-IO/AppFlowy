@@ -21,7 +21,7 @@ class GridRowActionSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => RowActionSheetBloc(rowData: rowData),
+      create: (context) => RowActionSheetBloc(rowInfo: rowData),
       child: BlocBuilder<RowActionSheetBloc, RowActionSheetState>(
         builder: (context, state) {
           final cells = _RowAction.values
@@ -53,7 +53,10 @@ class GridRowActionSheet extends StatelessWidget {
     );
   }
 
-  void show(BuildContext overlayContext) {
+  void show(
+    BuildContext overlayContext, {
+    AnchorDirection direction = AnchorDirection.leftWithCenterAligned,
+  }) {
     FlowyOverlay.of(overlayContext).insertWithAnchor(
       widget: OverlayContainer(
         child: this,
@@ -61,7 +64,7 @@ class GridRowActionSheet extends StatelessWidget {
       ),
       identifier: GridRowActionSheet.identifier(),
       anchorContext: overlayContext,
-      anchorDirection: AnchorDirection.leftWithCenterAligned,
+      anchorDirection: direction,
     );
   }
 

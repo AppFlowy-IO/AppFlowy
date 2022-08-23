@@ -10,7 +10,7 @@ class MultiBoardListExample extends StatefulWidget {
 
 class _MultiBoardListExampleState extends State<MultiBoardListExample> {
   final AFBoardDataController boardDataController = AFBoardDataController(
-    onMoveColumn: (fromIndex, toIndex) {
+    onMoveColumn: (fromColumnId, fromIndex, toColumnId, toIndex) {
       debugPrint('Move column from $fromIndex to $toIndex');
     },
     onMoveColumnItem: (columnId, fromIndex, toIndex) {
@@ -23,18 +23,19 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
 
   @override
   void initState() {
-    final column1 = AFBoardColumnData(id: "To Do", items: [
+    List<AFColumnItem> a = [
       TextItem("Card 1"),
       TextItem("Card 2"),
-      RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
+      // RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
       TextItem("Card 4"),
-    ]);
-    final column2 = AFBoardColumnData(id: "In Progress", items: [
-      RichTextItem(title: "Card 5", subtitle: 'Aug 1, 2020 4:05 PM'),
-      TextItem("Card 6"),
+    ];
+    final column1 = AFBoardColumnData(id: "To Do", items: a);
+    final column2 = AFBoardColumnData(id: "In Progress", items: <AFColumnItem>[
+      // RichTextItem(title: "Card 5", subtitle: 'Aug 1, 2020 4:05 PM'),
+      // TextItem("Card 6"),
     ]);
 
-    final column3 = AFBoardColumnData(id: "Done", items: []);
+    final column3 = AFBoardColumnData(id: "Done", items: <AFColumnItem>[]);
 
     boardDataController.addColumn(column1);
     boardDataController.addColumn(column2);

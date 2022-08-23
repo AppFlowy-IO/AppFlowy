@@ -8,6 +8,8 @@ import 'package:styled_widget/styled_widget.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
 
+import 'cell_builder.dart';
+
 class GridCellAccessoryBuildContext {
   final BuildContext anchorContext;
   final bool isCellEditing;
@@ -55,18 +57,6 @@ class PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
 
   @override
   bool enable() => !isCellEditing;
-}
-
-typedef AccessoryBuilder = List<GridCellAccessory> Function(
-    GridCellAccessoryBuildContext buildContext);
-
-abstract class CellAccessory extends Widget {
-  const CellAccessory({Key? key}) : super(key: key);
-
-  // The hover will show if the isHover's value is true
-  ValueNotifier<bool>? get onAccessoryHover;
-
-  AccessoryBuilder? get accessoryBuilder;
 }
 
 class AccessoryHover extends StatefulWidget {

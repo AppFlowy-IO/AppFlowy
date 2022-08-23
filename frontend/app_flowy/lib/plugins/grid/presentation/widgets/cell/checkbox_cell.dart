@@ -22,7 +22,8 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
 
   @override
   void initState() {
-    final cellController = widget.cellControllerBuilder.build();
+    final cellController =
+        widget.cellControllerBuilder.build() as GridCheckboxCellController;
     _cellBloc = getIt<CheckboxCellBloc>(param1: cellController)
       ..add(const CheckboxCellEvent.initial());
     super.initState();

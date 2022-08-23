@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'board_column/board_column.dart';
 import 'board_column/board_column_data.dart';
 import 'board_data.dart';
-import 'reorder_flex/drag_target_inteceptor.dart';
+import 'reorder_flex/drag_target_interceptor.dart';
 import 'reorder_flex/reorder_flex.dart';
 import 'reorder_phantom/phantom_controller.dart';
 import '../rendering/board_overlay.dart';
@@ -46,6 +46,8 @@ class AFBoard extends StatelessWidget {
   ///
   final BoardPhantomController phantomController;
 
+  final ScrollController? scrollController;
+
   final AFBoardConfig config;
 
   AFBoard({
@@ -54,6 +56,7 @@ class AFBoard extends StatelessWidget {
     this.background,
     this.footBuilder,
     this.headerBuilder,
+    this.scrollController,
     this.columnConstraints = const BoxConstraints(maxWidth: 200),
     this.config = const AFBoardConfig(),
     Key? key,
@@ -69,6 +72,7 @@ class AFBoard extends StatelessWidget {
           return BoardContent(
             config: config,
             dataController: dataController,
+            scrollController: scrollController,
             background: background,
             delegate: phantomController,
             columnConstraints: columnConstraints,
@@ -139,7 +143,7 @@ class _BoardContentState extends State<BoardContent> {
   void initState() {
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
-        final interceptor = OverlappingDragTargetInteceptor(
+        final interceptor = OverlappingDragTargetInterceptor(
           reorderFlexId: widget.dataController.identifier,
           acceptedReorderFlexId: widget.dataController.columnIds,
           delegate: widget.delegate,
@@ -202,7 +206,7 @@ class _BoardContentState extends State<BoardContent> {
         return ChangeNotifierProvider.value(
           key: ValueKey(columnData.id),
           value: widget.dataController.columnController(columnData.id),
-          child: Consumer<BoardColumnDataController>(
+          child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
               return ConstrainedBox(
                 constraints: widget.columnConstraints,

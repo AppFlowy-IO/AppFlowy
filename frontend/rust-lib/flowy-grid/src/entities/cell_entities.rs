@@ -1,7 +1,7 @@
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{CellRevision, RowMetaChangeset};
+use flowy_grid_data_model::revision::{CellRevision, RowChangeset};
 use std::collections::HashMap;
 
 #[derive(ProtoBuf, Default)]
@@ -131,20 +131,20 @@ pub struct CellChangesetPB {
     #[pb(index = 3)]
     pub field_id: String,
 
-    #[pb(index = 4, one_of)]
-    pub content: Option<String>,
+    #[pb(index = 4)]
+    pub content: String,
 }
 
-impl std::convert::From<CellChangesetPB> for RowMetaChangeset {
+impl std::convert::From<CellChangesetPB> for RowChangeset {
     fn from(changeset: CellChangesetPB) -> Self {
         let mut cell_by_field_id = HashMap::with_capacity(1);
         let field_id = changeset.field_id;
         let cell_rev = CellRevision {
-            data: changeset.content.unwrap_or_else(|| "".to_owned()),
+            data: changeset.content,
         };
         cell_by_field_id.insert(field_id, cell_rev);
 
-        RowMetaChangeset {
+        RowChangeset {
             row_id: changeset.row_id,
             height: None,
             visibility: None,

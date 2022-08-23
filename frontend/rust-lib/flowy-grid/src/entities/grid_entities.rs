@@ -1,5 +1,5 @@
 use crate::entities::{BlockPB, FieldIdPB};
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 
@@ -52,57 +52,117 @@ impl std::convert::From<&str> for GridBlockIdPB {
     }
 }
 
-#[derive(Debug, Clone, ProtoBuf_Enum)]
-pub enum MoveItemTypePB {
-    MoveField = 0,
-    MoveRow = 1,
-}
-
-impl std::default::Default for MoveItemTypePB {
-    fn default() -> Self {
-        MoveItemTypePB::MoveField
-    }
-}
-
 #[derive(Debug, Clone, Default, ProtoBuf)]
-pub struct MoveItemPayloadPB {
+pub struct MoveFieldPayloadPB {
     #[pb(index = 1)]
     pub grid_id: String,
 
     #[pb(index = 2)]
-    pub item_id: String,
+    pub field_id: String,
 
     #[pb(index = 3)]
     pub from_index: i32,
 
     #[pb(index = 4)]
     pub to_index: i32,
-
-    #[pb(index = 5)]
-    pub ty: MoveItemTypePB,
 }
 
 #[derive(Clone)]
-pub struct MoveItemParams {
+pub struct MoveFieldParams {
     pub grid_id: String,
-    pub item_id: String,
+    pub field_id: String,
     pub from_index: i32,
     pub to_index: i32,
-    pub ty: MoveItemTypePB,
 }
 
-impl TryInto<MoveItemParams> for MoveItemPayloadPB {
+impl TryInto<MoveFieldParams> for MoveFieldPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<MoveItemParams, Self::Error> {
+    fn try_into(self) -> Result<MoveFieldParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let item_id = NotEmptyStr::parse(self.item_id).map_err(|_| ErrorCode::InvalidData)?;
-        Ok(MoveItemParams {
+        let item_id = NotEmptyStr::parse(self.field_id).map_err(|_| ErrorCode::InvalidData)?;
+        Ok(MoveFieldParams {
             grid_id: grid_id.0,
-            item_id: item_id.0,
+            field_id: item_id.0,
             from_index: self.from_index,
             to_index: self.to_index,
-            ty: self.ty,
+        })
+    }
+}
+
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct MoveRowPayloadPB {
+    #[pb(index = 1)]
+    pub view_id: String,
+
+    #[pb(index = 2)]
+    pub from_row_id: String,
+
+    #[pb(index = 4)]
+    pub to_row_id: String,
+}
+
+pub struct MoveRowParams {
+    pub view_id: String,
+    pub from_row_id: String,
+    pub to_row_id: String,
+}
+
+impl TryInto<MoveRowParams> for MoveRowPayloadPB {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<MoveRowParams, Self::Error> {
+        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::GridViewIdIsEmpty)?;
+        let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+        let to_row_id = NotEmptyStr::parse(self.to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+
+        Ok(MoveRowParams {
+            view_id: view_id.0,
+            from_row_id: from_row_id.0,
+            to_row_id: to_row_id.0,
+        })
+    }
+}
+#[derive(Debug, Clone, Default, ProtoBuf)]
+pub struct MoveGroupRowPayloadPB {
+    #[pb(index = 1)]
+    pub view_id: String,
+
+    #[pb(index = 2)]
+    pub from_row_id: String,
+
+    #[pb(index = 3)]
+    pub to_group_id: String,
+
+    #[pb(index = 4, one_of)]
+    pub to_row_id: Option<String>,
+}
+
+pub struct MoveGroupRowParams {
+    pub view_id: String,
+    pub from_row_id: String,
+    pub to_group_id: String,
+    pub to_row_id: Option<String>,
+}
+
+impl TryInto<MoveGroupRowParams> for MoveGroupRowPayloadPB {
+    type Error = ErrorCode;
+
+    fn try_into(self) -> Result<MoveGroupRowParams, Self::Error> {
+        let view_id = NotEmptyStr::parse(self.view_id).map_err(|_| ErrorCode::GridViewIdIsEmpty)?;
+        let from_row_id = NotEmptyStr::parse(self.from_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?;
+        let to_group_id = NotEmptyStr::parse(self.to_group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
+
+        let to_row_id = match self.to_row_id {
+            None => None,
+            Some(to_row_id) => Some(NotEmptyStr::parse(to_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?.0),
+        };
+
+        Ok(MoveGroupRowParams {
+            view_id: view_id.0,
+            from_row_id: from_row_id.0,
+            to_group_id: to_group_id.0,
+            to_row_id,
         })
     }
 }

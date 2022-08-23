@@ -2,10 +2,10 @@ use crate::grid::block_test::script::RowScript::{AssertCell, CreateRow};
 use crate::grid::block_test::util::GridRowTestBuilder;
 use crate::grid::grid_editor::GridEditorTest;
 
-use flowy_grid::entities::{FieldType, GridCellIdParams, RowPB};
+use flowy_grid::entities::{CreateRowParams, FieldType, GridCellIdParams, GridLayout, RowPB};
 use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::{
-    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowMetaChangeset, RowRevision,
+    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
 };
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -17,7 +17,7 @@ pub enum RowScript {
         row_rev: RowRevision,
     },
     UpdateRow {
-        changeset: RowMetaChangeset,
+        changeset: RowChangeset,
     },
     AssertRow {
         expected_row: RowRevision,
@@ -56,7 +56,7 @@ pub struct GridRowTest {
 
 impl GridRowTest {
     pub async fn new() -> Self {
-        let editor_test = GridEditorTest::new().await;
+        let editor_test = GridEditorTest::new_table().await;
         Self { inner: editor_test }
     }
 
@@ -77,7 +77,13 @@ impl GridRowTest {
     pub async fn run_script(&mut self, script: RowScript) {
         match script {
             RowScript::CreateEmptyRow => {
-                let row_order = self.editor.create_row(None).await.unwrap();
+                let params = CreateRowParams {
+                    grid_id: self.editor.grid_id.clone(),
+                    start_row_id: None,
+                    group_id: None,
+                    layout: GridLayout::Table,
+                };
+                let row_order = self.editor.create_row(params).await.unwrap();
                 self.row_order_by_row_id
                     .insert(row_order.row_id().to_owned(), row_order);
                 self.row_revs = self.get_row_revs().await;
