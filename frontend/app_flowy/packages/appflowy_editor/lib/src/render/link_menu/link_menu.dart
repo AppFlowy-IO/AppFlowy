@@ -100,15 +100,26 @@ class _LinkMenuState extends State<LinkMenu> {
       textAlign: TextAlign.left,
       controller: _textEditingController,
       onSubmitted: widget.onSubmitted,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         hintText: 'URL',
-        hintStyle: TextStyle(fontSize: 14.0),
-        border: OutlineInputBorder(
+        hintStyle: const TextStyle(fontSize: 14.0),
+        contentPadding: const EdgeInsets.all(16.0),
+        isDense: true,
+        suffixIcon: IconButton(
+          padding: const EdgeInsets.all(4.0),
+          icon: const FlowySvg(
+            name: 'clear',
+            width: 24,
+            height: 24,
+          ),
+          onPressed: () {
+            _textEditingController.clear();
+          },
+        ),
+        border: const OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(12.0)),
           borderSide: BorderSide(color: Color(0xFFBDBDBD)),
         ),
-        contentPadding: EdgeInsets.all(16.0),
-        isDense: true,
       ),
     );
   }
