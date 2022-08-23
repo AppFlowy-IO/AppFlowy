@@ -1,5 +1,5 @@
 use crate::core::document::position::Position;
-use crate::core::{DocumentOperation, DocumentTree, NodeAttributes, NodeData};
+use crate::core::{DocumentOperation, DocumentTree, NodeAttributes, NodeSubTree};
 use std::collections::HashMap;
 
 pub struct Transaction {
@@ -25,7 +25,7 @@ impl<'a> TransactionBuilder<'a> {
         }
     }
 
-    pub fn insert_nodes_at_path(&mut self, path: &Position, nodes: &[NodeData]) {
+    pub fn insert_nodes_at_path(&mut self, path: &Position, nodes: &[NodeSubTree]) {
         self.push(DocumentOperation::Insert {
             path: path.clone(),
             nodes: nodes.to_vec(),
@@ -59,11 +59,17 @@ impl<'a> TransactionBuilder<'a> {
 
     pub fn delete_nodes_at_path(&mut self, path: &Position, length: usize) {
         let mut node = self.document.node_at_path(path).unwrap();
-        let mut deleted_nodes: Vec<NodeData> = Vec::new();
+        let mut deleted_nodes: Vec<NodeSubTree> = Vec::new();
 
         for _ in 0..length {
-            let data = self.document.arena.get(node).unwrap();
-            deleted_nodes.push(data.get().clone());
+            let node_data = self.document.arena.get(node).unwrap();
+            let data = node_data.get();
+            deleted_nodes.push(NodeSubTree {
+                node_type: data.node_type.clone(),
+                attributes: data.attributes.clone(),
+                delta: data.delta.clone(),
+                children: vec![],
+            });
             node = node.following_siblings(&self.document.arena).next().unwrap();
         }
 

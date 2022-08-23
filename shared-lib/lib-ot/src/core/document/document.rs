@@ -1,5 +1,7 @@
 use crate::core::document::position::Position;
-use crate::core::{DocumentOperation, NodeAttributes, NodeData, OperationTransform, TextDelta, Transaction};
+use crate::core::{
+    DocumentOperation, NodeAttributes, NodeData, NodeSubTree, OperationTransform, TextDelta, Transaction,
+};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, NodeId};
 
@@ -100,40 +102,36 @@ impl DocumentTree {
         }
     }
 
-    fn apply_insert(&mut self, path: &Position, nodes: &Vec<NodeData>) -> Result<(), OTError> {
+    fn apply_insert(&mut self, path: &Position, nodes: &Vec<NodeSubTree>) -> Result<(), OTError> {
         let parent_path = &path.0[0..(path.0.len() - 1)];
         let last_index = path.0[path.0.len() - 1];
         let parent_node = self
             .node_at_path(&Position(parent_path.to_vec()))
             .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
-        let mut inserted_nodes = Vec::new();
+        // let mut inserted_nodes = Vec::new();
+        //
+        // for node in nodes {
+        //     inserted_nodes.push(self.arena.new_node(node.to_node_data()));
+        // }
 
-        for node in nodes {
-            inserted_nodes.push(self.arena.new_node(node.clone()));
-        }
-
-        self.insert_child_at_index(parent_node, last_index, &inserted_nodes)
+        self.insert_child_at_index(parent_node, last_index, nodes.as_ref())
     }
 
     fn insert_child_at_index(
         &mut self,
         parent: NodeId,
         index: usize,
-        insert_children: &[NodeId],
+        insert_children: &[NodeSubTree],
     ) -> Result<(), OTError> {
         if index == 0 && parent.children(&self.arena).next().is_none() {
-            for id in insert_children {
-                parent.append(*id, &mut self.arena);
-            }
+            self.append_subtree(&parent, insert_children);
             return Ok(());
         }
 
         let children_length = parent.children(&self.arena).fold(0, |counter, _| counter + 1);
 
         if index == children_length {
-            for id in insert_children {
-                parent.append(*id, &mut self.arena);
-            }
+            self.append_subtree(&parent, insert_children);
             return Ok(());
         }
 
@@ -141,10 +139,22 @@ impl DocumentTree {
             .child_at_index_of_path(parent, index)
             .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
-        for id in insert_children {
-            node_to_insert.insert_before(*id, &mut self.arena);
-        }
+        self.insert_subtree_before(&node_to_insert, insert_children);
         Ok(())
+    }
+
+    fn append_subtree(&mut self, parent: &NodeId, insert_children: &[NodeSubTree]) {
+        for child in insert_children {
+            let child_id = self.arena.new_node(child.to_node_data());
+            parent.append(child_id, &mut self.arena);
+        }
+    }
+
+    fn insert_subtree_before(&mut self, before: &NodeId, insert_children: &[NodeSubTree]) {
+        for id in insert_children {
+            let child_id = self.arena.new_node(id.to_node_data());
+            before.insert_before(child_id, &mut self.arena);
+        }
     }
 
     fn apply_update(&mut self, path: &Position, attributes: &NodeAttributes) -> Result<(), OTError> {

@@ -1,21 +1,21 @@
 use crate::core::document::position::Position;
-use crate::core::{NodeAttributes, NodeData, TextDelta};
+use crate::core::{NodeAttributes, NodeSubTree, TextDelta};
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
+#[serde(tag = "type")]
 pub enum DocumentOperation {
-    Insert {
-        path: Position,
-        nodes: Vec<NodeData>,
-    },
+    #[serde(rename = "insert-operation")]
+    Insert { path: Position, nodes: Vec<NodeSubTree> },
+    #[serde(rename = "update-operation")]
     Update {
         path: Position,
         attributes: NodeAttributes,
+        #[serde(rename = "oldAttributes")]
         old_attributes: NodeAttributes,
     },
-    Delete {
-        path: Position,
-        nodes: Vec<NodeData>,
-    },
+    #[serde(rename = "delete-operation")]
+    Delete { path: Position, nodes: Vec<NodeSubTree> },
+    #[serde(rename = "text-edit-operation")]
     TextEdit {
         path: Position,
         delta: TextDelta,
@@ -101,7 +101,7 @@ impl DocumentOperation {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::Position;
+    use crate::core::{Delta, DocumentOperation, NodeAttributes, NodeSubTree, Position};
 
     #[test]
     fn test_transform_path_1() {
@@ -148,6 +148,47 @@ mod tests {
         assert_eq!(
             { Position::transform(&Position(vec![0, 1]), &Position(vec![0, 1]), 5) }.0,
             vec![0, 6]
+        );
+    }
+
+    #[test]
+    fn test_serialize_insert_operation() {
+        let insert = DocumentOperation::Insert {
+            path: Position(vec![0, 1]),
+            nodes: vec![NodeSubTree::new("text")],
+        };
+        let result = serde_json::to_string(&insert).unwrap();
+        assert_eq!(
+            result,
+            r#"{"type":"insert-operation","path":[0,1],"nodes":[{"node_type":"text","attributes":{}}]}"#
+        );
+    }
+
+    #[test]
+    fn test_serialize_update_operation() {
+        let insert = DocumentOperation::Update {
+            path: Position(vec![0, 1]),
+            attributes: NodeAttributes::new(),
+            old_attributes: NodeAttributes::new(),
+        };
+        let result = serde_json::to_string(&insert).unwrap();
+        assert_eq!(
+            result,
+            r#"{"type":"update-operation","path":[0,1],"attributes":{},"oldAttributes":{}}"#
+        );
+    }
+
+    #[test]
+    fn test_serialize_text_edit_operation() {
+        let insert = DocumentOperation::TextEdit {
+            path: Position(vec![0, 1]),
+            delta: Delta::new(),
+            inverted: Delta::new(),
+        };
+        let result = serde_json::to_string(&insert).unwrap();
+        assert_eq!(
+            result,
+            r#"{"type":"text-edit-operation","path":[0,1],"delta":[],"inverted":[]}"#
         );
     }
 }
