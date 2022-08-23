@@ -204,16 +204,16 @@ class BoardPhantomController extends OverlapDragTargetDelegate
 
   @override
   int canMoveTo(String dragTargetId) {
-    // if (columnsState.isDragging(dragTargetId)) {
-    //   return -1;
-    // }
+    if (columnsState.isDragging(dragTargetId)) {
+      return -1;
+    }
 
-    // final controller = delegate.controller(dragTargetId);
-    // if (controller != null) {
-    //   return controller.columnData.items.length;
-    // } else {
-    //   return 0;
-    // }
+    final controller = delegate.controller(dragTargetId);
+    if (controller != null) {
+      return controller.columnData.items.length;
+    } else {
+      return 0;
+    }
 
     if (delegate.controller(dragTargetId)?.columnData.items.isEmpty ?? false) {
       return 0;
