@@ -197,7 +197,8 @@ class AFBoardDataController extends ChangeNotifier
     assert(index != -1);
     if (index != -1) {
       if (index != newIndex) {
-        // Log.debug('[$BoardPhantomController] update $toColumnId:$index to $toColumnId:$phantomIndex');
+        Log.debug(
+            '[$BoardPhantomController] update $columnId:$index to $columnId:$newIndex');
         final item = columnDataController.removeAt(index, notify: false);
         columnDataController.insert(newIndex, item, notify: false);
       }

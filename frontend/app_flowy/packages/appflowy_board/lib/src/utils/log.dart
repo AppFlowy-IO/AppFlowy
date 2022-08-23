@@ -6,7 +6,7 @@ const DART_LOG = "Dart_LOG";
 class Log {
   // static const enableLog = bool.hasEnvironment(DART_LOG);
   // static final shared = Log();
-  static const enableLog = false;
+  static const enableLog = true;
 
   static void info(String? message) {
     if (enableLog) {
@@ -16,19 +16,19 @@ class Log {
 
   static void debug(String? message) {
     if (enableLog) {
-      debugPrint('🐛[Debug]=> $message');
+      debugPrint('🐛[Debug] - ${DateTime.now().second}=> $message');
     }
   }
 
   static void warn(String? message) {
     if (enableLog) {
-      debugPrint('🐛[Warn]=> $message');
+      debugPrint('🐛[Warn] - ${DateTime.now().second} => $message');
     }
   }
 
   static void trace(String? message) {
     if (enableLog) {
-      // debugPrint('❗️[Trace]=> $message');
+      debugPrint('❗️[Trace] - ${DateTime.now().second}=> $message');
     }
   }
 }

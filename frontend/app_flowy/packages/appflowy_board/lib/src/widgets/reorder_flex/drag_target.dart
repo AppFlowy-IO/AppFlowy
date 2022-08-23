@@ -1,3 +1,4 @@
+import 'package:appflowy_board/src/utils/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -222,10 +223,10 @@ class DragTargetAnimation {
         value: 0, vsync: vsync, duration: reorderAnimationDuration);
 
     insertController = AnimationController(
-        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 100));
+        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 200));
 
     deleteController = AnimationController(
-        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 10));
+        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 1));
   }
 
   void startDragging() {
@@ -371,6 +372,7 @@ class _DragTargeMovePlaceholderState extends State<DragTargeMovePlaceholder> {
 }
 
 abstract class FakeDragTargetEventTrigger {
+  void fakeOnDragStart(void Function(int?) callback);
   void fakeOnDragEnded(VoidCallback callback);
 }
 
@@ -420,6 +422,10 @@ class _FakeDragTargetState<T extends DragTargetData>
 
     /// Start insert animation
     widget.insertAnimationController.forward(from: 0.0);
+
+    widget.eventTrigger.fakeOnDragStart((insertIndex) {
+      Log.debug("[$FakeDragTarget] on drag $insertIndex");
+    });
 
     widget.eventTrigger.fakeOnDragEnded(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {

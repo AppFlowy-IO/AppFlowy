@@ -43,7 +43,7 @@ class FlexDragTargetData extends DragTargetData {
 }
 
 class DraggingState {
-  final String id;
+  final String reorderFlexId;
 
   /// The member of widget.children currently being dragged.
   Widget? _draggingWidget;
@@ -72,7 +72,7 @@ class DraggingState {
   /// The additional margin to place around a computed drop area.
   static const double _dropAreaMargin = 0.0;
 
-  DraggingState(this.id);
+  DraggingState(this.reorderFlexId);
 
   Size get dropAreaSize {
     if (feedbackSize == null) {
@@ -132,7 +132,7 @@ class DraggingState {
   }
 
   void updateNextIndex(int index) {
-    Log.trace('updateNextIndex: $index');
+    Log.trace('$reorderFlexId updateNextIndex: $index');
     nextIndex = index;
   }
 
