@@ -5,7 +5,7 @@ use crate::core::{NodeAttributes, NodeSubTree, TextDelta};
 #[serde(tag = "type")]
 pub enum DocumentOperation {
     #[serde(rename = "insert-operation")]
-    Insert { path: Position, nodes: Vec<NodeSubTree> },
+    Insert { path: Position, nodes: Vec<Box<NodeSubTree>> },
     #[serde(rename = "update-operation")]
     Update {
         path: Position,
@@ -14,7 +14,7 @@ pub enum DocumentOperation {
         old_attributes: NodeAttributes,
     },
     #[serde(rename = "delete-operation")]
-    Delete { path: Position, nodes: Vec<NodeSubTree> },
+    Delete { path: Position, nodes: Vec<Box<NodeSubTree>> },
     #[serde(rename = "text-edit-operation")]
     TextEdit {
         path: Position,
@@ -155,7 +155,7 @@ mod tests {
     fn test_serialize_insert_operation() {
         let insert = DocumentOperation::Insert {
             path: Position(vec![0, 1]),
-            nodes: vec![NodeSubTree::new("text")],
+            nodes: vec![Box::new(NodeSubTree::new("text"))],
         };
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(

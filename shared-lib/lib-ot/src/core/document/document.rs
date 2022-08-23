@@ -102,7 +102,7 @@ impl DocumentTree {
         }
     }
 
-    fn apply_insert(&mut self, path: &Position, nodes: &Vec<NodeSubTree>) -> Result<(), OTError> {
+    fn apply_insert(&mut self, path: &Position, nodes: &[Box<NodeSubTree>]) -> Result<(), OTError> {
         let parent_path = &path.0[0..(path.0.len() - 1)];
         let last_index = path.0[path.0.len() - 1];
         let parent_node = self
@@ -121,7 +121,7 @@ impl DocumentTree {
         &mut self,
         parent: NodeId,
         index: usize,
-        insert_children: &[NodeSubTree],
+        insert_children: &[Box<NodeSubTree>],
     ) -> Result<(), OTError> {
         if index == 0 && parent.children(&self.arena).next().is_none() {
             self.append_subtree(&parent, insert_children);
@@ -143,17 +143,22 @@ impl DocumentTree {
         Ok(())
     }
 
-    fn append_subtree(&mut self, parent: &NodeId, insert_children: &[NodeSubTree]) {
+    // recursive append the subtrees to the node
+    fn append_subtree(&mut self, parent: &NodeId, insert_children: &[Box<NodeSubTree>]) {
         for child in insert_children {
             let child_id = self.arena.new_node(child.to_node_data());
             parent.append(child_id, &mut self.arena);
+
+            self.append_subtree(&child_id, child.children.as_ref());
         }
     }
 
-    fn insert_subtree_before(&mut self, before: &NodeId, insert_children: &[NodeSubTree]) {
-        for id in insert_children {
-            let child_id = self.arena.new_node(id.to_node_data());
+    fn insert_subtree_before(&mut self, before: &NodeId, insert_children: &[Box<NodeSubTree>]) {
+        for child in insert_children {
+            let child_id = self.arena.new_node(child.to_node_data());
             before.insert_before(child_id, &mut self.arena);
+
+            self.append_subtree(&child_id, child.children.as_ref());
         }
     }
 
