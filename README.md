@@ -58,8 +58,8 @@ Please see the [changelog](https://www.appflowy.io/whatsnew) for more details ab
 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**. Please look at [CONTRIBUTING.md](https://github.com/AppFlowy-IO/appflowy/blob/main/doc/CONTRIBUTING.md) for details.
 
-If your Pull Request is accepted as it fixes a bug, adds functionality, or makes AppFlowy's codebase significantly easier to use or understand, congratulations! If your administrative and managerial work behind the scenes that sustains the community as a whole, congratulations! You are now an official contributor to AppFlowy. Get in touch with us [link](https://tally.so/r/mKP5z3) to receive the very special Contributor T-shirt!
-Proudly wear your T-shirt and show it to us by tagging @appflowy on Twitter.
+If your Pull Request is accepted as it fixes a bug, adds functionality, or makes AppFlowy's codebase significantly easier to use or understand, congratulations! If your administrative and managerial work behind the scenes that sustains the community as a whole, congratulations! You are now an official contributor to AppFlowy. Get in touch with us ([link](https://tally.so/r/mKP5z3)) to receive the very special Contributor T-shirt!
+Proudly wear your T-shirt and show it to us by tagging [@appflowy](https://twitter.com/appflowy) on Twitter.
 
 ![DSCF3560](https://user-images.githubusercontent.com/12026239/186106423-a923f6fe-b169-477b-87e4-ffb2e375e0f6.jpg)
 
