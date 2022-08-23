@@ -32,6 +32,7 @@ flutter:
   assets:
     - assets/images/toolbar/
     - assets/images/selection_menu/
+    - assets/images/image_toolbar/
     - assets/images/
   #
   # For details regarding assets in packages, see

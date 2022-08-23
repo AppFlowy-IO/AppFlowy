@@ -6,7 +6,8 @@
       {
         "type": "image",
         "attributes": {
-          "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png"
+          "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png",
+          "align": "center"
         }
       },
       {
@@ -57,6 +58,13 @@
             "insert": "Since the FlowyEditor are a community-driven open source editor, we very welcome and appreciate every pull request submissions from everyone.😄😄😄"
           }
         ]
+      },
+      {
+        "type": "image",
+        "attributes": {
+          "image_src": "https://images.unsplash.com/photo-1616530940355-351fabd9524b?ixlib=rb-1.2.1&q=80&cs=tinysrgb&fm=jpg",
+          "align": "center"
+        }
       },
       {
         "type": "text",
