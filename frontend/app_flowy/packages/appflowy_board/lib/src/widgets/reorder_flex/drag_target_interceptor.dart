@@ -55,6 +55,7 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapDragTargetDelegate delegate;
+  Timer? _delayOperation;
 
   OverlappingDragTargetInterceptor({
     required this.delegate,
@@ -77,12 +78,17 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
     if (dragTargetId == dragTargetData.reorderFlexId) {
       delegate.cancel();
     } else {
-      final index = delegate.canMoveTo(dragTargetId);
-      Log.trace(
-          '[$OverlappingDragTargetInterceptor] move to $dragTargetId at $index');
-      if (index != -1) {
-        delegate.moveTo(dragTargetId, dragTargetData, index);
-      }
+      /// The priority of the column interactions is high than the cross column.
+      /// Workaround: delay 100 milliseconds to lower the cross column event priority.
+      _delayOperation?.cancel();
+      _delayOperation = Timer(const Duration(milliseconds: 100), () {
+        final index = delegate.canMoveTo(dragTargetId);
+        if (index != -1) {
+          Log.trace(
+              '[$OverlappingDragTargetInterceptor] move to $dragTargetId at $index');
+          delegate.moveTo(dragTargetId, dragTargetData, index);
+        }
+      });
     }
 
     return true;

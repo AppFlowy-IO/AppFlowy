@@ -437,7 +437,7 @@ class ReorderFlexState extends State<ReorderFlex>
     /// The [willAccept] will be true if the dargTarget is the widget that gets
     /// dragged and it is dragged on top of the other dragTargets.
     ///
-    Log.debug(
+    Log.trace(
         '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, dragIndex:$dragIndex, dragTargetIndex:$dragTargetIndex, count: ${widget.dataSource.items.length}');
 
     bool willAccept =
