@@ -40,24 +40,25 @@ class _LinkMenuState extends State<LinkMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 5,
-            spreadRadius: 1,
-            color: Colors.black.withOpacity(0.1),
-          ),
-        ],
-        borderRadius: BorderRadius.circular(6.0),
-      ),
-      child: SizedBox(
-        width: 350,
+    return SizedBox(
+      width: 350,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              blurRadius: 5,
+              spreadRadius: 1,
+              color: Colors.black.withOpacity(0.1),
+            ),
+          ],
+          borderRadius: BorderRadius.circular(6.0),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               _buildHeader(),
               const SizedBox(height: 16.0),
