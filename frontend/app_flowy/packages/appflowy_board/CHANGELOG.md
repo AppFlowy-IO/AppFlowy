@@ -1,5 +1,10 @@
+# 0.0.5
+* Optimize insert card animation
+* Enable insert card at the end of the column
+* Fix some bugs
+
 # 0.0.4
-* fix some bugs
+* Fix some bugs
 
 # 0.0.3
 * Support customize UI
