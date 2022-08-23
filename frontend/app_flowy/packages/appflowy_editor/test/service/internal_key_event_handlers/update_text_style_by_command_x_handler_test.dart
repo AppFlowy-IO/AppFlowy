@@ -1,6 +1,10 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
@@ -53,6 +57,10 @@ void main() async {
         defaultHighlightColor,
         LogicalKeyboardKey.keyH,
       );
+    });
+
+    testWidgets('Presses Command + K to trigger link menu', (tester) async {
+      await _testLinkMenuInSingleTextSelection(tester);
     });
   });
 }
@@ -170,4 +178,75 @@ Future<void> _testUpdateTextStyleByCommandX(
       true,
     );
   }
+}
+
+Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
+  const link = 'appflowy.io';
+  const text = 'Welcome to Appflowy 😁';
+  final editor = tester.editor
+    ..insertTextNode(text)
+    ..insertTextNode(text)
+    ..insertTextNode(text);
+  await editor.startTesting();
+
+  final selection =
+      Selection.single(path: [1], startOffset: 0, endOffset: text.length);
+  await editor.updateSelection(selection);
+
+  // show toolbar
+  expect(find.byType(ToolbarWidget), findsOneWidget);
+
+  final item = defaultToolbarItems
+      .where((item) => item.id == 'appflowy.toolbar.link')
+      .first;
+  expect(find.byWidget(item.icon), findsOneWidget);
+
+  // trigger the link menu
+  await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+
+  expect(find.byType(LinkMenu), findsOneWidget);
+
+  await tester.enterText(find.byType(TextField), link);
+  await tester.testTextInput.receiveAction(TextInputAction.done);
+  await tester.pumpAndSettle();
+
+  expect(find.byType(LinkMenu), findsNothing);
+
+  final node = editor.nodeAtPath([1]) as TextNode;
+  expect(
+      node.allSatisfyInSelection(
+        StyleKey.href,
+        selection,
+        (value) => value == link,
+      ),
+      true);
+
+  await editor.updateSelection(selection);
+  await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+  expect(find.byType(LinkMenu), findsOneWidget);
+  expect(
+      find.text(link, findRichText: true, skipOffstage: false), findsOneWidget);
+
+  // Copy link
+  final copyLink = find.text('Copy link');
+  expect(copyLink, findsOneWidget);
+  await tester.tap(copyLink);
+  await tester.pumpAndSettle();
+  expect(find.byType(LinkMenu), findsNothing);
+
+  // Remove link
+  await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+  final removeLink = find.text('Remove link');
+  expect(removeLink, findsOneWidget);
+  await tester.tap(removeLink);
+  await tester.pumpAndSettle();
+  expect(find.byType(LinkMenu), findsNothing);
+
+  expect(
+      node.allSatisfyInSelection(
+        StyleKey.href,
+        selection,
+        (value) => value == link,
+      ),
+      false);
 }

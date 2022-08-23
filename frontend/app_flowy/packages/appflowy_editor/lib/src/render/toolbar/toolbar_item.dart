@@ -158,8 +158,6 @@ ToolbarShowValidator _showInTextSelection = (editorState) {
 OverlayEntry? _linkMenuOverlay;
 EditorState? _editorState;
 void _showLinkMenu(EditorState editorState, BuildContext context) {
-  _editorState = editorState;
-
   final rects = editorState.service.selectionService.selectionRects;
   var maxBottom = 0.0;
   late Rect matchRect;
@@ -171,6 +169,7 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
   }
 
   _dismissLinkMenu();
+  _editorState = editorState;
 
   // Since the link menu will only show in single text selection,
   // We get the text node directly instead of judging details again.
