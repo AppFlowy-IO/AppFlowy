@@ -8,6 +8,7 @@ import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service
 import 'package:flutter/material.dart';
 
 OverlayEntry? _imageUploadMenu;
+EditorState? _editorState;
 void showImageUploadMenu(
   EditorState editorState,
   SelectionMenuService menuService,
@@ -23,11 +24,11 @@ void showImageUploadMenu(
       child: Material(
         child: ImageUploadMenu(
           onSubmitted: (text) {
-            _dismissImageUploadMenu();
+            // _dismissImageUploadMenu();
             editorState.insertImageNode(text);
           },
           onUpload: (text) {
-            _dismissImageUploadMenu();
+            // _dismissImageUploadMenu();
             editorState.insertImageNode(text);
           },
         ),
@@ -36,11 +37,18 @@ void showImageUploadMenu(
   });
 
   Overlay.of(context)?.insert(_imageUploadMenu!);
+
+  editorState.service.selectionService.currentSelection
+      .addListener(_dismissImageUploadMenu);
 }
 
 void _dismissImageUploadMenu() {
   _imageUploadMenu?.remove();
   _imageUploadMenu = null;
+
+  _editorState?.service.selectionService.currentSelection
+      .removeListener(_dismissImageUploadMenu);
+  _editorState = null;
 }
 
 class ImageUploadMenu extends StatefulWidget {

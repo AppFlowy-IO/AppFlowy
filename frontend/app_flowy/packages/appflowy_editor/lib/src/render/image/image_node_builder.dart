@@ -11,7 +11,10 @@ class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
   Widget build(NodeWidgetContext<Node> context) {
     final src = context.node.attributes['image_src'];
     final align = context.node.attributes['align'];
-    final width = context.node.attributes['width'];
+    double? width;
+    if (context.node.attributes.containsKey('width')) {
+      width = context.node.attributes['width'].toDouble();
+    }
     return ImageNodeWidget(
       key: context.node.key,
       src: src,

@@ -205,8 +205,10 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       if (0 <= _selectedIndex && _selectedIndex < _showingItems.length) {
         _deleteLastCharacters(length: keyword.length + 1);
-        _showingItems[_selectedIndex]
-            .handler(widget.editorState, widget.menuService, context);
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          _showingItems[_selectedIndex]
+              .handler(widget.editorState, widget.menuService, context);
+        });
         return KeyEventResult.handled;
       }
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {

@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
+import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/material.dart';
 
 class ImageNodeWidget extends StatefulWidget {
@@ -55,7 +56,12 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
   @override
   Widget build(BuildContext context) {
     // only support network image.
-    return _buildNetworkImage(context);
+
+    return Container(
+      width: defaultMaxTextNodeWidth,
+      padding: const EdgeInsets.only(top: 8, bottom: 8),
+      child: _buildNetworkImage(context),
+    );
   }
 
   Widget _buildNetworkImage(BuildContext context) {
@@ -77,8 +83,13 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
     final networkImage = Image.network(
       widget.src,
       width: _imageWidth == null ? null : _imageWidth! - _distance,
+      gaplessPlayback: true,
       loadingBuilder: (context, child, loadingProgress) =>
           loadingProgress == null ? child : _buildLoading(context),
+      errorBuilder: (context, error, stackTrace) {
+        _imageWidth ??= defaultMaxTextNodeWidth;
+        return _buildError(context);
+      },
     );
     if (_imageWidth == null) {
       _imageStream = networkImage.image.resolve(const ImageConfiguration())
@@ -127,8 +138,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
 
   Widget _buildLoading(BuildContext context) {
     return SizedBox(
-      width: _imageWidth,
-      height: 300,
+      height: 150,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -142,6 +152,20 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
           const Text('Loading'),
         ],
       ),
+    );
+  }
+
+  Widget _buildError(BuildContext context) {
+    return Container(
+      height: 100,
+      width: _imageWidth,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+        border: Border.all(width: 1, color: Colors.black),
+      ),
+      child: const Text('Could not load the image'),
     );
   }
 

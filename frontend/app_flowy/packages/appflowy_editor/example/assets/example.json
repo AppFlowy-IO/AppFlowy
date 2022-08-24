@@ -60,13 +60,6 @@
         ]
       },
       {
-        "type": "image",
-        "attributes": {
-          "image_src": "https://s1.ax1x.com/2022/08/24/vgAJED.png",
-          "align": "center"
-        }
-      },
-      {
         "type": "text",
         "delta": [
           {
@@ -127,6 +120,14 @@
         "attributes": {
           "subtype": "heading",
           "heading": "h3"
+        }
+      },
+      {
+        "type": "image",
+        "attributes": {
+          "image_src": "https://s1.ax1x.com/2022/08/24/vgAJED.png",
+          "align": "left",
+          "width": 300
         }
       },
       {
