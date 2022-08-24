@@ -1,32 +1,56 @@
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/material.dart';
 
 class ImageNodeWidget extends StatefulWidget {
   const ImageNodeWidget({
     Key? key,
     required this.src,
+    this.width,
     required this.alignment,
     required this.onCopy,
     required this.onDelete,
     required this.onAlign,
+    required this.onResize,
   }) : super(key: key);
 
   final String src;
+  final double? width;
   final Alignment alignment;
   final VoidCallback onCopy;
   final VoidCallback onDelete;
   final void Function(Alignment alignment) onAlign;
+  final void Function(double width) onResize;
 
   @override
   State<ImageNodeWidget> createState() => _ImageNodeWidgetState();
 }
 
 class _ImageNodeWidgetState extends State<ImageNodeWidget> {
-  double? imageWidth = defaultMaxTextNodeWidth;
+  double? _imageWidth;
   double _initial = 0;
   double _distance = 0;
   bool _onFocus = false;
+
+  ImageStream? _imageStream;
+  late ImageStreamListener _imageStreamListener;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _imageWidth = widget.width;
+    _imageStreamListener = ImageStreamListener(
+      (image, _) {
+        _imageWidth = image.image.width.toDouble();
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _imageStream?.removeListener(_imageStreamListener);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,18 +76,13 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
   Widget _buildResizableImage(BuildContext context) {
     final networkImage = Image.network(
       widget.src,
-      width: imageWidth == null ? null : imageWidth! - _distance,
+      width: _imageWidth == null ? null : _imageWidth! - _distance,
       loadingBuilder: (context, child, loadingProgress) =>
           loadingProgress == null ? child : _buildLoading(context),
     );
-    if (imageWidth == null) {
-      networkImage.image.resolve(const ImageConfiguration()).addListener(
-        ImageStreamListener(
-          (image, _) {
-            imageWidth = image.image.width.toDouble();
-          },
-        ),
-      );
+    if (_imageWidth == null) {
+      _imageStream = networkImage.image.resolve(const ImageConfiguration())
+        ..addListener(_imageStreamListener);
     }
     return Stack(
       children: [
@@ -108,7 +127,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
 
   Widget _buildLoading(BuildContext context) {
     return SizedBox(
-      width: imageWidth,
+      width: _imageWidth,
       height: 300,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -151,9 +170,11 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
           }
         },
         onHorizontalDragEnd: (details) {
-          imageWidth = imageWidth! - _distance;
+          _imageWidth = _imageWidth! - _distance;
           _initial = 0;
           _distance = 0;
+
+          widget.onResize(_imageWidth!);
         },
         child: MouseRegion(
           cursor: SystemMouseCursors.resizeLeftRight,

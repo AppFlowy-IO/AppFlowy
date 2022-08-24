@@ -30,6 +30,7 @@ void main() async {
           onAlign: (alignment) {
             onAlignHit = true;
           },
+          onResize: (width) {},
         );
 
         await tester.pumpWidget(

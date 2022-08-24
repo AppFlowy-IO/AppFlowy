@@ -11,9 +11,11 @@ class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
   Widget build(NodeWidgetContext<Node> context) {
     final src = context.node.attributes['image_src'];
     final align = context.node.attributes['align'];
+    final width = context.node.attributes['width'];
     return ImageNodeWidget(
       key: context.node.key,
       src: src,
+      width: width,
       alignment: _textToAlignment(align),
       onCopy: () {
         RichClipboard.setData(RichClipboardData(text: src));
@@ -27,6 +29,13 @@ class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
         TransactionBuilder(context.editorState)
           ..updateNode(context.node, {
             'align': _alignmentToText(alignment),
+          })
+          ..commit();
+      },
+      onResize: (width) {
+        TransactionBuilder(context.editorState)
+          ..updateNode(context.node, {
+            'width': width,
           })
           ..commit();
       },

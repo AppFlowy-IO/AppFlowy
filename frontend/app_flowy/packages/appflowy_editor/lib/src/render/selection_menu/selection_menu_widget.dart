@@ -22,8 +22,11 @@ class SelectionMenuItem {
   ///
   /// The keywords are used to quickly retrieve items.
   final List<String> keywords;
-  final void Function(EditorState editorState, SelectionMenuService menuService)
-      handler;
+  final void Function(
+    EditorState editorState,
+    SelectionMenuService menuService,
+    BuildContext context,
+  ) handler;
 }
 
 class SelectionMenuWidget extends StatefulWidget {
@@ -203,7 +206,7 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
       if (0 <= _selectedIndex && _selectedIndex < _showingItems.length) {
         _deleteLastCharacters(length: keyword.length + 1);
         _showingItems[_selectedIndex]
-            .handler(widget.editorState, widget.menuService);
+            .handler(widget.editorState, widget.menuService, context);
         return KeyEventResult.handled;
       }
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
