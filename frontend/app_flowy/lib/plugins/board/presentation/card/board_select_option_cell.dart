@@ -35,19 +35,17 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
       child: BlocBuilder<BoardSelectOptionCellBloc, BoardSelectOptionCellState>(
         builder: (context, state) {
           final children = state.selectedOptions
-              .map((option) => SelectOptionTag.fromOption(
-                    context: context,
-                    option: option,
-                  ))
+              .map(
+                (option) => SelectOptionTag.fromOption(
+                  context: context,
+                  option: option,
+                ),
+              )
               .toList();
           return Align(
             alignment: Alignment.centerLeft,
             child: AbsorbPointer(
-              child: Wrap(
-                children: children,
-                spacing: 4,
-                runSpacing: 2,
-              ),
+              child: Wrap(children: children, spacing: 4, runSpacing: 2),
             ),
           );
         },

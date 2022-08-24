@@ -133,8 +133,6 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
   void replaceOrInsertItem(AFColumnItem newItem) {
     final index = columnData._items.indexWhere((item) => item.id == newItem.id);
     if (index != -1) {
-      removeAt(index);
-
       columnData._items.removeAt(index);
       columnData._items.insert(index, newItem);
       notifyListeners();

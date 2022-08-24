@@ -279,8 +279,9 @@ class IGridCellController<T, D> extends Equatable {
     _loadDataOperation?.cancel();
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       _cellDataLoader.loadData().then((data) {
-        _cellDataNotifier?.value = data;
+        Log.debug('$fieldId CellData: Did Get cell data');
         _cellsCache.insert(_cacheKey, GridCell(object: data));
+        _cellDataNotifier?.value = data;
       });
     });
   }

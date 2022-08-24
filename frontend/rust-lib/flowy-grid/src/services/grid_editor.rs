@@ -582,7 +582,7 @@ impl GridRevisionEditor {
 
     pub async fn move_group_row(&self, params: MoveGroupRowParams) -> FlowyResult<()> {
         let MoveGroupRowParams {
-            view_id: _,
+            view_id,
             from_row_id,
             to_group_id,
             to_row_id,
@@ -597,10 +597,22 @@ impl GridRevisionEditor {
                     .await
                 {
                     tracing::trace!("Move group row cause row data changed: {:?}", row_changeset);
-                    match self.block_manager.update_row(row_changeset).await {
-                        Ok(_) => {}
-                        Err(e) => {
-                            tracing::error!("Apply row changeset error:{:?}", e);
+
+                    let cell_changesets = row_changeset
+                        .cell_by_field_id
+                        .into_iter()
+                        .map(|(field_id, cell_rev)| CellChangesetPB {
+                            grid_id: view_id.clone(),
+                            row_id: row_changeset.row_id.clone(),
+                            field_id,
+                            content: cell_rev.data,
+                        })
+                        .collect::<Vec<CellChangesetPB>>();
+
+                    for cell_changeset in cell_changesets {
+                        match self.block_manager.update_cell(cell_changeset).await {
+                            Ok(_) => {}
+                            Err(e) => tracing::error!("Apply cell changeset error:{:?}", e),
                         }
                     }
                 }

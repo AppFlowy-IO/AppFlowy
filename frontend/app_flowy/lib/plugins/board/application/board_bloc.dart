@@ -317,6 +317,9 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
   @override
   void updateRow(String groupId, RowPB row) {
-    controller.updateColumnItem(groupId, BoardColumnItem(row: row));
+    // workaround: fix the board card reload timing issue.
+    Future.delayed(const Duration(milliseconds: 300), () {
+      controller.updateColumnItem(groupId, BoardColumnItem(row: row));
+    });
   }
 }
