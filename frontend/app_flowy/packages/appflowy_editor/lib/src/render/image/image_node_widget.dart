@@ -54,25 +54,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
       widget.src,
       width: imageWidth == null ? null : imageWidth! - _distance,
       loadingBuilder: (context, child, loadingProgress) =>
-          loadingProgress == null
-              ? child
-              : SizedBox(
-                  width: imageWidth,
-                  height: 300,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox.fromSize(
-                        size: const Size(18, 18),
-                        child: const CircularProgressIndicator(),
-                      ),
-                      SizedBox.fromSize(
-                        size: const Size(10, 10),
-                      ),
-                      const Text('Loading'),
-                    ],
-                  ),
-                ),
+          loadingProgress == null ? child : _buildLoading(context),
     );
     if (imageWidth == null) {
       networkImage.image.resolve(const ImageConfiguration()).addListener(
@@ -111,13 +93,36 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
           },
         ),
         if (_onFocus)
-          _buildImageToolbar(
-            context,
+          ImageToolbar(
             top: 8,
             right: 8,
             height: 30,
-          ),
+            alignment: widget.alignment,
+            onAlign: widget.onAlign,
+            onCopy: widget.onCopy,
+            onDelete: widget.onDelete,
+          )
       ],
+    );
+  }
+
+  Widget _buildLoading(BuildContext context) {
+    return SizedBox(
+      width: imageWidth,
+      height: 300,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox.fromSize(
+            size: const Size(18, 18),
+            child: const CircularProgressIndicator(),
+          ),
+          SizedBox.fromSize(
+            size: const Size(10, 10),
+          ),
+          const Text('Loading'),
+        ],
+      ),
     );
   }
 
@@ -169,20 +174,34 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
       ),
     );
   }
+}
 
-  Widget _buildImageToolbar(
-    BuildContext context, {
-    double? top,
-    double? left,
-    double? right,
-    double? width,
-    double? height,
-  }) {
+@visibleForTesting
+class ImageToolbar extends StatelessWidget {
+  const ImageToolbar({
+    Key? key,
+    required this.top,
+    required this.right,
+    required this.height,
+    required this.alignment,
+    required this.onCopy,
+    required this.onDelete,
+    required this.onAlign,
+  }) : super(key: key);
+
+  final double top;
+  final double right;
+  final double height;
+  final Alignment alignment;
+  final VoidCallback onCopy;
+  final VoidCallback onDelete;
+  final void Function(Alignment alignment) onAlign;
+
+  @override
+  Widget build(BuildContext context) {
     return Positioned(
       top: top,
-      left: left,
       right: right,
-      width: width,
       height: height,
       child: Container(
         decoration: BoxDecoration(
@@ -205,12 +224,12 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
               padding: const EdgeInsets.fromLTRB(6.0, 4.0, 0.0, 4.0),
               icon: FlowySvg(
                 name: 'image_toolbar/align_left',
-                color: widget.alignment == Alignment.centerLeft
+                color: alignment == Alignment.centerLeft
                     ? const Color(0xFF00BCF0)
                     : null,
               ),
               onPressed: () {
-                widget.onAlign(Alignment.centerLeft);
+                onAlign(Alignment.centerLeft);
               },
             ),
             IconButton(
@@ -219,12 +238,12 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
               padding: const EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
               icon: FlowySvg(
                 name: 'image_toolbar/align_center',
-                color: widget.alignment == Alignment.center
+                color: alignment == Alignment.center
                     ? const Color(0xFF00BCF0)
                     : null,
               ),
               onPressed: () {
-                widget.onAlign(Alignment.center);
+                onAlign(Alignment.center);
               },
             ),
             IconButton(
@@ -233,12 +252,12 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
               padding: const EdgeInsets.fromLTRB(0.0, 4.0, 4.0, 4.0),
               icon: FlowySvg(
                 name: 'image_toolbar/align_right',
-                color: widget.alignment == Alignment.centerRight
+                color: alignment == Alignment.centerRight
                     ? const Color(0xFF00BCF0)
                     : null,
               ),
               onPressed: () {
-                widget.onAlign(Alignment.centerRight);
+                onAlign(Alignment.centerRight);
               },
             ),
             const Center(
@@ -254,7 +273,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
                 name: 'image_toolbar/copy',
               ),
               onPressed: () {
-                widget.onCopy();
+                onCopy();
               },
             ),
             IconButton(
@@ -265,7 +284,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
                 name: 'image_toolbar/delete',
               ),
               onPressed: () {
-                widget.onDelete();
+                onDelete();
               },
             ),
           ],

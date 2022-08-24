@@ -41,24 +41,20 @@ class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
       });
 
   Alignment _textToAlignment(String text) {
-    if (text == 'center') {
-      return Alignment.center;
-    } else if (text == 'left') {
+    if (text == 'left') {
       return Alignment.centerLeft;
     } else if (text == 'right') {
       return Alignment.centerRight;
     }
-    throw UnimplementedError();
+    return Alignment.center;
   }
 
   String _alignmentToText(Alignment alignment) {
-    if (alignment == Alignment.center) {
-      return 'center';
-    } else if (alignment == Alignment.centerLeft) {
+    if (alignment == Alignment.centerLeft) {
       return 'left';
     } else if (alignment == Alignment.centerRight) {
       return 'right';
     }
-    throw UnimplementedError();
+    return 'center';
   }
 }
