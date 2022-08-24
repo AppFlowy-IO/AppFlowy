@@ -205,13 +205,13 @@ class _BoardContentState extends State<BoardContent> {
 
         return ChangeNotifierProvider.value(
           key: ValueKey(columnData.id),
-          value: widget.dataController.columnController(columnData.id),
+          value: widget.dataController.getColumnController(columnData.id),
           child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
               final boardColumn = AFBoardColumnWidget(
                 margin: _marginFromIndex(columnIndex),
                 itemMargin: widget.config.columnItemPadding,
-                headerBuilder: widget.headerBuilder,
+                headerBuilder: _buildHeader,
                 footBuilder: widget.footBuilder,
                 cardBuilder: widget.cardBuilder,
                 dataSource: dataSource,
@@ -224,7 +224,6 @@ class _BoardContentState extends State<BoardContent> {
 
               // columnKeys
               //     .removeWhere((element) => element.columnId == columnData.id);
-
               // columnKeys.add(
               //   ColumnKey(
               //     columnId: columnData.id,
@@ -243,6 +242,19 @@ class _BoardContentState extends State<BoardContent> {
     ).toList();
 
     return children;
+  }
+
+  Widget? _buildHeader(
+      BuildContext context, AFBoardColumnHeaderData headerData) {
+    if (widget.headerBuilder == null) {
+      return null;
+    }
+    return Selector<AFBoardColumnDataController, AFBoardColumnHeaderData>(
+      selector: (context, controller) => controller.columnData.headerData,
+      builder: (context, headerData, _) {
+        return widget.headerBuilder!(context, headerData)!;
+      },
+    );
   }
 
   EdgeInsets _marginFromIndex(int index) {
@@ -273,7 +285,7 @@ class _BoardColumnDataSourceImpl extends AFBoardColumnDataDataSource {
 
   @override
   AFBoardColumnData get columnData =>
-      dataController.columnController(columnId).columnData;
+      dataController.getColumnController(columnId)!.columnData;
 
   @override
   List<String> get acceptedColumnIds => dataController.columnIds;

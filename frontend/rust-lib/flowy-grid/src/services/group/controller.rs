@@ -1,4 +1,4 @@
-use crate::entities::{GroupRowsChangesetPB, RowPB};
+use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, RowPB};
 use crate::services::cell::{decode_any_cell_data, CellBytesParser};
 use crate::services::group::action::GroupAction;
 use crate::services::group::configuration::GenericGroupConfiguration;
@@ -51,15 +51,17 @@ pub trait GroupControllerSharedOperation: Send + Sync {
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
+    ) -> FlowyResult<Vec<GroupChangesetPB>>;
 
     fn did_delete_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
+    ) -> FlowyResult<Vec<GroupChangesetPB>>;
 
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsChangesetPB>>;
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>>;
+
+    fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>>;
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
@@ -89,7 +91,7 @@ where
         let field_type_rev = field_rev.ty;
         let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
-        let _ = configuration.merge_groups(groups).await?;
+        let _ = configuration.merge_groups(groups)?;
         let default_group = Group::new(
             DEFAULT_GROUP_ID.to_owned(),
             field_rev.id.clone(),
@@ -112,6 +114,9 @@ impl<C, T, G, P> GroupControllerSharedOperation for GenericGroupController<C, T,
 where
     P: CellBytesParser,
     C: GroupConfigurationContentSerde,
+    T: TypeOptionDataDeserializer,
+    G: GroupGenerator<ConfigurationType = GenericGroupConfiguration<C>, TypeOptionType = T>,
+
     Self: GroupAction<CellDataType = P::Object>,
 {
     fn field_id(&self) -> &str {
@@ -173,11 +178,12 @@ where
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
+    ) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
-            Ok(self.add_row_if_match(row_rev, &cell_data))
+            let changesets = self.add_row_if_match(row_rev, &cell_data);
+            Ok(changesets)
         } else {
             Ok(vec![])
         }
@@ -187,7 +193,7 @@ where
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
-    ) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
+    ) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
@@ -197,7 +203,7 @@ where
         }
     }
 
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupRowsChangesetPB>> {
+    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = context.row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), context.field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
@@ -205,6 +211,14 @@ where
         } else {
             Ok(vec![])
         }
+    }
+
+    fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
+        let field_type_rev = field_rev.ty;
+        let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
+        let groups = G::generate_groups(&field_rev.id, &self.configuration, &type_option);
+        let changeset = self.configuration.merge_groups(groups)?;
+        Ok(changeset)
     }
 }
 

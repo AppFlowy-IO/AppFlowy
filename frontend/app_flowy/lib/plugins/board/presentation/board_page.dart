@@ -62,9 +62,8 @@ class BoardContent extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: AFBoard(
-              // key: UniqueKey(),
               scrollController: ScrollController(),
-              dataController: context.read<BoardBloc>().afBoardDataController,
+              dataController: context.read<BoardBloc>().boardController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
               cardBuilder: (_, data) => _buildCard(context, data),
@@ -79,10 +78,11 @@ class BoardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, AFBoardColumnData columnData) {
+  Widget _buildHeader(
+      BuildContext context, AFBoardColumnHeaderData headerData) {
     return AppFlowyColumnHeader(
       icon: const Icon(Icons.lightbulb_circle),
-      title: Text(columnData.desc),
+      title: Text(headerData.columnName),
       addIcon: const Icon(Icons.add, size: 20),
       moreIcon: const Icon(Icons.more_horiz, size: 20),
       height: 50,

@@ -42,7 +42,7 @@ class _BoardCardState extends State<BoardCard> {
     _cardBloc = BoardCardBloc(
       gridId: widget.gridId,
       dataController: widget.dataController,
-    );
+    )..add(const BoardCardEvent.initial());
     super.initState();
   }
 
@@ -78,6 +78,12 @@ class _BoardCardState extends State<BoardCard> {
         );
       },
     ).toList();
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cardBloc.close();
+    super.dispose();
   }
 }
 

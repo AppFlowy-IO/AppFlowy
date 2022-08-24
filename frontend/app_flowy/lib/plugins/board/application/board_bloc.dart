@@ -20,19 +20,19 @@ import 'group_controller.dart';
 part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
-  final BoardDataController _dataController;
-  late final AFBoardDataController afBoardDataController;
+  final BoardDataController _gridDataController;
+  late final AFBoardDataController boardController;
   final MoveRowFFIService _rowService;
   LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap.new();
 
-  GridFieldCache get fieldCache => _dataController.fieldCache;
-  String get gridId => _dataController.gridId;
+  GridFieldCache get fieldCache => _gridDataController.fieldCache;
+  String get gridId => _gridDataController.gridId;
 
   BoardBloc({required ViewPB view})
       : _rowService = MoveRowFFIService(gridId: view.id),
-        _dataController = BoardDataController(view: view),
+        _gridDataController = BoardDataController(view: view),
         super(BoardState.initial(view.id)) {
-    afBoardDataController = AFBoardDataController(
+    boardController = AFBoardDataController(
       onMoveColumn: (
         fromColumnId,
         fromIndex,
@@ -70,7 +70,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             await _loadGrid(emit);
           },
           createRow: (groupId) async {
-            final result = await _dataController.createBoardCard(groupId);
+            final result = await _gridDataController.createBoardCard(groupId);
             result.fold(
               (rowPB) {
                 emit(state.copyWith(editingRow: some(rowPB)));
@@ -126,7 +126,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   @override
   Future<void> close() async {
-    await _dataController.dispose();
+    await _gridDataController.dispose();
     for (final controller in groupControllers.values) {
       controller.dispose();
     }
@@ -135,7 +135,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   void initializeGroups(List<GroupPB> groups) {
     for (final group in groups) {
-      final delegate = GroupControllerDelegateImpl(afBoardDataController);
+      final delegate = GroupControllerDelegateImpl(boardController);
       final controller = GroupController(
         gridId: state.gridId,
         group: group,
@@ -147,12 +147,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   GridRowCache? getRowCache(String blockId) {
-    final GridBlockCache? blockCache = _dataController.blocks[blockId];
+    final GridBlockCache? blockCache = _gridDataController.blocks[blockId];
     return blockCache?.rowCache;
   }
 
   void _startListening() {
-    _dataController.addListener(
+    _gridDataController.addListener(
       onGridChanged: (grid) {
         if (!isClosed) {
           add(BoardEvent.didReceiveGridUpdate(grid));
@@ -162,17 +162,33 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         List<AFBoardColumnData> columns = groups.map((group) {
           return AFBoardColumnData(
             id: group.groupId,
-            desc: group.desc,
+            name: group.desc,
             items: _buildRows(group.rows),
             customData: group,
           );
         }).toList();
 
-        afBoardDataController.addColumns(columns);
+        boardController.addColumns(columns);
         initializeGroups(groups);
       },
       onRowsChanged: (List<RowInfo> rowInfos, RowsChangedReason reason) {
         add(BoardEvent.didReceiveRows(rowInfos));
+      },
+      onDeletedGroup: (groupIds) {
+        //
+      },
+      onInsertedGroup: (insertedGroups) {
+        //
+      },
+      onUpdatedGroup: (updatedGroups) {
+        //
+        for (final group in updatedGroups) {
+          final columnController =
+              boardController.getColumnController(group.groupId);
+          if (columnController != null) {
+            columnController.updateColumnName(group.desc);
+          }
+        }
       },
       onError: (err) {
         Log.error(err);
@@ -189,7 +205,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   Future<void> _loadGrid(Emitter<BoardState> emit) async {
-    final result = await _dataController.loadData();
+    final result = await _gridDataController.loadData();
     result.fold(
       (grid) => emit(
         state.copyWith(loadingState: GridLoadingState.finish(left(unit))),
@@ -301,6 +317,9 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
   @override
   void updateRow(String groupId, RowPB row) {
-    //
+    // workaround: fix the board card reload timing issue.
+    Future.delayed(const Duration(milliseconds: 300), () {
+      controller.updateColumnItem(groupId, BoardColumnItem(row: row));
+    });
   }
 }
