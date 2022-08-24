@@ -1,8 +1,11 @@
 import 'package:app_flowy/plugins/board/application/card/board_date_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'define.dart';
 
 class BoardDateCell extends StatefulWidget {
   final GridCellControllerBuilder cellControllerBuilder;
@@ -40,9 +43,15 @@ class _BoardDateCellState extends State<BoardDateCell> {
           } else {
             return Align(
               alignment: Alignment.centerLeft,
-              child: FlowyText.regular(
-                state.dateStr,
-                fontSize: 14,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: BoardSizes.cardCellVPading,
+                ),
+                child: FlowyText.regular(
+                  state.dateStr,
+                  fontSize: 13,
+                  color: context.read<AppTheme>().shader3,
+                ),
               ),
             );
           }

@@ -4,6 +4,8 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_c
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'define.dart';
+
 class BoardSelectOptionCell extends StatefulWidget {
   final GridCellControllerBuilder cellControllerBuilder;
 
@@ -42,10 +44,13 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
                 ),
               )
               .toList();
-          return Align(
-            alignment: Alignment.centerLeft,
-            child: AbsorbPointer(
-              child: Wrap(children: children, spacing: 4, runSpacing: 2),
+          return Padding(
+            padding: EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPading),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: AbsorbPointer(
+                child: Wrap(children: children, spacing: 4, runSpacing: 2),
+              ),
             ),
           );
         },

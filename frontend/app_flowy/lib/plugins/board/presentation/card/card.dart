@@ -73,7 +73,7 @@ class _BoardCardState extends State<BoardCard> {
       (cellId) {
         final child = widget.cellBuilder.buildCell(cellId);
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
           child: child,
         );
       },
