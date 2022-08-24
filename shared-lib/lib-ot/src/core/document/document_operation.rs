@@ -2,26 +2,26 @@ use crate::core::document::position::Position;
 use crate::core::{NodeAttributes, NodeSubTree, TextDelta};
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
-#[serde(tag = "type")]
+#[serde(tag = "op")]
 pub enum DocumentOperation {
-    #[serde(rename = "insert-operation")]
+    #[serde(rename = "insert")]
     Insert {
         path: Position,
         nodes: Vec<Box<NodeSubTree>>,
     },
-    #[serde(rename = "update-operation")]
+    #[serde(rename = "update")]
     Update {
         path: Position,
         attributes: NodeAttributes,
         #[serde(rename = "oldAttributes")]
         old_attributes: NodeAttributes,
     },
-    #[serde(rename = "delete-operation")]
+    #[serde(rename = "delete")]
     Delete {
         path: Position,
         nodes: Vec<Box<NodeSubTree>>,
     },
-    #[serde(rename = "text-edit-operation")]
+    #[serde(rename = "text-edit")]
     TextEdit {
         path: Position,
         delta: TextDelta,
@@ -166,7 +166,7 @@ mod tests {
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(
             result,
-            r#"{"type":"insert-operation","path":[0,1],"nodes":[{"type":"text","attributes":{}}]}"#
+            r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","attributes":{}}]}"#
         );
     }
 
@@ -184,7 +184,7 @@ mod tests {
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(
             result,
-            r#"{"type":"insert-operation","path":[0,1],"nodes":[{"type":"text","attributes":{},"children":[{"type":"text","attributes":{}}]}]}"#
+            r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","attributes":{},"children":[{"type":"text","attributes":{}}]}]}"#
         );
     }
 
@@ -198,7 +198,7 @@ mod tests {
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(
             result,
-            r#"{"type":"update-operation","path":[0,1],"attributes":{},"oldAttributes":{}}"#
+            r#"{"op":"update","path":[0,1],"attributes":{},"oldAttributes":{}}"#
         );
     }
 
@@ -210,9 +210,6 @@ mod tests {
             inverted: Delta::new(),
         };
         let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(
-            result,
-            r#"{"type":"text-edit-operation","path":[0,1],"delta":[],"inverted":[]}"#
-        );
+        assert_eq!(result, r#"{"op":"text-edit","path":[0,1],"delta":[],"inverted":[]}"#);
     }
 }

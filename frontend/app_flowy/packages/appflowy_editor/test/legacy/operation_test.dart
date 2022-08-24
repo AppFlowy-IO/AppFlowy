@@ -84,7 +84,7 @@ void main() {
       expect(transaction.toJson(), {
         "operations": [
           {
-            "type": "insert-operation",
+            "op": "insert",
             "path": [0],
             "nodes": [item1.toJson()],
           }
@@ -107,7 +107,7 @@ void main() {
       expect(transaction.toJson(), {
         "operations": [
           {
-            "type": "delete-operation",
+            "op": "delete",
             "path": [0],
             "nodes": [item1.toJson()],
           }
