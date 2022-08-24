@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/src/infra/log.dart';
+import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -149,6 +150,9 @@ class _AppFlowyInputState extends State<AppFlowyInput>
           textNode,
           delta.insertionOffset,
           delta.textInserted,
+          removedAttributes: {
+            StyleKey.href: null,
+          },
         )
         ..commit();
     } else {
