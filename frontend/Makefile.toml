@@ -163,13 +163,13 @@ PRODUCT_EXT = "ipa"
 
 [env.production-android]
 run_task = {name = ["setup-crate-android"]}
-script_runner="@duckscript"
+#script_runner="@duckscript"
 BUILD_FLAG = "release"
 TARGET_OS = "android"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "so"
 script = [
-    """ 
+    """
     cd rust-lib
     bash ../scripts/build_mobile_sdk.sh
     """,
