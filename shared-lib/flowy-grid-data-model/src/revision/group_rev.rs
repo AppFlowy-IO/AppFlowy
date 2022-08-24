@@ -110,6 +110,9 @@ impl GroupConfigurationContentSerde for SelectOptionGroupConfigurationRevision {
 pub struct GroupRecordRevision {
     pub group_id: String,
 
+    #[serde(default)]
+    pub name: String,
+
     #[serde(default = "DEFAULT_GROUP_RECORD_VISIBILITY")]
     pub visible: bool,
 }
@@ -117,9 +120,10 @@ pub struct GroupRecordRevision {
 const DEFAULT_GROUP_RECORD_VISIBILITY: fn() -> bool = || true;
 
 impl GroupRecordRevision {
-    pub fn new(group_id: String) -> Self {
+    pub fn new(group_id: String, group_name: String) -> Self {
         Self {
             group_id,
+            name: group_name,
             visible: true,
         }
     }

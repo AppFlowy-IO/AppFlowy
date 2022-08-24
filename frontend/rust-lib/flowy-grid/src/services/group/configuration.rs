@@ -1,12 +1,12 @@
+use crate::entities::{GroupPB, GroupViewChangesetPB, InsertedGroupPB};
 use crate::services::group::{default_group_configuration, Group};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
     FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision, GroupRecordRevision,
 };
-use std::marker::PhantomData;
-
 use indexmap::IndexMap;
 use lib_infra::future::AFFuture;
+use std::marker::PhantomData;
 use std::sync::Arc;
 
 pub trait GroupConfigurationReader: Send + Sync + 'static {
@@ -26,6 +26,7 @@ pub trait GroupConfigurationWriter: Send + Sync + 'static {
 }
 
 pub struct GenericGroupConfiguration<C> {
+    view_id: String,
     pub configuration: Arc<GroupConfigurationRevision>,
     configuration_content: PhantomData<C>,
     field_rev: Arc<FieldRevision>,
@@ -39,6 +40,7 @@ where
 {
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn new(
+        view_id: String,
         field_rev: Arc<FieldRevision>,
         reader: Arc<dyn GroupConfigurationReader>,
         writer: Arc<dyn GroupConfigurationWriter>,
@@ -56,6 +58,7 @@ where
 
         // let configuration = C::from_configuration_content(&configuration_rev.content)?;
         Ok(Self {
+            view_id,
             field_rev,
             groups_map: IndexMap::new(),
             writer,
@@ -72,8 +75,18 @@ where
         self.groups_map.values().cloned().collect()
     }
 
-    pub(crate) async fn merge_groups(&mut self, groups: Vec<Group>) -> FlowyResult<()> {
-        let (group_revs, groups) = merge_groups(&self.configuration.groups, groups);
+    pub(crate) fn merge_groups(&mut self, groups: Vec<Group>) -> FlowyResult<Option<GroupViewChangesetPB>> {
+        let MergeGroupResult {
+            groups,
+            inserted_groups,
+            updated_groups,
+        } = merge_groups(&self.configuration.groups, groups);
+
+        let group_revs = groups
+            .iter()
+            .map(|group| GroupRecordRevision::new(group.id.clone(), group.name.clone()))
+            .collect();
+
         self.mut_configuration(move |configuration| {
             configuration.groups = group_revs;
             true
@@ -82,7 +95,14 @@ where
         groups.into_iter().for_each(|group| {
             self.groups_map.insert(group.id.clone(), group);
         });
-        Ok(())
+
+        let changeset = make_group_view_changeset(self.view_id.clone(), inserted_groups, updated_groups);
+        tracing::trace!("Group changeset: {:?}", changeset);
+        if changeset.is_empty() {
+            Ok(None)
+        } else {
+            Ok(Some(changeset))
+        }
     }
 
     #[allow(dead_code)]
@@ -101,7 +121,7 @@ where
         Ok(())
     }
 
-    pub(crate) fn with_mut_groups(&mut self, mut each: impl FnMut(&mut Group)) {
+    pub(crate) fn iter_mut_groups(&mut self, mut each: impl FnMut(&mut Group)) {
         self.groups_map.iter_mut().for_each(|(_, group)| {
             each(group);
         })
@@ -189,33 +209,82 @@ where
     }
 }
 
-fn merge_groups(old_group_revs: &[GroupRecordRevision], groups: Vec<Group>) -> (Vec<GroupRecordRevision>, Vec<Group>) {
-    if old_group_revs.is_empty() {
-        let new_groups = groups
-            .iter()
-            .map(|group| GroupRecordRevision::new(group.id.clone()))
-            .collect();
-        return (new_groups, groups);
+fn merge_groups(old_groups: &[GroupRecordRevision], groups: Vec<Group>) -> MergeGroupResult {
+    let mut merge_result = MergeGroupResult::new();
+    if old_groups.is_empty() {
+        merge_result.groups = groups;
+        return merge_result;
     }
 
+    // group_map is a helper map is used to filter out the new groups.
     let mut group_map: IndexMap<String, Group> = IndexMap::new();
     groups.into_iter().for_each(|group| {
         group_map.insert(group.id.clone(), group);
     });
 
-    // Inert
-    let mut sorted_groups: Vec<Group> = vec![];
-    for group_rev in old_group_revs {
+    // The group is ordered in old groups. Add them before adding the new groups
+    for group_rev in old_groups {
         if let Some(group) = group_map.remove(&group_rev.group_id) {
-            sorted_groups.push(group);
+            if group.name == group_rev.name {
+                merge_result.add_group(group);
+            } else {
+                merge_result.add_updated_group(group);
+            }
         }
     }
-    sorted_groups.extend(group_map.into_values().collect::<Vec<Group>>());
-    let new_group_revs = sorted_groups
-        .iter()
-        .map(|group| GroupRecordRevision::new(group.id.clone()))
-        .collect::<Vec<GroupRecordRevision>>();
 
-    tracing::trace!("group revs: {}, groups: {}", new_group_revs.len(), sorted_groups.len());
-    (new_group_revs, sorted_groups)
+    // Find out the new groups
+    let new_groups = group_map.into_values().collect::<Vec<Group>>();
+    for (index, group) in new_groups.into_iter().enumerate() {
+        merge_result.add_insert_group(index, group);
+    }
+    merge_result
+}
+
+struct MergeGroupResult {
+    groups: Vec<Group>,
+    inserted_groups: Vec<InsertedGroupPB>,
+    updated_groups: Vec<Group>,
+}
+
+impl MergeGroupResult {
+    fn new() -> Self {
+        Self {
+            groups: vec![],
+            inserted_groups: vec![],
+            updated_groups: vec![],
+        }
+    }
+
+    fn add_updated_group(&mut self, group: Group) {
+        self.groups.push(group.clone());
+        self.updated_groups.push(group);
+    }
+
+    fn add_group(&mut self, group: Group) {
+        self.groups.push(group.clone());
+    }
+
+    fn add_insert_group(&mut self, index: usize, group: Group) {
+        self.groups.push(group.clone());
+        let inserted_group = InsertedGroupPB {
+            group: GroupPB::from(group),
+            index: index as i32,
+        };
+        self.inserted_groups.push(inserted_group);
+    }
+}
+
+fn make_group_view_changeset(
+    view_id: String,
+    inserted_groups: Vec<InsertedGroupPB>,
+    updated_group: Vec<Group>,
+) -> GroupViewChangesetPB {
+    let changeset = GroupViewChangesetPB {
+        view_id,
+        inserted_groups,
+        deleted_groups: vec![],
+        update_groups: updated_group.into_iter().map(GroupPB::from).collect(),
+    };
+    changeset
 }

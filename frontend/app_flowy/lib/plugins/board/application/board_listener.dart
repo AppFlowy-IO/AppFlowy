@@ -4,24 +4,23 @@ import 'package:app_flowy/core/grid_notification.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/group.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/group_changeset.pb.dart';
 
-typedef UpdateGroupNotifiedValue = Either<GroupChangesetPB, FlowyError>;
+typedef UpdateBoardNotifiedValue = Either<GroupViewChangesetPB, FlowyError>;
 
-class GroupListener {
-  final GroupPB group;
-  PublishNotifier<UpdateGroupNotifiedValue>? _groupNotifier = PublishNotifier();
+class BoardListener {
+  final String viewId;
+  PublishNotifier<UpdateBoardNotifiedValue>? _groupNotifier = PublishNotifier();
   GridNotificationListener? _listener;
-  GroupListener(this.group);
+  BoardListener(this.viewId);
 
   void start({
-    required void Function(UpdateGroupNotifiedValue) onGroupChanged,
+    required void Function(UpdateBoardNotifiedValue) onBoardChanged,
   }) {
-    _groupNotifier?.addPublishListener(onGroupChanged);
+    _groupNotifier?.addPublishListener(onBoardChanged);
     _listener = GridNotificationListener(
-      objectId: group.groupId,
+      objectId: viewId,
       handler: _handler,
     );
   }
@@ -31,10 +30,10 @@ class GroupListener {
     Either<Uint8List, FlowyError> result,
   ) {
     switch (ty) {
-      case GridNotification.DidUpdateGroup:
+      case GridNotification.DidUpdateGroupView:
         result.fold(
           (payload) => _groupNotifier?.value =
-              left(GroupChangesetPB.fromBuffer(payload)),
+              left(GroupViewChangesetPB.fromBuffer(payload)),
           (error) => _groupNotifier?.value = right(error),
         );
         break;

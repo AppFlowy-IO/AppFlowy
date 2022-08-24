@@ -34,6 +34,13 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
   UnmodifiableListView<AFColumnItem> get items =>
       UnmodifiableListView(columnData.items);
 
+  void updateColumnName(String newName) {
+    if (columnData.headerData.columnName != newName) {
+      columnData.headerData.columnName = newName;
+      notifyListeners();
+    }
+  }
+
   /// Remove the item at [index].
   /// * [index] the index of the item you want to remove
   /// * [notify] the default value of [notify] is true, it will notify the
@@ -123,6 +130,20 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
     notifyListeners();
   }
 
+  void replaceOrInsertItem(AFColumnItem newItem) {
+    final index = columnData._items.indexWhere((item) => item.id == newItem.id);
+    if (index != -1) {
+      removeAt(index);
+
+      columnData._items.removeAt(index);
+      columnData._items.insert(index, newItem);
+      notifyListeners();
+    } else {
+      columnData._items.add(newItem);
+      notifyListeners();
+    }
+  }
+
   bool _containsItem(AFColumnItem item) {
     return columnData._items.indexWhere((element) => element.id == item.id) !=
         -1;
@@ -133,16 +154,20 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
 class AFBoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
   @override
   final String id;
-  final String desc;
+  AFBoardColumnHeaderData headerData;
   final List<AFColumnItem> _items;
   final CustomData? customData;
 
   AFBoardColumnData({
     this.customData,
     required this.id,
-    this.desc = "",
+    required String name,
     List<AFColumnItem> items = const [],
-  }) : _items = items;
+  })  : _items = items,
+        headerData = AFBoardColumnHeaderData(
+          columnId: id,
+          columnName: name,
+        );
 
   /// Returns the readonly List<ColumnItem>
   UnmodifiableListView<AFColumnItem> get items =>
@@ -155,4 +180,11 @@ class AFBoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
   String toString() {
     return 'Column:[$id]';
   }
+}
+
+class AFBoardColumnHeaderData {
+  String columnId;
+  String columnName;
+
+  AFBoardColumnHeaderData({required this.columnId, required this.columnName});
 }

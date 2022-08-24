@@ -1,5 +1,6 @@
 use crate::grid::group_test::script::GridGroupTest;
 use crate::grid::group_test::script::GroupScript::*;
+use flowy_grid::entities::FieldChangesetParams;
 
 #[tokio::test]
 async fn group_init_test() {
@@ -310,6 +311,28 @@ async fn group_move_group_test() {
         AssertGroup {
             group_index: 1,
             expected_group: group_0,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn group_update_field_test() {
+    let mut test = GridGroupTest::new().await;
+    let mut group = test.group_at_index(0).await;
+    let changeset = FieldChangesetParams {
+        field_id: group.field_id.clone(),
+        grid_id: test.grid_id.clone(),
+        name: Some("ABC".to_string()),
+        ..Default::default()
+    };
+
+    // group.desc = "ABC".to_string();
+    let scripts = vec![
+        UpdateField { changeset },
+        AssertGroup {
+            group_index: 0,
+            expected_group: group,
         },
     ];
     test.run_scripts(scripts).await;

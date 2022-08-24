@@ -188,8 +188,13 @@ impl GridRevisionEditor {
     pub async fn replace_field(&self, field_rev: Arc<FieldRevision>) -> FlowyResult<()> {
         let field_id = field_rev.id.clone();
         let _ = self
-            .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev)?))
+            .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev.clone())?))
             .await?;
+
+        match self.view_manager.did_update_field(&field_rev.id).await {
+            Ok(_) => {}
+            Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+        }
         let _ = self.notify_did_update_grid_field(&field_id).await?;
         Ok(())
     }
@@ -263,59 +268,65 @@ impl GridRevisionEditor {
     }
 
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
-        self.modify(|grid| {
-            let deserializer = TypeOptionJsonDeserializer(field_type);
+        let _ = self
+            .modify(|grid| {
+                let deserializer = TypeOptionJsonDeserializer(field_type);
+                let changeset = grid.modify_field(&params.field_id, |field| {
+                    let mut is_changed = None;
+                    if let Some(name) = params.name {
+                        field.name = name;
+                        is_changed = Some(())
+                    }
 
-            let changeset = grid.modify_field(&params.field_id, |field| {
-                let mut is_changed = None;
-                if let Some(name) = params.name {
-                    field.name = name;
-                    is_changed = Some(())
-                }
+                    if let Some(desc) = params.desc {
+                        field.desc = desc;
+                        is_changed = Some(())
+                    }
 
-                if let Some(desc) = params.desc {
-                    field.desc = desc;
-                    is_changed = Some(())
-                }
+                    if let Some(field_type) = params.field_type {
+                        field.ty = field_type;
+                        is_changed = Some(())
+                    }
 
-                if let Some(field_type) = params.field_type {
-                    field.ty = field_type;
-                    is_changed = Some(())
-                }
+                    if let Some(frozen) = params.frozen {
+                        field.frozen = frozen;
+                        is_changed = Some(())
+                    }
 
-                if let Some(frozen) = params.frozen {
-                    field.frozen = frozen;
-                    is_changed = Some(())
-                }
+                    if let Some(visibility) = params.visibility {
+                        field.visibility = visibility;
+                        is_changed = Some(())
+                    }
 
-                if let Some(visibility) = params.visibility {
-                    field.visibility = visibility;
-                    is_changed = Some(())
-                }
+                    if let Some(width) = params.width {
+                        field.width = width;
+                        is_changed = Some(())
+                    }
 
-                if let Some(width) = params.width {
-                    field.width = width;
-                    is_changed = Some(())
-                }
-
-                if let Some(type_option_data) = params.type_option_data {
-                    match deserializer.deserialize(type_option_data) {
-                        Ok(json_str) => {
-                            let field_type = field.ty;
-                            field.insert_type_option_str(&field_type, json_str);
-                            is_changed = Some(())
-                        }
-                        Err(err) => {
-                            tracing::error!("Deserialize data to type option json failed: {}", err);
+                    if let Some(type_option_data) = params.type_option_data {
+                        match deserializer.deserialize(type_option_data) {
+                            Ok(json_str) => {
+                                let field_type = field.ty;
+                                field.insert_type_option_str(&field_type, json_str);
+                                is_changed = Some(())
+                            }
+                            Err(err) => {
+                                tracing::error!("Deserialize data to type option json failed: {}", err);
+                            }
                         }
                     }
-                }
 
-                Ok(is_changed)
-            })?;
-            Ok(changeset)
-        })
-        .await
+                    Ok(is_changed)
+                })?;
+                Ok(changeset)
+            })
+            .await?;
+
+        match self.view_manager.did_update_field(&params.field_id).await {
+            Ok(_) => {}
+            Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+        }
+        Ok(())
     }
 
     pub async fn create_block(&self, block_meta_rev: GridBlockMetaRevision) -> FlowyResult<()> {
@@ -585,6 +596,7 @@ impl GridRevisionEditor {
                     .move_group_row(row_rev, to_group_id, to_row_id.clone())
                     .await
                 {
+                    tracing::trace!("Move group row cause row data changed: {:?}", row_changeset);
                     match self.block_manager.update_row(row_changeset).await {
                         Ok(_) => {}
                         Err(e) => {

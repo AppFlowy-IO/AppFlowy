@@ -1,5 +1,4 @@
 use crate::entities::{GroupPB, InsertedRowPB, RowPB};
-use diesel::insertable::ColumnInsertValue::Default;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -42,7 +41,17 @@ impl std::fmt::Display for GroupChangesetPB {
 
 impl GroupChangesetPB {
     pub fn is_empty(&self) -> bool {
-        self.inserted_rows.is_empty() && self.deleted_rows.is_empty() && self.updated_rows.is_empty()
+        self.group_name.is_none()
+            && self.inserted_rows.is_empty()
+            && self.deleted_rows.is_empty()
+            && self.updated_rows.is_empty()
+    }
+
+    pub fn new(group_id: String) -> Self {
+        Self {
+            group_id,
+            ..Default::default()
+        }
     }
 
     pub fn name(group_id: String, name: &str) -> Self {
@@ -126,9 +135,16 @@ pub struct GroupViewChangesetPB {
 
     #[pb(index = 3)]
     pub deleted_groups: Vec<String>,
+
+    #[pb(index = 4)]
+    pub update_groups: Vec<GroupPB>,
 }
 
-impl GroupViewChangesetPB {}
+impl GroupViewChangesetPB {
+    pub fn is_empty(&self) -> bool {
+        self.inserted_groups.is_empty() && self.deleted_groups.is_empty() && self.update_groups.is_empty()
+    }
+}
 
 #[derive(Debug, Default, ProtoBuf)]
 pub struct InsertedGroupPB {

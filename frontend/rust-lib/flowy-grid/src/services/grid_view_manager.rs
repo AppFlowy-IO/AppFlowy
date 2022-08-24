@@ -142,10 +142,10 @@ impl GridViewManager {
                 .await;
         }
 
-        if row_changeset.has_changed() {
-            Some(row_changeset)
-        } else {
+        if row_changeset.is_empty() {
             None
+        } else {
+            Some(row_changeset)
         }
     }
 
