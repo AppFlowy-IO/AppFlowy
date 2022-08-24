@@ -33,6 +33,12 @@ class StateTree {
     return StateTree(root: root);
   }
 
+  Map<String, Object> toJson() {
+    return {
+      'document': root.toJson(),
+    };
+  }
+
   Node? nodeAtPath(Path path) {
     return root.childAtPath(path);
   }

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import 'expandable_floating_action_button.dart';
 import 'plugin/youtube_link_node_widget.dart';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(const MyApp());
@@ -58,6 +60,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final editorKey = GlobalKey();
   int page = 0;
+  EditorState? _editorState;
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +106,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ..handler = (message) {
               debugPrint(message);
             };
+          _editorState = editorState;
           return _buildAppFlowyEditor(editorState);
         } else {
           return const Center(
@@ -146,6 +150,21 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  void _exportDocument(EditorState editorState) async {
+    // await FileSaver.instance.saveAs(String name, Uint8List bytes, String ext, MimeType);
+    final document = editorState.document.toJson();
+    debugPrint(document.toString());
+    final json = jsonEncode(document);
+    debugPrint(json);
+
+    final directory = await getTemporaryDirectory();
+    final path = directory.path;
+    debugPrint(path);
+
+    final file = File('$path/temp.json');
+    await file.writeAsString(json);
+  }
+
   Widget _buildExpandableFab() {
     return ExpandableFab(
       distance: 112.0,
@@ -176,6 +195,12 @@ class _MyHomePageState extends State<MyHomePage> {
             });
           },
           icon: const Icon(Icons.text_fields),
+        ),
+        ActionButton(
+          onPressed: () {
+            _exportDocument(_editorState!);
+          },
+          icon: const Icon(Icons.print),
         ),
       ],
     );

@@ -40,6 +40,7 @@ dependencies:
   video_player: ^2.4.5
   pod_player: 0.0.8
   flutter_inappwebview: ^5.4.3+7
+  file_saver: ^0.1.1
 
 dev_dependencies:
   flutter_test:
