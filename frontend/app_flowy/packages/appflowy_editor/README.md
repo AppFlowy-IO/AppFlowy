@@ -76,7 +76,6 @@ cd frontend/app_flowy/packages/appflowy_editor/example
 flutter run
 ```
 
-
 ## Customizing Your Editor
 
 ### Customizing Components
@@ -108,4 +107,4 @@ Contributions are what make the open source community such an amazing place to b
 Please look at [CONTRIBUTING.md](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/contributing-to-appflowy) for details.
 
 ## License
-Distributed under the AGPLv3 License. See LICENSE for more information.
+Distributed under the AGPLv3 License. See [LICENSE](https://github.com/AppFlowy-IO/AppFlowy-Docs/blob/main/LICENSE) for more information.
