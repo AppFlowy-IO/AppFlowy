@@ -2,14 +2,14 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 
 abstract class Operation {
   factory Operation.fromJson(Map<String, dynamic> map) {
-    String t = map["type"] as String;
-    if (t == "insert-operation") {
+    String t = map["op"] as String;
+    if (t == "insert") {
       return InsertOperation.fromJson(map);
-    } else if (t == "update-operation") {
+    } else if (t == "update") {
       return UpdateOperation.fromJson(map);
-    } else if (t == "delete-operation") {
+    } else if (t == "delete") {
       return DeleteOperation.fromJson(map);
-    } else if (t == "text-edit-operation") {
+    } else if (t == "text-edit") {
       return TextEditOperation.fromJson(map);
     }
 
@@ -51,7 +51,7 @@ class InsertOperation extends Operation {
   @override
   Map<String, dynamic> toJson() {
     return {
-      "type": "insert-operation",
+      "op": "insert",
       "path": path.toList(),
       "nodes": nodes.map((n) => n.toJson()),
     };
@@ -95,7 +95,7 @@ class UpdateOperation extends Operation {
   @override
   Map<String, dynamic> toJson() {
     return {
-      "type": "update-operation",
+      "op": "update",
       "path": path.toList(),
       "attributes": {...attributes},
       "oldAttributes": {...oldAttributes},
@@ -132,7 +132,7 @@ class DeleteOperation extends Operation {
   @override
   Map<String, dynamic> toJson() {
     return {
-      "type": "delete-operation",
+      "op": "delete",
       "path": path.toList(),
       "nodes": nodes.map((n) => n.toJson()),
     };
@@ -171,7 +171,7 @@ class TextEditOperation extends Operation {
   @override
   Map<String, dynamic> toJson() {
     return {
-      "type": "text-edit-operation",
+      "op": "text-edit",
       "path": path.toList(),
       "delta": delta.toJson(),
       "invert": inverted.toJson(),
@@ -207,10 +207,10 @@ Path transformPath(Path preInsertPath, Path b, [int delta = 1]) {
 
 Operation transformOperation(Operation a, Operation b) {
   if (a is InsertOperation) {
-    final newPath = transformPath(a.path, b.path);
+    final newPath = transformPath(a.path, b.path, a.nodes.length);
     return b.copyWithPath(newPath);
   } else if (a is DeleteOperation) {
-    final newPath = transformPath(a.path, b.path, -1);
+    final newPath = transformPath(a.path, b.path, -1 * a.nodes.length);
     return b.copyWithPath(newPath);
   }
   // TODO: transform update and textedit

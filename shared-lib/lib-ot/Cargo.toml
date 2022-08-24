@@ -24,6 +24,7 @@ lazy_static = "1.4.0"
 strum = "0.21"
 strum_macros = "0.21"
 bytes = "1.0"
+indextree = "4.4.0"
 
 
 [features]

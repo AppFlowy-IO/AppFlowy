@@ -60,7 +60,7 @@ impl std::convert::From<Utf8Error> for OTError {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub enum OTErrorCode {
     IncompatibleLength,
     ApplyInsertFail,
@@ -74,6 +74,7 @@ pub enum OTErrorCode {
     DuplicatedRevision,
     RevisionIDConflict,
     Internal,
+    PathNotFound,
 }
 
 pub struct ErrorBuilder {
