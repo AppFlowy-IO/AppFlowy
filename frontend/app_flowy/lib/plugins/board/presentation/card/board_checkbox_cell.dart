@@ -41,9 +41,7 @@ class _BoardCheckboxCellState extends State<BoardCheckboxCell> {
               ? svgWidget('editor/editor_check')
               : svgWidget('editor/editor_uncheck');
           return Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: BoardSizes.cardCellVPading,
-            ),
+            padding: EdgeInsets.zero,
             child: Align(
               alignment: Alignment.centerLeft,
               child: FlowyIconButton(

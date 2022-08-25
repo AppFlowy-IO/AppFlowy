@@ -42,7 +42,7 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
           } else {
             return Padding(
               padding:
-                  EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPading),
+                  EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPadding),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: RichText(

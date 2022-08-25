@@ -84,7 +84,6 @@ class BoardContent extends StatelessWidget {
   Widget _buildHeader(
       BuildContext context, AFBoardColumnHeaderData headerData) {
     return AppFlowyColumnHeader(
-      // icon: const Icon(Icons.lightbulb_circle),
       title: Flexible(
         fit: FlexFit.tight,
         child: FlowyText.medium(
@@ -95,14 +94,14 @@ class BoardContent extends StatelessWidget {
         ),
       ),
       // addIcon: const Icon(Icons.add, size: 20),
-      moreIcon: SizedBox(
-        width: 20,
-        height: 20,
-        child: svgWidget(
-          'grid/details',
-          color: context.read<AppTheme>().iconColor,
-        ),
-      ),
+      // moreIcon: SizedBox(
+      //   width: 20,
+      //   height: 20,
+      //   child: svgWidget(
+      //     'grid/details',
+      //     color: context.read<AppTheme>().iconColor,
+      //   ),
+      // ),
       height: 50,
       margin: config.headerPadding,
     );
