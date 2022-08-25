@@ -217,7 +217,7 @@ class _BoardContentState extends State<BoardContent> {
               final boardColumn = AFBoardColumnWidget(
                 margin: _marginFromIndex(columnIndex),
                 itemMargin: widget.config.columnItemPadding,
-                headerBuilder: _buildHeader,
+                headerBuilder: widget.headerBuilder,
                 footBuilder: widget.footBuilder,
                 cardBuilder: widget.cardBuilder,
                 dataSource: dataSource,
@@ -230,6 +230,7 @@ class _BoardContentState extends State<BoardContent> {
 
               // columnKeys
               //     .removeWhere((element) => element.columnId == columnData.id);
+
               // columnKeys.add(
               //   ColumnKey(
               //     columnId: columnData.id,
