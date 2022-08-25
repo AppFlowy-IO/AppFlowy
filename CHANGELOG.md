@@ -1,6 +1,6 @@
 # Release Notes
 
-## Version 0.0.5 - beta.1 - 2022-08-25
+## Version 0.0.5 - beta.1 - 08/25/2022
 
 New features
 - Board-view database  
@@ -11,7 +11,7 @@ New features
 ![Aug-25-2022 16-22-38](https://user-images.githubusercontent.com/86001920/186614248-23186dfe-410e-427a-8cc6-865b1f79e074.gif)
 
 
-## Version 0.0.4 - 2022-06-06
+## Version 0.0.4 - 06/06/2022
 - Drag to adjust the width of a column
 - Upgrade to Flutter 3.0
 - Native support for M1 chip
@@ -23,7 +23,7 @@ New features
 - Fixed some bugs
 
 
-## Version 0.0.4 - beta.3 - 2022-05-02
+## Version 0.0.4 - beta.3 - 05/02/2022
 - Drag to reorder app/ view/ field
 - Row record open as a page
 - Auto resize the height of the row in the grid
@@ -38,7 +38,7 @@ New features
 - Fixed some bugs
 
 
-## Version 0.0.4 - beta.2 - 2022-04-11
+## Version 0.0.4 - beta.2 - 04/11/2022
 
   - Support properties: Text, Number, Date, Checkbox, Select, Multi-select
   - Insert / delete rows
@@ -46,7 +46,7 @@ New features
   - Edit property
     ![](https://user-images.githubusercontent.com/12026239/162753644-bf2f4e7a-2367-4d48-87e6-35e244e83a5b.png)
 
-## Version 0.0.4 - beta.1 - 2022-04-08
+## Version 0.0.4 - beta.1 - 04/08/2022
 v0.0.4 - beta.1 is pre-release
 
 New features
@@ -55,7 +55,7 @@ New features
    - hide / delete columns
    - insert rows
 
-## Version 0.0.3 - 2022-02-23
+## Version 0.0.3 - 02/23/2022
 v0.0.3 is production ready, available on Linux, macOS, and Windows
 
 New features
