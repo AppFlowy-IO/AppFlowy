@@ -4,6 +4,7 @@ import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart'
 import 'package:app_flowy/plugins/grid/application/row/row_detail_bloc.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/src/flowy_overlay/flowy_dialog.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
@@ -33,23 +34,6 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   @override
   State<RowDetailPage> createState() => _RowDetailPageState();
 
-  void show(BuildContext context) async {
-    final windowSize = MediaQuery.of(context).size;
-    final size = windowSize * 0.7;
-    FlowyOverlay.of(context).insertWithRect(
-      widget: OverlayContainer(
-        child: this,
-        constraints: BoxConstraints.tight(size),
-      ),
-      identifier: RowDetailPage.identifier(),
-      anchorPosition: Offset(-size.width / 2.0, -size.height / 2.0),
-      anchorSize: windowSize,
-      anchorDirection: AnchorDirection.center,
-      style: FlowyOverlayStyle(blur: false),
-      delegate: this,
-    );
-  }
-
   static String identifier() {
     return (RowDetailPage).toString();
   }
@@ -58,26 +42,28 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 class _RowDetailPageState extends State<RowDetailPage> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = RowDetailBloc(
-          dataController: widget.dataController,
-        );
-        bloc.add(const RowDetailEvent.initial());
-        return bloc;
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 40,
-              child: Row(
-                children: const [Spacer(), _CloseButton()],
+    return FlowyDialog(
+      child: BlocProvider(
+        create: (context) {
+          final bloc = RowDetailBloc(
+            dataController: widget.dataController,
+          );
+          bloc.add(const RowDetailEvent.initial());
+          return bloc;
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 40,
+                child: Row(
+                  children: const [Spacer(), _CloseButton()],
+                ),
               ),
-            ),
-            Expanded(child: _PropertyList(cellBuilder: widget.cellBuilder)),
-          ],
+              Expanded(child: _PropertyList(cellBuilder: widget.cellBuilder)),
+            ],
+          ),
         ),
       ),
     );
@@ -92,8 +78,9 @@ class _CloseButton extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return FlowyIconButton(
       width: 24,
-      onPressed: () =>
-          FlowyOverlay.of(context).remove(RowDetailPage.identifier()),
+      onPressed: () {
+        FlowyOverlay.pop(context);
+      },
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
       icon: svgWidget("home/close", color: theme.iconColor),
     );

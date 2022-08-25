@@ -109,6 +109,19 @@ class FlowyOverlay extends StatefulWidget {
     return state;
   }
 
+  static void show(
+      {required BuildContext context,
+      required Widget Function(BuildContext context) builder}) {
+    showDialog(
+      context: context,
+      builder: builder,
+    );
+  }
+
+  static void pop(BuildContext context) {
+    Navigator.of(context).pop();
+  }
+
   @override
   FlowyOverlayState createState() => FlowyOverlayState();
 }

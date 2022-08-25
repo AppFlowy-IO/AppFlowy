@@ -18,12 +18,14 @@ class OverlayContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme?>() ?? AppTheme.fromType(ThemeType.light);
+    final theme =
+        context.watch<AppTheme?>() ?? AppTheme.fromType(ThemeType.light);
     return Material(
       type: MaterialType.transparency,
       child: Container(
         padding: padding,
-        decoration: FlowyDecoration.decoration(theme.surface, theme.shadowColor.withOpacity(0.15)),
+        decoration: FlowyDecoration.decoration(
+            theme.surface, theme.shadowColor.withOpacity(0.15)),
         constraints: constraints,
         child: child,
       ),
