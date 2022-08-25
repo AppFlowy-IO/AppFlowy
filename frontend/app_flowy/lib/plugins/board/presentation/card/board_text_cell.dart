@@ -40,11 +40,12 @@ class _BoardTextCellState extends State<BoardTextCell> {
             return Align(
               alignment: Alignment.centerLeft,
               child: Padding(
-                padding:
-                    EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPadding),
-                child: FlowyText.medium(
-                  state.content,
-                  fontSize: 14,
+                padding: EdgeInsets.symmetric(
+                  vertical: BoardSizes.cardCellVPadding,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 120),
+                  child: FlowyText.medium(state.content, fontSize: 14),
                 ),
               ),
             );
