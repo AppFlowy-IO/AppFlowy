@@ -14,11 +14,11 @@ final DynamicLibrary dl = _dl;
 DynamicLibrary _open() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
     final prefix = "${Directory.current.path}/.sandbox";
-    if (Platform.isLinux) return DynamicLibrary.open('${prefix}/libdart_ffi.so');
-    if (Platform.isAndroid) return DynamicLibrary.open('${prefix}/libdart_ffi.so');
+    if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
     if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isIOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
-    if (Platform.isWindows) return DynamicLibrary.open('${prefix}/dart_ffi.dll');
+    if (Platform.isWindows)
+      return DynamicLibrary.open('${prefix}/dart_ffi.dll');
   } else {
     if (Platform.isLinux) return DynamicLibrary.open('libdart_ffi.so');
     if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
@@ -39,7 +39,8 @@ void async_event(
   _invoke_async(port, input, len);
 }
 
-final _invoke_async_Dart _invoke_async = _dl.lookupFunction<_invoke_async_C, _invoke_async_Dart>('async_event');
+final _invoke_async_Dart _invoke_async =
+    _dl.lookupFunction<_invoke_async_C, _invoke_async_Dart>('async_event');
 typedef _invoke_async_C = Void Function(
   Int64 port,
   Pointer<Uint8> input,
@@ -59,7 +60,8 @@ Pointer<Uint8> sync_event(
   return _invoke_sync(input, len);
 }
 
-final _invoke_sync_Dart _invoke_sync = _dl.lookupFunction<_invoke_sync_C, _invoke_sync_Dart>('sync_event');
+final _invoke_sync_Dart _invoke_sync =
+    _dl.lookupFunction<_invoke_sync_C, _invoke_sync_Dart>('sync_event');
 typedef _invoke_sync_C = Pointer<Uint8> Function(
   Pointer<Uint8> input,
   Uint64 len,
@@ -76,7 +78,8 @@ int init_sdk(
   return _init_sdk(path);
 }
 
-final _init_sdk_Dart _init_sdk = _dl.lookupFunction<_init_sdk_C, _init_sdk_Dart>('init_sdk');
+final _init_sdk_Dart _init_sdk =
+    _dl.lookupFunction<_init_sdk_C, _init_sdk_Dart>('init_sdk');
 typedef _init_sdk_C = Int64 Function(
   Pointer<ffi.Utf8> path,
 );
@@ -90,7 +93,8 @@ int set_stream_port(int port) {
 }
 
 final _set_stream_port_Dart _set_stream_port =
-    _dl.lookupFunction<_set_stream_port_C, _set_stream_port_Dart>('set_stream_port');
+    _dl.lookupFunction<_set_stream_port_C, _set_stream_port_Dart>(
+        'set_stream_port');
 
 typedef _set_stream_port_C = Int32 Function(
   Int64 port,
@@ -104,8 +108,8 @@ void link_me_please() {
   _link_me_please();
 }
 
-final _link_me_please_Dart _link_me_please =
-    _dl.lookupFunction<_link_me_please_C, _link_me_please_Dart>('link_me_please');
+final _link_me_please_Dart _link_me_please = _dl
+    .lookupFunction<_link_me_please_C, _link_me_please_Dart>('link_me_please');
 typedef _link_me_please_C = Void Function();
 typedef _link_me_please_Dart = void Function();
 
@@ -116,8 +120,9 @@ void store_dart_post_cobject(
   _store_dart_post_cobject(ptr);
 }
 
-final _store_dart_post_cobject_Dart _store_dart_post_cobject =
-    _dl.lookupFunction<_store_dart_post_cobject_C, _store_dart_post_cobject_Dart>('store_dart_post_cobject');
+final _store_dart_post_cobject_Dart _store_dart_post_cobject = _dl
+    .lookupFunction<_store_dart_post_cobject_C, _store_dart_post_cobject_Dart>(
+        'store_dart_post_cobject');
 typedef _store_dart_post_cobject_C = Void Function(
   Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>> ptr,
 );

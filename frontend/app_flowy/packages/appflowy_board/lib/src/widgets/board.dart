@@ -159,7 +159,7 @@ class _BoardContentState extends State<BoardContent> {
           dataSource: widget.dataController,
           direction: Axis.horizontal,
           interceptor: interceptor,
-          children: _buildColumns(),
+          children: _buildColumns(interceptor.columnKeys),
         );
 
         return Stack(
@@ -191,7 +191,7 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  List<Widget> _buildColumns() {
+  List<Widget> _buildColumns(List<ColumnKey> columnKeys) {
     final List<Widget> children =
         widget.dataController.columnDatas.asMap().entries.map(
       (item) {
@@ -208,21 +208,33 @@ class _BoardContentState extends State<BoardContent> {
           value: widget.dataController.columnController(columnData.id),
           child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
+              final boardColumn = AFBoardColumnWidget(
+                margin: _marginFromIndex(columnIndex),
+                itemMargin: widget.config.columnItemPadding,
+                headerBuilder: widget.headerBuilder,
+                footBuilder: widget.footBuilder,
+                cardBuilder: widget.cardBuilder,
+                dataSource: dataSource,
+                scrollController: ScrollController(),
+                phantomController: widget.phantomController,
+                onReorder: widget.dataController.moveColumnItem,
+                cornerRadius: widget.config.cornerRadius,
+                backgroundColor: widget.config.columnBackgroundColor,
+              );
+
+              // columnKeys
+              //     .removeWhere((element) => element.columnId == columnData.id);
+
+              // columnKeys.add(
+              //   ColumnKey(
+              //     columnId: columnData.id,
+              //     key: boardColumn.columnGlobalKey,
+              //   ),
+              // );
+
               return ConstrainedBox(
                 constraints: widget.columnConstraints,
-                child: AFBoardColumnWidget(
-                  margin: _marginFromIndex(columnIndex),
-                  itemMargin: widget.config.columnItemPadding,
-                  headerBuilder: widget.headerBuilder,
-                  footBuilder: widget.footBuilder,
-                  cardBuilder: widget.cardBuilder,
-                  dataSource: dataSource,
-                  scrollController: ScrollController(),
-                  phantomController: widget.phantomController,
-                  onReorder: widget.dataController.moveColumnItem,
-                  cornerRadius: widget.config.cornerRadius,
-                  backgroundColor: widget.config.columnBackgroundColor,
-                ),
+                child: boardColumn,
               );
             },
           ),

@@ -24,8 +24,16 @@ if (flutterVersionName == null) {
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+//apply plugin: 'kotlin-android-extensions'
+
+
+//androidExtensions {
+//    experimental = true
+//}
 
 android {
+    compileSdkVersion flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -43,20 +51,28 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.example.flowy_infra_ui_example"
-        minSdkVersion 16
-        targetSdkVersion 30
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
 
     buildTypes {
         release {
+            minifyEnabled true
+            shrinkResources true
+//            useProguard true
+//            proguardFiles getDefaultProguardFiles(
+//                    'proguard-android-optimize.txt'
+//            ),
+//                    'proguard-rules.pro'
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
         }
     }
-    compileSdkVersion 30
+
 }
 
 flutter {
@@ -65,4 +81,5 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.android.support:multidex:2.0.1'
 }

@@ -14,7 +14,7 @@ class ColumnPhantomStateController {
 
   void addColumnListener(String columnId, PassthroughPhantomListener listener) {
     _stateWithId(columnId).notifier.addListener(
-          onInserted: (c) => listener.onInserted?.call(),
+          onInserted: (index) => listener.onInserted?.call(index),
           onDeleted: () => listener.onDragEnded?.call(),
         );
   }
@@ -24,8 +24,8 @@ class ColumnPhantomStateController {
     _states.remove(columnId);
   }
 
-  void notifyDidInsertPhantom(String columnId) {
-    _stateWithId(columnId).notifier.insert();
+  void notifyDidInsertPhantom(String columnId, int index) {
+    _stateWithId(columnId).notifier.insert(index);
   }
 
   void notifyDidRemovePhantom(String columnId) {
@@ -48,7 +48,7 @@ class ColumnState {
 }
 
 abstract class PassthroughPhantomListener {
-  VoidCallback? get onInserted;
+  void Function(int?)? get onInserted;
   VoidCallback? get onDragEnded;
 }
 
@@ -57,8 +57,8 @@ class PassthroughPhantomNotifier {
 
   final removeNotifier = PhantomDeleteNotifier();
 
-  void insert() {
-    insertNotifier.insert();
+  void insert(int index) {
+    insertNotifier.insert(index);
   }
 
   void remove() {
@@ -66,12 +66,12 @@ class PassthroughPhantomNotifier {
   }
 
   void addListener({
-    void Function(PassthroughPhantomContext? insertedPhantom)? onInserted,
+    void Function(int? insertedIndex)? onInserted,
     void Function()? onDeleted,
   }) {
     if (onInserted != null) {
       insertNotifier.addListener(() {
-        onInserted(insertNotifier.insertedPhantom);
+        onInserted(insertNotifier.insertedIndex);
       });
     }
 
@@ -89,9 +89,11 @@ class PassthroughPhantomNotifier {
 }
 
 class PhantomInsertNotifier extends ChangeNotifier {
+  int insertedIndex = -1;
   PassthroughPhantomContext? insertedPhantom;
 
-  void insert() {
+  void insert(int index) {
+    insertedIndex = index;
     notifyListeners();
   }
 }

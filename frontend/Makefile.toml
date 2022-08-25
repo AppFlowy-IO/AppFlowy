@@ -161,6 +161,23 @@ TARGET_OS = "ios"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "ipa"
 
+[env.development-android]
+BUILD_FLAG = "debug"
+TARGET_OS = "android"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Debug"
+
+[tasks.setup-crate-android]
+private = true
+script_runner = "@duckscript"
+script = [
+    """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} "cdylib" ${CRATE_TYPE}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
 
 [tasks.setup-crate-type]
 private = true
