@@ -67,5 +67,16 @@
             "flutterMode": "profile",
             "cwd": "${workspaceRoot}/app_flowy"
         },
+        {
+            "name": "AF: Clean + Rebuild All (Android)",
+            "request": "launch",
+            "program": "./lib/main.dart",
+            "type": "dart",
+            "preLaunchTask": "AF: Clean + Rebuild All (Android)",
+            "env": {
+                "RUST_LOG": "trace"
+            },
+            "cwd": "${workspaceRoot}/app_flowy"
+        },
     ]
 }

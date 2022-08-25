@@ -28,6 +28,24 @@
 			}
 		},
 		{
+			"label": "AF: Clean + Rebuild All (Android)",
+			"type": "shell",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"AF: Rust Clean",
+				"AF: Flutter Clean",
+				"AF: build_flowy_sdk_for_android",
+				"AF: Flutter Pub Get",
+				"AF: Flutter Package Get",
+				"AF: Generate Language Files",
+				"AF: Generate Freezed Files",
+			],
+			"presentation": {
+				"reveal": "always",
+				"panel": "new"
+			}
+		},
+		{
 			"label": "AF: build_flowy_sdk",
 			"type": "shell",
 			"command": "sh ./scripts/build_sdk.sh",
@@ -60,6 +78,15 @@
 					}
 				}
 			},
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			}
+		},
+		{
+			"label": "AF: build_flowy_sdk_for_android",
+			"type": "shell",
+			"command": "cargo make --profile development-android flowy-sdk-dev-android",
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}"
