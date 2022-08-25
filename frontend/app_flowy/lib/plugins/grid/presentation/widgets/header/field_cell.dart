@@ -65,14 +65,15 @@ class GridFieldCell extends StatelessWidget {
     final state = context.read<FieldCellBloc>().state;
     final field = state.field;
 
-    FieldEditor(
+    FieldEditorPopOver.show(
+      context,
       gridId: state.gridId,
       fieldName: field.name,
       typeOptionLoader: FieldTypeOptionLoader(
         gridId: state.gridId,
         field: field,
       ),
-    ).show(context);
+    );
   }
 }
 

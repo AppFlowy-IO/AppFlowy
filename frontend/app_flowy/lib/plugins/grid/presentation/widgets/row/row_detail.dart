@@ -169,14 +169,15 @@ class _RowDetailCell extends StatelessWidget {
   }
 
   void _showFieldEditor(BuildContext context) {
-    FieldEditor(
+    FieldEditorPopOver.show(
+      context,
       gridId: cellId.gridId,
       fieldName: cellId.field.name,
       typeOptionLoader: FieldTypeOptionLoader(
         gridId: cellId.gridId,
         field: cellId.field,
       ),
-    ).show(context);
+    );
   }
 }
 

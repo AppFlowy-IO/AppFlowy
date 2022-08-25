@@ -49,24 +49,6 @@ class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
     );
   }
 
-  void show(
-    BuildContext context, {
-    AnchorDirection anchorDirection = AnchorDirection.bottomWithLeftAligned,
-  }) {
-    FlowyOverlay.of(context).remove(identifier());
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        child: this,
-        constraints: BoxConstraints.loose(const Size(280, 400)),
-      ),
-      identifier: identifier(),
-      anchorContext: context,
-      anchorDirection: anchorDirection,
-      style: FlowyOverlayStyle(blur: false),
-      delegate: this,
-    );
-  }
-
   static String identifier() {
     return (FieldEditor).toString();
   }
@@ -114,5 +96,49 @@ class _FieldNameCell extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class FieldEditorPopOver extends StatelessWidget {
+  final String gridId;
+  final String fieldName;
+
+  final IFieldTypeOptionLoader typeOptionLoader;
+  const FieldEditorPopOver({
+    required this.gridId,
+    required this.fieldName,
+    required this.typeOptionLoader,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return FlowyPopover(
+        child: Container(
+      constraints: BoxConstraints.loose(const Size(280, 400)),
+      width: 280,
+      height: 400,
+      child: FieldEditor(
+          gridId: gridId,
+          fieldName: fieldName,
+          typeOptionLoader: typeOptionLoader,
+          key: key),
+    ));
+  }
+
+  static show(
+    BuildContext context, {
+    required String gridId,
+    required String fieldName,
+    required IFieldTypeOptionLoader typeOptionLoader,
+    Key? key,
+  }) {
+    FlowyPopover.show(context, builder: (BuildContext context) {
+      return FieldEditorPopOver(
+          gridId: gridId,
+          fieldName: fieldName,
+          typeOptionLoader: typeOptionLoader,
+          key: key);
+    });
   }
 }
