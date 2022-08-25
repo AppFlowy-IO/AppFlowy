@@ -4,10 +4,11 @@
 
 New features
 - Board-view database  
-    - Group by single select
-    - drag and drop cards
-    - insert / delete cards
- 
+  - Group by single select
+  - drag and drop cards
+  - insert / delete cards
+
+![Aug-25-2022 16-22-38](https://user-images.githubusercontent.com/86001920/186614248-23186dfe-410e-427a-8cc6-865b1f79e074.gif)
 
 
 ## Version 0.0.4 - 2022-06-06
