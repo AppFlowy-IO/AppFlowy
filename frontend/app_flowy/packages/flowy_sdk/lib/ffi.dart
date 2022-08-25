@@ -14,7 +14,8 @@ final DynamicLibrary dl = _dl;
 DynamicLibrary _open() {
   if (Platform.environment.containsKey('FLUTTER_TEST')) {
     final prefix = "${Directory.current.path}/.sandbox";
-    if (Platform.isLinux) return DynamicLibrary.open('${prefix/libdart_ffi.so}');
+    if (Platform.isLinux)
+      return DynamicLibrary.open('${prefix}/libdart_ffi.so');
     if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
     if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isIOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
