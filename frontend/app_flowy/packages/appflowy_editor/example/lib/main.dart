@@ -4,12 +4,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'expandable_floating_action_button.dart';
-// import 'plugin/image_node_widget.dart';
-import 'plugin/youtube_link_node_widget.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:path_provider/path_provider.dart';
+
+import 'expandable_floating_action_button.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,20 +17,10 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'AppFlowyEditor Example'),
@@ -41,16 +30,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -58,56 +37,60 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final editorKey = GlobalKey();
-  int page = 0;
-  EditorState? _editorState;
+  int _pageIndex = 0;
+  late EditorState _editorState;
+  Future<String>? _jsonString;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         alignment: Alignment.topCenter,
-        child: _buildBody(),
+        child: _buildEditor(context),
       ),
       floatingActionButton: _buildExpandableFab(),
     );
   }
 
-  Widget _buildBody() {
-    if (page == 0) {
-      return _buildAppFlowyEditorWithExample();
-    } else if (page == 1) {
-      return _buildAppFlowyEditorWithEmptyDocument();
-    } else if (page == 2) {
-      return _buildAppFlowyEditorWithBigDocument();
+  Widget _buildEditor(BuildContext context) {
+    if (_jsonString != null) {
+      return _buildEditorWithJsonPath(_jsonString!);
     }
-    return Container();
+    if (_pageIndex == 0) {
+      return _buildEditorWithJsonPath(
+          rootBundle.loadString('assets/example.json'));
+    } else if (_pageIndex == 1) {
+      return _buildEditorWithJsonPath(
+          rootBundle.loadString('assets/big_document.json'));
+    } else if (_pageIndex == 2) {
+      return _buildEditorWithEmptyDocument();
+    }
+    throw UnimplementedError();
   }
 
-  Widget _buildAppFlowyEditorWithEmptyDocument() {
-    final editorState = EditorState.empty();
-    final editor = AppFlowyEditor(
-      editorState: editorState,
-      keyEventHandlers: const [],
-      customBuilders: const {},
-    );
-    return editor;
-  }
-
-  Widget _buildAppFlowyEditorWithExample() {
+  Widget _buildEditorWithJsonPath(Future<String> jsonString) {
     return FutureBuilder<String>(
-      future: rootBundle.loadString('assets/example.json'),
-      builder: (context, snapshot) {
+      future: jsonString,
+      builder: (_, snapshot) {
         if (snapshot.hasData) {
-          final data = Map<String, Object>.from(json.decode(snapshot.data!));
-          final editorState = EditorState(document: StateTree.fromJson(data));
-          editorState.logConfiguration
+          _editorState = EditorState(
+            document: StateTree.fromJson(
+              Map<String, Object>.from(
+                json.decode(snapshot.data!),
+              ),
+            ),
+          );
+          _editorState.logConfiguration
             ..level = LogLevel.all
             ..handler = (message) {
               debugPrint(message);
             };
-          _editorState = editorState;
-          return _buildAppFlowyEditor(editorState);
+          return Container(
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            child: AppFlowyEditor(
+              editorState: _editorState,
+            ),
+          );
         } else {
           return const Center(
             child: CircularProgressIndicator(),
@@ -117,52 +100,17 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildAppFlowyEditorWithBigDocument() {
-    return FutureBuilder<String>(
-      future: rootBundle.loadString('assets/big_document.json'),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final data = Map<String, Object>.from(json.decode(snapshot.data!));
-          return _buildAppFlowyEditor(EditorState(
-            document: StateTree.fromJson(data),
-          ));
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-      },
+  Widget _buildEditorWithEmptyDocument() {
+    _editorState = EditorState.empty();
+    _editorState.logConfiguration
+      ..level = LogLevel.all
+      ..handler = (message) {
+        debugPrint(message);
+      };
+    final editor = AppFlowyEditor(
+      editorState: _editorState,
     );
-  }
-
-  Widget _buildAppFlowyEditor(EditorState editorState) {
-    return Container(
-      padding: const EdgeInsets.only(left: 20, right: 20),
-      child: AppFlowyEditor(
-        key: editorKey,
-        editorState: editorState,
-        keyEventHandlers: const [],
-        customBuilders: {
-          // 'image': ImageNodeBuilder(),
-          'youtube_link': YouTubeLinkNodeBuilder()
-        },
-      ),
-    );
-  }
-
-  void _exportDocument(EditorState editorState) async {
-    // await FileSaver.instance.saveAs(String name, Uint8List bytes, String ext, MimeType);
-    final document = editorState.document.toJson();
-    debugPrint(document.toString());
-    final json = jsonEncode(document);
-    debugPrint(json);
-
-    final directory = await getTemporaryDirectory();
-    final path = directory.path;
-    debugPrint(path);
-
-    final file = File('$path/temp.json');
-    await file.writeAsString(json);
+    return editor;
   }
 
   Widget _buildExpandableFab() {
@@ -170,39 +118,52 @@ class _MyHomePageState extends State<MyHomePage> {
       distance: 112.0,
       children: [
         ActionButton(
-          onPressed: () {
-            if (page == 0) return;
-            setState(() {
-              page = 0;
-            });
-          },
-          icon: const Icon(Icons.note_add),
+          icon: const Icon(Icons.abc),
+          onPressed: () => _switchToPage(0),
         ),
         ActionButton(
-          icon: const Icon(Icons.document_scanner),
-          onPressed: () {
-            if (page == 1) return;
-            setState(() {
-              page = 1;
-            });
-          },
+          icon: const Icon(Icons.abc),
+          onPressed: () => _switchToPage(1),
         ),
         ActionButton(
-          onPressed: () {
-            if (page == 2) return;
-            setState(() {
-              page = 2;
-            });
-          },
-          icon: const Icon(Icons.text_fields),
+          icon: const Icon(Icons.abc),
+          onPressed: () => _switchToPage(2),
         ),
         ActionButton(
-          onPressed: () {
-            _exportDocument(_editorState!);
-          },
           icon: const Icon(Icons.print),
+          onPressed: () => _exportDocument(_editorState),
+        ),
+        ActionButton(
+          icon: const Icon(Icons.import_export),
+          onPressed: () => _importDocument(),
         ),
       ],
     );
+  }
+
+  void _exportDocument(EditorState editorState) async {
+    final document = editorState.document.toJson();
+    final json = jsonEncode(document);
+    final directory = await getTemporaryDirectory();
+    final path = directory.path;
+    final file = File('$path/editor.json');
+    await file.writeAsString(json);
+  }
+
+  void _importDocument() async {
+    final directory = await getTemporaryDirectory();
+    final path = directory.path;
+    final file = File('$path/editor.json');
+    setState(() {
+      _jsonString = file.readAsString();
+    });
+  }
+
+  void _switchToPage(int pageIndex) {
+    if (pageIndex != _pageIndex) {
+      setState(() {
+        _pageIndex = pageIndex;
+      });
+    }
   }
 }

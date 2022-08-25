@@ -41,6 +41,7 @@ dependencies:
   pod_player: 0.0.8
   flutter_inappwebview: ^5.4.3+7
   file_saver: ^0.1.1
+  path_provider: ^2.0.11
 
 dev_dependencies:
   flutter_test:
