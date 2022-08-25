@@ -190,7 +190,10 @@ class IGridCellController<T, D> extends Equatable {
     ///  cell display: $12
     _cellListener?.start(onCellChanged: (result) {
       result.fold(
-        (_) => _loadData(),
+        (_) {
+          _cellsCache.remove(fieldId);
+          _loadData();
+        },
         (err) => Log.error(err),
       );
     });

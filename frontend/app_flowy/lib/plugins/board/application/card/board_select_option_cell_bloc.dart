@@ -68,7 +68,6 @@ class BoardSelectOptionCellState with _$BoardSelectOptionCellState {
   factory BoardSelectOptionCellState.initial(
       GridSelectOptionCellController context) {
     final data = context.getCellData();
-
     return BoardSelectOptionCellState(
       selectedOptions: data?.selectOptions ?? [],
     );
