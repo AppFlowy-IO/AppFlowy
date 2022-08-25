@@ -20,18 +20,31 @@ class FlowyText extends StatelessWidget {
   }) : super(key: key);
 
   const FlowyText.semibold(this.title,
-      {Key? key, this.fontSize = 16, TextOverflow? overflow, this.color, this.textAlign})
+      {Key? key,
+      this.fontSize = 16,
+      TextOverflow? overflow,
+      this.color,
+      this.textAlign})
       : fontWeight = FontWeight.w600,
         overflow = overflow ?? TextOverflow.ellipsis,
         super(key: key);
 
-  const FlowyText.medium(this.title, {Key? key, this.fontSize = 16, TextOverflow? overflow, this.color, this.textAlign})
+  const FlowyText.medium(this.title,
+      {Key? key,
+      this.fontSize = 16,
+      TextOverflow? overflow,
+      this.color,
+      this.textAlign})
       : fontWeight = FontWeight.w500,
         overflow = overflow ?? TextOverflow.ellipsis,
         super(key: key);
 
   const FlowyText.regular(this.title,
-      {Key? key, this.fontSize = 16, TextOverflow? overflow, this.color, this.textAlign})
+      {Key? key,
+      this.fontSize = 16,
+      TextOverflow? overflow,
+      this.color,
+      this.textAlign})
       : fontWeight = FontWeight.w400,
         overflow = overflow ?? TextOverflow.ellipsis,
         super(key: key);
@@ -40,9 +53,9 @@ class FlowyText extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return Text(title,
-        overflow: overflow,
         softWrap: false,
         textAlign: textAlign,
+        overflow: overflow,
         style: TextStyle(
           color: color ?? theme.textColor,
           fontWeight: fontWeight,

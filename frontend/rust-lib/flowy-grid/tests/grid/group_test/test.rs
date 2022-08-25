@@ -319,7 +319,7 @@ async fn group_move_group_test() {
 #[tokio::test]
 async fn group_update_field_test() {
     let mut test = GridGroupTest::new().await;
-    let mut group = test.group_at_index(0).await;
+    let group = test.group_at_index(0).await;
     let changeset = FieldChangesetParams {
         field_id: group.field_id.clone(),
         grid_id: test.grid_id.clone(),

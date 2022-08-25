@@ -12,12 +12,18 @@ class AFBoardConfig {
   final double cornerRadius;
   final EdgeInsets columnPadding;
   final EdgeInsets columnItemPadding;
+  final EdgeInsets footerPadding;
+  final EdgeInsets headerPadding;
+  final EdgeInsets cardPadding;
   final Color columnBackgroundColor;
 
   const AFBoardConfig({
     this.cornerRadius = 6.0,
     this.columnPadding = const EdgeInsets.symmetric(horizontal: 8),
-    this.columnItemPadding = const EdgeInsets.symmetric(horizontal: 10),
+    this.columnItemPadding = const EdgeInsets.symmetric(horizontal: 12),
+    this.footerPadding = const EdgeInsets.symmetric(horizontal: 12),
+    this.headerPadding = const EdgeInsets.symmetric(horizontal: 16),
+    this.cardPadding = const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
     this.columnBackgroundColor = Colors.transparent,
   });
 }

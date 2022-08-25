@@ -73,7 +73,7 @@ class _BoardCardState extends State<BoardCard> {
       (cellId) {
         final child = widget.cellBuilder.buildCell(cellId);
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
           child: child,
         );
       },
@@ -92,7 +92,7 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
 
   @override
   Widget build(BuildContext context) {
-    return svgWidget('home/details', color: context.read<AppTheme>().iconColor);
+    return svgWidget('grid/details', color: context.read<AppTheme>().iconColor);
   }
 
   @override
