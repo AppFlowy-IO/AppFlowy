@@ -1,3 +1,3 @@
 class BoardSizes {
-  static double get cardCellVPadding => 4;
+  static double get cardCellVPadding => 6;
 }

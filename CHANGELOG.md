@@ -1,5 +1,15 @@
 # Release Notes
 
+## Version 0.0.5 - beta.1 - 2022-08-25
+
+New features
+- Board-view database  
+    - Group by single select
+    - drag and drop cards
+    - insert / delete cards
+ 
+
+
 ## Version 0.0.4 - 2022-06-06
 - Drag to adjust the width of a column
 - Upgrade to Flutter 3.0

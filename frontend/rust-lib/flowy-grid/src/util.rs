@@ -86,7 +86,10 @@ pub fn make_default_board() -> BuildGridContext {
             }
             1 => {
                 row_builder.insert_text_cell(&text_field_id, "Learn French".to_string());
-                row_builder.insert_select_option_cell(&multi_select_field_id, travel_option.id.clone());
+                let mut options = SelectOptionIds::new();
+                options.push(fun_option.id.clone());
+                options.push(travel_option.id.clone());
+                row_builder.insert_select_option_cell(&multi_select_field_id, options.to_string());
             }
 
             2 => {
@@ -114,7 +117,10 @@ pub fn make_default_board() -> BuildGridContext {
 
             2 => {
                 row_builder.insert_text_cell(&text_field_id, "Write atomic essays ".to_string());
-                row_builder.insert_select_option_cell(&multi_select_field_id, fun_option.id.clone());
+                let mut options = SelectOptionIds::new();
+                options.push(fun_option.id.clone());
+                options.push(work_option.id.clone());
+                row_builder.insert_select_option_cell(&multi_select_field_id, options.to_string());
             }
             _ => {}
         }
@@ -132,7 +138,10 @@ pub fn make_default_board() -> BuildGridContext {
             }
             1 => {
                 row_builder.insert_text_cell(&text_field_id, "Visit Chicago".to_string());
-                row_builder.insert_select_option_cell(&multi_select_field_id, travel_option.id.clone());
+                let mut options = SelectOptionIds::new();
+                options.push(travel_option.id.clone());
+                options.push(fun_option.id.clone());
+                row_builder.insert_select_option_cell(&multi_select_field_id, options.to_string());
             }
 
             _ => {}
