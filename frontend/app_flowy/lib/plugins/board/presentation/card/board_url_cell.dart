@@ -7,9 +7,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'define.dart';
 
 class BoardUrlCell extends StatefulWidget {
+  final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
 
   const BoardUrlCell({
+    required this.groupId,
     required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);

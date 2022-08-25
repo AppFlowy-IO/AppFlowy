@@ -94,10 +94,10 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
               margin: config.columnItemPadding,
             );
           },
-          cardBuilder: (context, item) {
+          cardBuilder: (context, column, columnItem) {
             return AppFlowyColumnItemCard(
-              key: ObjectKey(item),
-              child: _buildCard(item),
+              key: ObjectKey(columnItem),
+              child: _buildCard(columnItem),
             );
           },
           columnConstraints: const BoxConstraints.tightFor(width: 240),
