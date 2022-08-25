@@ -5,8 +5,6 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'define.dart';
-
 class BoardCheckboxCell extends StatefulWidget {
   final GridCellControllerBuilder cellControllerBuilder;
 

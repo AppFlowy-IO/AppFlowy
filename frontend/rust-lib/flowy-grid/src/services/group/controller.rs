@@ -124,7 +124,11 @@ where
     }
 
     fn groups(&self) -> Vec<Group> {
-        self.configuration.clone_groups()
+        let mut groups = self.configuration.clone_groups();
+        if self.default_group.is_empty() == false {
+            groups.insert(0, self.default_group.clone());
+        }
+        groups
     }
 
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
@@ -132,25 +136,28 @@ where
         Some((group.0, group.1.clone()))
     }
 
+    #[tracing::instrument(level = "trace", skip_all, fields(row_count=%row_revs.len(), group_result))]
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<Vec<Group>> {
+        // let mut ungrouped_rows = vec![];
         for row_rev in row_revs {
             if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-                let mut group_rows: Vec<GroupRow> = vec![];
+                let mut grouped_rows: Vec<GroupedRow> = vec![];
                 let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
                 let cell_data = cell_bytes.parser::<P>()?;
                 for group in self.configuration.groups() {
                     if self.can_group(&group.content, &cell_data) {
-                        group_rows.push(GroupRow {
+                        grouped_rows.push(GroupedRow {
                             row: row_rev.into(),
                             group_id: group.id.clone(),
                         });
                     }
                 }
 
-                if group_rows.is_empty() {
+                if grouped_rows.is_empty() {
+                    // ungrouped_rows.push(RowPB::from(row_rev));
                     self.default_group.add_row(row_rev.into());
                 } else {
-                    for group_row in group_rows {
+                    for group_row in grouped_rows {
                         if let Some(group) = self.configuration.get_mut_group(&group_row.group_id) {
                             group.add_row(group_row.row);
                         }
@@ -161,13 +168,27 @@ where
             }
         }
 
-        let default_group = self.default_group.clone();
-        let mut groups: Vec<Group> = self.configuration.clone_groups();
-        if !default_group.number_of_row() == 0 {
-            groups.push(default_group);
-        }
+        // if !ungrouped_rows.is_empty() {
+        //     let default_group_rev = GroupRevision::default_group(gen_grid_group_id(), format!("No {}", field_rev.name));
+        //     let default_group = Group::new(
+        //         default_group_rev.id.clone(),
+        //         field_rev.id.clone(),
+        //         default_group_rev.name.clone(),
+        //         "".to_owned(),
+        //     );
+        // }
 
-        Ok(groups)
+        tracing::Span::current().record(
+            "group_result",
+            &format!(
+                "{}, default_group has {} rows",
+                self.configuration,
+                self.default_group.rows.len()
+            )
+            .as_str(),
+        );
+
+        Ok(self.groups())
     }
 
     fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
@@ -222,7 +243,7 @@ where
     }
 }
 
-struct GroupRow {
+struct GroupedRow {
     row: RowPB,
     group_id: String,
 }
