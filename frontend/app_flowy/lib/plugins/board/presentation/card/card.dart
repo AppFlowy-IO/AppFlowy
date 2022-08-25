@@ -92,7 +92,7 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
 
   @override
   Widget build(BuildContext context) {
-    return svgWidget('home/details', color: context.read<AppTheme>().iconColor);
+    return svgWidget('grid/details', color: context.read<AppTheme>().iconColor);
   }
 
   @override

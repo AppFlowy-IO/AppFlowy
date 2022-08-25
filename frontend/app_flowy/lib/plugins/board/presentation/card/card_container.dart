@@ -116,7 +116,7 @@ class _CardEnterRegion extends StatelessWidget {
                   .onEnter = false,
           child: IntrinsicHeight(
               child: Stack(
-            alignment: AlignmentDirectional.center,
+            alignment: AlignmentDirectional.topEnd,
             fit: StackFit.expand,
             children: children,
           )),
