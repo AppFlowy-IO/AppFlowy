@@ -5,8 +5,6 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'define.dart';
-
 class BoardCheckboxCell extends StatefulWidget {
   final GridCellControllerBuilder cellControllerBuilder;
 
@@ -41,9 +39,7 @@ class _BoardCheckboxCellState extends State<BoardCheckboxCell> {
               ? svgWidget('editor/editor_check')
               : svgWidget('editor/editor_uncheck');
           return Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: BoardSizes.cardCellVPading,
-            ),
+            padding: EdgeInsets.zero,
             child: Align(
               alignment: Alignment.centerLeft,
               child: FlowyIconButton(

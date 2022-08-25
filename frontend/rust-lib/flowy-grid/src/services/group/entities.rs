@@ -59,4 +59,8 @@ impl Group {
     pub fn number_of_row(&self) -> usize {
         self.rows.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.rows.is_empty()
+    }
 }

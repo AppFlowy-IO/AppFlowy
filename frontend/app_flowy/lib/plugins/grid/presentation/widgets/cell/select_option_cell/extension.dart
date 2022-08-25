@@ -91,12 +91,10 @@ class SelectOptionTag extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChoiceChip(
       pressElevation: 1,
-      label: Flexible(
-        child: FlowyText.medium(
-          name,
-          fontSize: 12,
-          overflow: TextOverflow.clip,
-        ),
+      label: FlowyText.medium(
+        name,
+        fontSize: 12,
+        overflow: TextOverflow.clip,
       ),
       selectedColor: color,
       backgroundColor: color,

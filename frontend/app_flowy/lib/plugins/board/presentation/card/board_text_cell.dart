@@ -41,7 +41,7 @@ class _BoardTextCellState extends State<BoardTextCell> {
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding:
-                    EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPading),
+                    EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPadding),
                 child: FlowyText.medium(
                   state.content,
                   fontSize: 14,

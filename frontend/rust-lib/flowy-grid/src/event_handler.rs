@@ -269,7 +269,7 @@ pub(crate) async fn create_table_row_handler(
     data_result(row)
 }
 
-// #[tracing::instrument(level = "debug", skip_all, err)]
+#[tracing::instrument(level = "trace", skip_all, err)]
 pub(crate) async fn get_cell_handler(
     data: Data<GridCellIdPB>,
     manager: AppData<Arc<GridManager>>,

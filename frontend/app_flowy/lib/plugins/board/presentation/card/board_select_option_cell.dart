@@ -45,7 +45,8 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
               )
               .toList();
           return Padding(
-            padding: EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPading),
+            padding:
+                EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPadding),
             child: Align(
               alignment: Alignment.centerLeft,
               child: AbsorbPointer(

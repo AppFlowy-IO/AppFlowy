@@ -2,10 +2,11 @@ use crate::entities::{GroupPB, GroupViewChangesetPB, InsertedGroupPB};
 use crate::services::group::{default_group_configuration, Group};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
-    FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision, GroupRecordRevision,
+    FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision, GroupRevision,
 };
 use indexmap::IndexMap;
 use lib_infra::future::AFFuture;
+use std::fmt::Formatter;
 use std::marker::PhantomData;
 use std::sync::Arc;
 
@@ -23,6 +24,15 @@ pub trait GroupConfigurationWriter: Send + Sync + 'static {
         field_type: FieldTypeRevision,
         group_configuration: GroupConfigurationRevision,
     ) -> AFFuture<FlowyResult<()>>;
+}
+
+impl<T> std::fmt::Display for GenericGroupConfiguration<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        self.groups_map.iter().for_each(|(_, group)| {
+            let _ = f.write_fmt(format_args!("Group:{} has {} rows \n", group.id, group.rows.len()));
+        });
+        Ok(())
+    }
 }
 
 pub struct GenericGroupConfiguration<C> {
@@ -84,12 +94,31 @@ where
 
         let group_revs = groups
             .iter()
-            .map(|group| GroupRecordRevision::new(group.id.clone(), group.name.clone()))
-            .collect();
+            .map(|group| GroupRevision::new(group.id.clone(), group.name.clone()))
+            .collect::<Vec<GroupRevision>>();
 
         self.mut_configuration(move |configuration| {
-            configuration.groups = group_revs;
-            true
+            let mut is_changed = false;
+            for new_group_rev in group_revs {
+                match configuration
+                    .groups
+                    .iter()
+                    .position(|group_rev| group_rev.id == new_group_rev.id)
+                {
+                    None => {
+                        configuration.groups.push(new_group_rev);
+                        is_changed = true;
+                    }
+                    Some(pos) => {
+                        let removed_group = configuration.groups.remove(pos);
+                        if removed_group != new_group_rev {
+                            is_changed = true;
+                        }
+                        configuration.groups.insert(pos, new_group_rev);
+                    }
+                }
+            }
+            is_changed
         })?;
 
         groups.into_iter().for_each(|group| {
@@ -139,8 +168,8 @@ where
                 self.groups_map.swap_indices(from_index, to_index);
 
                 self.mut_configuration(|configuration| {
-                    let from_index = configuration.groups.iter().position(|group| group.group_id == from_id);
-                    let to_index = configuration.groups.iter().position(|group| group.group_id == to_id);
+                    let from_index = configuration.groups.iter().position(|group| group.id == from_id);
+                    let to_index = configuration.groups.iter().position(|group| group.id == to_id);
                     if let (Some(from), Some(to)) = (from_index, to_index) {
                         configuration.groups.swap(from, to);
                     }
@@ -183,10 +212,10 @@ where
     fn mut_configuration_group(
         &mut self,
         group_id: &str,
-        mut_groups_fn: impl Fn(&mut GroupRecordRevision),
+        mut_groups_fn: impl Fn(&mut GroupRevision),
     ) -> FlowyResult<()> {
         self.mut_configuration(|configuration| {
-            match configuration.groups.iter_mut().find(|group| group.group_id == group_id) {
+            match configuration.groups.iter_mut().find(|group| group.id == group_id) {
                 None => false,
                 Some(group_rev) => {
                     mut_groups_fn(group_rev);
@@ -209,7 +238,7 @@ where
     }
 }
 
-fn merge_groups(old_groups: &[GroupRecordRevision], groups: Vec<Group>) -> MergeGroupResult {
+fn merge_groups(old_groups: &[GroupRevision], groups: Vec<Group>) -> MergeGroupResult {
     let mut merge_result = MergeGroupResult::new();
     if old_groups.is_empty() {
         merge_result.groups = groups;
@@ -224,7 +253,7 @@ fn merge_groups(old_groups: &[GroupRecordRevision], groups: Vec<Group>) -> Merge
 
     // The group is ordered in old groups. Add them before adding the new groups
     for group_rev in old_groups {
-        if let Some(group) = group_map.remove(&group_rev.group_id) {
+        if let Some(group) = group_map.remove(&group_rev.id) {
             if group.name == group_rev.name {
                 merge_result.add_group(group);
             } else {

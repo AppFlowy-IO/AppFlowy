@@ -74,6 +74,7 @@ class CardAccessoryContainer extends StatelessWidget {
           width: 26,
           height: 26,
           padding: const EdgeInsets.all(3),
+          decoration: _makeBoxDecoration(context),
           child: accessory,
         ),
       );
@@ -86,6 +87,23 @@ class CardAccessoryContainer extends StatelessWidget {
 
     return Wrap(children: children, spacing: 6);
   }
+}
+
+BoxDecoration _makeBoxDecoration(BuildContext context) {
+  final theme = context.read<AppTheme>();
+  final borderSide = BorderSide(color: theme.shader6, width: 1.0);
+  return BoxDecoration(
+    color: theme.surface,
+    border: Border.fromBorderSide(borderSide),
+    boxShadow: [
+      BoxShadow(
+          color: theme.shader6,
+          spreadRadius: 0,
+          blurRadius: 2,
+          offset: Offset.zero)
+    ],
+    borderRadius: const BorderRadius.all(Radius.circular(6)),
+  );
 }
 
 class _CardEnterRegion extends StatelessWidget {

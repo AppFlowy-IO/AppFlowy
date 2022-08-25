@@ -45,7 +45,7 @@ class _BoardDateCellState extends State<BoardDateCell> {
               alignment: Alignment.centerLeft,
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  vertical: BoardSizes.cardCellVPading,
+                  vertical: BoardSizes.cardCellVPadding,
                 ),
                 child: FlowyText.regular(
                   state.dateStr,

@@ -14,7 +14,7 @@ pub struct GroupConfigurationRevision {
     pub id: String,
     pub field_id: String,
     pub field_type_rev: FieldTypeRevision,
-    pub groups: Vec<GroupRecordRevision>,
+    pub groups: Vec<GroupRevision>,
     pub content: String,
 }
 
@@ -106,24 +106,38 @@ impl GroupConfigurationContentSerde for SelectOptionGroupConfigurationRevision {
     }
 }
 
-#[derive(Clone, Debug, Default, Serialize, Deserialize)]
-pub struct GroupRecordRevision {
-    pub group_id: String,
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+pub struct GroupRevision {
+    pub id: String,
 
     #[serde(default)]
     pub name: String,
 
-    #[serde(default = "DEFAULT_GROUP_RECORD_VISIBILITY")]
+    #[serde(skip, default = "IS_DEFAULT_GROUP")]
+    pub is_default: bool,
+
+    #[serde(default = "GROUP_REV_VISIBILITY")]
     pub visible: bool,
 }
 
-const DEFAULT_GROUP_RECORD_VISIBILITY: fn() -> bool = || true;
+const GROUP_REV_VISIBILITY: fn() -> bool = || true;
+const IS_DEFAULT_GROUP: fn() -> bool = || false;
 
-impl GroupRecordRevision {
-    pub fn new(group_id: String, group_name: String) -> Self {
+impl GroupRevision {
+    pub fn new(id: String, group_name: String) -> Self {
         Self {
-            group_id,
+            id,
             name: group_name,
+            is_default: false,
+            visible: true,
+        }
+    }
+
+    pub fn default_group(id: String, group_name: String) -> Self {
+        Self {
+            id,
+            name: group_name,
+            is_default: true,
             visible: true,
         }
     }
