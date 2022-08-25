@@ -4,10 +4,14 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'define.dart';
+
 class BoardUrlCell extends StatefulWidget {
+  final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
 
   const BoardUrlCell({
+    required this.groupId,
     required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
@@ -38,16 +42,20 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
           if (state.content.isEmpty) {
             return const SizedBox();
           } else {
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  text: state.content,
-                  style: TextStyle(
-                    color: theme.main2,
-                    fontSize: 14,
-                    decoration: TextDecoration.underline,
+            return Padding(
+              padding:
+                  EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPadding),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: RichText(
+                  textAlign: TextAlign.left,
+                  text: TextSpan(
+                    text: state.content,
+                    style: TextStyle(
+                      color: theme.main2,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),

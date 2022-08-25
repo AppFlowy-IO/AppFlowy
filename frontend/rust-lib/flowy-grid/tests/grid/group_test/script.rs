@@ -1,9 +1,11 @@
 use crate::grid::grid_editor::GridEditorTest;
 use flowy_grid::entities::{
-    CreateRowParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
+    CreateRowParams, FieldChangesetParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
 use flowy_grid::services::cell::insert_select_option_cell;
 use flowy_grid_data_model::revision::RowChangeset;
+use std::time::Duration;
+use tokio::time::interval;
 
 pub enum GroupScript {
     AssertGroupRowCount {
@@ -41,6 +43,9 @@ pub enum GroupScript {
     MoveGroup {
         from_group_index: usize,
         to_group_index: usize,
+    },
+    UpdateField {
+        changeset: FieldChangesetParams,
     },
 }
 
@@ -156,6 +161,12 @@ impl GridGroupTest {
             } => {
                 let group = self.group_at_index(group_index).await;
                 assert_eq!(group.group_id, group_pb.group_id);
+                assert_eq!(group.desc, group_pb.desc);
+            }
+            GroupScript::UpdateField { changeset } => {
+                self.editor.update_field(changeset).await.unwrap();
+                let mut interval = interval(Duration::from_millis(130));
+                interval.tick().await;
             }
         }
     }

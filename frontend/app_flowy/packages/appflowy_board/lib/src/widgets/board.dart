@@ -12,12 +12,18 @@ class AFBoardConfig {
   final double cornerRadius;
   final EdgeInsets columnPadding;
   final EdgeInsets columnItemPadding;
+  final EdgeInsets footerPadding;
+  final EdgeInsets headerPadding;
+  final EdgeInsets cardPadding;
   final Color columnBackgroundColor;
 
   const AFBoardConfig({
     this.cornerRadius = 6.0,
     this.columnPadding = const EdgeInsets.symmetric(horizontal: 8),
-    this.columnItemPadding = const EdgeInsets.symmetric(horizontal: 10),
+    this.columnItemPadding = const EdgeInsets.symmetric(horizontal: 12),
+    this.footerPadding = const EdgeInsets.symmetric(horizontal: 12),
+    this.headerPadding = const EdgeInsets.symmetric(horizontal: 16),
+    this.cardPadding = const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
     this.columnBackgroundColor = Colors.transparent,
   });
 }
@@ -205,7 +211,7 @@ class _BoardContentState extends State<BoardContent> {
 
         return ChangeNotifierProvider.value(
           key: ValueKey(columnData.id),
-          value: widget.dataController.columnController(columnData.id),
+          value: widget.dataController.getColumnController(columnData.id),
           child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
               final boardColumn = AFBoardColumnWidget(
@@ -245,6 +251,19 @@ class _BoardContentState extends State<BoardContent> {
     return children;
   }
 
+  Widget? _buildHeader(
+      BuildContext context, AFBoardColumnHeaderData headerData) {
+    if (widget.headerBuilder == null) {
+      return null;
+    }
+    return Selector<AFBoardColumnDataController, AFBoardColumnHeaderData>(
+      selector: (context, controller) => controller.columnData.headerData,
+      builder: (context, headerData, _) {
+        return widget.headerBuilder!(context, headerData)!;
+      },
+    );
+  }
+
   EdgeInsets _marginFromIndex(int index) {
     if (widget.dataController.columnDatas.isEmpty) {
       return widget.config.columnPadding;
@@ -273,7 +292,7 @@ class _BoardColumnDataSourceImpl extends AFBoardColumnDataDataSource {
 
   @override
   AFBoardColumnData get columnData =>
-      dataController.columnController(columnId).columnData;
+      dataController.getColumnController(columnId)!.columnData;
 
   @override
   List<String> get acceptedColumnIds => dataController.columnIds;

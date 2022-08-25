@@ -4,10 +4,14 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'define.dart';
+
 class BoardNumberCell extends StatefulWidget {
+  final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
 
   const BoardNumberCell({
+    required this.groupId,
     required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
@@ -38,11 +42,15 @@ class _BoardNumberCellState extends State<BoardNumberCell> {
           if (state.content.isEmpty) {
             return const SizedBox();
           } else {
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: FlowyText.regular(
-                state.content,
-                fontSize: 14,
+            return Padding(
+              padding:
+                  EdgeInsets.symmetric(vertical: BoardSizes.cardCellVPadding),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FlowyText.medium(
+                  state.content,
+                  fontSize: 14,
+                ),
               ),
             );
           }

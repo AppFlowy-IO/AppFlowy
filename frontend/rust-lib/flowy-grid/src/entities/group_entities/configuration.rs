@@ -1,5 +1,5 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_grid_data_model::revision::{GroupRecordRevision, SelectOptionGroupConfigurationRevision};
+use flowy_grid_data_model::revision::{GroupRevision, SelectOptionGroupConfigurationRevision};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct UrlGroupConfigurationPB {
@@ -36,10 +36,10 @@ pub struct GroupRecordPB {
     visible: bool,
 }
 
-impl std::convert::From<GroupRecordRevision> for GroupRecordPB {
-    fn from(rev: GroupRecordRevision) -> Self {
+impl std::convert::From<GroupRevision> for GroupRecordPB {
+    fn from(rev: GroupRevision) -> Self {
         Self {
-            group_id: rev.group_id,
+            group_id: rev.id,
             visible: rev.visible,
         }
     }

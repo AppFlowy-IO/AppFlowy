@@ -24,12 +24,13 @@ typedef OnColumnInserted = void Function(String listId, int insertedIndex);
 
 typedef AFBoardColumnCardBuilder = Widget Function(
   BuildContext context,
+  AFBoardColumnData columnData,
   AFColumnItem item,
 );
 
-typedef AFBoardColumnHeaderBuilder = Widget Function(
+typedef AFBoardColumnHeaderBuilder = Widget? Function(
   BuildContext context,
-  AFBoardColumnData columnData,
+  AFBoardColumnHeaderData headerData,
 );
 
 typedef AFBoardColumnFooterBuilder = Widget Function(
@@ -125,8 +126,8 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
             .map((item) => _buildWidget(context, item))
             .toList();
 
-        final header =
-            widget.headerBuilder?.call(context, widget.dataSource.columnData);
+        final header = widget.headerBuilder
+            ?.call(context, widget.dataSource.columnData.headerData);
 
         final footer =
             widget.footBuilder?.call(context, widget.dataSource.columnData);
@@ -207,7 +208,7 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
         passthroughPhantomContext: item.phantomContext,
       );
     } else {
-      return widget.cardBuilder(context, item);
+      return widget.cardBuilder(context, widget.dataSource.columnData, item);
     }
   }
 }

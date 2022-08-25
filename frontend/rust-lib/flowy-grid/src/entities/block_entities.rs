@@ -30,7 +30,7 @@ impl BlockPB {
 }
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
-#[derive(Debug, Default, Clone, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
 pub struct RowPB {
     #[pb(index = 1)]
     pub block_id: String,

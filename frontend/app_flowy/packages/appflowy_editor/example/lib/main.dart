@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'expandable_floating_action_button.dart';
-import 'plugin/image_node_widget.dart';
+// import 'plugin/image_node_widget.dart';
 import 'plugin/youtube_link_node_widget.dart';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -139,7 +139,7 @@ class _MyHomePageState extends State<MyHomePage> {
         editorState: editorState,
         keyEventHandlers: const [],
         customBuilders: {
-          'image': ImageNodeBuilder(),
+          // 'image': ImageNodeBuilder(),
           'youtube_link': YouTubeLinkNodeBuilder()
         },
       ),
