@@ -13,9 +13,6 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   selection = selection.isBackward ? selection : selection.reversed;
   // make sure all nodes is [TextNode].
   final textNodes = nodes.whereType<TextNode>().toList();
-  if (textNodes.length != nodes.length) {
-    return KeyEventResult.ignored;
-  }
 
   final transactionBuilder = TransactionBuilder(editorState);
   if (textNodes.length == 1) {
@@ -37,9 +34,9 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       } else {
         // 2. non-style
         // find previous text node.
-        while (textNode.previous != null) {
-          if (textNode.previous is TextNode) {
-            final previous = textNode.previous as TextNode;
+        var previous = textNode.previous;
+        while (previous != null) {
+          if (previous is TextNode) {
             transactionBuilder
               ..mergeText(previous, textNode)
               ..deleteNode(textNode)
@@ -50,6 +47,8 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
                 ),
               );
             break;
+          } else {
+            previous = previous.previous;
           }
         }
       }

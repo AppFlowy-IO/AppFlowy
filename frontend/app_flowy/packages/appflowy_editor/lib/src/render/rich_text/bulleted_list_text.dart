@@ -56,8 +56,6 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
-
     return SizedBox(
       width: defaultMaxTextNodeWidth,
       child: Padding(
@@ -69,8 +67,7 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
               key: iconKey,
               width: _iconWidth,
               height: _iconWidth,
-              padding:
-                  EdgeInsets.only(top: topPadding, right: _iconRightPadding),
+              padding: EdgeInsets.only(right: _iconRightPadding),
               name: 'point',
             ),
             Expanded(

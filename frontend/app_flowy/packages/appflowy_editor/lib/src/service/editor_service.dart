@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/default_key_event_handlers.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ NodeWidgetBuilders defaultBuilders = {
   'text/bulleted-list': BulletedListTextNodeWidgetBuilder(),
   'text/number-list': NumberListTextNodeWidgetBuilder(),
   'text/quote': QuotedTextNodeWidgetBuilder(),
+  'image': ImageNodeBuilder(),
 };
 
 class AppFlowyEditor extends StatefulWidget {

@@ -25,7 +25,9 @@ void main() async {
           find.byType(SelectionMenuWidget, skipOffstage: false),
           findsNothing,
         );
-        await _testDefaultSelectionMenuItems(i, editor);
+        if (defaultSelectionMenuItems[i].name != 'Image') {
+          await _testDefaultSelectionMenuItems(i, editor);
+        }
       });
     }
   });

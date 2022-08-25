@@ -6,7 +6,8 @@
       {
         "type": "image",
         "attributes": {
-          "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png"
+          "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png",
+          "align": "center"
         }
       },
       {
@@ -119,6 +120,14 @@
         "attributes": {
           "subtype": "heading",
           "heading": "h3"
+        }
+      },
+      {
+        "type": "image",
+        "attributes": {
+          "image_src": "https://s1.ax1x.com/2022/08/24/vgAJED.png",
+          "align": "left",
+          "width": 300
         }
       },
       {
