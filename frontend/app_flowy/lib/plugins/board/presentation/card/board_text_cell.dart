@@ -7,9 +7,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'define.dart';
 
 class BoardTextCell extends StatefulWidget {
+  final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
-  const BoardTextCell({required this.cellControllerBuilder, Key? key})
-      : super(key: key);
+  const BoardTextCell({
+    required this.groupId,
+    required this.cellControllerBuilder,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<BoardTextCell> createState() => _BoardTextCellState();

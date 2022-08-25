@@ -19,7 +19,7 @@ class BoardCellBuilder {
 
   BoardCellBuilder(this.delegate);
 
-  Widget buildCell(GridCellIdentifier cellId) {
+  Widget buildCell(String groupId, GridCellIdentifier cellId) {
     final cellControllerBuilder = GridCellControllerBuilder(
       delegate: delegate,
       cellId: cellId,
@@ -30,36 +30,43 @@ class BoardCellBuilder {
     switch (cellId.fieldType) {
       case FieldType.Checkbox:
         return BoardCheckboxCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.DateTime:
         return BoardDateCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.SingleSelect:
         return BoardSelectOptionCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.MultiSelect:
         return BoardSelectOptionCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.Number:
         return BoardNumberCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.RichText:
         return BoardTextCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.URL:
         return BoardUrlCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );

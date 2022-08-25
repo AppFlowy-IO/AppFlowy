@@ -69,7 +69,11 @@ class BoardContent extends StatelessWidget {
               dataController: context.read<BoardBloc>().boardController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
-              cardBuilder: (_, data) => _buildCard(context, data),
+              cardBuilder: (_, column, columnItem) => _buildCard(
+                context,
+                column,
+                columnItem,
+              ),
               columnConstraints: const BoxConstraints.tightFor(width: 240),
               config: AFBoardConfig(
                 columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -129,12 +133,16 @@ class BoardContent extends StatelessWidget {
         });
   }
 
-  Widget _buildCard(BuildContext context, AFColumnItem item) {
-    final rowPB = (item as BoardColumnItem).row;
+  Widget _buildCard(
+    BuildContext context,
+    AFBoardColumnData column,
+    AFColumnItem columnItem,
+  ) {
+    final rowPB = (columnItem as BoardColumnItem).row;
     final rowCache = context.read<BoardBloc>().getRowCache(rowPB.blockId);
 
     /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return SizedBox(key: ObjectKey(item));
+    if (rowCache == null) return SizedBox(key: ObjectKey(columnItem));
 
     final fieldCache = context.read<BoardBloc>().fieldCache;
     final gridId = context.read<BoardBloc>().gridId;
@@ -151,11 +159,12 @@ class BoardContent extends StatelessWidget {
         );
 
     return AppFlowyColumnItemCard(
-      key: ObjectKey(item),
+      key: ObjectKey(columnItem),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: BoardCard(
         gridId: gridId,
+        groupId: column.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,

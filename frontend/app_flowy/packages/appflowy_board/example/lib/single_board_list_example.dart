@@ -32,8 +32,9 @@ class _SingleBoardListExampleState extends State<SingleBoardListExample> {
   Widget build(BuildContext context) {
     return AFBoard(
       dataController: boardData,
-      cardBuilder: (context, item) {
-        return _RowWidget(item: item as TextItem, key: ObjectKey(item));
+      cardBuilder: (context, column, columnItem) {
+        return _RowWidget(
+            item: columnItem as TextItem, key: ObjectKey(columnItem));
       },
     );
   }

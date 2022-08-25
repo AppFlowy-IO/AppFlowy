@@ -24,6 +24,7 @@ typedef OnColumnInserted = void Function(String listId, int insertedIndex);
 
 typedef AFBoardColumnCardBuilder = Widget Function(
   BuildContext context,
+  AFBoardColumnData columnData,
   AFColumnItem item,
 );
 
@@ -207,7 +208,7 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
         passthroughPhantomContext: item.phantomContext,
       );
     } else {
-      return widget.cardBuilder(context, item);
+      return widget.cardBuilder(context, widget.dataSource.columnData, item);
     }
   }
 }

@@ -14,6 +14,7 @@ typedef OnEndEditing = void Function(String rowId);
 
 class BoardCard extends StatefulWidget {
   final String gridId;
+  final String groupId;
   final bool isEditing;
   final CardDataController dataController;
   final BoardCellBuilder cellBuilder;
@@ -22,6 +23,7 @@ class BoardCard extends StatefulWidget {
 
   const BoardCard({
     required this.gridId,
+    required this.groupId,
     required this.isEditing,
     required this.dataController,
     required this.cellBuilder,
@@ -71,7 +73,7 @@ class _BoardCardState extends State<BoardCard> {
   List<Widget> _makeCells(BuildContext context, GridCellMap cellMap) {
     return cellMap.values.map(
       (cellId) {
-        final child = widget.cellBuilder.buildCell(cellId);
+        final child = widget.cellBuilder.buildCell(widget.groupId, cellId);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6),
           child: child,
