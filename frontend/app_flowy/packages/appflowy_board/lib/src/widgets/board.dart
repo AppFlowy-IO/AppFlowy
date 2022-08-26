@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'board_column/board_column.dart';
@@ -141,18 +143,22 @@ class AFBoardContent extends StatefulWidget {
 }
 
 class _AFBoardContentState extends State<AFBoardContent> {
+  late _BoardColumnState columnState;
+
   final GlobalKey _columnContainerOverlayKey =
       GlobalKey(debugLabel: '$AFBoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   @override
   void initState() {
+    columnState = _BoardColumnState();
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
         final interceptor = OverlappingDragTargetInterceptor(
           reorderFlexId: widget.dataController.identifier,
           acceptedReorderFlexId: widget.dataController.columnIds,
           delegate: widget.delegate,
+          columnKeys: UnmodifiableMapView(columnState.columnKeys),
         );
 
         final reorderFlex = ReorderFlex(
@@ -165,7 +171,7 @@ class _AFBoardContentState extends State<AFBoardContent> {
           dataSource: widget.dataController,
           direction: Axis.horizontal,
           interceptor: interceptor,
-          children: _buildColumns(interceptor.columnKeys),
+          children: _buildColumns(),
         );
 
         return Stack(
@@ -197,7 +203,7 @@ class _AFBoardContentState extends State<AFBoardContent> {
     );
   }
 
-  List<Widget> _buildColumns(List<ColumnKey> columnKeys) {
+  List<Widget> _buildColumns() {
     final List<Widget> children =
         widget.dataController.columnDatas.asMap().entries.map(
       (item) {
@@ -222,21 +228,14 @@ class _AFBoardContentState extends State<AFBoardContent> {
                 footBuilder: widget.footBuilder,
                 cardBuilder: widget.cardBuilder,
                 dataSource: dataSource,
-                scrollController: ScrollController(),
+                scrollController: columnState.scrollController(columnData.id),
                 phantomController: widget.phantomController,
                 onReorder: widget.dataController.moveColumnItem,
                 cornerRadius: widget.config.cornerRadius,
                 backgroundColor: widget.config.columnBackgroundColor,
               );
 
-              // columnKeys
-              //     .removeWhere((element) => element.columnId == columnData.id);
-              // columnKeys.add(
-              //   ColumnKey(
-              //     columnId: columnData.id,
-              //     key: boardColumn.columnGlobalKey,
-              //   ),
-              // );
+              columnState.cacheColumn(columnData.id, boardColumn.globalKey);
 
               return ConstrainedBox(
                 constraints: widget.columnConstraints,
@@ -296,4 +295,27 @@ class _BoardColumnDataSourceImpl extends AFBoardColumnDataDataSource {
 
   @override
   List<String> get acceptedColumnIds => dataController.columnIds;
+}
+
+class _BoardColumnState {
+  final Map<String, GlobalKey> columnKeys = {};
+
+  void cacheColumn(String columnId, GlobalKey key) {
+    columnKeys[columnId] = key;
+  }
+
+  ScrollController scrollController(String columnId) {
+    final flexGlobalKey = columnKeys[columnId];
+    var scrollController = ScrollController();
+    if (flexGlobalKey != null) {
+      // assert(flexGlobalKey.currentWidget is ReorderFlex);
+
+      // if (flexGlobalKey.currentWidget is ReorderFlex) {
+      //   final reorderFlex = flexGlobalKey.currentWidget as ReorderFlex;
+      //   final offset = reorderFlex.scrollController!.offset;
+      //   scrollController = ScrollController(initialScrollOffset: offset);
+      // }
+    }
+    return scrollController;
+  }
 }

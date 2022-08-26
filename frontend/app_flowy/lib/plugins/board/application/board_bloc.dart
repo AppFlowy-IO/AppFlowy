@@ -198,7 +198,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   List<AFColumnItem> _buildRows(GroupPB group) {
     final items = group.rows.map((row) {
-      return BoardColumnItem(row: row, fieldId: group.fieldId);
+      return BoardColumnItem(
+        row: row,
+        fieldId: group.fieldId,
+      );
     }).toList();
 
     return <AFColumnItem>[...items];
@@ -286,15 +289,16 @@ class BoardColumnItem extends AFColumnItem {
 
   final String fieldId;
 
-  BoardColumnItem({required this.row, required this.fieldId});
+  final bool requestFocus;
+
+  BoardColumnItem({
+    required this.row,
+    required this.fieldId,
+    this.requestFocus = false,
+  });
 
   @override
   String get id => row.id;
-}
-
-class CreateCardItem extends AFColumnItem {
-  @override
-  String get id => '$CreateCardItem';
 }
 
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
@@ -304,10 +308,18 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
   @override
   void insertRow(GroupPB group, RowPB row, int? index) {
-    final item = BoardColumnItem(row: row, fieldId: group.fieldId);
     if (index != null) {
+      final item = BoardColumnItem(
+        row: row,
+        fieldId: group.fieldId,
+      );
       controller.insertColumnItem(group.groupId, index, item);
     } else {
+      final item = BoardColumnItem(
+        row: row,
+        fieldId: group.fieldId,
+        requestFocus: true,
+      );
       controller.addColumnItem(group.groupId, item);
     }
   }

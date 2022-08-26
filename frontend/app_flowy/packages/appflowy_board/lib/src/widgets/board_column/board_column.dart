@@ -88,7 +88,9 @@ class AFBoardColumnWidget extends StatefulWidget {
 
   final Color backgroundColor;
 
-  const AFBoardColumnWidget({
+  final GlobalKey globalKey = GlobalKey();
+
+  AFBoardColumnWidget({
     Key? key,
     this.headerBuilder,
     this.footBuilder,
@@ -114,10 +116,13 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
   final GlobalKey _columnOverlayKey =
       GlobalKey(debugLabel: '$AFBoardColumnWidget overlay key');
 
+  late GlobalObjectKey _indexGlobalKey;
+
   late BoardOverlayEntry _overlayEntry;
 
   @override
   void initState() {
+    _indexGlobalKey = GlobalObjectKey(widget.key!);
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
         final children = widget.dataSource.columnData.items
@@ -138,7 +143,6 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
         );
 
         Widget reorderFlex = ReorderFlex(
-          key: widget.key,
           scrollController: widget.scrollController,
           config: widget.config,
           onDragStarted: (index) {
@@ -161,6 +165,8 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
           children: children,
         );
 
+        reorderFlex = KeyedSubtree(key: _indexGlobalKey, child: reorderFlex);
+
         return Container(
           margin: widget.margin,
           clipBehavior: Clip.hardEdge,
@@ -172,10 +178,7 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
             children: [
               if (header != null) header,
               Expanded(
-                child: Padding(
-                  padding: widget.itemMargin,
-                  child: reorderFlex,
-                ),
+                child: Padding(padding: widget.itemMargin, child: reorderFlex),
               ),
               if (footer != null) footer,
             ],

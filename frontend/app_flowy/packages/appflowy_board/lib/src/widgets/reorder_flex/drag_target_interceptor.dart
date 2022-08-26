@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/material.dart';
 
@@ -55,13 +56,14 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapDragTargetDelegate delegate;
-  final List<ColumnKey> columnKeys = [];
+  final UnmodifiableMapView<String, GlobalKey> columnKeys;
   Timer? _delayOperation;
 
   OverlappingDragTargetInterceptor({
     required this.delegate,
     required this.reorderFlexId,
     required this.acceptedReorderFlexId,
+    required this.columnKeys,
   });
 
   @override
@@ -103,12 +105,6 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
 
     return true;
   }
-}
-
-class ColumnKey {
-  String columnId;
-  GlobalKey key;
-  ColumnKey({required this.columnId, required this.key});
 }
 
 abstract class CrossReorderFlexDragTargetDelegate {

@@ -39,7 +39,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   final Widget child;
   final T dragTargetData;
 
-  final GlobalObjectKey _indexGlobalKey;
+  final GlobalObjectKey indexGlobalKey;
 
   /// Called when dragTarget is being dragging.
   final DragTargetOnStarted onDragStarted;
@@ -69,9 +69,10 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
 
   final bool useMoveAnimation;
 
-  ReorderDragTarget({
+  const ReorderDragTarget({
     Key? key,
     required this.child,
+    required this.indexGlobalKey,
     required this.dragTargetData,
     required this.onDragStarted,
     required this.onDragEnded,
@@ -82,8 +83,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
     this.onAccept,
     this.onLeave,
     this.draggableTargetBuilder,
-  })  : _indexGlobalKey = GlobalObjectKey(child.key!),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   State<ReorderDragTarget<T>> createState() => _ReorderDragTargetState<T>();
@@ -112,7 +112,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
       },
     );
 
-    dragTarget = KeyedSubtree(key: widget._indexGlobalKey, child: dragTarget);
+    dragTarget = KeyedSubtree(key: widget.indexGlobalKey, child: dragTarget);
     return dragTarget;
   }
 
@@ -150,7 +150,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
             child: widget.child,
           ),
           onDragStarted: () {
-            _draggingFeedbackSize = widget._indexGlobalKey.currentContext?.size;
+            _draggingFeedbackSize = widget.indexGlobalKey.currentContext?.size;
             widget.onDragStarted(
               widget.child,
               widget.dragTargetData.draggingIndex,
