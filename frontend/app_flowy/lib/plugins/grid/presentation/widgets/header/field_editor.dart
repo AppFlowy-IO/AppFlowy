@@ -114,16 +114,14 @@ class FieldEditorPopOver extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyPopover(
-        child: Container(
-      constraints: BoxConstraints.loose(const Size(280, 400)),
-      width: 280,
-      height: 400,
-      child: FieldEditor(
-          gridId: gridId,
-          fieldName: fieldName,
-          typeOptionLoader: typeOptionLoader,
-          key: key),
-    ));
+      builder: (BuildContext context) {
+        return FieldEditor(
+            gridId: gridId,
+            fieldName: fieldName,
+            typeOptionLoader: typeOptionLoader,
+            key: key);
+      },
+    );
   }
 
   static show(
