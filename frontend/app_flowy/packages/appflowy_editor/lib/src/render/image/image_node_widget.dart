@@ -1,10 +1,17 @@
+import 'dart:math';
+
+import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/document/position.dart';
+import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
 class ImageNodeWidget extends StatefulWidget {
   const ImageNodeWidget({
     Key? key,
+    required this.node,
     required this.src,
     this.width,
     required this.alignment,
@@ -14,6 +21,7 @@ class ImageNodeWidget extends StatefulWidget {
     required this.onResize,
   }) : super(key: key);
 
+  final Node node;
   final String src;
   final double? width;
   final Alignment alignment;
@@ -26,7 +34,7 @@ class ImageNodeWidget extends StatefulWidget {
   State<ImageNodeWidget> createState() => _ImageNodeWidgetState();
 }
 
-class _ImageNodeWidgetState extends State<ImageNodeWidget> {
+class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
   double? _imageWidth;
   double _initial = 0;
   double _distance = 0;
@@ -42,7 +50,8 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
     _imageWidth = widget.width;
     _imageStreamListener = ImageStreamListener(
       (image, _) {
-        _imageWidth = image.image.width.toDouble();
+        _imageWidth =
+            min(defaultMaxTextNodeWidth, image.image.width.toDouble());
       },
     );
   }
@@ -62,6 +71,43 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: _buildNetworkImage(context),
     );
+  }
+
+  @override
+  Position start() {
+    return Position(path: widget.node.path, offset: 0);
+  }
+
+  @override
+  Position end() {
+    return Position(path: widget.node.path, offset: 1);
+  }
+
+  @override
+  Position getPositionInOffset(Offset start) {
+    return end();
+  }
+
+  @override
+  Rect? getCursorRectInPosition(Position position) {
+    return null;
+  }
+
+  @override
+  List<Rect> getRectsInSelection(Selection selection) {
+    final renderBox = context.findRenderObject() as RenderBox;
+    return [Offset.zero & renderBox.size];
+  }
+
+  @override
+  Selection getSelectionInRange(Offset start, Offset end) {
+    return Selection(start: this.start(), end: this.end());
+  }
+
+  @override
+  Offset localToGlobal(Offset offset) {
+    final renderBox = context.findRenderObject() as RenderBox;
+    return renderBox.localToGlobal(offset);
   }
 
   Widget _buildNetworkImage(BuildContext context) {

@@ -1,7 +1,9 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/render/image/image_node_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:network_image_mock/network_image_mock.dart';
 import '../../infra/test_editor.dart';
 
 void main() async {
@@ -9,7 +11,7 @@ void main() async {
     TestWidgetsFlutterBinding.ensureInitialized();
   });
 
-  group('delete_text_handler.dart', () {
+  group('backspace_handler.dart', () {
     testWidgets('Presses backspace key in empty document', (tester) async {
       // Before
       //
@@ -166,6 +168,77 @@ void main() async {
   });
   testWidgets('Presses delete key in styled text (quote)', (tester) async {
     await _deleteStyledTextByDelete(tester, StyleKey.quote);
+  });
+
+  // Before
+  //
+  // Welcome to Appflowy 😁
+  // Welcome to Appflowy 😁
+  // [Image]
+  // Welcome to Appflowy 😁
+  // Welcome to Appflowy 😁
+  //
+  // After
+  //
+  // Welcome to Appflowy 😁
+  // Welcome to Appflowy 😁
+  //
+  testWidgets('Deletes the image surrounded by text', (tester) async {
+    mockNetworkImagesFor(() async {
+      const text = 'Welcome to Appflowy 😁';
+      const src = 'https://s1.ax1x.com/2022/08/26/v2sSbR.jpg';
+      final editor = tester.editor
+        ..insertTextNode(text)
+        ..insertTextNode(text)
+        ..insertImageNode(src)
+        ..insertTextNode(text)
+        ..insertTextNode(text);
+      await editor.startTesting();
+
+      expect(editor.documentLength, 5);
+      expect(find.byType(ImageNodeWidget), findsOneWidget);
+
+      await editor.updateSelection(
+        Selection(
+          start: Position(path: [1], offset: 0),
+          end: Position(path: [3], offset: text.length),
+        ),
+      );
+
+      await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+      expect(editor.documentLength, 3);
+      expect(find.byType(ImageNodeWidget), findsNothing);
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: 0),
+      );
+    });
+  });
+
+  testWidgets('Deletes the first image', (tester) async {
+    mockNetworkImagesFor(() async {
+      const text = 'Welcome to Appflowy 😁';
+      const src = 'https://s1.ax1x.com/2022/08/26/v2sSbR.jpg';
+      final editor = tester.editor
+        ..insertImageNode(src)
+        ..insertTextNode(text)
+        ..insertTextNode(text);
+      await editor.startTesting();
+
+      expect(editor.documentLength, 3);
+      expect(find.byType(ImageNodeWidget), findsOneWidget);
+
+      await editor.updateSelection(
+        Selection(
+          start: Position(path: [0], offset: 0),
+          end: Position(path: [0], offset: 1),
+        ),
+      );
+
+      await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+      expect(editor.documentLength, 2);
+      expect(find.byType(ImageNodeWidget), findsNothing);
+    });
   });
 }
 
