@@ -113,30 +113,31 @@ class FieldEditorPopOver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FlowyPopover(
+    return FieldEditor(
+        gridId: gridId,
+        fieldName: fieldName,
+        typeOptionLoader: typeOptionLoader,
+        key: key);
+  }
+
+  static show(
+    BuildContext context, {
+    required BuildContext anchorContext,
+    required String gridId,
+    required String fieldName,
+    required IFieldTypeOptionLoader typeOptionLoader,
+    Key? key,
+  }) {
+    FlowyPopover.show(
+      context,
+      anchorContext: anchorContext,
       builder: (BuildContext context) {
-        return FieldEditor(
+        return FieldEditorPopOver(
             gridId: gridId,
             fieldName: fieldName,
             typeOptionLoader: typeOptionLoader,
             key: key);
       },
     );
-  }
-
-  static show(
-    BuildContext context, {
-    required String gridId,
-    required String fieldName,
-    required IFieldTypeOptionLoader typeOptionLoader,
-    Key? key,
-  }) {
-    FlowyPopover.show(context, builder: (BuildContext context) {
-      return FieldEditorPopOver(
-          gridId: gridId,
-          fieldName: fieldName,
-          typeOptionLoader: typeOptionLoader,
-          key: key);
-    });
   }
 }

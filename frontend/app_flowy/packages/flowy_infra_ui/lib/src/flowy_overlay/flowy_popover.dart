@@ -10,21 +10,59 @@ const _overlayContainerPadding = EdgeInsets.all(12);
 class FlowyPopover extends StatefulWidget {
   final Widget Function(BuildContext context) builder;
   final ShapeBorder? shape;
+  final Rect anchorRect;
+  final AnchorDirection? anchorDirection;
   final EdgeInsets padding;
 
   FlowyPopover({
     Key? key,
     required this.builder,
+    required this.anchorRect,
     this.shape,
     this.padding = _overlayContainerPadding,
+    this.anchorDirection,
   }) : super(key: key);
 
   static show(
     BuildContext context, {
     required Widget Function(BuildContext context) builder,
+    BuildContext? anchorContext,
+    Offset? anchorPosition,
+    AnchorDirection? anchorDirection,
+    Size? anchorSize,
+    Offset? anchorOffset,
   }) {
+    final offset = anchorOffset ?? Offset.zero;
+    Offset targetAnchorPosition = anchorPosition ?? Offset.zero;
+    Size targetAnchorSize = anchorSize ?? Size.zero;
+    if (anchorContext != null) {
+      RenderObject renderObject = anchorContext.findRenderObject()!;
+      assert(
+        renderObject is RenderBox,
+        'Unexpected non-RenderBox render object caught.',
+      );
+      final renderBox = renderObject as RenderBox;
+      targetAnchorPosition = renderBox.localToGlobal(Offset.zero);
+      targetAnchorSize = renderBox.size;
+    }
+    final anchorRect = Rect.fromLTWH(
+      targetAnchorPosition.dx + offset.dx,
+      targetAnchorPosition.dy + offset.dy,
+      targetAnchorSize.width,
+      targetAnchorSize.height,
+    );
+
     showDialog(
-        barrierColor: Colors.transparent, context: context, builder: builder);
+        barrierColor: Colors.transparent,
+        context: context,
+        builder: (BuildContext context) {
+          return FlowyPopover(
+              anchorRect: anchorRect,
+              anchorDirection: anchorDirection,
+              builder: (BuildContext context) {
+                return builder(context);
+              });
+        });
   }
 
   @override
@@ -43,8 +81,9 @@ class _FlowyPopoverState extends State<FlowyPopover> {
         type: MaterialType.transparency,
         child: CustomSingleChildLayout(
             delegate: PopoverLayoutDelegate(
-              anchorRect: const Rect.fromLTWH(0, 0, 280, 400),
-              anchorDirection: AnchorDirection.rightWithTopAligned,
+              anchorRect: widget.anchorRect,
+              anchorDirection:
+                  widget.anchorDirection ?? AnchorDirection.rightWithTopAligned,
               overlapBehaviour: OverlapBehaviour.stretch,
             ),
             child: Container(

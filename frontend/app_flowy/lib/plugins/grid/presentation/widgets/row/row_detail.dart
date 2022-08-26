@@ -171,6 +171,7 @@ class _RowDetailCell extends StatelessWidget {
   void _showFieldEditor(BuildContext context) {
     FieldEditorPopOver.show(
       context,
+      anchorContext: context,
       gridId: cellId.gridId,
       fieldName: cellId.field.name,
       typeOptionLoader: FieldTypeOptionLoader(

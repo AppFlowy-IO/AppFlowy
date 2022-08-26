@@ -159,6 +159,7 @@ class CreateFieldButton extends StatelessWidget {
       hoverColor: theme.shader6,
       onTap: () => FieldEditorPopOver.show(
         context,
+        anchorContext: context,
         gridId: gridId,
         fieldName: "",
         typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),

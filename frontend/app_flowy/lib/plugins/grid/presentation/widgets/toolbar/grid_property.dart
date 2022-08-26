@@ -121,6 +121,7 @@ class _GridPropertyCell extends StatelessWidget {
       onTap: () {
         FieldEditorPopOver.show(
           context,
+          anchorContext: context,
           gridId: gridId,
           fieldName: field.name,
           typeOptionLoader: FieldTypeOptionLoader(gridId: gridId, field: field),

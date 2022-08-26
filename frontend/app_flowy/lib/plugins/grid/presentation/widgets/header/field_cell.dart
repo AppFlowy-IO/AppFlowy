@@ -67,6 +67,7 @@ class GridFieldCell extends StatelessWidget {
 
     FieldEditorPopOver.show(
       context,
+      anchorContext: context,
       gridId: state.gridId,
       fieldName: field.name,
       typeOptionLoader: FieldTypeOptionLoader(
