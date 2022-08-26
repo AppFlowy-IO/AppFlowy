@@ -121,6 +121,10 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
       columnData._items.add(newItem);
       Log.debug('[$AFBoardColumnDataController] $columnData add $newItem');
     } else {
+      if (index >= columnData._items.length) {
+        return;
+      }
+
       final removedItem = columnData._items.removeAt(index);
       columnData._items.insert(index, newItem);
       Log.debug(

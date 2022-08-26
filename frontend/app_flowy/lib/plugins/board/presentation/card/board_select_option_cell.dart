@@ -37,6 +37,9 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<BoardSelectOptionCellBloc, BoardSelectOptionCellState>(
+        // buildWhen: (previous, current) {
+        //   return previous.selectedOptions != current.selectedOptions;
+        // },
         builder: (context, state) {
           if (state.selectedOptions
               .where((element) => element.id == widget.groupId)
