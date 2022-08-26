@@ -13,6 +13,7 @@ class FlowyPopover extends StatefulWidget {
   final Rect anchorRect;
   final AnchorDirection? anchorDirection;
   final EdgeInsets padding;
+  final BoxConstraints? constraints;
 
   FlowyPopover({
     Key? key,
@@ -21,6 +22,7 @@ class FlowyPopover extends StatefulWidget {
     this.shape,
     this.padding = _overlayContainerPadding,
     this.anchorDirection,
+    this.constraints,
   }) : super(key: key);
 
   static show(
@@ -31,6 +33,7 @@ class FlowyPopover extends StatefulWidget {
     AnchorDirection? anchorDirection,
     Size? anchorSize,
     Offset? anchorOffset,
+    BoxConstraints? constraints,
   }) {
     final offset = anchorOffset ?? Offset.zero;
     Offset targetAnchorPosition = anchorPosition ?? Offset.zero;
@@ -59,6 +62,7 @@ class FlowyPopover extends StatefulWidget {
           return FlowyPopover(
               anchorRect: anchorRect,
               anchorDirection: anchorDirection,
+              constraints: constraints,
               builder: (BuildContext context) {
                 return builder(context);
               });
@@ -88,7 +92,8 @@ class _FlowyPopoverState extends State<FlowyPopover> {
             ),
             child: Container(
               padding: widget.padding,
-              constraints: BoxConstraints.loose(const Size(280, 400)),
+              constraints: widget.constraints ??
+                  BoxConstraints.loose(const Size(280, 400)),
               decoration: FlowyDecoration.decoration(
                   theme.surface, theme.shadowColor.withOpacity(0.15)),
               key: preRenderKey,

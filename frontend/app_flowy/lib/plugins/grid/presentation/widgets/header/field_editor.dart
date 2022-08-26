@@ -99,27 +99,7 @@ class _FieldNameCell extends StatelessWidget {
   }
 }
 
-class FieldEditorPopOver extends StatelessWidget {
-  final String gridId;
-  final String fieldName;
-
-  final IFieldTypeOptionLoader typeOptionLoader;
-  const FieldEditorPopOver({
-    required this.gridId,
-    required this.fieldName,
-    required this.typeOptionLoader,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FieldEditor(
-        gridId: gridId,
-        fieldName: fieldName,
-        typeOptionLoader: typeOptionLoader,
-        key: key);
-  }
-
+class FieldEditorPopOver {
   static show(
     BuildContext context, {
     required BuildContext anchorContext,
@@ -132,7 +112,7 @@ class FieldEditorPopOver extends StatelessWidget {
       context,
       anchorContext: anchorContext,
       builder: (BuildContext context) {
-        return FieldEditorPopOver(
+        return FieldEditor(
             gridId: gridId,
             fieldName: fieldName,
             typeOptionLoader: typeOptionLoader,

@@ -21,19 +21,6 @@ class GridFieldCellActionSheet extends StatelessWidget
       {required this.cellContext, required this.onEdited, Key? key})
       : super(key: key);
 
-  void show(BuildContext overlayContext) {
-    FlowyOverlay.of(overlayContext).insertWithAnchor(
-      widget: OverlayContainer(
-        child: this,
-        constraints: BoxConstraints.loose(const Size(240, 200)),
-      ),
-      identifier: GridFieldCellActionSheet.identifier(),
-      anchorContext: overlayContext,
-      anchorDirection: AnchorDirection.bottomWithLeftAligned,
-      delegate: this,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -211,5 +198,22 @@ extension _FieldActionExtension on FieldAction {
             .add(const FieldActionSheetEvent.deleteField());
         break;
     }
+  }
+}
+
+class GridFieldCellActionSheetPopover {
+  static show(
+    BuildContext context, {
+    required GridFieldCellContext cellContext,
+    required VoidCallback onEdited,
+  }) {
+    FlowyPopover.show(context,
+        anchorContext: context,
+        anchorDirection: AnchorDirection.bottomWithLeftAligned,
+        constraints: BoxConstraints.loose(const Size(240, 200)),
+        builder: (BuildContext context) {
+      return GridFieldCellActionSheet(
+          cellContext: cellContext, onEdited: onEdited);
+    });
   }
 }

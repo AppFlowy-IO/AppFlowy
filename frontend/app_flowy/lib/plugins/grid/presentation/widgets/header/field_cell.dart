@@ -54,11 +54,12 @@ class GridFieldCell extends StatelessWidget {
 
   void _showActionSheet(BuildContext context) {
     final state = context.read<FieldCellBloc>().state;
-    GridFieldCellActionSheet(
+    GridFieldCellActionSheetPopover.show(
+      context,
       cellContext:
           GridFieldCellContext(gridId: state.gridId, field: state.field),
       onEdited: () => _showFieldEditor(context),
-    ).show(context);
+    );
   }
 
   void _showFieldEditor(BuildContext context) {

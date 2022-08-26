@@ -102,22 +102,15 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
 
   void _showOverlay(BuildContext context, Widget child,
       {VoidCallback? onRemoved}) {
-    final identifier = child.toString();
-    if (currentOverlayIdentifier != null) {
-      FlowyOverlay.of(context).remove(currentOverlayIdentifier!);
-    }
-
-    currentOverlayIdentifier = identifier;
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        child: child,
-        constraints: BoxConstraints.loose(const Size(460, 440)),
-      ),
-      identifier: identifier,
+    FlowyPopover.show(
+      context,
+      constraints: BoxConstraints.loose(const Size(460, 440)),
       anchorContext: context,
-      anchorDirection: AnchorDirection.leftWithCenterAligned,
-      style: FlowyOverlayStyle(blur: false),
-      anchorOffset: const Offset(-20, 0),
+      anchorDirection: AnchorDirection.rightWithCenterAligned,
+      anchorOffset: const Offset(20, 0),
+      builder: (BuildContext context) {
+        return child;
+      },
     );
   }
 
