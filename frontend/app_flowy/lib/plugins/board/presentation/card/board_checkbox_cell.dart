@@ -36,19 +36,18 @@ class _BoardCheckboxCellState extends State<BoardCheckboxCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<BoardCheckboxCellBloc, BoardCheckboxCellState>(
+        buildWhen: (previous, current) =>
+            previous.isSelected != current.isSelected,
         builder: (context, state) {
           final icon = state.isSelected
               ? svgWidget('editor/editor_check')
               : svgWidget('editor/editor_uncheck');
-          return Padding(
-            padding: EdgeInsets.zero,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: FlowyIconButton(
-                iconPadding: EdgeInsets.zero,
-                icon: icon,
-                width: 20,
-              ),
+          return Align(
+            alignment: Alignment.centerLeft,
+            child: FlowyIconButton(
+              iconPadding: EdgeInsets.zero,
+              icon: icon,
+              width: 20,
             ),
           );
         },

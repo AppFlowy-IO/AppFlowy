@@ -4,8 +4,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'define.dart';
-
 class BoardTextCell extends StatefulWidget {
   final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
@@ -37,20 +35,16 @@ class _BoardTextCellState extends State<BoardTextCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
+        buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
           if (state.content.isEmpty) {
             return const SizedBox();
           } else {
             return Align(
               alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: BoardSizes.cardCellVPadding,
-                ),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 120),
-                  child: FlowyText.medium(state.content, fontSize: 14),
-                ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 120),
+                child: FlowyText.medium(state.content, fontSize: 14),
               ),
             );
           }
