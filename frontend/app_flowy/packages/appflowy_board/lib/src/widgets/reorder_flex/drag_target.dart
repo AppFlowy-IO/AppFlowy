@@ -140,7 +140,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
           widget.insertAnimationController,
           widget.deleteAnimationController,
         ) ??
-        LongPressDraggable<DragTargetData>(
+        Draggable<DragTargetData>(
           maxSimultaneousDrags: 1,
           data: widget.dragTargetData,
           ignoringFeedbackSemantics: false,
