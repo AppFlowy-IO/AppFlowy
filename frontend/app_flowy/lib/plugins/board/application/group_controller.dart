@@ -7,9 +7,9 @@ import 'group_listener.dart';
 typedef OnGroupError = void Function(FlowyError);
 
 abstract class GroupControllerDelegate {
-  void removeRow(String groupId, String rowId);
-  void insertRow(String groupId, RowPB row, int? index);
-  void updateRow(String groupId, RowPB row);
+  void removeRow(GroupPB group, String rowId);
+  void insertRow(GroupPB group, RowPB row, int? index);
+  void updateRow(GroupPB group, RowPB row);
 }
 
 class GroupController {
@@ -37,7 +37,7 @@ class GroupController {
         (GroupChangesetPB changeset) {
           for (final deletedRow in changeset.deletedRows) {
             group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
-            delegate.removeRow(group.groupId, deletedRow);
+            delegate.removeRow(group, deletedRow);
           }
 
           for (final insertedRow in changeset.insertedRows) {
@@ -51,7 +51,7 @@ class GroupController {
             }
 
             delegate.insertRow(
-              group.groupId,
+              group,
               insertedRow.row,
               index,
             );
@@ -66,7 +66,7 @@ class GroupController {
               group.rows[index] = updatedRow;
             }
 
-            delegate.updateRow(group.groupId, updatedRow);
+            delegate.updateRow(group, updatedRow);
           }
         },
         (err) => Log.error(err),

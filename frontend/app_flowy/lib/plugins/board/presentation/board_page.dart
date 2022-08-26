@@ -73,7 +73,8 @@ class _BoardContentState extends State<BoardContent> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BoardBloc, BoardState>(
-      buildWhen: (previous, current) => previous.groupIds != current.groupIds,
+      buildWhen: (previous, current) =>
+          previous.groupIds.length != current.groupIds.length,
       builder: (context, state) {
         return Container(
           color: Colors.white,
@@ -159,7 +160,8 @@ class _BoardContentState extends State<BoardContent> {
     AFBoardColumnData column,
     AFColumnItem columnItem,
   ) {
-    final rowPB = (columnItem as BoardColumnItem).row;
+    final boardColumnItem = columnItem as BoardColumnItem;
+    final rowPB = boardColumnItem.row;
     final rowCache = context.read<BoardBloc>().getRowCache(rowPB.blockId);
 
     /// Return placeholder widget if the rowCache is null.
@@ -186,6 +188,7 @@ class _BoardContentState extends State<BoardContent> {
       child: BoardCard(
         gridId: gridId,
         groupId: column.id,
+        fieldId: boardColumnItem.fieldId,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,

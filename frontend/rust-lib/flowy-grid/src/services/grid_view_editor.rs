@@ -140,8 +140,8 @@ impl GridViewRevisionEditor {
         row_changeset: &mut RowChangeset,
         to_group_id: &str,
         to_row_id: Option<String>,
-    ) {
-        if let Some(changesets) = self
+    ) -> Vec<GroupChangesetPB> {
+        match self
             .group_service
             .write()
             .await
@@ -150,9 +150,8 @@ impl GridViewRevisionEditor {
             })
             .await
         {
-            for changeset in changesets {
-                self.notify_did_update_group(changeset).await;
-            }
+            None => vec![],
+            Some(changesets) => changesets,
         }
     }
     /// Only call once after grid view editor initialized
@@ -266,7 +265,7 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
-    async fn notify_did_update_group(&self, changeset: GroupChangesetPB) {
+    pub async fn notify_did_update_group(&self, changeset: GroupChangesetPB) {
         send_dart_notification(&changeset.group_id, GridNotification::DidUpdateGroup)
             .payload(changeset)
             .send();

@@ -15,6 +15,7 @@ typedef OnEndEditing = void Function(String rowId);
 class BoardCard extends StatefulWidget {
   final String gridId;
   final String groupId;
+  final String fieldId;
   final bool isEditing;
   final CardDataController dataController;
   final BoardCellBuilder cellBuilder;
@@ -24,6 +25,7 @@ class BoardCard extends StatefulWidget {
   const BoardCard({
     required this.gridId,
     required this.groupId,
+    required this.fieldId,
     required this.isEditing,
     required this.dataController,
     required this.cellBuilder,
@@ -43,6 +45,7 @@ class _BoardCardState extends State<BoardCard> {
   void initState() {
     _cardBloc = BoardCardBloc(
       gridId: widget.gridId,
+      fieldId: widget.fieldId,
       dataController: widget.dataController,
     )..add(const BoardCardEvent.initial());
     super.initState();
@@ -53,6 +56,9 @@ class _BoardCardState extends State<BoardCard> {
     return BlocProvider.value(
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
+        buildWhen: (previous, current) {
+          return previous.cells.length != current.cells.length;
+        },
         builder: (context, state) {
           return BoardCardContainer(
             accessoryBuilder: (context) {
@@ -62,7 +68,10 @@ class _BoardCardState extends State<BoardCard> {
               widget.openCard(context);
             },
             child: Column(
-              children: _makeCells(context, state.gridCellMap),
+              children: _makeCells(
+                context,
+                state.cells.map((cell) => cell.identifier).toList(),
+              ),
             ),
           );
         },
@@ -70,9 +79,12 @@ class _BoardCardState extends State<BoardCard> {
     );
   }
 
-  List<Widget> _makeCells(BuildContext context, GridCellMap cellMap) {
-    return cellMap.values.map(
-      (cellId) {
+  List<Widget> _makeCells(
+    BuildContext context,
+    List<GridCellIdentifier> cells,
+  ) {
+    return cells.map(
+      (GridCellIdentifier cellId) {
         final child = widget.cellBuilder.buildCell(widget.groupId, cellId);
         return Padding(
           padding: const EdgeInsets.only(left: 4, right: 4, top: 6),

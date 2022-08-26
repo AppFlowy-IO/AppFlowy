@@ -165,7 +165,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           return AFBoardColumnData(
             id: group.groupId,
             name: group.desc,
-            items: _buildRows(group.rows),
+            items: _buildRows(group),
             customData: group,
           );
         }).toList();
@@ -196,9 +196,9 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  List<AFColumnItem> _buildRows(List<RowPB> rows) {
-    final items = rows.map((row) {
-      return BoardColumnItem(row: row);
+  List<AFColumnItem> _buildRows(GroupPB group) {
+    final items = group.rows.map((row) {
+      return BoardColumnItem(row: row, fieldId: group.fieldId);
     }).toList();
 
     return <AFColumnItem>[...items];
@@ -284,7 +284,9 @@ class GridFieldEquatable extends Equatable {
 class BoardColumnItem extends AFColumnItem {
   final RowPB row;
 
-  BoardColumnItem({required this.row});
+  final String fieldId;
+
+  BoardColumnItem({required this.row, required this.fieldId});
 
   @override
   String get id => row.id;
@@ -301,22 +303,27 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
   GroupControllerDelegateImpl(this.controller);
 
   @override
-  void insertRow(String groupId, RowPB row, int? index) {
-    final item = BoardColumnItem(row: row);
+  void insertRow(GroupPB group, RowPB row, int? index) {
+    final item = BoardColumnItem(row: row, fieldId: group.fieldId);
     if (index != null) {
-      controller.insertColumnItem(groupId, index, item);
+      controller.insertColumnItem(group.groupId, index, item);
     } else {
-      controller.addColumnItem(groupId, item);
+      controller.addColumnItem(group.groupId, item);
     }
   }
 
   @override
-  void removeRow(String groupId, String rowId) {
-    controller.removeColumnItem(groupId, rowId);
+  void removeRow(GroupPB group, String rowId) {
+    controller.removeColumnItem(group.groupId, rowId);
   }
 
   @override
-  void updateRow(String groupId, RowPB row) {
-    controller.updateColumnItem(groupId, BoardColumnItem(row: row));
+  void updateRow(GroupPB group, RowPB row) {
+    controller.updateColumnItem(
+        group.groupId,
+        BoardColumnItem(
+          row: row,
+          fieldId: group.fieldId,
+        ));
   }
 }

@@ -134,19 +134,23 @@ impl GridViewManager {
         row_rev: Arc<RowRevision>,
         to_group_id: String,
         to_row_id: Option<String>,
-    ) -> Option<RowChangeset> {
+        with_row_changeset: impl FnOnce(RowChangeset) -> AFFuture<()>,
+    ) -> FlowyResult<()> {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
-        for view_editor in self.view_editors.iter() {
-            view_editor
-                .move_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
-                .await;
+        let view_editor = self.get_default_view_editor().await?;
+        let group_changesets = view_editor
+            .move_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
+            .await;
+
+        if row_changeset.is_empty() == false {
+            with_row_changeset(row_changeset).await;
         }
 
-        if row_changeset.is_empty() {
-            None
-        } else {
-            Some(row_changeset)
+        for group_changeset in group_changesets {
+            view_editor.notify_did_update_group(group_changeset).await;
         }
+
+        Ok(())
     }
 
     pub(crate) async fn did_update_field(&self, field_id: &str) -> FlowyResult<()> {

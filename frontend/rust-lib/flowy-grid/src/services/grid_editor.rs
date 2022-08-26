@@ -18,7 +18,7 @@ use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeseri
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::CollaborateResult;
 use flowy_sync::util::make_text_delta_from_revisions;
-use lib_infra::future::FutureResult;
+use lib_infra::future::{wrap_future, FutureResult};
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -591,34 +591,33 @@ impl GridRevisionEditor {
         match self.block_manager.get_row_rev(&from_row_id).await? {
             None => tracing::warn!("Move row failed, can not find the row:{}", from_row_id),
             Some(row_rev) => {
-                if let Some(row_changeset) = self
-                    .view_manager
-                    .move_group_row(row_rev, to_group_id, to_row_id.clone())
-                    .await
-                {
-                    tracing::trace!("Move group row cause row data changed: {:?}", row_changeset);
+                let block_manager = self.block_manager.clone();
+                self.view_manager
+                    .move_group_row(row_rev, to_group_id, to_row_id.clone(), |row_changeset| {
+                        wrap_future(async move {
+                            tracing::trace!("Move group row cause row data changed: {:?}", row_changeset);
+                            let cell_changesets = row_changeset
+                                .cell_by_field_id
+                                .into_iter()
+                                .map(|(field_id, cell_rev)| CellChangesetPB {
+                                    grid_id: view_id.clone(),
+                                    row_id: row_changeset.row_id.clone(),
+                                    field_id,
+                                    content: cell_rev.data,
+                                })
+                                .collect::<Vec<CellChangesetPB>>();
 
-                    let cell_changesets = row_changeset
-                        .cell_by_field_id
-                        .into_iter()
-                        .map(|(field_id, cell_rev)| CellChangesetPB {
-                            grid_id: view_id.clone(),
-                            row_id: row_changeset.row_id.clone(),
-                            field_id,
-                            content: cell_rev.data,
+                            for cell_changeset in cell_changesets {
+                                match block_manager.update_cell(cell_changeset).await {
+                                    Ok(_) => {}
+                                    Err(e) => tracing::error!("Apply cell changeset error:{:?}", e),
+                                }
+                            }
                         })
-                        .collect::<Vec<CellChangesetPB>>();
-
-                    for cell_changeset in cell_changesets {
-                        match self.block_manager.update_cell(cell_changeset).await {
-                            Ok(_) => {}
-                            Err(e) => tracing::error!("Apply cell changeset error:{:?}", e),
-                        }
-                    }
-                }
+                    })
+                    .await?;
             }
         }
-
         Ok(())
     }
 
