@@ -101,7 +101,11 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
 
   @override
   Selection getSelectionInRange(Offset start, Offset end) {
-    return Selection(start: this.start(), end: this.end());
+    if (start <= end) {
+      return Selection(start: this.start(), end: this.end());
+    } else {
+      return Selection(start: this.end(), end: this.start());
+    }
   }
 
   @override

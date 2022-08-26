@@ -215,30 +215,82 @@ void main() async {
     });
   });
 
-  testWidgets('Deletes the first image', (tester) async {
-    mockNetworkImagesFor(() async {
-      const text = 'Welcome to Appflowy 😁';
-      const src = 'https://s1.ax1x.com/2022/08/26/v2sSbR.jpg';
-      final editor = tester.editor
-        ..insertImageNode(src)
-        ..insertTextNode(text)
-        ..insertTextNode(text);
-      await editor.startTesting();
+  testWidgets('Deletes the first image, and selection is backward',
+      (tester) async {
+    await _deleteFirstImage(tester, true);
+  });
 
-      expect(editor.documentLength, 3);
-      expect(find.byType(ImageNodeWidget), findsOneWidget);
+  testWidgets('Deletes the first image, and selection is not backward',
+      (tester) async {
+    await _deleteFirstImage(tester, false);
+  });
 
-      await editor.updateSelection(
-        Selection(
-          start: Position(path: [0], offset: 0),
-          end: Position(path: [0], offset: 1),
-        ),
-      );
+  testWidgets('Deletes the last image and selection is backward',
+      (tester) async {
+    await _deleteLastImage(tester, true);
+  });
 
-      await editor.pressLogicKey(LogicalKeyboardKey.backspace);
-      expect(editor.documentLength, 2);
-      expect(find.byType(ImageNodeWidget), findsNothing);
-    });
+  testWidgets('Deletes the last image and selection is not backward',
+      (tester) async {
+    await _deleteLastImage(tester, false);
+  });
+}
+
+Future<void> _deleteFirstImage(WidgetTester tester, bool isBackward) async {
+  mockNetworkImagesFor(() async {
+    const text = 'Welcome to Appflowy 😁';
+    const src = 'https://s1.ax1x.com/2022/08/26/v2sSbR.jpg';
+    final editor = tester.editor
+      ..insertImageNode(src)
+      ..insertTextNode(text)
+      ..insertTextNode(text);
+    await editor.startTesting();
+
+    expect(editor.documentLength, 3);
+    expect(find.byType(ImageNodeWidget), findsOneWidget);
+
+    final start = Position(path: [0], offset: 0);
+    final end = Position(path: [1], offset: 1);
+    await editor.updateSelection(
+      Selection(
+        start: isBackward ? start : end,
+        end: isBackward ? end : start,
+      ),
+    );
+
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(editor.documentLength, 2);
+    expect(find.byType(ImageNodeWidget), findsNothing);
+    expect(editor.documentSelection, Selection.collapsed(start));
+  });
+}
+
+Future<void> _deleteLastImage(WidgetTester tester, bool isBackward) async {
+  mockNetworkImagesFor(() async {
+    const text = 'Welcome to Appflowy 😁';
+    const src = 'https://s1.ax1x.com/2022/08/26/v2sSbR.jpg';
+    final editor = tester.editor
+      ..insertTextNode(text)
+      ..insertTextNode(text)
+      ..insertImageNode(src);
+    await editor.startTesting();
+
+    expect(editor.documentLength, 3);
+    expect(find.byType(ImageNodeWidget), findsOneWidget);
+
+    final start = Position(path: [1], offset: 0);
+    final end = Position(path: [2], offset: 1);
+    await editor.updateSelection(
+      Selection(
+        start: isBackward ? start : end,
+        end: isBackward ? end : start,
+      ),
+    );
+
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(editor.documentLength, 2);
+    expect(find.byType(ImageNodeWidget), findsNothing);
+    expect(editor.documentSelection, Selection.collapsed(start));
   });
 }
 

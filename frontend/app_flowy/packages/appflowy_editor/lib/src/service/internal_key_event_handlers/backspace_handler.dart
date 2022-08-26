@@ -80,6 +80,9 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   }
 
   if (transactionBuilder.operations.isNotEmpty) {
+    if (nonTextNodes.isNotEmpty) {
+      transactionBuilder.afterSelection = Selection.collapsed(selection.start);
+    }
     transactionBuilder.commit();
   }
 
