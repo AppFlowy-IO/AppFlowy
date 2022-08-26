@@ -60,7 +60,7 @@ class BoardDataController {
     required OnGridChanged onGridChanged,
     OnFieldsChanged? onFieldsChanged,
     required DidLoadGroups didLoadGroups,
-    required OnRowsChanged onRowsChanged,
+    OnRowsChanged? onRowsChanged,
     required OnUpdatedGroup onUpdatedGroup,
     required OnDeletedGroup onDeletedGroup,
     required OnInsertedGroup onInsertedGroup,

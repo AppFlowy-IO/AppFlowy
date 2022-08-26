@@ -35,7 +35,7 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 
   void show(BuildContext context) async {
     final windowSize = MediaQuery.of(context).size;
-    final size = windowSize * 0.7;
+    final size = windowSize * 0.5;
     FlowyOverlay.of(context).insertWithRect(
       widget: OverlayContainer(
         child: this,

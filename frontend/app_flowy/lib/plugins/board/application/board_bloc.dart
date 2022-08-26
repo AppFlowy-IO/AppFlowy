@@ -171,9 +171,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         boardController.addColumns(columns);
         initializeGroups(groups);
       },
-      onRowsChanged: (List<RowInfo> rowInfos, RowsChangedReason reason) {
-        add(BoardEvent.didReceiveRows(rowInfos));
-      },
       onDeletedGroup: (groupIds) {
         //
       },
@@ -223,8 +220,6 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.createRow(String groupId) = _CreateRow;
   const factory BoardEvent.endEditRow(String rowId) = _EndEditRow;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
-  const factory BoardEvent.didReceiveRows(List<RowInfo> rowInfos) =
-      _DidReceiveRows;
   const factory BoardEvent.didReceiveGridUpdate(
     GridPB grid,
   ) = _DidReceiveGridUpdate;
