@@ -88,9 +88,7 @@ class AFBoardColumnWidget extends StatefulWidget {
 
   final Color backgroundColor;
 
-  final GlobalKey columnGlobalKey = GlobalKey();
-
-  AFBoardColumnWidget({
+  const AFBoardColumnWidget({
     Key? key,
     this.headerBuilder,
     this.footBuilder,
@@ -140,7 +138,7 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
         );
 
         Widget reorderFlex = ReorderFlex(
-          key: widget.columnGlobalKey,
+          key: widget.key,
           scrollController: widget.scrollController,
           config: widget.config,
           onDragStarted: (index) {
@@ -162,9 +160,6 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
           interceptor: interceptor,
           children: children,
         );
-
-        // reorderFlex =
-        //     KeyedSubtree(key: widget.columnGlobalKey, child: reorderFlex);
 
         return Container(
           margin: widget.margin,

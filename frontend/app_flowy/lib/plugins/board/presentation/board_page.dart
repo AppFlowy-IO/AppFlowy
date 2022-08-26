@@ -32,13 +32,15 @@ class BoardPage extends StatelessWidget {
       create: (context) =>
           BoardBloc(view: view)..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
+        buildWhen: (previous, current) =>
+            previous.loadingState != current.loadingState,
         builder: (context, state) {
           return state.loadingState.map(
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) {
               return result.successOrFail.fold(
-                (_) => BoardContent(),
+                (_) => const BoardContent(),
                 (err) => FlowyErrorPage(err.toString()),
               );
             },
@@ -49,23 +51,36 @@ class BoardPage extends StatelessWidget {
   }
 }
 
-class BoardContent extends StatelessWidget {
+class BoardContent extends StatefulWidget {
+  const BoardContent({Key? key}) : super(key: key);
+
+  @override
+  State<BoardContent> createState() => _BoardContentState();
+}
+
+class _BoardContentState extends State<BoardContent> {
+  late ScrollController scrollController;
   final config = AFBoardConfig(
     columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
   );
 
-  BoardContent({Key? key}) : super(key: key);
+  @override
+  void initState() {
+    scrollController = ScrollController();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BoardBloc, BoardState>(
+      buildWhen: (previous, current) => previous.groupIds != current.groupIds,
       builder: (context, state) {
         return Container(
           color: Colors.white,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: AFBoard(
-              scrollController: ScrollController(),
+              scrollController: scrollController,
               dataController: context.read<BoardBloc>().boardController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
@@ -83,6 +98,12 @@ class BoardContent extends StatelessWidget {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   Widget _buildHeader(
@@ -159,7 +180,7 @@ class BoardContent extends StatelessWidget {
         );
 
     return AppFlowyColumnItemCard(
-      key: ObjectKey(columnItem),
+      key: ValueKey(columnItem.id),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: BoardCard(

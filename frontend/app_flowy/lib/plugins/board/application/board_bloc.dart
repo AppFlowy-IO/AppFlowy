@@ -88,11 +88,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           didReceiveGridUpdate: (GridPB grid) {
             emit(state.copyWith(grid: Some(grid)));
           },
-          didReceiveRows: (List<RowInfo> rowInfos) {
-            emit(state.copyWith(rowInfos: rowInfos));
-          },
           didReceiveError: (FlowyError error) {
             emit(state.copyWith(noneOrError: some(error)));
+          },
+          didReceiveGroups: (List<GroupPB> groups) {
+            emit(state.copyWith(
+              groupIds: groups.map((group) => group.groupId).toList(),
+            ));
           },
         );
       },
@@ -170,6 +172,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
         boardController.addColumns(columns);
         initializeGroups(groups);
+        add(BoardEvent.didReceiveGroups(groups));
       },
       onDeletedGroup: (groupIds) {
         //
@@ -223,6 +226,8 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.didReceiveGridUpdate(
     GridPB grid,
   ) = _DidReceiveGridUpdate;
+  const factory BoardEvent.didReceiveGroups(List<GroupPB> groups) =
+      _DidReceiveGroups;
 }
 
 @freezed
@@ -230,16 +235,16 @@ class BoardState with _$BoardState {
   const factory BoardState({
     required String gridId,
     required Option<GridPB> grid,
+    required List<String> groupIds,
     required Option<RowPB> editingRow,
-    required List<RowInfo> rowInfos,
     required GridLoadingState loadingState,
     required Option<FlowyError> noneOrError,
   }) = _BoardState;
 
   factory BoardState.initial(String gridId) => BoardState(
-        rowInfos: [],
         grid: none(),
         gridId: gridId,
+        groupIds: [],
         editingRow: none(),
         noneOrError: none(),
         loadingState: const _Loading(),

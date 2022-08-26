@@ -75,7 +75,7 @@ class AFBoard extends StatelessWidget {
       value: dataController,
       child: Consumer<AFBoardDataController>(
         builder: (context, notifier, child) {
-          return BoardContent(
+          return AFBoardContent(
             config: config,
             dataController: dataController,
             scrollController: scrollController,
@@ -94,7 +94,7 @@ class AFBoard extends StatelessWidget {
   }
 }
 
-class BoardContent extends StatefulWidget {
+class AFBoardContent extends StatefulWidget {
   final ScrollController? scrollController;
   final OnDragStarted? onDragStarted;
   final OnReorder onReorder;
@@ -118,7 +118,7 @@ class BoardContent extends StatefulWidget {
 
   final BoardPhantomController phantomController;
 
-  const BoardContent({
+  const AFBoardContent({
     required this.config,
     required this.onReorder,
     required this.delegate,
@@ -137,12 +137,12 @@ class BoardContent extends StatefulWidget {
         super(key: key);
 
   @override
-  State<BoardContent> createState() => _BoardContentState();
+  State<AFBoardContent> createState() => _AFBoardContentState();
 }
 
-class _BoardContentState extends State<BoardContent> {
+class _AFBoardContentState extends State<AFBoardContent> {
   final GlobalKey _columnContainerOverlayKey =
-      GlobalKey(debugLabel: '$BoardContent overlay key');
+      GlobalKey(debugLabel: '$AFBoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   @override
@@ -215,6 +215,7 @@ class _BoardContentState extends State<BoardContent> {
           child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
               final boardColumn = AFBoardColumnWidget(
+                key: ValueKey(columnData.id),
                 margin: _marginFromIndex(columnIndex),
                 itemMargin: widget.config.columnItemPadding,
                 headerBuilder: _buildHeader,

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 const DART_LOG = "Dart_LOG";
 
 class Log {
-  static const enableLog = false;
+  static const enableLog = true;
 
   static void info(String? message) {
     if (enableLog) {
