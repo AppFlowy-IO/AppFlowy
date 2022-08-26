@@ -20,6 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -54,21 +55,27 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildEditor(BuildContext context) {
     if (_jsonString != null) {
-      return _buildEditorWithJsonPath(_jsonString!);
+      return _buildEditorWithJsonString(_jsonString!);
     }
     if (_pageIndex == 0) {
-      return _buildEditorWithJsonPath(
-          rootBundle.loadString('assets/example.json'));
+      return _buildEditorWithJsonString(
+        rootBundle.loadString('assets/example.json'),
+      );
     } else if (_pageIndex == 1) {
-      return _buildEditorWithJsonPath(
-          rootBundle.loadString('assets/big_document.json'));
+      return _buildEditorWithJsonString(
+        rootBundle.loadString('assets/big_document.json'),
+      );
     } else if (_pageIndex == 2) {
-      return _buildEditorWithEmptyDocument();
+      return _buildEditorWithJsonString(
+        Future.value(
+          jsonEncode(EditorState.empty().document.toJson()),
+        ),
+      );
     }
     throw UnimplementedError();
   }
 
-  Widget _buildEditorWithJsonPath(Future<String> jsonString) {
+  Widget _buildEditorWithJsonString(Future<String> jsonString) {
     return FutureBuilder<String>(
       future: jsonString,
       builder: (_, snapshot) {
@@ -86,7 +93,7 @@ class _MyHomePageState extends State<MyHomePage> {
               debugPrint(message);
             };
           return Container(
-            padding: const EdgeInsets.only(left: 20, right: 20),
+            padding: const EdgeInsets.all(20),
             child: AppFlowyEditor(
               editorState: _editorState,
             ),
@@ -98,19 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
         }
       },
     );
-  }
-
-  Widget _buildEditorWithEmptyDocument() {
-    _editorState = EditorState.empty();
-    _editorState.logConfiguration
-      ..level = LogLevel.all
-      ..handler = (message) {
-        debugPrint(message);
-      };
-    final editor = AppFlowyEditor(
-      editorState: _editorState,
-    );
-    return editor;
   }
 
   Widget _buildExpandableFab() {
@@ -130,9 +124,8 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () => _switchToPage(2),
         ),
         ActionButton(
-          icon: const Icon(Icons.print),
-          onPressed: () => _exportDocument(_editorState),
-        ),
+            icon: const Icon(Icons.print),
+            onPressed: () => {_exportDocument(_editorState)}),
         ActionButton(
           icon: const Icon(Icons.import_export),
           onPressed: () => _importDocument(),
@@ -148,6 +141,14 @@ class _MyHomePageState extends State<MyHomePage> {
     final path = directory.path;
     final file = File('$path/editor.json');
     await file.writeAsString(json);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('The document is saved to the ${file.path}'),
+        ),
+      );
+    }
   }
 
   void _importDocument() async {
