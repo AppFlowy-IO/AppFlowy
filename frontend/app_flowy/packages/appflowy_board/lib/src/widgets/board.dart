@@ -10,6 +10,16 @@ import 'reorder_flex/reorder_flex.dart';
 import 'reorder_phantom/phantom_controller.dart';
 import '../rendering/board_overlay.dart';
 
+class AFBoardScrollManager {
+  BoardColumnState? _columnState;
+
+  // AFBoardScrollManager();
+
+  void scrollToBottom(String columnId, VoidCallback? completed) {
+    _columnState?.reorderFlexStateAtColumn(columnId)?.scrollToBottom(completed);
+  }
+}
+
 class AFBoardConfig {
   final double cornerRadius;
   final EdgeInsets columnPadding;
@@ -58,6 +68,10 @@ class AFBoard extends StatelessWidget {
 
   final AFBoardConfig config;
 
+  final AFBoardScrollManager? scrollManager;
+
+  final BoardColumnState _columnState = BoardColumnState();
+
   AFBoard({
     required this.dataController,
     required this.cardBuilder,
@@ -65,6 +79,7 @@ class AFBoard extends StatelessWidget {
     this.footBuilder,
     this.headerBuilder,
     this.scrollController,
+    this.scrollManager,
     this.columnConstraints = const BoxConstraints(maxWidth: 200),
     this.config = const AFBoardConfig(),
     Key? key,
@@ -77,10 +92,16 @@ class AFBoard extends StatelessWidget {
       value: dataController,
       child: Consumer<AFBoardDataController>(
         builder: (context, notifier, child) {
+          if (scrollManager != null) {
+            scrollManager!._columnState = _columnState;
+          }
+
           return AFBoardContent(
             config: config,
             dataController: dataController,
             scrollController: scrollController,
+            scrollManager: scrollManager,
+            columnState: _columnState,
             background: background,
             delegate: phantomController,
             columnConstraints: columnConstraints,
@@ -106,6 +127,8 @@ class AFBoardContent extends StatefulWidget {
   final AFBoardConfig config;
   final ReorderFlexConfig reorderFlexConfig;
   final BoxConstraints columnConstraints;
+  final AFBoardScrollManager? scrollManager;
+  final BoardColumnState columnState;
 
   ///
   final AFBoardColumnCardBuilder cardBuilder;
@@ -125,6 +148,8 @@ class AFBoardContent extends StatefulWidget {
     required this.onReorder,
     required this.delegate,
     required this.dataController,
+    required this.scrollManager,
+    required this.columnState,
     this.onDragStarted,
     this.onDragEnded,
     this.scrollController,
@@ -143,22 +168,19 @@ class AFBoardContent extends StatefulWidget {
 }
 
 class _AFBoardContentState extends State<AFBoardContent> {
-  late _BoardColumnState columnState;
-
-  final GlobalKey _columnContainerOverlayKey =
+  final GlobalKey _boardContentKey =
       GlobalKey(debugLabel: '$AFBoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   @override
   void initState() {
-    columnState = _BoardColumnState();
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
         final interceptor = OverlappingDragTargetInterceptor(
           reorderFlexId: widget.dataController.identifier,
           acceptedReorderFlexId: widget.dataController.columnIds,
           delegate: widget.delegate,
-          columnKeys: UnmodifiableMapView(columnState.columnKeys),
+          columnKeys: UnmodifiableMapView(widget.columnState.columnKeys),
         );
 
         final reorderFlex = ReorderFlex(
@@ -198,7 +220,7 @@ class _AFBoardContentState extends State<AFBoardContent> {
   @override
   Widget build(BuildContext context) {
     return BoardOverlay(
-      key: _columnContainerOverlayKey,
+      key: _boardContentKey,
       initialEntries: [_overlayEntry],
     );
   }
@@ -220,6 +242,8 @@ class _AFBoardContentState extends State<AFBoardContent> {
           value: widget.dataController.getColumnController(columnData.id),
           child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
+              final scrollController =
+                  widget.columnState.scrollController(columnData.id);
               final boardColumn = AFBoardColumnWidget(
                 key: ValueKey(columnData.id),
                 margin: _marginFromIndex(columnIndex),
@@ -228,14 +252,17 @@ class _AFBoardContentState extends State<AFBoardContent> {
                 footBuilder: widget.footBuilder,
                 cardBuilder: widget.cardBuilder,
                 dataSource: dataSource,
-                scrollController: columnState.scrollController(columnData.id),
+                scrollController: scrollController,
                 phantomController: widget.phantomController,
                 onReorder: widget.dataController.moveColumnItem,
                 cornerRadius: widget.config.cornerRadius,
                 backgroundColor: widget.config.columnBackgroundColor,
               );
 
-              columnState.cacheColumn(columnData.id, boardColumn.globalKey);
+              widget.columnState.addColumn(
+                columnData.id,
+                boardColumn.globalKey,
+              );
 
               return ConstrainedBox(
                 constraints: widget.columnConstraints,
@@ -297,25 +324,36 @@ class _BoardColumnDataSourceImpl extends AFBoardColumnDataDataSource {
   List<String> get acceptedColumnIds => dataController.columnIds;
 }
 
-class _BoardColumnState {
+class BoardColumnState {
+  /// Quick access to the [AFBoardColumnWidget]
   final Map<String, GlobalKey> columnKeys = {};
 
-  void cacheColumn(String columnId, GlobalKey key) {
+  /// Records the position of the [AFBoardColumnWidget]
+  final Map<String, ScrollPosition> columnScrollPositions = {};
+
+  void addColumn(String columnId, GlobalKey key) {
     columnKeys[columnId] = key;
   }
 
-  ScrollController scrollController(String columnId) {
+  ReorderFlexState? reorderFlexStateAtColumn(String columnId) {
     final flexGlobalKey = columnKeys[columnId];
-    var scrollController = ScrollController();
-    if (flexGlobalKey != null) {
-      // assert(flexGlobalKey.currentWidget is ReorderFlex);
+    if (flexGlobalKey == null) return null;
+    if (flexGlobalKey.currentState is! ReorderFlexState) return null;
+    final state = flexGlobalKey.currentState as ReorderFlexState;
+    return state;
+  }
 
-      // if (flexGlobalKey.currentWidget is ReorderFlex) {
-      //   final reorderFlex = flexGlobalKey.currentWidget as ReorderFlex;
-      //   final offset = reorderFlex.scrollController!.offset;
-      //   scrollController = ScrollController(initialScrollOffset: offset);
-      // }
-    }
+  ReorderFlex? reorderFlexAtColumn(String columnId) {
+    final flexGlobalKey = columnKeys[columnId];
+    if (flexGlobalKey == null) return null;
+    if (flexGlobalKey.currentWidget is! ReorderFlex) return null;
+    final widget = flexGlobalKey.currentWidget as ReorderFlex;
+    return widget;
+  }
+
+  ScrollController scrollController(String columnId) {
+    ScrollController scrollController = ScrollController();
+
     return scrollController;
   }
 }

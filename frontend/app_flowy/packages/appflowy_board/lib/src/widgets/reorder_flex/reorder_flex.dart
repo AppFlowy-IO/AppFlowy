@@ -177,9 +177,6 @@ class ReorderFlexState extends State<ReorderFlex>
       //   ));
       // }
     }
-    Future.delayed(Duration(seconds: 3), () {
-      scrollToBottom();
-    });
 
     final child = _wrapContainer(children);
     return _wrapScrollView(child: child);
@@ -532,17 +529,25 @@ class ReorderFlexState extends State<ReorderFlex>
     }
   }
 
-  void scrollToBottom() {
-    if (_scrolling) return;
+  void scrollToBottom(VoidCallback? completed) {
+    if (_scrolling) {
+      completed?.call();
+      return;
+    }
 
     if (widget.dataSource.items.isNotEmpty) {
       final item = widget.dataSource.items.last;
       final indexKey = _childKeys[item.id];
-      if (indexKey == null) return;
+      if (indexKey == null) {
+        completed?.call();
+        return;
+      }
 
       final indexContext = indexKey.currentContext;
-      if (indexContext == null) return;
-      if (_scrollController.hasClients == false) return;
+      if (indexContext == null || _scrollController.hasClients == false) {
+        completed?.call();
+        return;
+      }
 
       final renderObject = indexContext.findRenderObject();
       if (renderObject != null) {
@@ -554,8 +559,13 @@ class ReorderFlexState extends State<ReorderFlex>
           duration: const Duration(milliseconds: 120),
         )
             .then((value) {
-          setState(() => _scrolling = false);
+          setState(() {
+            _scrolling = false;
+            completed?.call();
+          });
         });
+      } else {
+        completed?.call();
       }
     }
   }

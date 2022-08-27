@@ -72,16 +72,19 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
           createRow: (groupId) async {
             final result = await _gridDataController.createBoardCard(groupId);
             result.fold(
-              (rowPB) {
-                emit(state.copyWith(editingRow: some(rowPB)));
-              },
+              (_) {},
               (err) => Log.error(err),
             );
           },
+          didCreateRow: (String groupId, RowPB row) {
+            emit(state.copyWith(
+              editingRow: Some(BoardEditingRow(columnId: groupId, row: row)),
+            ));
+          },
           endEditRow: (rowId) {
             assert(state.editingRow.isSome());
-            state.editingRow.fold(() => null, (row) {
-              assert(row.id == rowId);
+            state.editingRow.fold(() => null, (editingRow) {
+              assert(editingRow.row.id == rowId);
               emit(state.copyWith(editingRow: none()));
             });
           },
@@ -137,7 +140,12 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
   void initializeGroups(List<GroupPB> groups) {
     for (final group in groups) {
-      final delegate = GroupControllerDelegateImpl(boardController);
+      final delegate = GroupControllerDelegateImpl(
+        controller: boardController,
+        didAddColumnItem: (groupId, row) {
+          add(BoardEvent.didCreateRow(groupId, row));
+        },
+      );
       final controller = GroupController(
         gridId: state.gridId,
         group: group,
@@ -222,8 +230,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
 @freezed
 class BoardEvent with _$BoardEvent {
-  const factory BoardEvent.initial() = InitialGrid;
+  const factory BoardEvent.initial() = InitialBrid;
   const factory BoardEvent.createRow(String groupId) = _CreateRow;
+  const factory BoardEvent.didCreateRow(String groupId, RowPB row) =
+      _DidCreateRow;
   const factory BoardEvent.endEditRow(String rowId) = _EndEditRow;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
   const factory BoardEvent.didReceiveGridUpdate(
@@ -239,7 +249,7 @@ class BoardState with _$BoardState {
     required String gridId,
     required Option<GridPB> grid,
     required List<String> groupIds,
-    required Option<RowPB> editingRow,
+    required Option<BoardEditingRow> editingRow,
     required GridLoadingState loadingState,
     required Option<FlowyError> noneOrError,
   }) = _BoardState;
@@ -303,16 +313,17 @@ class BoardColumnItem extends AFColumnItem {
 
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
   final AFBoardDataController controller;
+  final void Function(String, RowPB) didAddColumnItem;
 
-  GroupControllerDelegateImpl(this.controller);
+  GroupControllerDelegateImpl({
+    required this.controller,
+    required this.didAddColumnItem,
+  });
 
   @override
   void insertRow(GroupPB group, RowPB row, int? index) {
     if (index != null) {
-      final item = BoardColumnItem(
-        row: row,
-        fieldId: group.fieldId,
-      );
+      final item = BoardColumnItem(row: row, fieldId: group.fieldId);
       controller.insertColumnItem(group.groupId, index, item);
     } else {
       final item = BoardColumnItem(
@@ -321,6 +332,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
         requestFocus: true,
       );
       controller.addColumnItem(group.groupId, item);
+      didAddColumnItem(group.groupId, row);
     }
   }
 
@@ -332,10 +344,21 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
   @override
   void updateRow(GroupPB group, RowPB row) {
     controller.updateColumnItem(
-        group.groupId,
-        BoardColumnItem(
-          row: row,
-          fieldId: group.fieldId,
-        ));
+      group.groupId,
+      BoardColumnItem(
+        row: row,
+        fieldId: group.fieldId,
+      ),
+    );
   }
+}
+
+class BoardEditingRow {
+  String columnId;
+  RowPB row;
+
+  BoardEditingRow({
+    required this.columnId,
+    required this.row,
+  });
 }

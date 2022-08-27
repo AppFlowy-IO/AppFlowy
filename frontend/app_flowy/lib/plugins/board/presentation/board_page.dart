@@ -60,6 +60,8 @@ class BoardContent extends StatefulWidget {
 
 class _BoardContentState extends State<BoardContent> {
   late ScrollController scrollController;
+  late AFBoardScrollManager scrollManager;
+
   final config = AFBoardConfig(
     columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
   );
@@ -67,37 +69,55 @@ class _BoardContentState extends State<BoardContent> {
   @override
   void initState() {
     scrollController = ScrollController();
+    scrollManager = AFBoardScrollManager();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BoardBloc, BoardState>(
-      buildWhen: (previous, current) =>
-          previous.groupIds.length != current.groupIds.length,
-      builder: (context, state) {
-        return Container(
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child: AFBoard(
-              scrollController: scrollController,
-              dataController: context.read<BoardBloc>().boardController,
-              headerBuilder: _buildHeader,
-              footBuilder: _buildFooter,
-              cardBuilder: (_, column, columnItem) => _buildCard(
-                context,
-                column,
-                columnItem,
-              ),
-              columnConstraints: const BoxConstraints.tightFor(width: 240),
-              config: AFBoardConfig(
-                columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
-              ),
-            ),
-          ),
+    return BlocListener<BoardBloc, BoardState>(
+      listener: (context, state) {
+        state.editingRow.fold(
+          () => null,
+          (editingRow) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              scrollManager.scrollToBottom(editingRow.columnId, () {
+                context
+                    .read<BoardBloc>()
+                    .add(BoardEvent.endEditRow(editingRow.row.id));
+              });
+            });
+          },
         );
       },
+      child: BlocBuilder<BoardBloc, BoardState>(
+        buildWhen: (previous, current) =>
+            previous.groupIds.length != current.groupIds.length,
+        builder: (context, state) {
+          return Container(
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+              child: AFBoard(
+                scrollManager: scrollManager,
+                scrollController: scrollController,
+                dataController: context.read<BoardBloc>().boardController,
+                headerBuilder: _buildHeader,
+                footBuilder: _buildFooter,
+                cardBuilder: (_, column, columnItem) => _buildCard(
+                  context,
+                  column,
+                  columnItem,
+                ),
+                columnConstraints: const BoxConstraints.tightFor(width: 240),
+                config: AFBoardConfig(
+                  columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -178,7 +198,7 @@ class _BoardContentState extends State<BoardContent> {
     final cellBuilder = BoardCellBuilder(cardController);
     final isEditing = context.read<BoardBloc>().state.editingRow.fold(
           () => false,
-          (editingRow) => editingRow.id == rowPB.id,
+          (editingRow) => editingRow.row.id == rowPB.id,
         );
 
     return AppFlowyColumnItemCard(
