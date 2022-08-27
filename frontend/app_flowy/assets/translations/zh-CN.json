@@ -93,8 +93,14 @@
     "highlight": "高亮"
   },
   "tooltip": {
-    "lightMode": "切换到灯光模式",
-    "darkMode": "切换到暗模式"
+    "lightMode": "切换到亮色模式",
+    "darkMode": "切换到暗色模式"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "导出笔记为Markdown文档",
+      "path": "Documents/flowy"
+    }
   },
   "contactsPage": {
     "title": "联系人",
@@ -135,11 +141,78 @@
     "menu": {
       "appearance": "外观",
       "language": "语言",
+      "user": "用户",
       "open": "打开设置"
     },
     "appearance": {
       "lightLabel": "日间模式",
       "darkLabel": "夜间模式"
+    }
+  },
+  "grid": {
+    "settings": {
+      "filter": "过滤器",
+      "sortBy": "排序",
+      "Properties": "属性"
+    },
+    "field": {
+      "hide": "隐藏",
+      "insertLeft": "左侧插入",
+      "insertRight": "右侧插入",
+      "duplicate": "拷贝",
+      "delete": "删除",
+      "textFieldName": "文本",
+      "checkboxFieldName": "勾选框",
+      "dateFieldName": "日期",
+      "numberFieldName": "数字",
+      "singleSelectFieldName": "单项选择器",
+      "multiSelectFieldName": "多项选择器",
+      "urlFieldName": "链接",
+      "numberFormat": " 数字格式",
+      "dateFormat": " 日期格式",
+      "includeTime": " 包含时间",
+      "dateFormatFriendly": "月 日,年",
+      "dateFormatISO": "年-月-日",
+      "dateFormatLocal": "年/月/日",
+      "dateFormatUS": "年/月/日",
+      "timeFormat": " 时间格式",
+      "invalidTimeFormat": "时间格式错误",
+      "timeFormatTwelveHour": "12小时制",
+      "timeFormatTwentyFourHour": "24小时制",
+      "addSelectOption": "添加一个标签",
+      "optionTitle": "标签",
+      "addOption": "添加标签",
+      "editProperty": "编辑列属性"
+    },
+    "row": {
+      "duplicate": "复制",
+      "delete": "删除",
+      "textPlaceholder": "空",
+      "copyProperty": "复制列"
+    },
+    "selectOption": {
+      "create": "新建",
+      "purpleColor": "紫色",
+      "pinkColor": "粉色",
+      "lightPinkColor": "浅粉色",
+      "orangeColor": "橙色",
+      "yellowColor": "黄色",
+      "limeColor": "鲜绿色",
+      "greenColor": "绿色",
+      "aquaColor": "水蓝色",
+      "blueColor": "蓝色",
+      "deleteTag": "删除标签",
+      "colorPannelTitle": "颜色",
+      "pannelTitle": "选择或新建一个标签",
+      "searchOption": "搜索标签"
+    },
+    "menuName": "网格"
+  },
+  "document": {
+    "menuName": "文档",
+    "date": {
+      "timeHintTextInTwelveHour": "12:00 AM",
+      "timeHintTextInTwentyFourHour": "12:00"
     }
   }
 }
