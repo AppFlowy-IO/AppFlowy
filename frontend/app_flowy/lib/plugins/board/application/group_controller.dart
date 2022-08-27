@@ -1,7 +1,7 @@
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
-
+import 'package:protobuf/protobuf.dart';
 import 'group_listener.dart';
 
 typedef OnGroupError = void Function(FlowyError);
@@ -42,7 +42,6 @@ class GroupController {
 
           for (final insertedRow in changeset.insertedRows) {
             final index = insertedRow.hasIndex() ? insertedRow.index : null;
-
             if (insertedRow.hasIndex() &&
                 group.rows.length > insertedRow.index) {
               group.rows.insert(insertedRow.index, insertedRow.row);
@@ -50,11 +49,7 @@ class GroupController {
               group.rows.add(insertedRow.row);
             }
 
-            delegate.insertRow(
-              group,
-              insertedRow.row,
-              index,
-            );
+            delegate.insertRow(group, insertedRow.row, index);
           }
 
           for (final updatedRow in changeset.updatedRows) {
@@ -73,6 +68,29 @@ class GroupController {
       );
     });
   }
+
+  // GroupChangesetPB _transformChangeset(GroupChangesetPB changeset) {
+  //   final insertedRows = changeset.insertedRows
+  //       .where(
+  //         (delete) => !changeset.deletedRows.contains(delete.row.id),
+  //       )
+  //       .toList();
+
+  //   final deletedRows = changeset.deletedRows
+  //       .where((deletedRowId) =>
+  //           changeset.insertedRows
+  //               .indexWhere((insert) => insert.row.id == deletedRowId) ==
+  //           -1)
+  //       .toList();
+
+  //   return changeset.rebuild((rebuildChangeset) {
+  //     rebuildChangeset.insertedRows.clear();
+  //     rebuildChangeset.insertedRows.addAll(insertedRows);
+
+  //     rebuildChangeset.deletedRows.clear();
+  //     rebuildChangeset.deletedRows.addAll(deletedRows);
+  //   });
+  // }
 
   Future<void> dispose() async {
     _listener.stop();

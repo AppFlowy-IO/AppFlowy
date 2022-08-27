@@ -65,7 +65,6 @@ class AFBoardColumnWidget extends StatefulWidget {
   final AFBoardColumnDataDataSource dataSource;
   final ScrollController? scrollController;
   final ReorderFlexConfig config;
-
   final OnColumnDragStarted? onDragStarted;
   final OnColumnReorder onReorder;
   final OnColumnDragEnded? onDragEnded;
@@ -88,7 +87,7 @@ class AFBoardColumnWidget extends StatefulWidget {
 
   final Color backgroundColor;
 
-  final GlobalKey globalKey = GlobalKey();
+  final GlobalKey globalKey;
 
   AFBoardColumnWidget({
     Key? key,
@@ -98,14 +97,15 @@ class AFBoardColumnWidget extends StatefulWidget {
     required this.onReorder,
     required this.dataSource,
     required this.phantomController,
-    this.onDragStarted,
     this.scrollController,
+    this.onDragStarted,
     this.onDragEnded,
     this.margin = EdgeInsets.zero,
     this.itemMargin = EdgeInsets.zero,
     this.cornerRadius = 0.0,
     this.backgroundColor = Colors.transparent,
-  })  : config = const ReorderFlexConfig(),
+  })  : globalKey = GlobalKey(),
+        config = const ReorderFlexConfig(),
         super(key: key);
 
   @override
@@ -115,7 +115,6 @@ class AFBoardColumnWidget extends StatefulWidget {
 class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
   final GlobalKey _columnOverlayKey =
       GlobalKey(debugLabel: '$AFBoardColumnWidget overlay key');
-
   late BoardOverlayEntry _overlayEntry;
 
   @override

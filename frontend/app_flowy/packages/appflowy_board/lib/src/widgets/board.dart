@@ -184,7 +184,7 @@ class _AFBoardContentState extends State<AFBoardContent> {
         );
 
         final reorderFlex = ReorderFlex(
-          key: widget.key,
+          key: const PageStorageKey<String>('AFBoardContent'),
           config: widget.reorderFlexConfig,
           scrollController: widget.scrollController,
           onDragStarted: widget.onDragStarted,
@@ -242,27 +242,23 @@ class _AFBoardContentState extends State<AFBoardContent> {
           value: widget.dataController.getColumnController(columnData.id),
           child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
-              final scrollController =
-                  widget.columnState.scrollController(columnData.id);
               final boardColumn = AFBoardColumnWidget(
-                key: ValueKey(columnData.id),
+                key: const PageStorageKey<String>('AFBoardColumnWidget'),
                 margin: _marginFromIndex(columnIndex),
                 itemMargin: widget.config.columnItemPadding,
                 headerBuilder: _buildHeader,
                 footBuilder: widget.footBuilder,
                 cardBuilder: widget.cardBuilder,
                 dataSource: dataSource,
-                scrollController: scrollController,
+                scrollController: ScrollController(),
                 phantomController: widget.phantomController,
                 onReorder: widget.dataController.moveColumnItem,
                 cornerRadius: widget.config.cornerRadius,
                 backgroundColor: widget.config.columnBackgroundColor,
               );
 
-              widget.columnState.addColumn(
-                columnData.id,
-                boardColumn.globalKey,
-              );
+              widget.columnState
+                  .addColumn(columnData.id, boardColumn.globalKey);
 
               return ConstrainedBox(
                 constraints: widget.columnConstraints,
@@ -349,11 +345,5 @@ class BoardColumnState {
     if (flexGlobalKey.currentWidget is! ReorderFlex) return null;
     final widget = flexGlobalKey.currentWidget as ReorderFlex;
     return widget;
-  }
-
-  ScrollController scrollController(String columnId) {
-    ScrollController scrollController = ScrollController();
-
-    return scrollController;
   }
 }
