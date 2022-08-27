@@ -142,11 +142,17 @@ impl GridViewManager {
                 .await;
         }
 
-        if row_changeset.has_changed() {
-            Some(row_changeset)
-        } else {
+        if row_changeset.is_empty() {
             None
+        } else {
+            Some(row_changeset)
         }
+    }
+
+    pub(crate) async fn did_update_field(&self, field_id: &str) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        let _ = view_editor.did_update_field(field_id).await?;
+        Ok(())
     }
 
     pub(crate) async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<GridViewRevisionEditor>> {

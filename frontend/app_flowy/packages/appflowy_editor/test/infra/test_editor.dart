@@ -57,6 +57,19 @@ class EditorWidgetTester {
     );
   }
 
+  void insertImageNode(String src, {String? align}) {
+    insert(
+      Node(
+        type: 'image',
+        children: LinkedList(),
+        attributes: {
+          'image_src': src,
+          'align': align ?? 'center',
+        },
+      ),
+    );
+  }
+
   Node? nodeAtPath(Path path) {
     return root.childAtPath(path);
   }

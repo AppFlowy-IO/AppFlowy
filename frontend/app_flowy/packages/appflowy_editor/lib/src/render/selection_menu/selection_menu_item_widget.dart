@@ -45,7 +45,7 @@ class SelectionMenuItemWidget extends StatelessWidget {
             ),
           ),
           onPressed: () {
-            item.handler(editorState, menuService);
+            item.handler(editorState, menuService, context);
           },
         ),
       ),

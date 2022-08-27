@@ -5,9 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BoardTextCell extends StatefulWidget {
+  final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
-  const BoardTextCell({required this.cellControllerBuilder, Key? key})
-      : super(key: key);
+  const BoardTextCell({
+    required this.groupId,
+    required this.cellControllerBuilder,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<BoardTextCell> createState() => _BoardTextCellState();
@@ -31,6 +35,7 @@ class _BoardTextCellState extends State<BoardTextCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
+        buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
           if (state.content.isEmpty) {
             return const SizedBox();
@@ -38,13 +43,8 @@ class _BoardTextCellState extends State<BoardTextCell> {
             return Align(
               alignment: Alignment.centerLeft,
               child: ConstrainedBox(
-                constraints: BoxConstraints.loose(
-                  const Size(double.infinity, 100),
-                ),
-                child: FlowyText.regular(
-                  state.content,
-                  fontSize: 14,
-                ),
+                constraints: const BoxConstraints(maxHeight: 120),
+                child: FlowyText.medium(state.content, fontSize: 14),
               ),
             );
           }

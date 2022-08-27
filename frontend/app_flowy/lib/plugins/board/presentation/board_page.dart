@@ -9,6 +9,9 @@ import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart'
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_detail.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
@@ -62,12 +65,15 @@ class BoardContent extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: AFBoard(
-              // key: UniqueKey(),
               scrollController: ScrollController(),
-              dataController: context.read<BoardBloc>().afBoardDataController,
+              dataController: context.read<BoardBloc>().boardController,
               headerBuilder: _buildHeader,
               footBuilder: _buildFooter,
-              cardBuilder: (_, data) => _buildCard(context, data),
+              cardBuilder: (_, column, columnItem) => _buildCard(
+                context,
+                column,
+                columnItem,
+              ),
               columnConstraints: const BoxConstraints.tightFor(width: 240),
               config: AFBoardConfig(
                 columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -79,34 +85,64 @@ class BoardContent extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, AFBoardColumnData columnData) {
+  Widget _buildHeader(
+      BuildContext context, AFBoardColumnHeaderData headerData) {
     return AppFlowyColumnHeader(
-      icon: const Icon(Icons.lightbulb_circle),
-      title: Text(columnData.desc),
-      addIcon: const Icon(Icons.add, size: 20),
-      moreIcon: const Icon(Icons.more_horiz, size: 20),
+      title: Flexible(
+        fit: FlexFit.tight,
+        child: FlowyText.medium(
+          headerData.columnName,
+          fontSize: 14,
+          overflow: TextOverflow.clip,
+          color: context.read<AppTheme>().textColor,
+        ),
+      ),
+      // addIcon: const Icon(Icons.add, size: 20),
+      // moreIcon: SizedBox(
+      //   width: 20,
+      //   height: 20,
+      //   child: svgWidget(
+      //     'grid/details',
+      //     color: context.read<AppTheme>().iconColor,
+      //   ),
+      // ),
       height: 50,
-      margin: config.columnItemPadding,
+      margin: config.headerPadding,
     );
   }
 
   Widget _buildFooter(BuildContext context, AFBoardColumnData columnData) {
     return AppFlowyColumnFooter(
-        icon: const Icon(Icons.add, size: 20),
-        title: const Text('New'),
+        icon: SizedBox(
+          height: 20,
+          width: 20,
+          child: svgWidget(
+            "home/add",
+            color: context.read<AppTheme>().iconColor,
+          ),
+        ),
+        title: FlowyText.medium(
+          "New",
+          fontSize: 14,
+          color: context.read<AppTheme>().textColor,
+        ),
         height: 50,
-        margin: config.columnItemPadding,
+        margin: config.footerPadding,
         onAddButtonClick: () {
           context.read<BoardBloc>().add(BoardEvent.createRow(columnData.id));
         });
   }
 
-  Widget _buildCard(BuildContext context, AFColumnItem item) {
-    final rowPB = (item as BoardColumnItem).row;
+  Widget _buildCard(
+    BuildContext context,
+    AFBoardColumnData column,
+    AFColumnItem columnItem,
+  ) {
+    final rowPB = (columnItem as BoardColumnItem).row;
     final rowCache = context.read<BoardBloc>().getRowCache(rowPB.blockId);
 
     /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return SizedBox(key: ObjectKey(item));
+    if (rowCache == null) return SizedBox(key: ObjectKey(columnItem));
 
     final fieldCache = context.read<BoardBloc>().fieldCache;
     final gridId = context.read<BoardBloc>().gridId;
@@ -123,9 +159,12 @@ class BoardContent extends StatelessWidget {
         );
 
     return AppFlowyColumnItemCard(
-      key: ObjectKey(item),
+      key: ObjectKey(columnItem),
+      margin: config.cardPadding,
+      decoration: _makeBoxDecoration(context),
       child: BoardCard(
         gridId: gridId,
+        groupId: column.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,
@@ -140,6 +179,16 @@ class BoardContent extends StatelessWidget {
           context,
         ),
       ),
+    );
+  }
+
+  BoxDecoration _makeBoxDecoration(BuildContext context) {
+    final theme = context.read<AppTheme>();
+    final borderSide = BorderSide(color: theme.shader6, width: 1.0);
+    return BoxDecoration(
+      color: theme.surface,
+      border: Border.fromBorderSide(borderSide),
+      borderRadius: const BorderRadius.all(Radius.circular(6)),
     );
   }
 

@@ -89,10 +89,6 @@ class AFBoardDataController extends ChangeNotifier
     if (columnIds.isNotEmpty && notify) notifyListeners();
   }
 
-  AFBoardColumnDataController columnController(String columnId) {
-    return _columnControllers[columnId]!;
-  }
-
   AFBoardColumnDataController? getColumnController(String columnId) {
     final columnController = _columnControllers[columnId];
     if (columnController == null) {
@@ -129,6 +125,10 @@ class AFBoardDataController extends ChangeNotifier
     getColumnController(columnId)?.removeWhere((item) => item.id == itemId);
   }
 
+  void updateColumnItem(String columnId, AFColumnItem item) {
+    getColumnController(columnId)?.replaceOrInsertItem(item);
+  }
+
   @override
   @protected
   void swapColumnItem(
@@ -137,15 +137,14 @@ class AFBoardDataController extends ChangeNotifier
     String toColumnId,
     int toColumnIndex,
   ) {
-    final item = columnController(fromColumnId).removeAt(fromColumnIndex);
-
-    if (columnController(toColumnId).items.length > toColumnIndex) {
-      assert(columnController(toColumnId).items[toColumnIndex]
-          is PhantomColumnItem);
+    final fromColumnController = getColumnController(fromColumnId)!;
+    final toColumnController = getColumnController(toColumnId)!;
+    final item = fromColumnController.removeAt(fromColumnIndex);
+    if (toColumnController.items.length > toColumnIndex) {
+      assert(toColumnController.items[toColumnIndex] is PhantomColumnItem);
     }
 
-    columnController(toColumnId).replace(toColumnIndex, item);
-
+    toColumnController.replace(toColumnIndex, item);
     onMoveColumnItemToColumn?.call(
       fromColumnId,
       fromColumnIndex,
@@ -174,9 +173,12 @@ class AFBoardDataController extends ChangeNotifier
   @override
   @protected
   bool removePhantom(String columnId) {
-    final columnController = this.columnController(columnId);
+    final columnController = getColumnController(columnId);
+    if (columnController == null) {
+      Log.warn('Can not find the column controller with columnId: $columnId');
+      return false;
+    }
     final index = columnController.items.indexWhere((item) => item.isPhantom);
-
     final isExist = index != -1;
     if (isExist) {
       columnController.removeAt(index);
@@ -190,14 +192,15 @@ class AFBoardDataController extends ChangeNotifier
   @override
   @protected
   void updatePhantom(String columnId, int newIndex) {
-    final columnDataController = columnController(columnId);
+    final columnDataController = getColumnController(columnId)!;
     final index =
         columnDataController.items.indexWhere((item) => item.isPhantom);
 
     assert(index != -1);
     if (index != -1) {
       if (index != newIndex) {
-        // Log.debug('[$BoardPhantomController] update $toColumnId:$index to $toColumnId:$phantomIndex');
+        Log.trace(
+            '[$BoardPhantomController] update $columnId:$index to $columnId:$newIndex');
         final item = columnDataController.removeAt(index, notify: false);
         columnDataController.insert(newIndex, item, notify: false);
       }
@@ -207,6 +210,6 @@ class AFBoardDataController extends ChangeNotifier
   @override
   @protected
   void insertPhantom(String columnId, int index, PhantomColumnItem item) {
-    columnController(columnId).insert(index, item);
+    getColumnController(columnId)!.insert(index, item);
   }
 }

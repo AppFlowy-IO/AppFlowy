@@ -13,12 +13,16 @@ class _SingleBoardListExampleState extends State<SingleBoardListExample> {
 
   @override
   void initState() {
-    final column = AFBoardColumnData(id: "1", items: [
-      TextItem("a"),
-      TextItem("b"),
-      TextItem("c"),
-      TextItem("d"),
-    ]);
+    final column = AFBoardColumnData(
+      id: "1",
+      name: "1",
+      items: [
+        TextItem("a"),
+        TextItem("b"),
+        TextItem("c"),
+        TextItem("d"),
+      ],
+    );
 
     boardData.addColumn(column);
     super.initState();
@@ -28,8 +32,9 @@ class _SingleBoardListExampleState extends State<SingleBoardListExample> {
   Widget build(BuildContext context) {
     return AFBoard(
       dataController: boardData,
-      cardBuilder: (context, item) {
-        return _RowWidget(item: item as TextItem, key: ObjectKey(item));
+      cardBuilder: (context, column, columnItem) {
+        return _RowWidget(
+            item: columnItem as TextItem, key: ObjectKey(columnItem));
       },
     );
   }

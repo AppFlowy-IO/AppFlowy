@@ -22,6 +22,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
+  network_image_mock: ^2.1.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -32,6 +33,7 @@ flutter:
   assets:
     - assets/images/toolbar/
     - assets/images/selection_menu/
+    - assets/images/image_toolbar/
     - assets/images/
   #
   # For details regarding assets in packages, see

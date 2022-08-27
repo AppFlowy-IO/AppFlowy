@@ -1,4 +1,5 @@
 use crate::entities::{CreateRowParams, FieldType, GridLayout, RowPB};
+use crate::services::group::Group;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -80,6 +81,17 @@ pub struct GroupPB {
 
     #[pb(index = 4)]
     pub rows: Vec<RowPB>,
+}
+
+impl std::convert::From<Group> for GroupPB {
+    fn from(group: Group) -> Self {
+        Self {
+            field_id: group.field_id,
+            group_id: group.id,
+            desc: group.name,
+            rows: group.rows,
+        }
+    }
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]

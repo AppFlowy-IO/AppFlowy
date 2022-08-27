@@ -1,33 +1,22 @@
-use crate::entities::{GroupPB, RowPB};
+use crate::entities::RowPB;
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct Group {
     pub id: String,
     pub field_id: String,
-    pub desc: String,
-    rows: Vec<RowPB>,
+    pub name: String,
+    pub(crate) rows: Vec<RowPB>,
 
     /// [content] is used to determine which group the cell belongs to.
     pub content: String,
 }
 
-impl std::convert::From<Group> for GroupPB {
-    fn from(group: Group) -> Self {
-        Self {
-            field_id: group.field_id,
-            group_id: group.id,
-            desc: group.desc,
-            rows: group.rows,
-        }
-    }
-}
-
 impl Group {
-    pub fn new(id: String, field_id: String, desc: String, content: String) -> Self {
+    pub fn new(id: String, field_id: String, name: String, content: String) -> Self {
         Self {
             id,
             field_id,
-            desc,
+            name,
             rows: vec![],
             content,
         }
@@ -69,5 +58,9 @@ impl Group {
 
     pub fn number_of_row(&self) -> usize {
         self.rows.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.rows.is_empty()
     }
 }

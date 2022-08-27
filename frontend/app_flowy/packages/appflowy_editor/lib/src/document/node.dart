@@ -163,7 +163,8 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
       'type': type,
     };
     if (children.isNotEmpty) {
-      map['children'] = children.map((node) => node.toJson());
+      map['children'] =
+          (children.map((node) => node.toJson())).toList(growable: false);
     }
     if (_attributes.isNotEmpty) {
       map['attributes'] = _attributes;

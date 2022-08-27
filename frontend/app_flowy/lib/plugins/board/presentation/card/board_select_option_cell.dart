@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BoardSelectOptionCell extends StatefulWidget {
+  final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
 
   const BoardSelectOptionCell({
+    required this.groupId,
     required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
@@ -33,23 +35,29 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<BoardSelectOptionCellBloc, BoardSelectOptionCellState>(
+        buildWhen: (previous, current) =>
+            previous.selectedOptions != current.selectedOptions,
         builder: (context, state) {
-          final children = state.selectedOptions
-              .map((option) => SelectOptionTag.fromOption(
+          if (state.selectedOptions
+              .where((element) => element.id == widget.groupId)
+              .isNotEmpty) {
+            return const SizedBox();
+          } else {
+            final children = state.selectedOptions
+                .map(
+                  (option) => SelectOptionTag.fromOption(
                     context: context,
                     option: option,
-                  ))
-              .toList();
-          return Align(
-            alignment: Alignment.centerLeft,
-            child: AbsorbPointer(
-              child: Wrap(
-                children: children,
-                spacing: 4,
-                runSpacing: 2,
+                  ),
+                )
+                .toList();
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: AbsorbPointer(
+                child: Wrap(children: children, spacing: 4, runSpacing: 2),
               ),
-            ),
-          );
+            );
+          }
         },
       ),
     );

@@ -63,7 +63,6 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
 
   Widget _buildWithSingle(BuildContext context) {
     final check = widget.textNode.attributes.check;
-    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
     return SizedBox(
       width: defaultMaxTextNodeWidth,
       child: Padding(
@@ -76,10 +75,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
               child: FlowySvg(
                 width: _iconWidth,
                 height: _iconWidth,
-                padding: EdgeInsets.only(
-                  top: topPadding,
-                  right: _iconRightPadding,
-                ),
+                padding: EdgeInsets.only(right: _iconRightPadding),
                 name: check ? 'check' : 'uncheck',
               ),
               onTap: () {

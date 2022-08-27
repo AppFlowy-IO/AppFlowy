@@ -24,12 +24,13 @@ typedef OnColumnInserted = void Function(String listId, int insertedIndex);
 
 typedef AFBoardColumnCardBuilder = Widget Function(
   BuildContext context,
+  AFBoardColumnData columnData,
   AFColumnItem item,
 );
 
-typedef AFBoardColumnHeaderBuilder = Widget Function(
+typedef AFBoardColumnHeaderBuilder = Widget? Function(
   BuildContext context,
-  AFBoardColumnData columnData,
+  AFBoardColumnHeaderData headerData,
 );
 
 typedef AFBoardColumnFooterBuilder = Widget Function(
@@ -87,7 +88,9 @@ class AFBoardColumnWidget extends StatefulWidget {
 
   final Color backgroundColor;
 
-  const AFBoardColumnWidget({
+  final GlobalKey columnGlobalKey = GlobalKey();
+
+  AFBoardColumnWidget({
     Key? key,
     this.headerBuilder,
     this.footBuilder,
@@ -123,8 +126,8 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
             .map((item) => _buildWidget(context, item))
             .toList();
 
-        final header =
-            widget.headerBuilder?.call(context, widget.dataSource.columnData);
+        final header = widget.headerBuilder
+            ?.call(context, widget.dataSource.columnData.headerData);
 
         final footer =
             widget.footBuilder?.call(context, widget.dataSource.columnData);
@@ -136,8 +139,8 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
           draggableTargetBuilder: PhantomDraggableBuilder(),
         );
 
-        final reorderFlex = ReorderFlex(
-          key: widget.key,
+        Widget reorderFlex = ReorderFlex(
+          key: widget.columnGlobalKey,
           scrollController: widget.scrollController,
           config: widget.config,
           onDragStarted: (index) {
@@ -159,6 +162,9 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
           interceptor: interceptor,
           children: children,
         );
+
+        // reorderFlex =
+        //     KeyedSubtree(key: widget.columnGlobalKey, child: reorderFlex);
 
         return Container(
           margin: widget.margin,
@@ -202,7 +208,7 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
         passthroughPhantomContext: item.phantomContext,
       );
     } else {
-      return widget.cardBuilder(context, item);
+      return widget.cardBuilder(context, widget.dataSource.columnData, item);
     }
   }
 }
