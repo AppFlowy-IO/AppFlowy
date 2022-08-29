@@ -74,7 +74,7 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     fn get_deleted_nodes(&self, node_id: NodeId) -> Box<NodeSubTree> {
-        let node = self.document.arena.get(node_id.clone()).unwrap();
+        let node = self.document.arena.get(node_id).unwrap();
         let node_data = node.get();
         let mut children: Vec<Box<NodeSubTree>> = vec![];
 
