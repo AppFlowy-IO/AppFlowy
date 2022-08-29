@@ -95,7 +95,9 @@
   "tooltip": {
     "lightMode": "Switch to Light mode",
     "darkMode": "Switch to Dark mode",
-    "openAsPage": "Open as a Page"
+    "openAsPage": "Open as a Page",
+    "addNewRow": "Add a new row",
+    "openMenu": "Click to open menu"
   },
   "notifications": {
     "export": {
@@ -215,9 +217,5 @@
       "timeHintTextInTwelveHour": "12:00 AM",
       "timeHintTextInTwentyFourHour": "12:00"
     }
-  },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
   }
 }
