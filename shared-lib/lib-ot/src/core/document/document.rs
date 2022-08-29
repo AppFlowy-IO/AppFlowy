@@ -13,7 +13,7 @@ pub struct DocumentTree {
 impl DocumentTree {
     pub fn new() -> DocumentTree {
         let mut arena = Arena::new();
-        let root = arena.new_node(NodeData::new("root".into()));
+        let root = arena.new_node(NodeData::new("root"));
         DocumentTree { arena, root }
     }
 
