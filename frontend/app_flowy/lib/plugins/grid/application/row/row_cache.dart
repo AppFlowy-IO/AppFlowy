@@ -52,7 +52,8 @@ class GridRowCache {
     //
     notifier.onRowFieldsChanged(() => _rowChangeReasonNotifier
         .receive(const RowsChangedReason.fieldDidChange()));
-    notifier.onRowFieldChanged((field) => _cellCache.remove(field.id));
+    notifier.onRowFieldChanged(
+        (field) => _cellCache.removeCellWithFieldId(field.id));
     _rowInfos = block.rows.map((rowPB) => buildGridRow(rowPB)).toList();
   }
 

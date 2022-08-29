@@ -191,7 +191,7 @@ class IGridCellController<T, D> extends Equatable {
     _cellListener?.start(onCellChanged: (result) {
       result.fold(
         (_) {
-          _cellsCache.remove(fieldId);
+          _cellsCache.remove(_cacheKey);
           _loadData();
         },
         (err) => Log.error(err),
