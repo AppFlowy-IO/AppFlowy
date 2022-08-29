@@ -1,10 +1,8 @@
-import 'dart:math';
-
+import 'package:appflowy_editor/src/extensions/object_extensions.dart';
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
@@ -35,6 +33,8 @@ class ImageNodeWidget extends StatefulWidget {
 }
 
 class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
+  final _imageKey = GlobalKey();
+
   double? _imageWidth;
   double _initial = 0;
   double _distance = 0;
@@ -50,8 +50,11 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
     _imageWidth = widget.width;
     _imageStreamListener = ImageStreamListener(
       (image, _) {
-        _imageWidth =
-            min(defaultMaxTextNodeWidth, image.image.width.toDouble());
+        _imageWidth = _imageKey.currentContext
+            ?.findRenderObject()
+            ?.unwrapOrNull<RenderBox>()
+            ?.size
+            .width;
       },
     );
   }
@@ -65,9 +68,8 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
   @override
   Widget build(BuildContext context) {
     // only support network image.
-
     return Container(
-      width: defaultMaxTextNodeWidth,
+      key: _imageKey,
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: _buildNetworkImage(context),
     );
@@ -137,7 +139,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
       loadingBuilder: (context, child, loadingProgress) =>
           loadingProgress == null ? child : _buildLoading(context),
       errorBuilder: (context, error, stackTrace) {
-        _imageWidth ??= defaultMaxTextNodeWidth;
+        // _imageWidth ??= defaultMaxTextNodeWidth;
         return _buildError(context);
       },
     );

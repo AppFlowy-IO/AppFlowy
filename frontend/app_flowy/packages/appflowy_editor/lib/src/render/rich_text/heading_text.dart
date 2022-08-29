@@ -63,16 +63,13 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
         top: _topPadding,
         bottom: defaultLinePadding,
       ),
-      child: Container(
-        constraints: BoxConstraints(maxWidth: defaultMaxTextNodeWidth),
-        child: FlowyRichText(
-          key: _richTextKey,
-          placeholderText: 'Heading',
-          placeholderTextSpanDecorator: _placeholderTextSpanDecorator,
-          textSpanDecorator: _textSpanDecorator,
-          textNode: widget.textNode,
-          editorState: widget.editorState,
-        ),
+      child: FlowyRichText(
+        key: _richTextKey,
+        placeholderText: 'Heading',
+        placeholderTextSpanDecorator: _placeholderTextSpanDecorator,
+        textSpanDecorator: _textSpanDecorator,
+        textNode: widget.textNode,
+        editorState: widget.editorState,
       ),
     );
   }

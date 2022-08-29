@@ -46,13 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: Center(
-        child: Container(
-          width: 780,
-          alignment: Alignment.topCenter,
-          child: _buildEditor(context),
-        ),
-      ),
+      body: _buildEditor(context),
       floatingActionButton: _buildExpandableFab(),
     );
   }
@@ -100,6 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
             width: MediaQuery.of(context).size.width,
             child: AppFlowyEditor(
               editorState: _editorState,
+              editorStyle: const EditorStyle.defaultStyle(),
             ),
           );
         } else {

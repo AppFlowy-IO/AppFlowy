@@ -52,15 +52,12 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(maxWidth: defaultMaxTextNodeWidth),
-      child: Padding(
-        padding: EdgeInsets.only(bottom: defaultLinePadding),
-        child: FlowyRichText(
-          key: _richTextKey,
-          textNode: widget.textNode,
-          editorState: widget.editorState,
-        ),
+    return Padding(
+      padding: EdgeInsets.only(bottom: defaultLinePadding),
+      child: FlowyRichText(
+        key: _richTextKey,
+        textNode: widget.textNode,
+        editorState: widget.editorState,
       ),
     );
   }
