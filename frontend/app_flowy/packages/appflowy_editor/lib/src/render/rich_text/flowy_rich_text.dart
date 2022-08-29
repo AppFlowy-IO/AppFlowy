@@ -42,7 +42,7 @@ class FlowyRichText extends StatefulWidget {
 }
 
 class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
-  final _textKey = GlobalKey();
+  var _textKey = GlobalKey();
   final _placeholderTextKey = GlobalKey();
 
   final _lineHeight = 1.5;
@@ -52,6 +52,17 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
 
   RenderParagraph get _placeholderRenderParagraph =>
       _placeholderTextKey.currentContext?.findRenderObject() as RenderParagraph;
+
+  @override
+  void didUpdateWidget(covariant FlowyRichText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // https://github.com/flutter/flutter/issues/110342
+    if (_textKey.currentWidget is RichText) {
+      // Force refresh the RichText widget.
+      _textKey = GlobalKey();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
