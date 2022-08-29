@@ -15,6 +15,7 @@ void main() async {
         onOpenLink: () {},
         onCopyLink: () {},
         onRemoveLink: () {},
+        onFocusChange: (value) {},
         onSubmitted: (text) {
           submittedText = text;
         },

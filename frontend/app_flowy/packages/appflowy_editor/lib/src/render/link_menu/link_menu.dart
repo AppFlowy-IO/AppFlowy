@@ -9,6 +9,7 @@ class LinkMenu extends StatefulWidget {
     required this.onOpenLink,
     required this.onCopyLink,
     required this.onRemoveLink,
+    required this.onFocusChange,
   }) : super(key: key);
 
   final String? linkText;
@@ -16,6 +17,7 @@ class LinkMenu extends StatefulWidget {
   final VoidCallback onOpenLink;
   final VoidCallback onCopyLink;
   final VoidCallback onRemoveLink;
+  final void Function(bool value) onFocusChange;
 
   @override
   State<LinkMenu> createState() => _LinkMenuState();
@@ -29,11 +31,13 @@ class _LinkMenuState extends State<LinkMenu> {
   void initState() {
     super.initState();
     _textEditingController.text = widget.linkText ?? '';
+    _focusNode.addListener(_onFocusChange);
   }
 
   @override
   void dispose() {
     _textEditingController.dispose();
+    _focusNode.removeListener(_onFocusChange);
     super.dispose();
   }
 
@@ -156,5 +160,9 @@ class _LinkMenuState extends State<LinkMenu> {
       ),
       onPressed: onPressed,
     );
+  }
+
+  void _onFocusChange() {
+    widget.onFocusChange(_focusNode.hasFocus);
   }
 }

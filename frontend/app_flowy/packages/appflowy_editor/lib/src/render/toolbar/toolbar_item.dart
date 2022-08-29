@@ -158,6 +158,7 @@ ToolbarShowValidator _showInTextSelection = (editorState) {
 
 OverlayEntry? _linkMenuOverlay;
 EditorState? _editorState;
+bool _changeSelectionInner = false;
 void showLinkMenu(
   BuildContext context,
   EditorState editorState, {
@@ -180,17 +181,17 @@ void showLinkMenu(
   // We get the text node directly instead of judging details again.
   final selection = customSelection ??
       editorState.service.selectionService.currentSelection.value;
-  if (selection == null) {
+  final node = editorState.service.selectionService.currentSelectedNodes;
+  if (selection == null || node.isEmpty || node.first is! TextNode) {
     return;
   }
   final index =
       selection.isBackward ? selection.start.offset : selection.end.offset;
   final length = (selection.start.offset - selection.end.offset).abs();
-  final node = editorState.service.selectionService.currentSelectedNodes.first
-      as TextNode;
+  final textNode = node.first as TextNode;
   String? linkText;
-  if (node.allSatisfyLinkInSelection(selection)) {
-    linkText = node.getAttributeInSelection(selection, StyleKey.href);
+  if (textNode.allSatisfyLinkInSelection(selection)) {
+    linkText = textNode.getAttributeInSelection(selection, StyleKey.href);
   }
   _linkMenuOverlay = OverlayEntry(builder: (context) {
     return Positioned(
@@ -204,7 +205,7 @@ void showLinkMenu(
           },
           onSubmitted: (text) {
             TransactionBuilder(editorState)
-              ..formatText(node, index, length, {StyleKey.href: text})
+              ..formatText(textNode, index, length, {StyleKey.href: text})
               ..commit();
             _dismissLinkMenu();
           },
@@ -214,9 +215,16 @@ void showLinkMenu(
           },
           onRemoveLink: () {
             TransactionBuilder(editorState)
-              ..formatText(node, index, length, {StyleKey.href: null})
+              ..formatText(textNode, index, length, {StyleKey.href: null})
               ..commit();
             _dismissLinkMenu();
+          },
+          onFocusChange: (value) {
+            if (value && customSelection != null) {
+              _changeSelectionInner = true;
+              editorState.service.selectionService
+                  .updateSelection(customSelection);
+            }
           },
         ),
       ),
@@ -230,6 +238,13 @@ void showLinkMenu(
 }
 
 void _dismissLinkMenu() {
+  if (_editorState?.service.selectionService.currentSelection.value == null) {
+    return;
+  }
+  if (_changeSelectionInner) {
+    _changeSelectionInner = false;
+    return;
+  }
   _linkMenuOverlay?.remove();
   _linkMenuOverlay = null;
 

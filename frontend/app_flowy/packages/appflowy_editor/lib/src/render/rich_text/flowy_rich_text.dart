@@ -257,8 +257,11 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
         timer = Timer(const Duration(milliseconds: 200), () {
           tapCount = 0;
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            showLinkMenu(context, widget.editorState,
-                customSelection: selection);
+            showLinkMenu(
+              context,
+              widget.editorState,
+              customSelection: selection,
+            );
           });
         });
       };

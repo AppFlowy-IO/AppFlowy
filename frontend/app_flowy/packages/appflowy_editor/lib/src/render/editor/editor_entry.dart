@@ -32,26 +32,29 @@ class EditorNodeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: node.children
-          .map(
-            (child) =>
-                editorState.service.renderPluginService.buildPluginWidget(
-              child is TextNode
-                  ? NodeWidgetContext<TextNode>(
-                      context: context,
-                      node: child,
-                      editorState: editorState,
-                    )
-                  : NodeWidgetContext<Node>(
-                      context: context,
-                      node: child,
-                      editorState: editorState,
-                    ),
-            ),
-          )
-          .toList(),
+    return Container(
+      color: Colors.red.withOpacity(0.1),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: node.children
+            .map(
+              (child) =>
+                  editorState.service.renderPluginService.buildPluginWidget(
+                child is TextNode
+                    ? NodeWidgetContext<TextNode>(
+                        context: context,
+                        node: child,
+                        editorState: editorState,
+                      )
+                    : NodeWidgetContext<Node>(
+                        context: context,
+                        node: child,
+                        editorState: editorState,
+                      ),
+              ),
+            )
+            .toList(),
+      ),
     );
   }
 }
