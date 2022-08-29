@@ -147,5 +147,9 @@
   },
   "document":{
     "menuName":"Documento"
+  },
+  "sideBar": {
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar"
   }
 }

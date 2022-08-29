@@ -141,6 +141,10 @@
         "lightLabel": "Modo Claro",
         "darkLabel": "Modo Escuro"
       }
+    },
+    "sideBar": {
+      "openSidebar": "Open sidebar",
+      "closeSidebar": "Close sidebar"
     }
   }
  

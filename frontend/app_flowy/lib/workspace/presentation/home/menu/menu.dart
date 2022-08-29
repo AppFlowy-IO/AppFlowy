@@ -2,6 +2,7 @@ export './app/header/header.dart';
 export './app/menu_app.dart';
 
 import 'dart:io' show Platform;
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/trash/menu.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
@@ -217,14 +218,23 @@ class MenuTopBar extends StatelessWidget {
             children: [
               renderIcon(context),
               const Spacer(),
-              FlowyIconButton(
-                width: 28,
-                onPressed: () => context
-                    .read<HomeBloc>()
-                    .add(const HomeEvent.collapseMenu()),
-                iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                icon: svgWidget("home/hide_menu", color: theme.iconColor),
-              )
+              Tooltip(
+                  richMessage: TextSpan(children: [
+                    const TextSpan(
+                        text: LocaleKeys.sideBar_closeSidebar + "\n"),
+                    TextSpan(
+                      text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
+                      style: const TextStyle(color: Colors.white60),
+                    ),
+                  ]),
+                  child: FlowyIconButton(
+                    width: 28,
+                    onPressed: () => context
+                        .read<HomeBloc>()
+                        .add(const HomeEvent.collapseMenu()),
+                    iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                    icon: svgWidget("home/hide_menu", color: theme.iconColor),
+                  ))
             ],
           )),
         );

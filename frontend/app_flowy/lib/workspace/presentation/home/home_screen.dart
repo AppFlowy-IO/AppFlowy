@@ -1,5 +1,7 @@
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+
+import 'package:app_flowy/workspace/presentation/home/hotkeys.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/widgets/edit_panel/panel_animation.dart';
 import 'package:app_flowy/workspace/presentation/widgets/float_bubble/question_bubble.dart';
@@ -54,7 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         ),
       ],
-      child: Scaffold(
+      child: HomeHotKeys(
+          child: Scaffold(
         body: BlocListener<HomeBloc, HomeState>(
           listenWhen: (p, c) => p.unauthorized != c.unauthorized,
           listener: (context, state) {
@@ -80,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ),
-      ),
+      )),
     );
   }
 
@@ -144,6 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
+
 
   Widget _buildEditPanel(
       {required HomeState homeState,

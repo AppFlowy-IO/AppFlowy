@@ -149,6 +149,10 @@
       "darkLabel": "夜间模式"
     }
   },
+  "sideBar": {
+    "openSidebar": "打开侧边栏",
+    "closeSidebar": "关闭侧边栏"
+  },
   "grid": {
     "settings": {
       "filter": "过滤器",

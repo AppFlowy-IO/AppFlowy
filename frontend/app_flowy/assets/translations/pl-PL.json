@@ -141,5 +141,9 @@
       "lightLabel": "Tryb Jasny",
       "darkLabel": "Tryb Ciemny"
     }
+  },
+  "sideBar": {
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar"
   }
 }

@@ -141,6 +141,10 @@
         "lightLabel": "Heller Modus",
         "darkLabel": "Dunkler Modus"
       }
+    },
+    "sideBar": {
+      "openSidebar": "Open sidebar",
+      "closeSidebar": "Close sidebar"
     }
   }
   
