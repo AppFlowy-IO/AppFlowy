@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
@@ -132,7 +133,7 @@ List<ToolbarItem> defaultToolbarItems = [
     tooltipsMessage: 'Link',
     icon: const FlowySvg(name: 'toolbar/link'),
     validator: _onlyShowInSingleTextSelection,
-    handler: (editorState, context) => _showLinkMenu(editorState, context),
+    handler: (editorState, context) => showLinkMenu(context, editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.highlight',
@@ -157,7 +158,11 @@ ToolbarShowValidator _showInTextSelection = (editorState) {
 
 OverlayEntry? _linkMenuOverlay;
 EditorState? _editorState;
-void _showLinkMenu(EditorState editorState, BuildContext context) {
+void showLinkMenu(
+  BuildContext context,
+  EditorState editorState, {
+  Selection? customSelection,
+}) {
   final rects = editorState.service.selectionService.selectionRects;
   var maxBottom = 0.0;
   late Rect matchRect;
@@ -173,8 +178,11 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
 
   // Since the link menu will only show in single text selection,
   // We get the text node directly instead of judging details again.
-  final selection =
-      editorState.service.selectionService.currentSelection.value!;
+  final selection = customSelection ??
+      editorState.service.selectionService.currentSelection.value;
+  if (selection == null) {
+    return;
+  }
   final index =
       selection.isBackward ? selection.start.offset : selection.end.offset;
   final length = (selection.start.offset - selection.end.offset).abs();
@@ -191,6 +199,9 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
       child: Material(
         child: LinkMenu(
           linkText: linkText,
+          onOpenLink: () async {
+            await safeLaunchUrl(linkText);
+          },
           onSubmitted: (text) {
             TransactionBuilder(editorState)
               ..formatText(node, index, length, {StyleKey.href: text})
@@ -214,7 +225,6 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
   Overlay.of(context)?.insert(_linkMenuOverlay!);
 
   editorState.service.scrollService?.disable();
-  editorState.service.keyboardService?.disable();
   editorState.service.selectionService.currentSelection
       .addListener(_dismissLinkMenu);
 }

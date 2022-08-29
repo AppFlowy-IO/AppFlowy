@@ -115,17 +115,18 @@ class TransactionBuilder {
   /// Inserts content at a specified index.
   /// Optionally, you may specify formatting attributes that are applied to the inserted string.
   /// By default, the formatting attributes before the insert position will be used.
-  insertText(TextNode node, int index, String content,
-      {Attributes? attributes, Attributes? removedAttributes}) {
+  insertText(
+    TextNode node,
+    int index,
+    String content, {
+    Attributes? attributes,
+  }) {
     var newAttributes = attributes;
     if (index != 0 && attributes == null) {
       newAttributes =
           node.delta.slice(max(index - 1, 0), index).first.attributes;
       if (newAttributes != null) {
         newAttributes = Attributes.from(newAttributes);
-        if (removedAttributes != null) {
-          newAttributes.addAll(removedAttributes);
-        }
       }
     }
     textEdit(
@@ -138,7 +139,8 @@ class TransactionBuilder {
         ),
     );
     afterSelection = Selection.collapsed(
-        Position(path: node.path, offset: index + content.length));
+      Position(path: node.path, offset: index + content.length),
+    );
   }
 
   /// Assigns formatting attributes to a range of text.
