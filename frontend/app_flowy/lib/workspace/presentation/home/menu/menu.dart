@@ -26,6 +26,7 @@ import 'package:app_flowy/core/frameless_window.dart';
 // import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'app/menu_app.dart';
 import 'app/create_button.dart';
@@ -220,8 +221,8 @@ class MenuTopBar extends StatelessWidget {
               const Spacer(),
               Tooltip(
                   richMessage: TextSpan(children: [
-                    const TextSpan(
-                        text: LocaleKeys.sideBar_closeSidebar + "\n"),
+                    TextSpan(
+                        text: LocaleKeys.sideBar_closeSidebar.tr() + "\n"),
                     TextSpan(
                       text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
                       style: const TextStyle(color: Colors.white60),
