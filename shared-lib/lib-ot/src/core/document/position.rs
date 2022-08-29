@@ -35,7 +35,8 @@ impl Position {
             prefix.push(b_at_index);
         }
         prefix.append(&mut suffix);
-        return Position(prefix);
+
+        Position(prefix)
     }
 }
 
