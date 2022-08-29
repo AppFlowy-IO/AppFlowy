@@ -116,11 +116,17 @@ class TransactionBuilder {
   /// Optionally, you may specify formatting attributes that are applied to the inserted string.
   /// By default, the formatting attributes before the insert position will be used.
   insertText(TextNode node, int index, String content,
-      [Attributes? attributes]) {
+      {Attributes? attributes, Attributes? removedAttributes}) {
     var newAttributes = attributes;
     if (index != 0 && attributes == null) {
       newAttributes =
           node.delta.slice(max(index - 1, 0), index).first.attributes;
+      if (newAttributes != null) {
+        newAttributes = Attributes.from(newAttributes);
+        if (removedAttributes != null) {
+          newAttributes.addAll(removedAttributes);
+        }
+      }
     }
     textEdit(
       node,

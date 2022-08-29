@@ -1,7 +1,6 @@
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::InsertFieldParams;
+use flowy_grid::entities::{FieldChangesetParams, InsertFieldParams};
 use flowy_grid_data_model::revision::FieldRevision;
-use flowy_sync::entities::grid::FieldChangesetParams;
 
 pub enum FieldScript {
     CreateField {

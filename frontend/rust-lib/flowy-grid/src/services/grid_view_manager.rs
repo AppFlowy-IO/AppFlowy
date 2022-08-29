@@ -1,4 +1,7 @@
-use crate::entities::{CreateRowParams, GridFilterConfiguration, GridSettingPB, RepeatedGridGroupPB, RowPB};
+use crate::entities::{
+    CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfiguration, GridSettingPB, MoveGroupParams,
+    RepeatedGridGroupPB, RowPB,
+};
 use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_editor::GridViewRevisionEditor;
@@ -8,7 +11,6 @@ use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
 use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
 use flowy_revision::{RevisionCompactor, RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
-use flowy_sync::entities::grid::GridSettingChangesetParams;
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_text_delta_from_revisions;
 use lib_infra::future::AFFuture;
@@ -97,15 +99,19 @@ impl GridViewManager {
         Ok(view_editor.get_setting().await)
     }
 
-    pub(crate) async fn update_setting(&self, params: GridSettingChangesetParams) -> FlowyResult<()> {
-        let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.update_setting(params).await?;
-        Ok(())
-    }
-
     pub(crate) async fn get_filters(&self) -> FlowyResult<Vec<GridFilterConfiguration>> {
         let view_editor = self.get_default_view_editor().await?;
         Ok(view_editor.get_filters().await)
+    }
+
+    pub(crate) async fn update_filter(&self, insert_filter: CreateFilterParams) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        view_editor.insert_filter(insert_filter).await
+    }
+
+    pub(crate) async fn delete_filter(&self, delete_filter: DeleteFilterParams) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        view_editor.delete_filter(delete_filter).await
     }
 
     pub(crate) async fn load_groups(&self) -> FlowyResult<RepeatedGridGroupPB> {
@@ -114,20 +120,39 @@ impl GridViewManager {
         Ok(RepeatedGridGroupPB { items: groups })
     }
 
+    pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        let _ = view_editor.move_group(params).await?;
+        Ok(())
+    }
+
     /// It may generate a RowChangeset when the Row was moved from one group to another.
     /// The return value, [RowChangeset], contains the changes made by the groups.
     ///
-    pub(crate) async fn move_row(&self, row_rev: Arc<RowRevision>, to_row_id: String) -> Option<RowChangeset> {
+    pub(crate) async fn move_group_row(
+        &self,
+        row_rev: Arc<RowRevision>,
+        to_group_id: String,
+        to_row_id: Option<String>,
+    ) -> Option<RowChangeset> {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
         for view_editor in self.view_editors.iter() {
-            view_editor.did_move_row(&row_rev, &mut row_changeset, &to_row_id).await;
+            view_editor
+                .move_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
+                .await;
         }
 
-        if row_changeset.has_changed() {
-            Some(row_changeset)
-        } else {
+        if row_changeset.is_empty() {
             None
+        } else {
+            Some(row_changeset)
         }
+    }
+
+    pub(crate) async fn did_update_field(&self, field_id: &str) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        let _ = view_editor.did_update_field(field_id).await?;
+        Ok(())
     }
 
     pub(crate) async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<GridViewRevisionEditor>> {
@@ -163,12 +188,11 @@ async fn make_view_editor(
     row_delegate: Arc<dyn GridViewRowDelegate>,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
 ) -> FlowyResult<GridViewRevisionEditor> {
-    tracing::trace!("Open view:{} editor", view_id);
-
     let rev_manager = make_grid_view_rev_manager(user, view_id).await?;
     let user_id = user.user_id()?;
     let token = user.token()?;
     let view_id = view_id.to_owned();
+
     GridViewRevisionEditor::new(
         &user_id,
         &token,
@@ -182,7 +206,6 @@ async fn make_view_editor(
 }
 
 pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str) -> FlowyResult<RevisionManager> {
-    tracing::trace!("Open view:{} editor", view_id);
     let user_id = user.user_id()?;
     let pool = user.db_pool()?;
 

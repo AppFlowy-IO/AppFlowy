@@ -125,6 +125,9 @@ pub enum ErrorCode {
 
     #[display(fmt = "Invalid data")]
     InvalidData = 1000,
+
+    #[display(fmt = "Out of bounds")]
+    OutOfBounds = 10001,
 }
 
 impl ErrorCode {

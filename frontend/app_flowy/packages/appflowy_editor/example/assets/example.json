@@ -1,267 +1,102 @@
 {
   "document": {
     "type": "editor",
-    "attributes": {},
     "children": [
       {
         "type": "image",
         "attributes": {
-          "image_src": "https://images.squarespace-cdn.com/content/v1/617f6f16b877c06711e87373/c3f23723-37f4-44d7-9c5d-6e2a53064ae7/Asset+10.png"
+          "image_src": "https://s1.ax1x.com/2022/08/26/v2sSbR.jpg",
+          "align": "center"
         }
       },
       {
         "type": "text",
+        "attributes": { "subtype": "heading", "heading": "h1" },
         "delta": [
+          { "insert": "👋 " },
+          { "insert": "Welcome to ", "attributes": { "bold": true } },
           {
-            "insert": "🌶 Read Me"
-          }
-        ],
-        "attributes": {
-          "subtype": "heading",
-          "heading": "h1"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "👋 Welcome to FlowyEditor"
-          }
-        ],
-        "attributes": {
-          "subtype": "heading",
-          "heading": "h2"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "To be honest, we are still in the alpha stage. There are still many functions that need to be completed. And we are developing more features. Please give us a star if the "
-          },
-          {
-            "insert": "FlowyEditor",
+            "insert": "AppFlowy Editor",
             "attributes": {
-              "href": "https://github.com/AppFlowy-IO/AppFlowy"
+              "href": "appflowy.io",
+              "italic": true,
+              "bold": true
+            }
+          }
+        ]
+      },
+      { "type": "text", "delta": [] },
+      {
+        "type": "text",
+        "delta": [
+          { "insert": "AppFlowy Editor is a " },
+          { "insert": "highly customizable", "attributes": { "bold": true } },
+          { "insert": " " },
+          { "insert": "rich-text editor", "attributes": { "italic": true } },
+          { "insert": " for " },
+          { "insert": "Flutter", "attributes": { "underline": true } }
+        ]
+      },
+      {
+        "type": "text",
+        "attributes": { "checkbox": true, "subtype": "checkbox" },
+        "delta": [{ "insert": "Customizable" }]
+      },
+      {
+        "type": "text",
+        "attributes": { "checkbox": true, "subtype": "checkbox" },
+        "delta": [{ "insert": "Test-covered" }]
+      },
+      {
+        "type": "text",
+        "attributes": { "checkbox": false, "subtype": "checkbox" },
+        "delta": [{ "insert": "more to come!" }]
+      },
+      { "type": "text", "delta": [] },
+      {
+        "type": "text",
+        "attributes": { "subtype": "quote" },
+        "delta": [{ "insert": "Here is an exmaple you can give it a try" }]
+      },
+      { "type": "text", "delta": [] },
+      {
+        "type": "text",
+        "delta": [
+          { "insert": "You can also use " },
+          {
+            "insert": "AppFlowy Editor",
+            "attributes": {
+              "italic": true,
+              "bold": true,
+              "backgroundColor": "0x6000BCF0"
             }
           },
+          { "insert": " as a component to build your own app." }
+        ]
+      },
+      { "type": "text", "delta": [] },
+      {
+        "type": "text",
+        "attributes": { "subtype": "bulleted-list" },
+        "delta": [{ "insert": "Use / to insert blocks" }]
+      },
+      {
+        "type": "text",
+        "attributes": { "subtype": "bulleted-list" },
+        "delta": [
           {
-            "insert": " helps you. 😊😊😊"
+            "insert": "Select text to trigger to the toolbar to format your notes."
           }
         ]
       },
+      { "type": "text", "delta": [] },
       {
         "type": "text",
         "delta": [
           {
-            "insert": "Since the FlowyEditor are a community-driven open source editor, we very welcome and appreciate every pull request submissions from everyone.😄😄😄"
+            "insert": "If you have questions or feedback, please submit an issue on Github or join the community along with 1000+ builders!"
           }
         ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Here are the basics:"
-          }
-        ],
-        "attributes": {
-          "subtype": "heading",
-          "heading": "h3"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          { "insert": "Click " },
-          { "insert": "anywhere", "attributes": { "underline": true } },
-          { "insert": " and just typing." }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hit"
-          },
-          {
-            "insert": "  /  ",
-            "attributes": { "backgroundColor": "0xFFFFFF00" }
-          },
-          {
-            "insert": "to see all the types of content you can add - headers, bulleted lists, checkboxes, etc."
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Highlight",
-            "attributes": { "backgroundColor": "0xFF00BCFB" }
-          },
-          {
-            "insert": " any text, and use the menu that pops up to "
-          },
-          { "insert": "style", "attributes": { "bold": true } },
-          { "insert": " your ", "attributes": { "italic": true } },
-          { "insert": "writing", "attributes": { "strikethrough": true } },
-          { "insert": "." }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Here are the plugins:"
-          }
-        ],
-        "attributes": {
-          "subtype": "heading",
-          "heading": "h3"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": false
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": false
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": false
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "bulleted-list"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "bulleted-list"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello "
-          },
-          {
-            "insert": "world",
-            "attributes": { "bold": true }
-          }
-        ],
-        "attributes": {
-          "subtype": "bulleted-list"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "quote"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "quote"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "quote"
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "number-list",
-          "number": 1
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "number-list",
-          "number": 2
-        }
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "Hello world"
-          }
-        ],
-        "attributes": {
-          "subtype": "number-list",
-          "number": 3
-        }
       }
     ]
   }

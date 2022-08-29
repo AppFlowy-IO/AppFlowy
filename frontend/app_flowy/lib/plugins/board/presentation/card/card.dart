@@ -14,6 +14,7 @@ typedef OnEndEditing = void Function(String rowId);
 
 class BoardCard extends StatefulWidget {
   final String gridId;
+  final String groupId;
   final bool isEditing;
   final CardDataController dataController;
   final BoardCellBuilder cellBuilder;
@@ -22,6 +23,7 @@ class BoardCard extends StatefulWidget {
 
   const BoardCard({
     required this.gridId,
+    required this.groupId,
     required this.isEditing,
     required this.dataController,
     required this.cellBuilder,
@@ -42,7 +44,7 @@ class _BoardCardState extends State<BoardCard> {
     _cardBloc = BoardCardBloc(
       gridId: widget.gridId,
       dataController: widget.dataController,
-    );
+    )..add(const BoardCardEvent.initial());
     super.initState();
   }
 
@@ -71,13 +73,19 @@ class _BoardCardState extends State<BoardCard> {
   List<Widget> _makeCells(BuildContext context, GridCellMap cellMap) {
     return cellMap.values.map(
       (cellId) {
-        final child = widget.cellBuilder.buildCell(cellId);
+        final child = widget.cellBuilder.buildCell(widget.groupId, cellId);
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+          padding: const EdgeInsets.only(left: 4, right: 4, top: 6),
           child: child,
         );
       },
     ).toList();
+  }
+
+  @override
+  Future<void> dispose() async {
+    _cardBloc.close();
+    super.dispose();
   }
 }
 
@@ -86,7 +94,7 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
 
   @override
   Widget build(BuildContext context) {
-    return svgWidget('home/details', color: context.read<AppTheme>().iconColor);
+    return svgWidget('grid/details', color: context.read<AppTheme>().iconColor);
   }
 
   @override

@@ -24,18 +24,21 @@ class GridCellDataLoader<T> {
   Future<T?> loadData() {
     final fut = service.getCell(cellId: cellId);
     return fut.then(
-      (result) => result.fold((GridCellPB cell) {
-        try {
-          return parser.parserData(cell.data);
-        } catch (e, s) {
-          Log.error('$parser parser cellData failed, $e');
-          Log.error('Stack trace \n $s');
+      (result) => result.fold(
+        (GridCellPB cell) {
+          try {
+            return parser.parserData(cell.data);
+          } catch (e, s) {
+            Log.error('$parser parser cellData failed, $e');
+            Log.error('Stack trace \n $s');
+            return null;
+          }
+        },
+        (err) {
+          Log.error(err);
           return null;
-        }
-      }, (err) {
-        Log.error(err);
-        return null;
-      }),
+        },
+      ),
     );
   }
 }
@@ -58,7 +61,8 @@ class DateCellDataParser implements IGridCellDataParser<DateCellDataPB> {
   }
 }
 
-class SelectOptionCellDataParser implements IGridCellDataParser<SelectOptionCellDataPB> {
+class SelectOptionCellDataParser
+    implements IGridCellDataParser<SelectOptionCellDataPB> {
   @override
   SelectOptionCellDataPB? parserData(List<int> data) {
     if (data.isEmpty) {

@@ -1,6 +1,6 @@
 name: appflowy_board
 description: AppFlowy board implementation.
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/AppFlowy-IO/AppFlowy
 repository: https://github.com/AppFlowy-IO/AppFlowy/tree/main/frontend/app_flowy/packages/appflowy_board
 

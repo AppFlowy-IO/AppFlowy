@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../utils/log.dart';
@@ -8,6 +10,8 @@ import 'reorder_flex.dart';
 /// [DragTargetInterceptor] is used to intercept the [DragTarget]'s
 /// [onWillAccept], [OnAccept], and [onLeave] event.
 abstract class DragTargetInterceptor {
+  String get reorderFlexId;
+
   /// Returns [yes] to receive the [DragTarget]'s event.
   bool canHandler(FlexDragTargetData dragTargetData);
 
@@ -37,7 +41,7 @@ abstract class OverlapDragTargetDelegate {
     int dragTargetIndex,
   );
 
-  bool canMoveTo(String dragTargetId);
+  int canMoveTo(String dragTargetId);
 }
 
 /// [OverlappingDragTargetInterceptor] is used to receive the overlapping
@@ -47,9 +51,12 @@ abstract class OverlapDragTargetDelegate {
 /// Receive the [DragTarget] event if the [acceptedReorderFlexId] contains
 /// the passed in dragTarget' reorderFlexId.
 class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
+  @override
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapDragTargetDelegate delegate;
+  final List<ColumnKey> columnKeys = [];
+  Timer? _delayOperation;
 
   OverlappingDragTargetInterceptor({
     required this.delegate,
@@ -72,13 +79,36 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
     if (dragTargetId == dragTargetData.reorderFlexId) {
       delegate.cancel();
     } else {
-      if (delegate.canMoveTo(dragTargetId)) {
-        delegate.moveTo(dragTargetId, dragTargetData, 0);
-      }
+      /// The priority of the column interactions is high than the cross column.
+      /// Workaround: delay 100 milliseconds to lower the cross column event priority.
+      _delayOperation?.cancel();
+      _delayOperation = Timer(const Duration(milliseconds: 100), () {
+        final index = delegate.canMoveTo(dragTargetId);
+        if (index != -1) {
+          Log.trace(
+              '[$OverlappingDragTargetInterceptor] move to $dragTargetId at $index');
+          delegate.moveTo(dragTargetId, dragTargetData, index);
+
+          // final columnIndex = columnKeys
+          //     .indexWhere((element) => element.columnId == dragTargetId);
+          // if (columnIndex != -1) {
+          //   final state = columnKeys[columnIndex].key.currentState;
+          //   if (state is ReorderFlexState) {
+          //     state.handleOnWillAccept(context, index);
+          //   }
+          // }
+        }
+      });
     }
 
     return true;
   }
+}
+
+class ColumnKey {
+  String columnId;
+  GlobalKey key;
+  ColumnKey({required this.columnId, required this.key});
 }
 
 abstract class CrossReorderFlexDragTargetDelegate {
@@ -96,6 +126,7 @@ abstract class CrossReorderFlexDragTargetDelegate {
 }
 
 class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
+  @override
   final String reorderFlexId;
   final List<String> acceptedReorderFlexIds;
   final CrossReorderFlexDragTargetDelegate delegate;
@@ -119,8 +150,12 @@ class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
       /// If the columnId equal to the dragTargetData's columnId,
       /// it means the dragTarget is dragging on the top of its own list.
       /// Otherwise, it means the dargTarget was moved to another list.
+      Log.trace(
+          "[$CrossReorderFlexDragTargetInterceptor] $reorderFlexId accept ${dragTargetData.reorderFlexId} ${reorderFlexId != dragTargetData.reorderFlexId}");
       return reorderFlexId != dragTargetData.reorderFlexId;
     } else {
+      Log.trace(
+          "[$CrossReorderFlexDragTargetInterceptor] not accept ${dragTargetData.reorderFlexId}");
       return false;
     }
   }
@@ -150,6 +185,9 @@ class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
       dragTargetData,
       dragTargetIndex,
     );
+
+    Log.debug(
+        '[$CrossReorderFlexDragTargetInterceptor] dargTargetIndex: $dragTargetIndex, reorderFlexId: $reorderFlexId');
 
     if (isNewDragTarget == false) {
       delegate.updateDragTargetData(reorderFlexId, dragTargetIndex);

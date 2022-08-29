@@ -8,7 +8,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/group.pb.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/group_changeset.pb.dart';
 
-typedef UpdateGroupNotifiedValue = Either<GroupRowsChangesetPB, FlowyError>;
+typedef UpdateGroupNotifiedValue = Either<GroupChangesetPB, FlowyError>;
 
 class GroupListener {
   final GroupPB group;
@@ -34,7 +34,7 @@ class GroupListener {
       case GridNotification.DidUpdateGroup:
         result.fold(
           (payload) => _groupNotifier?.value =
-              left(GroupRowsChangesetPB.fromBuffer(payload)),
+              left(GroupChangesetPB.fromBuffer(payload)),
           (error) => _groupNotifier?.value = right(error),
         );
         break;

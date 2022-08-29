@@ -12,12 +12,18 @@ class AFBoardConfig {
   final double cornerRadius;
   final EdgeInsets columnPadding;
   final EdgeInsets columnItemPadding;
+  final EdgeInsets footerPadding;
+  final EdgeInsets headerPadding;
+  final EdgeInsets cardPadding;
   final Color columnBackgroundColor;
 
   const AFBoardConfig({
     this.cornerRadius = 6.0,
     this.columnPadding = const EdgeInsets.symmetric(horizontal: 8),
-    this.columnItemPadding = const EdgeInsets.symmetric(horizontal: 10),
+    this.columnItemPadding = const EdgeInsets.symmetric(horizontal: 12),
+    this.footerPadding = const EdgeInsets.symmetric(horizontal: 12),
+    this.headerPadding = const EdgeInsets.symmetric(horizontal: 16),
+    this.cardPadding = const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
     this.columnBackgroundColor = Colors.transparent,
   });
 }
@@ -159,7 +165,7 @@ class _BoardContentState extends State<BoardContent> {
           dataSource: widget.dataController,
           direction: Axis.horizontal,
           interceptor: interceptor,
-          children: _buildColumns(),
+          children: _buildColumns(interceptor.columnKeys),
         );
 
         return Stack(
@@ -191,7 +197,7 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  List<Widget> _buildColumns() {
+  List<Widget> _buildColumns(List<ColumnKey> columnKeys) {
     final List<Widget> children =
         widget.dataController.columnDatas.asMap().entries.map(
       (item) {
@@ -205,24 +211,35 @@ class _BoardContentState extends State<BoardContent> {
 
         return ChangeNotifierProvider.value(
           key: ValueKey(columnData.id),
-          value: widget.dataController.columnController(columnData.id),
+          value: widget.dataController.getColumnController(columnData.id),
           child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
+              final boardColumn = AFBoardColumnWidget(
+                margin: _marginFromIndex(columnIndex),
+                itemMargin: widget.config.columnItemPadding,
+                headerBuilder: _buildHeader,
+                footBuilder: widget.footBuilder,
+                cardBuilder: widget.cardBuilder,
+                dataSource: dataSource,
+                scrollController: ScrollController(),
+                phantomController: widget.phantomController,
+                onReorder: widget.dataController.moveColumnItem,
+                cornerRadius: widget.config.cornerRadius,
+                backgroundColor: widget.config.columnBackgroundColor,
+              );
+
+              // columnKeys
+              //     .removeWhere((element) => element.columnId == columnData.id);
+              // columnKeys.add(
+              //   ColumnKey(
+              //     columnId: columnData.id,
+              //     key: boardColumn.columnGlobalKey,
+              //   ),
+              // );
+
               return ConstrainedBox(
                 constraints: widget.columnConstraints,
-                child: AFBoardColumnWidget(
-                  margin: _marginFromIndex(columnIndex),
-                  itemMargin: widget.config.columnItemPadding,
-                  headerBuilder: widget.headerBuilder,
-                  footBuilder: widget.footBuilder,
-                  cardBuilder: widget.cardBuilder,
-                  dataSource: dataSource,
-                  scrollController: ScrollController(),
-                  phantomController: widget.phantomController,
-                  onReorder: widget.dataController.moveColumnItem,
-                  cornerRadius: widget.config.cornerRadius,
-                  backgroundColor: widget.config.columnBackgroundColor,
-                ),
+                child: boardColumn,
               );
             },
           ),
@@ -231,6 +248,19 @@ class _BoardContentState extends State<BoardContent> {
     ).toList();
 
     return children;
+  }
+
+  Widget? _buildHeader(
+      BuildContext context, AFBoardColumnHeaderData headerData) {
+    if (widget.headerBuilder == null) {
+      return null;
+    }
+    return Selector<AFBoardColumnDataController, AFBoardColumnHeaderData>(
+      selector: (context, controller) => controller.columnData.headerData,
+      builder: (context, headerData, _) {
+        return widget.headerBuilder!(context, headerData)!;
+      },
+    );
   }
 
   EdgeInsets _marginFromIndex(int index) {
@@ -261,7 +291,7 @@ class _BoardColumnDataSourceImpl extends AFBoardColumnDataDataSource {
 
   @override
   AFBoardColumnData get columnData =>
-      dataController.columnController(columnId).columnData;
+      dataController.getColumnController(columnId)!.columnData;
 
   @override
   List<String> get acceptedColumnIds => dataController.columnIds;

@@ -34,9 +34,22 @@ class GroupController {
   void startListening() {
     _listener.start(onGroupChanged: (result) {
       result.fold(
-        (GroupRowsChangesetPB changeset) {
+        (GroupChangesetPB changeset) {
+          for (final deletedRow in changeset.deletedRows) {
+            group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
+            delegate.removeRow(group.groupId, deletedRow);
+          }
+
           for (final insertedRow in changeset.insertedRows) {
             final index = insertedRow.hasIndex() ? insertedRow.index : null;
+
+            if (insertedRow.hasIndex() &&
+                group.rows.length > insertedRow.index) {
+              group.rows.insert(insertedRow.index, insertedRow.row);
+            } else {
+              group.rows.add(insertedRow.row);
+            }
+
             delegate.insertRow(
               group.groupId,
               insertedRow.row,
@@ -44,11 +57,15 @@ class GroupController {
             );
           }
 
-          for (final deletedRow in changeset.deletedRows) {
-            delegate.removeRow(group.groupId, deletedRow);
-          }
-
           for (final updatedRow in changeset.updatedRows) {
+            final index = group.rows.indexWhere(
+              (rowPB) => rowPB.id == updatedRow.id,
+            );
+
+            if (index != -1) {
+              group.rows[index] = updatedRow;
+            }
+
             delegate.updateRow(group.groupId, updatedRow);
           }
         },
