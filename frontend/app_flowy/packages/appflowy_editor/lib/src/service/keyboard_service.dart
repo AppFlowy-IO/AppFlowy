@@ -129,6 +129,10 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
 
   void _onFocusChange(bool value) {
     Log.keyboard.debug('on keyboard event focus change $value');
+    isFocus = value;
+    if (!value) {
+      widget.editorState.service.selectionService.clearCursor();
+    }
   }
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
