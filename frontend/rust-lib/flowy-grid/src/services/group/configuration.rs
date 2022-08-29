@@ -285,10 +285,11 @@ fn merge_groups(old_groups: &[GroupRevision], groups: Vec<Group>) -> MergeGroupR
     }
 
     // Find out the new groups
-    let new_groups = group_map.into_values();
-    for (index, group) in new_groups.into_iter().enumerate() {
-        merge_result.add_insert_group(index, group);
-    }
+    group_map
+        .into_values()
+        .enumerate()
+        .for_each(|(index, group)| merge_result.add_insert_group(index, group));
+
     merge_result
 }
 
