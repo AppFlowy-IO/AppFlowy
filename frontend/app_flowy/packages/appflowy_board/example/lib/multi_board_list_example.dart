@@ -11,13 +11,13 @@ class MultiBoardListExample extends StatefulWidget {
 class _MultiBoardListExampleState extends State<MultiBoardListExample> {
   final AFBoardDataController boardDataController = AFBoardDataController(
     onMoveColumn: (fromColumnId, fromIndex, toColumnId, toIndex) {
-      debugPrint('Move column from $fromIndex to $toIndex');
+      // debugPrint('Move column from $fromIndex to $toIndex');
     },
     onMoveColumnItem: (columnId, fromIndex, toIndex) {
-      debugPrint('Move $columnId:$fromIndex to $columnId:$toIndex');
+      // debugPrint('Move $columnId:$fromIndex to $columnId:$toIndex');
     },
     onMoveColumnItemToColumn: (fromColumnId, fromIndex, toColumnId, toIndex) {
-      debugPrint('Move $fromColumnId:$fromIndex to $toColumnId:$toIndex');
+      // debugPrint('Move $fromColumnId:$fromIndex to $toColumnId:$toIndex');
     },
   );
 
@@ -96,7 +96,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
           },
           cardBuilder: (context, column, columnItem) {
             return AppFlowyColumnItemCard(
-              key: ObjectKey(columnItem),
+              key: ValueKey(columnItem.id),
               child: _buildCard(columnItem),
             );
           },
@@ -121,30 +121,53 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     }
 
     if (item is RichTextItem) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.title,
-                style: const TextStyle(fontSize: 14),
-                textAlign: TextAlign.left,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                item.subtitle,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              )
-            ],
-          ),
-        ),
-      );
+      return RichTextCard(item: item);
     }
 
     throw UnimplementedError();
+  }
+}
+
+class RichTextCard extends StatefulWidget {
+  final RichTextItem item;
+  const RichTextCard({
+    required this.item,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<RichTextCard> createState() => _RichTextCardState();
+}
+
+class _RichTextCardState extends State<RichTextCard> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.item.title,
+              style: const TextStyle(fontSize: 14),
+              textAlign: TextAlign.left,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              widget.item.subtitle,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
 

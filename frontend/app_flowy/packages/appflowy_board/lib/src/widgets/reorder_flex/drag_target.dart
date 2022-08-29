@@ -75,6 +75,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   final AnimationController deleteAnimationController;
 
   final bool useMoveAnimation;
+  final bool draggable;
 
   const ReorderDragTarget({
     Key? key,
@@ -88,6 +89,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
     required this.insertAnimationController,
     required this.deleteAnimationController,
     required this.useMoveAnimation,
+    required this.draggable,
     this.onAccept,
     this.onLeave,
     this.draggableTargetBuilder,
@@ -132,6 +134,9 @@ class _ReorderDragTargetState<T extends DragTargetData>
     List<T?> acceptedCandidates,
     List<dynamic> rejectedCandidates,
   ) {
+    if (!widget.draggable) {
+      return widget.child;
+    }
     Widget feedbackBuilder = Builder(builder: (BuildContext context) {
       BoxConstraints contentSizeConstraints =
           BoxConstraints.loose(_draggingFeedbackSize!);

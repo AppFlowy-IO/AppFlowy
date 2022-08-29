@@ -1,3 +1,4 @@
+import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../utils/log.dart';
@@ -39,8 +40,12 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     with CrossReorderFlexDragTargetDelegate {
   PhantomRecord? phantomRecord;
   final BoardPhantomControllerDelegate delegate;
-  final columnsState = ColumnPhantomStateController();
-  BoardPhantomController({required this.delegate});
+  final BoardColumnsState columnsState;
+  final phantomState = ColumnPhantomState();
+  BoardPhantomController({
+    required this.delegate,
+    required this.columnsState,
+  });
 
   bool isFromColumn(String columnId) {
     if (phantomRecord != null) {
@@ -59,19 +64,19 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   }
 
   void columnStartDragging(String columnId) {
-    columnsState.setColumnIsDragging(columnId, true);
+    phantomState.setColumnIsDragging(columnId, true);
   }
 
   /// Remove the phantom in the column when the column is end dragging.
   void columnEndDragging(String columnId) {
-    columnsState.setColumnIsDragging(columnId, false);
+    phantomState.setColumnIsDragging(columnId, false);
 
     if (phantomRecord == null) return;
 
     final fromColumnId = phantomRecord!.fromColumnId;
     final toColumnId = phantomRecord!.toColumnId;
     if (fromColumnId == columnId) {
-      columnsState.notifyDidRemovePhantom(toColumnId);
+      phantomState.notifyDidRemovePhantom(toColumnId);
     }
 
     if (phantomRecord!.toColumnId == columnId) {
@@ -82,8 +87,8 @@ class BoardPhantomController extends OverlapDragTargetDelegate
         phantomRecord!.toColumnIndex,
       );
 
-      Log.debug(
-          "[$BoardPhantomController] did move ${phantomRecord.toString()}");
+      // Log.debug(
+      //     "[$BoardPhantomController] did move ${phantomRecord.toString()}");
       phantomRecord = null;
     }
   }
@@ -91,8 +96,8 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   /// Remove the phantom in the column if it contains phantom
   void _removePhantom(String columnId) {
     if (delegate.removePhantom(columnId)) {
-      columnsState.notifyDidRemovePhantom(columnId);
-      columnsState.removeColumnListener(columnId);
+      phantomState.notifyDidRemovePhantom(columnId);
+      phantomState.removeColumnListener(columnId);
     }
   }
 
@@ -105,7 +110,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
       index: phantomIndex,
       dragTargetData: dragTargetData,
     );
-    columnsState.addColumnListener(toColumnId, phantomContext);
+    phantomState.addColumnListener(toColumnId, phantomContext);
 
     delegate.insertPhantom(
       toColumnId,
@@ -113,7 +118,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
       PhantomColumnItem(phantomContext),
     );
 
-    columnsState.notifyDidInsertPhantom(toColumnId, phantomIndex);
+    phantomState.notifyDidInsertPhantom(toColumnId, phantomIndex);
   }
 
   /// Reset or initial the [PhantomRecord]
@@ -150,7 +155,8 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     if (phantomRecord == null) {
       _resetPhantomRecord(reorderFlexId, dragTargetData, dragTargetIndex);
       _insertPhantom(reorderFlexId, dragTargetData, dragTargetIndex);
-      return false;
+
+      return true;
     }
 
     final isNewDragTarget = phantomRecord!.toColumnId != reorderFlexId;
@@ -204,7 +210,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
 
   @override
   int getInsertedIndex(String dragTargetId) {
-    if (columnsState.isDragging(dragTargetId)) {
+    if (phantomState.isDragging(dragTargetId)) {
       return -1;
     }
 
@@ -243,8 +249,7 @@ class PhantomRecord {
     if (fromColumnIndex == index) {
       return;
     }
-    Log.debug(
-        '[$PhantomRecord] Update Column:[$fromColumnId] remove position to $index');
+
     fromColumnIndex = index;
   }
 

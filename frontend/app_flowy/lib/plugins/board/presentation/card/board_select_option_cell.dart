@@ -1,6 +1,7 @@
 import 'package:app_flowy/plugins/board/application/card/board_select_option_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_cell/extension.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_cell/select_option_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -40,8 +41,9 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
         },
         builder: (context, state) {
           if (state.selectedOptions
-              .where((element) => element.id == widget.groupId)
-              .isNotEmpty) {
+                  .where((element) => element.id == widget.groupId)
+                  .isNotEmpty ||
+              state.selectedOptions.isEmpty) {
             return const SizedBox();
           } else {
             final children = state.selectedOptions
@@ -52,10 +54,17 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
                   ),
                 )
                 .toList();
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: AbsorbPointer(
-                child: Wrap(children: children, spacing: 4, runSpacing: 2),
+
+            return IntrinsicHeight(
+              child: Stack(
+                alignment: AlignmentDirectional.center,
+                fit: StackFit.expand,
+                children: [
+                  Wrap(children: children, spacing: 4, runSpacing: 2),
+                  _SelectOptionDialog(
+                    controller: widget.cellControllerBuilder.build(),
+                  ),
+                ],
               ),
             );
           }
@@ -68,5 +77,25 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
   Future<void> dispose() async {
     _cellBloc.close();
     super.dispose();
+  }
+}
+
+class _SelectOptionDialog extends StatelessWidget {
+  final GridSelectOptionCellController _controller;
+  const _SelectOptionDialog({
+    Key? key,
+    required IGridCellController controller,
+  })  : _controller = controller as GridSelectOptionCellController,
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(onTap: () {
+      SelectOptionCellEditor.show(
+        context,
+        _controller,
+        () {},
+      );
+    });
   }
 }

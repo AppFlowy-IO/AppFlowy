@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -19,6 +20,12 @@ class BoardTextCellBloc extends Bloc<BoardTextCellEvent, BoardTextCellState> {
           },
           didReceiveCellUpdate: (content) {
             emit(state.copyWith(content: content));
+          },
+          updateText: (text) {
+            if (text != state.content) {
+              cellController.saveCellData(text);
+              emit(state.copyWith(content: text));
+            }
           },
         );
       },
@@ -49,6 +56,7 @@ class BoardTextCellBloc extends Bloc<BoardTextCellEvent, BoardTextCellState> {
 @freezed
 class BoardTextCellEvent with _$BoardTextCellEvent {
   const factory BoardTextCellEvent.initial() = _InitialCell;
+  const factory BoardTextCellEvent.updateText(String text) = _UpdateContent;
   const factory BoardTextCellEvent.didReceiveCellUpdate(String cellContent) =
       _DidReceiveCellUpdate;
 }
