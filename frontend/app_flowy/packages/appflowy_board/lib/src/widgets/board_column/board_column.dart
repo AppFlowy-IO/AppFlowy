@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:appflowy_board/src/widgets/reorder_flex/drag_state.dart';
 import 'package:flutter/material.dart';
 import '../../rendering/board_overlay.dart';
 import '../../utils/log.dart';
@@ -65,7 +66,6 @@ class AFBoardColumnWidget extends StatefulWidget {
   final AFBoardColumnDataDataSource dataSource;
   final ScrollController? scrollController;
   final ReorderFlexConfig config;
-
   final OnColumnDragStarted? onDragStarted;
   final OnColumnReorder onReorder;
   final OnColumnDragEnded? onDragEnded;
@@ -88,7 +88,11 @@ class AFBoardColumnWidget extends StatefulWidget {
 
   final Color backgroundColor;
 
-  final GlobalKey columnGlobalKey = GlobalKey();
+  final DraggingStateStorage? dragStateStorage;
+
+  final ReorderDragTargetIndexKeyStorage? dragTargetIndexKeyStorage;
+
+  final GlobalKey globalKey;
 
   AFBoardColumnWidget({
     Key? key,
@@ -98,14 +102,17 @@ class AFBoardColumnWidget extends StatefulWidget {
     required this.onReorder,
     required this.dataSource,
     required this.phantomController,
-    this.onDragStarted,
+    this.dragStateStorage,
+    this.dragTargetIndexKeyStorage,
     this.scrollController,
+    this.onDragStarted,
     this.onDragEnded,
     this.margin = EdgeInsets.zero,
     this.itemMargin = EdgeInsets.zero,
     this.cornerRadius = 0.0,
     this.backgroundColor = Colors.transparent,
-  })  : config = const ReorderFlexConfig(),
+  })  : globalKey = GlobalKey(),
+        config = const ReorderFlexConfig(),
         super(key: key);
 
   @override
@@ -115,7 +122,6 @@ class AFBoardColumnWidget extends StatefulWidget {
 class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
   final GlobalKey _columnOverlayKey =
       GlobalKey(debugLabel: '$AFBoardColumnWidget overlay key');
-
   late BoardOverlayEntry _overlayEntry;
 
   @override
@@ -140,7 +146,9 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
         );
 
         Widget reorderFlex = ReorderFlex(
-          key: widget.columnGlobalKey,
+          key: widget.globalKey,
+          dragStateStorage: widget.dragStateStorage,
+          dragTargetIndexKeyStorage: widget.dragTargetIndexKeyStorage,
           scrollController: widget.scrollController,
           config: widget.config,
           onDragStarted: (index) {
@@ -163,9 +171,6 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
           children: children,
         );
 
-        // reorderFlex =
-        //     KeyedSubtree(key: widget.columnGlobalKey, child: reorderFlex);
-
         return Container(
           margin: widget.margin,
           clipBehavior: Clip.hardEdge,
@@ -177,10 +182,7 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
             children: [
               if (header != null) header,
               Expanded(
-                child: Padding(
-                  padding: widget.itemMargin,
-                  child: reorderFlex,
-                ),
+                child: Padding(padding: widget.itemMargin, child: reorderFlex),
               ),
               if (footer != null) footer,
             ],

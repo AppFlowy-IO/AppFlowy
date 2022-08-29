@@ -1,15 +1,14 @@
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
-
 import 'group_listener.dart';
 
 typedef OnGroupError = void Function(FlowyError);
 
 abstract class GroupControllerDelegate {
-  void removeRow(String groupId, String rowId);
-  void insertRow(String groupId, RowPB row, int? index);
-  void updateRow(String groupId, RowPB row);
+  void removeRow(GroupPB group, String rowId);
+  void insertRow(GroupPB group, RowPB row, int? index);
+  void updateRow(GroupPB group, RowPB row);
 }
 
 class GroupController {
@@ -37,12 +36,11 @@ class GroupController {
         (GroupChangesetPB changeset) {
           for (final deletedRow in changeset.deletedRows) {
             group.rows.removeWhere((rowPB) => rowPB.id == deletedRow);
-            delegate.removeRow(group.groupId, deletedRow);
+            delegate.removeRow(group, deletedRow);
           }
 
           for (final insertedRow in changeset.insertedRows) {
             final index = insertedRow.hasIndex() ? insertedRow.index : null;
-
             if (insertedRow.hasIndex() &&
                 group.rows.length > insertedRow.index) {
               group.rows.insert(insertedRow.index, insertedRow.row);
@@ -50,11 +48,7 @@ class GroupController {
               group.rows.add(insertedRow.row);
             }
 
-            delegate.insertRow(
-              group.groupId,
-              insertedRow.row,
-              index,
-            );
+            delegate.insertRow(group, insertedRow.row, index);
           }
 
           for (final updatedRow in changeset.updatedRows) {
@@ -66,13 +60,36 @@ class GroupController {
               group.rows[index] = updatedRow;
             }
 
-            delegate.updateRow(group.groupId, updatedRow);
+            delegate.updateRow(group, updatedRow);
           }
         },
         (err) => Log.error(err),
       );
     });
   }
+
+  // GroupChangesetPB _transformChangeset(GroupChangesetPB changeset) {
+  //   final insertedRows = changeset.insertedRows
+  //       .where(
+  //         (delete) => !changeset.deletedRows.contains(delete.row.id),
+  //       )
+  //       .toList();
+
+  //   final deletedRows = changeset.deletedRows
+  //       .where((deletedRowId) =>
+  //           changeset.insertedRows
+  //               .indexWhere((insert) => insert.row.id == deletedRowId) ==
+  //           -1)
+  //       .toList();
+
+  //   return changeset.rebuild((rebuildChangeset) {
+  //     rebuildChangeset.insertedRows.clear();
+  //     rebuildChangeset.insertedRows.addAll(insertedRows);
+
+  //     rebuildChangeset.deletedRows.clear();
+  //     rebuildChangeset.deletedRows.addAll(deletedRows);
+  //   });
+  // }
 
   Future<void> dispose() async {
     _listener.stop();

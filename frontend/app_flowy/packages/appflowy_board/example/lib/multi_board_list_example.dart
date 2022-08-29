@@ -114,7 +114,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       return Align(
         alignment: Alignment.centerLeft,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
           child: Text(item.s),
         ),
       );
@@ -124,7 +124,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       return Align(
         alignment: Alignment.centerLeft,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

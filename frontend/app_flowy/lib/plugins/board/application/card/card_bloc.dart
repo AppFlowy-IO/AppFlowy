@@ -4,7 +4,6 @@ import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -14,10 +13,12 @@ import 'card_data_controller.dart';
 part 'card_bloc.freezed.dart';
 
 class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
+  final String fieldId;
   final RowFFIService _rowService;
   final CardDataController _dataController;
 
   BoardCardBloc({
+    required this.fieldId,
     required String gridId,
     required CardDataController dataController,
   })  : _rowService = RowFFIService(
@@ -25,22 +26,22 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
           blockId: dataController.rowPB.blockId,
         ),
         _dataController = dataController,
-        super(BoardCardState.initial(
-            dataController.rowPB, dataController.loadData())) {
+        super(
+          BoardCardState.initial(
+            dataController.rowPB,
+            _makeCells(fieldId, dataController.loadData()),
+          ),
+        ) {
     on<BoardCardEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_InitialRow value) async {
+        await event.when(
+          initial: () async {
             await _startListening();
           },
-          didReceiveCells: (_DidReceiveCells value) async {
-            final cells = value.gridCellMap.values
-                .map((e) => GridCellEquatable(e.field))
-                .toList();
+          didReceiveCells: (cells, reason) async {
             emit(state.copyWith(
-              gridCellMap: value.gridCellMap,
-              cells: UnmodifiableListView(cells),
-              changeReason: value.reason,
+              cells: cells,
+              changeReason: reason,
             ));
           },
         );
@@ -58,7 +59,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     return RowInfo(
       gridId: _rowService.gridId,
       fields: UnmodifiableListView(
-        state.cells.map((cell) => cell._field).toList(),
+        state.cells.map((cell) => cell.identifier.field).toList(),
       ),
       rowPB: state.rowPB,
     );
@@ -66,8 +67,9 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
 
   Future<void> _startListening() async {
     _dataController.addListener(
-      onRowChanged: (cells, reason) {
+      onRowChanged: (cellMap, reason) {
         if (!isClosed) {
+          final cells = _makeCells(fieldId, cellMap);
           add(BoardCardEvent.didReceiveCells(cells, reason));
         }
       },
@@ -75,42 +77,49 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
   }
 }
 
+UnmodifiableListView<BoardCellEquatable> _makeCells(
+    String fieldId, GridCellMap originalCellMap) {
+  List<BoardCellEquatable> cells = [];
+  for (final entry in originalCellMap.entries) {
+    if (entry.value.fieldId != fieldId) {
+      cells.add(BoardCellEquatable(entry.value));
+    }
+  }
+  return UnmodifiableListView(cells);
+}
+
 @freezed
 class BoardCardEvent with _$BoardCardEvent {
   const factory BoardCardEvent.initial() = _InitialRow;
   const factory BoardCardEvent.didReceiveCells(
-      GridCellMap gridCellMap, RowsChangedReason reason) = _DidReceiveCells;
+    UnmodifiableListView<BoardCellEquatable> cells,
+    RowsChangedReason reason,
+  ) = _DidReceiveCells;
 }
 
 @freezed
 class BoardCardState with _$BoardCardState {
   const factory BoardCardState({
     required RowPB rowPB,
-    required GridCellMap gridCellMap,
-    required UnmodifiableListView<GridCellEquatable> cells,
+    required UnmodifiableListView<BoardCellEquatable> cells,
     RowsChangedReason? changeReason,
   }) = _BoardCardState;
 
-  factory BoardCardState.initial(RowPB rowPB, GridCellMap cellDataMap) =>
-      BoardCardState(
-        rowPB: rowPB,
-        gridCellMap: cellDataMap,
-        cells: UnmodifiableListView(
-          cellDataMap.values.map((e) => GridCellEquatable(e.field)).toList(),
-        ),
-      );
+  factory BoardCardState.initial(
+          RowPB rowPB, UnmodifiableListView<BoardCellEquatable> cells) =>
+      BoardCardState(rowPB: rowPB, cells: cells);
 }
 
-class GridCellEquatable extends Equatable {
-  final FieldPB _field;
+class BoardCellEquatable extends Equatable {
+  final GridCellIdentifier identifier;
 
-  const GridCellEquatable(FieldPB field) : _field = field;
+  const BoardCellEquatable(this.identifier);
 
   @override
   List<Object?> get props => [
-        _field.id,
-        _field.fieldType,
-        _field.visibility,
-        _field.width,
+        identifier.field.id,
+        identifier.field.fieldType,
+        identifier.field.visibility,
+        identifier.field.width,
       ];
 }
