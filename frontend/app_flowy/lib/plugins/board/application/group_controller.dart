@@ -9,6 +9,7 @@ abstract class GroupControllerDelegate {
   void removeRow(GroupPB group, String rowId);
   void insertRow(GroupPB group, RowPB row, int? index);
   void updateRow(GroupPB group, RowPB row);
+  void addNewRow(GroupPB group, RowPB row);
 }
 
 class GroupController {
@@ -48,7 +49,11 @@ class GroupController {
               group.rows.add(insertedRow.row);
             }
 
-            delegate.insertRow(group, insertedRow.row, index);
+            if (insertedRow.isNew) {
+              delegate.addNewRow(group, insertedRow.row);
+            } else {
+              delegate.insertRow(group, insertedRow.row, index);
+            }
           }
 
           for (final updatedRow in changeset.updatedRows) {

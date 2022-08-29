@@ -19,7 +19,11 @@ class BoardCellBuilder {
 
   BoardCellBuilder(this.delegate);
 
-  Widget buildCell(String groupId, GridCellIdentifier cellId) {
+  Widget buildCell(
+    String groupId,
+    GridCellIdentifier cellId,
+    bool isEditing,
+  ) {
     final cellControllerBuilder = GridCellControllerBuilder(
       delegate: delegate,
       cellId: cellId,
@@ -62,6 +66,7 @@ class BoardCellBuilder {
         return BoardTextCell(
           groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
+          isFocus: isEditing,
           key: key,
         );
       case FieldType.URL:

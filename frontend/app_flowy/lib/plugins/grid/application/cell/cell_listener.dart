@@ -11,13 +11,15 @@ typedef UpdateFieldNotifiedValue = Either<Unit, FlowyError>;
 class CellListener {
   final String rowId;
   final String fieldId;
-  PublishNotifier<UpdateFieldNotifiedValue>? _updateCellNotifier = PublishNotifier();
+  PublishNotifier<UpdateFieldNotifiedValue>? _updateCellNotifier =
+      PublishNotifier();
   GridNotificationListener? _listener;
   CellListener({required this.rowId, required this.fieldId});
 
   void start({required void Function(UpdateFieldNotifiedValue) onCellChanged}) {
     _updateCellNotifier?.addPublishListener(onCellChanged);
-    _listener = GridNotificationListener(objectId: "$rowId:$fieldId", handler: _handler);
+    _listener = GridNotificationListener(
+        objectId: "$rowId:$fieldId", handler: _handler);
   }
 
   void _handler(GridNotification ty, Either<Uint8List, FlowyError> result) {

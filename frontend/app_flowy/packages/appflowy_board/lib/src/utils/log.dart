@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 const DART_LOG = "Dart_LOG";
 
 class Log {
-  static const enableLog = false;
+  static const enableLog = true;
 
   static void info(String? message) {
     if (enableLog) {
@@ -26,7 +26,7 @@ class Log {
 
   static void trace(String? message) {
     if (enableLog) {
-      debugPrint('❗️[Trace] - ${DateTime.now().second}=> $message');
+      // debugPrint('❗️[Trace] - ${DateTime.now().second}=> $message');
     }
   }
 }

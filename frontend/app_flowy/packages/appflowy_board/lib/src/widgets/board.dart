@@ -64,7 +64,7 @@ class AFBoard extends StatelessWidget {
   final BoxConstraints columnConstraints;
 
   ///
-  final BoardPhantomController phantomController;
+  late final BoardPhantomController phantomController;
 
   final ScrollController? scrollController;
 
@@ -85,8 +85,12 @@ class AFBoard extends StatelessWidget {
     this.columnConstraints = const BoxConstraints(maxWidth: 200),
     this.config = const AFBoardConfig(),
     Key? key,
-  })  : phantomController = BoardPhantomController(delegate: dataController),
-        super(key: key);
+  }) : super(key: key) {
+    phantomController = BoardPhantomController(
+      delegate: dataController,
+      columnsState: _columnState,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,6 +198,7 @@ class _AFBoardContentState extends State<AFBoardContent> {
           dataSource: widget.dataController,
           direction: Axis.horizontal,
           interceptor: interceptor,
+          reorderable: false,
           children: _buildColumns(),
         );
 
@@ -244,7 +249,7 @@ class _AFBoardContentState extends State<AFBoardContent> {
           child: Consumer<AFBoardColumnDataController>(
             builder: (context, value, child) {
               final boardColumn = AFBoardColumnWidget(
-                key: PageStorageKey<String>(columnData.id),
+                // key: PageStorageKey<String>(columnData.id),
                 // key: GlobalObjectKey(columnData.id),
                 margin: _marginFromIndex(columnIndex),
                 itemMargin: widget.config.columnItemPadding,

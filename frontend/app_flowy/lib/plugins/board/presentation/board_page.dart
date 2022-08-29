@@ -196,10 +196,8 @@ class _BoardContentState extends State<BoardContent> {
     );
 
     final cellBuilder = BoardCellBuilder(cardController);
-    final isEditing = context.read<BoardBloc>().state.editingRow.fold(
-          () => false,
-          (editingRow) => editingRow.row.id == rowPB.id,
-        );
+
+    final isEditing = context.read<BoardBloc>().state.editingRow.isSome();
 
     return AppFlowyColumnItemCard(
       key: ValueKey(columnItem.id),
@@ -212,9 +210,6 @@ class _BoardContentState extends State<BoardContent> {
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,
-        onEditEditing: (rowId) {
-          context.read<BoardBloc>().add(BoardEvent.endEditRow(rowId));
-        },
         openCard: (context) => _openCard(
           gridId,
           fieldCache,

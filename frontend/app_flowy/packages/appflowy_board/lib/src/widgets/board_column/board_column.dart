@@ -92,7 +92,7 @@ class AFBoardColumnWidget extends StatefulWidget {
 
   final ReorderDragTargetIndexKeyStorage? dragTargetIndexKeyStorage;
 
-  final GlobalKey globalKey;
+  final GlobalObjectKey globalKey;
 
   AFBoardColumnWidget({
     Key? key,
@@ -111,7 +111,7 @@ class AFBoardColumnWidget extends StatefulWidget {
     this.itemMargin = EdgeInsets.zero,
     this.cornerRadius = 0.0,
     this.backgroundColor = Colors.transparent,
-  })  : globalKey = GlobalKey(),
+  })  : globalKey = GlobalObjectKey(dataSource.columnData.id),
         config = const ReorderFlexConfig(),
         super(key: key);
 

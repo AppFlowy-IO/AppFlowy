@@ -131,6 +131,7 @@ class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexIds;
   final CrossReorderFlexDragTargetDelegate delegate;
+
   @override
   final ReorderFlexDraggableTargetBuilder? draggableTargetBuilder;
 
@@ -188,7 +189,7 @@ class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
     );
 
     Log.debug(
-        '[$CrossReorderFlexDragTargetInterceptor] dargTargetIndex: $dragTargetIndex, reorderFlexId: $reorderFlexId');
+        '[$CrossReorderFlexDragTargetInterceptor] isNewDragTarget: $isNewDragTarget, dargTargetIndex: $dragTargetIndex, reorderFlexId: $reorderFlexId');
 
     if (isNewDragTarget == false) {
       delegate.updateDragTargetData(reorderFlexId, dragTargetIndex);

@@ -82,6 +82,8 @@ class ReorderFlex extends StatefulWidget {
 
   final ReorderDragTargetIndexKeyStorage? dragTargetIndexKeyStorage;
 
+  final bool reorderable;
+
   ReorderFlex({
     Key? key,
     this.scrollController,
@@ -89,6 +91,7 @@ class ReorderFlex extends StatefulWidget {
     required this.children,
     required this.config,
     required this.onReorder,
+    this.reorderable = true,
     this.dragStateStorage,
     this.dragTargetIndexKeyStorage,
     this.onDragStarted,
@@ -378,14 +381,13 @@ class ReorderFlexState extends State<ReorderFlex>
               dragState.currentIndex,
             );
           }
-
           dragState.endDragging();
           widget.onDragEnded?.call();
         });
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
         // Do not receive any events if the Insert item is animating.
-        if (_animation.deleteController.isAnimating) {
+        if (_animation.insertController.isAnimating) {
           return false;
         }
 
@@ -421,6 +423,7 @@ class ReorderFlexState extends State<ReorderFlex>
       deleteAnimationController: _animation.deleteController,
       draggableTargetBuilder: widget.interceptor?.draggableTargetBuilder,
       useMoveAnimation: widget.config.useMoveAnimation,
+      draggable: widget.reorderable,
       child: child,
     );
   }
