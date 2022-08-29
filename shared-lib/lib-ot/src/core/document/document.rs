@@ -10,6 +10,12 @@ pub struct DocumentTree {
     pub root: NodeId,
 }
 
+impl Default for DocumentTree {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DocumentTree {
     pub fn new() -> DocumentTree {
         let mut arena = Arena::new();
