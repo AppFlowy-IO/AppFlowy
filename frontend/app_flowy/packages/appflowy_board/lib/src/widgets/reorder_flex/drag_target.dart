@@ -26,6 +26,11 @@ typedef DragTargetWillAccepted<T extends DragTargetData> = bool Function(
 ///
 typedef DragTargetOnStarted = void Function(Widget, int, Size?);
 
+typedef DragTargetOnMove<T extends DragTargetData> = void Function(
+  T dragTargetData,
+  Offset offset,
+);
+
 ///
 typedef DragTargetOnEnded<T extends DragTargetData> = void Function(
     T dragTargetData);
@@ -45,6 +50,8 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   final DragTargetOnStarted onDragStarted;
 
   final DragTargetOnEnded<T> onDragEnded;
+
+  final DragTargetOnMove<T> onDragMoved;
 
   /// Called to determine whether this widget is interested in receiving a given
   /// piece of data being dragged over this drag target.
@@ -75,6 +82,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
     required this.indexGlobalKey,
     required this.dragTargetData,
     required this.onDragStarted,
+    required this.onDragMoved,
     required this.onDragEnded,
     required this.onWillAccept,
     required this.insertAnimationController,
@@ -104,6 +112,9 @@ class _ReorderDragTargetState<T extends DragTargetData>
         return widget.onWillAccept(dragTargetData);
       },
       onAccept: widget.onAccept,
+      onMove: (detail) {
+        widget.onDragMoved(detail.data, detail.offset);
+      },
       onLeave: (dragTargetData) {
         assert(dragTargetData != null);
         if (dragTargetData != null) {

@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:appflowy_board/src/widgets/reorder_flex/drag_state.dart';
 import 'package:flutter/material.dart';
 import '../../rendering/board_overlay.dart';
 import '../../utils/log.dart';
@@ -87,6 +88,10 @@ class AFBoardColumnWidget extends StatefulWidget {
 
   final Color backgroundColor;
 
+  final DraggingStateStorage? dragStateStorage;
+
+  final ReorderDragTargerIndexKeyStorage? dragTargetIndexKeyStorage;
+
   final GlobalKey globalKey;
 
   AFBoardColumnWidget({
@@ -97,6 +102,8 @@ class AFBoardColumnWidget extends StatefulWidget {
     required this.onReorder,
     required this.dataSource,
     required this.phantomController,
+    this.dragStateStorage,
+    this.dragTargetIndexKeyStorage,
     this.scrollController,
     this.onDragStarted,
     this.onDragEnded,
@@ -140,6 +147,8 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
 
         Widget reorderFlex = ReorderFlex(
           key: widget.globalKey,
+          dragStateStorage: widget.dragStateStorage,
+          dragTargetIndexKeyStorage: widget.dragTargetIndexKeyStorage,
           scrollController: widget.scrollController,
           config: widget.config,
           onDragStarted: (index) {

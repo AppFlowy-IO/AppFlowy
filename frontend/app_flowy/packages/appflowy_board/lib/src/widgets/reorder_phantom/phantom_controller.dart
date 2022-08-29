@@ -203,7 +203,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   }
 
   @override
-  int canMoveTo(String dragTargetId) {
+  int getInsertedIndex(String dragTargetId) {
     if (columnsState.isDragging(dragTargetId)) {
       return -1;
     }

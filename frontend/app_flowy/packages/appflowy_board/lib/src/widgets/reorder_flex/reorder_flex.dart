@@ -31,6 +31,11 @@ abstract class ReoderFlexItem {
   String get id;
 }
 
+abstract class ReorderDragTargerIndexKeyStorage {
+  void addKey(String reorderFlexId, String key, GlobalObjectKey value);
+  GlobalObjectKey? readKey(String reorderFlexId, String key);
+}
+
 class ReorderFlexConfig {
   /// The opacity of the dragging widget
   final double draggingWidgetOpacity = 0.3;
@@ -52,7 +57,6 @@ class ReorderFlexConfig {
 
 class ReorderFlex extends StatefulWidget {
   final ReorderFlexConfig config;
-
   final List<Widget> children;
 
   /// [direction] How to place the children, default is Axis.vertical
@@ -74,6 +78,10 @@ class ReorderFlex extends StatefulWidget {
 
   final DragTargetInterceptor? interceptor;
 
+  final DraggingStateStorage? dragStateStorage;
+
+  final ReorderDragTargerIndexKeyStorage? dragTargetIndexKeyStorage;
+
   ReorderFlex({
     Key? key,
     this.scrollController,
@@ -81,6 +89,8 @@ class ReorderFlex extends StatefulWidget {
     required this.children,
     required this.config,
     required this.onReorder,
+    this.dragStateStorage,
+    this.dragTargetIndexKeyStorage,
     this.onDragStarted,
     this.onDragEnded,
     this.interceptor,
@@ -114,13 +124,15 @@ class ReorderFlexState extends State<ReorderFlex>
 
   late ReorderFlexNotifier _notifier;
 
-  late Map<String, GlobalObjectKey> _childKeys;
-
   @override
   void initState() {
     _notifier = ReorderFlexNotifier();
-    dragState = DraggingState(widget.reorderFlexId);
-    _childKeys = {};
+    final flexId = widget.reorderFlexId;
+    dragState = widget.dragStateStorage?.read(flexId) ??
+        DraggingState(widget.reorderFlexId);
+    Log.trace('[DragTarget] init dragState: $dragState');
+
+    widget.dragStateStorage?.remove(flexId);
 
     _animation = DragTargetAnimation(
       reorderAnimationDuration: widget.config.reorderAnimationDuration,
@@ -164,11 +176,17 @@ class ReorderFlexState extends State<ReorderFlex>
 
     for (int i = 0; i < widget.children.length; i += 1) {
       Widget child = widget.children[i];
-      final item = widget.dataSource.items[i];
+      final ReoderFlexItem item = widget.dataSource.items[i];
 
-      final indexGlobalKey = GlobalObjectKey(child.key!);
-      _childKeys[item.id] = indexGlobalKey;
-      children.add(_wrap(child, i, indexGlobalKey));
+      final indexKey = GlobalObjectKey(child.key!);
+      // Save the index key for quick access
+      widget.dragTargetIndexKeyStorage?.addKey(
+        widget.reorderFlexId,
+        item.id,
+        indexKey,
+      );
+
+      children.add(_wrap(child, i, indexKey));
 
       // if (widget.config.useMovePlaceholder) {
       //   children.add(DragTargeMovePlaceholder(
@@ -212,10 +230,10 @@ class ReorderFlexState extends State<ReorderFlex>
 
   /// [child]: the child will be wrapped with dartTarget
   /// [childIndex]: the index of the child in a list
-  Widget _wrap(Widget child, int childIndex, GlobalObjectKey indexGlobalKey) {
+  Widget _wrap(Widget child, int childIndex, GlobalObjectKey indexKey) {
     return Builder(builder: (context) {
       final ReorderDragTarget dragTarget =
-          _buildDragTarget(context, child, childIndex, indexGlobalKey);
+          _buildDragTarget(context, child, childIndex, indexKey);
       int shiftedIndex = childIndex;
 
       if (dragState.isOverlapWithPhantom()) {
@@ -324,24 +342,28 @@ class ReorderFlexState extends State<ReorderFlex>
     BuildContext builderContext,
     Widget child,
     int dragTargetIndex,
-    GlobalObjectKey indexGlobalKey,
+    GlobalObjectKey indexKey,
   ) {
-    final ReoderFlexItem reorderFlexItem =
-        widget.dataSource.items[dragTargetIndex];
+    final reorderFlexItem = widget.dataSource.items[dragTargetIndex];
     return ReorderDragTarget<FlexDragTargetData>(
-      indexGlobalKey: indexGlobalKey,
+      indexGlobalKey: indexKey,
       dragTargetData: FlexDragTargetData(
         draggingIndex: dragTargetIndex,
         reorderFlexId: widget.reorderFlexId,
         reorderFlexItem: reorderFlexItem,
         state: dragState,
         dragTargetId: reorderFlexItem.id,
+        dragTargetIndexKey: indexKey,
       ),
       onDragStarted: (draggingWidget, draggingIndex, size) {
         Log.debug(
             "[DragTarget] Column:[${widget.dataSource.identifier}] start dragging item at $draggingIndex");
         _startDragging(draggingWidget, draggingIndex, size);
         widget.onDragStarted?.call(draggingIndex);
+        widget.dragStateStorage?.remove(widget.reorderFlexId);
+      },
+      onDragMoved: (dragTargetData, offset) {
+        dragTargetData.dragTargetOffset = offset;
       },
       onDragEnded: (dragTargetData) {
         if (!mounted) return;
@@ -445,14 +467,20 @@ class ReorderFlexState extends State<ReorderFlex>
     });
   }
 
+  void resetDragTargetIndex(int dragTargetIndex) {
+    dragState.setStartDragggingIndex(dragTargetIndex);
+    widget.dragStateStorage?.write(
+      widget.reorderFlexId,
+      dragState,
+    );
+  }
+
   bool handleOnWillAccept(BuildContext context, int dragTargetIndex) {
     final dragIndex = dragState.dragStartIndex;
 
     /// The [willAccept] will be true if the dargTarget is the widget that gets
     /// dragged and it is dragged on top of the other dragTargets.
     ///
-    Log.trace(
-        '[$ReorderDragTarget] ${widget.dataSource.identifier} on will accept, dragIndex:$dragIndex, dragTargetIndex:$dragTargetIndex, count: ${widget.dataSource.items.length}');
 
     bool willAccept =
         dragState.dragStartIndex == dragIndex && dragIndex != dragTargetIndex;
@@ -465,6 +493,9 @@ class ReorderFlexState extends State<ReorderFlex>
       }
       _requestAnimationToNextIndex(isAcceptingNewTarget: true);
     });
+
+    Log.trace(
+        '[$ReorderDragTarget] ${widget.reorderFlexId} dragging state: $dragState}');
 
     _scrollTo(context);
 
@@ -537,7 +568,10 @@ class ReorderFlexState extends State<ReorderFlex>
 
     if (widget.dataSource.items.isNotEmpty) {
       final item = widget.dataSource.items.last;
-      final indexKey = _childKeys[item.id];
+      final indexKey = widget.dragTargetIndexKeyStorage?.readKey(
+        widget.reorderFlexId,
+        item.id,
+      );
       if (indexKey == null) {
         completed?.call();
         return;

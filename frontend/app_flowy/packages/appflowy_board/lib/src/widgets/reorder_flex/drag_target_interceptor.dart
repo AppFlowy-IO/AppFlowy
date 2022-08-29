@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:collection';
 
+import 'package:appflowy_board/src/widgets/board.dart';
 import 'package:flutter/material.dart';
-
 import '../../utils/log.dart';
 import 'drag_state.dart';
 import 'drag_target.dart';
@@ -42,7 +41,7 @@ abstract class OverlapDragTargetDelegate {
     int dragTargetIndex,
   );
 
-  int canMoveTo(String dragTargetId);
+  int getInsertedIndex(String dragTargetId);
 }
 
 /// [OverlappingDragTargetInterceptor] is used to receive the overlapping
@@ -56,14 +55,14 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapDragTargetDelegate delegate;
-  final UnmodifiableMapView<String, GlobalKey> columnKeys;
+  final BoardColumnsState columnsState;
   Timer? _delayOperation;
 
   OverlappingDragTargetInterceptor({
     required this.delegate,
     required this.reorderFlexId,
     required this.acceptedReorderFlexId,
-    required this.columnKeys,
+    required this.columnsState,
   });
 
   @override
@@ -81,24 +80,30 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
     if (dragTargetId == dragTargetData.reorderFlexId) {
       delegate.cancel();
     } else {
+      // Ignore the event if the dragTarget overlaps with the other column's dragTargets.
+      final columnKeys = columnsState.columnDragDragTargets[dragTargetId];
+      if (columnKeys != null) {
+        final keys = columnKeys.values.toList();
+        if (dragTargetData.isOverlapWithWidgets(keys)) {
+          _delayOperation?.cancel();
+          return true;
+        }
+      }
+
       /// The priority of the column interactions is high than the cross column.
       /// Workaround: delay 100 milliseconds to lower the cross column event priority.
+      ///
       _delayOperation?.cancel();
       _delayOperation = Timer(const Duration(milliseconds: 100), () {
-        final index = delegate.canMoveTo(dragTargetId);
+        final index = delegate.getInsertedIndex(dragTargetId);
         if (index != -1) {
           Log.trace(
               '[$OverlappingDragTargetInterceptor] move to $dragTargetId at $index');
           delegate.moveTo(dragTargetId, dragTargetData, index);
 
-          // final columnIndex = columnKeys
-          //     .indexWhere((element) => element.columnId == dragTargetId);
-          // if (columnIndex != -1) {
-          //   final state = columnKeys[columnIndex].key.currentState;
-          //   if (state is ReorderFlexState) {
-          //     state.handleOnWillAccept(context, index);
-          //   }
-          // }
+          columnsState
+              .getReorderFlexState(columnId: dragTargetId)
+              ?.resetDragTargetIndex(index);
         }
       });
     }
