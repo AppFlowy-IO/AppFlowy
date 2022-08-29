@@ -1,14 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+class AppFlowyPopoverExclusive {
+  AppFlowyPopoverController? controller;
+}
+
 class AppFlowyPopoverController {
   AppFlowyPopoverState? state;
+  AppFlowyPopoverExclusive? exclusive;
+
+  AppFlowyPopoverController({this.exclusive});
 
   close() {
     state?.close();
+    if (exclusive != null && exclusive!.controller == this) {
+      exclusive!.controller = null;
+    }
   }
 
   show() {
+    if (exclusive != null) {
+      debugPrint("show popover");
+      exclusive!.controller?.close();
+      exclusive!.controller = this;
+    }
     state?.showOverlay();
   }
 }
@@ -110,7 +125,7 @@ class AppFlowyPopoverState extends State<AppFlowyPopover> {
     _overlayEntry?.remove();
     _overlayEntry = null;
     if (hasMask) {
-      debugPrint("len: ${_globalPopovers.length}");
+      debugPrint("popover len: ${_globalPopovers.length}");
     }
     super.dispose();
   }

@@ -7,8 +7,17 @@ class PopoverMenu extends StatefulWidget {
 }
 
 class _PopoverMenuState extends State<PopoverMenu> {
-  final AppFlowyPopoverController popover = AppFlowyPopoverController();
-  final AppFlowyPopoverController hoverPopover = AppFlowyPopoverController();
+  final AppFlowyPopoverExclusive exclusive = AppFlowyPopoverExclusive();
+  late AppFlowyPopoverController firstPopover;
+  late AppFlowyPopoverController secondPopover;
+
+  @override
+  void initState() {
+    firstPopover = AppFlowyPopoverController(exclusive: exclusive);
+    secondPopover = AppFlowyPopoverController(exclusive: exclusive);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,7 +27,7 @@ class _PopoverMenuState extends State<PopoverMenu> {
       child: ListView(children: [
         const Text("App"),
         AppFlowyPopover(
-          controller: popover,
+          controller: firstPopover,
           offset: const Offset(10, 0),
           targetAnchor: Alignment.topRight,
           followerAnchor: Alignment.topLeft,
@@ -27,20 +36,18 @@ class _PopoverMenuState extends State<PopoverMenu> {
           },
           child: TextButton(
             onPressed: () {
-              popover.show();
+              firstPopover.show();
             },
             onHover: (value) {
               if (value) {
-                popover.show();
-              } else {
-                popover.close();
+                firstPopover.show();
               }
             },
             child: const Text("First"),
           ),
         ),
         AppFlowyPopover(
-          controller: hoverPopover,
+          controller: secondPopover,
           offset: const Offset(10, 0),
           targetAnchor: Alignment.topRight,
           followerAnchor: Alignment.topLeft,
@@ -49,13 +56,11 @@ class _PopoverMenuState extends State<PopoverMenu> {
           },
           child: TextButton(
             onPressed: () {
-              hoverPopover.show();
+              secondPopover.show();
             },
             onHover: (value) {
               if (value) {
-                hoverPopover.show();
-              } else {
-                hoverPopover.close();
+                secondPopover.show();
               }
             },
             child: const Text("Second"),
