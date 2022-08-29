@@ -52,12 +52,12 @@ class AppFlowyPopover extends StatefulWidget {
   State<AppFlowyPopover> createState() => AppFlowyPopoverState();
 }
 
-final _globalPopovers = List<AppFlowyPopoverState>.empty(growable: true);
-
 class AppFlowyPopoverState extends State<AppFlowyPopover> {
   final LayerLink layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   bool hasMask = true;
+
+  static AppFlowyPopoverState? _popoverWithMask;
 
   @override
   void initState() {
@@ -67,9 +67,11 @@ class AppFlowyPopoverState extends State<AppFlowyPopover> {
 
   showOverlay() {
     debugPrint("show overlay");
-    _overlayEntry?.remove();
+    close();
 
-    if (_globalPopovers.isNotEmpty) {
+    if (_popoverWithMask == null) {
+      _popoverWithMask = this;
+    } else {
       hasMask = false;
     }
     debugPrint("has mask: $hasMask");
@@ -80,13 +82,14 @@ class AppFlowyPopoverState extends State<AppFlowyPopover> {
       if (hasMask) {
         children.add(_PopoverMask(
           decoration: widget.maskDecoration,
-          onTap: () => _closeAll(),
-          onExit: () => _closeAll(),
+          onTap: () => close(),
+          onExit: () => close(),
         ));
       }
 
       children.add(CompositedTransformFollower(
         link: layerLink,
+        showWhenUnlinked: false,
         offset: widget.offset ?? Offset.zero,
         targetAnchor: widget.targetAnchor,
         followerAnchor: widget.followerAnchor,
@@ -94,40 +97,28 @@ class AppFlowyPopoverState extends State<AppFlowyPopover> {
       ));
 
       return Stack(children: children);
-      // return widget.popupBuilder(context);
     });
 
-    _globalPopovers.add(this);
     _overlayEntry = newEntry;
 
     Overlay.of(context)?.insert(newEntry);
   }
 
-  _closeAll() {
-    final copiedArr = [..._globalPopovers];
-    for (var i = copiedArr.length - 1; i >= 0; i--) {
-      copiedArr[i].close();
-    }
-    _globalPopovers.clear();
-  }
-
   close() {
-    if (_globalPopovers.last == this) {
-      _globalPopovers.removeLast();
+    if (_overlayEntry != null) {
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+      if (_popoverWithMask == this) {
+        _popoverWithMask = null;
+      }
     }
-    _overlayEntry?.remove();
-    _overlayEntry = null;
   }
 
   @override
-  void dispose() {
-    debugPrint("popover dispose");
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-    if (hasMask) {
-      debugPrint("popover len: ${_globalPopovers.length}");
-    }
-    super.dispose();
+  void deactivate() {
+    debugPrint("deactivate");
+    close();
+    super.deactivate();
   }
 
   @override
@@ -168,9 +159,9 @@ class _PopoverMaskState extends State<_PopoverMask> {
   }
 
   @override
-  void dispose() {
+  void deactivate() {
     HardwareKeyboard.instance.removeHandler(_handleGlobalKeyEvent);
-    super.dispose();
+    super.deactivate();
   }
 
   @override
