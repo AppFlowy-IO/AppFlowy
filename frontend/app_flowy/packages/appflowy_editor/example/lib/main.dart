@@ -46,9 +46,12 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: Container(
-        alignment: Alignment.topCenter,
-        child: _buildEditor(context),
+      body: Center(
+        child: Container(
+          width: 780,
+          alignment: Alignment.topCenter,
+          child: _buildEditor(context),
+        ),
       ),
       floatingActionButton: _buildExpandableFab(),
     );

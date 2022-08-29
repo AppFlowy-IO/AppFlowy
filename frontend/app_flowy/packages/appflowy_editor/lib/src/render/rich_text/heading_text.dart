@@ -63,8 +63,8 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
         top: _topPadding,
         bottom: defaultLinePadding,
       ),
-      child: SizedBox(
-        width: defaultMaxTextNodeWidth,
+      child: Container(
+        constraints: BoxConstraints(maxWidth: defaultMaxTextNodeWidth),
         child: FlowyRichText(
           key: _richTextKey,
           placeholderText: 'Heading',

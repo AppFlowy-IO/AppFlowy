@@ -52,8 +52,8 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: defaultMaxTextNodeWidth,
+    return Container(
+      constraints: BoxConstraints(maxWidth: defaultMaxTextNodeWidth),
       child: Padding(
         padding: EdgeInsets.only(bottom: defaultLinePadding),
         child: FlowyRichText(

@@ -238,6 +238,12 @@ void showLinkMenu(
 }
 
 void _dismissLinkMenu() {
+  // workaround: SelectionService has been released after hot reload.
+  final isSelectionDisposed =
+      _editorState?.service.selectionServiceKey.currentState == null;
+  if (isSelectionDisposed) {
+    return;
+  }
   if (_editorState?.service.selectionService.currentSelection.value == null) {
     return;
   }

@@ -86,7 +86,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
                   ..commit();
               },
             ),
-            Expanded(
+            Flexible(
               child: FlowyRichText(
                 key: _richTextKey,
                 placeholderText: 'To-do',

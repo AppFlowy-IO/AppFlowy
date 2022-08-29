@@ -70,7 +70,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
                 padding: EdgeInsets.only(right: _iconRightPadding),
                 number: widget.textNode.attributes.number,
               ),
-              Expanded(
+              Flexible(
                 child: FlowyRichText(
                   key: _richTextKey,
                   placeholderText: 'List',

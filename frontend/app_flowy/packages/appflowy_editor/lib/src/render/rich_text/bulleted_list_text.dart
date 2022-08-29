@@ -56,8 +56,8 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: defaultMaxTextNodeWidth,
+    return Container(
+      constraints: BoxConstraints(maxWidth: defaultMaxTextNodeWidth),
       child: Padding(
         padding: EdgeInsets.only(bottom: defaultLinePadding),
         child: Row(
@@ -70,14 +70,14 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
               padding: EdgeInsets.only(right: _iconRightPadding),
               name: 'point',
             ),
-            Expanded(
+            Flexible(
               child: FlowyRichText(
                 key: _richTextKey,
                 placeholderText: 'List',
                 textNode: widget.textNode,
                 editorState: widget.editorState,
               ),
-            ),
+            )
           ],
         ),
       ),

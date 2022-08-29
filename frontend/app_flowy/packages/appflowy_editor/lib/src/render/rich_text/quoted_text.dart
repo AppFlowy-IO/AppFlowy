@@ -69,7 +69,7 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
                 padding: EdgeInsets.only(right: _iconRightPadding),
                 name: 'quote',
               ),
-              Expanded(
+              Flexible(
                 child: FlowyRichText(
                   key: _richTextKey,
                   placeholderText: 'Quote',
