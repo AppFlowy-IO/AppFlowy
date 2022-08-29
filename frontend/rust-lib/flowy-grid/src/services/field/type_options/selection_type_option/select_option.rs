@@ -158,6 +158,12 @@ pub fn select_option_color_from_index(index: usize) -> SelectOptionColorPB {
 #[derive(Default)]
 pub struct SelectOptionIds(Vec<String>);
 
+impl Default for SelectOptionIds {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SelectOptionIds {
     pub fn new() -> Self {
         Self::default()
