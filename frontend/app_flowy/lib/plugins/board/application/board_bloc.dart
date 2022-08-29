@@ -230,7 +230,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
 
 @freezed
 class BoardEvent with _$BoardEvent {
-  const factory BoardEvent.initial() = InitialBrid;
+  const factory BoardEvent.initial() = _InitialBoard;
   const factory BoardEvent.createRow(String groupId) = _CreateRow;
   const factory BoardEvent.didCreateRow(String groupId, RowPB row) =
       _DidCreateRow;

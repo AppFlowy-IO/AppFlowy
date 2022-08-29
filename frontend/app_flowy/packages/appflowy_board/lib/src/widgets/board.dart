@@ -329,7 +329,7 @@ class BoardColumnContext {
 }
 
 class BoardColumnsState extends DraggingStateStorage
-    with ReorderDragTargerIndexKeyStorage {
+    with ReorderDragTargetIndexKeyStorage {
   /// Quick access to the [AFBoardColumnWidget]
   final Map<String, GlobalKey> columnKeys = {};
   final Map<String, DraggingState> columnDragStates = {};

@@ -90,7 +90,7 @@ class AFBoardColumnWidget extends StatefulWidget {
 
   final DraggingStateStorage? dragStateStorage;
 
-  final ReorderDragTargerIndexKeyStorage? dragTargetIndexKeyStorage;
+  final ReorderDragTargetIndexKeyStorage? dragTargetIndexKeyStorage;
 
   final GlobalKey globalKey;
 

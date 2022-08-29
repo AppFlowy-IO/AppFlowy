@@ -31,7 +31,7 @@ abstract class ReoderFlexItem {
   String get id;
 }
 
-abstract class ReorderDragTargerIndexKeyStorage {
+abstract class ReorderDragTargetIndexKeyStorage {
   void addKey(String reorderFlexId, String key, GlobalObjectKey value);
   GlobalObjectKey? readKey(String reorderFlexId, String key);
 }
@@ -80,7 +80,7 @@ class ReorderFlex extends StatefulWidget {
 
   final DraggingStateStorage? dragStateStorage;
 
-  final ReorderDragTargerIndexKeyStorage? dragTargetIndexKeyStorage;
+  final ReorderDragTargetIndexKeyStorage? dragTargetIndexKeyStorage;
 
   ReorderFlex({
     Key? key,
@@ -468,7 +468,7 @@ class ReorderFlexState extends State<ReorderFlex>
   }
 
   void resetDragTargetIndex(int dragTargetIndex) {
-    dragState.setStartDragggingIndex(dragTargetIndex);
+    dragState.setStartDraggingIndex(dragTargetIndex);
     widget.dragStateStorage?.write(
       widget.reorderFlexId,
       dragState,

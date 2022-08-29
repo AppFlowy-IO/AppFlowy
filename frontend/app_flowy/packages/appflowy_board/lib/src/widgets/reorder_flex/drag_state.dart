@@ -186,7 +186,7 @@ class DraggingState {
     nextIndex = index;
   }
 
-  void setStartDragggingIndex(int index) {
+  void setStartDraggingIndex(int index) {
     Log.debug('$reorderFlexId setDragIndex: $index');
     dragStartIndex = index;
     phantomIndex = index;

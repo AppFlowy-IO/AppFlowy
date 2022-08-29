@@ -1,7 +1,6 @@
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
-import 'package:protobuf/protobuf.dart';
 import 'group_listener.dart';
 
 typedef OnGroupError = void Function(FlowyError);
