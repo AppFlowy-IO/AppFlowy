@@ -1,3 +1,5 @@
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_editor.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:flowy_infra/image.dart';
@@ -9,6 +11,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import '../../layout/sizes.dart';
@@ -16,9 +19,7 @@ import '../../layout/sizes.dart';
 class GridFieldCellActionSheet extends StatelessWidget
     with FlowyOverlayDelegate {
   final GridFieldCellContext cellContext;
-  final VoidCallback onEdited;
-  const GridFieldCellActionSheet(
-      {required this.cellContext, required this.onEdited, Key? key})
+  const GridFieldCellActionSheet({required this.cellContext, Key? key})
       : super(key: key);
 
   @override
@@ -29,10 +30,7 @@ class GridFieldCellActionSheet extends StatelessWidget
         child: Column(
           children: [
             _EditFieldButton(
-              onEdited: () {
-                FlowyOverlay.of(context).remove(identifier());
-                onEdited();
-              },
+              cellContext: cellContext,
             ),
             const VSpace(6),
             _FieldOperationList(cellContext,
@@ -53,9 +51,17 @@ class GridFieldCellActionSheet extends StatelessWidget
   }
 }
 
-class _EditFieldButton extends StatelessWidget {
-  final Function() onEdited;
-  const _EditFieldButton({required this.onEdited, Key? key}) : super(key: key);
+class _EditFieldButton extends StatefulWidget {
+  final GridFieldCellContext cellContext;
+  const _EditFieldButton({required this.cellContext, Key? key})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _EditFieldButtonState();
+}
+
+class _EditFieldButtonState extends State<_EditFieldButton> {
+  final popover = AppFlowyPopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +70,33 @@ class _EditFieldButton extends StatelessWidget {
       builder: (context, state) {
         return SizedBox(
           height: GridSize.typeOptionItemHeight,
-          child: FlowyButton(
-            text: FlowyText.medium(LocaleKeys.grid_field_editProperty.tr(),
-                fontSize: 12),
-            hoverColor: theme.hover,
-            onTap: onEdited,
+          child: AppFlowyPopover(
+            controller: popover,
+            targetAnchor: Alignment.topRight,
+            followerAnchor: Alignment.topLeft,
+            offset: const Offset(20, 0),
+            popupBuilder: (context) {
+              final field = widget.cellContext.field;
+              return OverlayContainer(
+                constraints: BoxConstraints.loose(const Size(240, 200)),
+                child: FieldEditor(
+                  gridId: widget.cellContext.gridId,
+                  fieldName: field.name,
+                  typeOptionLoader: FieldTypeOptionLoader(
+                    gridId: widget.cellContext.gridId,
+                    field: field,
+                  ),
+                ),
+              );
+            },
+            child: FlowyButton(
+              text: FlowyText.medium(
+                LocaleKeys.grid_field_editProperty.tr(),
+                fontSize: 12,
+              ),
+              hoverColor: theme.hover,
+              onTap: () => popover.show(),
+            ),
           ),
         );
       },
@@ -198,22 +226,5 @@ extension _FieldActionExtension on FieldAction {
             .add(const FieldActionSheetEvent.deleteField());
         break;
     }
-  }
-}
-
-class GridFieldCellActionSheetPopover {
-  static show(
-    BuildContext context, {
-    required GridFieldCellContext cellContext,
-    required VoidCallback onEdited,
-  }) {
-    FlowyPopover.show(context,
-        anchorContext: context,
-        anchorDirection: AnchorDirection.bottomWithLeftAligned,
-        constraints: BoxConstraints.loose(const Size(240, 200)),
-        builder: (BuildContext context) {
-      return GridFieldCellActionSheet(
-          cellContext: cellContext, onEdited: onEdited);
-    });
   }
 }

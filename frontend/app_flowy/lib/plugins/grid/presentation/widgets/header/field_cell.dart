@@ -1,8 +1,10 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -15,21 +17,42 @@ import 'field_type_extension.dart';
 import 'field_cell_action_sheet.dart';
 import 'field_editor.dart';
 
-class GridFieldCell extends StatelessWidget {
+class GridFieldCell extends StatefulWidget {
   final GridFieldCellContext cellContext;
   const GridFieldCell(this.cellContext, {Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  State<StatefulWidget> createState() => _GridFieldCellState();
+}
+
+class _GridFieldCellState extends State<GridFieldCell> {
+  final popover = AppFlowyPopoverController();
+
+  @override
+  Widget build(BuildContext gridCellContext) {
     return BlocProvider(
-      create: (context) => FieldCellBloc(cellContext: cellContext)
+      create: (context) => FieldCellBloc(cellContext: widget.cellContext)
         ..add(const FieldCellEvent.initial()),
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         // buildWhen: (p, c) => p.field != c.field,
         builder: (context, state) {
-          final button = FieldCellButton(
-            field: state.field,
-            onTap: () => _showActionSheet(context),
+          final button = AppFlowyPopover(
+            controller: popover,
+            child: FieldCellButton(
+              field: state.field,
+              onTap: () => popover.show(),
+            ),
+            targetAnchor: Alignment.bottomLeft,
+            followerAnchor: Alignment.topLeft,
+            offset: const Offset(0, 10),
+            popupBuilder: (BuildContext context) {
+              return OverlayContainer(
+                constraints: BoxConstraints.loose(const Size(240, 200)),
+                child: GridFieldCellActionSheet(
+                  cellContext: widget.cellContext,
+                ),
+              );
+            },
           );
 
           const line = Positioned(
@@ -48,32 +71,6 @@ class GridFieldCell extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-
-  void _showActionSheet(BuildContext context) {
-    final state = context.read<FieldCellBloc>().state;
-    GridFieldCellActionSheetPopover.show(
-      context,
-      cellContext:
-          GridFieldCellContext(gridId: state.gridId, field: state.field),
-      onEdited: () => _showFieldEditor(context),
-    );
-  }
-
-  void _showFieldEditor(BuildContext context) {
-    final state = context.read<FieldCellBloc>().state;
-    final field = state.field;
-
-    FieldEditorPopOver.show(
-      context,
-      anchorContext: context,
-      gridId: state.gridId,
-      fieldName: field.name,
-      typeOptionLoader: FieldTypeOptionLoader(
-        gridId: state.gridId,
-        field: field,
       ),
     );
   }
