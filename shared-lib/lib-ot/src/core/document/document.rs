@@ -164,7 +164,7 @@ impl DocumentTree {
         let node_data = self.arena.get_mut(update_node).unwrap();
         let new_node = {
             let old_attributes = &node_data.get().attributes;
-            let new_attributes = NodeAttributes::compose(&old_attributes, attributes);
+            let new_attributes = NodeAttributes::compose(old_attributes, attributes);
             NodeData {
                 attributes: new_attributes,
                 ..node_data.get().clone()
