@@ -63,7 +63,7 @@ impl<'a> TransactionBuilder<'a> {
         let mut deleted_nodes: Vec<Box<NodeSubTree>> = Vec::new();
 
         for _ in 0..length {
-            deleted_nodes.push(self.get_deleted_nodes(node.clone()));
+            deleted_nodes.push(self.get_deleted_nodes(node));
             node = node.following_siblings(&self.document.arena).next().unwrap();
         }
 
