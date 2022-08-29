@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
@@ -132,7 +133,7 @@ List<ToolbarItem> defaultToolbarItems = [
     tooltipsMessage: 'Link',
     icon: const FlowySvg(name: 'toolbar/link'),
     validator: _onlyShowInSingleTextSelection,
-    handler: (editorState, context) => _showLinkMenu(editorState, context),
+    handler: (editorState, context) => showLinkMenu(context, editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.highlight',
@@ -157,7 +158,12 @@ ToolbarShowValidator _showInTextSelection = (editorState) {
 
 OverlayEntry? _linkMenuOverlay;
 EditorState? _editorState;
-void _showLinkMenu(EditorState editorState, BuildContext context) {
+bool _changeSelectionInner = false;
+void showLinkMenu(
+  BuildContext context,
+  EditorState editorState, {
+  Selection? customSelection,
+}) {
   final rects = editorState.service.selectionService.selectionRects;
   var maxBottom = 0.0;
   late Rect matchRect;
@@ -173,16 +179,19 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
 
   // Since the link menu will only show in single text selection,
   // We get the text node directly instead of judging details again.
-  final selection =
-      editorState.service.selectionService.currentSelection.value!;
+  final selection = customSelection ??
+      editorState.service.selectionService.currentSelection.value;
+  final node = editorState.service.selectionService.currentSelectedNodes;
+  if (selection == null || node.isEmpty || node.first is! TextNode) {
+    return;
+  }
   final index =
       selection.isBackward ? selection.start.offset : selection.end.offset;
   final length = (selection.start.offset - selection.end.offset).abs();
-  final node = editorState.service.selectionService.currentSelectedNodes.first
-      as TextNode;
+  final textNode = node.first as TextNode;
   String? linkText;
-  if (node.allSatisfyLinkInSelection(selection)) {
-    linkText = node.getAttributeInSelection(selection, StyleKey.href);
+  if (textNode.allSatisfyLinkInSelection(selection)) {
+    linkText = textNode.getAttributeInSelection(selection, StyleKey.href);
   }
   _linkMenuOverlay = OverlayEntry(builder: (context) {
     return Positioned(
@@ -191,9 +200,12 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
       child: Material(
         child: LinkMenu(
           linkText: linkText,
+          onOpenLink: () async {
+            await safeLaunchUrl(linkText);
+          },
           onSubmitted: (text) {
             TransactionBuilder(editorState)
-              ..formatText(node, index, length, {StyleKey.href: text})
+              ..formatText(textNode, index, length, {StyleKey.href: text})
               ..commit();
             _dismissLinkMenu();
           },
@@ -203,9 +215,16 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
           },
           onRemoveLink: () {
             TransactionBuilder(editorState)
-              ..formatText(node, index, length, {StyleKey.href: null})
+              ..formatText(textNode, index, length, {StyleKey.href: null})
               ..commit();
             _dismissLinkMenu();
+          },
+          onFocusChange: (value) {
+            if (value && customSelection != null) {
+              _changeSelectionInner = true;
+              editorState.service.selectionService
+                  .updateSelection(customSelection);
+            }
           },
         ),
       ),
@@ -214,12 +233,24 @@ void _showLinkMenu(EditorState editorState, BuildContext context) {
   Overlay.of(context)?.insert(_linkMenuOverlay!);
 
   editorState.service.scrollService?.disable();
-  editorState.service.keyboardService?.disable();
   editorState.service.selectionService.currentSelection
       .addListener(_dismissLinkMenu);
 }
 
 void _dismissLinkMenu() {
+  // workaround: SelectionService has been released after hot reload.
+  final isSelectionDisposed =
+      _editorState?.service.selectionServiceKey.currentState == null;
+  if (isSelectionDisposed) {
+    return;
+  }
+  if (_editorState?.service.selectionService.currentSelection.value == null) {
+    return;
+  }
+  if (_changeSelectionInner) {
+    _changeSelectionInner = false;
+    return;
+  }
   _linkMenuOverlay?.remove();
   _linkMenuOverlay = null;
 

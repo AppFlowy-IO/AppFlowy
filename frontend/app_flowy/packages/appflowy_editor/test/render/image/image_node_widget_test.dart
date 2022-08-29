@@ -1,3 +1,6 @@
+import 'dart:collection';
+
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/image/image_node_widget.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +23,14 @@ void main() async {
 
         final widget = ImageNodeWidget(
           src: src,
+          node: Node(
+            type: 'image',
+            children: LinkedList(),
+            attributes: {
+              'image_src': src,
+              'align': 'center',
+            },
+          ),
           alignment: Alignment.center,
           onCopy: () {
             onCopyHit = true;

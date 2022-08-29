@@ -12,8 +12,10 @@ void main() async {
       const link = 'appflowy.io';
       var submittedText = '';
       final linkMenu = LinkMenu(
+        onOpenLink: () {},
         onCopyLink: () {},
         onRemoveLink: () {},
+        onFocusChange: (value) {},
         onSubmitted: (text) {
           submittedText = text;
         },

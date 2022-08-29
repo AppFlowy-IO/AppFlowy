@@ -57,6 +57,9 @@ abstract class AppFlowySelectionService {
   /// Clears the selection area, cursor area and the popup list area.
   void clearSelection();
 
+  /// Clears the cursor area.
+  void clearCursor();
+
   /// Returns the [Node]s in [Selection].
   List<Node> getNodesInSelection(Selection selection);
 
@@ -205,16 +208,23 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     currentSelectedNodes = [];
     currentSelection.value = null;
 
+    clearCursor();
     // clear selection areas
     _selectionAreas
       ..forEach((overlay) => overlay.remove())
       ..clear();
     // clear cursor areas
+
+    // hide toolbar
+    editorState.service.toolbarService?.hide();
+  }
+
+  @override
+  void clearCursor() {
+    // clear cursor areas
     _cursorAreas
       ..forEach((overlay) => overlay.remove())
       ..clear();
-    // hide toolbar
-    editorState.service.toolbarService?.hide();
   }
 
   @override

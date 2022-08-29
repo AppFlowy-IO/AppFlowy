@@ -62,10 +62,17 @@ class StateTree {
       }
       return false;
     }
-    for (var i = 0; i < nodes.length; i++) {
-      final node = nodes[i];
-      insertedNode!.insertAfter(node);
-      insertedNode = node;
+    if (path.last <= 0) {
+      for (var i = 0; i < nodes.length; i++) {
+        final node = nodes[i];
+        insertedNode.insertBefore(node);
+      }
+    } else {
+      for (var i = 0; i < nodes.length; i++) {
+        final node = nodes[i];
+        insertedNode!.insertAfter(node);
+        insertedNode = node;
+      }
     }
     return true;
   }

@@ -17,6 +17,7 @@ class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
     }
     return ImageNodeWidget(
       key: context.node.key,
+      node: context.node,
       src: src,
       width: width,
       alignment: _textToAlignment(align),

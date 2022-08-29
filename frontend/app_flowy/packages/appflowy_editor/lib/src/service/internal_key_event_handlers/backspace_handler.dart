@@ -11,10 +11,16 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   var nodes = editorState.service.selectionService.currentSelectedNodes;
   nodes = selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
   selection = selection.isBackward ? selection : selection.reversed;
-  // make sure all nodes is [TextNode].
   final textNodes = nodes.whereType<TextNode>().toList();
+  final nonTextNodes =
+      nodes.where((node) => node is! TextNode).toList(growable: false);
 
   final transactionBuilder = TransactionBuilder(editorState);
+
+  if (nonTextNodes.isNotEmpty) {
+    transactionBuilder.deleteNodes(nonTextNodes);
+  }
+
   if (textNodes.length == 1) {
     final textNode = textNodes.first;
     final index = textNode.delta.prevRunePosition(selection.start.offset);
@@ -68,10 +74,15 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       }
     }
   } else {
-    _deleteNodes(transactionBuilder, textNodes, selection);
+    if (textNodes.isNotEmpty) {
+      _deleteTextNodes(transactionBuilder, textNodes, selection);
+    }
   }
 
   if (transactionBuilder.operations.isNotEmpty) {
+    if (nonTextNodes.isNotEmpty) {
+      transactionBuilder.afterSelection = Selection.collapsed(selection.start);
+    }
     transactionBuilder.commit();
   }
 
@@ -121,7 +132,7 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
       }
     }
   } else {
-    _deleteNodes(transactionBuilder, textNodes, selection);
+    _deleteTextNodes(transactionBuilder, textNodes, selection);
   }
 
   transactionBuilder.commit();
@@ -129,7 +140,7 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
   return KeyEventResult.handled;
 }
 
-void _deleteNodes(TransactionBuilder transactionBuilder,
+void _deleteTextNodes(TransactionBuilder transactionBuilder,
     List<TextNode> textNodes, Selection selection) {
   final first = textNodes.first;
   final last = textNodes.last;

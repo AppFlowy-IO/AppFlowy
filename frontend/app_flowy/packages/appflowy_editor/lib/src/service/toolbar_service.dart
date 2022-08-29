@@ -90,7 +90,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
         .where((item) => item.validator(widget.editorState))
         .toList(growable: false)
       ..sort((a, b) => a.type.compareTo(b.type));
-    if (items.isEmpty) {
+    if (filterItems.isEmpty) {
       return [];
     }
     final List<ToolbarItem> dividedItems = [filterItems.first];
