@@ -10,8 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'card_cell_builder.dart';
 import 'card_container.dart';
 
-typedef OnEndEditing = void Function(String rowId);
-
 class BoardCard extends StatefulWidget {
   final String gridId;
   final String groupId;
@@ -19,7 +17,6 @@ class BoardCard extends StatefulWidget {
   final bool isEditing;
   final CardDataController dataController;
   final BoardCellBuilder cellBuilder;
-  final OnEndEditing onEditEditing;
   final void Function(BuildContext) openCard;
 
   const BoardCard({
@@ -29,7 +26,6 @@ class BoardCard extends StatefulWidget {
     required this.isEditing,
     required this.dataController,
     required this.cellBuilder,
-    required this.onEditEditing,
     required this.openCard,
     Key? key,
   }) : super(key: key);
@@ -87,18 +83,27 @@ class _BoardCardState extends State<BoardCard> {
     final List<Widget> children = [];
     cells.asMap().forEach(
       (int index, GridCellIdentifier cellId) {
-        final child = widget.cellBuilder.buildCell(widget.groupId, cellId);
+        Widget child = widget.cellBuilder.buildCell(
+          widget.groupId,
+          cellId,
+          widget.isEditing,
+        );
+
         if (index != 0) {
-          children.add(Padding(
+          child = Padding(
+            key: cellId.key(),
             padding: const EdgeInsets.only(left: 4, right: 4, top: 8),
             child: child,
-          ));
+          );
         } else {
-          children.add(Padding(
+          child = Padding(
+            key: UniqueKey(),
             padding: const EdgeInsets.only(left: 4, right: 4),
             child: child,
-          ));
+          );
         }
+
+        children.add(child);
       },
     );
     return children;

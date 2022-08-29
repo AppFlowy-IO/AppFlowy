@@ -381,7 +381,6 @@ class ReorderFlexState extends State<ReorderFlex>
               dragState.currentIndex,
             );
           }
-
           dragState.endDragging();
           widget.onDragEnded?.call();
         });

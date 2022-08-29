@@ -2,7 +2,6 @@ import 'package:appflowy_board/appflowy_board.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../utils/log.dart';
-import '../board_column/board_column_data.dart';
 import '../reorder_flex/drag_state.dart';
 import '../reorder_flex/drag_target.dart';
 import '../reorder_flex/drag_target_interceptor.dart';

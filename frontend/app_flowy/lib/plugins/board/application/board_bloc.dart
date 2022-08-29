@@ -142,7 +142,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     for (final group in groups) {
       final delegate = GroupControllerDelegateImpl(
         controller: boardController,
-        didAddColumnItem: (groupId, row) {
+        onNewColumnItem: (groupId, row) {
           add(BoardEvent.didCreateRow(groupId, row));
         },
       );
@@ -313,11 +313,11 @@ class BoardColumnItem extends AFColumnItem {
 
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
   final AFBoardDataController controller;
-  final void Function(String, RowPB) didAddColumnItem;
+  final void Function(String, RowPB) onNewColumnItem;
 
   GroupControllerDelegateImpl({
     required this.controller,
-    required this.didAddColumnItem,
+    required this.onNewColumnItem,
   });
 
   @override
@@ -329,10 +329,8 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
       final item = BoardColumnItem(
         row: row,
         fieldId: group.fieldId,
-        requestFocus: true,
       );
       controller.addColumnItem(group.groupId, item);
-      didAddColumnItem(group.groupId, row);
     }
   }
 
@@ -350,6 +348,17 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
         fieldId: group.fieldId,
       ),
     );
+  }
+
+  @override
+  void addNewRow(GroupPB group, RowPB row) {
+    final item = BoardColumnItem(
+      row: row,
+      fieldId: group.fieldId,
+      requestFocus: true,
+    );
+    controller.addColumnItem(group.groupId, item);
+    onNewColumnItem(group.groupId, row);
   }
 }
 

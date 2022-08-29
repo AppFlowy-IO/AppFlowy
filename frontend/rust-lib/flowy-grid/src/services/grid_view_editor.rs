@@ -98,6 +98,7 @@ impl GridViewRevisionEditor {
                 let inserted_row = InsertedRowPB {
                     row: row_pb.clone(),
                     index: None,
+                    is_new: true,
                 };
                 let changeset = GroupChangesetPB::insert(group_id.clone(), vec![inserted_row]);
                 self.notify_did_update_group(changeset).await;

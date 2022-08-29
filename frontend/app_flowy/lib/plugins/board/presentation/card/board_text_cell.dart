@@ -1,16 +1,19 @@
 import 'package:app_flowy/plugins/board/application/card/board_text_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
-import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BoardTextCell extends StatefulWidget {
   final String groupId;
+  final bool isFocus;
+
   final GridCellControllerBuilder cellControllerBuilder;
+
   const BoardTextCell({
     required this.groupId,
     required this.cellControllerBuilder,
+    this.isFocus = false,
     Key? key,
   }) : super(key: key);
 
@@ -30,6 +33,10 @@ class _BoardTextCellState extends State<BoardTextCell> {
     _cellBloc = BoardTextCellBloc(cellController: cellController)
       ..add(const BoardTextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
+
+    if (widget.isFocus) {
+      focusNode.requestFocus();
+    }
     super.initState();
   }
 
