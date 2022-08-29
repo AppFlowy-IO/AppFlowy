@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
-class PopoverMenu extends StatelessWidget {
+class PopoverMenu extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _PopoverMenuState();
+}
+
+class _PopoverMenuState extends State<PopoverMenu> {
   final AppFlowyPopoverController popover = AppFlowyPopoverController();
+  final AppFlowyPopoverController hoverPopover = AppFlowyPopoverController();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -22,6 +28,35 @@ class PopoverMenu extends StatelessWidget {
           child: TextButton(
             onPressed: () {
               popover.show();
+            },
+            onHover: (value) {
+              if (value) {
+                popover.show();
+              } else {
+                popover.close();
+              }
+            },
+            child: const Text("First"),
+          ),
+        ),
+        AppFlowyPopover(
+          controller: hoverPopover,
+          offset: const Offset(10, 0),
+          targetAnchor: Alignment.topRight,
+          followerAnchor: Alignment.topLeft,
+          popupBuilder: (BuildContext context) {
+            return PopoverMenu();
+          },
+          child: TextButton(
+            onPressed: () {
+              hoverPopover.show();
+            },
+            onHover: (value) {
+              if (value) {
+                hoverPopover.show();
+              } else {
+                hoverPopover.close();
+              }
             },
             child: const Text("Second"),
           ),
