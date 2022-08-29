@@ -25,7 +25,7 @@ impl DocumentTree {
         let mut iterate_node = self.root;
 
         for id in &position.0 {
-            let child = self.child_at_index_of_path(iterate_node, id.clone());
+            let child = self.child_at_index_of_path(iterate_node, *id);
             iterate_node = match child {
                 Some(node) => node,
                 None => return None,
