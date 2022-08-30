@@ -2,6 +2,7 @@
 
 import 'dart:collection';
 
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
@@ -9,6 +10,7 @@ import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart'
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_detail.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -169,7 +171,7 @@ class _BoardContentState extends State<BoardContent> {
           ),
         ),
         title: FlowyText.medium(
-          "New",
+          LocaleKeys.board_column_create_new_card.tr(),
           fontSize: 14,
           color: context.read<AppTheme>().textColor,
         ),

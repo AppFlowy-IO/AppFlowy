@@ -221,5 +221,10 @@
       "timeHintTextInTwelveHour": "12:00 AM",
       "timeHintTextInTwentyFourHour": "12:00"
     }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "New"
+    }
   }
 }
