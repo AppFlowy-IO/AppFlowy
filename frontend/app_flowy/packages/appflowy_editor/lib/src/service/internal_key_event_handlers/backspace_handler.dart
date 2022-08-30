@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,7 +30,8 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       if (textNode.subtype != null) {
         transactionBuilder
           ..updateNode(textNode, {
-            'subtype': null,
+            StyleKey.subtype: null,
+            textNode.subtype!: null,
           })
           ..afterSelection = Selection.collapsed(
             Position(

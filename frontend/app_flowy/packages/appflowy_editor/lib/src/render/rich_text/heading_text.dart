@@ -38,7 +38,6 @@ class HeadingTextNodeWidget extends StatefulWidget {
 }
 
 // customize
-
 class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
     with Selectable, DefaultSelectable {
   @override

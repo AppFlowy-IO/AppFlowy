@@ -79,7 +79,10 @@ Map<String, double> headingToFontSize = {
 
 extension NodeAttributesExtensions on Attributes {
   String? get heading {
-    if (containsKey(StyleKey.heading) && this[StyleKey.heading] is String) {
+    if (containsKey(StyleKey.subtype) &&
+        containsKey(StyleKey.heading) &&
+        this[StyleKey.subtype] == StyleKey.heading &&
+        this[StyleKey.heading] is String) {
       return this[StyleKey.heading];
     }
     return null;

@@ -234,6 +234,38 @@ void main() async {
       (tester) async {
     await _deleteLastImage(tester, false);
   });
+
+  testWidgets('Removes the style of heading text and revert', (tester) async {
+    const text = 'Welcome to Appflowy 😁';
+    final editor = tester.editor..insertTextNode(text);
+    await editor.startTesting();
+
+    await editor.updateSelection(
+      Selection.single(path: [0], startOffset: 0),
+    );
+
+    final textNode = editor.nodeAtPath([0]) as TextNode;
+
+    await editor.insertText(textNode, '#', 0);
+    await editor.pressLogicKey(LogicalKeyboardKey.space);
+    expect(
+      (editor.nodeAtPath([0]) as TextNode).attributes.heading,
+      StyleKey.h1,
+    );
+
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(
+      textNode.attributes.heading,
+      null,
+    );
+
+    await editor.insertText(textNode, '#', 0);
+    await editor.pressLogicKey(LogicalKeyboardKey.space);
+    expect(
+      (editor.nodeAtPath([0]) as TextNode).attributes.heading,
+      StyleKey.h1,
+    );
+  });
 }
 
 Future<void> _deleteFirstImage(WidgetTester tester, bool isBackward) async {
