@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -10,7 +11,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'field_name_input.dart';
 import 'field_type_option_editor.dart';
 
-class FieldEditor extends StatelessWidget {
+class FieldEditor extends StatefulWidget {
   final String gridId;
   final String fieldName;
 
@@ -23,12 +24,28 @@ class FieldEditor extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  bool asBarrier() => true;
+
+  @override
+  State<StatefulWidget> createState() => _FieldEditorState();
+}
+
+class _FieldEditorState extends State<FieldEditor> {
+  late PopoverMutex popoverMutex;
+
+  @override
+  void initState() {
+    popoverMutex = PopoverMutex();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => FieldEditorBloc(
-        gridId: gridId,
-        fieldName: fieldName,
-        loader: typeOptionLoader,
+        gridId: widget.gridId,
+        fieldName: widget.fieldName,
+        loader: widget.typeOptionLoader,
       )..add(const FieldEditorEvent.initial()),
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
         buildWhen: (p, c) => false,
@@ -41,20 +58,22 @@ class FieldEditor extends StatelessWidget {
               const VSpace(10),
               const _FieldNameCell(),
               const VSpace(10),
-              const _FieldTypeOptionCell(),
+              _FieldTypeOptionCell(popoverMutex: popoverMutex),
             ],
           );
         },
       ),
     );
   }
-
-  @override
-  bool asBarrier() => true;
 }
 
 class _FieldTypeOptionCell extends StatelessWidget {
-  const _FieldTypeOptionCell({Key? key}) : super(key: key);
+  final PopoverMutex popoverMutex;
+
+  const _FieldTypeOptionCell({
+    Key? key,
+    required this.popoverMutex,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +85,10 @@ class _FieldTypeOptionCell extends StatelessWidget {
           (fieldContext) {
             final dataController =
                 context.read<FieldEditorBloc>().dataController;
-            return FieldTypeOptionEditor(dataController: dataController);
+            return FieldTypeOptionEditor(
+              dataController: dataController,
+              popoverMutex: popoverMutex,
+            );
           },
         );
       },

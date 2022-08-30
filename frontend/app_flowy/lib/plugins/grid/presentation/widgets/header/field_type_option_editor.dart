@@ -26,9 +26,11 @@ typedef SwitchToFieldCallback
 
 class FieldTypeOptionEditor extends StatefulWidget {
   final TypeOptionDataController dataController;
+  final PopoverMutex popoverMutex;
 
   const FieldTypeOptionEditor({
     required this.dataController,
+    required this.popoverMutex,
     Key? key,
   }) : super(key: key);
 
@@ -37,8 +39,14 @@ class FieldTypeOptionEditor extends StatefulWidget {
 }
 
 class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
-  final popover = PopoverController();
+  late PopoverController popover;
   String? currentOverlayIdentifier;
+
+  @override
+  void initState() {
+    popover = PopoverController(mutex: widget.popoverMutex);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +122,7 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
       context: context,
       overlayDelegate: overlayDelegate,
       dataController: widget.dataController,
+      popoverMutex: widget.popoverMutex,
     );
   }
 
@@ -138,6 +147,6 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
   }
 }
 
-abstract class TypeOptionWidget extends StatelessWidget {
+abstract class TypeOptionWidget extends StatefulWidget {
   const TypeOptionWidget({Key? key}) : super(key: key);
 }

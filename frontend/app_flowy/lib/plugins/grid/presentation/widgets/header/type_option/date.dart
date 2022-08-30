@@ -11,6 +11,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy_popover/popover.dart';
 import '../../../layout/sizes.dart';
 import '../field_type_option_editor.dart';
 import 'builder.dart';
@@ -20,10 +21,10 @@ class DateTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
   DateTypeOptionWidgetBuilder(
     DateTypeOptionContext typeOptionContext,
-    TypeOptionOverlayDelegate overlayDelegate,
+    PopoverMutex popoverMutex,
   ) : _widget = DateTypeOptionWidget(
           typeOptionContext: typeOptionContext,
-          overlayDelegate: overlayDelegate,
+          popoverMutex: popoverMutex,
         );
 
   @override
@@ -34,22 +35,36 @@ class DateTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
 class DateTypeOptionWidget extends TypeOptionWidget {
   final DateTypeOptionContext typeOptionContext;
-  final TypeOptionOverlayDelegate overlayDelegate;
-
+  final PopoverMutex popoverMutex;
   const DateTypeOptionWidget({
     required this.typeOptionContext,
-    required this.overlayDelegate,
+    required this.popoverMutex,
     Key? key,
   }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _DateTypeOptionWidgetState();
+}
+
+class _DateTypeOptionWidgetState extends State<DateTypeOptionWidget> {
+  late PopoverController dateFormatPopover;
+  late PopoverController timeFormatPopover;
+
+  @override
+  void initState() {
+    dateFormatPopover = PopoverController(mutex: widget.popoverMutex);
+    timeFormatPopover = PopoverController(mutex: widget.popoverMutex);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          DateTypeOptionBloc(typeOptionContext: typeOptionContext),
+          DateTypeOptionBloc(typeOptionContext: widget.typeOptionContext),
       child: BlocConsumer<DateTypeOptionBloc, DateTypeOptionState>(
         listener: (context, state) =>
-            typeOptionContext.typeOption = state.typeOption,
+            widget.typeOptionContext.typeOption = state.typeOption,
         builder: (context, state) {
           return Column(children: [
             _renderDateFormatButton(context, state.typeOption.dateFormat),
@@ -62,39 +77,71 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderDateFormatButton(BuildContext context, DateFormat dataFormat) {
-    return DateFormatButton(onTap: () {
-      final list = DateFormatList(
-        selectedFormat: dataFormat,
-        onSelected: (format) {
-          context
-              .read<DateTypeOptionBloc>()
-              .add(DateTypeOptionEvent.didSelectDateFormat(format));
-        },
-      );
-      overlayDelegate.showOverlay(context, list);
-    });
-  }
-
-  Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
-    return TimeFormatButton(
-      timeFormat: timeFormat,
-      onTap: () {
-        final list = TimeFormatList(
-            selectedFormat: timeFormat,
+    return Popover(
+      controller: dateFormatPopover,
+      child: DateFormatButton(onTap: () {
+        dateFormatPopover.show();
+      }, onHover: ((hover) {
+        if (hover) {
+          dateFormatPopover.show();
+        }
+      })),
+      targetAnchor: Alignment.topRight,
+      followerAnchor: Alignment.topLeft,
+      offset: const Offset(20, 0),
+      popupBuilder: (context) {
+        return OverlayContainer(
+          constraints: BoxConstraints.loose(const Size(460, 440)),
+          child: DateFormatList(
+            selectedFormat: dataFormat,
             onSelected: (format) {
               context
                   .read<DateTypeOptionBloc>()
-                  .add(DateTypeOptionEvent.didSelectTimeFormat(format));
-            });
-        overlayDelegate.showOverlay(context, list);
+                  .add(DateTypeOptionEvent.didSelectDateFormat(format));
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
+    return Popover(
+      controller: timeFormatPopover,
+      child: TimeFormatButton(
+        timeFormat: timeFormat,
+        onTap: () {
+          timeFormatPopover.show();
+        },
+        onHover: (hover) {
+          if (hover) {
+            timeFormatPopover.show();
+          }
+        },
+      ),
+      targetAnchor: Alignment.topRight,
+      followerAnchor: Alignment.topLeft,
+      offset: const Offset(20, 0),
+      popupBuilder: (BuildContext context) {
+        return OverlayContainer(
+            constraints: BoxConstraints.loose(const Size(460, 440)),
+            child: TimeFormatList(
+                selectedFormat: timeFormat,
+                onSelected: (format) {
+                  context
+                      .read<DateTypeOptionBloc>()
+                      .add(DateTypeOptionEvent.didSelectTimeFormat(format));
+                }));
       },
     );
   }
 }
 
 class DateFormatButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const DateFormatButton({required this.onTap, Key? key}) : super(key: key);
+  final VoidCallback? onTap;
+  final void Function(bool)? onHover;
+  const DateFormatButton({this.onTap, this.onHover, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +154,7 @@ class DateFormatButton extends StatelessWidget {
         margin: GridSize.typeOptionContentInsets,
         hoverColor: theme.hover,
         onTap: onTap,
+        onHover: onHover,
         rightIcon: svgWidget("grid/more", color: theme.iconColor),
       ),
     );
@@ -115,9 +163,10 @@ class DateFormatButton extends StatelessWidget {
 
 class TimeFormatButton extends StatelessWidget {
   final TimeFormat timeFormat;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
+  final void Function(bool)? onHover;
   const TimeFormatButton(
-      {required this.timeFormat, required this.onTap, Key? key})
+      {required this.timeFormat, this.onTap, this.onHover, Key? key})
       : super(key: key);
 
   @override
@@ -131,6 +180,7 @@ class TimeFormatButton extends StatelessWidget {
         margin: GridSize.typeOptionContentInsets,
         hoverColor: theme.hover,
         onTap: onTap,
+        onHover: onHover,
         rightIcon: svgWidget("grid/more", color: theme.iconColor),
       ),
     );

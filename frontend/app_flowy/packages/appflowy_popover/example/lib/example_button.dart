@@ -7,14 +7,14 @@ class PopoverMenu extends StatefulWidget {
 }
 
 class _PopoverMenuState extends State<PopoverMenu> {
-  final PopoverExclusive exclusive = PopoverExclusive();
+  final PopoverMutex exclusive = PopoverMutex();
   late PopoverController firstPopover;
   late PopoverController secondPopover;
 
   @override
   void initState() {
-    firstPopover = PopoverController(exclusive: exclusive);
-    secondPopover = PopoverController(exclusive: exclusive);
+    firstPopover = PopoverController(mutex: exclusive);
+    secondPopover = PopoverController(mutex: exclusive);
     super.initState();
   }
 

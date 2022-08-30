@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/multi_select_type_option.pb.dart';
@@ -46,18 +47,19 @@ Widget? makeTypeOptionWidget({
   required BuildContext context,
   required TypeOptionDataController dataController,
   required TypeOptionOverlayDelegate overlayDelegate,
+  required PopoverMutex popoverMutex,
 }) {
   final builder = makeTypeOptionWidgetBuilder(
-    dataController: dataController,
-    overlayDelegate: overlayDelegate,
-  );
+      dataController: dataController,
+      overlayDelegate: overlayDelegate,
+      popoverMutex: popoverMutex);
   return builder.build(context);
 }
 
-TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
-  required TypeOptionDataController dataController,
-  required TypeOptionOverlayDelegate overlayDelegate,
-}) {
+TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
+    {required TypeOptionDataController dataController,
+    required TypeOptionOverlayDelegate overlayDelegate,
+    required PopoverMutex popoverMutex}) {
   final gridId = dataController.gridId;
   final fieldType = dataController.field.fieldType;
 
@@ -72,13 +74,12 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
       );
     case FieldType.DateTime:
       return DateTypeOptionWidgetBuilder(
-        makeTypeOptionContextWithDataController<DateTypeOptionPB>(
-          gridId: gridId,
-          fieldType: fieldType,
-          dataController: dataController,
-        ),
-        overlayDelegate,
-      );
+          makeTypeOptionContextWithDataController<DateTypeOptionPB>(
+            gridId: gridId,
+            fieldType: fieldType,
+            dataController: dataController,
+          ),
+          popoverMutex);
     case FieldType.SingleSelect:
       return SingleSelectTypeOptionWidgetBuilder(
         makeTypeOptionContextWithDataController<SingleSelectTypeOptionPB>(

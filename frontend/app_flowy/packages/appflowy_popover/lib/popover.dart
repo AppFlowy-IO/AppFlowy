@@ -2,28 +2,28 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class PopoverExclusive {
+class PopoverMutex {
   PopoverController? controller;
 }
 
 class PopoverController {
   PopoverState? state;
-  PopoverExclusive? exclusive;
+  PopoverMutex? mutex;
 
-  PopoverController({this.exclusive});
+  PopoverController({this.mutex});
 
   close() {
     state?.close();
-    if (exclusive != null && exclusive!.controller == this) {
-      exclusive!.controller = null;
+    if (mutex != null && mutex!.controller == this) {
+      mutex!.controller = null;
     }
   }
 
   show() {
-    if (exclusive != null) {
+    if (mutex != null) {
       debugPrint("show popover");
-      exclusive!.controller?.close();
-      exclusive!.controller = this;
+      mutex!.controller?.close();
+      mutex!.controller = this;
     }
     state?.showOverlay();
   }
@@ -71,7 +71,13 @@ class PopoverState extends State<Popover> {
     _recognizer.onTap = (() {
       debugPrint("ggg tap");
     });
+    WidgetsBinding.instance.pointerRouter
+        .addGlobalRoute(_handleGlobalPointerEvent);
     super.initState();
+  }
+
+  _handleGlobalPointerEvent(PointerEvent event) {
+    // debugPrint("mouse down: ${event}");
   }
 
   showOverlay() {
@@ -126,6 +132,8 @@ class PopoverState extends State<Popover> {
   @override
   void deactivate() {
     debugPrint("deactivate");
+    WidgetsBinding.instance.pointerRouter
+        .removeGlobalRoute(_handleGlobalPointerEvent);
     close();
     super.deactivate();
   }

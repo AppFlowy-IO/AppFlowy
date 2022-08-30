@@ -36,12 +36,18 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
   }) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _MultiSelectTypeOptionWidgetState();
+}
+
+class _MultiSelectTypeOptionWidgetState
+    extends State<MultiSelectTypeOptionWidget> {
+  @override
   Widget build(BuildContext context) {
     return SelectOptionTypeOptionWidget(
-      options: selectOptionAction.typeOption.options,
-      beginEdit: () => overlayDelegate.hideOverlay(context),
-      overlayDelegate: overlayDelegate,
-      typeOptionAction: selectOptionAction,
+      options: widget.selectOptionAction.typeOption.options,
+      beginEdit: () => widget.overlayDelegate.hideOverlay(context),
+      overlayDelegate: widget.overlayDelegate,
+      typeOptionAction: widget.selectOptionAction,
       // key: ValueKey(state.typeOption.hashCode),
     );
   }

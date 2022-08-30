@@ -35,12 +35,18 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
   }) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _SingleSelectTypeOptionWidgetState();
+}
+
+class _SingleSelectTypeOptionWidgetState
+    extends State<SingleSelectTypeOptionWidget> {
+  @override
   Widget build(BuildContext context) {
     return SelectOptionTypeOptionWidget(
-      options: selectOptionAction.typeOption.options,
-      beginEdit: () => overlayDelegate.hideOverlay(context),
-      overlayDelegate: overlayDelegate,
-      typeOptionAction: selectOptionAction,
+      options: widget.selectOptionAction.typeOption.options,
+      beginEdit: () => widget.overlayDelegate.hideOverlay(context),
+      overlayDelegate: widget.overlayDelegate,
+      typeOptionAction: widget.selectOptionAction,
       // key: ValueKey(state.typeOption.hashCode),
     );
   }

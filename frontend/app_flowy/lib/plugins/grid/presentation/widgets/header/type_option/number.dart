@@ -43,16 +43,21 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
   }) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _NumberTypeOptionWidgetState();
+}
+
+class _NumberTypeOptionWidgetState extends State<NumberTypeOptionWidget> {
+  @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocProvider(
       create: (context) =>
-          NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
+          NumberTypeOptionBloc(typeOptionContext: widget.typeOptionContext),
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
         child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
           listener: (context, state) =>
-              typeOptionContext.typeOption = state.typeOption,
+              widget.typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
             return FlowyButton(
               text: Row(
@@ -76,7 +81,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                   },
                   selectedFormat: state.typeOption.format,
                 );
-                overlayDelegate.showOverlay(
+                widget.overlayDelegate.showOverlay(
                   context,
                   list,
                 );
