@@ -81,6 +81,9 @@ pub struct GroupPB {
 
     #[pb(index = 4)]
     pub rows: Vec<RowPB>,
+
+    #[pb(index = 5)]
+    pub is_default: bool,
 }
 
 impl std::convert::From<Group> for GroupPB {
@@ -90,6 +93,7 @@ impl std::convert::From<Group> for GroupPB {
             group_id: group.id,
             desc: group.name,
             rows: group.rows,
+            is_default: group.is_default,
         }
     }
 }

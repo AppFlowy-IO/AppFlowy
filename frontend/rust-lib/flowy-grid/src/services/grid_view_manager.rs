@@ -142,7 +142,7 @@ impl GridViewManager {
             .move_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
             .await;
 
-        if row_changeset.is_empty() == false {
+        if !row_changeset.is_empty() {
             with_row_changeset(row_changeset).await;
         }
 
