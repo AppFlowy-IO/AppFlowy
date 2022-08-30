@@ -46,9 +46,9 @@ class Selection {
       (start.path <= end.path && !pathEquals(start.path, end.path)) ||
       (isSingle && start.offset < end.offset);
 
-  Selection normalize() {
+  Selection get normalize {
     if (isForward) {
-      return Selection(start: end, end: start);
+      return reversed;
     }
     return this;
   }
