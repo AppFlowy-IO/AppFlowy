@@ -64,6 +64,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
                   (item) => Center(
                     child: ToolbarItemWidget(
                       item: item,
+                      isHighlight: item.highlightCallback(widget.editorState),
                       onPressed: () {
                         item.handler(widget.editorState, context);
                       },

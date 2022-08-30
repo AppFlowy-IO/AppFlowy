@@ -47,6 +47,8 @@ class StyleKey {
     StyleKey.italic,
     StyleKey.underline,
     StyleKey.strikethrough,
+    StyleKey.backgroundColor,
+    StyleKey.href,
   ];
 
   static List<String> globalStyleKeys = [

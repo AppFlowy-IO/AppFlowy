@@ -2,7 +2,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
-import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,8 +90,8 @@ Future<void> _testUpdateTextStyleByCommandX(
   var textNode = editor.nodeAtPath([1]) as TextNode;
   expect(
       textNode.allSatisfyInSelection(
-        matchStyle,
         selection,
+        matchStyle,
         (value) {
           return value == matchValue;
         },
@@ -110,8 +109,8 @@ Future<void> _testUpdateTextStyleByCommandX(
   textNode = editor.nodeAtPath([1]) as TextNode;
   expect(
       textNode.allSatisfyInSelection(
-        matchStyle,
         selection,
+        matchStyle,
         (value) {
           return value == matchValue;
         },
@@ -144,12 +143,12 @@ Future<void> _testUpdateTextStyleByCommandX(
   for (final node in nodes) {
     expect(
       node.allSatisfyInSelection(
-        matchStyle,
         Selection.single(
           path: node.path,
           startOffset: 0,
           endOffset: text.length,
         ),
+        matchStyle,
         (value) {
           return value == matchValue;
         },
@@ -196,11 +195,6 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
   // show toolbar
   expect(find.byType(ToolbarWidget), findsOneWidget);
 
-  final item = defaultToolbarItems
-      .where((item) => item.id == 'appflowy.toolbar.link')
-      .first;
-  expect(find.byWidget(item.icon), findsOneWidget);
-
   // trigger the link menu
   await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
 
@@ -215,8 +209,8 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
   final node = editor.nodeAtPath([1]) as TextNode;
   expect(
       node.allSatisfyInSelection(
-        StyleKey.href,
         selection,
+        StyleKey.href,
         (value) => value == link,
       ),
       true);
@@ -244,8 +238,8 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
 
   expect(
       node.allSatisfyInSelection(
-        StyleKey.href,
         selection,
+        StyleKey.href,
         (value) => value == link,
       ),
       false);

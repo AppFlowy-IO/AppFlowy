@@ -4,38 +4,43 @@ import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
+import 'package:appflowy_editor/src/extensions/editor_state_extensions.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
-typedef ToolbarEventHandler = void Function(
+typedef ToolbarItemEventHandler = void Function(
     EditorState editorState, BuildContext context);
-typedef ToolbarShowValidator = bool Function(EditorState editorState);
+typedef ToolbarItemValidator = bool Function(EditorState editorState);
+typedef ToolbarItemHighlightCallback = bool Function(EditorState editorState);
 
 class ToolbarItem {
   ToolbarItem({
     required this.id,
     required this.type,
-    required this.icon,
+    required this.iconBuilder,
     this.tooltipsMessage = '',
     required this.validator,
+    required this.highlightCallback,
     required this.handler,
   });
 
   final String id;
   final int type;
-  final Widget icon;
+  final Widget Function(bool isHighlight) iconBuilder;
   final String tooltipsMessage;
-  final ToolbarShowValidator validator;
-  final ToolbarEventHandler handler;
+  final ToolbarItemValidator validator;
+  final ToolbarItemEventHandler handler;
+  final ToolbarItemHighlightCallback highlightCallback;
 
   factory ToolbarItem.divider() {
     return ToolbarItem(
       id: 'divider',
       type: -1,
-      icon: const FlowySvg(name: 'toolbar/divider'),
+      iconBuilder: (_) => const FlowySvg(name: 'toolbar/divider'),
       validator: (editorState) => true,
       handler: (editorState, context) {},
+      highlightCallback: (editorState) => false,
     );
   }
 
@@ -59,102 +64,204 @@ List<ToolbarItem> defaultToolbarItems = [
     id: 'appflowy.toolbar.h1',
     type: 1,
     tooltipsMessage: 'Heading 1',
-    icon: const FlowySvg(name: 'toolbar/h1'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/h1',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _onlyShowInSingleTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.heading,
+      (value) => value == StyleKey.h1,
+    ),
     handler: (editorState, context) => formatHeading(editorState, StyleKey.h1),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.h2',
     type: 1,
     tooltipsMessage: 'Heading 2',
-    icon: const FlowySvg(name: 'toolbar/h2'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/h2',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _onlyShowInSingleTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.heading,
+      (value) => value == StyleKey.h2,
+    ),
     handler: (editorState, context) => formatHeading(editorState, StyleKey.h2),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.h3',
     type: 1,
     tooltipsMessage: 'Heading 3',
-    icon: const FlowySvg(name: 'toolbar/h3'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/h3',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _onlyShowInSingleTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.heading,
+      (value) => value == StyleKey.h3,
+    ),
     handler: (editorState, context) => formatHeading(editorState, StyleKey.h3),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.bold',
     type: 2,
     tooltipsMessage: 'Bold',
-    icon: const FlowySvg(name: 'toolbar/bold'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/bold',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _showInTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.bold,
+      (value) => value == true,
+    ),
     handler: (editorState, context) => formatBold(editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.italic',
     type: 2,
     tooltipsMessage: 'Italic',
-    icon: const FlowySvg(name: 'toolbar/italic'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/italic',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _showInTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.italic,
+      (value) => value == true,
+    ),
     handler: (editorState, context) => formatItalic(editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.underline',
     type: 2,
     tooltipsMessage: 'Underline',
-    icon: const FlowySvg(name: 'toolbar/underline'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/underline',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _showInTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.underline,
+      (value) => value == true,
+    ),
     handler: (editorState, context) => formatUnderline(editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.strikethrough',
     type: 2,
     tooltipsMessage: 'Strikethrough',
-    icon: const FlowySvg(name: 'toolbar/strikethrough'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/strikethrough',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _showInTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.strikethrough,
+      (value) => value == true,
+    ),
     handler: (editorState, context) => formatStrikethrough(editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.quote',
     type: 3,
     tooltipsMessage: 'Quote',
-    icon: const FlowySvg(name: 'toolbar/quote'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/quote',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _onlyShowInSingleTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.subtype,
+      (value) => value == StyleKey.quote,
+    ),
     handler: (editorState, context) => formatQuote(editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.bulleted_list',
     type: 3,
     tooltipsMessage: 'Bulleted list',
-    icon: const FlowySvg(name: 'toolbar/bulleted_list'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/bulleted_list',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _onlyShowInSingleTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.subtype,
+      (value) => value == StyleKey.bulletedList,
+    ),
     handler: (editorState, context) => formatBulletedList(editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.link',
     type: 4,
     tooltipsMessage: 'Link',
-    icon: const FlowySvg(name: 'toolbar/link'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/link',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _onlyShowInSingleTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.href,
+      (value) => value != null,
+    ),
     handler: (editorState, context) => showLinkMenu(context, editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.highlight',
     type: 4,
     tooltipsMessage: 'Highlight',
-    icon: const FlowySvg(name: 'toolbar/highlight'),
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/highlight',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
     validator: _showInTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.backgroundColor,
+      (value) => value != null,
+    ),
     handler: (editorState, context) => formatHighlight(editorState),
   ),
 ];
 
-ToolbarShowValidator _onlyShowInSingleTextSelection = (editorState) {
+ToolbarItemValidator _onlyShowInSingleTextSelection = (editorState) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   return (nodes.length == 1 && nodes.first is TextNode);
 };
 
-ToolbarShowValidator _showInTextSelection = (editorState) {
+ToolbarItemValidator _showInTextSelection = (editorState) {
   final nodes = editorState.service.selectionService.currentSelectedNodes
       .whereType<TextNode>();
   return nodes.isNotEmpty;
 };
+
+bool _allSatisfy(
+  EditorState editorState,
+  String styleKey,
+  bool Function(dynamic value) test,
+) {
+  final selection = editorState.service.selectionService.currentSelection.value;
+  return selection != null &&
+      editorState.selectedTextNodes.allSatisfyInSelection(
+        selection,
+        styleKey,
+        test,
+      );
+}
 
 OverlayEntry? _linkMenuOverlay;
 EditorState? _editorState;

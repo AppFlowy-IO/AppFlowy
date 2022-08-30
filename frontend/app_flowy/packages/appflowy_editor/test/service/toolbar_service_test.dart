@@ -1,5 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_item_widget.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../infra/test_editor.dart';
@@ -30,7 +32,136 @@ void main() async {
       final item = defaultToolbarItems
           .where((item) => item.id == 'appflowy.toolbar.link')
           .first;
-      expect(find.byWidget(item.icon), findsNothing);
+      final finder = find.byType(ToolbarItemWidget);
+
+      expect(
+        tester
+            .widgetList<ToolbarItemWidget>(finder)
+            .toList(growable: false)
+            .where((element) => element.item.id == item.id)
+            .isEmpty,
+        true,
+      );
+    });
+
+    testWidgets(
+        'Test toolbar service in single text selection with StyleKey.partialStyleKeys',
+        (tester) async {
+      final attributes = StyleKey.partialStyleKeys.fold<Attributes>({},
+          (previousValue, element) {
+        if (element == StyleKey.backgroundColor) {
+          previousValue[element] = '0x6000BCF0';
+        } else if (element == StyleKey.href) {
+          previousValue[element] = 'appflowy.io';
+        } else {
+          previousValue[element] = true;
+        }
+        return previousValue;
+      });
+
+      const text = 'Welcome to Appflowy 😁';
+      final editor = tester.editor
+        ..insertTextNode(text)
+        ..insertTextNode(
+          null,
+          delta: Delta([
+            TextInsert(text),
+            TextInsert(text, attributes),
+            TextInsert(text),
+          ]),
+        );
+      await editor.startTesting();
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: 0, endOffset: text.length),
+      );
+      expect(find.byType(ToolbarWidget), findsOneWidget);
+
+      void testHighlight(bool expectedValue) {
+        for (final styleKey in StyleKey.partialStyleKeys) {
+          var key = styleKey;
+          if (styleKey == StyleKey.backgroundColor) {
+            key = 'highlight';
+          } else if (styleKey == StyleKey.href) {
+            key = 'link';
+          }
+          final itemWidget = _itemWidgetForId(tester, 'appflowy.toolbar.$key');
+          expect(itemWidget.isHighlight, expectedValue);
+        }
+      }
+
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: 0, endOffset: text.length * 2),
+      );
+      testHighlight(false);
+
+      await editor.updateSelection(
+        Selection.single(
+          path: [1],
+          startOffset: text.length,
+          endOffset: text.length * 2,
+        ),
+      );
+      testHighlight(true);
+
+      await editor.updateSelection(
+        Selection.single(
+          path: [1],
+          startOffset: text.length + 2,
+          endOffset: text.length * 2 - 2,
+        ),
+      );
+      testHighlight(true);
+    });
+
+    testWidgets(
+        'Test toolbar service in single text selection with StyleKey.globalStyleKeys',
+        (tester) async {
+      const text = 'Welcome to Appflowy 😁';
+
+      final editor = tester.editor
+        ..insertTextNode(text, attributes: {
+          StyleKey.subtype: StyleKey.heading,
+          StyleKey.heading: StyleKey.h1,
+        })
+        ..insertTextNode(
+          text,
+          attributes: {StyleKey.subtype: StyleKey.quote},
+        )
+        ..insertTextNode(
+          text,
+          attributes: {StyleKey.subtype: StyleKey.bulletedList},
+        );
+      await editor.startTesting();
+
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: 0, endOffset: text.length),
+      );
+      expect(find.byType(ToolbarWidget), findsOneWidget);
+      var itemWidget = _itemWidgetForId(tester, 'appflowy.toolbar.h1');
+      expect(itemWidget.isHighlight, true);
+
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: 0, endOffset: text.length),
+      );
+      expect(find.byType(ToolbarWidget), findsOneWidget);
+      itemWidget = _itemWidgetForId(tester, 'appflowy.toolbar.quote');
+      expect(itemWidget.isHighlight, true);
+
+      await editor.updateSelection(
+        Selection.single(path: [2], startOffset: 0, endOffset: text.length),
+      );
+      expect(find.byType(ToolbarWidget), findsOneWidget);
+      itemWidget = _itemWidgetForId(tester, 'appflowy.toolbar.bulleted_list');
+      expect(itemWidget.isHighlight, true);
     });
   });
+}
+
+ToolbarItemWidget _itemWidgetForId(WidgetTester tester, String id) {
+  final finder = find.byType(ToolbarItemWidget);
+  final itemWidgets = tester
+      .widgetList<ToolbarItemWidget>(finder)
+      .where((element) => element.item.id == id);
+  expect(itemWidgets.length, 1);
+  return itemWidgets.first;
 }
