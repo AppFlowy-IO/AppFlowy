@@ -26,7 +26,7 @@ class Log {
 
   static void trace(String? message) {
     if (enableLog) {
-      // debugPrint('❗️[Trace] - ${DateTime.now().second}=> $message');
+      debugPrint('❗️[Trace] - ${DateTime.now().second}=> $message');
     }
   }
 }

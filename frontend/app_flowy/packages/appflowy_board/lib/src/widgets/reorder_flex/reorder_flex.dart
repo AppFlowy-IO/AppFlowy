@@ -46,12 +46,20 @@ class ReorderFlexConfig {
   // How long an animation to scroll to an off-screen element
   final Duration scrollAnimationDuration = const Duration(milliseconds: 300);
 
+  /// Determines if setSatte method needs to be called when the drag is complete.
+  /// Default value is [true].
+  ///
+  /// If the [ReorderFlex] will be rebuild after the [ReorderFlex]'s children
+  /// were changed, then the [setStateWhenEndDrag] should set to [false].
+  final bool setStateWhenEndDrag;
+
   final bool useMoveAnimation;
 
   final bool useMovePlaceholder;
 
   const ReorderFlexConfig({
     this.useMoveAnimation = true,
+    this.setStateWhenEndDrag = true,
   }) : useMovePlaceholder = !useMoveAnimation;
 }
 
@@ -370,11 +378,11 @@ class ReorderFlexState extends State<ReorderFlex>
       },
       onDragEnded: (dragTargetData) {
         if (!mounted) return;
-
         Log.debug(
             "[DragTarget]: Column:[${widget.dataSource.identifier}] end dragging");
         _notifier.updateDragTargetIndex(-1);
-        setState(() {
+
+        onDragEnded() {
           if (dragTargetData.reorderFlexId == widget.reorderFlexId) {
             _onReordered(
               dragState.dragStartIndex,
@@ -383,7 +391,13 @@ class ReorderFlexState extends State<ReorderFlex>
           }
           dragState.endDragging();
           widget.onDragEnded?.call();
-        });
+        }
+
+        if (widget.config.setStateWhenEndDrag) {
+          setState(() => onDragEnded());
+        } else {
+          onDragEnded();
+        }
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
         // Do not receive any events if the Insert item is animating.
