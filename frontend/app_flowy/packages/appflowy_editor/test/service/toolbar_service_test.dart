@@ -154,6 +154,67 @@ void main() async {
       itemWidget = _itemWidgetForId(tester, 'appflowy.toolbar.bulleted_list');
       expect(itemWidget.isHighlight, true);
     });
+
+    testWidgets('Test toolbar service in multi text selection', (tester) async {
+      const text = 'Welcome to Appflowy 😁';
+
+      /// [h1][bold] Welcome to Appflowy 😁
+      /// [EmptyLine]
+      /// Welcome to Appflowy 😁
+      final editor = tester.editor
+        ..insertTextNode(
+          null,
+          attributes: {
+            StyleKey.subtype: StyleKey.heading,
+            StyleKey.heading: StyleKey.h1,
+          },
+          delta: Delta([
+            TextInsert(text, {
+              StyleKey.bold: true,
+            })
+          ]),
+        )
+        ..insertTextNode(null)
+        ..insertTextNode(text);
+      await editor.startTesting();
+
+      await editor.updateSelection(
+        Selection.single(path: [2], startOffset: text.length, endOffset: 0),
+      );
+      expect(find.byType(ToolbarWidget), findsOneWidget);
+      expect(
+        _itemWidgetForId(tester, 'appflowy.toolbar.h1').isHighlight,
+        false,
+      );
+      expect(
+        _itemWidgetForId(tester, 'appflowy.toolbar.bold').isHighlight,
+        false,
+      );
+
+      await editor.updateSelection(
+        Selection(
+          start: Position(path: [2], offset: text.length),
+          end: Position(path: [1], offset: 0),
+        ),
+      );
+      expect(find.byType(ToolbarWidget), findsOneWidget);
+      expect(
+        _itemWidgetForId(tester, 'appflowy.toolbar.bold').isHighlight,
+        false,
+      );
+
+      await editor.updateSelection(
+        Selection(
+          start: Position(path: [2], offset: text.length),
+          end: Position(path: [0], offset: 0),
+        ),
+      );
+      expect(find.byType(ToolbarWidget), findsOneWidget);
+      expect(
+        _itemWidgetForId(tester, 'appflowy.toolbar.bold').isHighlight,
+        false,
+      );
+    });
   });
 }
 

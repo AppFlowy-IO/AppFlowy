@@ -162,23 +162,34 @@ extension TextNodesExtension on List<TextNode> {
         final node = this[i];
         final Selection newSelection;
         if (i == 0 && pathEquals(node.path, selection.start.path)) {
-          newSelection = selection.copyWith(
-            end: Position(path: node.path, offset: node.toRawString().length),
-          );
+          if (selection.isBackward) {
+            newSelection = selection.copyWith(
+              end: Position(path: node.path, offset: node.toRawString().length),
+            );
+          } else {
+            newSelection = selection.copyWith(
+              end: Position(path: node.path, offset: 0),
+            );
+          }
         } else if (i == length - 1 &&
             pathEquals(node.path, selection.end.path)) {
-          newSelection = selection.copyWith(
-            start: Position(path: node.path, offset: 0),
-          );
+          if (selection.isBackward) {
+            newSelection = selection.copyWith(
+              start: Position(path: node.path, offset: 0),
+            );
+          } else {
+            newSelection = selection.copyWith(
+              start:
+                  Position(path: node.path, offset: node.toRawString().length),
+            );
+          }
         } else {
           newSelection = Selection(
             start: Position(path: node.path, offset: 0),
             end: Position(path: node.path, offset: node.toRawString().length),
           );
         }
-        if (!node.allSatisfyInSelection(newSelection, styleKey, (value) {
-          return test(value);
-        })) {
+        if (!node.allSatisfyInSelection(newSelection, styleKey, test)) {
           return false;
         }
       }
