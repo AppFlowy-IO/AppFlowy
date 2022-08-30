@@ -34,6 +34,14 @@ class EditableRowNotifier {
       notifier.resignFirstResponder.notify();
     }
   }
+
+  void dispose() {
+    for (final notifier in cells.values) {
+      notifier.resignFirstResponder.notify();
+    }
+
+    cells.clear();
+  }
 }
 
 abstract class EditableCell {

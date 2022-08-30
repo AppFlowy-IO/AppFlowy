@@ -250,7 +250,6 @@ class _AFBoardContentState extends State<AFBoardContent> {
             builder: (context, value, child) {
               final boardColumn = AFBoardColumnWidget(
                 // key: PageStorageKey<String>(columnData.id),
-                // key: GlobalObjectKey(columnData.id),
                 margin: _marginFromIndex(columnIndex),
                 itemMargin: widget.config.columnItemPadding,
                 headerBuilder: _buildHeader,
