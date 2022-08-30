@@ -1,6 +1,7 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/startup/tasks/platform_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -23,58 +24,54 @@ final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
 final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
 const kMargin = EdgeInsets.symmetric(horizontal: 6, vertical: 10);
 
-class DateCellEditor with FlowyOverlayDelegate {
+class DateCellEditor extends StatefulWidget {
   final VoidCallback onDismissed;
+  final GridDateCellController cellController;
 
   const DateCellEditor({
+    Key? key,
     required this.onDismissed,
-  });
+    required this.cellController,
+  }) : super(key: key);
 
-  Future<void> show(
-    BuildContext context, {
-    required GridDateCellController cellController,
-  }) async {
-    DateCellEditor.remove(context);
+  @override
+  State<StatefulWidget> createState() => _DateCellEditor();
+}
 
-    final result =
-        await cellController.getFieldTypeOption(DateTypeOptionDataParser());
+class _DateCellEditor extends State<DateCellEditor> {
+  DateTypeOptionPB? _dateTypeOptionPB;
 
-    result.fold(
-      (dateTypeOptionPB) {
-        final calendar = _CellCalendarWidget(
-          cellContext: cellController,
-          dateTypeOptionPB: dateTypeOptionPB,
-        );
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
 
-        FlowyOverlay.of(context).insertWithAnchor(
-          widget: OverlayContainer(
-            child: calendar,
-            constraints: BoxConstraints.loose(const Size(320, 500)),
-          ),
-          identifier: DateCellEditor.identifier(),
-          anchorContext: context,
-          anchorDirection: AnchorDirection.leftWithCenterAligned,
-          style: FlowyOverlayStyle(blur: false),
-          delegate: this,
-        );
-      },
-      (err) => Log.error(err),
+  _fetchData() async {
+    final result = await widget.cellController
+        .getFieldTypeOption(DateTypeOptionDataParser());
+
+    result.fold((dateTypeOptionPB) {
+      setState(() {
+        _dateTypeOptionPB = dateTypeOptionPB;
+      });
+    }, (err) => Log.error(err));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_dateTypeOptionPB == null) {
+      return Container();
+    }
+
+    return OverlayContainer(
+      child: _CellCalendarWidget(
+        cellContext: widget.cellController,
+        dateTypeOptionPB: _dateTypeOptionPB!,
+      ),
+      constraints: BoxConstraints.loose(const Size(320, 500)),
     );
   }
-
-  static void remove(BuildContext context) {
-    FlowyOverlay.of(context).remove(identifier());
-  }
-
-  static String identifier() {
-    return (DateCellEditor).toString();
-  }
-
-  @override
-  void didRemove() => onDismissed();
-
-  @override
-  bool asBarrier() => true;
 }
 
 class _CellCalendarWidget extends StatelessWidget {

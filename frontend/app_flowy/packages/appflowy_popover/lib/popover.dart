@@ -37,6 +37,7 @@ class Popover extends StatefulWidget {
   final Alignment targetAnchor;
   final Alignment followerAnchor;
   final Widget Function(BuildContext context) popupBuilder;
+  final void Function()? onClose;
 
   const Popover({
     Key? key,
@@ -47,6 +48,7 @@ class Popover extends StatefulWidget {
     this.maskDecoration,
     this.targetAnchor = Alignment.topLeft,
     this.followerAnchor = Alignment.topLeft,
+    this.onClose,
   }) : super(key: key);
 
   @override
@@ -71,13 +73,7 @@ class PopoverState extends State<Popover> {
     _recognizer.onTap = (() {
       debugPrint("ggg tap");
     });
-    WidgetsBinding.instance.pointerRouter
-        .addGlobalRoute(_handleGlobalPointerEvent);
     super.initState();
-  }
-
-  _handleGlobalPointerEvent(PointerEvent event) {
-    // debugPrint("mouse down: ${event}");
   }
 
   showOverlay() {
@@ -126,14 +122,15 @@ class PopoverState extends State<Popover> {
       if (_popoverWithMask == this) {
         _popoverWithMask = null;
       }
+      if (widget.onClose != null) {
+        widget.onClose!();
+      }
     }
   }
 
   @override
   void deactivate() {
     debugPrint("deactivate");
-    WidgetsBinding.instance.pointerRouter
-        .removeGlobalRoute(_handleGlobalPointerEvent);
     close();
     super.deactivate();
   }
