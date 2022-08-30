@@ -1,7 +1,7 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:app_flowy/startup/tasks/platform_service.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -166,17 +166,14 @@ class _CellCalendarWidget extends StatelessWidget {
             );
           },
           onDaySelected: (selectedDay, focusedDay) {
-            _CalDateTimeSetting.hide(context);
             context
                 .read<DateCalBloc>()
                 .add(DateCalEvent.selectDay(selectedDay));
           },
           onFormatChanged: (format) {
-            _CalDateTimeSetting.hide(context);
             context.read<DateCalBloc>().add(DateCalEvent.setCalFormat(format));
           },
           onPageChanged: (focusedDay) {
-            _CalDateTimeSetting.hide(context);
             context
                 .read<DateCalBloc>()
                 .add(DateCalEvent.setFocusedDay(focusedDay));
@@ -244,7 +241,6 @@ class _TimeTextFieldState extends State<_TimeTextField> {
     if (widget.bloc.state.dateTypeOptionPB.includeTime) {
       _focusNode.addListener(() {
         if (mounted) {
-          _CalDateTimeSetting.hide(context);
           widget.bloc.add(DateCalEvent.setTime(_controller.text));
         }
       });
@@ -307,24 +303,30 @@ class _DateTypeOptionButton extends StatelessWidget {
     return BlocSelector<DateCalBloc, DateCalState, DateTypeOptionPB>(
       selector: (state) => state.dateTypeOptionPB,
       builder: (context, dateTypeOptionPB) {
-        return FlowyButton(
-          text: FlowyText.medium(title, fontSize: 12),
-          hoverColor: theme.hover,
-          margin: kMargin,
-          onTap: () => _showTimeSetting(dateTypeOptionPB, context),
-          rightIcon: svgWidget("grid/more", color: theme.iconColor),
+        return Popover(
+          triggerActions:
+              PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+          targetAnchor: Alignment.topRight,
+          followerAnchor: Alignment.topLeft,
+          offset: const Offset(20, 0),
+          child: FlowyButton(
+            text: FlowyText.medium(title, fontSize: 12),
+            hoverColor: theme.hover,
+            margin: kMargin,
+            rightIcon: svgWidget("grid/more", color: theme.iconColor),
+          ),
+          popupBuilder: (BuildContext popContext) {
+            return OverlayContainer(
+              constraints: BoxConstraints.loose(const Size(140, 100)),
+              child: _CalDateTimeSetting(
+                dateTypeOptionPB: dateTypeOptionPB,
+                onEvent: (event) => context.read<DateCalBloc>().add(event),
+              ),
+            );
+          },
         );
       },
     );
-  }
-
-  void _showTimeSetting(
-      DateTypeOptionPB dateTypeOptionPB, BuildContext context) {
-    final setting = _CalDateTimeSetting(
-      dateTypeOptionPB: dateTypeOptionPB,
-      onEvent: (event) => context.read<DateCalBloc>().add(event),
-    );
-    setting.show(context);
   }
 }
 
@@ -337,53 +339,51 @@ class _CalDateTimeSetting extends StatefulWidget {
 
   @override
   State<_CalDateTimeSetting> createState() => _CalDateTimeSettingState();
-
-  static String identifier() {
-    return (_CalDateTimeSetting).toString();
-  }
-
-  void show(BuildContext context) {
-    hide(context);
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        child: this,
-        constraints: BoxConstraints.loose(const Size(140, 100)),
-      ),
-      identifier: _CalDateTimeSetting.identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.rightWithCenterAligned,
-      anchorOffset: const Offset(20, 0),
-    );
-  }
-
-  static void hide(BuildContext context) {
-    FlowyOverlay.of(context).remove(identifier());
-  }
 }
 
 class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
   String? overlayIdentifier;
+  final _popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [
-      DateFormatButton(onTap: () {
-        final list = DateFormatList(
-          selectedFormat: widget.dateTypeOptionPB.dateFormat,
-          onSelected: (format) =>
-              widget.onEvent(DateCalEvent.setDateFormat(format)),
-        );
-        _showOverlay(context, list);
-      }),
-      TimeFormatButton(
-        timeFormat: widget.dateTypeOptionPB.timeFormat,
-        onTap: () {
-          final list = TimeFormatList(
-            selectedFormat: widget.dateTypeOptionPB.timeFormat,
-            onSelected: (format) =>
-                widget.onEvent(DateCalEvent.setTimeFormat(format)),
+      Popover(
+        mutex: _popoverMutex,
+        triggerActions:
+            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+        child: const DateFormatButton(),
+        targetAnchor: Alignment.topRight,
+        followerAnchor: Alignment.topLeft,
+        offset: const Offset(20, 0),
+        popupBuilder: (BuildContext context) {
+          return OverlayContainer(
+            constraints: BoxConstraints.loose(const Size(460, 440)),
+            child: DateFormatList(
+              selectedFormat: widget.dateTypeOptionPB.dateFormat,
+              onSelected: (format) =>
+                  widget.onEvent(DateCalEvent.setDateFormat(format)),
+            ),
           );
-          _showOverlay(context, list);
+        },
+      ),
+      Popover(
+        mutex: _popoverMutex,
+        triggerActions:
+            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+        child: TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),
+        targetAnchor: Alignment.topRight,
+        followerAnchor: Alignment.topLeft,
+        offset: const Offset(20, 0),
+        popupBuilder: (BuildContext context) {
+          return OverlayContainer(
+            constraints: BoxConstraints.loose(const Size(460, 440)),
+            child: TimeFormatList(
+              selectedFormat: widget.dateTypeOptionPB.timeFormat,
+              onSelected: (format) =>
+                  widget.onEvent(DateCalEvent.setTimeFormat(format)),
+            ),
+          );
         },
       ),
     ];
