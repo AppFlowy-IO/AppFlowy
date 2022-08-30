@@ -31,6 +31,10 @@ impl<T> std::fmt::Display for GenericGroupConfiguration<T> {
         self.groups_map.iter().for_each(|(_, group)| {
             let _ = f.write_fmt(format_args!("Group:{} has {} rows \n", group.id, group.rows.len()));
         });
+        let _ = f.write_fmt(format_args!(
+            "Default group has {} rows \n",
+            self.default_group.rows.len()
+        ));
         Ok(())
     }
 }
@@ -41,6 +45,8 @@ pub struct GenericGroupConfiguration<C> {
     configuration_content: PhantomData<C>,
     field_rev: Arc<FieldRevision>,
     groups_map: IndexMap<String, Group>,
+    /// default_group is used to store the rows that don't belong to any groups.
+    default_group: Group,
     writer: Arc<dyn GroupConfigurationWriter>,
 }
 
@@ -55,6 +61,15 @@ where
         reader: Arc<dyn GroupConfigurationReader>,
         writer: Arc<dyn GroupConfigurationWriter>,
     ) -> FlowyResult<Self> {
+        let default_group_id = format!("{}_default_group", view_id);
+        let default_group = Group {
+            id: default_group_id,
+            field_id: field_rev.id.clone(),
+            name: format!("No {}", field_rev.name),
+            is_default: true,
+            rows: vec![],
+            content: "".to_string(),
+        };
         let configuration = match reader.get_group_configuration(field_rev.clone()).await {
             None => {
                 let default_group_configuration = default_group_configuration(&field_rev);
@@ -71,6 +86,7 @@ where
             view_id,
             field_rev,
             groups_map: IndexMap::new(),
+            default_group,
             writer,
             configuration,
             configuration_content: PhantomData,
@@ -82,7 +98,9 @@ where
     }
 
     pub(crate) fn clone_groups(&self) -> Vec<Group> {
-        self.groups_map.values().cloned().collect()
+        let mut groups: Vec<Group> = self.groups_map.values().cloned().collect();
+        groups.push(self.default_group.clone());
+        groups
     }
 
     pub(crate) fn merge_groups(&mut self, groups: Vec<Group>) -> FlowyResult<Option<GroupViewChangesetPB>> {
@@ -158,6 +176,10 @@ where
 
     pub(crate) fn get_mut_group(&mut self, group_id: &str) -> Option<&mut Group> {
         self.groups_map.get_mut(group_id)
+    }
+
+    pub(crate) fn get_mut_default_group(&mut self) -> &mut Group {
+        &mut self.default_group
     }
 
     pub(crate) fn move_group(&mut self, from_id: &str, to_id: &str) -> FlowyResult<()> {

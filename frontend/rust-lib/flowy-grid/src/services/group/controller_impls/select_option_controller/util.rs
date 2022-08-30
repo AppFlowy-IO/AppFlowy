@@ -15,18 +15,25 @@ pub fn add_row(
     row_rev: &RowRevision,
 ) -> Option<GroupChangesetPB> {
     let mut changeset = GroupChangesetPB::new(group.id.clone());
-    cell_data.select_options.iter().for_each(|option| {
-        if option.id == group.id {
-            if !group.contains_row(&row_rev.id) {
-                let row_pb = RowPB::from(row_rev);
-                changeset.inserted_rows.push(InsertedRowPB::new(row_pb.clone()));
-                group.add_row(row_pb);
-            }
-        } else if group.contains_row(&row_rev.id) {
+    if cell_data.select_options.is_empty() {
+        if group.contains_row(&row_rev.id) {
             changeset.deleted_rows.push(row_rev.id.clone());
             group.remove_row(&row_rev.id);
         }
-    });
+    } else {
+        cell_data.select_options.iter().for_each(|option| {
+            if option.id == group.id {
+                if !group.contains_row(&row_rev.id) {
+                    let row_pb = RowPB::from(row_rev);
+                    changeset.inserted_rows.push(InsertedRowPB::new(row_pb.clone()));
+                    group.add_row(row_pb);
+                }
+            } else if group.contains_row(&row_rev.id) {
+                changeset.deleted_rows.push(row_rev.id.clone());
+                group.remove_row(&row_rev.id);
+            }
+        });
+    }
 
     if changeset.is_empty() {
         None

@@ -2,7 +2,7 @@ use crate::grid::grid_editor::GridEditorTest;
 use flowy_grid::entities::{
     CreateRowParams, FieldChangesetParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
-use flowy_grid::services::cell::insert_select_option_cell;
+use flowy_grid::services::cell::{delete_select_option_cell, insert_select_option_cell};
 use flowy_grid_data_model::revision::RowChangeset;
 use std::time::Duration;
 use tokio::time::interval;
@@ -128,11 +128,22 @@ impl GridGroupTest {
                 let field_id = from_group.field_id;
                 let field_rev = self.editor.get_field_rev(&field_id).await.unwrap();
                 let field_type: FieldType = field_rev.ty.into();
-                let cell_rev = match field_type {
-                    FieldType::SingleSelect => insert_select_option_cell(to_group.group_id.clone(), &field_rev),
-                    FieldType::MultiSelect => insert_select_option_cell(to_group.group_id.clone(), &field_rev),
-                    _ => {
-                        panic!("Unsupported group field type");
+
+                let cell_rev = if to_group.is_default {
+                    match field_type {
+                        FieldType::SingleSelect => delete_select_option_cell(to_group.group_id.clone(), &field_rev),
+                        FieldType::MultiSelect => delete_select_option_cell(to_group.group_id.clone(), &field_rev),
+                        _ => {
+                            panic!("Unsupported group field type");
+                        }
+                    }
+                } else {
+                    match field_type {
+                        FieldType::SingleSelect => insert_select_option_cell(to_group.group_id.clone(), &field_rev),
+                        FieldType::MultiSelect => insert_select_option_cell(to_group.group_id.clone(), &field_rev),
+                        _ => {
+                            panic!("Unsupported group field type");
+                        }
                     }
                 };
 

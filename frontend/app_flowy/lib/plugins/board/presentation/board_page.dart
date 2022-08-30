@@ -15,6 +15,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/group.pbserver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../grid/application/row/row_cache.dart';
@@ -154,7 +155,11 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   Widget _buildFooter(BuildContext context, AFBoardColumnData columnData) {
-    return AppFlowyColumnFooter(
+    final group = columnData.customData as GroupPB;
+    if (group.isDefault) {
+      return const SizedBox();
+    } else {
+      return AppFlowyColumnFooter(
         icon: SizedBox(
           height: 20,
           width: 20,
@@ -172,7 +177,9 @@ class _BoardContentState extends State<BoardContent> {
         margin: config.footerPadding,
         onAddButtonClick: () {
           context.read<BoardBloc>().add(BoardEvent.createRow(columnData.id));
-        });
+        },
+      );
+    }
   }
 
   Widget _buildCard(
