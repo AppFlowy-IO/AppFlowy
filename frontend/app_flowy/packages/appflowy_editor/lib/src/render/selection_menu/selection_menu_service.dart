@@ -169,6 +169,14 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
       insertCheckboxAfterSelection(editorState);
     },
   ),
+  SelectionMenuItem(
+    name: 'Quote',
+    icon: _selectionMenuIcon('quote'),
+    keywords: ['quote', 'refer'],
+    handler: (editorState, _, __) {
+      insertQuoteAfterSelection(editorState);
+    },
+  ),
 ];
 
 Widget _selectionMenuIcon(String name) {
