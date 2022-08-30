@@ -285,7 +285,7 @@ fn merge_groups(old_groups: &[GroupRevision], groups: Vec<Group>) -> MergeGroupR
     }
 
     // Find out the new groups
-    let new_groups = group_map.into_values().collect::<Vec<Group>>();
+    let new_groups = group_map.into_values();
     for (index, group) in new_groups.into_iter().enumerate() {
         merge_result.add_insert_group(index, group);
     }
@@ -313,7 +313,7 @@ impl MergeGroupResult {
     }
 
     fn add_group(&mut self, group: Group) {
-        self.groups.push(group.clone());
+        self.groups.push(group);
     }
 
     fn add_insert_group(&mut self, index: usize, group: Group) {
@@ -331,11 +331,10 @@ fn make_group_view_changeset(
     inserted_groups: Vec<InsertedGroupPB>,
     updated_group: Vec<Group>,
 ) -> GroupViewChangesetPB {
-    let changeset = GroupViewChangesetPB {
+    GroupViewChangesetPB {
         view_id,
         inserted_groups,
         deleted_groups: vec![],
         update_groups: updated_group.into_iter().map(GroupPB::from).collect(),
-    };
-    changeset
+    }
 }

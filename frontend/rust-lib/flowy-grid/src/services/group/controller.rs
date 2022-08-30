@@ -98,10 +98,12 @@ where
         })
     }
 
+    // https://stackoverflow.com/questions/69413164/how-to-fix-this-clippy-warning-needless-collect
+    #[allow(clippy::needless_collect)]
     fn update_default_group(
         &mut self,
         row_rev: &RowRevision,
-        other_group_changesets: &Vec<GroupChangesetPB>,
+        other_group_changesets: &[GroupChangesetPB],
     ) -> GroupChangesetPB {
         let default_group = self.configuration.get_mut_default_group();
 
@@ -119,15 +121,14 @@ where
             .filter(|row_id| {
                 // if the [other_group_inserted_row] contains the row_id of the row
                 // which means the row should not move to the default group.
-                other_group_inserted_row
+                !other_group_inserted_row
                     .iter()
-                    .find(|inserted_row| &inserted_row.row.id == row_id)
-                    .is_none()
+                    .any(|inserted_row| &inserted_row.row.id == row_id)
             })
             .collect::<Vec<String>>();
 
         let mut changeset = GroupChangesetPB::new(default_group.id.clone());
-        if default_group_inserted_row.is_empty() == false {
+        if !default_group_inserted_row.is_empty() {
             changeset.inserted_rows.push(InsertedRowPB::new(row_rev.into()));
             default_group.add_row(row_rev.into());
         }
@@ -146,10 +147,7 @@ where
                 // if the [other_group_delete_rows] contain the inserted_row, which means this row should move
                 // out from the default_group.
                 let inserted_row_id = &inserted_row.row.id;
-                other_group_delete_rows
-                    .iter()
-                    .find(|row_id| inserted_row_id == row_id.clone())
-                    .is_none()
+                !other_group_delete_rows.iter().any(|row_id| inserted_row_id == row_id)
             })
             .collect::<Vec<&InsertedRowPB>>();
 
@@ -157,8 +155,7 @@ where
         for row in &default_group.rows {
             if default_group_deleted_rows
                 .iter()
-                .find(|deleted_row| deleted_row.row.id == row.id)
-                .is_some()
+                .any(|deleted_row| deleted_row.row.id == row.id)
             {
                 deleted_row_ids.push(row.id.clone());
             }

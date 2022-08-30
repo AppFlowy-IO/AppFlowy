@@ -93,14 +93,15 @@ BoxDecoration _makeBoxDecoration(BuildContext context) {
   final theme = context.read<AppTheme>();
   final borderSide = BorderSide(color: theme.shader6, width: 1.0);
   return BoxDecoration(
-    color: theme.surface,
+    color: Colors.transparent,
     border: Border.fromBorderSide(borderSide),
-    boxShadow: [
+    boxShadow: const [
       BoxShadow(
-          color: theme.shader6,
-          spreadRadius: 0,
-          blurRadius: 2,
-          offset: Offset.zero)
+        color: Colors.transparent,
+        spreadRadius: 0,
+        blurRadius: 2,
+        offset: Offset.zero,
+      )
     ],
     borderRadius: const BorderRadius.all(Radius.circular(6)),
   );
@@ -120,8 +121,9 @@ class _CardEnterRegion extends StatelessWidget {
       builder: (context, onEnter, _) {
         List<Widget> children = [child];
         if (onEnter) {
-          children.add(CardAccessoryContainer(accessories: accessories)
-              .positioned(right: 0));
+          children.add(CardAccessoryContainer(
+            accessories: accessories,
+          ).positioned(right: 0));
         }
 
         return MouseRegion(

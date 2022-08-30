@@ -112,7 +112,7 @@ class _BoardContentState extends State<BoardContent> {
                   column,
                   columnItem,
                 ),
-                columnConstraints: const BoxConstraints.tightFor(width: 240),
+                columnConstraints: const BoxConstraints.tightFor(width: 300),
                 config: AFBoardConfig(
                   columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
                 ),
