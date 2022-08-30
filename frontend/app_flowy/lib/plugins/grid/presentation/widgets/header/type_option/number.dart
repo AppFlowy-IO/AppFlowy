@@ -48,32 +48,21 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _NumberTypeOptionWidgetState();
-}
-
-class _NumberTypeOptionWidgetState extends State<NumberTypeOptionWidget> {
-  late PopoverController controller;
-
-  @override
-  void initState() {
-    controller = PopoverController(mutex: widget.popoverMutex);
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocProvider(
       create: (context) =>
-          NumberTypeOptionBloc(typeOptionContext: widget.typeOptionContext),
+          NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
         child: BlocConsumer<NumberTypeOptionBloc, NumberTypeOptionState>(
           listener: (context, state) =>
-              widget.typeOptionContext.typeOption = state.typeOption,
+              typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
             return Popover(
-              controller: controller,
+              mutex: popoverMutex,
+              triggerActions: PopoverTriggerActionFlags.hover |
+                  PopoverTriggerActionFlags.click,
               targetAnchor: Alignment.topRight,
               followerAnchor: Alignment.topLeft,
               offset: const Offset(20, 0),
@@ -91,12 +80,6 @@ class _NumberTypeOptionWidgetState extends State<NumberTypeOptionWidget> {
                         fontSize: 12),
                   ],
                 ),
-                onTap: () => controller.show(),
-                onHover: (hover) {
-                  if (hover) {
-                    controller.show();
-                  }
-                },
               ),
               popupBuilder: (BuildContext context) {
                 return OverlayContainer(

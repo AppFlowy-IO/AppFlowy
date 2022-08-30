@@ -24,7 +24,7 @@ typedef SwitchToFieldCallback
   FieldType fieldType,
 );
 
-class FieldTypeOptionEditor extends StatefulWidget {
+class FieldTypeOptionEditor extends StatelessWidget {
   final TypeOptionDataController dataController;
   final PopoverMutex popoverMutex;
 
@@ -35,28 +35,14 @@ class FieldTypeOptionEditor extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<FieldTypeOptionEditor> createState() => _FieldTypeOptionEditorState();
-}
-
-class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
-  late PopoverController popover;
-  String? currentOverlayIdentifier;
-
-  @override
-  void initState() {
-    popover = PopoverController(mutex: widget.popoverMutex);
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FieldTypeOptionEditBloc(widget.dataController)
+      create: (context) => FieldTypeOptionEditBloc(dataController)
         ..add(const FieldTypeOptionEditEvent.initial()),
       child: BlocBuilder<FieldTypeOptionEditBloc, FieldTypeOptionEditState>(
         builder: (context, state) {
           List<Widget> children = [
-            _switchFieldTypeButton(context, widget.dataController.field)
+            _switchFieldTypeButton(context, dataController.field)
           ];
           final typeOptionWidget =
               _typeOptionWidget(context: context, state: state);
@@ -79,13 +65,15 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: Popover(
-        controller: popover,
+        triggerActions:
+            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+        mutex: popoverMutex,
         offset: const Offset(20, 0),
         targetAnchor: Alignment.topRight,
         followerAnchor: Alignment.topLeft,
         popupBuilder: (context) {
           final list = FieldTypeList(onSelectField: (newFieldType) {
-            widget.dataController.switchToField(newFieldType);
+            dataController.switchToField(newFieldType);
           });
           return OverlayContainer(
             constraints: BoxConstraints.loose(const Size(460, 440)),
@@ -96,11 +84,6 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
           text: FlowyText.medium(field.fieldType.title(), fontSize: 12),
           margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           hoverColor: theme.hover,
-          onHover: (bool hover) {
-            if (hover) {
-              popover.show();
-            }
-          },
           leftIcon:
               svgWidget(field.fieldType.iconName(), color: theme.iconColor),
           rightIcon: svgWidget("grid/more", color: theme.iconColor),
@@ -121,8 +104,8 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
     return makeTypeOptionWidget(
       context: context,
       overlayDelegate: overlayDelegate,
-      dataController: widget.dataController,
-      popoverMutex: widget.popoverMutex,
+      dataController: dataController,
+      popoverMutex: popoverMutex,
     );
   }
 
@@ -141,12 +124,10 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
   }
 
   void _hideOverlay(BuildContext context) {
-    if (currentOverlayIdentifier != null) {
-      FlowyOverlay.of(context).remove(currentOverlayIdentifier!);
-    }
+    //
   }
 }
 
-abstract class TypeOptionWidget extends StatefulWidget {
+abstract class TypeOptionWidget extends StatelessWidget {
   const TypeOptionWidget({Key? key}) : super(key: key);
 }

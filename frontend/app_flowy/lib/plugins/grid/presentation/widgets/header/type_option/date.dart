@@ -43,28 +43,13 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _DateTypeOptionWidgetState();
-}
-
-class _DateTypeOptionWidgetState extends State<DateTypeOptionWidget> {
-  late PopoverController dateFormatPopover;
-  late PopoverController timeFormatPopover;
-
-  @override
-  void initState() {
-    dateFormatPopover = PopoverController(mutex: widget.popoverMutex);
-    timeFormatPopover = PopoverController(mutex: widget.popoverMutex);
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          DateTypeOptionBloc(typeOptionContext: widget.typeOptionContext),
+          DateTypeOptionBloc(typeOptionContext: typeOptionContext),
       child: BlocConsumer<DateTypeOptionBloc, DateTypeOptionState>(
         listener: (context, state) =>
-            widget.typeOptionContext.typeOption = state.typeOption,
+            typeOptionContext.typeOption = state.typeOption,
         builder: (context, state) {
           return Column(children: [
             _renderDateFormatButton(context, state.typeOption.dateFormat),
@@ -78,14 +63,10 @@ class _DateTypeOptionWidgetState extends State<DateTypeOptionWidget> {
 
   Widget _renderDateFormatButton(BuildContext context, DateFormat dataFormat) {
     return Popover(
-      controller: dateFormatPopover,
-      child: DateFormatButton(onTap: () {
-        dateFormatPopover.show();
-      }, onHover: ((hover) {
-        if (hover) {
-          dateFormatPopover.show();
-        }
-      })),
+      mutex: popoverMutex,
+      triggerActions:
+          PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+      child: const DateFormatButton(),
       targetAnchor: Alignment.topRight,
       followerAnchor: Alignment.topLeft,
       offset: const Offset(20, 0),
@@ -107,18 +88,10 @@ class _DateTypeOptionWidgetState extends State<DateTypeOptionWidget> {
 
   Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
     return Popover(
-      controller: timeFormatPopover,
-      child: TimeFormatButton(
-        timeFormat: timeFormat,
-        onTap: () {
-          timeFormatPopover.show();
-        },
-        onHover: (hover) {
-          if (hover) {
-            timeFormatPopover.show();
-          }
-        },
-      ),
+      mutex: popoverMutex,
+      triggerActions:
+          PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+      child: TimeFormatButton(timeFormat: timeFormat),
       targetAnchor: Alignment.topRight,
       followerAnchor: Alignment.topLeft,
       offset: const Offset(20, 0),
