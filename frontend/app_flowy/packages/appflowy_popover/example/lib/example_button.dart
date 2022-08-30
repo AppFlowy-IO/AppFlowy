@@ -7,16 +7,7 @@ class PopoverMenu extends StatefulWidget {
 }
 
 class _PopoverMenuState extends State<PopoverMenu> {
-  final PopoverMutex exclusive = PopoverMutex();
-  late PopoverController firstPopover;
-  late PopoverController secondPopover;
-
-  @override
-  void initState() {
-    firstPopover = PopoverController(mutex: exclusive);
-    secondPopover = PopoverController(mutex: exclusive);
-    super.initState();
-  }
+  final PopoverMutex popOverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +18,9 @@ class _PopoverMenuState extends State<PopoverMenu> {
       child: ListView(children: [
         const Text("App"),
         Popover(
-          controller: firstPopover,
+          triggerActions:
+              PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+          mutex: popOverMutex,
           offset: const Offset(10, 0),
           targetAnchor: Alignment.topRight,
           followerAnchor: Alignment.topLeft,
@@ -35,19 +28,14 @@ class _PopoverMenuState extends State<PopoverMenu> {
             return PopoverMenu();
           },
           child: TextButton(
-            onPressed: () {
-              firstPopover.show();
-            },
-            onHover: (value) {
-              if (value) {
-                firstPopover.show();
-              }
-            },
+            onPressed: () {},
             child: const Text("First"),
           ),
         ),
         Popover(
-          controller: secondPopover,
+          triggerActions:
+              PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+          mutex: popOverMutex,
           offset: const Offset(10, 0),
           targetAnchor: Alignment.topRight,
           followerAnchor: Alignment.topLeft,
@@ -55,14 +43,7 @@ class _PopoverMenuState extends State<PopoverMenu> {
             return PopoverMenu();
           },
           child: TextButton(
-            onPressed: () {
-              secondPopover.show();
-            },
-            onHover: (value) {
-              if (value) {
-                secondPopover.show();
-              }
-            },
+            onPressed: () {},
             child: const Text("Second"),
           ),
         ),
@@ -72,14 +53,12 @@ class _PopoverMenuState extends State<PopoverMenu> {
 }
 
 class ExampleButton extends StatelessWidget {
-  final PopoverController _popover = PopoverController();
-
   final String label;
   final Alignment targetAnchor;
   final Alignment followerAnchor;
   final Offset? offset;
 
-  ExampleButton({
+  const ExampleButton({
     Key? key,
     required this.label,
     this.targetAnchor = Alignment.topLeft,
@@ -90,16 +69,11 @@ class ExampleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Popover(
-      controller: _popover,
       targetAnchor: targetAnchor,
       followerAnchor: followerAnchor,
+      triggerActions: PopoverTriggerActionFlags.click,
       offset: offset,
-      child: TextButton(
-        onPressed: (() {
-          _popover.show();
-        }),
-        child: Text(label),
-      ),
+      child: TextButton(child: Text(label), onPressed: () {}),
       popupBuilder: (BuildContext context) {
         return PopoverMenu();
       },

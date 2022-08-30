@@ -3,30 +3,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class PopoverMutex {
-  PopoverController? controller;
+  PopoverState? state;
 }
 
 class PopoverController {
   PopoverState? state;
-  PopoverMutex? mutex;
-
-  PopoverController({this.mutex});
 
   close() {
     state?.close();
-    if (mutex != null && mutex!.controller == this) {
-      mutex!.controller = null;
-    }
   }
 
   show() {
-    if (mutex != null) {
-      debugPrint("show popover");
-      mutex!.controller?.close();
-      mutex!.controller = this;
-    }
     state?.showOverlay();
   }
+}
+
+class PopoverTriggerActionFlags {
+  static int click = 0x01;
+  static int hover = 0x02;
 }
 
 class Popover extends StatefulWidget {
@@ -37,6 +31,8 @@ class Popover extends StatefulWidget {
   final Alignment targetAnchor;
   final Alignment followerAnchor;
   final Widget Function(BuildContext context) popupBuilder;
+  final int triggerActions;
+  final PopoverMutex? mutex;
   final void Function()? onClose;
 
   const Popover({
@@ -48,6 +44,8 @@ class Popover extends StatefulWidget {
     this.maskDecoration,
     this.targetAnchor = Alignment.topLeft,
     this.followerAnchor = Alignment.topLeft,
+    this.triggerActions = 0,
+    this.mutex,
     this.onClose,
   }) : super(key: key);
 
@@ -59,20 +57,12 @@ class PopoverState extends State<Popover> {
   final LayerLink layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   bool hasMask = true;
-  late TapGestureRecognizer _recognizer;
 
   static PopoverState? _popoverWithMask;
 
   @override
   void initState() {
     widget.controller?.state = this;
-    _recognizer = TapGestureRecognizer();
-    _recognizer.onTapDown = (details) {
-      debugPrint("ggg tapdown");
-    };
-    _recognizer.onTap = (() {
-      debugPrint("ggg tap");
-    });
     super.initState();
   }
 
@@ -80,12 +70,19 @@ class PopoverState extends State<Popover> {
     debugPrint("show overlay");
     close();
 
+    if (widget.mutex != null) {
+      if (widget.mutex!.state != null && widget.mutex!.state != this) {
+        widget.mutex!.state!.close();
+      }
+
+      widget.mutex!.state = this;
+    }
+
     if (_popoverWithMask == null) {
       _popoverWithMask = this;
     } else {
       hasMask = false;
     }
-    debugPrint("has mask: $hasMask");
 
     final newEntry = OverlayEntry(builder: (context) {
       final children = <Widget>[];
@@ -126,6 +123,10 @@ class PopoverState extends State<Popover> {
         widget.onClose!();
       }
     }
+
+    if (widget.mutex?.state == this) {
+      widget.mutex!.state = null;
+    }
   }
 
   @override
@@ -135,15 +136,30 @@ class PopoverState extends State<Popover> {
     super.deactivate();
   }
 
-  @override
-  void dispose() {
-    _recognizer.dispose();
-    super.dispose();
+  _handleTargetPointerDown(PointerDownEvent event) {
+    if (widget.triggerActions & PopoverTriggerActionFlags.click != 0) {
+      showOverlay();
+    }
+  }
+
+  _handleTargetPointerEnter(PointerEnterEvent event) {
+    if (widget.triggerActions & PopoverTriggerActionFlags.hover != 0) {
+      showOverlay();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return CompositedTransformTarget(link: layerLink, child: widget.child);
+    return CompositedTransformTarget(
+      link: layerLink,
+      child: MouseRegion(
+        onEnter: _handleTargetPointerEnter,
+        child: Listener(
+          onPointerDown: _handleTargetPointerDown,
+          child: widget.child,
+        ),
+      ),
+    );
   }
 }
 
