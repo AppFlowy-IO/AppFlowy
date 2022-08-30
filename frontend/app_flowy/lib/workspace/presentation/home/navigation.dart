@@ -11,6 +11,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 typedef NaviAction = void Function();
 
@@ -100,7 +101,7 @@ class FlowyNavigation extends StatelessWidget {
               turns: const AlwaysStoppedAnimation(180 / 360),
               child: Tooltip(
                   richMessage: TextSpan(children: [
-                    const TextSpan(text: LocaleKeys.sideBar_openSidebar + "\n"),
+                    TextSpan(text: LocaleKeys.sideBar_openSidebar.tr() + "\n"),
                     TextSpan(
                       text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
                       style: const TextStyle(color: Colors.white60),
