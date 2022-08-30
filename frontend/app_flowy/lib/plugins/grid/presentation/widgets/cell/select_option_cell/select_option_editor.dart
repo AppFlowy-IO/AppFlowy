@@ -28,6 +28,8 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   final GridSelectOptionCellController cellController;
   final VoidCallback onDismissed;
 
+  static double editorPanelWidth = 300;
+
   const SelectOptionCellEditor({
     required this.cellController,
     required this.onDismissed,
