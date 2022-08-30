@@ -28,14 +28,14 @@ packages:
       path: "packages/appflowy_board"
       relative: true
     source: path
-    version: "0.0.5"
+    version: "0.0.6"
   appflowy_editor:
     dependency: "direct main"
     description:
       path: "packages/appflowy_editor"
       relative: true
     source: path
-    version: "0.0.2"
+    version: "0.0.3"
   args:
     dependency: transitive
     description:

@@ -112,7 +112,7 @@ class AFBoardColumnWidget extends StatefulWidget {
     this.cornerRadius = 0.0,
     this.backgroundColor = Colors.transparent,
   })  : globalKey = GlobalObjectKey(dataSource.columnData.id),
-        config = const ReorderFlexConfig(),
+        config = const ReorderFlexConfig(setStateWhenEndDrag: false),
         super(key: key);
 
   @override
