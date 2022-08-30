@@ -25,50 +25,6 @@ class FlowyPopover extends StatefulWidget {
     this.constraints,
   }) : super(key: key);
 
-  static show(
-    BuildContext context, {
-    required Widget Function(BuildContext context) builder,
-    BuildContext? anchorContext,
-    Offset? anchorPosition,
-    AnchorDirection? anchorDirection,
-    Size? anchorSize,
-    Offset? anchorOffset,
-    BoxConstraints? constraints,
-  }) {
-    final offset = anchorOffset ?? Offset.zero;
-    Offset targetAnchorPosition = anchorPosition ?? Offset.zero;
-    Size targetAnchorSize = anchorSize ?? Size.zero;
-    if (anchorContext != null) {
-      RenderObject renderObject = anchorContext.findRenderObject()!;
-      assert(
-        renderObject is RenderBox,
-        'Unexpected non-RenderBox render object caught.',
-      );
-      final renderBox = renderObject as RenderBox;
-      targetAnchorPosition = renderBox.localToGlobal(Offset.zero);
-      targetAnchorSize = renderBox.size;
-    }
-    final anchorRect = Rect.fromLTWH(
-      targetAnchorPosition.dx + offset.dx,
-      targetAnchorPosition.dy + offset.dy,
-      targetAnchorSize.width,
-      targetAnchorSize.height,
-    );
-
-    showDialog(
-        barrierColor: Colors.transparent,
-        context: context,
-        builder: (BuildContext context) {
-          return FlowyPopover(
-              anchorRect: anchorRect,
-              anchorDirection: anchorDirection,
-              constraints: constraints,
-              builder: (BuildContext context) {
-                return builder(context);
-              });
-        });
-  }
-
   @override
   State<FlowyPopover> createState() => _FlowyPopoverState();
 }

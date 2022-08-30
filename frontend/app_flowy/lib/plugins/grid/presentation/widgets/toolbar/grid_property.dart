@@ -119,13 +119,13 @@ class _GridPropertyCell extends StatelessWidget {
       hoverColor: theme.hover,
       leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
       onTap: () {
-        FieldEditorPopOver.show(
-          context,
-          anchorContext: context,
-          gridId: gridId,
-          fieldName: field.name,
-          typeOptionLoader: FieldTypeOptionLoader(gridId: gridId, field: field),
-        );
+        // FieldEditorPopOver.show(
+        //   context,
+        //   anchorContext: context,
+        //   gridId: gridId,
+        //   fieldName: field.name,
+        //   typeOptionLoader: FieldTypeOptionLoader(gridId: gridId, field: field),
+        // );
       },
     );
   }

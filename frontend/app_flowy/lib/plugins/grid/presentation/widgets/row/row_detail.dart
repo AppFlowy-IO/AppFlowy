@@ -13,6 +13,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy_popover/popover.dart';
 
 import '../../layout/sizes.dart';
 import '../cell/cell_accessory.dart';
@@ -123,7 +124,7 @@ class _PropertyList extends StatelessWidget {
   }
 }
 
-class _RowDetailCell extends StatelessWidget {
+class _RowDetailCell extends StatefulWidget {
   final GridCellIdentifier cellId;
   final GridCellBuilder cellBuilder;
   const _RowDetailCell({
@@ -133,10 +134,17 @@ class _RowDetailCell extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _RowDetailCellState();
+}
+
+class _RowDetailCellState extends State<_RowDetailCell> {
+  final PopoverController popover = PopoverController();
+
+  @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final style = _customCellStyle(theme, cellId.fieldType);
-    final cell = cellBuilder.build(cellId, style: style);
+    final style = _customCellStyle(theme, widget.cellId.fieldType);
+    final cell = widget.cellBuilder.build(widget.cellId, style: style);
 
     final gesture = GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -157,26 +165,34 @@ class _RowDetailCell extends StatelessWidget {
           children: [
             SizedBox(
               width: 150,
-              child: FieldCellButton(
-                  field: cellId.field, onTap: () => _showFieldEditor(context)),
+              child: Popover(
+                controller: popover,
+                targetAnchor: Alignment.topRight,
+                followerAnchor: Alignment.topLeft,
+                offset: const Offset(20, 0),
+                popupBuilder: (context) {
+                  return OverlayContainer(
+                    constraints: BoxConstraints.loose(const Size(240, 200)),
+                    child: FieldEditor(
+                      gridId: widget.cellId.gridId,
+                      fieldName: widget.cellId.field.name,
+                      typeOptionLoader: FieldTypeOptionLoader(
+                        gridId: widget.cellId.gridId,
+                        field: widget.cellId.field,
+                      ),
+                    ),
+                  );
+                },
+                child: FieldCellButton(
+                  field: widget.cellId.field,
+                  onTap: () => popover.show(),
+                ),
+              ),
             ),
             const HSpace(10),
             Expanded(child: gesture),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showFieldEditor(BuildContext context) {
-    FieldEditorPopOver.show(
-      context,
-      anchorContext: context,
-      gridId: cellId.gridId,
-      fieldName: cellId.field.name,
-      typeOptionLoader: FieldTypeOptionLoader(
-        gridId: cellId.gridId,
-        field: cellId.field,
       ),
     );
   }

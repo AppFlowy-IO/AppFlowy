@@ -157,13 +157,15 @@ class CreateFieldButton extends StatelessWidget {
     return FlowyButton(
       text: const FlowyText.medium('New column', fontSize: 12),
       hoverColor: theme.shader6,
-      onTap: () => FieldEditorPopOver.show(
-        context,
-        anchorContext: context,
-        gridId: gridId,
-        fieldName: "",
-        typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
-      ),
+      onTap: () {
+        // FieldEditorPopOver.show(
+        //   context,
+        //   anchorContext: context,
+        //   gridId: gridId,
+        //   fieldName: "",
+        //   typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
+        // )
+      },
       leftIcon: svgWidget("home/add"),
     );
   }

@@ -116,26 +116,3 @@ class _FieldNameCell extends StatelessWidget {
     );
   }
 }
-
-class FieldEditorPopOver {
-  static show(
-    BuildContext context, {
-    required BuildContext anchorContext,
-    required String gridId,
-    required String fieldName,
-    required IFieldTypeOptionLoader typeOptionLoader,
-    Key? key,
-  }) {
-    FlowyPopover.show(
-      context,
-      anchorContext: anchorContext,
-      builder: (BuildContext context) {
-        return FieldEditor(
-            gridId: gridId,
-            fieldName: fieldName,
-            typeOptionLoader: typeOptionLoader,
-            key: key);
-      },
-    );
-  }
-}

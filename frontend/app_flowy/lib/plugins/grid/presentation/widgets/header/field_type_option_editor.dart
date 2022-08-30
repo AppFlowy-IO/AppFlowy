@@ -128,16 +128,16 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
 
   void _showOverlay(BuildContext context, Widget child,
       {VoidCallback? onRemoved}) {
-    FlowyPopover.show(
-      context,
-      constraints: BoxConstraints.loose(const Size(460, 440)),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.rightWithCenterAligned,
-      anchorOffset: const Offset(20, 0),
-      builder: (BuildContext context) {
-        return child;
-      },
-    );
+    // FlowyPopover.show(
+    //   context,
+    //   constraints: BoxConstraints.loose(const Size(460, 440)),
+    //   anchorContext: context,
+    //   anchorDirection: AnchorDirection.rightWithCenterAligned,
+    //   anchorOffset: const Offset(20, 0),
+    //   builder: (BuildContext context) {
+    //     return child;
+    //   },
+    // );
   }
 
   void _hideOverlay(BuildContext context) {
