@@ -69,12 +69,11 @@ class CardAccessoryContainer extends StatelessWidget {
         style: HoverStyle(
           hoverColor: theme.hover,
           backgroundColor: theme.surface,
+          borderRadius: BorderRadius.zero,
         ),
-        builder: (_, onHover) => Container(
-          width: 26,
-          height: 26,
-          padding: const EdgeInsets.all(3),
-          decoration: _makeBoxDecoration(context),
+        builder: (_, onHover) => SizedBox(
+          width: 24,
+          height: 24,
           child: accessory,
         ),
       );
@@ -85,7 +84,11 @@ class CardAccessoryContainer extends StatelessWidget {
       );
     }).toList();
 
-    return Wrap(children: children, spacing: 6);
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: _makeBoxDecoration(context),
+      child: Row(children: children),
+    );
   }
 }
 
@@ -95,15 +98,16 @@ BoxDecoration _makeBoxDecoration(BuildContext context) {
   return BoxDecoration(
     color: Colors.transparent,
     border: Border.fromBorderSide(borderSide),
-    boxShadow: const [
-      BoxShadow(
-        color: Colors.transparent,
-        spreadRadius: 0,
-        blurRadius: 2,
-        offset: Offset.zero,
-      )
-    ],
-    borderRadius: const BorderRadius.all(Radius.circular(6)),
+    // boxShadow: const [
+    //   BoxShadow(
+    //     color: Colors.transparent,
+    //     spreadRadius: 0,
+    //     blurRadius: 5,
+    //     offset: Offset.zero,
+    //   )
+    // ],
+
+    borderRadius: const BorderRadius.all(Radius.circular(4)),
   );
 }
 

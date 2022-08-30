@@ -107,7 +107,10 @@ class BoardCardState with _$BoardCardState {
 
   factory BoardCardState.initial(
           RowPB rowPB, UnmodifiableListView<BoardCellEquatable> cells) =>
-      BoardCardState(rowPB: rowPB, cells: cells);
+      BoardCardState(
+        rowPB: rowPB,
+        cells: cells,
+      );
 }
 
 class BoardCellEquatable extends Equatable {

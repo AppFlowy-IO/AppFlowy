@@ -5,13 +5,18 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/cell/select_option_c
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BoardSelectOptionCell extends StatefulWidget {
+import 'board_cell.dart';
+
+class BoardSelectOptionCell extends StatefulWidget with EditableCell {
   final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
+  @override
+  final EditableCellNotifier? editableNotifier;
 
   const BoardSelectOptionCell({
     required this.groupId,
     required this.cellControllerBuilder,
+    this.editableNotifier,
     Key? key,
   }) : super(key: key);
 

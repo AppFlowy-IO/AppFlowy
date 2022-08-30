@@ -4,15 +4,19 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.da
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class BoardTextCell extends StatefulWidget {
+import 'board_cell.dart';
+
+class BoardTextCell extends StatefulWidget with EditableCell {
   final String groupId;
   final bool isFocus;
-
+  @override
+  final EditableCellNotifier? editableNotifier;
   final GridCellControllerBuilder cellControllerBuilder;
 
   const BoardTextCell({
     required this.groupId,
     required this.cellControllerBuilder,
+    this.editableNotifier,
     this.isFocus = false,
     Key? key,
   }) : super(key: key);
@@ -37,6 +41,18 @@ class _BoardTextCellState extends State<BoardTextCell> {
     if (widget.isFocus) {
       focusNode.requestFocus();
     }
+
+    widget.editableNotifier?.becomeFirstResponder.addListener(() {
+      if (!mounted) return;
+      focusNode.requestFocus();
+      _cellBloc.add(const BoardTextCellEvent.enableEdit(true));
+    });
+
+    widget.editableNotifier?.resignFirstResponder.addListener(() {
+      if (!mounted) return;
+      _cellBloc.add(const BoardTextCellEvent.enableEdit(false));
+    });
+
     super.initState();
   }
 
@@ -50,18 +66,26 @@ class _BoardTextCellState extends State<BoardTextCell> {
             _controller.text = state.content;
           }
         },
-        child: TextField(
-          controller: _controller,
-          focusNode: focusNode,
-          onChanged: (value) => focusChanged(),
-          onEditingComplete: () => focusNode.unfocus(),
-          maxLines: 1,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 6),
-            border: InputBorder.none,
-            isDense: true,
-          ),
+        child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
+          buildWhen: (previous, current) =>
+              previous.enableEdit != current.enableEdit,
+          builder: (context, state) {
+            return TextField(
+              // autofocus: true,
+              // enabled: state.enableEdit,
+              controller: _controller,
+              focusNode: focusNode,
+              onChanged: (value) => focusChanged(),
+              onEditingComplete: () => focusNode.unfocus(),
+              maxLines: 1,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              decoration: const InputDecoration(
+                contentPadding: EdgeInsets.symmetric(vertical: 6),
+                border: InputBorder.none,
+                isDense: true,
+              ),
+            );
+          },
         ),
       ),
     );

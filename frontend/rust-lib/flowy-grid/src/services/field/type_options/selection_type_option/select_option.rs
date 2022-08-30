@@ -154,6 +154,7 @@ pub fn select_option_color_from_index(index: usize) -> SelectOptionColorPB {
         _ => SelectOptionColorPB::Purple,
     }
 }
+
 pub struct SelectOptionIds(Vec<String>);
 
 impl SelectOptionIds {

@@ -7,6 +7,7 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'board_cell.dart';
 import 'card_cell_builder.dart';
 import 'card_container.dart';
 
@@ -36,9 +37,11 @@ class BoardCard extends StatefulWidget {
 
 class _BoardCardState extends State<BoardCard> {
   late BoardCardBloc _cardBloc;
+  late EditableRowNotifier rowNotifier;
 
   @override
   void initState() {
+    rowNotifier = EditableRowNotifier();
     _cardBloc = BoardCardBloc(
       gridId: widget.gridId,
       fieldId: widget.fieldId,
@@ -58,7 +61,12 @@ class _BoardCardState extends State<BoardCard> {
         builder: (context, state) {
           return BoardCardContainer(
             accessoryBuilder: (context) {
-              return [const _CardMoreOption()];
+              return [
+                _CardEditOption(
+                  startEditing: () => rowNotifier.becomeFirstResponder(),
+                ),
+                const _CardMoreOption(),
+              ];
             },
             onTap: (context) {
               widget.openCard(context);
@@ -83,11 +91,14 @@ class _BoardCardState extends State<BoardCard> {
     final List<Widget> children = [];
     cells.asMap().forEach(
       (int index, GridCellIdentifier cellId) {
+        final cellNotifier = EditableCellNotifier();
         Widget child = widget.cellBuilder.buildCell(
           widget.groupId,
           cellId,
           widget.isEditing,
+          cellNotifier,
         );
+        rowNotifier.insertCell(cellId, cellNotifier);
 
         if (index != 0) {
           child = Padding(
@@ -121,7 +132,11 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
 
   @override
   Widget build(BuildContext context) {
-    return svgWidget('grid/details', color: context.read<AppTheme>().iconColor);
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child:
+          svgWidget('grid/details', color: context.read<AppTheme>().iconColor),
+    );
   }
 
   @override
@@ -129,5 +144,29 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
     GridRowActionSheet(
       rowData: context.read<BoardCardBloc>().rowInfo(),
     ).show(context, direction: AnchorDirection.bottomWithCenterAligned);
+  }
+}
+
+class _CardEditOption extends StatelessWidget with CardAccessory {
+  final VoidCallback startEditing;
+  const _CardEditOption({
+    required this.startEditing,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: svgWidget(
+        'editor/edit',
+        color: context.read<AppTheme>().iconColor,
+      ),
+    );
+  }
+
+  @override
+  void onTap(BuildContext context) {
+    startEditing();
   }
 }
