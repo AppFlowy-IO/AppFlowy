@@ -1,6 +1,7 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/number_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/number_format_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -24,9 +25,11 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
   NumberTypeOptionWidgetBuilder(
     NumberTypeOptionContext typeOptionContext,
     TypeOptionOverlayDelegate overlayDelegate,
+    PopoverMutex popoverMutex,
   ) : _widget = NumberTypeOptionWidget(
           typeOptionContext: typeOptionContext,
           overlayDelegate: overlayDelegate,
+          popoverMutex: popoverMutex,
         );
 
   @override
@@ -36,9 +39,11 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 class NumberTypeOptionWidget extends TypeOptionWidget {
   final TypeOptionOverlayDelegate overlayDelegate;
   final NumberTypeOptionContext typeOptionContext;
+  final PopoverMutex popoverMutex;
   const NumberTypeOptionWidget({
     required this.typeOptionContext,
     required this.overlayDelegate,
+    required this.popoverMutex,
     Key? key,
   }) : super(key: key);
 
@@ -47,6 +52,14 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
 }
 
 class _NumberTypeOptionWidgetState extends State<NumberTypeOptionWidget> {
+  late PopoverController controller;
+
+  @override
+  void initState() {
+    controller = PopoverController(mutex: widget.popoverMutex);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
@@ -59,34 +72,45 @@ class _NumberTypeOptionWidgetState extends State<NumberTypeOptionWidget> {
           listener: (context, state) =>
               widget.typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
-            return FlowyButton(
-              text: Row(
-                children: [
-                  FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr(),
-                      fontSize: 12),
-                  // const HSpace(6),
-                  const Spacer(),
-                  FlowyText.regular(state.typeOption.format.title(),
-                      fontSize: 12),
-                ],
+            return Popover(
+              controller: controller,
+              targetAnchor: Alignment.topRight,
+              followerAnchor: Alignment.topLeft,
+              offset: const Offset(20, 0),
+              child: FlowyButton(
+                margin: GridSize.typeOptionContentInsets,
+                hoverColor: theme.hover,
+                rightIcon: svgWidget("grid/more", color: theme.iconColor),
+                text: Row(
+                  children: [
+                    FlowyText.medium(LocaleKeys.grid_field_numberFormat.tr(),
+                        fontSize: 12),
+                    // const HSpace(6),
+                    const Spacer(),
+                    FlowyText.regular(state.typeOption.format.title(),
+                        fontSize: 12),
+                  ],
+                ),
+                onTap: () => controller.show(),
+                onHover: (hover) {
+                  if (hover) {
+                    controller.show();
+                  }
+                },
               ),
-              margin: GridSize.typeOptionContentInsets,
-              hoverColor: theme.hover,
-              onTap: () {
-                final list = NumberFormatList(
-                  onSelected: (format) {
-                    context
-                        .read<NumberTypeOptionBloc>()
-                        .add(NumberTypeOptionEvent.didSelectFormat(format));
-                  },
-                  selectedFormat: state.typeOption.format,
-                );
-                widget.overlayDelegate.showOverlay(
-                  context,
-                  list,
+              popupBuilder: (BuildContext context) {
+                return OverlayContainer(
+                  constraints: BoxConstraints.loose(const Size(460, 440)),
+                  child: NumberFormatList(
+                    onSelected: (format) {
+                      context
+                          .read<NumberTypeOptionBloc>()
+                          .add(NumberTypeOptionEvent.didSelectFormat(format));
+                    },
+                    selectedFormat: state.typeOption.format,
+                  ),
                 );
               },
-              rightIcon: svgWidget("grid/more", color: theme.iconColor),
             );
           },
         ),

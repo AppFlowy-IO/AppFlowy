@@ -106,6 +106,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
           dataController: dataController,
         ),
         overlayDelegate,
+        popoverMutex,
       );
     case FieldType.RichText:
       return RichTextTypeOptionWidgetBuilder(
