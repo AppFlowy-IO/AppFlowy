@@ -10,7 +10,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'field_name_input.dart';
 import 'field_type_option_editor.dart';
 
-class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
+class FieldEditor extends StatelessWidget {
   final String gridId;
   final String fieldName;
 
@@ -47,10 +47,6 @@ class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
         },
       ),
     );
-  }
-
-  static String identifier() {
-    return (FieldEditor).toString();
   }
 
   @override

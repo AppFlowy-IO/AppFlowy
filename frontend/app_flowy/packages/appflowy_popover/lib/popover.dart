@@ -1,15 +1,16 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class AppFlowyPopoverExclusive {
-  AppFlowyPopoverController? controller;
+class PopoverExclusive {
+  PopoverController? controller;
 }
 
-class AppFlowyPopoverController {
-  AppFlowyPopoverState? state;
-  AppFlowyPopoverExclusive? exclusive;
+class PopoverController {
+  PopoverState? state;
+  PopoverExclusive? exclusive;
 
-  AppFlowyPopoverController({this.exclusive});
+  PopoverController({this.exclusive});
 
   close() {
     state?.close();
@@ -28,16 +29,16 @@ class AppFlowyPopoverController {
   }
 }
 
-class AppFlowyPopover extends StatefulWidget {
+class Popover extends StatefulWidget {
   final Widget child;
-  final AppFlowyPopoverController? controller;
+  final PopoverController? controller;
   final Offset? offset;
   final Decoration? maskDecoration;
   final Alignment targetAnchor;
   final Alignment followerAnchor;
   final Widget Function(BuildContext context) popupBuilder;
 
-  const AppFlowyPopover({
+  const Popover({
     Key? key,
     required this.child,
     required this.popupBuilder,
@@ -49,19 +50,27 @@ class AppFlowyPopover extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AppFlowyPopover> createState() => AppFlowyPopoverState();
+  State<Popover> createState() => PopoverState();
 }
 
-class AppFlowyPopoverState extends State<AppFlowyPopover> {
+class PopoverState extends State<Popover> {
   final LayerLink layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   bool hasMask = true;
+  late TapGestureRecognizer _recognizer;
 
-  static AppFlowyPopoverState? _popoverWithMask;
+  static PopoverState? _popoverWithMask;
 
   @override
   void initState() {
     widget.controller?.state = this;
+    _recognizer = TapGestureRecognizer();
+    _recognizer.onTapDown = (details) {
+      debugPrint("ggg tapdown");
+    };
+    _recognizer.onTap = (() {
+      debugPrint("ggg tap");
+    });
     super.initState();
   }
 
@@ -119,6 +128,12 @@ class AppFlowyPopoverState extends State<AppFlowyPopover> {
     debugPrint("deactivate");
     close();
     super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    _recognizer.dispose();
+    super.dispose();
   }
 
   @override

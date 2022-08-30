@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -36,6 +37,7 @@ class FieldTypeOptionEditor extends StatefulWidget {
 }
 
 class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
+  final popover = PopoverController();
   String? currentOverlayIdentifier;
 
   @override
@@ -68,18 +70,33 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
-      child: FlowyButton(
-        text: FlowyText.medium(field.fieldType.title(), fontSize: 12),
-        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        hoverColor: theme.hover,
-        onTap: () {
+      child: Popover(
+        controller: popover,
+        offset: const Offset(20, 0),
+        targetAnchor: Alignment.topRight,
+        followerAnchor: Alignment.topLeft,
+        popupBuilder: (context) {
           final list = FieldTypeList(onSelectField: (newFieldType) {
             widget.dataController.switchToField(newFieldType);
           });
-          _showOverlay(context, list);
+          return OverlayContainer(
+            constraints: BoxConstraints.loose(const Size(460, 440)),
+            child: list,
+          );
         },
-        leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
-        rightIcon: svgWidget("grid/more", color: theme.iconColor),
+        child: FlowyButton(
+          text: FlowyText.medium(field.fieldType.title(), fontSize: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          hoverColor: theme.hover,
+          onHover: (bool hover) {
+            if (hover) {
+              popover.show();
+            }
+          },
+          leftIcon:
+              svgWidget(field.fieldType.iconName(), color: theme.iconColor),
+          rightIcon: svgWidget("grid/more", color: theme.iconColor),
+        ),
       ),
     );
   }

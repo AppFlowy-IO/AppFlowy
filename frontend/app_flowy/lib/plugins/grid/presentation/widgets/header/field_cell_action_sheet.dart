@@ -11,7 +11,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import '../../layout/sizes.dart';
@@ -61,7 +61,7 @@ class _EditFieldButton extends StatefulWidget {
 }
 
 class _EditFieldButtonState extends State<_EditFieldButton> {
-  final popover = AppFlowyPopoverController();
+  final popover = PopoverController();
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,7 @@ class _EditFieldButtonState extends State<_EditFieldButton> {
       builder: (context, state) {
         return SizedBox(
           height: GridSize.typeOptionItemHeight,
-          child: AppFlowyPopover(
+          child: Popover(
             controller: popover,
             targetAnchor: Alignment.topRight,
             followerAnchor: Alignment.topLeft,

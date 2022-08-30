@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:appflowy_popover/popover.dart';
 
 class PopoverMenu extends StatefulWidget {
   @override
@@ -7,14 +7,14 @@ class PopoverMenu extends StatefulWidget {
 }
 
 class _PopoverMenuState extends State<PopoverMenu> {
-  final AppFlowyPopoverExclusive exclusive = AppFlowyPopoverExclusive();
-  late AppFlowyPopoverController firstPopover;
-  late AppFlowyPopoverController secondPopover;
+  final PopoverExclusive exclusive = PopoverExclusive();
+  late PopoverController firstPopover;
+  late PopoverController secondPopover;
 
   @override
   void initState() {
-    firstPopover = AppFlowyPopoverController(exclusive: exclusive);
-    secondPopover = AppFlowyPopoverController(exclusive: exclusive);
+    firstPopover = PopoverController(exclusive: exclusive);
+    secondPopover = PopoverController(exclusive: exclusive);
     super.initState();
   }
 
@@ -26,7 +26,7 @@ class _PopoverMenuState extends State<PopoverMenu> {
       decoration: const BoxDecoration(color: Colors.yellow),
       child: ListView(children: [
         const Text("App"),
-        AppFlowyPopover(
+        Popover(
           controller: firstPopover,
           offset: const Offset(10, 0),
           targetAnchor: Alignment.topRight,
@@ -46,7 +46,7 @@ class _PopoverMenuState extends State<PopoverMenu> {
             child: const Text("First"),
           ),
         ),
-        AppFlowyPopover(
+        Popover(
           controller: secondPopover,
           offset: const Offset(10, 0),
           targetAnchor: Alignment.topRight,
@@ -72,7 +72,7 @@ class _PopoverMenuState extends State<PopoverMenu> {
 }
 
 class ExampleButton extends StatelessWidget {
-  final AppFlowyPopoverController _popover = AppFlowyPopoverController();
+  final PopoverController _popover = PopoverController();
 
   final String label;
   final Alignment targetAnchor;
@@ -89,7 +89,7 @@ class ExampleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppFlowyPopover(
+    return Popover(
       controller: _popover,
       targetAnchor: targetAnchor,
       followerAnchor: followerAnchor,

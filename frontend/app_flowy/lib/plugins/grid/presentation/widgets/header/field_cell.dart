@@ -1,7 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
@@ -15,7 +14,6 @@ import '../../layout/sizes.dart';
 import 'field_type_extension.dart';
 
 import 'field_cell_action_sheet.dart';
-import 'field_editor.dart';
 
 class GridFieldCell extends StatefulWidget {
   final GridFieldCellContext cellContext;
@@ -26,7 +24,7 @@ class GridFieldCell extends StatefulWidget {
 }
 
 class _GridFieldCellState extends State<GridFieldCell> {
-  final popover = AppFlowyPopoverController();
+  final popover = PopoverController();
 
   @override
   Widget build(BuildContext gridCellContext) {
@@ -36,7 +34,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         // buildWhen: (p, c) => p.field != c.field,
         builder: (context, state) {
-          final button = AppFlowyPopover(
+          final button = Popover(
             controller: popover,
             child: FieldCellButton(
               field: state.field,
