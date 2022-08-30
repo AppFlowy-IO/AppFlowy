@@ -1,5 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_item_widget.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../infra/test_editor.dart';
@@ -30,7 +31,16 @@ void main() async {
       final item = defaultToolbarItems
           .where((item) => item.id == 'appflowy.toolbar.link')
           .first;
-      expect(find.byWidget(item.icon), findsNothing);
+      final finder = find.byType(ToolbarItemWidget);
+
+      expect(
+        tester
+            .widgetList<ToolbarItemWidget>(finder)
+            .toList(growable: false)
+            .where((element) => element.item.id == item.id)
+            .isEmpty,
+        true,
+      );
     });
   });
 }

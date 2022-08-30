@@ -102,4 +102,9 @@ class _FlowyToolbarState extends State<FlowyToolbar>
     }
     return dividedItems;
   }
+
+  // List<ToolbarItem> _highlightItems(
+  //   List<ToolbarItem> items,
+  //   Selection selection,
+  // ) {}
 }

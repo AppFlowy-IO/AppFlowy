@@ -29,56 +29,63 @@ extension TextNodeExtension on TextNode {
   }
 
   bool allSatisfyLinkInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.href, selection, (value) {
+      allSatisfyInSelection(selection, StyleKey.href, (value) {
         return value != null;
       });
 
   bool allSatisfyBoldInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.bold, selection, (value) {
+      allSatisfyInSelection(selection, StyleKey.bold, (value) {
         return value == true;
       });
 
   bool allSatisfyItalicInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.italic, selection, (value) {
+      allSatisfyInSelection(selection, StyleKey.italic, (value) {
         return value == true;
       });
 
   bool allSatisfyUnderlineInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.underline, selection, (value) {
+      allSatisfyInSelection(selection, StyleKey.underline, (value) {
         return value == true;
       });
 
   bool allSatisfyStrikethroughInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.strikethrough, selection, (value) {
+      allSatisfyInSelection(selection, StyleKey.strikethrough, (value) {
         return value == true;
       });
 
   bool allSatisfyInSelection(
-    String styleKey,
     Selection selection,
+    String styleKey,
     bool Function(dynamic value) test,
   ) {
-    final ops = delta.whereType<TextInsert>();
-    final startOffset =
-        selection.isBackward ? selection.start.offset : selection.end.offset;
-    final endOffset =
-        selection.isBackward ? selection.end.offset : selection.start.offset;
-    var start = 0;
-    for (final op in ops) {
-      if (start >= endOffset) {
-        break;
+    if (StyleKey.globalStyleKeys.contains(styleKey)) {
+      if (attributes.containsKey(styleKey)) {
+        return test(attributes[styleKey]);
       }
-      final length = op.length;
-      if (start < endOffset && start + length > startOffset) {
-        if (op.attributes == null ||
-            !op.attributes!.containsKey(styleKey) ||
-            !test(op.attributes![styleKey])) {
-          return false;
+    } else if (StyleKey.partialStyleKeys.contains(styleKey)) {
+      final ops = delta.whereType<TextInsert>();
+      final startOffset =
+          selection.isBackward ? selection.start.offset : selection.end.offset;
+      final endOffset =
+          selection.isBackward ? selection.end.offset : selection.start.offset;
+      var start = 0;
+      for (final op in ops) {
+        if (start >= endOffset) {
+          break;
         }
+        final length = op.length;
+        if (start < endOffset && start + length > startOffset) {
+          if (op.attributes == null ||
+              !op.attributes!.containsKey(styleKey) ||
+              !test(op.attributes![styleKey])) {
+            return false;
+          }
+        }
+        start += length;
       }
-      start += length;
+      return true;
     }
-    return true;
+    return false;
   }
 
   bool allNotSatisfyInSelection(
@@ -111,29 +118,44 @@ extension TextNodeExtension on TextNode {
 }
 
 extension TextNodesExtension on List<TextNode> {
-  bool allSatisfyBoldInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.bold, selection, true);
+  bool allSatisfyBoldInSelection(Selection selection) => allSatisfyInSelection(
+        selection,
+        StyleKey.bold,
+        (value) => value == true,
+      );
 
   bool allSatisfyItalicInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.italic, selection, true);
+      allSatisfyInSelection(
+        selection,
+        StyleKey.italic,
+        (value) => value == true,
+      );
 
   bool allSatisfyUnderlineInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.underline, selection, true);
+      allSatisfyInSelection(
+        selection,
+        StyleKey.underline,
+        (value) => value == true,
+      );
 
   bool allSatisfyStrikethroughInSelection(Selection selection) =>
-      allSatisfyInSelection(StyleKey.strikethrough, selection, true);
+      allSatisfyInSelection(
+        selection,
+        StyleKey.strikethrough,
+        (value) => value == true,
+      );
 
   bool allSatisfyInSelection(
-    String styleKey,
     Selection selection,
-    dynamic matchValue,
+    String styleKey,
+    bool Function(dynamic value) test,
   ) {
     if (isEmpty) {
       return false;
     }
     if (length == 1) {
-      return first.allSatisfyInSelection(styleKey, selection, (value) {
-        return value == matchValue;
+      return first.allSatisfyInSelection(selection, styleKey, (value) {
+        return test(value);
       });
     } else {
       for (var i = 0; i < length; i++) {
@@ -154,8 +176,8 @@ extension TextNodesExtension on List<TextNode> {
             end: Position(path: node.path, offset: node.toRawString().length),
           );
         }
-        if (!node.allSatisfyInSelection(styleKey, newSelection, (value) {
-          return value == matchValue;
+        if (!node.allSatisfyInSelection(newSelection, styleKey, (value) {
+          return test(value);
         })) {
           return false;
         }
