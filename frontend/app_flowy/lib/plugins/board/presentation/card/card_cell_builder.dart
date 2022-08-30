@@ -2,6 +2,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 
+import 'board_cell.dart';
 import 'board_checkbox_cell.dart';
 import 'board_date_cell.dart';
 import 'board_number_cell.dart';
@@ -23,6 +24,7 @@ class BoardCellBuilder {
     String groupId,
     GridCellIdentifier cellId,
     bool isEditing,
+    EditableCellNotifier cellNotifier,
   ) {
     final cellControllerBuilder = GridCellControllerBuilder(
       delegate: delegate,
@@ -54,6 +56,7 @@ class BoardCellBuilder {
         return BoardSelectOptionCell(
           groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
+          editableNotifier: cellNotifier,
           key: key,
         );
       case FieldType.Number:
@@ -67,6 +70,7 @@ class BoardCellBuilder {
           groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           isFocus: isEditing,
+          editableNotifier: cellNotifier,
           key: key,
         );
       case FieldType.URL:

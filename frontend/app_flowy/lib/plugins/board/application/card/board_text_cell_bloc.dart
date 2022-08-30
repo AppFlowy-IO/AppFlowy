@@ -27,6 +27,9 @@ class BoardTextCellBloc extends Bloc<BoardTextCellEvent, BoardTextCellState> {
               emit(state.copyWith(content: text));
             }
           },
+          enableEdit: (bool enabled) {
+            emit(state.copyWith(enableEdit: enabled));
+          },
         );
       },
     );
@@ -57,6 +60,7 @@ class BoardTextCellBloc extends Bloc<BoardTextCellEvent, BoardTextCellState> {
 class BoardTextCellEvent with _$BoardTextCellEvent {
   const factory BoardTextCellEvent.initial() = _InitialCell;
   const factory BoardTextCellEvent.updateText(String text) = _UpdateContent;
+  const factory BoardTextCellEvent.enableEdit(bool enabled) = _EnableEdit;
   const factory BoardTextCellEvent.didReceiveCellUpdate(String cellContent) =
       _DidReceiveCellUpdate;
 }
@@ -65,10 +69,12 @@ class BoardTextCellEvent with _$BoardTextCellEvent {
 class BoardTextCellState with _$BoardTextCellState {
   const factory BoardTextCellState({
     required String content,
+    required bool enableEdit,
   }) = _BoardTextCellState;
 
   factory BoardTextCellState.initial(GridCellController context) =>
       BoardTextCellState(
         content: context.getCellData() ?? "",
+        enableEdit: false,
       );
 }
