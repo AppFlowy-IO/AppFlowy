@@ -23,36 +23,32 @@ class InitAppWidgetTask extends LaunchTask {
       settingModel: settingModel,
       child: widget,
     );
-    BlocOverrides.runZoned(
-      () {
-        runApp(
-          EasyLocalization(
-            supportedLocales: const [
-              // In alphabetical order
-              Locale('ca', 'ES'),
-              Locale('de', 'DE'),
-              Locale('en'),
-              Locale('es', 'VE'),
-              Locale('fr', 'FR'),
-              Locale('fr', 'CA'),
-              Locale('hu', 'HU'),
-              Locale('id', 'ID'),
-              Locale('it', 'IT'),
-              Locale('ja', 'JP'),
-              Locale('pl', 'PL'),
-              Locale('pt', 'BR'),
-              Locale('ru', 'RU'),
-              Locale('tr', 'TR'),
-              Locale('zh', 'CN'),
-            ],
-            path: 'assets/translations',
-            fallbackLocale: const Locale('en'),
-            saveLocale: false,
-            child: app,
-          ),
-        );
-      },
-      blocObserver: ApplicationBlocObserver(),
+    Bloc.observer = ApplicationBlocObserver();
+    runApp(
+      EasyLocalization(
+        supportedLocales: const [
+          // In alphabetical order
+          Locale('ca', 'ES'),
+          Locale('de', 'DE'),
+          Locale('en'),
+          Locale('es', 'VE'),
+          Locale('fr', 'FR'),
+          Locale('fr', 'CA'),
+          Locale('hu', 'HU'),
+          Locale('id', 'ID'),
+          Locale('it', 'IT'),
+          Locale('ja', 'JP'),
+          Locale('pl', 'PL'),
+          Locale('pt', 'BR'),
+          Locale('ru', 'RU'),
+          Locale('tr', 'TR'),
+          Locale('zh', 'CN'),
+        ],
+        path: 'assets/translations',
+        fallbackLocale: const Locale('en'),
+        saveLocale: false,
+        child: app,
+      ),
     );
 
     return Future(() => {});
