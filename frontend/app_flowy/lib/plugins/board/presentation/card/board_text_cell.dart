@@ -1,6 +1,7 @@
 import 'package:app_flowy/plugins/board/application/card/board_text_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,9 +43,17 @@ class _BoardTextCellState extends State<BoardTextCell> {
       focusNode.requestFocus();
     }
 
+    focusNode.addListener(() {
+      if (!focusNode.hasFocus) {
+        _cellBloc.add(const BoardTextCellEvent.enableEdit(false));
+      }
+    });
+
     widget.editableNotifier?.becomeFirstResponder.addListener(() {
       if (!mounted) return;
-      focusNode.requestFocus();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        focusNode.requestFocus();
+      });
       _cellBloc.add(const BoardTextCellEvent.enableEdit(true));
     });
 
@@ -67,22 +76,36 @@ class _BoardTextCellState extends State<BoardTextCell> {
           }
         },
         child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
-          buildWhen: (previous, current) =>
-              previous.enableEdit != current.enableEdit,
           builder: (context, state) {
-            return TextField(
-              // autofocus: true,
-              // enabled: state.enableEdit,
-              controller: _controller,
-              focusNode: focusNode,
-              onChanged: (value) => focusChanged(),
-              onEditingComplete: () => focusNode.unfocus(),
-              maxLines: 1,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              decoration: const InputDecoration(
-                contentPadding: EdgeInsets.symmetric(vertical: 6),
-                border: InputBorder.none,
-                isDense: true,
+            Widget child;
+            if (state.enableEdit) {
+              child = TextField(
+                controller: _controller,
+                focusNode: focusNode,
+                onChanged: (value) => focusChanged(),
+                onEditingComplete: () => focusNode.unfocus(),
+                maxLines: 1,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  fontFamily: 'Mulish',
+                ),
+                decoration: const InputDecoration(
+                  // Magic number 4 makes the textField take up the same space as FlowyText
+                  contentPadding: EdgeInsets.symmetric(vertical: 4),
+                  border: InputBorder.none,
+                  isDense: true,
+                ),
+              );
+            } else {
+              child = FlowyText.medium(state.content, fontSize: 14);
+            }
+
+            return Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: child,
               ),
             );
           },

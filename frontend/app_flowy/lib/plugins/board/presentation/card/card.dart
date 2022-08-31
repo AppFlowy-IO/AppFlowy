@@ -122,6 +122,7 @@ class _BoardCardState extends State<BoardCard> {
 
   @override
   Future<void> dispose() async {
+    rowNotifier.dispose();
     _cardBloc.close();
     super.dispose();
   }
