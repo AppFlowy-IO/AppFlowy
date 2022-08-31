@@ -25,10 +25,6 @@ AppFlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
   if (selection == null || context == null || selectable == null) {
     return KeyEventResult.ignored;
   }
-  final selectionRects = editorState.service.selectionService.selectionRects;
-  if (selectionRects.isEmpty) {
-    return KeyEventResult.ignored;
-  }
   TransactionBuilder(editorState)
     ..replaceText(textNode, selection.start.offset,
         selection.end.offset - selection.start.offset, event.character ?? '')

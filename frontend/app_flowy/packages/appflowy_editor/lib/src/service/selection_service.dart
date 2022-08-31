@@ -348,10 +348,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     final backwardNodes =
         selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
-    final backwardSelection = selection.isBackward
-        ? selection
-        : selection.copyWith(start: selection.end, end: selection.start);
-    assert(backwardSelection.isBackward);
+    final normalizedSelection = selection.normalize;
+    assert(normalizedSelection.isBackward);
 
     for (var i = 0; i < backwardNodes.length; i++) {
       final node = backwardNodes[i];
@@ -360,7 +358,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
         continue;
       }
 
-      var newSelection = backwardSelection.copy();
+      var newSelection = normalizedSelection.copy();
 
       /// In the case of multiple selections,
       ///  we need to return a new selection for each selected node individually.
@@ -370,7 +368,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
       /// text: ghijkl
       /// text: mn>opqr
       ///
-      if (!backwardSelection.isSingle) {
+      if (!normalizedSelection.isSingle) {
         if (i == 0) {
           newSelection = newSelection.copyWith(end: selectable.end());
         } else if (i == nodes.length - 1) {

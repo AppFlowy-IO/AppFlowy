@@ -132,17 +132,24 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
 
   @override
   List<Rect> getRectsInSelection(Selection selection) {
-    assert(pathEquals(selection.start.path, selection.end.path) &&
+    assert(selection.isSingle &&
         pathEquals(selection.start.path, widget.textNode.path));
 
     final textSelection = TextSelection(
       baseOffset: selection.start.offset,
       extentOffset: selection.end.offset,
     );
-    return _renderParagraph
+    final rects = _renderParagraph
         .getBoxesForSelection(textSelection, boxHeightStyle: BoxHeightStyle.max)
         .map((box) => box.toRect())
-        .toList();
+        .toList(growable: false);
+    if (rects.isEmpty) {
+      // If the rich text widget does not contain any text,
+      // there will be no selection boxes,
+      // so we need to return to the default selection.
+      return [Rect.fromLTWH(0, 0, 0, _renderParagraph.size.height)];
+    }
+    return rects;
   }
 
   @override
