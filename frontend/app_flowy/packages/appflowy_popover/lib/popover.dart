@@ -1,6 +1,8 @@
+import 'package:appflowy_popover/layout.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import './follower.dart';
 
 class PopoverMutex {
   PopoverState? state;
@@ -23,6 +25,31 @@ class PopoverTriggerActionFlags {
   static int hover = 0x02;
 }
 
+enum PopoverDirection {
+  // Corner aligned with a corner of the SourceWidget
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight,
+  center,
+
+  // Edge aligned with a edge of the SourceWidget
+  topWithLeftAligned,
+  topWithCenterAligned,
+  topWithRightAligned,
+  rightWithTopAligned,
+  rightWithCenterAligned,
+  rightWithBottomAligned,
+  bottomWithLeftAligned,
+  bottomWithCenterAligned,
+  bottomWithRightAligned,
+  leftWithTopAligned,
+  leftWithCenterAligned,
+  leftWithBottomAligned,
+
+  custom,
+}
+
 class Popover extends StatefulWidget {
   final Widget child;
   final PopoverController? controller;
@@ -33,6 +60,7 @@ class Popover extends StatefulWidget {
   final Widget Function(BuildContext context) popupBuilder;
   final int triggerActions;
   final PopoverMutex? mutex;
+  final PopoverDirection direction;
   final void Function()? onClose;
 
   const Popover({
@@ -45,6 +73,7 @@ class Popover extends StatefulWidget {
     this.targetAnchor = Alignment.topLeft,
     this.followerAnchor = Alignment.topLeft,
     this.triggerActions = 0,
+    this.direction = PopoverDirection.rightWithTopAligned,
     this.mutex,
     this.onClose,
   }) : super(key: key);
@@ -54,7 +83,7 @@ class Popover extends StatefulWidget {
 }
 
 class PopoverState extends State<Popover> {
-  final LayerLink layerLink = LayerLink();
+  final PopoverLink popoverLink = PopoverLink();
   OverlayEntry? _overlayEntry;
   bool hasMask = true;
 
@@ -95,14 +124,15 @@ class PopoverState extends State<Popover> {
         ));
       }
 
-      children.add(CompositedTransformFollower(
-        link: layerLink,
-        showWhenUnlinked: false,
-        offset: widget.offset ?? Offset.zero,
-        targetAnchor: widget.targetAnchor,
-        followerAnchor: widget.followerAnchor,
-        child: widget.popupBuilder(context),
-      ));
+      children.add(
+        CustomSingleChildLayout(
+          delegate: PopoverLayoutDelegate(
+            direction: widget.direction,
+            link: popoverLink,
+          ),
+          child: widget.popupBuilder(context),
+        ),
+      );
 
       return Stack(children: children);
     });
@@ -150,8 +180,8 @@ class PopoverState extends State<Popover> {
 
   @override
   Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: layerLink,
+    return PopoverTarget(
+      link: popoverLink,
       child: MouseRegion(
         onEnter: _handleTargetPointerEnter,
         child: Listener(
