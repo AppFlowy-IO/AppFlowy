@@ -31,7 +31,6 @@ class FlowyContainer extends StatelessWidget {
     return AnimatedContainer(
         width: width,
         height: height,
-        child: child,
         margin: margin,
         alignment: align,
         duration: duration ?? Durations.medium,
@@ -39,6 +38,7 @@ class FlowyContainer extends StatelessWidget {
             color: color,
             borderRadius: borderRadius,
             boxShadow: shadows,
-            border: border));
+            border: border),
+        child: child);
   }
 }

@@ -22,12 +22,13 @@ class KeyboardScreen extends StatefulWidget {
   const KeyboardScreen({Key? key}) : super(key: key);
 
   @override
-  _KeyboardScreenState createState() => _KeyboardScreenState();
+  State<KeyboardScreen> createState() => _KeyboardScreenState();
 }
 
 class _KeyboardScreenState extends State<KeyboardScreen> {
   bool _isKeyboardVisible = false;
-  final TextEditingController _controller = TextEditingController(text: 'Hello Flowy');
+  final TextEditingController _controller =
+      TextEditingController(text: 'Hello Flowy');
 
   @override
   Widget build(BuildContext context) {

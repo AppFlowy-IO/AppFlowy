@@ -31,13 +31,13 @@ class SeparatedColumn extends StatelessWidget {
       if (i > 0 && separatorBuilder != null) c.insert(i, separatorBuilder!());
     }
     return Column(
-      children: c,
       mainAxisAlignment: mainAxisAlignment,
       crossAxisAlignment: crossAxisAlignment,
       mainAxisSize: mainAxisSize,
       textBaseline: textBaseline,
       textDirection: textDirection,
       verticalDirection: verticalDirection,
+      children: c,
     );
   }
 }

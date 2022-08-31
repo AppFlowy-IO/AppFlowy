@@ -20,6 +20,7 @@ dependencies:
   equatable: "^2.0.3"
   animations: ^2.0.0
   loading_indicator: ^3.0.1
+  async:
 
   # Federated Platform Interface
   flowy_infra_ui_platform_interface:
