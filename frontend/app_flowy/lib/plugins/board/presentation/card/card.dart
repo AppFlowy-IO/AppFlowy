@@ -98,13 +98,17 @@ class _BoardCardState extends State<BoardCard> {
           widget.isEditing,
           cellNotifier,
         );
-        rowNotifier.insertCell(cellId, cellNotifier);
+
+        if (index == 0) {
+          rowNotifier.insertCell(cellId, cellNotifier);
+        }
 
         child = Padding(
           key: cellId.key(),
           padding: const EdgeInsets.only(left: 4, right: 4),
           child: child,
         );
+
         children.add(child);
       },
     );

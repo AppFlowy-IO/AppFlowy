@@ -78,7 +78,7 @@ class _BoardTextCellState extends State<BoardTextCell> {
         child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
           builder: (context, state) {
             Widget child;
-            if (state.content.isEmpty) {
+            if (state.content.isEmpty && state.enableEdit == false) {
               child = const SizedBox();
             } else {
               if (state.enableEdit) {
