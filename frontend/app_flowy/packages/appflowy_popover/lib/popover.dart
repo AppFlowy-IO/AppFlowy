@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:appflowy_popover/layout.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import './follower.dart';
 
 class PopoverMutex {
   PopoverState? state;
@@ -128,6 +125,7 @@ class PopoverState extends State<Popover> {
         offset: widget.offset ?? Offset.zero,
         popupBuilder: widget.popupBuilder,
         onClose: () => close(),
+        onCloseAll: () => closeAll(),
       ));
 
       return Stack(children: children);
@@ -153,6 +151,10 @@ class PopoverState extends State<Popover> {
     if (widget.mutex?.state == this) {
       widget.mutex!.state = null;
     }
+  }
+
+  closeAll() {
+    _popoverWithMask?.close();
   }
 
   @override
@@ -247,6 +249,7 @@ class PopoverContainer extends StatefulWidget {
   final PopoverLink popoverLink;
   final Offset offset;
   final void Function() onClose;
+  final void Function() onCloseAll;
 
   const PopoverContainer({
     Key? key,
@@ -255,6 +258,7 @@ class PopoverContainer extends StatefulWidget {
     required this.popoverLink,
     required this.offset,
     required this.onClose,
+    required this.onCloseAll,
   }) : super(key: key);
 
   @override
@@ -274,9 +278,9 @@ class PopoverContainerState extends State<PopoverContainer> {
     );
   }
 
-  close() {
-    widget.onClose();
-  }
+  close() => widget.onClose();
+
+  closeAll() => widget.onCloseAll();
 
   static PopoverContainerState of(BuildContext context) {
     if (context is StatefulElement && context.state is PopoverContainerState) {

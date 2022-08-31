@@ -2,8 +2,10 @@ import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
@@ -154,19 +156,25 @@ class CreateFieldButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
-    return FlowyButton(
-      text: const FlowyText.medium('New column', fontSize: 12),
-      hoverColor: theme.shader6,
-      onTap: () {
-        // FieldEditorPopOver.show(
-        //   context,
-        //   anchorContext: context,
-        //   gridId: gridId,
-        //   fieldName: "",
-        //   typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
-        // )
+    return Popover(
+      triggerActions: PopoverTriggerActionFlags.click,
+      direction: PopoverDirection.bottomWithRightAligned,
+      child: FlowyButton(
+        text: const FlowyText.medium('New column', fontSize: 12),
+        hoverColor: theme.shader6,
+        onTap: () {},
+        leftIcon: svgWidget("home/add"),
+      ),
+      popupBuilder: (BuildContext popover) {
+        return OverlayContainer(
+          constraints: BoxConstraints.loose(const Size(240, 200)),
+          child: FieldEditor(
+            gridId: gridId,
+            fieldName: "",
+            typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
+          ),
+        );
       },
-      leftIcon: svgWidget("home/add"),
     );
   }
 }

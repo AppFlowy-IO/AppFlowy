@@ -19,7 +19,7 @@ import 'package:styled_widget/styled_widget.dart';
 import '../../../application/field/field_cache.dart';
 import '../../layout/sizes.dart';
 
-class GridPropertyList extends StatelessWidget {
+class GridPropertyList extends StatefulWidget {
   final String gridId;
   final GridFieldCache fieldCache;
   const GridPropertyList({
@@ -29,16 +29,33 @@ class GridPropertyList extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _GridPropertyListState();
+}
+
+class _GridPropertyListState extends State<GridPropertyList> {
+  late PopoverMutex _popoverMutex;
+
+  @override
+  void initState() {
+    _popoverMutex = PopoverMutex();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          getIt<GridPropertyBloc>(param1: gridId, param2: fieldCache)
-            ..add(const GridPropertyEvent.initial()),
+      create: (context) => getIt<GridPropertyBloc>(
+          param1: widget.gridId, param2: widget.fieldCache)
+        ..add(const GridPropertyEvent.initial()),
       child: BlocBuilder<GridPropertyBloc, GridPropertyState>(
         builder: (context, state) {
           final cells = state.fields.map((field) {
             return _GridPropertyCell(
-                gridId: gridId, field: field, key: ValueKey(field.id));
+              popoverMutex: _popoverMutex,
+              gridId: widget.gridId,
+              field: field,
+              key: ValueKey(field.id),
+            );
           }).toList();
 
           return ListView.separated(
@@ -60,8 +77,13 @@ class GridPropertyList extends StatelessWidget {
 class _GridPropertyCell extends StatelessWidget {
   final FieldPB field;
   final String gridId;
-  const _GridPropertyCell({required this.gridId, required this.field, Key? key})
-      : super(key: key);
+  final PopoverMutex popoverMutex;
+  const _GridPropertyCell({
+    required this.gridId,
+    required this.field,
+    required this.popoverMutex,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -95,6 +117,7 @@ class _GridPropertyCell extends StatelessWidget {
 
   Widget _editFieldButton(AppTheme theme, BuildContext context) {
     return Popover(
+      mutex: popoverMutex,
       triggerActions: PopoverTriggerActionFlags.click,
       offset: const Offset(20, 0),
       child: FlowyButton(

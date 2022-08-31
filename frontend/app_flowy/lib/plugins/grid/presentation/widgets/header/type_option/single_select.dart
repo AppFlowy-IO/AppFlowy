@@ -2,6 +2,7 @@ import 'package:app_flowy/plugins/grid/application/field/type_option/single_sele
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:flutter/material.dart';
 import '../field_type_option_editor.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'builder.dart';
 import 'select_option.dart';
 
@@ -38,7 +39,10 @@ class SingleSelectTypeOptionWidget extends TypeOptionWidget {
   Widget build(BuildContext context) {
     return SelectOptionTypeOptionWidget(
       options: selectOptionAction.typeOption.options,
-      beginEdit: () => overlayDelegate.hideOverlay(context),
+      beginEdit: () {
+        overlayDelegate.hideOverlay(context);
+        PopoverContainerState.of(context).closeAll();
+      },
       overlayDelegate: overlayDelegate,
       typeOptionAction: selectOptionAction,
       // key: ValueKey(state.typeOption.hashCode),

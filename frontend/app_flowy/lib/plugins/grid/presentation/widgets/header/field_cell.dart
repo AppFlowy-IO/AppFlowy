@@ -35,6 +35,7 @@ class _GridFieldCellState extends State<GridFieldCell> {
         builder: (context, state) {
           final button = Popover(
             controller: popover,
+            direction: PopoverDirection.bottomWithLeftAligned,
             child: FieldCellButton(
               field: state.field,
               onTap: () => popover.show(),

@@ -1,6 +1,8 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/select_option_type_option_bloc.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -143,54 +145,70 @@ class _OptionList extends StatelessWidget {
   _OptionCell _makeOptionCell(BuildContext context, SelectOptionPB option) {
     return _OptionCell(
       option: option,
-      onSelected: (option) {
-        final pannel = SelectOptionTypeOptionEditor(
-          option: option,
-          onDeleted: () {
-            delegate.hideOverlay(context);
-            context
-                .read<SelectOptionTypeOptionBloc>()
-                .add(SelectOptionTypeOptionEvent.deleteOption(option));
-          },
-          onUpdated: (updatedOption) {
-            delegate.hideOverlay(context);
-            context
-                .read<SelectOptionTypeOptionBloc>()
-                .add(SelectOptionTypeOptionEvent.updateOption(updatedOption));
-          },
-          key: ValueKey(option.id),
-        );
-        delegate.showOverlay(context, pannel);
-      },
     );
   }
 }
 
-class _OptionCell extends StatelessWidget {
+class _OptionCell extends StatefulWidget {
   final SelectOptionPB option;
-  final Function(SelectOptionPB) onSelected;
-  const _OptionCell({
-    required this.option,
-    required this.onSelected,
-    Key? key,
-  }) : super(key: key);
+  const _OptionCell({required this.option, Key? key}) : super(key: key);
+
+  @override
+  State<_OptionCell> createState() => _OptionCellState();
+}
+
+class _OptionCellState extends State<_OptionCell> {
+  late PopoverController _popoverController;
+
+  @override
+  void initState() {
+    _popoverController = PopoverController();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
-    return SizedBox(
-      height: GridSize.typeOptionItemHeight,
-      child: SelectOptionTagCell(
-        option: option,
-        onSelected: onSelected,
-        children: [
-          svgWidget(
-            "grid/details",
-            color: theme.iconColor,
-          ),
-        ],
+    return Popover(
+      controller: _popoverController,
+      offset: const Offset(20, 0),
+      child: SizedBox(
+        height: GridSize.typeOptionItemHeight,
+        child: SelectOptionTagCell(
+          option: widget.option,
+          onSelected: (SelectOptionPB pb) {
+            _popoverController.show();
+          },
+          children: [
+            svgWidget(
+              "grid/details",
+              color: theme.iconColor,
+            ),
+          ],
+        ),
       ),
+      popupBuilder: (BuildContext popoverContext) {
+        return OverlayContainer(
+          constraints: BoxConstraints.loose(const Size(460, 440)),
+          child: SelectOptionTypeOptionEditor(
+            option: widget.option,
+            onDeleted: () {
+              context
+                  .read<SelectOptionTypeOptionBloc>()
+                  .add(SelectOptionTypeOptionEvent.deleteOption(widget.option));
+              PopoverContainerState.of(popoverContext).closeAll();
+            },
+            onUpdated: (updatedOption) {
+              context
+                  .read<SelectOptionTypeOptionBloc>()
+                  .add(SelectOptionTypeOptionEvent.updateOption(updatedOption));
+              PopoverContainerState.of(popoverContext).closeAll();
+            },
+            key: ValueKey(widget.option.id),
+          ),
+        );
+      },
     );
   }
 }

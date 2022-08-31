@@ -79,7 +79,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                   ],
                 ),
               ),
-              popupBuilder: (BuildContext context) {
+              popupBuilder: (BuildContext popoverContext) {
                 return OverlayContainer(
                   constraints: BoxConstraints.loose(const Size(460, 440)),
                   child: NumberFormatList(
@@ -87,6 +87,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                       context
                           .read<NumberTypeOptionBloc>()
                           .add(NumberTypeOptionEvent.didSelectFormat(format));
+                      PopoverContainerState.of(popoverContext).closeAll();
                     },
                     selectedFormat: state.typeOption.format,
                   ),
