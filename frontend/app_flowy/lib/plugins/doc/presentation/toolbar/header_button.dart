@@ -16,10 +16,10 @@ class FlowyHeaderStyleButton extends StatefulWidget {
   final double iconSize;
 
   @override
-  _FlowyHeaderStyleButtonState createState() => _FlowyHeaderStyleButtonState();
+  FlowyHeaderStyleButtonState createState() => FlowyHeaderStyleButtonState();
 }
 
-class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
+class FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
   Attribute? _value;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();
@@ -28,7 +28,8 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
   void initState() {
     super.initState();
     setState(() {
-      _value = _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+      _value =
+          _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
     });
     widget.controller.addListener(_didChangeEditingValue);
   }
@@ -41,7 +42,11 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
       Attribute.h3: 'H3',
     };
 
-    final valueAttribute = <Attribute>[Attribute.h1, Attribute.h2, Attribute.h3];
+    final valueAttribute = <Attribute>[
+      Attribute.h1,
+      Attribute.h2,
+      Attribute.h3
+    ];
     final valueString = <String>['H1', 'H2', 'H3'];
     final attributeImageName = <String>['editor/H1', 'editor/H2', 'editor/H3'];
 
@@ -72,7 +77,8 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
 
   void _didChangeEditingValue() {
     setState(() {
-      _value = _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+      _value =
+          _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
     });
   }
 
@@ -82,7 +88,8 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
-      _value = _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+      _value =
+          _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
     }
   }
 

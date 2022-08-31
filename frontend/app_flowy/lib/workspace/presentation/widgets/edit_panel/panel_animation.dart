@@ -19,10 +19,10 @@ class AnimatedPanel extends StatefulWidget {
       : super(key: key);
 
   @override
-  _AnimatedPanelState createState() => _AnimatedPanelState();
+  AnimatedPanelState createState() => AnimatedPanelState();
 }
 
-class _AnimatedPanelState extends State<AnimatedPanel> {
+class AnimatedPanelState extends State<AnimatedPanel> {
   bool _isHidden = true;
 
   @override

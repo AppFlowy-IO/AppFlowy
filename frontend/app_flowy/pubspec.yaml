@@ -82,6 +82,13 @@ dependencies:
   linked_scroll_controller: ^0.2.0
   hotkey_manager: ^0.1.7
   fixnum: ^1.0.1
+  tuple: ^2.0.0
+  protobuf: "2.0.0"
+  charcode: ^1.3.1
+  collection: ^1.16.0
+  bloc: ^8.1.0
+  textstyle_extensions: ^1.1.0
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
   flutter_lints: ^2.0.1

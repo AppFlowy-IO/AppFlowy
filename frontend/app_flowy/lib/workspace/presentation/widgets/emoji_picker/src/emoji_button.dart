@@ -20,10 +20,10 @@ class FlowyEmojiStyleButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _EmojiStyleButtonState createState() => _EmojiStyleButtonState();
+  EmojiStyleButtonState createState() => EmojiStyleButtonState();
 }
 
-class _EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
+class EmojiStyleButtonState extends State<FlowyEmojiStyleButton> {
   bool _isToggled = false;
   // Style get _selectionStyle => widget.controller.getSelectionStyle();
   final GlobalKey emojiButtonKey = GlobalKey();
