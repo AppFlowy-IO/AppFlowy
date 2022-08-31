@@ -51,7 +51,7 @@ class _FlowyHoverState extends State<FlowyHover> {
         child: child,
       );
     } else {
-      return Container(child: child, color: widget.style.backgroundColor);
+      return Container(color: widget.style.backgroundColor, child: child);
     }
   }
 }

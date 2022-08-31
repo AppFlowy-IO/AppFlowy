@@ -58,10 +58,10 @@ class FadingIndexedStack extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FadingIndexedStackState createState() => _FadingIndexedStackState();
+  FadingIndexedStackState createState() => FadingIndexedStackState();
 }
 
-class _FadingIndexedStackState extends State<FadingIndexedStack> {
+class FadingIndexedStackState extends State<FadingIndexedStack> {
   double _targetOpacity = 1;
 
   @override

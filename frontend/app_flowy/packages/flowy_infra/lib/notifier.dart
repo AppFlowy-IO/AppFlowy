@@ -37,13 +37,13 @@ class PublishNotifier<T> extends ChangeNotifier {
       () {
         if (_value == null) {
           return;
-        }
+        } else {}
 
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
 
-        callback(_value!);
+        callback(_value as T);
       },
     );
   }

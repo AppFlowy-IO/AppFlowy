@@ -41,8 +41,8 @@ class SecondaryButton extends StatelessWidget {
       downColor: theme.main1,
       outlineColor: theme.main1,
       borderRadius: bigMode ? Corners.s12Border : Corners.s8Border,
-      child: child,
       onPressed: onPressed,
+      child: child,
     );
   }
 }

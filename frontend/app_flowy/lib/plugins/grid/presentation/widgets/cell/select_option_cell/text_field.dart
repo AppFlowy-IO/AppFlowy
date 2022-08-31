@@ -108,7 +108,7 @@ class SelectOptionTextField extends StatelessWidget {
       child: SingleChildScrollView(
         controller: sc,
         scrollDirection: Axis.horizontal,
-        child: Wrap(children: children, spacing: 4),
+        child: Wrap(spacing: 4, children: children),
       ),
     );
   }

@@ -32,7 +32,8 @@ class EditorToolbar extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       color: Theme.of(context).canvasColor,
       constraints: BoxConstraints.tightFor(height: preferredSize.height),
-      child: ToolbarButtonList(buttons: children).padding(horizontal: 4, vertical: 4),
+      child: ToolbarButtonList(buttons: children)
+          .padding(horizontal: 4, vertical: 4),
     );
   }
 
@@ -168,10 +169,11 @@ class ToolbarButtonList extends StatefulWidget {
   final List<Widget> buttons;
 
   @override
-  _ToolbarButtonListState createState() => _ToolbarButtonListState();
+  ToolbarButtonListState createState() => ToolbarButtonListState();
 }
 
-class _ToolbarButtonListState extends State<ToolbarButtonList> with WidgetsBindingObserver {
+class ToolbarButtonListState extends State<ToolbarButtonList>
+    with WidgetsBindingObserver {
   final ScrollController _controller = ScrollController();
   bool _showLeftArrow = false;
   bool _showRightArrow = false;
@@ -196,7 +198,8 @@ class _ToolbarButtonListState extends State<ToolbarButtonList> with WidgetsBindi
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         List<Widget> children = [];
-        double width = (widget.buttons.length + 2) * defaultIconSize * kIconButtonFactor;
+        double width =
+            (widget.buttons.length + 2) * defaultIconSize * kIconButtonFactor;
         final isFit = constraints.maxWidth > width;
         if (!isFit) {
           children.add(_buildLeftArrow());
@@ -233,8 +236,10 @@ class _ToolbarButtonListState extends State<ToolbarButtonList> with WidgetsBindi
   void _handleScroll() {
     if (!mounted) return;
     setState(() {
-      _showLeftArrow = _controller.position.minScrollExtent != _controller.position.pixels;
-      _showRightArrow = _controller.position.maxScrollExtent != _controller.position.pixels;
+      _showLeftArrow =
+          _controller.position.minScrollExtent != _controller.position.pixels;
+      _showRightArrow =
+          _controller.position.maxScrollExtent != _controller.position.pixels;
     });
   }
 

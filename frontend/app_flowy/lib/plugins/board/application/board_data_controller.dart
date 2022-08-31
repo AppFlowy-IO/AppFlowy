@@ -52,7 +52,8 @@ class BoardDataController {
   BoardDataController({required ViewPB view})
       : gridId = view.id,
         _listener = BoardListener(view.id),
-        _blocks = LinkedHashMap.new(),
+        // ignore: prefer_collection_literals
+        _blocks = LinkedHashMap(),
         _gridFFIService = GridFFIService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id);
 

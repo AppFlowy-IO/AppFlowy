@@ -26,8 +26,8 @@ class BoardCardContainer extends StatelessWidget {
             final accessories = accessoryBuilder!(context);
             if (accessories.isNotEmpty) {
               container = _CardEnterRegion(
-                child: container,
                 accessories: accessories,
+                child: container,
               );
             }
           }
@@ -78,9 +78,9 @@ class CardAccessoryContainer extends StatelessWidget {
         ),
       );
       return GestureDetector(
-        child: hover,
         behavior: HitTestBehavior.opaque,
         onTap: () => accessory.onTap(context),
+        child: hover,
       );
     }).toList();
 

@@ -23,7 +23,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final BoardDataController _gridDataController;
   late final AFBoardDataController boardController;
   final MoveRowFFIService _rowService;
-  LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap.new();
+  LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap();
 
   GridFieldCache get fieldCache => _gridDataController.fieldCache;
   String get gridId => _gridDataController.gridId;

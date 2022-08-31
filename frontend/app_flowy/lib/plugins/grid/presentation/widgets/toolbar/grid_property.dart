@@ -30,8 +30,8 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
   void show(BuildContext context) {
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: this,
         constraints: BoxConstraints.loose(const Size(260, 400)),
+        child: this,
       ),
       identifier: identifier(),
       anchorContext: context,

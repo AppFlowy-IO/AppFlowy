@@ -101,7 +101,7 @@ class FlowyNavigation extends StatelessWidget {
               turns: const AlwaysStoppedAnimation(180 / 360),
               child: Tooltip(
                   richMessage: TextSpan(children: [
-                    TextSpan(text: LocaleKeys.sideBar_openSidebar.tr() + "\n"),
+                    TextSpan(text: "${LocaleKeys.sideBar_openSidebar.tr()}\n"),
                     TextSpan(
                       text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
                       style: const TextStyle(color: Colors.white60),

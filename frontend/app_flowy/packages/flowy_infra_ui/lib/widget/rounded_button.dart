@@ -42,11 +42,11 @@ class RoundedTextButton extends StatelessWidget {
         ),
         child: SizedBox.expand(
           child: TextButton(
+            onPressed: onPressed,
             child: Text(
               title ?? '',
               style: TextStyle(color: textColor, fontSize: fontSize),
             ),
-            onPressed: onPressed,
           ),
         ),
       ),

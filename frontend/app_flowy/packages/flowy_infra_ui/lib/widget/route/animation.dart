@@ -52,10 +52,10 @@ class PageRoutes {
       pageBuilder: (context, animation, secondaryAnimation) => pageBuilder(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         return SharedAxisTransition(
-          child: child,
           animation: animation,
           secondaryAnimation: secondaryAnimation,
           transitionType: type,
+          child: child,
         );
       },
     );

@@ -53,8 +53,8 @@ class GridSettingList extends StatelessWidget {
 
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: list,
         constraints: BoxConstraints.loose(const Size(140, 400)),
+        child: list,
       ),
       identifier: list.identifier(),
       anchorContext: context,

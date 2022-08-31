@@ -10,13 +10,13 @@ class FlowyMessageToast extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: FlowyText.medium(message, color: Colors.white),
-      ),
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(4)),
         color: Colors.black,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        child: FlowyText.medium(message, color: Colors.white),
       ),
     );
   }

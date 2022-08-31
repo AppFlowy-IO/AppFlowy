@@ -56,8 +56,8 @@ class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
     FlowyOverlay.of(context).remove(identifier());
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: this,
         constraints: BoxConstraints.loose(const Size(280, 400)),
+        child: this,
       ),
       identifier: identifier(),
       anchorContext: context,
