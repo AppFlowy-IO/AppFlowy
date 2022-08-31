@@ -20,8 +20,8 @@ class InitAppWidgetTask extends LaunchTask {
     final setting = await UserSettingsService().getAppearanceSettings();
     final settingModel = AppearanceSettingModel(setting);
     final app = ApplicationWidget(
-      child: widget,
       settingModel: settingModel,
+      child: widget,
     );
     BlocOverrides.runZoned(
       () {

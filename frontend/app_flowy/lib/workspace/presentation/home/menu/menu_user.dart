@@ -24,6 +24,7 @@ class MenuUser extends StatelessWidget {
           getIt<MenuUserBloc>(param1: user)..add(const MenuUserEvent.initial()),
       child: BlocBuilder<MenuUserBloc, MenuUserState>(
         builder: (context, state) => Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _renderAvatar(context),
             const HSpace(10),
@@ -34,7 +35,6 @@ class MenuUser extends StatelessWidget {
             //we get the below block back
             //_renderDropButton(context),
           ],
-          crossAxisAlignment: CrossAxisAlignment.center,
         ),
       ),
     );

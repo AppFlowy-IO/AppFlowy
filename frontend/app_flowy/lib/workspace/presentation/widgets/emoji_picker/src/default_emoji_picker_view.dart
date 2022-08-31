@@ -199,8 +199,8 @@ class _DefaultEmojiPickerViewState extends State<DefaultEmojiPickerView> with Ti
     if (widget.config.buttonMode == ButtonMode.MATERIAL) {
       return TextButton(
         onPressed: onPressed,
-        child: child,
         style: ButtonStyle(padding: MaterialStateProperty.all(EdgeInsets.zero)),
+        child: child,
       );
     }
     return CupertinoButton(padding: EdgeInsets.zero, onPressed: onPressed, child: child);

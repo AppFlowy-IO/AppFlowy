@@ -79,9 +79,9 @@ extension AnimatedPanelExtensions on Widget {
     return AnimatedPanel(
         closedX: closePos.dx,
         closedY: closePos.dy,
-        child: this,
         isClosed: isClosed ?? false,
         duration: duration ?? .35,
-        curve: curve);
+        curve: curve,
+        child: this);
   }
 }

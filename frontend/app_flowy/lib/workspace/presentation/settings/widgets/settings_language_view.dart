@@ -84,8 +84,8 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
               });
             },
             icon: const Visibility(
-              child: (Icon(Icons.arrow_downward)),
               visible: false,
+              child: (Icon(Icons.arrow_downward)),
             ),
             borderRadius: BorderRadius.circular(8),
             items: EasyLocalization.of(context)!.supportedLocales.map((locale) {

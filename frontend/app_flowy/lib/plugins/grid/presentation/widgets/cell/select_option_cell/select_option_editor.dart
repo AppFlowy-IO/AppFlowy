@@ -72,8 +72,8 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
     //
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: SizedBox(width: _editorPannelWidth, child: editor),
         constraints: BoxConstraints.loose(const Size(_editorPannelWidth, 300)),
+        child: SizedBox(width: _editorPannelWidth, child: editor),
       ),
       identifier: SelectOptionCellEditor.identifier(),
       anchorContext: context,
@@ -289,8 +289,8 @@ class _SelectOptionCell extends StatelessWidget {
     FlowyOverlay.of(context).remove(overlayIdentifier);
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: pannel,
         constraints: BoxConstraints.loose(const Size(200, 300)),
+        child: pannel,
       ),
       identifier: overlayIdentifier,
       anchorContext: context,

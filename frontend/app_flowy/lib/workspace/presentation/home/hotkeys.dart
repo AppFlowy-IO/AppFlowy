@@ -13,14 +13,14 @@ class HomeHotKeys extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    HotKey _hotKey = HotKey(
+    HotKey hotKey = HotKey(
       KeyCode.backslash,
       modifiers: [Platform.isMacOS ? KeyModifier.meta : KeyModifier.control],
       // Set hotkey scope (default is HotKeyScope.system)
       scope: HotKeyScope.inapp, // Set as inapp-wide hotkey.
     );
     hotKeyManager.register(
-      _hotKey,
+      hotKey,
       keyDownHandler: (hotKey) {
         context.read<HomeBloc>().add(const HomeEvent.collapseMenu());
         getIt<HomeStackManager>().collapsedNotifier.value =

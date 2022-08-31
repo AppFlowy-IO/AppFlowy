@@ -10,8 +10,8 @@ class FlowyPoppuWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: child,
       type: MaterialType.transparency,
+      child: child,
     );
   }
 

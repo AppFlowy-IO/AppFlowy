@@ -40,11 +40,11 @@ class DocumentBanner extends StatelessWidget {
                   downColor: theme.main1,
                   outlineColor: Colors.white,
                   borderRadius: Corners.s8Border,
+                  onPressed: onRestore,
                   child: FlowyText.medium(
                       LocaleKeys.deletePagePrompt_restore.tr(),
                       color: Colors.white,
-                      fontSize: 14),
-                  onPressed: onRestore),
+                      fontSize: 14)),
               const HSpace(20),
               BaseStyledButton(
                   minWidth: 220,
@@ -55,11 +55,11 @@ class DocumentBanner extends StatelessWidget {
                   downColor: theme.main1,
                   outlineColor: Colors.white,
                   borderRadius: Corners.s8Border,
+                  onPressed: onDelete,
                   child: FlowyText.medium(
                       LocaleKeys.deletePagePrompt_deletePermanent.tr(),
                       color: Colors.white,
-                      fontSize: 14),
-                  onPressed: onDelete),
+                      fontSize: 14)),
             ],
           ),
         ),

@@ -222,7 +222,7 @@ class MenuTopBar extends StatelessWidget {
               Tooltip(
                   richMessage: TextSpan(children: [
                     TextSpan(
-                        text: LocaleKeys.sideBar_closeSidebar.tr() + "\n"),
+                        text: "${LocaleKeys.sideBar_closeSidebar.tr()}\n"),
                     TextSpan(
                       text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
                       style: const TextStyle(color: Colors.white60),

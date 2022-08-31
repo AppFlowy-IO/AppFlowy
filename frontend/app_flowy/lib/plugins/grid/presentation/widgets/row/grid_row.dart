@@ -190,7 +190,6 @@ class RowContent extends StatelessWidget {
 
         return CellContainer(
           width: cellId.field.width.toDouble(),
-          child: child,
           rowStateNotifier:
               Provider.of<RegionStateNotifier>(context, listen: false),
           accessoryBuilder: (buildContext) {
@@ -208,6 +207,7 @@ class RowContent extends StatelessWidget {
             }
             return accessories;
           },
+          child: child,
         );
       },
     ).toList();
