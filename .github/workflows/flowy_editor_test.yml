@@ -4,10 +4,14 @@ on:
   push:
     branches:
       - "main"
+    paths:
+      - "frontend/app_flowy/packages/appflowy_editor"
 
   pull_request:
     branches:
       - "main"
+    paths:
+      - "frontend/app_flowy/packages/appflowy_editor"
 
 env:
   CARGO_TERM_COLOR: always
