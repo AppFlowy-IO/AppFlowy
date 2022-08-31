@@ -2,7 +2,7 @@ name: flowy_infra_ui
 description: A new flutter plugin project.
 version: 0.0.1
 homepage:
-publish_to: 'none'
+publish_to: "none"
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -13,11 +13,11 @@ dependencies:
     sdk: flutter
 
   # Thirdparty packages
-  textstyle_extensions: '2.0.0-nullsafety'
-  dartz: '0.10.0-nullsafety.2'
+  textstyle_extensions: "2.0.0-nullsafety"
+  dartz:
   provider: ^6.0.1
-  styled_widget: '^0.3.1'
-  equatable: '^2.0.3'
+  styled_widget: "^0.3.1"
+  equatable: "^2.0.3"
   animations: ^2.0.0
   loading_indicator: ^3.0.1
 

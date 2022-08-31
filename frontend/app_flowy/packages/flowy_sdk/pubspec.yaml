@@ -14,7 +14,7 @@ dependencies:
   ffi: ^1.0.0
   isolates: ^3.0.3+8
   protobuf: "2.0.0"
-  dartz: "0.10.0-nullsafety.2"
+  dartz: ^0.10.1
   freezed_annotation:
   logger: ^1.0.0
 
