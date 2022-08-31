@@ -9,7 +9,7 @@ abstract class GroupControllerDelegate {
   void removeRow(GroupPB group, String rowId);
   void insertRow(GroupPB group, RowPB row, int? index);
   void updateRow(GroupPB group, RowPB row);
-  void addNewRow(GroupPB group, RowPB row);
+  void addNewRow(GroupPB group, RowPB row, int? index);
 }
 
 class GroupController {
@@ -31,6 +31,11 @@ class GroupController {
     }
   }
 
+  RowPB? lastRow() {
+    if (group.rows.isEmpty) return null;
+    return group.rows.last;
+  }
+
   void startListening() {
     _listener.start(onGroupChanged: (result) {
       result.fold(
@@ -50,7 +55,7 @@ class GroupController {
             }
 
             if (insertedRow.isNew) {
-              delegate.addNewRow(group, insertedRow.row);
+              delegate.addNewRow(group, insertedRow.row, index);
             } else {
               delegate.insertRow(group, insertedRow.row, index);
             }

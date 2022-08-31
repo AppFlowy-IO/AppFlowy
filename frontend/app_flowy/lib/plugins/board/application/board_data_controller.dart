@@ -119,8 +119,9 @@ class BoardDataController {
     );
   }
 
-  Future<Either<RowPB, FlowyError>> createBoardCard(String groupId) {
-    return _gridFFIService.createBoardCard(groupId);
+  Future<Either<RowPB, FlowyError>> createBoardCard(String groupId,
+      {String? startRowId}) {
+    return _gridFFIService.createBoardCard(groupId, startRowId);
   }
 
   Future<void> dispose() async {

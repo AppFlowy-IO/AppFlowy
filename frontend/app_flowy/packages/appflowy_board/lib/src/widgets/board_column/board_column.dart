@@ -31,7 +31,7 @@ typedef AFBoardColumnCardBuilder = Widget Function(
 
 typedef AFBoardColumnHeaderBuilder = Widget? Function(
   BuildContext context,
-  AFBoardColumnHeaderData headerData,
+  AFBoardColumnData headerData,
 );
 
 typedef AFBoardColumnFooterBuilder = Widget Function(
@@ -132,8 +132,8 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
             .map((item) => _buildWidget(context, item))
             .toList();
 
-        final header = widget.headerBuilder
-            ?.call(context, widget.dataSource.columnData.headerData);
+        final header =
+            widget.headerBuilder?.call(context, widget.dataSource.columnData);
 
         final footer =
             widget.footBuilder?.call(context, widget.dataSource.columnData);

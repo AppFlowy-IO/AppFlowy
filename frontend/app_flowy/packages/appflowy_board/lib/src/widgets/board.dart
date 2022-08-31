@@ -282,14 +282,16 @@ class _AFBoardContentState extends State<AFBoardContent> {
   }
 
   Widget? _buildHeader(
-      BuildContext context, AFBoardColumnHeaderData headerData) {
+    BuildContext context,
+    AFBoardColumnData columnData,
+  ) {
     if (widget.headerBuilder == null) {
       return null;
     }
     return Selector<AFBoardColumnDataController, AFBoardColumnHeaderData>(
       selector: (context, controller) => controller.columnData.headerData,
       builder: (context, headerData, _) {
-        return widget.headerBuilder!(context, headerData)!;
+        return widget.headerBuilder!(context, columnData)!;
       },
     );
   }
