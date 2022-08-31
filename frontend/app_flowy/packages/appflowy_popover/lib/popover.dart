@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:appflowy_popover/layout.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -55,8 +57,6 @@ class Popover extends StatefulWidget {
   final PopoverController? controller;
   final Offset? offset;
   final Decoration? maskDecoration;
-  final Alignment targetAnchor;
-  final Alignment followerAnchor;
   final Widget Function(BuildContext context) popupBuilder;
   final int triggerActions;
   final PopoverMutex? mutex;
@@ -70,8 +70,6 @@ class Popover extends StatefulWidget {
     this.controller,
     this.offset,
     this.maskDecoration,
-    this.targetAnchor = Alignment.topLeft,
-    this.followerAnchor = Alignment.topLeft,
     this.triggerActions = 0,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.mutex,
@@ -124,15 +122,13 @@ class PopoverState extends State<Popover> {
         ));
       }
 
-      children.add(
-        CustomSingleChildLayout(
-          delegate: PopoverLayoutDelegate(
-            direction: widget.direction,
-            link: popoverLink,
-          ),
-          child: widget.popupBuilder(context),
-        ),
-      );
+      children.add(PopoverContainer(
+        direction: widget.direction,
+        popoverLink: popoverLink,
+        offset: widget.offset ?? Offset.zero,
+        popupBuilder: widget.popupBuilder,
+        onClose: () => close(),
+      ));
 
       return Stack(children: children);
     });
@@ -242,5 +238,52 @@ class _PopoverMaskState extends State<_PopoverMask> {
             ),
       ),
     );
+  }
+}
+
+class PopoverContainer extends StatefulWidget {
+  final Widget Function(BuildContext context) popupBuilder;
+  final PopoverDirection direction;
+  final PopoverLink popoverLink;
+  final Offset offset;
+  final void Function() onClose;
+
+  const PopoverContainer({
+    Key? key,
+    required this.popupBuilder,
+    required this.direction,
+    required this.popoverLink,
+    required this.offset,
+    required this.onClose,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => PopoverContainerState();
+}
+
+class PopoverContainerState extends State<PopoverContainer> {
+  @override
+  Widget build(BuildContext context) {
+    return CustomSingleChildLayout(
+      delegate: PopoverLayoutDelegate(
+        direction: widget.direction,
+        link: widget.popoverLink,
+        offset: widget.offset,
+      ),
+      child: widget.popupBuilder(context),
+    );
+  }
+
+  close() {
+    widget.onClose();
+  }
+
+  static PopoverContainerState of(BuildContext context) {
+    if (context is StatefulElement && context.state is PopoverContainerState) {
+      return context.state as PopoverContainerState;
+    }
+    final PopoverContainerState? result =
+        context.findAncestorStateOfType<PopoverContainerState>();
+    return result!;
   }
 }

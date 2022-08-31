@@ -39,8 +39,6 @@ class _GridFieldCellState extends State<GridFieldCell> {
               field: state.field,
               onTap: () => popover.show(),
             ),
-            targetAnchor: Alignment.bottomLeft,
-            followerAnchor: Alignment.topLeft,
             offset: const Offset(0, 10),
             popupBuilder: (BuildContext context) {
               return GridFieldCellActionSheet(

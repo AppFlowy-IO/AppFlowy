@@ -306,8 +306,6 @@ class _DateTypeOptionButton extends StatelessWidget {
         return Popover(
           triggerActions:
               PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
-          targetAnchor: Alignment.topRight,
-          followerAnchor: Alignment.topLeft,
           offset: const Offset(20, 0),
           child: FlowyButton(
             text: FlowyText.medium(title, fontSize: 12),
@@ -353,8 +351,6 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         triggerActions:
             PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
         child: const DateFormatButton(),
-        targetAnchor: Alignment.topRight,
-        followerAnchor: Alignment.topLeft,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
           return OverlayContainer(
@@ -372,8 +368,6 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         triggerActions:
             PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
         child: TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),
-        targetAnchor: Alignment.topRight,
-        followerAnchor: Alignment.topLeft,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
           return OverlayContainer(

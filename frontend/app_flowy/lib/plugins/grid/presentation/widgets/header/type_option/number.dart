@@ -63,8 +63,6 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
               mutex: popoverMutex,
               triggerActions: PopoverTriggerActionFlags.hover |
                   PopoverTriggerActionFlags.click,
-              targetAnchor: Alignment.topRight,
-              followerAnchor: Alignment.topLeft,
               offset: const Offset(20, 0),
               child: FlowyButton(
                 margin: GridSize.typeOptionContentInsets,

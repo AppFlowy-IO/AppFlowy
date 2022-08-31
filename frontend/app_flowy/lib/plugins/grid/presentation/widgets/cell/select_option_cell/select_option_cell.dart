@@ -197,8 +197,6 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
         Popover(
           controller: _popover,
           child: child,
-          targetAnchor: Alignment.bottomCenter,
-          followerAnchor: Alignment.topCenter,
           offset: const Offset(0, 20),
           popupBuilder: (BuildContext context) {
             WidgetsBinding.instance.addPostFrameCallback((timeStamp) {

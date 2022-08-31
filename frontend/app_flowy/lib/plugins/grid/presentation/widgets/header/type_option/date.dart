@@ -67,8 +67,6 @@ class DateTypeOptionWidget extends TypeOptionWidget {
       triggerActions:
           PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
       child: const DateFormatButton(),
-      targetAnchor: Alignment.topRight,
-      followerAnchor: Alignment.topLeft,
       offset: const Offset(20, 0),
       popupBuilder: (popoverContext) {
         return OverlayContainer(
@@ -92,19 +90,19 @@ class DateTypeOptionWidget extends TypeOptionWidget {
       triggerActions:
           PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
       child: TimeFormatButton(timeFormat: timeFormat),
-      targetAnchor: Alignment.topRight,
-      followerAnchor: Alignment.topLeft,
       offset: const Offset(20, 0),
-      popupBuilder: (BuildContext context) {
+      popupBuilder: (BuildContext popoverContext) {
         return OverlayContainer(
-            constraints: BoxConstraints.loose(const Size(460, 440)),
-            child: TimeFormatList(
-                selectedFormat: timeFormat,
-                onSelected: (format) {
-                  context
-                      .read<DateTypeOptionBloc>()
-                      .add(DateTypeOptionEvent.didSelectTimeFormat(format));
-                }));
+          constraints: BoxConstraints.loose(const Size(460, 440)),
+          child: TimeFormatList(
+              selectedFormat: timeFormat,
+              onSelected: (format) {
+                context
+                    .read<DateTypeOptionBloc>()
+                    .add(DateTypeOptionEvent.didSelectTimeFormat(format));
+                PopoverContainerState.of(popoverContext).close();
+              }),
+        );
       },
     );
   }

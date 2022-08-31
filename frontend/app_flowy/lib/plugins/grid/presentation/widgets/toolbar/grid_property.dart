@@ -96,8 +96,6 @@ class _GridPropertyCell extends StatelessWidget {
   Widget _editFieldButton(AppTheme theme, BuildContext context) {
     return Popover(
       triggerActions: PopoverTriggerActionFlags.click,
-      targetAnchor: Alignment.topRight,
-      followerAnchor: Alignment.topLeft,
       offset: const Offset(20, 0),
       child: FlowyButton(
         text: FlowyText.medium(field.name, fontSize: 12),

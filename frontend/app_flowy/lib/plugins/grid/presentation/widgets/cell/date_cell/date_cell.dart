@@ -63,8 +63,6 @@ class _DateCellState extends GridCellState<GridDateCell> {
         builder: (context, state) {
           return Popover(
             controller: _popover,
-            targetAnchor: Alignment.bottomLeft,
-            followerAnchor: Alignment.topLeft,
             offset: const Offset(0, 20),
             child: SizedBox.expand(
               child: GestureDetector(

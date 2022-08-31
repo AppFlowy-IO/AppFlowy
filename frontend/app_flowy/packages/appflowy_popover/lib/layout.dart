@@ -6,10 +6,12 @@ import './popover.dart';
 class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
   PopoverLink link;
   PopoverDirection direction;
+  final Offset offset;
 
   PopoverLayoutDelegate({
     required this.link,
     required this.direction,
+    required this.offset,
   });
 
   @override
@@ -165,8 +167,8 @@ class PopoverLayoutDelegate extends SingleChildLayoutDelegate {
       return Offset.zero;
     }
     final anchorRect = Rect.fromLTWH(
-      link.leaderOffset!.dx,
-      link.leaderOffset!.dy,
+      link.leaderOffset!.dx + offset.dx,
+      link.leaderOffset!.dy + offset.dy,
       link.leaderSize!.width,
       link.leaderSize!.height,
     );

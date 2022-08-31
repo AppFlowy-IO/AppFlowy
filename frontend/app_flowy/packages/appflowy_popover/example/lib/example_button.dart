@@ -22,8 +22,6 @@ class _PopoverMenuState extends State<PopoverMenu> {
               PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
           mutex: popOverMutex,
           offset: const Offset(10, 0),
-          targetAnchor: Alignment.topRight,
-          followerAnchor: Alignment.topLeft,
           popupBuilder: (BuildContext context) {
             return PopoverMenu();
           },
@@ -37,8 +35,6 @@ class _PopoverMenuState extends State<PopoverMenu> {
               PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
           mutex: popOverMutex,
           offset: const Offset(10, 0),
-          targetAnchor: Alignment.topRight,
-          followerAnchor: Alignment.topLeft,
           popupBuilder: (BuildContext context) {
             return PopoverMenu();
           },
@@ -69,8 +65,6 @@ class ExampleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Popover(
-      targetAnchor: targetAnchor,
-      followerAnchor: followerAnchor,
       triggerActions: PopoverTriggerActionFlags.click,
       offset: offset,
       child: TextButton(child: Text(label), onPressed: () {}),

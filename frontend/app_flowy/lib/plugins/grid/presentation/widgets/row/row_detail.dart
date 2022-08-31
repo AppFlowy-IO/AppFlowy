@@ -167,8 +167,6 @@ class _RowDetailCellState extends State<_RowDetailCell> {
               width: 150,
               child: Popover(
                 controller: popover,
-                targetAnchor: Alignment.topRight,
-                followerAnchor: Alignment.topLeft,
                 offset: const Offset(20, 0),
                 popupBuilder: (context) {
                   return OverlayContainer(

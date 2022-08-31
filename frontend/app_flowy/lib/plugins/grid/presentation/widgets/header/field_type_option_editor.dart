@@ -69,8 +69,6 @@ class FieldTypeOptionEditor extends StatelessWidget {
             PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
         mutex: popoverMutex,
         offset: const Offset(20, 0),
-        targetAnchor: Alignment.topRight,
-        followerAnchor: Alignment.topLeft,
         popupBuilder: (context) {
           final list = FieldTypeList(onSelectField: (newFieldType) {
             dataController.switchToField(newFieldType);
