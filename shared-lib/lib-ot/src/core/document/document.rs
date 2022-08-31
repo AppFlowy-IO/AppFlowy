@@ -110,7 +110,7 @@ impl DocumentTree {
         let last_index = path.0[path.0.len() - 1];
         let parent_node = self
             .node_at_path(&Position(parent_path.to_vec()))
-            .ok_or_else(||ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         self.insert_child_at_index(parent_node, last_index, nodes.as_ref())
     }
@@ -135,7 +135,7 @@ impl DocumentTree {
 
         let node_to_insert = self
             .child_at_index_of_path(parent, index)
-            .ok_or_else(||ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         self.insert_subtree_before(&node_to_insert, insert_children);
         Ok(())
@@ -163,7 +163,7 @@ impl DocumentTree {
     fn apply_update(&mut self, path: &Position, attributes: &NodeAttributes) -> Result<(), OTError> {
         let update_node = self
             .node_at_path(path)
-            .ok_or_else(||ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
         let node_data = self.arena.get_mut(update_node).unwrap();
         let new_node = {
             let old_attributes = &node_data.get().attributes;
@@ -180,7 +180,7 @@ impl DocumentTree {
     fn apply_delete(&mut self, path: &Position, len: usize) -> Result<(), OTError> {
         let mut update_node = self
             .node_at_path(path)
-            .ok_or_else(||ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
         for _ in 0..len {
             let next = update_node.following_siblings(&self.arena).next();
             update_node.remove_subtree(&mut self.arena);
@@ -196,7 +196,7 @@ impl DocumentTree {
     fn apply_text_edit(&mut self, path: &Position, delta: &TextDelta) -> Result<(), OTError> {
         let edit_node = self
             .node_at_path(path)
-            .ok_or_else(||ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
         let node_data = self.arena.get_mut(edit_node).unwrap();
         let new_delta = if let Some(old_delta) = &node_data.get().delta {
             Some(old_delta.compose(delta)?)
