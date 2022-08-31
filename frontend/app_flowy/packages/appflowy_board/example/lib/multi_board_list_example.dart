@@ -73,17 +73,17 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
               margin: config.columnItemPadding,
             );
           },
-          headerBuilder: (context, headerData) {
+          headerBuilder: (context, columnData) {
             return AppFlowyColumnHeader(
               icon: const Icon(Icons.lightbulb_circle),
               title: SizedBox(
                 width: 60,
                 child: TextField(
                   controller: TextEditingController()
-                    ..text = headerData.columnName,
+                    ..text = columnData.headerData.columnName,
                   onSubmitted: (val) {
                     boardDataController
-                        .getColumnController(headerData.columnId)!
+                        .getColumnController(columnData.headerData.columnId)!
                         .updateColumnName(val);
                   },
                 ),

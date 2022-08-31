@@ -84,11 +84,14 @@ class _BoardContentState extends State<BoardContent> {
           () => null,
           (editingRow) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              scrollManager.scrollToBottom(editingRow.columnId, () {
-                context
-                    .read<BoardBloc>()
-                    .add(BoardEvent.endEditRow(editingRow.row.id));
-              });
+              if (editingRow.index != null) {
+              } else {
+                scrollManager.scrollToBottom(editingRow.columnId, () {
+                  context
+                      .read<BoardBloc>()
+                      .add(BoardEvent.endEditRow(editingRow.row.id));
+                });
+              }
             });
           },
         );
@@ -131,26 +134,32 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   Widget _buildHeader(
-      BuildContext context, AFBoardColumnHeaderData headerData) {
+    BuildContext context,
+    AFBoardColumnData columnData,
+  ) {
     return AppFlowyColumnHeader(
       title: Flexible(
         fit: FlexFit.tight,
         child: FlowyText.medium(
-          headerData.columnName,
+          columnData.headerData.columnName,
           fontSize: 14,
           overflow: TextOverflow.clip,
           color: context.read<AppTheme>().textColor,
         ),
       ),
-      // addIcon: const Icon(Icons.add, size: 20),
-      // moreIcon: SizedBox(
-      //   width: 20,
-      //   height: 20,
-      //   child: svgWidget(
-      //     'grid/details',
-      //     color: context.read<AppTheme>().iconColor,
-      //   ),
-      // ),
+      addIcon: SizedBox(
+        height: 20,
+        width: 20,
+        child: svgWidget(
+          "home/add",
+          color: context.read<AppTheme>().iconColor,
+        ),
+      ),
+      onAddButtonClick: () {
+        context.read<BoardBloc>().add(
+              BoardEvent.createHeaderRow(columnData.id),
+            );
+      },
       height: 50,
       margin: config.headerPadding,
     );
@@ -178,7 +187,9 @@ class _BoardContentState extends State<BoardContent> {
         height: 50,
         margin: config.footerPadding,
         onAddButtonClick: () {
-          context.read<BoardBloc>().add(BoardEvent.createRow(columnData.id));
+          context.read<BoardBloc>().add(
+                BoardEvent.createBottomRow(columnData.id),
+              );
         },
       );
     }
@@ -205,8 +216,13 @@ class _BoardContentState extends State<BoardContent> {
     );
 
     final cellBuilder = BoardCellBuilder(cardController);
-
-    final isEditing = context.read<BoardBloc>().state.editingRow.isSome();
+    bool isEditing = false;
+    context.read<BoardBloc>().state.editingRow.fold(
+      () => null,
+      (editingRow) {
+        isEditing = editingRow.row.id == columnItem.row.id;
+      },
+    );
 
     return AppFlowyColumnItemCard(
       key: ValueKey(columnItem.id),
