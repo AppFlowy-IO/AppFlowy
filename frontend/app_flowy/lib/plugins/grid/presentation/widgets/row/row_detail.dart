@@ -5,8 +5,10 @@ import 'package:app_flowy/plugins/grid/application/row/row_detail_bloc.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
@@ -67,16 +69,21 @@ class _RowDetailPageState extends State<RowDetailPage> {
         return bloc;
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
         child: Column(
           children: [
             SizedBox(
-              height: 40,
+              height: 30,
               child: Row(
                 children: const [Spacer(), _CloseButton()],
               ),
             ),
-            Expanded(child: _PropertyList(cellBuilder: widget.cellBuilder)),
+            Expanded(
+              child: _PropertyList(
+                cellBuilder: widget.cellBuilder,
+                viewId: widget.dataController.rowInfo.gridId,
+              ),
+            ),
           ],
         ),
       ),
@@ -101,9 +108,11 @@ class _CloseButton extends StatelessWidget {
 }
 
 class _PropertyList extends StatelessWidget {
+  final String viewId;
   final GridCellBuilder cellBuilder;
   final ScrollController _scrollController;
   _PropertyList({
+    required this.viewId,
     required this.cellBuilder,
     Key? key,
   })  : _scrollController = ScrollController(),
@@ -114,25 +123,59 @@ class _PropertyList extends StatelessWidget {
     return BlocBuilder<RowDetailBloc, RowDetailState>(
       buildWhen: (previous, current) => previous.gridCells != current.gridCells,
       builder: (context, state) {
-        return ScrollbarListStack(
-          axis: Axis.vertical,
-          controller: _scrollController,
-          barSize: GridSize.scrollBarSize,
-          child: ListView.separated(
-            controller: _scrollController,
-            itemCount: state.gridCells.length,
-            itemBuilder: (BuildContext context, int index) {
-              return _RowDetailCell(
-                cellId: state.gridCells[index],
-                cellBuilder: cellBuilder,
-              );
-            },
-            separatorBuilder: (BuildContext context, int index) {
-              return const VSpace(2);
-            },
-          ),
+        return Column(
+          children: [
+            Expanded(
+              child: ScrollbarListStack(
+                axis: Axis.vertical,
+                controller: _scrollController,
+                barSize: GridSize.scrollBarSize,
+                child: ListView.separated(
+                  controller: _scrollController,
+                  itemCount: state.gridCells.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _RowDetailCell(
+                      cellId: state.gridCells[index],
+                      cellBuilder: cellBuilder,
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    return const VSpace(2);
+                  },
+                ),
+              ),
+            ),
+            _CreateFieldButton(viewId: viewId),
+          ],
         );
       },
+    );
+  }
+}
+
+class _CreateFieldButton extends StatelessWidget {
+  final String viewId;
+  const _CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.read<AppTheme>();
+
+    return SizedBox(
+      height: 40,
+      child: FlowyButton(
+        text: FlowyText.medium(
+          LocaleKeys.grid_field_newColumn.tr(),
+          fontSize: 12,
+        ),
+        hoverColor: theme.shader6,
+        onTap: () => FieldEditor(
+          gridId: viewId,
+          fieldName: "",
+          typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
+        ).show(context),
+        leftIcon: svgWidget("home/add"),
+      ),
     );
   }
 }
@@ -172,7 +215,9 @@ class _RowDetailCell extends StatelessWidget {
             SizedBox(
               width: 150,
               child: FieldCellButton(
-                  field: cellId.field, onTap: () => _showFieldEditor(context)),
+                field: cellId.field,
+                onTap: () => _showFieldEditor(context),
+              ),
             ),
             const HSpace(10),
             Expanded(child: gesture),

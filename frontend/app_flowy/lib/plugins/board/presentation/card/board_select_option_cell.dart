@@ -65,7 +65,10 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
                 alignment: AlignmentDirectional.center,
                 fit: StackFit.expand,
                 children: [
-                  Wrap(spacing: 4, runSpacing: 2, children: children),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Wrap(spacing: 4, runSpacing: 2, children: children),
+                  ),
                   _SelectOptionDialog(
                     controller: widget.cellControllerBuilder.build(),
                   ),
