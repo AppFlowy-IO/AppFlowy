@@ -26,6 +26,7 @@ RUN flutter channel stable
 RUN flutter config --enable-linux-desktop
 RUN flutter doctor
 RUN dart pub global activate protoc_plugin
+RUN apt-get install keybinder-3.0
 
 RUN git clone https://github.com/AppFlowy-IO/appflowy.git && \
 cd appflowy/frontend && \
