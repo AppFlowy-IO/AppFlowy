@@ -78,36 +78,38 @@ class _BoardTextCellState extends State<BoardTextCell> {
         child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
           builder: (context, state) {
             Widget child;
-            if (state.enableEdit) {
-              child = TextField(
-                controller: _controller,
-                focusNode: focusNode,
-                onChanged: (value) => focusChanged(),
-                onEditingComplete: () => focusNode.unfocus(),
-                maxLines: 1,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Mulish',
-                ),
-                decoration: const InputDecoration(
-                  // Magic number 4 makes the textField take up the same space as FlowyText
-                  contentPadding: EdgeInsets.symmetric(vertical: 4),
-                  border: InputBorder.none,
-                  isDense: true,
-                ),
-              );
+            if (state.content.isEmpty) {
+              child = const SizedBox();
             } else {
-              child = FlowyText.medium(state.content, fontSize: 14);
+              if (state.enableEdit) {
+                child = TextField(
+                  controller: _controller,
+                  focusNode: focusNode,
+                  onChanged: (value) => focusChanged(),
+                  onEditingComplete: () => focusNode.unfocus(),
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    fontFamily: 'Mulish',
+                  ),
+                  decoration: const InputDecoration(
+                    // Magic number 4 makes the textField take up the same space as FlowyText
+                    contentPadding: EdgeInsets.symmetric(vertical: 4),
+                    border: InputBorder.none,
+                    isDense: true,
+                  ),
+                );
+              } else {
+                child = FlowyText.medium(state.content, fontSize: 14);
+                child = Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  child: child,
+                );
+              }
             }
 
-            return Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: child,
-              ),
-            );
+            return Align(alignment: Alignment.centerLeft, child: child);
           },
         ),
       ),

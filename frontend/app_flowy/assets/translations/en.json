@@ -189,7 +189,8 @@
       "addSelectOption": "Add an option",
       "optionTitle": "Options",
       "addOption": "Add option",
-      "editProperty": "Edit property"
+      "editProperty": "Edit property",
+      "newColumn": "New column"
     },
     "row": {
       "duplicate": "Duplicate",

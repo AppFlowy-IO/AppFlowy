@@ -100,20 +100,11 @@ class _BoardCardState extends State<BoardCard> {
         );
         rowNotifier.insertCell(cellId, cellNotifier);
 
-        if (index != 0) {
-          child = Padding(
-            key: cellId.key(),
-            padding: const EdgeInsets.only(left: 4, right: 4, top: 8),
-            child: child,
-          );
-        } else {
-          child = Padding(
-            key: UniqueKey(),
-            padding: const EdgeInsets.only(left: 4, right: 4),
-            child: child,
-          );
-        }
-
+        child = Padding(
+          key: cellId.key(),
+          padding: const EdgeInsets.only(left: 4, right: 4),
+          child: child,
+        );
         children.add(child);
       },
     );
