@@ -195,7 +195,7 @@ where
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
                 let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
                 let cell_data = cell_bytes.parser::<P>()?;
-                for group in self.configuration.groups() {
+                for group in self.configuration.concrete_groups() {
                     if self.can_group(&group.content, &cell_data) {
                         grouped_rows.push(GroupedRow {
                             row: row_rev.into(),

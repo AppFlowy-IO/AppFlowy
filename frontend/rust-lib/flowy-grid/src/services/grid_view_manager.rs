@@ -134,7 +134,7 @@ impl GridViewManager {
         row_rev: Arc<RowRevision>,
         to_group_id: String,
         to_row_id: Option<String>,
-        with_row_changeset: impl FnOnce(RowChangeset) -> AFFuture<()>,
+        recv_row_changeset: impl FnOnce(RowChangeset) -> AFFuture<()>,
     ) -> FlowyResult<()> {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
         let view_editor = self.get_default_view_editor().await?;
@@ -143,7 +143,7 @@ impl GridViewManager {
             .await;
 
         if !row_changeset.is_empty() {
-            with_row_changeset(row_changeset).await;
+            recv_row_changeset(row_changeset).await;
         }
 
         for group_changeset in group_changesets {
