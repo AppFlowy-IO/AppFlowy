@@ -24,6 +24,7 @@ import '../../grid/application/row/row_cache.dart';
 import '../application/board_bloc.dart';
 import 'card/card.dart';
 import 'card/card_cell_builder.dart';
+import 'toolbar/board_toolbar.dart';
 
 class BoardPage extends StatelessWidget {
   final ViewPB view;
@@ -100,25 +101,34 @@ class _BoardContentState extends State<BoardContent> {
         buildWhen: (previous, current) =>
             previous.groupIds.length != current.groupIds.length,
         builder: (context, state) {
+          final theme = context.read<AppTheme>();
           return Container(
-            color: Colors.white,
+            color: theme.surface,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-              child: AFBoard(
-                scrollManager: scrollManager,
-                scrollController: scrollController,
-                dataController: context.read<BoardBloc>().boardController,
-                headerBuilder: _buildHeader,
-                footBuilder: _buildFooter,
-                cardBuilder: (_, column, columnItem) => _buildCard(
-                  context,
-                  column,
-                  columnItem,
-                ),
-                columnConstraints: const BoxConstraints.tightFor(width: 300),
-                config: AFBoardConfig(
-                  columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
-                ),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const _ToolbarBlocAdaptor(),
+                  Expanded(
+                    child: AFBoard(
+                      scrollManager: scrollManager,
+                      scrollController: scrollController,
+                      dataController: context.read<BoardBloc>().boardController,
+                      headerBuilder: _buildHeader,
+                      footBuilder: _buildFooter,
+                      cardBuilder: (_, column, columnItem) => _buildCard(
+                        context,
+                        column,
+                        columnItem,
+                      ),
+                      columnConstraints:
+                          const BoxConstraints.tightFor(width: 300),
+                      config: AFBoardConfig(
+                        columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -274,6 +284,25 @@ class _BoardContentState extends State<BoardContent> {
       cellBuilder: GridCellBuilder(delegate: dataController),
       dataController: dataController,
     ).show(context);
+  }
+}
+
+class _ToolbarBlocAdaptor extends StatelessWidget {
+  const _ToolbarBlocAdaptor({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<BoardBloc, BoardState>(
+      builder: (context, state) {
+        final bloc = context.read<BoardBloc>();
+        final toolbarContext = BoardToolbarContext(
+          viewId: bloc.gridId,
+          fieldCache: bloc.fieldCache,
+        );
+
+        return BoardToolbar(toolbarContext: toolbarContext);
+      },
+    );
   }
 }
 
