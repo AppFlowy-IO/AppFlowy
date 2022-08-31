@@ -16,7 +16,8 @@ DynamicLibrary _open() {
     final prefix = "${Directory.current.path}/.sandbox";
     if (Platform.isLinux)
       return DynamicLibrary.open('${prefix}/libdart_ffi.so');
-    if (Platform.isAndroid) return DynamicLibrary.open('libdart_ffi.so');
+    if (Platform.isAndroid)
+      return DynamicLibrary.open('${prefix}/libdart_ffi.so');
     if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isIOS) return DynamicLibrary.open('${prefix}/libdart_ffi.a');
     if (Platform.isWindows)

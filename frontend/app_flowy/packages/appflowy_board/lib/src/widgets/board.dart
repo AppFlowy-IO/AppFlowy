@@ -217,7 +217,7 @@ class _BoardContentState extends State<BoardContent> {
               final boardColumn = AFBoardColumnWidget(
                 margin: _marginFromIndex(columnIndex),
                 itemMargin: widget.config.columnItemPadding,
-                headerBuilder: widget.headerBuilder,
+                headerBuilder: _buildHeader,
                 footBuilder: widget.footBuilder,
                 cardBuilder: widget.cardBuilder,
                 dataSource: dataSource,
