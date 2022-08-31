@@ -44,8 +44,8 @@ class CellContainer extends StatelessWidget {
 
             if (accessories.isNotEmpty) {
               container = _GridCellEnterRegion(
-                child: container,
                 accessories: accessories,
+                child: container,
               );
             }
           }

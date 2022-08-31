@@ -52,7 +52,8 @@ class BoardDataController {
   BoardDataController({required ViewPB view})
       : gridId = view.id,
         _listener = BoardListener(view.id),
-        _blocks = LinkedHashMap.new(),
+        // ignore: prefer_collection_literals
+        _blocks = LinkedHashMap(),
         _gridFFIService = GridFFIService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id);
 
@@ -60,7 +61,7 @@ class BoardDataController {
     required OnGridChanged onGridChanged,
     OnFieldsChanged? onFieldsChanged,
     required DidLoadGroups didLoadGroups,
-    required OnRowsChanged onRowsChanged,
+    OnRowsChanged? onRowsChanged,
     required OnUpdatedGroup onUpdatedGroup,
     required OnDeletedGroup onDeletedGroup,
     required OnInsertedGroup onInsertedGroup,
@@ -118,8 +119,9 @@ class BoardDataController {
     );
   }
 
-  Future<Either<RowPB, FlowyError>> createBoardCard(String groupId) {
-    return _gridFFIService.createBoardCard(groupId);
+  Future<Either<RowPB, FlowyError>> createBoardCard(String groupId,
+      {String? startRowId}) {
+    return _gridFFIService.createBoardCard(groupId, startRowId);
   }
 
   Future<void> dispose() async {

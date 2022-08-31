@@ -47,6 +47,8 @@ class StyleKey {
     StyleKey.italic,
     StyleKey.underline,
     StyleKey.strikethrough,
+    StyleKey.backgroundColor,
+    StyleKey.href,
   ];
 
   static List<String> globalStyleKeys = [
@@ -61,7 +63,6 @@ class StyleKey {
 }
 
 // TODO: customize
-double defaultMaxTextNodeWidth = 780.0;
 double defaultLinePadding = 8.0;
 double baseFontSize = 16.0;
 String defaultHighlightColor = '0x6000BCF0';
@@ -78,7 +79,10 @@ Map<String, double> headingToFontSize = {
 
 extension NodeAttributesExtensions on Attributes {
   String? get heading {
-    if (containsKey(StyleKey.heading) && this[StyleKey.heading] is String) {
+    if (containsKey(StyleKey.subtype) &&
+        containsKey(StyleKey.heading) &&
+        this[StyleKey.subtype] == StyleKey.heading &&
+        this[StyleKey.heading] is String) {
       return this[StyleKey.heading];
     }
     return null;

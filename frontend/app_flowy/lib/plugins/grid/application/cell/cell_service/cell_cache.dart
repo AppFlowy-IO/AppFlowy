@@ -33,8 +33,15 @@ class GridCellCache {
     required this.gridId,
   });
 
-  void remove(String fieldId) {
+  void removeCellWithFieldId(String fieldId) {
     _cellDataByFieldId.remove(fieldId);
+  }
+
+  void remove(GridCellCacheKey key) {
+    var map = _cellDataByFieldId[key.fieldId];
+    if (map != null) {
+      map.remove(key.rowId);
+    }
   }
 
   void insert<T extends GridCell>(GridCellCacheKey key, T value) {

@@ -10,8 +10,8 @@ class FlowyPoppuWindow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: child,
       type: MaterialType.transparency,
+      child: child,
     );
   }
 
@@ -21,6 +21,7 @@ class FlowyPoppuWindow extends StatelessWidget {
     required Size size,
   }) async {
     final window = await getWindowInfo();
+    // ignore: use_build_context_synchronously
     FlowyOverlay.of(context).insertWithRect(
       widget: FlowyPoppuWindow(child: child),
       identifier: 'FlowyPoppuWindow',
@@ -49,7 +50,10 @@ class PopupTextField extends StatelessWidget {
     );
   }
 
-  static void show({required BuildContext context, required Size size, required void Function(String) textDidChange}) {
+  static void show(
+      {required BuildContext context,
+      required Size size,
+      required void Function(String) textDidChange}) {
     FlowyPoppuWindow.show(
       context,
       size: size,

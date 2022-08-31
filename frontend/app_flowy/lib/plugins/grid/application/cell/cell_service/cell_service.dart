@@ -71,6 +71,6 @@ class GridCellIdentifier with _$GridCellIdentifier {
   FieldType get fieldType => field.fieldType;
 
   ValueKey key() {
-    return ValueKey(rowId + fieldId + "${field.fieldType}");
+    return ValueKey("$rowId$fieldId${field.fieldType}");
   }
 }

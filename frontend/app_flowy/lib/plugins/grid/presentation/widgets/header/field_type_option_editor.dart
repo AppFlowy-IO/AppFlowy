@@ -110,8 +110,8 @@ class _FieldTypeOptionEditorState extends State<FieldTypeOptionEditor> {
     currentOverlayIdentifier = identifier;
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: child,
         constraints: BoxConstraints.loose(const Size(460, 440)),
+        child: child,
       ),
       identifier: identifier,
       anchorContext: context,

@@ -35,11 +35,11 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 
   void show(BuildContext context) async {
     final windowSize = MediaQuery.of(context).size;
-    final size = windowSize * 0.7;
+    final size = windowSize * 0.5;
     FlowyOverlay.of(context).insertWithRect(
       widget: OverlayContainer(
-        child: this,
         constraints: BoxConstraints.tight(size),
+        child: this,
       ),
       identifier: RowDetailPage.identifier(),
       anchorPosition: Offset(-size.width / 2.0, -size.height / 2.0),
@@ -156,9 +156,9 @@ class _RowDetailCell extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       onTap: () => cell.beginFocus.notify(),
       child: AccessoryHover(
-        child: cell,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        child: cell,
       ),
     );
 

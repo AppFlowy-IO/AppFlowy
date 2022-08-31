@@ -79,7 +79,7 @@ class DateCellState with _$DateCellState {
 String _dateStrFromCellData(DateCellDataPB? cellData) {
   String dateStr = "";
   if (cellData != null) {
-    dateStr = cellData.date + " " + cellData.time;
+    dateStr = "${cellData.date} ${cellData.time}";
   }
   return dateStr;
 }

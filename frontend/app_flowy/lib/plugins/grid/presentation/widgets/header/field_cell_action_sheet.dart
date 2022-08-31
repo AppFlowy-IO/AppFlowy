@@ -24,8 +24,8 @@ class GridFieldCellActionSheet extends StatelessWidget
   void show(BuildContext overlayContext) {
     FlowyOverlay.of(overlayContext).insertWithAnchor(
       widget: OverlayContainer(
-        child: this,
         constraints: BoxConstraints.loose(const Size(240, 200)),
+        child: this,
       ),
       identifier: GridFieldCellActionSheet.identifier(),
       anchorContext: overlayContext,

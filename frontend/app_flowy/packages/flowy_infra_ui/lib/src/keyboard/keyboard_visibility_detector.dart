@@ -14,10 +14,12 @@ class KeyboardVisibilityDetector extends StatefulWidget {
   final void Function(bool)? onKeyboardVisibilityChange;
 
   @override
-  _KeyboardVisibilityDetectorState createState() => _KeyboardVisibilityDetectorState();
+  State<KeyboardVisibilityDetector> createState() =>
+      _KeyboardVisibilityDetectorState();
 }
 
-class _KeyboardVisibilityDetectorState extends State<KeyboardVisibilityDetector> {
+class _KeyboardVisibilityDetectorState
+    extends State<KeyboardVisibilityDetector> {
   FlowyInfraUIPlatform get _platform => FlowyInfraUIPlatform.instance;
 
   bool isObserving = false;
@@ -27,7 +29,8 @@ class _KeyboardVisibilityDetectorState extends State<KeyboardVisibilityDetector>
   @override
   void initState() {
     super.initState();
-    _keyboardSubscription = _platform.onKeyboardVisibilityChange.listen((newValue) {
+    _keyboardSubscription =
+        _platform.onKeyboardVisibilityChange.listen((newValue) {
       setState(() {
         isKeyboardVisible = newValue;
         if (widget.onKeyboardVisibilityChange != null) {
@@ -62,7 +65,8 @@ class _KeyboardVisibilityDetectorInheritedWidget extends InheritedWidget {
   final bool isKeyboardVisible;
 
   @override
-  bool updateShouldNotify(_KeyboardVisibilityDetectorInheritedWidget oldWidget) {
+  bool updateShouldNotify(
+      _KeyboardVisibilityDetectorInheritedWidget oldWidget) {
     return isKeyboardVisible != oldWidget.isKeyboardVisible;
   }
 }

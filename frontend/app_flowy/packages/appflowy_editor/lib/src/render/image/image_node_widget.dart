@@ -1,10 +1,15 @@
+import 'package:appflowy_editor/src/extensions/object_extensions.dart';
+import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/document/position.dart';
+import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
 class ImageNodeWidget extends StatefulWidget {
   const ImageNodeWidget({
     Key? key,
+    required this.node,
     required this.src,
     this.width,
     required this.alignment,
@@ -14,6 +19,7 @@ class ImageNodeWidget extends StatefulWidget {
     required this.onResize,
   }) : super(key: key);
 
+  final Node node;
   final String src;
   final double? width;
   final Alignment alignment;
@@ -26,7 +32,9 @@ class ImageNodeWidget extends StatefulWidget {
   State<ImageNodeWidget> createState() => _ImageNodeWidgetState();
 }
 
-class _ImageNodeWidgetState extends State<ImageNodeWidget> {
+class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
+  final _imageKey = GlobalKey();
+
   double? _imageWidth;
   double _initial = 0;
   double _distance = 0;
@@ -42,7 +50,11 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
     _imageWidth = widget.width;
     _imageStreamListener = ImageStreamListener(
       (image, _) {
-        _imageWidth = image.image.width.toDouble();
+        _imageWidth = _imageKey.currentContext
+            ?.findRenderObject()
+            ?.unwrapOrNull<RenderBox>()
+            ?.size
+            .width;
       },
     );
   }
@@ -56,12 +68,52 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
   @override
   Widget build(BuildContext context) {
     // only support network image.
-
     return Container(
-      width: defaultMaxTextNodeWidth,
+      key: _imageKey,
       padding: const EdgeInsets.only(top: 8, bottom: 8),
       child: _buildNetworkImage(context),
     );
+  }
+
+  @override
+  Position start() {
+    return Position(path: widget.node.path, offset: 0);
+  }
+
+  @override
+  Position end() {
+    return Position(path: widget.node.path, offset: 1);
+  }
+
+  @override
+  Position getPositionInOffset(Offset start) {
+    return end();
+  }
+
+  @override
+  Rect? getCursorRectInPosition(Position position) {
+    return null;
+  }
+
+  @override
+  List<Rect> getRectsInSelection(Selection selection) {
+    final renderBox = context.findRenderObject() as RenderBox;
+    return [Offset.zero & renderBox.size];
+  }
+
+  @override
+  Selection getSelectionInRange(Offset start, Offset end) {
+    if (start <= end) {
+      return Selection(start: this.start(), end: this.end());
+    } else {
+      return Selection(start: this.end(), end: this.start());
+    }
+  }
+
+  @override
+  Offset localToGlobal(Offset offset) {
+    final renderBox = context.findRenderObject() as RenderBox;
+    return renderBox.localToGlobal(offset);
   }
 
   Widget _buildNetworkImage(BuildContext context) {
@@ -87,7 +139,7 @@ class _ImageNodeWidgetState extends State<ImageNodeWidget> {
       loadingBuilder: (context, child, loadingProgress) =>
           loadingProgress == null ? child : _buildLoading(context),
       errorBuilder: (context, error, stackTrace) {
-        _imageWidth ??= defaultMaxTextNodeWidth;
+        // _imageWidth ??= defaultMaxTextNodeWidth;
         return _buildError(context);
       },
     );

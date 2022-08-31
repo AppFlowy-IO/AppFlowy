@@ -95,7 +95,13 @@
   "tooltip": {
     "lightMode": "Switch to Light mode",
     "darkMode": "Switch to Dark mode",
-    "openAsPage": "Open as a Page"
+    "openAsPage": "Open as a Page",
+    "addNewRow": "Add a new row",
+    "openMenu": "Click to open menu"
+  },
+  "sideBar": {
+    "closeSidebar": "Close side bar",
+    "openSidebar": "Open side bar"
   },
   "notifications": {
     "export": {
@@ -214,6 +220,11 @@
     "date": {
       "timeHintTextInTwelveHour": "12:00 AM",
       "timeHintTextInTwentyFourHour": "12:00"
+    }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "New"
     }
   }
 }

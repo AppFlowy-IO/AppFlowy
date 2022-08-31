@@ -1,3 +1,7 @@
+# 0.0.6
+* Support scroll to bottom
+* Fix some bugs
+
 # 0.0.5
 * Optimize insert card animation
 * Enable insert card at the end of the column

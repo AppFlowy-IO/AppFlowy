@@ -157,7 +157,7 @@ bool formatRichTextPartialStyle(EditorState editorState, String styleKey,
 }
 
 bool _allSatisfyInSelection(
-    EditorState editorState, String styleKey, dynamic value) {
+    EditorState editorState, String styleKey, dynamic matchValue) {
   final selection = editorState.service.selectionService.currentSelection.value;
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final textNodes = nodes.whereType<TextNode>().toList(growable: false);
@@ -166,7 +166,9 @@ bool _allSatisfyInSelection(
     return false;
   }
 
-  return textNodes.allSatisfyInSelection(styleKey, selection, value);
+  return textNodes.allSatisfyInSelection(selection, styleKey, (value) {
+    return value == matchValue;
+  });
 }
 
 bool formatRichTextStyle(EditorState editorState, Attributes attributes) {

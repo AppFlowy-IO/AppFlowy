@@ -1,5 +1,7 @@
 PODS:
   - FlutterMacOS (1.0.0)
+  - path_provider_macos (0.0.1):
+    - FlutterMacOS
   - rich_clipboard_macos (0.0.1):
     - FlutterMacOS
   - url_launcher_macos (0.0.1):
@@ -9,6 +11,7 @@ PODS:
 
 DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - rich_clipboard_macos (from `Flutter/ephemeral/.symlinks/plugins/rich_clipboard_macos/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
   - wakelock_macos (from `Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos`)
@@ -16,6 +19,8 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   FlutterMacOS:
     :path: Flutter/ephemeral
+  path_provider_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
   rich_clipboard_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/rich_clipboard_macos/macos
   url_launcher_macos:
@@ -25,6 +30,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
+  path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
   rich_clipboard_macos: 43364b66b9dc69d203eb8dd6d758e2d12e02723c
   url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9

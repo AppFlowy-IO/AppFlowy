@@ -91,12 +91,12 @@ class _TrashPageState extends State<TrashPage> {
         builder: (context, state) {
           return SizedBox.expand(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 _renderTopBar(context, theme, state),
                 const VSpace(32),
                 _renderTrashList(context, state),
               ],
-              mainAxisAlignment: MainAxisAlignment.start,
             ).padding(horizontal: horizontalPadding, vertical: 48),
           );
         },

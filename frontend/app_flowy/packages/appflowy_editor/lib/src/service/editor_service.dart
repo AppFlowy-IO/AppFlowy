@@ -1,5 +1,6 @@
 import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
+import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/default_key_event_handlers.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +37,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.customBuilders = const {},
     this.keyEventHandlers = const [],
     this.selectionMenuItems = const [],
+    this.editorStyle = const EditorStyle.defaultStyle(),
   }) : super(key: key);
 
   final EditorState editorState;
@@ -47,6 +49,8 @@ class AppFlowyEditor extends StatefulWidget {
   final List<AppFlowyKeyEventHandler> keyEventHandlers;
 
   final List<SelectionMenuItem> selectionMenuItems;
+
+  final EditorStyle editorStyle;
 
   @override
   State<AppFlowyEditor> createState() => _AppFlowyEditorState();
@@ -60,6 +64,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     super.initState();
 
     editorState.selectionMenuItems = widget.selectionMenuItems;
+    editorState.editorStyle = widget.editorStyle;
     editorState.service.renderPluginService = _createRenderPlugin();
   }
 
@@ -68,6 +73,8 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     super.didUpdateWidget(oldWidget);
 
     if (editorState.service != oldWidget.editorState.service) {
+      editorState.selectionMenuItems = widget.selectionMenuItems;
+      editorState.editorStyle = widget.editorStyle;
       editorState.service.renderPluginService = _createRenderPlugin();
     }
   }
@@ -76,27 +83,31 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
   Widget build(BuildContext context) {
     return AppFlowyScroll(
       key: editorState.service.scrollServiceKey,
-      child: AppFlowySelection(
-        key: editorState.service.selectionServiceKey,
-        editorState: editorState,
-        child: AppFlowyInput(
-          key: editorState.service.inputServiceKey,
+      child: Padding(
+        padding: widget.editorStyle.padding,
+        child: AppFlowySelection(
+          key: editorState.service.selectionServiceKey,
           editorState: editorState,
-          child: AppFlowyKeyboard(
-            key: editorState.service.keyboardServiceKey,
-            handlers: [
-              ...defaultKeyEventHandlers,
-              ...widget.keyEventHandlers,
-            ],
+          child: AppFlowyInput(
+            key: editorState.service.inputServiceKey,
             editorState: editorState,
-            child: FlowyToolbar(
-              key: editorState.service.toolbarServiceKey,
+            child: AppFlowyKeyboard(
+              key: editorState.service.keyboardServiceKey,
+              handlers: [
+                ...defaultKeyEventHandlers,
+                ...widget.keyEventHandlers,
+              ],
               editorState: editorState,
-              child: editorState.service.renderPluginService.buildPluginWidget(
-                NodeWidgetContext(
-                  context: context,
-                  node: editorState.document.root,
-                  editorState: editorState,
+              child: FlowyToolbar(
+                key: editorState.service.toolbarServiceKey,
+                editorState: editorState,
+                child:
+                    editorState.service.renderPluginService.buildPluginWidget(
+                  NodeWidgetContext(
+                    context: context,
+                    node: editorState.document.root,
+                    editorState: editorState,
+                  ),
                 ),
               ),
             ),

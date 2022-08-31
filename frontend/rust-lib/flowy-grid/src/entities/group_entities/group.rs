@@ -14,6 +14,9 @@ pub struct CreateBoardCardPayloadPB {
 
     #[pb(index = 2)]
     pub group_id: String,
+
+    #[pb(index = 3, one_of)]
+    pub start_row_id: Option<String>,
 }
 
 impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
@@ -22,9 +25,13 @@ impl TryInto<CreateRowParams> for CreateBoardCardPayloadPB {
     fn try_into(self) -> Result<CreateRowParams, Self::Error> {
         let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
         let group_id = NotEmptyStr::parse(self.group_id).map_err(|_| ErrorCode::GroupIdIsEmpty)?;
+        let start_row_id = match self.start_row_id {
+            None => None,
+            Some(start_row_id) => Some(NotEmptyStr::parse(start_row_id).map_err(|_| ErrorCode::RowIdIsEmpty)?.0),
+        };
         Ok(CreateRowParams {
             grid_id: grid_id.0,
-            start_row_id: None,
+            start_row_id,
             group_id: Some(group_id.0),
             layout: GridLayout::Board,
         })
@@ -81,6 +88,9 @@ pub struct GroupPB {
 
     #[pb(index = 4)]
     pub rows: Vec<RowPB>,
+
+    #[pb(index = 5)]
+    pub is_default: bool,
 }
 
 impl std::convert::From<Group> for GroupPB {
@@ -90,6 +100,7 @@ impl std::convert::From<Group> for GroupPB {
             group_id: group.id,
             desc: group.name,
             rows: group.rows,
+            is_default: group.is_default,
         }
     }
 }

@@ -87,7 +87,7 @@ class _DebugToast {
     return deviceInfo.then((info) {
       var debugText = "";
       info.toMap().forEach((key, value) {
-        debugText = debugText + "$key: $value\n";
+        debugText = "$debugText$key: $value\n";
       });
       return debugText;
     });

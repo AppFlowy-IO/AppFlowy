@@ -28,16 +28,19 @@ class AuthRouter {
     );
   }
 
-  void pushHomeScreen(BuildContext context, UserProfilePB profile, CurrentWorkspaceSettingPB workspaceSetting) {
+  void pushHomeScreen(BuildContext context, UserProfilePB profile,
+      CurrentWorkspaceSettingPB workspaceSetting) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => HomeScreen(profile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => HomeScreen(profile, workspaceSetting),
+          RouteDurations.slow.inMilliseconds * .001),
     );
   }
 }
 
 class SplashRoute {
-  Future<void> pushWelcomeScreen(BuildContext context, UserProfilePB userProfile) async {
+  Future<void> pushWelcomeScreen(
+      BuildContext context, UserProfilePB userProfile) async {
     final screen = WelcomeScreen(userProfile: userProfile);
     final workspaceId = await Navigator.of(context).push(
       PageRoutes.fade(
@@ -46,20 +49,24 @@ class SplashRoute {
       ),
     );
 
+    // ignore: use_build_context_synchronously
     pushHomeScreen(context, userProfile, workspaceId);
   }
 
-  void pushHomeScreen(BuildContext context, UserProfilePB userProfile, CurrentWorkspaceSettingPB workspaceSetting) {
+  void pushHomeScreen(BuildContext context, UserProfilePB userProfile,
+      CurrentWorkspaceSettingPB workspaceSetting) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => HomeScreen(userProfile, workspaceSetting), RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => HomeScreen(userProfile, workspaceSetting),
+          RouteDurations.slow.inMilliseconds * .001),
     );
   }
 
   void pushSignInScreen(BuildContext context) {
     Navigator.push(
       context,
-      PageRoutes.fade(() => SignInScreen(router: getIt<AuthRouter>()), RouteDurations.slow.inMilliseconds * .001),
+      PageRoutes.fade(() => SignInScreen(router: getIt<AuthRouter>()),
+          RouteDurations.slow.inMilliseconds * .001),
     );
   }
 

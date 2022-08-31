@@ -163,14 +163,14 @@ class SelectOptionWrap extends StatelessWidget {
       child = Align(
         alignment: Alignment.centerLeft,
         child: Wrap(
+          spacing: 4,
+          runSpacing: 2,
           children: selectOptions
               .map((option) => SelectOptionTag.fromOption(
                     context: context,
                     option: option,
                   ))
               .toList(),
-          spacing: 4,
-          runSpacing: 2,
         ),
       );
     }

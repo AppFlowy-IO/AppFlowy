@@ -142,6 +142,10 @@
       "darkLabel": "Mode sombre"
     }
   },
+  "sideBar": {
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar"
+  },
   "grid": {
     "settings": {
       "filter": "Filtrer",

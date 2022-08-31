@@ -2,6 +2,7 @@
 
 import 'dart:collection';
 
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
@@ -9,18 +10,21 @@ import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart'
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_detail.dart';
 import 'package:appflowy_board/appflowy_board.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/group.pbserver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../grid/application/row/row_cache.dart';
 import '../application/board_bloc.dart';
 import 'card/card.dart';
 import 'card/card_cell_builder.dart';
+import 'toolbar/board_toolbar.dart';
 
 class BoardPage extends StatelessWidget {
   final ViewPB view;
@@ -32,13 +36,15 @@ class BoardPage extends StatelessWidget {
       create: (context) =>
           BoardBloc(view: view)..add(const BoardEvent.initial()),
       child: BlocBuilder<BoardBloc, BoardState>(
+        buildWhen: (previous, current) =>
+            previous.loadingState != current.loadingState,
         builder: (context, state) {
           return state.loadingState.map(
             loading: (_) =>
                 const Center(child: CircularProgressIndicator.adaptive()),
             finish: (result) {
               return result.successOrFail.fold(
-                (_) => BoardContent(),
+                (_) => const BoardContent(),
                 (err) => FlowyErrorPage(err.toString()),
               );
             },
@@ -49,70 +55,132 @@ class BoardPage extends StatelessWidget {
   }
 }
 
-class BoardContent extends StatelessWidget {
+class BoardContent extends StatefulWidget {
+  const BoardContent({Key? key}) : super(key: key);
+
+  @override
+  State<BoardContent> createState() => _BoardContentState();
+}
+
+class _BoardContentState extends State<BoardContent> {
+  late ScrollController scrollController;
+  late AFBoardScrollManager scrollManager;
+
   final config = AFBoardConfig(
     columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
   );
 
-  BoardContent({Key? key}) : super(key: key);
+  @override
+  void initState() {
+    scrollController = ScrollController();
+    scrollManager = AFBoardScrollManager();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BoardBloc, BoardState>(
-      builder: (context, state) {
-        return Container(
-          color: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child: AFBoard(
-              scrollController: ScrollController(),
-              dataController: context.read<BoardBloc>().boardController,
-              headerBuilder: _buildHeader,
-              footBuilder: _buildFooter,
-              cardBuilder: (_, column, columnItem) => _buildCard(
-                context,
-                column,
-                columnItem,
-              ),
-              columnConstraints: const BoxConstraints.tightFor(width: 240),
-              config: AFBoardConfig(
-                columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
-              ),
-            ),
-          ),
+    return BlocListener<BoardBloc, BoardState>(
+      listener: (context, state) {
+        state.editingRow.fold(
+          () => null,
+          (editingRow) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (editingRow.index != null) {
+              } else {
+                scrollManager.scrollToBottom(editingRow.columnId, () {
+                  context
+                      .read<BoardBloc>()
+                      .add(BoardEvent.endEditRow(editingRow.row.id));
+                });
+              }
+            });
+          },
         );
       },
+      child: BlocBuilder<BoardBloc, BoardState>(
+        buildWhen: (previous, current) =>
+            previous.groupIds.length != current.groupIds.length,
+        builder: (context, state) {
+          final theme = context.read<AppTheme>();
+          return Container(
+            color: theme.surface,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  const _ToolbarBlocAdaptor(),
+                  Expanded(
+                    child: AFBoard(
+                      scrollManager: scrollManager,
+                      scrollController: scrollController,
+                      dataController: context.read<BoardBloc>().boardController,
+                      headerBuilder: _buildHeader,
+                      footBuilder: _buildFooter,
+                      cardBuilder: (_, column, columnItem) => _buildCard(
+                        context,
+                        column,
+                        columnItem,
+                      ),
+                      columnConstraints:
+                          const BoxConstraints.tightFor(width: 300),
+                      config: AFBoardConfig(
+                        columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
   Widget _buildHeader(
-      BuildContext context, AFBoardColumnHeaderData headerData) {
+    BuildContext context,
+    AFBoardColumnData columnData,
+  ) {
     return AppFlowyColumnHeader(
       title: Flexible(
         fit: FlexFit.tight,
         child: FlowyText.medium(
-          headerData.columnName,
+          columnData.headerData.columnName,
           fontSize: 14,
           overflow: TextOverflow.clip,
           color: context.read<AppTheme>().textColor,
         ),
       ),
-      // addIcon: const Icon(Icons.add, size: 20),
-      // moreIcon: SizedBox(
-      //   width: 20,
-      //   height: 20,
-      //   child: svgWidget(
-      //     'grid/details',
-      //     color: context.read<AppTheme>().iconColor,
-      //   ),
-      // ),
+      addIcon: SizedBox(
+        height: 20,
+        width: 20,
+        child: svgWidget(
+          "home/add",
+          color: context.read<AppTheme>().iconColor,
+        ),
+      ),
+      onAddButtonClick: () {
+        context.read<BoardBloc>().add(
+              BoardEvent.createHeaderRow(columnData.id),
+            );
+      },
       height: 50,
       margin: config.headerPadding,
     );
   }
 
   Widget _buildFooter(BuildContext context, AFBoardColumnData columnData) {
-    return AppFlowyColumnFooter(
+    final group = columnData.customData as GroupPB;
+    if (group.isDefault) {
+      return const SizedBox();
+    } else {
+      return AppFlowyColumnFooter(
         icon: SizedBox(
           height: 20,
           width: 20,
@@ -122,15 +190,19 @@ class BoardContent extends StatelessWidget {
           ),
         ),
         title: FlowyText.medium(
-          "New",
+          LocaleKeys.board_column_create_new_card.tr(),
           fontSize: 14,
           color: context.read<AppTheme>().textColor,
         ),
         height: 50,
         margin: config.footerPadding,
         onAddButtonClick: () {
-          context.read<BoardBloc>().add(BoardEvent.createRow(columnData.id));
-        });
+          context.read<BoardBloc>().add(
+                BoardEvent.createBottomRow(columnData.id),
+              );
+        },
+      );
+    }
   }
 
   Widget _buildCard(
@@ -138,7 +210,8 @@ class BoardContent extends StatelessWidget {
     AFBoardColumnData column,
     AFColumnItem columnItem,
   ) {
-    final rowPB = (columnItem as BoardColumnItem).row;
+    final boardColumnItem = columnItem as BoardColumnItem;
+    final rowPB = boardColumnItem.row;
     final rowCache = context.read<BoardBloc>().getRowCache(rowPB.blockId);
 
     /// Return placeholder widget if the rowCache is null.
@@ -153,24 +226,25 @@ class BoardContent extends StatelessWidget {
     );
 
     final cellBuilder = BoardCellBuilder(cardController);
-    final isEditing = context.read<BoardBloc>().state.editingRow.fold(
-          () => false,
-          (editingRow) => editingRow.id == rowPB.id,
-        );
+    bool isEditing = false;
+    context.read<BoardBloc>().state.editingRow.fold(
+      () => null,
+      (editingRow) {
+        isEditing = editingRow.row.id == columnItem.row.id;
+      },
+    );
 
     return AppFlowyColumnItemCard(
-      key: ObjectKey(columnItem),
+      key: ValueKey(columnItem.id),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: BoardCard(
         gridId: gridId,
         groupId: column.id,
+        fieldId: boardColumnItem.fieldId,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,
-        onEditEditing: (rowId) {
-          context.read<BoardBloc>().add(BoardEvent.endEditRow(rowId));
-        },
         openCard: (context) => _openCard(
           gridId,
           fieldCache,
@@ -210,6 +284,25 @@ class BoardContent extends StatelessWidget {
       cellBuilder: GridCellBuilder(delegate: dataController),
       dataController: dataController,
     ).show(context);
+  }
+}
+
+class _ToolbarBlocAdaptor extends StatelessWidget {
+  const _ToolbarBlocAdaptor({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<BoardBloc, BoardState>(
+      builder: (context, state) {
+        final bloc = context.read<BoardBloc>();
+        final toolbarContext = BoardToolbarContext(
+          viewId: bloc.gridId,
+          fieldCache: bloc.fieldCache,
+        );
+
+        return BoardToolbar(toolbarContext: toolbarContext);
+      },
+    );
   }
 }
 

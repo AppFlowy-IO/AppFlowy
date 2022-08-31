@@ -94,6 +94,7 @@ class SignUpPrompt extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(LocaleKeys.signIn_dontHaveAnAccount.tr(), style: TextStyle(color: theme.shader3, fontSize: 12)),
         TextButton(
@@ -107,7 +108,6 @@ class SignUpPrompt extends StatelessWidget {
           ),
         ),
       ],
-      mainAxisAlignment: MainAxisAlignment.center,
     );
   }
 }

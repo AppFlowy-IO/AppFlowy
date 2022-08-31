@@ -28,7 +28,7 @@ New features
 - Row record open as a page
 - Auto resize the height of the row in the grid
 - Support more number formats
-- Search column options, supporting Single select, Multi-select, and number format
+- Search column options, supporting Single-select, Multi-select, and number format
 
 ![May-03-2022 10-03-00](https://user-images.githubusercontent.com/86001920/166394640-a8f1f3bc-5f20-4033-93e9-16bc308d7005.gif)
 
@@ -51,7 +51,7 @@ v0.0.4 - beta.1 is pre-release
 
 New features
 - Table-view database
-   - supported column types: Text, Checbox, Single-select, Multi-select, Numbers
+   - supported column types: Text, Checkbox, Single-select, Multi-select, Numbers
    - hide / delete columns
    - insert rows
 

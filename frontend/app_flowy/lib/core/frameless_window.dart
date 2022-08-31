@@ -31,10 +31,10 @@ class MoveWindowDetector extends StatefulWidget {
   final Widget? child;
 
   @override
-  _MoveWindowDetectorState createState() => _MoveWindowDetectorState();
+  MoveWindowDetectorState createState() => MoveWindowDetectorState();
 }
 
-class _MoveWindowDetectorState extends State<MoveWindowDetector> {
+class MoveWindowDetectorState extends State<MoveWindowDetector> {
   double winX = 0;
   double winY = 0;
 
@@ -59,7 +59,8 @@ class _MoveWindowDetectorState extends State<MoveWindowDetector> {
         final double dy = windowPos[1];
         final deltaX = details.globalPosition.dx - winX;
         final deltaY = details.globalPosition.dy - winY;
-        await CocoaWindowChannel.instance.setWindowPosition(Offset(dx + deltaX, dy - deltaY));
+        await CocoaWindowChannel.instance
+            .setWindowPosition(Offset(dx + deltaX, dy - deltaY));
       },
       child: widget.child,
     );
