@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/setting/setting_bloc.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -31,37 +32,6 @@ class GridSettingList extends StatelessWidget {
   const GridSettingList(
       {required this.settingContext, required this.onAction, Key? key})
       : super(key: key);
-
-  static void show(BuildContext context, GridSettingContext settingContext) {
-    final list = GridSettingList(
-      settingContext: settingContext,
-      onAction: (action, settingContext) {
-        switch (action) {
-          case GridSettingAction.filter:
-            break;
-          case GridSettingAction.sortBy:
-            break;
-          case GridSettingAction.properties:
-            GridPropertyList(
-                    gridId: settingContext.gridId,
-                    fieldCache: settingContext.fieldCache)
-                .show(context);
-            break;
-        }
-      },
-    );
-
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        child: list,
-        constraints: BoxConstraints.loose(const Size(140, 400)),
-      ),
-      identifier: list.identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.bottomRight,
-      style: FlowyOverlayStyle(blur: false),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

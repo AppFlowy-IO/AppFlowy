@@ -1,7 +1,9 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_editor.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/setting/property_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -16,9 +18,8 @@ import 'package:styled_widget/styled_widget.dart';
 
 import '../../../application/field/field_cache.dart';
 import '../../layout/sizes.dart';
-import '../header/field_editor.dart';
 
-class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
+class GridPropertyList extends StatelessWidget {
   final String gridId;
   final GridFieldCache fieldCache;
   const GridPropertyList({
@@ -26,20 +27,6 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
     required this.fieldCache,
     Key? key,
   }) : super(key: key);
-
-  void show(BuildContext context) {
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        child: this,
-        constraints: BoxConstraints.loose(const Size(260, 400)),
-      ),
-      identifier: identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.bottomRight,
-      style: FlowyOverlayStyle(blur: false),
-      delegate: this,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,13 +55,6 @@ class GridPropertyList extends StatelessWidget with FlowyOverlayDelegate {
       ),
     );
   }
-
-  String identifier() {
-    return (GridPropertyList).toString();
-  }
-
-  @override
-  bool asBarrier() => true;
 }
 
 class _GridPropertyCell extends StatelessWidget {
@@ -113,19 +93,27 @@ class _GridPropertyCell extends StatelessWidget {
     );
   }
 
-  FlowyButton _editFieldButton(AppTheme theme, BuildContext context) {
-    return FlowyButton(
-      text: FlowyText.medium(field.name, fontSize: 12),
-      hoverColor: theme.hover,
-      leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
-      onTap: () {
-        // FieldEditorPopOver.show(
-        //   context,
-        //   anchorContext: context,
-        //   gridId: gridId,
-        //   fieldName: field.name,
-        //   typeOptionLoader: FieldTypeOptionLoader(gridId: gridId, field: field),
-        // );
+  Widget _editFieldButton(AppTheme theme, BuildContext context) {
+    return Popover(
+      triggerActions: PopoverTriggerActionFlags.click,
+      targetAnchor: Alignment.topRight,
+      followerAnchor: Alignment.topLeft,
+      offset: const Offset(20, 0),
+      child: FlowyButton(
+        text: FlowyText.medium(field.name, fontSize: 12),
+        hoverColor: theme.hover,
+        leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
+      ),
+      popupBuilder: (BuildContext context) {
+        return OverlayContainer(
+          constraints: BoxConstraints.loose(const Size(240, 200)),
+          child: FieldEditor(
+            gridId: gridId,
+            fieldName: field.name,
+            typeOptionLoader:
+                FieldTypeOptionLoader(gridId: gridId, field: field),
+          ),
+        );
       },
     );
   }

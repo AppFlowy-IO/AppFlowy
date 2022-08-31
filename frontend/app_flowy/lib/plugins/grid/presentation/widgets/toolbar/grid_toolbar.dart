@@ -65,30 +65,47 @@ class _SettingButton extends StatelessWidget {
             .padding(horizontal: 3, vertical: 3),
       ),
       popupBuilder: (BuildContext context) {
-        return OverlayContainer(
-          constraints: BoxConstraints.loose(const Size(140, 400)),
-          child: GridSettingList(
-            settingContext: settingContext,
-            onAction: (action, settingContext) {
-              switch (action) {
-                case GridSettingAction.filter:
-                  break;
-                case GridSettingAction.sortBy:
-                  break;
-                case GridSettingAction.properties:
-                  GridPropertyList(
-                          gridId: settingContext.gridId,
-                          fieldCache: settingContext.fieldCache)
-                      .show(context);
-                  break;
-              }
-            },
-          ),
-        );
+        return _GridSettingListPopover(settingContext: settingContext);
       },
     );
-    // return FlowyIconButton(
-    //   onPressed: () => GridSettingList.show(context, settingContext),
-    // );
+  }
+}
+
+class _GridSettingListPopover extends StatefulWidget {
+  final GridSettingContext settingContext;
+
+  const _GridSettingListPopover({Key? key, required this.settingContext})
+      : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _GridSettingListPopoverState();
+}
+
+class _GridSettingListPopoverState extends State<_GridSettingListPopover> {
+  GridSettingAction? _action;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_action == GridSettingAction.properties) {
+      return OverlayContainer(
+        constraints: BoxConstraints.loose(const Size(260, 400)),
+        child: GridPropertyList(
+          gridId: widget.settingContext.gridId,
+          fieldCache: widget.settingContext.fieldCache,
+        ),
+      );
+    }
+
+    return OverlayContainer(
+      constraints: BoxConstraints.loose(const Size(140, 400)),
+      child: GridSettingList(
+        settingContext: widget.settingContext,
+        onAction: (action, settingContext) {
+          setState(() {
+            _action = action;
+          });
+        },
+      ),
+    );
   }
 }

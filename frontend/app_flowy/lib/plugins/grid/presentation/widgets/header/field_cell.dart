@@ -3,7 +3,6 @@ import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -44,11 +43,8 @@ class _GridFieldCellState extends State<GridFieldCell> {
             followerAnchor: Alignment.topLeft,
             offset: const Offset(0, 10),
             popupBuilder: (BuildContext context) {
-              return OverlayContainer(
-                constraints: BoxConstraints.loose(const Size(240, 200)),
-                child: GridFieldCellActionSheet(
-                  cellContext: widget.cellContext,
-                ),
+              return GridFieldCellActionSheet(
+                cellContext: widget.cellContext,
               );
             },
           );

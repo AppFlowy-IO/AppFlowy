@@ -11,92 +11,85 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy_popover/popover.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import '../../layout/sizes.dart';
 
-class GridFieldCellActionSheet extends StatelessWidget
-    with FlowyOverlayDelegate {
+class GridFieldCellActionSheet extends StatefulWidget {
   final GridFieldCellContext cellContext;
   const GridFieldCellActionSheet({required this.cellContext, Key? key})
       : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _GridFieldCellActionSheetState();
+}
+
+class _GridFieldCellActionSheetState extends State<GridFieldCellActionSheet> {
+  bool _showFieldEditor = false;
+
+  @override
   Widget build(BuildContext context) {
+    if (_showFieldEditor) {
+      final field = widget.cellContext.field;
+      return OverlayContainer(
+        constraints: BoxConstraints.loose(const Size(240, 200)),
+        child: FieldEditor(
+          gridId: widget.cellContext.gridId,
+          fieldName: field.name,
+          typeOptionLoader: FieldTypeOptionLoader(
+            gridId: widget.cellContext.gridId,
+            field: field,
+          ),
+        ),
+      );
+    }
     return BlocProvider(
-      create: (context) => getIt<FieldActionSheetBloc>(param1: cellContext),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            _EditFieldButton(
-              cellContext: cellContext,
-            ),
-            const VSpace(6),
-            _FieldOperationList(cellContext,
-                () => FlowyOverlay.of(context).remove(identifier())),
-          ],
+      create: (context) =>
+          getIt<FieldActionSheetBloc>(param1: widget.cellContext),
+      child: OverlayContainer(
+        constraints: BoxConstraints.loose(const Size(240, 200)),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _EditFieldButton(
+                cellContext: widget.cellContext,
+                onTap: () {
+                  setState(() {
+                    _showFieldEditor = true;
+                  });
+                },
+              ),
+              const VSpace(6),
+              _FieldOperationList(widget.cellContext, () {}),
+            ],
+          ),
         ),
       ),
     );
   }
-
-  static String identifier() {
-    return (GridFieldCellActionSheet).toString();
-  }
-
-  @override
-  bool asBarrier() {
-    return true;
-  }
 }
 
-class _EditFieldButton extends StatefulWidget {
+class _EditFieldButton extends StatelessWidget {
   final GridFieldCellContext cellContext;
-  const _EditFieldButton({required this.cellContext, Key? key})
+  final void Function()? onTap;
+  const _EditFieldButton({required this.cellContext, Key? key, this.onTap})
       : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _EditFieldButtonState();
-}
-
-class _EditFieldButtonState extends State<_EditFieldButton> {
-  final popover = PopoverController();
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+
     return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
       builder: (context, state) {
         return SizedBox(
           height: GridSize.typeOptionItemHeight,
-          child: Popover(
-            controller: popover,
-            targetAnchor: Alignment.topRight,
-            followerAnchor: Alignment.topLeft,
-            offset: const Offset(20, 0),
-            popupBuilder: (context) {
-              final field = widget.cellContext.field;
-              return OverlayContainer(
-                constraints: BoxConstraints.loose(const Size(240, 200)),
-                child: FieldEditor(
-                  gridId: widget.cellContext.gridId,
-                  fieldName: field.name,
-                  typeOptionLoader: FieldTypeOptionLoader(
-                    gridId: widget.cellContext.gridId,
-                    field: field,
-                  ),
-                ),
-              );
-            },
-            child: FlowyButton(
-              text: FlowyText.medium(
-                LocaleKeys.grid_field_editProperty.tr(),
-                fontSize: 12,
-              ),
-              hoverColor: theme.hover,
-              onTap: () => popover.show(),
+          child: FlowyButton(
+            text: FlowyText.medium(
+              LocaleKeys.grid_field_editProperty.tr(),
+              fontSize: 12,
             ),
+            hoverColor: theme.hover,
+            onTap: onTap,
           ),
         );
       },
