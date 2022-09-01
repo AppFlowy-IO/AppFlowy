@@ -1,6 +1,8 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
@@ -47,14 +49,22 @@ class _SettingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
-    return FlowyIconButton(
-      hoverColor: theme.hover,
-      width: 22,
-      onPressed: () => BoardSettingList.show(context, settingContext),
-      icon: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 3.0),
-        child: svgWidget("grid/setting/setting"),
+    return Popover(
+      triggerActions: PopoverTriggerActionFlags.click,
+      child: FlowyIconButton(
+        hoverColor: theme.hover,
+        width: 22,
+        onPressed: () {},
+        icon: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 3.0),
+          child: svgWidget("grid/setting/setting"),
+        ),
       ),
+      popupBuilder: (BuildContext popoverContext) {
+        return BoardSettingListPopover(
+          settingContext: settingContext,
+        );
+      },
     );
   }
 }

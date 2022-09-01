@@ -91,7 +91,6 @@ class PopoverState extends State<Popover> {
   }
 
   showOverlay() {
-    debugPrint("show overlay");
     close();
 
     if (widget.mutex != null) {
@@ -159,7 +158,6 @@ class PopoverState extends State<Popover> {
 
   @override
   void deactivate() {
-    debugPrint("deactivate");
     close();
     super.deactivate();
   }

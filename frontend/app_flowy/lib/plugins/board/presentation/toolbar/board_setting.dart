@@ -49,7 +49,7 @@ class BoardSettingList extends StatelessWidget {
             previous.selectedAction != current.selectedAction,
         listener: (context, state) {
           state.selectedAction.foldLeft(null, (_, action) {
-            FlowyOverlay.of(context).remove(identifier());
+            // FlowyOverlay.of(context).remove(identifier());
             onAction(action, settingContext);
           });
         },
@@ -82,37 +82,6 @@ class BoardSettingList extends StatelessWidget {
         },
       ),
     );
-  }
-
-  static void show(BuildContext context, BoardSettingContext settingContext) {
-    final list = BoardSettingList(
-      settingContext: settingContext,
-      onAction: (action, settingContext) {
-        switch (action) {
-          case BoardSettingAction.properties:
-            GridPropertyList(
-                    gridId: settingContext.viewId,
-                    fieldCache: settingContext.fieldCache)
-                .show(context);
-            break;
-        }
-      },
-    );
-
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(140, 400)),
-        child: list,
-      ),
-      identifier: identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.bottomRight,
-      style: FlowyOverlayStyle(blur: false),
-    );
-  }
-
-  static String identifier() {
-    return (BoardSettingList).toString();
   }
 }
 
@@ -164,5 +133,50 @@ extension _GridSettingExtension on BoardSettingAction {
       case BoardSettingAction.properties:
         return LocaleKeys.grid_settings_Properties.tr();
     }
+  }
+}
+
+class BoardSettingListPopover extends StatefulWidget {
+  final BoardSettingContext settingContext;
+
+  const BoardSettingListPopover({
+    Key? key,
+    required this.settingContext,
+  }) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _BoardSettingListPopoverState();
+}
+
+class _BoardSettingListPopoverState extends State<BoardSettingListPopover> {
+  bool _showGridPropertyList = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_showGridPropertyList) {
+      return OverlayContainer(
+        constraints: BoxConstraints.loose(const Size(260, 400)),
+        child: GridPropertyList(
+          gridId: widget.settingContext.viewId,
+          fieldCache: widget.settingContext.fieldCache,
+        ),
+      );
+    }
+
+    return OverlayContainer(
+      constraints: BoxConstraints.loose(const Size(140, 400)),
+      child: BoardSettingList(
+        settingContext: widget.settingContext,
+        onAction: (action, settingContext) {
+          switch (action) {
+            case BoardSettingAction.properties:
+              setState(() {
+                _showGridPropertyList = true;
+              });
+              break;
+          }
+        },
+      ),
+    );
   }
 }
