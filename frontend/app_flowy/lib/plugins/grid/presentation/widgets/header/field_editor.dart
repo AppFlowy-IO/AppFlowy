@@ -23,9 +23,6 @@ class FieldEditor extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  bool asBarrier() => true;
-
-  @override
   State<StatefulWidget> createState() => _FieldEditorState();
 }
 

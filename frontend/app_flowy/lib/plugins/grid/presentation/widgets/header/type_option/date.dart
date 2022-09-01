@@ -66,7 +66,6 @@ class DateTypeOptionWidget extends TypeOptionWidget {
       mutex: popoverMutex,
       triggerActions:
           PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
-      child: const DateFormatButton(),
       offset: const Offset(20, 0),
       popupBuilder: (popoverContext) {
         return OverlayContainer(
@@ -82,6 +81,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
           ),
         );
       },
+      child: const DateFormatButton(),
     );
   }
 
@@ -90,7 +90,6 @@ class DateTypeOptionWidget extends TypeOptionWidget {
       mutex: popoverMutex,
       triggerActions:
           PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
-      child: TimeFormatButton(timeFormat: timeFormat),
       offset: const Offset(20, 0),
       popupBuilder: (BuildContext popoverContext) {
         return OverlayContainer(
@@ -105,6 +104,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
               }),
         );
       },
+      child: TimeFormatButton(timeFormat: timeFormat),
     );
   }
 }

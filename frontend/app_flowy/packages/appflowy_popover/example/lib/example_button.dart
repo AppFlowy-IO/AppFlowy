@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:appflowy_popover/popover.dart';
 
 class PopoverMenu extends StatefulWidget {
+  const PopoverMenu({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => _PopoverMenuState();
 }
@@ -23,7 +25,7 @@ class _PopoverMenuState extends State<PopoverMenu> {
           mutex: popOverMutex,
           offset: const Offset(10, 0),
           popupBuilder: (BuildContext context) {
-            return PopoverMenu();
+            return const PopoverMenu();
           },
           child: TextButton(
             onPressed: () {},
@@ -36,7 +38,7 @@ class _PopoverMenuState extends State<PopoverMenu> {
           mutex: popOverMutex,
           offset: const Offset(10, 0),
           popupBuilder: (BuildContext context) {
-            return PopoverMenu();
+            return const PopoverMenu();
           },
           child: TextButton(
             onPressed: () {},
@@ -68,7 +70,7 @@ class ExampleButton extends StatelessWidget {
       direction: direction ?? PopoverDirection.rightWithTopAligned,
       child: TextButton(child: Text(label), onPressed: () {}),
       popupBuilder: (BuildContext context) {
-        return PopoverMenu();
+        return const PopoverMenu();
       },
     );
   }

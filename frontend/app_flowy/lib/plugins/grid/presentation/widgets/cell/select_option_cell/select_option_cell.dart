@@ -196,8 +196,9 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       children: [
         Popover(
           controller: _popover,
-          child: child,
           offset: const Offset(0, 20),
+          direction: PopoverDirection.bottomWithLeftAligned,
+          // triggerActions: PopoverTriggerActionFlags.c,
           popupBuilder: (BuildContext context) {
             WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
               widget.onFocus?.call(true);
@@ -220,6 +221,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
           onClose: () {
             widget.onFocus?.call(false);
           },
+          child: child,
         ),
         InkWell(onTap: () {
           _popover.show();

@@ -15,7 +15,7 @@ class FlowyPopover extends StatefulWidget {
   final EdgeInsets padding;
   final BoxConstraints? constraints;
 
-  FlowyPopover({
+  const FlowyPopover({
     Key? key,
     required this.builder,
     required this.anchorRect,

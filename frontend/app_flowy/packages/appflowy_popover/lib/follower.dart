@@ -56,8 +56,6 @@ class PopoverRenderFollowerLayer extends RenderFollowerLayer {
   void paint(PaintingContext context, Offset offset) {
     super.paint(context, offset);
 
-    final global = localToGlobal(offset);
-
     if (link.leader == null) {
       return;
     }
@@ -68,9 +66,6 @@ class PopoverRenderFollowerLayer extends RenderFollowerLayer {
     }
     debugPrint(
         "right: ${link.leader!.offset.dx + link.leaderSize!.width + size.width}, screen with: ${screenSize.width}");
-    // debugPrint(
-    //     "offset: $offset, global: $global, link: ${link.leader?.offset}, link size: ${link.leaderSize}");
-    // debugPrint("follower size: ${this.size}, screen size: ${this.screenSize}");
   }
 }
 

@@ -13,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import '../../../application/field/field_cache.dart';
 import '../../layout/sizes.dart';
-import 'grid_property.dart';
 
 class GridSettingContext {
   final String gridId;

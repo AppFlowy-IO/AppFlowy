@@ -13,8 +13,7 @@ and the Flutter guide for
 
 # AppFlowy Popover
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+A Popover can be used to display some content on top of another.
 
 ## Features
 

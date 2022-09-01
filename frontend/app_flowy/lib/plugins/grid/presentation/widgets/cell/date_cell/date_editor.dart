@@ -65,11 +65,11 @@ class _DateCellEditor extends State<DateCellEditor> {
     }
 
     return OverlayContainer(
+      constraints: BoxConstraints.loose(const Size(320, 500)),
       child: _CellCalendarWidget(
         cellContext: widget.cellController,
         dateTypeOptionPB: _dateTypeOptionPB!,
       ),
-      constraints: BoxConstraints.loose(const Size(320, 500)),
     );
   }
 }
@@ -349,7 +349,6 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
         mutex: _popoverMutex,
         triggerActions:
             PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
-        child: const DateFormatButton(),
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
           return OverlayContainer(
@@ -361,12 +360,12 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
             ),
           );
         },
+        child: const DateFormatButton(),
       ),
       Popover(
         mutex: _popoverMutex,
         triggerActions:
             PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
-        child: TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
           return OverlayContainer(
@@ -378,6 +377,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
             ),
           );
         },
+        child: TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),
       ),
     ];
 
@@ -394,25 +394,6 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
           return children[index];
         },
       ),
-    );
-  }
-
-  void _showOverlay(BuildContext context, Widget child) {
-    if (overlayIdentifier != null) {
-      FlowyOverlay.of(context).remove(overlayIdentifier!);
-    }
-
-    overlayIdentifier = child.toString();
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(460, 440)),
-        child: child,
-      ),
-      identifier: overlayIdentifier!,
-      anchorContext: context,
-      anchorDirection: AnchorDirection.rightWithCenterAligned,
-      style: FlowyOverlayStyle(blur: false),
-      anchorOffset: const Offset(20, 0),
     );
   }
 }

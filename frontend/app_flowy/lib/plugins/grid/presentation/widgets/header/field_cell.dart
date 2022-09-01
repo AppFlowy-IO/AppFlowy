@@ -22,7 +22,7 @@ class GridFieldCell extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext gridCellContext) {
+  Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
         return FieldCellBloc(cellContext: cellContext);
@@ -32,16 +32,16 @@ class GridFieldCell extends StatelessWidget {
           final button = Popover(
             direction: PopoverDirection.bottomWithLeftAligned,
             triggerActions: PopoverTriggerActionFlags.click,
-            child: FieldCellButton(
-              field: cellContext.field,
-              onTap: () {},
-            ),
             offset: const Offset(0, 10),
             popupBuilder: (BuildContext context) {
               return GridFieldCellActionSheet(
                 cellContext: cellContext,
               );
             },
+            child: FieldCellButton(
+              field: cellContext.field,
+              onTap: () {},
+            ),
           );
 
           const line = Positioned(
