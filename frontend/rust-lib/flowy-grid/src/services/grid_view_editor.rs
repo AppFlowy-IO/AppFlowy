@@ -7,7 +7,7 @@ use crate::entities::{
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
 use crate::services::group::{
-    make_group_controller, GroupConfigurationReader, GroupConfigurationWriter, GroupController, GroupService,
+    make_group_controller, GroupConfigurationReader, GroupConfigurationWriter, GroupController, MoveGroupRowContext,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
@@ -20,8 +20,6 @@ use flowy_sync::entities::revision::Revision;
 use lib_infra::future::{wrap_future, AFFuture, FutureResult};
 use std::collections::HashMap;
 use std::future::Future;
-
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -87,18 +85,16 @@ impl GridViewRevisionEditor {
     }
 
     pub(crate) async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
-        match params.group_id.as_ref() {
-            None => {}
-            Some(group_id) => {
-                self.group_service
-                    .write()
-                    .await
-                    .will_create_row(row_rev, group_id, |field_id| {
-                        self.field_delegate.get_field_rev(&field_id)
-                    })
-                    .await;
-            }
+        if params.group_id.is_none() {
+            return;
         }
+        let group_id = params.group_id.as_ref().unwrap();
+        let _ = self
+            .mut_group_controller(|group_controller, field_rev| {
+                group_controller.will_create_row(row_rev, &field_rev, group_id);
+                Ok(())
+            })
+            .await;
     }
 
     pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
@@ -123,56 +119,27 @@ impl GridViewRevisionEditor {
 
     pub(crate) async fn did_delete_row(&self, row_rev: &RowRevision) {
         // Send the group notification if the current view has groups;
-        let group_field_id = self.group_controller.read().await.field_id().to_owned();
-        let field_rev = self.field_delegate.get_field_rev(&group_field_id).await;
-        field_rev.and_then(|field_rev| {
-            if let Some(changesets) = self
-                .group_controller
-                .write()
-                .await
-                .did_delete_row(row_rev, &field_rev)
-                .await
-            {
-                for changeset in changesets {
-                    self.notify_did_update_group(changeset).await;
-                }
-            }
-            None
-        });
-    }
+        let changesets = self
+            .mut_group_controller(|group_controller, field_rev| group_controller.did_delete_row(row_rev, &field_rev))
+            .await;
 
-    pub(crate) async fn did_update_row(&self, row_rev: &RowRevision) {
-        let changeset = self
-            .mut_group_controller(|group_controller, field_rev| async {
-                group_controller.did_update_row(row_rev, &field_rev).await
-            })
-            .await?;
-
-        if let Some(changeset) = changeset {
+        if let Some(changesets) = changesets {
             for changeset in changesets {
                 self.notify_did_update_group(changeset).await;
             }
         }
     }
 
-    async fn mut_group_controller<F, O, T>(&self, f: F) -> Option<T>
-    where
-        F: FnOnce(&mut Box<dyn GroupController>, Arc<FieldRevision>) -> O,
-        O: Future<Output = Option<T>> + Send + Sync + 'static,
-    {
-        let group_field_id = self.group_controller.read().await.field_id().to_owned();
-        match self.field_delegate.get_field_rev(&group_field_id).await {
-            None => None,
-            Some(field_rev) => {
-                let mut write_guard = self.group_controller.write().await;
-                Some(f(&mut write_guard, field_rev).await)
+    pub(crate) async fn did_update_row(&self, row_rev: &RowRevision) {
+        let changesets = self
+            .mut_group_controller(|group_controller, field_rev| group_controller.did_update_row(row_rev, &field_rev))
+            .await;
+
+        if let Some(changesets) = changesets {
+            for changeset in changesets {
+                self.notify_did_update_group(changeset).await;
             }
         }
-    }
-
-    async fn get_group_field_rev(&self) -> Option<Arc<FieldRevision>> {
-        let group_field_id = self.group_controller.read().await.field_id().to_owned();
-        self.field_delegate.get_field_rev(&group_field_id).await
     }
 
     pub(crate) async fn move_group_row(
@@ -182,54 +149,38 @@ impl GridViewRevisionEditor {
         to_group_id: &str,
         to_row_id: Option<String>,
     ) -> Vec<GroupChangesetPB> {
-        match self
-            .group_service
-            .write()
-            .await
-            .move_group_row(row_rev, row_changeset, to_group_id, to_row_id, |field_id| {
-                self.field_delegate.get_field_rev(&field_id)
+        let changesets = self
+            .mut_group_controller(|group_controller, field_rev| {
+                let move_row_context = MoveGroupRowContext {
+                    row_rev,
+                    row_changeset,
+                    field_rev: field_rev.as_ref(),
+                    to_group_id,
+                    to_row_id,
+                };
+
+                let changesets = group_controller.move_group_row(move_row_context)?;
+                Ok(changesets)
             })
-            .await
-        {
-            None => vec![],
-            Some(changesets) => changesets,
-        }
+            .await;
+
+        changesets.unwrap_or_default()
     }
     /// Only call once after grid view editor initialized
     #[tracing::instrument(level = "trace", skip(self))]
     pub(crate) async fn load_groups(&self) -> FlowyResult<Vec<GroupPB>> {
-        let groups = if !self.did_load_group.load(Ordering::SeqCst) {
-            self.did_load_group.store(true, Ordering::SeqCst);
-            let field_revs = self.field_delegate.get_field_revs().await;
-            let row_revs = self.row_delegate.gv_row_revs().await;
-
-            match self
-                .group_service
-                .write()
-                .await
-                .load_groups(&field_revs, row_revs)
-                .await
-            {
-                None => vec![],
-                Some(groups) => groups,
-            }
-        } else {
-            self.group_service.read().await.groups().await
-        };
-
+        let groups = self.group_controller.read().await.groups();
         tracing::trace!("Number of groups: {}", groups.len());
         Ok(groups.into_iter().map(GroupPB::from).collect())
     }
 
     pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let _ = self
-            .group_service
+            .group_controller
             .write()
             .await
-            .move_group(&params.from_group_id, &params.to_group_id)
-            .await?;
-
-        match self.group_service.read().await.get_group(&params.from_group_id).await {
+            .move_group(&params.from_group_id, &params.to_group_id)?;
+        match self.group_controller.read().await.get_group(&params.from_group_id) {
             None => {}
             Some((index, group)) => {
                 let inserted_group = InsertedGroupPB {
@@ -242,6 +193,7 @@ impl GridViewRevisionEditor {
                     inserted_groups: vec![inserted_group],
                     deleted_groups: vec![params.from_group_id.clone()],
                     update_groups: vec![],
+                    new_groups: vec![],
                 };
 
                 self.notify_did_update_view(changeset).await;
@@ -296,7 +248,7 @@ impl GridViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub(crate) async fn did_update_field(&self, field_id: &str) -> FlowyResult<()> {
         if let Some(field_rev) = self.field_delegate.get_field_rev(field_id).await {
-            match self.group_service.write().await.did_update_field(&field_rev).await? {
+            match self.group_controller.write().await.did_update_field(&field_rev)? {
                 None => {}
                 Some(changeset) => {
                     self.notify_did_update_view(changeset).await;
@@ -330,6 +282,36 @@ impl GridViewRevisionEditor {
             }
         }
         Ok(())
+    }
+
+    async fn mut_group_controller<F, T>(&self, f: F) -> Option<T>
+    where
+        F: FnOnce(&mut Box<dyn GroupController>, Arc<FieldRevision>) -> FlowyResult<T>,
+    {
+        let group_field_id = self.group_controller.read().await.field_id().to_owned();
+        match self.field_delegate.get_field_rev(&group_field_id).await {
+            None => None,
+            Some(field_rev) => {
+                let mut write_guard = self.group_controller.write().await;
+                f(&mut write_guard, field_rev).ok()
+            }
+        }
+    }
+
+    #[allow(dead_code)]
+    async fn async_mut_group_controller<F, O, T>(&self, f: F) -> Option<T>
+    where
+        F: FnOnce(Arc<RwLock<Box<dyn GroupController>>>, Arc<FieldRevision>) -> O,
+        O: Future<Output = FlowyResult<T>> + Sync + 'static,
+    {
+        let group_field_id = self.group_controller.read().await.field_id().to_owned();
+        match self.field_delegate.get_field_rev(&group_field_id).await {
+            None => None,
+            Some(field_rev) => {
+                let _write_guard = self.group_controller.write().await;
+                f(self.group_controller.clone(), field_rev).await.ok()
+            }
+        }
     }
 }
 
@@ -371,10 +353,7 @@ impl RevisionObjectBuilder for GridViewRevisionPadBuilder {
 struct GroupConfigurationReaderImpl(Arc<RwLock<GridViewRevisionPad>>);
 
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
-    fn get_group_configuration(
-        &self,
-        field_rev: Arc<FieldRevision>,
-    ) -> AFFuture<Option<Arc<GroupConfigurationRevision>>> {
+    fn get_configuration(&self, field_rev: Arc<FieldRevision>) -> AFFuture<Option<Arc<GroupConfigurationRevision>>> {
         let view_pad = self.0.clone();
         wrap_future(async move {
             let mut groups = view_pad.read().await.groups.get_objects(&field_rev.id, &field_rev.ty)?;
@@ -395,7 +374,7 @@ struct GroupConfigurationWriterImpl {
 }
 
 impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
-    fn save_group_configuration(
+    fn save_configuration(
         &self,
         field_id: &str,
         field_type: FieldTypeRevision,

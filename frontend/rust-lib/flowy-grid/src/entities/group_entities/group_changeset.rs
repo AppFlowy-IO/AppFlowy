@@ -133,6 +133,9 @@ pub struct GroupViewChangesetPB {
     #[pb(index = 2)]
     pub inserted_groups: Vec<InsertedGroupPB>,
 
+    #[pb(index = 2)]
+    pub new_groups: Vec<GroupPB>,
+
     #[pb(index = 3)]
     pub deleted_groups: Vec<String>,
 

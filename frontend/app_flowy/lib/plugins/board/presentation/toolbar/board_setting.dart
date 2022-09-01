@@ -95,6 +95,12 @@ class BoardSettingList extends StatelessWidget {
                     fieldCache: settingContext.fieldCache)
                 .show(context);
             break;
+          case BoardSettingAction.groups:
+            GridPropertyList(
+                    gridId: settingContext.viewId,
+                    fieldCache: settingContext.fieldCache)
+                .show(context);
+            break;
         }
       },
     );
@@ -156,6 +162,8 @@ extension _GridSettingExtension on BoardSettingAction {
     switch (this) {
       case BoardSettingAction.properties:
         return 'grid/setting/properties';
+      case BoardSettingAction.groups:
+        return 'grid/setting/group';
     }
   }
 
@@ -163,6 +171,8 @@ extension _GridSettingExtension on BoardSettingAction {
     switch (this) {
       case BoardSettingAction.properties:
         return LocaleKeys.grid_settings_Properties.tr();
+      case BoardSettingAction.groups:
+        return LocaleKeys.grid_settings_group.tr();
     }
   }
 }

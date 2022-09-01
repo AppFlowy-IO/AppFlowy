@@ -91,6 +91,9 @@ pub struct GroupPB {
 
     #[pb(index = 5)]
     pub is_default: bool,
+
+    #[pb(index = 6)]
+    pub is_visible: bool,
 }
 
 impl std::convert::From<Group> for GroupPB {
@@ -101,6 +104,7 @@ impl std::convert::From<Group> for GroupPB {
             desc: group.name,
             rows: group.rows,
             is_default: group.is_default,
+            is_visible: group.is_visible,
         }
     }
 }

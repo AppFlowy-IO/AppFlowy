@@ -8,7 +8,10 @@ use crate::services::group::controller::{
 };
 use crate::services::group::controller_impls::select_option_controller::util::*;
 use crate::services::group::entities::Group;
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision, SelectOptionGroupConfigurationRevision};
+use crate::services::group::GeneratedGroup;
+use flowy_grid_data_model::revision::{
+    FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision,
+};
 
 // MultiSelect
 pub type MultiSelectGroupController = GenericGroupController<
@@ -28,7 +31,7 @@ impl GroupAction for MultiSelectGroupController {
     fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
         self.configuration.iter_mut_groups(|group| {
-            if let Some(changeset) = add_row(group, cell_data, row_rev) {
+            if let Some(changeset) = add_select_option_row(group, cell_data, row_rev) {
                 changesets.push(changeset);
             }
         });
@@ -38,7 +41,7 @@ impl GroupAction for MultiSelectGroupController {
     fn remove_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
         self.configuration.iter_mut_groups(|group| {
-            if let Some(changeset) = remove_row(group, cell_data, row_rev) {
+            if let Some(changeset) = remove_select_option_row(group, cell_data, row_rev) {
                 changesets.push(changeset);
             }
         });
@@ -70,27 +73,16 @@ impl GroupController for MultiSelectGroupController {
 
 pub struct MultiSelectGroupGenerator();
 impl GroupGenerator for MultiSelectGroupGenerator {
-    type ConfigurationType = SelectOptionGroupConfiguration;
+    type Context = SelectOptionGroupContext;
     type TypeOptionType = MultiSelectTypeOptionPB;
     fn generate_groups(
         field_id: &str,
-        _configuration: &Self::ConfigurationType,
+        group_ctx: &Self::Context,
         type_option: &Option<Self::TypeOptionType>,
-    ) -> Vec<Group> {
+    ) -> Vec<GeneratedGroup> {
         match type_option {
             None => vec![],
-            Some(type_option) => type_option
-                .options
-                .iter()
-                .map(|option| {
-                    Group::new(
-                        option.id.clone(),
-                        field_id.to_owned(),
-                        option.name.clone(),
-                        option.id.clone(),
-                    )
-                })
-                .collect(),
+            Some(type_option) => generate_select_option_groups(field_id, group_ctx, &type_option.options),
         }
     }
 }

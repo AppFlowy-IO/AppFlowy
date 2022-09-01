@@ -43,4 +43,5 @@ class BoardSettingState with _$BoardSettingState {
 
 enum BoardSettingAction {
   properties,
+  groups,
 }
