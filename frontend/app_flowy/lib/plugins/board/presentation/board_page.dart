@@ -80,23 +80,7 @@ class _BoardContentState extends State<BoardContent> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<BoardBloc, BoardState>(
-      listener: (context, state) {
-        state.editingRow.fold(
-          () => null,
-          (editingRow) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (editingRow.index != null) {
-              } else {
-                scrollManager.scrollToBottom(editingRow.columnId, () {
-                  context
-                      .read<BoardBloc>()
-                      .add(BoardEvent.endEditRow(editingRow.row.id));
-                });
-              }
-            });
-          },
-        );
-      },
+      listener: (context, state) => _handleEditState(state, context),
       child: BlocBuilder<BoardBloc, BoardState>(
         buildWhen: (previous, current) =>
             previous.groupIds.length != current.groupIds.length,
@@ -134,6 +118,27 @@ class _BoardContentState extends State<BoardContent> {
           );
         },
       ),
+    );
+  }
+
+  void _handleEditState(BoardState state, BuildContext context) {
+    state.editingRow.fold(
+      () => null,
+      (editingRow) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (editingRow.index != null) {
+            context
+                .read<BoardBloc>()
+                .add(BoardEvent.endEditRow(editingRow.row.id));
+          } else {
+            scrollManager.scrollToBottom(editingRow.columnId, () {
+              context
+                  .read<BoardBloc>()
+                  .add(BoardEvent.endEditRow(editingRow.row.id));
+            });
+          }
+        });
+      },
     );
   }
 
