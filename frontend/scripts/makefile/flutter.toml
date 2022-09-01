@@ -29,11 +29,11 @@ script_runner = "@shell"
 
 [tasks.appflowy-windows-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation.windows", "set-app-version", "flutter-build", "copy-to-product"] }
 
 [tasks.appflowy-linux-dev]
 dependencies = ["flowy-sdk-dev"]
-run_task = { name = ["code_generation", "set-app-version", "flutter-build", "copy-to-product"] }
+run_task = { name = ["code_generation", "set-app-version", "flutter-build.windows", "copy-to-product"] }
 script_runner = "@shell"
 
 [tasks.copy-to-product]
@@ -162,6 +162,7 @@ script = [
   """
   cd app_flowy
   exec cmd.exe /c flutter clean
+  exec cmd.exe /c flutter packages pub get
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter build ${TARGET_OS} --${BUILD_FLAG}
   """,
@@ -186,6 +187,7 @@ script = [
   """
   cd ./app_flowy/
   exec cmd.exe /c flutter clean
+  exec cmd.exe /c flutter packages pub get
   exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
   exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
