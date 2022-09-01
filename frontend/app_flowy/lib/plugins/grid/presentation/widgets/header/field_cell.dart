@@ -14,36 +14,32 @@ import 'field_type_extension.dart';
 
 import 'field_cell_action_sheet.dart';
 
-class GridFieldCell extends StatefulWidget {
+class GridFieldCell extends StatelessWidget {
   final GridFieldCellContext cellContext;
-  const GridFieldCell(this.cellContext, {Key? key}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _GridFieldCellState();
-}
-
-class _GridFieldCellState extends State<GridFieldCell> {
-  final popover = PopoverController();
+  const GridFieldCell({
+    Key? key,
+    required this.cellContext,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext gridCellContext) {
     return BlocProvider(
-      create: (context) => FieldCellBloc(cellContext: widget.cellContext)
-        ..add(const FieldCellEvent.initial()),
+      create: (context) {
+        return FieldCellBloc(cellContext: cellContext);
+      },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
-        // buildWhen: (p, c) => p.field != c.field,
         builder: (context, state) {
           final button = Popover(
-            controller: popover,
             direction: PopoverDirection.bottomWithLeftAligned,
+            triggerActions: PopoverTriggerActionFlags.click,
             child: FieldCellButton(
-              field: state.field,
-              onTap: () => popover.show(),
+              field: cellContext.field,
+              onTap: () {},
             ),
             offset: const Offset(0, 10),
             popupBuilder: (BuildContext context) {
               return GridFieldCellActionSheet(
-                cellContext: widget.cellContext,
+                cellContext: cellContext,
               );
             },
           );
@@ -112,6 +108,7 @@ class _DragToExpandLine extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onHorizontalDragUpdate: (value) {
+          debugPrint("update new width: ${value.delta.dx}");
           context
               .read<FieldCellBloc>()
               .add(FieldCellEvent.startUpdateWidth(value.delta.dx));

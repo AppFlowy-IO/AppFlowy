@@ -75,6 +75,21 @@ class _GridHeader extends StatefulWidget {
 }
 
 class _GridHeaderState extends State<_GridHeader> {
+  final Map<String, ValueKey<String>> _gridMap = {};
+
+  /// This is a workaround for [ReorderableRow].
+  /// [ReorderableRow] warps the child's key with a [GlobalKey].
+  /// It will trigger the child's widget's to recreate.
+  /// The state will lose.
+  _getKeyById(String id) {
+    if (_gridMap.containsKey(id)) {
+      return _gridMap[id];
+    }
+    final newKey = ValueKey(id);
+    _gridMap[id] = newKey;
+    return newKey;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
@@ -85,7 +100,10 @@ class _GridHeaderState extends State<_GridHeader> {
             .where((field) => field.visibility)
             .map((field) =>
                 GridFieldCellContext(gridId: widget.gridId, field: field))
-            .map((ctx) => GridFieldCell(ctx, key: ValueKey(ctx.field.id)))
+            .map((ctx) => GridFieldCell(
+                  key: _getKeyById(ctx.field.id),
+                  cellContext: ctx,
+                ))
             .toList();
 
         return Container(
