@@ -50,15 +50,13 @@ class _PopoverMenuState extends State<PopoverMenu> {
 
 class ExampleButton extends StatelessWidget {
   final String label;
-  final Alignment targetAnchor;
-  final Alignment followerAnchor;
   final Offset? offset;
+  final PopoverDirection? direction;
 
   const ExampleButton({
     Key? key,
     required this.label,
-    this.targetAnchor = Alignment.topLeft,
-    this.followerAnchor = Alignment.topLeft,
+    this.direction,
     this.offset = Offset.zero,
   }) : super(key: key);
 
@@ -67,6 +65,7 @@ class ExampleButton extends StatelessWidget {
     return Popover(
       triggerActions: PopoverTriggerActionFlags.click,
       offset: offset,
+      direction: direction ?? PopoverDirection.rightWithTopAligned,
       child: TextButton(child: Text(label), onPressed: () {}),
       popupBuilder: (BuildContext context) {
         return PopoverMenu();

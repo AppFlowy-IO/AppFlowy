@@ -3,6 +3,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// If multiple popovers are exclusive,
+/// pass the same mutex to them.
 class PopoverMutex {
   PopoverState? state;
 }
@@ -50,15 +52,28 @@ enum PopoverDirection {
 }
 
 class Popover extends StatefulWidget {
-  final Widget child;
   final PopoverController? controller;
+
   final Offset? offset;
+
   final Decoration? maskDecoration;
+
+  /// The function used to build the popover.
   final Widget Function(BuildContext context) popupBuilder;
+
   final int triggerActions;
+
+  /// If multiple popovers are exclusive,
+  /// pass the same mutex to them.
   final PopoverMutex? mutex;
+
+  /// The direction of the popover
   final PopoverDirection direction;
+
   final void Function()? onClose;
+
+  /// The content area of the popover.
+  final Widget child;
 
   const Popover({
     Key? key,
@@ -174,17 +189,25 @@ class PopoverState extends State<Popover> {
     }
   }
 
+  _buildContent(BuildContext context) {
+    if (widget.triggerActions == 0) {
+      return widget.child;
+    }
+
+    return MouseRegion(
+      onEnter: _handleTargetPointerEnter,
+      child: Listener(
+        onPointerDown: _handleTargetPointerDown,
+        child: widget.child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopoverTarget(
       link: popoverLink,
-      child: MouseRegion(
-        onEnter: _handleTargetPointerEnter,
-        child: Listener(
-          onPointerDown: _handleTargetPointerDown,
-          child: widget.child,
-        ),
-      ),
+      child: _buildContent(context),
     );
   }
 }

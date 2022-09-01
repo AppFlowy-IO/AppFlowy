@@ -1,3 +1,4 @@
+import 'package:appflowy_popover/popover.dart';
 import 'package:flutter/material.dart';
 import "./example_button.dart";
 
@@ -65,65 +66,60 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Row(children: [
         Column(children: [
-          ExampleButton(
+          const ExampleButton(
             label: "Left top",
-            targetAnchor: Alignment.bottomLeft,
-            offset: const Offset(0, 10),
+            offset: Offset(0, 10),
+            direction: PopoverDirection.bottomWithLeftAligned,
           ),
           Expanded(child: Container()),
-          ExampleButton(
+          const ExampleButton(
             label: "Left bottom",
-            followerAnchor: Alignment.bottomLeft,
-            offset: const Offset(0, -10),
+            offset: Offset(0, -10),
+            direction: PopoverDirection.topWithLeftAligned,
           ),
         ]),
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              ExampleButton(
+              const ExampleButton(
                 label: "Top",
-                targetAnchor: Alignment.bottomCenter,
-                followerAnchor: Alignment.topCenter,
-                offset: const Offset(0, 10),
+                offset: Offset(0, 10),
+                direction: PopoverDirection.bottomWithCenterAligned,
               ),
               Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
+                  children: const [
                     ExampleButton(
                       label: "Central",
-                      targetAnchor: Alignment.bottomCenter,
-                      followerAnchor: Alignment.topCenter,
-                      offset: const Offset(0, 10),
+                      offset: Offset(0, 10),
+                      direction: PopoverDirection.bottomWithCenterAligned,
                     ),
                   ],
                 ),
               ),
-              ExampleButton(
+              const ExampleButton(
                 label: "Bottom",
-                targetAnchor: Alignment.topCenter,
-                followerAnchor: Alignment.bottomCenter,
-                offset: const Offset(0, -10),
+                offset: Offset(0, -10),
+                direction: PopoverDirection.topWithCenterAligned,
               ),
             ],
           ),
         ),
         Column(
           children: [
-            ExampleButton(
+            const ExampleButton(
               label: "Right top",
-              targetAnchor: Alignment.bottomRight,
-              followerAnchor: Alignment.topRight,
-              offset: const Offset(0, 10),
+              offset: Offset(0, 10),
+              direction: PopoverDirection.bottomWithRightAligned,
             ),
             Expanded(child: Container()),
-            ExampleButton(
+            const ExampleButton(
               label: "Right bottom",
-              targetAnchor: Alignment.topRight,
-              followerAnchor: Alignment.bottomRight,
-              offset: const Offset(0, -10),
+              offset: Offset(0, -10),
+              direction: PopoverDirection.topWithRightAligned,
             ),
           ],
         )
