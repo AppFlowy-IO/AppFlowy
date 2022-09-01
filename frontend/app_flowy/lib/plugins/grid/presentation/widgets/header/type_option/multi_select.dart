@@ -12,14 +12,14 @@ class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
   MultiSelectTypeOptionWidgetBuilder(
     MultiSelectTypeOptionContext typeOptionContext,
-    TypeOptionOverlayDelegate overlayDelegate,
+    PopoverMutex popoverMutex,
   ) : _widget = MultiSelectTypeOptionWidget(
           selectOptionAction: MultiSelectAction(
             fieldId: typeOptionContext.fieldId,
             gridId: typeOptionContext.gridId,
             typeOptionContext: typeOptionContext,
           ),
-          overlayDelegate: overlayDelegate,
+          popoverMutex: popoverMutex,
         );
 
   @override
@@ -28,12 +28,12 @@ class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
 class MultiSelectTypeOptionWidget extends TypeOptionWidget {
   final MultiSelectAction selectOptionAction;
-  final TypeOptionOverlayDelegate overlayDelegate;
+  final PopoverMutex? popoverMutex;
 
   const MultiSelectTypeOptionWidget({
-    required this.selectOptionAction,
-    required this.overlayDelegate,
     Key? key,
+    required this.selectOptionAction,
+    this.popoverMutex,
   }) : super(key: key);
 
   @override
@@ -41,10 +41,9 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
     return SelectOptionTypeOptionWidget(
       options: selectOptionAction.typeOption.options,
       beginEdit: () {
-        overlayDelegate.hideOverlay(context);
         PopoverContainerState.of(context).closeAll();
       },
-      overlayDelegate: overlayDelegate,
+      popoverMutex: popoverMutex,
       typeOptionAction: selectOptionAction,
       // key: ValueKey(state.typeOption.hashCode),
     );

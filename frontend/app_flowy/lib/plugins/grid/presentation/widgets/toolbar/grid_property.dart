@@ -59,6 +59,7 @@ class _GridPropertyListState extends State<GridPropertyList> {
           }).toList();
 
           return ListView.separated(
+            controller: ScrollController(),
             shrinkWrap: true,
             itemCount: cells.length,
             itemBuilder: (BuildContext context, int index) {

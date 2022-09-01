@@ -15,20 +15,19 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import '../../../layout/sizes.dart';
 import '../../cell/select_option_cell/extension.dart';
 import '../../common/text_field.dart';
-import 'builder.dart';
 import 'select_option_editor.dart';
 
 class SelectOptionTypeOptionWidget extends StatelessWidget {
   final List<SelectOptionPB> options;
   final VoidCallback beginEdit;
-  final TypeOptionOverlayDelegate overlayDelegate;
   final ISelectOptionAction typeOptionAction;
+  final PopoverMutex? popoverMutex;
 
   const SelectOptionTypeOptionWidget({
     required this.options,
     required this.beginEdit,
-    required this.overlayDelegate,
     required this.typeOptionAction,
+    this.popoverMutex,
     Key? key,
   }) : super(key: key);
 
@@ -52,7 +51,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
               ),
             if (state.options.isEmpty && !state.isEditingOption)
               const _AddOptionButton(),
-            _OptionList(overlayDelegate)
+            _OptionList(popoverMutex: popoverMutex)
           ];
 
           return Column(children: children);
@@ -113,8 +112,8 @@ class _OptionTitleButton extends StatelessWidget {
 }
 
 class _OptionList extends StatelessWidget {
-  final TypeOptionOverlayDelegate delegate;
-  const _OptionList(this.delegate, {Key? key}) : super(key: key);
+  final PopoverMutex? popoverMutex;
+  const _OptionList({Key? key, this.popoverMutex}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +123,11 @@ class _OptionList extends StatelessWidget {
       },
       builder: (context, state) {
         final cells = state.options.map((option) {
-          return _makeOptionCell(context, option);
+          return _makeOptionCell(
+            context: context,
+            option: option,
+            popoverMutex: popoverMutex,
+          );
         }).toList();
 
         return ListView.separated(
@@ -142,16 +145,23 @@ class _OptionList extends StatelessWidget {
     );
   }
 
-  _OptionCell _makeOptionCell(BuildContext context, SelectOptionPB option) {
+  _OptionCell _makeOptionCell({
+    required BuildContext context,
+    required SelectOptionPB option,
+    PopoverMutex? popoverMutex,
+  }) {
     return _OptionCell(
       option: option,
+      popoverMutex: popoverMutex,
     );
   }
 }
 
 class _OptionCell extends StatefulWidget {
   final SelectOptionPB option;
-  const _OptionCell({required this.option, Key? key}) : super(key: key);
+  final PopoverMutex? popoverMutex;
+  const _OptionCell({required this.option, Key? key, this.popoverMutex})
+      : super(key: key);
 
   @override
   State<_OptionCell> createState() => _OptionCellState();
@@ -172,6 +182,7 @@ class _OptionCellState extends State<_OptionCell> {
 
     return Popover(
       controller: _popoverController,
+      mutex: widget.popoverMutex,
       offset: const Offset(20, 0),
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,

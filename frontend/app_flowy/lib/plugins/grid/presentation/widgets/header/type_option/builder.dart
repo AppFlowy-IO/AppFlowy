@@ -46,19 +46,15 @@ abstract class TypeOptionWidgetBuilder {
 Widget? makeTypeOptionWidget({
   required BuildContext context,
   required TypeOptionDataController dataController,
-  required TypeOptionOverlayDelegate overlayDelegate,
   required PopoverMutex popoverMutex,
 }) {
   final builder = makeTypeOptionWidgetBuilder(
-      dataController: dataController,
-      overlayDelegate: overlayDelegate,
-      popoverMutex: popoverMutex);
+      dataController: dataController, popoverMutex: popoverMutex);
   return builder.build(context);
 }
 
 TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
     {required TypeOptionDataController dataController,
-    required TypeOptionOverlayDelegate overlayDelegate,
     required PopoverMutex popoverMutex}) {
   final gridId = dataController.gridId;
   final fieldType = dataController.field.fieldType;
@@ -87,7 +83,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
           fieldType: fieldType,
           dataController: dataController,
         ),
-        overlayDelegate,
+        popoverMutex,
       );
     case FieldType.MultiSelect:
       return MultiSelectTypeOptionWidgetBuilder(
@@ -96,7 +92,7 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
           fieldType: fieldType,
           dataController: dataController,
         ),
-        overlayDelegate,
+        popoverMutex,
       );
     case FieldType.Number:
       return NumberTypeOptionWidgetBuilder(
@@ -105,7 +101,6 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
           fieldType: fieldType,
           dataController: dataController,
         ),
-        overlayDelegate,
         popoverMutex,
       );
     case FieldType.RichText:

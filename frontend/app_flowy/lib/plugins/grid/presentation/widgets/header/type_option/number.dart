@@ -24,11 +24,9 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
   NumberTypeOptionWidgetBuilder(
     NumberTypeOptionContext typeOptionContext,
-    TypeOptionOverlayDelegate overlayDelegate,
     PopoverMutex popoverMutex,
   ) : _widget = NumberTypeOptionWidget(
           typeOptionContext: typeOptionContext,
-          overlayDelegate: overlayDelegate,
           popoverMutex: popoverMutex,
         );
 
@@ -37,12 +35,10 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 }
 
 class NumberTypeOptionWidget extends TypeOptionWidget {
-  final TypeOptionOverlayDelegate overlayDelegate;
   final NumberTypeOptionContext typeOptionContext;
   final PopoverMutex popoverMutex;
   const NumberTypeOptionWidget({
     required this.typeOptionContext,
-    required this.overlayDelegate,
     required this.popoverMutex,
     Key? key,
   }) : super(key: key);

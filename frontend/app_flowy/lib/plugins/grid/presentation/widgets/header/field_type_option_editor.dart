@@ -94,35 +94,11 @@ class FieldTypeOptionEditor extends StatelessWidget {
     required BuildContext context,
     required FieldTypeOptionEditState state,
   }) {
-    final overlayDelegate = TypeOptionOverlayDelegate(
-      showOverlay: _showOverlay,
-      hideOverlay: _hideOverlay,
-    );
-
     return makeTypeOptionWidget(
       context: context,
-      overlayDelegate: overlayDelegate,
       dataController: dataController,
       popoverMutex: popoverMutex,
     );
-  }
-
-  void _showOverlay(BuildContext context, Widget child,
-      {VoidCallback? onRemoved}) {
-    // FlowyPopover.show(
-    //   context,
-    //   constraints: BoxConstraints.loose(const Size(460, 440)),
-    //   anchorContext: context,
-    //   anchorDirection: AnchorDirection.rightWithCenterAligned,
-    //   anchorOffset: const Offset(20, 0),
-    //   builder: (BuildContext context) {
-    //     return child;
-    //   },
-    // );
-  }
-
-  void _hideOverlay(BuildContext context) {
-    //
   }
 }
 
