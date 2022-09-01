@@ -241,6 +241,74 @@ impl GroupService {
     }
 }
 
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub async fn make_group_controller<R, W>(
+    view_id: String,
+    field_revs: Vec<Arc<FieldRevision>>,
+    row_revs: Vec<Arc<RowRevision>>,
+    configuration_reader: R,
+    configuration_writer: W,
+) -> FlowyResult<Box<dyn GroupController>>
+where
+    R: GroupConfigurationReader,
+    W: GroupConfigurationWriter,
+{
+    let field_rev = find_group_field(&field_revs)?;
+    let field_type: FieldType = field_rev.ty.into();
+    let mut group_controller: Box<dyn GroupController>;
+    match field_type {
+        FieldType::RichText => {
+            // let generator = GroupGenerator::<TextGroupConfigurationPB>::from_configuration(configuration);
+            panic!()
+        }
+        FieldType::Number => {
+            // let generator = GroupGenerator::<NumberGroupConfigurationPB>::from_configuration(configuration);
+            panic!()
+        }
+        FieldType::DateTime => {
+            // let generator = GroupGenerator::<DateGroupConfigurationPB>::from_configuration(configuration);
+            panic!()
+        }
+        FieldType::SingleSelect => {
+            let configuration = SelectOptionGroupConfiguration::new(
+                view_id,
+                field_rev.clone(),
+                configuration_reader,
+                configuration_writer,
+            )
+            .await?;
+            let controller = SingleSelectGroupController::new(&field_rev, configuration).await?;
+            group_controller = Box::new(controller);
+        }
+        FieldType::MultiSelect => {
+            let configuration = SelectOptionGroupConfiguration::new(
+                view_id,
+                field_rev.clone(),
+                configuration_reader,
+                configuration_writer,
+            )
+            .await?;
+            let controller = MultiSelectGroupController::new(&field_rev, configuration).await?;
+            group_controller = Box::new(controller);
+        }
+        FieldType::Checkbox => {
+            let configuration =
+                CheckboxGroupConfiguration::new(view_id, field_rev.clone(), configuration_reader, configuration_writer)
+                    .await?;
+            let controller = CheckboxGroupController::new(&field_rev, configuration).await?;
+            group_controller = Box::new(controller);
+        }
+        FieldType::URL => {
+            // let generator = GroupGenerator::<UrlGroupConfigurationPB>::from_configuration(configuration);
+            panic!()
+        }
+    }
+
+    let _ = group_controller.fill_groups(&row_revs, &field_rev)?;
+
+    Ok(group_controller)
+}
+
 fn find_group_field(field_revs: &[Arc<FieldRevision>]) -> Option<Arc<FieldRevision>> {
     let field_rev = field_revs
         .iter()

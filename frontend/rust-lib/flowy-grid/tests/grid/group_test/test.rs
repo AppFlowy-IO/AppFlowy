@@ -390,3 +390,12 @@ async fn group_update_field_test() {
     ];
     test.run_scripts(scripts).await;
 }
+
+#[tokio::test]
+async fn group_multi_select_field_test() {
+    let mut test = GridGroupTest::new().await;
+    let multi_select_field = test.get_multi_select_field().await;
+
+    let scripts = vec![];
+    test.run_scripts(scripts).await;
+}

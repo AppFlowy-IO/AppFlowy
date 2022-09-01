@@ -207,6 +207,10 @@ impl GridRevisionEditor {
         Ok(())
     }
 
+    pub async fn group_field(&self, field_id: &str) -> FlowyResult<()> {
+        todo!()
+    }
+
     pub async fn switch_to_field_type(&self, field_id: &str, field_type: &FieldType) -> FlowyResult<()> {
         // let block_ids = self
         //     .get_block_metas()

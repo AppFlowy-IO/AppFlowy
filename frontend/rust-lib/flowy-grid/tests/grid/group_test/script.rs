@@ -3,7 +3,8 @@ use flowy_grid::entities::{
     CreateRowParams, FieldChangesetParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
 use flowy_grid::services::cell::{delete_select_option_cell, insert_select_option_cell};
-use flowy_grid_data_model::revision::RowChangeset;
+use flowy_grid_data_model::revision::{FieldRevision, RowChangeset};
+use std::sync::Arc;
 use std::time::Duration;
 use tokio::time::interval;
 
@@ -46,6 +47,9 @@ pub enum GroupScript {
     },
     UpdateField {
         changeset: FieldChangesetParams,
+    },
+    GroupField {
+        field_id: String,
     },
 }
 
@@ -179,6 +183,9 @@ impl GridGroupTest {
                 let mut interval = interval(Duration::from_millis(130));
                 interval.tick().await;
             }
+            GroupScript::GroupField { field_id } => {
+                self.editor.group_field(&field_id).await.unwrap();
+            }
         }
     }
 
@@ -190,6 +197,20 @@ impl GridGroupTest {
     pub async fn row_at_index(&self, group_index: usize, row_index: usize) -> RowPB {
         let groups = self.group_at_index(group_index).await;
         groups.rows.get(row_index).unwrap().clone()
+    }
+
+    pub async fn get_multi_select_field(&self) -> Arc<FieldRevision> {
+        let field = self
+            .inner
+            .field_revs
+            .iter()
+            .find(|field_rev| {
+                let field_type: FieldType = field_rev.ty.into();
+                field_type.is_multi_select()
+            })
+            .unwrap()
+            .clone();
+        return field;
     }
 }
 
