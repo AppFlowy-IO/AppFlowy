@@ -121,6 +121,7 @@ Widget build(BuildContext context) {
 ![After](./images/customizing_a_shortcut_event_after.gif)
 
 _TODO: provide the link to the example_
+
 [Complete code example]()
 
 ## Customizing a Component
@@ -149,9 +150,6 @@ Next, we will choose a unique string for your custom node's type.
 
 We'll use `network_image` in this case. And we add `network_image_src` to the `attributes` to describe the link of the image.
 
-_TODO: provide the links for for the Node definition_
-> For the definition of the [Node](), please refer to this [link]().
-
 ```JSON
 {
   "type": "network_image",
@@ -161,9 +159,9 @@ _TODO: provide the links for for the Node definition_
 }
 ```
 
-Then, we create a class that inherits [NodeWidgetBuilder](). As shown in the autoprompt, we need to implement two functions:
+Then, we create a class that inherits [NodeWidgetBuilder](../lib/src/service/render_plugin_service.dart). As shown in the autoprompt, we need to implement two functions:
 1. one returns a widget 
-2. the other verifies the correctness of the [Node]().
+2. the other verifies the correctness of the [Node](../lib/src/document/node.dart).
 
 
 ```dart
@@ -183,9 +181,7 @@ class NetworkImageNodeWidgetBuilder extends NodeWidgetBuilder {
 
 Now, let's implement a simple image widget based on `Image`.
 
-**It is important to note that the `State` of the returned `Widget` must be with [Selectable]().**
-
-> For the definition of the [Selectable](), please refer to this [link]().
+Note that the `State` object that is returned by the `Widget` must implement [Selectable](../lib/src/render/selection/selectable.dart) using the `with` keyword.
 
 ```dart
 class _NetworkImageNodeWidget extends StatefulWidget {
@@ -240,7 +236,7 @@ class __NetworkImageNodeWidgetState extends State<_NetworkImageNodeWidget>
 }
 ```
 
-Finally, we return `_NetworkImageNodeWidget` in the `build` function of `NetworkImageNodeWidgetBuilder` and register `NetworkImageNodeWidgetBuilder` into `AppFlowyEditor`.
+Finally, we return `_NetworkImageNodeWidget` in the `build` function of `NetworkImageNodeWidgetBuilder`...
 
 ```dart
 class NetworkImageNodeWidgetBuilder extends NodeWidgetBuilder {
@@ -260,6 +256,8 @@ class NetworkImageNodeWidgetBuilder extends NodeWidgetBuilder {
 }
 ```
 
+... and register `NetworkImageNodeWidgetBuilder` in the `AppFlowyEditor`.
+ 
 ```dart
 final editorState = EditorState(
   document: StateTree.empty()
@@ -285,6 +283,8 @@ return AppFlowyEditor(
 );
 ```
 
-![](./images/customizing_a_component.gif)
+![Whew!](./images/customizing_a_component.gif)
+
+_TODO: need a link to this code example_
 
 Check out the [complete code]() file of this example.
