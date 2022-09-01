@@ -1,6 +1,6 @@
 # Customizing Editor Features
 
-## Customizing Shortcut Events
+## Customizing a Shortcut Event
 
 We will use a simple example to illustrate how to quickly add a shortcut event.
 
@@ -27,7 +27,7 @@ At this point, nothing magic will happen after typing `_xxx_`.
 
 ![Before](./images/customizing_a_shortcut_event_before.gif)
 
-Next, we will create a function to handle an underscore input.
+To implement our shortcut event we will create a function to handle an underscore input.
 
 ```dart
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -43,7 +43,9 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
 };
 ```
 
-Then, we need to determine if the currently selected node is a `TextNode` and the selection is collapsed.
+Then, we need to determine if the currently selected node is a `TextNode` and if the selection is collapsed.
+
+If so, we will ignore key event.
 
 ```dart
 // ...
@@ -60,7 +62,7 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
   }
 ```
 
-Now, we start dealing with handling the underscore. 
+Now, we deal with handling the underscore. 
 
 Look for the position of the previous underscore and 
 1. if one is _not_ found, return without doing anything. 
