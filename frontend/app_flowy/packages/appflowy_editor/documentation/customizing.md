@@ -1,12 +1,12 @@
-# How to customize ...
+# Customizing Editor Features
 
-## Customize a shortcut event
+## Customizing Shortcut Events
 
 We will use a simple example to illustrate how to quickly add a shortcut event.
 
-For example, typing `_xxx_` will be converted into _xxx_.
+In this example, text that starts and ends with an underscore ( \_ ) character will be rendered in italics for emphasis.  So typing `_xxx_` will automatically be converted into _xxx_.
 
-Let's start with a blank document.
+Let's start with a blank document:
 
 ```dart
 @override
@@ -35,23 +35,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
-  // Since we only need to handler the input of `underscore`.
-  // All inputs except `underscore` will be ignored directly.
+  // Since we only need to handle the input of an 'underscore' character,
+  // all inputs except `underscore` will be ignored immediately.
   if (event.logicalKey != LogicalKeyboardKey.underscore) {
     return KeyEventResult.ignored;
   }
 };
 ```
 
-Then, we need to determine if the currently selected node is `TextNode` and the selection is collapsed.
+Then, we need to determine if the currently selected node is a `TextNode` and the selection is collapsed.
 
 ```dart
 // ...
 FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
   // ...
   
-  // Obtaining the selection and selected nodes of the current document through `selectionService`.
-  // And determine whether the selection is collapsed and whether the selected node is a text node.
+  // Obtain the selection and selected nodes of the current document through the 'selectionService'
+  // to determine whether the selection is collapsed and whether the selected node is a text node.
   final selectionService = editorState.service.selectionService;
   final selection = selectionService.currentSelection.value;
   final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
@@ -60,11 +60,11 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
   }
 ```
 
-Now, we start dealing with underscore. 
+Now, we start dealing with handling the underscore. 
 
 Look for the position of the previous underscore and 
-1. return, if not found. 
-2. if found, the text wrapped in between two underscores will be displayed in italic.
+1. if one is _not_ found, return without doing anything. 
+2. if one is found, the text enclosed within the two underscores will be formatted to display in italics.
 
 ```dart
 // ...
@@ -73,14 +73,14 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
 
   final textNode = textNodes.first;
   final text = textNode.toRawString();
-  // Determine if `underscore` already exists in the text node
+  // Determine if an 'underscore' already exists in the text node
   final previousUnderscore = text.indexOf('_');
   if (previousUnderscore == -1) {
     return KeyEventResult.ignored;
   }
 
-  // Delete the previous `underscore`,
-  // update the style of the text surrounded by two underscores to `italic`,
+  // Delete the previous 'underscore',
+  // update the style of the text surrounded by the two underscores to 'italic',
   // and update the cursor position.
   TransactionBuilder(editorState)
     ..deleteText(textNode, previousUnderscore, 1)
@@ -99,7 +99,7 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
 };
 ```
 
-So far, the 'underscore handler' function is done and the only task left is to inject it into the AppFlowyEditor.
+Now our 'underscore handler' function is done and the only task left is to inject it into the AppFlowyEditor.
 
 ```dart
 @override
@@ -120,14 +120,15 @@ Widget build(BuildContext context) {
 
 ![After](./images/customizing_a_shortcut_event_after.gif)
 
+_TODO: provide the link to the example_
 [Complete code example]()
 
-## Customize a component
-We will use a simple example to showcase how to quickly add a custom component.
+## Customizing a Component
+We will use a simple example to show how to quickly add a custom component.
 
-For example, we want to render an image from the network.
+In this example we will render an image from the network.
 
-To start with, let's create an empty document by running commands as follows:
+Let's start with a blank document:
 
 ```dart
 @override
@@ -144,8 +145,11 @@ Widget build(BuildContext context) {
 }
 ```
 
-Next, we choose a unique string for your custom node's type. We use `network_image` in this case. And we add `network_image_src` to the `attributes` to describe the link of the image.
+Next, we will choose a unique string for your custom node's type. 
 
+We'll use `network_image` in this case. And we add `network_image_src` to the `attributes` to describe the link of the image.
+
+_TODO: provide the links for for the Node definition_
 > For the definition of the [Node](), please refer to this [link]().
 
 ```JSON
@@ -283,4 +287,4 @@ return AppFlowyEditor(
 
 ![](./images/customizing_a_component.gif)
 
-[Here you can check out the complete code file of this example]()
+Check out the [complete code]() file of this example.
