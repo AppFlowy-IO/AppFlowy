@@ -5,10 +5,12 @@
 New features
 - Board-view database
   - Support start editing after creating a new card
-  - Support edit the card directly by clicking edit button
+  - Support editing the card directly by clicking the edit button
   - Add the `No Status` column to display the cards while their status is empty
-  - Optimize insert card animation
-  - Fix some UI bugs
+
+### Bug Fixes
+- Optimize insert card animation
+- Fix some UI bugs
 
 ## Version 0.0.5 - beta.1 - 08/25/2022
 
