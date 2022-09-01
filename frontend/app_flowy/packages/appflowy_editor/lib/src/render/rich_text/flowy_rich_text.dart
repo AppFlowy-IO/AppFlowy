@@ -1,5 +1,9 @@
+import 'dart:async';
 import 'dart:ui';
 
+import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
@@ -39,7 +43,7 @@ class FlowyRichText extends StatefulWidget {
 }
 
 class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
-  final _textKey = GlobalKey();
+  var _textKey = GlobalKey();
   final _placeholderTextKey = GlobalKey();
 
   final _lineHeight = 1.5;
@@ -49,6 +53,17 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
 
   RenderParagraph get _placeholderRenderParagraph =>
       _placeholderTextKey.currentContext?.findRenderObject() as RenderParagraph;
+
+  @override
+  void didUpdateWidget(covariant FlowyRichText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // https://github.com/flutter/flutter/issues/110342
+    if (_textKey.currentWidget is RichText) {
+      // Force refresh the RichText widget.
+      _textKey = GlobalKey();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -117,17 +132,24 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
 
   @override
   List<Rect> getRectsInSelection(Selection selection) {
-    assert(pathEquals(selection.start.path, selection.end.path) &&
+    assert(selection.isSingle &&
         pathEquals(selection.start.path, widget.textNode.path));
 
     final textSelection = TextSelection(
       baseOffset: selection.start.offset,
       extentOffset: selection.end.offset,
     );
-    return _renderParagraph
+    final rects = _renderParagraph
         .getBoxesForSelection(textSelection, boxHeightStyle: BoxHeightStyle.max)
         .map((box) => box.toRect())
-        .toList();
+        .toList(growable: false);
+    if (rects.isEmpty) {
+      // If the rich text widget does not contain any text,
+      // there will be no selection boxes,
+      // so we need to return to the default selection.
+      return [Rect.fromLTWH(0, 0, 0, _renderParagraph.size.height)];
+    }
+    return rects;
   }
 
   @override
@@ -141,6 +163,11 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
       startOffset: baseOffset,
       endOffset: extentOffset,
     );
+  }
+
+  @override
+  Offset localToGlobal(Offset offset) {
+    return _renderParagraph.localToGlobal(offset);
   }
 
   Widget _buildRichText(BuildContext context) {
@@ -174,50 +201,41 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
     return RichText(
       key: _textKey,
       textHeightBehavior: const TextHeightBehavior(
-          applyHeightToFirstAscent: false, applyHeightToLastDescent: false),
+        applyHeightToFirstAscent: false,
+        applyHeightToLastDescent: false,
+      ),
       text: widget.textSpanDecorator != null
           ? widget.textSpanDecorator!(textSpan)
           : textSpan,
     );
   }
 
-  // unused now.
-  // Widget _buildRichTextWithChildren(BuildContext context) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       _buildSingleRichText(context),
-  //       ...widget.textNode.children
-  //           .map(
-  //             (child) => widget.editorState.service.renderPluginService
-  //                 .buildPluginWidget(
-  //               NodeWidgetContext(
-  //                 context: context,
-  //                 node: child,
-  //                 editorState: widget.editorState,
-  //               ),
-  //             ),
-  //           )
-  //           .toList()
-  //     ],
-  //   );
-  // }
-
-  @override
-  Offset localToGlobal(Offset offset) {
-    return _renderParagraph.localToGlobal(offset);
+  TextSpan get _textSpan {
+    var offset = 0;
+    return TextSpan(
+      children: widget.textNode.delta.whereType<TextInsert>().map((insert) {
+        GestureRecognizer? gestureRecognizer;
+        if (insert.attributes?[StyleKey.href] != null) {
+          gestureRecognizer = _buildTapHrefGestureRecognizer(
+            insert.attributes![StyleKey.href],
+            Selection.single(
+              path: widget.textNode.path,
+              startOffset: offset,
+              endOffset: offset + insert.length,
+            ),
+          );
+        }
+        offset += insert.length;
+        final textSpan = RichTextStyle(
+          attributes: insert.attributes ?? {},
+          text: insert.content,
+          height: _lineHeight,
+          gestureRecognizer: gestureRecognizer,
+        ).toTextSpan();
+        return textSpan;
+      }).toList(growable: false),
+    );
   }
-
-  TextSpan get _textSpan => TextSpan(
-        children: widget.textNode.delta
-            .whereType<TextInsert>()
-            .map((insert) => RichTextStyle(
-                  attributes: insert.attributes ?? {},
-                  text: insert.content,
-                  height: _lineHeight,
-                ).toTextSpan())
-            .toList(growable: false),
-      );
 
   TextSpan get _placeholderTextSpan => TextSpan(children: [
         RichTextStyle(
@@ -228,4 +246,34 @@ class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
           height: _lineHeight,
         ).toTextSpan()
       ]);
+
+  GestureRecognizer _buildTapHrefGestureRecognizer(
+      String href, Selection selection) {
+    Timer? timer;
+    var tapCount = 0;
+    final tapGestureRecognizer = TapGestureRecognizer()
+      ..onTap = () async {
+        // implement a simple double tap logic
+        tapCount += 1;
+        timer?.cancel();
+
+        if (tapCount == 2) {
+          tapCount = 0;
+          safeLaunchUrl(href);
+          return;
+        }
+
+        timer = Timer(const Duration(milliseconds: 200), () {
+          tapCount = 0;
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            showLinkMenu(
+              context,
+              widget.editorState,
+              customSelection: selection,
+            );
+          });
+        });
+      };
+    return tapGestureRecognizer;
+  }
 }

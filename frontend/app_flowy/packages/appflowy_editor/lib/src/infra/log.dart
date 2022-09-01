@@ -75,6 +75,11 @@ class Log {
   /// For example, uses the logger when processing scroll events.
   static Log scroll = Log._(name: 'scroll');
 
+  /// For logging message related to [AppFlowyToolbarService].
+  ///
+  /// For example, uses the logger when processing toolbar events.
+  static Log toolbar = Log._(name: 'toolbar');
+
   /// For logging message related to UI.
   ///
   /// For example, uses the logger when building the widget.

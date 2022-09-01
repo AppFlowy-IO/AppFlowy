@@ -56,32 +56,27 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
     return Padding(
         padding: EdgeInsets.only(bottom: defaultLinePadding),
-        child: SizedBox(
-          width: defaultMaxTextNodeWidth,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              FlowySvg(
-                key: iconKey,
-                width: _iconWidth,
-                height: _iconWidth,
-                padding:
-                    EdgeInsets.only(top: topPadding, right: _iconRightPadding),
-                number: widget.textNode.attributes.number,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FlowySvg(
+              key: iconKey,
+              width: _iconWidth,
+              height: _iconWidth,
+              padding: EdgeInsets.only(right: _iconRightPadding),
+              number: widget.textNode.attributes.number,
+            ),
+            Flexible(
+              child: FlowyRichText(
+                key: _richTextKey,
+                placeholderText: 'List',
+                textNode: widget.textNode,
+                editorState: widget.editorState,
               ),
-              Expanded(
-                child: FlowyRichText(
-                  key: _richTextKey,
-                  placeholderText: 'List',
-                  textNode: widget.textNode,
-                  editorState: widget.editorState,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ));
   }
 }

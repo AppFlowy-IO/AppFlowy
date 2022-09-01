@@ -7,25 +7,26 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'board_cell.dart';
 import 'card_cell_builder.dart';
 import 'card_container.dart';
 
-typedef OnEndEditing = void Function(String rowId);
-
 class BoardCard extends StatefulWidget {
   final String gridId;
+  final String groupId;
+  final String fieldId;
   final bool isEditing;
   final CardDataController dataController;
   final BoardCellBuilder cellBuilder;
-  final OnEndEditing onEditEditing;
   final void Function(BuildContext) openCard;
 
   const BoardCard({
     required this.gridId,
+    required this.groupId,
+    required this.fieldId,
     required this.isEditing,
     required this.dataController,
     required this.cellBuilder,
-    required this.onEditEditing,
     required this.openCard,
     Key? key,
   }) : super(key: key);
@@ -36,13 +37,16 @@ class BoardCard extends StatefulWidget {
 
 class _BoardCardState extends State<BoardCard> {
   late BoardCardBloc _cardBloc;
+  late EditableRowNotifier rowNotifier;
 
   @override
   void initState() {
+    rowNotifier = EditableRowNotifier();
     _cardBloc = BoardCardBloc(
       gridId: widget.gridId,
+      fieldId: widget.fieldId,
       dataController: widget.dataController,
-    );
+    )..add(const BoardCardEvent.initial());
     super.initState();
   }
 
@@ -51,16 +55,28 @@ class _BoardCardState extends State<BoardCard> {
     return BlocProvider.value(
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
+        buildWhen: (previous, current) {
+          return previous.cells.length != current.cells.length;
+        },
         builder: (context, state) {
           return BoardCardContainer(
             accessoryBuilder: (context) {
-              return [const _CardMoreOption()];
+              return [
+                _CardEditOption(
+                  startEditing: () => rowNotifier.becomeFirstResponder(),
+                ),
+                const _CardMoreOption(),
+              ];
             },
             onTap: (context) {
               widget.openCard(context);
             },
             child: Column(
-              children: _makeCells(context, state.gridCellMap),
+              mainAxisSize: MainAxisSize.min,
+              children: _makeCells(
+                context,
+                state.cells.map((cell) => cell.identifier).toList(),
+              ),
             ),
           );
         },
@@ -68,16 +84,42 @@ class _BoardCardState extends State<BoardCard> {
     );
   }
 
-  List<Widget> _makeCells(BuildContext context, GridCellMap cellMap) {
-    return cellMap.values.map(
-      (cellId) {
-        final child = widget.cellBuilder.buildCell(cellId);
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+  List<Widget> _makeCells(
+    BuildContext context,
+    List<GridCellIdentifier> cells,
+  ) {
+    final List<Widget> children = [];
+    cells.asMap().forEach(
+      (int index, GridCellIdentifier cellId) {
+        final cellNotifier = EditableCellNotifier();
+        Widget child = widget.cellBuilder.buildCell(
+          widget.groupId,
+          cellId,
+          widget.isEditing,
+          cellNotifier,
+        );
+
+        if (index == 0) {
+          rowNotifier.insertCell(cellId, cellNotifier);
+        }
+
+        child = Padding(
+          key: cellId.key(),
+          padding: const EdgeInsets.only(left: 4, right: 4),
           child: child,
         );
+
+        children.add(child);
       },
-    ).toList();
+    );
+    return children;
+  }
+
+  @override
+  Future<void> dispose() async {
+    rowNotifier.dispose();
+    _cardBloc.close();
+    super.dispose();
   }
 }
 
@@ -86,7 +128,11 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
 
   @override
   Widget build(BuildContext context) {
-    return svgWidget('home/details', color: context.read<AppTheme>().iconColor);
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child:
+          svgWidget('grid/details', color: context.read<AppTheme>().iconColor),
+    );
   }
 
   @override
@@ -94,5 +140,29 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
     GridRowActionSheet(
       rowData: context.read<BoardCardBloc>().rowInfo(),
     ).show(context, direction: AnchorDirection.bottomWithCenterAligned);
+  }
+}
+
+class _CardEditOption extends StatelessWidget with CardAccessory {
+  final VoidCallback startEditing;
+  const _CardEditOption({
+    required this.startEditing,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: svgWidget(
+        'editor/edit',
+        color: context.read<AppTheme>().iconColor,
+      ),
+    );
+  }
+
+  @override
+  void onTap(BuildContext context) {
+    startEditing();
   }
 }

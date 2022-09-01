@@ -1,7 +1,7 @@
 import 'phantom_controller.dart';
 import 'package:flutter/material.dart';
 
-class ColumnPhantomStateController {
+class ColumnPhantomState {
   final _states = <String, ColumnState>{};
 
   void setColumnIsDragging(String columnId, bool isDragging) {

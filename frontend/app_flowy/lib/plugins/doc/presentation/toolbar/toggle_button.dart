@@ -21,10 +21,10 @@ class FlowyToggleStyleButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ToggleStyleButtonState createState() => _ToggleStyleButtonState();
+  ToggleStyleButtonState createState() => ToggleStyleButtonState();
 }
 
-class _ToggleStyleButtonState extends State<FlowyToggleStyleButton> {
+class ToggleStyleButtonState extends State<FlowyToggleStyleButton> {
   bool? _isToggled;
   Style get _selectionStyle => widget.controller.getSelectionStyle();
   @override
@@ -77,6 +77,8 @@ class _ToggleStyleButtonState extends State<FlowyToggleStyleButton> {
   }
 
   void _toggleAttribute() {
-    widget.controller.formatSelection(_isToggled! ? Attribute.clone(widget.attribute, null) : widget.attribute);
+    widget.controller.formatSelection(_isToggled!
+        ? Attribute.clone(widget.attribute, null)
+        : widget.attribute);
   }
 }

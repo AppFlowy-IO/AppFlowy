@@ -38,8 +38,8 @@ class PrimaryButton extends StatelessWidget {
       hoverColor: theme.main1,
       downColor: theme.main1,
       borderRadius: bigMode ? Corners.s12Border : Corners.s8Border,
-      child: child,
       onPressed: onPressed,
+      child: child,
     );
   }
 }

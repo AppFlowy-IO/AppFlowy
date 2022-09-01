@@ -55,39 +55,29 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = RichTextStyle.fromTextNode(widget.textNode).topPadding;
-    return SizedBox(
-        width: defaultMaxTextNodeWidth,
-        child: Padding(
-          padding: EdgeInsets.only(bottom: defaultLinePadding),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                FlowySvg(
-                  key: iconKey,
-                  width: _iconWidth,
-                  padding: EdgeInsets.only(
-                      top: topPadding, right: _iconRightPadding),
-                  name: 'quote',
-                ),
-                Expanded(
-                  child: FlowyRichText(
-                    key: _richTextKey,
-                    placeholderText: 'Quote',
-                    textNode: widget.textNode,
-                    editorState: widget.editorState,
-                  ),
-                ),
-              ],
+    return Padding(
+      padding: EdgeInsets.only(bottom: defaultLinePadding),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FlowySvg(
+              key: iconKey,
+              width: _iconWidth,
+              padding: EdgeInsets.only(right: _iconRightPadding),
+              name: 'quote',
             ),
-          ),
-        ));
-  }
-
-  double get _quoteHeight {
-    final lines =
-        widget.textNode.toRawString().characters.where((c) => c == '\n').length;
-    return (lines + 1) * _iconWidth;
+            Flexible(
+              child: FlowyRichText(
+                key: _richTextKey,
+                placeholderText: 'Quote',
+                textNode: widget.textNode,
+                editorState: widget.editorState,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -30,11 +30,11 @@ class URLCellEditor extends StatefulWidget with FlowyOverlayDelegate {
     //
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
+        constraints: BoxConstraints.loose(const Size(300, 160)),
         child: SizedBox(
           width: 200,
           child: Padding(padding: const EdgeInsets.all(6), child: editor),
         ),
-        constraints: BoxConstraints.loose(const Size(300, 160)),
       ),
       identifier: URLCellEditor.identifier(),
       anchorContext: context,

@@ -3,6 +3,12 @@ use std::collections::HashMap;
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct NodeAttributes(pub HashMap<String, Option<String>>);
 
+impl Default for NodeAttributes {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl NodeAttributes {
     pub fn new() -> NodeAttributes {
         NodeAttributes(HashMap::new())

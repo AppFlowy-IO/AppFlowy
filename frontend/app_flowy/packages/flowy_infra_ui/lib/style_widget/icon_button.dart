@@ -57,7 +57,7 @@ class FlowyIconButton extends StatelessWidget {
           onPressed: onPressed,
           child: Padding(
             padding: iconPadding,
-            child: SizedBox.fromSize(child: child, size: childSize),
+            child: SizedBox.fromSize(size: childSize, child: child),
           ),
         ),
       ),

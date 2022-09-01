@@ -10,9 +10,15 @@ import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 
+import 'board_listener.dart';
+
 typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldPB>);
 typedef OnGridChanged = void Function(GridPB);
 typedef DidLoadGroups = void Function(List<GroupPB>);
+typedef OnUpdatedGroup = void Function(List<GroupPB>);
+typedef OnDeletedGroup = void Function(List<String>);
+typedef OnInsertedGroup = void Function(List<InsertedGroupPB>);
+
 typedef OnRowsChanged = void Function(
   List<RowInfo>,
   RowsChangedReason,
@@ -23,6 +29,7 @@ class BoardDataController {
   final String gridId;
   final GridFFIService _gridFFIService;
   final GridFieldCache fieldCache;
+  final BoardListener _listener;
 
   // key: the block id
   final LinkedHashMap<String, GridBlockCache> _blocks;
@@ -44,16 +51,21 @@ class BoardDataController {
 
   BoardDataController({required ViewPB view})
       : gridId = view.id,
-        _blocks = LinkedHashMap.new(),
+        _listener = BoardListener(view.id),
+        // ignore: prefer_collection_literals
+        _blocks = LinkedHashMap(),
         _gridFFIService = GridFFIService(gridId: view.id),
         fieldCache = GridFieldCache(gridId: view.id);
 
   void addListener({
-    OnGridChanged? onGridChanged,
+    required OnGridChanged onGridChanged,
     OnFieldsChanged? onFieldsChanged,
-    DidLoadGroups? didLoadGroups,
+    required DidLoadGroups didLoadGroups,
     OnRowsChanged? onRowsChanged,
-    OnError? onError,
+    required OnUpdatedGroup onUpdatedGroup,
+    required OnDeletedGroup onDeletedGroup,
+    required OnInsertedGroup onInsertedGroup,
+    required OnError? onError,
   }) {
     _onGridChanged = onGridChanged;
     _onFieldsChanged = onFieldsChanged;
@@ -63,6 +75,25 @@ class BoardDataController {
 
     fieldCache.addListener(onFields: (fields) {
       _onFieldsChanged?.call(UnmodifiableListView(fields));
+    });
+
+    _listener.start(onBoardChanged: (result) {
+      result.fold(
+        (changeset) {
+          if (changeset.updateGroups.isNotEmpty) {
+            onUpdatedGroup.call(changeset.updateGroups);
+          }
+
+          if (changeset.insertedGroups.isNotEmpty) {
+            onInsertedGroup.call(changeset.insertedGroups);
+          }
+
+          if (changeset.deletedGroups.isNotEmpty) {
+            onDeletedGroup.call(changeset.deletedGroups);
+          }
+        },
+        (e) => _onError?.call(e),
+      );
     });
   }
 
@@ -88,8 +119,9 @@ class BoardDataController {
     );
   }
 
-  Future<Either<RowPB, FlowyError>> createBoardCard(String groupId) {
-    return _gridFFIService.createBoardCard(groupId);
+  Future<Either<RowPB, FlowyError>> createBoardCard(String groupId,
+      {String? startRowId}) {
+    return _gridFFIService.createBoardCard(groupId, startRowId);
   }
 
   Future<void> dispose() async {

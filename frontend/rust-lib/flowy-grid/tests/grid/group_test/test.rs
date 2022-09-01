@@ -1,11 +1,12 @@
 use crate::grid::group_test::script::GridGroupTest;
 use crate::grid::group_test::script::GroupScript::*;
+use flowy_grid::entities::FieldChangesetParams;
 
 #[tokio::test]
 async fn group_init_test() {
     let mut test = GridGroupTest::new().await;
     let scripts = vec![
-        AssertGroupCount(3),
+        AssertGroupCount(4),
         AssertGroupRowCount {
             group_index: 0,
             row_count: 2,
@@ -17,6 +18,10 @@ async fn group_init_test() {
         AssertGroupRowCount {
             group_index: 2,
             row_count: 1,
+        },
+        AssertGroupRowCount {
+            group_index: 3,
+            row_count: 0,
         },
     ];
     test.run_scripts(scripts).await;
@@ -294,6 +299,55 @@ async fn group_reorder_group_test() {
 }
 
 #[tokio::test]
+async fn group_move_to_default_group_test() {
+    let mut test = GridGroupTest::new().await;
+    let scripts = vec![
+        UpdateRow {
+            from_group_index: 0,
+            row_index: 0,
+            to_group_index: 3,
+        },
+        AssertGroupRowCount {
+            group_index: 0,
+            row_count: 1,
+        },
+        AssertGroupRowCount {
+            group_index: 3,
+            row_count: 1,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn group_move_from_default_group_test() {
+    let mut test = GridGroupTest::new().await;
+    let scripts = vec![UpdateRow {
+        from_group_index: 0,
+        row_index: 0,
+        to_group_index: 3,
+    }];
+    test.run_scripts(scripts).await;
+
+    let scripts = vec![
+        UpdateRow {
+            from_group_index: 3,
+            row_index: 0,
+            to_group_index: 0,
+        },
+        AssertGroupRowCount {
+            group_index: 0,
+            row_count: 2,
+        },
+        AssertGroupRowCount {
+            group_index: 3,
+            row_count: 0,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
 async fn group_move_group_test() {
     let mut test = GridGroupTest::new().await;
     let group_0 = test.group_at_index(0).await;
@@ -310,6 +364,28 @@ async fn group_move_group_test() {
         AssertGroup {
             group_index: 1,
             expected_group: group_0,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn group_update_field_test() {
+    let mut test = GridGroupTest::new().await;
+    let group = test.group_at_index(0).await;
+    let changeset = FieldChangesetParams {
+        field_id: group.field_id.clone(),
+        grid_id: test.grid_id.clone(),
+        name: Some("ABC".to_string()),
+        ..Default::default()
+    };
+
+    // group.desc = "ABC".to_string();
+    let scripts = vec![
+        UpdateField { changeset },
+        AssertGroup {
+            group_index: 0,
+            expected_group: group,
         },
     ];
     test.run_scripts(scripts).await;

@@ -30,7 +30,7 @@ impl BlockPB {
 }
 
 /// [RowPB] Describes a row. Has the id of the parent Block. Has the metadata of the row.
-#[derive(Debug, Default, Clone, ProtoBuf)]
+#[derive(Debug, Default, Clone, ProtoBuf, Eq, PartialEq)]
 pub struct RowPB {
     #[pb(index = 1)]
     pub block_id: String,
@@ -120,17 +120,28 @@ pub struct InsertedRowPB {
 
     #[pb(index = 2, one_of)]
     pub index: Option<i32>,
+
+    #[pb(index = 3)]
+    pub is_new: bool,
 }
 
 impl InsertedRowPB {
     pub fn new(row: RowPB) -> Self {
-        Self { row, index: None }
+        Self {
+            row,
+            index: None,
+            is_new: false,
+        }
     }
 }
 
 impl std::convert::From<RowPB> for InsertedRowPB {
     fn from(row: RowPB) -> Self {
-        Self { row, index: None }
+        Self {
+            row,
+            index: None,
+            is_new: false,
+        }
     }
 }
 

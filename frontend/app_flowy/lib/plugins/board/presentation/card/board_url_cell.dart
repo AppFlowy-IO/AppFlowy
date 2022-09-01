@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BoardUrlCell extends StatefulWidget {
+  final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
 
   const BoardUrlCell({
+    required this.groupId,
     required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
@@ -34,6 +36,7 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<BoardURLCellBloc, BoardURLCellState>(
+        buildWhen: (previous, current) => previous.content != current.content,
         builder: (context, state) {
           if (state.content.isEmpty) {
             return const SizedBox();

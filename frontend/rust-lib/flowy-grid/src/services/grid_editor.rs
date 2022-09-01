@@ -18,7 +18,7 @@ use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeseri
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::CollaborateResult;
 use flowy_sync::util::make_text_delta_from_revisions;
-use lib_infra::future::FutureResult;
+use lib_infra::future::{wrap_future, FutureResult};
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -188,8 +188,13 @@ impl GridRevisionEditor {
     pub async fn replace_field(&self, field_rev: Arc<FieldRevision>) -> FlowyResult<()> {
         let field_id = field_rev.id.clone();
         let _ = self
-            .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev)?))
+            .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev.clone())?))
             .await?;
+
+        match self.view_manager.did_update_field(&field_rev.id).await {
+            Ok(_) => {}
+            Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+        }
         let _ = self.notify_did_update_grid_field(&field_id).await?;
         Ok(())
     }
@@ -263,59 +268,65 @@ impl GridRevisionEditor {
     }
 
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
-        self.modify(|grid| {
-            let deserializer = TypeOptionJsonDeserializer(field_type);
+        let _ = self
+            .modify(|grid| {
+                let deserializer = TypeOptionJsonDeserializer(field_type);
+                let changeset = grid.modify_field(&params.field_id, |field| {
+                    let mut is_changed = None;
+                    if let Some(name) = params.name {
+                        field.name = name;
+                        is_changed = Some(())
+                    }
 
-            let changeset = grid.modify_field(&params.field_id, |field| {
-                let mut is_changed = None;
-                if let Some(name) = params.name {
-                    field.name = name;
-                    is_changed = Some(())
-                }
+                    if let Some(desc) = params.desc {
+                        field.desc = desc;
+                        is_changed = Some(())
+                    }
 
-                if let Some(desc) = params.desc {
-                    field.desc = desc;
-                    is_changed = Some(())
-                }
+                    if let Some(field_type) = params.field_type {
+                        field.ty = field_type;
+                        is_changed = Some(())
+                    }
 
-                if let Some(field_type) = params.field_type {
-                    field.ty = field_type;
-                    is_changed = Some(())
-                }
+                    if let Some(frozen) = params.frozen {
+                        field.frozen = frozen;
+                        is_changed = Some(())
+                    }
 
-                if let Some(frozen) = params.frozen {
-                    field.frozen = frozen;
-                    is_changed = Some(())
-                }
+                    if let Some(visibility) = params.visibility {
+                        field.visibility = visibility;
+                        is_changed = Some(())
+                    }
 
-                if let Some(visibility) = params.visibility {
-                    field.visibility = visibility;
-                    is_changed = Some(())
-                }
+                    if let Some(width) = params.width {
+                        field.width = width;
+                        is_changed = Some(())
+                    }
 
-                if let Some(width) = params.width {
-                    field.width = width;
-                    is_changed = Some(())
-                }
-
-                if let Some(type_option_data) = params.type_option_data {
-                    match deserializer.deserialize(type_option_data) {
-                        Ok(json_str) => {
-                            let field_type = field.ty;
-                            field.insert_type_option_str(&field_type, json_str);
-                            is_changed = Some(())
-                        }
-                        Err(err) => {
-                            tracing::error!("Deserialize data to type option json failed: {}", err);
+                    if let Some(type_option_data) = params.type_option_data {
+                        match deserializer.deserialize(type_option_data) {
+                            Ok(json_str) => {
+                                let field_type = field.ty;
+                                field.insert_type_option_str(&field_type, json_str);
+                                is_changed = Some(())
+                            }
+                            Err(err) => {
+                                tracing::error!("Deserialize data to type option json failed: {}", err);
+                            }
                         }
                     }
-                }
 
-                Ok(is_changed)
-            })?;
-            Ok(changeset)
-        })
-        .await
+                    Ok(is_changed)
+                })?;
+                Ok(changeset)
+            })
+            .await?;
+
+        match self.view_manager.did_update_field(&params.field_id).await {
+            Ok(_) => {}
+            Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+        }
+        Ok(())
     }
 
     pub async fn create_block(&self, block_meta_rev: GridBlockMetaRevision) -> FlowyResult<()> {
@@ -571,7 +582,7 @@ impl GridRevisionEditor {
 
     pub async fn move_group_row(&self, params: MoveGroupRowParams) -> FlowyResult<()> {
         let MoveGroupRowParams {
-            view_id: _,
+            view_id,
             from_row_id,
             to_group_id,
             to_row_id,
@@ -580,21 +591,33 @@ impl GridRevisionEditor {
         match self.block_manager.get_row_rev(&from_row_id).await? {
             None => tracing::warn!("Move row failed, can not find the row:{}", from_row_id),
             Some(row_rev) => {
-                if let Some(row_changeset) = self
-                    .view_manager
-                    .move_group_row(row_rev, to_group_id, to_row_id.clone())
-                    .await
-                {
-                    match self.block_manager.update_row(row_changeset).await {
-                        Ok(_) => {}
-                        Err(e) => {
-                            tracing::error!("Apply row changeset error:{:?}", e);
-                        }
-                    }
-                }
+                let block_manager = self.block_manager.clone();
+                self.view_manager
+                    .move_group_row(row_rev, to_group_id, to_row_id.clone(), |row_changeset| {
+                        wrap_future(async move {
+                            tracing::trace!("Move group row cause row data changed: {:?}", row_changeset);
+                            let cell_changesets = row_changeset
+                                .cell_by_field_id
+                                .into_iter()
+                                .map(|(field_id, cell_rev)| CellChangesetPB {
+                                    grid_id: view_id.clone(),
+                                    row_id: row_changeset.row_id.clone(),
+                                    field_id,
+                                    content: cell_rev.data,
+                                })
+                                .collect::<Vec<CellChangesetPB>>();
+
+                            for cell_changeset in cell_changesets {
+                                match block_manager.update_cell(cell_changeset).await {
+                                    Ok(_) => {}
+                                    Err(e) => tracing::error!("Apply cell changeset error:{:?}", e),
+                                }
+                            }
+                        })
+                    })
+                    .await?;
             }
         }
-
         Ok(())
     }
 

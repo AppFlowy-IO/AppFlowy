@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,13 +12,16 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   var nodes = editorState.service.selectionService.currentSelectedNodes;
   nodes = selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
   selection = selection.isBackward ? selection : selection.reversed;
-  // make sure all nodes is [TextNode].
   final textNodes = nodes.whereType<TextNode>().toList();
-  if (textNodes.length != nodes.length) {
-    return KeyEventResult.ignored;
-  }
+  final nonTextNodes =
+      nodes.where((node) => node is! TextNode).toList(growable: false);
 
   final transactionBuilder = TransactionBuilder(editorState);
+
+  if (nonTextNodes.isNotEmpty) {
+    transactionBuilder.deleteNodes(nonTextNodes);
+  }
+
   if (textNodes.length == 1) {
     final textNode = textNodes.first;
     final index = textNode.delta.prevRunePosition(selection.start.offset);
@@ -26,7 +30,8 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       if (textNode.subtype != null) {
         transactionBuilder
           ..updateNode(textNode, {
-            'subtype': null,
+            StyleKey.subtype: null,
+            textNode.subtype!: null,
           })
           ..afterSelection = Selection.collapsed(
             Position(
@@ -37,9 +42,9 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       } else {
         // 2. non-style
         // find previous text node.
-        while (textNode.previous != null) {
-          if (textNode.previous is TextNode) {
-            final previous = textNode.previous as TextNode;
+        var previous = textNode.previous;
+        while (previous != null) {
+          if (previous is TextNode) {
             transactionBuilder
               ..mergeText(previous, textNode)
               ..deleteNode(textNode)
@@ -50,6 +55,8 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
                 ),
               );
             break;
+          } else {
+            previous = previous.previous;
           }
         }
       }
@@ -69,10 +76,15 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       }
     }
   } else {
-    _deleteNodes(transactionBuilder, textNodes, selection);
+    if (textNodes.isNotEmpty) {
+      _deleteTextNodes(transactionBuilder, textNodes, selection);
+    }
   }
 
   if (transactionBuilder.operations.isNotEmpty) {
+    if (nonTextNodes.isNotEmpty) {
+      transactionBuilder.afterSelection = Selection.collapsed(selection.start);
+    }
     transactionBuilder.commit();
   }
 
@@ -122,7 +134,7 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
       }
     }
   } else {
-    _deleteNodes(transactionBuilder, textNodes, selection);
+    _deleteTextNodes(transactionBuilder, textNodes, selection);
   }
 
   transactionBuilder.commit();
@@ -130,7 +142,7 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
   return KeyEventResult.handled;
 }
 
-void _deleteNodes(TransactionBuilder transactionBuilder,
+void _deleteTextNodes(TransactionBuilder transactionBuilder,
     List<TextNode> textNodes, Selection selection) {
   final first = textNodes.first;
   final last = textNodes.last;

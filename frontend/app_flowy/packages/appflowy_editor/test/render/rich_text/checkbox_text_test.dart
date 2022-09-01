@@ -10,8 +10,8 @@ void main() async {
     TestWidgetsFlutterBinding.ensureInitialized();
   });
 
-  group('delete_text_handler.dart', () {
-    testWidgets('Presses backspace key in empty document', (tester) async {
+  group('checkbox_text_handler.dart', () {
+    testWidgets('Click checkbox icon', (tester) async {
       // Before
       //
       // [BIUS]Welcome to Appflowy 😁[BIUS]

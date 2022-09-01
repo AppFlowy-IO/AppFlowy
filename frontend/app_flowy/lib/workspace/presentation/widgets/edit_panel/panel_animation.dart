@@ -19,10 +19,10 @@ class AnimatedPanel extends StatefulWidget {
       : super(key: key);
 
   @override
-  _AnimatedPanelState createState() => _AnimatedPanelState();
+  AnimatedPanelState createState() => AnimatedPanelState();
 }
 
-class _AnimatedPanelState extends State<AnimatedPanel> {
+class AnimatedPanelState extends State<AnimatedPanel> {
   bool _isHidden = true;
 
   @override
@@ -79,9 +79,9 @@ extension AnimatedPanelExtensions on Widget {
     return AnimatedPanel(
         closedX: closePos.dx,
         closedY: closePos.dy,
-        child: this,
         isClosed: isClosed ?? false,
         duration: duration ?? .35,
-        curve: curve);
+        curve: curve,
+        child: this);
   }
 }

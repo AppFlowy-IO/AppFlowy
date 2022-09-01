@@ -178,14 +178,14 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       child = Align(
         alignment: Alignment.centerLeft,
         child: Wrap(
+          spacing: 4,
+          runSpacing: 2,
           children: widget.selectOptions
               .map((option) => SelectOptionTag.fromOption(
                     context: context,
                     option: option,
                   ))
               .toList(),
-          spacing: 4,
-          runSpacing: 2,
         ),
       );
     }

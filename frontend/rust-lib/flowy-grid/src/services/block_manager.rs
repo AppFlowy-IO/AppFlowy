@@ -164,6 +164,7 @@ impl GridBlockManager {
         let insert_row = InsertedRowPB {
             index: Some(to as i32),
             row: make_row_from_row_rev(row_rev),
+            is_new: false,
         };
 
         let notified_changeset = GridBlockChangesetPB {

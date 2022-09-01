@@ -154,9 +154,14 @@ pub fn select_option_color_from_index(index: usize) -> SelectOptionColorPB {
         _ => SelectOptionColorPB::Purple,
     }
 }
+
+#[derive(Default)]
 pub struct SelectOptionIds(Vec<String>);
 
 impl SelectOptionIds {
+    pub fn new() -> Self {
+        Self::default()
+    }
     pub fn into_inner(self) -> Vec<String> {
         self.0
     }
@@ -178,6 +183,12 @@ impl std::convert::From<String> for SelectOptionIds {
             .map(|id| id.to_string())
             .collect::<Vec<String>>();
         Self(ids)
+    }
+}
+
+impl ToString for SelectOptionIds {
+    fn to_string(&self) -> String {
+        self.0.join(SELECTION_IDS_SEPARATOR)
     }
 }
 

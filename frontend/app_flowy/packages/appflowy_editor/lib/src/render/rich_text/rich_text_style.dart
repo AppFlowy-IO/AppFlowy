@@ -1,8 +1,6 @@
 import 'package:appflowy_editor/src/document/attributes.dart';
-import 'package:appflowy_editor/src/document/node.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 ///
 /// Supported partial rendering types:
@@ -49,6 +47,8 @@ class StyleKey {
     StyleKey.italic,
     StyleKey.underline,
     StyleKey.strikethrough,
+    StyleKey.backgroundColor,
+    StyleKey.href,
   ];
 
   static List<String> globalStyleKeys = [
@@ -63,7 +63,6 @@ class StyleKey {
 }
 
 // TODO: customize
-double defaultMaxTextNodeWidth = 780.0;
 double defaultLinePadding = 8.0;
 double baseFontSize = 16.0;
 String defaultHighlightColor = '0x6000BCF0';
@@ -80,7 +79,10 @@ Map<String, double> headingToFontSize = {
 
 extension NodeAttributesExtensions on Attributes {
   String? get heading {
-    if (containsKey(StyleKey.heading) && this[StyleKey.heading] is String) {
+    if (containsKey(StyleKey.subtype) &&
+        containsKey(StyleKey.heading) &&
+        this[StyleKey.subtype] == StyleKey.heading &&
+        this[StyleKey.heading] is String) {
       return this[StyleKey.heading];
     }
     return null;
@@ -182,14 +184,13 @@ class RichTextStyle {
   RichTextStyle({
     required this.attributes,
     required this.text,
+    this.gestureRecognizer,
     this.height = 1.5,
   });
 
-  RichTextStyle.fromTextNode(TextNode textNode)
-      : this(attributes: textNode.attributes, text: textNode.toRawString());
-
   final Attributes attributes;
   final String text;
+  final GestureRecognizer? gestureRecognizer;
   final double height;
 
   TextSpan toTextSpan() => _toTextSpan(height);
@@ -201,6 +202,7 @@ class RichTextStyle {
   TextSpan _toTextSpan(double? height) {
     return TextSpan(
       text: text,
+      recognizer: _recognizer,
       style: TextStyle(
         fontWeight: _fontWeight,
         fontStyle: _fontStyle,
@@ -210,7 +212,6 @@ class RichTextStyle {
         background: _background,
         height: height,
       ),
-      recognizer: _recognizer,
     );
   }
 
@@ -273,13 +274,6 @@ class RichTextStyle {
 
   // recognizer
   GestureRecognizer? get _recognizer {
-    final href = attributes.href;
-    if (href != null) {
-      return TapGestureRecognizer()
-        ..onTap = () async {
-          await launchUrlString(href);
-        };
-    }
-    return null;
+    return gestureRecognizer;
   }
 }

@@ -45,15 +45,25 @@ class _AppFlowyColumnHeaderState extends State<AppFlowyColumnHeader> {
     }
 
     if (widget.moreIcon != null) {
-      children.add(const Spacer());
+      // children.add(const Spacer());
       children.add(
-        IconButton(onPressed: widget.onMoreButtonClick, icon: widget.moreIcon!),
+        IconButton(
+          onPressed: widget.onMoreButtonClick,
+          icon: widget.moreIcon!,
+          padding: const EdgeInsets.all(4),
+          constraints: const BoxConstraints(),
+        ),
       );
     }
 
     if (widget.addIcon != null) {
       children.add(
-        IconButton(onPressed: widget.onAddButtonClick, icon: widget.addIcon!),
+        IconButton(
+          onPressed: widget.onAddButtonClick,
+          icon: widget.addIcon!,
+          padding: const EdgeInsets.all(4),
+          constraints: const BoxConstraints(),
+        ),
       );
     }
 
@@ -61,9 +71,7 @@ class _AppFlowyColumnHeaderState extends State<AppFlowyColumnHeader> {
       height: widget.height,
       child: Padding(
         padding: widget.margin,
-        child: Row(
-          children: children,
-        ),
+        child: Row(children: children),
       ),
     );
   }

@@ -19,10 +19,10 @@ class FlowyLinkStyleButton extends StatefulWidget {
   final double iconSize;
 
   @override
-  _FlowyLinkStyleButtonState createState() => _FlowyLinkStyleButtonState();
+  FlowyLinkStyleButtonState createState() => FlowyLinkStyleButtonState();
 }
 
-class _FlowyLinkStyleButtonState extends State<FlowyLinkStyleButton> {
+class FlowyLinkStyleButtonState extends State<FlowyLinkStyleButton> {
   void _didChangeSelection() {
     setState(() {});
   }
@@ -75,7 +75,9 @@ class _FlowyLinkStyleButtonState extends State<FlowyLinkStyleButton> {
 
   void _openLinkDialog(BuildContext context) {
     final style = widget.controller.getSelectionStyle();
-    final values = style.values.where((v) => v.key == Attribute.link.key).map((v) => v.value);
+    final values = style.values
+        .where((v) => v.key == Attribute.link.key)
+        .map((v) => v.value);
     String value = "";
     if (values.isNotEmpty) {
       assert(values.length == 1);

@@ -103,6 +103,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.slash) {
       return PhysicalKeyboardKey.slash;
     }
+    if (this == LogicalKeyboardKey.arrowUp) {
+      return PhysicalKeyboardKey.arrowUp;
+    }
     if (this == LogicalKeyboardKey.arrowDown) {
       return PhysicalKeyboardKey.arrowDown;
     }
@@ -114,6 +117,9 @@ extension on LogicalKeyboardKey {
     }
     if (this == LogicalKeyboardKey.keyI) {
       return PhysicalKeyboardKey.keyI;
+    }
+    if (this == LogicalKeyboardKey.keyK) {
+      return PhysicalKeyboardKey.keyK;
     }
     if (this == LogicalKeyboardKey.keyS) {
       return PhysicalKeyboardKey.keyS;

@@ -57,6 +57,19 @@ class EditorWidgetTester {
     );
   }
 
+  void insertImageNode(String src, {String? align}) {
+    insert(
+      Node(
+        type: 'image',
+        children: LinkedList(),
+        attributes: {
+          'image_src': src,
+          'align': align ?? 'center',
+        },
+      ),
+    );
+  }
+
   Node? nodeAtPath(Path path) {
     return root.childAtPath(path);
   }
@@ -67,7 +80,7 @@ class EditorWidgetTester {
     } else {
       _editorState.service.selectionService.updateSelection(selection);
     }
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 200));
 
     expect(_editorState.service.selectionService.currentSelection.value,
         selection);

@@ -38,7 +38,6 @@ class HeadingTextNodeWidget extends StatefulWidget {
 }
 
 // customize
-
 class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
     with Selectable, DefaultSelectable {
   @override
@@ -63,16 +62,13 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
         top: _topPadding,
         bottom: defaultLinePadding,
       ),
-      child: SizedBox(
-        width: defaultMaxTextNodeWidth,
-        child: FlowyRichText(
-          key: _richTextKey,
-          placeholderText: 'Heading',
-          placeholderTextSpanDecorator: _placeholderTextSpanDecorator,
-          textSpanDecorator: _textSpanDecorator,
-          textNode: widget.textNode,
-          editorState: widget.editorState,
-        ),
+      child: FlowyRichText(
+        key: _richTextKey,
+        placeholderText: 'Heading',
+        placeholderTextSpanDecorator: _placeholderTextSpanDecorator,
+        textSpanDecorator: _textSpanDecorator,
+        textNode: widget.textNode,
+        editorState: widget.editorState,
       ),
     );
   }

@@ -134,19 +134,29 @@ impl GridViewManager {
         row_rev: Arc<RowRevision>,
         to_group_id: String,
         to_row_id: Option<String>,
-    ) -> Option<RowChangeset> {
+        recv_row_changeset: impl FnOnce(RowChangeset) -> AFFuture<()>,
+    ) -> FlowyResult<()> {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
-        for view_editor in self.view_editors.iter() {
-            view_editor
-                .move_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
-                .await;
+        let view_editor = self.get_default_view_editor().await?;
+        let group_changesets = view_editor
+            .move_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
+            .await;
+
+        if !row_changeset.is_empty() {
+            recv_row_changeset(row_changeset).await;
         }
 
-        if row_changeset.has_changed() {
-            Some(row_changeset)
-        } else {
-            None
+        for group_changeset in group_changesets {
+            view_editor.notify_did_update_group(group_changeset).await;
         }
+
+        Ok(())
+    }
+
+    pub(crate) async fn did_update_field(&self, field_id: &str) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        let _ = view_editor.did_update_field(field_id).await?;
+        Ok(())
     }
 
     pub(crate) async fn get_view_editor(&self, view_id: &str) -> FlowyResult<Arc<GridViewRevisionEditor>> {

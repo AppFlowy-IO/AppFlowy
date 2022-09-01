@@ -1,4 +1,4 @@
-use crate::entities::{FieldType, GroupRowsChangesetPB};
+use crate::entities::{FieldType, GroupChangesetPB, GroupViewChangesetPB};
 use crate::services::group::configuration::GroupConfigurationReader;
 use crate::services::group::controller::{GroupController, MoveGroupRowContext};
 use crate::services::group::{
@@ -15,18 +15,20 @@ use std::future::Future;
 use std::sync::Arc;
 
 pub(crate) struct GroupService {
+    view_id: String,
     configuration_reader: Arc<dyn GroupConfigurationReader>,
     configuration_writer: Arc<dyn GroupConfigurationWriter>,
     group_controller: Option<Box<dyn GroupController>>,
 }
 
 impl GroupService {
-    pub(crate) async fn new<R, W>(configuration_reader: R, configuration_writer: W) -> Self
+    pub(crate) async fn new<R, W>(view_id: String, configuration_reader: R, configuration_writer: W) -> Self
     where
         R: GroupConfigurationReader,
         W: GroupConfigurationWriter,
     {
         Self {
+            view_id,
             configuration_reader: Arc::new(configuration_reader),
             configuration_writer: Arc::new(configuration_writer),
             group_controller: None,
@@ -36,8 +38,8 @@ impl GroupService {
     pub(crate) async fn groups(&self) -> Vec<Group> {
         self.group_controller
             .as_ref()
-            .and_then(|group_controller| Some(group_controller.groups()))
-            .unwrap_or(vec![])
+            .map(|group_controller| group_controller.groups())
+            .unwrap_or_default()
     }
 
     pub(crate) async fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
@@ -86,7 +88,7 @@ impl GroupService {
         &mut self,
         row_rev: &RowRevision,
         get_field_fn: F,
-    ) -> Option<Vec<GroupRowsChangesetPB>>
+    ) -> Option<Vec<GroupChangesetPB>>
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
@@ -111,7 +113,7 @@ impl GroupService {
         to_group_id: &str,
         to_row_id: Option<String>,
         get_field_fn: F,
-    ) -> Option<Vec<GroupRowsChangesetPB>>
+    ) -> Option<Vec<GroupChangesetPB>>
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
@@ -141,7 +143,7 @@ impl GroupService {
         &mut self,
         row_rev: &RowRevision,
         get_field_fn: F,
-    ) -> Option<Vec<GroupRowsChangesetPB>>
+    ) -> Option<Vec<GroupChangesetPB>>
     where
         F: FnOnce(String) -> O,
         O: Future<Output = Option<Arc<FieldRevision>>> + Send + Sync + 'static,
@@ -170,6 +172,17 @@ impl GroupService {
         }
     }
 
+    #[tracing::instrument(level = "trace", name = "group_did_update_field", skip(self, field_rev), err)]
+    pub(crate) async fn did_update_field(
+        &mut self,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<Option<GroupViewChangesetPB>> {
+        match self.group_controller.as_mut() {
+            None => Ok(None),
+            Some(group_controller) => group_controller.did_update_field(field_rev),
+        }
+    }
+
     #[tracing::instrument(level = "trace", skip(self, field_rev), err)]
     async fn make_group_controller(
         &self,
@@ -189,6 +202,7 @@ impl GroupService {
             }
             FieldType::SingleSelect => {
                 let configuration = SelectOptionGroupConfiguration::new(
+                    self.view_id.clone(),
                     field_rev.clone(),
                     self.configuration_reader.clone(),
                     self.configuration_writer.clone(),
@@ -199,6 +213,7 @@ impl GroupService {
             }
             FieldType::MultiSelect => {
                 let configuration = SelectOptionGroupConfiguration::new(
+                    self.view_id.clone(),
                     field_rev.clone(),
                     self.configuration_reader.clone(),
                     self.configuration_writer.clone(),
@@ -209,6 +224,7 @@ impl GroupService {
             }
             FieldType::Checkbox => {
                 let configuration = CheckboxGroupConfiguration::new(
+                    self.view_id.clone(),
                     field_rev.clone(),
                     self.configuration_reader.clone(),
                     self.configuration_writer.clone(),

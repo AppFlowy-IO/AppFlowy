@@ -1,4 +1,4 @@
-use crate::entities::GroupRowsChangesetPB;
+use crate::entities::GroupChangesetPB;
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
 use crate::services::group::action::GroupAction;
 use crate::services::group::configuration::GenericGroupConfiguration;
@@ -24,11 +24,7 @@ impl GroupAction for CheckboxGroupController {
         false
     }
 
-    fn add_row_if_match(
-        &mut self,
-        _row_rev: &RowRevision,
-        _cell_data: &Self::CellDataType,
-    ) -> Vec<GroupRowsChangesetPB> {
+    fn add_row_if_match(&mut self, _row_rev: &RowRevision, _cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         todo!()
     }
 
@@ -36,15 +32,11 @@ impl GroupAction for CheckboxGroupController {
         &mut self,
         _row_rev: &RowRevision,
         _cell_data: &Self::CellDataType,
-    ) -> Vec<GroupRowsChangesetPB> {
+    ) -> Vec<GroupChangesetPB> {
         todo!()
     }
 
-    fn move_row(
-        &mut self,
-        _cell_data: &Self::CellDataType,
-        _context: MoveGroupRowContext,
-    ) -> Vec<GroupRowsChangesetPB> {
+    fn move_row(&mut self, _cell_data: &Self::CellDataType, _context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
         todo!()
     }
 }

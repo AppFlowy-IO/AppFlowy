@@ -24,10 +24,10 @@ class FlowyColorButton extends StatefulWidget {
   final QuillIconTheme? iconTheme;
 
   @override
-  _FlowyColorButtonState createState() => _FlowyColorButtonState();
+  FlowyColorButtonState createState() => FlowyColorButtonState();
 }
 
-class _FlowyColorButtonState extends State<FlowyColorButton> {
+class FlowyColorButtonState extends State<FlowyColorButton> {
   late bool _isToggledColor;
   late bool _isToggledBackground;
   late bool _isWhite;
@@ -37,10 +37,14 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
 
   void _didChangeEditingValue() {
     setState(() {
-      _isToggledColor = _getIsToggledColor(widget.controller.getSelectionStyle().attributes);
-      _isToggledBackground = _getIsToggledBackground(widget.controller.getSelectionStyle().attributes);
-      _isWhite = _isToggledColor && _selectionStyle.attributes['color']!.value == '#ffffff';
-      _isWhitebackground = _isToggledBackground && _selectionStyle.attributes['background']!.value == '#ffffff';
+      _isToggledColor =
+          _getIsToggledColor(widget.controller.getSelectionStyle().attributes);
+      _isToggledBackground = _getIsToggledBackground(
+          widget.controller.getSelectionStyle().attributes);
+      _isWhite = _isToggledColor &&
+          _selectionStyle.attributes['color']!.value == '#ffffff';
+      _isWhitebackground = _isToggledBackground &&
+          _selectionStyle.attributes['background']!.value == '#ffffff';
     });
   }
 
@@ -49,8 +53,10 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
     super.initState();
     _isToggledColor = _getIsToggledColor(_selectionStyle.attributes);
     _isToggledBackground = _getIsToggledBackground(_selectionStyle.attributes);
-    _isWhite = _isToggledColor && _selectionStyle.attributes['color']!.value == '#ffffff';
-    _isWhitebackground = _isToggledBackground && _selectionStyle.attributes['background']!.value == '#ffffff';
+    _isWhite = _isToggledColor &&
+        _selectionStyle.attributes['color']!.value == '#ffffff';
+    _isWhitebackground = _isToggledBackground &&
+        _selectionStyle.attributes['background']!.value == '#ffffff';
     widget.controller.addListener(_didChangeEditingValue);
   }
 
@@ -69,9 +75,12 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
       _isToggledColor = _getIsToggledColor(_selectionStyle.attributes);
-      _isToggledBackground = _getIsToggledBackground(_selectionStyle.attributes);
-      _isWhite = _isToggledColor && _selectionStyle.attributes['color']!.value == '#ffffff';
-      _isWhitebackground = _isToggledBackground && _selectionStyle.attributes['background']!.value == '#ffffff';
+      _isToggledBackground =
+          _getIsToggledBackground(_selectionStyle.attributes);
+      _isWhite = _isToggledColor &&
+          _selectionStyle.attributes['color']!.value == '#ffffff';
+      _isWhitebackground = _isToggledBackground &&
+          _selectionStyle.attributes['background']!.value == '#ffffff';
     }
   }
 
@@ -88,9 +97,10 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
     final fillColor = _isToggledColor && !widget.background && _isWhite
         ? stringToColor('#ffffff')
         : (widget.iconTheme?.iconUnselectedFillColor ?? theme.canvasColor);
-    final fillColorBackground = _isToggledBackground && widget.background && _isWhitebackground
-        ? stringToColor('#ffffff')
-        : (widget.iconTheme?.iconUnselectedFillColor ?? theme.canvasColor);
+    final fillColorBackground =
+        _isToggledBackground && widget.background && _isWhitebackground
+            ? stringToColor('#ffffff')
+            : (widget.iconTheme?.iconUnselectedFillColor ?? theme.canvasColor);
 
     return Tooltip(
       message: LocaleKeys.toolbar_highlight.tr(),
@@ -99,7 +109,8 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
         highlightElevation: 0,
         hoverElevation: 0,
         size: widget.iconSize * kIconButtonFactor,
-        icon: Icon(widget.icon, size: widget.iconSize, color: theme.iconTheme.color),
+        icon: Icon(widget.icon,
+            size: widget.iconSize, color: theme.iconTheme.color),
         fillColor: widget.background ? fillColorBackground : fillColor,
         onPressed: _showColorPicker,
       ),
@@ -112,13 +123,16 @@ class _FlowyColorButtonState extends State<FlowyColorButton> {
       hex = hex.substring(2);
     }
     hex = '#$hex';
-    widget.controller.formatSelection(widget.background ? BackgroundAttribute(hex) : ColorAttribute(hex));
+    widget.controller.formatSelection(
+        widget.background ? BackgroundAttribute(hex) : ColorAttribute(hex));
     Navigator.of(context).pop();
   }
 
   void _showColorPicker() {
     final style = widget.controller.getSelectionStyle();
-    final values = style.values.where((v) => v.key == Attribute.background.key).map((v) => v.value);
+    final values = style.values
+        .where((v) => v.key == Attribute.background.key)
+        .map((v) => v.value);
     int initialColor = 0;
     if (values.isNotEmpty) {
       assert(values.length == 1);
@@ -160,7 +174,9 @@ class FlowyColorPicker extends StatefulWidget {
   ];
   final Function(Color?) onColorChanged;
   final int initialColor;
-  FlowyColorPicker({Key? key, required this.onColorChanged, this.initialColor = 0}) : super(key: key);
+  FlowyColorPicker(
+      {Key? key, required this.onColorChanged, this.initialColor = 0})
+      : super(key: key);
 
   @override
   State<FlowyColorPicker> createState() => _FlowyColorPickerState();
@@ -178,8 +194,10 @@ class _FlowyColorPickerState extends State<FlowyColorPicker> {
     const double crossAxisSpacing = 10;
     final numberOfRows = (widget.colors.length / crossAxisCount).ceil();
 
-    const perRowHeight = ((width - ((crossAxisCount - 1) * mainAxisSpacing)) / crossAxisCount);
-    final totalHeight = numberOfRows * perRowHeight + numberOfRows * crossAxisSpacing;
+    const perRowHeight =
+        ((width - ((crossAxisCount - 1) * mainAxisSpacing)) / crossAxisCount);
+    final totalHeight =
+        numberOfRows * perRowHeight + numberOfRows * crossAxisSpacing;
 
     return Container(
       constraints: BoxConstraints.tightFor(width: width, height: totalHeight),
@@ -198,7 +216,8 @@ class _FlowyColorPickerState extends State<FlowyColorPicker> {
             delegate: SliverChildBuilderDelegate(
               (BuildContext context, int index) {
                 if (widget.colors.length > index) {
-                  final isSelected = widget.colors[index] == widget.initialColor;
+                  final isSelected =
+                      widget.colors[index] == widget.initialColor;
                   return ColorItem(
                     color: Color(widget.colors[index]),
                     onPressed: widget.onColorChanged,
@@ -242,7 +261,8 @@ class ColorItem extends StatelessWidget {
       );
     } else {
       return RawMaterialButton(
-        shape: const CircleBorder(side: BorderSide(color: Colors.white, width: 8)) +
+        shape: const CircleBorder(
+                side: BorderSide(color: Colors.white, width: 8)) +
             CircleBorder(side: BorderSide(color: color, width: 4)),
         onPressed: () {
           if (isSelected) {

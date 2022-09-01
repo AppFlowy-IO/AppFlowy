@@ -46,6 +46,9 @@ flutter config --enable-linux-desktop
 # Fix any problems reported by flutter doctor
 flutter doctor
 
+# install keybinder-3.0
+apt-get install keybinder-3.0
+
 # Add the githooks directory to your git configuration
 printMessage "Setting up githooks."
 git config core.hooksPath .githooks

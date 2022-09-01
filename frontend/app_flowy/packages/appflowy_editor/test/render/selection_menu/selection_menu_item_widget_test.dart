@@ -20,7 +20,7 @@ void main() async {
         name: 'example',
         icon: icon,
         keywords: ['example A', 'example B'],
-        handler: (editorState, menuService) {
+        handler: (editorState, menuService, context) {
           flag = true;
         },
       );

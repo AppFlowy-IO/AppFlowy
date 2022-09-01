@@ -1,7 +1,9 @@
+import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -178,7 +180,10 @@ class CreateFieldButton extends StatelessWidget {
       triggerActions: PopoverTriggerActionFlags.click,
       direction: PopoverDirection.bottomWithRightAligned,
       child: FlowyButton(
-        text: const FlowyText.medium('New column', fontSize: 12),
+        text: FlowyText.medium(
+          LocaleKeys.grid_field_newColumn.tr(),
+          fontSize: 12,
+        ),
         hoverColor: theme.shader6,
         onTap: () {},
         leftIcon: svgWidget("home/add"),

@@ -176,6 +176,12 @@ pub fn insert_select_option_cell(option_id: String, field_rev: &FieldRevision) -
     CellRevision::new(data)
 }
 
+pub fn delete_select_option_cell(option_id: String, field_rev: &FieldRevision) -> CellRevision {
+    let cell_data = SelectOptionCellChangeset::from_delete(&option_id).to_str();
+    let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
+    CellRevision::new(data)
+}
+
 /// If the cell data is not String type, it should impl this trait.
 /// Deserialize the String into cell specific data type.  
 pub trait FromCellString {

@@ -12,7 +12,7 @@ class AppFlowyColumnFooter extends StatefulWidget {
   const AppFlowyColumnFooter({
     this.icon,
     this.title,
-    this.margin = EdgeInsets.zero,
+    this.margin = const EdgeInsets.symmetric(horizontal: 12),
     required this.height,
     this.onAddButtonClick,
     Key? key,
@@ -30,12 +30,13 @@ class _AppFlowyColumnFooterState extends State<AppFlowyColumnFooter> {
       child: SizedBox(
         height: widget.height,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
+          padding: widget.margin,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (widget.icon != null) widget.icon!,
+              const SizedBox(width: 8),
               if (widget.title != null) widget.title!,
             ],
           ),

@@ -6,3 +6,19 @@ rustflags=["-C", "link-arg=-mmacosx-version-min=10.11"]
 
 [target.aarch64-apple-darwin]
 rustflags=["-C", "link-arg=-mmacosx-version-min=10.11"]
+
+[target.aarch64-linux-android]
+ar = "path-to-ndk/llvm-ar"
+linker = "path-to-ndk/aarch64-linux-android29-clang"
+
+[target.armv7-linux-androideabi]
+ar = "path-to-ndk/llvm-ar"
+linker = "path-to-ndk/armv7a-linux-androideabi29-clang"
+
+[target.i686-linux-android]
+ar = "path-to-ndk/llvm-ar"
+linker = "path-to-ndk/i686-linux-android29-clang"
+
+[target.x86_64-linux-android]
+ar = "path-to-ndk/llvm-ar"
+linker = "path-to-ndk/x86_64-linux-android29-clang"

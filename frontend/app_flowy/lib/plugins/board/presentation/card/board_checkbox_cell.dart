@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BoardCheckboxCell extends StatefulWidget {
+  final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
 
   const BoardCheckboxCell({
+    required this.groupId,
     required this.cellControllerBuilder,
     Key? key,
   }) : super(key: key);
@@ -34,6 +36,8 @@ class _BoardCheckboxCellState extends State<BoardCheckboxCell> {
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<BoardCheckboxCellBloc, BoardCheckboxCellState>(
+        buildWhen: (previous, current) =>
+            previous.isSelected != current.isSelected,
         builder: (context, state) {
           final icon = state.isSelected
               ? svgWidget('editor/editor_check')

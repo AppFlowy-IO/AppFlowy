@@ -25,7 +25,9 @@ void main() async {
           find.byType(SelectionMenuWidget, skipOffstage: false),
           findsNothing,
         );
-        await _testDefaultSelectionMenuItems(i, editor);
+        if (defaultSelectionMenuItems[i].name != 'Image') {
+          await _testDefaultSelectionMenuItems(i, editor);
+        }
       });
     }
   });
@@ -36,17 +38,17 @@ void main() async {
     await editor.pressLogicKey(LogicalKeyboardKey.keyE);
     expect(
       find.byType(SelectionMenuItemWidget, skipOffstage: false),
-      findsNWidgets(2),
+      findsNWidgets(3),
     );
     await editor.pressLogicKey(LogicalKeyboardKey.backspace);
     expect(
       find.byType(SelectionMenuItemWidget, skipOffstage: false),
-      findsNWidgets(3),
+      findsNWidgets(4),
     );
     await editor.pressLogicKey(LogicalKeyboardKey.keyE);
     expect(
       find.byType(SelectionMenuItemWidget, skipOffstage: false),
-      findsNWidgets(2),
+      findsNWidgets(3),
     );
     await editor.pressLogicKey(LogicalKeyboardKey.keyX);
     expect(
@@ -71,7 +73,7 @@ void main() async {
     await editor.pressLogicKey(LogicalKeyboardKey.keyE);
     expect(
       find.byType(SelectionMenuItemWidget, skipOffstage: false),
-      findsNWidgets(2),
+      findsNWidgets(3),
     );
     await editor.pressLogicKey(LogicalKeyboardKey.escape);
     expect(
@@ -87,7 +89,7 @@ void main() async {
     await editor.pressLogicKey(LogicalKeyboardKey.keyE);
     expect(
       find.byType(SelectionMenuItemWidget, skipOffstage: false),
-      findsNWidgets(2),
+      findsNWidgets(3),
     );
     await editor.pressLogicKey(LogicalKeyboardKey.backspace);
     await editor.pressLogicKey(LogicalKeyboardKey.backspace);

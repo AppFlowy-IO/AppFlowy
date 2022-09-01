@@ -116,6 +116,27 @@ void main() async {
         (tester) async {
       _testMultipleSelection(tester, false);
     });
+
+    testWidgets('Presses enter key in the first line', (tester) async {
+      // Before
+      //
+      // Welcome to Appflowy 😁
+      //
+      // After
+      //
+      // [Empty Line]
+      // Welcome to Appflowy 😁
+      //
+      const text = 'Welcome to Appflowy 😁';
+      final editor = tester.editor..insertTextNode(text);
+      await editor.startTesting();
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: 0),
+      );
+      await editor.pressLogicKey(LogicalKeyboardKey.enter);
+      expect(editor.documentLength, 2);
+      expect((editor.nodeAtPath([1]) as TextNode).toRawString(), text);
+    });
   });
 }
 

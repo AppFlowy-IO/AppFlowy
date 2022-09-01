@@ -28,10 +28,10 @@ class FlowyCheckListButton extends StatefulWidget {
   final String tooltipText;
 
   @override
-  _FlowyCheckListButtonState createState() => _FlowyCheckListButtonState();
+  FlowyCheckListButtonState createState() => FlowyCheckListButtonState();
 }
 
-class _FlowyCheckListButtonState extends State<FlowyCheckListButton> {
+class FlowyCheckListButtonState extends State<FlowyCheckListButton> {
   bool? _isToggled;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();

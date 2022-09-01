@@ -2,6 +2,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 
+import 'board_cell.dart';
 import 'board_checkbox_cell.dart';
 import 'board_date_cell.dart';
 import 'board_number_cell.dart';
@@ -19,7 +20,12 @@ class BoardCellBuilder {
 
   BoardCellBuilder(this.delegate);
 
-  Widget buildCell(GridCellIdentifier cellId) {
+  Widget buildCell(
+    String groupId,
+    GridCellIdentifier cellId,
+    bool isEditing,
+    EditableCellNotifier cellNotifier,
+  ) {
     final cellControllerBuilder = GridCellControllerBuilder(
       delegate: delegate,
       cellId: cellId,
@@ -30,36 +36,46 @@ class BoardCellBuilder {
     switch (cellId.fieldType) {
       case FieldType.Checkbox:
         return BoardCheckboxCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.DateTime:
         return BoardDateCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.SingleSelect:
         return BoardSelectOptionCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.MultiSelect:
         return BoardSelectOptionCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
+          editableNotifier: cellNotifier,
           key: key,
         );
       case FieldType.Number:
         return BoardNumberCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );
       case FieldType.RichText:
         return BoardTextCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
+          isFocus: isEditing,
+          editableNotifier: cellNotifier,
           key: key,
         );
       case FieldType.URL:
         return BoardUrlCell(
+          groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
           key: key,
         );

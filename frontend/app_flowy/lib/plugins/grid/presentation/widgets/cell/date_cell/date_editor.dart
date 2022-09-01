@@ -297,9 +297,8 @@ class _DateTypeOptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final title = LocaleKeys.grid_field_dateFormat.tr() +
-        " &" +
-        LocaleKeys.grid_field_timeFormat.tr();
+    final title =
+        "${LocaleKeys.grid_field_dateFormat.tr()} &${LocaleKeys.grid_field_timeFormat.tr()}";
     return BlocSelector<DateCalBloc, DateCalState, DateTypeOptionPB>(
       selector: (state) => state.dateTypeOptionPB,
       builder: (context, dateTypeOptionPB) {
@@ -406,8 +405,8 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
     overlayIdentifier = child.toString();
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        child: child,
         constraints: BoxConstraints.loose(const Size(460, 440)),
+        child: child,
       ),
       identifier: overlayIdentifier!,
       anchorContext: context,

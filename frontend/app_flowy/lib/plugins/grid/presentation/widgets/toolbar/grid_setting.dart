@@ -1,5 +1,4 @@
 import 'package:app_flowy/plugins/grid/application/setting/setting_bloc.dart';
-import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';

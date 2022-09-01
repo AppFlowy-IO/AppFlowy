@@ -24,6 +24,10 @@ class FlexDragTargetData extends DragTargetData {
 
   final String dragTargetId;
 
+  Offset dragTargetOffset = Offset.zero;
+
+  final GlobalObjectKey dragTargetIndexKey;
+
   final String reorderFlexId;
 
   final ReoderFlexItem reorderFlexItem;
@@ -33,6 +37,7 @@ class FlexDragTargetData extends DragTargetData {
     required this.draggingIndex,
     required this.reorderFlexId,
     required this.reorderFlexItem,
+    required this.dragTargetIndexKey,
     required DraggingState state,
   }) : _state = state;
 
@@ -40,6 +45,50 @@ class FlexDragTargetData extends DragTargetData {
   String toString() {
     return 'ReorderFlexId: $reorderFlexId, dragTargetId: $dragTargetId';
   }
+
+  bool isOverlapWithWidgets(List<GlobalObjectKey> widgetKeys) {
+    final renderBox = dragTargetIndexKey.currentContext?.findRenderObject();
+
+    if (renderBox == null) return false;
+    if (renderBox is! RenderBox) return false;
+    final size = feedbackSize ?? Size.zero;
+    final Rect rect = dragTargetOffset & size;
+
+    for (final widgetKey in widgetKeys) {
+      final renderObject = widgetKey.currentContext?.findRenderObject();
+      if (renderObject != null && renderObject is RenderBox) {
+        Rect widgetRect =
+            renderObject.localToGlobal(Offset.zero) & renderObject.size;
+        // return rect.overlaps(widgetRect);
+        if (rect.right <= widgetRect.left || widgetRect.right <= rect.left) {
+          return false;
+        }
+
+        if (rect.bottom <= widgetRect.top || widgetRect.bottom <= rect.top) {
+          return false;
+        }
+        return true;
+      }
+    }
+
+    // final HitTestResult result = HitTestResult();
+    // WidgetsBinding.instance.hitTest(result, position);
+    // for (final HitTestEntry entry in result.path) {
+    //   final HitTestTarget target = entry.target;
+    //   if (target is RenderMetaData) {
+    //     print(target.metaData);
+    //   }
+    //   print(target);
+    // }
+
+    return false;
+  }
+}
+
+abstract class DraggingStateStorage {
+  void write(String reorderFlexId, DraggingState state);
+  void remove(String reorderFlexId);
+  DraggingState? read(String reorderFlexId);
 }
 
 class DraggingState {
@@ -128,11 +177,20 @@ class DraggingState {
 
   /// Set the currentIndex to nextIndex
   void moveDragTargetToNext() {
+    Log.debug('$reorderFlexId updateCurrentIndex: $nextIndex');
     currentIndex = nextIndex;
   }
 
   void updateNextIndex(int index) {
     Log.debug('$reorderFlexId updateNextIndex: $index');
+    nextIndex = index;
+  }
+
+  void setStartDraggingIndex(int index) {
+    Log.debug('$reorderFlexId setDragIndex: $index');
+    dragStartIndex = index;
+    phantomIndex = index;
+    currentIndex = index;
     nextIndex = index;
   }
 

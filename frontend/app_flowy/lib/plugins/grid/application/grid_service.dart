@@ -27,10 +27,18 @@ class GridFFIService {
     return GridEventCreateTableRow(payload).send();
   }
 
-  Future<Either<RowPB, FlowyError>> createBoardCard(String groupId) {
+  Future<Either<RowPB, FlowyError>> createBoardCard(
+    String groupId,
+    String? startRowId,
+  ) {
     CreateBoardCardPayloadPB payload = CreateBoardCardPayloadPB.create()
       ..gridId = gridId
       ..groupId = groupId;
+
+    if (startRowId != null) {
+      payload.startRowId = startRowId;
+    }
+
     return GridEventCreateBoardCard(payload).send();
   }
 

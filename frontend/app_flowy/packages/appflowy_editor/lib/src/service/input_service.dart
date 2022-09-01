@@ -87,15 +87,18 @@ class _AppFlowyInputState extends State<AppFlowyInput>
 
   @override
   void attach(TextEditingValue textEditingValue) {
-    _textInputConnection ??= TextInput.attach(
-      this,
-      const TextInputConfiguration(
-        // TODO: customize
-        enableDeltaModel: true,
-        inputType: TextInputType.multiline,
-        textCapitalization: TextCapitalization.sentences,
-      ),
-    );
+    if (_textInputConnection == null ||
+        _textInputConnection!.attached == false) {
+      _textInputConnection = TextInput.attach(
+        this,
+        const TextInputConfiguration(
+          // TODO: customize
+          enableDeltaModel: true,
+          inputType: TextInputType.multiline,
+          textCapitalization: TextCapitalization.sentences,
+        ),
+      );
+    }
 
     _textInputConnection!
       ..setEditingState(textEditingValue)

@@ -52,9 +52,10 @@ dependencies:
   intl: ^0.17.0
   time: "^2.0.0"
   equatable: "^2.0.3"
-  freezed_annotation:
+  freezed_annotation: ^2.1.0
   get_it: "^7.1.3"
   flutter_bloc: "^8.0.1"
+  dartz: ^0.10.1
   provider: ^6.0.1
   path_provider: ^2.0.1
   window_size:
@@ -70,7 +71,7 @@ dependencies:
   url_launcher: ^6.0.2
   # file_picker: ^4.2.1
   clipboard: ^0.1.3
-  connectivity_plus: 2.2.0
+  connectivity_plus: ^2.3.6+1
   easy_localization: ^3.0.0
   textfield_tags: ^2.0.0
   # The following adds the Cupertino Icons font to your application.
@@ -81,13 +82,23 @@ dependencies:
   table_calendar: ^3.0.5
   reorderables: ^0.5.0
   linked_scroll_controller: ^0.2.0
+  hotkey_manager: ^0.1.7
+  fixnum: ^1.0.1
+  tuple: ^2.0.0
+  protobuf: "2.0.0"
+  charcode: ^1.3.1
+  collection: ^1.16.0
+  bloc: ^8.1.0
+  textstyle_extensions: "2.0.0-nullsafety"
+  shared_preferences: ^2.0.15
 
 dev_dependencies:
-  flutter_lints: ^1.0.0
+  flutter_lints: ^2.0.1
+
   flutter_test:
     sdk: flutter
-  build_runner:
-  freezed:
+  build_runner: ^2.2.0
+  freezed: ^2.1.0+1
   bloc_test: ^9.0.2
 
 dependency_overrides:

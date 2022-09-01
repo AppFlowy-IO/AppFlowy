@@ -101,10 +101,10 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
   }
 }
 
-typedef _SelectNumberFormatCallback = Function(NumberFormat format);
+typedef SelectNumberFormatCallback = Function(NumberFormat format);
 
 class NumberFormatList extends StatelessWidget {
-  final _SelectNumberFormatCallback onSelected;
+  final SelectNumberFormatCallback onSelected;
   final NumberFormat selectedFormat;
   const NumberFormatList(
       {required this.selectedFormat, required this.onSelected, Key? key})

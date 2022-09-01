@@ -141,5 +141,9 @@
       "lightLabel": "Világos mód",
       "darkLabel": "Éjjeli mód"
     }
+  },
+  "sideBar": {
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar"
   }
 }
