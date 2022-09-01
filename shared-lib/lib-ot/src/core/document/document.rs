@@ -10,10 +10,16 @@ pub struct DocumentTree {
     pub root: NodeId,
 }
 
+impl Default for DocumentTree {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DocumentTree {
     pub fn new() -> DocumentTree {
         let mut arena = Arena::new();
-        let root = arena.new_node(NodeData::new("root".into()));
+        let root = arena.new_node(NodeData::new("root"));
         DocumentTree { arena, root }
     }
 
@@ -25,7 +31,7 @@ impl DocumentTree {
         let mut iterate_node = self.root;
 
         for id in &position.0 {
-            let child = self.child_at_index_of_path(iterate_node, id.clone());
+            let child = self.child_at_index_of_path(iterate_node, *id);
             iterate_node = match child {
                 Some(node) => node,
                 None => return None,
@@ -74,13 +80,10 @@ impl DocumentTree {
     fn child_at_index_of_path(&self, at_node: NodeId, index: usize) -> Option<NodeId> {
         let children = at_node.children(&self.arena);
 
-        let mut counter = 0;
-        for child in children {
+        for (counter, child) in children.enumerate() {
             if counter == index {
                 return Some(child);
             }
-
-            counter += 1;
         }
 
         None
@@ -107,7 +110,7 @@ impl DocumentTree {
         let last_index = path.0[path.0.len() - 1];
         let parent_node = self
             .node_at_path(&Position(parent_path.to_vec()))
-            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         self.insert_child_at_index(parent_node, last_index, nodes.as_ref())
     }
@@ -132,7 +135,7 @@ impl DocumentTree {
 
         let node_to_insert = self
             .child_at_index_of_path(parent, index)
-            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         self.insert_subtree_before(&node_to_insert, insert_children);
         Ok(())
@@ -160,11 +163,11 @@ impl DocumentTree {
     fn apply_update(&mut self, path: &Position, attributes: &NodeAttributes) -> Result<(), OTError> {
         let update_node = self
             .node_at_path(path)
-            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
         let node_data = self.arena.get_mut(update_node).unwrap();
         let new_node = {
             let old_attributes = &node_data.get().attributes;
-            let new_attributes = NodeAttributes::compose(&old_attributes, attributes);
+            let new_attributes = NodeAttributes::compose(old_attributes, attributes);
             NodeData {
                 attributes: new_attributes,
                 ..node_data.get().clone()
@@ -177,7 +180,7 @@ impl DocumentTree {
     fn apply_delete(&mut self, path: &Position, len: usize) -> Result<(), OTError> {
         let mut update_node = self
             .node_at_path(path)
-            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
         for _ in 0..len {
             let next = update_node.following_siblings(&self.arena).next();
             update_node.remove_subtree(&mut self.arena);
@@ -193,7 +196,7 @@ impl DocumentTree {
     fn apply_text_edit(&mut self, path: &Position, delta: &TextDelta) -> Result<(), OTError> {
         let edit_node = self
             .node_at_path(path)
-            .ok_or(ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
         let node_data = self.arena.get_mut(edit_node).unwrap();
         let new_delta = if let Some(old_delta) = &node_data.get().delta {
             Some(old_delta.compose(delta)?)
