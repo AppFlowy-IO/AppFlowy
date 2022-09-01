@@ -34,6 +34,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       RichTextItem(title: "Card 8", subtitle: 'Aug 1, 2020 4:05 PM'),
       TextItem("Card 9"),
     ];
+
     final column1 = AFBoardColumnData(id: "To Do", name: "To Do", items: a);
     final column2 = AFBoardColumnData(
       id: "In Progress",
