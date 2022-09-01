@@ -41,7 +41,7 @@ class QuotedTextNodeWidget extends StatefulWidget {
 // customize
 
 class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
-    with Selectable, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable {
   @override
   final iconKey = GlobalKey();
 
@@ -50,8 +50,8 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
   final _iconRightPadding = 5.0;
 
   @override
-  Selectable<StatefulWidget> get forward =>
-      _richTextKey.currentState as Selectable;
+  SelectableMixin<StatefulWidget> get forward =>
+      _richTextKey.currentState as SelectableMixin;
 
   @override
   Widget build(BuildContext context) {

@@ -39,7 +39,7 @@ class HeadingTextNodeWidget extends StatefulWidget {
 
 // customize
 class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
-    with Selectable, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable {
   @override
   GlobalKey? get iconKey => null;
 
@@ -47,8 +47,8 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
   final _topPadding = 5.0;
 
   @override
-  Selectable<StatefulWidget> get forward =>
-      _richTextKey.currentState as Selectable;
+  SelectableMixin<StatefulWidget> get forward =>
+      _richTextKey.currentState as SelectableMixin;
 
   @override
   Offset get baseOffset {

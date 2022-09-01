@@ -42,7 +42,7 @@ class FlowyRichText extends StatefulWidget {
   State<FlowyRichText> createState() => _FlowyRichTextState();
 }
 
-class _FlowyRichTextState extends State<FlowyRichText> with Selectable {
+class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   var _textKey = GlobalKey();
   final _placeholderTextKey = GlobalKey();
 

@@ -4,7 +4,7 @@ import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
 mixin DefaultSelectable {
-  Selectable get forward;
+  SelectableMixin get forward;
 
   GlobalKey? get iconKey;
 
