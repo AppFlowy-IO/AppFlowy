@@ -21,7 +21,7 @@ and the Flutter guide for
 </p>
 
 <div align="center">
-    <img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/documentation/images/appflowy-editor-example.gif?raw=true" width = "900"/>
+    <img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/images/appflowy-editor-example.gif?raw=true" width = "700" style = "padding: 100"/>
 </div>
 
 ## Key Features
