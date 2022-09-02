@@ -1,3 +1,8 @@
+## 0.0.4
+* Support more shortcut events.
+* Fix some bugs.
+* Update the documentation.
+
 ## 0.0.3
 * Support insert image.
 * Support insert link.
