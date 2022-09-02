@@ -203,12 +203,14 @@ pub(crate) async fn move_field_handler(
 
 /// The FieldMeta contains multiple data, each of them belongs to a specific FieldType.
 async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
-    let s = field_rev
-        .get_type_option_str(field_type)
-        .unwrap_or_else(|| default_type_option_builder_from_type(field_type).entry().json_str());
+    let s = field_rev.get_type_option_str(field_type).unwrap_or_else(|| {
+        default_type_option_builder_from_type(field_type)
+            .data_format()
+            .json_str()
+    });
     let field_type: FieldType = field_rev.ty.into();
     let builder = type_option_builder_from_json_str(&s, &field_type);
-    let type_option_data = builder.entry().protobuf_bytes().to_vec();
+    let type_option_data = builder.data_format().protobuf_bytes().to_vec();
 
     Ok(type_option_data)
 }
@@ -337,7 +339,7 @@ pub(crate) async fn update_select_option_handler(
             type_option.delete_option(option);
         }
 
-        mut_field_rev.insert_type_option_entry(&*type_option);
+        mut_field_rev.insert_type_option(&*type_option);
         let _ = editor.replace_field(field_rev).await?;
 
         if let Some(cell_content_changeset) = cell_content_changeset {

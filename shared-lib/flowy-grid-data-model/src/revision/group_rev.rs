@@ -135,6 +135,10 @@ impl GroupRevision {
             visible: true,
         }
     }
+
+    pub fn update_with_other(&mut self, other: &GroupRevision) {
+        self.visible = other.visible
+    }
 }
 
 #[derive(Default, Serialize, Deserialize)]

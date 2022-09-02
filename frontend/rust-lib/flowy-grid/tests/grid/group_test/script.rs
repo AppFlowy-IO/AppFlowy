@@ -3,6 +3,7 @@ use flowy_grid::entities::{
     CreateRowParams, FieldChangesetParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
 use flowy_grid::services::cell::{delete_select_option_cell, insert_select_option_cell};
+use flowy_grid::services::field::{select_option_operation, SelectOptionOperation};
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset};
 use std::sync::Arc;
 use std::time::Duration;
@@ -211,6 +212,28 @@ impl GridGroupTest {
             .unwrap()
             .clone();
         return field;
+    }
+
+    pub async fn get_single_select_field(&self) -> Arc<FieldRevision> {
+        self.inner
+            .field_revs
+            .iter()
+            .find(|field_rev| {
+                let field_type: FieldType = field_rev.ty.into();
+                field_type.is_single_select()
+            })
+            .unwrap()
+            .clone()
+    }
+
+    pub async fn edit_single_select_type_option(&self, f: impl FnOnce(Box<dyn SelectOptionOperation>)) {
+        let single_select = self.get_single_select_field().await;
+        let mut field_rev = self.editor.get_field_rev(&single_select.id).await.unwrap();
+        let mut_field_rev = Arc::make_mut(&mut field_rev);
+        let mut type_option = select_option_operation(mut_field_rev)?;
+        f(type_option);
+        mut_field_rev.insert_type_option(&*type_option);
+        let _ = self.editor.replace_field(field_rev).await?;
     }
 }
 

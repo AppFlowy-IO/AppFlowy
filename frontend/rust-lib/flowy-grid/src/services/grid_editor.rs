@@ -179,6 +179,10 @@ impl GridRevisionEditor {
             None => Err(ErrorCode::FieldDoesNotExist.into()),
             Some(field_type) => {
                 let _ = self.update_field_rev(params, field_type).await?;
+                match self.view_manager.did_update_field(&field_id).await {
+                    Ok(_) => {}
+                    Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+                }
                 let _ = self.notify_did_update_grid_field(&field_id).await?;
                 Ok(())
             }
@@ -225,7 +229,9 @@ impl GridRevisionEditor {
 
         let type_option_json_builder = |field_type: &FieldTypeRevision| -> String {
             let field_type: FieldType = field_type.into();
-            return default_type_option_builder_from_type(&field_type).entry().json_str();
+            return default_type_option_builder_from_type(&field_type)
+                .data_format()
+                .json_str();
         };
 
         let _ = self
@@ -828,7 +834,7 @@ impl JsonDeserializer for TypeOptionJsonDeserializer {
     fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String> {
         // The type_option_data sent from Dart is serialized by protobuf.
         let builder = type_option_builder_from_bytes(type_option_data, &self.0);
-        let json = builder.entry().json_str();
+        let json = builder.data_format().json_str();
         tracing::trace!("Deserialize type option data to: {}", json);
         Ok(json)
     }

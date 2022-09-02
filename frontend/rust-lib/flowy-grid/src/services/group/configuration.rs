@@ -152,7 +152,7 @@ where
         } = merge_groups(&self.configuration.groups, new_groups);
 
         let deleted_group_ids = deleted_group_revs
-            .iter()
+            .into_iter()
             .map(|group_rev| group_rev.id)
             .collect::<Vec<String>>();
 
@@ -165,7 +165,7 @@ where
                 is_changed = true;
             }
 
-            for mut group_rev in &mut all_group_revs {
+            for group_rev in &mut all_group_revs {
                 match configuration
                     .groups
                     .iter()
@@ -177,8 +177,7 @@ where
                     }
                     Some(pos) => {
                         let mut old_group = configuration.groups.remove(pos);
-                        // Update the group configuration base on the GroupRevision
-                        group_rev.visible = old_group.visible;
+                        group_rev.update_with_other(&old_group);
 
                         // Take the GroupRevision if the name has changed
                         if is_group_changed(&group_rev, &old_group) {
@@ -192,6 +191,7 @@ where
             is_changed
         })?;
 
+        // The len of the filter_content_map should equal to the len of the all_group_revs
         debug_assert_eq!(filter_content_map.len(), all_group_revs.len());
         all_group_revs.into_iter().for_each(|group_rev| {
             if let Some(filter_content) = filter_content_map.get(&group_rev.id) {
@@ -207,21 +207,20 @@ where
 
         let new_groups = new_group_revs
             .into_iter()
-            .map(|group_rev| {
-                if let Some(filter_content) = filter_content_map.get(&group_rev.id) {
-                    let group = Group::new(
-                        group_rev.id,
-                        self.field_rev.id.clone(),
-                        group_rev.name,
-                        filter_content.clone(),
-                    );
-                    GroupPB::from(group)
-                }
+            .flat_map(|group_rev| {
+                let filter_content = filter_content_map.get(&group_rev.id)?;
+                let group = Group::new(
+                    group_rev.id,
+                    self.field_rev.id.clone(),
+                    group_rev.name,
+                    filter_content.clone(),
+                );
+                Some(GroupPB::from(group))
             })
             .collect();
 
         let changeset = GroupViewChangesetPB {
-            view_id,
+            view_id: self.view_id.clone(),
             new_groups,
             deleted_groups: deleted_group_ids,
             update_groups: vec![],

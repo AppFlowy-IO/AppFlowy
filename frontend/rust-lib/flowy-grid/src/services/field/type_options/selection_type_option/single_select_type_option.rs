@@ -9,7 +9,7 @@ use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
 use serde::{Deserialize, Serialize};
 
 // Single select
@@ -91,7 +91,7 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
         FieldType::SingleSelect
     }
 
-    fn entry(&self) -> &dyn TypeOptionDataEntry {
+    fn data_format(&self) -> &dyn TypeOptionDataFormat {
         &self.0
     }
 }

@@ -87,7 +87,7 @@ where
 {
     pub async fn new(field_rev: &Arc<FieldRevision>, mut configuration: GroupContext<C>) -> FlowyResult<Self> {
         let field_type_rev = field_rev.ty;
-        let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
+        let type_option = field_rev.get_type_option::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
         let _ = configuration.init_group_revs(groups)?;
 
@@ -274,7 +274,7 @@ where
 
     fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
         let field_type_rev = field_rev.ty;
-        let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
+        let type_option = field_rev.get_type_option::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &self.configuration, &type_option);
         let changeset = self.configuration.init_group_revs(groups)?;
         Ok(changeset)
