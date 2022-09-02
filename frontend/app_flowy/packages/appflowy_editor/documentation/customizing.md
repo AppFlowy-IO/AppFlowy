@@ -45,7 +45,7 @@ FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
 
 Then, we need to determine if the currently selected node is a `TextNode` and if the selection is collapsed.
 
-If so, we will ignore key event.
+If so, we will continue.
 
 ```dart
 // ...
@@ -122,9 +122,8 @@ Widget build(BuildContext context) {
 
 ![After](./images/customizing_a_shortcut_event_after.gif)
 
-_TODO: provide the link to the example_
+Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/underscore_to_italic_key_event_handler.dart) file of this example.
 
-[Complete code example]()
 
 ## Customizing a Component
 We will use a simple example to show how to quickly add a custom component.
@@ -287,6 +286,4 @@ return AppFlowyEditor(
 
 ![Whew!](./images/customizing_a_component.gif)
 
-_TODO: need a link to this code example_
-
-Check out the [complete code]() file of this example.
+Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/network_image_node_widget.dart) file of this example.
