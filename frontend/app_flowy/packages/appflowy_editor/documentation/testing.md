@@ -5,7 +5,6 @@ The directory structure of test files mirrors that of the code files, making it 
 For an overview of testing best practices in Flutter applications, please refer to Flutter's [introduction to widget testing](https://docs.flutter.dev/cookbook/testing/widget/introduction) as well as their [introduction to unit testing](https://docs.flutter.dev/cookbook/testing/unit/introduction).
 There you will learn how to do such things as such as simulate a click as well as leverage the `test` and `expect` functions.
 
-
 ## Testing Basic Editor Functions
 
 The example code below shows how to construct a document that will be used in our testing.
@@ -28,7 +27,7 @@ editor.insertTextNode(text, attributes: {
 });
 
 // Insert our text with the bulleted list style and the bold style.
-// TODO: what is the "deta" parameter doing here?
+// If you want to modify the style of the inserted text, you need to use the Delta parameter.
 editor.insertTextNode(
     '',
     attributes: {
@@ -42,24 +41,18 @@ editor.insertTextNode(
 
 The `startTesting` function of the editor must be called before you begin your test.
 
-*TODO: explain what startTesting does and how it will affect the code that is running.*
-
 ```dart
 await editor.startTesting();
 ```
 
 Get the number of nodes in the document.
 
-*TODO: shouldn't there be some sort of use of `expect` to ensure the number is correct?*
-
 ```dart
 final length = editor.documentLength;
 print(length);
 ```
 
-Get the node of a defined path.  In this case we are getting the first node of the document which is the text "Welcome to Appflowy 😁".
-
-*TODO: if there a document that explains the structure of documents and the different types of nodes, we should link it here*
+Get the node of a defined path. In this case we are getting the first node of the document which is the text "Welcome to Appflowy 😁".
 
 ```dart
 final firstTextNode = editor.nodeAtPath([0]) as TextNode;
@@ -83,12 +76,12 @@ print(selection);
 Next we will simulate the input of a shortcut key being pressed that will select all the text.
 
 ```dart
-// Command + A.
+// Meta + A.
 await editor.pressLogicKey(LogicalKeyboardKey.keyA, isMetaPressed: true);
-// Command + shift + S.
+// Meta + shift + S.
 await editor.pressLogicKey(
-    LogicalKeyboardKey.keyS, 
-    isMetaPressed: true, 
+    LogicalKeyboardKey.keyS,
+    isMetaPressed: true,
     isShiftPressed: true,
 );
 ```
@@ -102,7 +95,6 @@ editor.insertText(firstTextNode, 'Hello World', 0);
 
 Once the text has been added, we can get information about the text node.
 
-
 ```dart
 // Get the text of the first text node as plain text
 final textAfterInserted = firstTextNode.toRawString();
@@ -112,14 +104,11 @@ final attributes = firstTextNode.attributes;
 print(attributes);
 ```
 
-*TODO: it would be good to show output as to what these attributes are expected to look like as if the test were being run*
-
 ## A Complete Code Example
 
-In the example code below we are going to test `select_all_handler.dart` by inserting 100 lines of text that read "Welcome to Appflowy 😁" and then simulating the "selectAll" shortcut key being pressed.  Afterwards, we will `expect` that the current selection of the editor is equal to the selection of all the lines that were generated.
+In the example code below we are going to test `select_all_handler.dart` by inserting 100 lines of text that read "Welcome to Appflowy 😁" and then simulating the "selectAll" shortcut key being pressed.
 
-
-*TODO: it's unclear what the setUpAll function is doing and why*
+Afterwards, we will `expect` that the current selection of the editor is equal to the selection of all the lines that were generated.
 
 ```dart
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -154,4 +143,3 @@ void main() async {
   });
 }
 ```
-
