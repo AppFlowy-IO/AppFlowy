@@ -20,6 +20,12 @@ and the Flutter guide for
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
 </p>
 
+<p align="center">
+    <a href="https://codecov.io/gh/AppFlowy-IO/AppFlowy" >
+        <img src="https://codecov.io/gh/AppFlowy-IO/AppFlowy/branch/main/graph/badge.svg?token=YTFKUF70B6"/>
+    </a>
+</p>
+
 <div align="center">
     <img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/images/appflowy-editor-example.gif?raw=true" width = "700" style = "padding: 100"/>
 </div>
