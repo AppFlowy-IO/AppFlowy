@@ -40,15 +40,15 @@ class RichTextNodeWidget extends StatefulWidget {
 // customize
 
 class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
-    with Selectable, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable {
   @override
   GlobalKey? get iconKey => null;
 
   final _richTextKey = GlobalKey(debugLabel: 'rich_text');
 
   @override
-  Selectable<StatefulWidget> get forward =>
-      _richTextKey.currentState as Selectable;
+  SelectableMixin<StatefulWidget> get forward =>
+      _richTextKey.currentState as SelectableMixin;
 
   @override
   Widget build(BuildContext context) {

@@ -42,7 +42,7 @@ class NumberListTextNodeWidget extends StatefulWidget {
 // customize
 
 class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
-    with Selectable, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable {
   @override
   final iconKey = GlobalKey();
 
@@ -51,8 +51,8 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
   final _iconRightPadding = 5.0;
 
   @override
-  Selectable<StatefulWidget> get forward =>
-      _richTextKey.currentState as Selectable;
+  SelectableMixin<StatefulWidget> get forward =>
+      _richTextKey.currentState as SelectableMixin;
 
   @override
   Widget build(BuildContext context) {

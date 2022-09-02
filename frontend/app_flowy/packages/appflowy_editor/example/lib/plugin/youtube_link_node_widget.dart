@@ -33,7 +33,7 @@ class LinkNodeWidget extends StatefulWidget {
 }
 
 class _YouTubeLinkNodeWidgetState extends State<LinkNodeWidget>
-    with Selectable {
+    with SelectableMixin {
   Node get node => widget.node;
   EditorState get editorState => widget.editorState;
   String get src => widget.node.attributes['youtube_link'] as String;

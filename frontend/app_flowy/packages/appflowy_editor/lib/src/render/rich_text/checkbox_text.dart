@@ -40,7 +40,7 @@ class CheckboxNodeWidget extends StatefulWidget {
 }
 
 class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
-    with Selectable, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable {
   @override
   final iconKey = GlobalKey();
 
@@ -49,8 +49,8 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
   final _iconRightPadding = 5.0;
 
   @override
-  Selectable<StatefulWidget> get forward =>
-      _richTextKey.currentState as Selectable;
+  SelectableMixin<StatefulWidget> get forward =>
+      _richTextKey.currentState as SelectableMixin;
 
   @override
   Widget build(BuildContext context) {

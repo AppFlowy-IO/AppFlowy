@@ -32,7 +32,8 @@ class ImageNodeWidget extends StatefulWidget {
   State<ImageNodeWidget> createState() => _ImageNodeWidgetState();
 }
 
-class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
+class _ImageNodeWidgetState extends State<ImageNodeWidget>
+    with SelectableMixin {
   final _imageKey = GlobalKey();
 
   double? _imageWidth;
