@@ -2,6 +2,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/board/application/toolbar/board_setting_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_group.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_property.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -96,8 +97,8 @@ class BoardSettingList extends StatelessWidget {
                 .show(context);
             break;
           case BoardSettingAction.groups:
-            GridPropertyList(
-                    gridId: settingContext.viewId,
+            GridGroupList(
+                    viewId: settingContext.viewId,
                     fieldCache: settingContext.fieldCache)
                 .show(context);
             break;
