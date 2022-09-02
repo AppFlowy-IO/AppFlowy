@@ -2,11 +2,18 @@ name: Unit test(Rust)
 
 on:
   push:
-    branches: 
-      - 'main'
+    branches:
+      - "main"
+    paths:
+      - "frontend/rust-lib/**"
+      - "shared-lib/**"
+
   pull_request:
-    branches: 
-      - 'main'
+    branches:
+      - "main"
+    paths:
+      - "frontend/rust-lib/**"
+      - "shared-lib/**"
 
 env:
   CARGO_TERM_COLOR: always
