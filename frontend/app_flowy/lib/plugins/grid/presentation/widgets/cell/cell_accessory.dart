@@ -20,14 +20,36 @@ class GridCellAccessoryBuildContext {
   });
 }
 
-abstract class GridCellAccessory implements Widget {
+class GridCellAccessoryBuilder {
+  final GlobalKey _key = GlobalKey();
+
+  final Widget Function(Key key) _builder;
+
+  GridCellAccessoryBuilder({required Widget Function(Key key) builder})
+      : _builder = builder;
+
+  Widget build() => _builder(_key);
+
+  void onTap() {
+    (_key.currentState as GridCellAccessoryState).onTap();
+  }
+
+  bool enable() {
+    if (_key.currentState == null) {
+      return true;
+    }
+    return (_key.currentState as GridCellAccessoryState).enable();
+  }
+}
+
+abstract class GridCellAccessoryState {
   void onTap();
 
   // The accessory will be hidden if enable() return false;
   bool enable() => true;
 }
 
-class PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
+class PrimaryCellAccessory extends StatefulWidget {
   final VoidCallback onTapCallback;
   final bool isCellEditing;
   const PrimaryCellAccessory({
@@ -37,8 +59,14 @@ class PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
   }) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _PrimaryCellAccessoryState();
+}
+
+class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
+    with GridCellAccessoryState {
+  @override
   Widget build(BuildContext context) {
-    if (isCellEditing) {
+    if (widget.isCellEditing) {
       return const SizedBox();
     } else {
       final theme = context.watch<AppTheme>();
@@ -53,10 +81,10 @@ class PrimaryCellAccessory extends StatelessWidget with GridCellAccessory {
   }
 
   @override
-  void onTap() => onTapCallback();
+  void onTap() => widget.onTapCallback();
 
   @override
-  bool enable() => !isCellEditing;
+  bool enable() => !widget.isCellEditing;
 }
 
 class AccessoryHover extends StatefulWidget {
@@ -170,7 +198,7 @@ class _Background extends StatelessWidget {
 }
 
 class CellAccessoryContainer extends StatelessWidget {
-  final List<GridCellAccessory> accessories;
+  final List<GridCellAccessoryBuilder> accessories;
   const CellAccessoryContainer({required this.accessories, Key? key})
       : super(key: key);
 
@@ -186,7 +214,7 @@ class CellAccessoryContainer extends StatelessWidget {
           width: 26,
           height: 26,
           padding: const EdgeInsets.all(3),
-          child: accessory,
+          child: accessory.build(),
         ),
       );
       return GestureDetector(
