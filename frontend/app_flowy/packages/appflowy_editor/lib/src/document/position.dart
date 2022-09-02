@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import './path.dart';
 
 class Position {
@@ -21,7 +19,7 @@ class Position {
 
   @override
   int get hashCode {
-    final pathHash = hashList(path);
+    final pathHash = Object.hashAll(path);
     return Object.hash(pathHash, offset);
   }
 

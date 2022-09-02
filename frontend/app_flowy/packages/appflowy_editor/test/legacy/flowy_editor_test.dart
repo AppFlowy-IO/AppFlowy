@@ -1,7 +1,6 @@
 import 'package:appflowy_editor/src/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -75,7 +74,7 @@ void main() {
     final path2 = <int>[1];
     expect(pathEquals(path1, path2), true);
 
-    expect(hashList(path1), hashList(path2));
+    expect(Object.hashAll(path1), Object.hashAll(path2));
   });
 
   test('test path utils 2', () {
@@ -83,7 +82,7 @@ void main() {
     final path2 = <int>[2];
     expect(pathEquals(path1, path2), false);
 
-    expect(hashList(path1) != hashList(path2), true);
+    expect(Object.hashAll(path1) != Object.hashAll(path2), true);
   });
 
   test('test position comparator', () {
