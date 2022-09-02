@@ -178,7 +178,7 @@ mod tests {
                 node_type: "text".into(),
                 attributes: NodeAttributes::new(),
                 delta: None,
-                children: vec![Box::new(NodeSubTree::new("text".into()))],
+                children: vec![Box::new(NodeSubTree::new("text"))],
             })],
         };
         let result = serde_json::to_string(&insert).unwrap();

@@ -7,7 +7,8 @@ use crate::entities::{
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
 use crate::services::group::{
-    make_group_controller, GroupConfigurationReader, GroupConfigurationWriter, GroupController, MoveGroupRowContext,
+    find_group_field, make_group_controller, GroupConfigurationReader, GroupConfigurationWriter, GroupController,
+    MoveGroupRowContext,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
@@ -34,7 +35,6 @@ pub struct GridViewRevisionEditor {
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
     scheduler: Arc<dyn GridServiceTaskScheduler>,
 }
-
 impl GridViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all, err)]
     pub(crate) async fn new(
@@ -52,25 +52,15 @@ impl GridViewRevisionEditor {
         let view_revision_pad = rev_manager.load::<GridViewRevisionPadBuilder>(Some(cloud)).await?;
         let pad = Arc::new(RwLock::new(view_revision_pad));
         let rev_manager = Arc::new(rev_manager);
-
-        // Load group
-        let configuration_reader = GroupConfigurationReaderImpl(pad.clone());
-        let configuration_writer = GroupConfigurationWriterImpl {
-            user_id: user_id.to_owned(),
-            rev_manager: rev_manager.clone(),
-            view_pad: pad.clone(),
-        };
-        let field_revs = field_delegate.get_field_revs().await;
-        let row_revs = row_delegate.gv_row_revs().await;
-        let group_controller = make_group_controller(
+        let group_controller = new_group_controller(
+            user_id.to_owned(),
             view_id.clone(),
-            field_revs,
-            row_revs,
-            configuration_reader,
-            configuration_writer,
+            pad.clone(),
+            rev_manager.clone(),
+            field_delegate.clone(),
+            row_delegate.clone(),
         )
         .await?;
-
         let user_id = user_id.to_owned();
         Ok(Self {
             pad,
@@ -258,6 +248,37 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
+    pub(crate) async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
+        if let Some(field_rev) = self.field_delegate.get_field_rev(field_id).await {
+            let new_group_controller = new_group_controller_with_field_rev(
+                self.user_id.clone(),
+                self.view_id.clone(),
+                self.pad.clone(),
+                self.rev_manager.clone(),
+                field_rev,
+                self.row_delegate.clone(),
+            )
+            .await?;
+
+            let new_groups = new_group_controller.groups().into_iter().map(GroupPB::from).collect();
+
+            *self.group_controller.write().await = new_group_controller;
+            let changeset = GroupViewChangesetPB {
+                view_id: self.view_id.clone(),
+                new_groups,
+                ..Default::default()
+            };
+
+            debug_assert!(!changeset.is_empty());
+            if !changeset.is_empty() {
+                send_dart_notification(&changeset.view_id, GridNotification::DidGroupByNewField)
+                    .payload(changeset)
+                    .send();
+            }
+        }
+        Ok(())
+    }
+
     pub async fn notify_did_update_group(&self, changeset: GroupChangesetPB) {
         send_dart_notification(&changeset.group_id, GridNotification::DidUpdateGroup)
             .payload(changeset)
@@ -314,6 +335,48 @@ impl GridViewRevisionEditor {
         }
     }
 }
+async fn new_group_controller(
+    user_id: String,
+    view_id: String,
+    pad: Arc<RwLock<GridViewRevisionPad>>,
+    rev_manager: Arc<RevisionManager>,
+    field_delegate: Arc<dyn GridViewFieldDelegate>,
+    row_delegate: Arc<dyn GridViewRowDelegate>,
+) -> FlowyResult<Box<dyn GroupController>> {
+    let configuration_reader = GroupConfigurationReaderImpl(pad.clone());
+    let field_revs = field_delegate.get_field_revs().await;
+    // Read the group field or find a new group field
+    let field_rev = configuration_reader
+        .get_configuration()
+        .await
+        .and_then(|configuration| {
+            field_revs
+                .iter()
+                .find(|field_rev| field_rev.id == configuration.field_id)
+                .cloned()
+        })
+        .unwrap_or_else(|| find_group_field(&field_revs).unwrap());
+
+    new_group_controller_with_field_rev(user_id, view_id, pad, rev_manager, field_rev, row_delegate).await
+}
+
+async fn new_group_controller_with_field_rev(
+    user_id: String,
+    view_id: String,
+    pad: Arc<RwLock<GridViewRevisionPad>>,
+    rev_manager: Arc<RevisionManager>,
+    field_rev: Arc<FieldRevision>,
+    row_delegate: Arc<dyn GridViewRowDelegate>,
+) -> FlowyResult<Box<dyn GroupController>> {
+    let configuration_reader = GroupConfigurationReaderImpl(pad.clone());
+    let configuration_writer = GroupConfigurationWriterImpl {
+        user_id,
+        rev_manager,
+        view_pad: pad,
+    };
+    let row_revs = row_delegate.gv_row_revs().await;
+    make_group_controller(view_id, field_rev, row_revs, configuration_reader, configuration_writer).await
+}
 
 async fn apply_change(
     user_id: &str,
@@ -353,10 +416,10 @@ impl RevisionObjectBuilder for GridViewRevisionPadBuilder {
 struct GroupConfigurationReaderImpl(Arc<RwLock<GridViewRevisionPad>>);
 
 impl GroupConfigurationReader for GroupConfigurationReaderImpl {
-    fn get_configuration(&self, field_rev: Arc<FieldRevision>) -> AFFuture<Option<Arc<GroupConfigurationRevision>>> {
+    fn get_configuration(&self) -> AFFuture<Option<Arc<GroupConfigurationRevision>>> {
         let view_pad = self.0.clone();
         wrap_future(async move {
-            let mut groups = view_pad.read().await.groups.get_objects(&field_rev.id, &field_rev.ty)?;
+            let mut groups = view_pad.read().await.get_all_groups();
             if groups.is_empty() {
                 None
             } else {
@@ -411,7 +474,7 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
         })
         .unwrap_or_default();
     let groups_by_field_id = view_pad
-        .get_all_groups(field_revs)
+        .get_groups_by_field_revs(field_revs)
         .map(|groups_by_field_id| {
             groups_by_field_id
                 .into_iter()

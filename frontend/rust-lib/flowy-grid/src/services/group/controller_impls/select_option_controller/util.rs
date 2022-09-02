@@ -127,8 +127,8 @@ pub fn move_select_option_row(
 }
 
 pub fn generate_select_option_groups(
-    field_id: &str,
-    group_ctx: &SelectOptionGroupContext,
+    _field_id: &str,
+    _group_ctx: &SelectOptionGroupContext,
     options: &[SelectOptionPB],
 ) -> Vec<GeneratedGroup> {
     let groups = options

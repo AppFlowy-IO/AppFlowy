@@ -35,46 +35,46 @@ impl GroupControllerSharedOperation for DefaultGroupController {
         vec![self.group.clone()]
     }
 
-    fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
+    fn get_group(&self, _group_id: &str) -> Option<(usize, Group)> {
         Some((0, self.group.clone()))
     }
 
-    fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()> {
+    fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], _field_rev: &FieldRevision) -> FlowyResult<()> {
         row_revs.iter().for_each(|row_rev| {
             self.group.add_row(RowPB::from(row_rev));
         });
         Ok(())
     }
 
-    fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
+    fn move_group(&mut self, _from_group_id: &str, _to_group_id: &str) -> FlowyResult<()> {
         Ok(())
     }
 
     fn did_update_row(
         &mut self,
-        row_rev: &RowRevision,
-        field_rev: &FieldRevision,
+        _row_rev: &RowRevision,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
         todo!()
     }
 
     fn did_delete_row(
         &mut self,
-        row_rev: &RowRevision,
-        field_rev: &FieldRevision,
+        _row_rev: &RowRevision,
+        _field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
         todo!()
     }
 
-    fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
+    fn move_group_row(&mut self, _context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
         todo!()
     }
 
-    fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
+    fn did_update_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
         Ok(None)
     }
 }
 
 impl GroupController for DefaultGroupController {
-    fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {}
+    fn will_create_row(&mut self, _row_rev: &mut RowRevision, _field_rev: &FieldRevision, _group_id: &str) {}
 }

@@ -195,6 +195,8 @@ fn make_test_grid() -> BuildGridContext {
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(0))
                         }
+                        FieldType::MultiSelect => row_builder
+                            .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
                         _ => "".to_owned(),
                     };
@@ -209,6 +211,8 @@ fn make_test_grid() -> BuildGridContext {
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(0))
                         }
+                        FieldType::MultiSelect => row_builder
+                            .insert_multi_select_cell(|mut options| vec![options.remove(0), options.remove(0)]),
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("true"),
                         _ => "".to_owned(),
                     };
@@ -222,6 +226,9 @@ fn make_test_grid() -> BuildGridContext {
                         FieldType::DateTime => row_builder.insert_date_cell("1647251762"),
                         FieldType::SingleSelect => {
                             row_builder.insert_single_select_cell(|mut options| options.remove(1))
+                        }
+                        FieldType::MultiSelect => {
+                            row_builder.insert_multi_select_cell(|mut options| vec![options.remove(0)])
                         }
                         FieldType::Checkbox => row_builder.insert_checkbox_cell("false"),
                         _ => "".to_owned(),

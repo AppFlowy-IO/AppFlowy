@@ -16,7 +16,7 @@ use std::sync::Arc;
 #[tracing::instrument(level = "trace", skip_all, err)]
 pub async fn make_group_controller<R, W>(
     view_id: String,
-    field_revs: Vec<Arc<FieldRevision>>,
+    field_rev: Arc<FieldRevision>,
     row_revs: Vec<Arc<RowRevision>>,
     configuration_reader: R,
     configuration_writer: W,
@@ -25,11 +25,12 @@ where
     R: GroupConfigurationReader,
     W: GroupConfigurationWriter,
 {
-    let field_rev = find_group_field(&field_revs).unwrap();
     let field_type: FieldType = field_rev.ty.into();
+
     let mut group_controller: Box<dyn GroupController>;
     let configuration_reader = Arc::new(configuration_reader);
     let configuration_writer = Arc::new(configuration_writer);
+
     match field_type {
         FieldType::SingleSelect => {
             let configuration =
@@ -61,7 +62,7 @@ where
     Ok(group_controller)
 }
 
-fn find_group_field(field_revs: &[Arc<FieldRevision>]) -> Option<Arc<FieldRevision>> {
+pub fn find_group_field(field_revs: &[Arc<FieldRevision>]) -> Option<Arc<FieldRevision>> {
     let field_rev = field_revs
         .iter()
         .find(|field_rev| {

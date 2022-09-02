@@ -89,6 +89,11 @@ class AFBoardDataController extends ChangeNotifier
     if (columnIds.isNotEmpty && notify) notifyListeners();
   }
 
+  void clear() {
+    _columnDatas.clear();
+    notifyListeners();
+  }
+
   AFBoardColumnDataController? getColumnController(String columnId) {
     final columnController = _columnControllers[columnId];
     if (columnController == null) {

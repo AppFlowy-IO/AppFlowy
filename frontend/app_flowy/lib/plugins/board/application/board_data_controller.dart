@@ -18,6 +18,7 @@ typedef DidLoadGroups = void Function(List<GroupPB>);
 typedef OnUpdatedGroup = void Function(List<GroupPB>);
 typedef OnDeletedGroup = void Function(List<String>);
 typedef OnInsertedGroup = void Function(List<InsertedGroupPB>);
+typedef OnResetGroups = void Function(List<GroupPB>);
 
 typedef OnRowsChanged = void Function(
   List<RowInfo>,
@@ -65,6 +66,7 @@ class BoardDataController {
     required OnUpdatedGroup onUpdatedGroup,
     required OnDeletedGroup onDeletedGroup,
     required OnInsertedGroup onInsertedGroup,
+    required OnResetGroups onResetGroups,
     required OnError? onError,
   }) {
     _onGridChanged = onGridChanged;
@@ -77,24 +79,32 @@ class BoardDataController {
       _onFieldsChanged?.call(UnmodifiableListView(fields));
     });
 
-    _listener.start(onBoardChanged: (result) {
-      result.fold(
-        (changeset) {
-          if (changeset.updateGroups.isNotEmpty) {
-            onUpdatedGroup.call(changeset.updateGroups);
-          }
+    _listener.start(
+      onBoardChanged: (result) {
+        result.fold(
+          (changeset) {
+            if (changeset.updateGroups.isNotEmpty) {
+              onUpdatedGroup.call(changeset.updateGroups);
+            }
 
-          if (changeset.insertedGroups.isNotEmpty) {
-            onInsertedGroup.call(changeset.insertedGroups);
-          }
+            if (changeset.insertedGroups.isNotEmpty) {
+              onInsertedGroup.call(changeset.insertedGroups);
+            }
 
-          if (changeset.deletedGroups.isNotEmpty) {
-            onDeletedGroup.call(changeset.deletedGroups);
-          }
-        },
-        (e) => _onError?.call(e),
-      );
-    });
+            if (changeset.deletedGroups.isNotEmpty) {
+              onDeletedGroup.call(changeset.deletedGroups);
+            }
+          },
+          (e) => _onError?.call(e),
+        );
+      },
+      onGroupByNewField: (result) {
+        result.fold(
+          (groups) => onResetGroups(groups),
+          (e) => _onError?.call(e),
+        );
+      },
+    );
   }
 
   Future<Either<Unit, FlowyError>> loadData() async {

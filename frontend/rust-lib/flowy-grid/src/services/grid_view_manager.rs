@@ -84,6 +84,12 @@ impl GridViewManager {
         }
     }
 
+    pub(crate) async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        let _ = view_editor.group_by_field(field_id).await?;
+        Ok(())
+    }
+
     pub(crate) async fn did_update_cell(&self, row_id: &str, _field_id: &str) {
         self.did_update_row(row_id).await
     }

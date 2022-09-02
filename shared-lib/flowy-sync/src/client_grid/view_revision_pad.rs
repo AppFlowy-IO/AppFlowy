@@ -48,8 +48,12 @@ impl GridViewRevisionPad {
         Self::from_delta(delta)
     }
 
-    pub fn get_all_groups(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
-        self.groups.get_all_objects(field_revs)
+    pub fn get_groups_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
+        self.groups.get_objects_by_field_revs(field_revs)
+    }
+
+    pub fn get_all_groups(&self) -> Vec<Arc<GroupConfigurationRevision>> {
+        self.groups.get_all_objects()
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
@@ -111,7 +115,7 @@ impl GridViewRevisionPad {
     }
 
     pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Option<FilterConfigurationsByFieldId> {
-        self.filters.get_all_objects(field_revs)
+        self.filters.get_objects_by_field_revs(field_revs)
     }
 
     pub fn get_filters(

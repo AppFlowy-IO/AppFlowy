@@ -7,11 +7,9 @@ use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
 use crate::services::group::controller_impls::select_option_controller::util::*;
-use crate::services::group::entities::Group;
+
 use crate::services::group::GeneratedGroup;
-use flowy_grid_data_model::revision::{
-    FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision,
-};
+use flowy_grid_data_model::revision::{FieldRevision, RowRevision, SelectOptionGroupConfigurationRevision};
 
 // MultiSelect
 pub type MultiSelectGroupController = GenericGroupController<
@@ -30,7 +28,7 @@ impl GroupAction for MultiSelectGroupController {
 
     fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
-        self.configuration.iter_mut_groups(|group| {
+        self.group_ctx.iter_mut_groups(|group| {
             if let Some(changeset) = add_select_option_row(group, cell_data, row_rev) {
                 changesets.push(changeset);
             }
@@ -40,7 +38,7 @@ impl GroupAction for MultiSelectGroupController {
 
     fn remove_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
-        self.configuration.iter_mut_groups(|group| {
+        self.group_ctx.iter_mut_groups(|group| {
             if let Some(changeset) = remove_select_option_row(group, cell_data, row_rev) {
                 changesets.push(changeset);
             }
@@ -50,7 +48,7 @@ impl GroupAction for MultiSelectGroupController {
 
     fn move_row(&mut self, cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
         let mut group_changeset = vec![];
-        self.configuration.iter_mut_groups(|group| {
+        self.group_ctx.iter_mut_groups(|group| {
             if let Some(changeset) = move_select_option_row(group, cell_data, &mut context) {
                 group_changeset.push(changeset);
             }
@@ -61,7 +59,7 @@ impl GroupAction for MultiSelectGroupController {
 
 impl GroupController for MultiSelectGroupController {
     fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str) {
-        match self.configuration.get_group(group_id) {
+        match self.group_ctx.get_group(group_id) {
             None => tracing::warn!("Can not find the group: {}", group_id),
             Some((_, group)) => {
                 let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);

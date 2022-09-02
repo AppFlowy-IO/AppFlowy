@@ -1,4 +1,4 @@
-use crate::entities::{GroupPB, GroupViewChangesetPB, InsertedGroupPB};
+use crate::entities::{GroupPB, GroupViewChangesetPB};
 use crate::services::group::{default_group_configuration, GeneratedGroup, Group};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
@@ -12,7 +12,7 @@ use std::marker::PhantomData;
 use std::sync::Arc;
 
 pub trait GroupConfigurationReader: Send + Sync + 'static {
-    fn get_configuration(&self, field_rev: Arc<FieldRevision>) -> AFFuture<Option<Arc<GroupConfigurationRevision>>>;
+    fn get_configuration(&self) -> AFFuture<Option<Arc<GroupConfigurationRevision>>>;
 }
 
 pub trait GroupConfigurationWriter: Send + Sync + 'static {
@@ -38,8 +38,8 @@ impl<T> std::fmt::Display for GroupContext<T> {
 }
 
 pub struct GroupContext<C> {
-    view_id: String,
-    pub configuration: Arc<GroupConfigurationRevision>,
+    pub view_id: String,
+    configuration: Arc<GroupConfigurationRevision>,
     configuration_content: PhantomData<C>,
     field_rev: Arc<FieldRevision>,
     groups_map: IndexMap<String, Group>,
@@ -69,7 +69,7 @@ where
             rows: vec![],
             filter_content: "".to_string(),
         };
-        let configuration = match reader.get_configuration(field_rev.clone()).await {
+        let configuration = match reader.get_configuration().await {
             None => {
                 let default_configuration = default_group_configuration(&field_rev);
                 writer
@@ -133,9 +133,10 @@ where
         }
     }
 
-    pub(crate) fn init_group_revs(
+    pub(crate) fn init_groups(
         &mut self,
         generated_groups: Vec<GeneratedGroup>,
+        reset: bool,
     ) -> FlowyResult<Option<GroupViewChangesetPB>> {
         let mut new_groups = vec![];
         let mut filter_content_map = HashMap::new();
@@ -149,7 +150,11 @@ where
             new_group_revs,
             updated_group_revs: _,
             deleted_group_revs,
-        } = merge_groups(&self.configuration.groups, new_groups);
+        } = if reset {
+            merge_groups(&[], new_groups)
+        } else {
+            merge_groups(&self.configuration.groups, new_groups)
+        };
 
         let deleted_group_ids = deleted_group_revs
             .into_iter()
@@ -180,7 +185,7 @@ where
                         group_rev.update_with_other(&old_group);
 
                         // Take the GroupRevision if the name has changed
-                        if is_group_changed(&group_rev, &old_group) {
+                        if is_group_changed(group_rev, &old_group) {
                             old_group.name = group_rev.name.clone();
                             is_changed = true;
                             configuration.groups.insert(pos, old_group);

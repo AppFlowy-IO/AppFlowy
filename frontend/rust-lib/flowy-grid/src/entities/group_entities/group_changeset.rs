@@ -145,7 +145,10 @@ pub struct GroupViewChangesetPB {
 
 impl GroupViewChangesetPB {
     pub fn is_empty(&self) -> bool {
-        self.inserted_groups.is_empty() && self.deleted_groups.is_empty() && self.update_groups.is_empty()
+        self.new_groups.is_empty()
+            && self.inserted_groups.is_empty()
+            && self.deleted_groups.is_empty()
+            && self.update_groups.is_empty()
     }
 }
 

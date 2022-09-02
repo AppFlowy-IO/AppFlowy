@@ -5,7 +5,6 @@ use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
-use crate::services::group::entities::Group;
 
 use crate::services::group::GeneratedGroup;
 use flowy_grid_data_model::revision::{CheckboxGroupConfigurationRevision, FieldRevision, GroupRevision, RowRevision};
@@ -54,9 +53,9 @@ impl GroupGenerator for CheckboxGroupGenerator {
     type TypeOptionType = CheckboxTypeOptionPB;
 
     fn generate_groups(
-        field_id: &str,
-        group_ctx: &Self::Context,
-        type_option: &Option<Self::TypeOptionType>,
+        _field_id: &str,
+        _group_ctx: &Self::Context,
+        _type_option: &Option<Self::TypeOptionType>,
     ) -> Vec<GeneratedGroup> {
         let check_group = GeneratedGroup {
             group_rev: GroupRevision::new("true".to_string(), CHECK.to_string()),

@@ -74,7 +74,7 @@ pub trait GroupControllerSharedOperation: Send + Sync {
 pub struct GenericGroupController<C, T, G, P> {
     pub field_id: String,
     pub type_option: Option<T>,
-    pub configuration: GroupContext<C>,
+    pub group_ctx: GroupContext<C>,
     group_action_phantom: PhantomData<G>,
     cell_parser_phantom: PhantomData<P>,
 }
@@ -89,12 +89,12 @@ where
         let field_type_rev = field_rev.ty;
         let type_option = field_rev.get_type_option::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
-        let _ = configuration.init_group_revs(groups)?;
+        let _ = configuration.init_groups(groups, false)?;
 
         Ok(Self {
             field_id: field_rev.id.clone(),
             type_option,
-            configuration,
+            group_ctx: configuration,
             group_action_phantom: PhantomData,
             cell_parser_phantom: PhantomData,
         })
@@ -107,7 +107,7 @@ where
         row_rev: &RowRevision,
         other_group_changesets: &[GroupChangesetPB],
     ) -> GroupChangesetPB {
-        let default_group = self.configuration.get_mut_default_group();
+        let default_group = self.group_ctx.get_mut_default_group();
 
         // [other_group_inserted_row] contains all the inserted rows except the default group.
         let other_group_inserted_row = other_group_changesets
@@ -182,11 +182,11 @@ where
     }
 
     fn groups(&self) -> Vec<Group> {
-        self.configuration.clone_groups()
+        self.group_ctx.clone_groups()
     }
 
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
-        let group = self.configuration.get_group(group_id)?;
+        let group = self.group_ctx.get_group(group_id)?;
         Some((group.0, group.1.clone()))
     }
 
@@ -197,7 +197,7 @@ where
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
                 let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
                 let cell_data = cell_bytes.parser::<P>()?;
-                for group in self.configuration.concrete_groups() {
+                for group in self.group_ctx.concrete_groups() {
                     if self.can_group(&group.filter_content, &cell_data) {
                         grouped_rows.push(GroupedRow {
                             row: row_rev.into(),
@@ -207,25 +207,25 @@ where
                 }
 
                 if grouped_rows.is_empty() {
-                    self.configuration.get_mut_default_group().add_row(row_rev.into());
+                    self.group_ctx.get_mut_default_group().add_row(row_rev.into());
                 } else {
                     for group_row in grouped_rows {
-                        if let Some(group) = self.configuration.get_mut_group(&group_row.group_id) {
+                        if let Some(group) = self.group_ctx.get_mut_group(&group_row.group_id) {
                             group.add_row(group_row.row);
                         }
                     }
                 }
             } else {
-                self.configuration.get_mut_default_group().add_row(row_rev.into());
+                self.group_ctx.get_mut_default_group().add_row(row_rev.into());
             }
         }
 
-        tracing::Span::current().record("group_result", &format!("{},", self.configuration,).as_str());
+        tracing::Span::current().record("group_result", &format!("{},", self.group_ctx,).as_str());
         Ok(())
     }
 
     fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()> {
-        self.configuration.move_group(from_group_id, to_group_id)
+        self.group_ctx.move_group(from_group_id, to_group_id)
     }
 
     fn did_update_row(
@@ -273,10 +273,9 @@ where
     }
 
     fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
-        let field_type_rev = field_rev.ty;
-        let type_option = field_rev.get_type_option::<T>(field_type_rev);
-        let groups = G::generate_groups(&field_rev.id, &self.configuration, &type_option);
-        let changeset = self.configuration.init_group_revs(groups)?;
+        let type_option = field_rev.get_type_option::<T>(field_rev.ty);
+        let groups = G::generate_groups(&field_rev.id, &self.group_ctx, &type_option);
+        let changeset = self.group_ctx.init_groups(groups, false)?;
         Ok(changeset)
     }
 }

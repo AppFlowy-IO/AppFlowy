@@ -212,7 +212,8 @@ impl GridRevisionEditor {
     }
 
     pub async fn group_field(&self, field_id: &str) -> FlowyResult<()> {
-        todo!()
+        let _ = self.view_manager.group_by_field(field_id).await?;
+        Ok(())
     }
 
     pub async fn switch_to_field_type(&self, field_id: &str, field_type: &FieldType) -> FlowyResult<()> {
