@@ -25,7 +25,7 @@ pub struct GridSettingPB {
     pub filter_configuration_by_field_id: HashMap<String, RepeatedGridConfigurationFilterPB>,
 
     #[pb(index = 4)]
-    pub group_configuration_by_field_id: HashMap<String, RepeatedGridGroupConfigurationPB>,
+    pub group_configurations: RepeatedGridGroupConfigurationPB,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]

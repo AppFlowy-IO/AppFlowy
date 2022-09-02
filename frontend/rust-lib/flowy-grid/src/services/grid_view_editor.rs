@@ -464,7 +464,7 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
     let current_layout_type: GridLayout = view_pad.layout.clone().into();
-    let filters_by_field_id = view_pad
+    let filter_configuration_by_field_id = view_pad
         .get_all_filters(field_revs)
         .map(|filters_by_field_id| {
             filters_by_field_id
@@ -473,21 +473,21 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
                 .collect::<HashMap<String, RepeatedGridConfigurationFilterPB>>()
         })
         .unwrap_or_default();
-    let groups_by_field_id = view_pad
+    let group_configurations = view_pad
         .get_groups_by_field_revs(field_revs)
         .map(|groups_by_field_id| {
             groups_by_field_id
                 .into_iter()
-                .map(|(k, v)| (k, v.into()))
-                .collect::<HashMap<String, RepeatedGridGroupConfigurationPB>>()
+                .map(|(_, v)| v.into())
+                .collect::<RepeatedGridGroupConfigurationPB>()
         })
         .unwrap_or_default();
 
     GridSettingPB {
         layouts: GridLayoutPB::all(),
         current_layout_type,
-        filter_configuration_by_field_id: filters_by_field_id,
-        group_configuration_by_field_id: groups_by_field_id,
+        filter_configuration_by_field_id,
+        group_configurations,
     }
 }
 

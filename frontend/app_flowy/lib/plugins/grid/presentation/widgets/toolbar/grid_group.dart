@@ -1,12 +1,22 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+<<<<<<< HEAD
+=======
+import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
+>>>>>>> 0e1004785 (chore: config switch group field UI)
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+<<<<<<< HEAD
+=======
+import 'package:flowy_infra_ui/widget/spacing.dart';
+>>>>>>> 0e1004785 (chore: config switch group field UI)
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:app_flowy/plugins/grid/application/setting/group_bloc.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridGroupList extends StatelessWidget {
   final String viewId;
@@ -19,7 +29,31 @@ class GridGroupList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return BlocProvider(
+      create: (context) => GridGroupBloc(gridId: viewId, fieldCache: fieldCache)
+        ..add(const GridGroupEvent.initial()),
+      child: BlocBuilder<GridGroupBloc, GridGroupState>(
+        builder: (context, state) {
+          final cells = state.fields.map((field) {
+            return _GridGroupCell(
+              field: field,
+              key: ValueKey(field.id),
+            );
+          }).toList();
+
+          return ListView.separated(
+            shrinkWrap: true,
+            itemCount: cells.length,
+            itemBuilder: (BuildContext context, int index) {
+              return cells[index];
+            },
+            separatorBuilder: (BuildContext context, int index) {
+              return VSpace(GridSize.typeOptionSeparatorHeight);
+            },
+          );
+        },
+      ),
+    );
   }
 
   void show(BuildContext context) {}
