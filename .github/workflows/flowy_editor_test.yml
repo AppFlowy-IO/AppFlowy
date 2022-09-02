@@ -37,4 +37,11 @@ jobs:
         working-directory: frontend/app_flowy/packages/appflowy_editor
         run: |
           flutter pub get
-          flutter test
+          flutter test --coverage
+
+      - uses: codecov/codecov-action@v3
+        with: 
+          name: appflowy_editor
+          fail_ci_if_error: true
+          verbose: true
+
