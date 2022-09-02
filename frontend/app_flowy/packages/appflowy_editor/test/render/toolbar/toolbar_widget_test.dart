@@ -6,8 +6,6 @@ void main() async {
   });
 
   group('toolbar_widget.dart', () {
-    testWidgets('test toolbar widget', (tester) async {
-      expect(true, true);
-    });
+    testWidgets('test toolbar widget', (tester) async {});
   });
 }

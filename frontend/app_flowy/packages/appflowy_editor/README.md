@@ -17,13 +17,12 @@ and the Flutter guide for
 
 <p align="center">
     <a href="https://discord.gg/ZCCYN4Anzq"><b>Discord</b></a> •
-    <a href="https://twitter.com/appflowy"><b>Twitter</b></a> 
-    
+    <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
 </p>
 
 <p align="center">
     <a href="https://codecov.io/gh/AppFlowy-IO/AppFlowy" >
-        <img src="https://codecov.io/gh/AppFlowy-IO/AppFlowy/branch/main/graph/badge.svg?token=L60UELQJFB"/>
+        <img src="https://codecov.io/gh/AppFlowy-IO/AppFlowy/branch/main/graph/badge.svg?token=YTFKUF70B6"/>
     </a>
 </p>
 
