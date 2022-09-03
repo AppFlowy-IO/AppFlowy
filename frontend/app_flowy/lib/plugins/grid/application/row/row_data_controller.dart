@@ -10,14 +10,14 @@ typedef OnRowChanged = void Function(GridCellMap, RowsChangedReason);
 class GridRowDataController extends GridCellBuilderDelegate {
   final RowInfo rowInfo;
   final List<VoidCallback> _onRowChangedListeners = [];
-  final GridFieldCache _fieldCache;
+  final GridFieldController _fieldController;
   final GridRowCache _rowCache;
 
   GridRowDataController({
     required this.rowInfo,
-    required GridFieldCache fieldCache,
+    required GridFieldController fieldController,
     required GridRowCache rowCache,
-  })  : _fieldCache = fieldCache,
+  })  : _fieldController = fieldController,
         _rowCache = rowCache;
 
   GridCellMap loadData() {
@@ -41,7 +41,7 @@ class GridRowDataController extends GridCellBuilderDelegate {
   @override
   GridCellFieldNotifier buildFieldNotifier() {
     return GridCellFieldNotifier(
-        notifier: GridCellFieldNotifierImpl(_fieldCache));
+        notifier: GridCellFieldNotifierImpl(_fieldController));
   }
 
   @override

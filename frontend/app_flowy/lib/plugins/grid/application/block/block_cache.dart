@@ -19,12 +19,12 @@ class GridBlockCache {
   GridBlockCache({
     required this.gridId,
     required this.block,
-    required GridFieldCache fieldCache,
+    required GridFieldController fieldController,
   }) {
     _rowCache = GridRowCache(
       gridId: gridId,
       block: block,
-      notifier: GridRowFieldNotifierImpl(fieldCache),
+      notifier: GridRowFieldNotifierImpl(fieldController),
     );
 
     _listener = GridBlockListener(blockId: block.id);

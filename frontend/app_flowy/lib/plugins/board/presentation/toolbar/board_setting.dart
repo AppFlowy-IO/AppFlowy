@@ -19,16 +19,16 @@ import 'board_toolbar.dart';
 
 class BoardSettingContext {
   final String viewId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
   BoardSettingContext({
     required this.viewId,
-    required this.fieldCache,
+    required this.fieldController,
   });
 
   factory BoardSettingContext.from(BoardToolbarContext toolbarContext) =>
       BoardSettingContext(
         viewId: toolbarContext.viewId,
-        fieldCache: toolbarContext.fieldCache,
+        fieldController: toolbarContext.fieldController,
       );
 }
 
@@ -93,13 +93,13 @@ class BoardSettingList extends StatelessWidget {
           case BoardSettingAction.properties:
             GridPropertyList(
                     gridId: settingContext.viewId,
-                    fieldCache: settingContext.fieldCache)
+                    fieldController: settingContext.fieldController)
                 .show(context);
             break;
           case BoardSettingAction.groups:
             GridGroupList(
                     viewId: settingContext.viewId,
-                    fieldCache: settingContext.fieldCache)
+                    fieldController: settingContext.fieldController)
                 .show(context);
             break;
         }

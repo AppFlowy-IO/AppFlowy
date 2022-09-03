@@ -1,36 +1,47 @@
 import 'dart:collection';
-
 import 'package:app_flowy/plugins/grid/application/field/grid_listener.dart';
+import 'package:app_flowy/plugins/grid/application/grid_service.dart';
+import 'package:app_flowy/plugins/grid/application/setting/setting_listener.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/foundation.dart';
-
 import '../row/row_cache.dart';
 
-class FieldsNotifier extends ChangeNotifier {
-  List<FieldPB> _fields = [];
+class _GridFieldNotifier extends ChangeNotifier {
+  List<GridFieldContext> _fieldContexts = [];
 
-  set fields(List<FieldPB> fields) {
-    _fields = fields;
+  set fieldContexts(List<GridFieldContext> fieldContexts) {
+    _fieldContexts = fieldContexts;
     notifyListeners();
   }
 
-  List<FieldPB> get fields => _fields;
+  void notify() {
+    notifyListeners();
+  }
+
+  List<GridFieldContext> get fieldContexts => _fieldContexts;
 }
 
-typedef FieldChangesetCallback = void Function(FieldChangesetPB);
-typedef FieldsCallback = void Function(List<FieldPB>);
+typedef OnChangeset = void Function(FieldChangesetPB);
+typedef OnReceiveFields = void Function(List<GridFieldContext>);
 
-class GridFieldCache {
+class GridFieldController {
   final String gridId;
   final GridFieldsListener _fieldListener;
-  FieldsNotifier? _fieldNotifier = FieldsNotifier();
-  final Map<FieldsCallback, VoidCallback> _fieldsCallbackMap = {};
-  final Map<FieldChangesetCallback, FieldChangesetCallback>
-      _changesetCallbackMap = {};
+  final SettingListener _settingListener;
+  final Map<OnReceiveFields, VoidCallback> _fieldCallbackMap = {};
+  final Map<OnChangeset, OnChangeset> _changesetCallbackMap = {};
 
-  GridFieldCache({required this.gridId})
-      : _fieldListener = GridFieldsListener(gridId: gridId) {
+  _GridFieldNotifier? _fieldNotifier = _GridFieldNotifier();
+  final GridFFIService _gridFFIService;
+
+  GridFieldController({required this.gridId})
+      : _fieldListener = GridFieldsListener(gridId: gridId),
+        _gridFFIService = GridFFIService(gridId: gridId),
+        _settingListener = SettingListener(gridId: gridId) {
+    //Listen on field's changes
     _fieldListener.start(onFieldsChanged: (result) {
       result.fold(
         (changeset) {
@@ -44,6 +55,28 @@ class GridFieldCache {
         (err) => Log.error(err),
       );
     });
+
+    //Listen on setting changes
+    _settingListener.start(onSettingUpdated: (result) {
+      result.fold(
+        (setting) {
+          final List<String> groupFieldIds = setting.groupConfigurations.items
+              .map((item) => item.groupFieldId)
+              .toList();
+          bool isChanged = false;
+          if (_fieldNotifier != null) {
+            for (var field in _fieldNotifier!.fieldContexts) {
+              if (groupFieldIds.contains(field.id)) {
+                field._isGroupField = true;
+                isChanged = true;
+              }
+            }
+            if (isChanged) _fieldNotifier?.notify();
+          }
+        },
+        (r) => Log.error(r),
+      );
+    });
   }
 
   Future<void> dispose() async {
@@ -52,49 +85,62 @@ class GridFieldCache {
     _fieldNotifier = null;
   }
 
-  List<FieldPB> get fields => [..._fieldNotifier?.fields ?? []];
+  List<GridFieldContext> get fieldContexts =>
+      [..._fieldNotifier?.fieldContexts ?? []];
 
-  set fields(List<FieldPB> fields) {
-    _fieldNotifier?.fields = [...fields];
+  Future<Either<Unit, FlowyError>> loadFields(
+      {required List<FieldIdPB> fieldIds}) async {
+    final result = await _gridFFIService.getFields(fieldIds: fieldIds);
+    return Future(
+      () => result.fold(
+        (newFields) {
+          _fieldNotifier?.fieldContexts = newFields.items
+              .map((field) => GridFieldContext(field: field))
+              .toList();
+          return left(unit);
+        },
+        (err) => right(err),
+      ),
+    );
   }
 
   void addListener({
-    FieldsCallback? onFields,
-    FieldChangesetCallback? onChangeset,
+    OnReceiveFields? onFields,
+    OnChangeset? onChangeset,
     bool Function()? listenWhen,
   }) {
     if (onChangeset != null) {
-      fn(c) {
+      callback(c) {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
         onChangeset(c);
       }
 
-      _changesetCallbackMap[onChangeset] = fn;
+      _changesetCallbackMap[onChangeset] = callback;
     }
 
     if (onFields != null) {
-      fn() {
+      callback() {
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
-        onFields(fields);
+        onFields(fieldContexts);
       }
 
-      _fieldsCallbackMap[onFields] = fn;
-      _fieldNotifier?.addListener(fn);
+      _fieldCallbackMap[onFields] = callback;
+      _fieldNotifier?.addListener(callback);
     }
   }
 
   void removeListener({
-    FieldsCallback? onFieldsListener,
-    FieldChangesetCallback? onChangesetListener,
+    OnReceiveFields? onFieldsListener,
+    OnChangeset? onChangesetListener,
   }) {
     if (onFieldsListener != null) {
-      final fn = _fieldsCallbackMap.remove(onFieldsListener);
-      if (fn != null) {
-        _fieldNotifier?.removeListener(fn);
+      final callback = _fieldCallbackMap.remove(onFieldsListener);
+      if (callback != null) {
+        _fieldNotifier?.removeListener(callback);
       }
     }
 
@@ -107,56 +153,58 @@ class GridFieldCache {
     if (deletedFields.isEmpty) {
       return;
     }
-    final List<FieldPB> newFields = fields;
+    final List<GridFieldContext> newFields = fieldContexts;
     final Map<String, FieldIdPB> deletedFieldMap = {
       for (var fieldOrder in deletedFields) fieldOrder.fieldId: fieldOrder
     };
 
     newFields.retainWhere((field) => (deletedFieldMap[field.id] == null));
-    _fieldNotifier?.fields = newFields;
+    _fieldNotifier?.fieldContexts = newFields;
   }
 
   void _insertFields(List<IndexFieldPB> insertedFields) {
     if (insertedFields.isEmpty) {
       return;
     }
-    final List<FieldPB> newFields = fields;
+    final List<GridFieldContext> newFields = fieldContexts;
     for (final indexField in insertedFields) {
+      final gridField = GridFieldContext(field: indexField.field_1);
       if (newFields.length > indexField.index) {
-        newFields.insert(indexField.index, indexField.field_1);
+        newFields.insert(indexField.index, gridField);
       } else {
-        newFields.add(indexField.field_1);
+        newFields.add(gridField);
       }
     }
-    _fieldNotifier?.fields = newFields;
+    _fieldNotifier?.fieldContexts = newFields;
   }
 
   void _updateFields(List<FieldPB> updatedFields) {
     if (updatedFields.isEmpty) {
       return;
     }
-    final List<FieldPB> newFields = fields;
+    final List<GridFieldContext> newFields = fieldContexts;
     for (final updatedField in updatedFields) {
       final index =
           newFields.indexWhere((field) => field.id == updatedField.id);
       if (index != -1) {
         newFields.removeAt(index);
-        newFields.insert(index, updatedField);
+        final gridField = GridFieldContext(field: updatedField);
+        newFields.insert(index, gridField);
       }
     }
-    _fieldNotifier?.fields = newFields;
+    _fieldNotifier?.fieldContexts = newFields;
   }
 }
 
 class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
-  final GridFieldCache _cache;
-  FieldChangesetCallback? _onChangesetFn;
-  FieldsCallback? _onFieldFn;
-  GridRowFieldNotifierImpl(GridFieldCache cache) : _cache = cache;
+  final GridFieldController _cache;
+  OnChangeset? _onChangesetFn;
+  OnReceiveFields? _onFieldFn;
+  GridRowFieldNotifierImpl(GridFieldController cache) : _cache = cache;
 
   @override
-  UnmodifiableListView<FieldPB> get fields =>
-      UnmodifiableListView(_cache.fields);
+  UnmodifiableListView<GridFieldContext> get fields =>
+      UnmodifiableListView(_cache.fieldContexts);
 
   @override
   void onRowFieldsChanged(VoidCallback callback) {
@@ -187,4 +235,27 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
       _onChangesetFn = null;
     }
   }
+}
+
+class GridFieldContext {
+  final FieldPB _field;
+  bool _isGroupField = false;
+
+  String get id => _field.id;
+
+  FieldType get fieldType => _field.fieldType;
+
+  bool get visibility => _field.visibility;
+
+  double get width => _field.width.toDouble();
+
+  bool get isPrimary => _field.isPrimary;
+
+  String get name => _field.name;
+
+  FieldPB get field => _field;
+
+  bool get isGroupField => _isGroupField;
+
+  GridFieldContext({required FieldPB field}) : _field = field;
 }

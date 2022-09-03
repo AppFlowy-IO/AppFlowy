@@ -18,11 +18,11 @@ import 'field_cell.dart';
 
 class GridHeaderSliverAdaptor extends StatefulWidget {
   final String gridId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
   final ScrollController anchorScrollController;
   const GridHeaderSliverAdaptor({
     required this.gridId,
-    required this.fieldCache,
+    required this.fieldController,
     required this.anchorScrollController,
     Key? key,
   }) : super(key: key);
@@ -38,7 +38,7 @@ class _GridHeaderSliverAdaptorState extends State<GridHeaderSliverAdaptor> {
     return BlocProvider(
       create: (context) {
         final bloc = getIt<GridHeaderBloc>(
-            param1: widget.gridId, param2: widget.fieldCache);
+            param1: widget.gridId, param2: widget.fieldController);
         bloc.add(const GridHeaderEvent.initial());
         return bloc;
       },
@@ -84,7 +84,7 @@ class _GridHeaderState extends State<_GridHeader> {
         final cells = state.fields
             .where((field) => field.visibility)
             .map((field) =>
-                GridFieldCellContext(gridId: widget.gridId, field: field))
+                GridFieldCellContext(gridId: widget.gridId, field: field.field))
             .map((ctx) => GridFieldCell(ctx, key: ValueKey(ctx.field.id)))
             .toList();
 

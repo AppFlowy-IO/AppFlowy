@@ -9,11 +9,11 @@ import 'board_setting.dart';
 
 class BoardToolbarContext {
   final String viewId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
 
   BoardToolbarContext({
     required this.viewId,
-    required this.fieldCache,
+    required this.fieldController,
   });
 }
 

@@ -1,6 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -11,14 +10,15 @@ import 'setting_controller.dart';
 part 'group_bloc.freezed.dart';
 
 class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
-  final GridFieldCache _fieldCache;
+  final GridFieldController _fieldController;
   final SettingController _settingController;
-  Function(List<FieldPB>)? _onFieldsFn;
+  Function(List<GridFieldContext>)? _onFieldsFn;
 
-  GridGroupBloc({required String viewId, required GridFieldCache fieldCache})
-      : _fieldCache = fieldCache,
+  GridGroupBloc(
+      {required String viewId, required GridFieldController fieldController})
+      : _fieldController = fieldController,
         _settingController = SettingController(viewId: viewId),
-        super(GridGroupState.initial(viewId, fieldCache.fields)) {
+        super(GridGroupState.initial(viewId, fieldController.fieldContexts)) {
     on<GridGroupEvent>(
       (event, emit) async {
         await event.map(
@@ -36,7 +36,7 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
             );
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(fields: value.fields));
+            emit(state.copyWith(fieldContexts: value.fields));
           },
           moveField: (_MoveField value) {
             //
@@ -49,7 +49,7 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
   @override
   Future<void> close() async {
     if (_onFieldsFn != null) {
-      _fieldCache.removeListener(onFieldsListener: _onFieldsFn!);
+      _fieldController.removeListener(onFieldsListener: _onFieldsFn!);
       _onFieldsFn = null;
     }
     return super.close();
@@ -57,7 +57,7 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
 
   void _startListening() {
     _onFieldsFn = (fields) => add(GridGroupEvent.didReceiveFieldUpdate(fields));
-    _fieldCache.addListener(
+    _fieldController.addListener(
       onFields: _onFieldsFn,
       listenWhen: () => !isClosed,
     );
@@ -74,8 +74,8 @@ class GridGroupEvent with _$GridGroupEvent {
   const factory GridGroupEvent.initial() = _Initial;
   const factory GridGroupEvent.setFieldVisibility(
       String fieldId, bool visibility) = _SetFieldVisibility;
-  const factory GridGroupEvent.didReceiveFieldUpdate(List<FieldPB> fields) =
-      _DidReceiveFieldUpdate;
+  const factory GridGroupEvent.didReceiveFieldUpdate(
+      List<GridFieldContext> fields) = _DidReceiveFieldUpdate;
   const factory GridGroupEvent.moveField(int fromIndex, int toIndex) =
       _MoveField;
 }
@@ -84,12 +84,13 @@ class GridGroupEvent with _$GridGroupEvent {
 class GridGroupState with _$GridGroupState {
   const factory GridGroupState({
     required String gridId,
-    required List<FieldPB> fields,
+    required List<GridFieldContext> fieldContexts,
   }) = _GridGroupState;
 
-  factory GridGroupState.initial(String gridId, List<FieldPB> fields) =>
+  factory GridGroupState.initial(
+          String gridId, List<GridFieldContext> fieldContexts) =>
       GridGroupState(
         gridId: gridId,
-        fields: fields,
+        fieldContexts: fieldContexts,
       );
 }

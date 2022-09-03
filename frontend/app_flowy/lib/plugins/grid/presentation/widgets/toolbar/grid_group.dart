@@ -6,7 +6,6 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:app_flowy/plugins/grid/application/setting/group_bloc.dart';
 
@@ -14,10 +13,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GridGroupList extends StatelessWidget {
   final String viewId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
   const GridGroupList({
     required this.viewId,
-    required this.fieldCache,
+    required this.fieldController,
     Key? key,
   }) : super(key: key);
 
@@ -26,13 +25,13 @@ class GridGroupList extends StatelessWidget {
     return BlocProvider(
       create: (context) => GridGroupBloc(
         viewId: viewId,
-        fieldCache: fieldCache,
+        fieldController: fieldController,
       )..add(const GridGroupEvent.initial()),
       child: BlocBuilder<GridGroupBloc, GridGroupState>(
         builder: (context, state) {
-          final cells = state.fields.map((field) {
+          final cells = state.fieldContexts.map((field) {
             return _GridGroupCell(
-              field: field,
+              fieldContext: field,
               key: ValueKey(field.id),
             );
           }).toList();
@@ -56,8 +55,9 @@ class GridGroupList extends StatelessWidget {
 }
 
 class _GridGroupCell extends StatelessWidget {
-  final FieldPB field;
-  const _GridGroupCell({required this.field, Key? key}) : super(key: key);
+  final GridFieldContext fieldContext;
+  const _GridGroupCell({required this.fieldContext, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -73,9 +73,10 @@ class _GridGroupCell extends StatelessWidget {
     //                 ),
 
     return FlowyButton(
-      text: FlowyText.medium(field.name, fontSize: 12),
+      text: FlowyText.medium(fieldContext.name, fontSize: 12),
       hoverColor: theme.hover,
-      leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
+      leftIcon:
+          svgWidget(fieldContext.fieldType.iconName(), color: theme.iconColor),
       onTap: () {},
     );
   }

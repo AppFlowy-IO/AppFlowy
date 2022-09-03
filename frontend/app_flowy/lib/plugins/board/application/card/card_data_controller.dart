@@ -10,15 +10,15 @@ typedef OnCardChanged = void Function(GridCellMap, RowsChangedReason);
 
 class CardDataController extends BoardCellBuilderDelegate {
   final RowPB rowPB;
-  final GridFieldCache _fieldCache;
+  final GridFieldController _fieldController;
   final GridRowCache _rowCache;
   final List<VoidCallback> _onCardChangedListeners = [];
 
   CardDataController({
     required this.rowPB,
-    required GridFieldCache fieldCache,
+    required GridFieldController fieldController,
     required GridRowCache rowCache,
-  })  : _fieldCache = fieldCache,
+  })  : _fieldController = fieldController,
         _rowCache = rowCache;
 
   GridCellMap loadData() {
@@ -41,7 +41,7 @@ class CardDataController extends BoardCellBuilderDelegate {
   @override
   GridCellFieldNotifier buildFieldNotifier() {
     return GridCellFieldNotifier(
-        notifier: GridCellFieldNotifierImpl(_fieldCache));
+        notifier: GridCellFieldNotifierImpl(_fieldController));
   }
 
   @override

@@ -41,6 +41,7 @@ class SettingController {
     required OnError onError,
   }) {
     assert(_onSettingUpdated == null, 'Should call once');
+    assert(_onError == null, 'Should call once');
     _onSettingUpdated = onSettingUpdated;
     _onError = onError;
   }

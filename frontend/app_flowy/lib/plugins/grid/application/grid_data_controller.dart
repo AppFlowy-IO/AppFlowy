@@ -4,7 +4,6 @@ import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
@@ -13,7 +12,7 @@ import 'field/field_cache.dart';
 import 'prelude.dart';
 import 'row/row_cache.dart';
 
-typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldPB>);
+typedef OnFieldsChanged = void Function(UnmodifiableListView<GridFieldContext>);
 typedef OnGridChanged = void Function(GridPB);
 
 typedef OnRowsChanged = void Function(
@@ -25,7 +24,7 @@ typedef ListenOnRowChangedCondition = bool Function();
 class GridDataController {
   final String gridId;
   final GridFFIService _gridFFIService;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
 
   // key: the block id
   final LinkedHashMap<String, GridBlockCache> _blocks;
@@ -49,7 +48,7 @@ class GridDataController {
         // ignore: prefer_collection_literals
         _blocks = LinkedHashMap(),
         _gridFFIService = GridFFIService(gridId: view.id),
-        fieldCache = GridFieldCache(gridId: view.id);
+        fieldController = GridFieldController(gridId: view.id);
 
   void addListener({
     required OnGridChanged onGridChanged,
@@ -60,7 +59,7 @@ class GridDataController {
     _onRowChanged = onRowsChanged;
     _onFieldsChanged = onFieldsChanged;
 
-    fieldCache.addListener(onFields: (fields) {
+    fieldController.addListener(onFields: (fields) {
       _onFieldsChanged?.call(UnmodifiableListView(fields));
     });
   }
@@ -72,7 +71,7 @@ class GridDataController {
         (grid) async {
           _initialBlocks(grid.blocks);
           _onGridChanged?.call(grid);
-          return await _loadFields(grid);
+          return await fieldController.loadFields(fieldIds: grid.fields);
         },
         (err) => right(err),
       ),
@@ -85,7 +84,7 @@ class GridDataController {
 
   Future<void> dispose() async {
     await _gridFFIService.closeGrid();
-    await fieldCache.dispose();
+    await fieldController.dispose();
 
     for (final blockCache in _blocks.values) {
       blockCache.dispose();
@@ -102,7 +101,7 @@ class GridDataController {
       final cache = GridBlockCache(
         gridId: gridId,
         block: block,
-        fieldCache: fieldCache,
+        fieldController: fieldController,
       );
 
       cache.addListener(
@@ -113,19 +112,5 @@ class GridDataController {
 
       _blocks[block.id] = cache;
     }
-  }
-
-  Future<Either<Unit, FlowyError>> _loadFields(GridPB grid) async {
-    final result = await _gridFFIService.getFields(fieldIds: grid.fields);
-    return Future(
-      () => result.fold(
-        (fields) {
-          fieldCache.fields = fields.items;
-          _onFieldsChanged?.call(UnmodifiableListView(fieldCache.fields));
-          return left(unit);
-        },
-        (err) => right(err),
-      ),
-    );
   }
 }

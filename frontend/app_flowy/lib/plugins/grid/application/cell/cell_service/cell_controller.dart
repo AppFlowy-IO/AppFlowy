@@ -148,10 +148,10 @@ class IGridCellController<T, D> extends Equatable {
         _cellDataLoader = cellDataLoader,
         _cellDataPersistence = cellDataPersistence,
         _fieldNotifier = fieldNotifier,
-        _fieldService =
-            FieldService(gridId: cellId.gridId, fieldId: cellId.field.id),
-        _cacheKey =
-            GridCellCacheKey(rowId: cellId.rowId, fieldId: cellId.field.id);
+        _fieldService = FieldService(
+            gridId: cellId.gridId, fieldId: cellId.fieldContext.id),
+        _cacheKey = GridCellCacheKey(
+            rowId: cellId.rowId, fieldId: cellId.fieldContext.id);
 
   IGridCellController<T, D> clone() {
     return IGridCellController(
@@ -166,11 +166,11 @@ class IGridCellController<T, D> extends Equatable {
 
   String get rowId => cellId.rowId;
 
-  String get fieldId => cellId.field.id;
+  String get fieldId => cellId.fieldContext.id;
 
-  FieldPB get field => cellId.field;
+  GridFieldContext get fieldContext => cellId.fieldContext;
 
-  FieldType get fieldType => cellId.field.fieldType;
+  FieldType get fieldType => cellId.fieldContext.fieldType;
 
   VoidCallback? startListening(
       {required void Function(T?) onCellChanged,
@@ -182,7 +182,8 @@ class IGridCellController<T, D> extends Equatable {
     isListening = true;
 
     _cellDataNotifier = ValueNotifier(_cellsCache.get(_cacheKey));
-    _cellListener = CellListener(rowId: cellId.rowId, fieldId: cellId.field.id);
+    _cellListener =
+        CellListener(rowId: cellId.rowId, fieldId: cellId.fieldContext.id);
 
     /// 1.Listen on user edit event and load the new cell data if needed.
     /// For example:
@@ -308,14 +309,14 @@ class IGridCellController<T, D> extends Equatable {
 
   @override
   List<Object> get props =>
-      [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.field.id];
+      [_cellsCache.get(_cacheKey) ?? "", cellId.rowId + cellId.fieldContext.id];
 }
 
 class GridCellFieldNotifierImpl extends IGridCellFieldNotifier {
-  final GridFieldCache _cache;
-  FieldChangesetCallback? _onChangesetFn;
+  final GridFieldController _cache;
+  OnChangeset? _onChangesetFn;
 
-  GridCellFieldNotifierImpl(GridFieldCache cache) : _cache = cache;
+  GridCellFieldNotifierImpl(GridFieldController cache) : _cache = cache;
 
   @override
   void onCellDispose() {

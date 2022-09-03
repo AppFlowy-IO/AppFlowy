@@ -25,7 +25,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final MoveRowFFIService _rowService;
   LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap();
 
-  GridFieldCache get fieldCache => _gridDataController.fieldCache;
+  GridFieldController get fieldController =>
+      _gridDataController.fieldController;
   String get gridId => _gridDataController.gridId;
 
   BoardBloc({required ViewPB view})

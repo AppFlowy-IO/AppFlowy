@@ -215,7 +215,7 @@ class _RowDetailCell extends StatelessWidget {
             SizedBox(
               width: 150,
               child: FieldCellButton(
-                field: cellId.field,
+                field: cellId.fieldContext.fieldContext,
                 onTap: () => _showFieldEditor(context),
               ),
             ),
@@ -230,10 +230,10 @@ class _RowDetailCell extends StatelessWidget {
   void _showFieldEditor(BuildContext context) {
     FieldEditor(
       gridId: cellId.gridId,
-      fieldName: cellId.field.name,
+      fieldName: cellId.fieldContext.name,
       typeOptionLoader: FieldTypeOptionLoader(
         gridId: cellId.gridId,
-        field: cellId.field,
+        field: cellId.fieldContext.fieldContext,
       ),
     ).show(context);
   }

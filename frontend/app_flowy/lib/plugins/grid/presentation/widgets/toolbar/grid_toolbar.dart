@@ -11,10 +11,10 @@ import 'grid_setting.dart';
 
 class GridToolbarContext {
   final String gridId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
   GridToolbarContext({
     required this.gridId,
-    required this.fieldCache,
+    required this.fieldController,
   });
 }
 
@@ -26,7 +26,7 @@ class GridToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingContext = GridSettingContext(
       gridId: toolbarContext.gridId,
-      fieldCache: toolbarContext.fieldCache,
+      fieldController: toolbarContext.fieldController,
     );
     return SizedBox(
       height: 40,

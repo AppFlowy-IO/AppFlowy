@@ -154,10 +154,10 @@ void _resolveGridDeps(GetIt getIt) {
     (view, _) => GridBloc(view: view),
   );
 
-  getIt.registerFactoryParam<GridHeaderBloc, String, GridFieldCache>(
-    (gridId, fieldCache) => GridHeaderBloc(
+  getIt.registerFactoryParam<GridHeaderBloc, String, GridFieldController>(
+    (gridId, fieldController) => GridHeaderBloc(
       gridId: gridId,
-      fieldCache: fieldCache,
+      fieldController: fieldController,
     ),
   );
 
@@ -200,7 +200,7 @@ void _resolveGridDeps(GetIt getIt) {
     ),
   );
 
-  getIt.registerFactoryParam<GridPropertyBloc, String, GridFieldCache>(
-    (gridId, cache) => GridPropertyBloc(gridId: gridId, fieldCache: cache),
+  getIt.registerFactoryParam<GridPropertyBloc, String, GridFieldController>(
+    (gridId, cache) => GridPropertyBloc(gridId: gridId, fieldController: cache),
   );
 }

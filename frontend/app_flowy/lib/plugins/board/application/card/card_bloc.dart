@@ -59,7 +59,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     return RowInfo(
       gridId: _rowService.gridId,
       fields: UnmodifiableListView(
-        state.cells.map((cell) => cell.identifier.field).toList(),
+        state.cells.map((cell) => cell.identifier.fieldContext).toList(),
       ),
       rowPB: state.rowPB,
     );
@@ -120,9 +120,9 @@ class BoardCellEquatable extends Equatable {
 
   @override
   List<Object?> get props => [
-        identifier.field.id,
-        identifier.field.fieldType,
-        identifier.field.visibility,
-        identifier.field.width,
+        identifier.fieldContext.id,
+        identifier.fieldContext.fieldType,
+        identifier.fieldContext.visibility,
+        identifier.fieldContext.width,
       ];
 }

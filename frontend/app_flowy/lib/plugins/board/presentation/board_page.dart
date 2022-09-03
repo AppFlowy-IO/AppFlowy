@@ -222,10 +222,10 @@ class _BoardContentState extends State<BoardContent> {
     /// Return placeholder widget if the rowCache is null.
     if (rowCache == null) return SizedBox(key: ObjectKey(columnItem));
 
-    final fieldCache = context.read<BoardBloc>().fieldCache;
+    final fieldController = context.read<BoardBloc>().fieldController;
     final gridId = context.read<BoardBloc>().gridId;
     final cardController = CardDataController(
-      fieldCache: fieldCache,
+      fieldController: fieldController,
       rowCache: rowCache,
       rowPB: rowPB,
     );
@@ -252,7 +252,7 @@ class _BoardContentState extends State<BoardContent> {
         dataController: cardController,
         openCard: (context) => _openCard(
           gridId,
-          fieldCache,
+          fieldController,
           rowPB,
           rowCache,
           context,
@@ -271,17 +271,17 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  void _openCard(String gridId, GridFieldCache fieldCache, RowPB rowPB,
-      GridRowCache rowCache, BuildContext context) {
+  void _openCard(String gridId, GridFieldController fieldController,
+      RowPB rowPB, GridRowCache rowCache, BuildContext context) {
     final rowInfo = RowInfo(
       gridId: gridId,
-      fields: UnmodifiableListView(fieldCache.fields),
+      fields: UnmodifiableListView(fieldController.fieldContexts),
       rowPB: rowPB,
     );
 
     final dataController = GridRowDataController(
       rowInfo: rowInfo,
-      fieldCache: fieldCache,
+      fieldController: fieldController,
       rowCache: rowCache,
     );
 
@@ -302,7 +302,7 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
         final bloc = context.read<BoardBloc>();
         final toolbarContext = BoardToolbarContext(
           viewId: bloc.gridId,
-          fieldCache: bloc.fieldCache,
+          fieldController: bloc.fieldController,
         );
 
         return BoardToolbar(toolbarContext: toolbarContext);

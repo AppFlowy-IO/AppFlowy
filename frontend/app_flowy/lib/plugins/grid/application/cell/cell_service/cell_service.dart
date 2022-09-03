@@ -60,17 +60,17 @@ class GridCellIdentifier with _$GridCellIdentifier {
   const factory GridCellIdentifier({
     required String gridId,
     required String rowId,
-    required FieldPB field,
+    required GridFieldContext fieldContext,
   }) = _GridCellIdentifier;
 
   // ignore: unused_element
   const GridCellIdentifier._();
 
-  String get fieldId => field.id;
+  String get fieldId => fieldContext.id;
 
-  FieldType get fieldType => field.fieldType;
+  FieldType get fieldType => fieldContext.fieldType;
 
   ValueKey key() {
-    return ValueKey("$rowId$fieldId${field.fieldType}");
+    return ValueKey("$rowId$fieldId${fieldContext.fieldType}");
   }
 }

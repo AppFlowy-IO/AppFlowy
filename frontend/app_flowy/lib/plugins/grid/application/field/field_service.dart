@@ -5,6 +5,8 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'field_cache.dart';
 part 'field_service.freezed.dart';
 
 /// FieldService consists of lots of event functions. We define the events in the backend(Rust),

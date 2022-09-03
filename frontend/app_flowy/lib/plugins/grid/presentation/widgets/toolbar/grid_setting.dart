@@ -17,11 +17,11 @@ import 'grid_property.dart';
 
 class GridSettingContext {
   final String gridId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
 
   GridSettingContext({
     required this.gridId,
-    required this.fieldCache,
+    required this.fieldController,
   });
 }
 
@@ -44,7 +44,7 @@ class GridSettingList extends StatelessWidget {
           case GridSettingAction.properties:
             GridPropertyList(
                     gridId: settingContext.gridId,
-                    fieldCache: settingContext.fieldCache)
+                    fieldController: settingContext.fieldController)
                 .show(context);
             break;
         }
