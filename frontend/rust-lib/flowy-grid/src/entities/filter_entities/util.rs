@@ -10,33 +10,33 @@ use std::convert::TryInto;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridFilterConfiguration {
+pub struct GridFilterConfigurationPB {
     #[pb(index = 1)]
     pub id: String,
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct RepeatedGridConfigurationFilterPB {
+pub struct RepeatedGridFilterConfigurationPB {
     #[pb(index = 1)]
-    pub items: Vec<GridFilterConfiguration>,
+    pub items: Vec<GridFilterConfigurationPB>,
 }
 
-impl std::convert::From<&FilterConfigurationRevision> for GridFilterConfiguration {
+impl std::convert::From<&FilterConfigurationRevision> for GridFilterConfigurationPB {
     fn from(rev: &FilterConfigurationRevision) -> Self {
         Self { id: rev.id.clone() }
     }
 }
 
-impl std::convert::From<Vec<Arc<FilterConfigurationRevision>>> for RepeatedGridConfigurationFilterPB {
+impl std::convert::From<Vec<Arc<FilterConfigurationRevision>>> for RepeatedGridFilterConfigurationPB {
     fn from(revs: Vec<Arc<FilterConfigurationRevision>>) -> Self {
-        RepeatedGridConfigurationFilterPB {
+        RepeatedGridFilterConfigurationPB {
             items: revs.into_iter().map(|rev| rev.as_ref().into()).collect(),
         }
     }
 }
 
-impl std::convert::From<Vec<GridFilterConfiguration>> for RepeatedGridConfigurationFilterPB {
-    fn from(items: Vec<GridFilterConfiguration>) -> Self {
+impl std::convert::From<Vec<GridFilterConfigurationPB>> for RepeatedGridFilterConfigurationPB {
+    fn from(items: Vec<GridFilterConfigurationPB>) -> Self {
         Self { items }
     }
 }

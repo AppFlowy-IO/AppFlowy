@@ -532,7 +532,7 @@ impl GridRevisionEditor {
         self.view_manager.get_setting().await
     }
 
-    pub async fn get_grid_filter(&self) -> FlowyResult<Vec<GridFilterConfiguration>> {
+    pub async fn get_grid_filter(&self) -> FlowyResult<Vec<GridFilterConfigurationPB>> {
         self.view_manager.get_filters().await
     }
 

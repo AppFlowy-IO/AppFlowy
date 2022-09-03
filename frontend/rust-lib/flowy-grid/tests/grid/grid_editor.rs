@@ -85,7 +85,7 @@ impl GridEditorTest {
             .row_revs
     }
 
-    pub async fn grid_filters(&self) -> Vec<GridFilterConfiguration> {
+    pub async fn grid_filters(&self) -> Vec<GridFilterConfigurationPB> {
         self.editor.get_grid_filter().await.unwrap()
     }
 

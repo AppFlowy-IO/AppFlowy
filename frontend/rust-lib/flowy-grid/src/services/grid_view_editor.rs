@@ -1,8 +1,8 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{
-    CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfiguration, GridLayout, GridLayoutPB,
-    GridSettingPB, GroupChangesetPB, GroupPB, GroupViewChangesetPB, InsertedGroupPB, InsertedRowPB, MoveGroupParams,
-    RepeatedGridConfigurationFilterPB, RepeatedGridGroupConfigurationPB, RowPB,
+    CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfigurationPB, GridGroupConfigurationPB,
+    GridLayout, GridLayoutPB, GridSettingPB, GroupChangesetPB, GroupPB, GroupViewChangesetPB, InsertedGroupPB,
+    InsertedRowPB, MoveGroupParams, RepeatedGridFilterConfigurationPB, RepeatedGridGroupConfigurationPB, RowPB,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
@@ -198,14 +198,14 @@ impl GridViewRevisionEditor {
         grid_setting
     }
 
-    pub(crate) async fn get_filters(&self) -> Vec<GridFilterConfiguration> {
+    pub(crate) async fn get_filters(&self) -> Vec<GridFilterConfigurationPB> {
         let field_revs = self.field_delegate.get_field_revs().await;
         match self.pad.read().await.get_all_filters(&field_revs) {
             None => vec![],
             Some(filters) => filters
                 .into_values()
                 .flatten()
-                .map(|filter| GridFilterConfiguration::from(filter.as_ref()))
+                .map(|filter| GridFilterConfigurationPB::from(filter.as_ref()))
                 .collect(),
         }
     }
@@ -463,31 +463,40 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
 }
 
 pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<FieldRevision>]) -> GridSettingPB {
-    let current_layout_type: GridLayout = view_pad.layout.clone().into();
-    let filter_configuration_by_field_id = view_pad
+    let layout_type: GridLayout = view_pad.layout.clone().into();
+    let filter_configurations = view_pad
         .get_all_filters(field_revs)
         .map(|filters_by_field_id| {
             filters_by_field_id
                 .into_iter()
-                .map(|(k, v)| (k, v.into()))
-                .collect::<HashMap<String, RepeatedGridConfigurationFilterPB>>()
+                .map(|(_, v)| {
+                    let repeated_filter: RepeatedGridFilterConfigurationPB = v.into();
+                    repeated_filter.items
+                })
+                .flatten()
+                .collect::<Vec<GridFilterConfigurationPB>>()
         })
         .unwrap_or_default();
+
     let group_configurations = view_pad
         .get_groups_by_field_revs(field_revs)
         .map(|groups_by_field_id| {
             groups_by_field_id
                 .into_iter()
-                .map(|(_, v)| v.into())
-                .collect::<RepeatedGridGroupConfigurationPB>()
+                .map(|(_, v)| {
+                    let repeated_group: RepeatedGridGroupConfigurationPB = v.into();
+                    repeated_group.items
+                })
+                .flatten()
+                .collect::<Vec<GridGroupConfigurationPB>>()
         })
         .unwrap_or_default();
 
     GridSettingPB {
         layouts: GridLayoutPB::all(),
-        current_layout_type,
-        filter_configuration_by_field_id,
-        group_configurations,
+        layout_type,
+        filter_configurations: filter_configurations.into(),
+        group_configurations: group_configurations.into(),
     }
 }
 

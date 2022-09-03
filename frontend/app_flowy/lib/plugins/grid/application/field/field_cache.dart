@@ -52,9 +52,6 @@ class GridFieldCache {
     _fieldNotifier = null;
   }
 
-  UnmodifiableListView<FieldPB> get unmodifiableFields =>
-      UnmodifiableListView(_fieldNotifier?.fields ?? []);
-
   List<FieldPB> get fields => [..._fieldNotifier?.fields ?? []];
 
   set fields(List<FieldPB> fields) {
@@ -158,7 +155,8 @@ class GridRowFieldNotifierImpl extends IGridRowFieldNotifier {
   GridRowFieldNotifierImpl(GridFieldCache cache) : _cache = cache;
 
   @override
-  UnmodifiableListView<FieldPB> get fields => _cache.unmodifiableFields;
+  UnmodifiableListView<FieldPB> get fields =>
+      UnmodifiableListView(_cache.fields);
 
   @override
   void onRowFieldsChanged(VoidCallback callback) {

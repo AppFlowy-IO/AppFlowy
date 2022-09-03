@@ -6,16 +6,19 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
 import '../field/field_cache.dart';
+import 'setting_controller.dart';
 
 part 'group_bloc.freezed.dart';
 
 class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
   final GridFieldCache _fieldCache;
+  final SettingController _settingController;
   Function(List<FieldPB>)? _onFieldsFn;
 
-  GridGroupBloc({required String gridId, required GridFieldCache fieldCache})
+  GridGroupBloc({required String viewId, required GridFieldCache fieldCache})
       : _fieldCache = fieldCache,
-        super(GridGroupState.initial(gridId, fieldCache.fields)) {
+        _settingController = SettingController(viewId: viewId),
+        super(GridGroupState.initial(viewId, fieldCache.fields)) {
     on<GridGroupEvent>(
       (event, emit) async {
         await event.map(
@@ -24,7 +27,7 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
           },
           setFieldVisibility: (_SetFieldVisibility value) async {
             final fieldService =
-                FieldService(gridId: gridId, fieldId: value.fieldId);
+                FieldService(gridId: viewId, fieldId: value.fieldId);
             final result =
                 await fieldService.updateField(visibility: value.visibility);
             result.fold(
@@ -57,6 +60,11 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
     _fieldCache.addListener(
       onFields: _onFieldsFn,
       listenWhen: () => !isClosed,
+    );
+
+    _settingController.startListeing(
+      onSettingUpdated: (setting) {},
+      onError: (err) {},
     );
   }
 }

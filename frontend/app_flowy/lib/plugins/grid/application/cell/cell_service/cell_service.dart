@@ -21,7 +21,7 @@ import '../../field/type_option/type_option_context.dart';
 import 'cell_field_notifier.dart';
 part 'cell_service.freezed.dart';
 part 'cell_data_loader.dart';
-part 'context_builder.dart';
+part 'cell_controller.dart';
 part 'cell_cache.dart';
 part 'cell_data_persistence.dart';
 
