@@ -1,5 +1,17 @@
 # Release Notes
 
+## Version 0.0.5 - beta.2 - beta.1 - 09/01/2022
+
+New features
+- Board-view database
+  - Support start editing after creating a new card
+  - Support editing the card directly by clicking the edit button
+  - Add the `No Status` column to display the cards while their status is empty
+
+### Bug Fixes
+- Optimize insert card animation
+- Fix some UI bugs
+
 ## Version 0.0.5 - beta.1 - 08/25/2022
 
 New features

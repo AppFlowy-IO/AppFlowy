@@ -57,6 +57,9 @@ abstract class AppFlowySelectionService {
   /// Clears the selection area, cursor area and the popup list area.
   void clearSelection();
 
+  /// Clears the cursor area.
+  void clearCursor();
+
   /// Returns the [Node]s in [Selection].
   List<Node> getNodesInSelection(Selection selection);
 
@@ -205,16 +208,23 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     currentSelectedNodes = [];
     currentSelection.value = null;
 
+    clearCursor();
     // clear selection areas
     _selectionAreas
       ..forEach((overlay) => overlay.remove())
       ..clear();
     // clear cursor areas
+
+    // hide toolbar
+    editorState.service.toolbarService?.hide();
+  }
+
+  @override
+  void clearCursor() {
+    // clear cursor areas
     _cursorAreas
       ..forEach((overlay) => overlay.remove())
       ..clear();
-    // hide toolbar
-    editorState.service.toolbarService?.hide();
   }
 
   @override
@@ -338,10 +348,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     final backwardNodes =
         selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
-    final backwardSelection = selection.isBackward
-        ? selection
-        : selection.copyWith(start: selection.end, end: selection.start);
-    assert(backwardSelection.isBackward);
+    final normalizedSelection = selection.normalize;
+    assert(normalizedSelection.isBackward);
 
     for (var i = 0; i < backwardNodes.length; i++) {
       final node = backwardNodes[i];
@@ -350,7 +358,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
         continue;
       }
 
-      var newSelection = backwardSelection.copy();
+      var newSelection = normalizedSelection.copy();
 
       /// In the case of multiple selections,
       ///  we need to return a new selection for each selected node individually.
@@ -360,7 +368,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
       /// text: ghijkl
       /// text: mn>opqr
       ///
-      if (!backwardSelection.isSingle) {
+      if (!normalizedSelection.isSingle) {
         if (i == 0) {
           newSelection = newSelection.copyWith(end: selectable.end());
         } else if (i == nodes.length - 1) {
@@ -502,7 +510,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     editorState.service.scrollService?.enable();
   }
 
-  Rect _transformRectToGlobal(Selectable selectable, Rect r) {
+  Rect _transformRectToGlobal(SelectableMixin selectable, Rect r) {
     final Offset topLeft = selectable.localToGlobal(Offset(r.left, r.top));
     return Rect.fromLTWH(topLeft.dx, topLeft.dy, r.width, r.height);
   }

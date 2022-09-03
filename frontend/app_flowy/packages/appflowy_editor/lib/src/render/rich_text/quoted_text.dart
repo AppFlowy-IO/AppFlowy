@@ -41,7 +41,7 @@ class QuotedTextNodeWidget extends StatefulWidget {
 // customize
 
 class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
-    with Selectable, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable {
   @override
   final iconKey = GlobalKey();
 
@@ -50,35 +50,32 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
   final _iconRightPadding = 5.0;
 
   @override
-  Selectable<StatefulWidget> get forward =>
-      _richTextKey.currentState as Selectable;
+  SelectableMixin<StatefulWidget> get forward =>
+      _richTextKey.currentState as SelectableMixin;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: defaultMaxTextNodeWidth,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: defaultLinePadding),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              FlowySvg(
-                key: iconKey,
-                width: _iconWidth,
-                padding: EdgeInsets.only(right: _iconRightPadding),
-                name: 'quote',
+    return Padding(
+      padding: EdgeInsets.only(bottom: defaultLinePadding),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            FlowySvg(
+              key: iconKey,
+              width: _iconWidth,
+              padding: EdgeInsets.only(right: _iconRightPadding),
+              name: 'quote',
+            ),
+            Flexible(
+              child: FlowyRichText(
+                key: _richTextKey,
+                placeholderText: 'Quote',
+                textNode: widget.textNode,
+                editorState: widget.editorState,
               ),
-              Expanded(
-                child: FlowyRichText(
-                  key: _richTextKey,
-                  placeholderText: 'Quote',
-                  textNode: widget.textNode,
-                  editorState: widget.editorState,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

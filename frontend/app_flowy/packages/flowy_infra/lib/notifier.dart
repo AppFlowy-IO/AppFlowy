@@ -31,19 +31,26 @@ class PublishNotifier<T> extends ChangeNotifier {
 
   T? get currentValue => _value;
 
-  void addPublishListener(void Function(T) callback, {bool Function()? listenWhen}) {
+  void addPublishListener(void Function(T) callback,
+      {bool Function()? listenWhen}) {
     super.addListener(
       () {
         if (_value == null) {
           return;
-        }
+        } else {}
 
         if (listenWhen != null && listenWhen() == false) {
           return;
         }
 
-        callback(_value!);
+        callback(_value as T);
       },
     );
+  }
+}
+
+class Notifier extends ChangeNotifier {
+  void notify() {
+    notifyListeners();
   }
 }

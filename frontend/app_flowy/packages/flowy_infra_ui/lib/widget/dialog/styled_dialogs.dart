@@ -151,9 +151,9 @@ class StyledDialogRoute<T> extends PopupRoute<T> {
   Widget buildPage(BuildContext context, Animation<double> animation,
       Animation<double> secondaryAnimation) {
     return Semantics(
-      child: _pageBuilder(context, animation, secondaryAnimation),
       scopesRoute: true,
       explicitChildNodes: true,
+      child: _pageBuilder(context, animation, secondaryAnimation),
     );
   }
 

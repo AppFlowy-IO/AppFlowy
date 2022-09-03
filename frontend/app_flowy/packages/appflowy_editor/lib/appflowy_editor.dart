@@ -2,6 +2,7 @@
 library appflowy_editor;
 
 export 'src/infra/log.dart';
+export 'src/render/style/editor_style.dart';
 export 'src/document/node.dart';
 export 'src/document/path.dart';
 export 'src/document/position.dart';
@@ -19,5 +20,6 @@ export 'src/service/render_plugin_service.dart';
 export 'src/service/service.dart';
 export 'src/service/selection_service.dart';
 export 'src/service/scroll_service.dart';
+export 'src/service/toolbar_service.dart';
 export 'src/service/keyboard_service.dart';
 export 'src/service/input_service.dart';

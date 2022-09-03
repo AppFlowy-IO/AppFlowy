@@ -40,7 +40,7 @@ class CheckboxNodeWidget extends StatefulWidget {
 }
 
 class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
-    with Selectable, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable {
   @override
   final iconKey = GlobalKey();
 
@@ -49,8 +49,8 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
   final _iconRightPadding = 5.0;
 
   @override
-  Selectable<StatefulWidget> get forward =>
-      _richTextKey.currentState as Selectable;
+  SelectableMixin<StatefulWidget> get forward =>
+      _richTextKey.currentState as SelectableMixin;
 
   @override
   Widget build(BuildContext context) {
@@ -63,41 +63,38 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
 
   Widget _buildWithSingle(BuildContext context) {
     final check = widget.textNode.attributes.check;
-    return SizedBox(
-      width: defaultMaxTextNodeWidth,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: defaultLinePadding),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GestureDetector(
-              key: iconKey,
-              child: FlowySvg(
-                width: _iconWidth,
-                height: _iconWidth,
-                padding: EdgeInsets.only(right: _iconRightPadding),
-                name: check ? 'check' : 'uncheck',
-              ),
-              onTap: () {
-                TransactionBuilder(widget.editorState)
-                  ..updateNode(widget.textNode, {
-                    StyleKey.checkbox: !check,
-                  })
-                  ..commit();
-              },
+    return Padding(
+      padding: EdgeInsets.only(bottom: defaultLinePadding),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            key: iconKey,
+            child: FlowySvg(
+              width: _iconWidth,
+              height: _iconWidth,
+              padding: EdgeInsets.only(right: _iconRightPadding),
+              name: check ? 'check' : 'uncheck',
             ),
-            Expanded(
-              child: FlowyRichText(
-                key: _richTextKey,
-                placeholderText: 'To-do',
-                textNode: widget.textNode,
-                textSpanDecorator: _textSpanDecorator,
-                placeholderTextSpanDecorator: _textSpanDecorator,
-                editorState: widget.editorState,
-              ),
+            onTap: () {
+              TransactionBuilder(widget.editorState)
+                ..updateNode(widget.textNode, {
+                  StyleKey.checkbox: !check,
+                })
+                ..commit();
+            },
+          ),
+          Flexible(
+            child: FlowyRichText(
+              key: _richTextKey,
+              placeholderText: 'To-do',
+              textNode: widget.textNode,
+              textSpanDecorator: _textSpanDecorator,
+              placeholderTextSpanDecorator: _textSpanDecorator,
+              editorState: widget.editorState,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

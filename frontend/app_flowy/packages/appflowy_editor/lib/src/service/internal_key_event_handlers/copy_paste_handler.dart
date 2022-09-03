@@ -1,13 +1,12 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/html_converter.dart';
 import 'package:appflowy_editor/src/document/node_iterator.dart';
-import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
 _handleCopy(EditorState editorState) async {
-  final selection = editorState.cursorSelection?.normalize();
+  final selection = editorState.cursorSelection?.normalize;
   if (selection == null || selection.isCollapsed) {
     return;
   }
@@ -43,7 +42,7 @@ _handleCopy(EditorState editorState) async {
 }
 
 _pasteHTML(EditorState editorState, String html) {
-  final selection = editorState.cursorSelection?.normalize();
+  final selection = editorState.cursorSelection?.normalize;
   if (selection == null) {
     return;
   }
@@ -191,7 +190,7 @@ Delta _lineContentToDelta(String lineContent) {
 }
 
 _handlePastePlainText(EditorState editorState, String plainText) {
-  final selection = editorState.cursorSelection?.normalize();
+  final selection = editorState.cursorSelection?.normalize;
   if (selection == null) {
     return;
   }
@@ -256,7 +255,7 @@ _handleCut(EditorState editorState) {
 }
 
 _deleteSelectedContent(EditorState editorState) {
-  final selection = editorState.cursorSelection?.normalize();
+  final selection = editorState.cursorSelection?.normalize;
   if (selection == null || selection.isCollapsed) {
     return;
   }

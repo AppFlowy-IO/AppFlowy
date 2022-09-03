@@ -14,7 +14,7 @@ dependencies:
   ffi: ^1.0.0
   isolates: ^3.0.3+8
   protobuf: "2.0.0"
-  dartz: "0.10.0-nullsafety.2"
+  dartz: ^0.10.1
   freezed_annotation:
   logger: ^1.0.0
 
@@ -23,7 +23,7 @@ dev_dependencies:
     sdk: flutter
   build_runner:
   freezed:
-  flutter_lints: ^1.0.0
+  flutter_lints: ^2.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

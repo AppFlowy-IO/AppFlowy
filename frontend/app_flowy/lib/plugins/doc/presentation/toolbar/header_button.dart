@@ -16,10 +16,10 @@ class FlowyHeaderStyleButton extends StatefulWidget {
   final double iconSize;
 
   @override
-  _FlowyHeaderStyleButtonState createState() => _FlowyHeaderStyleButtonState();
+  FlowyHeaderStyleButtonState createState() => FlowyHeaderStyleButtonState();
 }
 
-class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
+class FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
   Attribute? _value;
 
   Style get _selectionStyle => widget.controller.getSelectionStyle();
@@ -28,22 +28,27 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
   void initState() {
     super.initState();
     setState(() {
-      _value = _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+      _value =
+          _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
     });
     widget.controller.addListener(_didChangeEditingValue);
   }
 
   @override
   Widget build(BuildContext context) {
-    final _valueToText = <Attribute, String>{
+    final valueToText = <Attribute, String>{
       Attribute.h1: 'H1',
       Attribute.h2: 'H2',
       Attribute.h3: 'H3',
     };
 
-    final _valueAttribute = <Attribute>[Attribute.h1, Attribute.h2, Attribute.h3];
-    final _valueString = <String>['H1', 'H2', 'H3'];
-    final _attributeImageName = <String>['editor/H1', 'editor/H2', 'editor/H3'];
+    final valueAttribute = <Attribute>[
+      Attribute.h1,
+      Attribute.h2,
+      Attribute.h3
+    ];
+    final valueString = <String>['H1', 'H2', 'H3'];
+    final attributeImageName = <String>['editor/H1', 'editor/H2', 'editor/H3'];
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -52,18 +57,18 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
         //     _valueToText[_value] == _valueString[index] ? svg('editor/H1', color: Colors.white) : svg('editor/H1');
 
         final headerTitle = "${LocaleKeys.toolbar_header.tr()} ${index + 1}";
-        final _isToggled = _valueToText[_value] == _valueString[index];
+        final isToggled = valueToText[_value] == valueString[index];
         return ToolbarIconButton(
           onPressed: () {
-            if (_isToggled) {
+            if (isToggled) {
               widget.controller.formatSelection(Attribute.header);
             } else {
-              widget.controller.formatSelection(_valueAttribute[index]);
+              widget.controller.formatSelection(valueAttribute[index]);
             }
           },
           width: widget.iconSize * kIconButtonFactor,
-          iconName: _attributeImageName[index],
-          isToggled: _isToggled,
+          iconName: attributeImageName[index],
+          isToggled: isToggled,
           tooltipText: headerTitle,
         );
       }),
@@ -72,7 +77,8 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
 
   void _didChangeEditingValue() {
     setState(() {
-      _value = _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+      _value =
+          _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
     });
   }
 
@@ -82,7 +88,8 @@ class _FlowyHeaderStyleButtonState extends State<FlowyHeaderStyleButton> {
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_didChangeEditingValue);
       widget.controller.addListener(_didChangeEditingValue);
-      _value = _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
+      _value =
+          _selectionStyle.attributes[Attribute.header.key] ?? Attribute.header;
     }
   }
 

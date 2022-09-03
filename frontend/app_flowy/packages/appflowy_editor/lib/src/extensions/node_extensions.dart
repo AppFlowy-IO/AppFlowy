@@ -10,7 +10,8 @@ extension NodeExtensions on Node {
       key?.currentContext?.findRenderObject()?.unwrapOrNull<RenderBox>();
 
   BuildContext? get context => key?.currentContext;
-  Selectable? get selectable => key?.currentState?.unwrapOrNull<Selectable>();
+  SelectableMixin? get selectable =>
+      key?.currentState?.unwrapOrNull<SelectableMixin>();
 
   bool inSelection(Selection selection) {
     if (selection.start.path <= selection.end.path) {

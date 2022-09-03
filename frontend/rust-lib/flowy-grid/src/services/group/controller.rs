@@ -1,4 +1,4 @@
-use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, RowPB};
+use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
 use crate::services::cell::{decode_any_cell_data, CellBytesParser};
 use crate::services::group::action::GroupAction;
 use crate::services::group::configuration::GenericGroupConfiguration;
@@ -10,8 +10,6 @@ use flowy_grid_data_model::revision::{
 
 use std::marker::PhantomData;
 use std::sync::Arc;
-
-const DEFAULT_GROUP_ID: &str = "default_group";
 
 // Each kind of group must implement this trait to provide custom group
 // operations. For example, insert cell data to the row_rev when creating
@@ -72,8 +70,6 @@ pub struct GenericGroupController<C, T, G, P> {
     pub field_id: String,
     pub type_option: Option<T>,
     pub configuration: GenericGroupConfiguration<C>,
-    /// default_group is used to store the rows that don't belong to any groups.
-    default_group: Group,
     group_action_phantom: PhantomData<G>,
     cell_parser_phantom: PhantomData<P>,
 }
@@ -92,21 +88,81 @@ where
         let type_option = field_rev.get_type_option_entry::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
         let _ = configuration.merge_groups(groups)?;
-        let default_group = Group::new(
-            DEFAULT_GROUP_ID.to_owned(),
-            field_rev.id.clone(),
-            format!("No {}", field_rev.name),
-            "".to_string(),
-        );
 
         Ok(Self {
             field_id: field_rev.id.clone(),
-            default_group,
             type_option,
             configuration,
             group_action_phantom: PhantomData,
             cell_parser_phantom: PhantomData,
         })
+    }
+
+    // https://stackoverflow.com/questions/69413164/how-to-fix-this-clippy-warning-needless-collect
+    #[allow(clippy::needless_collect)]
+    fn update_default_group(
+        &mut self,
+        row_rev: &RowRevision,
+        other_group_changesets: &[GroupChangesetPB],
+    ) -> GroupChangesetPB {
+        let default_group = self.configuration.get_mut_default_group();
+
+        // [other_group_inserted_row] contains all the inserted rows except the default group.
+        let other_group_inserted_row = other_group_changesets
+            .iter()
+            .flat_map(|changeset| &changeset.inserted_rows)
+            .collect::<Vec<&InsertedRowPB>>();
+
+        // Calculate the inserted_rows of the default_group
+        let default_group_inserted_row = other_group_changesets
+            .iter()
+            .flat_map(|changeset| &changeset.deleted_rows)
+            .cloned()
+            .filter(|row_id| {
+                // if the [other_group_inserted_row] contains the row_id of the row
+                // which means the row should not move to the default group.
+                !other_group_inserted_row
+                    .iter()
+                    .any(|inserted_row| &inserted_row.row.id == row_id)
+            })
+            .collect::<Vec<String>>();
+
+        let mut changeset = GroupChangesetPB::new(default_group.id.clone());
+        if !default_group_inserted_row.is_empty() {
+            changeset.inserted_rows.push(InsertedRowPB::new(row_rev.into()));
+            default_group.add_row(row_rev.into());
+        }
+
+        // [other_group_delete_rows] contains all the deleted rows except the default group.
+        let other_group_delete_rows: Vec<String> = other_group_changesets
+            .iter()
+            .flat_map(|changeset| &changeset.deleted_rows)
+            .cloned()
+            .collect();
+
+        let default_group_deleted_rows = other_group_changesets
+            .iter()
+            .flat_map(|changeset| &changeset.inserted_rows)
+            .filter(|inserted_row| {
+                // if the [other_group_delete_rows] contain the inserted_row, which means this row should move
+                // out from the default_group.
+                let inserted_row_id = &inserted_row.row.id;
+                !other_group_delete_rows.iter().any(|row_id| inserted_row_id == row_id)
+            })
+            .collect::<Vec<&InsertedRowPB>>();
+
+        let mut deleted_row_ids = vec![];
+        for row in &default_group.rows {
+            if default_group_deleted_rows
+                .iter()
+                .any(|deleted_row| deleted_row.row.id == row.id)
+            {
+                deleted_row_ids.push(row.id.clone());
+            }
+        }
+        default_group.rows.retain(|row| !deleted_row_ids.contains(&row.id));
+        changeset.deleted_rows.extend(deleted_row_ids);
+        changeset
     }
 }
 
@@ -124,11 +180,7 @@ where
     }
 
     fn groups(&self) -> Vec<Group> {
-        let mut groups = self.configuration.clone_groups();
-        if self.default_group.is_empty() == false {
-            groups.insert(0, self.default_group.clone());
-        }
-        groups
+        self.configuration.clone_groups()
     }
 
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
@@ -138,13 +190,12 @@ where
 
     #[tracing::instrument(level = "trace", skip_all, fields(row_count=%row_revs.len(), group_result))]
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<Vec<Group>> {
-        // let mut ungrouped_rows = vec![];
         for row_rev in row_revs {
             if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
                 let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
                 let cell_data = cell_bytes.parser::<P>()?;
-                for group in self.configuration.groups() {
+                for group in self.configuration.concrete_groups() {
                     if self.can_group(&group.content, &cell_data) {
                         grouped_rows.push(GroupedRow {
                             row: row_rev.into(),
@@ -154,8 +205,7 @@ where
                 }
 
                 if grouped_rows.is_empty() {
-                    // ungrouped_rows.push(RowPB::from(row_rev));
-                    self.default_group.add_row(row_rev.into());
+                    self.configuration.get_mut_default_group().add_row(row_rev.into());
                 } else {
                     for group_row in grouped_rows {
                         if let Some(group) = self.configuration.get_mut_group(&group_row.group_id) {
@@ -164,30 +214,11 @@ where
                     }
                 }
             } else {
-                self.default_group.add_row(row_rev.into());
+                self.configuration.get_mut_default_group().add_row(row_rev.into());
             }
         }
 
-        // if !ungrouped_rows.is_empty() {
-        //     let default_group_rev = GroupRevision::default_group(gen_grid_group_id(), format!("No {}", field_rev.name));
-        //     let default_group = Group::new(
-        //         default_group_rev.id.clone(),
-        //         field_rev.id.clone(),
-        //         default_group_rev.name.clone(),
-        //         "".to_owned(),
-        //     );
-        // }
-
-        tracing::Span::current().record(
-            "group_result",
-            &format!(
-                "{}, default_group has {} rows",
-                self.configuration,
-                self.default_group.rows.len()
-            )
-            .as_str(),
-        );
-
+        tracing::Span::current().record("group_result", &format!("{},", self.configuration,).as_str());
         Ok(self.groups())
     }
 
@@ -203,7 +234,12 @@ where
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
-            let changesets = self.add_row_if_match(row_rev, &cell_data);
+            let mut changesets = self.add_row_if_match(row_rev, &cell_data);
+            let default_group_changeset = self.update_default_group(row_rev, &changesets);
+            tracing::info!("default_group_changeset: {}", default_group_changeset);
+            if !default_group_changeset.is_empty() {
+                changesets.push(default_group_changeset);
+            }
             Ok(changesets)
         } else {
             Ok(vec![])

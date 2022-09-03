@@ -6,11 +6,13 @@ class ToolbarItemWidget extends StatelessWidget {
   const ToolbarItemWidget({
     Key? key,
     required this.item,
+    required this.isHighlight,
     required this.onPressed,
   }) : super(key: key);
 
   final ToolbarItem item;
   final VoidCallback onPressed;
+  final bool isHighlight;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +25,9 @@ class ToolbarItemWidget extends StatelessWidget {
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: IconButton(
+            highlightColor: Colors.yellow,
             padding: EdgeInsets.zero,
-            icon: item.icon,
+            icon: item.iconBuilder(isHighlight),
             iconSize: 28,
             onPressed: onPressed,
           ),

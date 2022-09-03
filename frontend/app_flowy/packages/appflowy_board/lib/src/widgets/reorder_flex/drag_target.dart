@@ -26,6 +26,11 @@ typedef DragTargetWillAccepted<T extends DragTargetData> = bool Function(
 ///
 typedef DragTargetOnStarted = void Function(Widget, int, Size?);
 
+typedef DragTargetOnMove<T extends DragTargetData> = void Function(
+  T dragTargetData,
+  Offset offset,
+);
+
 ///
 typedef DragTargetOnEnded<T extends DragTargetData> = void Function(
     T dragTargetData);
@@ -39,12 +44,14 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   final Widget child;
   final T dragTargetData;
 
-  final GlobalObjectKey _indexGlobalKey;
+  final GlobalObjectKey indexGlobalKey;
 
   /// Called when dragTarget is being dragging.
   final DragTargetOnStarted onDragStarted;
 
   final DragTargetOnEnded<T> onDragEnded;
+
+  final DragTargetOnMove<T> onDragMoved;
 
   /// Called to determine whether this widget is interested in receiving a given
   /// piece of data being dragged over this drag target.
@@ -68,22 +75,25 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   final AnimationController deleteAnimationController;
 
   final bool useMoveAnimation;
+  final bool draggable;
 
-  ReorderDragTarget({
+  const ReorderDragTarget({
     Key? key,
     required this.child,
+    required this.indexGlobalKey,
     required this.dragTargetData,
     required this.onDragStarted,
+    required this.onDragMoved,
     required this.onDragEnded,
     required this.onWillAccept,
     required this.insertAnimationController,
     required this.deleteAnimationController,
     required this.useMoveAnimation,
+    required this.draggable,
     this.onAccept,
     this.onLeave,
     this.draggableTargetBuilder,
-  })  : _indexGlobalKey = GlobalObjectKey(child.key!),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   State<ReorderDragTarget<T>> createState() => _ReorderDragTargetState<T>();
@@ -104,6 +114,9 @@ class _ReorderDragTargetState<T extends DragTargetData>
         return widget.onWillAccept(dragTargetData);
       },
       onAccept: widget.onAccept,
+      onMove: (detail) {
+        widget.onDragMoved(detail.data, detail.offset);
+      },
       onLeave: (dragTargetData) {
         assert(dragTargetData != null);
         if (dragTargetData != null) {
@@ -112,7 +125,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
       },
     );
 
-    dragTarget = KeyedSubtree(key: widget._indexGlobalKey, child: dragTarget);
+    dragTarget = KeyedSubtree(key: widget.indexGlobalKey, child: dragTarget);
     return dragTarget;
   }
 
@@ -121,6 +134,9 @@ class _ReorderDragTargetState<T extends DragTargetData>
     List<T?> acceptedCandidates,
     List<dynamic> rejectedCandidates,
   ) {
+    if (!widget.draggable) {
+      return widget.child;
+    }
     Widget feedbackBuilder = Builder(builder: (BuildContext context) {
       BoxConstraints contentSizeConstraints =
           BoxConstraints.loose(_draggingFeedbackSize!);
@@ -150,7 +166,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
             child: widget.child,
           ),
           onDragStarted: () {
-            _draggingFeedbackSize = widget._indexGlobalKey.currentContext?.size;
+            _draggingFeedbackSize = widget.indexGlobalKey.currentContext?.size;
             widget.onDragStarted(
               widget.child,
               widget.dragTargetData.draggingIndex,

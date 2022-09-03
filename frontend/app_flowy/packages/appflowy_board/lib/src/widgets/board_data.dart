@@ -196,7 +196,6 @@ class AFBoardDataController extends ChangeNotifier
     final index =
         columnDataController.items.indexWhere((item) => item.isPhantom);
 
-    assert(index != -1);
     if (index != -1) {
       if (index != newIndex) {
         Log.trace(

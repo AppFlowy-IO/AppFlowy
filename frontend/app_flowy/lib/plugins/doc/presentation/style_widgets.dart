@@ -16,7 +16,10 @@ class EditorCheckboxBuilder extends QuillCheckboxBuilder {
   EditorCheckboxBuilder(this.theme);
 
   @override
-  Widget build({required BuildContext context, required bool isChecked, required ValueChanged<bool> onChanged}) {
+  Widget build(
+      {required BuildContext context,
+      required bool isChecked,
+      required ValueChanged<bool> onChanged}) {
     return FlowyEditorCheckbox(
       theme: theme,
       isChecked: isChecked,
@@ -37,10 +40,10 @@ class FlowyEditorCheckbox extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FlowyEditorCheckboxState createState() => _FlowyEditorCheckboxState();
+  FlowyEditorCheckboxState createState() => FlowyEditorCheckboxState();
 }
 
-class _FlowyEditorCheckboxState extends State<FlowyEditorCheckbox> {
+class FlowyEditorCheckboxState extends State<FlowyEditorCheckbox> {
   late bool isChecked;
 
   @override
@@ -51,7 +54,9 @@ class _FlowyEditorCheckboxState extends State<FlowyEditorCheckbox> {
 
   @override
   Widget build(BuildContext context) {
-    final icon = isChecked ? svgWidget('editor/editor_check') : svgWidget('editor/editor_uncheck');
+    final icon = isChecked
+        ? svgWidget('editor/editor_check')
+        : svgWidget('editor/editor_uncheck');
     return Align(
       alignment: Alignment.centerLeft,
       child: FlowyIconButton(

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
+import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:appflowy_editor/src/service/service.dart';
 import 'package:flutter/material.dart';
 
@@ -57,6 +58,9 @@ class EditorState {
 
   /// Stores the selection menu items.
   List<SelectionMenuItem> selectionMenuItems = [];
+
+  /// Stores the editor style.
+  EditorStyle editorStyle = const EditorStyle.defaultStyle();
 
   final UndoManager undoManager = UndoManager();
   Selection? _cursorSelection;

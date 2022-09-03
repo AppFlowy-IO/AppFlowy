@@ -5,6 +5,7 @@ pub struct Group {
     pub id: String,
     pub field_id: String,
     pub name: String,
+    pub is_default: bool,
     pub(crate) rows: Vec<RowPB>,
 
     /// [content] is used to determine which group the cell belongs to.
@@ -16,6 +17,7 @@ impl Group {
         Self {
             id,
             field_id,
+            is_default: false,
             name,
             rows: vec![],
             content,

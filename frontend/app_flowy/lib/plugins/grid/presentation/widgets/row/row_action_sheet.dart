@@ -59,8 +59,8 @@ class GridRowActionSheet extends StatelessWidget {
   }) {
     FlowyOverlay.of(overlayContext).insertWithAnchor(
       widget: OverlayContainer(
-        child: this,
         constraints: BoxConstraints.loose(const Size(140, 200)),
+        child: this,
       ),
       identifier: GridRowActionSheet.identifier(),
       anchorContext: overlayContext,

@@ -52,7 +52,8 @@ class GridRowCache {
     //
     notifier.onRowFieldsChanged(() => _rowChangeReasonNotifier
         .receive(const RowsChangedReason.fieldDidChange()));
-    notifier.onRowFieldChanged((field) => _cellCache.remove(field.id));
+    notifier.onRowFieldChanged(
+        (field) => _cellCache.removeCellWithFieldId(field.id));
     _rowInfos = block.rows.map((rowPB) => buildGridRow(rowPB)).toList();
   }
 
@@ -209,7 +210,8 @@ class GridRowCache {
   }
 
   GridCellMap _makeGridCells(String rowId, RowPB? row) {
-    var cellDataMap = GridCellMap.new();
+    // ignore: prefer_collection_literals
+    var cellDataMap = GridCellMap();
     for (final field in _fieldNotifier.fields) {
       if (field.visibility) {
         cellDataMap[field.id] = GridCellIdentifier(

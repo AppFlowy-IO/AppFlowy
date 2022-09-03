@@ -4,7 +4,7 @@ import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
 mixin DefaultSelectable {
-  Selectable get forward;
+  SelectableMixin get forward;
 
   GlobalKey? get iconKey;
 
@@ -32,7 +32,8 @@ mixin DefaultSelectable {
   Selection getSelectionInRange(Offset start, Offset end) =>
       forward.getSelectionInRange(start, end);
 
-  Offset localToGlobal(Offset offset) => forward.localToGlobal(offset);
+  Offset localToGlobal(Offset offset) =>
+      forward.localToGlobal(offset) - baseOffset;
 
   Selection? getWorldBoundaryInOffset(Offset offset) =>
       forward.getWorldBoundaryInOffset(offset);

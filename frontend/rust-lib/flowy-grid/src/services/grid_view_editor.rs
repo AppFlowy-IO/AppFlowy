@@ -95,9 +95,14 @@ impl GridViewRevisionEditor {
         match params.group_id.as_ref() {
             None => {}
             Some(group_id) => {
+                let index = match params.start_row_id {
+                    None => Some(0),
+                    Some(_) => None,
+                };
                 let inserted_row = InsertedRowPB {
                     row: row_pb.clone(),
-                    index: None,
+                    index,
+                    is_new: true,
                 };
                 let changeset = GroupChangesetPB::insert(group_id.clone(), vec![inserted_row]);
                 self.notify_did_update_group(changeset).await;
@@ -140,8 +145,8 @@ impl GridViewRevisionEditor {
         row_changeset: &mut RowChangeset,
         to_group_id: &str,
         to_row_id: Option<String>,
-    ) {
-        if let Some(changesets) = self
+    ) -> Vec<GroupChangesetPB> {
+        match self
             .group_service
             .write()
             .await
@@ -150,9 +155,8 @@ impl GridViewRevisionEditor {
             })
             .await
         {
-            for changeset in changesets {
-                self.notify_did_update_group(changeset).await;
-            }
+            None => vec![],
+            Some(changesets) => changesets,
         }
     }
     /// Only call once after grid view editor initialized
@@ -266,7 +270,7 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
-    async fn notify_did_update_group(&self, changeset: GroupChangesetPB) {
+    pub async fn notify_did_update_group(&self, changeset: GroupChangesetPB) {
         send_dart_notification(&changeset.group_id, GridNotification::DidUpdateGroup)
             .payload(changeset)
             .send();

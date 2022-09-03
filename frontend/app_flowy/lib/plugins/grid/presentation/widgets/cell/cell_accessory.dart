@@ -190,12 +190,12 @@ class CellAccessoryContainer extends StatelessWidget {
         ),
       );
       return GestureDetector(
-        child: hover,
         behavior: HitTestBehavior.opaque,
         onTap: () => accessory.onTap(),
+        child: hover,
       );
     }).toList();
 
-    return Wrap(children: children, spacing: 6);
+    return Wrap(spacing: 6, children: children);
   }
 }

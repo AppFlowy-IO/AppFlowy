@@ -31,7 +31,7 @@ class _NetworkImageNodeWidget extends StatefulWidget {
 }
 
 class __NetworkImageNodeWidgetState extends State<_NetworkImageNodeWidget>
-    with Selectable {
+    with SelectableMixin {
   RenderBox get _renderBox => context.findRenderObject() as RenderBox;
 
   @override

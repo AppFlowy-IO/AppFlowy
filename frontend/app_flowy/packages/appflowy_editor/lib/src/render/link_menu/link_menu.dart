@@ -6,14 +6,18 @@ class LinkMenu extends StatefulWidget {
     Key? key,
     this.linkText,
     required this.onSubmitted,
+    required this.onOpenLink,
     required this.onCopyLink,
     required this.onRemoveLink,
+    required this.onFocusChange,
   }) : super(key: key);
 
   final String? linkText;
   final void Function(String text) onSubmitted;
+  final VoidCallback onOpenLink;
   final VoidCallback onCopyLink;
   final VoidCallback onRemoveLink;
+  final void Function(bool value) onFocusChange;
 
   @override
   State<LinkMenu> createState() => _LinkMenuState();
@@ -26,15 +30,14 @@ class _LinkMenuState extends State<LinkMenu> {
   @override
   void initState() {
     super.initState();
-
     _textEditingController.text = widget.linkText ?? '';
-    _focusNode.requestFocus();
+    _focusNode.addListener(_onFocusChange);
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
-
+    _textEditingController.dispose();
+    _focusNode.removeListener(_onFocusChange);
     super.dispose();
   }
 
@@ -67,6 +70,12 @@ class _LinkMenuState extends State<LinkMenu> {
               if (widget.linkText != null) ...[
                 _buildIconButton(
                   iconName: 'link',
+                  text: 'Open link',
+                  onPressed: widget.onOpenLink,
+                ),
+                _buildIconButton(
+                  iconName: 'copy',
+                  color: Colors.black,
                   text: 'Copy link',
                   onPressed: widget.onCopyLink,
                 ),
@@ -126,11 +135,15 @@ class _LinkMenuState extends State<LinkMenu> {
 
   Widget _buildIconButton({
     required String iconName,
+    Color? color,
     required String text,
     required VoidCallback onPressed,
   }) {
     return TextButton.icon(
-      icon: FlowySvg(name: iconName),
+      icon: FlowySvg(
+        name: iconName,
+        color: color,
+      ),
       style: TextButton.styleFrom(
         minimumSize: const Size.fromHeight(40),
         padding: EdgeInsets.zero,
@@ -147,5 +160,9 @@ class _LinkMenuState extends State<LinkMenu> {
       ),
       onPressed: onPressed,
     );
+  }
+
+  void _onFocusChange() {
+    widget.onFocusChange(_focusNode.hasFocus);
   }
 }

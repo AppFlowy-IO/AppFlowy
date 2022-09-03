@@ -141,5 +141,9 @@
       "lightLabel": "Mode Clar",
       "darkLabel": "Mode Fosc"
     }
+  },
+  "sideBar": {
+    "openSidebar": "Open sidebar",
+    "closeSidebar": "Close sidebar"
   }
 }

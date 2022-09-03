@@ -14,6 +14,8 @@ import '../cell/cell_accessory.dart';
 import '../cell/cell_container.dart';
 import '../cell/prelude.dart';
 import 'row_action_sheet.dart';
+import "package:app_flowy/generated/locale_keys.g.dart";
+import 'package:easy_localization/easy_localization.dart';
 
 class GridRowWidget extends StatefulWidget {
   final RowInfo rowInfo;
@@ -122,10 +124,13 @@ class _InsertRowButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return FlowyIconButton(
+      tooltipText: LocaleKeys.tooltip_addNewRow.tr(),
       hoverColor: theme.hover,
       width: 20,
       height: 30,
-      onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
+      onPressed: () => context.read<RowBloc>().add(
+            const RowEvent.createRow(),
+          ),
       iconPadding: const EdgeInsets.all(3),
       icon: svgWidget("home/add"),
     );
@@ -139,6 +144,7 @@ class _DeleteRowButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return FlowyIconButton(
+      tooltipText: LocaleKeys.tooltip_openMenu.tr(),
       hoverColor: theme.hover,
       width: 20,
       height: 30,
@@ -184,7 +190,6 @@ class RowContent extends StatelessWidget {
 
         return CellContainer(
           width: cellId.field.width.toDouble(),
-          child: child,
           rowStateNotifier:
               Provider.of<RegionStateNotifier>(context, listen: false),
           accessoryBuilder: (buildContext) {
@@ -202,6 +207,7 @@ class RowContent extends StatelessWidget {
             }
             return accessories;
           },
+          child: child,
         );
       },
     ).toList();

@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 /// 2. create a class extends [NodeWidgetBuilder]
 /// 3. override the function `Widget build(NodeWidgetContext<Node> context)`
 ///     and return a widget to render. The returned widget should be
-///     a StatefulWidget and mixin with [Selectable].
+///     a StatefulWidget and mixin with [SelectableMixin].
 ///
 /// 4. override the getter `nodeValidator`
 ///     to verify the data structure in [Node].
@@ -50,7 +50,8 @@ class ImageNodeWidget extends StatefulWidget {
   State<ImageNodeWidget> createState() => _ImageNodeWidgetState();
 }
 
-class _ImageNodeWidgetState extends State<ImageNodeWidget> with Selectable {
+class _ImageNodeWidgetState extends State<ImageNodeWidget>
+    with SelectableMixin {
   bool isHovered = false;
   Node get node => widget.node;
   EditorState get editorState => widget.editorState;

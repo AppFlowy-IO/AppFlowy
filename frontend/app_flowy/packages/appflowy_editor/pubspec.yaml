@@ -1,7 +1,12 @@
 name: appflowy_editor
 description: A highly customizable rich-text editor for Flutter
-version: 0.0.2
+version: 0.0.4
 homepage: https://github.com/AppFlowy-IO/AppFlowy
+
+platforms:
+  linux:
+  macos:
+  windows:
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -21,7 +26,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^2.0.1
   network_image_mock: ^2.1.1
 
 # For information on the generic Dart part of this file, see the

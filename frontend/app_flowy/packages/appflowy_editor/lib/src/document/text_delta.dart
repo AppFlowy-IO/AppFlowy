@@ -3,8 +3,6 @@ import 'dart:math';
 
 import 'package:appflowy_editor/src/document/attributes.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import './attributes.dart';
 
 // constant number: 2^53 - 1
 const int _maxInt = 9007199254740991;
@@ -463,7 +461,7 @@ class Delta extends Iterable<TextOperation> {
 
   @override
   int get hashCode {
-    return hashList(_operations);
+    return Object.hashAll(_operations);
   }
 
   /// Returned an inverted delta that has the opposite effect of against a base document delta.

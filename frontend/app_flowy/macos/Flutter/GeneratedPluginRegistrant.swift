@@ -9,6 +9,7 @@ import connectivity_plus_macos
 import device_info_plus_macos
 import flowy_infra_ui
 import flowy_sdk
+import hotkey_manager
 import package_info_plus_macos
 import path_provider_macos
 import rich_clipboard_macos
@@ -21,6 +22,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
   FlowyInfraUIPlugin.register(with: registry.registrar(forPlugin: "FlowyInfraUIPlugin"))
   FlowySdkPlugin.register(with: registry.registrar(forPlugin: "FlowySdkPlugin"))
+  HotkeyManagerPlugin.register(with: registry.registrar(forPlugin: "HotkeyManagerPlugin"))
   FLTPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FLTPackageInfoPlusPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   RichClipboardPlugin.register(with: registry.registrar(forPlugin: "RichClipboardPlugin"))

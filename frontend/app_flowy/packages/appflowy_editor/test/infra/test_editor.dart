@@ -80,7 +80,7 @@ class EditorWidgetTester {
     } else {
       _editorState.service.selectionService.updateSelection(selection);
     }
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 200));
 
     expect(_editorState.service.selectionService.currentSelection.value,
         selection);
