@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
+import 'package:appflowy_editor/src/render/rich_text/embed_code.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/default_key_event_handlers.dart';
@@ -27,6 +28,7 @@ NodeWidgetBuilders defaultBuilders = {
   'text/bulleted-list': BulletedListTextNodeWidgetBuilder(),
   'text/number-list': NumberListTextNodeWidgetBuilder(),
   'text/quote': QuotedTextNodeWidgetBuilder(),
+  'text/code': EmbedCodeTextNodeWidgetBuilder(),
   'image': ImageNodeBuilder(),
 };
 
