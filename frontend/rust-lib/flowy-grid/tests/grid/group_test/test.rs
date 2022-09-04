@@ -1,6 +1,7 @@
 use crate::grid::group_test::script::GridGroupTest;
 use crate::grid::group_test::script::GroupScript::*;
-use flowy_grid::entities::FieldChangesetParams;
+
+use flowy_grid::services::field::SelectOptionPB;
 
 #[tokio::test]
 async fn group_init_test() {
@@ -370,23 +371,41 @@ async fn group_move_group_test() {
 }
 
 #[tokio::test]
-async fn group_update_field_test() {
+async fn group_insert_single_select_option_test() {
     let mut test = GridGroupTest::new().await;
-    let group = test.group_at_index(0).await;
-    let changeset = FieldChangesetParams {
-        field_id: group.field_id.clone(),
-        grid_id: test.grid_id.clone(),
-        name: Some("ABC".to_string()),
-        ..Default::default()
-    };
-
-    // group.desc = "ABC".to_string();
+    let new_option_name = "New option";
     let scripts = vec![
-        UpdateField { changeset },
-        AssertGroup {
-            group_index: 0,
-            expected_group: group,
+        AssertGroupCount(4),
+        UpdateSingleSelectOption {
+            inserted_options: vec![SelectOptionPB::new(new_option_name)],
         },
+        AssertGroupCount(5),
+    ];
+    test.run_scripts(scripts).await;
+
+    // the group at index 4 is the default_group, so the new insert group will be the
+    // index 3.
+    let group_3 = test.group_at_index(3).await;
+    assert_eq!(group_3.desc, new_option_name);
+}
+
+#[tokio::test]
+async fn group_group_by_other_field() {
+    let mut test = GridGroupTest::new().await;
+    let multi_select_field = test.get_multi_select_field().await;
+    let scripts = vec![
+        GroupByField {
+            field_id: multi_select_field.id.clone(),
+        },
+        AssertGroupRowCount {
+            group_index: 0,
+            row_count: 3,
+        },
+        AssertGroupRowCount {
+            group_index: 1,
+            row_count: 2,
+        },
+        AssertGroupCount(4),
     ];
     test.run_scripts(scripts).await;
 }

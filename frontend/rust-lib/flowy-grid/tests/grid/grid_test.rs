@@ -8,7 +8,7 @@ use flowy_grid::services::field::{
 use flowy_grid::services::row::{decode_cell_data_from_type_option_cell_data, CreateRowMetaBuilder};
 use flowy_grid_data_model::entities::{
     CellChangeset, FieldChangesetParams, FieldType, GridBlockInfoChangeset, GridBlockMetaSnapshot, RowMetaChangeset,
-    TypeOptionDataEntry,
+    TypeOptionDataFormat,
 };
 
 #[tokio::test]

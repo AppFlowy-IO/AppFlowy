@@ -1,13 +1,13 @@
 use crate::entities::GroupChangesetPB;
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
 use crate::services::group::action::GroupAction;
-use crate::services::group::configuration::GenericGroupConfiguration;
+use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
 };
-use crate::services::group::entities::Group;
 
-use flowy_grid_data_model::revision::{CheckboxGroupConfigurationRevision, FieldRevision, RowRevision};
+use crate::services::group::GeneratedGroup;
+use flowy_grid_data_model::revision::{CheckboxGroupConfigurationRevision, FieldRevision, GroupRevision, RowRevision};
 
 pub type CheckboxGroupController = GenericGroupController<
     CheckboxGroupConfigurationRevision,
@@ -16,7 +16,7 @@ pub type CheckboxGroupController = GenericGroupController<
     CheckboxCellDataParser,
 >;
 
-pub type CheckboxGroupConfiguration = GenericGroupConfiguration<CheckboxGroupConfigurationRevision>;
+pub type CheckboxGroupContext = GroupContext<CheckboxGroupConfigurationRevision>;
 
 impl GroupAction for CheckboxGroupController {
     type CellDataType = CheckboxCellData;
@@ -49,26 +49,23 @@ impl GroupController for CheckboxGroupController {
 
 pub struct CheckboxGroupGenerator();
 impl GroupGenerator for CheckboxGroupGenerator {
-    type ConfigurationType = CheckboxGroupConfiguration;
+    type Context = CheckboxGroupContext;
     type TypeOptionType = CheckboxTypeOptionPB;
 
     fn generate_groups(
-        field_id: &str,
-        _configuration: &Self::ConfigurationType,
+        _field_id: &str,
+        _group_ctx: &Self::Context,
         _type_option: &Option<Self::TypeOptionType>,
-    ) -> Vec<Group> {
-        let check_group = Group::new(
-            "true".to_string(),
-            field_id.to_owned(),
-            "".to_string(),
-            CHECK.to_string(),
-        );
-        let uncheck_group = Group::new(
-            "false".to_string(),
-            field_id.to_owned(),
-            "".to_string(),
-            UNCHECK.to_string(),
-        );
+    ) -> Vec<GeneratedGroup> {
+        let check_group = GeneratedGroup {
+            group_rev: GroupRevision::new("true".to_string(), CHECK.to_string()),
+            filter_content: "".to_string(),
+        };
+
+        let uncheck_group = GeneratedGroup {
+            group_rev: GroupRevision::new("false".to_string(), UNCHECK.to_string()),
+            filter_content: "".to_string(),
+        };
         vec![check_group, uncheck_group]
     }
 }

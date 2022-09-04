@@ -5,7 +5,7 @@ use flowy_grid::services::row::CreateRowMetaPayload;
 use flowy_grid_data_model::entities::{
     BuildGridContext, CellChangeset, Field, FieldChangesetParams, FieldMeta, FieldOrder, FieldType,
     GridBlockInfoChangeset, GridBlockMetaSnapshot, InsertFieldParams, RowMeta, RowMetaChangeset, RowOrder,
-    TypeOptionDataEntry,
+    TypeOptionDataFormat,
 };
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use flowy_sync::client_grid::GridBuilder;

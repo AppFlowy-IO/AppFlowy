@@ -6,21 +6,23 @@ pub struct Group {
     pub field_id: String,
     pub name: String,
     pub is_default: bool,
+    pub is_visible: bool,
     pub(crate) rows: Vec<RowPB>,
 
     /// [content] is used to determine which group the cell belongs to.
-    pub content: String,
+    pub filter_content: String,
 }
 
 impl Group {
-    pub fn new(id: String, field_id: String, name: String, content: String) -> Self {
+    pub fn new(id: String, field_id: String, name: String, filter_content: String) -> Self {
         Self {
             id,
             field_id,
             is_default: false,
+            is_visible: true,
             name,
             rows: vec![],
-            content,
+            filter_content,
         }
     }
 

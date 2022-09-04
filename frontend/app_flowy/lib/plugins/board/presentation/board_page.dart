@@ -5,7 +5,7 @@ import 'dart:collection';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_detail.dart';
@@ -82,8 +82,7 @@ class _BoardContentState extends State<BoardContent> {
     return BlocListener<BoardBloc, BoardState>(
       listener: (context, state) => _handleEditState(state, context),
       child: BlocBuilder<BoardBloc, BoardState>(
-        buildWhen: (previous, current) =>
-            previous.groupIds.length != current.groupIds.length,
+        buildWhen: (previous, current) => previous.groupIds != current.groupIds,
         builder: (context, state) {
           final theme = context.read<AppTheme>();
           return Container(
@@ -95,6 +94,7 @@ class _BoardContentState extends State<BoardContent> {
                   const _ToolbarBlocAdaptor(),
                   Expanded(
                     child: AFBoard(
+                      key: UniqueKey(),
                       scrollManager: scrollManager,
                       scrollController: scrollController,
                       dataController: context.read<BoardBloc>().boardController,
@@ -222,10 +222,10 @@ class _BoardContentState extends State<BoardContent> {
     /// Return placeholder widget if the rowCache is null.
     if (rowCache == null) return SizedBox(key: ObjectKey(columnItem));
 
-    final fieldCache = context.read<BoardBloc>().fieldCache;
+    final fieldController = context.read<BoardBloc>().fieldController;
     final gridId = context.read<BoardBloc>().gridId;
     final cardController = CardDataController(
-      fieldCache: fieldCache,
+      fieldController: fieldController,
       rowCache: rowCache,
       rowPB: rowPB,
     );
@@ -252,7 +252,7 @@ class _BoardContentState extends State<BoardContent> {
         dataController: cardController,
         openCard: (context) => _openCard(
           gridId,
-          fieldCache,
+          fieldController,
           rowPB,
           rowCache,
           context,
@@ -271,17 +271,17 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  void _openCard(String gridId, GridFieldCache fieldCache, RowPB rowPB,
-      GridRowCache rowCache, BuildContext context) {
+  void _openCard(String gridId, GridFieldController fieldController,
+      RowPB rowPB, GridRowCache rowCache, BuildContext context) {
     final rowInfo = RowInfo(
       gridId: gridId,
-      fields: UnmodifiableListView(fieldCache.fields),
+      fields: UnmodifiableListView(fieldController.fieldContexts),
       rowPB: rowPB,
     );
 
     final dataController = GridRowDataController(
       rowInfo: rowInfo,
-      fieldCache: fieldCache,
+      fieldController: fieldController,
       rowCache: rowCache,
     );
 
@@ -302,7 +302,7 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
         final bloc = context.read<BoardBloc>();
         final toolbarContext = BoardToolbarContext(
           viewId: bloc.gridId,
-          fieldCache: bloc.fieldCache,
+          fieldController: bloc.fieldController,
         );
 
         return BoardToolbar(toolbarContext: toolbarContext);

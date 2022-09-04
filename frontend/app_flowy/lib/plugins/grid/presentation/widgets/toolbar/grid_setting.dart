@@ -11,17 +11,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import '../../../application/field/field_cache.dart';
+import '../../../application/field/field_controller.dart';
 import '../../layout/sizes.dart';
 import 'grid_property.dart';
 
 class GridSettingContext {
   final String gridId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
 
   GridSettingContext({
     required this.gridId,
-    required this.fieldCache,
+    required this.fieldController,
   });
 }
 
@@ -44,7 +44,7 @@ class GridSettingList extends StatelessWidget {
           case GridSettingAction.properties:
             GridPropertyList(
                     gridId: settingContext.gridId,
-                    fieldCache: settingContext.fieldCache)
+                    fieldController: settingContext.fieldController)
                 .show(context);
             break;
         }

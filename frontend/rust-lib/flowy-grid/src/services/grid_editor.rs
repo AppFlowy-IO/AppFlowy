@@ -179,6 +179,10 @@ impl GridRevisionEditor {
             None => Err(ErrorCode::FieldDoesNotExist.into()),
             Some(field_type) => {
                 let _ = self.update_field_rev(params, field_type).await?;
+                match self.view_manager.did_update_field(&field_id).await {
+                    Ok(_) => {}
+                    Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+                }
                 let _ = self.notify_did_update_grid_field(&field_id).await?;
                 Ok(())
             }
@@ -207,6 +211,11 @@ impl GridRevisionEditor {
         Ok(())
     }
 
+    pub async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
+        let _ = self.view_manager.group_by_field(field_id).await?;
+        Ok(())
+    }
+
     pub async fn switch_to_field_type(&self, field_id: &str, field_type: &FieldType) -> FlowyResult<()> {
         // let block_ids = self
         //     .get_block_metas()
@@ -221,7 +230,9 @@ impl GridRevisionEditor {
 
         let type_option_json_builder = |field_type: &FieldTypeRevision| -> String {
             let field_type: FieldType = field_type.into();
-            return default_type_option_builder_from_type(&field_type).entry().json_str();
+            return default_type_option_builder_from_type(&field_type)
+                .data_format()
+                .json_str();
         };
 
         let _ = self
@@ -521,12 +532,20 @@ impl GridRevisionEditor {
         self.view_manager.get_setting().await
     }
 
-    pub async fn get_grid_filter(&self) -> FlowyResult<Vec<GridFilterConfiguration>> {
+    pub async fn get_grid_filter(&self) -> FlowyResult<Vec<GridFilterConfigurationPB>> {
         self.view_manager.get_filters().await
     }
 
-    pub async fn update_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
-        let _ = self.view_manager.update_filter(params).await?;
+    pub async fn create_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+        self.view_manager.insert_or_update_group(params).await
+    }
+
+    pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+        self.view_manager.delete_group(params).await
+    }
+
+    pub async fn create_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
+        let _ = self.view_manager.insert_or_update_filter(params).await?;
         Ok(())
     }
 
@@ -824,7 +843,7 @@ impl JsonDeserializer for TypeOptionJsonDeserializer {
     fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String> {
         // The type_option_data sent from Dart is serialized by protobuf.
         let builder = type_option_builder_from_bytes(type_option_data, &self.0);
-        let json = builder.entry().json_str();
+        let json = builder.data_format().json_str();
         tracing::trace!("Deserialize type option data to: {}", json);
         Ok(json)
     }

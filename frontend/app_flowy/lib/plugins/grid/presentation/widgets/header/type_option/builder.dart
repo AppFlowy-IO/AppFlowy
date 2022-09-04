@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/checkbox_type_option.pb.dart';
@@ -129,17 +130,18 @@ TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
 
 TypeOptionContext<T> makeTypeOptionContext<T extends GeneratedMessage>({
   required String gridId,
-  required FieldPB field,
+  required GridFieldContext fieldContext,
 }) {
-  final loader = FieldTypeOptionLoader(gridId: gridId, field: field);
+  final loader =
+      FieldTypeOptionLoader(gridId: gridId, field: fieldContext.field);
   final dataController = TypeOptionDataController(
     gridId: gridId,
     loader: loader,
-    field: field,
+    fieldContext: fieldContext,
   );
   return makeTypeOptionContextWithDataController(
     gridId: gridId,
-    fieldType: field.fieldType,
+    fieldType: fieldContext.fieldType,
     dataController: dataController,
   );
 }

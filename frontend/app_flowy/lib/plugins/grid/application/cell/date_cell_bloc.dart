@@ -1,5 +1,5 @@
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -20,8 +20,6 @@ class DateCellBloc extends Bloc<DateCellEvent, DateCellState> {
             emit(state.copyWith(
                 data: cellData, dateStr: _dateStrFromCellData(cellData)));
           },
-          didReceiveFieldUpdate: (FieldPB value) =>
-              emit(state.copyWith(field: value)),
         );
       },
     );
@@ -53,8 +51,6 @@ class DateCellEvent with _$DateCellEvent {
   const factory DateCellEvent.initial() = _InitialCell;
   const factory DateCellEvent.didReceiveCellUpdate(DateCellDataPB? data) =
       _DidReceiveCellUpdate;
-  const factory DateCellEvent.didReceiveFieldUpdate(FieldPB field) =
-      _DidReceiveFieldUpdate;
 }
 
 @freezed
@@ -62,14 +58,14 @@ class DateCellState with _$DateCellState {
   const factory DateCellState({
     required DateCellDataPB? data,
     required String dateStr,
-    required FieldPB field,
+    required GridFieldContext fieldContext,
   }) = _DateCellState;
 
   factory DateCellState.initial(GridDateCellController context) {
     final cellData = context.getCellData();
 
     return DateCellState(
-      field: context.field,
+      fieldContext: context.fieldContext,
       data: cellData,
       dateStr: _dateStrFromCellData(cellData),
     );

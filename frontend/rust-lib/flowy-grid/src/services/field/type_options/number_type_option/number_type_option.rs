@@ -6,7 +6,7 @@ use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBui
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
 
 use rust_decimal::Decimal;
 
@@ -45,7 +45,7 @@ impl TypeOptionBuilder for NumberTypeOptionBuilder {
         FieldType::Number
     }
 
-    fn entry(&self) -> &dyn TypeOptionDataEntry {
+    fn data_format(&self) -> &dyn TypeOptionDataFormat {
         &self.0
     }
 }

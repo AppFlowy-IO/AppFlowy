@@ -188,7 +188,7 @@ fn filter_cell(
         FieldType::RichText => filter_cache.text_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<RichTextTypeOptionPB>(field_type_rev)?
+                    .get_type_option::<RichTextTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
@@ -196,7 +196,7 @@ fn filter_cell(
         FieldType::Number => filter_cache.number_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<NumberTypeOptionPB>(field_type_rev)?
+                    .get_type_option::<NumberTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
@@ -204,7 +204,7 @@ fn filter_cell(
         FieldType::DateTime => filter_cache.date_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<DateTypeOptionPB>(field_type_rev)?
+                    .get_type_option::<DateTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
@@ -212,7 +212,7 @@ fn filter_cell(
         FieldType::SingleSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<SingleSelectTypeOptionPB>(field_type_rev)?
+                    .get_type_option::<SingleSelectTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
@@ -220,7 +220,7 @@ fn filter_cell(
         FieldType::MultiSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<MultiSelectTypeOptionPB>(field_type_rev)?
+                    .get_type_option::<MultiSelectTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
@@ -228,7 +228,7 @@ fn filter_cell(
         FieldType::Checkbox => filter_cache.checkbox_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<CheckboxTypeOptionPB>(field_type_rev)?
+                    .get_type_option::<CheckboxTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )
@@ -236,7 +236,7 @@ fn filter_cell(
         FieldType::URL => filter_cache.url_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
-                    .get_type_option_entry::<URLTypeOptionPB>(field_type_rev)?
+                    .get_type_option::<URLTypeOptionPB>(field_type_rev)?
                     .apply_filter(any_cell_data, filter.value())
                     .ok(),
             )

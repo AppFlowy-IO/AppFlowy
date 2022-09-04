@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -12,12 +12,13 @@ import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 
 import 'board_listener.dart';
 
-typedef OnFieldsChanged = void Function(UnmodifiableListView<FieldPB>);
+typedef OnFieldsChanged = void Function(UnmodifiableListView<GridFieldContext>);
 typedef OnGridChanged = void Function(GridPB);
 typedef DidLoadGroups = void Function(List<GroupPB>);
 typedef OnUpdatedGroup = void Function(List<GroupPB>);
 typedef OnDeletedGroup = void Function(List<String>);
 typedef OnInsertedGroup = void Function(List<InsertedGroupPB>);
+typedef OnResetGroups = void Function(List<GroupPB>);
 
 typedef OnRowsChanged = void Function(
   List<RowInfo>,
@@ -28,7 +29,7 @@ typedef OnError = void Function(FlowyError);
 class BoardDataController {
   final String gridId;
   final GridFFIService _gridFFIService;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
   final BoardListener _listener;
 
   // key: the block id
@@ -55,7 +56,7 @@ class BoardDataController {
         // ignore: prefer_collection_literals
         _blocks = LinkedHashMap(),
         _gridFFIService = GridFFIService(gridId: view.id),
-        fieldCache = GridFieldCache(gridId: view.id);
+        fieldController = GridFieldController(gridId: view.id);
 
   void addListener({
     required OnGridChanged onGridChanged,
@@ -65,6 +66,7 @@ class BoardDataController {
     required OnUpdatedGroup onUpdatedGroup,
     required OnDeletedGroup onDeletedGroup,
     required OnInsertedGroup onInsertedGroup,
+    required OnResetGroups onResetGroups,
     required OnError? onError,
   }) {
     _onGridChanged = onGridChanged;
@@ -73,28 +75,36 @@ class BoardDataController {
     _onRowsChanged = onRowsChanged;
     _onError = onError;
 
-    fieldCache.addListener(onFields: (fields) {
+    fieldController.addListener(onFields: (fields) {
       _onFieldsChanged?.call(UnmodifiableListView(fields));
     });
 
-    _listener.start(onBoardChanged: (result) {
-      result.fold(
-        (changeset) {
-          if (changeset.updateGroups.isNotEmpty) {
-            onUpdatedGroup.call(changeset.updateGroups);
-          }
+    _listener.start(
+      onBoardChanged: (result) {
+        result.fold(
+          (changeset) {
+            if (changeset.updateGroups.isNotEmpty) {
+              onUpdatedGroup.call(changeset.updateGroups);
+            }
 
-          if (changeset.insertedGroups.isNotEmpty) {
-            onInsertedGroup.call(changeset.insertedGroups);
-          }
+            if (changeset.insertedGroups.isNotEmpty) {
+              onInsertedGroup.call(changeset.insertedGroups);
+            }
 
-          if (changeset.deletedGroups.isNotEmpty) {
-            onDeletedGroup.call(changeset.deletedGroups);
-          }
-        },
-        (e) => _onError?.call(e),
-      );
-    });
+            if (changeset.deletedGroups.isNotEmpty) {
+              onDeletedGroup.call(changeset.deletedGroups);
+            }
+          },
+          (e) => _onError?.call(e),
+        );
+      },
+      onGroupByNewField: (result) {
+        result.fold(
+          (groups) => onResetGroups(groups),
+          (e) => _onError?.call(e),
+        );
+      },
+    );
   }
 
   Future<Either<Unit, FlowyError>> loadData() async {
@@ -103,16 +113,15 @@ class BoardDataController {
       () => result.fold(
         (grid) async {
           _onGridChanged?.call(grid);
-
-          return await _loadFields(grid).then((result) {
-            return result.fold(
-              (l) {
-                _loadGroups(grid.blocks);
-                return left(l);
-              },
-              (err) => right(err),
-            );
-          });
+          return await fieldController.loadFields(fieldIds: grid.fields).then(
+                (result) => result.fold(
+                  (l) {
+                    _loadGroups(grid.blocks);
+                    return left(l);
+                  },
+                  (err) => right(err),
+                ),
+              );
         },
         (err) => right(err),
       ),
@@ -126,25 +135,11 @@ class BoardDataController {
 
   Future<void> dispose() async {
     await _gridFFIService.closeGrid();
-    await fieldCache.dispose();
+    await fieldController.dispose();
 
     for (final blockCache in _blocks.values) {
       blockCache.dispose();
     }
-  }
-
-  Future<Either<Unit, FlowyError>> _loadFields(GridPB grid) async {
-    final result = await _gridFFIService.getFields(fieldIds: grid.fields);
-    return Future(
-      () => result.fold(
-        (fields) {
-          fieldCache.fields = fields.items;
-          _onFieldsChanged?.call(UnmodifiableListView(fieldCache.fields));
-          return left(unit);
-        },
-        (err) => right(err),
-      ),
-    );
   }
 
   Future<void> _loadGroups(List<BlockPB> blocks) async {
@@ -152,7 +147,7 @@ class BoardDataController {
       final cache = GridBlockCache(
         gridId: gridId,
         block: block,
-        fieldCache: fieldCache,
+        fieldController: fieldController,
       );
 
       cache.addListener(onRowsChanged: (reason) {

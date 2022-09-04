@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -25,7 +25,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final MoveRowFFIService _rowService;
   LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap();
 
-  GridFieldCache get fieldCache => _gridDataController.fieldCache;
+  GridFieldController get fieldController =>
+      _gridDataController.fieldController;
   String get gridId => _gridDataController.gridId;
 
   BoardBloc({required ViewPB view})
@@ -110,9 +111,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             emit(state.copyWith(noneOrError: some(error)));
           },
           didReceiveGroups: (List<GroupPB> groups) {
-            emit(state.copyWith(
-              groupIds: groups.map((group) => group.groupId).toList(),
-            ));
+            emit(
+              state.copyWith(
+                groupIds: groups.map((group) => group.groupId).toList(),
+              ),
+            );
           },
         );
       },
@@ -154,6 +157,23 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void initializeGroups(List<GroupPB> groups) {
+    for (var controller in groupControllers.values) {
+      controller.dispose();
+    }
+    groupControllers.clear();
+    boardController.clear();
+
+    //
+    List<AFBoardColumnData> columns = groups.map((group) {
+      return AFBoardColumnData(
+        id: group.groupId,
+        name: group.desc,
+        items: _buildRows(group),
+        customData: group,
+      );
+    }).toList();
+    boardController.addColumns(columns);
+
     for (final group in groups) {
       final delegate = GroupControllerDelegateImpl(
         controller: boardController,
@@ -184,37 +204,34 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         }
       },
       didLoadGroups: (groups) {
-        List<AFBoardColumnData> columns = groups.map((group) {
-          return AFBoardColumnData(
-            id: group.groupId,
-            name: group.desc,
-            items: _buildRows(group),
-            customData: group,
-          );
-        }).toList();
-
-        boardController.addColumns(columns);
+        if (isClosed) return;
         initializeGroups(groups);
         add(BoardEvent.didReceiveGroups(groups));
       },
       onDeletedGroup: (groupIds) {
+        if (isClosed) return;
         //
       },
       onInsertedGroup: (insertedGroups) {
+        if (isClosed) return;
         //
       },
       onUpdatedGroup: (updatedGroups) {
-        //
+        if (isClosed) return;
         for (final group in updatedGroups) {
           final columnController =
               boardController.getColumnController(group.groupId);
-          if (columnController != null) {
-            columnController.updateColumnName(group.desc);
-          }
+          columnController?.updateColumnName(group.desc);
         }
       },
       onError: (err) {
         Log.error(err);
+      },
+      onResetGroups: (groups) {
+        if (isClosed) return;
+
+        initializeGroups(groups);
+        add(BoardEvent.didReceiveGroups(groups));
       },
     );
   }
