@@ -46,10 +46,10 @@ impl GroupAction for MultiSelectGroupController {
         changesets
     }
 
-    fn move_row(&mut self, cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
+    fn move_row(&mut self, _cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
         let mut group_changeset = vec![];
         self.group_ctx.iter_mut_groups(|group| {
-            if let Some(changeset) = move_select_option_row(group, cell_data, &mut context) {
+            if let Some(changeset) = move_group_row(group, &mut context) {
                 group_changeset.push(changeset);
             }
         });

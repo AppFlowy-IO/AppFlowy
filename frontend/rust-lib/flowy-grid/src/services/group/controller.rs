@@ -7,7 +7,6 @@ use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     FieldRevision, GroupConfigurationContentSerde, GroupRevision, RowChangeset, RowRevision, TypeOptionDataDeserializer,
 };
-
 use std::marker::PhantomData;
 use std::sync::Arc;
 
@@ -193,9 +192,14 @@ where
     #[tracing::instrument(level = "trace", skip_all, fields(row_count=%row_revs.len(), group_result))]
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()> {
         for row_rev in row_revs {
-            if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
+            let cell_rev = match row_rev.cells.get(&self.field_id) {
+                None => self.default_cell_rev(),
+                Some(cell_rev) => Some(cell_rev.clone()),
+            };
+
+            if let Some(cell_rev) = cell_rev {
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
-                let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev);
                 let cell_data = cell_bytes.parser::<P>()?;
                 for group in self.group_ctx.concrete_groups() {
                     if self.can_group(&group.filter_content, &cell_data) {
