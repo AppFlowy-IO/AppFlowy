@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -204,16 +204,20 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         }
       },
       didLoadGroups: (groups) {
+        if (isClosed) return;
         initializeGroups(groups);
         add(BoardEvent.didReceiveGroups(groups));
       },
       onDeletedGroup: (groupIds) {
+        if (isClosed) return;
         //
       },
       onInsertedGroup: (insertedGroups) {
+        if (isClosed) return;
         //
       },
       onUpdatedGroup: (updatedGroups) {
+        if (isClosed) return;
         for (final group in updatedGroups) {
           final columnController =
               boardController.getColumnController(group.groupId);
@@ -224,6 +228,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         Log.error(err);
       },
       onResetGroups: (groups) {
+        if (isClosed) return;
+
         initializeGroups(groups);
         add(BoardEvent.didReceiveGroups(groups));
       },

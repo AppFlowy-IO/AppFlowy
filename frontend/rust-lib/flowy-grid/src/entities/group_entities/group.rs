@@ -130,7 +130,7 @@ impl std::convert::From<Vec<Arc<GroupConfigurationRevision>>> for RepeatedGridGr
 }
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct CreateGridGroupPayloadPB {
+pub struct InsertGroupPayloadPB {
     #[pb(index = 1)]
     pub field_id: String,
 
@@ -138,22 +138,22 @@ pub struct CreateGridGroupPayloadPB {
     pub field_type: FieldType,
 }
 
-impl TryInto<CreatGroupParams> for CreateGridGroupPayloadPB {
+impl TryInto<InsertGroupParams> for InsertGroupPayloadPB {
     type Error = ErrorCode;
 
-    fn try_into(self) -> Result<CreatGroupParams, Self::Error> {
+    fn try_into(self) -> Result<InsertGroupParams, Self::Error> {
         let field_id = NotEmptyStr::parse(self.field_id)
             .map_err(|_| ErrorCode::FieldIdIsEmpty)?
             .0;
 
-        Ok(CreatGroupParams {
+        Ok(InsertGroupParams {
             field_id,
             field_type_rev: self.field_type.into(),
         })
     }
 }
 
-pub struct CreatGroupParams {
+pub struct InsertGroupParams {
     pub field_id: String,
     pub field_type_rev: FieldTypeRevision,
 }

@@ -89,7 +89,7 @@ where
         let field_type_rev = field_rev.ty;
         let type_option = field_rev.get_type_option::<T>(field_type_rev);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
-        let _ = configuration.init_groups(groups, false)?;
+        let _ = configuration.init_groups(groups, true)?;
 
         Ok(Self {
             field_id: field_rev.id.clone(),

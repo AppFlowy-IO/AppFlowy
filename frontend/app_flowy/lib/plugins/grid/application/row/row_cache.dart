@@ -1,6 +1,6 @@
 import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';

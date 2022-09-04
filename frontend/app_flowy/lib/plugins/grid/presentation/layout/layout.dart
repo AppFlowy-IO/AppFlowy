@@ -1,4 +1,4 @@
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'sizes.dart';
 
 class GridLayout {

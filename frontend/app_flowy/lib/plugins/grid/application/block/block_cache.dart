@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 
-import '../field/field_cache.dart';
+import '../field/field_controller.dart';
 import '../row/row_cache.dart';
 import 'block_listener.dart';
 

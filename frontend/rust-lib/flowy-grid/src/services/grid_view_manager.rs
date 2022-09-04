@@ -1,6 +1,6 @@
 use crate::entities::{
-    CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfigurationPB, GridSettingPB, MoveGroupParams,
-    RepeatedGridGroupPB, RowPB,
+    CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridFilterConfigurationPB, GridSettingPB,
+    InsertFilterParams, InsertGroupParams, MoveGroupParams, RepeatedGridGroupPB, RowPB,
 };
 use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
@@ -110,20 +110,30 @@ impl GridViewManager {
         Ok(view_editor.get_filters().await)
     }
 
-    pub(crate) async fn update_filter(&self, insert_filter: CreateFilterParams) -> FlowyResult<()> {
+    pub(crate) async fn insert_or_update_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        view_editor.insert_filter(insert_filter).await
+        view_editor.insert_filter(params).await
     }
 
-    pub(crate) async fn delete_filter(&self, delete_filter: DeleteFilterParams) -> FlowyResult<()> {
+    pub(crate) async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        view_editor.delete_filter(delete_filter).await
+        view_editor.delete_filter(params).await
     }
 
     pub(crate) async fn load_groups(&self) -> FlowyResult<RepeatedGridGroupPB> {
         let view_editor = self.get_default_view_editor().await?;
         let groups = view_editor.load_groups().await?;
         Ok(RepeatedGridGroupPB { items: groups })
+    }
+
+    pub(crate) async fn insert_or_update_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        view_editor.insert_group(params).await
+    }
+
+    pub(crate) async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        view_editor.delete_group(params).await
     }
 
     pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {

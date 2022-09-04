@@ -1,45 +1,37 @@
-import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
-import '../field/field_cache.dart';
-import 'setting_controller.dart';
+import '../field/field_controller.dart';
+import 'setting_service.dart';
 
 part 'group_bloc.freezed.dart';
 
 class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
   final GridFieldController _fieldController;
-  final SettingController _settingController;
+  final SettingFFIService _settingFFIService;
   Function(List<GridFieldContext>)? _onFieldsFn;
 
   GridGroupBloc(
       {required String viewId, required GridFieldController fieldController})
       : _fieldController = fieldController,
-        _settingController = SettingController(viewId: viewId),
+        _settingFFIService = SettingFFIService(viewId: viewId),
         super(GridGroupState.initial(viewId, fieldController.fieldContexts)) {
     on<GridGroupEvent>(
       (event, emit) async {
-        await event.map(
-          initial: (_Initial value) {
+        event.when(
+          initial: () {
             _startListening();
           },
-          setFieldVisibility: (_SetFieldVisibility value) async {
-            final fieldService =
-                FieldService(gridId: viewId, fieldId: value.fieldId);
-            final result =
-                await fieldService.updateField(visibility: value.visibility);
-            result.fold(
-              (l) => null,
-              (err) => Log.error(err),
+          didReceiveFieldUpdate: (fieldContexts) {
+            emit(state.copyWith(fieldContexts: fieldContexts));
+          },
+          setGroupByField: (String fieldId, FieldType fieldType) {
+            _settingFFIService.groupByField(
+              fieldId: fieldId,
+              fieldType: fieldType,
             );
-          },
-          didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(fieldContexts: value.fields));
-          },
-          moveField: (_MoveField value) {
-            //
           },
         );
       },
@@ -56,15 +48,11 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
   }
 
   void _startListening() {
-    _onFieldsFn = (fields) => add(GridGroupEvent.didReceiveFieldUpdate(fields));
+    _onFieldsFn = (fieldContexts) =>
+        add(GridGroupEvent.didReceiveFieldUpdate(fieldContexts));
     _fieldController.addListener(
       onFields: _onFieldsFn,
       listenWhen: () => !isClosed,
-    );
-
-    _settingController.startListeing(
-      onSettingUpdated: (setting) {},
-      onError: (err) {},
     );
   }
 }
@@ -72,12 +60,12 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
 @freezed
 class GridGroupEvent with _$GridGroupEvent {
   const factory GridGroupEvent.initial() = _Initial;
-  const factory GridGroupEvent.setFieldVisibility(
-      String fieldId, bool visibility) = _SetFieldVisibility;
+  const factory GridGroupEvent.setGroupByField(
+    String fieldId,
+    FieldType fieldType,
+  ) = _GroupByField;
   const factory GridGroupEvent.didReceiveFieldUpdate(
       List<GridFieldContext> fields) = _DidReceiveFieldUpdate;
-  const factory GridGroupEvent.moveField(int fromIndex, int toIndex) =
-      _MoveField;
 }
 
 @freezed

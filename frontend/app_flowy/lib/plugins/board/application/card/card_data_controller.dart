@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/board/presentation/card/card_cell_builder.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_field_notifier.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flutter/foundation.dart';

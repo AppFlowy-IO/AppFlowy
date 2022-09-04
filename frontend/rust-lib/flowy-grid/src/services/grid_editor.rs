@@ -211,7 +211,7 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn group_field(&self, field_id: &str) -> FlowyResult<()> {
+    pub async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
         let _ = self.view_manager.group_by_field(field_id).await?;
         Ok(())
     }
@@ -536,8 +536,16 @@ impl GridRevisionEditor {
         self.view_manager.get_filters().await
     }
 
-    pub async fn update_filter(&self, params: CreateFilterParams) -> FlowyResult<()> {
-        let _ = self.view_manager.update_filter(params).await?;
+    pub async fn create_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+        self.view_manager.insert_or_update_group(params).await
+    }
+
+    pub async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+        self.view_manager.delete_group(params).await
+    }
+
+    pub async fn create_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
+        let _ = self.view_manager.insert_or_update_filter(params).await?;
         Ok(())
     }
 

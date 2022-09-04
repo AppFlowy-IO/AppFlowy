@@ -133,6 +133,7 @@ where
         }
     }
 
+    #[tracing::instrument(level = "debug", skip(self, generated_groups), err)]
     pub(crate) fn init_groups(
         &mut self,
         generated_groups: Vec<GeneratedGroup>,
@@ -316,7 +317,8 @@ where
 fn merge_groups(old_groups: &[GroupRevision], new_groups: Vec<GroupRevision>) -> MergeGroupResult {
     let mut merge_result = MergeGroupResult::new();
     if old_groups.is_empty() {
-        merge_result.all_group_revs = new_groups;
+        merge_result.all_group_revs = new_groups.clone();
+        merge_result.new_group_revs = new_groups;
         return merge_result;
     }
 

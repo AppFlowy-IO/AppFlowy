@@ -91,6 +91,7 @@ class AFBoardDataController extends ChangeNotifier
 
   void clear() {
     _columnDatas.clear();
+    _columnControllers.clear();
     notifyListeners();
   }
 

@@ -8,7 +8,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/grid_entities.pb.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'block/block_cache.dart';
-import 'field/field_cache.dart';
+import 'field/field_controller.dart';
 import 'prelude.dart';
 import 'row/row_cache.dart';
 

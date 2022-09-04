@@ -2,10 +2,12 @@ import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/field/grid_listener.dart';
 import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_listener.dart';
+import 'package:app_flowy/plugins/grid/application/setting/setting_service.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/setting_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import '../row/row_cache.dart';
 
@@ -35,11 +37,17 @@ class GridFieldController {
   final Map<OnChangeset, OnChangeset> _changesetCallbackMap = {};
 
   _GridFieldNotifier? _fieldNotifier = _GridFieldNotifier();
+  List<String> _groupFieldIds = [];
   final GridFFIService _gridFFIService;
+  final SettingFFIService _settingFFIService;
+
+  List<GridFieldContext> get fieldContexts =>
+      [..._fieldNotifier?.fieldContexts ?? []];
 
   GridFieldController({required this.gridId})
       : _fieldListener = GridFieldsListener(gridId: gridId),
         _gridFFIService = GridFFIService(gridId: gridId),
+        _settingFFIService = SettingFFIService(viewId: gridId),
         _settingListener = SettingListener(gridId: gridId) {
     //Listen on field's changes
     _fieldListener.start(onFieldsChanged: (result) {
@@ -59,24 +67,38 @@ class GridFieldController {
     //Listen on setting changes
     _settingListener.start(onSettingUpdated: (result) {
       result.fold(
-        (setting) {
-          final List<String> groupFieldIds = setting.groupConfigurations.items
-              .map((item) => item.groupFieldId)
-              .toList();
-          bool isChanged = false;
-          if (_fieldNotifier != null) {
-            for (var field in _fieldNotifier!.fieldContexts) {
-              if (groupFieldIds.contains(field.id)) {
-                field._isGroupField = true;
-                isChanged = true;
-              }
-            }
-            if (isChanged) _fieldNotifier?.notify();
-          }
-        },
+        (setting) => _updateFieldsWhenSettingChanged(setting),
         (r) => Log.error(r),
       );
     });
+
+    _settingFFIService.getSetting().then((result) {
+      result.fold(
+        (setting) => _updateFieldsWhenSettingChanged(setting),
+        (err) => Log.error(err),
+      );
+    });
+  }
+
+  void _updateFieldsWhenSettingChanged(GridSettingPB setting) {
+    _groupFieldIds = setting.groupConfigurations.items
+        .map((item) => item.groupFieldId)
+        .toList();
+
+    _updateFieldContexts();
+  }
+
+  void _updateFieldContexts() {
+    if (_fieldNotifier != null) {
+      for (var field in _fieldNotifier!.fieldContexts) {
+        if (_groupFieldIds.contains(field.id)) {
+          field._isGroupField = true;
+        } else {
+          field._isGroupField = false;
+        }
+      }
+      _fieldNotifier?.notify();
+    }
   }
 
   Future<void> dispose() async {
@@ -84,9 +106,6 @@ class GridFieldController {
     _fieldNotifier?.dispose();
     _fieldNotifier = null;
   }
-
-  List<GridFieldContext> get fieldContexts =>
-      [..._fieldNotifier?.fieldContexts ?? []];
 
   Future<Either<Unit, FlowyError>> loadFields(
       {required List<FieldIdPB> fieldIds}) async {
@@ -97,6 +116,7 @@ class GridFieldController {
           _fieldNotifier?.fieldContexts = newFields.items
               .map((field) => GridFieldContext(field: field))
               .toList();
+          _updateFieldContexts();
           return left(unit);
         },
         (err) => right(err),

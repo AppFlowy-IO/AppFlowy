@@ -188,7 +188,7 @@ impl GridGroupTest {
                 .await;
             }
             GroupScript::GroupByField { field_id } => {
-                self.editor.group_field(&field_id).await.unwrap();
+                self.editor.group_by_field(&field_id).await.unwrap();
             }
         }
     }

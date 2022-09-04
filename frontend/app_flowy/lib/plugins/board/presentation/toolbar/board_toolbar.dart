@@ -1,4 +1,4 @@
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';

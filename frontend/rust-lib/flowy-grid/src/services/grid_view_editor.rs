@@ -1,14 +1,15 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{
-    CreateFilterParams, CreateRowParams, DeleteFilterParams, GridFilterConfigurationPB, GridGroupConfigurationPB,
-    GridLayout, GridLayoutPB, GridSettingPB, GroupChangesetPB, GroupPB, GroupViewChangesetPB, InsertedGroupPB,
-    InsertedRowPB, MoveGroupParams, RepeatedGridFilterConfigurationPB, RepeatedGridGroupConfigurationPB, RowPB,
+    CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridFilterConfigurationPB, GridGroupConfigurationPB,
+    GridLayout, GridLayoutPB, GridSettingPB, GroupChangesetPB, GroupPB, GroupViewChangesetPB, InsertFilterParams,
+    InsertGroupParams, InsertedGroupPB, InsertedRowPB, MoveGroupParams, RepeatedGridFilterConfigurationPB,
+    RepeatedGridGroupConfigurationPB, RowPB,
 };
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
 use crate::services::group::{
-    find_group_field, make_group_controller, GroupConfigurationReader, GroupConfigurationWriter, GroupController,
-    MoveGroupRowContext,
+    default_group_configuration, find_group_field, make_group_controller, GroupConfigurationReader,
+    GroupConfigurationWriter, GroupController, MoveGroupRowContext,
 };
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
@@ -19,7 +20,6 @@ use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilde
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use lib_infra::future::{wrap_future, AFFuture, FutureResult};
-use std::collections::HashMap;
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -210,15 +210,40 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn insert_filter(&self, insert_filter: CreateFilterParams) -> FlowyResult<()> {
+    pub(crate) async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+        if let Some(field_rev) = self.field_delegate.get_field_rev(&params.field_id).await {
+            let _ = self
+                .modify(|pad| {
+                    let configuration = default_group_configuration(&field_rev);
+                    let changeset = pad.insert_group(&params.field_id, &params.field_type_rev, configuration)?;
+                    Ok(changeset)
+                })
+                .await?;
+        }
+        if self.group_controller.read().await.field_id() != params.field_id {
+            let _ = self.group_by_field(&params.field_id).await?;
+            self.notify_did_update_setting().await;
+        }
+        Ok(())
+    }
+
+    pub(crate) async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+        self.modify(|pad| {
+            let changeset = pad.delete_filter(&params.field_id, &params.field_type_rev, &params.group_id)?;
+            Ok(changeset)
+        })
+        .await
+    }
+
+    pub(crate) async fn insert_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
         self.modify(|pad| {
             let filter_rev = FilterConfigurationRevision {
                 id: gen_grid_filter_id(),
-                field_id: insert_filter.field_id.clone(),
-                condition: insert_filter.condition,
-                content: insert_filter.content,
+                field_id: params.field_id.clone(),
+                condition: params.condition,
+                content: params.content,
             };
-            let changeset = pad.insert_filter(&insert_filter.field_id, &insert_filter.field_type_rev, filter_rev)?;
+            let changeset = pad.insert_filter(&params.field_id, &params.field_type_rev, filter_rev)?;
             Ok(changeset)
         })
         .await
@@ -277,6 +302,13 @@ impl GridViewRevisionEditor {
             }
         }
         Ok(())
+    }
+
+    async fn notify_did_update_setting(&self) {
+        let setting = self.get_setting().await;
+        send_dart_notification(&self.view_id, GridNotification::DidUpdateGridSetting)
+            .payload(setting)
+            .send();
     }
 
     pub async fn notify_did_update_group(&self, changeset: GroupChangesetPB) {

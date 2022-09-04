@@ -1,13 +1,12 @@
 use crate::entities::{
-    CreatGroupParams, CreateFilterParams, CreateGridFilterPayloadPB, CreateGridGroupPayloadPB, DeleteFilterParams,
-    DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, RepeatedGridFilterConfigurationPB,
+    DeleteFilterParams, DeleteFilterPayloadPB, DeleteGroupParams, DeleteGroupPayloadPB, InsertFilterParams,
+    InsertFilterPayloadPB, InsertGroupParams, InsertGroupPayloadPB, RepeatedGridFilterConfigurationPB,
     RepeatedGridGroupConfigurationPB,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
 use flowy_grid_data_model::revision::LayoutRevision;
-use std::collections::HashMap;
 use std::convert::TryInto;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
@@ -85,13 +84,13 @@ pub struct GridSettingChangesetPayloadPB {
     pub layout_type: GridLayout,
 
     #[pb(index = 3, one_of)]
-    pub insert_filter: Option<CreateGridFilterPayloadPB>,
+    pub insert_filter: Option<InsertFilterPayloadPB>,
 
     #[pb(index = 4, one_of)]
     pub delete_filter: Option<DeleteFilterPayloadPB>,
 
     #[pb(index = 5, one_of)]
-    pub insert_group: Option<CreateGridGroupPayloadPB>,
+    pub insert_group: Option<InsertGroupPayloadPB>,
 
     #[pb(index = 6, one_of)]
     pub delete_group: Option<DeleteGroupPayloadPB>,
@@ -102,7 +101,7 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
 
     fn try_into(self) -> Result<GridSettingChangesetParams, Self::Error> {
         let view_id = NotEmptyStr::parse(self.grid_id)
-            .map_err(|_| ErrorCode::FieldIdIsEmpty)?
+            .map_err(|_| ErrorCode::ViewIdInvalid)?
             .0;
 
         let insert_filter = match self.insert_filter {
@@ -139,9 +138,9 @@ impl TryInto<GridSettingChangesetParams> for GridSettingChangesetPayloadPB {
 pub struct GridSettingChangesetParams {
     pub grid_id: String,
     pub layout_type: LayoutRevision,
-    pub insert_filter: Option<CreateFilterParams>,
+    pub insert_filter: Option<InsertFilterParams>,
     pub delete_filter: Option<DeleteFilterParams>,
-    pub insert_group: Option<CreatGroupParams>,
+    pub insert_group: Option<InsertGroupParams>,
     pub delete_group: Option<DeleteGroupParams>,
 }
 

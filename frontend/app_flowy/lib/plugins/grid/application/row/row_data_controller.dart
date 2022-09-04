@@ -2,7 +2,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_field_
 import 'package:flutter/material.dart';
 import '../../presentation/widgets/cell/cell_builder.dart';
 import '../cell/cell_service/cell_service.dart';
-import '../field/field_cache.dart';
+import '../field/field_controller.dart';
 import 'row_cache.dart';
 
 typedef OnRowChanged = void Function(GridCellMap, RowsChangedReason);

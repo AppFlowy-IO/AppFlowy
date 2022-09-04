@@ -16,7 +16,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_listener.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'dart:convert' show utf8;
 
-import '../../field/field_cache.dart';
+import '../../field/field_controller.dart';
 import '../../field/type_option/type_option_context.dart';
 import 'cell_field_notifier.dart';
 part 'cell_service.freezed.dart';

@@ -16,7 +16,7 @@ impl DefaultGroupController {
         let group = Group::new(
             DEFAULT_GROUP_CONTROLLER.to_owned(),
             field_rev.id.clone(),
-            "Oops".to_owned(),
+            "".to_owned(),
             "".to_owned(),
         );
         Self {

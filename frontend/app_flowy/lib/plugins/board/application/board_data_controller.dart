@@ -1,7 +1,7 @@
 import 'dart:collection';
 
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/grid_service.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';

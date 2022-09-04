@@ -1,6 +1,6 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/board/application/toolbar/board_setting_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_group.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_property.dart';

@@ -61,12 +61,12 @@ impl GridViewRevisionPad {
         &mut self,
         field_id: &str,
         field_type: &FieldTypeRevision,
-        group_rev: GroupConfigurationRevision,
+        group_configuration_rev: GroupConfigurationRevision,
     ) -> CollaborateResult<Option<GridViewRevisionChangeset>> {
         self.modify(|view| {
             // Only save one group
             view.groups.clear();
-            view.groups.add_object(field_id, field_type, group_rev);
+            view.groups.add_object(field_id, field_type, group_configuration_rev);
             Ok(Some(()))
         })
     }
