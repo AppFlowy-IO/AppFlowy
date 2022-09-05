@@ -66,7 +66,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
         padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
         child: AFBoard(
           dataController: boardDataController,
-          footBuilder: (context, columnData) {
+          footerBuilder: (context, columnData) {
             return AppFlowyColumnFooter(
               icon: const Icon(Icons.add, size: 20),
               title: const Text('New'),

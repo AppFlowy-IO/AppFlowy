@@ -106,7 +106,7 @@ class _BoardContentState extends State<BoardContent> {
         scrollController: scrollController,
         dataController: context.read<BoardBloc>().boardController,
         headerBuilder: _buildHeader,
-        footBuilder: _buildFooter,
+        footerBuilder: _buildFooter,
         cardBuilder: (_, column, columnItem) => _buildCard(
           context,
           column,

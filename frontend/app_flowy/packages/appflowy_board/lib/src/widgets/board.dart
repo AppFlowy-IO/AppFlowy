@@ -56,7 +56,7 @@ class AFBoard extends StatelessWidget {
   final AFBoardColumnHeaderBuilder? headerBuilder;
 
   ///
-  final AFBoardColumnFooterBuilder? footBuilder;
+  final AFBoardColumnFooterBuilder? footerBuilder;
 
   ///
   final AFBoardDataController dataController;
@@ -78,7 +78,7 @@ class AFBoard extends StatelessWidget {
     required this.dataController,
     required this.cardBuilder,
     this.background,
-    this.footBuilder,
+    this.footerBuilder,
     this.headerBuilder,
     this.scrollController,
     this.scrollManager,
@@ -112,7 +112,7 @@ class AFBoard extends StatelessWidget {
             delegate: phantomController,
             columnConstraints: columnConstraints,
             cardBuilder: cardBuilder,
-            footBuilder: footBuilder,
+            footBuilder: footerBuilder,
             headerBuilder: headerBuilder,
             phantomController: phantomController,
             onReorder: dataController.moveColumn,
