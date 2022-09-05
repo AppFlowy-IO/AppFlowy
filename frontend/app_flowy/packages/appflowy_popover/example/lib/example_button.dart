@@ -13,40 +13,61 @@ class _PopoverMenuState extends State<PopoverMenu> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 200,
-      height: 200,
-      decoration: const BoxDecoration(color: Colors.yellow),
-      child: ListView(children: [
-        const Text("App"),
-        Popover(
-          triggerActions:
-              PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
-          mutex: popOverMutex,
-          offset: const Offset(10, 0),
-          popupBuilder: (BuildContext context) {
-            return const PopoverMenu();
-          },
-          child: TextButton(
-            onPressed: () {},
-            child: const Text("First"),
+    return Material(
+        type: MaterialType.transparency,
+        child: Container(
+          width: 200,
+          height: 200,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: const Offset(0, 3), // changes position of shadow
+              ),
+            ],
           ),
-        ),
-        Popover(
-          triggerActions:
-              PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
-          mutex: popOverMutex,
-          offset: const Offset(10, 0),
-          popupBuilder: (BuildContext context) {
-            return const PopoverMenu();
-          },
-          child: TextButton(
-            onPressed: () {},
-            child: const Text("Second"),
-          ),
-        ),
-      ]),
-    );
+          child: ListView(children: [
+            Container(
+              margin: const EdgeInsets.all(8),
+              child: const Text("Popover",
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.black,
+                      fontStyle: null,
+                      decoration: null)),
+            ),
+            Popover(
+              triggerActions: PopoverTriggerActionFlags.hover |
+                  PopoverTriggerActionFlags.click,
+              mutex: popOverMutex,
+              offset: const Offset(10, 0),
+              popupBuilder: (BuildContext context) {
+                return const PopoverMenu();
+              },
+              child: TextButton(
+                onPressed: () {},
+                child: const Text("First"),
+              ),
+            ),
+            Popover(
+              triggerActions: PopoverTriggerActionFlags.hover |
+                  PopoverTriggerActionFlags.click,
+              mutex: popOverMutex,
+              offset: const Offset(10, 0),
+              popupBuilder: (BuildContext context) {
+                return const PopoverMenu();
+              },
+              child: TextButton(
+                onPressed: () {},
+                child: const Text("Second"),
+              ),
+            ),
+          ]),
+        ));
   }
 }
 
