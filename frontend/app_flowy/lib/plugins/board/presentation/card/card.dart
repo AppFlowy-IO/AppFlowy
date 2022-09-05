@@ -89,20 +89,20 @@ class _BoardCardState extends State<BoardCard> {
     List<GridCellIdentifier> cells,
   ) {
     final List<Widget> children = [];
+    rowNotifier.clear();
     cells.asMap().forEach(
       (int index, GridCellIdentifier cellId) {
         final cellNotifier = EditableCellNotifier();
         Widget child = widget.cellBuilder.buildCell(
           widget.groupId,
           cellId,
-          widget.isEditing,
+          index == 0 ? widget.isEditing : false,
           cellNotifier,
         );
 
         if (index == 0) {
           rowNotifier.insertCell(cellId, cellNotifier);
         }
-
         child = Padding(
           key: cellId.key(),
           padding: const EdgeInsets.only(left: 4, right: 4),
