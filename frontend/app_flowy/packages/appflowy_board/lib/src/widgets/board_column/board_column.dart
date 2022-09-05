@@ -31,7 +31,7 @@ typedef AFBoardColumnCardBuilder = Widget Function(
 
 typedef AFBoardColumnHeaderBuilder = Widget? Function(
   BuildContext context,
-  AFBoardColumnData headerData,
+  AFBoardColumnData columnData,
 );
 
 typedef AFBoardColumnFooterBuilder = Widget Function(

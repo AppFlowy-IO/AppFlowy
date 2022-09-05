@@ -62,11 +62,7 @@ pub fn remove_select_option_row(
     }
 }
 
-pub fn move_select_option_row(
-    group: &mut Group,
-    _cell_data: &SelectOptionCellDataPB,
-    context: &mut MoveGroupRowContext,
-) -> Option<GroupChangesetPB> {
+pub fn move_group_row(group: &mut Group, context: &mut MoveGroupRowContext) -> Option<GroupChangesetPB> {
     let mut changeset = GroupChangesetPB::new(group.id.clone());
     let MoveGroupRowContext {
         row_rev,

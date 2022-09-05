@@ -7,6 +7,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/group.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/setting_entities.pb.dart';
 import 'package:flutter/foundation.dart';
 import '../row/row_cache.dart';
@@ -35,11 +36,11 @@ class GridFieldController {
   final SettingListener _settingListener;
   final Map<OnReceiveFields, VoidCallback> _fieldCallbackMap = {};
   final Map<OnChangeset, OnChangeset> _changesetCallbackMap = {};
-
-  _GridFieldNotifier? _fieldNotifier = _GridFieldNotifier();
-  List<String> _groupFieldIds = [];
   final GridFFIService _gridFFIService;
   final SettingFFIService _settingFFIService;
+
+  _GridFieldNotifier? _fieldNotifier = _GridFieldNotifier();
+  final Map<String, GridGroupConfigurationPB> _configurationByFieldId = {};
 
   List<GridFieldContext> get fieldContexts =>
       [..._fieldNotifier?.fieldContexts ?? []];
@@ -67,31 +68,43 @@ class GridFieldController {
     //Listen on setting changes
     _settingListener.start(onSettingUpdated: (result) {
       result.fold(
-        (setting) => _updateFieldsWhenSettingChanged(setting),
+        (setting) => _updateGroupConfiguration(setting),
         (r) => Log.error(r),
       );
     });
 
     _settingFFIService.getSetting().then((result) {
       result.fold(
-        (setting) => _updateFieldsWhenSettingChanged(setting),
+        (setting) => _updateGroupConfiguration(setting),
         (err) => Log.error(err),
       );
     });
   }
 
-  void _updateFieldsWhenSettingChanged(GridSettingPB setting) {
-    _groupFieldIds = setting.groupConfigurations.items
-        .map((item) => item.groupFieldId)
+  GridFieldContext? getField(String fieldId) {
+    final fields = _fieldNotifier?.fieldContexts
+        .where(
+          (element) => element.id == fieldId,
+        )
         .toList();
+    if (fields?.isEmpty ?? true) {
+      return null;
+    }
+    return fields!.first;
+  }
 
+  void _updateGroupConfiguration(GridSettingPB setting) {
+    _configurationByFieldId.clear();
+    for (final configuration in setting.groupConfigurations.items) {
+      _configurationByFieldId[configuration.fieldId] = configuration;
+    }
     _updateFieldContexts();
   }
 
   void _updateFieldContexts() {
     if (_fieldNotifier != null) {
       for (var field in _fieldNotifier!.fieldContexts) {
-        if (_groupFieldIds.contains(field.id)) {
+        if (_configurationByFieldId[field.id] != null) {
           field._isGroupField = true;
         } else {
           field._isGroupField = false;
