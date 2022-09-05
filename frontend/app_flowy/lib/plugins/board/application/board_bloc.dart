@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:collection';
+
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_service.dart';
 import 'package:appflowy_board/appflowy_board.dart';
@@ -12,7 +14,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:collection';
 
 import 'board_data_controller.dart';
 import 'group_controller.dart';
@@ -25,7 +26,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final MoveRowFFIService _rowService;
   LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap();
 
-  GridFieldCache get fieldCache => _gridDataController.fieldCache;
+  GridFieldController get fieldController =>
+      _gridDataController.fieldController;
   String get gridId => _gridDataController.gridId;
 
   BoardBloc({required ViewPB view})
@@ -110,9 +112,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             emit(state.copyWith(noneOrError: some(error)));
           },
           didReceiveGroups: (List<GroupPB> groups) {
-            emit(state.copyWith(
-              groupIds: groups.map((group) => group.groupId).toList(),
-            ));
+            emit(
+              state.copyWith(
+                groupIds: groups.map((group) => group.groupId).toList(),
+              ),
+            );
           },
         );
       },
@@ -154,9 +158,32 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
   }
 
   void initializeGroups(List<GroupPB> groups) {
+    for (var controller in groupControllers.values) {
+      controller.dispose();
+    }
+    groupControllers.clear();
+    boardController.clear();
+
+    //
+    List<AFBoardColumnData> columns = groups
+        .where((group) => fieldController.getField(group.fieldId) != null)
+        .map((group) {
+      return AFBoardColumnData(
+        id: group.groupId,
+        name: group.desc,
+        items: _buildRows(group),
+        customData: BoardCustomData(
+          group: group,
+          fieldContext: fieldController.getField(group.fieldId)!,
+        ),
+      );
+    }).toList();
+    boardController.addColumns(columns);
+
     for (final group in groups) {
       final delegate = GroupControllerDelegateImpl(
         controller: boardController,
+        fieldController: fieldController,
         onNewColumnItem: (groupId, row, index) {
           add(BoardEvent.didCreateRow(groupId, row, index));
         },
@@ -184,47 +211,42 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         }
       },
       didLoadGroups: (groups) {
-        List<AFBoardColumnData> columns = groups.map((group) {
-          return AFBoardColumnData(
-            id: group.groupId,
-            name: group.desc,
-            items: _buildRows(group),
-            customData: group,
-          );
-        }).toList();
-
-        boardController.addColumns(columns);
+        if (isClosed) return;
         initializeGroups(groups);
         add(BoardEvent.didReceiveGroups(groups));
       },
       onDeletedGroup: (groupIds) {
+        if (isClosed) return;
         //
       },
       onInsertedGroup: (insertedGroups) {
+        if (isClosed) return;
         //
       },
       onUpdatedGroup: (updatedGroups) {
-        //
+        if (isClosed) return;
         for (final group in updatedGroups) {
           final columnController =
               boardController.getColumnController(group.groupId);
-          if (columnController != null) {
-            columnController.updateColumnName(group.desc);
-          }
+          columnController?.updateColumnName(group.desc);
         }
       },
       onError: (err) {
         Log.error(err);
+      },
+      onResetGroups: (groups) {
+        if (isClosed) return;
+
+        initializeGroups(groups);
+        add(BoardEvent.didReceiveGroups(groups));
       },
     );
   }
 
   List<AFColumnItem> _buildRows(GroupPB group) {
     final items = group.rows.map((row) {
-      return BoardColumnItem(
-        row: row,
-        fieldId: group.fieldId,
-      );
+      final fieldContext = fieldController.getField(group.fieldId);
+      return BoardColumnItem(row: row, fieldContext: fieldContext!);
     }).toList();
 
     return <AFColumnItem>[...items];
@@ -315,15 +337,11 @@ class GridFieldEquatable extends Equatable {
 
 class BoardColumnItem extends AFColumnItem {
   final RowPB row;
-
-  final String fieldId;
-
-  final bool requestFocus;
+  final GridFieldContext fieldContext;
 
   BoardColumnItem({
     required this.row,
-    required this.fieldId,
-    this.requestFocus = false,
+    required this.fieldContext,
   });
 
   @override
@@ -331,24 +349,29 @@ class BoardColumnItem extends AFColumnItem {
 }
 
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
+  final GridFieldController fieldController;
   final AFBoardDataController controller;
   final void Function(String, RowPB, int?) onNewColumnItem;
 
   GroupControllerDelegateImpl({
     required this.controller,
+    required this.fieldController,
     required this.onNewColumnItem,
   });
 
   @override
   void insertRow(GroupPB group, RowPB row, int? index) {
+    final fieldContext = fieldController.getField(group.fieldId);
+    if (fieldContext == null) {
+      Log.warn("FieldContext should not be null");
+      return;
+    }
+
     if (index != null) {
-      final item = BoardColumnItem(row: row, fieldId: group.fieldId);
+      final item = BoardColumnItem(row: row, fieldContext: fieldContext);
       controller.insertColumnItem(group.groupId, index, item);
     } else {
-      final item = BoardColumnItem(
-        row: row,
-        fieldId: group.fieldId,
-      );
+      final item = BoardColumnItem(row: row, fieldContext: fieldContext);
       controller.addColumnItem(group.groupId, item);
     }
   }
@@ -360,22 +383,25 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
   @override
   void updateRow(GroupPB group, RowPB row) {
+    final fieldContext = fieldController.getField(group.fieldId);
+    if (fieldContext == null) {
+      Log.warn("FieldContext should not be null");
+      return;
+    }
     controller.updateColumnItem(
       group.groupId,
-      BoardColumnItem(
-        row: row,
-        fieldId: group.fieldId,
-      ),
+      BoardColumnItem(row: row, fieldContext: fieldContext),
     );
   }
 
   @override
   void addNewRow(GroupPB group, RowPB row, int? index) {
-    final item = BoardColumnItem(
-      row: row,
-      fieldId: group.fieldId,
-      requestFocus: true,
-    );
+    final fieldContext = fieldController.getField(group.fieldId);
+    if (fieldContext == null) {
+      Log.warn("FieldContext should not be null");
+      return;
+    }
+    final item = BoardColumnItem(row: row, fieldContext: fieldContext);
 
     if (index != null) {
       controller.insertColumnItem(group.groupId, index, item);
@@ -396,4 +422,30 @@ class BoardEditingRow {
     required this.row,
     required this.index,
   });
+}
+
+class BoardCustomData {
+  final GroupPB group;
+  final GridFieldContext fieldContext;
+  BoardCustomData({
+    required this.group,
+    required this.fieldContext,
+  });
+
+  CheckboxGroup? asCheckboxGroup() {
+    if (fieldType != FieldType.Checkbox) return null;
+    return CheckboxGroup(group);
+  }
+
+  FieldType get fieldType => fieldContext.fieldType;
+}
+
+class CheckboxGroup {
+  final GroupPB group;
+
+  CheckboxGroup(this.group);
+
+// Hardcode value: "Yes" that equal to the value defined in Rust
+// pub const CHECK: &str = "Yes";
+  bool get isCheck => group.groupId == "Yes";
 }

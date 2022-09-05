@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -35,7 +35,7 @@ class RowBloc extends Bloc<RowEvent, RowState> {
           },
           didReceiveCells: (_DidReceiveCells value) async {
             final cells = value.gridCellMap.values
-                .map((e) => GridCellEquatable(e.field))
+                .map((e) => GridCellEquatable(e.fieldContext))
                 .toList();
             emit(state.copyWith(
               gridCellMap: value.gridCellMap,
@@ -87,21 +87,23 @@ class RowState with _$RowState {
         rowInfo: rowInfo,
         gridCellMap: cellDataMap,
         cells: UnmodifiableListView(
-          cellDataMap.values.map((e) => GridCellEquatable(e.field)).toList(),
+          cellDataMap.values
+              .map((e) => GridCellEquatable(e.fieldContext))
+              .toList(),
         ),
       );
 }
 
 class GridCellEquatable extends Equatable {
-  final FieldPB _field;
+  final GridFieldContext _fieldContext;
 
-  const GridCellEquatable(FieldPB field) : _field = field;
+  const GridCellEquatable(GridFieldContext field) : _fieldContext = field;
 
   @override
   List<Object?> get props => [
-        _field.id,
-        _field.fieldType,
-        _field.visibility,
-        _field.width,
+        _fieldContext.id,
+        _fieldContext.fieldType,
+        _fieldContext.visibility,
+        _fieldContext.width,
       ];
 }

@@ -1,11 +1,13 @@
 use crate::grid::grid_editor::GridEditorTest;
 use flowy_grid::entities::{
-    CreateRowParams, FieldChangesetParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
+    CreateRowParams, FieldType, GridLayout, GroupPB, MoveGroupParams, MoveGroupRowParams, RowPB,
 };
 use flowy_grid::services::cell::{delete_select_option_cell, insert_select_option_cell};
-use flowy_grid_data_model::revision::RowChangeset;
-use std::time::Duration;
-use tokio::time::interval;
+use flowy_grid::services::field::{
+    edit_single_select_type_option, SelectOptionOperation, SelectOptionPB, SingleSelectTypeOptionPB,
+};
+use flowy_grid_data_model::revision::{FieldRevision, RowChangeset};
+use std::sync::Arc;
 
 pub enum GroupScript {
     AssertGroupRowCount {
@@ -44,8 +46,11 @@ pub enum GroupScript {
         from_group_index: usize,
         to_group_index: usize,
     },
-    UpdateField {
-        changeset: FieldChangesetParams,
+    UpdateSingleSelectOption {
+        inserted_options: Vec<SelectOptionPB>,
+    },
+    GroupByField {
+        field_id: String,
     },
 }
 
@@ -174,10 +179,16 @@ impl GridGroupTest {
                 assert_eq!(group.group_id, group_pb.group_id);
                 assert_eq!(group.desc, group_pb.desc);
             }
-            GroupScript::UpdateField { changeset } => {
-                self.editor.update_field(changeset).await.unwrap();
-                let mut interval = interval(Duration::from_millis(130));
-                interval.tick().await;
+            GroupScript::UpdateSingleSelectOption { inserted_options } => {
+                self.edit_single_select_type_option(|type_option| {
+                    for inserted_option in inserted_options {
+                        type_option.insert_option(inserted_option);
+                    }
+                })
+                .await;
+            }
+            GroupScript::GroupByField { field_id } => {
+                self.editor.group_by_field(&field_id).await.unwrap();
             }
         }
     }
@@ -190,6 +201,40 @@ impl GridGroupTest {
     pub async fn row_at_index(&self, group_index: usize, row_index: usize) -> RowPB {
         let groups = self.group_at_index(group_index).await;
         groups.rows.get(row_index).unwrap().clone()
+    }
+
+    #[allow(dead_code)]
+    pub async fn get_multi_select_field(&self) -> Arc<FieldRevision> {
+        let field = self
+            .inner
+            .field_revs
+            .iter()
+            .find(|field_rev| {
+                let field_type: FieldType = field_rev.ty.into();
+                field_type.is_multi_select()
+            })
+            .unwrap()
+            .clone();
+        field
+    }
+
+    pub async fn get_single_select_field(&self) -> Arc<FieldRevision> {
+        self.inner
+            .field_revs
+            .iter()
+            .find(|field_rev| {
+                let field_type: FieldType = field_rev.ty.into();
+                field_type.is_single_select()
+            })
+            .unwrap()
+            .clone()
+    }
+
+    pub async fn edit_single_select_type_option(&self, action: impl FnOnce(&mut SingleSelectTypeOptionPB)) {
+        let single_select = self.get_single_select_field().await;
+        edit_single_select_type_option(&single_select.id, self.editor.clone(), action)
+            .await
+            .unwrap();
     }
 }
 

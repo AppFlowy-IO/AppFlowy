@@ -160,7 +160,8 @@
     "settings": {
       "filter": "Filter",
       "sortBy": "Sort by",
-      "Properties": "Properties"
+      "Properties": "Properties",
+      "group": "Group"
     },
     "field": {
       "hide": "Hide",

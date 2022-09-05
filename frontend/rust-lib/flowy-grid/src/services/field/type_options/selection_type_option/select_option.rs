@@ -5,7 +5,7 @@ use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
+use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataFormat};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 
@@ -75,7 +75,7 @@ pub fn make_selected_select_options(
     }
 }
 
-pub trait SelectOptionOperation: TypeOptionDataEntry + Send + Sync {
+pub trait SelectOptionOperation: TypeOptionDataFormat + Send + Sync {
     fn insert_option(&mut self, new_option: SelectOptionPB) {
         let options = self.mut_options();
         if let Some(index) = options

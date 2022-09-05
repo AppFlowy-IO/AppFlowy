@@ -9,7 +9,7 @@ use crate::services::field::{
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
 use serde::{Deserialize, Serialize};
 
 // Multiple select
@@ -108,7 +108,7 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
         FieldType::MultiSelect
     }
 
-    fn entry(&self) -> &dyn TypeOptionDataEntry {
+    fn data_format(&self) -> &dyn TypeOptionDataFormat {
         &self.0
     }
 }

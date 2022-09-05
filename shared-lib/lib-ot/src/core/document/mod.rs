@@ -1,3 +1,4 @@
+#![allow(clippy::module_inception)]
 mod attributes;
 mod document;
 mod document_operation;

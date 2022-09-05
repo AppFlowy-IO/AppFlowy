@@ -101,25 +101,25 @@ pub fn try_decode_cell_data(
         let field_type: FieldTypeRevision = t_field_type.into();
         let data = match t_field_type {
             FieldType::RichText => field_rev
-                .get_type_option_entry::<RichTextTypeOptionPB>(field_type)?
+                .get_type_option::<RichTextTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::Number => field_rev
-                .get_type_option_entry::<NumberTypeOptionPB>(field_type)?
+                .get_type_option::<NumberTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::DateTime => field_rev
-                .get_type_option_entry::<DateTypeOptionPB>(field_type)?
+                .get_type_option::<DateTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::SingleSelect => field_rev
-                .get_type_option_entry::<SingleSelectTypeOptionPB>(field_type)?
+                .get_type_option::<SingleSelectTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::MultiSelect => field_rev
-                .get_type_option_entry::<MultiSelectTypeOptionPB>(field_type)?
+                .get_type_option::<MultiSelectTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::Checkbox => field_rev
-                .get_type_option_entry::<CheckboxTypeOptionPB>(field_type)?
+                .get_type_option::<CheckboxTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
             FieldType::URL => field_rev
-                .get_type_option_entry::<URLTypeOptionPB>(field_type)?
+                .get_type_option::<URLTypeOptionPB>(field_type)?
                 .decode_cell_data(cell_data.into(), s_field_type, field_rev),
         };
         Some(data)
@@ -182,7 +182,6 @@ pub fn delete_select_option_cell(option_id: String, field_rev: &FieldRevision) -
     CellRevision::new(data)
 }
 
-/// If the cell data is not String type, it should impl this trait.
 /// Deserialize the String into cell specific data type.  
 pub trait FromCellString {
     fn from_cell_str(s: &str) -> FlowyResult<Self>

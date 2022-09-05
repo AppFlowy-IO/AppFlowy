@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
@@ -12,7 +13,7 @@ part 'row_cache.freezed.dart';
 typedef RowUpdateCallback = void Function();
 
 abstract class IGridRowFieldNotifier {
-  UnmodifiableListView<FieldPB> get fields;
+  UnmodifiableListView<GridFieldContext> get fields;
   void onRowFieldsChanged(VoidCallback callback);
   void onRowFieldChanged(void Function(FieldPB) callback);
   void onRowDispose();
@@ -217,7 +218,7 @@ class GridRowCache {
         cellDataMap[field.id] = GridCellIdentifier(
           rowId: rowId,
           gridId: gridId,
-          field: field,
+          fieldContext: field,
         );
       }
     }
@@ -284,7 +285,7 @@ class _RowChangesetNotifier extends ChangeNotifier {
 class RowInfo with _$RowInfo {
   const factory RowInfo({
     required String gridId,
-    required UnmodifiableListView<FieldPB> fields,
+    required UnmodifiableListView<GridFieldContext> fields,
     required RowPB rowPB,
   }) = _RowInfo;
 }

@@ -9,7 +9,7 @@ use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataEntry};
+use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
 use serde::{Deserialize, Serialize};
 
 // Date
@@ -189,7 +189,7 @@ impl TypeOptionBuilder for DateTypeOptionBuilder {
         FieldType::DateTime
     }
 
-    fn entry(&self) -> &dyn TypeOptionDataEntry {
+    fn data_format(&self) -> &dyn TypeOptionDataFormat {
         &self.0
     }
 }

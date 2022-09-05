@@ -12,7 +12,7 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
     let cloned_field_rev = field_rev.clone();
 
     let type_option_data = field_rev
-        .get_type_option_entry::<RichTextTypeOptionPB>(field_rev.ty)
+        .get_type_option::<RichTextTypeOptionPB>(field_rev.ty)
         .unwrap()
         .protobuf_bytes()
         .to_vec();
@@ -45,7 +45,7 @@ pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRev
     let field_rev = FieldBuilder::new(single_select).name("Name").visibility(true).build();
     let cloned_field_rev = field_rev.clone();
     let type_option_data = field_rev
-        .get_type_option_entry::<SingleSelectTypeOptionPB>(field_rev.ty)
+        .get_type_option::<SingleSelectTypeOptionPB>(field_rev.ty)
         .unwrap()
         .protobuf_bytes()
         .to_vec();

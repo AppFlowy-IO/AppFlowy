@@ -13,6 +13,8 @@ pub enum GridNotification {
     DidUpdateField = 50,
     DidUpdateGroupView = 60,
     DidUpdateGroup = 61,
+    DidGroupByNewField = 62,
+    DidUpdateGridSetting = 70,
 }
 
 impl std::default::Default for GridNotification {
