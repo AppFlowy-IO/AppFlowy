@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
@@ -17,12 +18,12 @@ class TypeOptionDataController {
   TypeOptionDataController({
     required this.gridId,
     required this.loader,
-    FieldPB? field,
+    GridFieldContext? fieldContext,
   }) {
-    if (field != null) {
+    if (fieldContext != null) {
       _data = FieldTypeOptionDataPB.create()
         ..gridId = gridId
-        ..field_2 = field;
+        ..field_2 = fieldContext.field;
     }
   }
 

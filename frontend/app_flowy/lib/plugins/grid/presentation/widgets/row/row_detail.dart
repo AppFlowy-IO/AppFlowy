@@ -225,16 +225,16 @@ class _RowDetailCellState extends State<_RowDetailCell> {
                     constraints: BoxConstraints.loose(const Size(240, 200)),
                     child: FieldEditor(
                       gridId: widget.cellId.gridId,
-                      fieldName: widget.cellId.field.name,
+                      fieldName: widget.cellId.fieldContext.field.name,
                       typeOptionLoader: FieldTypeOptionLoader(
                         gridId: widget.cellId.gridId,
-                        field: widget.cellId.field,
+                        field: widget.cellId.fieldContext.field,
                       ),
                     ),
                   );
                 },
                 child: FieldCellButton(
-                  field: widget.cellId.field,
+                  field: widget.cellId.fieldContext.field,
                   onTap: () => popover.show(),
                 ),
               ),

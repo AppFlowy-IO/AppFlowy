@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -20,8 +20,6 @@ class BoardDateCellBloc extends Bloc<BoardDateCellEvent, BoardDateCellState> {
             emit(state.copyWith(
                 data: cellData, dateStr: _dateStrFromCellData(cellData)));
           },
-          didReceiveFieldUpdate: (FieldPB value) =>
-              emit(state.copyWith(field: value)),
         );
       },
     );
@@ -53,8 +51,6 @@ class BoardDateCellEvent with _$BoardDateCellEvent {
   const factory BoardDateCellEvent.initial() = _InitialCell;
   const factory BoardDateCellEvent.didReceiveCellUpdate(DateCellDataPB? data) =
       _DidReceiveCellUpdate;
-  const factory BoardDateCellEvent.didReceiveFieldUpdate(FieldPB field) =
-      _DidReceiveFieldUpdate;
 }
 
 @freezed
@@ -62,14 +58,14 @@ class BoardDateCellState with _$BoardDateCellState {
   const factory BoardDateCellState({
     required DateCellDataPB? data,
     required String dateStr,
-    required FieldPB field,
+    required GridFieldContext fieldContext,
   }) = _BoardDateCellState;
 
   factory BoardDateCellState.initial(GridDateCellController context) {
     final cellData = context.getCellData();
 
     return BoardDateCellState(
-      field: context.field,
+      fieldContext: context.fieldContext,
       data: cellData,
       dateStr: _dateStrFromCellData(cellData),
     );

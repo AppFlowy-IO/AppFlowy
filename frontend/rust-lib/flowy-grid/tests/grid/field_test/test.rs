@@ -4,7 +4,7 @@ use crate::grid::field_test::util::*;
 use flowy_grid::entities::FieldChangesetParams;
 use flowy_grid::services::field::selection_type_option::SelectOptionPB;
 use flowy_grid::services::field::SingleSelectTypeOptionPB;
-use flowy_grid_data_model::revision::TypeOptionDataEntry;
+use flowy_grid_data_model::revision::TypeOptionDataFormat;
 
 #[tokio::test]
 async fn grid_create_field() {
@@ -86,7 +86,7 @@ async fn grid_update_field() {
     let mut expected_field_rev = single_select_field.clone();
     expected_field_rev.frozen = true;
     expected_field_rev.width = 1000;
-    expected_field_rev.insert_type_option_entry(&single_select_type_option);
+    expected_field_rev.insert_type_option(&single_select_type_option);
 
     let scripts = vec![
         CreateField { params },

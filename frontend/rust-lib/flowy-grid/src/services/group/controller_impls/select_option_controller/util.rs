@@ -1,15 +1,15 @@
 use crate::entities::{GroupChangesetPB, InsertedRowPB, RowPB};
 use crate::services::cell::insert_select_option_cell;
-use crate::services::field::SelectOptionCellDataPB;
-use crate::services::group::configuration::GenericGroupConfiguration;
-use crate::services::group::Group;
+use crate::services::field::{SelectOptionCellDataPB, SelectOptionPB};
+use crate::services::group::configuration::GroupContext;
+use crate::services::group::{GeneratedGroup, Group};
 
 use crate::services::group::controller::MoveGroupRowContext;
-use flowy_grid_data_model::revision::{RowRevision, SelectOptionGroupConfigurationRevision};
+use flowy_grid_data_model::revision::{GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision};
 
-pub type SelectOptionGroupConfiguration = GenericGroupConfiguration<SelectOptionGroupConfigurationRevision>;
+pub type SelectOptionGroupContext = GroupContext<SelectOptionGroupConfigurationRevision>;
 
-pub fn add_row(
+pub fn add_select_option_row(
     group: &mut Group,
     cell_data: &SelectOptionCellDataPB,
     row_rev: &RowRevision,
@@ -42,7 +42,7 @@ pub fn add_row(
     }
 }
 
-pub fn remove_row(
+pub fn remove_select_option_row(
     group: &mut Group,
     cell_data: &SelectOptionCellDataPB,
     row_rev: &RowRevision,
@@ -124,4 +124,20 @@ pub fn move_select_option_row(
     } else {
         Some(changeset)
     }
+}
+
+pub fn generate_select_option_groups(
+    _field_id: &str,
+    _group_ctx: &SelectOptionGroupContext,
+    options: &[SelectOptionPB],
+) -> Vec<GeneratedGroup> {
+    let groups = options
+        .iter()
+        .map(|option| GeneratedGroup {
+            group_rev: GroupRevision::new(option.id.clone(), option.name.clone()),
+            filter_content: option.id.clone(),
+        })
+        .collect();
+
+    groups
 }

@@ -1,4 +1,4 @@
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -10,11 +10,11 @@ import 'board_setting.dart';
 
 class BoardToolbarContext {
   final String viewId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
 
   BoardToolbarContext({
     required this.viewId,
-    required this.fieldCache,
+    required this.fieldController,
   });
 }
 

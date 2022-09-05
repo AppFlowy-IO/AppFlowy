@@ -16,12 +16,12 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_listener.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'dart:convert' show utf8;
 
-import '../../field/field_cache.dart';
+import '../../field/field_controller.dart';
 import '../../field/type_option/type_option_context.dart';
 import 'cell_field_notifier.dart';
 part 'cell_service.freezed.dart';
 part 'cell_data_loader.dart';
-part 'context_builder.dart';
+part 'cell_controller.dart';
 part 'cell_cache.dart';
 part 'cell_data_persistence.dart';
 
@@ -60,17 +60,17 @@ class GridCellIdentifier with _$GridCellIdentifier {
   const factory GridCellIdentifier({
     required String gridId,
     required String rowId,
-    required FieldPB field,
+    required GridFieldContext fieldContext,
   }) = _GridCellIdentifier;
 
   // ignore: unused_element
   const GridCellIdentifier._();
 
-  String get fieldId => field.id;
+  String get fieldId => fieldContext.id;
 
-  FieldType get fieldType => field.fieldType;
+  FieldType get fieldType => fieldContext.fieldType;
 
   ValueKey key() {
-    return ValueKey("$rowId$fieldId${field.fieldType}");
+    return ValueKey("$rowId$fieldId${fieldContext.fieldType}");
   }
 }

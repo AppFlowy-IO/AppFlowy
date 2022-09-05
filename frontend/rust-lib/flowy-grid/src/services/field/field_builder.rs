@@ -1,7 +1,7 @@
 use crate::entities::{FieldPB, FieldType};
 use crate::services::field::type_options::*;
 use bytes::Bytes;
-use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataEntry};
+use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataFormat};
 use indexmap::IndexMap;
 
 pub struct FieldBuilder {
@@ -78,14 +78,14 @@ impl FieldBuilder {
 
     pub fn build(self) -> FieldRevision {
         let mut field_rev = self.field_rev;
-        field_rev.insert_type_option_entry(self.type_option_builder.entry());
+        field_rev.insert_type_option(self.type_option_builder.data_format());
         field_rev
     }
 }
 
 pub trait TypeOptionBuilder {
     fn field_type(&self) -> FieldType;
-    fn entry(&self) -> &dyn TypeOptionDataEntry;
+    fn data_format(&self) -> &dyn TypeOptionDataFormat;
 }
 
 pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn TypeOptionBuilder> {

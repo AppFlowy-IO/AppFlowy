@@ -3,14 +3,14 @@
 #![allow(dead_code)]
 #![allow(unused_imports)]
 
-use flowy_grid::entities::{CreateFilterParams, CreateGridFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB};
+use flowy_grid::entities::{InsertFilterParams, InsertFilterPayloadPB, DeleteFilterParams, GridLayout, GridSettingChangesetParams, GridSettingPB};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
 use crate::grid::grid_editor::GridEditorTest;
 
 pub enum FilterScript {
     InsertGridTableFilter {
-        payload: CreateGridFilterPayloadPB,
+        payload: InsertFilterPayloadPB,
     },
     AssertTableFilterCount {
         count: i32,
@@ -47,8 +47,8 @@ impl GridFilterTest {
         match script {
            
             FilterScript::InsertGridTableFilter { payload } => {
-                let params: CreateFilterParams = payload.try_into().unwrap();
-                let _ = self.editor.update_filter(params).await.unwrap();
+                let params: InsertFilterParams = payload.try_into().unwrap();
+                let _ = self.editor.create_filter(params).await.unwrap();
             }
             FilterScript::AssertTableFilterCount { count } => {
                 let filters = self.editor.get_grid_filter().await.unwrap();

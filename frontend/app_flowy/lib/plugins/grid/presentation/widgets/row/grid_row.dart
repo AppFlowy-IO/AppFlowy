@@ -189,13 +189,13 @@ class RowContent extends StatelessWidget {
         final GridCellWidget child = builder.build(cellId);
 
         return CellContainer(
-          width: cellId.field.width.toDouble(),
+          width: cellId.fieldContext.width.toDouble(),
           rowStateNotifier:
               Provider.of<RegionStateNotifier>(context, listen: false),
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;
             List<GridCellAccessoryBuilder> accessories = [];
-            if (cellId.field.isPrimary) {
+            if (cellId.fieldContext.isPrimary) {
               accessories.add(
                 GridCellAccessoryBuilder(
                   builder: (key) => PrimaryCellAccessory(

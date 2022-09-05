@@ -5,20 +5,26 @@ import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/dart_notification.pb.dart';
 import 'package:dartz/dartz.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/group.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/group_changeset.pb.dart';
 
-typedef UpdateBoardNotifiedValue = Either<GroupViewChangesetPB, FlowyError>;
+typedef GroupUpdateValue = Either<GroupViewChangesetPB, FlowyError>;
+typedef GroupByNewFieldValue = Either<List<GroupPB>, FlowyError>;
 
 class BoardListener {
   final String viewId;
-  PublishNotifier<UpdateBoardNotifiedValue>? _groupNotifier = PublishNotifier();
+  PublishNotifier<GroupUpdateValue>? _groupUpdateNotifier = PublishNotifier();
+  PublishNotifier<GroupByNewFieldValue>? _groupByNewFieldNotifier =
+      PublishNotifier();
   GridNotificationListener? _listener;
   BoardListener(this.viewId);
 
   void start({
-    required void Function(UpdateBoardNotifiedValue) onBoardChanged,
+    required void Function(GroupUpdateValue) onBoardChanged,
+    required void Function(GroupByNewFieldValue) onGroupByNewField,
   }) {
-    _groupNotifier?.addPublishListener(onBoardChanged);
+    _groupUpdateNotifier?.addPublishListener(onBoardChanged);
+    _groupByNewFieldNotifier?.addPublishListener(onGroupByNewField);
     _listener = GridNotificationListener(
       objectId: viewId,
       handler: _handler,
@@ -32,9 +38,16 @@ class BoardListener {
     switch (ty) {
       case GridNotification.DidUpdateGroupView:
         result.fold(
-          (payload) => _groupNotifier?.value =
+          (payload) => _groupUpdateNotifier?.value =
               left(GroupViewChangesetPB.fromBuffer(payload)),
-          (error) => _groupNotifier?.value = right(error),
+          (error) => _groupUpdateNotifier?.value = right(error),
+        );
+        break;
+      case GridNotification.DidGroupByNewField:
+        result.fold(
+          (payload) => _groupByNewFieldNotifier?.value =
+              left(GroupViewChangesetPB.fromBuffer(payload).newGroups),
+          (error) => _groupByNewFieldNotifier?.value = right(error),
         );
         break;
       default:
@@ -44,7 +57,10 @@ class BoardListener {
 
   Future<void> stop() async {
     await _listener?.stop();
-    _groupNotifier?.dispose();
-    _groupNotifier = null;
+    _groupUpdateNotifier?.dispose();
+    _groupUpdateNotifier = null;
+
+    _groupByNewFieldNotifier?.dispose();
+    _groupByNewFieldNotifier = null;
   }
 }

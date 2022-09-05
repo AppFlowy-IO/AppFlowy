@@ -8,17 +8,17 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../application/field/field_cache.dart';
+import '../../../application/field/field_controller.dart';
 import '../../layout/sizes.dart';
 import 'grid_property.dart';
 import 'grid_setting.dart';
 
 class GridToolbarContext {
   final String gridId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
   GridToolbarContext({
     required this.gridId,
-    required this.fieldCache,
+    required this.fieldController,
   });
 }
 
@@ -30,7 +30,7 @@ class GridToolbar extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingContext = GridSettingContext(
       gridId: toolbarContext.gridId,
-      fieldCache: toolbarContext.fieldCache,
+      fieldController: toolbarContext.fieldController,
     );
     return SizedBox(
       height: 40,
@@ -89,7 +89,7 @@ class _GridSettingListPopoverState extends State<_GridSettingListPopover> {
         constraints: BoxConstraints.loose(const Size(260, 400)),
         child: GridPropertyList(
           gridId: widget.settingContext.gridId,
-          fieldCache: widget.settingContext.fieldCache,
+          fieldController: widget.settingContext.fieldController,
         ),
       );
     }

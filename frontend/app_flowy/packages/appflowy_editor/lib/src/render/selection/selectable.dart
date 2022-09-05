@@ -2,12 +2,12 @@ import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:flutter/material.dart';
 
-/// [Selectable] is used for the editor to calculate the position
+/// [SelectableMixin] is used for the editor to calculate the position
 ///   and size of the selection.
 ///
-/// The widget returned by NodeWidgetBuilder must be with [Selectable],
+/// The widget returned by NodeWidgetBuilder must be with [SelectableMixin],
 ///   otherwise the [AppFlowySelectionService] will not work properly.
-mixin Selectable<T extends StatefulWidget> on State<T> {
+mixin SelectableMixin<T extends StatefulWidget> on State<T> {
   /// Returns the [Selection] surrounded by start and end
   ///   in current widget.
   ///

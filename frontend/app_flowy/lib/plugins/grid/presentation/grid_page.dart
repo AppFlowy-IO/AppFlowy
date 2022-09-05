@@ -1,4 +1,4 @@
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
@@ -158,10 +158,11 @@ class _FlowyGridState extends State<FlowyGrid> {
   }
 
   Widget _gridHeader(BuildContext context, String gridId) {
-    final fieldCache = context.read<GridBloc>().dataController.fieldCache;
+    final fieldController =
+        context.read<GridBloc>().dataController.fieldController;
     return GridHeaderSliverAdaptor(
       gridId: gridId,
-      fieldCache: fieldCache,
+      fieldController: fieldController,
       anchorScrollController: headerScrollController,
     );
   }
@@ -174,10 +175,11 @@ class _GridToolbarAdaptor extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocSelector<GridBloc, GridState, GridToolbarContext>(
       selector: (state) {
-        final fieldCache = context.read<GridBloc>().dataController.fieldCache;
+        final fieldController =
+            context.read<GridBloc>().dataController.fieldController;
         return GridToolbarContext(
           gridId: state.gridId,
-          fieldCache: fieldCache,
+          fieldController: fieldController,
         );
       },
       builder: (context, toolbarContext) {
@@ -248,10 +250,11 @@ class _GridRowsState extends State<_GridRows> {
     /// Return placeholder widget if the rowCache is null.
     if (rowCache == null) return const SizedBox();
 
-    final fieldCache = context.read<GridBloc>().dataController.fieldCache;
+    final fieldController =
+        context.read<GridBloc>().dataController.fieldController;
     final dataController = GridRowDataController(
       rowInfo: rowInfo,
-      fieldCache: fieldCache,
+      fieldController: fieldController,
       rowCache: rowCache,
     );
 
@@ -265,7 +268,7 @@ class _GridRowsState extends State<_GridRows> {
           _openRowDetailPage(
             context,
             rowInfo,
-            fieldCache,
+            fieldController,
             rowCache,
             cellBuilder,
           );
@@ -278,13 +281,13 @@ class _GridRowsState extends State<_GridRows> {
   void _openRowDetailPage(
     BuildContext context,
     RowInfo rowInfo,
-    GridFieldCache fieldCache,
+    GridFieldController fieldController,
     GridRowCache rowCache,
     GridCellBuilder cellBuilder,
   ) {
     final dataController = GridRowDataController(
       rowInfo: rowInfo,
-      fieldCache: fieldCache,
+      fieldController: fieldController,
       rowCache: rowCache,
     );
 

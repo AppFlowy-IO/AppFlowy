@@ -1,7 +1,8 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/board/application/toolbar/board_setting_bloc.dart';
-import 'package:app_flowy/plugins/grid/application/field/field_cache.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_group.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_property.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -18,16 +19,16 @@ import 'board_toolbar.dart';
 
 class BoardSettingContext {
   final String viewId;
-  final GridFieldCache fieldCache;
+  final GridFieldController fieldController;
   BoardSettingContext({
     required this.viewId,
-    required this.fieldCache,
+    required this.fieldController,
   });
 
   factory BoardSettingContext.from(BoardToolbarContext toolbarContext) =>
       BoardSettingContext(
         viewId: toolbarContext.viewId,
-        fieldCache: toolbarContext.fieldCache,
+        fieldController: toolbarContext.fieldController,
       );
 }
 
@@ -125,6 +126,8 @@ extension _GridSettingExtension on BoardSettingAction {
     switch (this) {
       case BoardSettingAction.properties:
         return 'grid/setting/properties';
+      case BoardSettingAction.groups:
+        return 'grid/setting/group';
     }
   }
 
@@ -132,6 +135,8 @@ extension _GridSettingExtension on BoardSettingAction {
     switch (this) {
       case BoardSettingAction.properties:
         return LocaleKeys.grid_settings_Properties.tr();
+      case BoardSettingAction.groups:
+        return LocaleKeys.grid_settings_group.tr();
     }
   }
 }
@@ -158,7 +163,7 @@ class _BoardSettingListPopoverState extends State<BoardSettingListPopover> {
         constraints: BoxConstraints.loose(const Size(260, 400)),
         child: GridPropertyList(
           gridId: widget.settingContext.viewId,
-          fieldCache: widget.settingContext.fieldCache,
+          fieldController: widget.settingContext.fieldController,
         ),
       );
     }
@@ -169,6 +174,8 @@ class _BoardSettingListPopoverState extends State<BoardSettingListPopover> {
         settingContext: widget.settingContext,
         onAction: (action, settingContext) {
           switch (action) {
+            case BoardSettingAction.groups:
+              break;
             case BoardSettingAction.properties:
               setState(() {
                 _showGridPropertyList = true;

@@ -60,7 +60,7 @@ where
             .cloned()
     }
 
-    pub fn get_all_objects(&self, field_revs: &[Arc<FieldRevision>]) -> Option<HashMap<String, Vec<Arc<T>>>> {
+    pub fn get_objects_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Option<HashMap<String, Vec<Arc<T>>>> {
         // Get the objects according to the FieldType, so we need iterate the field_revs.
         let objects_by_field_id = field_revs
             .iter()
@@ -74,6 +74,10 @@ where
             })
             .collect::<HashMap<String, Vec<Arc<T>>>>();
         Some(objects_by_field_id)
+    }
+
+    pub fn get_all_objects(&self) -> Vec<Arc<T>> {
+        self.inner.values().map(|map| map.all_objects()).flatten().collect()
     }
 
     /// add object to the end of the list
@@ -110,6 +114,10 @@ where
 {
     pub fn new() -> Self {
         ObjectIndexMap::default()
+    }
+
+    pub fn all_objects(&self) -> Vec<Arc<T>> {
+        self.object_by_field_type.values().cloned().flatten().collect()
     }
 }
 

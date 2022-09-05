@@ -5,13 +5,13 @@ on:
     branches:
       - "main"
     paths:
-      - "frontend/app_flowy/packages/appflowy_editor"
+      - "frontend/app_flowy/packages/appflowy_editor/**"
 
   pull_request:
     branches:
       - "main"
     paths:
-      - "frontend/app_flowy/packages/appflowy_editor"
+      - "frontend/app_flowy/packages/appflowy_editor/**"
 
 env:
   CARGO_TERM_COLOR: always
@@ -37,4 +37,12 @@ jobs:
         working-directory: frontend/app_flowy/packages/appflowy_editor
         run: |
           flutter pub get
-          flutter test
+          flutter test --coverage
+
+      - uses: codecov/codecov-action@v3
+        with: 
+          name: appflowy_editor
+          env_vars: ${{ matrix.os }}
+          fail_ci_if_error: true
+          verbose: true
+

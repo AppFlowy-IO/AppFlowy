@@ -510,7 +510,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     editorState.service.scrollService?.enable();
   }
 
-  Rect _transformRectToGlobal(Selectable selectable, Rect r) {
+  Rect _transformRectToGlobal(SelectableMixin selectable, Rect r) {
     final Offset topLeft = selectable.localToGlobal(Offset(r.left, r.top));
     return Rect.fromLTWH(topLeft.dx, topLeft.dy, r.width, r.height);
   }

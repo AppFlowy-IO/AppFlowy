@@ -1,21 +1,22 @@
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
 
-import '../field/field_cache.dart';
+import '../field/field_controller.dart';
 
 part 'property_bloc.freezed.dart';
 
 class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
-  final GridFieldCache _fieldCache;
-  Function(List<FieldPB>)? _onFieldsFn;
+  final GridFieldController _fieldController;
+  Function(List<GridFieldContext>)? _onFieldsFn;
 
-  GridPropertyBloc({required String gridId, required GridFieldCache fieldCache})
-      : _fieldCache = fieldCache,
-        super(GridPropertyState.initial(gridId, fieldCache.fields)) {
+  GridPropertyBloc(
+      {required String gridId, required GridFieldController fieldController})
+      : _fieldController = fieldController,
+        super(
+            GridPropertyState.initial(gridId, fieldController.fieldContexts)) {
     on<GridPropertyEvent>(
       (event, emit) async {
         await event.map(
@@ -33,7 +34,7 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
             );
           },
           didReceiveFieldUpdate: (_DidReceiveFieldUpdate value) {
-            emit(state.copyWith(fields: value.fields));
+            emit(state.copyWith(fieldContexts: value.fields));
           },
           moveField: (_MoveField value) {
             //
@@ -46,7 +47,7 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   @override
   Future<void> close() async {
     if (_onFieldsFn != null) {
-      _fieldCache.removeListener(onFieldsListener: _onFieldsFn!);
+      _fieldController.removeListener(onFieldsListener: _onFieldsFn!);
       _onFieldsFn = null;
     }
     return super.close();
@@ -55,7 +56,7 @@ class GridPropertyBloc extends Bloc<GridPropertyEvent, GridPropertyState> {
   void _startListening() {
     _onFieldsFn =
         (fields) => add(GridPropertyEvent.didReceiveFieldUpdate(fields));
-    _fieldCache.addListener(
+    _fieldController.addListener(
       onFields: _onFieldsFn,
       listenWhen: () => !isClosed,
     );
@@ -67,8 +68,8 @@ class GridPropertyEvent with _$GridPropertyEvent {
   const factory GridPropertyEvent.initial() = _Initial;
   const factory GridPropertyEvent.setFieldVisibility(
       String fieldId, bool visibility) = _SetFieldVisibility;
-  const factory GridPropertyEvent.didReceiveFieldUpdate(List<FieldPB> fields) =
-      _DidReceiveFieldUpdate;
+  const factory GridPropertyEvent.didReceiveFieldUpdate(
+      List<GridFieldContext> fields) = _DidReceiveFieldUpdate;
   const factory GridPropertyEvent.moveField(int fromIndex, int toIndex) =
       _MoveField;
 }
@@ -77,12 +78,15 @@ class GridPropertyEvent with _$GridPropertyEvent {
 class GridPropertyState with _$GridPropertyState {
   const factory GridPropertyState({
     required String gridId,
-    required List<FieldPB> fields,
+    required List<GridFieldContext> fieldContexts,
   }) = _GridPropertyState;
 
-  factory GridPropertyState.initial(String gridId, List<FieldPB> fields) =>
+  factory GridPropertyState.initial(
+    String gridId,
+    List<GridFieldContext> fieldContexts,
+  ) =>
       GridPropertyState(
         gridId: gridId,
-        fields: fields,
+        fieldContexts: fieldContexts,
       );
 }
