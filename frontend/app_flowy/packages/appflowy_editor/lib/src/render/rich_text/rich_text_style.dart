@@ -231,9 +231,6 @@ class RichTextStyle {
     if (attributes.bold) {
       return FontWeight.bold;
     }
-    if (attributes.code) {
-      return FontWeight.bold;
-    }
     return FontWeight.normal;
   }
 
@@ -250,12 +247,8 @@ class RichTextStyle {
   }
 
   // font
-  FontStyle get _fontStyle {
-    if (attributes.code) {
-      return FontStyle.italic;
-    }
-    return attributes.italic ? FontStyle.italic : FontStyle.normal;
-  }
+  FontStyle get _fontStyle =>
+      attributes.italic ? FontStyle.italic : FontStyle.normal;
 
   // text color
   Color get _textColor {
