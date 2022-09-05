@@ -11,70 +11,78 @@ import 'reorder_phantom/phantom_controller.dart';
 import '../rendering/board_overlay.dart';
 
 class AFBoardScrollManager {
-  BoardColumnsState? _columnState;
+  BoardGroupsState? _groupState;
 
-  // AFBoardScrollManager();
-
-  void scrollToBottom(String columnId, VoidCallback? completed) {
-    _columnState
-        ?.getReorderFlexState(columnId: columnId)
+  void scrollToBottom(String groupId, VoidCallback? completed) {
+    _groupState
+        ?.getReorderFlexState(groupId: groupId)
         ?.scrollToBottom(completed);
   }
 }
 
-class AFBoardConfig {
+class AppFlowyBoardConfig {
   final double cornerRadius;
-  final EdgeInsets columnPadding;
-  final EdgeInsets columnItemPadding;
+  final EdgeInsets groupPadding;
+  final EdgeInsets groupItemPadding;
   final EdgeInsets footerPadding;
   final EdgeInsets headerPadding;
   final EdgeInsets cardPadding;
-  final Color columnBackgroundColor;
+  final Color groupBackgroundColor;
 
-  const AFBoardConfig({
+  const AppFlowyBoardConfig({
     this.cornerRadius = 6.0,
-    this.columnPadding = const EdgeInsets.symmetric(horizontal: 8),
-    this.columnItemPadding = const EdgeInsets.symmetric(horizontal: 12),
+    this.groupPadding = const EdgeInsets.symmetric(horizontal: 8),
+    this.groupItemPadding = const EdgeInsets.symmetric(horizontal: 12),
     this.footerPadding = const EdgeInsets.symmetric(horizontal: 12),
     this.headerPadding = const EdgeInsets.symmetric(horizontal: 16),
     this.cardPadding = const EdgeInsets.symmetric(horizontal: 3, vertical: 4),
-    this.columnBackgroundColor = Colors.transparent,
+    this.groupBackgroundColor = Colors.transparent,
   });
 }
 
-class AFBoard extends StatelessWidget {
+class AppFlowyBoard extends StatelessWidget {
   /// The direction to use as the main axis.
   final Axis direction = Axis.vertical;
 
-  ///
+  /// The widget that will be rendered as the background of the board.
   final Widget? background;
 
+  /// The [cardBuilder] function which will be invoked on each card build.
+  /// The [cardBuilder] takes the [BuildContext],[AppFlowyBoardGroupData] and
+  /// the corresponding [AppFlowyGroupItem].
   ///
-  final AFBoardColumnCardBuilder cardBuilder;
+  /// must return a widget.
+  final AppFlowyBoardCardBuilder cardBuilder;
+
+  /// The [headerBuilder] function which will be invoked on each group build.
+  /// The [headerBuilder] takes the [BuildContext] and [AppFlowyBoardGroupData].
+  ///
+  /// must return a widget.
+  final AppFlowyBoardHeaderBuilder? headerBuilder;
+
+  /// The [footerBuilder] function which will be invoked on each group build.
+  /// The [footerBuilder] takes the [BuildContext] and [AppFlowyBoardGroupData].
+  ///
+  /// must return a widget.
+  final AppFlowyBoardFooterBuilder? footerBuilder;
 
   ///
-  final AFBoardColumnHeaderBuilder? headerBuilder;
+  final AppFlowyBoardDataController dataController;
 
-  ///
-  final AFBoardColumnFooterBuilder? footerBuilder;
-
-  ///
-  final AFBoardDataController dataController;
-
-  final BoxConstraints columnConstraints;
+  final BoxConstraints groupConstraints;
 
   ///
   late final BoardPhantomController phantomController;
 
   final ScrollController? scrollController;
 
-  final AFBoardConfig config;
+  final AppFlowyBoardConfig config;
 
   final AFBoardScrollManager? scrollManager;
 
-  final BoardColumnsState _columnState = BoardColumnsState();
+  final BoardGroupsState _groupState = BoardGroupsState();
 
-  AFBoard({
+  AppFlowyBoard({
     required this.dataController,
     required this.cardBuilder,
     this.background,
@@ -82,13 +90,13 @@ class AFBoard extends StatelessWidget {
     this.headerBuilder,
     this.scrollController,
     this.scrollManager,
-    this.columnConstraints = const BoxConstraints(maxWidth: 200),
-    this.config = const AFBoardConfig(),
+    this.groupConstraints = const BoxConstraints(maxWidth: 200),
+    this.config = const AppFlowyBoardConfig(),
     Key? key,
   }) : super(key: key) {
     phantomController = BoardPhantomController(
       delegate: dataController,
-      columnsState: _columnState,
+      groupsState: _groupState,
     );
   }
 
@@ -96,10 +104,10 @@ class AFBoard extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
       value: dataController,
-      child: Consumer<AFBoardDataController>(
+      child: Consumer<AppFlowyBoardDataController>(
         builder: (context, notifier, child) {
           if (scrollManager != null) {
-            scrollManager!._columnState = _columnState;
+            scrollManager!._groupState = _groupState;
           }
 
           return AFBoardContent(
@@ -107,15 +115,15 @@ class AFBoard extends StatelessWidget {
             dataController: dataController,
             scrollController: scrollController,
             scrollManager: scrollManager,
-            columnsState: _columnState,
+            columnsState: _groupState,
             background: background,
             delegate: phantomController,
-            columnConstraints: columnConstraints,
+            columnConstraints: groupConstraints,
             cardBuilder: cardBuilder,
-            footBuilder: footerBuilder,
+            footerBuilder: footerBuilder,
             headerBuilder: headerBuilder,
             phantomController: phantomController,
-            onReorder: dataController.moveColumn,
+            onReorder: dataController.moveGroup,
           );
         },
       ),
@@ -128,22 +136,22 @@ class AFBoardContent extends StatefulWidget {
   final OnDragStarted? onDragStarted;
   final OnReorder onReorder;
   final OnDragEnded? onDragEnded;
-  final AFBoardDataController dataController;
+  final AppFlowyBoardDataController dataController;
   final Widget? background;
-  final AFBoardConfig config;
+  final AppFlowyBoardConfig config;
   final ReorderFlexConfig reorderFlexConfig;
   final BoxConstraints columnConstraints;
   final AFBoardScrollManager? scrollManager;
-  final BoardColumnsState columnsState;
+  final BoardGroupsState columnsState;
 
   ///
-  final AFBoardColumnCardBuilder cardBuilder;
+  final AppFlowyBoardCardBuilder cardBuilder;
 
   ///
-  final AFBoardColumnHeaderBuilder? headerBuilder;
+  final AppFlowyBoardHeaderBuilder? headerBuilder;
 
   ///
-  final AFBoardColumnFooterBuilder? footBuilder;
+  final AppFlowyBoardFooterBuilder? footerBuilder;
 
   final OverlapDragTargetDelegate delegate;
 
@@ -162,7 +170,7 @@ class AFBoardContent extends StatefulWidget {
     this.background,
     required this.columnConstraints,
     required this.cardBuilder,
-    this.footBuilder,
+    this.footerBuilder,
     this.headerBuilder,
     required this.phantomController,
     Key? key,
@@ -178,13 +186,15 @@ class _AFBoardContentState extends State<AFBoardContent> {
       GlobalKey(debugLabel: '$AFBoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
+  final Map<String, GlobalObjectKey> _reorderFlexKeys = {};
+
   @override
   void initState() {
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
         final interceptor = OverlappingDragTargetInterceptor(
           reorderFlexId: widget.dataController.identifier,
-          acceptedReorderFlexId: widget.dataController.columnIds,
+          acceptedReorderFlexId: widget.dataController.groupIds,
           delegate: widget.delegate,
           columnsState: widget.columnsState,
         );
@@ -233,40 +243,45 @@ class _AFBoardContentState extends State<AFBoardContent> {
 
   List<Widget> _buildColumns() {
     final List<Widget> children =
-        widget.dataController.columnDatas.asMap().entries.map(
+        widget.dataController.groupDatas.asMap().entries.map(
       (item) {
         final columnData = item.value;
         final columnIndex = item.key;
 
-        final dataSource = _BoardColumnDataSourceImpl(
-          columnId: columnData.id,
+        final dataSource = _BoardGroupDataSourceImpl(
+          groupId: columnData.id,
           dataController: widget.dataController,
         );
 
+        if (_reorderFlexKeys[columnData.id] == null) {
+          _reorderFlexKeys[columnData.id] = GlobalObjectKey(columnData.id);
+        }
+
+        GlobalObjectKey reorderFlexKey = _reorderFlexKeys[columnData.id]!;
         return ChangeNotifierProvider.value(
           key: ValueKey(columnData.id),
-          value: widget.dataController.getColumnController(columnData.id),
-          child: Consumer<AFBoardColumnDataController>(
+          value: widget.dataController.getGroupController(columnData.id),
+          child: Consumer<AFBoardGroupDataController>(
             builder: (context, value, child) {
-              final boardColumn = AFBoardColumnWidget(
+              final boardColumn = AppFlowyBoardGroupWidget(
+                reorderFlexKey: reorderFlexKey,
                 // key: PageStorageKey<String>(columnData.id),
                 margin: _marginFromIndex(columnIndex),
-                itemMargin: widget.config.columnItemPadding,
+                itemMargin: widget.config.groupItemPadding,
                 headerBuilder: _buildHeader,
-                footBuilder: widget.footBuilder,
+                footerBuilder: widget.footerBuilder,
                 cardBuilder: widget.cardBuilder,
                 dataSource: dataSource,
                 scrollController: ScrollController(),
                 phantomController: widget.phantomController,
-                onReorder: widget.dataController.moveColumnItem,
+                onReorder: widget.dataController.moveGroupItem,
                 cornerRadius: widget.config.cornerRadius,
-                backgroundColor: widget.config.columnBackgroundColor,
+                backgroundColor: widget.config.groupBackgroundColor,
                 dragStateStorage: widget.columnsState,
                 dragTargetIndexKeyStorage: widget.columnsState,
               );
 
-              widget.columnsState.addColumn(columnData.id, boardColumn);
-
+              widget.columnsState.addGroup(columnData.id, boardColumn);
               return ConstrainedBox(
                 constraints: widget.columnConstraints,
                 child: boardColumn,
@@ -282,79 +297,79 @@ class _AFBoardContentState extends State<AFBoardContent> {
 
   Widget? _buildHeader(
     BuildContext context,
-    AFBoardColumnData columnData,
+    AppFlowyBoardGroupData groupData,
   ) {
     if (widget.headerBuilder == null) {
       return null;
     }
-    return Selector<AFBoardColumnDataController, AFBoardColumnHeaderData>(
-      selector: (context, controller) => controller.columnData.headerData,
+    return Selector<AFBoardGroupDataController, AppFlowyBoardGroupHeaderData>(
+      selector: (context, controller) => controller.groupData.headerData,
       builder: (context, headerData, _) {
-        return widget.headerBuilder!(context, columnData)!;
+        return widget.headerBuilder!(context, groupData)!;
       },
     );
   }
 
   EdgeInsets _marginFromIndex(int index) {
-    if (widget.dataController.columnDatas.isEmpty) {
-      return widget.config.columnPadding;
+    if (widget.dataController.groupDatas.isEmpty) {
+      return widget.config.groupPadding;
     }
 
     if (index == 0) {
-      return EdgeInsets.only(right: widget.config.columnPadding.right);
+      return EdgeInsets.only(right: widget.config.groupPadding.right);
     }
 
-    if (index == widget.dataController.columnDatas.length - 1) {
-      return EdgeInsets.only(left: widget.config.columnPadding.left);
+    if (index == widget.dataController.groupDatas.length - 1) {
+      return EdgeInsets.only(left: widget.config.groupPadding.left);
     }
 
-    return widget.config.columnPadding;
+    return widget.config.groupPadding;
   }
 }
 
-class _BoardColumnDataSourceImpl extends AFBoardColumnDataDataSource {
-  String columnId;
-  final AFBoardDataController dataController;
+class _BoardGroupDataSourceImpl extends AppFlowyBoardGroupDataDataSource {
+  String groupId;
+  final AppFlowyBoardDataController dataController;
 
-  _BoardColumnDataSourceImpl({
-    required this.columnId,
+  _BoardGroupDataSourceImpl({
+    required this.groupId,
     required this.dataController,
   });
 
   @override
-  AFBoardColumnData get columnData =>
-      dataController.getColumnController(columnId)!.columnData;
+  AppFlowyBoardGroupData get groupData =>
+      dataController.getGroupController(groupId)!.groupData;
 
   @override
-  List<String> get acceptedColumnIds => dataController.columnIds;
+  List<String> get acceptedGroupIds => dataController.groupIds;
 }
 
-class BoardColumnContext {
-  GlobalKey? columnKey;
+class BoardGroupContext {
+  GlobalKey? groupKey;
   DraggingState? draggingState;
 }
 
-class BoardColumnsState extends DraggingStateStorage
+class BoardGroupsState extends DraggingStateStorage
     with ReorderDragTargetIndexKeyStorage {
-  /// Quick access to the [AFBoardColumnWidget]
-  final Map<String, GlobalKey> columnKeys = {};
-  final Map<String, DraggingState> columnDragStates = {};
-  final Map<String, Map<String, GlobalObjectKey>> columnDragDragTargets = {};
+  /// Quick access to the [AppFlowyBoardGroupWidget]
+  final Map<String, GlobalKey> groupKeys = {};
+  final Map<String, DraggingState> groupDragStates = {};
+  final Map<String, Map<String, GlobalObjectKey>> groupDragDragTargets = {};
 
-  void addColumn(String columnId, AFBoardColumnWidget columnWidget) {
-    columnKeys[columnId] = columnWidget.globalKey;
+  void addGroup(String groupId, AppFlowyBoardGroupWidget groupWidget) {
+    groupKeys[groupId] = groupWidget.reorderFlexKey;
   }
 
-  ReorderFlexState? getReorderFlexState({required String columnId}) {
-    final flexGlobalKey = columnKeys[columnId];
+  ReorderFlexState? getReorderFlexState({required String groupId}) {
+    final flexGlobalKey = groupKeys[groupId];
     if (flexGlobalKey == null) return null;
     if (flexGlobalKey.currentState is! ReorderFlexState) return null;
     final state = flexGlobalKey.currentState as ReorderFlexState;
     return state;
   }
 
-  ReorderFlex? getReorderFlex({required String columnId}) {
-    final flexGlobalKey = columnKeys[columnId];
+  ReorderFlex? getReorderFlex({required String groupId}) {
+    final flexGlobalKey = groupKeys[groupId];
     if (flexGlobalKey == null) return null;
     if (flexGlobalKey.currentWidget is! ReorderFlex) return null;
     final widget = flexGlobalKey.currentWidget as ReorderFlex;
@@ -363,18 +378,18 @@ class BoardColumnsState extends DraggingStateStorage
 
   @override
   DraggingState? read(String reorderFlexId) {
-    return columnDragStates[reorderFlexId];
+    return groupDragStates[reorderFlexId];
   }
 
   @override
   void write(String reorderFlexId, DraggingState state) {
     Log.trace('$reorderFlexId Write dragging state: $state');
-    columnDragStates[reorderFlexId] = state;
+    groupDragStates[reorderFlexId] = state;
   }
 
   @override
   void remove(String reorderFlexId) {
-    columnDragStates.remove(reorderFlexId);
+    groupDragStates.remove(reorderFlexId);
   }
 
   @override
@@ -383,20 +398,20 @@ class BoardColumnsState extends DraggingStateStorage
     String key,
     GlobalObjectKey<State<StatefulWidget>> value,
   ) {
-    Map<String, GlobalObjectKey>? column = columnDragDragTargets[reorderFlexId];
-    if (column == null) {
-      column = {};
-      columnDragDragTargets[reorderFlexId] = column;
+    Map<String, GlobalObjectKey>? group = groupDragDragTargets[reorderFlexId];
+    if (group == null) {
+      group = {};
+      groupDragDragTargets[reorderFlexId] = group;
     }
-    column[key] = value;
+    group[key] = value;
   }
 
   @override
   GlobalObjectKey<State<StatefulWidget>>? readKey(
       String reorderFlexId, String key) {
-    Map<String, GlobalObjectKey>? column = columnDragDragTargets[reorderFlexId];
-    if (column != null) {
-      return column[key];
+    Map<String, GlobalObjectKey>? group = groupDragDragTargets[reorderFlexId];
+    if (group != null) {
+      return group[key];
     } else {
       return null;
     }

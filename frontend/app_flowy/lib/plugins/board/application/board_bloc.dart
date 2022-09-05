@@ -22,7 +22,7 @@ part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final BoardDataController _gridDataController;
-  late final AFBoardDataController boardController;
+  late final AppFlowyBoardDataController boardController;
   final MoveRowFFIService _rowService;
   LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap();
 
@@ -34,8 +34,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       : _rowService = MoveRowFFIService(gridId: view.id),
         _gridDataController = BoardDataController(view: view),
         super(BoardState.initial(view.id)) {
-    boardController = AFBoardDataController(
-      onMoveColumn: (
+    boardController = AppFlowyBoardDataController(
+      onMoveGroup: (
         fromColumnId,
         fromIndex,
         toColumnId,
@@ -43,7 +43,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       ) {
         _moveGroup(fromColumnId, toColumnId);
       },
-      onMoveColumnItem: (
+      onMoveGroupItem: (
         columnId,
         fromIndex,
         toIndex,
@@ -52,15 +52,15 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         final toRow = groupControllers[columnId]?.rowAtIndex(toIndex);
         _moveRow(fromRow, columnId, toRow);
       },
-      onMoveColumnItemToColumn: (
-        fromColumnId,
+      onMoveGroupItemToGroup: (
+        fromGroupId,
         fromIndex,
-        toColumnId,
+        toGroupId,
         toIndex,
       ) {
-        final fromRow = groupControllers[fromColumnId]?.rowAtIndex(fromIndex);
-        final toRow = groupControllers[toColumnId]?.rowAtIndex(toIndex);
-        _moveRow(fromRow, toColumnId, toRow);
+        final fromRow = groupControllers[fromGroupId]?.rowAtIndex(fromIndex);
+        final toRow = groupControllers[toGroupId]?.rowAtIndex(toIndex);
+        _moveRow(fromRow, toGroupId, toRow);
       },
     );
 
@@ -165,10 +165,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     boardController.clear();
 
     //
-    List<AFBoardColumnData> columns = groups
+    List<AppFlowyBoardGroupData> columns = groups
         .where((group) => fieldController.getField(group.fieldId) != null)
         .map((group) {
-      return AFBoardColumnData(
+      return AppFlowyBoardGroupData(
         id: group.groupId,
         name: group.desc,
         items: _buildRows(group),
@@ -178,7 +178,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         ),
       );
     }).toList();
-    boardController.addColumns(columns);
+    boardController.addGroups(columns);
 
     for (final group in groups) {
       final delegate = GroupControllerDelegateImpl(
@@ -227,8 +227,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         if (isClosed) return;
         for (final group in updatedGroups) {
           final columnController =
-              boardController.getColumnController(group.groupId);
-          columnController?.updateColumnName(group.desc);
+              boardController.getGroupController(group.groupId);
+          columnController?.updateGroupName(group.desc);
         }
       },
       onError: (err) {
@@ -243,13 +243,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  List<AFColumnItem> _buildRows(GroupPB group) {
+  List<AppFlowyGroupItem> _buildRows(GroupPB group) {
     final items = group.rows.map((row) {
       final fieldContext = fieldController.getField(group.fieldId);
       return BoardColumnItem(row: row, fieldContext: fieldContext!);
     }).toList();
 
-    return <AFColumnItem>[...items];
+    return <AppFlowyGroupItem>[...items];
   }
 
   Future<void> _loadGrid(Emitter<BoardState> emit) async {
@@ -335,7 +335,7 @@ class GridFieldEquatable extends Equatable {
   UnmodifiableListView<FieldPB> get value => UnmodifiableListView(_fields);
 }
 
-class BoardColumnItem extends AFColumnItem {
+class BoardColumnItem extends AppFlowyGroupItem {
   final RowPB row;
   final GridFieldContext fieldContext;
 
@@ -350,7 +350,7 @@ class BoardColumnItem extends AFColumnItem {
 
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
   final GridFieldController fieldController;
-  final AFBoardDataController controller;
+  final AppFlowyBoardDataController controller;
   final void Function(String, RowPB, int?) onNewColumnItem;
 
   GroupControllerDelegateImpl({
@@ -369,16 +369,16 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 
     if (index != null) {
       final item = BoardColumnItem(row: row, fieldContext: fieldContext);
-      controller.insertColumnItem(group.groupId, index, item);
+      controller.insertGroupItem(group.groupId, index, item);
     } else {
       final item = BoardColumnItem(row: row, fieldContext: fieldContext);
-      controller.addColumnItem(group.groupId, item);
+      controller.addGroupItem(group.groupId, item);
     }
   }
 
   @override
   void removeRow(GroupPB group, String rowId) {
-    controller.removeColumnItem(group.groupId, rowId);
+    controller.removeGroupItem(group.groupId, rowId);
   }
 
   @override
@@ -388,7 +388,7 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
       Log.warn("FieldContext should not be null");
       return;
     }
-    controller.updateColumnItem(
+    controller.updateGroupItem(
       group.groupId,
       BoardColumnItem(row: row, fieldContext: fieldContext),
     );
@@ -404,9 +404,9 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
     final item = BoardColumnItem(row: row, fieldContext: fieldContext);
 
     if (index != null) {
-      controller.insertColumnItem(group.groupId, index, item);
+      controller.insertGroupItem(group.groupId, index, item);
     } else {
-      controller.addColumnItem(group.groupId, item);
+      controller.addGroupItem(group.groupId, item);
     }
     onNewColumnItem(group.groupId, row, index);
   }

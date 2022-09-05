@@ -65,8 +65,8 @@ class _BoardContentState extends State<BoardContent> {
   late ScrollController scrollController;
   late AFBoardScrollManager scrollManager;
 
-  final config = AFBoardConfig(
-    columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+  final config = AppFlowyBoardConfig(
+    groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
   );
 
   @override
@@ -101,7 +101,7 @@ class _BoardContentState extends State<BoardContent> {
 
   Expanded _buildBoard(BuildContext context) {
     return Expanded(
-      child: AFBoard(
+      child: AppFlowyBoard(
         scrollManager: scrollManager,
         scrollController: scrollController,
         dataController: context.read<BoardBloc>().boardController,
@@ -112,9 +112,9 @@ class _BoardContentState extends State<BoardContent> {
           column,
           columnItem,
         ),
-        columnConstraints: const BoxConstraints.tightFor(width: 300),
-        config: AFBoardConfig(
-          columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+        groupConstraints: const BoxConstraints.tightFor(width: 300),
+        config: AppFlowyBoardConfig(
+          groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
         ),
       ),
     );
@@ -149,14 +149,14 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildHeader(
     BuildContext context,
-    AFBoardColumnData columnData,
+    AppFlowyBoardGroupData columnData,
   ) {
     final boardCustomData = columnData.customData as BoardCustomData;
-    return AppFlowyColumnHeader(
+    return AppFlowyGroupHeader(
       title: Flexible(
         fit: FlexFit.tight,
         child: FlowyText.medium(
-          columnData.headerData.columnName,
+          columnData.headerData.groupName,
           fontSize: 14,
           overflow: TextOverflow.clip,
           color: context.read<AppTheme>().textColor,
@@ -181,14 +181,14 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  Widget _buildFooter(BuildContext context, AFBoardColumnData columnData) {
+  Widget _buildFooter(BuildContext context, AppFlowyBoardGroupData columnData) {
     final boardCustomData = columnData.customData as BoardCustomData;
     final group = boardCustomData.group;
 
     if (group.isDefault) {
       return const SizedBox();
     } else {
-      return AppFlowyColumnFooter(
+      return AppFlowyGroupFooter(
         icon: SizedBox(
           height: 20,
           width: 20,
@@ -215,8 +215,8 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildCard(
     BuildContext context,
-    AFBoardColumnData column,
-    AFColumnItem columnItem,
+    AppFlowyBoardGroupData column,
+    AppFlowyGroupItem columnItem,
   ) {
     final boardColumnItem = columnItem as BoardColumnItem;
     final rowPB = boardColumnItem.row;
@@ -242,7 +242,7 @@ class _BoardContentState extends State<BoardContent> {
       },
     );
 
-    return AppFlowyColumnItemCard(
+    return AppFlowyGroupItemCard(
       key: ValueKey(columnItem.id),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),

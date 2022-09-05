@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import '../../utils/log.dart';
 import '../reorder_flex/reorder_flex.dart';
 
-abstract class AFColumnItem extends ReoderFlexItem {
+abstract class AppFlowyGroupItem extends ReoderFlexItem {
   bool get isPhantom => false;
 
   @override
   String toString() => id;
 }
 
-/// [AFBoardColumnDataController] is used to handle the [AFBoardColumnData].
+/// [AFBoardGroupDataController] is used to handle the [AppFlowyBoardGroupData].
 /// * Remove an item by calling [removeAt] method.
 /// * Move item to another position by calling [move] method.
 /// * Insert item to index by calling [insert] method
@@ -20,23 +20,23 @@ abstract class AFColumnItem extends ReoderFlexItem {
 ///
 /// All there operations will notify listeners by default.
 ///
-class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
-  final AFBoardColumnData columnData;
+class AFBoardGroupDataController extends ChangeNotifier with EquatableMixin {
+  final AppFlowyBoardGroupData groupData;
 
-  AFBoardColumnDataController({
-    required this.columnData,
+  AFBoardGroupDataController({
+    required this.groupData,
   });
 
   @override
-  List<Object?> get props => columnData.props;
+  List<Object?> get props => groupData.props;
 
-  /// Returns the readonly List<ColumnItem>
-  UnmodifiableListView<AFColumnItem> get items =>
-      UnmodifiableListView(columnData.items);
+  /// Returns the readonly List<AppFlowyGroupItem>
+  UnmodifiableListView<AppFlowyGroupItem> get items =>
+      UnmodifiableListView(groupData.items);
 
-  void updateColumnName(String newName) {
-    if (columnData.headerData.columnName != newName) {
-      columnData.headerData.columnName = newName;
+  void updateGroupName(String newName) {
+    if (groupData.headerData.groupName != newName) {
+      groupData.headerData.groupName = newName;
       notifyListeners();
     }
   }
@@ -46,19 +46,18 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
   /// * [notify] the default value of [notify] is true, it will notify the
   /// listener. Set to [false] if you do not want to notify the listeners.
   ///
-  AFColumnItem removeAt(int index, {bool notify = true}) {
+  AppFlowyGroupItem removeAt(int index, {bool notify = true}) {
     assert(index >= 0);
 
-    Log.debug(
-        '[$AFBoardColumnDataController] $columnData remove item at $index');
-    final item = columnData._items.removeAt(index);
+    Log.debug('[$AFBoardGroupDataController] $groupData remove item at $index');
+    final item = groupData._items.removeAt(index);
     if (notify) {
       notifyListeners();
     }
     return item;
   }
 
-  void removeWhere(bool Function(AFColumnItem) condition) {
+  void removeWhere(bool Function(AppFlowyGroupItem) condition) {
     final index = items.indexWhere(condition);
     if (index != -1) {
       removeAt(index);
@@ -75,9 +74,9 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
       return false;
     }
     Log.debug(
-        '[$AFBoardColumnDataController] $columnData move item from $fromIndex to $toIndex');
-    final item = columnData._items.removeAt(fromIndex);
-    columnData._items.insert(toIndex, item);
+        '[$AFBoardGroupDataController] $groupData move item from $fromIndex to $toIndex');
+    final item = groupData._items.removeAt(fromIndex);
+    groupData._items.insert(toIndex, item);
     notifyListeners();
     return true;
   }
@@ -86,18 +85,18 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
   /// is true.
   ///
   /// The default value of [notify] is true.
-  bool insert(int index, AFColumnItem item, {bool notify = true}) {
+  bool insert(int index, AppFlowyGroupItem item, {bool notify = true}) {
     assert(index >= 0);
     Log.debug(
-        '[$AFBoardColumnDataController] $columnData insert $item at $index');
+        '[$AFBoardGroupDataController] $groupData insert $item at $index');
 
     if (_containsItem(item)) {
       return false;
     } else {
-      if (columnData._items.length > index) {
-        columnData._items.insert(index, item);
+      if (groupData._items.length > index) {
+        groupData._items.insert(index, item);
       } else {
-        columnData._items.add(item);
+        groupData._items.add(item);
       }
 
       if (notify) notifyListeners();
@@ -105,74 +104,75 @@ class AFBoardColumnDataController extends ChangeNotifier with EquatableMixin {
     }
   }
 
-  bool add(AFColumnItem item, {bool notify = true}) {
+  bool add(AppFlowyGroupItem item, {bool notify = true}) {
     if (_containsItem(item)) {
       return false;
     } else {
-      columnData._items.add(item);
+      groupData._items.add(item);
       if (notify) notifyListeners();
       return true;
     }
   }
 
   /// Replace the item at index with the [newItem].
-  void replace(int index, AFColumnItem newItem) {
-    if (columnData._items.isEmpty) {
-      columnData._items.add(newItem);
-      Log.debug('[$AFBoardColumnDataController] $columnData add $newItem');
+  void replace(int index, AppFlowyGroupItem newItem) {
+    if (groupData._items.isEmpty) {
+      groupData._items.add(newItem);
+      Log.debug('[$AFBoardGroupDataController] $groupData add $newItem');
     } else {
-      if (index >= columnData._items.length) {
+      if (index >= groupData._items.length) {
         return;
       }
 
-      final removedItem = columnData._items.removeAt(index);
-      columnData._items.insert(index, newItem);
+      final removedItem = groupData._items.removeAt(index);
+      groupData._items.insert(index, newItem);
       Log.debug(
-          '[$AFBoardColumnDataController] $columnData replace $removedItem with $newItem at $index');
+          '[$AFBoardGroupDataController] $groupData replace $removedItem with $newItem at $index');
     }
 
     notifyListeners();
   }
 
-  void replaceOrInsertItem(AFColumnItem newItem) {
-    final index = columnData._items.indexWhere((item) => item.id == newItem.id);
+  void replaceOrInsertItem(AppFlowyGroupItem newItem) {
+    final index = groupData._items.indexWhere((item) => item.id == newItem.id);
     if (index != -1) {
-      columnData._items.removeAt(index);
-      columnData._items.insert(index, newItem);
+      groupData._items.removeAt(index);
+      groupData._items.insert(index, newItem);
       notifyListeners();
     } else {
-      columnData._items.add(newItem);
+      groupData._items.add(newItem);
       notifyListeners();
     }
   }
 
-  bool _containsItem(AFColumnItem item) {
-    return columnData._items.indexWhere((element) => element.id == item.id) !=
+  bool _containsItem(AppFlowyGroupItem item) {
+    return groupData._items.indexWhere((element) => element.id == item.id) !=
         -1;
   }
 }
 
-/// [AFBoardColumnData] represents the data of each Column of the Board.
-class AFBoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
+/// [AppFlowyBoardGroupData] represents the data of each group of the Board.
+class AppFlowyBoardGroupData<CustomData> extends ReoderFlexItem
+    with EquatableMixin {
   @override
   final String id;
-  AFBoardColumnHeaderData headerData;
-  final List<AFColumnItem> _items;
+  AppFlowyBoardGroupHeaderData headerData;
+  final List<AppFlowyGroupItem> _items;
   final CustomData? customData;
 
-  AFBoardColumnData({
+  AppFlowyBoardGroupData({
     this.customData,
     required this.id,
     required String name,
-    List<AFColumnItem> items = const [],
+    List<AppFlowyGroupItem> items = const [],
   })  : _items = items,
-        headerData = AFBoardColumnHeaderData(
-          columnId: id,
-          columnName: name,
+        headerData = AppFlowyBoardGroupHeaderData(
+          groupId: id,
+          groupName: name,
         );
 
-  /// Returns the readonly List<ColumnItem>
-  UnmodifiableListView<AFColumnItem> get items =>
+  /// Returns the readonly List<AppFlowyGroupItem>
+  UnmodifiableListView<AppFlowyGroupItem> get items =>
       UnmodifiableListView([..._items]);
 
   @override
@@ -180,13 +180,14 @@ class AFBoardColumnData<CustomData> extends ReoderFlexItem with EquatableMixin {
 
   @override
   String toString() {
-    return 'Column:[$id]';
+    return 'Group:[$id]';
   }
 }
 
-class AFBoardColumnHeaderData {
-  String columnId;
-  String columnName;
+class AppFlowyBoardGroupHeaderData {
+  String groupId;
+  String groupName;
 
-  AFBoardColumnHeaderData({required this.columnId, required this.columnName});
+  AppFlowyBoardGroupHeaderData(
+      {required this.groupId, required this.groupName});
 }

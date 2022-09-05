@@ -55,7 +55,7 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapDragTargetDelegate delegate;
-  final BoardColumnsState columnsState;
+  final BoardGroupsState columnsState;
   Timer? _delayOperation;
 
   OverlappingDragTargetInterceptor({
@@ -81,7 +81,7 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
       delegate.cancel();
     } else {
       // Ignore the event if the dragTarget overlaps with the other column's dragTargets.
-      final columnKeys = columnsState.columnDragDragTargets[dragTargetId];
+      final columnKeys = columnsState.groupDragDragTargets[dragTargetId];
       if (columnKeys != null) {
         final keys = columnKeys.values.toList();
         if (dragTargetData.isOverlapWithWidgets(keys)) {
@@ -102,7 +102,7 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
           delegate.moveTo(dragTargetId, dragTargetData, index);
 
           columnsState
-              .getReorderFlexState(columnId: dragTargetId)
+              .getReorderFlexState(groupId: dragTargetId)
               ?.resetDragTargetIndex(index);
         }
       });
@@ -165,13 +165,13 @@ class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
   @override
   void onAccept(FlexDragTargetData dragTargetData) {
     Log.trace(
-        '[$CrossReorderFlexDragTargetInterceptor] Column:[$reorderFlexId] on onAccept');
+        '[$CrossReorderFlexDragTargetInterceptor] Group:[$reorderFlexId] on onAccept');
   }
 
   @override
   void onLeave(FlexDragTargetData dragTargetData) {
     Log.trace(
-        '[$CrossReorderFlexDragTargetInterceptor] Column:[$reorderFlexId] on leave');
+        '[$CrossReorderFlexDragTargetInterceptor] Group:[$reorderFlexId] on leave');
   }
 
   @override

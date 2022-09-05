@@ -9,21 +9,22 @@ class MultiBoardListExample extends StatefulWidget {
 }
 
 class _MultiBoardListExampleState extends State<MultiBoardListExample> {
-  final AFBoardDataController boardDataController = AFBoardDataController(
-    onMoveColumn: (fromColumnId, fromIndex, toColumnId, toIndex) {
+  final AppFlowyBoardDataController boardDataController =
+      AppFlowyBoardDataController(
+    onMoveGroup: (fromColumnId, fromIndex, toColumnId, toIndex) {
       // debugPrint('Move column from $fromIndex to $toIndex');
     },
-    onMoveColumnItem: (columnId, fromIndex, toIndex) {
+    onMoveGroupItem: (columnId, fromIndex, toIndex) {
       // debugPrint('Move $columnId:$fromIndex to $columnId:$toIndex');
     },
-    onMoveColumnItemToColumn: (fromColumnId, fromIndex, toColumnId, toIndex) {
+    onMoveGroupItemToGroup: (fromColumnId, fromIndex, toColumnId, toIndex) {
       // debugPrint('Move $fromColumnId:$fromIndex to $toColumnId:$toIndex');
     },
   );
 
   @override
   void initState() {
-    List<AFColumnItem> a = [
+    List<AppFlowyGroupItem> a = [
       TextItem("Card 1"),
       TextItem("Card 2"),
       RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
@@ -35,82 +36,83 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       TextItem("Card 9"),
     ];
 
-    final column1 = AFBoardColumnData(id: "To Do", name: "To Do", items: a);
-    final column2 = AFBoardColumnData(
+    final column1 =
+        AppFlowyBoardGroupData(id: "To Do", name: "To Do", items: a);
+    final column2 = AppFlowyBoardGroupData(
       id: "In Progress",
       name: "In Progress",
-      items: <AFColumnItem>[
+      items: <AppFlowyGroupItem>[
         RichTextItem(title: "Card 10", subtitle: 'Aug 1, 2020 4:05 PM'),
         TextItem("Card 11"),
       ],
     );
 
-    final column3 =
-        AFBoardColumnData(id: "Done", name: "Done", items: <AFColumnItem>[]);
+    final column3 = AppFlowyBoardGroupData(
+        id: "Done", name: "Done", items: <AppFlowyGroupItem>[]);
 
-    boardDataController.addColumn(column1);
-    boardDataController.addColumn(column2);
-    boardDataController.addColumn(column3);
+    boardDataController.addGroup(column1);
+    boardDataController.addGroup(column2);
+    boardDataController.addGroup(column3);
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final config = AFBoardConfig(
-      columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+    final config = AppFlowyBoardConfig(
+      groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
     );
     return Container(
       color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-        child: AFBoard(
+        child: AppFlowyBoard(
           dataController: boardDataController,
           footerBuilder: (context, columnData) {
-            return AppFlowyColumnFooter(
+            return AppFlowyGroupFooter(
               icon: const Icon(Icons.add, size: 20),
               title: const Text('New'),
               height: 50,
-              margin: config.columnItemPadding,
+              margin: config.groupItemPadding,
             );
           },
           headerBuilder: (context, columnData) {
-            return AppFlowyColumnHeader(
+            return AppFlowyGroupHeader(
               icon: const Icon(Icons.lightbulb_circle),
               title: SizedBox(
                 width: 60,
                 child: TextField(
                   controller: TextEditingController()
-                    ..text = columnData.headerData.columnName,
+                    ..text = columnData.headerData.groupName,
                   onSubmitted: (val) {
                     boardDataController
-                        .getColumnController(columnData.headerData.columnId)!
-                        .updateColumnName(val);
+                        .getGroupController(columnData.headerData.groupId)!
+                        .updateGroupName(val);
                   },
                 ),
               ),
               addIcon: const Icon(Icons.add, size: 20),
               moreIcon: const Icon(Icons.more_horiz, size: 20),
               height: 50,
-              margin: config.columnItemPadding,
+              margin: config.groupItemPadding,
             );
           },
           cardBuilder: (context, column, columnItem) {
-            return AppFlowyColumnItemCard(
+            return AppFlowyGroupItemCard(
               key: ValueKey(columnItem.id),
               child: _buildCard(columnItem),
             );
           },
-          columnConstraints: const BoxConstraints.tightFor(width: 240),
-          config: AFBoardConfig(
-            columnBackgroundColor: HexColor.fromHex('#F7F8FC'),
+          groupConstraints: const BoxConstraints.tightFor(width: 240),
+          config: AppFlowyBoardConfig(
+            groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildCard(AFColumnItem item) {
+  Widget _buildCard(AppFlowyGroupItem item) {
     if (item is TextItem) {
       return Align(
         alignment: Alignment.centerLeft,
@@ -172,7 +174,7 @@ class _RichTextCardState extends State<RichTextCard> {
   }
 }
 
-class TextItem extends AFColumnItem {
+class TextItem extends AppFlowyGroupItem {
   final String s;
 
   TextItem(this.s);
@@ -181,7 +183,7 @@ class TextItem extends AFColumnItem {
   String get id => s;
 }
 
-class RichTextItem extends AFColumnItem {
+class RichTextItem extends AppFlowyGroupItem {
   final String title;
   final String subtitle;
 

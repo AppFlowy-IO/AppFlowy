@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 typedef OnFooterAddButtonClick = void Function();
 
-class AppFlowyColumnFooter extends StatefulWidget {
+class AppFlowyGroupFooter extends StatefulWidget {
   final double height;
   final Widget? icon;
   final Widget? title;
   final EdgeInsets margin;
   final OnFooterAddButtonClick? onAddButtonClick;
 
-  const AppFlowyColumnFooter({
+  const AppFlowyGroupFooter({
     this.icon,
     this.title,
     this.margin = const EdgeInsets.symmetric(horizontal: 12),
@@ -19,10 +19,10 @@ class AppFlowyColumnFooter extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AppFlowyColumnFooter> createState() => _AppFlowyColumnFooterState();
+  State<AppFlowyGroupFooter> createState() => _AppFlowyGroupFooterState();
 }
 
-class _AppFlowyColumnFooterState extends State<AppFlowyColumnFooter> {
+class _AppFlowyGroupFooterState extends State<AppFlowyGroupFooter> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(

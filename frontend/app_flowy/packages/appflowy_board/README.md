@@ -9,6 +9,7 @@
     <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
 </p>
 
+
 <p align="center">
 <img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_board/example/gifs/appflowy_board_video_1.gif?raw=true" width="680" title="AppFlowyBoard">
 </p>
@@ -30,6 +31,7 @@ Add the AppFlowy Board [Flutter package](https://docs.flutter.dev/development/pa
 With Flutter:
 ```dart
 flutter pub add appflowy_board
+flutter pub get
 ```
 
 This will add a line like this to your package's pubspec.yaml (and run an implicit flutter pub get):
@@ -37,6 +39,8 @@ This will add a line like this to your package's pubspec.yaml (and run an implic
 dependencies:
   appflowy_board: ^0.0.6
 ```
+
+## Create board
 
 Import the package in your Dart file:
 ```dart
@@ -47,14 +51,18 @@ import 'package:appflowy_board/appflowy_board.dart';
 To quickly grasp how it can be used, look at the /example/lib folder.
 First, run main.dart to play with the demo.
 
+
 Second, let's delve into multi_board_list_example.dart to understand a few key components:
 * A Board widget is created via instantiating an AFBoard() object. 
 * In the AFBoard() object, you can find:
   * AFBoardDataController, which is defined in board_data.dart, is feeded with prepopulated mock data. It also contains callback functions to materialize future user data.
   * Three builders: AppFlowyColumnHeader, AppFlowyColumnFooter, AppFlowyColumnItemCard. See below image for what they are used for.
-<p>
+
+
+
+<!-- <p>
 <img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_board/example/gifs/appflowy_board_builders.jpg?raw=true" width="100%" title="AppFlowyBoard">
-</p>
+</p> -->
 
 ## Glossary
 Please refer to the API documentation.
@@ -68,4 +76,4 @@ Please look at [CONTRIBUTING.md](https://appflowy.gitbook.io/docs/essential-docu
 Distributed under the AGPLv3 License. See [LICENSE](https://github.com/AppFlowy-IO/AppFlowy-Docs/blob/main/LICENSE) for more information.
 
 
-
+d

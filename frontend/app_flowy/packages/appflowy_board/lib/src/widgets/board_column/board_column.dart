@@ -9,49 +9,49 @@ import '../reorder_flex/reorder_flex.dart';
 import '../reorder_flex/drag_target_interceptor.dart';
 import 'board_column_data.dart';
 
-typedef OnColumnDragStarted = void Function(int index);
+typedef OnGroupDragStarted = void Function(int index);
 
-typedef OnColumnDragEnded = void Function(String listId);
+typedef OnGroupDragEnded = void Function(String listId);
 
-typedef OnColumnReorder = void Function(
+typedef OnGroupReorder = void Function(
   String listId,
   int fromIndex,
   int toIndex,
 );
 
-typedef OnColumnDeleted = void Function(String listId, int deletedIndex);
+typedef OnGroupDeleted = void Function(String listId, int deletedIndex);
 
-typedef OnColumnInserted = void Function(String listId, int insertedIndex);
+typedef OnGroupInserted = void Function(String listId, int insertedIndex);
 
-typedef AFBoardColumnCardBuilder = Widget Function(
+typedef AppFlowyBoardCardBuilder = Widget Function(
   BuildContext context,
-  AFBoardColumnData columnData,
-  AFColumnItem item,
+  AppFlowyBoardGroupData groupData,
+  AppFlowyGroupItem item,
 );
 
-typedef AFBoardColumnHeaderBuilder = Widget? Function(
+typedef AppFlowyBoardHeaderBuilder = Widget? Function(
   BuildContext context,
-  AFBoardColumnData columnData,
+  AppFlowyBoardGroupData groupData,
 );
 
-typedef AFBoardColumnFooterBuilder = Widget Function(
+typedef AppFlowyBoardFooterBuilder = Widget Function(
   BuildContext context,
-  AFBoardColumnData columnData,
+  AppFlowyBoardGroupData groupData,
 );
 
-abstract class AFBoardColumnDataDataSource extends ReoderFlexDataSource {
-  AFBoardColumnData get columnData;
+abstract class AppFlowyBoardGroupDataDataSource extends ReoderFlexDataSource {
+  AppFlowyBoardGroupData get groupData;
 
-  List<String> get acceptedColumnIds;
+  List<String> get acceptedGroupIds;
 
   @override
-  String get identifier => columnData.id;
+  String get identifier => groupData.id;
 
   @override
-  UnmodifiableListView<AFColumnItem> get items => columnData.items;
+  UnmodifiableListView<AppFlowyGroupItem> get items => groupData.items;
 
   void debugPrint() {
-    String msg = '[$AFBoardColumnDataDataSource] $columnData data: ';
+    String msg = '[$AppFlowyBoardGroupDataDataSource] $groupData data: ';
     for (var element in items) {
       msg = '$msg$element,';
     }
@@ -60,25 +60,25 @@ abstract class AFBoardColumnDataDataSource extends ReoderFlexDataSource {
   }
 }
 
-/// [AFBoardColumnWidget] represents the column of the Board.
+/// [AppFlowyBoardGroupWidget] represents the column of the Board.
 ///
-class AFBoardColumnWidget extends StatefulWidget {
-  final AFBoardColumnDataDataSource dataSource;
+class AppFlowyBoardGroupWidget extends StatefulWidget {
+  final AppFlowyBoardGroupDataDataSource dataSource;
   final ScrollController? scrollController;
   final ReorderFlexConfig config;
-  final OnColumnDragStarted? onDragStarted;
-  final OnColumnReorder onReorder;
-  final OnColumnDragEnded? onDragEnded;
+  final OnGroupDragStarted? onDragStarted;
+  final OnGroupReorder onReorder;
+  final OnGroupDragEnded? onDragEnded;
 
   final BoardPhantomController phantomController;
 
-  String get columnId => dataSource.columnData.id;
+  String get groupId => dataSource.groupData.id;
 
-  final AFBoardColumnCardBuilder cardBuilder;
+  final AppFlowyBoardCardBuilder cardBuilder;
 
-  final AFBoardColumnHeaderBuilder? headerBuilder;
+  final AppFlowyBoardHeaderBuilder? headerBuilder;
 
-  final AFBoardColumnFooterBuilder? footBuilder;
+  final AppFlowyBoardFooterBuilder? footerBuilder;
 
   final EdgeInsets margin;
 
@@ -92,12 +92,13 @@ class AFBoardColumnWidget extends StatefulWidget {
 
   final ReorderDragTargetIndexKeyStorage? dragTargetIndexKeyStorage;
 
-  final GlobalObjectKey globalKey;
+  final GlobalObjectKey reorderFlexKey;
 
-  AFBoardColumnWidget({
+  const AppFlowyBoardGroupWidget({
     Key? key,
+    required this.reorderFlexKey,
     this.headerBuilder,
-    this.footBuilder,
+    this.footerBuilder,
     required this.cardBuilder,
     required this.onReorder,
     required this.dataSource,
@@ -111,64 +112,68 @@ class AFBoardColumnWidget extends StatefulWidget {
     this.itemMargin = EdgeInsets.zero,
     this.cornerRadius = 0.0,
     this.backgroundColor = Colors.transparent,
-  })  : globalKey = GlobalObjectKey(dataSource.columnData.id),
-        config = const ReorderFlexConfig(setStateWhenEndDrag: false),
+  })  : config = const ReorderFlexConfig(setStateWhenEndDrag: false),
         super(key: key);
 
   @override
-  State<AFBoardColumnWidget> createState() => _AFBoardColumnWidgetState();
+  State<AppFlowyBoardGroupWidget> createState() =>
+      _AppFlowyBoardGroupWidgetState();
 }
 
-class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
+class _AppFlowyBoardGroupWidgetState extends State<AppFlowyBoardGroupWidget> {
   final GlobalKey _columnOverlayKey =
-      GlobalKey(debugLabel: '$AFBoardColumnWidget overlay key');
+      GlobalKey(debugLabel: '$AppFlowyBoardGroupWidget overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   @override
   void initState() {
     _overlayEntry = BoardOverlayEntry(
       builder: (BuildContext context) {
-        final children = widget.dataSource.columnData.items
+        final children = widget.dataSource.groupData.items
             .map((item) => _buildWidget(context, item))
             .toList();
 
         final header =
-            widget.headerBuilder?.call(context, widget.dataSource.columnData);
+            widget.headerBuilder?.call(context, widget.dataSource.groupData);
 
         final footer =
-            widget.footBuilder?.call(context, widget.dataSource.columnData);
+            widget.footerBuilder?.call(context, widget.dataSource.groupData);
 
         final interceptor = CrossReorderFlexDragTargetInterceptor(
-          reorderFlexId: widget.columnId,
+          reorderFlexId: widget.groupId,
           delegate: widget.phantomController,
-          acceptedReorderFlexIds: widget.dataSource.acceptedColumnIds,
+          acceptedReorderFlexIds: widget.dataSource.acceptedGroupIds,
           draggableTargetBuilder: PhantomDraggableBuilder(),
         );
 
         Widget reorderFlex = ReorderFlex(
-          key: widget.globalKey,
+          key: widget.reorderFlexKey,
           dragStateStorage: widget.dragStateStorage,
           dragTargetIndexKeyStorage: widget.dragTargetIndexKeyStorage,
           scrollController: widget.scrollController,
           config: widget.config,
           onDragStarted: (index) {
-            widget.phantomController.columnStartDragging(widget.columnId);
+            widget.phantomController.groupStartDragging(widget.groupId);
             widget.onDragStarted?.call(index);
           },
           onReorder: ((fromIndex, toIndex) {
-            if (widget.phantomController.isFromColumn(widget.columnId)) {
-              widget.onReorder(widget.columnId, fromIndex, toIndex);
+            if (widget.phantomController.isFromGroup(widget.groupId)) {
+              widget.onReorder(widget.groupId, fromIndex, toIndex);
               widget.phantomController.transformIndex(fromIndex, toIndex);
             }
           }),
           onDragEnded: () {
-            widget.phantomController.columnEndDragging(widget.columnId);
-            widget.onDragEnded?.call(widget.columnId);
+            widget.phantomController.groupEndDragging(widget.groupId);
+            widget.onDragEnded?.call(widget.groupId);
             widget.dataSource.debugPrint();
           },
           dataSource: widget.dataSource,
           interceptor: interceptor,
           children: children,
+        );
+
+        reorderFlex = Expanded(
+          child: Padding(padding: widget.itemMargin, child: reorderFlex),
         );
 
         return Container(
@@ -181,9 +186,7 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
           child: Column(
             children: [
               if (header != null) header,
-              Expanded(
-                child: Padding(padding: widget.itemMargin, child: reorderFlex),
-              ),
+              reorderFlex,
               if (footer != null) footer,
             ],
           ),
@@ -202,15 +205,15 @@ class _AFBoardColumnWidgetState extends State<AFBoardColumnWidget> {
     );
   }
 
-  Widget _buildWidget(BuildContext context, AFColumnItem item) {
-    if (item is PhantomColumnItem) {
+  Widget _buildWidget(BuildContext context, AppFlowyGroupItem item) {
+    if (item is PhantomGroupItem) {
       return PassthroughPhantomWidget(
         key: UniqueKey(),
         opacity: widget.config.draggingWidgetOpacity,
         passthroughPhantomContext: item.phantomContext,
       );
     } else {
-      return widget.cardBuilder(context, widget.dataSource.columnData, item);
+      return widget.cardBuilder(context, widget.dataSource.groupData, item);
     }
   }
 }
