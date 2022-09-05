@@ -44,14 +44,14 @@ pub struct GridGroupConfigurationPB {
     pub id: String,
 
     #[pb(index = 2)]
-    pub group_field_id: String,
+    pub field_id: String,
 }
 
 impl std::convert::From<&GroupConfigurationRevision> for GridGroupConfigurationPB {
     fn from(rev: &GroupConfigurationRevision) -> Self {
         GridGroupConfigurationPB {
             id: rev.id.clone(),
-            group_field_id: rev.field_id.clone(),
+            field_id: rev.field_id.clone(),
         }
     }
 }
