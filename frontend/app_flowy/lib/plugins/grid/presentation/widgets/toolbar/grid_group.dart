@@ -31,10 +31,15 @@ class GridGroupList extends StatelessWidget {
       child: BlocBuilder<GridGroupBloc, GridGroupState>(
         builder: (context, state) {
           final cells = state.fieldContexts.map((fieldContext) {
-            return _GridGroupCell(
+            Widget cell = _GridGroupCell(
               fieldContext: fieldContext,
               key: ValueKey(fieldContext.id),
             );
+
+            if (!fieldContext.canGroup) {
+              cell = IgnorePointer(child: Opacity(opacity: 0.3, child: cell));
+            }
+            return cell;
           }).toList();
 
           return ListView.separated(
