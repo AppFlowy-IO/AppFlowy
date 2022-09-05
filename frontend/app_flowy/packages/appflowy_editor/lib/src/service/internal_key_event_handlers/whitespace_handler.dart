@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,7 +8,6 @@ import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
-import 'package:appflowy_editor/src/service/keyboard_service.dart';
 
 @visibleForTesting
 List<String> get checkboxListSymbols => _checkboxListSymbols;
@@ -20,7 +20,7 @@ const _bulletedListSymbols = ['*', '-'];
 const _checkboxListSymbols = ['[x]', '-[x]'];
 const _unCheckboxListSymbols = ['[]', '-[]'];
 
-AppFlowyKeyEventHandler whiteSpaceHandler = (editorState, event) {
+ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.space) {
     return KeyEventResult.ignored;
   }

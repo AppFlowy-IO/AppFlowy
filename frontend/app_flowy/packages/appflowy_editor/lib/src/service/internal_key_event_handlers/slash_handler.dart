@@ -1,13 +1,13 @@
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
-import 'package:appflowy_editor/src/service/keyboard_service.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
+import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 SelectionMenuService? _selectionMenuService;
-AppFlowyKeyEventHandler slashShortcutHandler = (editorState, event) {
+ShortcutEventHandler slashShortcutHandler = (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.slash) {
     return KeyEventResult.ignored;
   }

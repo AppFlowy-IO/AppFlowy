@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -103,7 +104,7 @@ KeyEventResult _handleShiftKey(EditorState editorState, RawKeyEvent event) {
   return KeyEventResult.ignored;
 }
 
-AppFlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
+ShortcutEventHandler arrowKeysHandler = (editorState, event) {
   if (event.isShiftPressed) {
     return _handleShiftKey(editorState, event);
   }

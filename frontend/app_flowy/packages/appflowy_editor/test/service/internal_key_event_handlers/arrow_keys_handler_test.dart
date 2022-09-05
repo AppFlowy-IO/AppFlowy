@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -328,37 +330,69 @@ Future<void> _testPressArrowKeyWithMetaInSelection(
     }
   }
   await editor.updateSelection(selection);
-  await editor.pressLogicKey(
-    LogicalKeyboardKey.arrowLeft,
-    isMetaPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowLeft,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowLeft,
+      isMetaPressed: true,
+    );
+  }
+
   expect(
     editor.documentSelection,
     Selection.single(path: [0], startOffset: 0),
   );
 
-  await editor.pressLogicKey(
-    LogicalKeyboardKey.arrowRight,
-    isMetaPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowRight,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowRight,
+      isMetaPressed: true,
+    );
+  }
+
   expect(
     editor.documentSelection,
     Selection.single(path: [0], startOffset: text.length),
   );
 
-  await editor.pressLogicKey(
-    LogicalKeyboardKey.arrowUp,
-    isMetaPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowUp,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowUp,
+      isMetaPressed: true,
+    );
+  }
+
   expect(
     editor.documentSelection,
     Selection.single(path: [0], startOffset: 0),
   );
 
-  await editor.pressLogicKey(
-    LogicalKeyboardKey.arrowDown,
-    isMetaPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowDown,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.arrowDown,
+      isMetaPressed: true,
+    );
+  }
+
   expect(
     editor.documentSelection,
     Selection.single(path: [1], startOffset: text.length),

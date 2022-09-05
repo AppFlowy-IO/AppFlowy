@@ -3,7 +3,7 @@ import 'package:appflowy_editor/src/extensions/node_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-AppFlowyKeyEventHandler arrowKeysHandler = (editorState, event) {
+ShortcutEventHandler arrowKeysHandler = (editorState, event) {
   if (!_arrowKeys.contains(event.logicalKey)) {
     return KeyEventResult.ignored;
   }

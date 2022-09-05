@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -18,7 +19,7 @@ KeyEventResult _selectAll(EditorState editorState) {
   return KeyEventResult.handled;
 }
 
-AppFlowyKeyEventHandler selectAllHandler = (editorState, event) {
+ShortcutEventHandler selectAllHandler = (editorState, event) {
   if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyA) {
     return _selectAll(editorState);
   }

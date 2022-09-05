@@ -1,12 +1,12 @@
+import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
-import 'package:appflowy_editor/src/service/keyboard_service.dart';
+
 import 'package:flutter/services.dart';
 
-AppFlowyKeyEventHandler updateTextStyleByCommandXHandler =
-    (editorState, event) {
+ShortcutEventHandler updateTextStyleByCommandXHandler = (editorState, event) {
   if (!event.isMetaPressed) {
     return KeyEventResult.ignored;
   }

@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/html_converter.dart';
 import 'package:appflowy_editor/src/document/node_iterator.dart';
+import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
@@ -303,7 +304,7 @@ _deleteSelectedContent(EditorState editorState) {
   tb.commit();
 }
 
-AppFlowyKeyEventHandler copyPasteKeysHandler = (editorState, event) {
+ShortcutEventHandler copyPasteKeysHandler = (editorState, event) {
   if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyC) {
     _handleCopy(editorState);
     return KeyEventResult.handled;

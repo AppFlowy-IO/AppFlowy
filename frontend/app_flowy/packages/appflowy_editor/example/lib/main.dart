@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:example/plugin/underscore_to_italic_key_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -95,6 +96,9 @@ class _MyHomePageState extends State<MyHomePage> {
             child: AppFlowyEditor(
               editorState: _editorState,
               editorStyle: const EditorStyle.defaultStyle(),
+              keyEventHandlers: [
+                underscoreToItalicEvent,
+              ],
             ),
           );
         } else {

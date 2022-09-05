@@ -22,6 +22,9 @@ abstract class AppFlowyKeyboardService {
   /// Processes shortcut key input.
   KeyEventResult onKey(RawKeyEvent event);
 
+  /// Gets the shortcut events
+  List<ShortcutEvent> get shortcutEvents;
+
   /// Enables shortcuts service.
   void enable();
 
@@ -35,23 +38,18 @@ abstract class AppFlowyKeyboardService {
   void disable();
 }
 
-typedef AppFlowyKeyEventHandler = KeyEventResult Function(
-  EditorState editorState,
-  RawKeyEvent event,
-);
-
 /// Process keyboard events
 class AppFlowyKeyboard extends StatefulWidget {
   const AppFlowyKeyboard({
     Key? key,
-    required this.handlers,
+    required this.shortcutEvents,
     required this.editorState,
     required this.child,
   }) : super(key: key);
 
   final EditorState editorState;
   final Widget child;
-  final List<AppFlowyKeyEventHandler> handlers;
+  final List<ShortcutEvent> shortcutEvents;
 
   @override
   State<AppFlowyKeyboard> createState() => _AppFlowyKeyboardState();
@@ -62,6 +60,10 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
   final FocusNode _focusNode = FocusNode(debugLabel: 'flowy_keyboard_service');
 
   bool isFocus = true;
+
+  @override
+  // TODO: implement shortcutEvents
+  List<ShortcutEvent> get shortcutEvents => widget.shortcutEvents;
 
   @override
   Widget build(BuildContext context) {
@@ -111,16 +113,14 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
       return KeyEventResult.ignored;
     }
 
-    for (final handler in widget.handlers) {
-      KeyEventResult result = handler(widget.editorState, event);
-
-      switch (result) {
-        case KeyEventResult.handled:
+    // TODO: use cache to optimize the searching time.
+    for (final shortcutEvent in widget.shortcutEvents) {
+      if (shortcutEvent.keybindings.containsKeyEvent(event)) {
+        final result = shortcutEvent.handler(widget.editorState, event);
+        if (result == KeyEventResult.handled) {
           return KeyEventResult.handled;
-        case KeyEventResult.skipRemainingHandlers:
-          return KeyEventResult.skipRemainingHandlers;
-        case KeyEventResult.ignored:
-          continue;
+        }
+        continue;
       }
     }
 
@@ -137,5 +137,17 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
 
   KeyEventResult _onKey(FocusNode node, RawKeyEvent event) {
     return onKey(event);
+  }
+}
+
+extension on RawKeyEvent {
+  Keybinding get toKeybinding {
+    return Keybinding(
+      isAltPressed: isAltPressed,
+      isControlPressed: isControlPressed,
+      isMetaPressed: isMetaPressed,
+      isShiftPressed: isShiftPressed,
+      keyLabel: logicalKey.keyLabel,
+    );
   }
 }
