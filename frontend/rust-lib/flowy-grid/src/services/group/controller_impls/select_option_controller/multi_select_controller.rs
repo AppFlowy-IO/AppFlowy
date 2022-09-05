@@ -1,4 +1,4 @@
-use crate::entities::GroupChangesetPB;
+use crate::entities::{GroupChangesetPB, RowPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{MultiSelectTypeOptionPB, SelectOptionCellDataPB, SelectOptionCellDataParser};
 use crate::services::group::action::GroupAction;
@@ -65,6 +65,12 @@ impl GroupController for MultiSelectGroupController {
                 let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
                 row_rev.cells.insert(field_rev.id.clone(), cell_rev);
             }
+        }
+    }
+
+    fn did_create_row(&mut self, row_pb: &RowPB, group_id: &str) {
+        if let Some(group) = self.group_ctx.get_mut_group(group_id) {
+            group.add_row(row_pb.clone())
         }
     }
 }

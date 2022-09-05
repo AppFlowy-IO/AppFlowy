@@ -4,7 +4,6 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.da
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'board_cell.dart';
 import 'define.dart';
 

@@ -77,4 +77,6 @@ impl GroupControllerSharedOperation for DefaultGroupController {
 
 impl GroupController for DefaultGroupController {
     fn will_create_row(&mut self, _row_rev: &mut RowRevision, _field_rev: &FieldRevision, _group_id: &str) {}
+
+    fn did_create_row(&mut self, _row_rev: &RowPB, _group_id: &str) {}
 }
