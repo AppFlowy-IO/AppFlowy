@@ -139,6 +139,10 @@ bool formatStrikethrough(EditorState editorState) {
   return formatRichTextPartialStyle(editorState, StyleKey.strikethrough);
 }
 
+bool formatEmbedCode(EditorState editorState) {
+  return formatRichTextPartialStyle(editorState, StyleKey.code);
+}
+
 bool formatHighlight(EditorState editorState) {
   bool value = _allSatisfyInSelection(
       editorState, StyleKey.backgroundColor, defaultHighlightColor);

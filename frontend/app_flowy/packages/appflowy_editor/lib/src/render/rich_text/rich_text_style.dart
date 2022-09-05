@@ -231,6 +231,9 @@ class RichTextStyle {
     if (attributes.bold) {
       return FontWeight.bold;
     }
+    if (attributes.code) {
+      return FontWeight.bold;
+    }
     return FontWeight.normal;
   }
 
@@ -247,13 +250,20 @@ class RichTextStyle {
   }
 
   // font
-  FontStyle get _fontStyle =>
-      attributes.italic ? FontStyle.italic : FontStyle.normal;
+  FontStyle get _fontStyle {
+    if (attributes.code) {
+      return FontStyle.italic;
+    }
+    return attributes.italic ? FontStyle.italic : FontStyle.normal;
+  }
 
   // text color
   Color get _textColor {
     if (attributes.href != null) {
       return Colors.lightBlue;
+    }
+    if (attributes.code) {
+      return Colors.lightBlue.withOpacity(0.8);
     }
     return attributes.color ?? Colors.black;
   }
@@ -262,7 +272,7 @@ class RichTextStyle {
     if (attributes.backgroundColor != null) {
       return attributes.backgroundColor!;
     } else if (attributes.code) {
-      return Colors.grey.withOpacity(0.4);
+      return Colors.blue.shade300.withOpacity(0.3);
     }
     return null;
   }
