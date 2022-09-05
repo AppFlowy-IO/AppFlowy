@@ -15,6 +15,7 @@ use std::sync::Arc;
 // a new row.
 pub trait GroupController: GroupControllerSharedOperation + Send + Sync {
     fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
+    fn did_create_row(&mut self, row_pb: &RowPB, group_id: &str);
 }
 
 pub trait GroupGenerator {

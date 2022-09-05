@@ -107,7 +107,7 @@ impl GridBlockManager {
         let editor = self.get_editor_from_row_id(&changeset.row_id).await?;
         let _ = editor.update_row(changeset.clone()).await?;
         match editor.get_row_rev(&changeset.row_id).await? {
-            None => tracing::error!("Internal error: can't find the row with id: {}", changeset.row_id),
+            None => tracing::error!("Update row failed, can't find the row with id: {}", changeset.row_id),
             Some(row_rev) => {
                 let row_pb = make_row_from_row_rev(row_rev.clone());
                 let block_order_changeset = GridBlockChangesetPB::update(&editor.block_id, vec![row_pb]);
