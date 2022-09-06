@@ -8,6 +8,7 @@ import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import './number_list_helper.dart';
 
 @visibleForTesting
 List<String> get checkboxListSymbols => _checkboxListSymbols;
@@ -76,17 +77,22 @@ KeyEventResult _toNumberList(EditorState editorState, TextNode textNode,
     return KeyEventResult.ignored;
   }
 
+  final afterSelection = Selection.collapsed(Position(
+    path: textNode.path,
+    offset: 0,
+  ));
+
+  final insertPath = textNode.path;
+
   TransactionBuilder(editorState)
     ..deleteText(textNode, 0, matchText.length)
     ..updateNode(textNode,
         {StyleKey.subtype: StyleKey.numberList, StyleKey.number: numValue})
-    ..afterSelection = Selection.collapsed(
-      Position(
-        path: textNode.path,
-        offset: 0,
-      ),
-    )
+    ..afterSelection = afterSelection
     ..commit();
+
+  makeFollowingNodesIncremental(editorState, insertPath, afterSelection);
+
   return KeyEventResult.handled;
 }
 

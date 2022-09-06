@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import './number_list_helper.dart';
 
 /// Handle some cases where enter is pressed and shift is not pressed.
 ///
@@ -101,8 +102,9 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
   //  split the node into two nodes with style
   Attributes attributes = _attributesFromPreviousLine(textNode);
 
+  final nextPath = textNode.path.next;
   final afterSelection = Selection.collapsed(
-    Position(path: textNode.path.next, offset: 0),
+    Position(path: nextPath, offset: 0),
   );
 
   TransactionBuilder(editorState)
@@ -124,7 +126,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
   // If the new type of a text node is number list,
   // the numbers of the following nodes should be incremental.
   if (textNode.subtype == StyleKey.numberList) {
-    _makeFollowingNodeIncremental(editorState, textNode);
+    makeFollowingNodesIncremental(editorState, nextPath, afterSelection);
   }
 
   return KeyEventResult.handled;
@@ -155,9 +157,4 @@ Attributes _nextNumberAttributesFromPreviousLine(
   final prevNum = textNode.attributes[StyleKey.number] as int?;
   copy[StyleKey.number] = prevNum == null ? 1 : prevNum + 1;
   return copy;
-}
-
-void _makeFollowingNodeIncremental(EditorState editorState, TextNode textNode) {
-  debugPrint("following nodes");
-  TransactionBuilder(editorState).commit();
 }
