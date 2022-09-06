@@ -110,7 +110,7 @@ class AppFlowyBoard extends StatelessWidget {
             scrollManager!._groupState = _groupState;
           }
 
-          return AFBoardContent(
+          return _AppFlolwyBoardContent(
             config: config,
             dataController: dataController,
             scrollController: scrollController,
@@ -131,7 +131,7 @@ class AppFlowyBoard extends StatelessWidget {
   }
 }
 
-class AFBoardContent extends StatefulWidget {
+class _AppFlolwyBoardContent extends StatefulWidget {
   final ScrollController? scrollController;
   final OnDragStarted? onDragStarted;
   final OnReorder onReorder;
@@ -143,21 +143,13 @@ class AFBoardContent extends StatefulWidget {
   final BoxConstraints columnConstraints;
   final AFBoardScrollManager? scrollManager;
   final BoardGroupsState columnsState;
-
-  ///
   final AppFlowyBoardCardBuilder cardBuilder;
-
-  ///
   final AppFlowyBoardHeaderBuilder? headerBuilder;
-
-  ///
   final AppFlowyBoardFooterBuilder? footerBuilder;
-
   final OverlapDragTargetDelegate delegate;
-
   final BoardPhantomController phantomController;
 
-  const AFBoardContent({
+  const _AppFlolwyBoardContent({
     required this.config,
     required this.onReorder,
     required this.delegate,
@@ -178,12 +170,12 @@ class AFBoardContent extends StatefulWidget {
         super(key: key);
 
   @override
-  State<AFBoardContent> createState() => _AFBoardContentState();
+  State<_AppFlolwyBoardContent> createState() => _AppFlowyBoardContentState();
 }
 
-class _AFBoardContentState extends State<AFBoardContent> {
+class _AppFlowyBoardContentState extends State<_AppFlolwyBoardContent> {
   final GlobalKey _boardContentKey =
-      GlobalKey(debugLabel: '$AFBoardContent overlay key');
+      GlobalKey(debugLabel: '$_AppFlolwyBoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   final Map<String, GlobalObjectKey> _reorderFlexKeys = {};
@@ -263,7 +255,7 @@ class _AFBoardContentState extends State<AFBoardContent> {
           value: widget.dataController.getGroupController(columnData.id),
           child: Consumer<AFBoardGroupDataController>(
             builder: (context, value, child) {
-              final boardColumn = AppFlowyBoardGroupWidget(
+              final boardColumn = AppFlowyBoardGroup(
                 reorderFlexKey: reorderFlexKey,
                 // key: PageStorageKey<String>(columnData.id),
                 margin: _marginFromIndex(columnIndex),
@@ -351,12 +343,12 @@ class BoardGroupContext {
 
 class BoardGroupsState extends DraggingStateStorage
     with ReorderDragTargetIndexKeyStorage {
-  /// Quick access to the [AppFlowyBoardGroupWidget]
+  /// Quick access to the [AppFlowyBoardGroup]
   final Map<String, GlobalKey> groupKeys = {};
   final Map<String, DraggingState> groupDragStates = {};
   final Map<String, Map<String, GlobalObjectKey>> groupDragDragTargets = {};
 
-  void addGroup(String groupId, AppFlowyBoardGroupWidget groupWidget) {
+  void addGroup(String groupId, AppFlowyBoardGroup groupWidget) {
     groupKeys[groupId] = groupWidget.reorderFlexKey;
   }
 

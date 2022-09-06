@@ -27,7 +27,7 @@ abstract class BoardPhantomControllerDelegate {
   /// [dragTargetIndex] the index of the dragTarget
   void updatePhantom(String groupId, int newIndex);
 
-  void swapGroupItem(
+  void moveGroupItemToAnotherGroup(
     String fromGroupId,
     int fromGroupIndex,
     String toGroupId,
@@ -79,7 +79,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     }
 
     if (phantomRecord!.toGroupId == groupId) {
-      delegate.swapGroupItem(
+      delegate.moveGroupItemToAnotherGroup(
         fromGroupId,
         phantomRecord!.fromGroupIndex,
         toGroupId,

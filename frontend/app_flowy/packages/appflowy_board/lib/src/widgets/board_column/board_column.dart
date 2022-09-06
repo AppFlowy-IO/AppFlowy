@@ -60,9 +60,9 @@ abstract class AppFlowyBoardGroupDataDataSource extends ReoderFlexDataSource {
   }
 }
 
-/// [AppFlowyBoardGroupWidget] represents the column of the Board.
+/// [AppFlowyBoardGroup] represents the group of the Board.
 ///
-class AppFlowyBoardGroupWidget extends StatefulWidget {
+class AppFlowyBoardGroup extends StatefulWidget {
   final AppFlowyBoardGroupDataDataSource dataSource;
   final ScrollController? scrollController;
   final ReorderFlexConfig config;
@@ -94,7 +94,7 @@ class AppFlowyBoardGroupWidget extends StatefulWidget {
 
   final GlobalObjectKey reorderFlexKey;
 
-  const AppFlowyBoardGroupWidget({
+  const AppFlowyBoardGroup({
     Key? key,
     required this.reorderFlexKey,
     this.headerBuilder,
@@ -116,13 +116,12 @@ class AppFlowyBoardGroupWidget extends StatefulWidget {
         super(key: key);
 
   @override
-  State<AppFlowyBoardGroupWidget> createState() =>
-      _AppFlowyBoardGroupWidgetState();
+  State<AppFlowyBoardGroup> createState() => _AppFlowyBoardGroupState();
 }
 
-class _AppFlowyBoardGroupWidgetState extends State<AppFlowyBoardGroupWidget> {
+class _AppFlowyBoardGroupState extends State<AppFlowyBoardGroup> {
   final GlobalKey _columnOverlayKey =
-      GlobalKey(debugLabel: '$AppFlowyBoardGroupWidget overlay key');
+      GlobalKey(debugLabel: '$AppFlowyBoardGroup overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   @override
