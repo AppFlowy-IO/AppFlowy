@@ -28,7 +28,7 @@ packages:
       path: "packages/appflowy_board"
       relative: true
     source: path
-    version: "0.0.6"
+    version: "0.0.7"
   appflowy_editor:
     dependency: "direct main"
     description:

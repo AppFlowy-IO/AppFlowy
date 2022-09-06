@@ -120,7 +120,7 @@ First, run main.dart to play with the demo.
 
 Second, let's delve into multi_board_list_example.dart to understand a few key components:
 * A Board widget is created via instantiating an `AppFlowyBoard` object. 
-* In the `AppFlowyBoard` object, you can find the `AppFlowyBoardController`, which is defined in board_data.dart, is feeded with prepopulated mock data. It also contains callback functions to materialize future user data.
+* In the `AppFlowyBoard` object, you can find the `AppFlowyBoardController`, which is defined in board_data.dart, is fed with pre-populated mock data. It also contains callback functions to materialize future user data.
 * Three builders: AppFlowyBoardHeaderBuilder, AppFlowyBoardFooterBuilder, AppFlowyBoardCardBuilder. See below image for what they are used for.
 
 

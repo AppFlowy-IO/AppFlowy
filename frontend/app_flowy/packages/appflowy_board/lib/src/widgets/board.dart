@@ -10,7 +10,7 @@ import 'reorder_flex/reorder_flex.dart';
 import 'reorder_phantom/phantom_controller.dart';
 import '../rendering/board_overlay.dart';
 
-class AppFlowyBoardScrollManager {
+class AppFlowyBoardScrollController {
   AppFlowyBoardState? _groupState;
 
   void scrollToBottom(String groupId, VoidCallback? completed) {
@@ -79,18 +79,26 @@ class AppFlowyBoard extends StatelessWidget {
   ///
   final AppFlowyBoardController controller;
 
+  /// A constraints applied to [AppFlowyBoardGroup] widget.
   final BoxConstraints groupConstraints;
 
+  /// A controller is used by the [ReorderFlex].
   ///
-  late final BoardPhantomController phantomController;
-
+  /// The [ReorderFlex] will used the primary scrollController of the current
+  /// [BuildContext] by using PrimaryScrollController.of(context).
+  /// If the primary scrollController is null, we will assign a new [ScrollController].
   final ScrollController? scrollController;
 
+  ///
   final AppFlowyBoardConfig config;
 
-  final AppFlowyBoardScrollManager? scrollManager;
+  /// A controller is used to control each group scroll actions.
+  ///
+  final AppFlowyBoardScrollController? boardScrollController;
 
   final AppFlowyBoardState _groupState = AppFlowyBoardState();
+
+  late final BoardPhantomController _phantomController;
 
   AppFlowyBoard({
     required this.controller,
@@ -99,12 +107,12 @@ class AppFlowyBoard extends StatelessWidget {
     this.footerBuilder,
     this.headerBuilder,
     this.scrollController,
-    this.scrollManager,
+    this.boardScrollController,
     this.groupConstraints = const BoxConstraints(maxWidth: 200),
     this.config = const AppFlowyBoardConfig(),
     Key? key,
   }) : super(key: key) {
-    phantomController = BoardPhantomController(
+    _phantomController = BoardPhantomController(
       delegate: controller,
       groupsState: _groupState,
     );
@@ -116,23 +124,23 @@ class AppFlowyBoard extends StatelessWidget {
       value: controller,
       child: Consumer<AppFlowyBoardController>(
         builder: (context, notifier, child) {
-          if (scrollManager != null) {
-            scrollManager!._groupState = _groupState;
+          if (boardScrollController != null) {
+            boardScrollController!._groupState = _groupState;
           }
 
           return _AppFlowyBoardContent(
             config: config,
             dataController: controller,
             scrollController: scrollController,
-            scrollManager: scrollManager,
+            scrollManager: boardScrollController,
             columnsState: _groupState,
             background: background,
-            delegate: phantomController,
-            columnConstraints: groupConstraints,
+            delegate: _phantomController,
+            groupConstraints: groupConstraints,
             cardBuilder: cardBuilder,
             footerBuilder: footerBuilder,
             headerBuilder: headerBuilder,
-            phantomController: phantomController,
+            phantomController: _phantomController,
             onReorder: controller.moveGroup,
           );
         },
@@ -143,15 +151,13 @@ class AppFlowyBoard extends StatelessWidget {
 
 class _AppFlowyBoardContent extends StatefulWidget {
   final ScrollController? scrollController;
-  final OnDragStarted? onDragStarted;
   final OnReorder onReorder;
-  final OnDragEnded? onDragEnded;
   final AppFlowyBoardController dataController;
   final Widget? background;
   final AppFlowyBoardConfig config;
   final ReorderFlexConfig reorderFlexConfig;
-  final BoxConstraints columnConstraints;
-  final AppFlowyBoardScrollManager? scrollManager;
+  final BoxConstraints groupConstraints;
+  final AppFlowyBoardScrollController? scrollManager;
   final AppFlowyBoardState columnsState;
   final AppFlowyBoardCardBuilder cardBuilder;
   final AppFlowyBoardHeaderBuilder? headerBuilder;
@@ -166,11 +172,9 @@ class _AppFlowyBoardContent extends StatefulWidget {
     required this.dataController,
     required this.scrollManager,
     required this.columnsState,
-    this.onDragStarted,
-    this.onDragEnded,
     this.scrollController,
     this.background,
-    required this.columnConstraints,
+    required this.groupConstraints,
     required this.cardBuilder,
     this.footerBuilder,
     this.headerBuilder,
@@ -204,9 +208,7 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
         final reorderFlex = ReorderFlex(
           config: widget.reorderFlexConfig,
           scrollController: widget.scrollController,
-          onDragStarted: widget.onDragStarted,
           onReorder: widget.onReorder,
-          onDragEnded: widget.onDragEnded,
           dataSource: widget.dataController,
           direction: Axis.horizontal,
           interceptor: interceptor,
@@ -285,7 +287,7 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
 
               widget.columnsState.addGroup(columnData.id, boardColumn);
               return ConstrainedBox(
-                constraints: widget.columnConstraints,
+                constraints: widget.groupConstraints,
                 child: boardColumn,
               );
             },

@@ -62,8 +62,7 @@ class BoardContent extends StatefulWidget {
 }
 
 class _BoardContentState extends State<BoardContent> {
-  late ScrollController scrollController;
-  late AppFlowyBoardScrollManager scrollManager;
+  late AppFlowyBoardScrollController scrollManager;
 
   final config = AppFlowyBoardConfig(
     groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -71,8 +70,7 @@ class _BoardContentState extends State<BoardContent> {
 
   @override
   void initState() {
-    scrollController = ScrollController();
-    scrollManager = AppFlowyBoardScrollManager();
+    scrollManager = AppFlowyBoardScrollController();
     super.initState();
   }
 
@@ -102,8 +100,8 @@ class _BoardContentState extends State<BoardContent> {
   Expanded _buildBoard(BuildContext context) {
     return Expanded(
       child: AppFlowyBoard(
-        scrollManager: scrollManager,
-        scrollController: scrollController,
+        boardScrollController: scrollManager,
+        scrollController: ScrollController(),
         controller: context.read<BoardBloc>().boardController,
         headerBuilder: _buildHeader,
         footerBuilder: _buildFooter,
@@ -143,7 +141,6 @@ class _BoardContentState extends State<BoardContent> {
 
   @override
   void dispose() {
-    scrollController.dispose();
     super.dispose();
   }
 
