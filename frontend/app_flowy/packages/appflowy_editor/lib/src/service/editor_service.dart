@@ -36,7 +36,7 @@ class AppFlowyEditor extends StatefulWidget {
     Key? key,
     required this.editorState,
     this.customBuilders = const {},
-    this.keyEventHandlers = const [],
+    this.shortcutEvents = const [],
     this.selectionMenuItems = const [],
     this.editorStyle = const EditorStyle.defaultStyle(),
   }) : super(key: key);
@@ -47,7 +47,7 @@ class AppFlowyEditor extends StatefulWidget {
   final NodeWidgetBuilders customBuilders;
 
   /// Keyboard event handlers.
-  final List<ShortcutEvent> keyEventHandlers;
+  final List<ShortcutEvent> shortcutEvents;
 
   final List<SelectionMenuItem> selectionMenuItems;
 
@@ -96,7 +96,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
               key: editorState.service.keyboardServiceKey,
               shortcutEvents: [
                 ...builtInShortcutEvents,
-                ...widget.keyEventHandlers,
+                ...widget.shortcutEvents,
               ],
               editorState: editorState,
               child: FlowyToolbar(

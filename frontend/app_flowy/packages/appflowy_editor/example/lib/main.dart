@@ -96,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: AppFlowyEditor(
               editorState: _editorState,
               editorStyle: const EditorStyle.defaultStyle(),
-              keyEventHandlers: [
+              shortcutEvents: [
                 underscoreToItalicEvent,
               ],
             ),
