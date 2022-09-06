@@ -77,7 +77,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
   }
 }
 
-UnmodifiableListView<BoardCellEquatable> _makeCells(
+List<BoardCellEquatable> _makeCells(
     String groupFieldId, GridCellMap originalCellMap) {
   List<BoardCellEquatable> cells = [];
   for (final entry in originalCellMap.entries) {
@@ -86,14 +86,14 @@ UnmodifiableListView<BoardCellEquatable> _makeCells(
       cells.add(BoardCellEquatable(entry.value));
     }
   }
-  return UnmodifiableListView(cells);
+  return cells;
 }
 
 @freezed
 class BoardCardEvent with _$BoardCardEvent {
   const factory BoardCardEvent.initial() = _InitialRow;
   const factory BoardCardEvent.didReceiveCells(
-    UnmodifiableListView<BoardCellEquatable> cells,
+    List<BoardCellEquatable> cells,
     RowsChangedReason reason,
   ) = _DidReceiveCells;
 }
@@ -102,12 +102,11 @@ class BoardCardEvent with _$BoardCardEvent {
 class BoardCardState with _$BoardCardState {
   const factory BoardCardState({
     required RowPB rowPB,
-    required UnmodifiableListView<BoardCellEquatable> cells,
+    required List<BoardCellEquatable> cells,
     RowsChangedReason? changeReason,
   }) = _BoardCardState;
 
-  factory BoardCardState.initial(
-          RowPB rowPB, UnmodifiableListView<BoardCellEquatable> cells) =>
+  factory BoardCardState.initial(RowPB rowPB, List<BoardCellEquatable> cells) =>
       BoardCardState(
         rowPB: rowPB,
         cells: cells,
@@ -120,10 +119,12 @@ class BoardCellEquatable extends Equatable {
   const BoardCellEquatable(this.identifier);
 
   @override
-  List<Object?> get props => [
-        identifier.fieldContext.id,
-        identifier.fieldContext.fieldType,
-        identifier.fieldContext.visibility,
-        identifier.fieldContext.width,
-      ];
+  List<Object?> get props {
+    return [
+      identifier.fieldContext.id,
+      identifier.fieldContext.fieldType,
+      identifier.fieldContext.visibility,
+      identifier.fieldContext.width,
+    ];
+  }
 }

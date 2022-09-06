@@ -56,7 +56,11 @@ class _BoardTextCellState extends State<BoardTextCell> {
         }
       }
     });
+    _bindEditableNotifier();
+    super.initState();
+  }
 
+  void _bindEditableNotifier() {
     widget.editableNotifier?.becomeFirstResponder.addListener(() {
       if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -69,8 +73,12 @@ class _BoardTextCellState extends State<BoardTextCell> {
       if (!mounted) return;
       _cellBloc.add(const BoardTextCellEvent.enableEdit(false));
     });
+  }
 
-    super.initState();
+  @override
+  void didUpdateWidget(covariant BoardTextCell oldWidget) {
+    _bindEditableNotifier();
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -84,6 +92,15 @@ class _BoardTextCellState extends State<BoardTextCell> {
           }
         },
         child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
+          buildWhen: (previous, current) {
+            if (previous.content != current.content &&
+                _controller.text == current.content &&
+                current.enableEdit) {
+              return false;
+            }
+
+            return previous != current;
+          },
           builder: (context, state) {
             if (state.content.isEmpty &&
                 state.enableEdit == false &&
@@ -127,24 +144,26 @@ class _BoardTextCellState extends State<BoardTextCell> {
   }
 
   Widget _buildTextField() {
-    return TextField(
-      controller: _controller,
-      focusNode: focusNode,
-      onChanged: (value) => focusChanged(),
-      onEditingComplete: () => focusNode.unfocus(),
-      maxLines: 1,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        fontFamily: 'Mulish',
-      ),
-      decoration: InputDecoration(
-        // Magic number 4 makes the textField take up the same space as FlowyText
-        contentPadding: EdgeInsets.symmetric(
-          vertical: BoardSizes.cardCellVPadding + 4,
+    return IntrinsicHeight(
+      child: TextField(
+        controller: _controller,
+        focusNode: focusNode,
+        onChanged: (value) => focusChanged(),
+        onEditingComplete: () => focusNode.unfocus(),
+        maxLines: null,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Mulish',
         ),
-        border: InputBorder.none,
-        isDense: true,
+        decoration: InputDecoration(
+          // Magic number 4 makes the textField take up the same space as FlowyText
+          contentPadding: EdgeInsets.symmetric(
+            vertical: BoardSizes.cardCellVPadding + 4,
+          ),
+          border: InputBorder.none,
+          isDense: true,
+        ),
       ),
     );
   }

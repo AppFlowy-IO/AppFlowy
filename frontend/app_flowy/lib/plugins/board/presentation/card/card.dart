@@ -5,6 +5,7 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_action_sheet
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'board_cell.dart';
@@ -56,7 +57,10 @@ class _BoardCardState extends State<BoardCard> {
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
         buildWhen: (previous, current) {
-          return previous.cells != current.cells;
+          if (previous.cells.length != current.cells.length) {
+            return true;
+          }
+          return !listEquals(previous.cells, current.cells);
         },
         builder: (context, state) {
           return BoardCardContainer(
