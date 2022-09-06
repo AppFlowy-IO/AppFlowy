@@ -58,7 +58,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
     key: 'Move cursor top',
     command: 'meta+arrow up',
     windowsCommand: 'ctrl+arrow up',
-    handler: cursorBegin,
+    handler: cursorTop,
   ),
   ShortcutEvent(
     key: 'Move cursor bottom',
