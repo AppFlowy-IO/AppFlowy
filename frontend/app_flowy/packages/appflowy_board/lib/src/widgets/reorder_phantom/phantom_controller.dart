@@ -8,14 +8,14 @@ import '../reorder_flex/drag_target_interceptor.dart';
 import 'phantom_state.dart';
 
 abstract class BoardPhantomControllerDelegate {
-  AFBoardGroupDataController? controller(String groupId);
+  AppFlowyGroupController? controller(String groupId);
 
   bool removePhantom(String groupId);
 
   /// Insert the phantom into the group
   ///
   /// * [groupId] id of the group
-  /// * [phantomIndex] the phantom occupies index
+  /// * [index] the phantom occupies index
   void insertPhantom(
     String groupId,
     int index,
@@ -24,7 +24,7 @@ abstract class BoardPhantomControllerDelegate {
 
   /// Update the group's phantom index if it exists.
   /// [toGroupId] the id of the group
-  /// [dragTargetIndex] the index of the dragTarget
+  /// [newIndex] the index of the dragTarget
   void updatePhantom(String groupId, int newIndex);
 
   void moveGroupItemToAnotherGroup(
@@ -39,7 +39,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     with CrossReorderFlexDragTargetDelegate {
   PhantomRecord? phantomRecord;
   final BoardPhantomControllerDelegate delegate;
-  final BoardGroupsState groupsState;
+  final AppFlowyBoardState groupsState;
   final phantomState = GroupPhantomState();
   BoardPhantomController({
     required this.delegate,

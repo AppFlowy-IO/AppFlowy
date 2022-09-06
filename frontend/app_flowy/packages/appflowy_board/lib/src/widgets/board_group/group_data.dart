@@ -1,10 +1,13 @@
 import 'dart:collection';
 
+import 'package:appflowy_board/src/utils/log.dart';
+import 'package:appflowy_board/src/widgets/reorder_flex/reorder_flex.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import '../../utils/log.dart';
-import '../reorder_flex/reorder_flex.dart';
 
+/// A item represents the generic data model of each group card.
+///
+/// Each item displayed in the group required to implement this class.
 abstract class AppFlowyGroupItem extends ReoderFlexItem {
   bool get isPhantom => false;
 
@@ -12,7 +15,8 @@ abstract class AppFlowyGroupItem extends ReoderFlexItem {
   String toString() => id;
 }
 
-/// [AFBoardGroupDataController] is used to handle the [AppFlowyBoardGroupData].
+/// [AppFlowyGroupController] is used to handle the [AppFlowyGroupData].
+///
 /// * Remove an item by calling [removeAt] method.
 /// * Move item to another position by calling [move] method.
 /// * Insert item to index by calling [insert] method
@@ -20,10 +24,10 @@ abstract class AppFlowyGroupItem extends ReoderFlexItem {
 ///
 /// All there operations will notify listeners by default.
 ///
-class AFBoardGroupDataController extends ChangeNotifier with EquatableMixin {
-  final AppFlowyBoardGroupData groupData;
+class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
+  final AppFlowyGroupData groupData;
 
-  AFBoardGroupDataController({
+  AppFlowyGroupController({
     required this.groupData,
   });
 
@@ -44,12 +48,12 @@ class AFBoardGroupDataController extends ChangeNotifier with EquatableMixin {
   /// Remove the item at [index].
   /// * [index] the index of the item you want to remove
   /// * [notify] the default value of [notify] is true, it will notify the
-  /// listener. Set to [false] if you do not want to notify the listeners.
+  /// listener. Set to false if you do not want to notify the listeners.
   ///
   AppFlowyGroupItem removeAt(int index, {bool notify = true}) {
     assert(index >= 0);
 
-    Log.debug('[$AFBoardGroupDataController] $groupData remove item at $index');
+    Log.debug('[$AppFlowyGroupController] $groupData remove item at $index');
     final item = groupData._items.removeAt(index);
     if (notify) {
       notifyListeners();
@@ -74,7 +78,7 @@ class AFBoardGroupDataController extends ChangeNotifier with EquatableMixin {
       return false;
     }
     Log.debug(
-        '[$AFBoardGroupDataController] $groupData move item from $fromIndex to $toIndex');
+        '[$AppFlowyGroupController] $groupData move item from $fromIndex to $toIndex');
     final item = groupData._items.removeAt(fromIndex);
     groupData._items.insert(toIndex, item);
     notifyListeners();
@@ -87,8 +91,7 @@ class AFBoardGroupDataController extends ChangeNotifier with EquatableMixin {
   /// The default value of [notify] is true.
   bool insert(int index, AppFlowyGroupItem item, {bool notify = true}) {
     assert(index >= 0);
-    Log.debug(
-        '[$AFBoardGroupDataController] $groupData insert $item at $index');
+    Log.debug('[$AppFlowyGroupController] $groupData insert $item at $index');
 
     if (_containsItem(item)) {
       return false;
@@ -118,7 +121,7 @@ class AFBoardGroupDataController extends ChangeNotifier with EquatableMixin {
   void replace(int index, AppFlowyGroupItem newItem) {
     if (groupData._items.isEmpty) {
       groupData._items.add(newItem);
-      Log.debug('[$AFBoardGroupDataController] $groupData add $newItem');
+      Log.debug('[$AppFlowyGroupController] $groupData add $newItem');
     } else {
       if (index >= groupData._items.length) {
         return;
@@ -127,7 +130,7 @@ class AFBoardGroupDataController extends ChangeNotifier with EquatableMixin {
       final removedItem = groupData._items.removeAt(index);
       groupData._items.insert(index, newItem);
       Log.debug(
-          '[$AFBoardGroupDataController] $groupData replace $removedItem with $newItem at $index');
+          '[$AppFlowyGroupController] $groupData replace $removedItem with $newItem at $index');
     }
 
     notifyListeners();
@@ -151,22 +154,21 @@ class AFBoardGroupDataController extends ChangeNotifier with EquatableMixin {
   }
 }
 
-/// [AppFlowyBoardGroupData] represents the data of each group of the Board.
-class AppFlowyBoardGroupData<CustomData> extends ReoderFlexItem
-    with EquatableMixin {
+/// [AppFlowyGroupData] represents the data of each group of the Board.
+class AppFlowyGroupData<CustomData> extends ReoderFlexItem with EquatableMixin {
   @override
   final String id;
-  AppFlowyBoardGroupHeaderData headerData;
+  AppFlowyGroupHeaderData headerData;
   final List<AppFlowyGroupItem> _items;
   final CustomData? customData;
 
-  AppFlowyBoardGroupData({
+  AppFlowyGroupData({
     this.customData,
     required this.id,
     required String name,
     List<AppFlowyGroupItem> items = const [],
   })  : _items = items,
-        headerData = AppFlowyBoardGroupHeaderData(
+        headerData = AppFlowyGroupHeaderData(
           groupId: id,
           groupName: name,
         );
@@ -184,10 +186,9 @@ class AppFlowyBoardGroupData<CustomData> extends ReoderFlexItem
   }
 }
 
-class AppFlowyBoardGroupHeaderData {
+class AppFlowyGroupHeaderData {
   String groupId;
   String groupName;
 
-  AppFlowyBoardGroupHeaderData(
-      {required this.groupId, required this.groupName});
+  AppFlowyGroupHeaderData({required this.groupId, required this.groupName});
 }

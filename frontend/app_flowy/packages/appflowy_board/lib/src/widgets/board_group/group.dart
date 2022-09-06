@@ -7,40 +7,40 @@ import '../../utils/log.dart';
 import '../reorder_phantom/phantom_controller.dart';
 import '../reorder_flex/reorder_flex.dart';
 import '../reorder_flex/drag_target_interceptor.dart';
-import 'board_column_data.dart';
+import 'group_data.dart';
 
 typedef OnGroupDragStarted = void Function(int index);
 
-typedef OnGroupDragEnded = void Function(String listId);
+typedef OnGroupDragEnded = void Function(String groupId);
 
 typedef OnGroupReorder = void Function(
-  String listId,
+  String groupId,
   int fromIndex,
   int toIndex,
 );
 
-typedef OnGroupDeleted = void Function(String listId, int deletedIndex);
+typedef OnGroupDeleted = void Function(String groupId, int deletedIndex);
 
-typedef OnGroupInserted = void Function(String listId, int insertedIndex);
+typedef OnGroupInserted = void Function(String groupId, int insertedIndex);
 
 typedef AppFlowyBoardCardBuilder = Widget Function(
   BuildContext context,
-  AppFlowyBoardGroupData groupData,
+  AppFlowyGroupData groupData,
   AppFlowyGroupItem item,
 );
 
 typedef AppFlowyBoardHeaderBuilder = Widget? Function(
   BuildContext context,
-  AppFlowyBoardGroupData groupData,
+  AppFlowyGroupData groupData,
 );
 
 typedef AppFlowyBoardFooterBuilder = Widget Function(
   BuildContext context,
-  AppFlowyBoardGroupData groupData,
+  AppFlowyGroupData groupData,
 );
 
-abstract class AppFlowyBoardGroupDataDataSource extends ReoderFlexDataSource {
-  AppFlowyBoardGroupData get groupData;
+abstract class AppFlowyGroupDataDataSource extends ReoderFlexDataSource {
+  AppFlowyGroupData get groupData;
 
   List<String> get acceptedGroupIds;
 
@@ -51,7 +51,7 @@ abstract class AppFlowyBoardGroupDataDataSource extends ReoderFlexDataSource {
   UnmodifiableListView<AppFlowyGroupItem> get items => groupData.items;
 
   void debugPrint() {
-    String msg = '[$AppFlowyBoardGroupDataDataSource] $groupData data: ';
+    String msg = '[$AppFlowyGroupDataDataSource] $groupData data: ';
     for (var element in items) {
       msg = '$msg$element,';
     }
@@ -60,10 +60,10 @@ abstract class AppFlowyBoardGroupDataDataSource extends ReoderFlexDataSource {
   }
 }
 
-/// [AppFlowyBoardGroup] represents the group of the Board.
+/// A [AppFlowyBoardGroup] represents the group UI of the Board.
 ///
 class AppFlowyBoardGroup extends StatefulWidget {
-  final AppFlowyBoardGroupDataDataSource dataSource;
+  final AppFlowyGroupDataDataSource dataSource;
   final ScrollController? scrollController;
   final ReorderFlexConfig config;
   final OnGroupDragStarted? onDragStarted;

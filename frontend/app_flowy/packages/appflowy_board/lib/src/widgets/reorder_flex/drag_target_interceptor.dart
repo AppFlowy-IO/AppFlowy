@@ -55,7 +55,7 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
   final String reorderFlexId;
   final List<String> acceptedReorderFlexId;
   final OverlapDragTargetDelegate delegate;
-  final BoardGroupsState columnsState;
+  final AppFlowyBoardState columnsState;
   Timer? _delayOperation;
 
   OverlappingDragTargetInterceptor({

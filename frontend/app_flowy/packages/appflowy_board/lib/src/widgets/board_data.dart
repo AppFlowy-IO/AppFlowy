@@ -1,9 +1,9 @@
 import 'dart:collection';
 
+import 'package:appflowy_board/src/widgets/board_group/group_data.dart';
 import 'package:equatable/equatable.dart';
 
 import '../utils/log.dart';
-import 'board_column/board_column_data.dart';
 import 'reorder_flex/reorder_flex.dart';
 import 'package:flutter/material.dart';
 import 'reorder_phantom/phantom_controller.dart';
@@ -30,9 +30,9 @@ typedef OnMoveGroupItemToGroup = void Function(
 
 /// A controller for [AppFlowyBoard] widget.
 ///
-/// A [AppFlowyBoardDataController] can be used to provide an initial value of
-/// the board by calling [addGroup] method with the passed in parameter
-/// [AppFlowyBoardGroupData]. A [AppFlowyBoardGroupData] represents one
+/// A [AppFlowyBoardController] can be used to provide an initial value of
+/// the board by calling `addGroup` method with the passed in parameter
+/// [AppFlowyGroupData]. A [AppFlowyGroupData] represents one
 /// group data. Whenever the user modifies the board, this controller will
 /// update the corresponding group data.
 ///
@@ -44,9 +44,9 @@ typedef OnMoveGroupItemToGroup = void Function(
 ///
 /// [onMoveGroupItemToGroup] will get called when moving the group's item from
 /// one group to another group.
-class AppFlowyBoardDataController extends ChangeNotifier
+class AppFlowyBoardController extends ChangeNotifier
     with EquatableMixin, BoardPhantomControllerDelegate, ReoderFlexDataSource {
-  final List<AppFlowyBoardGroupData> _groupDatas = [];
+  final List<AppFlowyGroupData> _groupDatas = [];
 
   /// [onMoveGroup] will get called when moving the group from one position to
   /// another.
@@ -59,18 +59,18 @@ class AppFlowyBoardDataController extends ChangeNotifier
   /// one group to another group.
   final OnMoveGroupItemToGroup? onMoveGroupItemToGroup;
 
-  /// Returns the unmodifiable list of [AppFlowyBoardGroupData]
-  UnmodifiableListView<AppFlowyBoardGroupData> get groupDatas =>
+  /// Returns the unmodifiable list of [AppFlowyGroupData]
+  UnmodifiableListView<AppFlowyGroupData> get groupDatas =>
       UnmodifiableListView(_groupDatas);
 
   /// Returns list of group id
   List<String> get groupIds =>
       _groupDatas.map((groupData) => groupData.id).toList();
 
-  final LinkedHashMap<String, AFBoardGroupDataController> _groupControllers =
+  final LinkedHashMap<String, AppFlowyGroupController> _groupControllers =
       LinkedHashMap();
 
-  AppFlowyBoardDataController({
+  AppFlowyBoardController({
     this.onMoveGroup,
     this.onMoveGroupItem,
     this.onMoveGroupItemToGroup,
@@ -80,10 +80,10 @@ class AppFlowyBoardDataController extends ChangeNotifier
   ///
   /// If you don't want to notify the listener after adding a new group, the
   /// [notify] should set to false. Default value is true.
-  void addGroup(AppFlowyBoardGroupData groupData, {bool notify = true}) {
+  void addGroup(AppFlowyGroupData groupData, {bool notify = true}) {
     if (_groupControllers[groupData.id] != null) return;
 
-    final controller = AFBoardGroupDataController(groupData: groupData);
+    final controller = AppFlowyGroupController(groupData: groupData);
     _groupDatas.add(groupData);
     _groupControllers[groupData.id] = controller;
     if (notify) notifyListeners();
@@ -93,7 +93,7 @@ class AppFlowyBoardDataController extends ChangeNotifier
   ///
   /// If you don't want to notify the listener after adding the groups, the
   /// [notify] should set to false. Default value is true.
-  void addGroups(List<AppFlowyBoardGroupData> groups, {bool notify = true}) {
+  void addGroups(List<AppFlowyGroupData> groups, {bool notify = true}) {
     for (final column in groups) {
       addGroup(column, notify: false);
     }
@@ -133,6 +133,7 @@ class AppFlowyBoardDataController extends ChangeNotifier
   }
 
   /// Remove all the groups controller.
+  ///
   /// This method should get called when you want to remove all the current
   /// groups or get ready to reinitialize the [AppFlowyBoard].
   void clear() {
@@ -141,8 +142,8 @@ class AppFlowyBoardDataController extends ChangeNotifier
     notifyListeners();
   }
 
-  /// Returns the [AFBoardGroupDataController] with id [groupId].
-  AFBoardGroupDataController? getGroupController(String groupId) {
+  /// Returns the [AppFlowyGroupController] with id [groupId].
+  AppFlowyGroupController? getGroupController(String groupId) {
     final groupController = _groupControllers[groupId];
     if (groupController == null) {
       Log.warn('Group:[$groupId] \'s controller is not exist');
@@ -174,30 +175,35 @@ class AppFlowyBoardDataController extends ChangeNotifier
   }
 
   /// Adds the [AppFlowyGroupItem] to the end of the group
+  ///
   /// If the group with id [groupId] is not exist, this method will do nothing.
   void addGroupItem(String groupId, AppFlowyGroupItem item) {
     getGroupController(groupId)?.add(item);
   }
 
   /// Inserts the [AppFlowyGroupItem] at [index] in the group
+  ///
   /// It will do nothing if the group with id [groupId] is not exist
   void insertGroupItem(String groupId, int index, AppFlowyGroupItem item) {
     getGroupController(groupId)?.insert(index, item);
   }
 
   /// Removes the item with id [itemId] from the group
+  ///
   /// It will do nothing if the group with id [groupId] is not exist
   void removeGroupItem(String groupId, String itemId) {
     getGroupController(groupId)?.removeWhere((item) => item.id == itemId);
   }
 
   /// Replaces or inserts the [AppFlowyGroupItem] to the end of the group.
+  ///
   /// If the group with id [groupId] is not exist, this method will do nothing.
   void updateGroupItem(String groupId, AppFlowyGroupItem item) {
     getGroupController(groupId)?.replaceOrInsertItem(item);
   }
 
-  /// Swap the
+  /// Moves the item at [fromGroupIndex] in group with id [fromGroupId] to
+  /// group with id [toGroupId] at [toGroupIndex]
   @override
   @protected
   void moveGroupItemToAnotherGroup(
@@ -228,12 +234,12 @@ class AppFlowyBoardDataController extends ChangeNotifier
   }
 
   @override
-  AFBoardGroupDataController? controller(String groupId) {
+  AppFlowyGroupController? controller(String groupId) {
     return _groupControllers[groupId];
   }
 
   @override
-  String get identifier => '$AppFlowyBoardDataController';
+  String get identifier => '$AppFlowyBoardController';
 
   @override
   UnmodifiableListView<ReoderFlexItem> get items =>
@@ -253,7 +259,7 @@ class AppFlowyBoardDataController extends ChangeNotifier
       groupController.removeAt(index);
 
       Log.debug(
-          '[$AppFlowyBoardDataController] Group:[$groupId] remove phantom, current count: ${groupController.items.length}');
+          '[$AppFlowyBoardController] Group:[$groupId] remove phantom, current count: ${groupController.items.length}');
     }
     return isExist;
   }

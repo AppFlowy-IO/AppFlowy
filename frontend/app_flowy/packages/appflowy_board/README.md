@@ -34,17 +34,83 @@ flutter pub add appflowy_board
 flutter pub get
 ```
 
-This will add a line like this to your package's pubspec.yaml (and run an implicit flutter pub get):
+This will add a line like this to your package's pubspec.yaml:
 ```dart
 dependencies:
   appflowy_board: ^0.0.6
 ```
 
-## Create board
+## Create your first board
 
-Import the package in your Dart file:
+Initialize an `AppFlowyBoardController` for the board. It contains the data used by the board. You can
+register callbacks to receive the changes of the board.
+
 ```dart
-import 'package:appflowy_board/appflowy_board.dart';
+
+final AppFlowyBoardController controller = AppFlowyBoardController(
+  onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
+    debugPrint('Move item from $fromIndex to $toIndex');
+  },
+  onMoveGroupItem: (groupId, fromIndex, toIndex) {
+    debugPrint('Move $groupId:$fromIndex to $groupId:$toIndex');
+  },
+  onMoveGroupItemToGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
+    debugPrint('Move $fromGroupId:$fromIndex to $toGroupId:$toIndex');
+  },
+);
+```
+
+Provide an initial value of the board by initializing the `AppFlowyGroupData`. It represents a group data and contains list of items. Each item displayed in the group requires to implement the `AppFlowyGroupItem` class.
+
+```dart
+
+void initState() {
+  final group1 = AppFlowyGroupData(id: "To Do", items: [
+    TextItem("Card 1"),
+    TextItem("Card 2"),
+  ]);
+  final group2 = AppFlowyGroupData(id: "In Progress", items: [
+    TextItem("Card 3"),
+    TextItem("Card 4"),
+  ]);
+
+  final group3 = AppFlowyGroupData(id: "Done", items: []);
+
+  controller.addGroup(group1);
+  controller.addGroup(group2);
+  controller.addGroup(group3);
+  super.initState();
+}
+
+class TextItem extends AppFlowyGroupItem {
+  final String s;
+  TextItem(this.s);
+
+  @override
+  String get id => s;
+}
+
+```
+
+Finally, return a `AppFlowyBoard` widget in the build method.
+
+```dart
+
+@override
+Widget build(BuildContext context) {
+  return AppFlowyBoard(
+    controller: controller,
+    cardBuilder: (context, group, groupItem) {
+      final textItem = groupItem as TextItem;
+      return AppFlowyGroupCard(
+        key: ObjectKey(textItem),
+        child: Text(textItem.s),
+      );
+    },
+    groupConstraints: const BoxConstraints.tightFor(width: 240),
+  ); 
+}
+
 ```
 
 ## Usage Example
@@ -53,16 +119,14 @@ First, run main.dart to play with the demo.
 
 
 Second, let's delve into multi_board_list_example.dart to understand a few key components:
-* A Board widget is created via instantiating an AFBoard() object. 
-* In the AFBoard() object, you can find:
-  * AFBoardDataController, which is defined in board_data.dart, is feeded with prepopulated mock data. It also contains callback functions to materialize future user data.
-  * Three builders: AppFlowyColumnHeader, AppFlowyColumnFooter, AppFlowyColumnItemCard. See below image for what they are used for.
+* A Board widget is created via instantiating an `AppFlowyBoard` object. 
+* In the `AppFlowyBoard` object, you can find the `AppFlowyBoardController`, which is defined in board_data.dart, is feeded with prepopulated mock data. It also contains callback functions to materialize future user data.
+* Three builders: AppFlowyBoardHeaderBuilder, AppFlowyBoardFooterBuilder, AppFlowyBoardCardBuilder. See below image for what they are used for.
 
 
-
-<!-- <p>
-<img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_board/example/gifs/appflowy_board_builders.jpg?raw=true" width="100%" title="AppFlowyBoard">
-</p> -->
+<p>
+<img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_board/example/gifs/appflowy_board_builders.jpg?raw=true" width="200" title="AppFlowyBoard">
+</p>
 
 ## Glossary
 Please refer to the API documentation.
@@ -74,6 +138,3 @@ Please look at [CONTRIBUTING.md](https://appflowy.gitbook.io/docs/essential-docu
 
 ## License
 Distributed under the AGPLv3 License. See [LICENSE](https://github.com/AppFlowy-IO/AppFlowy-Docs/blob/main/LICENSE) for more information.
-
-
-d

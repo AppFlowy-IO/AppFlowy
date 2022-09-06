@@ -9,11 +9,11 @@ class SingleBoardListExample extends StatefulWidget {
 }
 
 class _SingleBoardListExampleState extends State<SingleBoardListExample> {
-  final AppFlowyBoardDataController boardData = AppFlowyBoardDataController();
+  final AppFlowyBoardController boardData = AppFlowyBoardController();
 
   @override
   void initState() {
-    final column = AppFlowyBoardGroupData(
+    final column = AppFlowyGroupData(
       id: "1",
       name: "1",
       items: [
@@ -31,7 +31,7 @@ class _SingleBoardListExampleState extends State<SingleBoardListExample> {
   @override
   Widget build(BuildContext context) {
     return AppFlowyBoard(
-      dataController: boardData,
+      controller: boardData,
       cardBuilder: (context, column, columnItem) {
         return _RowWidget(
             item: columnItem as TextItem, key: ObjectKey(columnItem));

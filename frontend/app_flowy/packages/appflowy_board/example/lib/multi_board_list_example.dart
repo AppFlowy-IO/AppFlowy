@@ -9,22 +9,21 @@ class MultiBoardListExample extends StatefulWidget {
 }
 
 class _MultiBoardListExampleState extends State<MultiBoardListExample> {
-  final AppFlowyBoardDataController boardDataController =
-      AppFlowyBoardDataController(
-    onMoveGroup: (fromColumnId, fromIndex, toColumnId, toIndex) {
-      // debugPrint('Move column from $fromIndex to $toIndex');
+  final AppFlowyBoardController controller = AppFlowyBoardController(
+    onMoveGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
+      debugPrint('Move item from $fromIndex to $toIndex');
     },
-    onMoveGroupItem: (columnId, fromIndex, toIndex) {
-      // debugPrint('Move $columnId:$fromIndex to $columnId:$toIndex');
+    onMoveGroupItem: (groupId, fromIndex, toIndex) {
+      debugPrint('Move $groupId:$fromIndex to $groupId:$toIndex');
     },
-    onMoveGroupItemToGroup: (fromColumnId, fromIndex, toColumnId, toIndex) {
-      // debugPrint('Move $fromColumnId:$fromIndex to $toColumnId:$toIndex');
+    onMoveGroupItemToGroup: (fromGroupId, fromIndex, toGroupId, toIndex) {
+      debugPrint('Move $fromGroupId:$fromIndex to $toGroupId:$toIndex');
     },
   );
 
   @override
   void initState() {
-    List<AppFlowyGroupItem> a = [
+    final group1 = AppFlowyGroupData(id: "To Do", name: "To Do", items: [
       TextItem("Card 1"),
       TextItem("Card 2"),
       RichTextItem(title: "Card 3", subtitle: 'Aug 1, 2020 4:05 PM'),
@@ -34,11 +33,9 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       RichTextItem(title: "Card 7", subtitle: 'Aug 1, 2020 4:05 PM'),
       RichTextItem(title: "Card 8", subtitle: 'Aug 1, 2020 4:05 PM'),
       TextItem("Card 9"),
-    ];
+    ]);
 
-    final column1 =
-        AppFlowyBoardGroupData(id: "To Do", name: "To Do", items: a);
-    final column2 = AppFlowyBoardGroupData(
+    final group2 = AppFlowyGroupData(
       id: "In Progress",
       name: "In Progress",
       items: <AppFlowyGroupItem>[
@@ -47,12 +44,12 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
       ],
     );
 
-    final column3 = AppFlowyBoardGroupData(
+    final group3 = AppFlowyGroupData(
         id: "Done", name: "Done", items: <AppFlowyGroupItem>[]);
 
-    boardDataController.addGroup(column1);
-    boardDataController.addGroup(column2);
-    boardDataController.addGroup(column3);
+    controller.addGroup(group1);
+    controller.addGroup(group2);
+    controller.addGroup(group3);
 
     super.initState();
   }
@@ -62,54 +59,45 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     final config = AppFlowyBoardConfig(
       groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
     );
-    return Container(
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-        child: AppFlowyBoard(
-          dataController: boardDataController,
-          footerBuilder: (context, columnData) {
-            return AppFlowyGroupFooter(
-              icon: const Icon(Icons.add, size: 20),
-              title: const Text('New'),
-              height: 50,
-              margin: config.groupItemPadding,
-            );
-          },
-          headerBuilder: (context, columnData) {
-            return AppFlowyGroupHeader(
-              icon: const Icon(Icons.lightbulb_circle),
-              title: SizedBox(
-                width: 60,
-                child: TextField(
-                  controller: TextEditingController()
-                    ..text = columnData.headerData.groupName,
-                  onSubmitted: (val) {
-                    boardDataController
-                        .getGroupController(columnData.headerData.groupId)!
-                        .updateGroupName(val);
-                  },
-                ),
+    return AppFlowyBoard(
+        controller: controller,
+        cardBuilder: (context, group, groupItem) {
+          return AppFlowyGroupCard(
+            key: ValueKey(groupItem.id),
+            child: _buildCard(groupItem),
+          );
+        },
+        footerBuilder: (context, columnData) {
+          return AppFlowyGroupFooter(
+            icon: const Icon(Icons.add, size: 20),
+            title: const Text('New'),
+            height: 50,
+            margin: config.groupItemPadding,
+          );
+        },
+        headerBuilder: (context, columnData) {
+          return AppFlowyGroupHeader(
+            icon: const Icon(Icons.lightbulb_circle),
+            title: SizedBox(
+              width: 60,
+              child: TextField(
+                controller: TextEditingController()
+                  ..text = columnData.headerData.groupName,
+                onSubmitted: (val) {
+                  controller
+                      .getGroupController(columnData.headerData.groupId)!
+                      .updateGroupName(val);
+                },
               ),
-              addIcon: const Icon(Icons.add, size: 20),
-              moreIcon: const Icon(Icons.more_horiz, size: 20),
-              height: 50,
-              margin: config.groupItemPadding,
-            );
-          },
-          cardBuilder: (context, column, columnItem) {
-            return AppFlowyGroupItemCard(
-              key: ValueKey(columnItem.id),
-              child: _buildCard(columnItem),
-            );
-          },
-          groupConstraints: const BoxConstraints.tightFor(width: 240),
-          config: AppFlowyBoardConfig(
-            groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
-          ),
-        ),
-      ),
-    );
+            ),
+            addIcon: const Icon(Icons.add, size: 20),
+            moreIcon: const Icon(Icons.more_horiz, size: 20),
+            height: 50,
+            margin: config.groupItemPadding,
+          );
+        },
+        groupConstraints: const BoxConstraints.tightFor(width: 240),
+        config: config);
   }
 
   Widget _buildCard(AppFlowyGroupItem item) {

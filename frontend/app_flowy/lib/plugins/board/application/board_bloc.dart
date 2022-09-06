@@ -22,7 +22,7 @@ part 'board_bloc.freezed.dart';
 
 class BoardBloc extends Bloc<BoardEvent, BoardState> {
   final BoardDataController _gridDataController;
-  late final AppFlowyBoardDataController boardController;
+  late final AppFlowyBoardController boardController;
   final MoveRowFFIService _rowService;
   LinkedHashMap<String, GroupController> groupControllers = LinkedHashMap();
 
@@ -34,7 +34,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
       : _rowService = MoveRowFFIService(gridId: view.id),
         _gridDataController = BoardDataController(view: view),
         super(BoardState.initial(view.id)) {
-    boardController = AppFlowyBoardDataController(
+    boardController = AppFlowyBoardController(
       onMoveGroup: (
         fromColumnId,
         fromIndex,
@@ -165,10 +165,10 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     boardController.clear();
 
     //
-    List<AppFlowyBoardGroupData> columns = groups
+    List<AppFlowyGroupData> columns = groups
         .where((group) => fieldController.getField(group.fieldId) != null)
         .map((group) {
-      return AppFlowyBoardGroupData(
+      return AppFlowyGroupData(
         id: group.groupId,
         name: group.desc,
         items: _buildRows(group),
@@ -350,7 +350,7 @@ class BoardColumnItem extends AppFlowyGroupItem {
 
 class GroupControllerDelegateImpl extends GroupControllerDelegate {
   final GridFieldController fieldController;
-  final AppFlowyBoardDataController controller;
+  final AppFlowyBoardController controller;
   final void Function(String, RowPB, int?) onNewColumnItem;
 
   GroupControllerDelegateImpl({

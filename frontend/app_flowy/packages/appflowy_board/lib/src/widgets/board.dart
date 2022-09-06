@@ -1,17 +1,17 @@
 import 'package:appflowy_board/src/utils/log.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'board_column/board_column.dart';
-import 'board_column/board_column_data.dart';
 import 'board_data.dart';
+import 'board_group/group.dart';
+import 'board_group/group_data.dart';
 import 'reorder_flex/drag_state.dart';
 import 'reorder_flex/drag_target_interceptor.dart';
 import 'reorder_flex/reorder_flex.dart';
 import 'reorder_phantom/phantom_controller.dart';
 import '../rendering/board_overlay.dart';
 
-class AFBoardScrollManager {
-  BoardGroupsState? _groupState;
+class AppFlowyBoardScrollManager {
+  AppFlowyBoardState? _groupState;
 
   void scrollToBottom(String groupId, VoidCallback? completed) {
     _groupState
@@ -48,26 +48,36 @@ class AppFlowyBoard extends StatelessWidget {
   final Widget? background;
 
   /// The [cardBuilder] function which will be invoked on each card build.
-  /// The [cardBuilder] takes the [BuildContext],[AppFlowyBoardGroupData] and
+  /// The [cardBuilder] takes the [BuildContext],[AppFlowyGroupData] and
   /// the corresponding [AppFlowyGroupItem].
   ///
   /// must return a widget.
   final AppFlowyBoardCardBuilder cardBuilder;
 
   /// The [headerBuilder] function which will be invoked on each group build.
-  /// The [headerBuilder] takes the [BuildContext] and [AppFlowyBoardGroupData].
+  /// The [headerBuilder] takes the [BuildContext] and [AppFlowyGroupData].
   ///
   /// must return a widget.
   final AppFlowyBoardHeaderBuilder? headerBuilder;
 
   /// The [footerBuilder] function which will be invoked on each group build.
-  /// The [footerBuilder] takes the [BuildContext] and [AppFlowyBoardGroupData].
+  /// The [footerBuilder] takes the [BuildContext] and [AppFlowyGroupData].
   ///
   /// must return a widget.
   final AppFlowyBoardFooterBuilder? footerBuilder;
 
+  /// A controller for [AppFlowyBoard] widget.
   ///
-  final AppFlowyBoardDataController dataController;
+  /// A [AppFlowyBoardController] can be used to provide an initial value of
+  /// the board by calling `addGroup` method with the passed in parameter
+  /// [AppFlowyGroupData]. A [AppFlowyGroupData] represents one
+  /// group data. Whenever the user modifies the board, this controller will
+  /// update the corresponding group data.
+  ///
+  /// Also, you can register the callbacks that receive the changes. Check out
+  /// the [AppFlowyBoardController] for more information.
+  ///
+  final AppFlowyBoardController controller;
 
   final BoxConstraints groupConstraints;
 
@@ -78,12 +88,12 @@ class AppFlowyBoard extends StatelessWidget {
 
   final AppFlowyBoardConfig config;
 
-  final AFBoardScrollManager? scrollManager;
+  final AppFlowyBoardScrollManager? scrollManager;
 
-  final BoardGroupsState _groupState = BoardGroupsState();
+  final AppFlowyBoardState _groupState = AppFlowyBoardState();
 
   AppFlowyBoard({
-    required this.dataController,
+    required this.controller,
     required this.cardBuilder,
     this.background,
     this.footerBuilder,
@@ -95,7 +105,7 @@ class AppFlowyBoard extends StatelessWidget {
     Key? key,
   }) : super(key: key) {
     phantomController = BoardPhantomController(
-      delegate: dataController,
+      delegate: controller,
       groupsState: _groupState,
     );
   }
@@ -103,16 +113,16 @@ class AppFlowyBoard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: dataController,
-      child: Consumer<AppFlowyBoardDataController>(
+      value: controller,
+      child: Consumer<AppFlowyBoardController>(
         builder: (context, notifier, child) {
           if (scrollManager != null) {
             scrollManager!._groupState = _groupState;
           }
 
-          return _AppFlolwyBoardContent(
+          return _AppFlowyBoardContent(
             config: config,
-            dataController: dataController,
+            dataController: controller,
             scrollController: scrollController,
             scrollManager: scrollManager,
             columnsState: _groupState,
@@ -123,7 +133,7 @@ class AppFlowyBoard extends StatelessWidget {
             footerBuilder: footerBuilder,
             headerBuilder: headerBuilder,
             phantomController: phantomController,
-            onReorder: dataController.moveGroup,
+            onReorder: controller.moveGroup,
           );
         },
       ),
@@ -131,25 +141,25 @@ class AppFlowyBoard extends StatelessWidget {
   }
 }
 
-class _AppFlolwyBoardContent extends StatefulWidget {
+class _AppFlowyBoardContent extends StatefulWidget {
   final ScrollController? scrollController;
   final OnDragStarted? onDragStarted;
   final OnReorder onReorder;
   final OnDragEnded? onDragEnded;
-  final AppFlowyBoardDataController dataController;
+  final AppFlowyBoardController dataController;
   final Widget? background;
   final AppFlowyBoardConfig config;
   final ReorderFlexConfig reorderFlexConfig;
   final BoxConstraints columnConstraints;
-  final AFBoardScrollManager? scrollManager;
-  final BoardGroupsState columnsState;
+  final AppFlowyBoardScrollManager? scrollManager;
+  final AppFlowyBoardState columnsState;
   final AppFlowyBoardCardBuilder cardBuilder;
   final AppFlowyBoardHeaderBuilder? headerBuilder;
   final AppFlowyBoardFooterBuilder? footerBuilder;
   final OverlapDragTargetDelegate delegate;
   final BoardPhantomController phantomController;
 
-  const _AppFlolwyBoardContent({
+  const _AppFlowyBoardContent({
     required this.config,
     required this.onReorder,
     required this.delegate,
@@ -170,12 +180,12 @@ class _AppFlolwyBoardContent extends StatefulWidget {
         super(key: key);
 
   @override
-  State<_AppFlolwyBoardContent> createState() => _AppFlowyBoardContentState();
+  State<_AppFlowyBoardContent> createState() => _AppFlowyBoardContentState();
 }
 
-class _AppFlowyBoardContentState extends State<_AppFlolwyBoardContent> {
+class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
   final GlobalKey _boardContentKey =
-      GlobalKey(debugLabel: '$_AppFlolwyBoardContent overlay key');
+      GlobalKey(debugLabel: '$_AppFlowyBoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
   final Map<String, GlobalObjectKey> _reorderFlexKeys = {};
@@ -253,7 +263,7 @@ class _AppFlowyBoardContentState extends State<_AppFlolwyBoardContent> {
         return ChangeNotifierProvider.value(
           key: ValueKey(columnData.id),
           value: widget.dataController.getGroupController(columnData.id),
-          child: Consumer<AFBoardGroupDataController>(
+          child: Consumer<AppFlowyGroupController>(
             builder: (context, value, child) {
               final boardColumn = AppFlowyBoardGroup(
                 reorderFlexKey: reorderFlexKey,
@@ -289,12 +299,12 @@ class _AppFlowyBoardContentState extends State<_AppFlolwyBoardContent> {
 
   Widget? _buildHeader(
     BuildContext context,
-    AppFlowyBoardGroupData groupData,
+    AppFlowyGroupData groupData,
   ) {
     if (widget.headerBuilder == null) {
       return null;
     }
-    return Selector<AFBoardGroupDataController, AppFlowyBoardGroupHeaderData>(
+    return Selector<AppFlowyGroupController, AppFlowyGroupHeaderData>(
       selector: (context, controller) => controller.groupData.headerData,
       builder: (context, headerData, _) {
         return widget.headerBuilder!(context, groupData)!;
@@ -319,9 +329,9 @@ class _AppFlowyBoardContentState extends State<_AppFlolwyBoardContent> {
   }
 }
 
-class _BoardGroupDataSourceImpl extends AppFlowyBoardGroupDataDataSource {
+class _BoardGroupDataSourceImpl extends AppFlowyGroupDataDataSource {
   String groupId;
-  final AppFlowyBoardDataController dataController;
+  final AppFlowyBoardController dataController;
 
   _BoardGroupDataSourceImpl({
     required this.groupId,
@@ -329,31 +339,34 @@ class _BoardGroupDataSourceImpl extends AppFlowyBoardGroupDataDataSource {
   });
 
   @override
-  AppFlowyBoardGroupData get groupData =>
+  AppFlowyGroupData get groupData =>
       dataController.getGroupController(groupId)!.groupData;
 
   @override
   List<String> get acceptedGroupIds => dataController.groupIds;
 }
 
-class BoardGroupContext {
-  GlobalKey? groupKey;
+/// A context contains the group states including the draggingState.
+///
+/// [draggingState] represents the dragging state of the group.
+class AppFlowyGroupContext {
   DraggingState? draggingState;
 }
 
-class BoardGroupsState extends DraggingStateStorage
+class AppFlowyBoardState extends DraggingStateStorage
     with ReorderDragTargetIndexKeyStorage {
-  /// Quick access to the [AppFlowyBoardGroup]
-  final Map<String, GlobalKey> groupKeys = {};
+  /// Quick access to the [AppFlowyBoardGroup], the [GlobalKey] is bind to the
+  /// AppFlowyBoardGroup's [ReorderFlex] widget.
+  final Map<String, GlobalKey> groupReorderFlexKeys = {};
   final Map<String, DraggingState> groupDragStates = {};
   final Map<String, Map<String, GlobalObjectKey>> groupDragDragTargets = {};
 
   void addGroup(String groupId, AppFlowyBoardGroup groupWidget) {
-    groupKeys[groupId] = groupWidget.reorderFlexKey;
+    groupReorderFlexKeys[groupId] = groupWidget.reorderFlexKey;
   }
 
   ReorderFlexState? getReorderFlexState({required String groupId}) {
-    final flexGlobalKey = groupKeys[groupId];
+    final flexGlobalKey = groupReorderFlexKeys[groupId];
     if (flexGlobalKey == null) return null;
     if (flexGlobalKey.currentState is! ReorderFlexState) return null;
     final state = flexGlobalKey.currentState as ReorderFlexState;
@@ -361,7 +374,7 @@ class BoardGroupsState extends DraggingStateStorage
   }
 
   ReorderFlex? getReorderFlex({required String groupId}) {
-    final flexGlobalKey = groupKeys[groupId];
+    final flexGlobalKey = groupReorderFlexKeys[groupId];
     if (flexGlobalKey == null) return null;
     if (flexGlobalKey.currentWidget is! ReorderFlex) return null;
     final widget = flexGlobalKey.currentWidget as ReorderFlex;

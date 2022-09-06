@@ -63,7 +63,7 @@ class BoardContent extends StatefulWidget {
 
 class _BoardContentState extends State<BoardContent> {
   late ScrollController scrollController;
-  late AFBoardScrollManager scrollManager;
+  late AppFlowyBoardScrollManager scrollManager;
 
   final config = AppFlowyBoardConfig(
     groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -72,7 +72,7 @@ class _BoardContentState extends State<BoardContent> {
   @override
   void initState() {
     scrollController = ScrollController();
-    scrollManager = AFBoardScrollManager();
+    scrollManager = AppFlowyBoardScrollManager();
     super.initState();
   }
 
@@ -104,7 +104,7 @@ class _BoardContentState extends State<BoardContent> {
       child: AppFlowyBoard(
         scrollManager: scrollManager,
         scrollController: scrollController,
-        dataController: context.read<BoardBloc>().boardController,
+        controller: context.read<BoardBloc>().boardController,
         headerBuilder: _buildHeader,
         footerBuilder: _buildFooter,
         cardBuilder: (_, column, columnItem) => _buildCard(
@@ -149,7 +149,7 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildHeader(
     BuildContext context,
-    AppFlowyBoardGroupData columnData,
+    AppFlowyGroupData columnData,
   ) {
     final boardCustomData = columnData.customData as BoardCustomData;
     return AppFlowyGroupHeader(
@@ -181,7 +181,7 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  Widget _buildFooter(BuildContext context, AppFlowyBoardGroupData columnData) {
+  Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
     final boardCustomData = columnData.customData as BoardCustomData;
     final group = boardCustomData.group;
 
@@ -215,7 +215,7 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildCard(
     BuildContext context,
-    AppFlowyBoardGroupData column,
+    AppFlowyGroupData column,
     AppFlowyGroupItem columnItem,
   ) {
     final boardColumnItem = columnItem as BoardColumnItem;
@@ -242,7 +242,7 @@ class _BoardContentState extends State<BoardContent> {
       },
     );
 
-    return AppFlowyGroupItemCard(
+    return AppFlowyGroupCard(
       key: ValueKey(columnItem.id),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
