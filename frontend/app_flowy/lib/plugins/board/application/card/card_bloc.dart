@@ -13,12 +13,12 @@ import 'card_data_controller.dart';
 part 'card_bloc.freezed.dart';
 
 class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
-  final String fieldId;
+  final String groupFieldId;
   final RowFFIService _rowService;
   final CardDataController _dataController;
 
   BoardCardBloc({
-    required this.fieldId,
+    required this.groupFieldId,
     required String gridId,
     required CardDataController dataController,
   })  : _rowService = RowFFIService(
@@ -29,7 +29,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
         super(
           BoardCardState.initial(
             dataController.rowPB,
-            _makeCells(fieldId, dataController.loadData()),
+            _makeCells(groupFieldId, dataController.loadData()),
           ),
         ) {
     on<BoardCardEvent>(
@@ -69,7 +69,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     _dataController.addListener(
       onRowChanged: (cellMap, reason) {
         if (!isClosed) {
-          final cells = _makeCells(fieldId, cellMap);
+          final cells = _makeCells(groupFieldId, cellMap);
           add(BoardCardEvent.didReceiveCells(cells, reason));
         }
       },
@@ -78,10 +78,11 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
 }
 
 UnmodifiableListView<BoardCellEquatable> _makeCells(
-    String fieldId, GridCellMap originalCellMap) {
+    String groupFieldId, GridCellMap originalCellMap) {
   List<BoardCellEquatable> cells = [];
   for (final entry in originalCellMap.entries) {
-    if (entry.value.fieldId != fieldId) {
+    // Filter out the cell if it's fieldId equal to the groupFieldId
+    if (entry.value.fieldId != groupFieldId) {
       cells.add(BoardCellEquatable(entry.value));
     }
   }

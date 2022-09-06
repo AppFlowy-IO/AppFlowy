@@ -44,7 +44,7 @@ class _BoardCardState extends State<BoardCard> {
     rowNotifier = EditableRowNotifier();
     _cardBloc = BoardCardBloc(
       gridId: widget.gridId,
-      fieldId: widget.fieldId,
+      groupFieldId: widget.fieldId,
       dataController: widget.dataController,
     )..add(const BoardCardEvent.initial());
     super.initState();
@@ -56,7 +56,7 @@ class _BoardCardState extends State<BoardCard> {
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
         buildWhen: (previous, current) {
-          return previous.cells.length != current.cells.length;
+          return previous.cells != current.cells;
         },
         builder: (context, state) {
           return BoardCardContainer(
