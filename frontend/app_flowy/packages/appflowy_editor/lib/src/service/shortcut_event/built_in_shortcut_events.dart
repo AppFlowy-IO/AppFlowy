@@ -8,7 +8,7 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/page_up_
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/redo_undo_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/select_all_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/slash_handler.dart';
-import 'package:appflowy_editor/src/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/format_style_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 
@@ -102,6 +102,72 @@ List<ShortcutEvent> builtInShortcutEvents = [
     windowsCommand: 'ctrl+shift+arrow right',
     handler: cursorEndSelect,
   ),
+  ShortcutEvent(
+    key: 'Redo',
+    command: 'meta+shift+z',
+    windowsCommand: 'ctrl+shift+z',
+    handler: redoEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Undo',
+    command: 'meta+z',
+    windowsCommand: 'ctrl+z',
+    handler: undoEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Format bold',
+    command: 'meta+b',
+    windowsCommand: 'ctrl+b',
+    handler: formatBoldEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Format italic',
+    command: 'meta+i',
+    windowsCommand: 'ctrl+i',
+    handler: formatItalicEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Format underline',
+    command: 'meta+u',
+    windowsCommand: 'ctrl+u',
+    handler: formatUnderlineEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Format strikethrough',
+    command: 'meta+shift+s',
+    windowsCommand: 'ctrl+shift+s',
+    handler: formatStrikethroughEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Format highlight',
+    command: 'meta+shift+h',
+    windowsCommand: 'ctrl+shift+h',
+    handler: formatHighlightEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Format link',
+    command: 'meta+k',
+    windowsCommand: 'ctrl+k',
+    handler: formatLinkEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Copy',
+    command: 'meta+c',
+    windowsCommand: 'ctrl+c',
+    handler: copyEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Paste',
+    command: 'meta+v',
+    windowsCommand: 'ctrl+v',
+    handler: pasteEventHandler,
+  ),
+  ShortcutEvent(
+    key: 'Paste',
+    command: 'meta+x',
+    windowsCommand: 'ctrl+x',
+    handler: cutEventHandler,
+  ),
   // TODO: split the keys.
   ShortcutEvent(
     key: 'Delete Text',
@@ -114,27 +180,9 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: slashShortcutHandler,
   ),
   ShortcutEvent(
-    key: 'copy / paste',
-    command: 'meta+c,meta+v',
-    windowsCommand: 'ctrl+c,ctrl+v',
-    handler: copyPasteKeysHandler,
-  ),
-  ShortcutEvent(
-    key: 'redo / undo',
-    command: 'meta+z,meta+meta+shift+z',
-    windowsCommand: 'ctrl+z,meta+ctrl+shift+z',
-    handler: redoUndoKeysHandler,
-  ),
-  ShortcutEvent(
     key: 'enter',
     command: 'enter',
     handler: enterWithoutShiftInTextNodesHandler,
-  ),
-  ShortcutEvent(
-    key: 'update text style',
-    command: 'meta+b,meta+i,meta+u,meta+shift+s,meta+shift+h,meta+k',
-    windowsCommand: 'ctrl+b,ctrl+i,ctrl+u,ctrl+shift+s,ctrl+shift+h,ctrl+k',
-    handler: updateTextStyleByCommandXHandler,
   ),
   ShortcutEvent(
     key: 'markdown',
