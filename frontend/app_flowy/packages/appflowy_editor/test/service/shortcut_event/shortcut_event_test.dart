@@ -21,7 +21,7 @@ void main() async {
           return KeyEventResult.handled;
         },
       );
-      shortcutEvent.updateCommand('cmd+shift+alt+ctrl+b');
+      shortcutEvent.updateCommand(command: 'cmd+shift+alt+ctrl+b');
       expect(shortcutEvent.keybindings.length, 1);
       expect(shortcutEvent.keybindings.first.isMetaPressed, true);
       expect(shortcutEvent.keybindings.first.isShiftPressed, true);
@@ -57,15 +57,26 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [1], startOffset: text.length),
       );
+
       for (final event in builtInShortcutEvents) {
         if (event.key == 'Move cursor begin') {
-          event.updateCommand('alt+arrow left');
+          event.updateCommand(
+            windowsCommand: 'alt+arrow left',
+            macOSCommand: 'alt+arrow left',
+          );
         }
       }
-      await editor.pressLogicKey(
-        LogicalKeyboardKey.arrowLeft,
-        isAltPressed: true,
-      );
+      if (Platform.isWindows || Platform.isMacOS) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.arrowLeft,
+          isAltPressed: true,
+        );
+      } else {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.arrowLeft,
+          isMetaPressed: true,
+        );
+      }
       expect(
         editor.documentSelection,
         Selection.single(path: [1], startOffset: 0),

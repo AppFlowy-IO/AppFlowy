@@ -14,7 +14,7 @@ class ShortcutEvent {
     String? linuxCommand,
   }) {
     updateCommand(
-      command,
+      command: command,
       windowsCommand: windowsCommand,
       macOSCommand: macOSCommand,
       linuxCommand: linuxCommand,
@@ -46,35 +46,43 @@ class ShortcutEvent {
 
   final ShortcutEventHandler handler;
 
-  List<Keybinding> keybindings = [];
+  List<Keybinding> get keybindings => _keybindings;
+  List<Keybinding> _keybindings = [];
 
-  void updateCommand(
-    String command, {
+  void updateCommand({
+    String? command,
     String? windowsCommand,
     String? macOSCommand,
     String? linuxCommand,
   }) {
+    var matched = false;
     if (Platform.isWindows &&
         windowsCommand != null &&
         windowsCommand.isNotEmpty) {
       this.command = windowsCommand;
+      matched = true;
     } else if (Platform.isMacOS &&
         macOSCommand != null &&
         macOSCommand.isNotEmpty) {
       this.command = macOSCommand;
+      matched = true;
     } else if (Platform.isLinux &&
         linuxCommand != null &&
         linuxCommand.isNotEmpty) {
       this.command = linuxCommand;
-    } else {
+      matched = true;
+    } else if (command != null && command.isNotEmpty) {
       this.command = command;
+      matched = true;
     }
 
-    keybindings = this
-        .command
-        .split(',')
-        .map((e) => Keybinding.parse(e))
-        .toList(growable: false);
+    if (matched) {
+      _keybindings = this
+          .command
+          .split(',')
+          .map((e) => Keybinding.parse(e))
+          .toList(growable: false);
+    }
   }
 
   ShortcutEvent copyWith({
