@@ -14,33 +14,37 @@ class EditableCellNotifier {
 }
 
 class EditableRowNotifier {
-  Map<EditableCellId, EditableCellNotifier> cells = {};
+  final Map<EditableCellId, EditableCellNotifier> _cells = {};
 
   void insertCell(
     GridCellIdentifier cellIdentifier,
     EditableCellNotifier notifier,
   ) {
-    cells[EditableCellId.from(cellIdentifier)] = notifier;
+    _cells[EditableCellId.from(cellIdentifier)] = notifier;
   }
 
   void becomeFirstResponder() {
-    for (final notifier in cells.values) {
+    for (final notifier in _cells.values) {
       notifier.becomeFirstResponder.notify();
     }
   }
 
   void resignFirstResponder() {
-    for (final notifier in cells.values) {
+    for (final notifier in _cells.values) {
       notifier.resignFirstResponder.notify();
     }
   }
 
+  void clear() {
+    _cells.clear();
+  }
+
   void dispose() {
-    for (final notifier in cells.values) {
+    for (final notifier in _cells.values) {
       notifier.resignFirstResponder.notify();
     }
 
-    cells.clear();
+    _cells.clear();
   }
 }
 

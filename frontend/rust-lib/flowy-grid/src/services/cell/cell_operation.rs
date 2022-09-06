@@ -182,7 +182,6 @@ pub fn delete_select_option_cell(option_id: String, field_rev: &FieldRevision) -
     CellRevision::new(data)
 }
 
-/// If the cell data is not String type, it should impl this trait.
 /// Deserialize the String into cell specific data type.  
 pub trait FromCellString {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
