@@ -20,6 +20,8 @@ const _bulletedListSymbols = ['*', '-'];
 const _checkboxListSymbols = ['[x]', '-[x]'];
 const _unCheckboxListSymbols = ['[]', '-[]'];
 
+final _numberRegex = RegExp(r'^(\d+)\.');
+
 ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.space) {
     return KeyEventResult.ignored;
@@ -42,6 +44,16 @@ ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
 
   final textNode = textNodes.first;
   final text = textNode.toRawString();
+
+  final numberMatch = _numberRegex.firstMatch(text);
+  if (numberMatch != null) {
+    final matchText = numberMatch.group(0);
+    final numText = numberMatch.group(1);
+    if (matchText != null && numText != null) {
+      return _toNumberList(editorState, textNode, matchText, numText);
+    }
+  }
+
   if ((_checkboxListSymbols + _unCheckboxListSymbols).any(text.startsWith)) {
     return _toCheckboxList(editorState, textNode);
   } else if (_bulletedListSymbols.any(text.startsWith)) {
@@ -52,6 +64,31 @@ ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
 
   return KeyEventResult.ignored;
 };
+
+KeyEventResult _toNumberList(EditorState editorState, TextNode textNode,
+    String matchText, String numText) {
+  if (textNode.subtype == StyleKey.bulletedList) {
+    return KeyEventResult.ignored;
+  }
+
+  final numValue = int.tryParse(numText);
+  if (numValue == null) {
+    return KeyEventResult.ignored;
+  }
+
+  TransactionBuilder(editorState)
+    ..deleteText(textNode, 0, matchText.length)
+    ..updateNode(textNode,
+        {StyleKey.subtype: StyleKey.numberList, StyleKey.number: numValue})
+    ..afterSelection = Selection.collapsed(
+      Position(
+        path: textNode.path,
+        offset: 0,
+      ),
+    )
+    ..commit();
+  return KeyEventResult.handled;
+}
 
 KeyEventResult _toBulletedList(EditorState editorState, TextNode textNode) {
   if (textNode.subtype == StyleKey.bulletedList) {

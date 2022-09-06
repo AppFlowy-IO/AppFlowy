@@ -1,14 +1,9 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:appflowy_editor/src/document/attributes.dart';
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/document/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/extensions/path_extensions.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
-import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 
 /// Handle some cases where enter is pressed and shift is not pressed.
 ///
@@ -104,19 +99,12 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
 
   // Otherwise,
   //  split the node into two nodes with style
-  final needCopyAttributes = StyleKey.globalStyleKeys
-      .where((key) => key != StyleKey.heading)
-      .contains(textNode.subtype);
-  Attributes attributes = {};
-  if (needCopyAttributes) {
-    attributes = Attributes.from(textNode.attributes);
-    if (attributes.check) {
-      attributes[StyleKey.checkbox] = false;
-    }
-  }
+  Attributes attributes = _attributesFromPreviousLine(textNode);
+
   final afterSelection = Selection.collapsed(
     Position(path: textNode.path.next, offset: 0),
   );
+
   TransactionBuilder(editorState)
     ..insertNode(
       textNode.path.next,
@@ -132,5 +120,44 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     )
     ..afterSelection = afterSelection
     ..commit();
+
+  // If the new type of a text node is number list,
+  // the numbers of the following nodes should be incremental.
+  if (textNode.subtype == StyleKey.numberList) {
+    _makeFollowingNodeIncremental(editorState, textNode);
+  }
+
   return KeyEventResult.handled;
 };
+
+Attributes _attributesFromPreviousLine(TextNode textNode) {
+  final prevAttributes = textNode.attributes;
+  final subType = textNode.subtype;
+  if (subType == null || subType == StyleKey.heading) {
+    return {};
+  }
+
+  final copy = Attributes.from(prevAttributes);
+  if (subType == StyleKey.numberList) {
+    return _nextNumberAttributesFromPreviousLine(copy, textNode);
+  }
+
+  if (subType == StyleKey.checkbox) {
+    copy[StyleKey.checkbox] = false;
+    return copy;
+  }
+
+  return copy;
+}
+
+Attributes _nextNumberAttributesFromPreviousLine(
+    Attributes copy, TextNode textNode) {
+  final prevNum = textNode.attributes[StyleKey.number] as int?;
+  copy[StyleKey.number] = prevNum == null ? 1 : prevNum + 1;
+  return copy;
+}
+
+void _makeFollowingNodeIncremental(EditorState editorState, TextNode textNode) {
+  debugPrint("following nodes");
+  TransactionBuilder(editorState).commit();
+}
