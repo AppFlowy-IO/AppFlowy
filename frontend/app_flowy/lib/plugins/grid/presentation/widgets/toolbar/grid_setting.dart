@@ -13,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import '../../../application/field/field_controller.dart';
 import '../../layout/sizes.dart';
-import 'grid_property.dart';
 
 class GridSettingContext {
   final String gridId;
@@ -31,37 +30,6 @@ class GridSettingList extends StatelessWidget {
   const GridSettingList(
       {required this.settingContext, required this.onAction, Key? key})
       : super(key: key);
-
-  static void show(BuildContext context, GridSettingContext settingContext) {
-    final list = GridSettingList(
-      settingContext: settingContext,
-      onAction: (action, settingContext) {
-        switch (action) {
-          case GridSettingAction.filter:
-            break;
-          case GridSettingAction.sortBy:
-            break;
-          case GridSettingAction.properties:
-            GridPropertyList(
-                    gridId: settingContext.gridId,
-                    fieldController: settingContext.fieldController)
-                .show(context);
-            break;
-        }
-      },
-    );
-
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(140, 400)),
-        child: list,
-      ),
-      identifier: list.identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.bottomRight,
-      style: FlowyOverlayStyle(blur: false),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {

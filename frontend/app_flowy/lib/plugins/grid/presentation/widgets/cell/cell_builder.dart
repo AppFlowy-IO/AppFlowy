@@ -94,7 +94,7 @@ abstract class CellEditable {
   ValueNotifier<bool> get onCellEditing;
 }
 
-typedef AccessoryBuilder = List<GridCellAccessory> Function(
+typedef AccessoryBuilder = List<GridCellAccessoryBuilder> Function(
     GridCellAccessoryBuildContext buildContext);
 
 abstract class CellAccessory extends Widget {
@@ -125,8 +125,8 @@ abstract class GridCellWidget extends StatefulWidget
   final ValueNotifier<bool> onCellEditing = ValueNotifier<bool>(false);
 
   @override
-  List<GridCellAccessory> Function(GridCellAccessoryBuildContext buildContext)?
-      get accessoryBuilder => null;
+  List<GridCellAccessoryBuilder> Function(
+      GridCellAccessoryBuildContext buildContext)? get accessoryBuilder => null;
 
   @override
   final GridCellFocusListener beginFocus = GridCellFocusListener();

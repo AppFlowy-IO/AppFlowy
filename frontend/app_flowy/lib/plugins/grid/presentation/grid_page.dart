@@ -3,6 +3,7 @@ import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart'
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_scrollview.dart';
@@ -290,10 +291,14 @@ class _GridRowsState extends State<_GridRows> {
       rowCache: rowCache,
     );
 
-    RowDetailPage(
-      cellBuilder: cellBuilder,
-      dataController: dataController,
-    ).show(context);
+    FlowyOverlay.show(
+        context: context,
+        builder: (BuildContext context) {
+          return RowDetailPage(
+            cellBuilder: cellBuilder,
+            dataController: dataController,
+          );
+        });
   }
 }
 

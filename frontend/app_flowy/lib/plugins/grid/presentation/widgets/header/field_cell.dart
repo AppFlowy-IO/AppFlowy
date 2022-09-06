@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -13,23 +13,35 @@ import '../../layout/sizes.dart';
 import 'field_type_extension.dart';
 
 import 'field_cell_action_sheet.dart';
-import 'field_editor.dart';
 
 class GridFieldCell extends StatelessWidget {
   final GridFieldCellContext cellContext;
-  const GridFieldCell(this.cellContext, {Key? key}) : super(key: key);
+  const GridFieldCell({
+    Key? key,
+    required this.cellContext,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => FieldCellBloc(cellContext: cellContext)
-        ..add(const FieldCellEvent.initial()),
+      create: (context) {
+        return FieldCellBloc(cellContext: cellContext);
+      },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
-        // buildWhen: (p, c) => p.field != c.field,
         builder: (context, state) {
-          final button = FieldCellButton(
-            field: state.field,
-            onTap: () => _showActionSheet(context),
+          final button = Popover(
+            direction: PopoverDirection.bottomWithLeftAligned,
+            triggerActions: PopoverTriggerActionFlags.click,
+            offset: const Offset(0, 10),
+            popupBuilder: (BuildContext context) {
+              return GridFieldCellActionSheet(
+                cellContext: cellContext,
+              );
+            },
+            child: FieldCellButton(
+              field: cellContext.field,
+              onTap: () {},
+            ),
           );
 
           const line = Positioned(
@@ -50,29 +62,6 @@ class GridFieldCell extends StatelessWidget {
         },
       ),
     );
-  }
-
-  void _showActionSheet(BuildContext context) {
-    final state = context.read<FieldCellBloc>().state;
-    GridFieldCellActionSheet(
-      cellContext:
-          GridFieldCellContext(gridId: state.gridId, field: state.field),
-      onEdited: () => _showFieldEditor(context),
-    ).show(context);
-  }
-
-  void _showFieldEditor(BuildContext context) {
-    final state = context.read<FieldCellBloc>().state;
-    final field = state.field;
-
-    FieldEditor(
-      gridId: state.gridId,
-      fieldName: field.name,
-      typeOptionLoader: FieldTypeOptionLoader(
-        gridId: state.gridId,
-        field: field,
-      ),
-    ).show(context);
   }
 }
 
@@ -119,6 +108,7 @@ class _DragToExpandLine extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onHorizontalDragUpdate: (value) {
+          debugPrint("update new width: ${value.delta.dx}");
           context
               .read<FieldCellBloc>()
               .add(FieldCellEvent.startUpdateWidth(value.delta.dx));

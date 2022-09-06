@@ -14,6 +14,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
@@ -285,10 +286,15 @@ class _BoardContentState extends State<BoardContent> {
       rowCache: rowCache,
     );
 
-    RowDetailPage(
-      cellBuilder: GridCellBuilder(delegate: dataController),
-      dataController: dataController,
-    ).show(context);
+    FlowyOverlay.show(
+      context: context,
+      builder: (BuildContext context) {
+        return RowDetailPage(
+          cellBuilder: GridCellBuilder(delegate: dataController),
+          dataController: dataController,
+        );
+      },
+    );
   }
 }
 

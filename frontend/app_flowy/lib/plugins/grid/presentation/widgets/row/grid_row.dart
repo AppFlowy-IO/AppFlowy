@@ -194,12 +194,17 @@ class RowContent extends StatelessWidget {
               Provider.of<RegionStateNotifier>(context, listen: false),
           accessoryBuilder: (buildContext) {
             final builder = child.accessoryBuilder;
-            List<GridCellAccessory> accessories = [];
+            List<GridCellAccessoryBuilder> accessories = [];
             if (cellId.fieldContext.isPrimary) {
-              accessories.add(PrimaryCellAccessory(
-                onTapCallback: onExpand,
-                isCellEditing: buildContext.isCellEditing,
-              ));
+              accessories.add(
+                GridCellAccessoryBuilder(
+                  builder: (key) => PrimaryCellAccessory(
+                    key: key,
+                    onTapCallback: onExpand,
+                    isCellEditing: buildContext.isCellEditing,
+                  ),
+                ),
+              );
             }
 
             if (builder != null) {

@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/select_option_editor_bloc.dart';
+import 'package:appflowy_popover/popover.dart';
 
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -27,6 +28,8 @@ const double _editorPannelWidth = 300;
 class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   final GridSelectOptionCellController cellController;
   final VoidCallback onDismissed;
+
+  static double editorPanelWidth = 300;
 
   const SelectOptionCellEditor({
     required this.cellController,
@@ -226,76 +229,82 @@ class _CreateOptionCell extends StatelessWidget {
   }
 }
 
-class _SelectOptionCell extends StatelessWidget {
+class _SelectOptionCell extends StatefulWidget {
   final SelectOptionPB option;
   final bool isSelected;
   const _SelectOptionCell(this.option, this.isSelected, {Key? key})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    return SizedBox(
-      height: GridSize.typeOptionItemHeight,
-      child: Row(
-        children: [
-          Flexible(
-            fit: FlexFit.loose,
-            child: SelectOptionTagCell(
-              option: option,
-              onSelected: (option) {
-                context
-                    .read<SelectOptionCellEditorBloc>()
-                    .add(SelectOptionEditorEvent.selectOption(option.id));
-              },
-              children: [
-                if (isSelected)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: svgWidget("grid/checkmark"),
-                  ),
-              ],
-            ),
-          ),
-          FlowyIconButton(
-            width: 30,
-            onPressed: () => _showEditPannel(context),
-            iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-            icon: svgWidget("editor/details", color: theme.iconColor),
-          )
-        ],
-      ),
-    );
+  State<_SelectOptionCell> createState() => _SelectOptionCellState();
+}
+
+class _SelectOptionCellState extends State<_SelectOptionCell> {
+  late PopoverController _popoverController;
+
+  @override
+  void initState() {
+    _popoverController = PopoverController();
+    super.initState();
   }
 
-  void _showEditPannel(BuildContext context) {
-    final pannel = SelectOptionTypeOptionEditor(
-      option: option,
-      onDeleted: () {
-        context
-            .read<SelectOptionCellEditorBloc>()
-            .add(SelectOptionEditorEvent.deleteOption(option));
-      },
-      onUpdated: (updatedOption) {
-        context
-            .read<SelectOptionCellEditorBloc>()
-            .add(SelectOptionEditorEvent.updateOption(updatedOption));
-      },
-      key: ValueKey(option
-          .id), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
-    );
-    final overlayIdentifier = (SelectOptionTypeOptionEditor).toString();
-
-    FlowyOverlay.of(context).remove(overlayIdentifier);
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(200, 300)),
-        child: pannel,
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return Popover(
+      controller: _popoverController,
+      offset: const Offset(20, 0),
+      child: SizedBox(
+        height: GridSize.typeOptionItemHeight,
+        child: Row(
+          children: [
+            Flexible(
+              fit: FlexFit.loose,
+              child: SelectOptionTagCell(
+                option: widget.option,
+                onSelected: (option) {
+                  context
+                      .read<SelectOptionCellEditorBloc>()
+                      .add(SelectOptionEditorEvent.selectOption(option.id));
+                },
+                children: [
+                  if (widget.isSelected)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: svgWidget("grid/checkmark"),
+                    ),
+                ],
+              ),
+            ),
+            FlowyIconButton(
+              width: 30,
+              onPressed: () => _popoverController.show(),
+              iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+              icon: svgWidget("editor/details", color: theme.iconColor),
+            )
+          ],
+        ),
       ),
-      identifier: overlayIdentifier,
-      anchorContext: context,
-      anchorDirection: AnchorDirection.rightWithCenterAligned,
-      anchorOffset: Offset(2 * overlayContainerPadding.left, 0),
+      popupBuilder: (BuildContext popoverContext) {
+        return OverlayContainer(
+          constraints: BoxConstraints.loose(const Size(200, 300)),
+          child: SelectOptionTypeOptionEditor(
+            option: widget.option,
+            onDeleted: () {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.deleteOption(widget.option));
+            },
+            onUpdated: (updatedOption) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.updateOption(updatedOption));
+            },
+            key: ValueKey(widget.option
+                .id), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
+          ),
+        );
+      },
     );
   }
 }
