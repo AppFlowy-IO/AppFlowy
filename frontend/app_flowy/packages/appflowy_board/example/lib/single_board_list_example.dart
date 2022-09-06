@@ -9,11 +9,11 @@ class SingleBoardListExample extends StatefulWidget {
 }
 
 class _SingleBoardListExampleState extends State<SingleBoardListExample> {
-  final AFBoardDataController boardData = AFBoardDataController();
+  final AppFlowyBoardController boardData = AppFlowyBoardController();
 
   @override
   void initState() {
-    final column = AFBoardColumnData(
+    final column = AppFlowyGroupData(
       id: "1",
       name: "1",
       items: [
@@ -24,14 +24,14 @@ class _SingleBoardListExampleState extends State<SingleBoardListExample> {
       ],
     );
 
-    boardData.addColumn(column);
+    boardData.addGroup(column);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AFBoard(
-      dataController: boardData,
+    return AppFlowyBoard(
+      controller: boardData,
       cardBuilder: (context, column, columnItem) {
         return _RowWidget(
             item: columnItem as TextItem, key: ObjectKey(columnItem));
@@ -55,7 +55,7 @@ class _RowWidget extends StatelessWidget {
   }
 }
 
-class TextItem extends AFColumnItem {
+class TextItem extends AppFlowyGroupItem {
   final String s;
 
   TextItem(this.s);

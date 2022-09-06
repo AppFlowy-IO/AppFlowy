@@ -1,220 +1,288 @@
 import 'dart:collection';
 
+import 'package:appflowy_board/src/widgets/board_group/group_data.dart';
 import 'package:equatable/equatable.dart';
 
 import '../utils/log.dart';
-import 'board_column/board_column_data.dart';
 import 'reorder_flex/reorder_flex.dart';
 import 'package:flutter/material.dart';
 import 'reorder_phantom/phantom_controller.dart';
 
-typedef OnMoveColumn = void Function(
-  String fromColumnId,
+typedef OnMoveGroup = void Function(
+  String fromGroupId,
   int fromIndex,
-  String toColumnId,
+  String toGroupId,
   int toIndex,
 );
 
-typedef OnMoveColumnItem = void Function(
-  String columnId,
+typedef OnMoveGroupItem = void Function(
+  String groupId,
   int fromIndex,
   int toIndex,
 );
 
-typedef OnMoveColumnItemToColumn = void Function(
-  String fromColumnId,
+typedef OnMoveGroupItemToGroup = void Function(
+  String fromGroupId,
   int fromIndex,
-  String toColumnId,
+  String toGroupId,
   int toIndex,
 );
 
-class AFBoardDataController extends ChangeNotifier
+/// A controller for [AppFlowyBoard] widget.
+///
+/// A [AppFlowyBoardController] can be used to provide an initial value of
+/// the board by calling `addGroup` method with the passed in parameter
+/// [AppFlowyGroupData]. A [AppFlowyGroupData] represents one
+/// group data. Whenever the user modifies the board, this controller will
+/// update the corresponding group data.
+///
+/// Also, you can register the callbacks that receive the changes.
+/// [onMoveGroup] will get called when moving the group from one position to
+/// another.
+///
+/// [onMoveGroupItem] will get called when moving the group's items.
+///
+/// [onMoveGroupItemToGroup] will get called when moving the group's item from
+/// one group to another group.
+class AppFlowyBoardController extends ChangeNotifier
     with EquatableMixin, BoardPhantomControllerDelegate, ReoderFlexDataSource {
-  final List<AFBoardColumnData> _columnDatas = [];
-  final OnMoveColumn? onMoveColumn;
-  final OnMoveColumnItem? onMoveColumnItem;
-  final OnMoveColumnItemToColumn? onMoveColumnItemToColumn;
+  final List<AppFlowyGroupData> _groupDatas = [];
 
-  List<AFBoardColumnData> get columnDatas => _columnDatas;
+  /// [onMoveGroup] will get called when moving the group from one position to
+  /// another.
+  final OnMoveGroup? onMoveGroup;
 
-  List<String> get columnIds =>
-      _columnDatas.map((columnData) => columnData.id).toList();
+  /// [onMoveGroupItem] will get called when moving the group's items.
+  final OnMoveGroupItem? onMoveGroupItem;
 
-  final LinkedHashMap<String, AFBoardColumnDataController> _columnControllers =
+  /// [onMoveGroupItemToGroup] will get called when moving the group's item from
+  /// one group to another group.
+  final OnMoveGroupItemToGroup? onMoveGroupItemToGroup;
+
+  /// Returns the unmodifiable list of [AppFlowyGroupData]
+  UnmodifiableListView<AppFlowyGroupData> get groupDatas =>
+      UnmodifiableListView(_groupDatas);
+
+  /// Returns list of group id
+  List<String> get groupIds =>
+      _groupDatas.map((groupData) => groupData.id).toList();
+
+  final LinkedHashMap<String, AppFlowyGroupController> _groupControllers =
       LinkedHashMap();
 
-  AFBoardDataController({
-    this.onMoveColumn,
-    this.onMoveColumnItem,
-    this.onMoveColumnItemToColumn,
+  AppFlowyBoardController({
+    this.onMoveGroup,
+    this.onMoveGroupItem,
+    this.onMoveGroupItemToGroup,
   });
 
-  void addColumn(AFBoardColumnData columnData, {bool notify = true}) {
-    if (_columnControllers[columnData.id] != null) return;
+  /// Adds a new group to the end of the current group list.
+  ///
+  /// If you don't want to notify the listener after adding a new group, the
+  /// [notify] should set to false. Default value is true.
+  void addGroup(AppFlowyGroupData groupData, {bool notify = true}) {
+    if (_groupControllers[groupData.id] != null) return;
 
-    final controller = AFBoardColumnDataController(columnData: columnData);
-    _columnDatas.add(columnData);
-    _columnControllers[columnData.id] = controller;
+    final controller = AppFlowyGroupController(groupData: groupData);
+    _groupDatas.add(groupData);
+    _groupControllers[groupData.id] = controller;
     if (notify) notifyListeners();
   }
 
-  void addColumns(List<AFBoardColumnData> columns, {bool notify = true}) {
-    for (final column in columns) {
-      addColumn(column, notify: false);
+  /// Adds a list of groups to the end of the current group list.
+  ///
+  /// If you don't want to notify the listener after adding the groups, the
+  /// [notify] should set to false. Default value is true.
+  void addGroups(List<AppFlowyGroupData> groups, {bool notify = true}) {
+    for (final column in groups) {
+      addGroup(column, notify: false);
     }
 
-    if (columns.isNotEmpty && notify) notifyListeners();
+    if (groups.isNotEmpty && notify) notifyListeners();
   }
 
-  void removeColumn(String columnId, {bool notify = true}) {
-    final index = _columnDatas.indexWhere((column) => column.id == columnId);
+  /// Removes the group with id [groupId]
+  ///
+  /// If you don't want to notify the listener after removing the group, the
+  /// [notify] should set to false. Default value is true.
+  void removeGroup(String groupId, {bool notify = true}) {
+    final index = _groupDatas.indexWhere((group) => group.id == groupId);
     if (index == -1) {
       Log.warn(
-          'Try to remove Column:[$columnId] failed. Column:[$columnId] not exist');
+          'Try to remove Group:[$groupId] failed. Group:[$groupId] not exist');
     }
 
     if (index != -1) {
-      _columnDatas.removeAt(index);
-      _columnControllers.remove(columnId);
+      _groupDatas.removeAt(index);
+      _groupControllers.remove(groupId);
 
       if (notify) notifyListeners();
     }
   }
 
-  void removeColumns(List<String> columnIds, {bool notify = true}) {
-    for (final columnId in columnIds) {
-      removeColumn(columnId, notify: false);
+  /// Removes a list of groups
+  ///
+  /// If you don't want to notify the listener after removing the groups, the
+  /// [notify] should set to false. Default value is true.
+  void removeGroups(List<String> groupIds, {bool notify = true}) {
+    for (final groupId in groupIds) {
+      removeGroup(groupId, notify: false);
     }
 
-    if (columnIds.isNotEmpty && notify) notifyListeners();
+    if (groupIds.isNotEmpty && notify) notifyListeners();
   }
 
+  /// Remove all the groups controller.
+  ///
+  /// This method should get called when you want to remove all the current
+  /// groups or get ready to reinitialize the [AppFlowyBoard].
   void clear() {
-    _columnDatas.clear();
-    _columnControllers.clear();
+    _groupDatas.clear();
+    _groupControllers.clear();
     notifyListeners();
   }
 
-  AFBoardColumnDataController? getColumnController(String columnId) {
-    final columnController = _columnControllers[columnId];
-    if (columnController == null) {
-      Log.warn('Column:[$columnId] \'s controller is not exist');
+  /// Returns the [AppFlowyGroupController] with id [groupId].
+  AppFlowyGroupController? getGroupController(String groupId) {
+    final groupController = _groupControllers[groupId];
+    if (groupController == null) {
+      Log.warn('Group:[$groupId] \'s controller is not exist');
     }
 
-    return columnController;
+    return groupController;
   }
 
-  void moveColumn(int fromIndex, int toIndex, {bool notify = true}) {
-    final toColumnData = _columnDatas[toIndex];
-    final fromColumnData = _columnDatas.removeAt(fromIndex);
+  /// Moves the group controller from [fromIndex] to [toIndex] and notify the
+  /// listeners.
+  ///
+  /// If you don't want to notify the listener after moving the group, the
+  /// [notify] should set to false. Default value is true.
+  void moveGroup(int fromIndex, int toIndex, {bool notify = true}) {
+    final toGroupData = _groupDatas[toIndex];
+    final fromGroupData = _groupDatas.removeAt(fromIndex);
 
-    _columnDatas.insert(toIndex, fromColumnData);
-    onMoveColumn?.call(fromColumnData.id, fromIndex, toColumnData.id, toIndex);
+    _groupDatas.insert(toIndex, fromGroupData);
+    onMoveGroup?.call(fromGroupData.id, fromIndex, toGroupData.id, toIndex);
     if (notify) notifyListeners();
   }
 
-  void moveColumnItem(String columnId, int fromIndex, int toIndex) {
-    if (getColumnController(columnId)?.move(fromIndex, toIndex) ?? false) {
-      onMoveColumnItem?.call(columnId, fromIndex, toIndex);
+  /// Moves the group's item from [fromIndex] to [toIndex]
+  /// If the group with id [groupId] is not exist, this method will do nothing.
+  void moveGroupItem(String groupId, int fromIndex, int toIndex) {
+    if (getGroupController(groupId)?.move(fromIndex, toIndex) ?? false) {
+      onMoveGroupItem?.call(groupId, fromIndex, toIndex);
     }
   }
 
-  void addColumnItem(String columnId, AFColumnItem item) {
-    getColumnController(columnId)?.add(item);
+  /// Adds the [AppFlowyGroupItem] to the end of the group
+  ///
+  /// If the group with id [groupId] is not exist, this method will do nothing.
+  void addGroupItem(String groupId, AppFlowyGroupItem item) {
+    getGroupController(groupId)?.add(item);
   }
 
-  void insertColumnItem(String columnId, int index, AFColumnItem item) {
-    getColumnController(columnId)?.insert(index, item);
+  /// Inserts the [AppFlowyGroupItem] at [index] in the group
+  ///
+  /// It will do nothing if the group with id [groupId] is not exist
+  void insertGroupItem(String groupId, int index, AppFlowyGroupItem item) {
+    getGroupController(groupId)?.insert(index, item);
   }
 
-  void removeColumnItem(String columnId, String itemId) {
-    getColumnController(columnId)?.removeWhere((item) => item.id == itemId);
+  /// Removes the item with id [itemId] from the group
+  ///
+  /// It will do nothing if the group with id [groupId] is not exist
+  void removeGroupItem(String groupId, String itemId) {
+    getGroupController(groupId)?.removeWhere((item) => item.id == itemId);
   }
 
-  void updateColumnItem(String columnId, AFColumnItem item) {
-    getColumnController(columnId)?.replaceOrInsertItem(item);
+  /// Replaces or inserts the [AppFlowyGroupItem] to the end of the group.
+  ///
+  /// If the group with id [groupId] is not exist, this method will do nothing.
+  void updateGroupItem(String groupId, AppFlowyGroupItem item) {
+    getGroupController(groupId)?.replaceOrInsertItem(item);
   }
 
+  /// Moves the item at [fromGroupIndex] in group with id [fromGroupId] to
+  /// group with id [toGroupId] at [toGroupIndex]
   @override
   @protected
-  void swapColumnItem(
-    String fromColumnId,
-    int fromColumnIndex,
-    String toColumnId,
-    int toColumnIndex,
+  void moveGroupItemToAnotherGroup(
+    String fromGroupId,
+    int fromGroupIndex,
+    String toGroupId,
+    int toGroupIndex,
   ) {
-    final fromColumnController = getColumnController(fromColumnId)!;
-    final toColumnController = getColumnController(toColumnId)!;
-    final item = fromColumnController.removeAt(fromColumnIndex);
-    if (toColumnController.items.length > toColumnIndex) {
-      assert(toColumnController.items[toColumnIndex] is PhantomColumnItem);
+    final fromGroupController = getGroupController(fromGroupId)!;
+    final toGroupController = getGroupController(toGroupId)!;
+    final fromGroupItem = fromGroupController.removeAt(fromGroupIndex);
+    if (toGroupController.items.length > toGroupIndex) {
+      assert(toGroupController.items[toGroupIndex] is PhantomGroupItem);
     }
 
-    toColumnController.replace(toColumnIndex, item);
-    onMoveColumnItemToColumn?.call(
-      fromColumnId,
-      fromColumnIndex,
-      toColumnId,
-      toColumnIndex,
+    toGroupController.replace(toGroupIndex, fromGroupItem);
+    onMoveGroupItemToGroup?.call(
+      fromGroupId,
+      fromGroupIndex,
+      toGroupId,
+      toGroupIndex,
     );
   }
 
   @override
   List<Object?> get props {
-    return [_columnDatas];
+    return [_groupDatas];
   }
 
   @override
-  AFBoardColumnDataController? controller(String columnId) {
-    return _columnControllers[columnId];
+  AppFlowyGroupController? controller(String groupId) {
+    return _groupControllers[groupId];
   }
 
   @override
-  String get identifier => '$AFBoardDataController';
+  String get identifier => '$AppFlowyBoardController';
 
   @override
   UnmodifiableListView<ReoderFlexItem> get items =>
-      UnmodifiableListView(_columnDatas);
+      UnmodifiableListView(_groupDatas);
 
   @override
   @protected
-  bool removePhantom(String columnId) {
-    final columnController = getColumnController(columnId);
-    if (columnController == null) {
-      Log.warn('Can not find the column controller with columnId: $columnId');
+  bool removePhantom(String groupId) {
+    final groupController = getGroupController(groupId);
+    if (groupController == null) {
+      Log.warn('Can not find the group controller with groupId: $groupId');
       return false;
     }
-    final index = columnController.items.indexWhere((item) => item.isPhantom);
+    final index = groupController.items.indexWhere((item) => item.isPhantom);
     final isExist = index != -1;
     if (isExist) {
-      columnController.removeAt(index);
+      groupController.removeAt(index);
 
       Log.debug(
-          '[$AFBoardDataController] Column:[$columnId] remove phantom, current count: ${columnController.items.length}');
+          '[$AppFlowyBoardController] Group:[$groupId] remove phantom, current count: ${groupController.items.length}');
     }
     return isExist;
   }
 
   @override
   @protected
-  void updatePhantom(String columnId, int newIndex) {
-    final columnDataController = getColumnController(columnId)!;
-    final index =
-        columnDataController.items.indexWhere((item) => item.isPhantom);
+  void updatePhantom(String groupId, int newIndex) {
+    final groupController = getGroupController(groupId)!;
+    final index = groupController.items.indexWhere((item) => item.isPhantom);
 
     if (index != -1) {
       if (index != newIndex) {
         Log.trace(
-            '[$BoardPhantomController] update $columnId:$index to $columnId:$newIndex');
-        final item = columnDataController.removeAt(index, notify: false);
-        columnDataController.insert(newIndex, item, notify: false);
+            '[$BoardPhantomController] update $groupId:$index to $groupId:$newIndex');
+        final item = groupController.removeAt(index, notify: false);
+        groupController.insert(newIndex, item, notify: false);
       }
     }
   }
 
   @override
   @protected
-  void insertPhantom(String columnId, int index, PhantomColumnItem item) {
-    getColumnController(columnId)!.insert(index, item);
+  void insertPhantom(String groupId, int index, PhantomGroupItem item) {
+    getGroupController(groupId)!.insert(index, item);
   }
 }
