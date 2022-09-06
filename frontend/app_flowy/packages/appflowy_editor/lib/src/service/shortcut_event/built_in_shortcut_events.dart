@@ -17,58 +17,92 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ShortcutEvent(
     key: 'Move cursor up',
     command: 'arrow up',
-    handler: arrowKeysHandler,
+    handler: cursorUp,
   ),
   ShortcutEvent(
     key: 'Move cursor down',
     command: 'arrow down',
-    handler: arrowKeysHandler,
+    handler: cursorDown,
   ),
   ShortcutEvent(
     key: 'Move cursor left',
     command: 'arrow left',
-    handler: arrowKeysHandler,
+    handler: cursorLeft,
   ),
   ShortcutEvent(
     key: 'Move cursor right',
     command: 'arrow right',
-    handler: arrowKeysHandler,
+    handler: cursorRight,
+  ),
+  ShortcutEvent(
+    key: 'Cursor up select',
+    command: 'shift+arrow up',
+    handler: cursorUpSelect,
+  ),
+  ShortcutEvent(
+    key: 'Cursor down select',
+    command: 'shift+arrow down',
+    handler: cursorDownSelect,
+  ),
+  ShortcutEvent(
+    key: 'Cursor left select',
+    command: 'shift+arrow left',
+    handler: cursorLeftSelect,
+  ),
+  ShortcutEvent(
+    key: 'Cursor right select',
+    command: 'shift+arrow right',
+    handler: cursorRightSelect,
+  ),
+  ShortcutEvent(
+    key: 'Move cursor top',
+    command: 'meta+arrow up',
+    windowsCommand: 'ctrl+arrow up',
+    handler: cursorBegin,
+  ),
+  ShortcutEvent(
+    key: 'Move cursor bottom',
+    command: 'meta+arrow down',
+    windowsCommand: 'ctrl+arrow down',
+    handler: cursorBottom,
+  ),
+  ShortcutEvent(
+    key: 'Move cursor begin',
+    command: 'meta+arrow left',
+    windowsCommand: 'ctrl+arrow left',
+    handler: cursorBegin,
+  ),
+  ShortcutEvent(
+    key: 'Move cursor end',
+    command: 'meta+arrow right',
+    windowsCommand: 'ctrl+arrow right',
+    handler: cursorEnd,
+  ),
+  ShortcutEvent(
+    key: 'Cursor top select',
+    command: 'meta+shift+arrow up',
+    windowsCommand: 'ctrl+shift+arrow up',
+    handler: cursorTopSelect,
+  ),
+  ShortcutEvent(
+    key: 'Cursor bottom select',
+    command: 'meta+shift+arrow down',
+    windowsCommand: 'ctrl+shift+arrow down',
+    handler: cursorBottomSelect,
+  ),
+  ShortcutEvent(
+    key: 'Cursor begin select',
+    command: 'meta+shift+arrow left',
+    windowsCommand: 'ctrl+shift+arrow left',
+    handler: cursorBeginSelect,
+  ),
+  ShortcutEvent(
+    key: 'Cursor end select',
+    command: 'meta+shift+arrow right',
+    windowsCommand: 'ctrl+shift+arrow right',
+    handler: cursorEndSelect,
   ),
   // TODO: split the keys.
-  ShortcutEvent(
-    key: 'Shift + Arrow Keys',
-    command:
-        'shift+arrow up,shift+arrow down,shift+arrow left,shift+arrow right',
-    handler: arrowKeysHandler,
-  ),
-  ShortcutEvent(
-    key: 'Control + Arrow Keys',
-    command: 'meta+arrow up,meta+arrow down,meta+arrow left,meta+arrow right',
-    windowsCommand:
-        'ctrl+arrow up,ctrl+arrow down,ctrl+arrow left,ctrl+arrow right',
-    macOSCommand: 'cmd+arrow up,cmd+arrow down,cmd+arrow left,cmd+arrow right',
-    handler: arrowKeysHandler,
-  ),
-  ShortcutEvent(
-    key: 'Meta + Shift + Arrow Keys',
-    command:
-        'meta+shift+arrow up,meta+shift+arrow down,meta+shift+arrow left,meta+shift+arrow right',
-    windowsCommand:
-        'ctrl+shift+arrow up,ctrl+shift+arrow down,ctrl+shift+arrow left,ctrl+shift+arrow right',
-    macOSCommand:
-        'cmd+shift+arrow up,cmd+shift+arrow down,cmd+shift+arrow left,cmd+shift+arrow right',
-    handler: arrowKeysHandler,
-  ),
-  ShortcutEvent(
-    key: 'Meta + Shift + Arrow Keys',
-    command:
-        'meta+shift+arrow up,meta+shift+arrow down,meta+shift+arrow left,meta+shift+arrow right',
-    windowsCommand:
-        'ctrl+shift+arrow up,ctrl+shift+arrow down,ctrl+shift+arrow left,ctrl+shift+arrow right',
-    macOSCommand:
-        'cmd+shift+arrow up,cmd+shift+arrow down,cmd+shift+arrow left,cmd+shift+arrow right',
-    handler: arrowKeysHandler,
-  ),
   ShortcutEvent(
     key: 'Delete Text',
     command: 'delete,backspace',
