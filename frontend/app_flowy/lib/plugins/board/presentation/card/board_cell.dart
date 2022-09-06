@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:flowy_infra/notifier.dart';
+import 'package:flutter/material.dart';
 
 abstract class FocusableBoardCell {
   set becomeFocus(bool isFocus);
@@ -10,7 +11,16 @@ class EditableCellNotifier {
 
   final Notifier resignFirstResponder = Notifier();
 
-  EditableCellNotifier();
+  final ValueNotifier<bool> isCellEditing;
+
+  EditableCellNotifier({bool isEditing = false})
+      : isCellEditing = ValueNotifier(isEditing);
+
+  void dispose() {
+    becomeFirstResponder.dispose();
+    resignFirstResponder.dispose();
+    isCellEditing.dispose();
+  }
 }
 
 class EditableRowNotifier {
@@ -20,6 +30,11 @@ class EditableRowNotifier {
     GridCellIdentifier cellIdentifier,
     EditableCellNotifier notifier,
   ) {
+    final id = EditableCellId.from(cellIdentifier);
+    _cells[id]?.dispose();
+
+    notifier.isCellEditing.addListener(() {});
+
     _cells[EditableCellId.from(cellIdentifier)] = notifier;
   }
 
@@ -36,6 +51,9 @@ class EditableRowNotifier {
   }
 
   void clear() {
+    for (final notifier in _cells.values) {
+      notifier.dispose();
+    }
     _cells.clear();
   }
 

@@ -9,7 +9,6 @@ import 'define.dart';
 
 class BoardTextCell extends StatefulWidget with EditableCell {
   final String groupId;
-  final bool isFocus;
   @override
   final EditableCellNotifier? editableNotifier;
   final GridCellControllerBuilder cellControllerBuilder;
@@ -18,7 +17,6 @@ class BoardTextCell extends StatefulWidget with EditableCell {
     required this.groupId,
     required this.cellControllerBuilder,
     this.editableNotifier,
-    this.isFocus = false,
     Key? key,
   }) : super(key: key);
 
@@ -39,21 +37,16 @@ class _BoardTextCellState extends State<BoardTextCell> {
     _cellBloc = BoardTextCellBloc(cellController: cellController)
       ..add(const BoardTextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    focusWhenInit = widget.isFocus;
-
-    if (widget.isFocus) {
+    focusWhenInit = widget.editableNotifier?.isCellEditing.value ?? false;
+    if (focusWhenInit) {
       focusNode.requestFocus();
     }
 
     focusNode.addListener(() {
       if (!focusNode.hasFocus) {
+        focusWhenInit = false;
+        widget.editableNotifier?.isCellEditing.value = false;
         _cellBloc.add(const BoardTextCellEvent.enableEdit(false));
-
-        if (focusWhenInit) {
-          setState(() {
-            focusWhenInit = false;
-          });
-        }
       }
     });
     _bindEditableNotifier();
