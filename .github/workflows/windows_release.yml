@@ -35,7 +35,7 @@ jobs:
     runs-on: windows-latest
     needs: create-release
     env:
-      WINDOWS_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/windows/Release
+      WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows\Release
       WINDOWS_ZIP_NAME: AppFlowy-windows-x86.tar.gz
     steps:
       - name: Checkout
@@ -68,7 +68,7 @@ jobs:
 
       - name: Archive macOS app
         working-directory: ${{ env.WINDOWS_APP_RELEASE_PATH }}
-        run: zip -qr ${{ env.WINDOWS_ZIP_NAME }} ./
+        run: zip -qr ${{ env.WINDOWS_ZIP_NAME }} .
 
       - name: Upload Release Asset
         id: upload-release-asset
@@ -77,6 +77,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.WINDOWS_APP_RELEASE_PATH }}/${{ env.WINDOWS_ZIP_NAME }}
+          asset_path: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
           asset_name: ${{ env.WINDOWS_ZIP_NAME }}
           asset_content_type: application/octet-stream
