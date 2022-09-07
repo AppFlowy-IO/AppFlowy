@@ -36,7 +36,7 @@ jobs:
     needs: create-release
     env:
       WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows
-      WINDOWS_ZIP_NAME: AppFlowy-windows-x86.tar.gz
+      WINDOWS_ZIP_NAME: AppFlowy-windows-x86.zip
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -68,8 +68,8 @@ jobs:
 
       - uses: vimtor/action-zip@v1
         with:
-          files: ${{ env.WINDOWS_APP_RELEASE_PATH }}
-          dest: ${{ env.WINDOWS_ZIP_NAME }}
+          files: ${{ env.WINDOWS_APP_RELEASE_PATH }}\
+          dest: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
 
       - name: Upload Release Asset
         id: upload-release-asset
