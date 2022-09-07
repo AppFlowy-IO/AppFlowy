@@ -100,11 +100,7 @@ class SelectOptionTag extends StatelessWidget {
       backgroundColor: color,
       labelPadding: const EdgeInsets.symmetric(horizontal: 6),
       selected: true,
-      onSelected: (_) {
-        if (onSelected != null) {
-          onSelected!();
-        }
-      },
+      onSelected: (_) => onSelected?.call(),
     );
   }
 }
