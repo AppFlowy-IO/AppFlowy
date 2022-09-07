@@ -139,15 +139,3 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
     return onKey(event);
   }
 }
-
-extension on RawKeyEvent {
-  Keybinding get toKeybinding {
-    return Keybinding(
-      isAltPressed: isAltPressed,
-      isControlPressed: isControlPressed,
-      isMetaPressed: isMetaPressed,
-      isShiftPressed: isShiftPressed,
-      keyLabel: logicalKey.keyLabel,
-    );
-  }
-}
