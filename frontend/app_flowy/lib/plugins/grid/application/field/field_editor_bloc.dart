@@ -35,7 +35,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(name: name));
           },
           didReceiveFieldChanged: (FieldPB field) {
-            emit(state.copyWith(field: Some(field)));
+            emit(state.copyWith(field: Some(field), name: field.name));
           },
         );
       },
