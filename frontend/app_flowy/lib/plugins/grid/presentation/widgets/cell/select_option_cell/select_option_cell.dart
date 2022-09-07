@@ -183,9 +183,10 @@ class SelectOptionWrap extends StatelessWidget {
         InkWell(onTap: () {
           onFocus?.call(true);
           SelectOptionCellEditor.show(
-            context,
-            cellControllerBuilder.build() as GridSelectOptionCellController,
-            () => onFocus?.call(false),
+            context: context,
+            cellController:
+                cellControllerBuilder.build() as GridSelectOptionCellController,
+            onDismissed: () => onFocus?.call(false),
           );
         }),
       ],
