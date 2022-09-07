@@ -35,7 +35,7 @@ jobs:
     runs-on: windows-latest
     needs: create-release
     env:
-      WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows\Release
+      WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows
       WINDOWS_ZIP_NAME: AppFlowy-windows-x86.tar.gz
     steps:
       - name: Checkout
@@ -66,9 +66,11 @@ jobs:
           flutter config --enable-windows-desktop
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-windows-x86 appflowy
 
-      - name: Archive macOS app
+      - name: Archive windows app
         working-directory: ${{ env.WINDOWS_APP_RELEASE_PATH }}
-        run: zip -qr ${{ env.WINDOWS_ZIP_NAME }} .
+        run: |
+          ls -a
+          zip -qr ${{ env.WINDOWS_ZIP_NAME }} AppFlowy
 
       - name: Upload Release Asset
         id: upload-release-asset
