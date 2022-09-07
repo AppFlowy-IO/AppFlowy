@@ -13,12 +13,14 @@ import 'field_type_option_editor.dart';
 class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
   final String gridId;
   final String fieldName;
+  final VoidCallback? onRemoved;
 
   final IFieldTypeOptionLoader typeOptionLoader;
   const FieldEditor({
     required this.gridId,
-    required this.fieldName,
+    this.fieldName = "",
     required this.typeOptionLoader,
+    this.onRemoved,
     Key? key,
   }) : super(key: key);
 
@@ -73,6 +75,9 @@ class FieldEditor extends StatelessWidget with FlowyOverlayDelegate {
 
   @override
   bool asBarrier() => true;
+
+  @override
+  void didRemove() => onRemoved?.call();
 }
 
 class _FieldTypeOptionCell extends StatelessWidget {
