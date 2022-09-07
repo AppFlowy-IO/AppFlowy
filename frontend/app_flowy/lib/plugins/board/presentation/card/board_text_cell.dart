@@ -54,17 +54,16 @@ class _BoardTextCellState extends State<BoardTextCell> {
   }
 
   void _bindEditableNotifier() {
-    widget.editableNotifier?.becomeFirstResponder.addListener(() {
+    widget.editableNotifier?.isCellEditing.addListener(() {
       if (!mounted) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        focusNode.requestFocus();
-      });
-      _cellBloc.add(const BoardTextCellEvent.enableEdit(true));
-    });
 
-    widget.editableNotifier?.resignFirstResponder.addListener(() {
-      if (!mounted) return;
-      _cellBloc.add(const BoardTextCellEvent.enableEdit(false));
+      final isEditing = widget.editableNotifier?.isCellEditing.value ?? false;
+      if (isEditing) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          focusNode.requestFocus();
+        });
+      }
+      _cellBloc.add(BoardTextCellEvent.enableEdit(isEditing));
     });
   }
 

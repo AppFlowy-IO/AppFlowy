@@ -7,7 +7,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-
 import 'card_data_controller.dart';
 
 part 'card_bloc.freezed.dart';
@@ -21,6 +20,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     required this.groupFieldId,
     required String gridId,
     required CardDataController dataController,
+    required bool isEditing,
   })  : _rowService = RowFFIService(
           gridId: gridId,
           blockId: dataController.rowPB.blockId,
@@ -30,6 +30,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
           BoardCardState.initial(
             dataController.rowPB,
             _makeCells(groupFieldId, dataController.loadData()),
+            isEditing,
           ),
         ) {
     on<BoardCardEvent>(
@@ -43,6 +44,9 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
               cells: cells,
               changeReason: reason,
             ));
+          },
+          setIsEditing: (bool isEditing) {
+            emit(state.copyWith(isEditing: isEditing));
           },
         );
       },
@@ -92,6 +96,7 @@ List<BoardCellEquatable> _makeCells(
 @freezed
 class BoardCardEvent with _$BoardCardEvent {
   const factory BoardCardEvent.initial() = _InitialRow;
+  const factory BoardCardEvent.setIsEditing(bool isEditing) = _IsEditing;
   const factory BoardCardEvent.didReceiveCells(
     List<BoardCellEquatable> cells,
     RowsChangedReason reason,
@@ -103,13 +108,19 @@ class BoardCardState with _$BoardCardState {
   const factory BoardCardState({
     required RowPB rowPB,
     required List<BoardCellEquatable> cells,
+    required bool isEditing,
     RowsChangedReason? changeReason,
   }) = _BoardCardState;
 
-  factory BoardCardState.initial(RowPB rowPB, List<BoardCellEquatable> cells) =>
+  factory BoardCardState.initial(
+    RowPB rowPB,
+    List<BoardCellEquatable> cells,
+    bool isEditing,
+  ) =>
       BoardCardState(
         rowPB: rowPB,
         cells: cells,
+        isEditing: isEditing,
       );
 }
 

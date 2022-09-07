@@ -1,5 +1,4 @@
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
-import 'package:flowy_infra/notifier.dart';
 import 'package:flutter/material.dart';
 
 abstract class FocusableBoardCell {
@@ -7,47 +6,57 @@ abstract class FocusableBoardCell {
 }
 
 class EditableCellNotifier {
-  final Notifier becomeFirstResponder = Notifier();
-
-  final Notifier resignFirstResponder = Notifier();
-
   final ValueNotifier<bool> isCellEditing;
 
   EditableCellNotifier({bool isEditing = false})
       : isCellEditing = ValueNotifier(isEditing);
 
   void dispose() {
-    becomeFirstResponder.dispose();
-    resignFirstResponder.dispose();
     isCellEditing.dispose();
   }
 }
 
 class EditableRowNotifier {
   final Map<EditableCellId, EditableCellNotifier> _cells = {};
+  final ValueNotifier<bool> isEditing;
+
+  EditableRowNotifier({required bool isEditing})
+      : isEditing = ValueNotifier(isEditing);
 
   void insertCell(
     GridCellIdentifier cellIdentifier,
     EditableCellNotifier notifier,
   ) {
+    assert(
+      _cells.values.isEmpty,
+      'Only one cell can receive the notification',
+    );
     final id = EditableCellId.from(cellIdentifier);
     _cells[id]?.dispose();
 
-    notifier.isCellEditing.addListener(() {});
+    notifier.isCellEditing.addListener(() {
+      isEditing.value = notifier.isCellEditing.value;
+    });
 
     _cells[EditableCellId.from(cellIdentifier)] = notifier;
   }
 
   void becomeFirstResponder() {
-    for (final notifier in _cells.values) {
-      notifier.becomeFirstResponder.notify();
-    }
+    if (_cells.values.isEmpty) return;
+    assert(
+      _cells.values.length == 1,
+      'Only one cell can receive the notification',
+    );
+    _cells.values.first.isCellEditing.value = true;
   }
 
   void resignFirstResponder() {
-    for (final notifier in _cells.values) {
-      notifier.resignFirstResponder.notify();
-    }
+    if (_cells.values.isEmpty) return;
+    assert(
+      _cells.values.length == 1,
+      'Only one cell can receive the notification',
+    );
+    _cells.values.first.isCellEditing.value = false;
   }
 
   void clear() {
@@ -59,7 +68,7 @@ class EditableRowNotifier {
 
   void dispose() {
     for (final notifier in _cells.values) {
-      notifier.resignFirstResponder.notify();
+      notifier.dispose();
     }
 
     _cells.clear();

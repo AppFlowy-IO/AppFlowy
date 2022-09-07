@@ -42,12 +42,19 @@ class _BoardCardState extends State<BoardCard> {
 
   @override
   void initState() {
-    rowNotifier = EditableRowNotifier();
+    rowNotifier = EditableRowNotifier(isEditing: widget.isEditing);
     _cardBloc = BoardCardBloc(
       gridId: widget.gridId,
       groupFieldId: widget.fieldId,
       dataController: widget.dataController,
+      isEditing: widget.isEditing,
     )..add(const BoardCardEvent.initial());
+
+    rowNotifier.isEditing.addListener(() {
+      if (!mounted) return;
+      _cardBloc.add(BoardCardEvent.setIsEditing(rowNotifier.isEditing.value));
+    });
+
     super.initState();
   }
 
@@ -57,13 +64,15 @@ class _BoardCardState extends State<BoardCard> {
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
         buildWhen: (previous, current) {
-          if (previous.cells.length != current.cells.length) {
+          if (previous.cells.length != current.cells.length ||
+              previous.isEditing != current.isEditing) {
             return true;
           }
           return !listEquals(previous.cells, current.cells);
         },
         builder: (context, state) {
           return BoardCardContainer(
+            buildAccessoryWhen: () => state.isEditing == false,
             accessoryBuilder: (context) {
               return [
                 _CardEditOption(
@@ -98,7 +107,11 @@ class _BoardCardState extends State<BoardCard> {
       (int index, GridCellIdentifier cellId) {
         EditableCellNotifier cellNotifier;
         if (index == 0) {
-          cellNotifier = EditableCellNotifier(isEditing: widget.isEditing);
+          // Only use the first cell to receive user's input when click the edit
+          // button
+          cellNotifier = EditableCellNotifier(
+            isEditing: rowNotifier.isEditing.value,
+          );
           rowNotifier.insertCell(cellId, cellNotifier);
         } else {
           cellNotifier = EditableCellNotifier();
