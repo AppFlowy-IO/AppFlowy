@@ -8,3 +8,5 @@ export 'src/keyboard/keyboard_visibility_detector.dart';
 export 'src/flowy_overlay/flowy_overlay.dart';
 export 'src/flowy_overlay/list_overlay.dart';
 export 'src/flowy_overlay/option_overlay.dart';
+export 'src/flowy_overlay/flowy_dialog.dart';
+export 'src/flowy_overlay/flowy_popover.dart';

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
@@ -82,11 +84,19 @@ Future<void> _testUpdateTextStyleByCommandX(
   var selection =
       Selection.single(path: [1], startOffset: 2, endOffset: text.length - 2);
   await editor.updateSelection(selection);
-  await editor.pressLogicKey(
-    key,
-    isShiftPressed: isShiftPressed,
-    isMetaPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isMetaPressed: true,
+    );
+  }
   var textNode = editor.nodeAtPath([1]) as TextNode;
   expect(
       textNode.allSatisfyInSelection(
@@ -101,11 +111,19 @@ Future<void> _testUpdateTextStyleByCommandX(
   selection =
       Selection.single(path: [1], startOffset: 0, endOffset: text.length);
   await editor.updateSelection(selection);
-  await editor.pressLogicKey(
-    key,
-    isShiftPressed: isShiftPressed,
-    isMetaPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isMetaPressed: true,
+    );
+  }
   textNode = editor.nodeAtPath([1]) as TextNode;
   expect(
       textNode.allSatisfyInSelection(
@@ -118,11 +136,19 @@ Future<void> _testUpdateTextStyleByCommandX(
       true);
 
   await editor.updateSelection(selection);
-  await editor.pressLogicKey(
-    key,
-    isShiftPressed: isShiftPressed,
-    isMetaPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isMetaPressed: true,
+    );
+  }
   textNode = editor.nodeAtPath([1]) as TextNode;
   expect(textNode.allNotSatisfyInSelection(matchStyle, matchValue, selection),
       true);
@@ -132,11 +158,19 @@ Future<void> _testUpdateTextStyleByCommandX(
     end: Position(path: [2], offset: text.length),
   );
   await editor.updateSelection(selection);
-  await editor.pressLogicKey(
-    key,
-    isShiftPressed: isShiftPressed,
-    isMetaPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isMetaPressed: true,
+    );
+  }
   var nodes = editor.editorState.service.selectionService.currentSelectedNodes
       .whereType<TextNode>();
   expect(nodes.length, 3);
@@ -158,11 +192,20 @@ Future<void> _testUpdateTextStyleByCommandX(
   }
 
   await editor.updateSelection(selection);
-  await editor.pressLogicKey(
-    key,
-    isShiftPressed: isShiftPressed,
-    isMetaPressed: true,
-  );
+
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      key,
+      isShiftPressed: isShiftPressed,
+      isMetaPressed: true,
+    );
+  }
   nodes = editor.editorState.service.selectionService.currentSelectedNodes
       .whereType<TextNode>();
   expect(nodes.length, 3);
@@ -196,8 +239,11 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
   expect(find.byType(ToolbarWidget), findsOneWidget);
 
   // trigger the link menu
-  await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
-
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isControlPressed: true);
+  } else {
+    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+  }
   expect(find.byType(LinkMenu), findsOneWidget);
 
   await tester.enterText(find.byType(TextField), link);
@@ -216,7 +262,11 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
       true);
 
   await editor.updateSelection(selection);
-  await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isControlPressed: true);
+  } else {
+    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+  }
   expect(find.byType(LinkMenu), findsOneWidget);
   expect(
       find.text(link, findRichText: true, skipOffstage: false), findsOneWidget);
@@ -229,7 +279,11 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
   expect(find.byType(LinkMenu), findsNothing);
 
   // Remove link
-  await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isControlPressed: true);
+  } else {
+    await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
+  }
   final removeLink = find.text('Remove link');
   expect(removeLink, findsOneWidget);
   await tester.tap(removeLink);

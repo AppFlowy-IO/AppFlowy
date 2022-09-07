@@ -49,8 +49,8 @@ class ReorderFlexConfig {
   /// Determines if setSatte method needs to be called when the drag is complete.
   /// Default value is [true].
   ///
-  /// If the [ReorderFlex] will be rebuild after the [ReorderFlex]'s children
-  /// were changed, then the [setStateWhenEndDrag] should set to [false].
+  /// If the [ReorderFlex] needs to be rebuild after the [ReorderFlex] end dragging,
+  /// the [setStateWhenEndDrag] should set to [true].
   final bool setStateWhenEndDrag;
 
   final bool useMoveAnimation;
@@ -252,7 +252,7 @@ class ReorderFlexState extends State<ReorderFlex>
       }
 
       Log.trace(
-          'Rebuild: Column:[${dragState.reorderFlexId}] ${dragState.toString()}, childIndex: $childIndex shiftedIndex: $shiftedIndex');
+          'Rebuild: Group:[${dragState.reorderFlexId}] ${dragState.toString()}, childIndex: $childIndex shiftedIndex: $shiftedIndex');
       final currentIndex = dragState.currentIndex;
       final dragPhantomIndex = dragState.phantomIndex;
 
@@ -368,7 +368,7 @@ class ReorderFlexState extends State<ReorderFlex>
       ),
       onDragStarted: (draggingWidget, draggingIndex, size) {
         Log.debug(
-            "[DragTarget] Column:[${widget.dataSource.identifier}] start dragging item at $draggingIndex");
+            "[DragTarget] Group:[${widget.dataSource.identifier}] start dragging item at $draggingIndex");
         _startDragging(draggingWidget, draggingIndex, size);
         widget.onDragStarted?.call(draggingIndex);
         widget.dragStateStorage?.remove(widget.reorderFlexId);
@@ -379,7 +379,7 @@ class ReorderFlexState extends State<ReorderFlex>
       onDragEnded: (dragTargetData) {
         if (!mounted) return;
         Log.debug(
-            "[DragTarget]: Column:[${widget.dataSource.identifier}] end dragging");
+            "[DragTarget]: Group:[${widget.dataSource.identifier}] end dragging");
         _notifier.updateDragTargetIndex(-1);
 
         onDragEnded() {

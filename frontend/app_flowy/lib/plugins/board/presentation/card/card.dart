@@ -5,6 +5,7 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_action_sheet
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'board_cell.dart';
@@ -41,12 +42,19 @@ class _BoardCardState extends State<BoardCard> {
 
   @override
   void initState() {
-    rowNotifier = EditableRowNotifier();
+    rowNotifier = EditableRowNotifier(isEditing: widget.isEditing);
     _cardBloc = BoardCardBloc(
       gridId: widget.gridId,
-      fieldId: widget.fieldId,
+      groupFieldId: widget.fieldId,
       dataController: widget.dataController,
+      isEditing: widget.isEditing,
     )..add(const BoardCardEvent.initial());
+
+    rowNotifier.isEditing.addListener(() {
+      if (!mounted) return;
+      _cardBloc.add(BoardCardEvent.setIsEditing(rowNotifier.isEditing.value));
+    });
+
     super.initState();
   }
 
@@ -56,10 +64,15 @@ class _BoardCardState extends State<BoardCard> {
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
         buildWhen: (previous, current) {
-          return previous.cells.length != current.cells.length;
+          if (previous.cells.length != current.cells.length ||
+              previous.isEditing != current.isEditing) {
+            return true;
+          }
+          return !listEquals(previous.cells, current.cells);
         },
         builder: (context, state) {
           return BoardCardContainer(
+            buildAccessoryWhen: () => state.isEditing == false,
             accessoryBuilder: (context) {
               return [
                 _CardEditOption(
@@ -89,19 +102,26 @@ class _BoardCardState extends State<BoardCard> {
     List<GridCellIdentifier> cells,
   ) {
     final List<Widget> children = [];
+    rowNotifier.clear();
     cells.asMap().forEach(
       (int index, GridCellIdentifier cellId) {
-        final cellNotifier = EditableCellNotifier();
+        EditableCellNotifier cellNotifier;
+        if (index == 0) {
+          // Only use the first cell to receive user's input when click the edit
+          // button
+          cellNotifier = EditableCellNotifier(
+            isEditing: rowNotifier.isEditing.value,
+          );
+          rowNotifier.insertCell(cellId, cellNotifier);
+        } else {
+          cellNotifier = EditableCellNotifier();
+        }
+
         Widget child = widget.cellBuilder.buildCell(
           widget.groupId,
           cellId,
-          widget.isEditing,
           cellNotifier,
         );
-
-        if (index == 0) {
-          rowNotifier.insertCell(cellId, cellNotifier);
-        }
 
         child = Padding(
           key: cellId.key(),

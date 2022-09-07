@@ -15,6 +15,7 @@ use std::sync::Arc;
 // a new row.
 pub trait GroupController: GroupControllerSharedOperation + Send + Sync {
     fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
+    fn did_create_row(&mut self, row_pb: &RowPB, group_id: &str);
 }
 
 pub trait GroupGenerator {
@@ -181,7 +182,13 @@ where
     }
 
     fn groups(&self) -> Vec<Group> {
-        self.group_ctx.clone_groups()
+        if self.use_default_group() {
+            let mut groups: Vec<Group> = self.group_ctx.concrete_groups().into_iter().cloned().collect();
+            groups.push(self.group_ctx.default_group().clone());
+            groups
+        } else {
+            self.group_ctx.concrete_groups().into_iter().cloned().collect()
+        }
     }
 
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
@@ -242,7 +249,7 @@ where
             let cell_data = cell_bytes.parser::<P>()?;
             let mut changesets = self.add_row_if_match(row_rev, &cell_data);
             let default_group_changeset = self.update_default_group(row_rev, &changesets);
-            tracing::info!("default_group_changeset: {}", default_group_changeset);
+            tracing::trace!("default_group_changeset: {}", default_group_changeset);
             if !default_group_changeset.is_empty() {
                 changesets.push(default_group_changeset);
             }

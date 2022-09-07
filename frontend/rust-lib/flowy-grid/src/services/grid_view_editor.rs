@@ -96,6 +96,8 @@ impl GridViewRevisionEditor {
                     None => Some(0),
                     Some(_) => None,
                 };
+
+                self.group_controller.write().await.did_create_row(row_pb, group_id);
                 let inserted_row = InsertedRowPB {
                     row: row_pb.clone(),
                     index,

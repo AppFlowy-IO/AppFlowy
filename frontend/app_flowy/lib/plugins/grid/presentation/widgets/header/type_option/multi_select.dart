@@ -1,6 +1,7 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/multi_select_type_option.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy_popover/popover.dart';
 
 import '../field_type_option_editor.dart';
 import 'builder.dart';
@@ -11,14 +12,14 @@ class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
   MultiSelectTypeOptionWidgetBuilder(
     MultiSelectTypeOptionContext typeOptionContext,
-    TypeOptionOverlayDelegate overlayDelegate,
+    PopoverMutex popoverMutex,
   ) : _widget = MultiSelectTypeOptionWidget(
           selectOptionAction: MultiSelectAction(
             fieldId: typeOptionContext.fieldId,
             gridId: typeOptionContext.gridId,
             typeOptionContext: typeOptionContext,
           ),
-          overlayDelegate: overlayDelegate,
+          popoverMutex: popoverMutex,
         );
 
   @override
@@ -27,20 +28,22 @@ class MultiSelectTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
 
 class MultiSelectTypeOptionWidget extends TypeOptionWidget {
   final MultiSelectAction selectOptionAction;
-  final TypeOptionOverlayDelegate overlayDelegate;
+  final PopoverMutex? popoverMutex;
 
   const MultiSelectTypeOptionWidget({
-    required this.selectOptionAction,
-    required this.overlayDelegate,
     Key? key,
+    required this.selectOptionAction,
+    this.popoverMutex,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SelectOptionTypeOptionWidget(
       options: selectOptionAction.typeOption.options,
-      beginEdit: () => overlayDelegate.hideOverlay(context),
-      overlayDelegate: overlayDelegate,
+      beginEdit: () {
+        PopoverContainerState.of(context).closeAll();
+      },
+      popoverMutex: popoverMutex,
       typeOptionAction: selectOptionAction,
       // key: ValueKey(state.typeOption.hashCode),
     );

@@ -1,48 +1,48 @@
 import 'phantom_controller.dart';
 import 'package:flutter/material.dart';
 
-class ColumnPhantomState {
-  final _states = <String, ColumnState>{};
+class GroupPhantomState {
+  final _states = <String, GroupState>{};
 
-  void setColumnIsDragging(String columnId, bool isDragging) {
-    _stateWithId(columnId).isDragging = isDragging;
+  void setGroupIsDragging(String groupId, bool isDragging) {
+    _stateWithId(groupId).isDragging = isDragging;
   }
 
-  bool isDragging(String columnId) {
-    return _stateWithId(columnId).isDragging;
+  bool isDragging(String groupId) {
+    return _stateWithId(groupId).isDragging;
   }
 
-  void addColumnListener(String columnId, PassthroughPhantomListener listener) {
-    _stateWithId(columnId).notifier.addListener(
+  void addGroupListener(String groupId, PassthroughPhantomListener listener) {
+    _stateWithId(groupId).notifier.addListener(
           onInserted: (index) => listener.onInserted?.call(index),
           onDeleted: () => listener.onDragEnded?.call(),
         );
   }
 
-  void removeColumnListener(String columnId) {
-    _stateWithId(columnId).notifier.dispose();
-    _states.remove(columnId);
+  void removeGroupListener(String groupId) {
+    _stateWithId(groupId).notifier.dispose();
+    _states.remove(groupId);
   }
 
-  void notifyDidInsertPhantom(String columnId, int index) {
-    _stateWithId(columnId).notifier.insert(index);
+  void notifyDidInsertPhantom(String groupId, int index) {
+    _stateWithId(groupId).notifier.insert(index);
   }
 
-  void notifyDidRemovePhantom(String columnId) {
-    _stateWithId(columnId).notifier.remove();
+  void notifyDidRemovePhantom(String groupId) {
+    _stateWithId(groupId).notifier.remove();
   }
 
-  ColumnState _stateWithId(String columnId) {
-    var state = _states[columnId];
+  GroupState _stateWithId(String groupId) {
+    var state = _states[groupId];
     if (state == null) {
-      state = ColumnState();
-      _states[columnId] = state;
+      state = GroupState();
+      _states[groupId] = state;
     }
     return state;
   }
 }
 
-class ColumnState {
+class GroupState {
   bool isDragging = false;
   final notifier = PassthroughPhantomNotifier();
 }

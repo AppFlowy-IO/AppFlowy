@@ -115,6 +115,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.keyB) {
       return PhysicalKeyboardKey.keyB;
     }
+    if (this == LogicalKeyboardKey.keyC) {
+      return PhysicalKeyboardKey.keyC;
+    }
     if (this == LogicalKeyboardKey.keyI) {
       return PhysicalKeyboardKey.keyI;
     }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,20 +43,35 @@ Future<void> _testBackspaceUndoRedo(
   await editor.pressLogicKey(LogicalKeyboardKey.backspace);
   expect(editor.documentLength, 2);
 
-  await editor.pressLogicKey(
-    LogicalKeyboardKey.keyZ,
-    isMetaPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.keyZ,
+      isControlPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.keyZ,
+      isMetaPressed: true,
+    );
+  }
 
   expect(editor.documentLength, 3);
   expect((editor.nodeAtPath([1]) as TextNode).toRawString(), text);
   expect(editor.documentSelection, selection);
 
-  await editor.pressLogicKey(
-    LogicalKeyboardKey.keyZ,
-    isMetaPressed: true,
-    isShiftPressed: true,
-  );
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.keyZ,
+      isControlPressed: true,
+      isShiftPressed: true,
+    );
+  } else {
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.keyZ,
+      isMetaPressed: true,
+      isShiftPressed: true,
+    );
+  }
 
   expect(editor.documentLength, 2);
 }

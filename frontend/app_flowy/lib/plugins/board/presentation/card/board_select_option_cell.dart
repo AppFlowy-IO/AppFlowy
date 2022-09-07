@@ -56,23 +56,23 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
                   (option) => SelectOptionTag.fromOption(
                     context: context,
                     option: option,
+                    onSelected: () {
+                      SelectOptionCellEditor.show(
+                        context: context,
+                        cellController: widget.cellControllerBuilder.build()
+                            as GridSelectOptionCellController,
+                      );
+                    },
                   ),
                 )
                 .toList();
 
             return IntrinsicHeight(
-              child: Stack(
-                alignment: AlignmentDirectional.center,
-                fit: StackFit.expand,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Wrap(spacing: 4, runSpacing: 2, children: children),
-                  ),
-                  _SelectOptionDialog(
-                    controller: widget.cellControllerBuilder.build(),
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: SizedBox.expand(
+                  child: Wrap(spacing: 4, runSpacing: 2, children: children),
+                ),
               ),
             );
           }
@@ -85,25 +85,5 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
   Future<void> dispose() async {
     _cellBloc.close();
     super.dispose();
-  }
-}
-
-class _SelectOptionDialog extends StatelessWidget {
-  final GridSelectOptionCellController _controller;
-  const _SelectOptionDialog({
-    Key? key,
-    required IGridCellController controller,
-  })  : _controller = controller as GridSelectOptionCellController,
-        super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(onTap: () {
-      SelectOptionCellEditor.show(
-        context,
-        _controller,
-        () {},
-      );
-    });
   }
 }

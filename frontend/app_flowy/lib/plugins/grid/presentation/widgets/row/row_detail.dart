@@ -15,6 +15,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:appflowy_popover/popover.dart';
 
 import '../../layout/sizes.dart';
 import '../cell/cell_accessory.dart';
@@ -35,23 +36,6 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
   @override
   State<RowDetailPage> createState() => _RowDetailPageState();
 
-  void show(BuildContext context) async {
-    final windowSize = MediaQuery.of(context).size;
-    final size = windowSize * 0.5;
-    FlowyOverlay.of(context).insertWithRect(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.tight(size),
-        child: this,
-      ),
-      identifier: RowDetailPage.identifier(),
-      anchorPosition: Offset(-size.width / 2.0, -size.height / 2.0),
-      anchorSize: windowSize,
-      anchorDirection: AnchorDirection.center,
-      style: FlowyOverlayStyle(blur: false),
-      delegate: this,
-    );
-  }
-
   static String identifier() {
     return (RowDetailPage).toString();
   }
@@ -60,31 +44,33 @@ class RowDetailPage extends StatefulWidget with FlowyOverlayDelegate {
 class _RowDetailPageState extends State<RowDetailPage> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final bloc = RowDetailBloc(
-          dataController: widget.dataController,
-        );
-        bloc.add(const RowDetailEvent.initial());
-        return bloc;
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 30,
-              child: Row(
-                children: const [Spacer(), _CloseButton()],
+    return FlowyDialog(
+      child: BlocProvider(
+        create: (context) {
+          final bloc = RowDetailBloc(
+            dataController: widget.dataController,
+          );
+          bloc.add(const RowDetailEvent.initial());
+          return bloc;
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 40,
+                child: Row(
+                  children: const [Spacer(), _CloseButton()],
+                ),
               ),
-            ),
-            Expanded(
-              child: _PropertyList(
-                cellBuilder: widget.cellBuilder,
-                viewId: widget.dataController.rowInfo.gridId,
+              Expanded(
+                child: _PropertyList(
+                  cellBuilder: widget.cellBuilder,
+                  viewId: widget.dataController.rowInfo.gridId,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -99,8 +85,9 @@ class _CloseButton extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return FlowyIconButton(
       width: 24,
-      onPressed: () =>
-          FlowyOverlay.of(context).remove(RowDetailPage.identifier()),
+      onPressed: () {
+        FlowyOverlay.pop(context);
+      },
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
       icon: svgWidget("home/close", color: theme.iconColor),
     );
@@ -130,6 +117,7 @@ class _PropertyList extends StatelessWidget {
                 axis: Axis.vertical,
                 controller: _scrollController,
                 barSize: GridSize.scrollBarSize,
+                autoHideScrollbar: false,
                 child: ListView.separated(
                   controller: _scrollController,
                   itemCount: state.gridCells.length,
@@ -145,7 +133,27 @@ class _PropertyList extends StatelessWidget {
                 ),
               ),
             ),
-            _CreateFieldButton(viewId: viewId),
+            _CreateFieldButton(
+              viewId: viewId,
+              onClosed: () {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.ease,
+                  );
+                });
+              },
+              onOpened: () {
+                return OverlayContainer(
+                  constraints: BoxConstraints.loose(const Size(240, 200)),
+                  child: FieldEditor(
+                    gridId: viewId,
+                    typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
+                  ),
+                );
+              },
+            ),
           ],
         );
       },
@@ -155,32 +163,41 @@ class _PropertyList extends StatelessWidget {
 
 class _CreateFieldButton extends StatelessWidget {
   final String viewId;
-  const _CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
+  final Widget Function() onOpened;
+  final VoidCallback onClosed;
+  const _CreateFieldButton({
+    required this.viewId,
+    required this.onOpened,
+    required this.onClosed,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
 
-    return SizedBox(
-      height: 40,
-      child: FlowyButton(
-        text: FlowyText.medium(
-          LocaleKeys.grid_field_newColumn.tr(),
-          fontSize: 12,
+    return Popover(
+      triggerActions: PopoverTriggerActionFlags.click,
+      direction: PopoverDirection.bottomWithLeftAligned,
+      onClose: onClosed,
+      child: SizedBox(
+        height: 40,
+        child: FlowyButton(
+          text: FlowyText.medium(
+            LocaleKeys.grid_field_newColumn.tr(),
+            fontSize: 12,
+          ),
+          hoverColor: theme.shader6,
+          onTap: () {},
+          leftIcon: svgWidget("home/add"),
         ),
-        hoverColor: theme.shader6,
-        onTap: () => FieldEditor(
-          gridId: viewId,
-          fieldName: "",
-          typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
-        ).show(context),
-        leftIcon: svgWidget("home/add"),
       ),
+      popupBuilder: (BuildContext context) => onOpened(),
     );
   }
 }
 
-class _RowDetailCell extends StatelessWidget {
+class _RowDetailCell extends StatefulWidget {
   final GridCellIdentifier cellId;
   final GridCellBuilder cellBuilder;
   const _RowDetailCell({
@@ -190,10 +207,17 @@ class _RowDetailCell extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<StatefulWidget> createState() => _RowDetailCellState();
+}
+
+class _RowDetailCellState extends State<_RowDetailCell> {
+  final PopoverController popover = PopoverController();
+
+  @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final style = _customCellStyle(theme, cellId.fieldType);
-    final cell = cellBuilder.build(cellId, style: style);
+    final style = _customCellStyle(theme, widget.cellId.fieldType);
+    final cell = widget.cellBuilder.build(widget.cellId, style: style);
 
     final gesture = GestureDetector(
       behavior: HitTestBehavior.translucent,
@@ -214,9 +238,26 @@ class _RowDetailCell extends StatelessWidget {
           children: [
             SizedBox(
               width: 150,
-              child: FieldCellButton(
-                field: cellId.fieldContext.field,
-                onTap: () => _showFieldEditor(context),
+              child: Popover(
+                controller: popover,
+                offset: const Offset(20, 0),
+                popupBuilder: (context) {
+                  return OverlayContainer(
+                    constraints: BoxConstraints.loose(const Size(240, 200)),
+                    child: FieldEditor(
+                      gridId: widget.cellId.gridId,
+                      fieldName: widget.cellId.fieldContext.field.name,
+                      typeOptionLoader: FieldTypeOptionLoader(
+                        gridId: widget.cellId.gridId,
+                        field: widget.cellId.fieldContext.field,
+                      ),
+                    ),
+                  );
+                },
+                child: FieldCellButton(
+                  field: widget.cellId.fieldContext.field,
+                  onTap: () => popover.show(),
+                ),
               ),
             ),
             const HSpace(10),
@@ -225,17 +266,6 @@ class _RowDetailCell extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _showFieldEditor(BuildContext context) {
-    FieldEditor(
-      gridId: cellId.gridId,
-      fieldName: cellId.fieldContext.name,
-      typeOptionLoader: FieldTypeOptionLoader(
-        gridId: cellId.gridId,
-        field: cellId.fieldContext.field,
-      ),
-    ).show(context);
   }
 }
 

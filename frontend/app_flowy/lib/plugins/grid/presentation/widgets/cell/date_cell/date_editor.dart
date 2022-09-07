@@ -1,6 +1,7 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -23,58 +24,54 @@ final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
 final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
 const kMargin = EdgeInsets.symmetric(horizontal: 6, vertical: 10);
 
-class DateCellEditor with FlowyOverlayDelegate {
+class DateCellEditor extends StatefulWidget {
   final VoidCallback onDismissed;
+  final GridDateCellController cellController;
 
   const DateCellEditor({
+    Key? key,
     required this.onDismissed,
-  });
+    required this.cellController,
+  }) : super(key: key);
 
-  Future<void> show(
-    BuildContext context, {
-    required GridDateCellController cellController,
-  }) async {
-    DateCellEditor.remove(context);
+  @override
+  State<StatefulWidget> createState() => _DateCellEditor();
+}
 
-    final result =
-        await cellController.getFieldTypeOption(DateTypeOptionDataParser());
+class _DateCellEditor extends State<DateCellEditor> {
+  DateTypeOptionPB? _dateTypeOptionPB;
 
-    result.fold(
-      (dateTypeOptionPB) {
-        final calendar = _CellCalendarWidget(
-          cellContext: cellController,
-          dateTypeOptionPB: dateTypeOptionPB,
-        );
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
 
-        FlowyOverlay.of(context).insertWithAnchor(
-          widget: OverlayContainer(
-            constraints: BoxConstraints.loose(const Size(320, 500)),
-            child: calendar,
-          ),
-          identifier: DateCellEditor.identifier(),
-          anchorContext: context,
-          anchorDirection: AnchorDirection.leftWithCenterAligned,
-          style: FlowyOverlayStyle(blur: false),
-          delegate: this,
-        );
-      },
-      (err) => Log.error(err),
+  _fetchData() async {
+    final result = await widget.cellController
+        .getFieldTypeOption(DateTypeOptionDataParser());
+
+    result.fold((dateTypeOptionPB) {
+      setState(() {
+        _dateTypeOptionPB = dateTypeOptionPB;
+      });
+    }, (err) => Log.error(err));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_dateTypeOptionPB == null) {
+      return Container();
+    }
+
+    return OverlayContainer(
+      constraints: BoxConstraints.loose(const Size(320, 500)),
+      child: _CellCalendarWidget(
+        cellContext: widget.cellController,
+        dateTypeOptionPB: _dateTypeOptionPB!,
+      ),
     );
   }
-
-  static void remove(BuildContext context) {
-    FlowyOverlay.of(context).remove(identifier());
-  }
-
-  static String identifier() {
-    return (DateCellEditor).toString();
-  }
-
-  @override
-  void didRemove() => onDismissed();
-
-  @override
-  bool asBarrier() => true;
 }
 
 class _CellCalendarWidget extends StatelessWidget {
@@ -169,17 +166,14 @@ class _CellCalendarWidget extends StatelessWidget {
             );
           },
           onDaySelected: (selectedDay, focusedDay) {
-            _CalDateTimeSetting.hide(context);
             context
                 .read<DateCalBloc>()
                 .add(DateCalEvent.selectDay(selectedDay));
           },
           onFormatChanged: (format) {
-            _CalDateTimeSetting.hide(context);
             context.read<DateCalBloc>().add(DateCalEvent.setCalFormat(format));
           },
           onPageChanged: (focusedDay) {
-            _CalDateTimeSetting.hide(context);
             context
                 .read<DateCalBloc>()
                 .add(DateCalEvent.setFocusedDay(focusedDay));
@@ -247,7 +241,6 @@ class _TimeTextFieldState extends State<_TimeTextField> {
     if (widget.bloc.state.dateTypeOptionPB.includeTime) {
       _focusNode.addListener(() {
         if (mounted) {
-          _CalDateTimeSetting.hide(context);
           widget.bloc.add(DateCalEvent.setTime(_controller.text));
         }
       });
@@ -304,28 +297,33 @@ class _DateTypeOptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final title = "${LocaleKeys.grid_field_dateFormat.tr()} &${LocaleKeys.grid_field_timeFormat.tr()}";
+    final title =
+        "${LocaleKeys.grid_field_dateFormat.tr()} &${LocaleKeys.grid_field_timeFormat.tr()}";
     return BlocSelector<DateCalBloc, DateCalState, DateTypeOptionPB>(
       selector: (state) => state.dateTypeOptionPB,
       builder: (context, dateTypeOptionPB) {
-        return FlowyButton(
-          text: FlowyText.medium(title, fontSize: 12),
-          hoverColor: theme.hover,
-          margin: kMargin,
-          onTap: () => _showTimeSetting(dateTypeOptionPB, context),
-          rightIcon: svgWidget("grid/more", color: theme.iconColor),
+        return Popover(
+          triggerActions:
+              PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+          offset: const Offset(20, 0),
+          child: FlowyButton(
+            text: FlowyText.medium(title, fontSize: 12),
+            hoverColor: theme.hover,
+            margin: kMargin,
+            rightIcon: svgWidget("grid/more", color: theme.iconColor),
+          ),
+          popupBuilder: (BuildContext popContext) {
+            return OverlayContainer(
+              constraints: BoxConstraints.loose(const Size(140, 100)),
+              child: _CalDateTimeSetting(
+                dateTypeOptionPB: dateTypeOptionPB,
+                onEvent: (event) => context.read<DateCalBloc>().add(event),
+              ),
+            );
+          },
         );
       },
     );
-  }
-
-  void _showTimeSetting(
-      DateTypeOptionPB dateTypeOptionPB, BuildContext context) {
-    final setting = _CalDateTimeSetting(
-      dateTypeOptionPB: dateTypeOptionPB,
-      onEvent: (event) => context.read<DateCalBloc>().add(event),
-    );
-    setting.show(context);
   }
 }
 
@@ -338,54 +336,48 @@ class _CalDateTimeSetting extends StatefulWidget {
 
   @override
   State<_CalDateTimeSetting> createState() => _CalDateTimeSettingState();
-
-  static String identifier() {
-    return (_CalDateTimeSetting).toString();
-  }
-
-  void show(BuildContext context) {
-    hide(context);
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(140, 100)),
-        child: this,
-      ),
-      identifier: _CalDateTimeSetting.identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.rightWithCenterAligned,
-      anchorOffset: const Offset(20, 0),
-    );
-  }
-
-  static void hide(BuildContext context) {
-    FlowyOverlay.of(context).remove(identifier());
-  }
 }
 
 class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
   String? overlayIdentifier;
+  final _popoverMutex = PopoverMutex();
 
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [
-      DateFormatButton(onTap: () {
-        final list = DateFormatList(
-          selectedFormat: widget.dateTypeOptionPB.dateFormat,
-          onSelected: (format) =>
-              widget.onEvent(DateCalEvent.setDateFormat(format)),
-        );
-        _showOverlay(context, list);
-      }),
-      TimeFormatButton(
-        timeFormat: widget.dateTypeOptionPB.timeFormat,
-        onTap: () {
-          final list = TimeFormatList(
-            selectedFormat: widget.dateTypeOptionPB.timeFormat,
-            onSelected: (format) =>
-                widget.onEvent(DateCalEvent.setTimeFormat(format)),
+      Popover(
+        mutex: _popoverMutex,
+        triggerActions:
+            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+        offset: const Offset(20, 0),
+        popupBuilder: (BuildContext context) {
+          return OverlayContainer(
+            constraints: BoxConstraints.loose(const Size(460, 440)),
+            child: DateFormatList(
+              selectedFormat: widget.dateTypeOptionPB.dateFormat,
+              onSelected: (format) =>
+                  widget.onEvent(DateCalEvent.setDateFormat(format)),
+            ),
           );
-          _showOverlay(context, list);
         },
+        child: const DateFormatButton(),
+      ),
+      Popover(
+        mutex: _popoverMutex,
+        triggerActions:
+            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+        offset: const Offset(20, 0),
+        popupBuilder: (BuildContext context) {
+          return OverlayContainer(
+            constraints: BoxConstraints.loose(const Size(460, 440)),
+            child: TimeFormatList(
+              selectedFormat: widget.dateTypeOptionPB.timeFormat,
+              onSelected: (format) =>
+                  widget.onEvent(DateCalEvent.setTimeFormat(format)),
+            ),
+          );
+        },
+        child: TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),
       ),
     ];
 
@@ -402,25 +394,6 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
           return children[index];
         },
       ),
-    );
-  }
-
-  void _showOverlay(BuildContext context, Widget child) {
-    if (overlayIdentifier != null) {
-      FlowyOverlay.of(context).remove(overlayIdentifier!);
-    }
-
-    overlayIdentifier = child.toString();
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(460, 440)),
-        child: child,
-      ),
-      identifier: overlayIdentifier!,
-      anchorContext: context,
-      anchorDirection: AnchorDirection.rightWithCenterAligned,
-      style: FlowyOverlayStyle(blur: false),
-      anchorOffset: const Offset(20, 0),
     );
   }
 }

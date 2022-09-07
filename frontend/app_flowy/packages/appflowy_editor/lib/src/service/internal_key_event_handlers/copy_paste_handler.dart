@@ -2,7 +2,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/html_converter.dart';
 import 'package:appflowy_editor/src/document/node_iterator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
 _handleCopy(EditorState editorState) async {
@@ -303,18 +302,17 @@ _deleteSelectedContent(EditorState editorState) {
   tb.commit();
 }
 
-AppFlowyKeyEventHandler copyPasteKeysHandler = (editorState, event) {
-  if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyC) {
-    _handleCopy(editorState);
-    return KeyEventResult.handled;
-  }
-  if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyV) {
-    _handlePaste(editorState);
-    return KeyEventResult.handled;
-  }
-  if (event.isMetaPressed && event.logicalKey == LogicalKeyboardKey.keyX) {
-    _handleCut(editorState);
-    return KeyEventResult.handled;
-  }
-  return KeyEventResult.ignored;
+ShortcutEventHandler copyEventHandler = (editorState, event) {
+  _handleCopy(editorState);
+  return KeyEventResult.handled;
+};
+
+ShortcutEventHandler pasteEventHandler = (editorState, event) {
+  _handlePaste(editorState);
+  return KeyEventResult.handled;
+};
+
+ShortcutEventHandler cutEventHandler = (editorState, event) {
+  _handleCut(editorState);
+  return KeyEventResult.handled;
 };

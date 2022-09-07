@@ -27,12 +27,16 @@ impl GroupAction for CheckboxGroupController {
         Some(CellRevision::new(UNCHECK.to_string()))
     }
 
+    fn use_default_group(&self) -> bool {
+        false
+    }
+
     fn can_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool {
-        return if cell_data.is_check() {
+        if cell_data.is_check() {
             content == CHECK
         } else {
             content == UNCHECK
-        };
+        }
     }
 
     fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
@@ -46,11 +50,9 @@ impl GroupAction for CheckboxGroupController {
                     changeset.inserted_rows.push(InsertedRowPB::new(row_pb.clone()));
                     group.add_row(row_pb);
                 }
-            } else {
-                if is_contained {
-                    changeset.deleted_rows.push(row_rev.id.clone());
-                    group.remove_row(&row_rev.id);
-                }
+            } else if is_contained {
+                changeset.deleted_rows.push(row_rev.id.clone());
+                group.remove_row(&row_rev.id);
             }
             if !changeset.is_empty() {
                 changesets.push(changeset);
@@ -95,6 +97,12 @@ impl GroupController for CheckboxGroupController {
                 let cell_rev = insert_checkbox_cell(is_check, field_rev);
                 row_rev.cells.insert(field_rev.id.clone(), cell_rev);
             }
+        }
+    }
+
+    fn did_create_row(&mut self, row_pb: &RowPB, group_id: &str) {
+        if let Some(group) = self.group_ctx.get_mut_group(group_id) {
+            group.add_row(row_pb.clone())
         }
     }
 }

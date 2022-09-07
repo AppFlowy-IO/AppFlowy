@@ -361,6 +361,10 @@ pub fn is_block_except_header(k: &RichTextAttributeKey) -> bool {
     BLOCK_KEYS.contains(k)
 }
 
+pub fn is_block(k: &RichTextAttributeKey) -> bool {
+    BLOCK_KEYS.contains(k)
+}
+
 lazy_static! {
     static ref BLOCK_KEYS: HashSet<RichTextAttributeKey> = HashSet::from_iter(vec![
         RichTextAttributeKey::Header,

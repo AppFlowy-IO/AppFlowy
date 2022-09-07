@@ -290,5 +290,26 @@ class GridFieldContext {
 
   bool get isGroupField => _isGroupField;
 
+  bool get canGroup {
+    switch (_field.fieldType) {
+      case FieldType.Checkbox:
+        return true;
+      case FieldType.DateTime:
+        return false;
+      case FieldType.MultiSelect:
+        return true;
+      case FieldType.Number:
+        return false;
+      case FieldType.RichText:
+        return false;
+      case FieldType.SingleSelect:
+        return true;
+      case FieldType.URL:
+        return false;
+    }
+
+    return false;
+  }
+
   GridFieldContext({required FieldPB field}) : _field = field;
 }

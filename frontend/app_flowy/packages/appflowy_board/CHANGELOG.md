@@ -1,3 +1,6 @@
+# 0.0.7
+* Rename some classes
+* Add documentation
 # 0.0.6
 * Support scroll to bottom
 * Fix some bugs

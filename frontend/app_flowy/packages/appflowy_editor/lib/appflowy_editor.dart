@@ -23,3 +23,6 @@ export 'src/service/scroll_service.dart';
 export 'src/service/toolbar_service.dart';
 export 'src/service/keyboard_service.dart';
 export 'src/service/input_service.dart';
+export 'src/service/shortcut_event/keybinding.dart';
+export 'src/service/shortcut_event/shortcut_event.dart';
+export 'src/service/shortcut_event/shortcut_event_handler.dart';

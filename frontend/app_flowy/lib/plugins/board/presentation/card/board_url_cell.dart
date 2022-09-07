@@ -4,6 +4,8 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'define.dart';
+
 class BoardUrlCell extends StatefulWidget {
   final String groupId;
   final GridCellControllerBuilder cellControllerBuilder;
@@ -43,14 +45,19 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
           } else {
             return Align(
               alignment: Alignment.centerLeft,
-              child: RichText(
-                textAlign: TextAlign.left,
-                text: TextSpan(
-                  text: state.content,
-                  style: TextStyle(
-                    color: theme.main2,
-                    fontSize: 14,
-                    decoration: TextDecoration.underline,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: BoardSizes.cardCellVPadding,
+                ),
+                child: RichText(
+                  textAlign: TextAlign.left,
+                  text: TextSpan(
+                    text: state.content,
+                    style: TextStyle(
+                      color: theme.main2,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 typedef OnHeaderAddButtonClick = void Function();
 typedef OnHeaderMoreButtonClick = void Function();
 
-class AppFlowyColumnHeader extends StatefulWidget {
+class AppFlowyGroupHeader extends StatefulWidget {
   final double height;
   final Widget? icon;
   final Widget? title;
@@ -13,7 +13,7 @@ class AppFlowyColumnHeader extends StatefulWidget {
   final OnHeaderAddButtonClick? onAddButtonClick;
   final OnHeaderMoreButtonClick? onMoreButtonClick;
 
-  const AppFlowyColumnHeader({
+  const AppFlowyGroupHeader({
     required this.height,
     this.icon,
     this.title,
@@ -26,10 +26,10 @@ class AppFlowyColumnHeader extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AppFlowyColumnHeader> createState() => _AppFlowyColumnHeaderState();
+  State<AppFlowyGroupHeader> createState() => _AppFlowyGroupHeaderState();
 }
 
-class _AppFlowyColumnHeaderState extends State<AppFlowyColumnHeader> {
+class _AppFlowyGroupHeaderState extends State<AppFlowyGroupHeader> {
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [];

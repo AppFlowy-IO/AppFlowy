@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class AppFlowyColumnItemCard extends StatefulWidget {
+class AppFlowyGroupCard extends StatefulWidget {
   final Widget? child;
   final EdgeInsets margin;
   final BoxConstraints boxConstraints;
   final BoxDecoration decoration;
 
-  const AppFlowyColumnItemCard({
+  const AppFlowyGroupCard({
     this.child,
     this.margin = const EdgeInsets.all(4),
     this.decoration = const BoxDecoration(
@@ -18,10 +18,10 @@ class AppFlowyColumnItemCard extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AppFlowyColumnItemCard> createState() => _AppFlowyColumnItemCardState();
+  State<AppFlowyGroupCard> createState() => _AppFlowyGroupCardState();
 }
 
-class _AppFlowyColumnItemCardState extends State<AppFlowyColumnItemCard> {
+class _AppFlowyGroupCardState extends State<AppFlowyGroupCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(

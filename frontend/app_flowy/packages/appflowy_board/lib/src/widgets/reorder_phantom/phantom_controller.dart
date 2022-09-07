@@ -8,30 +8,30 @@ import '../reorder_flex/drag_target_interceptor.dart';
 import 'phantom_state.dart';
 
 abstract class BoardPhantomControllerDelegate {
-  AFBoardColumnDataController? controller(String columnId);
+  AppFlowyGroupController? controller(String groupId);
 
-  bool removePhantom(String columnId);
+  bool removePhantom(String groupId);
 
-  /// Insert the phantom into column
+  /// Insert the phantom into the group
   ///
-  /// * [toColumnId] id of the column
-  /// * [phantomIndex] the phantom occupies index
+  /// * [groupId] id of the group
+  /// * [index] the phantom occupies index
   void insertPhantom(
-    String columnId,
+    String groupId,
     int index,
-    PhantomColumnItem item,
+    PhantomGroupItem item,
   );
 
-  /// Update the column's phantom index if it exists.
-  /// [toColumnId] the id of the column
-  /// [dragTargetIndex] the index of the dragTarget
-  void updatePhantom(String columnId, int newIndex);
+  /// Update the group's phantom index if it exists.
+  /// [toGroupId] the id of the group
+  /// [newIndex] the index of the dragTarget
+  void updatePhantom(String groupId, int newIndex);
 
-  void swapColumnItem(
-    String fromColumnId,
-    int fromColumnIndex,
-    String toColumnId,
-    int toColumnIndex,
+  void moveGroupItemToAnotherGroup(
+    String fromGroupId,
+    int fromGroupIndex,
+    String toGroupId,
+    int toGroupIndex,
   );
 }
 
@@ -39,16 +39,16 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     with CrossReorderFlexDragTargetDelegate {
   PhantomRecord? phantomRecord;
   final BoardPhantomControllerDelegate delegate;
-  final BoardColumnsState columnsState;
-  final phantomState = ColumnPhantomState();
+  final AppFlowyBoardState groupsState;
+  final phantomState = GroupPhantomState();
   BoardPhantomController({
     required this.delegate,
-    required this.columnsState,
+    required this.groupsState,
   });
 
-  bool isFromColumn(String columnId) {
+  bool isFromGroup(String groupId) {
     if (phantomRecord != null) {
-      return phantomRecord!.fromColumnId == columnId;
+      return phantomRecord!.fromGroupId == groupId;
     } else {
       return true;
     }
@@ -58,32 +58,32 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     if (phantomRecord == null) {
       return;
     }
-    assert(phantomRecord!.fromColumnIndex == fromIndex);
-    phantomRecord?.updateFromColumnIndex(toIndex);
+    assert(phantomRecord!.fromGroupIndex == fromIndex);
+    phantomRecord?.updateFromGroupIndex(toIndex);
   }
 
-  void columnStartDragging(String columnId) {
-    phantomState.setColumnIsDragging(columnId, true);
+  void groupStartDragging(String groupId) {
+    phantomState.setGroupIsDragging(groupId, true);
   }
 
-  /// Remove the phantom in the column when the column is end dragging.
-  void columnEndDragging(String columnId) {
-    phantomState.setColumnIsDragging(columnId, false);
+  /// Remove the phantom in the group when the group is end dragging.
+  void groupEndDragging(String groupId) {
+    phantomState.setGroupIsDragging(groupId, false);
 
     if (phantomRecord == null) return;
 
-    final fromColumnId = phantomRecord!.fromColumnId;
-    final toColumnId = phantomRecord!.toColumnId;
-    if (fromColumnId == columnId) {
-      phantomState.notifyDidRemovePhantom(toColumnId);
+    final fromGroupId = phantomRecord!.fromGroupId;
+    final toGroupId = phantomRecord!.toGroupId;
+    if (fromGroupId == groupId) {
+      phantomState.notifyDidRemovePhantom(toGroupId);
     }
 
-    if (phantomRecord!.toColumnId == columnId) {
-      delegate.swapColumnItem(
-        fromColumnId,
-        phantomRecord!.fromColumnIndex,
-        toColumnId,
-        phantomRecord!.toColumnIndex,
+    if (phantomRecord!.toGroupId == groupId) {
+      delegate.moveGroupItemToAnotherGroup(
+        fromGroupId,
+        phantomRecord!.fromGroupIndex,
+        toGroupId,
+        phantomRecord!.toGroupIndex,
       );
 
       // Log.debug(
@@ -92,16 +92,16 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     }
   }
 
-  /// Remove the phantom in the column if it contains phantom
-  void _removePhantom(String columnId) {
-    if (delegate.removePhantom(columnId)) {
-      phantomState.notifyDidRemovePhantom(columnId);
-      phantomState.removeColumnListener(columnId);
+  /// Remove the phantom in the group if it contains phantom
+  void _removePhantom(String groupId) {
+    if (delegate.removePhantom(groupId)) {
+      phantomState.notifyDidRemovePhantom(groupId);
+      phantomState.removeGroupListener(groupId);
     }
   }
 
   void _insertPhantom(
-    String toColumnId,
+    String toGroupId,
     FlexDragTargetData dragTargetData,
     int phantomIndex,
   ) {
@@ -109,38 +109,38 @@ class BoardPhantomController extends OverlapDragTargetDelegate
       index: phantomIndex,
       dragTargetData: dragTargetData,
     );
-    phantomState.addColumnListener(toColumnId, phantomContext);
+    phantomState.addGroupListener(toGroupId, phantomContext);
 
     delegate.insertPhantom(
-      toColumnId,
+      toGroupId,
       phantomIndex,
-      PhantomColumnItem(phantomContext),
+      PhantomGroupItem(phantomContext),
     );
 
-    phantomState.notifyDidInsertPhantom(toColumnId, phantomIndex);
+    phantomState.notifyDidInsertPhantom(toGroupId, phantomIndex);
   }
 
   /// Reset or initial the [PhantomRecord]
   ///
   ///
-  /// * [columnId] the id of the column
+  /// * [groupId] the id of the group
   /// * [dragTargetData]
   /// * [dragTargetIndex]
   ///
   void _resetPhantomRecord(
-    String columnId,
+    String groupId,
     FlexDragTargetData dragTargetData,
     int dragTargetIndex,
   ) {
     // Log.debug(
-    //     '[$BoardPhantomController] move Column:[${dragTargetData.reorderFlexId}]:${dragTargetData.draggingIndex} '
-    //     'to Column:[$columnId]:$dragTargetIndex');
+    //     '[$BoardPhantomController] move Group:[${dragTargetData.reorderFlexId}]:${dragTargetData.draggingIndex} '
+    //     'to Group:[$groupId]:$dragTargetIndex');
 
     phantomRecord = PhantomRecord(
-      toColumnId: columnId,
-      toColumnIndex: dragTargetIndex,
-      fromColumnId: dragTargetData.reorderFlexId,
-      fromColumnIndex: dragTargetData.draggingIndex,
+      toGroupId: groupId,
+      toGroupIndex: dragTargetIndex,
+      fromGroupId: dragTargetData.reorderFlexId,
+      fromGroupIndex: dragTargetData.draggingIndex,
     );
     Log.debug('[$BoardPhantomController] will move: $phantomRecord');
   }
@@ -158,10 +158,10 @@ class BoardPhantomController extends OverlapDragTargetDelegate
       return true;
     }
 
-    final isNewDragTarget = phantomRecord!.toColumnId != reorderFlexId;
+    final isNewDragTarget = phantomRecord!.toGroupId != reorderFlexId;
     if (isNewDragTarget) {
-      /// Remove the phantom when the dragTarget is moved from one column to another column.
-      _removePhantom(phantomRecord!.toColumnId);
+      /// Remove the phantom when the dragTarget is moved from one group to another group.
+      _removePhantom(phantomRecord!.toGroupId);
       _resetPhantomRecord(reorderFlexId, dragTargetData, dragTargetIndex);
       _insertPhantom(reorderFlexId, dragTargetData, dragTargetIndex);
     }
@@ -177,9 +177,9 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     phantomRecord?.updateInsertedIndex(dragTargetIndex);
 
     assert(phantomRecord != null);
-    if (phantomRecord!.toColumnId == reorderFlexId) {
+    if (phantomRecord!.toGroupId == reorderFlexId) {
       /// Update the existing phantom index
-      delegate.updatePhantom(phantomRecord!.toColumnId, dragTargetIndex);
+      delegate.updatePhantom(phantomRecord!.toGroupId, dragTargetIndex);
     }
   }
 
@@ -189,8 +189,8 @@ class BoardPhantomController extends OverlapDragTargetDelegate
       return;
     }
 
-    /// Remove the phantom when the dragTarge is go back to the original column.
-    _removePhantom(phantomRecord!.toColumnId);
+    /// Remove the phantom when the dragTarge is go back to the original group.
+    _removePhantom(phantomRecord!.toGroupId);
     phantomRecord = null;
   }
 
@@ -215,63 +215,63 @@ class BoardPhantomController extends OverlapDragTargetDelegate
 
     final controller = delegate.controller(dragTargetId);
     if (controller != null) {
-      return controller.columnData.items.length;
+      return controller.groupData.items.length;
     } else {
       return 0;
     }
   }
 }
 
-/// Use [PhantomRecord] to record where to remove the column item and where to
-/// insert the column item.
+/// Use [PhantomRecord] to record where to remove the group item and where to
+/// insert the group item.
 ///
-/// [fromColumnId] the column that phantom comes from
-/// [fromColumnIndex] the index of the phantom from the original column
-/// [toColumnId] the column that the phantom moves into
-/// [toColumnIndex] the index of the phantom moves into the column
+/// [fromGroupId] the group that phantom comes from
+/// [fromGroupIndex] the index of the phantom from the original group
+/// [toGroupId] the group that the phantom moves into
+/// [toGroupIndex] the index of the phantom moves into the group
 ///
 class PhantomRecord {
-  final String fromColumnId;
-  int fromColumnIndex;
+  final String fromGroupId;
+  int fromGroupIndex;
 
-  final String toColumnId;
-  int toColumnIndex;
+  final String toGroupId;
+  int toGroupIndex;
 
   PhantomRecord({
-    required this.toColumnId,
-    required this.toColumnIndex,
-    required this.fromColumnId,
-    required this.fromColumnIndex,
+    required this.toGroupId,
+    required this.toGroupIndex,
+    required this.fromGroupId,
+    required this.fromGroupIndex,
   });
 
-  void updateFromColumnIndex(int index) {
-    if (fromColumnIndex == index) {
+  void updateFromGroupIndex(int index) {
+    if (fromGroupIndex == index) {
       return;
     }
 
-    fromColumnIndex = index;
+    fromGroupIndex = index;
   }
 
   void updateInsertedIndex(int index) {
-    if (toColumnIndex == index) {
+    if (toGroupIndex == index) {
       return;
     }
 
     Log.debug(
-        '[$PhantomRecord] Column:[$toColumnId] update position $toColumnIndex -> $index');
-    toColumnIndex = index;
+        '[$PhantomRecord] Group:[$toGroupId] update position $toGroupIndex -> $index');
+    toGroupIndex = index;
   }
 
   @override
   String toString() {
-    return 'Column:[$fromColumnId]:$fromColumnIndex to Column:[$toColumnId]:$toColumnIndex';
+    return 'Group:[$fromGroupId]:$fromGroupIndex to Group:[$toGroupId]:$toGroupIndex';
   }
 }
 
-class PhantomColumnItem extends AFColumnItem {
+class PhantomGroupItem extends AppFlowyGroupItem {
   final PassthroughPhantomContext phantomContext;
 
-  PhantomColumnItem(PassthroughPhantomContext insertedPhantom)
+  PhantomGroupItem(PassthroughPhantomContext insertedPhantom)
       : phantomContext = insertedPhantom;
 
   @override
@@ -305,7 +305,8 @@ class PassthroughPhantomContext extends FakeDragTargetEventTrigger
 
   Widget? get draggingWidget => dragTargetData.draggingWidget;
 
-  AFColumnItem get itemData => dragTargetData.reorderFlexItem as AFColumnItem;
+  AppFlowyGroupItem get itemData =>
+      dragTargetData.reorderFlexItem as AppFlowyGroupItem;
 
   @override
   void Function(int?)? onInserted;

@@ -4,8 +4,10 @@ import 'package:app_flowy/plugins/grid/application/field/type_option/type_option
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
@@ -75,6 +77,21 @@ class _GridHeader extends StatefulWidget {
 }
 
 class _GridHeaderState extends State<_GridHeader> {
+  final Map<String, ValueKey<String>> _gridMap = {};
+
+  /// This is a workaround for [ReorderableRow].
+  /// [ReorderableRow] warps the child's key with a [GlobalKey].
+  /// It will trigger the child's widget's to recreate.
+  /// The state will lose.
+  _getKeyById(String id) {
+    if (_gridMap.containsKey(id)) {
+      return _gridMap[id];
+    }
+    final newKey = ValueKey(id);
+    _gridMap[id] = newKey;
+    return newKey;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
@@ -85,7 +102,10 @@ class _GridHeaderState extends State<_GridHeader> {
             .where((field) => field.visibility)
             .map((field) =>
                 GridFieldCellContext(gridId: widget.gridId, field: field.field))
-            .map((ctx) => GridFieldCell(ctx, key: ValueKey(ctx.field.id)))
+            .map((ctx) => GridFieldCell(
+                  key: _getKeyById(ctx.field.id),
+                  cellContext: ctx,
+                ))
             .toList();
 
         return Container(
@@ -156,18 +176,28 @@ class CreateFieldButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
-    return FlowyButton(
-      text: FlowyText.medium(
-        LocaleKeys.grid_field_newColumn.tr(),
-        fontSize: 12,
+    return Popover(
+      triggerActions: PopoverTriggerActionFlags.click,
+      direction: PopoverDirection.bottomWithRightAligned,
+      child: FlowyButton(
+        text: FlowyText.medium(
+          LocaleKeys.grid_field_newColumn.tr(),
+          fontSize: 12,
+        ),
+        hoverColor: theme.shader6,
+        onTap: () {},
+        leftIcon: svgWidget("home/add"),
       ),
-      hoverColor: theme.shader6,
-      onTap: () => FieldEditor(
-        gridId: gridId,
-        fieldName: "",
-        typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
-      ).show(context),
-      leftIcon: svgWidget("home/add"),
+      popupBuilder: (BuildContext popover) {
+        return OverlayContainer(
+          constraints: BoxConstraints.loose(const Size(240, 200)),
+          child: FieldEditor(
+            gridId: gridId,
+            fieldName: "",
+            typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
+          ),
+        );
+      },
     );
   }
 }

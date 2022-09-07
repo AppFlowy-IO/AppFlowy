@@ -20,7 +20,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
             _startListening();
           },
           select: () async {
-            _updateCellData();
+            cellController.saveCellData(!state.isSelected ? "Yes" : "No");
           },
           didReceiveCellUpdate: (cellData) {
             emit(state.copyWith(isSelected: _isSelected(cellData)));
@@ -48,10 +48,6 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
         add(CheckboxCellEvent.didReceiveCellUpdate(cellData));
       }
     }));
-  }
-
-  void _updateCellData() {
-    cellController.saveCellData(!state.isSelected ? "Yes" : "No");
   }
 }
 
