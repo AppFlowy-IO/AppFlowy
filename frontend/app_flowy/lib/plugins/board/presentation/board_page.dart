@@ -9,6 +9,7 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/cell/cell_builder.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_detail.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -21,6 +22,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import '../../grid/application/row/row_cache.dart';
 import '../application/board_bloc.dart';
 import 'card/card.dart';
@@ -88,34 +90,37 @@ class _BoardContentState extends State<BoardContent> {
             children: [const _ToolbarBlocAdaptor(), _buildBoard(context)],
           );
 
-          return Container(
-            color: context.read<AppTheme>().surface,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: column,
-            ),
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: column,
           );
         },
       ),
     );
   }
 
-  Expanded _buildBoard(BuildContext context) {
-    return Expanded(
-      child: AppFlowyBoard(
-        boardScrollController: scrollManager,
-        scrollController: ScrollController(),
-        controller: context.read<BoardBloc>().boardController,
-        headerBuilder: _buildHeader,
-        footerBuilder: _buildFooter,
-        cardBuilder: (_, column, columnItem) => _buildCard(
-          context,
-          column,
-          columnItem,
-        ),
-        groupConstraints: const BoxConstraints.tightFor(width: 300),
-        config: AppFlowyBoardConfig(
-          groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
+  Widget _buildBoard(BuildContext context) {
+    return ChangeNotifierProvider.value(
+      value: Provider.of<AppearanceSettingModel>(context, listen: true),
+      child: Selector<AppearanceSettingModel, AppTheme>(
+        selector: (ctx, notifier) => notifier.theme,
+        builder: (ctx, theme, child) => Expanded(
+          child: AppFlowyBoard(
+            boardScrollController: scrollManager,
+            scrollController: ScrollController(),
+            controller: context.read<BoardBloc>().boardController,
+            headerBuilder: _buildHeader,
+            footerBuilder: _buildFooter,
+            cardBuilder: (_, column, columnItem) => _buildCard(
+              context,
+              column,
+              columnItem,
+            ),
+            groupConstraints: const BoxConstraints.tightFor(width: 300),
+            config: AppFlowyBoardConfig(
+              groupBackgroundColor: theme.bg1,
+            ),
+          ),
         ),
       ),
     );
@@ -321,7 +326,15 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
           fieldController: bloc.fieldController,
         );
 
-        return BoardToolbar(toolbarContext: toolbarContext);
+        return ChangeNotifierProvider.value(
+          value: Provider.of<AppearanceSettingModel>(context, listen: true),
+          child: Selector<AppearanceSettingModel, AppTheme>(
+            selector: (ctx, notifier) => notifier.theme,
+            builder: (ctx, theme, child) {
+              return BoardToolbar(toolbarContext: toolbarContext);
+            },
+          ),
+        );
       },
     );
   }
