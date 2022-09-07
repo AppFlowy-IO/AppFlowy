@@ -21,6 +21,9 @@ class BoardCheckboxCellBloc
           didReceiveCellUpdate: (cellData) {
             emit(state.copyWith(isSelected: _isSelected(cellData)));
           },
+          select: () async {
+            cellController.saveCellData(!state.isSelected ? "Yes" : "No");
+          },
         );
       },
     );
@@ -50,6 +53,7 @@ class BoardCheckboxCellBloc
 @freezed
 class BoardCheckboxCellEvent with _$BoardCheckboxCellEvent {
   const factory BoardCheckboxCellEvent.initial() = _InitialCell;
+  const factory BoardCheckboxCellEvent.select() = _Selected;
   const factory BoardCheckboxCellEvent.didReceiveCellUpdate(
       String cellContent) = _DidReceiveCellUpdate;
 }
