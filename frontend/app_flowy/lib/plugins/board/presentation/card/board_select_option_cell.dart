@@ -87,24 +87,3 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
     super.dispose();
   }
 }
-
-class _SelectOptionDialog extends StatelessWidget {
-  final GridSelectOptionCellController _controller;
-  const _SelectOptionDialog({
-    Key? key,
-    required IGridCellController controller,
-  })  : _controller = controller as GridSelectOptionCellController,
-        super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      child: InkWell(onTap: () {
-        SelectOptionCellEditor.show(
-          context: context,
-          cellController: _controller,
-        );
-      }),
-    );
-  }
-}
