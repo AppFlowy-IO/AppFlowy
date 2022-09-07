@@ -69,7 +69,9 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
 
   // If selection is collapsed and position.start.offset == 0,
   //  insert a empty text node before.
-  if (selection.isCollapsed && selection.start.offset == 0) {
+  if (selection.isCollapsed &&
+      selection.start.offset == 0 &&
+      textNode.subtype != StyleKey.numberList) {
     if (textNode.toRawString().isEmpty && textNode.subtype != null) {
       final afterSelection = Selection.collapsed(
         Position(path: textNode.path, offset: 0),

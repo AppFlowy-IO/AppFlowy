@@ -5,12 +5,13 @@ import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/document/attributes.dart';
 
 void makeFollowingNodesIncremental(
-    EditorState editorState, List<int> insertPath, Selection afterSelection) {
+    EditorState editorState, List<int> insertPath, Selection afterSelection,
+    {int? beginNum}) {
   final insertNode = editorState.document.nodeAtPath(insertPath);
   if (insertNode == null) {
     return;
   }
-  final int beginNum = insertNode.attributes[StyleKey.number] as int;
+  beginNum ??= insertNode.attributes[StyleKey.number] as int;
 
   int numPtr = beginNum + 1;
   var ptr = insertNode.next;

@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -29,6 +30,7 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       nodes.where((node) => node is! TextNode).toList(growable: false);
 
   final transactionBuilder = TransactionBuilder(editorState);
+  List<int>? cancelNumberListPath;
 
   if (nonTextNodes.isNotEmpty) {
     transactionBuilder.deleteNodes(nonTextNodes);
@@ -40,6 +42,9 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     if (index < 0 && selection.isCollapsed) {
       // 1. style
       if (textNode.subtype != null) {
+        if (textNode.subtype == StyleKey.numberList) {
+          cancelNumberListPath = textNode.path;
+        }
         transactionBuilder
           ..updateNode(textNode, {
             StyleKey.subtype: null,
@@ -98,6 +103,12 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       transactionBuilder.afterSelection = Selection.collapsed(selection.start);
     }
     transactionBuilder.commit();
+  }
+
+  if (cancelNumberListPath != null) {
+    makeFollowingNodesIncremental(
+        editorState, cancelNumberListPath, Selection.collapsed(selection.start),
+        beginNum: 0);
   }
 
   return KeyEventResult.handled;
