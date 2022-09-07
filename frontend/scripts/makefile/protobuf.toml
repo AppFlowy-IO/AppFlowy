@@ -29,6 +29,9 @@ end
 ret = which protoc-gen-dart
 if is_empty ${ret}
     exec cmd.exe /c dart pub global activate protoc_plugin
+end
+ret = which protoc-gen-dart
+if is_empty ${ret}
     home_dir = get_home_dir
     echo Please add '${home_dir}\\\\AppData\\\\Local\\\\Pub\\\\Cache\\\\bin' into PATH env var
     exit -1

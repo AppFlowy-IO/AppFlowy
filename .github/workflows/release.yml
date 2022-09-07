@@ -129,3 +129,54 @@ jobs:
           asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_X86_ZIP_NAME }}
           asset_name: ${{ env.MACOS_X86_ZIP_NAME }}
           asset_content_type: application/octet-stream
+
+  build-windows-x86_64:
+    runs-on: windows-latest
+    needs: create-release
+    env:
+      WINDOWS_APP_RELEASE_PATH: frontend\app_flowy\product\${{ github.ref_name }}\windows
+      WINDOWS_ZIP_NAME: AppFlowy-windows-x86_64.zip
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup environment - Rust and Cargo
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 'stable-2022-01-20'
+
+      - name: Setup environment - Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.0.5'
+
+      - name: Pre build
+        working-directory: frontend
+        run: |
+          vcpkg integrate install
+          cargo install --force cargo-make
+          cargo install --force duckscript_cli
+          cargo make flowy_dev
+
+      - name: Build Windows app
+        working-directory: frontend
+        run: |
+          flutter config --enable-windows-desktop
+          cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-windows-x86 appflowy
+
+      - uses: vimtor/action-zip@v1
+        with:
+          files: ${{ env.WINDOWS_APP_RELEASE_PATH }}\
+          dest: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.WINDOWS_APP_RELEASE_PATH }}\${{ env.WINDOWS_ZIP_NAME }}
+          asset_name: ${{ env.WINDOWS_ZIP_NAME }}
+          asset_content_type: application/octet-stream
