@@ -56,7 +56,7 @@ class _SettingButton extends StatelessWidget {
         onPressed: () {},
         icon: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 3.0),
-          child: svgWidget("grid/setting/setting"),
+          child: svgWidget("grid/setting/setting", color: theme.iconColor),
         ),
       ),
       popupBuilder: (BuildContext popoverContext) {
