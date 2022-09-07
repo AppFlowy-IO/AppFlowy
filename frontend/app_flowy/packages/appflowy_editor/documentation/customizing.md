@@ -16,7 +16,7 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
-        keyEventHandlers: const [],
+        shortcutEvents: const [],
       ),
     ),
   );
@@ -27,19 +27,26 @@ At this point, nothing magic will happen after typing `_xxx_`.
 
 ![Before](./images/customizing_a_shortcut_event_before.gif)
 
-To implement our shortcut event we will create a function to handle an underscore input.
+To implement our shortcut event we will create a `ShortcutEvent` instance to handle an underscore input.
+
+We need to define `key` and `command` in a ShortCutEvent object to customize hotkeys. We recommend using the description of your event as a key. For example, if the underscore `_` is defined to make text italic, the key can be 'Underscore to italic'. 
+
+> The command, made up of a single keyword such as `underscore` or a combination of keywords using the `+` sign in between to concatenate, is a condition that triggers a user-defined function. To see which keywords are available to define a command, please refer to [key_mapping.dart](../lib/src/service/shortcut_event/key_mapping.dart).
+> If more than one commands trigger the same handler, then we use ',' to split them. For example, using CTRL and A or CMD and A to 'select all', we describe it as `cmd+a,ctrl+a`(case-insensitive).
 
 ```dart
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
-  // Since we only need to handle the input of an 'underscore' character,
-  // all inputs except `underscore` will be ignored immediately.
-  if (event.logicalKey != LogicalKeyboardKey.underscore) {
-    return KeyEventResult.ignored;
-  }
+ShortcutEvent underscoreToItalicEvent = ShortcutEvent(
+  key: 'Underscore to italic',
+  command: 'underscore',
+  handler: _underscoreToItalicHandler,
+);
+
+ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
+
 };
 ```
 
@@ -49,9 +56,7 @@ If so, we will continue.
 
 ```dart
 // ...
-FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
-  // ...
-  
+ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
   // Obtain the selection and selected nodes of the current document through the 'selectionService'
   // to determine whether the selection is collapsed and whether the selected node is a text node.
   final selectionService = editorState.service.selectionService;
@@ -70,7 +75,7 @@ Look for the position of the previous underscore and
 
 ```dart
 // ...
-FlowyKeyEventHandler underscoreToItalicHandler = (editorState, event) {
+ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
   // ...
 
   final textNode = textNodes.first;
@@ -111,8 +116,8 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
-        keyEventHandlers: [
-            underscoreToItalicHandler,
+        shortcutEvents: [
+            _underscoreToItalicHandler,
         ],
       ),
     ),

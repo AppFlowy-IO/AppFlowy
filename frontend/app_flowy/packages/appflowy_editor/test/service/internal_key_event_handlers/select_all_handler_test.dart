@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -26,7 +28,11 @@ Future<void> _testSelectAllHandler(WidgetTester tester, int lines) async {
     editor.insertTextNode(text);
   }
   await editor.startTesting();
-  await editor.pressLogicKey(LogicalKeyboardKey.keyA, isMetaPressed: true);
+  if (Platform.isWindows) {
+    await editor.pressLogicKey(LogicalKeyboardKey.keyA, isControlPressed: true);
+  } else {
+    await editor.pressLogicKey(LogicalKeyboardKey.keyA, isMetaPressed: true);
+  }
 
   expect(
     editor.documentSelection,

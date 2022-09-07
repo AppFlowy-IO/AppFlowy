@@ -4,6 +4,18 @@ import 'package:flutter/services.dart';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 
+// Handle delete text.
+ShortcutEventHandler deleteTextHandler = (editorState, event) {
+  if (event.logicalKey == LogicalKeyboardKey.backspace) {
+    return _handleBackspace(editorState, event);
+  }
+  if (event.logicalKey == LogicalKeyboardKey.delete) {
+    return _handleDelete(editorState, event);
+  }
+
+  return KeyEventResult.ignored;
+};
+
 KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   var selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null) {
@@ -159,15 +171,3 @@ void _deleteTextNodes(TransactionBuilder transactionBuilder,
       secondOffset: selection.end.offset,
     );
 }
-
-// Handle delete text.
-AppFlowyKeyEventHandler deleteTextHandler = (editorState, event) {
-  if (event.logicalKey == LogicalKeyboardKey.backspace) {
-    return _handleBackspace(editorState, event);
-  }
-  if (event.logicalKey == LogicalKeyboardKey.delete) {
-    return _handleDelete(editorState, event);
-  }
-
-  return KeyEventResult.ignored;
-};

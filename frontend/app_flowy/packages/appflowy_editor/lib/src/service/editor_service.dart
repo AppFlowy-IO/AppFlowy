@@ -1,7 +1,8 @@
 import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:appflowy_editor/src/render/style/editor_style.dart';
-import 'package:appflowy_editor/src/service/internal_key_event_handlers/default_key_event_handlers.dart';
+import 'package:appflowy_editor/src/service/shortcut_event/built_in_shortcut_events.dart';
+import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/editor_state.dart';
@@ -35,7 +36,7 @@ class AppFlowyEditor extends StatefulWidget {
     Key? key,
     required this.editorState,
     this.customBuilders = const {},
-    this.keyEventHandlers = const [],
+    this.shortcutEvents = const [],
     this.selectionMenuItems = const [],
     this.editorStyle = const EditorStyle.defaultStyle(),
   }) : super(key: key);
@@ -46,7 +47,7 @@ class AppFlowyEditor extends StatefulWidget {
   final NodeWidgetBuilders customBuilders;
 
   /// Keyboard event handlers.
-  final List<AppFlowyKeyEventHandler> keyEventHandlers;
+  final List<ShortcutEvent> shortcutEvents;
 
   final List<SelectionMenuItem> selectionMenuItems;
 
@@ -93,9 +94,9 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
             editorState: editorState,
             child: AppFlowyKeyboard(
               key: editorState.service.keyboardServiceKey,
-              handlers: [
-                ...defaultKeyEventHandlers,
-                ...widget.keyEventHandlers,
+              shortcutEvents: [
+                ...builtInShortcutEvents,
+                ...widget.shortcutEvents,
               ],
               editorState: editorState,
               child: FlowyToolbar(

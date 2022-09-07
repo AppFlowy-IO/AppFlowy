@@ -8,7 +8,7 @@ import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
-import 'package:appflowy_editor/src/service/keyboard_service.dart';
+import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 
 /// Handle some cases where enter is pressed and shift is not pressed.
 ///
@@ -18,7 +18,7 @@ import 'package:appflowy_editor/src/service/keyboard_service.dart';
 /// 2. Single selection and the selected node is [TextNode]
 ///   2.1 split the node into two nodes with style
 ///   2.2 or insert a empty text node before.
-AppFlowyKeyEventHandler enterWithoutShiftInTextNodesHandler =
+ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.enter || event.isShiftPressed) {
     return KeyEventResult.ignored;
