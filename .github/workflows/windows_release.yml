@@ -69,7 +69,6 @@ jobs:
       - name: Archive windows app
         working-directory: ${{ env.WINDOWS_APP_RELEASE_PATH }}
         run: |
-          ls -a
           zip -qr ${{ env.WINDOWS_ZIP_NAME }} AppFlowy
 
       - name: Upload Release Asset
