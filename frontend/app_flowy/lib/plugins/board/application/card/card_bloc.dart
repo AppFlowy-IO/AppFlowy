@@ -7,20 +7,20 @@ import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
-
 import 'card_data_controller.dart';
 
 part 'card_bloc.freezed.dart';
 
 class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
-  final String fieldId;
+  final String groupFieldId;
   final RowFFIService _rowService;
   final CardDataController _dataController;
 
   BoardCardBloc({
-    required this.fieldId,
+    required this.groupFieldId,
     required String gridId,
     required CardDataController dataController,
+    required bool isEditing,
   })  : _rowService = RowFFIService(
           gridId: gridId,
           blockId: dataController.rowPB.blockId,
@@ -29,7 +29,8 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
         super(
           BoardCardState.initial(
             dataController.rowPB,
-            _makeCells(fieldId, dataController.loadData()),
+            _makeCells(groupFieldId, dataController.loadData()),
+            isEditing,
           ),
         ) {
     on<BoardCardEvent>(
@@ -43,6 +44,9 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
               cells: cells,
               changeReason: reason,
             ));
+          },
+          setIsEditing: (bool isEditing) {
+            emit(state.copyWith(isEditing: isEditing));
           },
         );
       },
@@ -69,7 +73,7 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
     _dataController.addListener(
       onRowChanged: (cellMap, reason) {
         if (!isClosed) {
-          final cells = _makeCells(fieldId, cellMap);
+          final cells = _makeCells(groupFieldId, cellMap);
           add(BoardCardEvent.didReceiveCells(cells, reason));
         }
       },
@@ -77,22 +81,24 @@ class BoardCardBloc extends Bloc<BoardCardEvent, BoardCardState> {
   }
 }
 
-UnmodifiableListView<BoardCellEquatable> _makeCells(
-    String fieldId, GridCellMap originalCellMap) {
+List<BoardCellEquatable> _makeCells(
+    String groupFieldId, GridCellMap originalCellMap) {
   List<BoardCellEquatable> cells = [];
   for (final entry in originalCellMap.entries) {
-    if (entry.value.fieldId != fieldId) {
+    // Filter out the cell if it's fieldId equal to the groupFieldId
+    if (entry.value.fieldId != groupFieldId) {
       cells.add(BoardCellEquatable(entry.value));
     }
   }
-  return UnmodifiableListView(cells);
+  return cells;
 }
 
 @freezed
 class BoardCardEvent with _$BoardCardEvent {
   const factory BoardCardEvent.initial() = _InitialRow;
+  const factory BoardCardEvent.setIsEditing(bool isEditing) = _IsEditing;
   const factory BoardCardEvent.didReceiveCells(
-    UnmodifiableListView<BoardCellEquatable> cells,
+    List<BoardCellEquatable> cells,
     RowsChangedReason reason,
   ) = _DidReceiveCells;
 }
@@ -101,15 +107,20 @@ class BoardCardEvent with _$BoardCardEvent {
 class BoardCardState with _$BoardCardState {
   const factory BoardCardState({
     required RowPB rowPB,
-    required UnmodifiableListView<BoardCellEquatable> cells,
+    required List<BoardCellEquatable> cells,
+    required bool isEditing,
     RowsChangedReason? changeReason,
   }) = _BoardCardState;
 
   factory BoardCardState.initial(
-          RowPB rowPB, UnmodifiableListView<BoardCellEquatable> cells) =>
+    RowPB rowPB,
+    List<BoardCellEquatable> cells,
+    bool isEditing,
+  ) =>
       BoardCardState(
         rowPB: rowPB,
         cells: cells,
+        isEditing: isEditing,
       );
 }
 
@@ -119,10 +130,12 @@ class BoardCellEquatable extends Equatable {
   const BoardCellEquatable(this.identifier);
 
   @override
-  List<Object?> get props => [
-        identifier.fieldContext.id,
-        identifier.fieldContext.fieldType,
-        identifier.fieldContext.visibility,
-        identifier.fieldContext.width,
-      ];
+  List<Object?> get props {
+    return [
+      identifier.fieldContext.id,
+      identifier.fieldContext.fieldType,
+      identifier.fieldContext.visibility,
+      identifier.fieldContext.width,
+    ];
+  }
 }

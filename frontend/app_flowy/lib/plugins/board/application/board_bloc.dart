@@ -99,7 +99,6 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
             ));
           },
           endEditRow: (rowId) {
-            assert(state.editingRow.isSome());
             state.editingRow.fold(() => null, (editingRow) {
               assert(editingRow.row.id == rowId);
               emit(state.copyWith(editingRow: none()));

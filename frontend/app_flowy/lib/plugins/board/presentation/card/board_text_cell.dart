@@ -9,7 +9,6 @@ import 'define.dart';
 
 class BoardTextCell extends StatefulWidget with EditableCell {
   final String groupId;
-  final bool isFocus;
   @override
   final EditableCellNotifier? editableNotifier;
   final GridCellControllerBuilder cellControllerBuilder;
@@ -18,7 +17,6 @@ class BoardTextCell extends StatefulWidget with EditableCell {
     required this.groupId,
     required this.cellControllerBuilder,
     this.editableNotifier,
-    this.isFocus = false,
     Key? key,
   }) : super(key: key);
 
@@ -39,38 +37,40 @@ class _BoardTextCellState extends State<BoardTextCell> {
     _cellBloc = BoardTextCellBloc(cellController: cellController)
       ..add(const BoardTextCellEvent.initial());
     _controller = TextEditingController(text: _cellBloc.state.content);
-    focusWhenInit = widget.isFocus;
-
-    if (widget.isFocus) {
+    focusWhenInit = widget.editableNotifier?.isCellEditing.value ?? false;
+    if (focusWhenInit) {
       focusNode.requestFocus();
     }
 
     focusNode.addListener(() {
       if (!focusNode.hasFocus) {
+        focusWhenInit = false;
+        widget.editableNotifier?.isCellEditing.value = false;
         _cellBloc.add(const BoardTextCellEvent.enableEdit(false));
-
-        if (focusWhenInit) {
-          setState(() {
-            focusWhenInit = false;
-          });
-        }
       }
     });
-
-    widget.editableNotifier?.becomeFirstResponder.addListener(() {
-      if (!mounted) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        focusNode.requestFocus();
-      });
-      _cellBloc.add(const BoardTextCellEvent.enableEdit(true));
-    });
-
-    widget.editableNotifier?.resignFirstResponder.addListener(() {
-      if (!mounted) return;
-      _cellBloc.add(const BoardTextCellEvent.enableEdit(false));
-    });
-
+    _bindEditableNotifier();
     super.initState();
+  }
+
+  void _bindEditableNotifier() {
+    widget.editableNotifier?.isCellEditing.addListener(() {
+      if (!mounted) return;
+
+      final isEditing = widget.editableNotifier?.isCellEditing.value ?? false;
+      if (isEditing) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          focusNode.requestFocus();
+        });
+      }
+      _cellBloc.add(BoardTextCellEvent.enableEdit(isEditing));
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant BoardTextCell oldWidget) {
+    _bindEditableNotifier();
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -84,6 +84,15 @@ class _BoardTextCellState extends State<BoardTextCell> {
           }
         },
         child: BlocBuilder<BoardTextCellBloc, BoardTextCellState>(
+          buildWhen: (previous, current) {
+            if (previous.content != current.content &&
+                _controller.text == current.content &&
+                current.enableEdit) {
+              return false;
+            }
+
+            return previous != current;
+          },
           builder: (context, state) {
             if (state.content.isEmpty &&
                 state.enableEdit == false &&
@@ -127,24 +136,26 @@ class _BoardTextCellState extends State<BoardTextCell> {
   }
 
   Widget _buildTextField() {
-    return TextField(
-      controller: _controller,
-      focusNode: focusNode,
-      onChanged: (value) => focusChanged(),
-      onEditingComplete: () => focusNode.unfocus(),
-      maxLines: 1,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w500,
-        fontFamily: 'Mulish',
-      ),
-      decoration: InputDecoration(
-        // Magic number 4 makes the textField take up the same space as FlowyText
-        contentPadding: EdgeInsets.symmetric(
-          vertical: BoardSizes.cardCellVPadding + 4,
+    return IntrinsicHeight(
+      child: TextField(
+        controller: _controller,
+        focusNode: focusNode,
+        onChanged: (value) => focusChanged(),
+        onEditingComplete: () => focusNode.unfocus(),
+        maxLines: null,
+        style: const TextStyle(
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          fontFamily: 'Mulish',
         ),
-        border: InputBorder.none,
-        isDense: true,
+        decoration: InputDecoration(
+          // Magic number 4 makes the textField take up the same space as FlowyText
+          contentPadding: EdgeInsets.symmetric(
+            vertical: BoardSizes.cardCellVPadding + 4,
+          ),
+          border: InputBorder.none,
+          isDense: true,
+        ),
       ),
     );
   }

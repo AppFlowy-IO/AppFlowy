@@ -64,6 +64,7 @@ class BoardContent extends StatefulWidget {
 
 class _BoardContentState extends State<BoardContent> {
   late AppFlowyBoardScrollController scrollManager;
+  final Map<String, ValueKey> cardKeysCache = {};
 
   final config = AppFlowyBoardConfig(
     groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -83,6 +84,7 @@ class _BoardContentState extends State<BoardContent> {
         buildWhen: (previous, current) => previous.groupIds != current.groupIds,
         builder: (context, state) {
           final column = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [const _ToolbarBlocAdaptor(), _buildBoard(context)],
           );
 
@@ -240,8 +242,15 @@ class _BoardContentState extends State<BoardContent> {
       },
     );
 
+    ValueKey? key = cardKeysCache[columnItem.id];
+    if (key == null) {
+      final newKey = ValueKey(columnItem.id);
+      cardKeysCache[columnItem.id] = newKey;
+      key = newKey;
+    }
+
     return AppFlowyGroupCard(
-      key: ValueKey(columnItem.id),
+      key: key,
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: BoardCard(

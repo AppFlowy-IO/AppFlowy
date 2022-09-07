@@ -27,13 +27,13 @@ const double _editorPannelWidth = 300;
 
 class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   final GridSelectOptionCellController cellController;
-  final VoidCallback onDismissed;
+  final VoidCallback? onDismissed;
 
   static double editorPanelWidth = 300;
 
   const SelectOptionCellEditor({
     required this.cellController,
-    required this.onDismissed,
+    this.onDismissed,
     Key? key,
   }) : super(key: key);
 
@@ -61,14 +61,14 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
     );
   }
 
-  static void show(
-    BuildContext context,
-    GridSelectOptionCellController cellContext,
-    VoidCallback onDismissed,
-  ) {
+  static void show({
+    required BuildContext context,
+    required GridSelectOptionCellController cellController,
+    VoidCallback? onDismissed,
+  }) {
     SelectOptionCellEditor.remove(context);
     final editor = SelectOptionCellEditor(
-      cellController: cellContext,
+      cellController: cellController,
       onDismissed: onDismissed,
     );
 
@@ -97,7 +97,7 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   bool asBarrier() => true;
 
   @override
-  void didRemove() => onDismissed();
+  void didRemove() => onDismissed?.call();
 }
 
 class _OptionList extends StatelessWidget {

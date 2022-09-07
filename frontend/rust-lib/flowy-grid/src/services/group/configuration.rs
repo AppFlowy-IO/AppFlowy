@@ -97,11 +97,8 @@ where
         self.groups_map.values().collect()
     }
 
-    /// Returns the all the groups that contain the default group.
-    pub(crate) fn clone_groups(&self) -> Vec<Group> {
-        let mut groups: Vec<Group> = self.groups_map.values().cloned().collect();
-        groups.push(self.default_group.clone());
-        groups
+    pub(crate) fn default_group(&self) -> &Group {
+        &self.default_group
     }
 
     /// Iterate mut the groups. The default group will be the last one that get mutated.
