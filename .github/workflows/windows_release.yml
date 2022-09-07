@@ -39,7 +39,7 @@ jobs:
       WINDOWS_ZIP_NAME: AppFlowy-windows-x86.tar.gz
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup environment - Rust and Cargo
         uses: actions-rs/toolchain@v1
@@ -59,6 +59,8 @@ jobs:
           cargo install --force cargo-make
           cargo install --force duckscript_cli
           cargo make flowy_dev
+
+      
 
       - name: Build Windows app
         working-directory: frontend

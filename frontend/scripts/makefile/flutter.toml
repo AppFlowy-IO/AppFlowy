@@ -188,7 +188,6 @@ script = [
   cd ./app_flowy/
   exec cmd.exe /c flutter clean
   exec cmd.exe /c flutter packages pub get
-  exec cmd.exe /c flutter pub get
   exec cmd.exe /c flutter packages pub run easy_localization:generate -S assets/translations/ -f keys -o locale_keys.g.dart -S assets/translations -s en.json
   exec cmd.exe /c flutter packages pub run build_runner build --delete-conflicting-outputs
   """
