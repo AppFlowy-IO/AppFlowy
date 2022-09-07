@@ -53,7 +53,7 @@ class _SettingButton extends StatelessWidget {
       onPressed: () => BoardSettingList.show(context, settingContext),
       icon: Padding(
         padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 3.0),
-        child: svgWidget("grid/setting/setting"),
+        child: svgWidget("grid/setting/setting", color: theme.iconColor),
       ),
     );
   }
