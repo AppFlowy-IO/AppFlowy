@@ -117,6 +117,7 @@ class _PropertyList extends StatelessWidget {
                 axis: Axis.vertical,
                 controller: _scrollController,
                 barSize: GridSize.scrollBarSize,
+                autoHideScrollbar: false,
                 child: ListView.separated(
                   controller: _scrollController,
                   itemCount: state.gridCells.length,
@@ -132,7 +133,27 @@ class _PropertyList extends StatelessWidget {
                 ),
               ),
             ),
-            _CreateFieldButton(viewId: viewId),
+            _CreateFieldButton(
+              viewId: viewId,
+              onClosed: () {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _scrollController.animateTo(
+                    _scrollController.position.maxScrollExtent,
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.ease,
+                  );
+                });
+              },
+              onOpened: () {
+                return OverlayContainer(
+                  constraints: BoxConstraints.loose(const Size(240, 200)),
+                  child: FieldEditor(
+                    gridId: viewId,
+                    typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
+                  ),
+                );
+              },
+            ),
           ],
         );
       },
@@ -142,7 +163,14 @@ class _PropertyList extends StatelessWidget {
 
 class _CreateFieldButton extends StatelessWidget {
   final String viewId;
-  const _CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
+  final Widget Function() onOpened;
+  final VoidCallback onClosed;
+  const _CreateFieldButton({
+    required this.viewId,
+    required this.onOpened,
+    required this.onClosed,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +178,8 @@ class _CreateFieldButton extends StatelessWidget {
 
     return Popover(
       triggerActions: PopoverTriggerActionFlags.click,
+      direction: PopoverDirection.bottomWithLeftAligned,
+      onClose: onClosed,
       child: SizedBox(
         height: 40,
         child: FlowyButton(
@@ -162,16 +192,7 @@ class _CreateFieldButton extends StatelessWidget {
           leftIcon: svgWidget("home/add"),
         ),
       ),
-      popupBuilder: (BuildContext context) {
-        return OverlayContainer(
-          constraints: BoxConstraints.loose(const Size(240, 200)),
-          child: FieldEditor(
-            gridId: viewId,
-            fieldName: "",
-            typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
-          ),
-        );
-      },
+      popupBuilder: (BuildContext context) => onOpened(),
     );
   }
 }

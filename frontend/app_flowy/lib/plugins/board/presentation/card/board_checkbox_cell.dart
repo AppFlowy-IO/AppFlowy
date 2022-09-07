@@ -48,6 +48,9 @@ class _BoardCheckboxCellState extends State<BoardCheckboxCell> {
               iconPadding: EdgeInsets.zero,
               icon: icon,
               width: 20,
+              onPressed: () => context
+                  .read<BoardCheckboxCellBloc>()
+                  .add(const BoardCheckboxCellEvent.select()),
             ),
           );
         },

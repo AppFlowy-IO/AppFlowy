@@ -14,6 +14,7 @@ class StyledScrollbar extends StatefulWidget {
   final ScrollController controller;
   final Function(double)? onDrag;
   final bool showTrack;
+  final bool autoHideScrollbar;
   final Color? handleColor;
   final Color? trackColor;
 
@@ -30,6 +31,7 @@ class StyledScrollbar extends StatefulWidget {
       this.onDrag,
       this.contentSize,
       this.showTrack = false,
+      this.autoHideScrollbar = true,
       this.handleColor,
       this.trackColor})
       : super(key: key);
@@ -48,16 +50,13 @@ class ScrollbarState extends State<StyledScrollbar> {
     widget.controller.addListener(() => setState(() {}));
     widget.controller.position.isScrollingNotifier.addListener(
       () {
-        if (!mounted) {
-          return;
-        }
+        if (!mounted) return;
+        if (!widget.autoHideScrollbar) return;
         _hideScrollbarOperation?.cancel();
         if (!widget.controller.position.isScrollingNotifier.value) {
-          // scroll is stopped
           _hideScrollbarOperation = CancelableOperation.fromFuture(
             Future.delayed(const Duration(seconds: 2), () {}),
           ).then((_) {
-            // Opti: hide with animation
             hideHandler = true;
             if (mounted) {
               setState(() {});
@@ -103,7 +102,6 @@ class ScrollbarState extends State<StyledScrollbar> {
             break;
           case Axis.horizontal:
             // Use supplied contentSize if we have it, otherwise just fallback to maxScrollExtents
-
             if (contentSize != null && contentSize > 0) {
               maxExtent = contentSize - constraints.maxWidth;
             } else {
@@ -118,7 +116,8 @@ class ScrollbarState extends State<StyledScrollbar> {
         // Calculate the alignment for the handle, this is a value between 0 and 1,
         // it automatically takes the handle size into acct
         // ignore: omit_local_variable_types
-        double handleAlignment = maxExtent == 0 ? 0 : widget.controller.offset / maxExtent;
+        double handleAlignment =
+            maxExtent == 0 ? 0 : widget.controller.offset / maxExtent;
 
         // Convert handle alignment from [0, 1] to [-1, 1]
         handleAlignment *= 2.0;
@@ -127,19 +126,25 @@ class ScrollbarState extends State<StyledScrollbar> {
         // Calculate handleSize by comparing the total content size to our viewport
         var handleExtent = _viewExtent;
         if (contentExtent > _viewExtent) {
-          //Make sure handle is never small than the minSize
+          // Make sure handle is never small than the minSize
           handleExtent = max(60, _viewExtent * _viewExtent / contentExtent);
         }
+
         // Hide the handle if content is < the viewExtent
         var showHandle = contentExtent > _viewExtent && contentExtent > 0;
+
         if (hideHandler) {
           showHandle = false;
         }
 
         // Handle color
-        var handleColor = widget.handleColor ?? (theme.isDark ? theme.bg2.withOpacity(.2) : theme.bg2);
+        var handleColor = widget.handleColor ??
+            (theme.isDark ? theme.bg2.withOpacity(.2) : theme.bg2);
         // Track color
-        var trackColor = widget.trackColor ?? (theme.isDark ? theme.bg2.withOpacity(.1) : theme.bg2.withOpacity(.3));
+        var trackColor = widget.trackColor ??
+            (theme.isDark
+                ? theme.bg2.withOpacity(.1)
+                : theme.bg2.withOpacity(.3));
 
         //Layout the stack, it just contains a child, and
         return Stack(children: <Widget>[
@@ -149,8 +154,12 @@ class ScrollbarState extends State<StyledScrollbar> {
               alignment: const Alignment(1, 1),
               child: Container(
                 color: trackColor,
-                width: widget.axis == Axis.vertical ? widget.size : double.infinity,
-                height: widget.axis == Axis.horizontal ? widget.size : double.infinity,
+                width: widget.axis == Axis.vertical
+                    ? widget.size
+                    : double.infinity,
+                height: widget.axis == Axis.horizontal
+                    ? widget.size
+                    : double.infinity,
               ),
             ),
 
@@ -167,10 +176,14 @@ class ScrollbarState extends State<StyledScrollbar> {
               // HANDLE SHAPE
               child: MouseHoverBuilder(
                 builder: (_, isHovered) => Container(
-                  width: widget.axis == Axis.vertical ? widget.size : handleExtent,
-                  height: widget.axis == Axis.horizontal ? widget.size : handleExtent,
+                  width:
+                      widget.axis == Axis.vertical ? widget.size : handleExtent,
+                  height: widget.axis == Axis.horizontal
+                      ? widget.size
+                      : handleExtent,
                   decoration: BoxDecoration(
-                      color: handleColor.withOpacity(isHovered ? 1 : .85), borderRadius: Corners.s3Border),
+                      color: handleColor.withOpacity(isHovered ? 1 : .85),
+                      borderRadius: Corners.s3Border),
                 ),
               ),
             ),
@@ -182,15 +195,19 @@ class ScrollbarState extends State<StyledScrollbar> {
 
   void _handleHorizontalDrag(DragUpdateDetails details) {
     var pos = widget.controller.offset;
-    var pxRatio = (widget.controller.position.maxScrollExtent + _viewExtent) / _viewExtent;
-    widget.controller.jumpTo((pos + details.delta.dx * pxRatio).clamp(0.0, widget.controller.position.maxScrollExtent));
+    var pxRatio = (widget.controller.position.maxScrollExtent + _viewExtent) /
+        _viewExtent;
+    widget.controller.jumpTo((pos + details.delta.dx * pxRatio)
+        .clamp(0.0, widget.controller.position.maxScrollExtent));
     widget.onDrag?.call(details.delta.dx);
   }
 
   void _handleVerticalDrag(DragUpdateDetails details) {
     var pos = widget.controller.offset;
-    var pxRatio = (widget.controller.position.maxScrollExtent + _viewExtent) / _viewExtent;
-    widget.controller.jumpTo((pos + details.delta.dy * pxRatio).clamp(0.0, widget.controller.position.maxScrollExtent));
+    var pxRatio = (widget.controller.position.maxScrollExtent + _viewExtent) /
+        _viewExtent;
+    widget.controller.jumpTo((pos + details.delta.dy * pxRatio)
+        .clamp(0.0, widget.controller.position.maxScrollExtent));
     widget.onDrag?.call(details.delta.dy);
   }
 }
@@ -204,6 +221,7 @@ class ScrollbarListStack extends StatelessWidget {
   final EdgeInsets? scrollbarPadding;
   final Color? handleColor;
   final Color? trackColor;
+  final bool autoHideScrollbar;
 
   const ScrollbarListStack(
       {Key? key,
@@ -214,6 +232,7 @@ class ScrollbarListStack extends StatelessWidget {
       this.contentSize,
       this.scrollbarPadding,
       this.handleColor,
+      this.autoHideScrollbar = true,
       this.trackColor})
       : super(key: key);
 
@@ -238,6 +257,7 @@ class ScrollbarListStack extends StatelessWidget {
             contentSize: contentSize,
             trackColor: trackColor,
             handleColor: handleColor,
+            autoHideScrollbar: autoHideScrollbar,
           ),
         )
             // The animate will be used by the children that using styled_widget.

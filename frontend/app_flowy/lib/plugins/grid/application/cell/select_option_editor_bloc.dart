@@ -103,11 +103,19 @@ class SelectOptionCellEditorBloc
   void _filterOption(String optionName, Emitter<SelectOptionEditorState> emit) {
     final _MakeOptionResult result =
         _makeOptions(Some(optionName), state.allOptions);
-    emit(state.copyWith(
-      filter: Some(optionName),
-      options: result.options,
-      createOption: result.createOption,
-    ));
+    if (optionName.isEmpty) {
+      emit(state.copyWith(
+        filter: Some(optionName),
+        options: result.options,
+        createOption: none(),
+      ));
+    } else {
+      emit(state.copyWith(
+        filter: Some(optionName),
+        options: result.options,
+        createOption: result.createOption,
+      ));
+    }
   }
 
   void _loadOptions() {
