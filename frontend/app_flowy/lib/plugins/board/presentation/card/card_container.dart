@@ -7,11 +7,13 @@ import 'package:styled_widget/styled_widget.dart';
 class BoardCardContainer extends StatelessWidget {
   final Widget child;
   final CardAccessoryBuilder? accessoryBuilder;
+  final bool Function()? buildAccessoryWhen;
   final void Function(BuildContext) onTap;
   const BoardCardContainer({
     required this.child,
     required this.onTap,
     this.accessoryBuilder,
+    this.buildAccessoryWhen,
     Key? key,
   }) : super(key: key);
 
@@ -22,7 +24,12 @@ class BoardCardContainer extends StatelessWidget {
       child: Consumer<_CardContainerNotifier>(
         builder: (context, notifier, _) {
           Widget container = Center(child: child);
-          if (accessoryBuilder != null) {
+          bool shouldBuildAccessory = true;
+          if (buildAccessoryWhen != null) {
+            shouldBuildAccessory = buildAccessoryWhen!.call();
+          }
+
+          if (accessoryBuilder != null && shouldBuildAccessory) {
             final accessories = accessoryBuilder!(context);
             if (accessories.isNotEmpty) {
               container = _CardEnterRegion(

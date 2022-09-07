@@ -25,7 +25,7 @@ class AppFlowyGroupFooter extends StatefulWidget {
 class _AppFlowyGroupFooterState extends State<AppFlowyGroupFooter> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: widget.onAddButtonClick,
       child: SizedBox(
         height: widget.height,

@@ -23,7 +23,6 @@ class BoardCellBuilder {
   Widget buildCell(
     String groupId,
     GridCellIdentifier cellId,
-    bool isEditing,
     EditableCellNotifier cellNotifier,
   ) {
     final cellControllerBuilder = GridCellControllerBuilder(
@@ -69,7 +68,6 @@ class BoardCellBuilder {
         return BoardTextCell(
           groupId: groupId,
           cellControllerBuilder: cellControllerBuilder,
-          isFocus: isEditing,
           editableNotifier: cellNotifier,
           key: key,
         );

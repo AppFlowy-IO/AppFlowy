@@ -8,7 +8,9 @@ pub trait GroupAction: Send + Sync {
     fn default_cell_rev(&self) -> Option<CellRevision> {
         None
     }
-
+    fn use_default_group(&self) -> bool {
+        true
+    }
     fn can_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool;
     fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB>;
     fn remove_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB>;

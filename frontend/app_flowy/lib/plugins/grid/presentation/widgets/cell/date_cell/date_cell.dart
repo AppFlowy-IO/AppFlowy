@@ -46,7 +46,8 @@ class _DateCellState extends GridCellState<GridDateCell> {
   @override
   void initState() {
     _popover = PopoverController();
-    final cellController = widget.cellControllerBuilder.build();
+    final cellController =
+        widget.cellControllerBuilder.build() as GridDateCellController;
     _cellBloc = getIt<DateCellBloc>(param1: cellController)
       ..add(const DateCellEvent.initial());
     super.initState();

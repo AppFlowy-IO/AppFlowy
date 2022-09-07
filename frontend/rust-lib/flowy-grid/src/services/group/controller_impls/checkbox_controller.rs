@@ -27,6 +27,10 @@ impl GroupAction for CheckboxGroupController {
         Some(CellRevision::new(UNCHECK.to_string()))
     }
 
+    fn use_default_group(&self) -> bool {
+        false
+    }
+
     fn can_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool {
         if cell_data.is_check() {
             content == CHECK
