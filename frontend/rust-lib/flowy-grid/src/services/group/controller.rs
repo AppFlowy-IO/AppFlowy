@@ -182,7 +182,13 @@ where
     }
 
     fn groups(&self) -> Vec<Group> {
-        self.group_ctx.clone_groups()
+        if self.use_default_group() {
+            let mut groups: Vec<Group> = self.group_ctx.concrete_groups().into_iter().cloned().collect();
+            groups.push(self.group_ctx.default_group().clone());
+            groups
+        } else {
+            self.group_ctx.concrete_groups().into_iter().cloned().collect()
+        }
     }
 
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {

@@ -83,6 +83,7 @@ class _BoardContentState extends State<BoardContent> {
         buildWhen: (previous, current) => previous.groupIds != current.groupIds,
         builder: (context, state) {
           final column = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [const _ToolbarBlocAdaptor(), _buildBoard(context)],
           );
 
