@@ -214,7 +214,7 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildCard(
     BuildContext context,
-    AppFlowyGroupData column,
+    AppFlowyGroupData group,
     AppFlowyGroupItem columnItem,
   ) {
     final boardColumnItem = columnItem as BoardColumnItem;
@@ -241,10 +241,11 @@ class _BoardContentState extends State<BoardContent> {
       },
     );
 
-    ValueKey? key = cardKeysCache[columnItem.id];
+    final groupItemId = columnItem.id + group.id;
+    ValueKey? key = cardKeysCache[groupItemId];
     if (key == null) {
-      final newKey = ValueKey(columnItem.id);
-      cardKeysCache[columnItem.id] = newKey;
+      final newKey = ValueKey(groupItemId);
+      cardKeysCache[groupItemId] = newKey;
       key = newKey;
     }
 
@@ -254,7 +255,7 @@ class _BoardContentState extends State<BoardContent> {
       decoration: _makeBoxDecoration(context),
       child: BoardCard(
         gridId: gridId,
-        groupId: column.id,
+        groupId: group.id,
         fieldId: boardColumnItem.fieldContext.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
