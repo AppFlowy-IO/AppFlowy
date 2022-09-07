@@ -130,6 +130,7 @@ class _PropertyList extends StatelessWidget {
                 axis: Axis.vertical,
                 controller: _scrollController,
                 barSize: GridSize.scrollBarSize,
+                autoHideScrollbar: false,
                 child: ListView.separated(
                   controller: _scrollController,
                   itemCount: state.gridCells.length,
@@ -145,7 +146,25 @@ class _PropertyList extends StatelessWidget {
                 ),
               ),
             ),
-            _CreateFieldButton(viewId: viewId),
+            _CreateFieldButton(
+              viewId: viewId,
+              onCreated: () {
+                // _scrollController.
+                FieldEditor(
+                  gridId: viewId,
+                  typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
+                  onRemoved: () {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      _scrollController.animateTo(
+                        _scrollController.position.maxScrollExtent,
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.ease,
+                      );
+                    });
+                  },
+                ).show(context);
+              },
+            ),
           ],
         );
       },
@@ -155,7 +174,12 @@ class _PropertyList extends StatelessWidget {
 
 class _CreateFieldButton extends StatelessWidget {
   final String viewId;
-  const _CreateFieldButton({required this.viewId, Key? key}) : super(key: key);
+  final VoidCallback onCreated;
+  const _CreateFieldButton({
+    required this.viewId,
+    required this.onCreated,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -169,11 +193,7 @@ class _CreateFieldButton extends StatelessWidget {
           fontSize: 12,
         ),
         hoverColor: theme.shader6,
-        onTap: () => FieldEditor(
-          gridId: viewId,
-          fieldName: "",
-          typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
-        ).show(context),
+        onTap: () => onCreated(),
         leftIcon: svgWidget("home/add"),
       ),
     );
