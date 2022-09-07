@@ -33,6 +33,7 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
     final theme = context.watch<AppTheme>();
     return RoundedInputField(
       height: 36,
+      autoFocus: true,
       style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
       controller: controller,
       normalBorderColor: theme.shader4,
@@ -47,7 +48,8 @@ class _FieldNameTextFieldState extends State<FieldNameTextField> {
   @override
   void didUpdateWidget(covariant FieldNameTextField oldWidget) {
     controller.text = widget.name;
-    controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
 
     super.didUpdateWidget(oldWidget);
   }

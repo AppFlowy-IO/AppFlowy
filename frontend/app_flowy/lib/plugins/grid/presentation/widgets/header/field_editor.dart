@@ -13,12 +13,14 @@ import 'field_type_option_editor.dart';
 class FieldEditor extends StatefulWidget {
   final String gridId;
   final String fieldName;
+  final VoidCallback? onRemoved;
 
   final IFieldTypeOptionLoader typeOptionLoader;
   const FieldEditor({
     required this.gridId,
-    required this.fieldName,
+    this.fieldName = "",
     required this.typeOptionLoader,
+    this.onRemoved,
     Key? key,
   }) : super(key: key);
 
