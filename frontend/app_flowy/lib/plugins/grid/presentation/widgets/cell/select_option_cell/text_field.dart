@@ -32,10 +32,10 @@ class SelectOptionTextField extends StatelessWidget {
     required this.onNewTag,
     required this.newText,
     this.onClick,
-    TextEditingController? controller,
+    TextEditingController? textController,
     FocusNode? focusNode,
     Key? key,
-  })  : _controller = controller ?? TextEditingController(),
+  })  : _controller = textController ?? TextEditingController(),
         _focusNode = focusNode ?? FocusNode(),
         super(key: key);
 
@@ -48,7 +48,7 @@ class SelectOptionTextField extends StatelessWidget {
       textfieldTagsController: tagController,
       initialTags: selectedOptionMap.keys.toList(),
       focusNode: _focusNode,
-      textSeparators: const [' ', ','],
+      textSeparators: const [','],
       inputfieldBuilder: (BuildContext context, editController, focusNode,
           error, onChanged, onSubmitted) {
         return ((context, sc, tags, onTagDelegate) {
@@ -70,6 +70,7 @@ class SelectOptionTextField extends StatelessWidget {
 
               if (text.isNotEmpty) {
                 onNewTag(text);
+                focusNode.requestFocus();
               }
             },
             maxLines: 1,

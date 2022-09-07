@@ -22,7 +22,7 @@ import '../../header/type_option/select_option_editor.dart';
 import 'extension.dart';
 import 'text_field.dart';
 
-const double _editorPannelWidth = 300;
+const double _editorPanelWidth = 300;
 
 class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
   final GridSelectOptionCellController cellController;
@@ -72,8 +72,8 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
     //
     FlowyOverlay.of(context).insertWithAnchor(
       widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(_editorPannelWidth, 300)),
-        child: SizedBox(width: _editorPannelWidth, child: editor),
+        constraints: BoxConstraints.loose(const Size(_editorPanelWidth, 300)),
+        child: SizedBox(width: _editorPanelWidth, child: editor),
       ),
       identifier: SelectOptionCellEditor.identifier(),
       anchorContext: context,
@@ -158,7 +158,7 @@ class _TextField extends StatelessWidget {
           child: SelectOptionTextField(
             options: state.options,
             selectedOptionMap: optionMap,
-            distanceToText: _editorPannelWidth * 0.7,
+            distanceToText: _editorPanelWidth * 0.7,
             tagController: _tagController,
             onClick: () => FlowyOverlay.of(context)
                 .remove(SelectOptionTypeOptionEditor.identifier),
