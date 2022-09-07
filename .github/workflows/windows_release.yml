@@ -60,13 +60,15 @@ jobs:
           cargo install --force duckscript_cli
           cargo make flowy_dev
 
-      
-
       - name: Build Windows app
         working-directory: frontend
         run: |
           flutter config --enable-windows-desktop
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-windows-x86 appflowy
+
+      - name: Archive macOS app
+        working-directory: ${{ env.WINDOWS_APP_RELEASE_PATH }}
+        run: zip -qr ${{ env.WINDOWS_ZIP_NAME }} ./
 
       - name: Upload Release Asset
         id: upload-release-asset
