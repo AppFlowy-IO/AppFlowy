@@ -77,6 +77,22 @@ KeyEventResult _toNumberList(EditorState editorState, TextNode textNode,
     return KeyEventResult.ignored;
   }
 
+  // The user types number + . + space, he wants to turn
+  // this line into number list, but we should check if previous line
+  // is number list.
+  //
+  // Check whether the number input by the user is the successor of the previous
+  // line. If it's not, ignore it.
+  final prevNode = textNode.previous;
+  if (prevNode != null &&
+      prevNode is TextNode &&
+      prevNode.attributes[StyleKey.subtype] == StyleKey.numberList) {
+    final prevNumber = prevNode.attributes[StyleKey.number] as int;
+    if (numValue != prevNumber + 1) {
+      return KeyEventResult.ignored;
+    }
+  }
+
   final afterSelection = Selection.collapsed(Position(
     path: textNode.path,
     offset: 0,
