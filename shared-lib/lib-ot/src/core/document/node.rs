@@ -20,10 +20,13 @@ impl NodeData {
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct NodeSubTree {
     #[serde(rename = "type")]
-    pub node_type: String,
+    pub note_type: String,
+
     pub attributes: NodeAttributes,
+
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delta: Option<TextDelta>,
+
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub children: Vec<NodeSubTree>,
 }
@@ -31,7 +34,7 @@ pub struct NodeSubTree {
 impl NodeSubTree {
     pub fn new(node_type: &str) -> NodeSubTree {
         NodeSubTree {
-            node_type: node_type.into(),
+            note_type: node_type.into(),
             attributes: NodeAttributes::new(),
             delta: None,
             children: Vec::new(),
@@ -40,7 +43,7 @@ impl NodeSubTree {
 
     pub fn to_node_data(&self) -> NodeData {
         NodeData {
-            node_type: self.node_type.clone(),
+            node_type: self.note_type.clone(),
             attributes: self.attributes.clone(),
             delta: self.delta.clone(),
         }

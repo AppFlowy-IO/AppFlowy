@@ -3,11 +3,11 @@ use crate::core::{
     DocumentOperation, NodeAttributes, NodeData, NodeSubTree, OperationTransform, TextDelta, Transaction,
 };
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
-use indextree::{Arena, Children, FollowingSiblings, Node, NodeId};
+use indextree::{Arena, Children, FollowingSiblings, NodeId};
 
 pub struct DocumentTree {
     arena: Arena<NodeData>,
-    pub root: NodeId,
+    root: NodeId,
 }
 
 impl Default for DocumentTree {
@@ -19,6 +19,7 @@ impl Default for DocumentTree {
 impl DocumentTree {
     pub fn new() -> DocumentTree {
         let mut arena = Arena::new();
+
         let root = arena.new_node(NodeData::new("root"));
         DocumentTree { arena, root }
     }
@@ -104,7 +105,7 @@ impl DocumentTree {
     ///
     /// let inserted_note = document.node_at_path(&inserted_path).unwrap();
     /// let inserted_data = document.get_node_data(inserted_note).unwrap();
-    /// assert_eq!(inserted_data.node_type, node.node_type);
+    /// assert_eq!(inserted_data.node_type, node.note_type);
     /// ```
     pub fn child_from_node_with_index(&self, at_node: NodeId, index: usize) -> Option<NodeId> {
         let children = at_node.children(&self.arena);

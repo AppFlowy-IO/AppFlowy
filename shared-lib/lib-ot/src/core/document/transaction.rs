@@ -134,7 +134,7 @@ impl<'a> TransactionBuilder<'a> {
         });
 
         NodeSubTree {
-            node_type: node_data.node_type.clone(),
+            note_type: node_data.node_type.clone(),
             attributes: node_data.attributes.clone(),
             delta: node_data.delta.clone(),
             children,

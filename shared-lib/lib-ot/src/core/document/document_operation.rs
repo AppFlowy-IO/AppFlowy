@@ -169,7 +169,7 @@ mod tests {
         let insert = DocumentOperation::Insert {
             path: Path(vec![0, 1]),
             nodes: vec![NodeSubTree {
-                node_type: "text".into(),
+                note_type: "text".into(),
                 attributes: NodeAttributes::new(),
                 delta: None,
                 children: vec![NodeSubTree::new("text")],

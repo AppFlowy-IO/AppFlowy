@@ -1,4 +1,4 @@
-use lib_ot::core::{DocumentOperation, DocumentTree, NodeAttributes, NodeSubTree, Path, TransactionBuilder};
+use lib_ot::core::{DocumentTree, NodeAttributes, NodeSubTree, Path, TransactionBuilder};
 use lib_ot::errors::OTErrorCode;
 use std::collections::HashMap;
 
@@ -70,7 +70,7 @@ fn test_inserts_subtrees() {
         tb.insert_node_at_path(
             0,
             NodeSubTree {
-                node_type: "text".into(),
+                note_type: "text".into(),
                 attributes: NodeAttributes::new(),
                 delta: None,
                 children: vec![NodeSubTree::new("image")],
