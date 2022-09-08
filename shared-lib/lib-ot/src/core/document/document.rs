@@ -84,7 +84,7 @@ impl DocumentTree {
         counter
     }
 
-    fn child_at_index_of_path(&self, at_node: NodeId, index: usize) -> Option<NodeId> {
+    pub fn child_at_index_of_path(&self, at_node: NodeId, index: usize) -> Option<NodeId> {
         let children = at_node.children(&self.arena);
 
         for (counter, child) in children.enumerate() {

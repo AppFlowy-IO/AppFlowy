@@ -1,4 +1,4 @@
-use lib_ot::core::{DocumentTree, NodeAttributes, NodeSubTree, Path, TransactionBuilder};
+use lib_ot::core::{DocumentOperation, DocumentTree, NodeAttributes, NodeSubTree, Path, TransactionBuilder};
 use lib_ot::errors::OTErrorCode;
 use std::collections::HashMap;
 
@@ -83,6 +83,18 @@ fn test_inserts_subtrees() {
     let node = document.node_at_path(&Path(vec![0, 0])).unwrap();
     let data = document.arena.get(node).unwrap().get();
     assert_eq!(data.node_type, "image");
+}
+
+#[test]
+fn test_insert_node() {
+    let node = NodeSubTree::new("text");
+    let root_path: Path = vec![0].into();
+    let op = DocumentOperation::Insert {path: root_path.clone(),nodes: vec![node.clone()] };
+    let mut document = DocumentTree::new();
+    document.apply_op(&op).unwrap();
+    let node_id = document.node_at_path(&root_path).unwrap();
+
+    assert!(document.child_at_index_of_path(node_id, 0).is_some());
 }
 
 #[test]
