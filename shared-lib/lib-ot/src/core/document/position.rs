@@ -9,6 +9,12 @@ impl std::ops::Deref for Path {
     }
 }
 
+impl AsRef<Path> for usize {
+    fn as_ref(&self) -> &Path {
+        todo!()
+    }
+}
+
 impl Path {
     // delta is default to be 1
     pub fn transform(pre_insert_path: &Path, b: &Path, offset: i64) -> Path {
