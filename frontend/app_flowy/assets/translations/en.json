@@ -197,7 +197,8 @@
       "duplicate": "Duplicate",
       "delete": "Delete",
       "textPlaceholder": "Empty",
-      "copyProperty": "Copied property to clipboard"
+      "copyProperty": "Copied property to clipboard",
+      "count": "Count"
     },
     "selectOption": {
       "create": "Create",
