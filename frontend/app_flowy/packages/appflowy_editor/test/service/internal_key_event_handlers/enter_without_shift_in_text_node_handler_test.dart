@@ -176,8 +176,15 @@ Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
   await editor.pressLogicKey(
     LogicalKeyboardKey.enter,
   );
-  expect(editor.documentSelection, Selection.single(path: [4], startOffset: 0));
-  expect(editor.nodeAtPath([4])?.subtype, null);
+  if (style == StyleKey.numberList) {
+    expect(
+        editor.documentSelection, Selection.single(path: [5], startOffset: 0));
+    expect(editor.nodeAtPath([4])?.subtype, StyleKey.numberList);
+  } else {
+    expect(
+        editor.documentSelection, Selection.single(path: [4], startOffset: 0));
+    expect(editor.nodeAtPath([4])?.subtype, null);
+  }
 }
 
 Future<void> _testMultipleSelection(
