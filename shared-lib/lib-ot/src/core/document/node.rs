@@ -25,7 +25,7 @@ pub struct NodeSubTree {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub delta: Option<TextDelta>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub children: Vec<Box<NodeSubTree>>,
+    pub children: Vec<NodeSubTree>,
 }
 
 impl NodeSubTree {

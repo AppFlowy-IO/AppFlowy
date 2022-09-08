@@ -1,36 +1,30 @@
-use crate::core::document::position::Position;
+use crate::core::document::position::Path;
 use crate::core::{NodeAttributes, NodeSubTree, TextDelta};
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "op")]
 pub enum DocumentOperation {
     #[serde(rename = "insert")]
-    Insert {
-        path: Position,
-        nodes: Vec<Box<NodeSubTree>>,
-    },
+    Insert { path: Path, nodes: Vec<NodeSubTree> },
     #[serde(rename = "update")]
     Update {
-        path: Position,
+        path: Path,
         attributes: NodeAttributes,
         #[serde(rename = "oldAttributes")]
         old_attributes: NodeAttributes,
     },
     #[serde(rename = "delete")]
-    Delete {
-        path: Position,
-        nodes: Vec<Box<NodeSubTree>>,
-    },
+    Delete { path: Path, nodes: Vec<NodeSubTree> },
     #[serde(rename = "text-edit")]
     TextEdit {
-        path: Position,
+        path: Path,
         delta: TextDelta,
         inverted: TextDelta,
     },
 }
 
 impl DocumentOperation {
-    pub fn path(&self) -> &Position {
+    pub fn path(&self) -> &Path {
         match self {
             DocumentOperation::Insert { path, .. } => path,
             DocumentOperation::Update { path, .. } => path,
@@ -64,7 +58,7 @@ impl DocumentOperation {
             },
         }
     }
-    pub fn clone_with_new_path(&self, path: Position) -> DocumentOperation {
+    pub fn clone_with_new_path(&self, path: Path) -> DocumentOperation {
         match self {
             DocumentOperation::Insert { nodes, .. } => DocumentOperation::Insert {
                 path,
@@ -93,11 +87,11 @@ impl DocumentOperation {
     pub fn transform(a: &DocumentOperation, b: &DocumentOperation) -> DocumentOperation {
         match a {
             DocumentOperation::Insert { path: a_path, nodes } => {
-                let new_path = Position::transform(a_path, b.path(), nodes.len() as i64);
+                let new_path = Path::transform(a_path, b.path(), nodes.len() as i64);
                 b.clone_with_new_path(new_path)
             }
             DocumentOperation::Delete { path: a_path, nodes } => {
-                let new_path = Position::transform(a_path, b.path(), nodes.len() as i64);
+                let new_path = Path::transform(a_path, b.path(), nodes.len() as i64);
                 b.clone_with_new_path(new_path)
             }
             _ => b.clone(),
@@ -107,12 +101,12 @@ impl DocumentOperation {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{Delta, DocumentOperation, NodeAttributes, NodeSubTree, Position};
+    use crate::core::{Delta, DocumentOperation, NodeAttributes, NodeSubTree, Path};
 
     #[test]
     fn test_transform_path_1() {
         assert_eq!(
-            { Position::transform(&Position(vec![0, 1]), &Position(vec![0, 1]), 1) }.0,
+            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 1]), 1) }.0,
             vec![0, 2]
         );
     }
@@ -120,7 +114,7 @@ mod tests {
     #[test]
     fn test_transform_path_2() {
         assert_eq!(
-            { Position::transform(&Position(vec![0, 1]), &Position(vec![0, 2]), 1) }.0,
+            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 2]), 1) }.0,
             vec![0, 3]
         );
     }
@@ -128,7 +122,7 @@ mod tests {
     #[test]
     fn test_transform_path_3() {
         assert_eq!(
-            { Position::transform(&Position(vec![0, 1]), &Position(vec![0, 2, 7, 8, 9]), 1) }.0,
+            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 2, 7, 8, 9]), 1) }.0,
             vec![0, 3, 7, 8, 9]
         );
     }
@@ -136,15 +130,15 @@ mod tests {
     #[test]
     fn test_transform_path_not_changed() {
         assert_eq!(
-            { Position::transform(&Position(vec![0, 1, 2]), &Position(vec![0, 0, 7, 8, 9]), 1) }.0,
+            { Path::transform(&Path(vec![0, 1, 2]), &Path(vec![0, 0, 7, 8, 9]), 1) }.0,
             vec![0, 0, 7, 8, 9]
         );
         assert_eq!(
-            { Position::transform(&Position(vec![0, 1, 2]), &Position(vec![0, 1]), 1) }.0,
+            { Path::transform(&Path(vec![0, 1, 2]), &Path(vec![0, 1]), 1) }.0,
             vec![0, 1]
         );
         assert_eq!(
-            { Position::transform(&Position(vec![1, 1]), &Position(vec![1, 0]), 1) }.0,
+            { Path::transform(&Path(vec![1, 1]), &Path(vec![1, 0]), 1) }.0,
             vec![1, 0]
         );
     }
@@ -152,7 +146,7 @@ mod tests {
     #[test]
     fn test_transform_delta() {
         assert_eq!(
-            { Position::transform(&Position(vec![0, 1]), &Position(vec![0, 1]), 5) }.0,
+            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 1]), 5) }.0,
             vec![0, 6]
         );
     }
@@ -160,8 +154,8 @@ mod tests {
     #[test]
     fn test_serialize_insert_operation() {
         let insert = DocumentOperation::Insert {
-            path: Position(vec![0, 1]),
-            nodes: vec![Box::new(NodeSubTree::new("text"))],
+            path: Path(vec![0, 1]),
+            nodes: vec![NodeSubTree::new("text")],
         };
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(
@@ -173,13 +167,13 @@ mod tests {
     #[test]
     fn test_serialize_insert_sub_trees() {
         let insert = DocumentOperation::Insert {
-            path: Position(vec![0, 1]),
-            nodes: vec![Box::new(NodeSubTree {
+            path: Path(vec![0, 1]),
+            nodes: vec![NodeSubTree {
                 node_type: "text".into(),
                 attributes: NodeAttributes::new(),
                 delta: None,
-                children: vec![Box::new(NodeSubTree::new("text"))],
-            })],
+                children: vec![NodeSubTree::new("text")],
+            }],
         };
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(
@@ -191,7 +185,7 @@ mod tests {
     #[test]
     fn test_serialize_update_operation() {
         let insert = DocumentOperation::Update {
-            path: Position(vec![0, 1]),
+            path: Path(vec![0, 1]),
             attributes: NodeAttributes::new(),
             old_attributes: NodeAttributes::new(),
         };
@@ -205,7 +199,7 @@ mod tests {
     #[test]
     fn test_serialize_text_edit_operation() {
         let insert = DocumentOperation::TextEdit {
-            path: Position(vec![0, 1]),
+            path: Path(vec![0, 1]),
             delta: Delta::new(),
             inverted: Delta::new(),
         };
