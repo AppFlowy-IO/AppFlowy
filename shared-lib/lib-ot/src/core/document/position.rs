@@ -1,4 +1,6 @@
-#[derive(Clone, serde::Serialize, serde::Deserialize)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
 pub struct Path(pub Vec<usize>);
 
 impl std::ops::Deref for Path {

@@ -23,6 +23,21 @@ impl DocumentTree {
         DocumentTree { arena, root }
     }
 
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::{DocumentOperation, DocumentTree, NodeSubTree, Path};
+    /// let nodes = vec![NodeSubTree::new("text")];
+    /// let root_path: Path = vec![0].into();
+    /// let op = DocumentOperation::Insert {path: root_path.clone(),nodes };
+    ///
+    /// let mut document = DocumentTree::new();
+    /// document.apply_op(&op).unwrap();
+    /// let node_id = document.node_at_path(&root_path).unwrap();
+    /// let node_path = document.path_of_node(node_id);
+    /// debug_assert_eq!(node_path, root_path);
+    /// ```
     pub fn node_at_path<T: Into<Path>>(&self, path: T) -> Option<NodeId> {
         let path = path.into();
         if path.is_empty() {
@@ -36,30 +51,9 @@ impl DocumentTree {
         Some(iterate_node)
     }
 
-    ///
-    ///
-    /// # Arguments
-    ///
-    /// * `node_id`:
-    ///
-    /// returns: Path
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use lib_ot::core::{DocumentOperation, DocumentTree, NodeSubTree, Path};
-    /// let text_node = NodeSubTree::new("text");
-    /// let path: Path = vec![0].into();
-    /// let op = DocumentOperation::Insert {path: path.clone(),nodes: vec![text_node
-    /// ]};
-    /// let mut document = DocumentTree::new();
-    /// document.apply_op(&op).unwrap();
-    /// let node_id = document.node_at_path(&path).unwrap();
-    ///
-    /// ```
     pub fn path_of_node(&self, node_id: NodeId) -> Path {
         let mut path: Vec<usize> = Vec::new();
-        let mut ancestors = node_id.ancestors(&self.arena);
+        let mut ancestors = node_id.ancestors(&self.arena).skip(1);
         let mut current_node = node_id;
         let mut parent = ancestors.next();
 
@@ -76,10 +70,8 @@ impl DocumentTree {
 
     fn index_of_node(&self, parent_node: NodeId, child_node: NodeId) -> usize {
         let mut counter: usize = 0;
-
         let mut children_iterator = parent_node.children(&self.arena);
         let mut node = children_iterator.next();
-
         while node.is_some() {
             if node.unwrap() == child_node {
                 return counter;
