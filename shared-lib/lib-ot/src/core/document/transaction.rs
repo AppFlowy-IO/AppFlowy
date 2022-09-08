@@ -26,11 +26,65 @@ impl<'a> TransactionBuilder<'a> {
         }
     }
 
-    pub fn insert_nodes_at_path(&mut self, path: &Path, nodes: &[NodeSubTree]) {
+
+    ///
+    ///
+    /// # Arguments
+    ///
+    /// * `path`: the path that is used to save the nodes
+    /// * `nodes`: the nodes you will be save in the path
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // 0
+    /// // -- 0
+    /// //    |-- text_1
+    /// //    |-- text_2
+    /// use lib_ot::core::{DocumentTree, NodeSubTree, TransactionBuilder};
+    /// let mut document = DocumentTree::new();
+    /// let transaction = {
+    ///     let mut tb = TransactionBuilder::new(&document);
+    ///     tb.insert_nodes_at_path(0,vec![ NodeSubTree::new("text_1"),  NodeSubTree::new("text_2")]);
+    ///     tb.finalize()
+    /// };
+    ///  document.apply(transaction).unwrap();
+    ///
+    ///  document.node_at_path(vec![0, 0]);
+    /// ```
+    ///
+    pub fn insert_nodes_at_path<T: Into<Path>>(&mut self, path: T, nodes: Vec<NodeSubTree>) {
         self.push(DocumentOperation::Insert {
-            path: path.clone(),
-            nodes: nodes.to_vec(),
+            path: path.into(),
+            nodes,
         });
+    }
+
+    ///
+    ///
+    /// # Arguments
+    ///
+    /// * `path`: the path that is used to save the nodes
+    /// * `node`: the node data will be saved in the path
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // 0
+    /// // -- 0
+    /// //    |-- text
+    /// use lib_ot::core::{DocumentTree, NodeSubTree, TransactionBuilder};
+    /// let mut document = DocumentTree::new();
+    /// let transaction = {
+    ///     let mut tb = TransactionBuilder::new(&document);
+    ///     tb.insert_node_at_path(0, NodeSubTree::new("text"));
+    ///     tb.finalize()
+    /// };
+    ///  document.apply(transaction).unwrap();
+    /// ```
+    ///
+    pub fn insert_node_at_path<T: Into<Path>>(&mut self, path: T, node: NodeSubTree) {
+       self.insert_nodes_at_path(path, vec![node]);
     }
 
     pub fn update_attributes_at_path(&mut self, path: &Path, attributes: HashMap<String, Option<String>>) {

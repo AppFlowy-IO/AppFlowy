@@ -13,13 +13,13 @@ fn test_documents() {
     let mut document = DocumentTree::new();
     let transaction = {
         let mut tb = TransactionBuilder::new(&document);
-        tb.insert_nodes_at_path(&vec![0].into(), &[NodeSubTree::new("text")]);
+        tb.insert_node_at_path(0, NodeSubTree::new("text"));
         tb.finalize()
     };
     document.apply(transaction).unwrap();
 
-    assert!(document.node_at_path(&vec![0].into()).is_some());
-    let node = document.node_at_path(&vec![0].into()).unwrap();
+    assert!(document.node_at_path(0).is_some());
+    let node = document.node_at_path(0).unwrap();
     let node_data = document.arena.get(node).unwrap().get();
     assert_eq!(node_data.node_type, "text");
 
@@ -39,7 +39,7 @@ fn test_documents() {
         tb.finalize()
     };
     document.apply(transaction).unwrap();
-    assert!(document.node_at_path(&vec![0].into()).is_none());
+    assert!(document.node_at_path(0).is_none());
 }
 
 #[test]
@@ -47,16 +47,16 @@ fn test_inserts_nodes() {
     let mut document = DocumentTree::new();
     let transaction = {
         let mut tb = TransactionBuilder::new(&document);
-        tb.insert_nodes_at_path(&vec![0].into(), &[NodeSubTree::new("text")]);
-        tb.insert_nodes_at_path(&vec![1].into(), &[NodeSubTree::new("text")]);
-        tb.insert_nodes_at_path(&vec![2].into(), &[NodeSubTree::new("text")]);
+        tb.insert_node_at_path(0, NodeSubTree::new("text"));
+        tb.insert_node_at_path(1, NodeSubTree::new("text"));
+        tb.insert_node_at_path(2, NodeSubTree::new("text"));
         tb.finalize()
     };
     document.apply(transaction).unwrap();
 
     let transaction = {
         let mut tb = TransactionBuilder::new(&document);
-        tb.insert_nodes_at_path(&vec![1].into(), &[NodeSubTree::new("text")]);
+        tb.insert_node_at_path(1, NodeSubTree::new("text"));
         tb.finalize()
     };
     document.apply(transaction).unwrap();
@@ -67,14 +67,14 @@ fn test_inserts_subtrees() {
     let mut document = DocumentTree::new();
     let transaction = {
         let mut tb = TransactionBuilder::new(&document);
-        tb.insert_nodes_at_path(
-            &vec![0].into(),
-            &[NodeSubTree {
+        tb.insert_node_at_path(
+            0,
+            NodeSubTree {
                 node_type: "text".into(),
                 attributes: NodeAttributes::new(),
                 delta: None,
                 children: vec![NodeSubTree::new("image")],
-            }],
+            },
         );
         tb.finalize()
     };
@@ -90,9 +90,9 @@ fn test_update_nodes() {
     let mut document = DocumentTree::new();
     let transaction = {
         let mut tb = TransactionBuilder::new(&document);
-        tb.insert_nodes_at_path(&vec![0].into(), &[NodeSubTree::new("text")]);
-        tb.insert_nodes_at_path(&vec![1].into(), &[NodeSubTree::new("text")]);
-        tb.insert_nodes_at_path(&vec![2].into(), &[NodeSubTree::new("text")]);
+        tb.insert_node_at_path(&vec![0], NodeSubTree::new("text"));
+        tb.insert_node_at_path(&vec![1], NodeSubTree::new("text"));
+        tb.insert_node_at_path(vec![2], NodeSubTree::new("text"));
         tb.finalize()
     };
     document.apply(transaction).unwrap();
@@ -115,9 +115,9 @@ fn test_delete_nodes() {
     let mut document = DocumentTree::new();
     let transaction = {
         let mut tb = TransactionBuilder::new(&document);
-        tb.insert_nodes_at_path(&vec![0].into(), &[NodeSubTree::new("text")]);
-        tb.insert_nodes_at_path(&vec![1].into(), &[NodeSubTree::new("text")]);
-        tb.insert_nodes_at_path(&vec![2].into(), &[NodeSubTree::new("text")]);
+        tb.insert_node_at_path(0, NodeSubTree::new("text"));
+        tb.insert_node_at_path(1, NodeSubTree::new("text"));
+        tb.insert_node_at_path(2, NodeSubTree::new("text"));
         tb.finalize()
     };
     document.apply(transaction).unwrap();
@@ -138,8 +138,8 @@ fn test_errors() {
     let mut document = DocumentTree::new();
     let transaction = {
         let mut tb = TransactionBuilder::new(&document);
-        tb.insert_nodes_at_path(&vec![0].into(), &[NodeSubTree::new("text")]);
-        tb.insert_nodes_at_path(&vec![100].into(), &[NodeSubTree::new("text")]);
+        tb.insert_node_at_path(0, NodeSubTree::new("text"));
+        tb.insert_node_at_path(100, NodeSubTree::new("text"));
         tb.finalize()
     };
     let result = document.apply(transaction);

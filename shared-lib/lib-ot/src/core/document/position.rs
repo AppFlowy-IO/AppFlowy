@@ -9,11 +9,36 @@ impl std::ops::Deref for Path {
     }
 }
 
-impl AsRef<Path> for usize {
-    fn as_ref(&self) -> &Path {
-        todo!()
+impl std::convert::Into<Path> for usize {
+    fn into(self) -> Path {
+        Path(vec![self])
     }
 }
+
+impl std::convert::Into<Path> for &usize {
+    fn into(self) -> Path {
+        Path(vec![*self])
+    }
+}
+
+impl std::convert::Into<Path> for &Path {
+    fn into(self) -> Path {
+       self.clone()
+    }
+}
+
+impl From<Vec<usize>> for Path {
+    fn from(v: Vec<usize>) -> Self {
+        Path(v)
+    }
+}
+
+impl From<&Vec<usize>> for Path {
+    fn from(values: &Vec<usize>) -> Self {
+        Path(values.clone())
+    }
+}
+
 
 impl Path {
     // delta is default to be 1
@@ -42,11 +67,5 @@ impl Path {
         prefix.append(&mut suffix);
 
         Path(prefix)
-    }
-}
-
-impl From<Vec<usize>> for Path {
-    fn from(v: Vec<usize>) -> Self {
-        Path(v)
     }
 }

@@ -23,7 +23,8 @@ impl DocumentTree {
         DocumentTree { arena, root }
     }
 
-    pub fn node_at_path(&self, path: &Path) -> Option<NodeId> {
+    pub fn node_at_path<T: Into<Path>>(&self, path: T) -> Option<NodeId> {
+        let path = path.into();
         if path.is_empty() {
             return Some(self.root);
         }
@@ -120,8 +121,12 @@ impl DocumentTree {
     }
 
     fn apply_insert(&mut self, path: &Path, nodes: &[NodeSubTree]) -> Result<(), OTError> {
+
+
         let parent_path = &path.0[0..(path.0.len() - 1)];
         let last_index = path.0[path.0.len() - 1];
+
+
         let parent_node = self
             .node_at_path(&Path(parent_path.to_vec()))
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
