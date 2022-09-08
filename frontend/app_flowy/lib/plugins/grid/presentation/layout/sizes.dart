@@ -5,7 +5,7 @@ class GridSize {
 
   static double get scrollBarSize => 12 * scale;
   static double get headerHeight => 40 * scale;
-  static double get footerHeight => 100 * scale;
+  static double get footerHeight => 40 * scale;
   static double get leadingHeaderPadding => 50 * scale;
   static double get trailHeaderPadding => 140 * scale;
   static double get headerContainerPadding => 0 * scale;
@@ -35,7 +35,7 @@ class GridSize {
       );
 
   static EdgeInsets get footerContentInsets => EdgeInsets.fromLTRB(
-        0,
+        GridSize.leadingHeaderPadding,
         GridSize.headerContainerPadding,
         GridSize.headerContainerPadding,
         GridSize.headerContainerPadding,
