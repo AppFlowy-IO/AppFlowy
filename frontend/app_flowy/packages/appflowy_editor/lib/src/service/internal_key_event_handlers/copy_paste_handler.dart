@@ -23,7 +23,7 @@ Selection _computeSelectionAfterPasteMultipleNodes(
       Position(path: currentPath, offset: lenOfLastNode));
 }
 
-_handleCopy(EditorState editorState) async {
+void _handleCopy(EditorState editorState) async {
   final selection = editorState.cursorSelection?.normalize;
   if (selection == null || selection.isCollapsed) {
     return;
@@ -59,7 +59,7 @@ _handleCopy(EditorState editorState) async {
   RichClipboard.setData(RichClipboardData(html: copyString));
 }
 
-_pasteHTML(EditorState editorState, String html) {
+void _pasteHTML(EditorState editorState, String html) {
   final selection = editorState.cursorSelection?.normalize;
   if (selection == null) {
     return;
@@ -150,7 +150,7 @@ void _pasteMultipleLinesInText(
   tb.commit();
 }
 
-_handlePaste(EditorState editorState) async {
+void _handlePaste(EditorState editorState) async {
   final data = await RichClipboard.getData();
 
   if (editorState.cursorSelection?.isCollapsed ?? false) {
@@ -165,7 +165,7 @@ _handlePaste(EditorState editorState) async {
   });
 }
 
-_pastRichClipboard(EditorState editorState, RichClipboardData data) {
+void _pastRichClipboard(EditorState editorState, RichClipboardData data) {
   if (data.html != null) {
     _pasteHTML(editorState, data.html!);
     return;
@@ -176,7 +176,8 @@ _pastRichClipboard(EditorState editorState, RichClipboardData data) {
   }
 }
 
-_pasteSingleLine(EditorState editorState, Selection selection, String line) {
+void _pasteSingleLine(
+    EditorState editorState, Selection selection, String line) {
   final node = editorState.document.nodeAtPath(selection.end.path)! as TextNode;
   final beginOffset = selection.end.offset;
   TransactionBuilder(editorState)
@@ -216,7 +217,7 @@ Delta _lineContentToDelta(String lineContent) {
   return delta;
 }
 
-_handlePastePlainText(EditorState editorState, String plainText) {
+void _handlePastePlainText(EditorState editorState, String plainText) {
   final selection = editorState.cursorSelection?.normalize;
   if (selection == null) {
     return;
@@ -278,12 +279,12 @@ _handlePastePlainText(EditorState editorState, String plainText) {
 
 /// 1. copy the selected content
 /// 2. delete selected content
-_handleCut(EditorState editorState) {
+void _handleCut(EditorState editorState) {
   _handleCopy(editorState);
   _deleteSelectedContent(editorState);
 }
 
-_deleteSelectedContent(EditorState editorState) {
+void _deleteSelectedContent(EditorState editorState) {
   final selection = editorState.cursorSelection?.normalize;
   if (selection == null || selection.isCollapsed) {
     return;
