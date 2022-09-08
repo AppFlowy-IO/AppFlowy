@@ -16,19 +16,11 @@ Selection _computeSelectionAfterPasteMultipleNodes(
     EditorState editorState, List<Node> nodes) {
   final currentSelection = editorState.cursorSelection!;
   final currentCursor = currentSelection.start;
-  final currentNode = editorState.document.nodeAtPath(currentCursor.path)!;
   final currentPath = [...currentCursor.path];
-  if (currentNode is TextNode) {
-    currentPath[currentPath.length - 1] += nodes.length;
-    int lenOfLastNode = _textLengthOfNode(nodes.last);
-    return Selection.collapsed(
-        Position(path: currentPath, offset: lenOfLastNode));
-  } else {
-    currentPath[currentPath.length - 1] += nodes.length;
-    int lenOfLastNode = _textLengthOfNode(nodes.last);
-    return Selection.collapsed(
-        Position(path: currentPath, offset: lenOfLastNode));
-  }
+  currentPath[currentPath.length - 1] += nodes.length;
+  int lenOfLastNode = _textLengthOfNode(nodes.last);
+  return Selection.collapsed(
+      Position(path: currentPath, offset: lenOfLastNode));
 }
 
 _handleCopy(EditorState editorState) async {
@@ -105,11 +97,8 @@ _pasteHTML(EditorState editorState, String html) {
   _pasteMultipleLinesInText(editorState, path, selection.start.offset, nodes);
 }
 
-_pasteMultipleLinesInText(
+void _pasteMultipleLinesInText(
     EditorState editorState, List<int> path, int offset, List<Node> nodes) {
-  final afterSelection =
-      _computeSelectionAfterPasteMultipleNodes(editorState, nodes);
-
   final tb = TransactionBuilder(editorState);
 
   final firstNode = nodes[0];
@@ -131,6 +120,10 @@ _pasteMultipleLinesInText(
 
     final tailNodes = nodes.sublist(1);
     path[path.length - 1]++;
+
+    final afterSelection =
+        _computeSelectionAfterPasteMultipleNodes(editorState, tailNodes);
+
     if (tailNodes.isNotEmpty) {
       if (tailNodes.last.type == "text") {
         final tailTextNode = tailNodes.last as TextNode;
@@ -148,7 +141,11 @@ _pasteMultipleLinesInText(
     return;
   }
 
+  final afterSelection =
+      _computeSelectionAfterPasteMultipleNodes(editorState, nodes);
+
   path[path.length - 1]++;
+  tb.setAfterSelection(afterSelection);
   tb.insertNodes(path, nodes);
   tb.commit();
 }
