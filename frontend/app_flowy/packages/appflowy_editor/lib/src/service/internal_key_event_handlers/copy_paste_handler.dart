@@ -4,6 +4,33 @@ import 'package:appflowy_editor/src/document/node_iterator.dart';
 import 'package:flutter/material.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
+int _textLengthOfNode(Node node) {
+  if (node is TextNode) {
+    return node.delta.length;
+  }
+
+  return 0;
+}
+
+Selection _computeSelectionAfterPasteMultipleNodes(
+    EditorState editorState, List<Node> nodes) {
+  final currentSelection = editorState.cursorSelection!;
+  final currentCursor = currentSelection.start;
+  final currentNode = editorState.document.nodeAtPath(currentCursor.path)!;
+  final currentPath = [...currentCursor.path];
+  if (currentNode is TextNode) {
+    currentPath[currentPath.length - 1] += nodes.length;
+    int lenOfLastNode = _textLengthOfNode(nodes.last);
+    return Selection.collapsed(
+        Position(path: currentPath, offset: lenOfLastNode));
+  } else {
+    currentPath[currentPath.length - 1] += nodes.length;
+    int lenOfLastNode = _textLengthOfNode(nodes.last);
+    return Selection.collapsed(
+        Position(path: currentPath, offset: lenOfLastNode));
+  }
+}
+
 _handleCopy(EditorState editorState) async {
   final selection = editorState.cursorSelection?.normalize;
   if (selection == null || selection.isCollapsed) {
@@ -80,6 +107,9 @@ _pasteHTML(EditorState editorState, String html) {
 
 _pasteMultipleLinesInText(
     EditorState editorState, List<int> path, int offset, List<Node> nodes) {
+  final afterSelection =
+      _computeSelectionAfterPasteMultipleNodes(editorState, nodes);
+
   final tb = TransactionBuilder(editorState);
 
   final firstNode = nodes[0];
@@ -112,6 +142,7 @@ _pasteMultipleLinesInText(
       tailNodes.add(TextNode(type: "text", delta: remain));
     }
 
+    tb.setAfterSelection(afterSelection);
     tb.insertNodes(path, tailNodes);
     tb.commit();
     return;
@@ -219,16 +250,21 @@ _handlePastePlainText(EditorState editorState, String plainText) {
     final insertedLineSuffix = node.delta.slice(beginOffset);
 
     path[path.length - 1]++;
-    var index = 0;
     final tb = TransactionBuilder(editorState);
-    final nodes = remains.map((e) {
-      if (index++ == remains.length - 1) {
-        return TextNode(
-            type: "text",
-            delta: _lineContentToDelta(e)..addAll(insertedLineSuffix));
-      }
-      return TextNode(type: "text", delta: _lineContentToDelta(e));
-    }).toList();
+    final List<TextNode> nodes = remains
+        .map((e) => TextNode(type: "text", delta: _lineContentToDelta(e)))
+        .toList();
+
+    final afterSelection =
+        _computeSelectionAfterPasteMultipleNodes(editorState, nodes);
+
+    // append remain text to the last line
+    if (nodes.isNotEmpty) {
+      final last = nodes.last;
+      nodes[nodes.length - 1] =
+          TextNode(type: "text", delta: last.delta..addAll(insertedLineSuffix));
+    }
+
     // insert first line
     tb.textEdit(
         node,
@@ -238,11 +274,8 @@ _handlePastePlainText(EditorState editorState, String plainText) {
           ..delete(node.delta.length - beginOffset));
     // insert remains
     tb.insertNodes(path, nodes);
+    tb.setAfterSelection(afterSelection);
     tb.commit();
-
-    // fixme: don't set the cursor manually
-    editorState.updateCursorSelection(Selection.collapsed(
-        Position(path: nodes.last.path, offset: lines.last.length)));
   }
 }
 
