@@ -41,6 +41,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
           didReceiveRowUpdate: (newRowInfos, reason) {
             emit(state.copyWith(
               rowInfos: newRowInfos,
+              rowCount: newRowInfos.length,
               reason: reason,
             ));
           },
@@ -117,6 +118,7 @@ class GridState with _$GridState {
     required Option<GridPB> grid,
     required GridFieldEquatable fields,
     required List<RowInfo> rowInfos,
+    required int rowCount,
     required GridLoadingState loadingState,
     required RowsChangedReason reason,
   }) = _GridState;
@@ -124,6 +126,7 @@ class GridState with _$GridState {
   factory GridState.initial(String gridId) => GridState(
         fields: GridFieldEquatable(UnmodifiableListView([])),
         rowInfos: [],
+        rowCount: 0,
         grid: none(),
         gridId: gridId,
         loadingState: const _Loading(),
