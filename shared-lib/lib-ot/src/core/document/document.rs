@@ -121,14 +121,15 @@ impl DocumentTree {
     }
 
     fn apply_insert(&mut self, path: &Path, nodes: &[NodeSubTree]) -> Result<(), OTError> {
+        debug_assert!(!path.is_empty());
+        if path.is_empty() {
+            return Err(OTErrorCode::PathIsEmpty.into());
+        }
 
-
-        let parent_path = &path.0[0..(path.0.len() - 1)];
-        let last_index = path.0[path.0.len() - 1];
-
-
+        let (parent_path, last_path) = path.split_at(path.0.len() - 1);
+        let last_index = *last_path.first().unwrap();
         let parent_node = self
-            .node_at_path(&Path(parent_path.to_vec()))
+            .node_at_path(parent_path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         self.insert_child_at_index(parent_node, last_index, nodes)

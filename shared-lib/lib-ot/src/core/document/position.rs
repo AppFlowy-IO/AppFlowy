@@ -39,6 +39,12 @@ impl From<&Vec<usize>> for Path {
     }
 }
 
+impl From<&[usize]> for Path {
+    fn from(values: &[usize]) -> Self {
+        Path(values.to_vec())
+    }
+}
+
 
 impl Path {
     // delta is default to be 1
