@@ -17,10 +17,6 @@ class StyledScrollbar extends StatefulWidget {
   final bool autoHideScrollbar;
   final Color? handleColor;
   final Color? trackColor;
-
-  // ignore: todo
-  // TODO: Remove contentHeight if we can fix this issue
-  // https://stackoverflow.com/questions/60855712/flutter-how-to-force-scrollcontroller-to-recalculate-position-maxextents
   final double? contentSize;
 
   const StyledScrollbar(
@@ -48,25 +44,7 @@ class ScrollbarState extends State<StyledScrollbar> {
   @override
   void initState() {
     widget.controller.addListener(() => setState(() {}));
-    widget.controller.position.isScrollingNotifier.addListener(
-      () {
-        if (!mounted) return;
-        if (!widget.autoHideScrollbar) return;
-        _hideScrollbarOperation?.cancel();
-        if (!widget.controller.position.isScrollingNotifier.value) {
-          _hideScrollbarOperation = CancelableOperation.fromFuture(
-            Future.delayed(const Duration(seconds: 2), () {}),
-          ).then((_) {
-            hideHandler = true;
-            if (mounted) {
-              setState(() {});
-            }
-          });
-        } else {
-          hideHandler = false;
-        }
-      },
-    );
+    _listenOnScrollPositionChanged();
     super.initState();
   }
 
@@ -77,6 +55,7 @@ class ScrollbarState extends State<StyledScrollbar> {
 
   @override
   void didUpdateWidget(StyledScrollbar oldWidget) {
+    _listenOnScrollPositionChanged();
     if (oldWidget.contentSize != widget.contentSize) setState(() {});
     super.didUpdateWidget(oldWidget);
   }
@@ -209,6 +188,27 @@ class ScrollbarState extends State<StyledScrollbar> {
     widget.controller.jumpTo((pos + details.delta.dy * pxRatio)
         .clamp(0.0, widget.controller.position.maxScrollExtent));
     widget.onDrag?.call(details.delta.dy);
+  }
+
+  void _listenOnScrollPositionChanged() {
+    widget.controller.position.isScrollingNotifier.addListener(
+      () {
+        if (!mounted) return;
+        if (!widget.autoHideScrollbar) return;
+
+        _hideScrollbarOperation?.cancel();
+        if (!widget.controller.position.isScrollingNotifier.value) {
+          _hideScrollbarOperation = CancelableOperation.fromFuture(
+            Future.delayed(const Duration(seconds: 2), () {}),
+          ).then((_) {
+            hideHandler = true;
+            if (mounted) setState(() {});
+          });
+        } else {
+          hideHandler = false;
+        }
+      },
+    );
   }
 }
 

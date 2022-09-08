@@ -43,7 +43,9 @@ class StyledSingleChildScrollViewState
 
   @override
   void dispose() {
-    // scrollController.dispose();
+    if (widget.controller == null) {
+      scrollController.dispose();
+    }
     super.dispose();
   }
 
@@ -109,6 +111,9 @@ class StyledCustomScrollViewState extends State<StyledCustomScrollView> {
 
   @override
   void dispose() {
+    if (widget.verticalController == null) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
