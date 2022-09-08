@@ -37,10 +37,9 @@ impl<'a> TransactionBuilder<'a> {
     /// # Examples
     ///
     /// ```
-    /// // 0
-    /// // -- 0
-    /// //    |-- text_1
-    /// //    |-- text_2
+    /// // -- 0 (root)
+    /// //      0 -- text_1
+    /// //      1 -- text_2
     /// use lib_ot::core::{DocumentTree, NodeSubTree, TransactionBuilder};
     /// let mut document = DocumentTree::new();
     /// let transaction = {
@@ -90,7 +89,7 @@ impl<'a> TransactionBuilder<'a> {
     pub fn update_attributes_at_path(&mut self, path: &Path, attributes: HashMap<String, Option<String>>) {
         let mut old_attributes: HashMap<String, Option<String>> = HashMap::new();
         let node = self.document.node_at_path(path).unwrap();
-        let node_data = self.document.arena.get(node).unwrap().get();
+        let node_data = self.document.get_node_data(node).unwrap();
 
         for key in attributes.keys() {
             let old_attrs = &node_data.attributes;
@@ -117,7 +116,7 @@ impl<'a> TransactionBuilder<'a> {
         let mut deleted_nodes  = vec![];
         for _ in 0..length {
             deleted_nodes.push(self.get_deleted_nodes(node));
-            node = node.following_siblings(&self.document.arena).next().unwrap();
+            node =  self.document.following_siblings(node).next().unwrap();
         }
 
         self.operations.push(DocumentOperation::Delete {
@@ -127,10 +126,10 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     fn get_deleted_nodes(&self, node_id: NodeId) -> NodeSubTree {
-        let node_data = self.document.arena.get(node_id).unwrap().get();
+        let node_data = self.document.get_node_data(node_id).unwrap();
 
         let mut children  = vec![];
-        node_id.children(&self.document.arena).for_each(|child_id| {
+        self.document.children_from_node(node_id).for_each(|child_id| {
             children.push(self.get_deleted_nodes(child_id));
         });
 

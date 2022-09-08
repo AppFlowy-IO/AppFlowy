@@ -3,10 +3,10 @@ use crate::core::{
     DocumentOperation, NodeAttributes, NodeData, NodeSubTree, OperationTransform, TextDelta, Transaction,
 };
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
-use indextree::{Arena, NodeId};
+use indextree::{Arena, Children, FollowingSiblings, Node, NodeId};
 
 pub struct DocumentTree {
-    pub arena: Arena<NodeData>,
+    arena: Arena<NodeData>,
     pub root: NodeId,
 }
 
@@ -46,7 +46,7 @@ impl DocumentTree {
 
         let mut iterate_node = self.root;
         for id in path.iter() {
-            iterate_node = self.child_at_index_of_path(iterate_node, *id)?;
+            iterate_node = self.child_from_node_with_index(iterate_node, *id)?;
         }
         Some(iterate_node)
     }
@@ -84,9 +84,30 @@ impl DocumentTree {
         counter
     }
 
-    pub fn child_at_index_of_path(&self, at_node: NodeId, index: usize) -> Option<NodeId> {
+    ///
+    /// # Arguments
+    ///
+    /// * `at_node`:
+    /// * `index`:
+    ///
+    /// returns: Option<NodeId>
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::{DocumentOperation, DocumentTree, NodeSubTree, Path};
+    /// let node = NodeSubTree::new("text");
+    /// let inserted_path: Path = vec![0].into();
+    ///
+    /// let mut document = DocumentTree::new();
+    /// document.apply_op(&DocumentOperation::Insert {path: inserted_path.clone(),nodes: vec![node.clone()] }).unwrap();
+    ///
+    /// let inserted_note = document.node_at_path(&inserted_path).unwrap();
+    /// let inserted_data = document.get_node_data(inserted_note).unwrap();
+    /// assert_eq!(inserted_data.node_type, node.node_type);
+    /// ```
+    pub fn child_from_node_with_index(&self, at_node: NodeId, index: usize) -> Option<NodeId> {
         let children = at_node.children(&self.arena);
-
         for (counter, child) in children.enumerate() {
             if counter == index {
                 return Some(child);
@@ -94,6 +115,22 @@ impl DocumentTree {
         }
 
         None
+    }
+
+    pub fn children_from_node(&self, node_id: NodeId) -> Children<'_, NodeData> {
+        node_id.children(&self.arena)
+    }
+
+    pub fn get_node_data(&self, node_id: NodeId) -> Option<&NodeData> {
+        Some(self.arena.get(node_id)?.get())
+    }
+
+    pub fn number_of_children(&self) -> usize {
+        self.root.children(&self.arena).fold(0, |count, _| count + 1)
+    }
+
+    pub fn following_siblings(&self, node_id: NodeId) -> FollowingSiblings<'_, NodeData> {
+        node_id.following_siblings(&self.arena)
     }
 
     pub fn apply(&mut self, transaction: Transaction) -> Result<(), OTError> {
@@ -146,7 +183,7 @@ impl DocumentTree {
         }
 
         let node_to_insert = self
-            .child_at_index_of_path(parent, index)
+            .child_from_node_with_index(parent, index)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         self.insert_subtree_before(&node_to_insert, insert_children);

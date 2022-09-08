@@ -20,7 +20,7 @@ fn test_documents() {
 
     assert!(document.node_at_path(0).is_some());
     let node = document.node_at_path(0).unwrap();
-    let node_data = document.arena.get(node).unwrap().get();
+    let node_data = document.get_node_data(node).unwrap();
     assert_eq!(node_data.node_type, "text");
 
     let transaction = {
@@ -81,20 +81,8 @@ fn test_inserts_subtrees() {
     document.apply(transaction).unwrap();
 
     let node = document.node_at_path(&Path(vec![0, 0])).unwrap();
-    let data = document.arena.get(node).unwrap().get();
+    let data = document.get_node_data(node).unwrap();
     assert_eq!(data.node_type, "image");
-}
-
-#[test]
-fn test_insert_node() {
-    let node = NodeSubTree::new("text");
-    let root_path: Path = vec![0].into();
-    let op = DocumentOperation::Insert {path: root_path.clone(),nodes: vec![node.clone()] };
-    let mut document = DocumentTree::new();
-    document.apply_op(&op).unwrap();
-    let node_id = document.node_at_path(&root_path).unwrap();
-
-    assert!(document.child_at_index_of_path(node_id, 0).is_some());
 }
 
 #[test]
@@ -117,7 +105,7 @@ fn test_update_nodes() {
     document.apply(transaction).unwrap();
 
     let node = document.node_at_path(&Path(vec![1])).unwrap();
-    let node_data = document.arena.get(node).unwrap().get();
+    let node_data = document.get_node_data(node).unwrap();
     let is_bold = node_data.attributes.0.get("bolded").unwrap().clone();
     assert_eq!(is_bold.unwrap(), "true");
 }
@@ -141,7 +129,7 @@ fn test_delete_nodes() {
     };
     document.apply(transaction).unwrap();
 
-    let len = document.root.children(&document.arena).fold(0, |count, _| count + 1);
+    let len = document.number_of_children();
     assert_eq!(len, 2);
 }
 
