@@ -397,14 +397,12 @@ void main() async {
       final editor = tester.editor;
       await editor.startTesting();
 
-      for (var i = 0; i < multiText.length; i++) {
-        editor.insertTextNode(multiText[i]);
-      }
+        editor.insertTextNode(singleLineText);
 
       final node = editor.nodeAtPath([0]) as TextNode;
       final selection = Selection(
           start: Position(path: [0], offset: 0),
-          end: Position(path: [7 - 1], offset: 20));
+          end: Position(path: [1], offset: singleLineText.length));
 
       await editor.updateSelection(selection);
 
