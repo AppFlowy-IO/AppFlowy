@@ -46,6 +46,7 @@ class InitAppWidgetTask extends LaunchTask {
         ],
         path: 'assets/translations',
         fallbackLocale: const Locale('en'),
+        useFallbackTranslations: true,
         saveLocale: false,
         child: app,
       ),
