@@ -1,6 +1,7 @@
 use crate::core::{NodeAttributes, TextDelta};
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq, Debug)]
 pub struct NodeData {
     pub node_type: String,
     pub attributes: NodeAttributes,
@@ -17,7 +18,7 @@ impl NodeData {
     }
 }
 
-#[derive(Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct NodeSubTree {
     #[serde(rename = "type")]
     pub note_type: String,

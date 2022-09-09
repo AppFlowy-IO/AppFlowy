@@ -126,8 +126,18 @@ impl DocumentTree {
         Some(self.arena.get(node_id)?.get())
     }
 
-    pub fn number_of_children(&self) -> usize {
-        self.root.children(&self.arena).fold(0, |count, _| count + 1)
+    ///
+    /// # Arguments
+    ///
+    /// * `node_id`: if the node_is is None, then will use root node_id.
+    ///
+    /// returns number of the children of the root node
+    ///
+    pub fn number_of_children(&self, node_id: Option<NodeId>) -> usize {
+        match node_id {
+            None => self.root.children(&self.arena).count(),
+            Some(node_id) => node_id.children(&self.arena).count(),
+        }
     }
 
     pub fn following_siblings(&self, node_id: NodeId) -> FollowingSiblings<'_, NodeData> {
@@ -176,9 +186,7 @@ impl DocumentTree {
             return Ok(());
         }
 
-        let children_length = parent.children(&self.arena).fold(0, |counter, _| counter + 1);
-
-        if index == children_length {
+        if index == parent.children(&self.arena).count() {
             self.append_subtree(&parent, insert_children);
             return Ok(());
         }

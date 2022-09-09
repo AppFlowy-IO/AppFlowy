@@ -1,7 +1,6 @@
 use crate::core::document::position::Path;
-use crate::core::{DocumentOperation, DocumentTree, NodeAttributes, NodeSubTree};
+use crate::core::{AttributeMap, DocumentOperation, DocumentTree, NodeAttributes, NodeSubTree};
 use indextree::NodeId;
-use std::collections::HashMap;
 
 pub struct Transaction {
     pub operations: Vec<DocumentOperation>,
@@ -81,8 +80,8 @@ impl<'a> TransactionBuilder<'a> {
         self.insert_nodes_at_path(path, vec![node])
     }
 
-    pub fn update_attributes_at_path(self, path: &Path, attributes: HashMap<String, Option<String>>) -> Self {
-        let mut old_attributes: HashMap<String, Option<String>> = HashMap::new();
+    pub fn update_attributes_at_path(self, path: &Path, attributes: AttributeMap) -> Self {
+        let mut old_attributes: AttributeMap = AttributeMap::new();
         let node = self.document.node_at_path(path).unwrap();
         let node_data = self.document.get_node_data(node).unwrap();
 

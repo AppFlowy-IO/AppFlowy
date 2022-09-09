@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
 pub struct Path(pub Vec<usize>);
@@ -25,7 +25,7 @@ impl std::convert::Into<Path> for &usize {
 
 impl std::convert::Into<Path> for &Path {
     fn into(self) -> Path {
-       self.clone()
+        self.clone()
     }
 }
 
@@ -46,7 +46,6 @@ impl From<&[usize]> for Path {
         Path(values.to_vec())
     }
 }
-
 
 impl Path {
     // delta is default to be 1
