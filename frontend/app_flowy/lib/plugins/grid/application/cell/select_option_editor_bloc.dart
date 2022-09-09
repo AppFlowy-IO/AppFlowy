@@ -146,8 +146,7 @@ class SelectOptionCellEditorBloc
 
           return name.contains(lFilter);
         });
-      }
-      else {
+      } else {
         createOption = none();
       }
     });
