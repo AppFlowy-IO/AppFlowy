@@ -37,6 +37,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
 
   // Multiple selection
   if (!selection.isSingle) {
+    final startNode = editorState.document.nodeAtPath(selection.start.path)!;
     final length = textNodes.length;
     final List<TextNode> subTextNodes =
         length >= 3 ? textNodes.sublist(1, textNodes.length - 1) : [];
@@ -57,6 +58,12 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
       )
       ..afterSelection = afterSelection
       ..commit();
+
+    if (startNode is TextNode && startNode.subtype == StyleKey.numberList) {
+      makeFollowingNodesIncremental(
+          editorState, selection.start.path, afterSelection);
+    }
+
     return KeyEventResult.handled;
   }
 

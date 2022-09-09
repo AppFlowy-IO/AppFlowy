@@ -93,9 +93,19 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       }
     }
   } else {
-    if (textNodes.isNotEmpty) {
-      _deleteTextNodes(transactionBuilder, textNodes, selection);
+    if (textNodes.isEmpty) {
+      return KeyEventResult.handled;
     }
+    final startPosition = selection.start;
+    final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
+    _deleteTextNodes(transactionBuilder, textNodes, selection);
+    transactionBuilder.commit();
+
+    if (nodeAtStart is TextNode && nodeAtStart.subtype == StyleKey.numberList) {
+      makeFollowingNodesIncremental(
+          editorState, startPosition.path, transactionBuilder.afterSelection!);
+    }
+    return KeyEventResult.handled;
   }
 
   if (transactionBuilder.operations.isNotEmpty) {
@@ -156,11 +166,18 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
         );
       }
     }
+    transactionBuilder.commit();
   } else {
+    final startPosition = selection.start;
+    final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
     _deleteTextNodes(transactionBuilder, textNodes, selection);
-  }
+    transactionBuilder.commit();
 
-  transactionBuilder.commit();
+    if (nodeAtStart is TextNode && nodeAtStart.subtype == StyleKey.numberList) {
+      makeFollowingNodesIncremental(
+          editorState, startPosition.path, transactionBuilder.afterSelection!);
+    }
+  }
 
   return KeyEventResult.handled;
 }
