@@ -226,7 +226,16 @@ void main() async {
       await tester.tap(codeButton);
       await tester.pumpAndSettle();
       final node = editor.nodeAtPath([0]) as TextNode;
-      expect(node.subtype, 'code');
+      expect(
+        node.allSatisfyInSelection(
+          code,
+          StyleKey.code,
+          (value) {
+            return value == true;
+          },
+        ),
+        true,
+      );
     });
   }));
 
@@ -283,37 +292,11 @@ void main() async {
     });
   }));
 
-  group('toolbar, link', (() {
-    testWidgets('Select Text, Click Toolbar and set style for link',
-        (tester) async {
-      final editor = tester.editor..insertTextNode(singleLineText);
-      await editor.startTesting();
-
-      final link = Selection(
-          start: Position(path: [0], offset: 0),
-          end: Position(path: [0], offset: singleLineText.length));
-
-      await editor.updateSelection(link);
-      expect(find.byType(ToolbarWidget), findsOneWidget);
-      final linkButton = find.byWidgetPredicate((widget) {
-        if (widget is ToolbarItemWidget) {
-          return widget.item.id == 'appflowy.toolbar.link';
-        }
-        return false;
-      });
-
-      expect(linkButton, findsOneWidget);
-      await tester.tap(linkButton);
-      await tester.pumpAndSettle();
-      final node = editor.nodeAtPath([0]) as TextNode;
-      expect(node.allSatisfyLinkInSelection(link), true);
-    });
-  }));
-
   group('toolbar, highlight', (() {
     testWidgets('Select Text, Click Toolbar and set style for highlighted text',
         (tester) async {
-      final blue = '0xff64b5f6';
+      // FIXME: Use a const value instead of the magic string.
+      const blue = '0x6000BCF0';
       final editor = tester.editor..insertTextNode(singleLineText);
       await editor.startTesting();
 
@@ -333,7 +316,16 @@ void main() async {
       expect(highlightButton, findsOneWidget);
       await tester.tap(highlightButton);
       await tester.pumpAndSettle();
-      expect(node.attributes.backgroundColor, String);
+      expect(
+        node.allSatisfyInSelection(
+          selection,
+          StyleKey.backgroundColor,
+          (value) {
+            return value == blue;
+          },
+        ),
+        true,
+      );
     });
   }));
 }

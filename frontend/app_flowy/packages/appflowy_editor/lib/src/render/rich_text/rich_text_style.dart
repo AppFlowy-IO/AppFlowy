@@ -49,6 +49,7 @@ class StyleKey {
     StyleKey.strikethrough,
     StyleKey.backgroundColor,
     StyleKey.href,
+    StyleKey.code,
   ];
 
   static List<String> globalStyleKeys = [
@@ -58,7 +59,6 @@ class StyleKey {
     StyleKey.bulletedList,
     StyleKey.numberList,
     StyleKey.quote,
-    StyleKey.code,
   ];
 }
 

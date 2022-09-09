@@ -83,6 +83,8 @@ void main() async {
             key = 'highlight';
           } else if (styleKey == StyleKey.href) {
             key = 'link';
+          } else {
+            continue;
           }
           final itemWidget = _itemWidgetForId(tester, 'appflowy.toolbar.$key');
           expect(itemWidget.isHighlight, expectedValue);
