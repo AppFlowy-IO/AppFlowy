@@ -40,6 +40,7 @@ class NumberListTextNodeWidget extends StatefulWidget {
 }
 
 // customize
+const double _numberHorizontalPadding = 8;
 
 class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     with SelectableMixin, DefaultSelectable {
@@ -61,7 +62,8 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
           children: [
             Padding(
               key: iconKey,
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: _numberHorizontalPadding, vertical: 0),
               child: Text(
                 '${widget.textNode.attributes.number.toString()}.',
                 style: const TextStyle(fontSize: 16),
