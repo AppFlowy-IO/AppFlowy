@@ -1,6 +1,8 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/html_converter.dart';
 import 'package:appflowy_editor/src/document/node_iterator.dart';
+import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
@@ -105,6 +107,11 @@ void _pasteMultipleLinesInText(
   final nodeAtPath = editorState.document.nodeAtPath(path)!;
 
   if (nodeAtPath.type == "text" && firstNode.type == "text") {
+    int? startNumber;
+    if (nodeAtPath.subtype == StyleKey.numberList) {
+      startNumber = nodeAtPath.attributes[StyleKey.number] as int;
+    }
+
     // split and merge
     final textNodeAtPath = nodeAtPath as TextNode;
     final firstTextNode = firstNode as TextNode;
@@ -119,6 +126,7 @@ void _pasteMultipleLinesInText(
             firstTextNode.delta);
 
     final tailNodes = nodes.sublist(1);
+    final originalPath = [...path];
     path[path.length - 1]++;
 
     final afterSelection =
@@ -138,6 +146,11 @@ void _pasteMultipleLinesInText(
     tb.setAfterSelection(afterSelection);
     tb.insertNodes(path, tailNodes);
     tb.commit();
+
+    if (startNumber != null) {
+      makeFollowingNodesIncremental(editorState, originalPath, afterSelection,
+          beginNum: startNumber);
+    }
     return;
   }
 
