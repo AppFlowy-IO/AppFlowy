@@ -1,3 +1,4 @@
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -25,7 +26,7 @@ class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
         fieldType: fieldType,
         onSelectField: (fieldType) {
           onSelectField(fieldType);
-          FlowyOverlay.of(context).remove(FieldTypeList.identifier());
+          PopoverContainerState.of(context).closeAll();
         },
       );
     }).toList();
