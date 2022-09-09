@@ -75,6 +75,7 @@ pub enum OTErrorCode {
     RevisionIDConflict,
     Internal,
     PathNotFound,
+    PathIsEmpty,
 }
 
 pub struct ErrorBuilder {

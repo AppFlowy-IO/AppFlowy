@@ -1,18 +1,55 @@
-#[derive(Clone, serde::Serialize, serde::Deserialize)]
-pub struct Position(pub Vec<usize>);
+use serde::{Deserialize, Serialize};
 
-impl Position {
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
-    }
-    pub fn len(&self) -> usize {
-        self.0.len()
+#[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
+pub struct Path(pub Vec<usize>);
+
+impl std::ops::Deref for Path {
+    type Target = Vec<usize>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
-impl Position {
+impl std::convert::Into<Path> for usize {
+    fn into(self) -> Path {
+        Path(vec![self])
+    }
+}
+
+impl std::convert::Into<Path> for &usize {
+    fn into(self) -> Path {
+        Path(vec![*self])
+    }
+}
+
+impl std::convert::Into<Path> for &Path {
+    fn into(self) -> Path {
+        self.clone()
+    }
+}
+
+impl From<Vec<usize>> for Path {
+    fn from(v: Vec<usize>) -> Self {
+        Path(v)
+    }
+}
+
+impl From<&Vec<usize>> for Path {
+    fn from(values: &Vec<usize>) -> Self {
+        Path(values.clone())
+    }
+}
+
+impl From<&[usize]> for Path {
+    fn from(values: &[usize]) -> Self {
+        Path(values.to_vec())
+    }
+}
+
+impl Path {
     // delta is default to be 1
-    pub fn transform(pre_insert_path: &Position, b: &Position, offset: i64) -> Position {
+    pub fn transform(pre_insert_path: &Path, b: &Path, offset: i64) -> Path {
         if pre_insert_path.len() > b.len() {
             return b.clone();
         }
@@ -36,12 +73,6 @@ impl Position {
         }
         prefix.append(&mut suffix);
 
-        Position(prefix)
-    }
-}
-
-impl From<Vec<usize>> for Position {
-    fn from(v: Vec<usize>) -> Self {
-        Position(v)
+        Path(prefix)
     }
 }

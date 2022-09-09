@@ -1,13 +1,13 @@
-use crate::core::document::position::Position;
+use crate::core::document::position::Path;
 use crate::core::{
     DocumentOperation, NodeAttributes, NodeData, NodeSubTree, OperationTransform, TextDelta, Transaction,
 };
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
-use indextree::{Arena, NodeId};
+use indextree::{Arena, Children, FollowingSiblings, NodeId};
 
 pub struct DocumentTree {
-    pub arena: Arena<NodeData>,
-    pub root: NodeId,
+    arena: Arena<NodeData>,
+    root: NodeId,
 }
 
 impl Default for DocumentTree {
@@ -19,32 +19,42 @@ impl Default for DocumentTree {
 impl DocumentTree {
     pub fn new() -> DocumentTree {
         let mut arena = Arena::new();
+
         let root = arena.new_node(NodeData::new("root"));
         DocumentTree { arena, root }
     }
 
-    pub fn node_at_path(&self, position: &Position) -> Option<NodeId> {
-        if position.is_empty() {
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::{DocumentOperation, DocumentTree, NodeSubTree, Path};
+    /// let nodes = vec![NodeSubTree::new("text")];
+    /// let root_path: Path = vec![0].into();
+    /// let op = DocumentOperation::Insert {path: root_path.clone(),nodes };
+    ///
+    /// let mut document = DocumentTree::new();
+    /// document.apply_op(&op).unwrap();
+    /// let node_id = document.node_at_path(&root_path).unwrap();
+    /// let node_path = document.path_of_node(node_id);
+    /// debug_assert_eq!(node_path, root_path);
+    /// ```
+    pub fn node_at_path<T: Into<Path>>(&self, path: T) -> Option<NodeId> {
+        let path = path.into();
+        if path.is_empty() {
             return Some(self.root);
         }
 
         let mut iterate_node = self.root;
-
-        for id in &position.0 {
-            let child = self.child_at_index_of_path(iterate_node, *id);
-            iterate_node = match child {
-                Some(node) => node,
-                None => return None,
-            };
+        for id in path.iter() {
+            iterate_node = self.child_from_node_with_index(iterate_node, *id)?;
         }
-
         Some(iterate_node)
     }
 
-    pub fn path_of_node(&self, node_id: NodeId) -> Position {
+    pub fn path_of_node(&self, node_id: NodeId) -> Path {
         let mut path: Vec<usize> = Vec::new();
-
-        let mut ancestors = node_id.ancestors(&self.arena);
+        let mut ancestors = node_id.ancestors(&self.arena).skip(1);
         let mut current_node = node_id;
         let mut parent = ancestors.next();
 
@@ -56,15 +66,13 @@ impl DocumentTree {
             parent = ancestors.next();
         }
 
-        Position(path)
+        Path(path)
     }
 
     fn index_of_node(&self, parent_node: NodeId, child_node: NodeId) -> usize {
         let mut counter: usize = 0;
-
         let mut children_iterator = parent_node.children(&self.arena);
         let mut node = children_iterator.next();
-
         while node.is_some() {
             if node.unwrap() == child_node {
                 return counter;
@@ -77,9 +85,30 @@ impl DocumentTree {
         counter
     }
 
-    fn child_at_index_of_path(&self, at_node: NodeId, index: usize) -> Option<NodeId> {
+    ///
+    /// # Arguments
+    ///
+    /// * `at_node`:
+    /// * `index`:
+    ///
+    /// returns: Option<NodeId>
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use lib_ot::core::{DocumentOperation, DocumentTree, NodeSubTree, Path};
+    /// let node = NodeSubTree::new("text");
+    /// let inserted_path: Path = vec![0].into();
+    ///
+    /// let mut document = DocumentTree::new();
+    /// document.apply_op(&DocumentOperation::Insert {path: inserted_path.clone(),nodes: vec![node.clone()] }).unwrap();
+    ///
+    /// let inserted_note = document.node_at_path(&inserted_path).unwrap();
+    /// let inserted_data = document.get_node_data(inserted_note).unwrap();
+    /// assert_eq!(inserted_data.node_type, node.note_type);
+    /// ```
+    pub fn child_from_node_with_index(&self, at_node: NodeId, index: usize) -> Option<NodeId> {
         let children = at_node.children(&self.arena);
-
         for (counter, child) in children.enumerate() {
             if counter == index {
                 return Some(child);
@@ -89,6 +118,32 @@ impl DocumentTree {
         None
     }
 
+    pub fn children_from_node(&self, node_id: NodeId) -> Children<'_, NodeData> {
+        node_id.children(&self.arena)
+    }
+
+    pub fn get_node_data(&self, node_id: NodeId) -> Option<&NodeData> {
+        Some(self.arena.get(node_id)?.get())
+    }
+
+    ///
+    /// # Arguments
+    ///
+    /// * `node_id`: if the node_is is None, then will use root node_id.
+    ///
+    /// returns number of the children of the root node
+    ///
+    pub fn number_of_children(&self, node_id: Option<NodeId>) -> usize {
+        match node_id {
+            None => self.root.children(&self.arena).count(),
+            Some(node_id) => node_id.children(&self.arena).count(),
+        }
+    }
+
+    pub fn following_siblings(&self, node_id: NodeId) -> FollowingSiblings<'_, NodeData> {
+        node_id.following_siblings(&self.arena)
+    }
+
     pub fn apply(&mut self, transaction: Transaction) -> Result<(), OTError> {
         for op in &transaction.operations {
             self.apply_op(op)?;
@@ -96,7 +151,7 @@ impl DocumentTree {
         Ok(())
     }
 
-    fn apply_op(&mut self, op: &DocumentOperation) -> Result<(), OTError> {
+    pub fn apply_op(&mut self, op: &DocumentOperation) -> Result<(), OTError> {
         match op {
             DocumentOperation::Insert { path, nodes } => self.apply_insert(path, nodes),
             DocumentOperation::Update { path, attributes, .. } => self.apply_update(path, attributes),
@@ -105,36 +160,39 @@ impl DocumentTree {
         }
     }
 
-    fn apply_insert(&mut self, path: &Position, nodes: &[Box<NodeSubTree>]) -> Result<(), OTError> {
-        let parent_path = &path.0[0..(path.0.len() - 1)];
-        let last_index = path.0[path.0.len() - 1];
+    fn apply_insert(&mut self, path: &Path, nodes: &[NodeSubTree]) -> Result<(), OTError> {
+        debug_assert!(!path.is_empty());
+        if path.is_empty() {
+            return Err(OTErrorCode::PathIsEmpty.into());
+        }
+
+        let (parent_path, last_path) = path.split_at(path.0.len() - 1);
+        let last_index = *last_path.first().unwrap();
         let parent_node = self
-            .node_at_path(&Position(parent_path.to_vec()))
+            .node_at_path(parent_path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
-        self.insert_child_at_index(parent_node, last_index, nodes.as_ref())
+        self.insert_child_at_index(parent_node, last_index, nodes)
     }
 
     fn insert_child_at_index(
         &mut self,
         parent: NodeId,
         index: usize,
-        insert_children: &[Box<NodeSubTree>],
+        insert_children: &[NodeSubTree],
     ) -> Result<(), OTError> {
         if index == 0 && parent.children(&self.arena).next().is_none() {
             self.append_subtree(&parent, insert_children);
             return Ok(());
         }
 
-        let children_length = parent.children(&self.arena).fold(0, |counter, _| counter + 1);
-
-        if index == children_length {
+        if index == parent.children(&self.arena).count() {
             self.append_subtree(&parent, insert_children);
             return Ok(());
         }
 
         let node_to_insert = self
-            .child_at_index_of_path(parent, index)
+            .child_from_node_with_index(parent, index)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         self.insert_subtree_before(&node_to_insert, insert_children);
@@ -142,25 +200,25 @@ impl DocumentTree {
     }
 
     // recursive append the subtrees to the node
-    fn append_subtree(&mut self, parent: &NodeId, insert_children: &[Box<NodeSubTree>]) {
+    fn append_subtree(&mut self, parent: &NodeId, insert_children: &[NodeSubTree]) {
         for child in insert_children {
             let child_id = self.arena.new_node(child.to_node_data());
             parent.append(child_id, &mut self.arena);
 
-            self.append_subtree(&child_id, child.children.as_ref());
+            self.append_subtree(&child_id, &child.children);
         }
     }
 
-    fn insert_subtree_before(&mut self, before: &NodeId, insert_children: &[Box<NodeSubTree>]) {
+    fn insert_subtree_before(&mut self, before: &NodeId, insert_children: &[NodeSubTree]) {
         for child in insert_children {
             let child_id = self.arena.new_node(child.to_node_data());
             before.insert_before(child_id, &mut self.arena);
 
-            self.append_subtree(&child_id, child.children.as_ref());
+            self.append_subtree(&child_id, &child.children);
         }
     }
 
-    fn apply_update(&mut self, path: &Position, attributes: &NodeAttributes) -> Result<(), OTError> {
+    fn apply_update(&mut self, path: &Path, attributes: &NodeAttributes) -> Result<(), OTError> {
         let update_node = self
             .node_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
@@ -177,7 +235,7 @@ impl DocumentTree {
         Ok(())
     }
 
-    fn apply_delete(&mut self, path: &Position, len: usize) -> Result<(), OTError> {
+    fn apply_delete(&mut self, path: &Path, len: usize) -> Result<(), OTError> {
         let mut update_node = self
             .node_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
@@ -193,7 +251,7 @@ impl DocumentTree {
         Ok(())
     }
 
-    fn apply_text_edit(&mut self, path: &Position, delta: &TextDelta) -> Result<(), OTError> {
+    fn apply_text_edit(&mut self, path: &Path, delta: &TextDelta) -> Result<(), OTError> {
         let edit_node = self
             .node_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
