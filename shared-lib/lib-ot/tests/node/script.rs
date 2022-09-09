@@ -1,4 +1,4 @@
-use lib_ot::core::{DocumentTree, NodeAttributes, NodeData, NodeSubTree, Path, TransactionBuilder};
+use lib_ot::core::{DocumentTree, NodeAttributes, NodeSubTree, Path, TransactionBuilder};
 
 pub enum NodeScript {
     InsertNode { path: Path, node: NodeSubTree },
