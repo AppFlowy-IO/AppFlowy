@@ -26,7 +26,6 @@ impl<'a> TransactionBuilder<'a> {
         }
     }
 
-
     ///
     ///
     /// # Arguments
@@ -42,21 +41,19 @@ impl<'a> TransactionBuilder<'a> {
     /// //      1 -- text_2
     /// use lib_ot::core::{DocumentTree, NodeSubTree, TransactionBuilder};
     /// let mut document = DocumentTree::new();
-    /// let transaction = {
-    ///     let mut tb = TransactionBuilder::new(&document);
-    ///     tb.insert_nodes_at_path(0,vec![ NodeSubTree::new("text_1"),  NodeSubTree::new("text_2")]);
-    ///     tb.finalize()
-    /// };
+    /// let transaction = TransactionBuilder::new(&document)
+    ///     .insert_nodes_at_path(0,vec![ NodeSubTree::new("text_1"),  NodeSubTree::new("text_2")])
+    ///     .finalize();
     ///  document.apply(transaction).unwrap();
     ///
     ///  document.node_at_path(vec![0, 0]);
     /// ```
     ///
-    pub fn insert_nodes_at_path<T: Into<Path>>(&mut self, path: T, nodes: Vec<NodeSubTree>) {
+    pub fn insert_nodes_at_path<T: Into<Path>>(self, path: T, nodes: Vec<NodeSubTree>) -> Self {
         self.push(DocumentOperation::Insert {
             path: path.into(),
             nodes,
-        });
+        })
     }
 
     ///
@@ -74,19 +71,17 @@ impl<'a> TransactionBuilder<'a> {
     /// //    |-- text
     /// use lib_ot::core::{DocumentTree, NodeSubTree, TransactionBuilder};
     /// let mut document = DocumentTree::new();
-    /// let transaction = {
-    ///     let mut tb = TransactionBuilder::new(&document);
-    ///     tb.insert_node_at_path(0, NodeSubTree::new("text"));
-    ///     tb.finalize()
-    /// };
+    /// let transaction = TransactionBuilder::new(&document)
+    ///     .insert_node_at_path(0, NodeSubTree::new("text"))
+    ///     .finalize();
     ///  document.apply(transaction).unwrap();
     /// ```
     ///
-    pub fn insert_node_at_path<T: Into<Path>>(&mut self, path: T, node: NodeSubTree) {
-       self.insert_nodes_at_path(path, vec![node]);
+    pub fn insert_node_at_path<T: Into<Path>>(self, path: T, node: NodeSubTree) -> Self {
+        self.insert_nodes_at_path(path, vec![node])
     }
 
-    pub fn update_attributes_at_path(&mut self, path: &Path, attributes: HashMap<String, Option<String>>) {
+    pub fn update_attributes_at_path(self, path: &Path, attributes: HashMap<String, Option<String>>) -> Self {
         let mut old_attributes: HashMap<String, Option<String>> = HashMap::new();
         let node = self.document.node_at_path(path).unwrap();
         let node_data = self.document.get_node_data(node).unwrap();
@@ -107,28 +102,29 @@ impl<'a> TransactionBuilder<'a> {
         })
     }
 
-    pub fn delete_node_at_path(&mut self, path: &Path) {
-        self.delete_nodes_at_path(path, 1);
+    pub fn delete_node_at_path(self, path: &Path) -> Self {
+        self.delete_nodes_at_path(path, 1)
     }
 
-    pub fn delete_nodes_at_path(&mut self, path: &Path, length: usize) {
+    pub fn delete_nodes_at_path(mut self, path: &Path, length: usize) -> Self {
         let mut node = self.document.node_at_path(path).unwrap();
-        let mut deleted_nodes  = vec![];
+        let mut deleted_nodes = vec![];
         for _ in 0..length {
             deleted_nodes.push(self.get_deleted_nodes(node));
-            node =  self.document.following_siblings(node).next().unwrap();
+            node = self.document.following_siblings(node).next().unwrap();
         }
 
         self.operations.push(DocumentOperation::Delete {
             path: path.clone(),
             nodes: deleted_nodes,
-        })
+        });
+        self
     }
 
     fn get_deleted_nodes(&self, node_id: NodeId) -> NodeSubTree {
         let node_data = self.document.get_node_data(node_id).unwrap();
 
-        let mut children  = vec![];
+        let mut children = vec![];
         self.document.children_from_node(node_id).for_each(|child_id| {
             children.push(self.get_deleted_nodes(child_id));
         });
@@ -141,8 +137,9 @@ impl<'a> TransactionBuilder<'a> {
         }
     }
 
-    pub fn push(&mut self, op: DocumentOperation) {
+    pub fn push(mut self, op: DocumentOperation) -> Self {
         self.operations.push(op);
+        self
     }
 
     pub fn finalize(self) -> Transaction {
