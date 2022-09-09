@@ -47,8 +47,6 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
   final iconKey = GlobalKey();
 
   final _richTextKey = GlobalKey(debugLabel: 'number_list_text');
-  final _iconWidth = 20.0;
-  final _iconRightPadding = 5.0;
 
   @override
   SelectableMixin<StatefulWidget> get forward =>
@@ -61,12 +59,13 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FlowySvg(
+            Padding(
               key: iconKey,
-              width: _iconWidth,
-              height: _iconWidth,
-              padding: EdgeInsets.only(right: _iconRightPadding),
-              number: widget.textNode.attributes.number,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+              child: Text(
+                '${widget.textNode.attributes.number.toString()}.',
+                style: const TextStyle(fontSize: 16),
+              ),
             ),
             Flexible(
               child: FlowyRichText(
