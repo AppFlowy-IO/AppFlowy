@@ -1,5 +1,5 @@
 use crate::core::document::path::Path;
-use crate::core::{Node, NodeAttributes, NodeData, NodeOperation, OperationTransform, TextDelta, Transaction};
+use crate::core::{Node, NodeAttributes, NodeBodyChangeset, NodeData, NodeOperation, OperationTransform, Transaction};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, Children, FollowingSiblings, NodeId};
 
@@ -30,7 +30,7 @@ impl NodeTree {
     ///
     /// ```
     /// use lib_ot::core::{NodeOperation, NodeTree, Node, Path};
-    /// let nodes = vec![Node::new("text")];
+    /// let nodes = vec![Node::new("text".to_string())];
     /// let root_path: Path = vec![0].into();
     /// let op = NodeOperation::Insert {path: root_path.clone(),nodes };
     ///
@@ -92,7 +92,7 @@ impl NodeTree {
     ///
     /// ```
     /// use lib_ot::core::{NodeOperation, NodeTree, Node, Path};
-    /// let node = Node::new("text");
+    /// let node = Node::new("text".to_string());
     /// let inserted_path: Path = vec![0].into();
     ///
     /// let mut node_tree = NodeTree::new();
@@ -100,7 +100,7 @@ impl NodeTree {
     ///
     /// let inserted_note = node_tree.node_at_path(&inserted_path).unwrap();
     /// let inserted_data = node_tree.get_node_data(inserted_note).unwrap();
-    /// assert_eq!(inserted_data.node_type, node.note_type);
+    /// assert_eq!(inserted_data.node_type, node.node_type);
     /// ```
     pub fn child_from_node_at_index(&self, node_id: NodeId, index: usize) -> Option<NodeId> {
         let children = node_id.children(&self.arena);
@@ -147,7 +147,7 @@ impl NodeTree {
             NodeOperation::Insert { path, nodes } => self.insert_nodes(path, nodes),
             NodeOperation::Update { path, attributes, .. } => self.update_node(path, attributes),
             NodeOperation::Delete { path, nodes } => self.delete_node(path, nodes),
-            NodeOperation::TextEdit { path, delta, .. } => self.update_delta(path, delta),
+            NodeOperation::EditBody { path, changeset: body } => self.update_body(path, body),
         }
     }
 
@@ -216,6 +216,7 @@ impl NodeTree {
         let mut update_node = self
             .node_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+
         for _ in 0..nodes.len() {
             let next = update_node.following_siblings(&self.arena).next();
             update_node.remove_subtree(&mut self.arena);
@@ -228,19 +229,11 @@ impl NodeTree {
         Ok(())
     }
 
-    fn update_delta(&mut self, path: &Path, delta: &TextDelta) -> Result<(), OTError> {
+    fn update_body(&mut self, path: &Path, changeset: &NodeBodyChangeset) -> Result<(), OTError> {
         self.mut_node_at_path(path, |node_data| {
-            if node_data.delta.is_none() {
-                let msg = format!("The delta of the node at path:{:?} should not be empty", path);
-                tracing::error!("{}", msg);
-                return Err(OTError::new(OTErrorCode::UnexpectedEmpty, msg));
-            }
-            let new_delta = node_data.delta.as_ref().unwrap().compose(delta)?;
-            let _ = node_data.delta = Some(new_delta);
+            node_data.apply_body_changeset(changeset);
             Ok(())
-        })?;
-
-        Ok(())
+        })
     }
 
     fn mut_node_at_path<F>(&mut self, path: &Path, f: F) -> Result<(), OTError>

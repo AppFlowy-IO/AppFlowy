@@ -1,11 +1,13 @@
+use crate::core::document::operation_serde::*;
 use crate::core::document::path::Path;
-use crate::core::{Node, NodeAttributes, TextDelta};
+use crate::core::{Node, NodeAttributes, NodeBodyChangeset};
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "op")]
 pub enum NodeOperation {
     #[serde(rename = "insert")]
     Insert { path: Path, nodes: Vec<Node> },
+
     #[serde(rename = "update")]
     Update {
         path: Path,
@@ -13,14 +15,14 @@ pub enum NodeOperation {
         #[serde(rename = "oldAttributes")]
         old_attributes: NodeAttributes,
     },
+
     #[serde(rename = "delete")]
     Delete { path: Path, nodes: Vec<Node> },
-    #[serde(rename = "text-edit")]
-    TextEdit {
-        path: Path,
-        delta: TextDelta,
-        inverted: TextDelta,
-    },
+
+    #[serde(rename = "edit-body")]
+    #[serde(serialize_with = "serialize_edit_body")]
+    // #[serde(deserialize_with = "operation_serde::deserialize_edit_body")]
+    EditBody { path: Path, changeset: NodeBodyChangeset },
 }
 
 impl NodeOperation {
@@ -29,7 +31,7 @@ impl NodeOperation {
             NodeOperation::Insert { path, .. } => path,
             NodeOperation::Update { path, .. } => path,
             NodeOperation::Delete { path, .. } => path,
-            NodeOperation::TextEdit { path, .. } => path,
+            NodeOperation::EditBody { path, .. } => path,
         }
     }
     pub fn invert(&self) -> NodeOperation {
@@ -51,10 +53,9 @@ impl NodeOperation {
                 path: path.clone(),
                 nodes: nodes.clone(),
             },
-            NodeOperation::TextEdit { path, delta, inverted } => NodeOperation::TextEdit {
+            NodeOperation::EditBody { path, changeset: body } => NodeOperation::EditBody {
                 path: path.clone(),
-                delta: inverted.clone(),
-                inverted: delta.clone(),
+                changeset: body.inverted(),
             },
         }
     }
@@ -77,10 +78,9 @@ impl NodeOperation {
                 path,
                 nodes: nodes.clone(),
             },
-            NodeOperation::TextEdit { delta, inverted, .. } => NodeOperation::TextEdit {
-                path,
-                delta: delta.clone(),
-                inverted: inverted.clone(),
+            NodeOperation::EditBody { path, changeset: body } => NodeOperation::EditBody {
+                path: path.clone(),
+                changeset: body.clone(),
             },
         }
     }
@@ -101,35 +101,27 @@ impl NodeOperation {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{Delta, Node, NodeAttributes, NodeOperation, Path};
+    use crate::core::{Node, NodeAttributes, NodeBodyChangeset, NodeBuilder, NodeOperation, Path, TextDelta};
     #[test]
     fn test_serialize_insert_operation() {
         let insert = NodeOperation::Insert {
             path: Path(vec![0, 1]),
-            nodes: vec![Node::new("text")],
+            nodes: vec![Node::new("text".to_owned())],
         };
         let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(
-            result,
-            r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","attributes":{}}]}"#
-        );
+        assert_eq!(result, r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}"#);
     }
 
     #[test]
     fn test_serialize_insert_sub_trees() {
         let insert = NodeOperation::Insert {
             path: Path(vec![0, 1]),
-            nodes: vec![Node {
-                note_type: "text".into(),
-                attributes: NodeAttributes::new(),
-                delta: None,
-                children: vec![Node::new("text")],
-            }],
+            nodes: vec![NodeBuilder::new("text").add_node(Node::new("text".to_owned())).build()],
         };
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(
             result,
-            r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","attributes":{},"children":[{"type":"text","attributes":{}}]}]}"#
+            r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","children":[{"type":"text"}]}]}"#
         );
     }
 
@@ -149,12 +141,15 @@ mod tests {
 
     #[test]
     fn test_serialize_text_edit_operation() {
-        let insert = NodeOperation::TextEdit {
+        let changeset = NodeBodyChangeset::Delta {
+            delta: TextDelta::new(),
+            inverted: TextDelta::new(),
+        };
+        let insert = NodeOperation::EditBody {
             path: Path(vec![0, 1]),
-            delta: Delta::new(),
-            inverted: Delta::new(),
+            changeset,
         };
         let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(result, r#"{"op":"text-edit","path":[0,1],"delta":[],"inverted":[]}"#);
+        assert_eq!(result, r#"{"op":"edit-body","path":[0,1],"delta":[],"inverted":[]}"#);
     }
 }

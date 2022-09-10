@@ -127,9 +127,9 @@ impl<'a> TransactionBuilder<'a> {
         });
 
         Node {
-            note_type: node_data.node_type.clone(),
+            node_type: node_data.node_type.clone(),
             attributes: node_data.attributes.clone(),
-            delta: node_data.delta.clone(),
+            body: node_data.body.clone(),
             children,
         }
     }
