@@ -92,7 +92,7 @@ impl<'a> TransactionBuilder<'a> {
             }
         }
 
-        self.push(NodeOperation::Update {
+        self.push(NodeOperation::UpdateAttributes {
             path: path.clone(),
             attributes,
             old_attributes,

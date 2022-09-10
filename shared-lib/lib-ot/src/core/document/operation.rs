@@ -9,29 +9,29 @@ pub enum NodeOperation {
     Insert { path: Path, nodes: Vec<Node> },
 
     #[serde(rename = "update")]
-    Update {
+    UpdateAttributes {
         path: Path,
         attributes: NodeAttributes,
         #[serde(rename = "oldAttributes")]
         old_attributes: NodeAttributes,
     },
 
-    #[serde(rename = "delete")]
-    Delete { path: Path, nodes: Vec<Node> },
-
     #[serde(rename = "edit-body")]
     #[serde(serialize_with = "serialize_edit_body")]
     // #[serde(deserialize_with = "operation_serde::deserialize_edit_body")]
-    EditBody { path: Path, changeset: NodeBodyChangeset },
+    UpdateBody { path: Path, changeset: NodeBodyChangeset },
+
+    #[serde(rename = "delete")]
+    Delete { path: Path, nodes: Vec<Node> },
 }
 
 impl NodeOperation {
     pub fn path(&self) -> &Path {
         match self {
             NodeOperation::Insert { path, .. } => path,
-            NodeOperation::Update { path, .. } => path,
+            NodeOperation::UpdateAttributes { path, .. } => path,
             NodeOperation::Delete { path, .. } => path,
-            NodeOperation::EditBody { path, .. } => path,
+            NodeOperation::UpdateBody { path, .. } => path,
         }
     }
     pub fn invert(&self) -> NodeOperation {
@@ -40,11 +40,11 @@ impl NodeOperation {
                 path: path.clone(),
                 nodes: nodes.clone(),
             },
-            NodeOperation::Update {
+            NodeOperation::UpdateAttributes {
                 path,
                 attributes,
                 old_attributes,
-            } => NodeOperation::Update {
+            } => NodeOperation::UpdateAttributes {
                 path: path.clone(),
                 attributes: old_attributes.clone(),
                 old_attributes: attributes.clone(),
@@ -53,7 +53,7 @@ impl NodeOperation {
                 path: path.clone(),
                 nodes: nodes.clone(),
             },
-            NodeOperation::EditBody { path, changeset: body } => NodeOperation::EditBody {
+            NodeOperation::UpdateBody { path, changeset: body } => NodeOperation::UpdateBody {
                 path: path.clone(),
                 changeset: body.inverted(),
             },
@@ -65,11 +65,11 @@ impl NodeOperation {
                 path,
                 nodes: nodes.clone(),
             },
-            NodeOperation::Update {
+            NodeOperation::UpdateAttributes {
                 attributes,
                 old_attributes,
                 ..
-            } => NodeOperation::Update {
+            } => NodeOperation::UpdateAttributes {
                 path,
                 attributes: attributes.clone(),
                 old_attributes: old_attributes.clone(),
@@ -78,9 +78,9 @@ impl NodeOperation {
                 path,
                 nodes: nodes.clone(),
             },
-            NodeOperation::EditBody { path, changeset: body } => NodeOperation::EditBody {
+            NodeOperation::UpdateBody { path, changeset } => NodeOperation::UpdateBody {
                 path: path.clone(),
-                changeset: body.clone(),
+                changeset: changeset.clone(),
             },
         }
     }
@@ -127,7 +127,7 @@ mod tests {
 
     #[test]
     fn test_serialize_update_operation() {
-        let insert = NodeOperation::Update {
+        let insert = NodeOperation::UpdateAttributes {
             path: Path(vec![0, 1]),
             attributes: NodeAttributes::new(),
             old_attributes: NodeAttributes::new(),
@@ -145,7 +145,7 @@ mod tests {
             delta: TextDelta::new(),
             inverted: TextDelta::new(),
         };
-        let insert = NodeOperation::EditBody {
+        let insert = NodeOperation::UpdateBody {
             path: Path(vec![0, 1]),
             changeset,
         };
