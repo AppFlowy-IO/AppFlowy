@@ -1,24 +1,24 @@
 use crate::core::document::position::Path;
-use crate::core::{AttributeValue, DocumentOperation, DocumentTree, Node, NodeAttributes};
+use crate::core::{AttributeValue, Node, NodeAttributes, NodeOperation, NodeTree};
 use indextree::NodeId;
 
 pub struct Transaction {
-    pub operations: Vec<DocumentOperation>,
+    pub operations: Vec<NodeOperation>,
 }
 
 impl Transaction {
-    fn new(operations: Vec<DocumentOperation>) -> Transaction {
+    fn new(operations: Vec<NodeOperation>) -> Transaction {
         Transaction { operations }
     }
 }
 
 pub struct TransactionBuilder<'a> {
-    document: &'a DocumentTree,
-    operations: Vec<DocumentOperation>,
+    document: &'a NodeTree,
+    operations: Vec<NodeOperation>,
 }
 
 impl<'a> TransactionBuilder<'a> {
-    pub fn new(document: &'a DocumentTree) -> TransactionBuilder {
+    pub fn new(document: &'a NodeTree) -> TransactionBuilder {
         TransactionBuilder {
             document,
             operations: Vec::new(),
@@ -38,18 +38,18 @@ impl<'a> TransactionBuilder<'a> {
     /// // -- 0 (root)
     /// //      0 -- text_1
     /// //      1 -- text_2
-    /// use lib_ot::core::{DocumentTree, Node, TransactionBuilder};
-    /// let mut document = DocumentTree::new();
-    /// let transaction = TransactionBuilder::new(&document)
+    /// use lib_ot::core::{NodeTree, Node, TransactionBuilder};
+    /// let mut node_tree = NodeTree::new();
+    /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_nodes_at_path(0,vec![ Node::new("text_1"),  Node::new("text_2")])
     ///     .finalize();
-    ///  document.apply(transaction).unwrap();
+    ///  node_tree.apply(transaction).unwrap();
     ///
-    ///  document.node_at_path(vec![0, 0]);
+    ///  node_tree.node_at_path(vec![0, 0]);
     /// ```
     ///
     pub fn insert_nodes_at_path<T: Into<Path>>(self, path: T, nodes: Vec<Node>) -> Self {
-        self.push(DocumentOperation::Insert {
+        self.push(NodeOperation::Insert {
             path: path.into(),
             nodes,
         })
@@ -68,12 +68,12 @@ impl<'a> TransactionBuilder<'a> {
     /// // 0
     /// // -- 0
     /// //    |-- text
-    /// use lib_ot::core::{DocumentTree, Node, TransactionBuilder};
-    /// let mut document = DocumentTree::new();
-    /// let transaction = TransactionBuilder::new(&document)
+    /// use lib_ot::core::{NodeTree, Node, TransactionBuilder};
+    /// let mut node_tree = NodeTree::new();
+    /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_node_at_path(0, Node::new("text"))
     ///     .finalize();
-    ///  document.apply(transaction).unwrap();
+    ///  node_tree.apply(transaction).unwrap();
     /// ```
     ///
     pub fn insert_node_at_path<T: Into<Path>>(self, path: T, node: Node) -> Self {
@@ -92,7 +92,7 @@ impl<'a> TransactionBuilder<'a> {
             }
         }
 
-        self.push(DocumentOperation::Update {
+        self.push(NodeOperation::Update {
             path: path.clone(),
             attributes,
             old_attributes,
@@ -111,7 +111,7 @@ impl<'a> TransactionBuilder<'a> {
             node = self.document.following_siblings(node).next().unwrap();
         }
 
-        self.operations.push(DocumentOperation::Delete {
+        self.operations.push(NodeOperation::Delete {
             path: path.clone(),
             nodes: deleted_nodes,
         });
@@ -134,7 +134,7 @@ impl<'a> TransactionBuilder<'a> {
         }
     }
 
-    pub fn push(mut self, op: DocumentOperation) -> Self {
+    pub fn push(mut self, op: NodeOperation) -> Self {
         self.operations.push(op);
         self
     }

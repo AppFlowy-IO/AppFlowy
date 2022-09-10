@@ -1,4 +1,4 @@
-use lib_ot::core::{DocumentTree, Node, NodeAttributes, Path, TransactionBuilder};
+use lib_ot::core::{Node, NodeAttributes, NodeTree, Path, TransactionBuilder};
 
 pub enum NodeScript {
     InsertNode { path: Path, node: Node },
@@ -9,13 +9,13 @@ pub enum NodeScript {
 }
 
 pub struct NodeTest {
-    node_tree: DocumentTree,
+    node_tree: NodeTree,
 }
 
 impl NodeTest {
     pub fn new() -> Self {
         Self {
-            node_tree: DocumentTree::new(),
+            node_tree: NodeTree::new(),
         }
     }
 
@@ -53,7 +53,7 @@ impl NodeTest {
                     None => assert!(node_id.is_none()),
                     Some(node_id) => {
                         let node_data = self.node_tree.get_node_data(node_id).cloned();
-                        assert_eq!(node_data, expected.and_then(|e| Some(e.to_node_data())));
+                        assert_eq!(node_data, expected.and_then(|e| Some(e.into())));
                     }
                 }
             }

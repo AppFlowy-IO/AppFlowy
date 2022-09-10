@@ -18,6 +18,26 @@ impl NodeData {
     }
 }
 
+impl std::convert::From<Node> for NodeData {
+    fn from(node: Node) -> Self {
+        Self {
+            node_type: node.note_type,
+            attributes: node.attributes,
+            delta: node.delta,
+        }
+    }
+}
+
+impl std::convert::From<&Node> for NodeData {
+    fn from(node: &Node) -> Self {
+        Self {
+            node_type: node.note_type.clone(),
+            attributes: node.attributes.clone(),
+            delta: node.delta.clone(),
+        }
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct Node {
     #[serde(rename = "type")]
@@ -39,14 +59,6 @@ impl Node {
             attributes: NodeAttributes::new(),
             delta: None,
             children: Vec::new(),
-        }
-    }
-
-    pub fn to_node_data(&self) -> NodeData {
-        NodeData {
-            node_type: self.note_type.clone(),
-            attributes: self.attributes.clone(),
-            delta: self.delta.clone(),
         }
     }
 }

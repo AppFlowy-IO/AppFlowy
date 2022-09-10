@@ -3,7 +3,7 @@ use crate::core::{Node, NodeAttributes, TextDelta};
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "op")]
-pub enum DocumentOperation {
+pub enum NodeOperation {
     #[serde(rename = "insert")]
     Insert { path: Path, nodes: Vec<Node> },
     #[serde(rename = "update")]
@@ -23,74 +23,74 @@ pub enum DocumentOperation {
     },
 }
 
-impl DocumentOperation {
+impl NodeOperation {
     pub fn path(&self) -> &Path {
         match self {
-            DocumentOperation::Insert { path, .. } => path,
-            DocumentOperation::Update { path, .. } => path,
-            DocumentOperation::Delete { path, .. } => path,
-            DocumentOperation::TextEdit { path, .. } => path,
+            NodeOperation::Insert { path, .. } => path,
+            NodeOperation::Update { path, .. } => path,
+            NodeOperation::Delete { path, .. } => path,
+            NodeOperation::TextEdit { path, .. } => path,
         }
     }
-    pub fn invert(&self) -> DocumentOperation {
+    pub fn invert(&self) -> NodeOperation {
         match self {
-            DocumentOperation::Insert { path, nodes } => DocumentOperation::Delete {
+            NodeOperation::Insert { path, nodes } => NodeOperation::Delete {
                 path: path.clone(),
                 nodes: nodes.clone(),
             },
-            DocumentOperation::Update {
+            NodeOperation::Update {
                 path,
                 attributes,
                 old_attributes,
-            } => DocumentOperation::Update {
+            } => NodeOperation::Update {
                 path: path.clone(),
                 attributes: old_attributes.clone(),
                 old_attributes: attributes.clone(),
             },
-            DocumentOperation::Delete { path, nodes } => DocumentOperation::Insert {
+            NodeOperation::Delete { path, nodes } => NodeOperation::Insert {
                 path: path.clone(),
                 nodes: nodes.clone(),
             },
-            DocumentOperation::TextEdit { path, delta, inverted } => DocumentOperation::TextEdit {
+            NodeOperation::TextEdit { path, delta, inverted } => NodeOperation::TextEdit {
                 path: path.clone(),
                 delta: inverted.clone(),
                 inverted: delta.clone(),
             },
         }
     }
-    pub fn clone_with_new_path(&self, path: Path) -> DocumentOperation {
+    pub fn clone_with_new_path(&self, path: Path) -> NodeOperation {
         match self {
-            DocumentOperation::Insert { nodes, .. } => DocumentOperation::Insert {
+            NodeOperation::Insert { nodes, .. } => NodeOperation::Insert {
                 path,
                 nodes: nodes.clone(),
             },
-            DocumentOperation::Update {
+            NodeOperation::Update {
                 attributes,
                 old_attributes,
                 ..
-            } => DocumentOperation::Update {
+            } => NodeOperation::Update {
                 path,
                 attributes: attributes.clone(),
                 old_attributes: old_attributes.clone(),
             },
-            DocumentOperation::Delete { nodes, .. } => DocumentOperation::Delete {
+            NodeOperation::Delete { nodes, .. } => NodeOperation::Delete {
                 path,
                 nodes: nodes.clone(),
             },
-            DocumentOperation::TextEdit { delta, inverted, .. } => DocumentOperation::TextEdit {
+            NodeOperation::TextEdit { delta, inverted, .. } => NodeOperation::TextEdit {
                 path,
                 delta: delta.clone(),
                 inverted: inverted.clone(),
             },
         }
     }
-    pub fn transform(a: &DocumentOperation, b: &DocumentOperation) -> DocumentOperation {
+    pub fn transform(a: &NodeOperation, b: &NodeOperation) -> NodeOperation {
         match a {
-            DocumentOperation::Insert { path: a_path, nodes } => {
+            NodeOperation::Insert { path: a_path, nodes } => {
                 let new_path = Path::transform(a_path, b.path(), nodes.len() as i64);
                 b.clone_with_new_path(new_path)
             }
-            DocumentOperation::Delete { path: a_path, nodes } => {
+            NodeOperation::Delete { path: a_path, nodes } => {
                 let new_path = Path::transform(a_path, b.path(), nodes.len() as i64);
                 b.clone_with_new_path(new_path)
             }
@@ -101,7 +101,7 @@ impl DocumentOperation {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{Delta, DocumentOperation, Node, NodeAttributes, Path};
+    use crate::core::{Delta, Node, NodeAttributes, NodeOperation, Path};
 
     #[test]
     fn test_transform_path_1() {
@@ -153,7 +153,7 @@ mod tests {
 
     #[test]
     fn test_serialize_insert_operation() {
-        let insert = DocumentOperation::Insert {
+        let insert = NodeOperation::Insert {
             path: Path(vec![0, 1]),
             nodes: vec![Node::new("text")],
         };
@@ -166,7 +166,7 @@ mod tests {
 
     #[test]
     fn test_serialize_insert_sub_trees() {
-        let insert = DocumentOperation::Insert {
+        let insert = NodeOperation::Insert {
             path: Path(vec![0, 1]),
             nodes: vec![Node {
                 note_type: "text".into(),
@@ -184,7 +184,7 @@ mod tests {
 
     #[test]
     fn test_serialize_update_operation() {
-        let insert = DocumentOperation::Update {
+        let insert = NodeOperation::Update {
             path: Path(vec![0, 1]),
             attributes: NodeAttributes::new(),
             old_attributes: NodeAttributes::new(),
@@ -198,7 +198,7 @@ mod tests {
 
     #[test]
     fn test_serialize_text_edit_operation() {
-        let insert = DocumentOperation::TextEdit {
+        let insert = NodeOperation::TextEdit {
             path: Path(vec![0, 1]),
             delta: Delta::new(),
             inverted: Delta::new(),
