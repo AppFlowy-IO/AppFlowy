@@ -1,4 +1,4 @@
-use lib_ot::core::{Node, NodeAttributes, NodeTree, Path, TransactionBuilder};
+use lib_ot::core::{Node, NodeAttributes, NodeTree, Path, TextDelta, TransactionBuilder};
 
 pub enum NodeScript {
     InsertNode { path: Path, node: Node },

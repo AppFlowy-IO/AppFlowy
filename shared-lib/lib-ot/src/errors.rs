@@ -25,11 +25,8 @@ impl std::convert::From<OTErrorCode> for OTError {
 }
 
 impl OTError {
-    pub fn new(code: OTErrorCode, msg: &str) -> OTError {
-        Self {
-            code,
-            msg: msg.to_owned(),
-        }
+    pub fn new(code: OTErrorCode, msg: String) -> OTError {
+        Self { code, msg }
     }
 
     pub fn context<T: Debug>(mut self, error: T) -> Self {
@@ -76,6 +73,7 @@ pub enum OTErrorCode {
     Internal,
     PathNotFound,
     PathIsEmpty,
+    UnexpectedEmpty,
 }
 
 pub struct ErrorBuilder {
@@ -105,6 +103,6 @@ impl ErrorBuilder {
     }
 
     pub fn build(mut self) -> OTError {
-        OTError::new(self.code, &self.msg.take().unwrap_or_else(|| "".to_owned()))
+        OTError::new(self.code, self.msg.take().unwrap_or_else(|| "".to_owned()))
     }
 }

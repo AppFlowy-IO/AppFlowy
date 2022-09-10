@@ -1,5 +1,5 @@
 use crate::core::document::position::Path;
-use crate::core::{AttributeValue, Node, NodeAttributes, NodeOperation, NodeTree};
+use crate::core::{Node, NodeAttributes, NodeOperation, NodeTree};
 use indextree::NodeId;
 
 pub struct Transaction {
@@ -13,14 +13,14 @@ impl Transaction {
 }
 
 pub struct TransactionBuilder<'a> {
-    document: &'a NodeTree,
+    node_tree: &'a NodeTree,
     operations: Vec<NodeOperation>,
 }
 
 impl<'a> TransactionBuilder<'a> {
-    pub fn new(document: &'a NodeTree) -> TransactionBuilder {
+    pub fn new(node_tree: &'a NodeTree) -> TransactionBuilder {
         TransactionBuilder {
-            document,
+            node_tree,
             operations: Vec::new(),
         }
     }
@@ -82,8 +82,8 @@ impl<'a> TransactionBuilder<'a> {
 
     pub fn update_attributes_at_path(self, path: &Path, attributes: NodeAttributes) -> Self {
         let mut old_attributes = NodeAttributes::new();
-        let node = self.document.node_at_path(path).unwrap();
-        let node_data = self.document.get_node_data(node).unwrap();
+        let node = self.node_tree.node_at_path(path).unwrap();
+        let node_data = self.node_tree.get_node_data(node).unwrap();
 
         for key in attributes.keys() {
             let old_attrs = &node_data.attributes;
@@ -104,11 +104,11 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     pub fn delete_nodes_at_path(mut self, path: &Path, length: usize) -> Self {
-        let mut node = self.document.node_at_path(path).unwrap();
+        let mut node = self.node_tree.node_at_path(path).unwrap();
         let mut deleted_nodes = vec![];
         for _ in 0..length {
             deleted_nodes.push(self.get_deleted_nodes(node));
-            node = self.document.following_siblings(node).next().unwrap();
+            node = self.node_tree.following_siblings(node).next().unwrap();
         }
 
         self.operations.push(NodeOperation::Delete {
@@ -119,10 +119,10 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     fn get_deleted_nodes(&self, node_id: NodeId) -> Node {
-        let node_data = self.document.get_node_data(node_id).unwrap();
+        let node_data = self.node_tree.get_node_data(node_id).unwrap();
 
         let mut children = vec![];
-        self.document.children_from_node(node_id).for_each(|child_id| {
+        self.node_tree.children_from_node(node_id).for_each(|child_id| {
             children.push(self.get_deleted_nodes(child_id));
         });
 
