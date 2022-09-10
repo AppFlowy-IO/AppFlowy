@@ -13,7 +13,7 @@ use flowy_sync::{
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransform},
-    rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},
+    rich_text::{RichTextDelta, TextAttribute, TextAttributes},
 };
 use std::sync::Arc;
 use tokio::sync::{oneshot, RwLock};
@@ -194,7 +194,7 @@ impl EditBlockQueue {
 pub(crate) struct TextBlockRevisionCompactor();
 impl RevisionCompactor for TextBlockRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_delta_from_revisions::<RichTextAttributes>(revisions)?;
+        let delta = make_delta_from_revisions::<TextAttributes>(revisions)?;
         Ok(delta.json_bytes())
     }
 }
@@ -229,7 +229,7 @@ pub(crate) enum EditorCommand {
     },
     Format {
         interval: Interval,
-        attribute: RichTextAttribute,
+        attribute: TextAttribute,
         ret: Ret<()>,
     },
     Replace {

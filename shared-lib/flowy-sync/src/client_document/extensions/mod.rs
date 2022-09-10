@@ -3,7 +3,7 @@ pub use format::*;
 pub use insert::*;
 use lib_ot::{
     core::Interval,
-    rich_text::{RichTextAttribute, RichTextDelta},
+    rich_text::{RichTextDelta, TextAttribute},
 };
 
 mod delete;
@@ -22,7 +22,7 @@ pub trait InsertExt {
 
 pub trait FormatExt {
     fn ext_name(&self) -> &str;
-    fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &RichTextAttribute) -> Option<RichTextDelta>;
+    fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &TextAttribute) -> Option<RichTextDelta>;
 }
 
 pub trait DeleteExt {

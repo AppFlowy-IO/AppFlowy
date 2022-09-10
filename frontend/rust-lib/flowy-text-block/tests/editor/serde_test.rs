@@ -2,14 +2,14 @@ use flowy_sync::client_document::{ClientDocument, PlainDoc};
 use lib_ot::rich_text::RichTextOperation;
 use lib_ot::{
     core::*,
-    rich_text::{AttributeBuilder, RichTextAttribute, RichTextAttributeValue, RichTextDelta},
+    rich_text::{AttributeBuilder, RichTextDelta, TextAttribute, TextAttributeValue},
 };
 
 #[test]
 fn operation_insert_serialize_test() {
     let attributes = AttributeBuilder::new()
-        .add_attr(RichTextAttribute::Bold(true))
-        .add_attr(RichTextAttribute::Italic(true))
+        .add_attr(TextAttribute::Bold(true))
+        .add_attr(TextAttribute::Italic(true))
         .build();
     let operation = Operation::insert_with_attributes("123", attributes);
     let json = serde_json::to_string(&operation).unwrap();
@@ -39,8 +39,8 @@ fn operation_delete_serialize_test() {
 #[test]
 fn attributes_serialize_test() {
     let attributes = AttributeBuilder::new()
-        .add_attr(RichTextAttribute::Bold(true))
-        .add_attr(RichTextAttribute::Italic(true))
+        .add_attr(TextAttribute::Bold(true))
+        .add_attr(TextAttribute::Italic(true))
         .build();
     let retain = Operation::insert_with_attributes("123", attributes);
 
@@ -53,8 +53,8 @@ fn delta_serialize_multi_attribute_test() {
     let mut delta = Delta::default();
 
     let attributes = AttributeBuilder::new()
-        .add_attr(RichTextAttribute::Bold(true))
-        .add_attr(RichTextAttribute::Italic(true))
+        .add_attr(TextAttribute::Bold(true))
+        .add_attr(TextAttribute::Italic(true))
         .build();
     let retain = Operation::insert_with_attributes("123", attributes);
 
@@ -88,8 +88,8 @@ fn delta_deserialize_null_test() {
      ]"#;
     let delta1 = RichTextDelta::from_json(json).unwrap();
 
-    let mut attribute = RichTextAttribute::Bold(true);
-    attribute.value = RichTextAttributeValue(None);
+    let mut attribute = TextAttribute::Bold(true);
+    attribute.value = TextAttributeValue(None);
     let delta2 = DeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
 
     assert_eq!(delta2.json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
@@ -98,8 +98,8 @@ fn delta_deserialize_null_test() {
 
 #[test]
 fn delta_serde_null_test() {
-    let mut attribute = RichTextAttribute::Bold(true);
-    attribute.value = RichTextAttributeValue(None);
+    let mut attribute = TextAttribute::Bold(true);
+    attribute.value = TextAttributeValue(None);
     assert_eq!(attribute.to_json(), r#"{"bold":""}"#);
 }
 

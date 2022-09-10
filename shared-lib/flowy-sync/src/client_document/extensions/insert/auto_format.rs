@@ -1,7 +1,7 @@
 use crate::{client_document::InsertExt, util::is_whitespace};
 use lib_ot::{
     core::{count_utf16_code_units, DeltaBuilder, DeltaIterator},
-    rich_text::{plain_attributes, RichTextAttribute, RichTextAttributes, RichTextDelta},
+    rich_text::{plain_attributes, RichTextDelta, TextAttribute, TextAttributes},
 };
 use std::cmp::min;
 use url::Url;
@@ -60,9 +60,9 @@ pub enum AutoFormatter {
 }
 
 impl AutoFormatter {
-    pub fn to_attributes(&self) -> RichTextAttributes {
+    pub fn to_attributes(&self) -> TextAttributes {
         match self {
-            AutoFormatter::Url(url) => RichTextAttribute::Link(url.as_str()).into(),
+            AutoFormatter::Url(url) => TextAttribute::Link(url.as_str()).into(),
         }
     }
 

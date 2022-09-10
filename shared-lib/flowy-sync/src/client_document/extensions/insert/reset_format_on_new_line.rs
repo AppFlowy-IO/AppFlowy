@@ -1,7 +1,7 @@
 use crate::{client_document::InsertExt, util::is_newline};
 use lib_ot::{
     core::{DeltaBuilder, DeltaIterator, Utf16CodeUnitMetric, NEW_LINE},
-    rich_text::{RichTextAttributeKey, RichTextAttributes, RichTextDelta},
+    rich_text::{RichTextDelta, TextAttributeKey, TextAttributes},
 };
 
 pub struct ResetLineFormatOnNewLine {}
@@ -22,9 +22,9 @@ impl InsertExt for ResetLineFormatOnNewLine {
             return None;
         }
 
-        let mut reset_attribute = RichTextAttributes::new();
-        if next_op.get_attributes().contains_key(&RichTextAttributeKey::Header) {
-            reset_attribute.delete(&RichTextAttributeKey::Header);
+        let mut reset_attribute = TextAttributes::new();
+        if next_op.get_attributes().contains_key(&TextAttributeKey::Header) {
+            reset_attribute.delete(&TextAttributeKey::Header);
         }
 
         let len = index + replace_len;

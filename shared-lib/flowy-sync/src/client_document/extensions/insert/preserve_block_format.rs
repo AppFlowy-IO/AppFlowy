@@ -2,8 +2,7 @@ use crate::{client_document::InsertExt, util::is_newline};
 use lib_ot::{
     core::{DeltaBuilder, DeltaIterator, NEW_LINE},
     rich_text::{
-        attributes_except_header, plain_attributes, RichTextAttribute, RichTextAttributeKey, RichTextAttributes,
-        RichTextDelta,
+        attributes_except_header, plain_attributes, RichTextDelta, TextAttribute, TextAttributeKey, TextAttributes,
     },
 };
 
@@ -28,9 +27,9 @@ impl InsertExt for PreserveBlockFormatOnInsert {
                     return None;
                 }
 
-                let mut reset_attribute = RichTextAttributes::new();
-                if newline_attributes.contains_key(&RichTextAttributeKey::Header) {
-                    reset_attribute.add(RichTextAttribute::Header(1));
+                let mut reset_attribute = TextAttributes::new();
+                if newline_attributes.contains_key(&TextAttributeKey::Header) {
+                    reset_attribute.add(TextAttribute::Header(1));
                 }
 
                 let lines: Vec<_> = text.split(NEW_LINE).collect();

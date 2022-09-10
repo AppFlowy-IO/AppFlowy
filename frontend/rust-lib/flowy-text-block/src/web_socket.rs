@@ -10,8 +10,8 @@ use flowy_sync::{
     errors::CollaborateResult,
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::rich_text::RichTextAttributes;
 use lib_ot::rich_text::RichTextDelta;
+use lib_ot::rich_text::TextAttributes;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
 use tokio::sync::{
@@ -111,7 +111,7 @@ struct TextBlockConflictResolver {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ConflictResolver<RichTextAttributes> for TextBlockConflictResolver {
+impl ConflictResolver<TextAttributes> for TextBlockConflictResolver {
     fn compose_delta(&self, delta: RichTextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {

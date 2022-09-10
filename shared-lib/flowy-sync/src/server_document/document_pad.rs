@@ -1,7 +1,7 @@
 use crate::{client_document::InitialDocumentText, errors::CollaborateError, synchronizer::RevisionSyncObject};
 use lib_ot::{
     core::*,
-    rich_text::{RichTextAttributes, RichTextDelta},
+    rich_text::{RichTextDelta, TextAttributes},
 };
 
 pub struct ServerDocument {
@@ -21,7 +21,7 @@ impl ServerDocument {
     }
 }
 
-impl RevisionSyncObject<RichTextAttributes> for ServerDocument {
+impl RevisionSyncObject<TextAttributes> for ServerDocument {
     fn id(&self) -> &str {
         &self.doc_id
     }
@@ -42,7 +42,7 @@ impl RevisionSyncObject<RichTextAttributes> for ServerDocument {
         self.delta.json_str()
     }
 
-    fn set_delta(&mut self, new_delta: Delta<RichTextAttributes>) {
+    fn set_delta(&mut self, new_delta: Delta<TextAttributes>) {
         self.delta = new_delta;
     }
 }
