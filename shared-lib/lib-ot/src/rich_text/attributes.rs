@@ -10,19 +10,19 @@ use std::{
 };
 use strum_macros::Display;
 
-pub type RichTextOperation = Operation<RichTextAttributes>;
+pub type RichTextOperation = Operation<TextAttributes>;
 impl RichTextOperation {
-    pub fn contain_attribute(&self, attribute: &RichTextAttribute) -> bool {
+    pub fn contain_attribute(&self, attribute: &TextAttribute) -> bool {
         self.get_attributes().contains_key(&attribute.key)
     }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct RichTextAttributes {
-    pub(crate) inner: HashMap<RichTextAttributeKey, RichTextAttributeValue>,
+pub struct TextAttributes {
+    pub(crate) inner: HashMap<TextAttributeKey, TextAttributeValue>,
 }
 
-impl std::default::Default for RichTextAttributes {
+impl std::default::Default for TextAttributes {
     fn default() -> Self {
         Self {
             inner: HashMap::with_capacity(0),
@@ -30,40 +30,40 @@ impl std::default::Default for RichTextAttributes {
     }
 }
 
-impl fmt::Display for RichTextAttributes {
+impl fmt::Display for TextAttributes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("{:?}", self.inner))
     }
 }
 
 #[inline(always)]
-pub fn plain_attributes() -> RichTextAttributes {
-    RichTextAttributes::default()
+pub fn plain_attributes() -> TextAttributes {
+    TextAttributes::default()
 }
 
-impl RichTextAttributes {
+impl TextAttributes {
     pub fn new() -> Self {
-        RichTextAttributes { inner: HashMap::new() }
+        TextAttributes { inner: HashMap::new() }
     }
 
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
     }
 
-    pub fn add(&mut self, attribute: RichTextAttribute) {
-        let RichTextAttribute { key, value, scope: _ } = attribute;
+    pub fn add(&mut self, attribute: TextAttribute) {
+        let TextAttribute { key, value, scope: _ } = attribute;
         self.inner.insert(key, value);
     }
 
-    pub fn insert(&mut self, key: RichTextAttributeKey, value: RichTextAttributeValue) {
+    pub fn insert(&mut self, key: TextAttributeKey, value: TextAttributeValue) {
         self.inner.insert(key, value);
     }
 
-    pub fn delete(&mut self, key: &RichTextAttributeKey) {
-        self.inner.insert(key.clone(), RichTextAttributeValue(None));
+    pub fn delete(&mut self, key: &TextAttributeKey) {
+        self.inner.insert(key.clone(), TextAttributeValue(None));
     }
 
-    pub fn mark_all_as_removed_except(&mut self, attribute: Option<RichTextAttributeKey>) {
+    pub fn mark_all_as_removed_except(&mut self, attribute: Option<TextAttributeKey>) {
         match attribute {
             None => {
                 self.inner.iter_mut().for_each(|(_k, v)| v.0 = None);
@@ -78,7 +78,7 @@ impl RichTextAttributes {
         }
     }
 
-    pub fn remove(&mut self, key: RichTextAttributeKey) {
+    pub fn remove(&mut self, key: TextAttributeKey) {
         self.inner.retain(|k, _| k != &key);
     }
 
@@ -95,7 +95,7 @@ impl RichTextAttributes {
 
     // Update inner by constructing new attributes from the other if it's
     // not None and replace the key/value with self key/value.
-    pub fn merge(&mut self, other: Option<RichTextAttributes>) {
+    pub fn merge(&mut self, other: Option<TextAttributes>) {
         if other.is_none() {
             return;
         }
@@ -108,7 +108,7 @@ impl RichTextAttributes {
     }
 }
 
-impl Attributes for RichTextAttributes {
+impl Attributes for TextAttributes {
     fn is_empty(&self) -> bool {
         self.inner.is_empty()
     }
@@ -122,7 +122,7 @@ impl Attributes for RichTextAttributes {
     }
 }
 
-impl OperationTransform for RichTextAttributes {
+impl OperationTransform for TextAttributes {
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
         Self: Sized,
@@ -136,29 +136,25 @@ impl OperationTransform for RichTextAttributes {
     where
         Self: Sized,
     {
-        let a = self
-            .iter()
-            .fold(RichTextAttributes::new(), |mut new_attributes, (k, v)| {
-                if !other.contains_key(k) {
-                    new_attributes.insert(k.clone(), v.clone());
-                }
-                new_attributes
-            });
+        let a = self.iter().fold(TextAttributes::new(), |mut new_attributes, (k, v)| {
+            if !other.contains_key(k) {
+                new_attributes.insert(k.clone(), v.clone());
+            }
+            new_attributes
+        });
 
-        let b = other
-            .iter()
-            .fold(RichTextAttributes::new(), |mut new_attributes, (k, v)| {
-                if !self.contains_key(k) {
-                    new_attributes.insert(k.clone(), v.clone());
-                }
-                new_attributes
-            });
+        let b = other.iter().fold(TextAttributes::new(), |mut new_attributes, (k, v)| {
+            if !self.contains_key(k) {
+                new_attributes.insert(k.clone(), v.clone());
+            }
+            new_attributes
+        });
 
         Ok((a, b))
     }
 
     fn invert(&self, other: &Self) -> Self {
-        let base_inverted = other.iter().fold(RichTextAttributes::new(), |mut attributes, (k, v)| {
+        let base_inverted = other.iter().fold(TextAttributes::new(), |mut attributes, (k, v)| {
             if other.get(k) != self.get(k) && self.contains_key(k) {
                 attributes.insert(k.clone(), v.clone());
             }
@@ -176,34 +172,34 @@ impl OperationTransform for RichTextAttributes {
     }
 }
 
-impl std::ops::Deref for RichTextAttributes {
-    type Target = HashMap<RichTextAttributeKey, RichTextAttributeValue>;
+impl std::ops::Deref for TextAttributes {
+    type Target = HashMap<TextAttributeKey, TextAttributeValue>;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
     }
 }
 
-impl std::ops::DerefMut for RichTextAttributes {
+impl std::ops::DerefMut for TextAttributes {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
     }
 }
 
-pub fn attributes_except_header(op: &RichTextOperation) -> RichTextAttributes {
+pub fn attributes_except_header(op: &RichTextOperation) -> TextAttributes {
     let mut attributes = op.get_attributes();
-    attributes.remove(RichTextAttributeKey::Header);
+    attributes.remove(TextAttributeKey::Header);
     attributes
 }
 
 #[derive(Debug, Clone)]
-pub struct RichTextAttribute {
-    pub key: RichTextAttributeKey,
-    pub value: RichTextAttributeValue,
+pub struct TextAttribute {
+    pub key: TextAttributeKey,
+    pub value: TextAttributeValue,
     pub scope: AttributeScope,
 }
 
-impl RichTextAttribute {
+impl TextAttribute {
     // inline
     inline_attribute!(Bold, bool);
     inline_attribute!(Italic, bool);
@@ -245,16 +241,16 @@ impl RichTextAttribute {
     }
 }
 
-impl fmt::Display for RichTextAttribute {
+impl fmt::Display for TextAttribute {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let s = format!("{:?}:{:?} {:?}", self.key, self.value.0, self.scope);
         f.write_str(&s)
     }
 }
 
-impl std::convert::From<RichTextAttribute> for RichTextAttributes {
-    fn from(attr: RichTextAttribute) -> Self {
-        let mut attributes = RichTextAttributes::new();
+impl std::convert::From<TextAttribute> for TextAttributes {
+    fn from(attr: TextAttribute) -> Self {
+        let mut attributes = TextAttributes::new();
         attributes.add(attr);
         attributes
     }
@@ -263,7 +259,7 @@ impl std::convert::From<RichTextAttribute> for RichTextAttributes {
 #[derive(Clone, Debug, Display, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
 // serde.rs/variant-attrs.html
 // #[serde(rename_all = "snake_case")]
-pub enum RichTextAttributeKey {
+pub enum TextAttributeKey {
     #[serde(rename = "bold")]
     Bold,
     #[serde(rename = "italic")]
@@ -304,90 +300,90 @@ pub enum RichTextAttributeKey {
 
 // pub trait AttributeValueData<'a>: Serialize + Deserialize<'a> {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct RichTextAttributeValue(pub Option<String>);
+pub struct TextAttributeValue(pub Option<String>);
 
-impl std::convert::From<&usize> for RichTextAttributeValue {
+impl std::convert::From<&usize> for TextAttributeValue {
     fn from(val: &usize) -> Self {
-        RichTextAttributeValue::from(*val)
+        TextAttributeValue::from(*val)
     }
 }
 
-impl std::convert::From<usize> for RichTextAttributeValue {
+impl std::convert::From<usize> for TextAttributeValue {
     fn from(val: usize) -> Self {
         if val > 0_usize {
-            RichTextAttributeValue(Some(format!("{}", val)))
+            TextAttributeValue(Some(format!("{}", val)))
         } else {
-            RichTextAttributeValue(None)
+            TextAttributeValue(None)
         }
     }
 }
 
-impl std::convert::From<&str> for RichTextAttributeValue {
+impl std::convert::From<&str> for TextAttributeValue {
     fn from(val: &str) -> Self {
         val.to_owned().into()
     }
 }
 
-impl std::convert::From<String> for RichTextAttributeValue {
+impl std::convert::From<String> for TextAttributeValue {
     fn from(val: String) -> Self {
         if val.is_empty() {
-            RichTextAttributeValue(None)
+            TextAttributeValue(None)
         } else {
-            RichTextAttributeValue(Some(val))
+            TextAttributeValue(Some(val))
         }
     }
 }
 
-impl std::convert::From<&bool> for RichTextAttributeValue {
+impl std::convert::From<&bool> for TextAttributeValue {
     fn from(val: &bool) -> Self {
-        RichTextAttributeValue::from(*val)
+        TextAttributeValue::from(*val)
     }
 }
 
-impl std::convert::From<bool> for RichTextAttributeValue {
+impl std::convert::From<bool> for TextAttributeValue {
     fn from(val: bool) -> Self {
         let val = match val {
             true => Some("true".to_owned()),
             false => None,
         };
-        RichTextAttributeValue(val)
+        TextAttributeValue(val)
     }
 }
 
-pub fn is_block_except_header(k: &RichTextAttributeKey) -> bool {
-    if k == &RichTextAttributeKey::Header {
+pub fn is_block_except_header(k: &TextAttributeKey) -> bool {
+    if k == &TextAttributeKey::Header {
         return false;
     }
     BLOCK_KEYS.contains(k)
 }
 
-pub fn is_block(k: &RichTextAttributeKey) -> bool {
+pub fn is_block(k: &TextAttributeKey) -> bool {
     BLOCK_KEYS.contains(k)
 }
 
 lazy_static! {
-    static ref BLOCK_KEYS: HashSet<RichTextAttributeKey> = HashSet::from_iter(vec![
-        RichTextAttributeKey::Header,
-        RichTextAttributeKey::Indent,
-        RichTextAttributeKey::Align,
-        RichTextAttributeKey::CodeBlock,
-        RichTextAttributeKey::List,
-        RichTextAttributeKey::BlockQuote,
+    static ref BLOCK_KEYS: HashSet<TextAttributeKey> = HashSet::from_iter(vec![
+        TextAttributeKey::Header,
+        TextAttributeKey::Indent,
+        TextAttributeKey::Align,
+        TextAttributeKey::CodeBlock,
+        TextAttributeKey::List,
+        TextAttributeKey::BlockQuote,
     ]);
-    static ref INLINE_KEYS: HashSet<RichTextAttributeKey> = HashSet::from_iter(vec![
-        RichTextAttributeKey::Bold,
-        RichTextAttributeKey::Italic,
-        RichTextAttributeKey::Underline,
-        RichTextAttributeKey::StrikeThrough,
-        RichTextAttributeKey::Link,
-        RichTextAttributeKey::Color,
-        RichTextAttributeKey::Font,
-        RichTextAttributeKey::Size,
-        RichTextAttributeKey::Background,
-        RichTextAttributeKey::InlineCode,
+    static ref INLINE_KEYS: HashSet<TextAttributeKey> = HashSet::from_iter(vec![
+        TextAttributeKey::Bold,
+        TextAttributeKey::Italic,
+        TextAttributeKey::Underline,
+        TextAttributeKey::StrikeThrough,
+        TextAttributeKey::Link,
+        TextAttributeKey::Color,
+        TextAttributeKey::Font,
+        TextAttributeKey::Size,
+        TextAttributeKey::Background,
+        TextAttributeKey::InlineCode,
     ]);
-    static ref INGORE_KEYS: HashSet<RichTextAttributeKey> =
-        HashSet::from_iter(vec![RichTextAttributeKey::Width, RichTextAttributeKey::Height,]);
+    static ref INGORE_KEYS: HashSet<TextAttributeKey> =
+        HashSet::from_iter(vec![TextAttributeKey::Width, TextAttributeKey::Height,]);
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]

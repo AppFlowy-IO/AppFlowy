@@ -15,7 +15,7 @@ use flowy_sync::{
 };
 use lib_ot::{
     core::{Interval, Operation},
-    rich_text::{RichTextAttribute, RichTextDelta},
+    rich_text::{RichTextDelta, TextAttribute},
 };
 use lib_ws::WSConnectState;
 use std::sync::Arc;
@@ -85,7 +85,7 @@ impl TextBlockEditor {
         Ok(())
     }
 
-    pub async fn format(&self, interval: Interval, attribute: RichTextAttribute) -> Result<(), FlowyError> {
+    pub async fn format(&self, interval: Interval, attribute: TextAttribute) -> Result<(), FlowyError> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
         let msg = EditorCommand::Format {
             interval,

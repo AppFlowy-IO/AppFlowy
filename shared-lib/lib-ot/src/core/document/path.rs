@@ -76,3 +76,52 @@ impl Path {
         Path(prefix)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::core::Path;
+    #[test]
+    fn path_transform_test_1() {
+        assert_eq!(
+            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 1]), 1) }.0,
+            vec![0, 2]
+        );
+
+        assert_eq!(
+            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 1]), 5) }.0,
+            vec![0, 6]
+        );
+    }
+
+    #[test]
+    fn path_transform_test_2() {
+        assert_eq!(
+            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 2]), 1) }.0,
+            vec![0, 3]
+        );
+    }
+
+    #[test]
+    fn path_transform_test_3() {
+        assert_eq!(
+            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 2, 7, 8, 9]), 1) }.0,
+            vec![0, 3, 7, 8, 9]
+        );
+    }
+
+    #[test]
+    fn path_transform_no_changed_test() {
+        assert_eq!(
+            { Path::transform(&Path(vec![0, 1, 2]), &Path(vec![0, 0, 7, 8, 9]), 1) }.0,
+            vec![0, 0, 7, 8, 9]
+        );
+        assert_eq!(
+            { Path::transform(&Path(vec![0, 1, 2]), &Path(vec![0, 1]), 1) }.0,
+            vec![0, 1]
+        );
+        assert_eq!(
+            { Path::transform(&Path(vec![1, 1]), &Path(vec![1, 0]), 1) }.0,
+            vec![1, 0]
+        );
+    }
+}

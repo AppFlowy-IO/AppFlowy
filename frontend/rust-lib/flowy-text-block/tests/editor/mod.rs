@@ -8,7 +8,7 @@ use derive_more::Display;
 use flowy_sync::client_document::{ClientDocument, InitialDocumentText};
 use lib_ot::{
     core::*,
-    rich_text::{RichTextAttribute, RichTextAttributes, RichTextDelta},
+    rich_text::{RichTextDelta, TextAttribute, TextAttributes},
 };
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
@@ -127,11 +127,11 @@ impl TestBuilder {
             TestOp::InsertBold(delta_i, s, iv) => {
                 let document = &mut self.documents[*delta_i];
                 document.insert(iv.start, s).unwrap();
-                document.format(*iv, RichTextAttribute::Bold(true)).unwrap();
+                document.format(*iv, TextAttribute::Bold(true)).unwrap();
             }
             TestOp::Bold(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = RichTextAttribute::Bold(*enable);
+                let attribute = TextAttribute::Bold(*enable);
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::trace!("Bold delta: {}", delta.json_str());
                 self.deltas.insert(*delta_i, Some(delta));
@@ -139,8 +139,8 @@ impl TestBuilder {
             TestOp::Italic(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = match *enable {
-                    true => RichTextAttribute::Italic(true),
-                    false => RichTextAttribute::Italic(false),
+                    true => TextAttribute::Italic(true),
+                    false => TextAttribute::Italic(false),
                 };
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::trace!("Italic delta: {}", delta.json_str());
@@ -148,21 +148,21 @@ impl TestBuilder {
             }
             TestOp::Header(delta_i, iv, level) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = RichTextAttribute::Header(*level);
+                let attribute = TextAttribute::Header(*level);
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::trace!("Header delta: {}", delta.json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Link(delta_i, iv, link) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = RichTextAttribute::Link(link.to_owned());
+                let attribute = TextAttribute::Link(link.to_owned());
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::trace!("Link delta: {}", delta.json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Bullet(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = RichTextAttribute::Bullet(*enable);
+                let attribute = TextAttribute::Bullet(*enable);
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::debug!("Bullet delta: {}", delta.json_str());
 
@@ -313,18 +313,18 @@ impl Rng {
             };
             match self.0.gen_range(0.0..1.0) {
                 f if f < 0.2 => {
-                    delta.insert(&self.gen_string(i), RichTextAttributes::default());
+                    delta.insert(&self.gen_string(i), TextAttributes::default());
                 }
                 f if f < 0.4 => {
                     delta.delete(i);
                 }
                 _ => {
-                    delta.retain(i, RichTextAttributes::default());
+                    delta.retain(i, TextAttributes::default());
                 }
             }
         }
         if self.0.gen_range(0.0..1.0) < 0.3 {
-            delta.insert(&("1".to_owned() + &self.gen_string(10)), RichTextAttributes::default());
+            delta.insert(&("1".to_owned() + &self.gen_string(10)), TextAttributes::default());
         }
         delta
     }

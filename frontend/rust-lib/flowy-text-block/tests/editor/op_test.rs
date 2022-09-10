@@ -5,7 +5,7 @@ use lib_ot::rich_text::RichTextDeltaBuilder;
 use lib_ot::{
     core::Interval,
     core::*,
-    rich_text::{AttributeBuilder, RichTextAttribute, RichTextAttributes, RichTextDelta},
+    rich_text::{AttributeBuilder, RichTextDelta, TextAttribute, TextAttributes},
 };
 
 #[test]
@@ -207,8 +207,8 @@ fn delta_utf16_code_unit_seek() {
 fn delta_utf16_code_unit_seek_with_attributes() {
     let mut delta = RichTextDelta::default();
     let attributes = AttributeBuilder::new()
-        .add_attr(RichTextAttribute::Bold(true))
-        .add_attr(RichTextAttribute::Italic(true))
+        .add_attr(TextAttribute::Bold(true))
+        .add_attr(TextAttribute::Italic(true))
         .build();
 
     delta.add(Operation::insert_with_attributes("1234", attributes.clone()));
@@ -304,13 +304,13 @@ fn lengths() {
     let mut delta = RichTextDelta::default();
     assert_eq!(delta.utf16_base_len, 0);
     assert_eq!(delta.utf16_target_len, 0);
-    delta.retain(5, RichTextAttributes::default());
+    delta.retain(5, TextAttributes::default());
     assert_eq!(delta.utf16_base_len, 5);
     assert_eq!(delta.utf16_target_len, 5);
-    delta.insert("abc", RichTextAttributes::default());
+    delta.insert("abc", TextAttributes::default());
     assert_eq!(delta.utf16_base_len, 5);
     assert_eq!(delta.utf16_target_len, 8);
-    delta.retain(2, RichTextAttributes::default());
+    delta.retain(2, TextAttributes::default());
     assert_eq!(delta.utf16_base_len, 7);
     assert_eq!(delta.utf16_target_len, 10);
     delta.delete(2);
@@ -320,10 +320,10 @@ fn lengths() {
 #[test]
 fn sequence() {
     let mut delta = RichTextDelta::default();
-    delta.retain(5, RichTextAttributes::default());
-    delta.retain(0, RichTextAttributes::default());
-    delta.insert("appflowy", RichTextAttributes::default());
-    delta.insert("", RichTextAttributes::default());
+    delta.retain(5, TextAttributes::default());
+    delta.retain(0, TextAttributes::default());
+    delta.insert("appflowy", TextAttributes::default());
+    delta.insert("", TextAttributes::default());
     delta.delete(3);
     delta.delete(0);
     assert_eq!(delta.ops.len(), 3);
@@ -353,15 +353,15 @@ fn apply_test() {
 #[test]
 fn base_len_test() {
     let mut delta_a = RichTextDelta::default();
-    delta_a.insert("a", RichTextAttributes::default());
-    delta_a.insert("b", RichTextAttributes::default());
-    delta_a.insert("c", RichTextAttributes::default());
+    delta_a.insert("a", TextAttributes::default());
+    delta_a.insert("b", TextAttributes::default());
+    delta_a.insert("c", TextAttributes::default());
 
     let s = "hello world,".to_owned();
     delta_a.delete(s.len());
     let after_a = delta_a.apply(&s).unwrap();
 
-    delta_a.insert("d", RichTextAttributes::default());
+    delta_a.insert("d", TextAttributes::default());
     assert_eq!("abc", &after_a);
 }
 
@@ -392,8 +392,8 @@ fn invert_test() {
 #[test]
 fn empty_ops() {
     let mut delta = RichTextDelta::default();
-    delta.retain(0, RichTextAttributes::default());
-    delta.insert("", RichTextAttributes::default());
+    delta.retain(0, TextAttributes::default());
+    delta.insert("", TextAttributes::default());
     delta.delete(0);
     assert_eq!(delta.ops.len(), 0);
 }
@@ -401,33 +401,33 @@ fn empty_ops() {
 fn eq() {
     let mut delta_a = RichTextDelta::default();
     delta_a.delete(1);
-    delta_a.insert("lo", RichTextAttributes::default());
-    delta_a.retain(2, RichTextAttributes::default());
-    delta_a.retain(3, RichTextAttributes::default());
+    delta_a.insert("lo", TextAttributes::default());
+    delta_a.retain(2, TextAttributes::default());
+    delta_a.retain(3, TextAttributes::default());
     let mut delta_b = RichTextDelta::default();
     delta_b.delete(1);
-    delta_b.insert("l", RichTextAttributes::default());
-    delta_b.insert("o", RichTextAttributes::default());
-    delta_b.retain(5, RichTextAttributes::default());
+    delta_b.insert("l", TextAttributes::default());
+    delta_b.insert("o", TextAttributes::default());
+    delta_b.retain(5, TextAttributes::default());
     assert_eq!(delta_a, delta_b);
     delta_a.delete(1);
-    delta_b.retain(1, RichTextAttributes::default());
+    delta_b.retain(1, TextAttributes::default());
     assert_ne!(delta_a, delta_b);
 }
 #[test]
 fn ops_merging() {
     let mut delta = RichTextDelta::default();
     assert_eq!(delta.ops.len(), 0);
-    delta.retain(2, RichTextAttributes::default());
+    delta.retain(2, TextAttributes::default());
     assert_eq!(delta.ops.len(), 1);
     assert_eq!(delta.ops.last(), Some(&Operation::retain(2)));
-    delta.retain(3, RichTextAttributes::default());
+    delta.retain(3, TextAttributes::default());
     assert_eq!(delta.ops.len(), 1);
     assert_eq!(delta.ops.last(), Some(&Operation::retain(5)));
-    delta.insert("abc", RichTextAttributes::default());
+    delta.insert("abc", TextAttributes::default());
     assert_eq!(delta.ops.len(), 2);
     assert_eq!(delta.ops.last(), Some(&Operation::insert("abc")));
-    delta.insert("xyz", RichTextAttributes::default());
+    delta.insert("xyz", TextAttributes::default());
     assert_eq!(delta.ops.len(), 2);
     assert_eq!(delta.ops.last(), Some(&Operation::insert("abcxyz")));
     delta.delete(1);
@@ -442,11 +442,11 @@ fn ops_merging() {
 fn is_noop() {
     let mut delta = RichTextDelta::default();
     assert!(delta.is_noop());
-    delta.retain(5, RichTextAttributes::default());
+    delta.retain(5, TextAttributes::default());
     assert!(delta.is_noop());
-    delta.retain(3, RichTextAttributes::default());
+    delta.retain(3, TextAttributes::default());
     assert!(delta.is_noop());
-    delta.insert("lorem", RichTextAttributes::default());
+    delta.insert("lorem", TextAttributes::default());
     assert!(!delta.is_noop());
 }
 #[test]
@@ -492,14 +492,14 @@ fn transform_with_two_delta() {
     let mut a_s = String::new();
     a.insert(
         "123",
-        AttributeBuilder::new().add_attr(RichTextAttribute::Bold(true)).build(),
+        AttributeBuilder::new().add_attr(TextAttribute::Bold(true)).build(),
     );
     a_s = a.apply(&a_s).unwrap();
     assert_eq!(&a_s, "123");
 
     let mut b = RichTextDelta::default();
     let mut b_s = String::new();
-    b.insert("456", RichTextAttributes::default());
+    b.insert("456", TextAttributes::default());
     b_s = b.apply(&b_s).unwrap();
     assert_eq!(&b_s, "456");
 

@@ -9,7 +9,7 @@ use crate::{
 use bytes::Bytes;
 use lib_ot::{
     core::*,
-    rich_text::{RichTextAttribute, RichTextDelta},
+    rich_text::{RichTextDelta, TextAttribute},
 };
 use tokio::sync::mpsc;
 
@@ -141,11 +141,7 @@ impl ClientDocument {
         Ok(delete)
     }
 
-    pub fn format(
-        &mut self,
-        interval: Interval,
-        attribute: RichTextAttribute,
-    ) -> Result<RichTextDelta, CollaborateError> {
+    pub fn format(&mut self, interval: Interval, attribute: TextAttribute) -> Result<RichTextDelta, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
         tracing::trace!("format {} with {}", interval, attribute);
         let format_delta = self.view.format(&self.delta, attribute, interval).unwrap();

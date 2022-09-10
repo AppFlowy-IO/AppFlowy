@@ -1,6 +1,6 @@
 use lib_ot::{
     core::{DeltaBuilder, DeltaIterator, Interval},
-    rich_text::{AttributeScope, RichTextAttribute, RichTextDelta},
+    rich_text::{AttributeScope, RichTextDelta, TextAttribute},
 };
 
 use crate::{
@@ -14,7 +14,7 @@ impl FormatExt for ResolveInlineFormat {
         "ResolveInlineFormat"
     }
 
-    fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &RichTextAttribute) -> Option<RichTextDelta> {
+    fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &TextAttribute) -> Option<RichTextDelta> {
         if attribute.scope != AttributeScope::Inline {
             return None;
         }

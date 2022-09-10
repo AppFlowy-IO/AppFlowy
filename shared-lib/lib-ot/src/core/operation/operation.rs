@@ -64,7 +64,7 @@ pub trait OperationTransform {
     fn invert(&self, other: &Self) -> Self;
 }
 
-/// Each operation can carry attributes. For example, the [RichTextAttributes] has a list of key/value attributes.
+/// Each operation can carry attributes. For example, the [TextAttributes] has a list of key/value attributes.
 /// Such as { bold: true, italic: true }.  
 ///
 ///Because [Operation] is generic over the T, so you must specify the T. For example, the [TextDelta] uses

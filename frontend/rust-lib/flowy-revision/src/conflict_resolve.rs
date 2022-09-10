@@ -10,7 +10,7 @@ use flowy_sync::{
 };
 use lib_infra::future::BoxResultFuture;
 use lib_ot::core::{Attributes, Delta, PhantomAttributes};
-use lib_ot::rich_text::RichTextAttributes;
+use lib_ot::rich_text::TextAttributes;
 use serde::de::DeserializeOwned;
 use std::{convert::TryFrom, sync::Arc};
 
@@ -30,7 +30,7 @@ pub trait ConflictRevisionSink: Send + Sync + 'static {
     fn ack(&self, rev_id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError>;
 }
 
-pub type RichTextConflictController = ConflictController<RichTextAttributes>;
+pub type RichTextConflictController = ConflictController<TextAttributes>;
 pub type PlainTextConflictController = ConflictController<PhantomAttributes>;
 
 pub struct ConflictController<T>
@@ -175,7 +175,7 @@ where
     }
 }
 
-pub type RichTextTransformDeltas = TransformDeltas<RichTextAttributes>;
+pub type RichTextTransformDeltas = TransformDeltas<TextAttributes>;
 
 pub struct TransformDeltas<T>
 where

@@ -1,10 +1,12 @@
+use crate::core::OperationTransform;
+use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-pub type AttributeMap = HashMap<String, Option<String>>;
+pub type AttributeMap = HashMap<AttributeKey, AttributeValue>;
 
 #[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
-pub struct NodeAttributes(pub AttributeMap);
+pub struct NodeAttributes(AttributeMap);
 
 impl Default for NodeAttributes {
     fn default() -> Self {
@@ -31,19 +33,120 @@ impl NodeAttributes {
         NodeAttributes(HashMap::new())
     }
 
+    pub fn from_value(attribute_map: AttributeMap) -> Self {
+        Self(attribute_map)
+    }
+
     pub fn to_inner(&self) -> AttributeMap {
         self.0.clone()
     }
 
-    pub fn compose(a: &NodeAttributes, b: &NodeAttributes) -> NodeAttributes {
-        let mut new_map: AttributeMap = b.0.clone();
+    pub fn insert<K: ToString, V: Into<AttributeValue>>(&mut self, key: K, value: V) {
+        self.0.insert(key.to_string(), value.into());
+    }
 
-        for (key, value) in &a.0 {
-            if b.0.contains_key(key.as_str()) {
-                new_map.insert(key.into(), value.clone());
+    pub fn delete(&mut self, key: &AttributeKey) {
+        self.insert(key.clone(), AttributeValue(None));
+    }
+}
+
+impl OperationTransform for NodeAttributes {
+    fn compose(&self, other: &Self) -> Result<Self, OTError>
+    where
+        Self: Sized,
+    {
+        let mut attributes = self.clone();
+        attributes.0.extend(other.clone().0);
+        Ok(attributes)
+    }
+
+    fn transform(&self, other: &Self) -> Result<(Self, Self), OTError>
+    where
+        Self: Sized,
+    {
+        let a = self.iter().fold(NodeAttributes::new(), |mut new_attributes, (k, v)| {
+            if !other.contains_key(k) {
+                new_attributes.insert(k.clone(), v.clone());
             }
-        }
+            new_attributes
+        });
 
-        NodeAttributes(new_map)
+        let b = other.iter().fold(NodeAttributes::new(), |mut new_attributes, (k, v)| {
+            if !self.contains_key(k) {
+                new_attributes.insert(k.clone(), v.clone());
+            }
+            new_attributes
+        });
+
+        Ok((a, b))
+    }
+
+    fn invert(&self, other: &Self) -> Self {
+        let base_inverted = other.iter().fold(NodeAttributes::new(), |mut attributes, (k, v)| {
+            if other.get(k) != self.get(k) && self.contains_key(k) {
+                attributes.insert(k.clone(), v.clone());
+            }
+            attributes
+        });
+
+        self.iter().fold(base_inverted, |mut attributes, (k, _)| {
+            if other.get(k) != self.get(k) && !other.contains_key(k) {
+                attributes.delete(k);
+            }
+            attributes
+        })
+    }
+}
+
+pub type AttributeKey = String;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct AttributeValue(pub Option<String>);
+
+impl std::convert::From<&usize> for AttributeValue {
+    fn from(val: &usize) -> Self {
+        AttributeValue::from(*val)
+    }
+}
+
+impl std::convert::From<usize> for AttributeValue {
+    fn from(val: usize) -> Self {
+        if val > 0_usize {
+            AttributeValue(Some(format!("{}", val)))
+        } else {
+            AttributeValue(None)
+        }
+    }
+}
+
+impl std::convert::From<&str> for AttributeValue {
+    fn from(val: &str) -> Self {
+        val.to_owned().into()
+    }
+}
+
+impl std::convert::From<String> for AttributeValue {
+    fn from(val: String) -> Self {
+        if val.is_empty() {
+            AttributeValue(None)
+        } else {
+            AttributeValue(Some(val))
+        }
+    }
+}
+
+impl std::convert::From<&bool> for AttributeValue {
+    fn from(val: &bool) -> Self {
+        AttributeValue::from(*val)
+    }
+}
+
+impl std::convert::From<bool> for AttributeValue {
+    fn from(val: bool) -> Self {
+        let val = match val {
+            true => Some("true".to_owned()),
+            false => None,
+        };
+        AttributeValue(val)
     }
 }
