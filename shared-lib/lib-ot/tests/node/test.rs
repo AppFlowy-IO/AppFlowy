@@ -1,6 +1,6 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
-use lib_ot::core::{Node, NodeAttributes, Path};
+use lib_ot::core::{Node, NodeBuilder, Path};
 
 #[test]
 fn node_insert_test() {
@@ -23,12 +23,7 @@ fn node_insert_test() {
 #[test]
 fn node_insert_node_with_children_test() {
     let mut test = NodeTest::new();
-    let inserted_node = Node {
-        note_type: "text".into(),
-        attributes: NodeAttributes::new(),
-        delta: None,
-        children: vec![Node::new("image")],
-    };
+    let inserted_node = NodeBuilder::new("text").add_node(Node::new("image")).build();
     let path: Path = 0.into();
     let scripts = vec![
         InsertNode {

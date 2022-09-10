@@ -3,6 +3,7 @@ mod attributes;
 mod node;
 mod node_tree;
 mod operation;
+mod operation_serde;
 mod path;
 mod transaction;
 

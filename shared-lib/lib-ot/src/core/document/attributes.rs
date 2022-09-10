@@ -5,14 +5,8 @@ use std::collections::HashMap;
 
 pub type AttributeMap = HashMap<AttributeKey, AttributeValue>;
 
-#[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
+#[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
 pub struct NodeAttributes(AttributeMap);
-
-impl Default for NodeAttributes {
-    fn default() -> Self {
-        Self::new()
-    }
-}
 
 impl std::ops::Deref for NodeAttributes {
     type Target = AttributeMap;
@@ -37,12 +31,12 @@ impl NodeAttributes {
         Self(attribute_map)
     }
 
-    pub fn to_inner(&self) -> AttributeMap {
-        self.0.clone()
-    }
-
     pub fn insert<K: ToString, V: Into<AttributeValue>>(&mut self, key: K, value: V) {
         self.0.insert(key.to_string(), value.into());
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 
     pub fn delete(&mut self, key: &AttributeKey) {
