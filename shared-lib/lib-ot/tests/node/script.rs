@@ -1,11 +1,11 @@
-use lib_ot::core::{DocumentTree, NodeAttributes, NodeSubTree, Path, TransactionBuilder};
+use lib_ot::core::{DocumentTree, Node, NodeAttributes, Path, TransactionBuilder};
 
 pub enum NodeScript {
-    InsertNode { path: Path, node: NodeSubTree },
+    InsertNode { path: Path, node: Node },
     InsertAttributes { path: Path, attributes: NodeAttributes },
     DeleteNode { path: Path },
     AssertNumberOfChildrenAtPath { path: Option<Path>, len: usize },
-    AssertNode { path: Path, expected: Option<NodeSubTree> },
+    AssertNode { path: Path, expected: Option<Node> },
 }
 
 pub struct NodeTest {
@@ -36,7 +36,7 @@ impl NodeTest {
             }
             NodeScript::InsertAttributes { path, attributes } => {
                 let transaction = TransactionBuilder::new(&self.node_tree)
-                    .update_attributes_at_path(&path, attributes.to_inner())
+                    .update_attributes_at_path(&path, attributes)
                     .finalize();
                 self.node_tree.apply(transaction).unwrap();
             }

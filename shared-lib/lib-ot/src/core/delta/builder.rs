@@ -50,9 +50,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::rich_text::{RichTextAttribute, RichTextDelta, RichTextDeltaBuilder};
+    /// use lib_ot::rich_text::{TextAttribute, RichTextDelta, RichTextDeltaBuilder};
     ///
-    /// let mut attribute = RichTextAttribute::Bold(true);
+    /// let mut attribute = TextAttribute::Bold(true);
     /// let delta = RichTextDeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
     ///
     /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
@@ -109,7 +109,7 @@ where
     ///
     /// ```
     /// use lib_ot::core::{OperationTransform, TextDeltaBuilder};
-    /// use lib_ot::rich_text::{RichTextAttribute, RichTextDeltaBuilder};
+    /// use lib_ot::rich_text::{TextAttribute, RichTextDeltaBuilder};
     /// let delta = TextDeltaBuilder::new()
     ///         .retain(3)
     ///         .trim()
@@ -117,7 +117,7 @@ where
     /// assert_eq!(delta.ops.len(), 0);
     ///
     /// let delta = RichTextDeltaBuilder::new()
-    ///         .retain_with_attributes(3, RichTextAttribute::Bold(true).into())
+    ///         .retain_with_attributes(3, TextAttribute::Bold(true).into())
     ///         .trim()
     ///         .build();
     /// assert_eq!(delta.ops.len(), 1);

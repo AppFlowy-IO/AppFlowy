@@ -1,5 +1,5 @@
 #[rustfmt::skip]
-use crate::rich_text::{RichTextAttribute, RichTextAttributeKey, RichTextAttributes, RichTextAttributeValue};
+use crate::rich_text::{TextAttribute, TextAttributeKey, TextAttributes, TextAttributeValue};
 use serde::{
     de,
     de::{MapAccess, Visitor},
@@ -8,7 +8,7 @@ use serde::{
 };
 use std::fmt;
 
-impl Serialize for RichTextAttribute {
+impl Serialize for TextAttribute {
     fn serialize<S>(&self, serializer: S) -> Result<<S as Serializer>::Ok, <S as Serializer>::Error>
     where
         S: Serializer,
@@ -19,7 +19,7 @@ impl Serialize for RichTextAttribute {
     }
 }
 
-impl Serialize for RichTextAttributes {
+impl Serialize for TextAttributes {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -36,43 +36,39 @@ impl Serialize for RichTextAttributes {
     }
 }
 
-fn serial_attribute<S, E>(
-    map_serializer: &mut S,
-    key: &RichTextAttributeKey,
-    value: &RichTextAttributeValue,
-) -> Result<(), E>
+fn serial_attribute<S, E>(map_serializer: &mut S, key: &TextAttributeKey, value: &TextAttributeValue) -> Result<(), E>
 where
     S: SerializeMap,
     E: From<<S as SerializeMap>::Error>,
 {
     if let Some(v) = &value.0 {
         match key {
-            RichTextAttributeKey::Bold
-            | RichTextAttributeKey::Italic
-            | RichTextAttributeKey::Underline
-            | RichTextAttributeKey::StrikeThrough
-            | RichTextAttributeKey::CodeBlock
-            | RichTextAttributeKey::InlineCode
-            | RichTextAttributeKey::BlockQuote => match &v.parse::<bool>() {
+            TextAttributeKey::Bold
+            | TextAttributeKey::Italic
+            | TextAttributeKey::Underline
+            | TextAttributeKey::StrikeThrough
+            | TextAttributeKey::CodeBlock
+            | TextAttributeKey::InlineCode
+            | TextAttributeKey::BlockQuote => match &v.parse::<bool>() {
                 Ok(value) => map_serializer.serialize_entry(&key, value)?,
                 Err(e) => log::error!("Serial {:?} failed. {:?}", &key, e),
             },
 
-            RichTextAttributeKey::Font
-            | RichTextAttributeKey::Size
-            | RichTextAttributeKey::Header
-            | RichTextAttributeKey::Indent
-            | RichTextAttributeKey::Width
-            | RichTextAttributeKey::Height => match &v.parse::<i32>() {
+            TextAttributeKey::Font
+            | TextAttributeKey::Size
+            | TextAttributeKey::Header
+            | TextAttributeKey::Indent
+            | TextAttributeKey::Width
+            | TextAttributeKey::Height => match &v.parse::<i32>() {
                 Ok(value) => map_serializer.serialize_entry(&key, value)?,
                 Err(e) => log::error!("Serial {:?} failed. {:?}", &key, e),
             },
 
-            RichTextAttributeKey::Link
-            | RichTextAttributeKey::Color
-            | RichTextAttributeKey::Background
-            | RichTextAttributeKey::Align
-            | RichTextAttributeKey::List => {
+            TextAttributeKey::Link
+            | TextAttributeKey::Color
+            | TextAttributeKey::Background
+            | TextAttributeKey::Align
+            | TextAttributeKey::List => {
                 map_serializer.serialize_entry(&key, v)?;
             }
         }
@@ -82,14 +78,14 @@ where
     Ok(())
 }
 
-impl<'de> Deserialize<'de> for RichTextAttributes {
-    fn deserialize<D>(deserializer: D) -> Result<RichTextAttributes, D::Error>
+impl<'de> Deserialize<'de> for TextAttributes {
+    fn deserialize<D>(deserializer: D) -> Result<TextAttributes, D::Error>
     where
         D: Deserializer<'de>,
     {
         struct AttributesVisitor;
         impl<'de> Visitor<'de> for AttributesVisitor {
-            type Value = RichTextAttributes;
+            type Value = TextAttributes;
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("Expect map")
             }
@@ -98,9 +94,9 @@ impl<'de> Deserialize<'de> for RichTextAttributes {
             where
                 A: MapAccess<'de>,
             {
-                let mut attributes = RichTextAttributes::new();
-                while let Some(key) = map.next_key::<RichTextAttributeKey>()? {
-                    let value = map.next_value::<RichTextAttributeValue>()?;
+                let mut attributes = TextAttributes::new();
+                while let Some(key) = map.next_key::<TextAttributeKey>()? {
+                    let value = map.next_value::<TextAttributeValue>()?;
                     attributes.insert(key, value);
                 }
 
@@ -111,7 +107,7 @@ impl<'de> Deserialize<'de> for RichTextAttributes {
     }
 }
 
-impl Serialize for RichTextAttributeValue {
+impl Serialize for TextAttributeValue {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
@@ -123,14 +119,14 @@ impl Serialize for RichTextAttributeValue {
     }
 }
 
-impl<'de> Deserialize<'de> for RichTextAttributeValue {
-    fn deserialize<D>(deserializer: D) -> Result<RichTextAttributeValue, D::Error>
+impl<'de> Deserialize<'de> for TextAttributeValue {
+    fn deserialize<D>(deserializer: D) -> Result<TextAttributeValue, D::Error>
     where
         D: Deserializer<'de>,
     {
         struct AttributeValueVisitor;
         impl<'de> Visitor<'de> for AttributeValueVisitor {
-            type Value = RichTextAttributeValue;
+            type Value = TextAttributeValue;
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("bool, usize or string")
             }
@@ -145,56 +141,56 @@ impl<'de> Deserialize<'de> for RichTextAttributeValue {
             where
                 E: de::Error,
             {
-                Ok(RichTextAttributeValue(Some(format!("{}", value))))
+                Ok(TextAttributeValue(Some(format!("{}", value))))
             }
 
             fn visit_i16<E>(self, value: i16) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(RichTextAttributeValue(Some(format!("{}", value))))
+                Ok(TextAttributeValue(Some(format!("{}", value))))
             }
 
             fn visit_i32<E>(self, value: i32) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(RichTextAttributeValue(Some(format!("{}", value))))
+                Ok(TextAttributeValue(Some(format!("{}", value))))
             }
 
             fn visit_i64<E>(self, value: i64) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(RichTextAttributeValue(Some(format!("{}", value))))
+                Ok(TextAttributeValue(Some(format!("{}", value))))
             }
 
             fn visit_u8<E>(self, value: u8) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(RichTextAttributeValue(Some(format!("{}", value))))
+                Ok(TextAttributeValue(Some(format!("{}", value))))
             }
 
             fn visit_u16<E>(self, value: u16) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(RichTextAttributeValue(Some(format!("{}", value))))
+                Ok(TextAttributeValue(Some(format!("{}", value))))
             }
 
             fn visit_u32<E>(self, value: u32) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(RichTextAttributeValue(Some(format!("{}", value))))
+                Ok(TextAttributeValue(Some(format!("{}", value))))
             }
 
             fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(RichTextAttributeValue(Some(format!("{}", value))))
+                Ok(TextAttributeValue(Some(format!("{}", value))))
             }
 
             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>
@@ -208,7 +204,7 @@ impl<'de> Deserialize<'de> for RichTextAttributeValue {
             where
                 E: de::Error,
             {
-                Ok(RichTextAttributeValue(None))
+                Ok(TextAttributeValue(None))
             }
 
             fn visit_unit<E>(self) -> Result<Self::Value, E>
@@ -216,7 +212,7 @@ impl<'de> Deserialize<'de> for RichTextAttributeValue {
                 E: de::Error,
             {
                 // the value that contains null will be processed here.
-                Ok(RichTextAttributeValue(None))
+                Ok(TextAttributeValue(None))
             }
 
             fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
@@ -225,7 +221,7 @@ impl<'de> Deserialize<'de> for RichTextAttributeValue {
             {
                 // https://github.com/serde-rs/json/issues/505
                 let mut map = map;
-                let value = map.next_value::<RichTextAttributeValue>()?;
+                let value = map.next_value::<TextAttributeValue>()?;
                 Ok(value)
             }
         }

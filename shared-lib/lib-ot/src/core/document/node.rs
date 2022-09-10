@@ -19,7 +19,7 @@ impl NodeData {
 }
 
 #[derive(Clone, Serialize, Deserialize, Eq, PartialEq)]
-pub struct NodeSubTree {
+pub struct Node {
     #[serde(rename = "type")]
     pub note_type: String,
 
@@ -29,12 +29,12 @@ pub struct NodeSubTree {
     pub delta: Option<TextDelta>,
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub children: Vec<NodeSubTree>,
+    pub children: Vec<Node>,
 }
 
-impl NodeSubTree {
-    pub fn new(node_type: &str) -> NodeSubTree {
-        NodeSubTree {
+impl Node {
+    pub fn new(node_type: &str) -> Node {
+        Node {
             note_type: node_type.into(),
             attributes: NodeAttributes::new(),
             delta: None,

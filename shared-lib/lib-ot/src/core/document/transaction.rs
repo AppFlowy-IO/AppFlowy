@@ -1,5 +1,5 @@
 use crate::core::document::position::Path;
-use crate::core::{AttributeMap, DocumentOperation, DocumentTree, NodeAttributes, NodeSubTree};
+use crate::core::{AttributeValue, DocumentOperation, DocumentTree, Node, NodeAttributes};
 use indextree::NodeId;
 
 pub struct Transaction {
@@ -38,17 +38,17 @@ impl<'a> TransactionBuilder<'a> {
     /// // -- 0 (root)
     /// //      0 -- text_1
     /// //      1 -- text_2
-    /// use lib_ot::core::{DocumentTree, NodeSubTree, TransactionBuilder};
+    /// use lib_ot::core::{DocumentTree, Node, TransactionBuilder};
     /// let mut document = DocumentTree::new();
     /// let transaction = TransactionBuilder::new(&document)
-    ///     .insert_nodes_at_path(0,vec![ NodeSubTree::new("text_1"),  NodeSubTree::new("text_2")])
+    ///     .insert_nodes_at_path(0,vec![ Node::new("text_1"),  Node::new("text_2")])
     ///     .finalize();
     ///  document.apply(transaction).unwrap();
     ///
     ///  document.node_at_path(vec![0, 0]);
     /// ```
     ///
-    pub fn insert_nodes_at_path<T: Into<Path>>(self, path: T, nodes: Vec<NodeSubTree>) -> Self {
+    pub fn insert_nodes_at_path<T: Into<Path>>(self, path: T, nodes: Vec<Node>) -> Self {
         self.push(DocumentOperation::Insert {
             path: path.into(),
             nodes,
@@ -68,36 +68,34 @@ impl<'a> TransactionBuilder<'a> {
     /// // 0
     /// // -- 0
     /// //    |-- text
-    /// use lib_ot::core::{DocumentTree, NodeSubTree, TransactionBuilder};
+    /// use lib_ot::core::{DocumentTree, Node, TransactionBuilder};
     /// let mut document = DocumentTree::new();
     /// let transaction = TransactionBuilder::new(&document)
-    ///     .insert_node_at_path(0, NodeSubTree::new("text"))
+    ///     .insert_node_at_path(0, Node::new("text"))
     ///     .finalize();
     ///  document.apply(transaction).unwrap();
     /// ```
     ///
-    pub fn insert_node_at_path<T: Into<Path>>(self, path: T, node: NodeSubTree) -> Self {
+    pub fn insert_node_at_path<T: Into<Path>>(self, path: T, node: Node) -> Self {
         self.insert_nodes_at_path(path, vec![node])
     }
 
-    pub fn update_attributes_at_path(self, path: &Path, attributes: AttributeMap) -> Self {
-        let mut old_attributes: AttributeMap = AttributeMap::new();
+    pub fn update_attributes_at_path(self, path: &Path, attributes: NodeAttributes) -> Self {
+        let mut old_attributes = NodeAttributes::new();
         let node = self.document.node_at_path(path).unwrap();
         let node_data = self.document.get_node_data(node).unwrap();
 
         for key in attributes.keys() {
             let old_attrs = &node_data.attributes;
-            let old_value = match old_attrs.0.get(key.as_str()) {
-                Some(value) => value.clone(),
-                None => None,
-            };
-            old_attributes.insert(key.clone(), old_value);
+            if let Some(value) = old_attrs.get(key.as_str()) {
+                old_attributes.insert(key.clone(), value.clone());
+            }
         }
 
         self.push(DocumentOperation::Update {
             path: path.clone(),
-            attributes: NodeAttributes(attributes),
-            old_attributes: NodeAttributes(old_attributes),
+            attributes,
+            old_attributes,
         })
     }
 
@@ -120,7 +118,7 @@ impl<'a> TransactionBuilder<'a> {
         self
     }
 
-    fn get_deleted_nodes(&self, node_id: NodeId) -> NodeSubTree {
+    fn get_deleted_nodes(&self, node_id: NodeId) -> Node {
         let node_data = self.document.get_node_data(node_id).unwrap();
 
         let mut children = vec![];
@@ -128,7 +126,7 @@ impl<'a> TransactionBuilder<'a> {
             children.push(self.get_deleted_nodes(child_id));
         });
 
-        NodeSubTree {
+        Node {
             note_type: node_data.node_type.clone(),
             attributes: node_data.attributes.clone(),
             delta: node_data.delta.clone(),

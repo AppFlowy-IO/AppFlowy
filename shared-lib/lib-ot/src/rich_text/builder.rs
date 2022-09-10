@@ -1,15 +1,15 @@
 #![allow(non_snake_case)]
 #![allow(clippy::derivable_impls)]
-use crate::rich_text::{RichTextAttribute, RichTextAttributes};
+use crate::rich_text::{TextAttribute, TextAttributes};
 
 pub struct AttributeBuilder {
-    inner: RichTextAttributes,
+    inner: TextAttributes,
 }
 
 impl std::default::Default for AttributeBuilder {
     fn default() -> Self {
         Self {
-            inner: RichTextAttributes::default(),
+            inner: TextAttributes::default(),
         }
     }
 }
@@ -19,12 +19,12 @@ impl AttributeBuilder {
         AttributeBuilder::default()
     }
 
-    pub fn add_attr(mut self, attribute: RichTextAttribute) -> Self {
+    pub fn add_attr(mut self, attribute: TextAttribute) -> Self {
         self.inner.add(attribute);
         self
     }
 
-    pub fn build(self) -> RichTextAttributes {
+    pub fn build(self) -> TextAttributes {
         self.inner
     }
 }

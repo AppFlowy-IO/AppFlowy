@@ -1,11 +1,11 @@
 use crate::core::document::position::Path;
-use crate::core::{NodeAttributes, NodeSubTree, TextDelta};
+use crate::core::{Node, NodeAttributes, TextDelta};
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "op")]
 pub enum DocumentOperation {
     #[serde(rename = "insert")]
-    Insert { path: Path, nodes: Vec<NodeSubTree> },
+    Insert { path: Path, nodes: Vec<Node> },
     #[serde(rename = "update")]
     Update {
         path: Path,
@@ -14,7 +14,7 @@ pub enum DocumentOperation {
         old_attributes: NodeAttributes,
     },
     #[serde(rename = "delete")]
-    Delete { path: Path, nodes: Vec<NodeSubTree> },
+    Delete { path: Path, nodes: Vec<Node> },
     #[serde(rename = "text-edit")]
     TextEdit {
         path: Path,
@@ -101,7 +101,7 @@ impl DocumentOperation {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{Delta, DocumentOperation, NodeAttributes, NodeSubTree, Path};
+    use crate::core::{Delta, DocumentOperation, Node, NodeAttributes, Path};
 
     #[test]
     fn test_transform_path_1() {
@@ -155,7 +155,7 @@ mod tests {
     fn test_serialize_insert_operation() {
         let insert = DocumentOperation::Insert {
             path: Path(vec![0, 1]),
-            nodes: vec![NodeSubTree::new("text")],
+            nodes: vec![Node::new("text")],
         };
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(
@@ -168,11 +168,11 @@ mod tests {
     fn test_serialize_insert_sub_trees() {
         let insert = DocumentOperation::Insert {
             path: Path(vec![0, 1]),
-            nodes: vec![NodeSubTree {
+            nodes: vec![Node {
                 note_type: "text".into(),
                 attributes: NodeAttributes::new(),
                 delta: None,
-                children: vec![NodeSubTree::new("text")],
+                children: vec![Node::new("text")],
             }],
         };
         let result = serde_json::to_string(&insert).unwrap();
