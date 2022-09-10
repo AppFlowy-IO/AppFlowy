@@ -1,6 +1,6 @@
 use crate::{client_document::InsertExt, util::is_newline};
 use lib_ot::core::{is_empty_line_at_index, DeltaBuilder, DeltaIterator};
-use lib_ot::rich_text::{attributes_except_header, RichTextAttributeKey, RichTextDelta};
+use lib_ot::rich_text::{attributes_except_header, RichTextDelta, TextAttributeKey};
 
 pub struct AutoExitBlock {}
 
@@ -42,7 +42,7 @@ impl InsertExt for AutoExitBlock {
             }
         }
 
-        attributes.mark_all_as_removed_except(Some(RichTextAttributeKey::Header));
+        attributes.mark_all_as_removed_except(Some(TextAttributeKey::Header));
 
         Some(
             DeltaBuilder::new()

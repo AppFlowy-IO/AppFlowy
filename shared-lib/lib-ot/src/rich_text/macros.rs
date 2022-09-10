@@ -6,7 +6,7 @@ macro_rules! inline_attribute {
     ) => {
         pub fn $key(value: $value) -> Self {
             Self {
-                key: RichTextAttributeKey::$key,
+                key: TextAttributeKey::$key,
                 value: value.into(),
                 scope: AttributeScope::Inline,
             }
@@ -22,7 +22,7 @@ macro_rules! block_attribute {
     ) => {
         pub fn $key(value: $value) -> Self {
             Self {
-                key: RichTextAttributeKey::$key,
+                key: TextAttributeKey::$key,
                 value: value.into(),
                 scope: AttributeScope::Block,
             }
@@ -41,7 +41,7 @@ macro_rules! list_attribute {
                 true => $value,
                 false => "",
             };
-            RichTextAttribute::List(value)
+            TextAttribute::List(value)
         }
     };
 }
@@ -54,7 +54,7 @@ macro_rules! ignore_attribute {
     ) => {
         pub fn $key(value: $value) -> Self {
             Self {
-                key: RichTextAttributeKey::$key,
+                key: TextAttributeKey::$key,
                 value: value.into(),
                 scope: AttributeScope::Ignore,
             }

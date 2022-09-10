@@ -1,5 +1,5 @@
 use crate::core::{Delta, DeltaIterator};
-use crate::rich_text::{is_block, RichTextAttributeKey, RichTextAttributeValue, RichTextAttributes};
+use crate::rich_text::{is_block, TextAttributeKey, TextAttributeValue, TextAttributes};
 use std::collections::HashMap;
 
 const LINEFEEDASCIICODE: i32 = 0x0A;
@@ -98,14 +98,14 @@ mod tests {
 }
 
 struct Attribute {
-    key: RichTextAttributeKey,
-    value: RichTextAttributeValue,
+    key: TextAttributeKey,
+    value: TextAttributeValue,
 }
 
-pub fn markdown_encoder(delta: &Delta<RichTextAttributes>) -> String {
+pub fn markdown_encoder(delta: &Delta<TextAttributes>) -> String {
     let mut markdown_buffer = String::new();
     let mut line_buffer = String::new();
-    let mut current_inline_style = RichTextAttributes::default();
+    let mut current_inline_style = TextAttributes::default();
     let mut current_block_lines: Vec<String> = Vec::new();
     let mut iterator = DeltaIterator::new(delta);
     let mut current_block_style: Option<Attribute> = None;
@@ -138,17 +138,17 @@ pub fn markdown_encoder(delta: &Delta<RichTextAttributes>) -> String {
 }
 
 fn handle_inline(
-    current_inline_style: &mut RichTextAttributes,
+    current_inline_style: &mut TextAttributes,
     buffer: &mut String,
     mut text: String,
-    attributes: RichTextAttributes,
+    attributes: TextAttributes,
 ) {
-    let mut marked_for_removal: HashMap<RichTextAttributeKey, RichTextAttributeValue> = HashMap::new();
+    let mut marked_for_removal: HashMap<TextAttributeKey, TextAttributeValue> = HashMap::new();
 
     for key in current_inline_style
         .clone()
         .keys()
-        .collect::<Vec<&RichTextAttributeKey>>()
+        .collect::<Vec<&TextAttributeKey>>()
         .into_iter()
         .rev()
     {
@@ -205,46 +205,46 @@ fn trim_right(buffer: &mut String) -> String {
     " ".repeat(text.len() - result.len())
 }
 
-fn write_attribute(buffer: &mut String, key: &RichTextAttributeKey, value: &RichTextAttributeValue, close: bool) {
+fn write_attribute(buffer: &mut String, key: &TextAttributeKey, value: &TextAttributeValue, close: bool) {
     match key {
-        RichTextAttributeKey::Bold => buffer.push_str("**"),
-        RichTextAttributeKey::Italic => buffer.push_str("_"),
-        RichTextAttributeKey::Underline => {
+        TextAttributeKey::Bold => buffer.push_str("**"),
+        TextAttributeKey::Italic => buffer.push_str("_"),
+        TextAttributeKey::Underline => {
             if close {
                 buffer.push_str("</u>")
             } else {
                 buffer.push_str("<u>")
             }
         }
-        RichTextAttributeKey::StrikeThrough => {
+        TextAttributeKey::StrikeThrough => {
             if close {
                 buffer.push_str("~~")
             } else {
                 buffer.push_str("~~")
             }
         }
-        RichTextAttributeKey::Link => {
+        TextAttributeKey::Link => {
             if close {
                 buffer.push_str(format!("]({})", value.0.as_ref().unwrap()).as_str())
             } else {
                 buffer.push_str("[")
             }
         }
-        RichTextAttributeKey::Background => {
+        TextAttributeKey::Background => {
             if close {
                 buffer.push_str("</mark>")
             } else {
                 buffer.push_str("<mark>")
             }
         }
-        RichTextAttributeKey::CodeBlock => {
+        TextAttributeKey::CodeBlock => {
             if close {
                 buffer.push_str("\n```")
             } else {
                 buffer.push_str("```\n")
             }
         }
-        RichTextAttributeKey::InlineCode => {
+        TextAttributeKey::InlineCode => {
             if close {
                 buffer.push_str("`")
             } else {
@@ -259,10 +259,10 @@ fn handle_line(
     buffer: &mut String,
     markdown_buffer: &mut String,
     data: String,
-    attributes: RichTextAttributes,
+    attributes: TextAttributes,
     current_block_style: &mut Option<Attribute>,
     current_block_lines: &mut Vec<String>,
-    current_inline_style: &mut RichTextAttributes,
+    current_inline_style: &mut TextAttributes,
 ) {
     let mut span = String::new();
     for c in data.chars() {
@@ -274,7 +274,7 @@ fn handle_line(
                 current_inline_style,
                 buffer,
                 String::from(""),
-                RichTextAttributes::default(),
+                TextAttributes::default(),
             );
 
             let line_block_key = attributes.keys().find(|key| {
@@ -339,7 +339,7 @@ fn handle_block(
             markdown_buffer.push_str(&current_block_lines.join("\n"));
             markdown_buffer.push('\n');
         }
-        Some(block_style) if block_style.key == RichTextAttributeKey::CodeBlock => {
+        Some(block_style) if block_style.key == TextAttributeKey::CodeBlock => {
             write_attribute(markdown_buffer, &block_style.key, &block_style.value, false);
             markdown_buffer.push_str(&current_block_lines.join("\n"));
             write_attribute(markdown_buffer, &block_style.key, &block_style.value, true);
@@ -360,9 +360,9 @@ fn write_block_tag(buffer: &mut String, block: &Attribute, close: bool) {
         return;
     }
 
-    if block.key == RichTextAttributeKey::BlockQuote {
+    if block.key == TextAttributeKey::BlockQuote {
         buffer.push_str("> ");
-    } else if block.key == RichTextAttributeKey::List {
+    } else if block.key == TextAttributeKey::List {
         if block.value.0.as_ref().unwrap().eq("bullet") {
             buffer.push_str("* ");
         } else if block.value.0.as_ref().unwrap().eq("checked") {
@@ -374,14 +374,14 @@ fn write_block_tag(buffer: &mut String, block: &Attribute, close: bool) {
         } else {
             buffer.push_str("* ");
         }
-    } else if block.key == RichTextAttributeKey::Header {
+    } else if block.key == TextAttributeKey::Header {
         if block.value.0.as_ref().unwrap().eq("1") {
             buffer.push_str("# ");
         } else if block.value.0.as_ref().unwrap().eq("2") {
             buffer.push_str("## ");
         } else if block.value.0.as_ref().unwrap().eq("3") {
             buffer.push_str("### ");
-        } else if block.key == RichTextAttributeKey::List {
+        } else if block.key == TextAttributeKey::List {
         }
     }
 }

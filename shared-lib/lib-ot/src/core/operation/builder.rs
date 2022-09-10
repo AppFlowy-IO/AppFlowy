@@ -1,7 +1,7 @@
 use crate::core::operation::{Attributes, Operation, PhantomAttributes};
-use crate::rich_text::RichTextAttributes;
+use crate::rich_text::TextAttributes;
 
-pub type RichTextOpBuilder = OperationsBuilder<RichTextAttributes>;
+pub type RichTextOpBuilder = OperationsBuilder<TextAttributes>;
 pub type PlainTextOpBuilder = OperationsBuilder<PhantomAttributes>;
 
 #[derive(Default)]

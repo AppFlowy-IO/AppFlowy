@@ -4,7 +4,7 @@ use crate::{
 };
 use lib_ot::{
     core::{DeltaBuilder, DeltaIterator, OpNewline, NEW_LINE},
-    rich_text::{plain_attributes, RichTextAttributeKey, RichTextDelta},
+    rich_text::{plain_attributes, RichTextDelta, TextAttributeKey},
 };
 
 pub struct PreserveInlineFormat {}
@@ -25,7 +25,7 @@ impl InsertExt for PreserveInlineFormat {
         }
 
         let mut attributes = prev.get_attributes();
-        if attributes.is_empty() || !attributes.contains_key(&RichTextAttributeKey::Link) {
+        if attributes.is_empty() || !attributes.contains_key(&TextAttributeKey::Link) {
             return Some(
                 DeltaBuilder::new()
                     .retain(index + replace_len)
