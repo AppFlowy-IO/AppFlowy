@@ -1,4 +1,4 @@
-use crate::core::document::position::Path;
+use crate::core::document::path::Path;
 use crate::core::{Node, NodeAttributes, NodeOperation, NodeTree};
 use indextree::NodeId;
 

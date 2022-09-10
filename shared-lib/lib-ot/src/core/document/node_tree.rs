@@ -1,4 +1,4 @@
-use crate::core::document::position::Path;
+use crate::core::document::path::Path;
 use crate::core::{Node, NodeAttributes, NodeData, NodeOperation, OperationTransform, TextDelta, Transaction};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, Children, FollowingSiblings, NodeId};
