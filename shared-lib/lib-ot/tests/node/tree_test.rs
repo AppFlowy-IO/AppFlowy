@@ -1,5 +1,9 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
+use lib_ot::core::NodeBody;
+use lib_ot::core::NodeBodyChangeset;
+use lib_ot::core::OperationTransform;
+use lib_ot::core::TextDeltaBuilder;
 use lib_ot::core::{NodeBuilder, NodeData, Path};
 
 #[test]
@@ -147,7 +151,7 @@ fn node_insert_with_attributes_test() {
             path: path.clone(),
             node: inserted_node.clone(),
         },
-        InsertAttributes {
+        UpdateAttributes {
             path: path.clone(),
             attributes: inserted_node.attributes.clone(),
         },
@@ -172,6 +176,35 @@ fn node_delete_test() {
         },
         DeleteNode { path: path.clone() },
         AssertNode { path, expected: None },
+    ];
+    test.run_scripts(scripts);
+}
+
+#[test]
+fn node_update_body_test() {
+    let mut test = NodeTest::new();
+    let path: Path = 0.into();
+
+    let s = "Hello".to_owned();
+    let init_delta = TextDeltaBuilder::new().insert(&s).build();
+    let delta = TextDeltaBuilder::new().retain(s.len()).insert(" AppFlowy").build();
+    let inverted = delta.invert(&init_delta);
+    let expected = init_delta.compose(&delta).unwrap();
+
+    let node = NodeBuilder::new("text")
+        .insert_body(NodeBody::Delta(init_delta))
+        .build();
+
+    let scripts = vec![
+        InsertNode {
+            path: path.clone(),
+            node: node.clone(),
+        },
+        UpdateBody {
+            path: path.clone(),
+            changeset: NodeBodyChangeset::Delta { delta, inverted },
+        },
+        AssertNodeDelta { path, expected },
     ];
     test.run_scripts(scripts);
 }

@@ -26,6 +26,13 @@ impl NodeTree {
         Some(self.arena.get(node_id)?.get())
     }
 
+    pub fn get_node_at_path(&self, path: &Path) -> Option<&Node> {
+        {
+            let node_id = self.node_id_at_path(path)?;
+            self.get_node(node_id)
+        }
+    }
+
     ///
     /// # Examples
     ///
@@ -41,7 +48,7 @@ impl NodeTree {
     /// let node_path = node_tree.path_of_node(node_id);
     /// debug_assert_eq!(node_path, root_path);
     /// ```
-    pub fn node_at_path<T: Into<Path>>(&self, path: T) -> Option<NodeId> {
+    pub fn node_id_at_path<T: Into<Path>>(&self, path: T) -> Option<NodeId> {
         let path = path.into();
         if path.is_empty() {
             return Some(self.root);
@@ -54,7 +61,7 @@ impl NodeTree {
         Some(iterate_node)
     }
 
-    pub fn path_of_node(&self, node_id: NodeId) -> Path {
+    pub fn path_from_node_id(&self, node_id: NodeId) -> Path {
         let mut path = vec![];
         let mut current_node = node_id;
         // Use .skip(1) on the ancestors iterator to skip the root node.
@@ -137,7 +144,7 @@ impl NodeTree {
     }
 
     pub fn apply(&mut self, transaction: Transaction) -> Result<(), OTError> {
-        for op in &transaction.operations {
+        for op in transaction.operations.iter() {
             self.apply_op(op)?;
         }
         Ok(())
@@ -164,7 +171,7 @@ impl NodeTree {
         let (parent_path, last_path) = path.split_at(path.0.len() - 1);
         let last_index = *last_path.first().unwrap();
         let parent_node = self
-            .node_at_path(parent_path)
+            .node_id_at_path(parent_path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         self.insert_nodes_at_index(parent_node, last_index, nodes)
@@ -228,7 +235,7 @@ impl NodeTree {
 
     fn delete_node(&mut self, path: &Path, nodes: &[NodeData]) -> Result<(), OTError> {
         let mut update_node = self
-            .node_at_path(path)
+            .node_id_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         for _ in 0..nodes.len() {
@@ -255,7 +262,7 @@ impl NodeTree {
         F: Fn(&mut Node) -> Result<(), OTError>,
     {
         let node_id = self
-            .node_at_path(path)
+            .node_id_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
         match self.arena.get_mut(node_id) {
             None => tracing::warn!("The path: {:?} does not contain any nodes", path),

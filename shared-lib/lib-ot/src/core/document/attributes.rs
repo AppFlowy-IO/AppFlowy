@@ -39,8 +39,8 @@ impl NodeAttributes {
         self.0.is_empty()
     }
 
-    pub fn delete(&mut self, key: &AttributeKey) {
-        self.insert(key.clone(), AttributeValue(None));
+    pub fn delete<K: ToString>(&mut self, key: K) {
+        self.insert(key.to_string(), AttributeValue(None));
     }
 }
 
@@ -139,8 +139,34 @@ impl std::convert::From<bool> for AttributeValue {
     fn from(val: bool) -> Self {
         let val = match val {
             true => Some("true".to_owned()),
-            false => None,
+            false => Some("false".to_owned()),
         };
         AttributeValue(val)
+    }
+}
+
+pub struct NodeAttributeBuilder {
+    attributes: NodeAttributes,
+}
+
+impl NodeAttributeBuilder {
+    pub fn new() -> Self {
+        Self {
+            attributes: NodeAttributes::default(),
+        }
+    }
+
+    pub fn insert<K: ToString, V: Into<AttributeValue>>(mut self, key: K, value: V) -> Self {
+        self.attributes.insert(key, value);
+        self
+    }
+
+    pub fn delete<K: ToString>(mut self, key: K) -> Self {
+        self.attributes.delete(key);
+        self
+    }
+
+    pub fn build(self) -> NodeAttributes {
+        self.attributes
     }
 }

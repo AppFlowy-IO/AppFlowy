@@ -1,8 +1,10 @@
 use crate::core::document::operation_serde::*;
 use crate::core::document::path::Path;
 use crate::core::{NodeAttributes, NodeBodyChangeset, NodeData};
+use crate::errors::OTError;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(tag = "op")]
 pub enum NodeOperation {
     #[serde(rename = "insert")]
@@ -99,59 +101,37 @@ impl NodeOperation {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::core::{NodeAttributes, NodeBodyChangeset, NodeBuilder, NodeData, NodeOperation, Path, TextDelta};
-    #[test]
-    fn test_serialize_insert_operation() {
-        let insert = NodeOperation::Insert {
-            path: Path(vec![0, 1]),
-            nodes: vec![NodeData::new("text".to_owned())],
-        };
-        let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(result, r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}"#);
+#[derive(Serialize, Deserialize, Default)]
+pub struct NodeOperationList {
+    operations: Vec<NodeOperation>,
+}
+
+impl std::ops::Deref for NodeOperationList {
+    type Target = Vec<NodeOperation>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.operations
+    }
+}
+
+impl std::ops::DerefMut for NodeOperationList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.operations
+    }
+}
+
+impl NodeOperationList {
+    pub fn new(operations: Vec<NodeOperation>) -> Self {
+        Self { operations }
     }
 
-    #[test]
-    fn test_serialize_insert_sub_trees() {
-        let insert = NodeOperation::Insert {
-            path: Path(vec![0, 1]),
-            nodes: vec![NodeBuilder::new("text")
-                .add_node(NodeData::new("text".to_owned()))
-                .build()],
-        };
-        let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(
-            result,
-            r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","children":[{"type":"text"}]}]}"#
-        );
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, OTError> {
+        let operation_list = serde_json::from_slice(&bytes).map_err(|err| OTError::serde().context(err))?;
+        Ok(operation_list)
     }
 
-    #[test]
-    fn test_serialize_update_operation() {
-        let insert = NodeOperation::UpdateAttributes {
-            path: Path(vec![0, 1]),
-            attributes: NodeAttributes::new(),
-            old_attributes: NodeAttributes::new(),
-        };
-        let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(
-            result,
-            r#"{"op":"update","path":[0,1],"attributes":{},"oldAttributes":{}}"#
-        );
-    }
-
-    #[test]
-    fn test_serialize_text_edit_operation() {
-        let changeset = NodeBodyChangeset::Delta {
-            delta: TextDelta::new(),
-            inverted: TextDelta::new(),
-        };
-        let insert = NodeOperation::UpdateBody {
-            path: Path(vec![0, 1]),
-            changeset,
-        };
-        let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(result, r#"{"op":"edit-body","path":[0,1],"delta":[],"inverted":[]}"#);
+    pub fn to_bytes(&self) -> Result<Vec<u8>, OTError> {
+        let bytes = serde_json::to_vec(self).map_err(|err| OTError::serde().context(err))?;
+        Ok(bytes)
     }
 }
