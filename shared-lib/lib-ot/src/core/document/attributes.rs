@@ -1,8 +1,8 @@
 use crate::core::OperationTransform;
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
+use serde_repr::*;
 use std::collections::HashMap;
-
 pub type AttributeMap = HashMap<AttributeKey, AttributeValue>;
 
 #[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
@@ -40,7 +40,7 @@ impl NodeAttributes {
     }
 
     pub fn delete<K: ToString>(&mut self, key: K) {
-        self.insert(key.to_string(), AttributeValue(None));
+        self.insert(key.to_string(), AttributeValue::empty());
     }
 }
 
@@ -94,54 +94,79 @@ impl OperationTransform for NodeAttributes {
 
 pub type AttributeKey = String;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct AttributeValue(pub Option<String>);
-
-impl std::convert::From<&usize> for AttributeValue {
-    fn from(val: &usize) -> Self {
-        AttributeValue::from(*val)
-    }
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u8)]
+pub enum ValueType {
+    IntType = 0,
+    FloatType = 1,
+    StrType = 2,
+    BoolType = 3,
 }
 
-impl std::convert::From<usize> for AttributeValue {
-    fn from(val: usize) -> Self {
-        if val > 0_usize {
-            AttributeValue(Some(format!("{}", val)))
-        } else {
-            AttributeValue(None)
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct AttributeValue {
+    pub ty: ValueType,
+    pub value: Option<String>,
+}
+
+impl AttributeValue {
+    pub fn empty() -> Self {
+        Self {
+            ty: ValueType::StrType,
+            value: None,
         }
     }
-}
-
-impl std::convert::From<&str> for AttributeValue {
-    fn from(val: &str) -> Self {
-        val.to_owned().into()
-    }
-}
-
-impl std::convert::From<String> for AttributeValue {
-    fn from(val: String) -> Self {
-        if val.is_empty() {
-            AttributeValue(None)
-        } else {
-            AttributeValue(Some(val))
+    pub fn from_int(val: usize) -> Self {
+        Self {
+            ty: ValueType::IntType,
+            value: Some(val.to_string()),
         }
     }
-}
 
-impl std::convert::From<&bool> for AttributeValue {
-    fn from(val: &bool) -> Self {
-        AttributeValue::from(*val)
+    pub fn from_float(val: f64) -> Self {
+        Self {
+            ty: ValueType::FloatType,
+            value: Some(val.to_string()),
+        }
+    }
+
+    pub fn from_bool(val: bool) -> Self {
+        Self {
+            ty: ValueType::BoolType,
+            value: Some(val.to_string()),
+        }
+    }
+    pub fn from_str(s: &str) -> Self {
+        let value = if s.is_empty() { None } else { Some(s.to_string()) };
+        Self {
+            ty: ValueType::StrType,
+            value,
+        }
+    }
+
+    pub fn int_value(&self) -> Option<i64> {
+        let value = self.value.as_ref()?;
+        Some(value.parse::<i64>().unwrap_or(0))
+    }
+
+    pub fn bool_value(&self) -> Option<bool> {
+        let value = self.value.as_ref()?;
+        Some(value.parse::<bool>().unwrap_or(false))
+    }
+
+    pub fn str_value(&self) -> Option<String> {
+        self.value.clone()
+    }
+
+    pub fn float_value(&self) -> Option<f64> {
+        let value = self.value.as_ref()?;
+        Some(value.parse::<f64>().unwrap_or(0.0))
     }
 }
 
 impl std::convert::From<bool> for AttributeValue {
-    fn from(val: bool) -> Self {
-        let val = match val {
-            true => Some("true".to_owned()),
-            false => Some("false".to_owned()),
-        };
-        AttributeValue(val)
+    fn from(value: bool) -> Self {
+        AttributeValue::from_bool(value)
     }
 }
 

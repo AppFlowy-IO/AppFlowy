@@ -1,6 +1,6 @@
 use super::NodeBody;
 use crate::rich_text::RichTextDelta;
-use serde::de::{self, Visitor};
+use serde::de::{self, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Deserializer, Serializer};
 use std::fmt;
@@ -44,32 +44,32 @@ where
             Ok(NodeBody::Delta(delta))
         }
 
-        // #[inline]
-        // fn visit_map<V>(self, mut map: V) -> Result<Self::Value, V::Error>
-        // where
-        //     V: MapAccess<'de>,
-        // {
-        //     let mut delta: Option<RichTextDelta> = None;
-        //     while let Some(key) = map.next_key()? {
-        //         match key {
-        //             "delta" => {
-        //                 if delta.is_some() {
-        //                     return Err(de::Error::duplicate_field("delta"));
-        //                 }
-        //                 delta = Some(map.next_value()?);
-        //             }
-        //             other => {
-        //                 panic!("Unexpected key: {}", other);
-        //             }
-        //         }
-        //     }
+        #[inline]
+        fn visit_map<V>(self, mut map: V) -> Result<Self::Value, V::Error>
+        where
+            V: MapAccess<'de>,
+        {
+            let mut delta: Option<RichTextDelta> = None;
+            while let Some(key) = map.next_key()? {
+                match key {
+                    "delta" => {
+                        if delta.is_some() {
+                            return Err(de::Error::duplicate_field("delta"));
+                        }
+                        delta = Some(map.next_value()?);
+                    }
+                    other => {
+                        panic!("Unexpected key: {}", other);
+                    }
+                }
+            }
 
-        //     if delta.is_some() {
-        //         return Ok(NodeBody::Delta(delta.unwrap()));
-        //     }
+            if delta.is_some() {
+                return Ok(NodeBody::Delta(delta.unwrap()));
+            }
 
-        //     Err(de::Error::missing_field("delta"))
-        // }
+            Err(de::Error::missing_field("delta"))
+        }
     }
     deserializer.deserialize_any(NodeBodyVisitor())
 }

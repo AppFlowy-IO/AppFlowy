@@ -246,7 +246,6 @@ impl std::convert::From<TextAttribute> for TextAttributes {
 }
 
 #[derive(Clone, Debug, Display, Hash, Eq, PartialEq, serde::Serialize, serde::Deserialize)]
-// serde.rs/variant-attrs.html
 // #[serde(rename_all = "snake_case")]
 pub enum TextAttributeKey {
     #[serde(rename = "bold")]

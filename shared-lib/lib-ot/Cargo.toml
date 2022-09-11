@@ -10,14 +10,15 @@ bytecount = "0.6.0"
 serde = { version = "1.0", features = ["derive"] }
 #protobuf = {version = "2.18.0"}
 #flowy-derive = { path = "../flowy-derive" }
-tokio = {version = "1", features = ["sync"]}
+tokio = { version = "1", features = ["sync"] }
 dashmap = "5"
 md5 = "0.7.0"
 anyhow = "1.0"
 thiserror = "1.0"
 
-serde_json = {version = "1.0"}
-derive_more = {version = "0.99", features = ["display"]}
+serde_json = { version = "1.0" }
+serde_repr = { version = "0.1" }
+derive_more = { version = "0.99", features = ["display"] }
 log = "0.4"
 tracing = { version = "0.1", features = ["log"] }
 lazy_static = "1.4.0"
@@ -29,5 +30,3 @@ indextree = "4.4.0"
 
 [features]
 flowy_unit_test = []
-
-
