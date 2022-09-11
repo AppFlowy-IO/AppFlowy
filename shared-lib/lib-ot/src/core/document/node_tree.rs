@@ -5,7 +5,7 @@ use indextree::{Arena, Children, FollowingSiblings, NodeId};
 
 ///
 pub struct NodeTree {
-    arena: Arena<NodeData>,
+    arena: Arena<Node>,
     root: NodeId,
 }
 
@@ -18,11 +18,11 @@ impl Default for NodeTree {
 impl NodeTree {
     pub fn new() -> NodeTree {
         let mut arena = Arena::new();
-        let root = arena.new_node(NodeData::new("root"));
+        let root = arena.new_node(Node::new("root"));
         NodeTree { arena, root }
     }
 
-    pub fn get_node_data(&self, node_id: NodeId) -> Option<&NodeData> {
+    pub fn get_node(&self, node_id: NodeId) -> Option<&Node> {
         Some(self.arena.get(node_id)?.get())
     }
 
@@ -30,8 +30,8 @@ impl NodeTree {
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{NodeOperation, NodeTree, Node, Path};
-    /// let nodes = vec![Node::new("text".to_string())];
+    /// use lib_ot::core::{NodeOperation, NodeTree, NodeData, Path};
+    /// let nodes = vec![NodeData::new("text".to_string())];
     /// let root_path: Path = vec![0].into();
     /// let op = NodeOperation::Insert {path: root_path.clone(),nodes };
     ///
@@ -92,15 +92,15 @@ impl NodeTree {
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{NodeOperation, NodeTree, Node, Path};
-    /// let node = Node::new("text".to_string());
+    /// use lib_ot::core::{NodeOperation, NodeTree, NodeData, Path};
+    /// let node = NodeData::new("text".to_string());
     /// let inserted_path: Path = vec![0].into();
     ///
     /// let mut node_tree = NodeTree::new();
     /// node_tree.apply_op(&NodeOperation::Insert {path: inserted_path.clone(),nodes: vec![node.clone()] }).unwrap();
     ///
     /// let inserted_note = node_tree.node_at_path(&inserted_path).unwrap();
-    /// let inserted_data = node_tree.get_node_data(inserted_note).unwrap();
+    /// let inserted_data = node_tree.get_node(inserted_note).unwrap();
     /// assert_eq!(inserted_data.node_type, node.node_type);
     /// ```
     pub fn child_from_node_at_index(&self, node_id: NodeId, index: usize) -> Option<NodeId> {
@@ -114,7 +114,7 @@ impl NodeTree {
         None
     }
 
-    pub fn children_from_node(&self, node_id: NodeId) -> Children<'_, NodeData> {
+    pub fn children_from_node(&self, node_id: NodeId) -> Children<'_, Node> {
         node_id.children(&self.arena)
     }
 
@@ -132,7 +132,7 @@ impl NodeTree {
         }
     }
 
-    pub fn following_siblings(&self, node_id: NodeId) -> FollowingSiblings<'_, NodeData> {
+    pub fn following_siblings(&self, node_id: NodeId) -> FollowingSiblings<'_, Node> {
         node_id.following_siblings(&self.arena)
     }
 
@@ -155,7 +155,7 @@ impl NodeTree {
     ///
     /// returns error if the path is empty
     ///
-    fn insert_nodes(&mut self, path: &Path, nodes: &[Node]) -> Result<(), OTError> {
+    fn insert_nodes(&mut self, path: &Path, nodes: &[NodeData]) -> Result<(), OTError> {
         debug_assert!(!path.is_empty());
         if path.is_empty() {
             return Err(OTErrorCode::PathIsEmpty.into());
@@ -172,7 +172,7 @@ impl NodeTree {
 
     /// Inserts nodes before the node with node_id
     ///
-    fn insert_nodes_before(&mut self, node_id: &NodeId, nodes: &[Node]) {
+    fn insert_nodes_before(&mut self, node_id: &NodeId, nodes: &[NodeData]) {
         for node in nodes {
             let new_node_id = self.arena.new_node(node.into());
             if node_id.is_removed(&self.arena) {
@@ -185,7 +185,12 @@ impl NodeTree {
         }
     }
 
-    fn insert_nodes_at_index(&mut self, parent: NodeId, index: usize, insert_children: &[Node]) -> Result<(), OTError> {
+    fn insert_nodes_at_index(
+        &mut self,
+        parent: NodeId,
+        index: usize,
+        insert_children: &[NodeData],
+    ) -> Result<(), OTError> {
         if index == 0 && parent.children(&self.arena).next().is_none() {
             self.append_nodes(&parent, insert_children);
             return Ok(());
@@ -204,7 +209,7 @@ impl NodeTree {
         Ok(())
     }
 
-    fn append_nodes(&mut self, parent: &NodeId, nodes: &[Node]) {
+    fn append_nodes(&mut self, parent: &NodeId, nodes: &[NodeData]) {
         for node in nodes {
             let new_node_id = self.arena.new_node(node.into());
             parent.append(new_node_id, &mut self.arena);
@@ -214,14 +219,14 @@ impl NodeTree {
     }
 
     fn update_attributes(&mut self, path: &Path, attributes: &NodeAttributes) -> Result<(), OTError> {
-        self.mut_node_at_path(path, |node_data| {
-            let new_attributes = NodeAttributes::compose(&node_data.attributes, attributes)?;
-            node_data.attributes = new_attributes;
+        self.mut_node_at_path(path, |node| {
+            let new_attributes = NodeAttributes::compose(&node.attributes, attributes)?;
+            node.attributes = new_attributes;
             Ok(())
         })
     }
 
-    fn delete_node(&mut self, path: &Path, nodes: &[Node]) -> Result<(), OTError> {
+    fn delete_node(&mut self, path: &Path, nodes: &[NodeData]) -> Result<(), OTError> {
         let mut update_node = self
             .node_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
@@ -239,15 +244,15 @@ impl NodeTree {
     }
 
     fn update_body(&mut self, path: &Path, changeset: &NodeBodyChangeset) -> Result<(), OTError> {
-        self.mut_node_at_path(path, |node_data| {
-            node_data.apply_body_changeset(changeset);
+        self.mut_node_at_path(path, |node| {
+            node.apply_body_changeset(changeset);
             Ok(())
         })
     }
 
     fn mut_node_at_path<F>(&mut self, path: &Path, f: F) -> Result<(), OTError>
     where
-        F: Fn(&mut NodeData) -> Result<(), OTError>,
+        F: Fn(&mut Node) -> Result<(), OTError>,
     {
         let node_id = self
             .node_at_path(path)
@@ -255,8 +260,8 @@ impl NodeTree {
         match self.arena.get_mut(node_id) {
             None => tracing::warn!("The path: {:?} does not contain any nodes", path),
             Some(node) => {
-                let node_data = node.get_mut();
-                let _ = f(node_data)?;
+                let node = node.get_mut();
+                let _ = f(node)?;
             }
         }
         Ok(())

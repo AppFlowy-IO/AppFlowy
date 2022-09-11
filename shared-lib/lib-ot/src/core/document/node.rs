@@ -4,7 +4,7 @@ use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq)]
-pub struct Node {
+pub struct NodeData {
     #[serde(rename = "type")]
     pub node_type: String,
 
@@ -15,32 +15,32 @@ pub struct Node {
     pub body: NodeBody,
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub children: Vec<Node>,
+    pub children: Vec<NodeData>,
 }
 
-impl Node {
-    pub fn new<T: ToString>(node_type: T) -> Node {
-        Node {
+impl NodeData {
+    pub fn new<T: ToString>(node_type: T) -> NodeData {
+        NodeData {
             node_type: node_type.to_string(),
             ..Default::default()
         }
     }
 }
 
-/// Builder for [`Node`]
+/// Builder for [`NodeData`]
 pub struct NodeBuilder {
-    node: Node,
+    node: NodeData,
 }
 
 impl NodeBuilder {
     pub fn new<T: ToString>(node_type: T) -> Self {
         Self {
-            node: Node::new(node_type.to_string()),
+            node: NodeData::new(node_type.to_string()),
         }
     }
 
     /// Appends a new node to the end of the builder's node children.
-    pub fn add_node(mut self, node: Node) -> Self {
+    pub fn add_node(mut self, node: NodeData) -> Self {
         self.node.children.push(node);
         self
     }
@@ -60,7 +60,7 @@ impl NodeBuilder {
     }
 
     /// Returns the builder's node
-    pub fn build(self) -> Node {
+    pub fn build(self) -> NodeData {
         self.node
     }
 }
@@ -157,18 +157,18 @@ impl NodeBodyChangeset {
     }
 }
 
-/// [`NodeData`] represents as a leaf data in the [`NodeTree`].
+/// [`Node`] represents as a leaf in the [`NodeTree`].
 ///
 #[derive(Clone, Eq, PartialEq, Debug)]
-pub struct NodeData {
+pub struct Node {
     pub node_type: String,
     pub body: NodeBody,
     pub attributes: NodeAttributes,
 }
 
-impl NodeData {
-    pub fn new(node_type: &str) -> NodeData {
-        NodeData {
+impl Node {
+    pub fn new(node_type: &str) -> Node {
+        Node {
             node_type: node_type.into(),
             attributes: NodeAttributes::new(),
             body: NodeBody::Empty,
@@ -185,8 +185,8 @@ impl NodeData {
     }
 }
 
-impl std::convert::From<Node> for NodeData {
-    fn from(node: Node) -> Self {
+impl std::convert::From<NodeData> for Node {
+    fn from(node: NodeData) -> Self {
         Self {
             node_type: node.node_type,
             attributes: node.attributes,
@@ -195,8 +195,8 @@ impl std::convert::From<Node> for NodeData {
     }
 }
 
-impl std::convert::From<&Node> for NodeData {
-    fn from(node: &Node) -> Self {
+impl std::convert::From<&NodeData> for Node {
+    fn from(node: &NodeData) -> Self {
         Self {
             node_type: node.node_type.clone(),
             attributes: node.attributes.clone(),

@@ -1,11 +1,11 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
-use lib_ot::core::{Node, NodeBuilder, Path};
+use lib_ot::core::{NodeBuilder, NodeData, Path};
 
 #[test]
 fn node_insert_test() {
     let mut test = NodeTest::new();
-    let inserted_node = Node::new("text");
+    let inserted_node = NodeData::new("text");
     let path: Path = 0.into();
     let scripts = vec![
         InsertNode {
@@ -23,7 +23,7 @@ fn node_insert_test() {
 #[test]
 fn node_insert_node_with_children_test() {
     let mut test = NodeTest::new();
-    let inserted_node = NodeBuilder::new("text").add_node(Node::new("image")).build();
+    let inserted_node = NodeBuilder::new("text").add_node(NodeData::new("image")).build();
     let path: Path = 0.into();
     let scripts = vec![
         InsertNode {
@@ -42,13 +42,13 @@ fn node_insert_node_with_children_test() {
 fn node_insert_multi_nodes_test() {
     let mut test = NodeTest::new();
     let path_1: Path = 0.into();
-    let node_1 = Node::new("text_1");
+    let node_1 = NodeData::new("text_1");
 
     let path_2: Path = 1.into();
-    let node_2 = Node::new("text_2");
+    let node_2 = NodeData::new("text_2");
 
     let path_3: Path = 2.into();
-    let node_3 = Node::new("text_3");
+    let node_3 = NodeData::new("text_3");
 
     let scripts = vec![
         InsertNode {
@@ -83,14 +83,14 @@ fn node_insert_multi_nodes_test() {
 fn node_insert_node_in_ordered_nodes_test() {
     let mut test = NodeTest::new();
     let path_1: Path = 0.into();
-    let node_1 = Node::new("text_1");
+    let node_1 = NodeData::new("text_1");
 
     let path_2: Path = 1.into();
-    let node_2_1 = Node::new("text_2_1");
-    let node_2_2 = Node::new("text_2_2");
+    let node_2_1 = NodeData::new("text_2_1");
+    let node_2_2 = NodeData::new("text_2_2");
 
     let path_3: Path = 2.into();
-    let node_3 = Node::new("text_3");
+    let node_3 = NodeData::new("text_3");
 
     let path_4: Path = 3.into();
 
@@ -138,7 +138,7 @@ fn node_insert_node_in_ordered_nodes_test() {
 fn node_insert_with_attributes_test() {
     let mut test = NodeTest::new();
     let path: Path = 0.into();
-    let mut inserted_node = Node::new("text");
+    let mut inserted_node = NodeData::new("text");
     inserted_node.attributes.insert("bold", true);
     inserted_node.attributes.insert("underline", true);
 
@@ -162,7 +162,7 @@ fn node_insert_with_attributes_test() {
 #[test]
 fn node_delete_test() {
     let mut test = NodeTest::new();
-    let inserted_node = Node::new("text");
+    let inserted_node = NodeData::new("text");
 
     let path: Path = 0.into();
     let scripts = vec![

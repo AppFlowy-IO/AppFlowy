@@ -1,12 +1,12 @@
 use crate::core::document::operation_serde::*;
 use crate::core::document::path::Path;
-use crate::core::{Node, NodeAttributes, NodeBodyChangeset};
+use crate::core::{NodeAttributes, NodeBodyChangeset, NodeData};
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 #[serde(tag = "op")]
 pub enum NodeOperation {
     #[serde(rename = "insert")]
-    Insert { path: Path, nodes: Vec<Node> },
+    Insert { path: Path, nodes: Vec<NodeData> },
 
     #[serde(rename = "update")]
     UpdateAttributes {
@@ -22,7 +22,7 @@ pub enum NodeOperation {
     UpdateBody { path: Path, changeset: NodeBodyChangeset },
 
     #[serde(rename = "delete")]
-    Delete { path: Path, nodes: Vec<Node> },
+    Delete { path: Path, nodes: Vec<NodeData> },
 }
 
 impl NodeOperation {
@@ -101,12 +101,12 @@ impl NodeOperation {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::{Node, NodeAttributes, NodeBodyChangeset, NodeBuilder, NodeOperation, Path, TextDelta};
+    use crate::core::{NodeAttributes, NodeBodyChangeset, NodeBuilder, NodeData, NodeOperation, Path, TextDelta};
     #[test]
     fn test_serialize_insert_operation() {
         let insert = NodeOperation::Insert {
             path: Path(vec![0, 1]),
-            nodes: vec![Node::new("text".to_owned())],
+            nodes: vec![NodeData::new("text".to_owned())],
         };
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(result, r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}"#);
@@ -116,7 +116,9 @@ mod tests {
     fn test_serialize_insert_sub_trees() {
         let insert = NodeOperation::Insert {
             path: Path(vec![0, 1]),
-            nodes: vec![NodeBuilder::new("text").add_node(Node::new("text".to_owned())).build()],
+            nodes: vec![NodeBuilder::new("text")
+                .add_node(NodeData::new("text".to_owned()))
+                .build()],
         };
         let result = serde_json::to_string(&insert).unwrap();
         assert_eq!(
