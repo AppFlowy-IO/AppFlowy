@@ -1,5 +1,6 @@
-use lib_ot::core::{
-    NodeAttributeBuilder, NodeBodyChangeset, NodeBuilder, NodeData, NodeOperation, Path, TextDeltaBuilder,
+use lib_ot::{
+    core::{NodeAttributeBuilder, NodeBodyChangeset, NodeData, NodeDataBuilder, NodeOperation, Path},
+    rich_text::RichTextDeltaBuilder,
 };
 
 #[test]
@@ -14,7 +15,7 @@ fn operation_insert_node_serde_test() {
 
 #[test]
 fn operation_insert_node_with_children_serde_test() {
-    let node = NodeBuilder::new("text")
+    let node = NodeDataBuilder::new("text")
         .add_node(NodeData::new("sub_text".to_owned()))
         .build();
 
@@ -44,8 +45,8 @@ fn operation_update_node_attributes_serde_test() {
 }
 
 #[test]
-fn operation_update_node_body_serde_test() {
-    let delta = TextDeltaBuilder::new().insert("AppFlowy...").build();
+fn operation_update_node_body_serialize_test() {
+    let delta = RichTextDeltaBuilder::new().insert("AppFlowy...").build();
     let inverted = delta.invert_str("");
     let changeset = NodeBodyChangeset::Delta { delta, inverted };
     let insert = NodeOperation::UpdateBody {
@@ -55,7 +56,15 @@ fn operation_update_node_body_serde_test() {
     let result = serde_json::to_string(&insert).unwrap();
     assert_eq!(
         result,
-        r#"{"op":"edit-body","path":[0,1],"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}"#
+        r#"{"op":"update-body","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#
     );
     //
+}
+
+#[test]
+fn operation_update_node_body_deserialize_test() {
+    let json_1 = r#"{"op":"update-body","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#;
+    let operation: NodeOperation = serde_json::from_str(json_1).unwrap();
+    let json_2 = serde_json::to_string(&operation).unwrap();
+    assert_eq!(json_1, json_2);
 }

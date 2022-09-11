@@ -1,6 +1,8 @@
+use super::node_serde::*;
 use crate::core::NodeBody::Delta;
-use crate::core::{AttributeKey, AttributeValue, NodeAttributes, OperationTransform, TextDelta};
+use crate::core::{AttributeKey, AttributeValue, NodeAttributes, OperationTransform};
 use crate::errors::OTError;
+use crate::rich_text::RichTextDelta;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq)]
@@ -9,12 +11,17 @@ pub struct NodeData {
     pub node_type: String,
 
     #[serde(skip_serializing_if = "NodeAttributes::is_empty")]
+    #[serde(default)]
     pub attributes: NodeAttributes,
 
+    #[serde(serialize_with = "serialize_body")]
+    #[serde(deserialize_with = "deserialize_body")]
     #[serde(skip_serializing_if = "NodeBody::is_empty")]
+    #[serde(default)]
     pub body: NodeBody,
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default)]
     pub children: Vec<NodeData>,
 }
 
@@ -25,14 +32,24 @@ impl NodeData {
             ..Default::default()
         }
     }
+
+    pub fn split(self) -> (Node, Vec<NodeData>) {
+        let node = Node {
+            node_type: self.node_type,
+            body: self.body,
+            attributes: self.attributes,
+        };
+
+        (node, self.children)
+    }
 }
 
 /// Builder for [`NodeData`]
-pub struct NodeBuilder {
+pub struct NodeDataBuilder {
     node: NodeData,
 }
 
-impl NodeBuilder {
+impl NodeDataBuilder {
     pub fn new<T: ToString>(node_type: T) -> Self {
         Self {
             node: NodeData::new(node_type.to_string()),
@@ -73,10 +90,10 @@ impl NodeBuilder {
 /// The NodeBody implements the [`OperationTransform`] trait which means it can perform
 /// compose, transform and invert.
 ///
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum NodeBody {
     Empty,
-    Delta(TextDelta),
+    Delta(RichTextDelta),
 }
 
 impl std::default::Default for NodeBody {
@@ -142,8 +159,12 @@ impl OperationTransform for NodeBody {
 ///
 /// Each NodeBody except the Empty should have its corresponding changeset variant.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum NodeBodyChangeset {
-    Delta { delta: TextDelta, inverted: TextDelta },
+    Delta {
+        delta: RichTextDelta,
+        inverted: RichTextDelta,
+    },
 }
 
 impl NodeBodyChangeset {
@@ -175,7 +196,7 @@ impl Node {
         }
     }
 
-    pub fn apply_body_changeset(&mut self, changeset: &NodeBodyChangeset) {
+    pub fn apply_body_changeset(&mut self, changeset: NodeBodyChangeset) {
         match changeset {
             NodeBodyChangeset::Delta { delta, inverted: _ } => match self.body.compose(&Delta(delta.clone())) {
                 Ok(new_body) => self.body = new_body,

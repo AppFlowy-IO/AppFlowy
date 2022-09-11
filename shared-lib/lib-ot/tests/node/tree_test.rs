@@ -3,8 +3,8 @@ use crate::node::script::NodeTest;
 use lib_ot::core::NodeBody;
 use lib_ot::core::NodeBodyChangeset;
 use lib_ot::core::OperationTransform;
-use lib_ot::core::TextDeltaBuilder;
-use lib_ot::core::{NodeBuilder, NodeData, Path};
+use lib_ot::core::{NodeData, NodeDataBuilder, Path};
+use lib_ot::rich_text::RichTextDeltaBuilder;
 
 #[test]
 fn node_insert_test() {
@@ -27,7 +27,7 @@ fn node_insert_test() {
 #[test]
 fn node_insert_node_with_children_test() {
     let mut test = NodeTest::new();
-    let inserted_node = NodeBuilder::new("text").add_node(NodeData::new("image")).build();
+    let inserted_node = NodeDataBuilder::new("text").add_node(NodeData::new("image")).build();
     let path: Path = 0.into();
     let scripts = vec![
         InsertNode {
@@ -133,7 +133,7 @@ fn node_insert_node_in_ordered_nodes_test() {
             path: path_4,
             expected: Some(node_3),
         },
-        AssertNumberOfChildrenAtPath { path: None, len: 4 },
+        AssertNumberOfNodesAtPath { path: None, len: 4 },
     ];
     test.run_scripts(scripts);
 }
@@ -186,12 +186,12 @@ fn node_update_body_test() {
     let path: Path = 0.into();
 
     let s = "Hello".to_owned();
-    let init_delta = TextDeltaBuilder::new().insert(&s).build();
-    let delta = TextDeltaBuilder::new().retain(s.len()).insert(" AppFlowy").build();
+    let init_delta = RichTextDeltaBuilder::new().insert(&s).build();
+    let delta = RichTextDeltaBuilder::new().retain(s.len()).insert(" AppFlowy").build();
     let inverted = delta.invert(&init_delta);
     let expected = init_delta.compose(&delta).unwrap();
 
-    let node = NodeBuilder::new("text")
+    let node = NodeDataBuilder::new("text")
         .insert_body(NodeBody::Delta(init_delta))
         .build();
 
@@ -208,3 +208,56 @@ fn node_update_body_test() {
     ];
     test.run_scripts(scripts);
 }
+
+// #[test]
+// fn node_tree_deserial_from_operations_test() {
+//     let mut test = NodeTest::new();
+//     let node: NodeData = serde_json::from_str(EXAMPLE_JSON).unwrap();
+//     let path: Path = 0.into();
+//     test.run_scripts(vec![InsertNode {
+//         path: path.clone(),
+//         node: node.clone(),
+//     }]);
+// }
+
+#[allow(dead_code)]
+const EXAMPLE_JSON: &str = r#"
+{
+  "type": "editor",
+  "children": [
+    {
+      "type": "image",
+      "attributes": {
+        "image_src": "https://s1.ax1x.com/2022/08/26/v2sSbR.jpg",
+        "align": "center"
+      }
+    },
+    {
+      "type": "text",
+      "attributes": {
+        "subtype": "heading",
+        "heading": "h1"
+      },
+      "body": [
+        {
+          "insert": "👋 "
+        },
+        {
+          "insert": "Welcome to ",
+          "attributes": {
+            "bold": true
+          }
+        },
+        {
+          "insert": "AppFlowy Editor",
+          "attributes": {
+            "href": "appflowy.io",
+            "italic": true,
+            "bold": true
+          }
+        }
+      ]
+    }
+  ]
+}
+"#;

@@ -1,4 +1,3 @@
-use crate::core::document::operation_serde::*;
 use crate::core::document::path::Path;
 use crate::core::{NodeAttributes, NodeBodyChangeset, NodeData};
 use crate::errors::OTError;
@@ -18,9 +17,9 @@ pub enum NodeOperation {
         old_attributes: NodeAttributes,
     },
 
-    #[serde(rename = "edit-body")]
-    #[serde(serialize_with = "serialize_edit_body")]
-    // #[serde(deserialize_with = "operation_serde::deserialize_edit_body")]
+    #[serde(rename = "update-body")]
+    // #[serde(serialize_with = "serialize_edit_body")]
+    // #[serde(deserialize_with = "deserialize_edit_body")]
     UpdateBody { path: Path, changeset: NodeBodyChangeset },
 
     #[serde(rename = "delete")]
@@ -104,6 +103,12 @@ impl NodeOperation {
 #[derive(Serialize, Deserialize, Default)]
 pub struct NodeOperationList {
     operations: Vec<NodeOperation>,
+}
+
+impl NodeOperationList {
+    pub fn into_inner(self) -> Vec<NodeOperation> {
+        self.operations
+    }
 }
 
 impl std::ops::Deref for NodeOperationList {

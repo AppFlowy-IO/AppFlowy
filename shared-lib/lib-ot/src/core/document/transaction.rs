@@ -5,12 +5,30 @@ use indextree::NodeId;
 use super::{NodeBodyChangeset, NodeOperationList};
 
 pub struct Transaction {
-    pub operations: NodeOperationList,
+    operations: NodeOperationList,
 }
 
 impl Transaction {
-    fn new(operations: NodeOperationList) -> Transaction {
+    pub fn new(operations: NodeOperationList) -> Transaction {
         Transaction { operations }
+    }
+
+    pub fn into_operations(self) -> Vec<NodeOperation> {
+        self.operations.into_inner()
+    }
+}
+
+impl std::ops::Deref for Transaction {
+    type Target = NodeOperationList;
+
+    fn deref(&self) -> &Self::Target {
+        &self.operations
+    }
+}
+
+impl std::ops::DerefMut for Transaction {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.operations
     }
 }
 
@@ -41,13 +59,13 @@ impl<'a> TransactionBuilder<'a> {
     /// //      0 -- text_1
     /// //      1 -- text_2
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new();
+    /// let mut node_tree = NodeTree::new("root");
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_nodes_at_path(0,vec![ NodeData::new("text_1"),  NodeData::new("text_2")])
     ///     .finalize();
     ///  node_tree.apply(transaction).unwrap();
     ///
-    ///  node_tree.node_at_path(vec![0, 0]);
+    ///  node_tree.node_id_at_path(vec![0, 0]);
     /// ```
     ///
     pub fn insert_nodes_at_path<T: Into<Path>>(self, path: T, nodes: Vec<NodeData>) -> Self {
@@ -71,7 +89,7 @@ impl<'a> TransactionBuilder<'a> {
     /// // -- 0
     /// //    |-- text
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new();
+    /// let mut node_tree = NodeTree::new("root");
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_node_at_path(0, NodeData::new("text"))
     ///     .finalize();

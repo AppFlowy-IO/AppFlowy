@@ -1,5 +1,6 @@
-use lib_ot::core::{
-    NodeAttributes, NodeBody, NodeBodyChangeset, NodeData, NodeTree, Path, TextDelta, TransactionBuilder,
+use lib_ot::{
+    core::{NodeAttributes, NodeBody, NodeBodyChangeset, NodeData, NodeTree, Path, TransactionBuilder},
+    rich_text::RichTextDelta,
 };
 
 pub enum NodeScript {
@@ -7,9 +8,9 @@ pub enum NodeScript {
     UpdateAttributes { path: Path, attributes: NodeAttributes },
     UpdateBody { path: Path, changeset: NodeBodyChangeset },
     DeleteNode { path: Path },
-    AssertNumberOfChildrenAtPath { path: Option<Path>, len: usize },
+    AssertNumberOfNodesAtPath { path: Option<Path>, len: usize },
     AssertNode { path: Path, expected: Option<NodeData> },
-    AssertNodeDelta { path: Path, expected: TextDelta },
+    AssertNodeDelta { path: Path, expected: RichTextDelta },
 }
 
 pub struct NodeTest {
@@ -19,7 +20,7 @@ pub struct NodeTest {
 impl NodeTest {
     pub fn new() -> Self {
         Self {
-            node_tree: NodeTree::new(),
+            node_tree: NodeTree::new("root"),
         }
     }
 
@@ -68,7 +69,7 @@ impl NodeTest {
                     }
                 }
             }
-            NodeScript::AssertNumberOfChildrenAtPath {
+            NodeScript::AssertNumberOfNodesAtPath {
                 path,
                 len: expected_len,
             } => match path {

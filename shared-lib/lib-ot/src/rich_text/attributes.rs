@@ -82,17 +82,6 @@ impl TextAttributes {
         self.inner.retain(|k, _| k != &key);
     }
 
-    // pub fn block_attributes_except_header(attributes: &Attributes) -> Attributes
-    // {     let mut new_attributes = Attributes::new();
-    //     attributes.iter().for_each(|(k, v)| {
-    //         if k != &AttributeKey::Header {
-    //             new_attributes.insert(k.clone(), v.clone());
-    //         }
-    //     });
-    //
-    //     new_attributes
-    // }
-
     // Update inner by constructing new attributes from the other if it's
     // not None and replace the key/value with self key/value.
     pub fn merge(&mut self, other: Option<TextAttributes>) {
@@ -298,7 +287,6 @@ pub enum TextAttributeKey {
     Header,
 }
 
-// pub trait AttributeValueData<'a>: Serialize + Deserialize<'a> {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct TextAttributeValue(pub Option<String>);
 

@@ -1,6 +1,7 @@
 #![allow(clippy::module_inception)]
 mod attributes;
 mod node;
+mod node_serde;
 mod node_tree;
 mod operation;
 mod operation_serde;
