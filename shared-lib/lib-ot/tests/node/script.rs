@@ -1,11 +1,11 @@
-use lib_ot::core::{Node, NodeAttributes, NodeTree, Path, TransactionBuilder};
+use lib_ot::core::{NodeAttributes, NodeData, NodeTree, Path, TransactionBuilder};
 
 pub enum NodeScript {
-    InsertNode { path: Path, node: Node },
+    InsertNode { path: Path, node: NodeData },
     InsertAttributes { path: Path, attributes: NodeAttributes },
     DeleteNode { path: Path },
     AssertNumberOfChildrenAtPath { path: Option<Path>, len: usize },
-    AssertNode { path: Path, expected: Option<Node> },
+    AssertNode { path: Path, expected: Option<NodeData> },
 }
 
 pub struct NodeTest {
@@ -52,7 +52,7 @@ impl NodeTest {
                 match node_id {
                     None => assert!(node_id.is_none()),
                     Some(node_id) => {
-                        let node_data = self.node_tree.get_node_data(node_id).cloned();
+                        let node_data = self.node_tree.get_node(node_id).cloned();
                         assert_eq!(node_data, expected.and_then(|e| Some(e.into())));
                     }
                 }
