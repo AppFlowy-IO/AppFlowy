@@ -1,2 +1,4 @@
+mod editor_test;
+mod operation_test;
 mod script;
-mod test;
+mod tree_test;

@@ -2,26 +2,46 @@ use crate::core::document::path::Path;
 use crate::core::{NodeAttributes, NodeData, NodeOperation, NodeTree};
 use indextree::NodeId;
 
+use super::{NodeBodyChangeset, NodeOperationList};
+
 pub struct Transaction {
-    pub operations: Vec<NodeOperation>,
+    operations: NodeOperationList,
 }
 
 impl Transaction {
-    fn new(operations: Vec<NodeOperation>) -> Transaction {
+    pub fn new(operations: NodeOperationList) -> Transaction {
         Transaction { operations }
+    }
+
+    pub fn into_operations(self) -> Vec<NodeOperation> {
+        self.operations.into_inner()
+    }
+}
+
+impl std::ops::Deref for Transaction {
+    type Target = NodeOperationList;
+
+    fn deref(&self) -> &Self::Target {
+        &self.operations
+    }
+}
+
+impl std::ops::DerefMut for Transaction {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.operations
     }
 }
 
 pub struct TransactionBuilder<'a> {
     node_tree: &'a NodeTree,
-    operations: Vec<NodeOperation>,
+    operations: NodeOperationList,
 }
 
 impl<'a> TransactionBuilder<'a> {
     pub fn new(node_tree: &'a NodeTree) -> TransactionBuilder {
         TransactionBuilder {
             node_tree,
-            operations: Vec::new(),
+            operations: NodeOperationList::default(),
         }
     }
 
@@ -39,13 +59,13 @@ impl<'a> TransactionBuilder<'a> {
     /// //      0 -- text_1
     /// //      1 -- text_2
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new();
+    /// let mut node_tree = NodeTree::new("root");
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_nodes_at_path(0,vec![ NodeData::new("text_1"),  NodeData::new("text_2")])
     ///     .finalize();
     ///  node_tree.apply(transaction).unwrap();
     ///
-    ///  node_tree.node_at_path(vec![0, 0]);
+    ///  node_tree.node_id_at_path(vec![0, 0]);
     /// ```
     ///
     pub fn insert_nodes_at_path<T: Into<Path>>(self, path: T, nodes: Vec<NodeData>) -> Self {
@@ -69,7 +89,7 @@ impl<'a> TransactionBuilder<'a> {
     /// // -- 0
     /// //    |-- text
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new();
+    /// let mut node_tree = NodeTree::new("root");
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_node_at_path(0, NodeData::new("text"))
     ///     .finalize();
@@ -80,23 +100,39 @@ impl<'a> TransactionBuilder<'a> {
         self.insert_nodes_at_path(path, vec![node])
     }
 
-    pub fn update_attributes_at_path(self, path: &Path, attributes: NodeAttributes) -> Self {
-        let mut old_attributes = NodeAttributes::new();
-        let node = self.node_tree.node_at_path(path).unwrap();
-        let node_data = self.node_tree.get_node(node).unwrap();
+    pub fn update_attributes_at_path(mut self, path: &Path, attributes: NodeAttributes) -> Self {
+        match self.node_tree.get_node_at_path(path) {
+            Some(node) => {
+                let mut old_attributes = NodeAttributes::new();
+                for key in attributes.keys() {
+                    let old_attrs = &node.attributes;
+                    if let Some(value) = old_attrs.get(key.as_str()) {
+                        old_attributes.insert(key.clone(), value.clone());
+                    }
+                }
 
-        for key in attributes.keys() {
-            let old_attrs = &node_data.attributes;
-            if let Some(value) = old_attrs.get(key.as_str()) {
-                old_attributes.insert(key.clone(), value.clone());
+                self.operations.push(NodeOperation::UpdateAttributes {
+                    path: path.clone(),
+                    attributes,
+                    old_attributes,
+                });
             }
+            None => tracing::warn!("Update attributes at path: {:?} failed. Node is not exist", path),
         }
+        self
+    }
 
-        self.push(NodeOperation::UpdateAttributes {
-            path: path.clone(),
-            attributes,
-            old_attributes,
-        })
+    pub fn update_body_at_path(mut self, path: &Path, changeset: NodeBodyChangeset) -> Self {
+        match self.node_tree.node_id_at_path(path) {
+            Some(_) => {
+                self.operations.push(NodeOperation::UpdateBody {
+                    path: path.clone(),
+                    changeset,
+                });
+            }
+            None => tracing::warn!("Update attributes at path: {:?} failed. Node is not exist", path),
+        }
+        self
     }
 
     pub fn delete_node_at_path(self, path: &Path) -> Self {
@@ -104,7 +140,7 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     pub fn delete_nodes_at_path(mut self, path: &Path, length: usize) -> Self {
-        let mut node = self.node_tree.node_at_path(path).unwrap();
+        let mut node = self.node_tree.node_id_at_path(path).unwrap();
         let mut deleted_nodes = vec![];
         for _ in 0..length {
             deleted_nodes.push(self.get_deleted_nodes(node));

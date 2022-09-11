@@ -37,6 +37,7 @@ impl OTError {
     static_ot_error!(duplicate_revision, OTErrorCode::DuplicatedRevision);
     static_ot_error!(revision_id_conflict, OTErrorCode::RevisionIDConflict);
     static_ot_error!(internal, OTErrorCode::Internal);
+    static_ot_error!(serde, OTErrorCode::SerdeError);
 }
 
 impl fmt::Display for OTError {

@@ -1,6 +1,10 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
-use lib_ot::core::{NodeBuilder, NodeData, Path};
+use lib_ot::core::NodeBody;
+use lib_ot::core::NodeBodyChangeset;
+use lib_ot::core::OperationTransform;
+use lib_ot::core::{NodeData, NodeDataBuilder, Path};
+use lib_ot::rich_text::RichTextDeltaBuilder;
 
 #[test]
 fn node_insert_test() {
@@ -23,7 +27,7 @@ fn node_insert_test() {
 #[test]
 fn node_insert_node_with_children_test() {
     let mut test = NodeTest::new();
-    let inserted_node = NodeBuilder::new("text").add_node(NodeData::new("image")).build();
+    let inserted_node = NodeDataBuilder::new("text").add_node(NodeData::new("image")).build();
     let path: Path = 0.into();
     let scripts = vec![
         InsertNode {
@@ -129,7 +133,7 @@ fn node_insert_node_in_ordered_nodes_test() {
             path: path_4,
             expected: Some(node_3),
         },
-        AssertNumberOfChildrenAtPath { path: None, len: 4 },
+        AssertNumberOfNodesAtPath { path: None, len: 4 },
     ];
     test.run_scripts(scripts);
 }
@@ -147,7 +151,7 @@ fn node_insert_with_attributes_test() {
             path: path.clone(),
             node: inserted_node.clone(),
         },
-        InsertAttributes {
+        UpdateAttributes {
             path: path.clone(),
             attributes: inserted_node.attributes.clone(),
         },
@@ -172,6 +176,35 @@ fn node_delete_test() {
         },
         DeleteNode { path: path.clone() },
         AssertNode { path, expected: None },
+    ];
+    test.run_scripts(scripts);
+}
+
+#[test]
+fn node_update_body_test() {
+    let mut test = NodeTest::new();
+    let path: Path = 0.into();
+
+    let s = "Hello".to_owned();
+    let init_delta = RichTextDeltaBuilder::new().insert(&s).build();
+    let delta = RichTextDeltaBuilder::new().retain(s.len()).insert(" AppFlowy").build();
+    let inverted = delta.invert(&init_delta);
+    let expected = init_delta.compose(&delta).unwrap();
+
+    let node = NodeDataBuilder::new("text")
+        .insert_body(NodeBody::Delta(init_delta))
+        .build();
+
+    let scripts = vec![
+        InsertNode {
+            path: path.clone(),
+            node: node.clone(),
+        },
+        UpdateBody {
+            path: path.clone(),
+            changeset: NodeBodyChangeset::Delta { delta, inverted },
+        },
+        AssertNodeDelta { path, expected },
     ];
     test.run_scripts(scripts);
 }

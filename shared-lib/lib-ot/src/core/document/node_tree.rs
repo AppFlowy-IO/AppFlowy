@@ -3,6 +3,8 @@ use crate::core::{Node, NodeAttributes, NodeBodyChangeset, NodeData, NodeOperati
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, Children, FollowingSiblings, NodeId};
 
+use super::NodeOperationList;
+
 ///
 pub struct NodeTree {
     arena: Arena<Node>,
@@ -11,19 +13,40 @@ pub struct NodeTree {
 
 impl Default for NodeTree {
     fn default() -> Self {
-        Self::new()
+        Self::new("root")
     }
 }
 
 impl NodeTree {
-    pub fn new() -> NodeTree {
+    pub fn new(root_name: &str) -> NodeTree {
         let mut arena = Arena::new();
-        let root = arena.new_node(Node::new("root"));
+        let root = arena.new_node(Node::new(root_name));
         NodeTree { arena, root }
+    }
+
+    pub fn from_bytes(root_name: &str, bytes: Vec<u8>) -> Result<Self, OTError> {
+        let operations = NodeOperationList::from_bytes(bytes)?.into_inner();
+        Self::from_operations(root_name, operations)
+    }
+
+    pub fn from_operations(root_name: &str, operations: Vec<NodeOperation>) -> Result<Self, OTError> {
+        let mut node_tree = NodeTree::new(root_name);
+
+        for operation in operations {
+            let _ = node_tree.apply_op(operation)?;
+        }
+        Ok(node_tree)
     }
 
     pub fn get_node(&self, node_id: NodeId) -> Option<&Node> {
         Some(self.arena.get(node_id)?.get())
+    }
+
+    pub fn get_node_at_path(&self, path: &Path) -> Option<&Node> {
+        {
+            let node_id = self.node_id_at_path(path)?;
+            self.get_node(node_id)
+        }
     }
 
     ///
@@ -35,13 +58,13 @@ impl NodeTree {
     /// let root_path: Path = vec![0].into();
     /// let op = NodeOperation::Insert {path: root_path.clone(),nodes };
     ///
-    /// let mut node_tree = NodeTree::new();
-    /// node_tree.apply_op(&op).unwrap();
-    /// let node_id = node_tree.node_at_path(&root_path).unwrap();
-    /// let node_path = node_tree.path_of_node(node_id);
+    /// let mut node_tree = NodeTree::new("root");
+    /// node_tree.apply_op(op).unwrap();
+    /// let node_id = node_tree.node_id_at_path(&root_path).unwrap();
+    /// let node_path = node_tree.path_from_node_id(node_id);
     /// debug_assert_eq!(node_path, root_path);
     /// ```
-    pub fn node_at_path<T: Into<Path>>(&self, path: T) -> Option<NodeId> {
+    pub fn node_id_at_path<T: Into<Path>>(&self, path: T) -> Option<NodeId> {
         let path = path.into();
         if path.is_empty() {
             return Some(self.root);
@@ -54,7 +77,7 @@ impl NodeTree {
         Some(iterate_node)
     }
 
-    pub fn path_of_node(&self, node_id: NodeId) -> Path {
+    pub fn path_from_node_id(&self, node_id: NodeId) -> Path {
         let mut path = vec![];
         let mut current_node = node_id;
         // Use .skip(1) on the ancestors iterator to skip the root node.
@@ -93,15 +116,14 @@ impl NodeTree {
     ///
     /// ```
     /// use lib_ot::core::{NodeOperation, NodeTree, NodeData, Path};
-    /// let node = NodeData::new("text".to_string());
+    /// let node_1 = NodeData::new("text".to_string());
     /// let inserted_path: Path = vec![0].into();
     ///
-    /// let mut node_tree = NodeTree::new();
-    /// node_tree.apply_op(&NodeOperation::Insert {path: inserted_path.clone(),nodes: vec![node.clone()] }).unwrap();
+    /// let mut node_tree = NodeTree::new("root");
+    /// node_tree.apply_op(NodeOperation::Insert {path: inserted_path.clone(),nodes: vec![node_1.clone()] }).unwrap();
     ///
-    /// let inserted_note = node_tree.node_at_path(&inserted_path).unwrap();
-    /// let inserted_data = node_tree.get_node(inserted_note).unwrap();
-    /// assert_eq!(inserted_data.node_type, node.node_type);
+    /// let node_2 = node_tree.get_node_at_path(&inserted_path).unwrap();
+    /// assert_eq!(node_2.node_type, node_1.node_type);
     /// ```
     pub fn child_from_node_at_index(&self, node_id: NodeId, index: usize) -> Option<NodeId> {
         let children = node_id.children(&self.arena);
@@ -137,25 +159,26 @@ impl NodeTree {
     }
 
     pub fn apply(&mut self, transaction: Transaction) -> Result<(), OTError> {
-        for op in &transaction.operations {
-            self.apply_op(op)?;
+        let operations = transaction.into_operations();
+        for operation in operations {
+            self.apply_op(operation)?;
         }
         Ok(())
     }
 
-    pub fn apply_op(&mut self, op: &NodeOperation) -> Result<(), OTError> {
+    pub fn apply_op(&mut self, op: NodeOperation) -> Result<(), OTError> {
         match op {
-            NodeOperation::Insert { path, nodes } => self.insert_nodes(path, nodes),
-            NodeOperation::UpdateAttributes { path, attributes, .. } => self.update_attributes(path, attributes),
-            NodeOperation::UpdateBody { path, changeset } => self.update_body(path, changeset),
-            NodeOperation::Delete { path, nodes } => self.delete_node(path, nodes),
+            NodeOperation::Insert { path, nodes } => self.insert_nodes(&path, nodes),
+            NodeOperation::UpdateAttributes { path, attributes, .. } => self.update_attributes(&path, attributes),
+            NodeOperation::UpdateBody { path, changeset } => self.update_body(&path, changeset),
+            NodeOperation::Delete { path, nodes } => self.delete_node(&path, nodes),
         }
     }
     /// Inserts nodes at given path
     ///
     /// returns error if the path is empty
     ///
-    fn insert_nodes(&mut self, path: &Path, nodes: &[NodeData]) -> Result<(), OTError> {
+    fn insert_nodes(&mut self, path: &Path, nodes: Vec<NodeData>) -> Result<(), OTError> {
         debug_assert!(!path.is_empty());
         if path.is_empty() {
             return Err(OTErrorCode::PathIsEmpty.into());
@@ -164,7 +187,7 @@ impl NodeTree {
         let (parent_path, last_path) = path.split_at(path.0.len() - 1);
         let last_index = *last_path.first().unwrap();
         let parent_node = self
-            .node_at_path(parent_path)
+            .node_id_at_path(parent_path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         self.insert_nodes_at_index(parent_node, last_index, nodes)
@@ -172,8 +195,9 @@ impl NodeTree {
 
     /// Inserts nodes before the node with node_id
     ///
-    fn insert_nodes_before(&mut self, node_id: &NodeId, nodes: &[NodeData]) {
+    fn insert_nodes_before(&mut self, node_id: &NodeId, nodes: Vec<NodeData>) {
         for node in nodes {
+            let (node, children) = node.split();
             let new_node_id = self.arena.new_node(node.into());
             if node_id.is_removed(&self.arena) {
                 tracing::warn!("Node:{:?} is remove before insert", node_id);
@@ -181,23 +205,18 @@ impl NodeTree {
             }
 
             node_id.insert_before(new_node_id, &mut self.arena);
-            self.append_nodes(&new_node_id, &node.children);
+            self.append_nodes(&new_node_id, children);
         }
     }
 
-    fn insert_nodes_at_index(
-        &mut self,
-        parent: NodeId,
-        index: usize,
-        insert_children: &[NodeData],
-    ) -> Result<(), OTError> {
+    fn insert_nodes_at_index(&mut self, parent: NodeId, index: usize, nodes: Vec<NodeData>) -> Result<(), OTError> {
         if index == 0 && parent.children(&self.arena).next().is_none() {
-            self.append_nodes(&parent, insert_children);
+            self.append_nodes(&parent, nodes);
             return Ok(());
         }
 
         if index == parent.children(&self.arena).count() {
-            self.append_nodes(&parent, insert_children);
+            self.append_nodes(&parent, nodes);
             return Ok(());
         }
 
@@ -205,30 +224,31 @@ impl NodeTree {
             .child_from_node_at_index(parent, index)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
-        self.insert_nodes_before(&node_to_insert, insert_children);
+        self.insert_nodes_before(&node_to_insert, nodes);
         Ok(())
     }
 
-    fn append_nodes(&mut self, parent: &NodeId, nodes: &[NodeData]) {
+    fn append_nodes(&mut self, parent: &NodeId, nodes: Vec<NodeData>) {
         for node in nodes {
+            let (node, children) = node.split();
             let new_node_id = self.arena.new_node(node.into());
             parent.append(new_node_id, &mut self.arena);
 
-            self.append_nodes(&new_node_id, &node.children);
+            self.append_nodes(&new_node_id, children);
         }
     }
 
-    fn update_attributes(&mut self, path: &Path, attributes: &NodeAttributes) -> Result<(), OTError> {
+    fn update_attributes(&mut self, path: &Path, attributes: NodeAttributes) -> Result<(), OTError> {
         self.mut_node_at_path(path, |node| {
-            let new_attributes = NodeAttributes::compose(&node.attributes, attributes)?;
+            let new_attributes = NodeAttributes::compose(&node.attributes, &attributes)?;
             node.attributes = new_attributes;
             Ok(())
         })
     }
 
-    fn delete_node(&mut self, path: &Path, nodes: &[NodeData]) -> Result<(), OTError> {
+    fn delete_node(&mut self, path: &Path, nodes: Vec<NodeData>) -> Result<(), OTError> {
         let mut update_node = self
-            .node_at_path(path)
+            .node_id_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
         for _ in 0..nodes.len() {
@@ -243,7 +263,7 @@ impl NodeTree {
         Ok(())
     }
 
-    fn update_body(&mut self, path: &Path, changeset: &NodeBodyChangeset) -> Result<(), OTError> {
+    fn update_body(&mut self, path: &Path, changeset: NodeBodyChangeset) -> Result<(), OTError> {
         self.mut_node_at_path(path, |node| {
             node.apply_body_changeset(changeset);
             Ok(())
@@ -252,10 +272,10 @@ impl NodeTree {
 
     fn mut_node_at_path<F>(&mut self, path: &Path, f: F) -> Result<(), OTError>
     where
-        F: Fn(&mut Node) -> Result<(), OTError>,
+        F: FnOnce(&mut Node) -> Result<(), OTError>,
     {
         let node_id = self
-            .node_at_path(path)
+            .node_id_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
         match self.arena.get_mut(node_id) {
             None => tracing::warn!("The path: {:?} does not contain any nodes", path),
