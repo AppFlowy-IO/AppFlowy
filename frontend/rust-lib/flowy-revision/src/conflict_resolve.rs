@@ -9,8 +9,8 @@ use flowy_sync::{
     util::make_delta_from_revisions,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{Attributes, Delta, PhantomAttributes};
-use lib_ot::rich_text::TextAttributes;
+use lib_ot::core::{Attributes, EmptyAttributes, Operations};
+use lib_ot::text_delta::TextAttributes;
 use serde::de::DeserializeOwned;
 use std::{convert::TryFrom, sync::Arc};
 
@@ -20,9 +20,9 @@ pub trait ConflictResolver<T>
 where
     T: Attributes + Send + Sync,
 {
-    fn compose_delta(&self, delta: Delta<T>) -> BoxResultFuture<DeltaMD5, FlowyError>;
-    fn transform_delta(&self, delta: Delta<T>) -> BoxResultFuture<TransformDeltas<T>, FlowyError>;
-    fn reset_delta(&self, delta: Delta<T>) -> BoxResultFuture<DeltaMD5, FlowyError>;
+    fn compose_delta(&self, delta: Operations<T>) -> BoxResultFuture<DeltaMD5, FlowyError>;
+    fn transform_delta(&self, delta: Operations<T>) -> BoxResultFuture<TransformDeltas<T>, FlowyError>;
+    fn reset_delta(&self, delta: Operations<T>) -> BoxResultFuture<DeltaMD5, FlowyError>;
 }
 
 pub trait ConflictRevisionSink: Send + Sync + 'static {
@@ -31,7 +31,7 @@ pub trait ConflictRevisionSink: Send + Sync + 'static {
 }
 
 pub type RichTextConflictController = ConflictController<TextAttributes>;
-pub type PlainTextConflictController = ConflictController<PhantomAttributes>;
+pub type PlainTextConflictController = ConflictController<EmptyAttributes>;
 
 pub struct ConflictController<T>
 where
@@ -142,8 +142,8 @@ where
 fn make_client_and_server_revision<T>(
     user_id: &str,
     rev_manager: &Arc<RevisionManager>,
-    client_delta: Delta<T>,
-    server_delta: Option<Delta<T>>,
+    client_delta: Operations<T>,
+    server_delta: Option<Operations<T>>,
     md5: String,
 ) -> (Revision, Option<Revision>)
 where
@@ -181,6 +181,6 @@ pub struct TransformDeltas<T>
 where
     T: Attributes,
 {
-    pub client_prime: Delta<T>,
-    pub server_prime: Option<Delta<T>>,
+    pub client_prime: Operations<T>,
+    pub server_prime: Option<Operations<T>>,
 }

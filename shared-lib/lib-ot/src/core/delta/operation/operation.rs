@@ -21,10 +21,10 @@ pub trait OperationTransform {
     /// # Examples
     ///
     /// ```
-    ///  use lib_ot::core::{OperationTransform, TextDeltaBuilder};
-    ///  let document = TextDeltaBuilder::new().build();
-    ///  let delta = TextDeltaBuilder::new().insert("abc").build();
-    ///  let new_document = document.compose(&delta).unwrap();
+    ///  use lib_ot::core::{OperationTransform, DeltaBuilder};
+    ///  let delta = DeltaBuilder::new().build();
+    ///  let other = DeltaBuilder::new().insert("abc").build();
+    ///  let new_document = delta.compose(&other).unwrap();
     ///  assert_eq!(new_document.content().unwrap(), "abc".to_owned());
     /// ```
     fn compose(&self, other: &Self) -> Result<Self, OTError>
@@ -50,15 +50,15 @@ pub trait OperationTransform {
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{OperationTransform, TextDeltaBuilder};
-    /// let original_document = TextDeltaBuilder::new().build();
-    /// let delta = TextDeltaBuilder::new().insert("abc").build();
+    /// use lib_ot::core::{OperationTransform, DeltaBuilder};
+    /// let initial_delta = DeltaBuilder::new().build();
+    /// let delta = DeltaBuilder::new().insert("abc").build();
     ///
-    /// let undo_delta = delta.invert(&original_document);
-    /// let new_document = original_document.compose(&delta).unwrap();
-    /// let document = new_document.compose(&undo_delta).unwrap();
+    /// let undo_delta = delta.invert(&initial_delta);
+    /// let composed_delta = initial_delta.compose(&delta).unwrap();
+    /// let inverted_delta = composed_delta.compose(&undo_delta).unwrap();
     ///
-    /// assert_eq!(original_document, document);
+    /// assert_eq!(initial_delta, inverted_delta);
     ///
     /// ```
     fn invert(&self, other: &Self) -> Self;
@@ -67,8 +67,8 @@ pub trait OperationTransform {
 /// Each operation can carry attributes. For example, the [TextAttributes] has a list of key/value attributes.
 /// Such as { bold: true, italic: true }.  
 ///
-///Because [Operation] is generic over the T, so you must specify the T. For example, the [TextDelta] uses
-///[PhantomAttributes] as the T. [PhantomAttributes] does nothing, just a phantom.
+///Because [Operation] is generic over the T, so you must specify the T. For example, the [Delta] uses
+///[EmptyAttributes] as the T. [EmptyAttributes] does nothing, just a phantom.
 ///
 pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + OperationTransform {
     fn is_empty(&self) -> bool {
@@ -218,8 +218,8 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{Interval, Operation, PhantomAttributes};
-    /// let operation = Operation::<PhantomAttributes>::insert("1234");
+    /// use lib_ot::core::{Interval, Operation, EmptyAttributes};
+    /// let operation = Operation::<EmptyAttributes>::insert("1234");
     ///
     /// let op1 = operation.shrink(Interval::new(0,3)).unwrap();
     /// assert_eq!(op1 , Operation::insert("123"));
@@ -459,16 +459,16 @@ where
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Default, Serialize, Deserialize)]
-pub struct PhantomAttributes();
-impl fmt::Display for PhantomAttributes {
+pub struct EmptyAttributes();
+impl fmt::Display for EmptyAttributes {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("PhantomAttributes")
     }
 }
 
-impl Attributes for PhantomAttributes {}
+impl Attributes for EmptyAttributes {}
 
-impl OperationTransform for PhantomAttributes {
+impl OperationTransform for EmptyAttributes {
     fn compose(&self, _other: &Self) -> Result<Self, OTError> {
         Ok(self.clone())
     }

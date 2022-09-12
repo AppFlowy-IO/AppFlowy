@@ -2,7 +2,7 @@ use flowy_revision::disk::RevisionState;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
 use flowy_text_block::editor::TextBlockEditor;
 use flowy_text_block::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
-use lib_ot::{core::Interval, rich_text::RichTextDelta};
+use lib_ot::{core::Interval, text_delta::TextDelta};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
@@ -71,7 +71,7 @@ impl TextBlockEditorTest {
                 assert_eq!(next_revision.rev_id, rev_id.unwrap());
             }
             EditorScript::AssertJson(expected) => {
-                let expected_delta: RichTextDelta = serde_json::from_str(expected).unwrap();
+                let expected_delta: TextDelta = serde_json::from_str(expected).unwrap();
                 let delta = self.editor.text_block_delta().await.unwrap();
                 if expected_delta != delta {
                     eprintln!("✅ expect: {}", expected,);

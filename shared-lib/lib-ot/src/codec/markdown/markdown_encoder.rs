@@ -1,5 +1,5 @@
-use crate::core::{Delta, DeltaIterator};
-use crate::rich_text::{is_block, TextAttributeKey, TextAttributeValue, TextAttributes};
+use crate::core::{OperationIterator, Operations};
+use crate::text_delta::{is_block, TextAttributeKey, TextAttributeValue, TextAttributes};
 use std::collections::HashMap;
 
 const LINEFEEDASCIICODE: i32 = 0x0A;
@@ -7,12 +7,12 @@ const LINEFEEDASCIICODE: i32 = 0x0A;
 #[cfg(test)]
 mod tests {
     use crate::codec::markdown::markdown_encoder::markdown_encoder;
-    use crate::rich_text::RichTextDelta;
+    use crate::text_delta::TextDelta;
 
     #[test]
     fn markdown_encoder_header_1_test() {
         let json = r#"[{"insert":"header 1"},{"insert":"\n","attributes":{"header":1}}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "# header 1\n");
     }
@@ -20,7 +20,7 @@ mod tests {
     #[test]
     fn markdown_encoder_header_2_test() {
         let json = r#"[{"insert":"header 2"},{"insert":"\n","attributes":{"header":2}}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "## header 2\n");
     }
@@ -28,7 +28,7 @@ mod tests {
     #[test]
     fn markdown_encoder_header_3_test() {
         let json = r#"[{"insert":"header 3"},{"insert":"\n","attributes":{"header":3}}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "### header 3\n");
     }
@@ -36,14 +36,14 @@ mod tests {
     #[test]
     fn markdown_encoder_bold_italics_underlined_test() {
         let json = r#"[{"insert":"bold","attributes":{"bold":true}},{"insert":" "},{"insert":"italics","attributes":{"italic":true}},{"insert":" "},{"insert":"underlined","attributes":{"underline":true}},{"insert":" "},{"insert":"\n","attributes":{"header":3}}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "### **bold** _italics_ <u>underlined</u> \n");
     }
     #[test]
     fn markdown_encoder_strikethrough_highlight_test() {
         let json = r##"[{"insert":"strikethrough","attributes":{"strike":true}},{"insert":" "},{"insert":"highlighted","attributes":{"background":"#ffefe3"}},{"insert":"\n"}]"##;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "~~strikethrough~~ <mark>highlighted</mark>\n");
     }
@@ -51,7 +51,7 @@ mod tests {
     #[test]
     fn markdown_encoder_numbered_list_test() {
         let json = r#"[{"insert":"numbered list\nitem 1"},{"insert":"\n","attributes":{"list":"ordered"}},{"insert":"item 2"},{"insert":"\n","attributes":{"list":"ordered"}},{"insert":"item3"},{"insert":"\n","attributes":{"list":"ordered"}}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "numbered list\n\n1. item 1\n1. item 2\n1. item3\n");
     }
@@ -59,7 +59,7 @@ mod tests {
     #[test]
     fn markdown_encoder_bullet_list_test() {
         let json = r#"[{"insert":"bullet list\nitem1"},{"insert":"\n","attributes":{"list":"bullet"}}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "bullet list\n\n* item1\n");
     }
@@ -67,7 +67,7 @@ mod tests {
     #[test]
     fn markdown_encoder_check_list_test() {
         let json = r#"[{"insert":"check list\nchecked"},{"insert":"\n","attributes":{"list":"checked"}},{"insert":"unchecked"},{"insert":"\n","attributes":{"list":"unchecked"}}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "check list\n\n- [x] checked\n\n- [ ] unchecked\n");
     }
@@ -75,7 +75,7 @@ mod tests {
     #[test]
     fn markdown_encoder_code_test() {
         let json = r#"[{"insert":"code this "},{"insert":"print(\"hello world\")","attributes":{"code":true}},{"insert":"\n"}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "code this `print(\"hello world\")`\n");
     }
@@ -83,7 +83,7 @@ mod tests {
     #[test]
     fn markdown_encoder_quote_block_test() {
         let json = r#"[{"insert":"this is a quote block"},{"insert":"\n","attributes":{"blockquote":true}}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "> this is a quote block\n");
     }
@@ -91,7 +91,7 @@ mod tests {
     #[test]
     fn markdown_encoder_link_test() {
         let json = r#"[{"insert":"appflowy","attributes":{"link":"https://www.appflowy.io/"}},{"insert":"\n"}]"#;
-        let delta = RichTextDelta::from_json(json).unwrap();
+        let delta = TextDelta::from_json(json).unwrap();
         let md = markdown_encoder(&delta);
         assert_eq!(md, "[appflowy](https://www.appflowy.io/)\n");
     }
@@ -102,12 +102,12 @@ struct Attribute {
     value: TextAttributeValue,
 }
 
-pub fn markdown_encoder(delta: &Delta<TextAttributes>) -> String {
+pub fn markdown_encoder(delta: &Operations<TextAttributes>) -> String {
     let mut markdown_buffer = String::new();
     let mut line_buffer = String::new();
     let mut current_inline_style = TextAttributes::default();
     let mut current_block_lines: Vec<String> = Vec::new();
-    let mut iterator = DeltaIterator::new(delta);
+    let mut iterator = OperationIterator::new(delta);
     let mut current_block_style: Option<Attribute> = None;
 
     while iterator.has_next() {

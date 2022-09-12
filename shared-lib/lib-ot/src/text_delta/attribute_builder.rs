@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 #![allow(clippy::derivable_impls)]
-use crate::rich_text::{TextAttribute, TextAttributes};
+use crate::text_delta::{TextAttribute, TextAttributes};
 
 pub struct AttributeBuilder {
     inner: TextAttributes,

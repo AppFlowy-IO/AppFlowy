@@ -1,7 +1,7 @@
 use crate::{client_document::DeleteExt, util::is_newline};
 use lib_ot::{
-    core::{Attributes, DeltaBuilder, DeltaIterator, Interval, Utf16CodeUnitMetric, NEW_LINE},
-    rich_text::{plain_attributes, RichTextDelta},
+    core::{Attributes, Interval, OperationBuilder, OperationIterator, Utf16CodeUnitMetric, NEW_LINE},
+    text_delta::{plain_attributes, TextDelta},
 };
 
 pub struct PreserveLineFormatOnMerge {}
@@ -10,13 +10,13 @@ impl DeleteExt for PreserveLineFormatOnMerge {
         "PreserveLineFormatOnMerge"
     }
 
-    fn apply(&self, delta: &RichTextDelta, interval: Interval) -> Option<RichTextDelta> {
+    fn apply(&self, delta: &TextDelta, interval: Interval) -> Option<TextDelta> {
         if interval.is_empty() {
             return None;
         }
 
         // seek to the  interval start pos. e.g. You backspace enter pos
-        let mut iter = DeltaIterator::from_offset(delta, interval.start);
+        let mut iter = OperationIterator::from_offset(delta, interval.start);
 
         // op will be the "\n"
         let newline_op = iter.next_op_with_len(1)?;
@@ -25,7 +25,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
         }
 
         iter.seek::<Utf16CodeUnitMetric>(interval.size() - 1);
-        let mut new_delta = DeltaBuilder::new()
+        let mut new_delta = OperationBuilder::new()
             .retain(interval.start)
             .delete(interval.size())
             .build();

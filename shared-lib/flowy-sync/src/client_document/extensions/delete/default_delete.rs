@@ -1,7 +1,7 @@
 use crate::client_document::DeleteExt;
 use lib_ot::{
-    core::{DeltaBuilder, Interval},
-    rich_text::RichTextDelta,
+    core::{Interval, OperationBuilder},
+    text_delta::TextDelta,
 };
 
 pub struct DefaultDelete {}
@@ -10,9 +10,9 @@ impl DeleteExt for DefaultDelete {
         "DefaultDelete"
     }
 
-    fn apply(&self, _delta: &RichTextDelta, interval: Interval) -> Option<RichTextDelta> {
+    fn apply(&self, _delta: &TextDelta, interval: Interval) -> Option<TextDelta> {
         Some(
-            DeltaBuilder::new()
+            OperationBuilder::new()
                 .retain(interval.start)
                 .delete(interval.size())
                 .build(),

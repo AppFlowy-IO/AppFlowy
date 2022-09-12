@@ -3,7 +3,7 @@ use crate::{RevisionLoader, RevisionPersistence};
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::entities::revision::Revision;
-use lib_ot::core::TextDeltaBuilder;
+use lib_ot::core::DeltaBuilder;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
@@ -70,7 +70,7 @@ where
         .await?;
 
         let s = self.target.target_reset_rev_str(revisions)?;
-        let delta_data = TextDeltaBuilder::new().insert(&s).build().json_bytes();
+        let delta_data = DeltaBuilder::new().insert(&s).build().json_bytes();
         let revision = Revision::initial_revision(&self.user_id, self.target.target_id(), delta_data);
         let record = RevisionRecord::new(revision);
 

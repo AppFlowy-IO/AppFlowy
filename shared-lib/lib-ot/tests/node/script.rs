@@ -1,6 +1,6 @@
 use lib_ot::{
     core::{NodeAttributes, NodeBody, NodeBodyChangeset, NodeData, NodeTree, Path, TransactionBuilder},
-    rich_text::RichTextDelta,
+    text_delta::TextDelta,
 };
 
 pub enum NodeScript {
@@ -10,7 +10,7 @@ pub enum NodeScript {
     DeleteNode { path: Path },
     AssertNumberOfNodesAtPath { path: Option<Path>, len: usize },
     AssertNode { path: Path, expected: Option<NodeData> },
-    AssertNodeDelta { path: Path, expected: RichTextDelta },
+    AssertNodeDelta { path: Path, expected: TextDelta },
 }
 
 pub struct NodeTest {

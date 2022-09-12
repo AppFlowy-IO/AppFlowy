@@ -1,7 +1,7 @@
 use crate::{client_document::InsertExt, util::is_whitespace};
 use lib_ot::{
-    core::{count_utf16_code_units, DeltaBuilder, DeltaIterator},
-    rich_text::{plain_attributes, RichTextDelta, TextAttribute, TextAttributes},
+    core::{count_utf16_code_units, OperationBuilder, OperationIterator},
+    text_delta::{plain_attributes, TextAttribute, TextAttributes, TextDelta},
 };
 use std::cmp::min;
 use url::Url;
@@ -12,12 +12,12 @@ impl InsertExt for AutoFormatExt {
         "AutoFormatExt"
     }
 
-    fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
+    fn apply(&self, delta: &TextDelta, replace_len: usize, text: &str, index: usize) -> Option<TextDelta> {
         // enter whitespace to trigger auto format
         if !is_whitespace(text) {
             return None;
         }
-        let mut iter = DeltaIterator::new(delta);
+        let mut iter = OperationIterator::new(delta);
         if let Some(prev) = iter.next_op_with_len(index) {
             match AutoFormat::parse(prev.get_data()) {
                 None => {}
@@ -41,7 +41,7 @@ impl InsertExt for AutoFormatExt {
                     };
 
                     return Some(
-                        DeltaBuilder::new()
+                        OperationBuilder::new()
                             .retain(index + replace_len - min(index, format_len))
                             .retain_with_attributes(format_len, format_attributes)
                             .insert_with_attributes(text, next_attributes)

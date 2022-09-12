@@ -1,5 +1,5 @@
 use crate::core::{NodeBodyChangeset, Path};
-use crate::rich_text::RichTextDelta;
+use crate::text_delta::TextDelta;
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Deserializer, Serializer};
@@ -88,8 +88,8 @@ where
 
 #[allow(dead_code)]
 struct DeltaBodyChangeset<E> {
-    delta: Option<RichTextDelta>,
-    inverted: Option<RichTextDelta>,
+    delta: Option<TextDelta>,
+    inverted: Option<TextDelta>,
     error: PhantomData<E>,
 }
 

@@ -4,7 +4,7 @@ use lib_ot::core::NodeBody;
 use lib_ot::core::NodeBodyChangeset;
 use lib_ot::core::OperationTransform;
 use lib_ot::core::{NodeData, NodeDataBuilder, Path};
-use lib_ot::rich_text::RichTextDeltaBuilder;
+use lib_ot::text_delta::TextDeltaBuilder;
 
 #[test]
 fn node_insert_test() {
@@ -186,8 +186,8 @@ fn node_update_body_test() {
     let path: Path = 0.into();
 
     let s = "Hello".to_owned();
-    let init_delta = RichTextDeltaBuilder::new().insert(&s).build();
-    let delta = RichTextDeltaBuilder::new().retain(s.len()).insert(" AppFlowy").build();
+    let init_delta = TextDeltaBuilder::new().insert(&s).build();
+    let delta = TextDeltaBuilder::new().retain(s.len()).insert(" AppFlowy").build();
     let inverted = delta.invert(&init_delta);
     let expected = init_delta.compose(&delta).unwrap();
 

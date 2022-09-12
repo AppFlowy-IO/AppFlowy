@@ -1,5 +1,5 @@
 #[rustfmt::skip]
-use crate::rich_text::{TextAttribute, TextAttributeKey, TextAttributes, TextAttributeValue};
+use crate::text_delta::{TextAttribute, TextAttributeKey, TextAttributes, TextAttributeValue};
 use serde::{
     de,
     de::{MapAccess, Visitor},

@@ -1,18 +1,18 @@
-use lib_ot::rich_text::RichTextDelta;
+use lib_ot::text_delta::TextDelta;
 
 const MAX_UNDOES: usize = 20;
 
 #[derive(Debug, Clone)]
 pub struct UndoResult {
-    pub delta: RichTextDelta,
+    pub delta: TextDelta,
 }
 
 #[derive(Debug, Clone)]
 pub struct History {
     #[allow(dead_code)]
     cur_undo: usize,
-    undoes: Vec<RichTextDelta>,
-    redoes: Vec<RichTextDelta>,
+    undoes: Vec<TextDelta>,
+    redoes: Vec<TextDelta>,
     capacity: usize,
 }
 
@@ -40,15 +40,15 @@ impl History {
         !self.redoes.is_empty()
     }
 
-    pub fn add_undo(&mut self, delta: RichTextDelta) {
+    pub fn add_undo(&mut self, delta: TextDelta) {
         self.undoes.push(delta);
     }
 
-    pub fn add_redo(&mut self, delta: RichTextDelta) {
+    pub fn add_redo(&mut self, delta: TextDelta) {
         self.redoes.push(delta);
     }
 
-    pub fn record(&mut self, delta: RichTextDelta) {
+    pub fn record(&mut self, delta: TextDelta) {
         if delta.ops.is_empty() {
             return;
         }
@@ -61,7 +61,7 @@ impl History {
         }
     }
 
-    pub fn undo(&mut self) -> Option<RichTextDelta> {
+    pub fn undo(&mut self) -> Option<TextDelta> {
         if !self.can_undo() {
             return None;
         }
@@ -69,7 +69,7 @@ impl History {
         Some(delta)
     }
 
-    pub fn redo(&mut self) -> Option<RichTextDelta> {
+    pub fn redo(&mut self) -> Option<TextDelta> {
         if !self.can_redo() {
             return None;
         }

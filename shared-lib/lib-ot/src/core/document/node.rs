@@ -2,7 +2,7 @@ use super::node_serde::*;
 use crate::core::NodeBody::Delta;
 use crate::core::{AttributeKey, AttributeValue, NodeAttributes, OperationTransform};
 use crate::errors::OTError;
-use crate::rich_text::RichTextDelta;
+use crate::text_delta::TextDelta;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq)]
@@ -93,7 +93,7 @@ impl NodeDataBuilder {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum NodeBody {
     Empty,
-    Delta(RichTextDelta),
+    Delta(TextDelta),
 }
 
 impl std::default::Default for NodeBody {
@@ -161,10 +161,7 @@ impl OperationTransform for NodeBody {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum NodeBodyChangeset {
-    Delta {
-        delta: RichTextDelta,
-        inverted: RichTextDelta,
-    },
+    Delta { delta: TextDelta, inverted: TextDelta },
 }
 
 impl NodeBodyChangeset {
