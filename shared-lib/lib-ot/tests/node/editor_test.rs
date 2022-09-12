@@ -1,16 +1,16 @@
 use super::script::{NodeScript::*, *};
 use lib_ot::{
     core::{NodeData, Path},
-    rich_text::{AttributeBuilder, RichTextDeltaBuilder, TextAttribute, TextAttributes},
+    text_delta::{AttributeBuilder, TextAttribute, TextAttributes, TextDeltaBuilder},
 };
 
 #[test]
-fn appflowy_editor_deserialize_node_test() {
+fn editor_deserialize_node_test() {
     let mut test = NodeTest::new();
     let node: NodeData = serde_json::from_str(EXAMPLE_JSON).unwrap();
     let path: Path = 0.into();
 
-    let expected_delta = RichTextDeltaBuilder::new()
+    let expected_delta = TextDeltaBuilder::new()
         .insert("👋 ")
         .insert_with_attributes(
             "Welcome to ",

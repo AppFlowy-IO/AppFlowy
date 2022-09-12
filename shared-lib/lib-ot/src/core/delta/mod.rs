@@ -1,15 +1,15 @@
 #![allow(clippy::module_inception)]
 mod builder;
 mod cursor;
-mod delta;
-mod delta_serde;
 mod iterator;
 pub mod operation;
+mod ops;
+mod ops_serde;
 
 pub use builder::*;
 pub use cursor::*;
-pub use delta::*;
 pub use iterator::*;
+pub use ops::*;
 
 pub const NEW_LINE: &str = "\n";
 pub const WHITESPACE: &str = " ";

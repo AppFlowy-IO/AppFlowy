@@ -9,7 +9,7 @@ use crate::{
     util::*,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{Attributes, Delta};
+use lib_ot::core::{Attributes, Operations};
 use parking_lot::RwLock;
 use serde::de::DeserializeOwned;
 use std::{
@@ -45,10 +45,10 @@ pub trait RevisionSyncPersistence: Send + Sync + 'static {
 
 pub trait RevisionSyncObject<T: Attributes>: Send + Sync + 'static {
     fn id(&self) -> &str;
-    fn compose(&mut self, other: &Delta<T>) -> Result<(), CollaborateError>;
-    fn transform(&self, other: &Delta<T>) -> Result<(Delta<T>, Delta<T>), CollaborateError>;
+    fn compose(&mut self, other: &Operations<T>) -> Result<(), CollaborateError>;
+    fn transform(&self, other: &Operations<T>) -> Result<(Operations<T>, Operations<T>), CollaborateError>;
     fn to_json(&self) -> String;
-    fn set_delta(&mut self, new_delta: Delta<T>);
+    fn set_delta(&mut self, new_delta: Operations<T>);
 }
 
 pub enum RevisionSyncResponse {
@@ -183,20 +183,20 @@ where
     }
 
     fn compose_revision(&self, revision: &Revision) -> Result<(), CollaborateError> {
-        let delta = Delta::<T>::from_bytes(&revision.delta_data)?;
+        let delta = Operations::<T>::from_bytes(&revision.delta_data)?;
         let _ = self.compose_delta(delta)?;
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-    fn transform_revision(&self, revision: &RevisionPB) -> Result<(Delta<T>, Delta<T>), CollaborateError> {
-        let cli_delta = Delta::<T>::from_bytes(&revision.delta_data)?;
+    fn transform_revision(&self, revision: &RevisionPB) -> Result<(Operations<T>, Operations<T>), CollaborateError> {
+        let cli_delta = Operations::<T>::from_bytes(&revision.delta_data)?;
         let result = self.object.read().transform(&cli_delta)?;
         Ok(result)
     }
 
-    fn compose_delta(&self, delta: Delta<T>) -> Result<(), CollaborateError> {
+    fn compose_delta(&self, delta: Operations<T>) -> Result<(), CollaborateError> {
         if delta.is_empty() {
             log::warn!("Composed delta is empty");
         }

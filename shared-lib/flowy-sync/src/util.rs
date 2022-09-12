@@ -7,10 +7,10 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 use dissimilar::Chunk;
-use lib_ot::core::{DeltaBuilder, OTString, PhantomAttributes, TextDelta};
+use lib_ot::core::{Delta, EmptyAttributes, OTString, OperationBuilder};
 use lib_ot::{
-    core::{Attributes, Delta, OperationTransform, NEW_LINE, WHITESPACE},
-    rich_text::RichTextDelta,
+    core::{Attributes, OperationTransform, Operations, NEW_LINE, WHITESPACE},
+    text_delta::TextDelta,
 };
 use serde::de::DeserializeOwned;
 use std::sync::atomic::{AtomicI64, Ordering::SeqCst};
@@ -62,17 +62,17 @@ impl RevIdCounter {
 }
 
 #[tracing::instrument(level = "trace", skip(revisions), err)]
-pub fn make_delta_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<Delta<T>>
+pub fn make_delta_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<Operations<T>>
 where
     T: Attributes + DeserializeOwned,
 {
-    let mut delta = Delta::<T>::new();
+    let mut delta = Operations::<T>::new();
     for revision in revisions {
         if revision.delta_data.is_empty() {
             tracing::warn!("revision delta_data is empty");
         }
 
-        let revision_delta = Delta::<T>::from_bytes(revision.delta_data).map_err(|e| {
+        let revision_delta = Operations::<T>::from_bytes(revision.delta_data).map_err(|e| {
             let err_msg = format!("Deserialize remote revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)
         })?;
@@ -81,17 +81,17 @@ where
     Ok(delta)
 }
 
-pub fn make_text_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<TextDelta> {
-    make_delta_from_revisions::<PhantomAttributes>(revisions)
+pub fn make_text_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Delta> {
+    make_delta_from_revisions::<EmptyAttributes>(revisions)
 }
 
-pub fn make_delta_from_revision_pb<T>(revisions: Vec<Revision>) -> CollaborateResult<Delta<T>>
+pub fn make_delta_from_revision_pb<T>(revisions: Vec<Revision>) -> CollaborateResult<Operations<T>>
 where
     T: Attributes + DeserializeOwned,
 {
-    let mut new_delta = Delta::<T>::new();
+    let mut new_delta = Operations::<T>::new();
     for revision in revisions {
-        let delta = Delta::<T>::from_bytes(revision.delta_data).map_err(|e| {
+        let delta = Operations::<T>::from_bytes(revision.delta_data).map_err(|e| {
             let err_msg = format!("Deserialize remote revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)
         })?;
@@ -172,7 +172,7 @@ pub fn make_document_from_revision_pbs(
         return Ok(None);
     }
 
-    let mut delta = RichTextDelta::new();
+    let mut delta = TextDelta::new();
     let mut base_rev_id = 0;
     let mut rev_id = 0;
     for revision in revisions {
@@ -183,7 +183,7 @@ pub fn make_document_from_revision_pbs(
             tracing::warn!("revision delta_data is empty");
         }
 
-        let new_delta = RichTextDelta::from_bytes(revision.delta_data)?;
+        let new_delta = TextDelta::from_bytes(revision.delta_data)?;
         delta = delta.compose(&new_delta)?;
     }
 
@@ -206,9 +206,9 @@ pub fn rev_id_from_str(s: &str) -> Result<i64, CollaborateError> {
     Ok(rev_id)
 }
 
-pub fn cal_diff<T: Attributes>(old: String, new: String) -> Option<Delta<T>> {
+pub fn cal_diff<T: Attributes>(old: String, new: String) -> Option<Operations<T>> {
     let chunks = dissimilar::diff(&old, &new);
-    let mut delta_builder = DeltaBuilder::<T>::new();
+    let mut delta_builder = OperationBuilder::<T>::new();
     for chunk in &chunks {
         match chunk {
             Chunk::Equal(s) => {

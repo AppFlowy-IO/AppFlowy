@@ -1,6 +1,6 @@
 use lib_ot::{
     core::{NodeAttributeBuilder, NodeBodyChangeset, NodeData, NodeDataBuilder, NodeOperation, Path},
-    rich_text::RichTextDeltaBuilder,
+    text_delta::TextDeltaBuilder,
 };
 
 #[test]
@@ -46,7 +46,7 @@ fn operation_update_node_attributes_serde_test() {
 
 #[test]
 fn operation_update_node_body_serialize_test() {
-    let delta = RichTextDeltaBuilder::new().insert("AppFlowy...").build();
+    let delta = TextDeltaBuilder::new().insert("AppFlowy...").build();
     let inverted = delta.invert_str("");
     let changeset = NodeBodyChangeset::Delta { delta, inverted };
     let insert = NodeOperation::UpdateBody {

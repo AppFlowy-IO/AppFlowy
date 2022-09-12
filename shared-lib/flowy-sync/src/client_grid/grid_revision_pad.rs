@@ -7,12 +7,12 @@ use flowy_grid_data_model::revision::{
     GridRevision,
 };
 use lib_infra::util::move_vec_element;
-use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
+use lib_ot::core::{Delta, DeltaBuilder, EmptyAttributes, OperationTransform};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub type GridRevisionDelta = TextDelta;
-pub type GridRevisionDeltaBuilder = TextDeltaBuilder;
+pub type GridRevisionDelta = Delta;
+pub type GridRevisionDeltaBuilder = DeltaBuilder;
 
 pub struct GridRevisionPad {
     grid_rev: Arc<GridRevision>,
@@ -314,7 +314,7 @@ impl GridRevisionPad {
             Some(_) => {
                 let old = make_grid_rev_json_str(&cloned_grid)?;
                 let new = self.json_str()?;
-                match cal_diff::<PhantomAttributes>(old, new) {
+                match cal_diff::<EmptyAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
@@ -380,7 +380,7 @@ pub struct GridRevisionChangeset {
 
 pub fn make_grid_delta(grid_rev: &GridRevision) -> GridRevisionDelta {
     let json = serde_json::to_string(&grid_rev).unwrap();
-    TextDeltaBuilder::new().insert(&json).build()
+    DeltaBuilder::new().insert(&json).build()
 }
 
 pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {

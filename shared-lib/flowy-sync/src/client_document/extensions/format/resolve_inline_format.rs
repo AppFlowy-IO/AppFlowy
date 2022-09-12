@@ -1,6 +1,6 @@
 use lib_ot::{
-    core::{DeltaBuilder, DeltaIterator, Interval},
-    rich_text::{AttributeScope, RichTextDelta, TextAttribute},
+    core::{Interval, OperationBuilder, OperationIterator},
+    text_delta::{AttributeScope, TextAttribute, TextDelta},
 };
 
 use crate::{
@@ -14,12 +14,12 @@ impl FormatExt for ResolveInlineFormat {
         "ResolveInlineFormat"
     }
 
-    fn apply(&self, delta: &RichTextDelta, interval: Interval, attribute: &TextAttribute) -> Option<RichTextDelta> {
+    fn apply(&self, delta: &TextDelta, interval: Interval, attribute: &TextAttribute) -> Option<TextDelta> {
         if attribute.scope != AttributeScope::Inline {
             return None;
         }
-        let mut new_delta = DeltaBuilder::new().retain(interval.start).build();
-        let mut iter = DeltaIterator::from_offset(delta, interval.start);
+        let mut new_delta = OperationBuilder::new().retain(interval.start).build();
+        let mut iter = OperationIterator::from_offset(delta, interval.start);
         let mut start = 0;
         let end = interval.size();
 

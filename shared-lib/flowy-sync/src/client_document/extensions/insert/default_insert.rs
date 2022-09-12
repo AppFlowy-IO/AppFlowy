@@ -1,7 +1,7 @@
 use crate::client_document::InsertExt;
 use lib_ot::{
-    core::{Attributes, DeltaBuilder, DeltaIterator, NEW_LINE},
-    rich_text::{RichTextDelta, TextAttributeKey, TextAttributes},
+    core::{Attributes, OperationBuilder, OperationIterator, NEW_LINE},
+    text_delta::{TextAttributeKey, TextAttributes, TextDelta},
 };
 
 pub struct DefaultInsertAttribute {}
@@ -10,8 +10,8 @@ impl InsertExt for DefaultInsertAttribute {
         "DefaultInsertAttribute"
     }
 
-    fn apply(&self, delta: &RichTextDelta, replace_len: usize, text: &str, index: usize) -> Option<RichTextDelta> {
-        let iter = DeltaIterator::new(delta);
+    fn apply(&self, delta: &TextDelta, replace_len: usize, text: &str, index: usize) -> Option<TextDelta> {
+        let iter = OperationIterator::new(delta);
         let mut attributes = TextAttributes::new();
 
         // Enable each line split by "\n" remains the block attributes. for example:
@@ -31,7 +31,7 @@ impl InsertExt for DefaultInsertAttribute {
         }
 
         Some(
-            DeltaBuilder::new()
+            OperationBuilder::new()
                 .retain(index + replace_len)
                 .insert_with_attributes(text, attributes)
                 .build(),

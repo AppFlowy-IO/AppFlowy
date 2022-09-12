@@ -2,7 +2,7 @@ use crate::client_document::*;
 use lib_ot::{
     core::{trim, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
-    rich_text::{RichTextDelta, TextAttribute},
+    text_delta::{TextAttribute, TextDelta},
 };
 
 pub const RECORD_THRESHOLD: usize = 400; // in milliseconds
@@ -22,12 +22,7 @@ impl ViewExtensions {
         }
     }
 
-    pub(crate) fn insert(
-        &self,
-        delta: &RichTextDelta,
-        text: &str,
-        interval: Interval,
-    ) -> Result<RichTextDelta, OTError> {
+    pub(crate) fn insert(&self, delta: &TextDelta, text: &str, interval: Interval) -> Result<TextDelta, OTError> {
         let mut new_delta = None;
         for ext in &self.insert_exts {
             if let Some(mut delta) = ext.apply(delta, interval.size(), text, interval.start) {
@@ -44,7 +39,7 @@ impl ViewExtensions {
         }
     }
 
-    pub(crate) fn delete(&self, delta: &RichTextDelta, interval: Interval) -> Result<RichTextDelta, OTError> {
+    pub(crate) fn delete(&self, delta: &TextDelta, interval: Interval) -> Result<TextDelta, OTError> {
         let mut new_delta = None;
         for ext in &self.delete_exts {
             if let Some(mut delta) = ext.apply(delta, interval) {
@@ -63,10 +58,10 @@ impl ViewExtensions {
 
     pub(crate) fn format(
         &self,
-        delta: &RichTextDelta,
+        delta: &TextDelta,
         attribute: TextAttribute,
         interval: Interval,
-    ) -> Result<RichTextDelta, OTError> {
+    ) -> Result<TextDelta, OTError> {
         let mut new_delta = None;
         for ext in &self.format_exts {
             if let Some(mut delta) = ext.apply(delta, interval, &attribute) {

@@ -13,7 +13,7 @@ use flowy_sync::{
 use futures::stream::StreamExt;
 use lib_ot::{
     core::{Interval, OperationTransform},
-    rich_text::{RichTextDelta, TextAttribute, TextAttributes},
+    text_delta::{TextAttribute, TextAttributes, TextDelta},
 };
 use std::sync::Arc;
 use tokio::sync::{oneshot, RwLock};
@@ -31,7 +31,7 @@ impl EditBlockQueue {
     pub(crate) fn new(
         user: Arc<dyn TextBlockUser>,
         rev_manager: Arc<RevisionManager>,
-        delta: RichTextDelta,
+        delta: TextDelta,
         receiver: EditorCommandReceiver,
     ) -> Self {
         let document = Arc::new(RwLock::new(ClientDocument::from_delta(delta)));
@@ -91,8 +91,8 @@ impl EditBlockQueue {
             EditorCommand::TransformDelta { delta, ret } => {
                 let f = || async {
                     let read_guard = self.document.read().await;
-                    let mut server_prime: Option<RichTextDelta> = None;
-                    let client_prime: RichTextDelta;
+                    let mut server_prime: Option<TextDelta> = None;
+                    let client_prime: TextDelta;
 
                     if read_guard.is_empty() {
                         // Do nothing
@@ -174,7 +174,7 @@ impl EditBlockQueue {
         Ok(())
     }
 
-    async fn save_local_delta(&self, delta: RichTextDelta, md5: String) -> Result<RevId, FlowyError> {
+    async fn save_local_delta(&self, delta: TextDelta, md5: String) -> Result<RevId, FlowyError> {
         let delta_data = delta.json_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let user_id = self.user.user_id()?;
@@ -203,19 +203,19 @@ pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
 
 pub(crate) enum EditorCommand {
     ComposeLocalDelta {
-        delta: RichTextDelta,
+        delta: TextDelta,
         ret: Ret<()>,
     },
     ComposeRemoteDelta {
-        client_delta: RichTextDelta,
+        client_delta: TextDelta,
         ret: Ret<DeltaMD5>,
     },
     ResetDelta {
-        delta: RichTextDelta,
+        delta: TextDelta,
         ret: Ret<DeltaMD5>,
     },
     TransformDelta {
-        delta: RichTextDelta,
+        delta: TextDelta,
         ret: Ret<RichTextTransformDeltas>,
     },
     Insert {
@@ -254,7 +254,7 @@ pub(crate) enum EditorCommand {
     },
     #[allow(dead_code)]
     ReadDelta {
-        ret: Ret<RichTextDelta>,
+        ret: Ret<TextDelta>,
     },
 }
 

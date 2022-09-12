@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use lib_ot::rich_text::RichTextDelta;
+use lib_ot::text_delta::TextDelta;
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
 
 #[derive(PartialEq, Eq, Clone, Default, ProtoBuf)]
@@ -87,7 +87,7 @@ impl std::fmt::Debug for Revision {
         let _ = f.write_fmt(format_args!("object_id {}, ", self.object_id))?;
         let _ = f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
         let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
-        match RichTextDelta::from_bytes(&self.delta_data) {
+        match TextDelta::from_bytes(&self.delta_data) {
             Ok(delta) => {
                 let _ = f.write_fmt(format_args!("delta {:?}", delta.json_str()))?;
             }
