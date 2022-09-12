@@ -15,7 +15,7 @@ use flowy_sync::{
 };
 use lib_ot::{
     core::{Interval, Operation},
-    rich_text::{RichTextDelta, TextAttribute},
+    text_delta::{TextAttribute, TextDelta},
 };
 use lib_ws::WSConnectState;
 use std::sync::Arc;
@@ -149,7 +149,7 @@ impl TextBlockEditor {
 
     #[tracing::instrument(level = "trace", skip(self, data), err)]
     pub(crate) async fn compose_local_delta(&self, data: Bytes) -> Result<(), FlowyError> {
-        let delta = RichTextDelta::from_bytes(&data)?;
+        let delta = TextDelta::from_bytes(&data)?;
         let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
         let msg = EditorCommand::ComposeLocalDelta {
             delta: delta.clone(),
@@ -195,7 +195,7 @@ impl std::ops::Drop for TextBlockEditor {
 fn spawn_edit_queue(
     user: Arc<dyn TextBlockUser>,
     rev_manager: Arc<RevisionManager>,
-    delta: RichTextDelta,
+    delta: TextDelta,
 ) -> EditorCommandSender {
     let (sender, receiver) = mpsc::channel(1000);
     let edit_queue = EditBlockQueue::new(user, rev_manager, delta, receiver);
@@ -214,8 +214,8 @@ fn spawn_edit_queue(
 
 #[cfg(feature = "flowy_unit_test")]
 impl TextBlockEditor {
-    pub async fn text_block_delta(&self) -> FlowyResult<RichTextDelta> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextDelta>>();
+    pub async fn text_block_delta(&self) -> FlowyResult<TextDelta> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<TextDelta>>();
         let msg = EditorCommand::ReadDelta { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let delta = rx.await.map_err(internal_error)??;
@@ -247,7 +247,7 @@ impl RevisionObjectBuilder for TextBlockInfoBuilder {
 
 // quill-editor requires the delta should end with '\n' and only contains the
 // insert operation. The function, correct_delta maybe be removed in the future.
-fn correct_delta(delta: &mut RichTextDelta) {
+fn correct_delta(delta: &mut TextDelta) {
     if let Some(op) = delta.ops.last() {
         let op_data = op.get_data();
         if !op_data.ends_with('\n') {

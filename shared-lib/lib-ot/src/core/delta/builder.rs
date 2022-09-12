@@ -1,8 +1,8 @@
-use crate::core::delta::{trim, Delta};
-use crate::core::operation::Attributes;
+use crate::core::delta::operation::Attributes;
+use crate::core::delta::{trim, Operations};
 use crate::core::Operation;
 
-/// A builder for creating new [Delta] objects.
+/// A builder for creating new [Operations] objects.
 ///
 /// Note that all edit operations must be sorted; the start point of each
 /// interval must be no less than the end point of the previous one.
@@ -10,35 +10,37 @@ use crate::core::Operation;
 /// # Examples
 ///
 /// ```
-/// use lib_ot::core::TextDeltaBuilder;
-/// let delta = TextDeltaBuilder::new()
+/// use lib_ot::core::DeltaBuilder;
+/// let delta = DeltaBuilder::new()
 ///         .insert("AppFlowy")
 ///         .build();
 /// assert_eq!(delta.content().unwrap(), "AppFlowy");
 /// ```
-pub struct DeltaBuilder<T: Attributes> {
-    delta: Delta<T>,
+pub struct OperationBuilder<T: Attributes> {
+    delta: Operations<T>,
 }
 
-impl<T> std::default::Default for DeltaBuilder<T>
+impl<T> std::default::Default for OperationBuilder<T>
 where
     T: Attributes,
 {
     fn default() -> Self {
-        Self { delta: Delta::new() }
+        Self {
+            delta: Operations::new(),
+        }
     }
 }
 
-impl<T> DeltaBuilder<T>
+impl<T> OperationBuilder<T>
 where
     T: Attributes,
 {
     pub fn new() -> Self {
-        DeltaBuilder::default()
+        OperationBuilder::default()
     }
 
-    pub fn from_operations(operations: Vec<Operation<T>>) -> Delta<T> {
-        let mut delta = DeltaBuilder::default().build();
+    pub fn from_operations(operations: Vec<Operation<T>>) -> Operations<T> {
+        let mut delta = OperationBuilder::default().build();
         operations.into_iter().for_each(|operation| {
             delta.add(operation);
         });
@@ -50,10 +52,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::rich_text::{TextAttribute, RichTextDelta, RichTextDeltaBuilder};
+    /// use lib_ot::text_delta::{TextAttribute, TextDelta, TextDeltaBuilder};
     ///
     /// let mut attribute = TextAttribute::Bold(true);
-    /// let delta = RichTextDeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
+    /// let delta = TextDeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
     ///
     /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
     /// ```
@@ -72,13 +74,13 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{OperationTransform, TextDeltaBuilder};
+    /// use lib_ot::core::{OperationTransform, DeltaBuilder};
     ///
-    /// let delta = TextDeltaBuilder::new()
+    /// let delta = DeltaBuilder::new()
     ///         .insert("AppFlowy...")
     ///         .build();
     ///
-    /// let changeset = TextDeltaBuilder::new()
+    /// let changeset = DeltaBuilder::new()
     ///         .retain(8)
     ///         .delete(3)
     ///         .build();
@@ -108,15 +110,15 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{OperationTransform, TextDeltaBuilder};
-    /// use lib_ot::rich_text::{TextAttribute, RichTextDeltaBuilder};
-    /// let delta = TextDeltaBuilder::new()
+    /// use lib_ot::core::{OperationTransform, DeltaBuilder};
+    /// use lib_ot::text_delta::{TextAttribute, TextDeltaBuilder};
+    /// let delta = DeltaBuilder::new()
     ///         .retain(3)
     ///         .trim()
     ///         .build();
     /// assert_eq!(delta.ops.len(), 0);
     ///
-    /// let delta = RichTextDeltaBuilder::new()
+    /// let delta = TextDeltaBuilder::new()
     ///         .retain_with_attributes(3, TextAttribute::Bold(true).into())
     ///         .trim()
     ///         .build();
@@ -128,7 +130,7 @@ where
     }
 
     /// Builds the `Delta`
-    pub fn build(self) -> Delta<T> {
+    pub fn build(self) -> Operations<T> {
         self.delta
     }
 }

@@ -1,8 +1,8 @@
-use crate::core::operation::{Attributes, Operation, PhantomAttributes};
-use crate::rich_text::TextAttributes;
+use crate::core::delta::operation::{Attributes, EmptyAttributes, Operation};
+use crate::text_delta::TextAttributes;
 
 pub type RichTextOpBuilder = OperationsBuilder<TextAttributes>;
-pub type PlainTextOpBuilder = OperationsBuilder<PhantomAttributes>;
+pub type PlainTextOpBuilder = OperationsBuilder<EmptyAttributes>;
 
 #[derive(Default)]
 pub struct OperationsBuilder<T: Attributes> {

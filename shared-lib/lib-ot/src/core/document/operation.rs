@@ -1,35 +1,38 @@
 use crate::core::document::path::Path;
-use crate::core::{Node, NodeAttributes, TextDelta};
+use crate::core::{NodeAttributes, NodeBodyChangeset, NodeData};
+use crate::errors::OTError;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(tag = "op")]
 pub enum NodeOperation {
     #[serde(rename = "insert")]
-    Insert { path: Path, nodes: Vec<Node> },
+    Insert { path: Path, nodes: Vec<NodeData> },
+
     #[serde(rename = "update")]
-    Update {
+    UpdateAttributes {
         path: Path,
         attributes: NodeAttributes,
         #[serde(rename = "oldAttributes")]
         old_attributes: NodeAttributes,
     },
+
+    #[serde(rename = "update-body")]
+    // #[serde(serialize_with = "serialize_edit_body")]
+    // #[serde(deserialize_with = "deserialize_edit_body")]
+    UpdateBody { path: Path, changeset: NodeBodyChangeset },
+
     #[serde(rename = "delete")]
-    Delete { path: Path, nodes: Vec<Node> },
-    #[serde(rename = "text-edit")]
-    TextEdit {
-        path: Path,
-        delta: TextDelta,
-        inverted: TextDelta,
-    },
+    Delete { path: Path, nodes: Vec<NodeData> },
 }
 
 impl NodeOperation {
     pub fn path(&self) -> &Path {
         match self {
             NodeOperation::Insert { path, .. } => path,
-            NodeOperation::Update { path, .. } => path,
+            NodeOperation::UpdateAttributes { path, .. } => path,
             NodeOperation::Delete { path, .. } => path,
-            NodeOperation::TextEdit { path, .. } => path,
+            NodeOperation::UpdateBody { path, .. } => path,
         }
     }
     pub fn invert(&self) -> NodeOperation {
@@ -38,11 +41,11 @@ impl NodeOperation {
                 path: path.clone(),
                 nodes: nodes.clone(),
             },
-            NodeOperation::Update {
+            NodeOperation::UpdateAttributes {
                 path,
                 attributes,
                 old_attributes,
-            } => NodeOperation::Update {
+            } => NodeOperation::UpdateAttributes {
                 path: path.clone(),
                 attributes: old_attributes.clone(),
                 old_attributes: attributes.clone(),
@@ -51,10 +54,9 @@ impl NodeOperation {
                 path: path.clone(),
                 nodes: nodes.clone(),
             },
-            NodeOperation::TextEdit { path, delta, inverted } => NodeOperation::TextEdit {
+            NodeOperation::UpdateBody { path, changeset: body } => NodeOperation::UpdateBody {
                 path: path.clone(),
-                delta: inverted.clone(),
-                inverted: delta.clone(),
+                changeset: body.inverted(),
             },
         }
     }
@@ -64,11 +66,11 @@ impl NodeOperation {
                 path,
                 nodes: nodes.clone(),
             },
-            NodeOperation::Update {
+            NodeOperation::UpdateAttributes {
                 attributes,
                 old_attributes,
                 ..
-            } => NodeOperation::Update {
+            } => NodeOperation::UpdateAttributes {
                 path,
                 attributes: attributes.clone(),
                 old_attributes: old_attributes.clone(),
@@ -77,10 +79,9 @@ impl NodeOperation {
                 path,
                 nodes: nodes.clone(),
             },
-            NodeOperation::TextEdit { delta, inverted, .. } => NodeOperation::TextEdit {
-                path,
-                delta: delta.clone(),
-                inverted: inverted.clone(),
+            NodeOperation::UpdateBody { path, changeset } => NodeOperation::UpdateBody {
+                path: path.clone(),
+                changeset: changeset.clone(),
             },
         }
     }
@@ -99,62 +100,43 @@ impl NodeOperation {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::core::{Delta, Node, NodeAttributes, NodeOperation, Path};
-    #[test]
-    fn test_serialize_insert_operation() {
-        let insert = NodeOperation::Insert {
-            path: Path(vec![0, 1]),
-            nodes: vec![Node::new("text")],
-        };
-        let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(
-            result,
-            r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","attributes":{}}]}"#
-        );
+#[derive(Serialize, Deserialize, Default)]
+pub struct NodeOperationList {
+    operations: Vec<NodeOperation>,
+}
+
+impl NodeOperationList {
+    pub fn into_inner(self) -> Vec<NodeOperation> {
+        self.operations
+    }
+}
+
+impl std::ops::Deref for NodeOperationList {
+    type Target = Vec<NodeOperation>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.operations
+    }
+}
+
+impl std::ops::DerefMut for NodeOperationList {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.operations
+    }
+}
+
+impl NodeOperationList {
+    pub fn new(operations: Vec<NodeOperation>) -> Self {
+        Self { operations }
     }
 
-    #[test]
-    fn test_serialize_insert_sub_trees() {
-        let insert = NodeOperation::Insert {
-            path: Path(vec![0, 1]),
-            nodes: vec![Node {
-                note_type: "text".into(),
-                attributes: NodeAttributes::new(),
-                delta: None,
-                children: vec![Node::new("text")],
-            }],
-        };
-        let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(
-            result,
-            r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","attributes":{},"children":[{"type":"text","attributes":{}}]}]}"#
-        );
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, OTError> {
+        let operation_list = serde_json::from_slice(&bytes).map_err(|err| OTError::serde().context(err))?;
+        Ok(operation_list)
     }
 
-    #[test]
-    fn test_serialize_update_operation() {
-        let insert = NodeOperation::Update {
-            path: Path(vec![0, 1]),
-            attributes: NodeAttributes::new(),
-            old_attributes: NodeAttributes::new(),
-        };
-        let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(
-            result,
-            r#"{"op":"update","path":[0,1],"attributes":{},"oldAttributes":{}}"#
-        );
-    }
-
-    #[test]
-    fn test_serialize_text_edit_operation() {
-        let insert = NodeOperation::TextEdit {
-            path: Path(vec![0, 1]),
-            delta: Delta::new(),
-            inverted: Delta::new(),
-        };
-        let result = serde_json::to_string(&insert).unwrap();
-        assert_eq!(result, r#"{"op":"text-edit","path":[0,1],"delta":[],"inverted":[]}"#);
+    pub fn to_bytes(&self) -> Result<Vec<u8>, OTError> {
+        let bytes = serde_json::to_vec(self).map_err(|err| OTError::serde().context(err))?;
+        Ok(bytes)
     }
 }

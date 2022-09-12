@@ -173,6 +173,22 @@ List<ToolbarItem> defaultToolbarItems = [
     handler: (editorState, context) => formatStrikethrough(editorState),
   ),
   ToolbarItem(
+    id: 'appflowy.toolbar.code',
+    type: 2,
+    tooltipsMessage: 'Embed Code',
+    iconBuilder: (isHighlight) => FlowySvg(
+      name: 'toolbar/code',
+      color: isHighlight ? Colors.lightBlue : null,
+    ),
+    validator: _showInTextSelection,
+    highlightCallback: (editorState) => _allSatisfy(
+      editorState,
+      StyleKey.code,
+      (value) => value == StyleKey.code,
+    ),
+    handler: (editorState, context) => formatEmbedCode(editorState),
+  ),
+  ToolbarItem(
     id: 'appflowy.toolbar.quote',
     type: 3,
     tooltipsMessage: 'Quote',

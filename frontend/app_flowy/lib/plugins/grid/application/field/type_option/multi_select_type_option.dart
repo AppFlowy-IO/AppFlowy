@@ -51,7 +51,11 @@ class MultiSelectAction with ISelectOptionAction {
           (option) {
             typeOption.freeze();
             typeOption = typeOption.rebuild((typeOption) {
-              typeOption.options.insert(0, option);
+              final exists = typeOption.options
+                  .any((element) => element.name == option.name);
+              if (!exists) {
+                typeOption.options.insert(0, option);
+              }
             });
 
             return typeOption.options;

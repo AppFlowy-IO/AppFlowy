@@ -40,7 +40,11 @@ void main() async {
         await editor.pressLogicKey(
           LogicalKeyboardKey.pageDown,
         );
-        currentOffsetY += onePageHeight!;
+        if (i == page) {
+          currentOffsetY = scrollService.maxScrollExtent;
+        } else {
+          currentOffsetY += onePageHeight!;
+        }
         final dy = scrollService.dy;
         expect(dy, currentOffsetY);
       }
@@ -58,7 +62,11 @@ void main() async {
         await editor.pressLogicKey(
           LogicalKeyboardKey.pageUp,
         );
-        currentOffsetY -= onePageHeight!;
+        if (i == 1) {
+          currentOffsetY = scrollService.minScrollExtent;
+        } else {
+          currentOffsetY -= onePageHeight!;
+        }
         final dy = editor.editorState.service.scrollService?.dy;
         expect(dy, currentOffsetY);
       }

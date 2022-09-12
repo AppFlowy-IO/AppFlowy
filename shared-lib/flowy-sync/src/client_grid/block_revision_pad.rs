@@ -4,7 +4,7 @@ use crate::util::{cal_diff, make_text_delta_from_revisions};
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision,
 };
-use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
+use lib_ot::core::{Delta, DeltaBuilder, EmptyAttributes, OperationTransform};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -12,7 +12,7 @@ use std::sync::Arc;
 #[derive(Debug, Clone)]
 pub struct GridBlockRevisionPad {
     block: GridBlockRevision,
-    delta: TextDelta,
+    delta: Delta,
 }
 
 impl std::ops::Deref for GridBlockRevisionPad {
@@ -42,7 +42,7 @@ impl GridBlockRevisionPad {
         }
     }
 
-    pub fn from_delta(delta: TextDelta) -> CollaborateResult<Self> {
+    pub fn from_delta(delta: Delta) -> CollaborateResult<Self> {
         let s = delta.content()?;
         let revision: GridBlockRevision = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to GridBlockRevision failed: {}", e);
@@ -53,7 +53,7 @@ impl GridBlockRevisionPad {
     }
 
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let block_delta: TextDelta = make_text_delta_from_revisions(revisions)?;
+        let block_delta: Delta = make_text_delta_from_revisions(revisions)?;
         Self::from_delta(block_delta)
     }
 
@@ -200,7 +200,7 @@ impl GridBlockRevisionPad {
             Some(_) => {
                 let old = cloned_self.revision_json()?;
                 let new = self.revision_json()?;
-                match cal_diff::<PhantomAttributes>(old, new) {
+                match cal_diff::<EmptyAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
                         tracing::trace!("[GridBlockRevision] Composing delta {}", delta.json_str());
@@ -240,14 +240,14 @@ impl GridBlockRevisionPad {
 }
 
 pub struct GridBlockRevisionChangeset {
-    pub delta: TextDelta,
+    pub delta: Delta,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,
 }
 
-pub fn make_grid_block_delta(block_rev: &GridBlockRevision) -> TextDelta {
+pub fn make_grid_block_delta(block_rev: &GridBlockRevision) -> Delta {
     let json = serde_json::to_string(&block_rev).unwrap();
-    TextDeltaBuilder::new().insert(&json).build()
+    DeltaBuilder::new().insert(&json).build()
 }
 
 pub fn make_grid_block_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
@@ -276,7 +276,7 @@ impl std::default::Default for GridBlockRevisionPad {
 mod tests {
     use crate::client_grid::GridBlockRevisionPad;
     use flowy_grid_data_model::revision::{RowChangeset, RowRevision};
-    use lib_ot::core::TextDelta;
+    use lib_ot::core::Delta;
     use std::borrow::Cow;
 
     #[test]
@@ -422,7 +422,7 @@ mod tests {
     }
 
     fn test_pad() -> GridBlockRevisionPad {
-        let delta = TextDelta::from_json(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
+        let delta = Delta::from_json(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
         GridBlockRevisionPad::from_delta(delta).unwrap()
     }
 }

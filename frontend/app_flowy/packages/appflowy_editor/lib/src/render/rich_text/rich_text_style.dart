@@ -49,6 +49,7 @@ class StyleKey {
     StyleKey.strikethrough,
     StyleKey.backgroundColor,
     StyleKey.href,
+    StyleKey.code,
   ];
 
   static List<String> globalStyleKeys = [
@@ -58,7 +59,6 @@ class StyleKey {
     StyleKey.bulletedList,
     StyleKey.numberList,
     StyleKey.quote,
-    StyleKey.code,
   ];
 }
 
@@ -255,6 +255,9 @@ class RichTextStyle {
     if (attributes.href != null) {
       return Colors.lightBlue;
     }
+    if (attributes.code) {
+      return Colors.lightBlue.withOpacity(0.8);
+    }
     return attributes.color ?? Colors.black;
   }
 
@@ -262,7 +265,7 @@ class RichTextStyle {
     if (attributes.backgroundColor != null) {
       return attributes.backgroundColor!;
     } else if (attributes.code) {
-      return Colors.grey.withOpacity(0.4);
+      return Colors.blue.shade300.withOpacity(0.3);
     }
     return null;
   }

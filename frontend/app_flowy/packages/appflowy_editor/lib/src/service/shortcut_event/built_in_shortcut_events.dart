@@ -196,8 +196,13 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: selectAllHandler,
   ),
   ShortcutEvent(
-    key: 'page up / page down',
-    command: 'page up,page down',
-    handler: pageUpDownHandler,
+    key: 'Page up',
+    command: 'page up',
+    handler: pageUpHandler,
+  ),
+  ShortcutEvent(
+    key: 'Page down',
+    command: 'page down',
+    handler: pageDownHandler,
   ),
 ];

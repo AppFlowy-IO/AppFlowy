@@ -1,10 +1,10 @@
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 
-use crate::core::delta::{DeltaIterator, MAX_IV_LEN};
+use crate::core::delta::operation::{Attributes, EmptyAttributes, Operation, OperationTransform};
+use crate::core::delta::{OperationIterator, MAX_IV_LEN};
 use crate::core::interval::Interval;
-use crate::core::operation::{Attributes, Operation, OperationTransform, PhantomAttributes};
 use crate::core::ot_str::OTString;
-use crate::core::DeltaBuilder;
+use crate::core::OperationBuilder;
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
 use std::{
@@ -15,8 +15,8 @@ use std::{
     str::FromStr,
 };
 
-pub type TextDelta = Delta<PhantomAttributes>;
-pub type TextDeltaBuilder = DeltaBuilder<PhantomAttributes>;
+pub type Delta = Operations<EmptyAttributes>;
+pub type DeltaBuilder = OperationBuilder<EmptyAttributes>;
 
 /// A [Delta] contains list of operations that consists of 'Retain', 'Delete' and 'Insert' operation.
 /// Check out the [Operation] for more details. It describes the document as a sequence of
@@ -28,7 +28,7 @@ pub type TextDeltaBuilder = DeltaBuilder<PhantomAttributes>;
 /// a JSON string.
 ///
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Delta<T: Attributes> {
+pub struct Operations<T: Attributes> {
     pub ops: Vec<Operation<T>>,
 
     /// 'Delete' and 'Retain' operation will update the [utf16_base_len]
@@ -40,7 +40,7 @@ pub struct Delta<T: Attributes> {
     pub utf16_target_len: usize,
 }
 
-impl<T> Default for Delta<T>
+impl<T> Default for Operations<T>
 where
     T: Attributes,
 {
@@ -53,7 +53,7 @@ where
     }
 }
 
-impl<T> fmt::Display for Delta<T>
+impl<T> fmt::Display for Operations<T>
 where
     T: Attributes,
 {
@@ -68,12 +68,12 @@ where
     }
 }
 
-impl<T> FromIterator<Operation<T>> for Delta<T>
+impl<T> FromIterator<Operation<T>> for Operations<T>
 where
     T: Attributes,
 {
     fn from_iter<I: IntoIterator<Item = Operation<T>>>(ops: I) -> Self {
-        let mut operations = Delta::default();
+        let mut operations = Operations::default();
         for op in ops {
             operations.add(op);
         }
@@ -81,7 +81,7 @@ where
     }
 }
 
-impl<T> Delta<T>
+impl<T> Operations<T>
 where
     T: Attributes,
 {
@@ -180,10 +180,10 @@ where
     /// # Examples
     ///
     /// ```
-    ///  use lib_ot::core::TextDeltaBuilder;
+    ///  use lib_ot::core::DeltaBuilder;
     ///  let s = "hello";
-    ///  let delta_a = TextDeltaBuilder::new().insert(s).build();
-    ///  let delta_b = TextDeltaBuilder::new()
+    ///  let delta_a = DeltaBuilder::new().insert(s).build();
+    ///  let delta_b = DeltaBuilder::new()
     ///         .retain(s.len())
     ///         .insert(", AppFlowy")
     ///         .build();
@@ -237,9 +237,9 @@ where
     /// # Examples
     ///
     /// ```
-    ///  use lib_ot::core::TextDeltaBuilder;
+    ///  use lib_ot::core::DeltaBuilder;
     ///  let s = "hello world";
-    ///  let delta = TextDeltaBuilder::new().insert(s).build();
+    ///  let delta = DeltaBuilder::new().insert(s).build();
     ///  let invert_delta = delta.invert_str(s);
     ///  assert_eq!(delta.utf16_base_len, invert_delta.utf16_target_len);
     ///  assert_eq!(delta.utf16_target_len, invert_delta.utf16_base_len);
@@ -249,7 +249,7 @@ where
     /// ```
     ///
     pub fn invert_str(&self, inverted_s: &str) -> Self {
-        let mut inverted = Delta::default();
+        let mut inverted = Operations::default();
         let inverted_s: OTString = inverted_s.into();
         let code_point_iter = &mut inverted_s.utf16_iter();
 
@@ -292,7 +292,7 @@ where
     }
 }
 
-impl<T> OperationTransform for Delta<T>
+impl<T> OperationTransform for Operations<T>
 where
     T: Attributes,
 {
@@ -300,9 +300,9 @@ where
     where
         Self: Sized,
     {
-        let mut new_delta = Delta::default();
-        let mut iter = DeltaIterator::new(self);
-        let mut other_iter = DeltaIterator::new(other);
+        let mut new_delta = Operations::default();
+        let mut iter = OperationIterator::new(self);
+        let mut other_iter = OperationIterator::new(other);
 
         while iter.has_next() || other_iter.has_next() {
             if other_iter.is_next_insert() {
@@ -366,8 +366,8 @@ where
                 .build());
         }
 
-        let mut a_prime = Delta::default();
-        let mut b_prime = Delta::default();
+        let mut a_prime = Operations::default();
+        let mut b_prime = Operations::default();
 
         let mut ops1 = self.ops.iter().cloned();
         let mut ops2 = other.ops.iter().cloned();
@@ -476,7 +476,7 @@ where
     }
 
     fn invert(&self, other: &Self) -> Self {
-        let mut inverted = Delta::default();
+        let mut inverted = Operations::default();
         let mut index = 0;
         for op in &self.ops {
             let len: usize = op.len() as usize;
@@ -507,7 +507,7 @@ where
 }
 
 /// Removes trailing retain operation with empty attributes, if present.
-pub fn trim<T>(delta: &mut Delta<T>)
+pub fn trim<T>(delta: &mut Operations<T>)
 where
     T: Attributes,
 {
@@ -519,14 +519,14 @@ where
 }
 
 fn invert_other<T: Attributes>(
-    base: &mut Delta<T>,
-    other: &Delta<T>,
+    base: &mut Operations<T>,
+    other: &Operations<T>,
     operation: &Operation<T>,
     start: usize,
     end: usize,
 ) {
     tracing::trace!("invert op: {} [{}:{}]", operation, start, end);
-    let other_ops = DeltaIterator::from_interval(other, Interval::new(start, end)).ops();
+    let other_ops = OperationIterator::from_interval(other, Interval::new(start, end)).ops();
     other_ops.into_iter().for_each(|other_op| match operation {
         Operation::Delete(_n) => {
             // tracing::trace!("invert delete: {} by add {}", n, other_op);
@@ -563,19 +563,19 @@ fn transform_op_attribute<T: Attributes>(
     Ok(left.transform(&right)?.0)
 }
 
-impl<T> Delta<T>
+impl<T> Operations<T>
 where
     T: Attributes + DeserializeOwned,
 {
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::DeltaBuilder;
-    /// use lib_ot::rich_text::{RichTextDelta};
+    /// use lib_ot::core::OperationBuilder;
+    /// use lib_ot::text_delta::{TextDelta};
     /// let json = r#"[
     ///     {"retain":7,"attributes":{"bold":null}}
     ///  ]"#;
-    /// let delta = RichTextDelta::from_json(json).unwrap();
+    /// let delta = TextDelta::from_json(json).unwrap();
     /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
     /// ```
     pub fn from_json(json: &str) -> Result<Self, OTError> {
@@ -595,7 +595,7 @@ where
     }
 }
 
-impl<T> Delta<T>
+impl<T> Operations<T>
 where
     T: Attributes + serde::Serialize,
 {
@@ -616,36 +616,36 @@ where
     }
 }
 
-impl<T> FromStr for Delta<T>
+impl<T> FromStr for Operations<T>
 where
     T: Attributes,
 {
     type Err = ();
 
-    fn from_str(s: &str) -> Result<Delta<T>, Self::Err> {
-        let mut delta = Delta::with_capacity(1);
+    fn from_str(s: &str) -> Result<Operations<T>, Self::Err> {
+        let mut delta = Operations::with_capacity(1);
         delta.add(Operation::Insert(s.into()));
         Ok(delta)
     }
 }
 
-impl<T> std::convert::TryFrom<Vec<u8>> for Delta<T>
+impl<T> std::convert::TryFrom<Vec<u8>> for Operations<T>
 where
     T: Attributes + DeserializeOwned,
 {
     type Error = OTError;
     fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> {
-        Delta::from_bytes(bytes)
+        Operations::from_bytes(bytes)
     }
 }
 
-impl<T> std::convert::TryFrom<Bytes> for Delta<T>
+impl<T> std::convert::TryFrom<Bytes> for Operations<T>
 where
     T: Attributes + DeserializeOwned,
 {
     type Error = OTError;
 
     fn try_from(bytes: Bytes) -> Result<Self, Self::Error> {
-        Delta::from_bytes(&bytes)
+        Operations::from_bytes(&bytes)
     }
 }

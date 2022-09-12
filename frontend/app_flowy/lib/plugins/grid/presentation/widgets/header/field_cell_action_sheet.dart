@@ -167,7 +167,8 @@ class FieldActionCell extends StatelessWidget {
           onTap();
         }
       },
-      leftIcon: svgWidget(action.iconName(), color: theme.iconColor),
+      leftIcon: svgWidget(action.iconName(),
+        color: enable ? theme.iconColor : theme.disableIconColor),
     );
   }
 }

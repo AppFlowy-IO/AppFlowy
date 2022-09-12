@@ -821,6 +821,7 @@ dependencies = [
  "md5",
  "serde",
  "serde_json",
+ "serde_repr",
  "strum",
  "strum_macros",
  "thiserror",

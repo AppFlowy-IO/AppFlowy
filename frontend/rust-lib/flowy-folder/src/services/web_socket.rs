@@ -10,7 +10,7 @@ use flowy_sync::{
     },
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta};
+use lib_ot::core::{Delta, EmptyAttributes, OperationTransform};
 use parking_lot::RwLock;
 use std::{sync::Arc, time::Duration};
 
@@ -24,12 +24,8 @@ pub(crate) async fn make_folder_ws_manager(
 ) -> Arc<RevisionWebSocketManager> {
     let ws_data_provider = Arc::new(WSDataProvider::new(folder_id, Arc::new(rev_manager.clone())));
     let resolver = Arc::new(FolderConflictResolver { folder_pad });
-    let conflict_controller = ConflictController::<PhantomAttributes>::new(
-        user_id,
-        resolver,
-        Arc::new(ws_data_provider.clone()),
-        rev_manager,
-    );
+    let conflict_controller =
+        ConflictController::<EmptyAttributes>::new(user_id, resolver, Arc::new(ws_data_provider.clone()), rev_manager);
     let ws_data_stream = Arc::new(FolderRevisionWSDataStream::new(conflict_controller));
     let ws_data_sink = Arc::new(FolderWSDataSink(ws_data_provider));
     let ping_duration = Duration::from_millis(FOLDER_SYNC_INTERVAL_IN_MILLIS);
@@ -55,8 +51,8 @@ struct FolderConflictResolver {
     folder_pad: Arc<RwLock<FolderPad>>,
 }
 
-impl ConflictResolver<PhantomAttributes> for FolderConflictResolver {
-    fn compose_delta(&self, delta: TextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
+impl ConflictResolver<EmptyAttributes> for FolderConflictResolver {
+    fn compose_delta(&self, delta: Delta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().compose_remote_delta(delta)?;
@@ -64,12 +60,12 @@ impl ConflictResolver<PhantomAttributes> for FolderConflictResolver {
         })
     }
 
-    fn transform_delta(&self, delta: TextDelta) -> BoxResultFuture<TransformDeltas<PhantomAttributes>, FlowyError> {
+    fn transform_delta(&self, delta: Delta) -> BoxResultFuture<TransformDeltas<EmptyAttributes>, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let read_guard = folder_pad.read();
-            let mut server_prime: Option<TextDelta> = None;
-            let client_prime: TextDelta;
+            let mut server_prime: Option<Delta> = None;
+            let client_prime: Delta;
             if read_guard.is_empty() {
                 // Do nothing
                 client_prime = delta;
@@ -86,7 +82,7 @@ impl ConflictResolver<PhantomAttributes> for FolderConflictResolver {
         })
     }
 
-    fn reset_delta(&self, delta: TextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
+    fn reset_delta(&self, delta: Delta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().reset_folder(delta)?;

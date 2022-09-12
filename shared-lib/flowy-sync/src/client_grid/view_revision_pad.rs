@@ -5,13 +5,13 @@ use flowy_grid_data_model::revision::{
     FieldRevision, FieldTypeRevision, FilterConfigurationRevision, FilterConfigurationsByFieldId, GridViewRevision,
     GroupConfigurationRevision, GroupConfigurationsByFieldId,
 };
-use lib_ot::core::{OperationTransform, PhantomAttributes, TextDelta, TextDeltaBuilder};
+use lib_ot::core::{Delta, DeltaBuilder, EmptyAttributes, OperationTransform};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
 pub struct GridViewRevisionPad {
     view: Arc<GridViewRevision>,
-    delta: TextDelta,
+    delta: Delta,
 }
 
 impl std::ops::Deref for GridViewRevisionPad {
@@ -26,11 +26,11 @@ impl GridViewRevisionPad {
     pub fn new(grid_id: String, view_id: String) -> Self {
         let view = Arc::new(GridViewRevision::new(grid_id, view_id));
         let json = serde_json::to_string(&view).unwrap();
-        let delta = TextDeltaBuilder::new().insert(&json).build();
+        let delta = DeltaBuilder::new().insert(&json).build();
         Self { view, delta }
     }
 
-    pub fn from_delta(delta: TextDelta) -> CollaborateResult<Self> {
+    pub fn from_delta(delta: Delta) -> CollaborateResult<Self> {
         let s = delta.content()?;
         let view: GridViewRevision = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to GridViewRevision failed: {}", e);
@@ -44,7 +44,7 @@ impl GridViewRevisionPad {
     }
 
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let delta: TextDelta = make_text_delta_from_revisions(revisions)?;
+        let delta: Delta = make_text_delta_from_revisions(revisions)?;
         Self::from_delta(delta)
     }
 
@@ -168,7 +168,7 @@ impl GridViewRevisionPad {
             Some(_) => {
                 let old = make_grid_view_rev_json_str(&cloned_view)?;
                 let new = self.json_str()?;
-                match cal_diff::<PhantomAttributes>(old, new) {
+                match cal_diff::<EmptyAttributes>(old, new) {
                     None => Ok(None),
                     Some(delta) => {
                         self.delta = self.delta.compose(&delta)?;
@@ -183,7 +183,7 @@ impl GridViewRevisionPad {
 
 #[derive(Debug)]
 pub struct GridViewRevisionChangeset {
-    pub delta: TextDelta,
+    pub delta: Delta,
     pub md5: String,
 }
 
@@ -193,7 +193,7 @@ pub fn make_grid_view_rev_json_str(grid_revision: &GridViewRevision) -> Collabor
     Ok(json)
 }
 
-pub fn make_grid_view_delta(grid_view: &GridViewRevision) -> TextDelta {
+pub fn make_grid_view_delta(grid_view: &GridViewRevision) -> Delta {
     let json = serde_json::to_string(grid_view).unwrap();
-    TextDeltaBuilder::new().insert(&json).build()
+    DeltaBuilder::new().insert(&json).build()
 }

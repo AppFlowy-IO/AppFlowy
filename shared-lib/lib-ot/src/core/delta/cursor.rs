@@ -1,14 +1,14 @@
 #![allow(clippy::while_let_on_iterator)]
-use crate::core::delta::Delta;
+use crate::core::delta::operation::{Attributes, Operation};
+use crate::core::delta::Operations;
 use crate::core::interval::Interval;
-use crate::core::operation::{Attributes, Operation};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use std::{cmp::min, iter::Enumerate, slice::Iter};
 
-/// A [DeltaCursor] is used to iterate the delta and return the corresponding delta.
+/// A [OperationsCursor] is used to iterate the delta and return the corresponding delta.
 #[derive(Debug)]
-pub struct DeltaCursor<'a, T: Attributes> {
-    pub(crate) delta: &'a Delta<T>,
+pub struct OperationsCursor<'a, T: Attributes> {
+    pub(crate) delta: &'a Operations<T>,
     pub(crate) origin_iv: Interval,
     pub(crate) consume_iv: Interval,
     pub(crate) consume_count: usize,
@@ -17,7 +17,7 @@ pub struct DeltaCursor<'a, T: Attributes> {
     next_op: Option<Operation<T>>,
 }
 
-impl<'a, T> DeltaCursor<'a, T>
+impl<'a, T> OperationsCursor<'a, T>
 where
     T: Attributes,
 {
@@ -29,19 +29,19 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{DeltaCursor, DeltaIterator, Interval, Operation};
-    /// use lib_ot::rich_text::RichTextDelta;
-    /// let mut delta = RichTextDelta::default();   
+    /// use lib_ot::core::{OperationsCursor, OperationIterator, Interval, Operation};
+    /// use lib_ot::text_delta::TextDelta;
+    /// let mut delta = TextDelta::default();   
     /// delta.add(Operation::insert("123"));    
     /// delta.add(Operation::insert("4"));
     ///
-    /// let mut cursor = DeltaCursor::new(&delta, Interval::new(0, 3));
+    /// let mut cursor = OperationsCursor::new(&delta, Interval::new(0, 3));
     /// assert_eq!(cursor.next_iv(), Interval::new(0,3));
     /// assert_eq!(cursor.next_with_len(Some(2)).unwrap(), Operation::insert("12"));
     /// assert_eq!(cursor.get_next_op().unwrap(), Operation::insert("3"));
     /// assert_eq!(cursor.get_next_op(), None);
     /// ```
-    pub fn new(delta: &'a Delta<T>, interval: Interval) -> DeltaCursor<'a, T> {
+    pub fn new(delta: &'a Operations<T>, interval: Interval) -> OperationsCursor<'a, T> {
         // debug_assert!(interval.start <= delta.target_len);
         let mut cursor = Self {
             delta,
@@ -182,7 +182,7 @@ where
     }
 }
 
-fn find_next<'a, T>(cursor: &mut DeltaCursor<'a, T>) -> Option<&'a Operation<T>>
+fn find_next<'a, T>(cursor: &mut OperationsCursor<'a, T>) -> Option<&'a Operation<T>>
 where
     T: Attributes,
 {
@@ -197,7 +197,7 @@ where
 
 type SeekResult = Result<(), OTError>;
 pub trait Metric {
-    fn seek<T: Attributes>(cursor: &mut DeltaCursor<T>, offset: usize) -> SeekResult;
+    fn seek<T: Attributes>(cursor: &mut OperationsCursor<T>, offset: usize) -> SeekResult;
 }
 
 /// [OpMetric] is used by [DeltaIterator] for seeking operations
@@ -205,9 +205,9 @@ pub trait Metric {
 pub struct OpMetric();
 
 impl Metric for OpMetric {
-    fn seek<T: Attributes>(cursor: &mut DeltaCursor<T>, op_offset: usize) -> SeekResult {
+    fn seek<T: Attributes>(cursor: &mut OperationsCursor<T>, op_offset: usize) -> SeekResult {
         let _ = check_bound(cursor.op_offset, op_offset)?;
-        let mut seek_cursor = DeltaCursor::new(cursor.delta, cursor.origin_iv);
+        let mut seek_cursor = OperationsCursor::new(cursor.delta, cursor.origin_iv);
 
         while let Some((_, op)) = seek_cursor.iter.next() {
             cursor.descend(op.len());
@@ -219,12 +219,12 @@ impl Metric for OpMetric {
     }
 }
 
-/// [Utf16CodeUnitMetric] is used by [DeltaIterator] for seeking operations.
+/// [Utf16CodeUnitMetric] is used by [OperationIterator] for seeking operations.
 /// The unit of the movement is Utf16CodeUnit
 pub struct Utf16CodeUnitMetric();
 
 impl Metric for Utf16CodeUnitMetric {
-    fn seek<T: Attributes>(cursor: &mut DeltaCursor<T>, offset: usize) -> SeekResult {
+    fn seek<T: Attributes>(cursor: &mut OperationsCursor<T>, offset: usize) -> SeekResult {
         if offset > 0 {
             let _ = check_bound(cursor.consume_count, offset)?;
             let _ = cursor.next_with_len(Some(offset));

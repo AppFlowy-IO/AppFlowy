@@ -1,8 +1,8 @@
-use lib_ot::{core::DeltaBuilder, rich_text::RichTextDelta};
+use lib_ot::{core::OperationBuilder, text_delta::TextDelta};
 
 #[inline]
-pub fn initial_quill_delta() -> RichTextDelta {
-    DeltaBuilder::new().insert("\n").build()
+pub fn initial_quill_delta() -> TextDelta {
+    OperationBuilder::new().insert("\n").build()
 }
 
 #[inline]
@@ -11,9 +11,9 @@ pub fn initial_quill_delta_string() -> String {
 }
 
 #[inline]
-pub fn initial_read_me() -> RichTextDelta {
+pub fn initial_read_me() -> TextDelta {
     let json = include_str!("READ_ME.json");
-    RichTextDelta::from_json(json).unwrap()
+    TextDelta::from_json(json).unwrap()
 }
 
 #[cfg(test)]
