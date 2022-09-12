@@ -1,6 +1,6 @@
 use crate::client_document::InsertExt;
 use lib_ot::{
-    core::{Attributes, OperationBuilder, OperationIterator, NEW_LINE},
+    core::{OperationAttributes, OperationBuilder, OperationIterator, NEW_LINE},
     text_delta::{TextAttributeKey, TextAttributes, TextDelta},
 };
 

@@ -1,6 +1,6 @@
 use crate::{client_document::DeleteExt, util::is_newline};
 use lib_ot::{
-    core::{Attributes, Interval, OperationBuilder, OperationIterator, Utf16CodeUnitMetric, NEW_LINE},
+    core::{Interval, OperationAttributes, OperationBuilder, OperationIterator, Utf16CodeUnitMetric, NEW_LINE},
     text_delta::{plain_attributes, TextDelta},
 };
 

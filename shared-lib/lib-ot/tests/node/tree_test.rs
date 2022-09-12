@@ -172,7 +172,7 @@ fn node_delete_test() {
     let scripts = vec![
         InsertNode {
             path: path.clone(),
-            node: inserted_node.clone(),
+            node: inserted_node,
         },
         DeleteNode { path: path.clone() },
         AssertNode { path, expected: None },
@@ -198,7 +198,7 @@ fn node_update_body_test() {
     let scripts = vec![
         InsertNode {
             path: path.clone(),
-            node: node.clone(),
+            node,
         },
         UpdateBody {
             path: path.clone(),

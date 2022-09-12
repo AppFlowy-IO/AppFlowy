@@ -2,11 +2,11 @@
 #![allow(clippy::derivable_impls)]
 use crate::text_delta::{TextAttribute, TextAttributes};
 
-pub struct AttributeBuilder {
+pub struct TextDeltaAttributeBuilder {
     inner: TextAttributes,
 }
 
-impl std::default::Default for AttributeBuilder {
+impl std::default::Default for TextDeltaAttributeBuilder {
     fn default() -> Self {
         Self {
             inner: TextAttributes::default(),
@@ -14,9 +14,9 @@ impl std::default::Default for AttributeBuilder {
     }
 }
 
-impl AttributeBuilder {
+impl TextDeltaAttributeBuilder {
     pub fn new() -> Self {
-        AttributeBuilder::default()
+        TextDeltaAttributeBuilder::default()
     }
 
     pub fn add_attr(mut self, attribute: TextAttribute) -> Self {

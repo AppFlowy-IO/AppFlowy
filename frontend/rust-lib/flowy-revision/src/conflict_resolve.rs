@@ -9,7 +9,7 @@ use flowy_sync::{
     util::make_delta_from_revisions,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{Attributes, EmptyAttributes, Operations};
+use lib_ot::core::{EmptyAttributes, OperationAttributes, Operations};
 use lib_ot::text_delta::TextAttributes;
 use serde::de::DeserializeOwned;
 use std::{convert::TryFrom, sync::Arc};
@@ -18,7 +18,7 @@ pub type DeltaMD5 = String;
 
 pub trait ConflictResolver<T>
 where
-    T: Attributes + Send + Sync,
+    T: OperationAttributes + Send + Sync,
 {
     fn compose_delta(&self, delta: Operations<T>) -> BoxResultFuture<DeltaMD5, FlowyError>;
     fn transform_delta(&self, delta: Operations<T>) -> BoxResultFuture<TransformDeltas<T>, FlowyError>;
@@ -35,7 +35,7 @@ pub type PlainTextConflictController = ConflictController<EmptyAttributes>;
 
 pub struct ConflictController<T>
 where
-    T: Attributes + Send + Sync,
+    T: OperationAttributes + Send + Sync,
 {
     user_id: String,
     resolver: Arc<dyn ConflictResolver<T> + Send + Sync>,
@@ -45,7 +45,7 @@ where
 
 impl<T> ConflictController<T>
 where
-    T: Attributes + Send + Sync + DeserializeOwned + serde::Serialize,
+    T: OperationAttributes + Send + Sync + DeserializeOwned + serde::Serialize,
 {
     pub fn new(
         user_id: &str,
@@ -147,7 +147,7 @@ fn make_client_and_server_revision<T>(
     md5: String,
 ) -> (Revision, Option<Revision>)
 where
-    T: Attributes + serde::Serialize,
+    T: OperationAttributes + serde::Serialize,
 {
     let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
     let client_revision = Revision::new(
@@ -179,7 +179,7 @@ pub type RichTextTransformDeltas = TransformDeltas<TextAttributes>;
 
 pub struct TransformDeltas<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub client_prime: Operations<T>,
     pub server_prime: Option<Operations<T>>,

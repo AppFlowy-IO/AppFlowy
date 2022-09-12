@@ -5,7 +5,7 @@ use lib_ot::text_delta::TextDeltaBuilder;
 use lib_ot::{
     core::Interval,
     core::*,
-    text_delta::{AttributeBuilder, TextAttribute, TextAttributes, TextDelta},
+    text_delta::{TextAttribute, TextAttributes, TextDelta, TextDeltaAttributeBuilder},
 };
 
 #[test]
@@ -206,7 +206,7 @@ fn delta_utf16_code_unit_seek() {
 #[test]
 fn delta_utf16_code_unit_seek_with_attributes() {
     let mut delta = TextDelta::default();
-    let attributes = AttributeBuilder::new()
+    let attributes = TextDeltaAttributeBuilder::new()
         .add_attr(TextAttribute::Bold(true))
         .add_attr(TextAttribute::Italic(true))
         .build();
@@ -492,7 +492,9 @@ fn transform_with_two_delta() {
     let mut a_s = String::new();
     a.insert(
         "123",
-        AttributeBuilder::new().add_attr(TextAttribute::Bold(true)).build(),
+        TextDeltaAttributeBuilder::new()
+            .add_attr(TextAttribute::Bold(true))
+            .build(),
     );
     a_s = a.apply(&a_s).unwrap();
     assert_eq!(&a_s, "123");

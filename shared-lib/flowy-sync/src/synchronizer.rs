@@ -9,7 +9,7 @@ use crate::{
     util::*,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{Attributes, Operations};
+use lib_ot::core::{OperationAttributes, Operations};
 use parking_lot::RwLock;
 use serde::de::DeserializeOwned;
 use std::{
@@ -43,7 +43,7 @@ pub trait RevisionSyncPersistence: Send + Sync + 'static {
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
-pub trait RevisionSyncObject<T: Attributes>: Send + Sync + 'static {
+pub trait RevisionSyncObject<T: OperationAttributes>: Send + Sync + 'static {
     fn id(&self) -> &str;
     fn compose(&mut self, other: &Operations<T>) -> Result<(), CollaborateError>;
     fn transform(&self, other: &Operations<T>) -> Result<(Operations<T>, Operations<T>), CollaborateError>;
@@ -57,7 +57,7 @@ pub enum RevisionSyncResponse {
     Ack(ServerRevisionWSData),
 }
 
-pub struct RevisionSynchronizer<T: Attributes> {
+pub struct RevisionSynchronizer<T: OperationAttributes> {
     object_id: String,
     rev_id: AtomicI64,
     object: Arc<RwLock<dyn RevisionSyncObject<T>>>,
@@ -66,7 +66,7 @@ pub struct RevisionSynchronizer<T: Attributes> {
 
 impl<T> RevisionSynchronizer<T>
 where
-    T: Attributes + DeserializeOwned + serde::Serialize + 'static,
+    T: OperationAttributes + DeserializeOwned + serde::Serialize + 'static,
 {
     pub fn new<S, P>(rev_id: i64, sync_object: S, persistence: P) -> RevisionSynchronizer<T>
     where

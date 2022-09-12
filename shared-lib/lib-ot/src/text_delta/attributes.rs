@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::core::{Attributes, Operation, OperationTransform};
+use crate::core::{Operation, OperationAttributes, OperationTransform};
 use crate::{block_attribute, errors::OTError, ignore_attribute, inline_attribute, list_attribute};
 use lazy_static::lazy_static;
 use std::{
@@ -97,7 +97,7 @@ impl TextAttributes {
     }
 }
 
-impl Attributes for TextAttributes {
+impl OperationAttributes for TextAttributes {
     fn is_empty(&self) -> bool {
         self.inner.is_empty()
     }

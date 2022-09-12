@@ -1,4 +1,4 @@
-use crate::core::delta::operation::Attributes;
+use crate::core::delta::operation::OperationAttributes;
 use crate::core::delta::{trim, Operations};
 use crate::core::Operation;
 
@@ -16,13 +16,13 @@ use crate::core::Operation;
 ///         .build();
 /// assert_eq!(delta.content().unwrap(), "AppFlowy");
 /// ```
-pub struct OperationBuilder<T: Attributes> {
+pub struct OperationBuilder<T: OperationAttributes> {
     delta: Operations<T>,
 }
 
 impl<T> std::default::Default for OperationBuilder<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn default() -> Self {
         Self {
@@ -33,7 +33,7 @@ where
 
 impl<T> OperationBuilder<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub fn new() -> Self {
         OperationBuilder::default()

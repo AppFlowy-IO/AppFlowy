@@ -1,11 +1,12 @@
 use lib_ot::{
-    core::{NodeAttributes, NodeBody, NodeBodyChangeset, NodeData, NodeTree, Path, TransactionBuilder},
+    core::attributes::Attributes,
+    core::{NodeBody, NodeBodyChangeset, NodeData, NodeTree, Path, TransactionBuilder},
     text_delta::TextDelta,
 };
 
 pub enum NodeScript {
     InsertNode { path: Path, node: NodeData },
-    UpdateAttributes { path: Path, attributes: NodeAttributes },
+    UpdateAttributes { path: Path, attributes: Attributes },
     UpdateBody { path: Path, changeset: NodeBodyChangeset },
     DeleteNode { path: Path },
     AssertNumberOfNodesAtPath { path: Option<Path>, len: usize },
@@ -65,7 +66,7 @@ impl NodeTest {
                     None => assert!(node_id.is_none()),
                     Some(node_id) => {
                         let node_data = self.node_tree.get_node(node_id).cloned();
-                        assert_eq!(node_data, expected.and_then(|e| Some(e.into())));
+                        assert_eq!(node_data, expected.map(|e| e.into()));
                     }
                 }
             }

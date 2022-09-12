@@ -64,8 +64,8 @@ where
                 }
             }
 
-            if delta.is_some() {
-                return Ok(NodeBody::Delta(delta.unwrap()));
+            if let Some(delta) = delta {
+                return Ok(NodeBody::Delta(delta));
             }
 
             Err(de::Error::missing_field("delta"))

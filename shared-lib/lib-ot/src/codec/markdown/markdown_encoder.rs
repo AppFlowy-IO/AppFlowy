@@ -113,7 +113,7 @@ pub fn markdown_encoder(delta: &Operations<TextAttributes>) -> String {
     while iterator.has_next() {
         let operation = iterator.next().unwrap();
         let operation_data = operation.get_data();
-        if !operation_data.contains("\n") {
+        if !operation_data.contains('\n') {
             handle_inline(
                 &mut current_inline_style,
                 &mut line_buffer,
@@ -196,7 +196,7 @@ fn handle_inline(
 
 fn trim_right(buffer: &mut String) -> String {
     let text = buffer.clone();
-    if !text.ends_with(" ") {
+    if !text.ends_with(' ') {
         return String::from("");
     }
     let result = text.trim_end();
@@ -208,7 +208,7 @@ fn trim_right(buffer: &mut String) -> String {
 fn write_attribute(buffer: &mut String, key: &TextAttributeKey, value: &TextAttributeValue, close: bool) {
     match key {
         TextAttributeKey::Bold => buffer.push_str("**"),
-        TextAttributeKey::Italic => buffer.push_str("_"),
+        TextAttributeKey::Italic => buffer.push('_'),
         TextAttributeKey::Underline => {
             if close {
                 buffer.push_str("</u>")
@@ -216,18 +216,12 @@ fn write_attribute(buffer: &mut String, key: &TextAttributeKey, value: &TextAttr
                 buffer.push_str("<u>")
             }
         }
-        TextAttributeKey::StrikeThrough => {
-            if close {
-                buffer.push_str("~~")
-            } else {
-                buffer.push_str("~~")
-            }
-        }
+        TextAttributeKey::StrikeThrough => buffer.push_str("~~"),
         TextAttributeKey::Link => {
             if close {
                 buffer.push_str(format!("]({})", value.0.as_ref().unwrap()).as_str())
             } else {
-                buffer.push_str("[")
+                buffer.push('[')
             }
         }
         TextAttributeKey::Background => {
@@ -244,13 +238,7 @@ fn write_attribute(buffer: &mut String, key: &TextAttributeKey, value: &TextAttr
                 buffer.push_str("```\n")
             }
         }
-        TextAttributeKey::InlineCode => {
-            if close {
-                buffer.push_str("`")
-            } else {
-                buffer.push_str("`")
-            }
-        }
+        TextAttributeKey::InlineCode => buffer.push('`'),
         _ => {}
     }
 }
@@ -277,13 +265,7 @@ fn handle_line(
                 TextAttributes::default(),
             );
 
-            let line_block_key = attributes.keys().find(|key| {
-                if is_block(*key) {
-                    return true;
-                } else {
-                    return false;
-                }
-            });
+            let line_block_key = attributes.keys().find(|key| is_block(*key));
 
             match (line_block_key, &current_block_style) {
                 (Some(line_block_key), Some(current_block_style))
@@ -347,7 +329,7 @@ fn handle_block(
         }
         Some(block_style) => {
             for line in current_block_lines {
-                write_block_tag(markdown_buffer, &block_style, false);
+                write_block_tag(markdown_buffer, block_style, false);
                 markdown_buffer.push_str(line);
                 markdown_buffer.push('\n');
             }

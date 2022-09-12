@@ -2,12 +2,12 @@ use flowy_sync::client_document::{ClientDocument, PlainDoc};
 use lib_ot::text_delta::RichTextOperation;
 use lib_ot::{
     core::*,
-    text_delta::{AttributeBuilder, TextAttribute, TextAttributeValue, TextDelta},
+    text_delta::{TextAttribute, TextAttributeValue, TextDelta, TextDeltaAttributeBuilder},
 };
 
 #[test]
 fn operation_insert_serialize_test() {
-    let attributes = AttributeBuilder::new()
+    let attributes = TextDeltaAttributeBuilder::new()
         .add_attr(TextAttribute::Bold(true))
         .add_attr(TextAttribute::Italic(true))
         .build();
@@ -38,7 +38,7 @@ fn operation_delete_serialize_test() {
 
 #[test]
 fn attributes_serialize_test() {
-    let attributes = AttributeBuilder::new()
+    let attributes = TextDeltaAttributeBuilder::new()
         .add_attr(TextAttribute::Bold(true))
         .add_attr(TextAttribute::Italic(true))
         .build();
@@ -52,7 +52,7 @@ fn attributes_serialize_test() {
 fn delta_serialize_multi_attribute_test() {
     let mut delta = Operations::default();
 
-    let attributes = AttributeBuilder::new()
+    let attributes = TextDeltaAttributeBuilder::new()
         .add_attr(TextAttribute::Bold(true))
         .add_attr(TextAttribute::Italic(true))
         .build();

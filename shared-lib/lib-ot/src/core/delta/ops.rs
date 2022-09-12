@@ -1,6 +1,6 @@
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 
-use crate::core::delta::operation::{Attributes, EmptyAttributes, Operation, OperationTransform};
+use crate::core::delta::operation::{EmptyAttributes, Operation, OperationAttributes, OperationTransform};
 use crate::core::delta::{OperationIterator, MAX_IV_LEN};
 use crate::core::interval::Interval;
 use crate::core::ot_str::OTString;
@@ -28,7 +28,7 @@ pub type DeltaBuilder = OperationBuilder<EmptyAttributes>;
 /// a JSON string.
 ///
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Operations<T: Attributes> {
+pub struct Operations<T: OperationAttributes> {
     pub ops: Vec<Operation<T>>,
 
     /// 'Delete' and 'Retain' operation will update the [utf16_base_len]
@@ -42,7 +42,7 @@ pub struct Operations<T: Attributes> {
 
 impl<T> Default for Operations<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn default() -> Self {
         Self {
@@ -55,7 +55,7 @@ where
 
 impl<T> fmt::Display for Operations<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // f.write_str(&serde_json::to_string(self).unwrap_or("".to_owned()))?;
@@ -70,7 +70,7 @@ where
 
 impl<T> FromIterator<Operation<T>> for Operations<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn from_iter<I: IntoIterator<Item = Operation<T>>>(ops: I) -> Self {
         let mut operations = Operations::default();
@@ -83,7 +83,7 @@ where
 
 impl<T> Operations<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub fn new() -> Self {
         Self::default()
@@ -294,7 +294,7 @@ where
 
 impl<T> OperationTransform for Operations<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
@@ -509,7 +509,7 @@ where
 /// Removes trailing retain operation with empty attributes, if present.
 pub fn trim<T>(delta: &mut Operations<T>)
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     if let Some(last) = delta.ops.last() {
         if last.is_retain() && last.is_plain() {
@@ -518,7 +518,7 @@ where
     }
 }
 
-fn invert_other<T: Attributes>(
+fn invert_other<T: OperationAttributes>(
     base: &mut Operations<T>,
     other: &Operations<T>,
     operation: &Operation<T>,
@@ -547,7 +547,7 @@ fn invert_other<T: Attributes>(
     });
 }
 
-fn transform_op_attribute<T: Attributes>(
+fn transform_op_attribute<T: OperationAttributes>(
     left: &Option<Operation<T>>,
     right: &Option<Operation<T>>,
 ) -> Result<T, OTError> {
@@ -565,7 +565,7 @@ fn transform_op_attribute<T: Attributes>(
 
 impl<T> Operations<T>
 where
-    T: Attributes + DeserializeOwned,
+    T: OperationAttributes + DeserializeOwned,
 {
     /// # Examples
     ///
@@ -597,7 +597,7 @@ where
 
 impl<T> Operations<T>
 where
-    T: Attributes + serde::Serialize,
+    T: OperationAttributes + serde::Serialize,
 {
     /// Serialize the [Delta] into a String in JSON format
     pub fn json_str(&self) -> String {
@@ -618,7 +618,7 @@ where
 
 impl<T> FromStr for Operations<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     type Err = ();
 
@@ -631,7 +631,7 @@ where
 
 impl<T> std::convert::TryFrom<Vec<u8>> for Operations<T>
 where
-    T: Attributes + DeserializeOwned,
+    T: OperationAttributes + DeserializeOwned,
 {
     type Error = OTError;
     fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> {
@@ -641,7 +641,7 @@ where
 
 impl<T> std::convert::TryFrom<Bytes> for Operations<T>
 where
-    T: Attributes + DeserializeOwned,
+    T: OperationAttributes + DeserializeOwned,
 {
     type Error = OTError;
 

@@ -1,11 +1,9 @@
-use std::fmt;
-
+use crate::core::attributes::AttributeValue;
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
 };
-
-use super::AttributeValue;
+use std::fmt;
 
 impl Serialize for AttributeValue {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -125,7 +123,7 @@ impl<'de> Deserialize<'de> for AttributeValue {
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_str(s))
+                Ok(AttributeValue::from_string(s))
             }
 
             fn visit_none<E>(self) -> Result<Self::Value, E>

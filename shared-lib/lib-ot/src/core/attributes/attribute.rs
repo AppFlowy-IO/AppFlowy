@@ -6,9 +6,9 @@ use std::collections::HashMap;
 pub type AttributeMap = HashMap<AttributeKey, AttributeValue>;
 
 #[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
-pub struct NodeAttributes(AttributeMap);
+pub struct Attributes(AttributeMap);
 
-impl std::ops::Deref for NodeAttributes {
+impl std::ops::Deref for Attributes {
     type Target = AttributeMap;
 
     fn deref(&self) -> &Self::Target {
@@ -16,15 +16,15 @@ impl std::ops::Deref for NodeAttributes {
     }
 }
 
-impl std::ops::DerefMut for NodeAttributes {
+impl std::ops::DerefMut for Attributes {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl NodeAttributes {
-    pub fn new() -> NodeAttributes {
-        NodeAttributes(HashMap::new())
+impl Attributes {
+    pub fn new() -> Attributes {
+        Attributes(HashMap::new())
     }
 
     pub fn from_value(attribute_map: AttributeMap) -> Self {
@@ -44,7 +44,7 @@ impl NodeAttributes {
     }
 }
 
-impl OperationTransform for NodeAttributes {
+impl OperationTransform for Attributes {
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
         Self: Sized,
@@ -58,14 +58,14 @@ impl OperationTransform for NodeAttributes {
     where
         Self: Sized,
     {
-        let a = self.iter().fold(NodeAttributes::new(), |mut new_attributes, (k, v)| {
+        let a = self.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
             if !other.contains_key(k) {
                 new_attributes.insert(k.clone(), v.clone());
             }
             new_attributes
         });
 
-        let b = other.iter().fold(NodeAttributes::new(), |mut new_attributes, (k, v)| {
+        let b = other.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
             if !self.contains_key(k) {
                 new_attributes.insert(k.clone(), v.clone());
             }
@@ -76,7 +76,7 @@ impl OperationTransform for NodeAttributes {
     }
 
     fn invert(&self, other: &Self) -> Self {
-        let base_inverted = other.iter().fold(NodeAttributes::new(), |mut attributes, (k, v)| {
+        let base_inverted = other.iter().fold(Attributes::new(), |mut attributes, (k, v)| {
             if other.get(k) != self.get(k) && self.contains_key(k) {
                 attributes.insert(k.clone(), v.clone());
             }
@@ -136,7 +136,7 @@ impl AttributeValue {
             value: Some(val.to_string()),
         }
     }
-    pub fn from_str(s: &str) -> Self {
+    pub fn from_string(s: &str) -> Self {
         let value = if s.is_empty() { None } else { Some(s.to_string()) };
         Self {
             ty: ValueType::StrType,
@@ -170,15 +170,14 @@ impl std::convert::From<bool> for AttributeValue {
     }
 }
 
-pub struct NodeAttributeBuilder {
-    attributes: NodeAttributes,
+#[derive(Default)]
+pub struct AttributeBuilder {
+    attributes: Attributes,
 }
 
-impl NodeAttributeBuilder {
+impl AttributeBuilder {
     pub fn new() -> Self {
-        Self {
-            attributes: NodeAttributes::default(),
-        }
+        Self::default()
     }
 
     pub fn insert<K: ToString, V: Into<AttributeValue>>(mut self, key: K, value: V) -> Self {
@@ -191,7 +190,7 @@ impl NodeAttributeBuilder {
         self
     }
 
-    pub fn build(self) -> NodeAttributes {
+    pub fn build(self) -> Attributes {
         self.attributes
     }
 }
