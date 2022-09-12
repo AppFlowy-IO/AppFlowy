@@ -1,8 +1,8 @@
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 
+use crate::core::delta::operation::{Attributes, Operation, OperationTransform, PhantomAttributes};
 use crate::core::delta::{DeltaIterator, MAX_IV_LEN};
 use crate::core::interval::Interval;
-use crate::core::operation::{Attributes, Operation, OperationTransform, PhantomAttributes};
 use crate::core::ot_str::OTString;
 use crate::core::DeltaBuilder;
 use bytes::Bytes;

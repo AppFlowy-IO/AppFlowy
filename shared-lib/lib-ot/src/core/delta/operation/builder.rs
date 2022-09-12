@@ -1,4 +1,4 @@
-use crate::core::operation::{Attributes, Operation, PhantomAttributes};
+use crate::core::delta::operation::{Attributes, Operation, PhantomAttributes};
 use crate::rich_text::TextAttributes;
 
 pub type RichTextOpBuilder = OperationsBuilder<TextAttributes>;

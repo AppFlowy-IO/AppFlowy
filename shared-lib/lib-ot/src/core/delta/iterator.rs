@@ -1,7 +1,7 @@
 use super::cursor::*;
+use crate::core::delta::operation::{Attributes, Operation};
 use crate::core::delta::{Delta, NEW_LINE};
 use crate::core::interval::Interval;
-use crate::core::operation::{Attributes, Operation};
 use crate::rich_text::TextAttributes;
 use std::ops::{Deref, DerefMut};
 

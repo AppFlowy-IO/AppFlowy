@@ -1,7 +1,7 @@
 #![allow(clippy::while_let_on_iterator)]
+use crate::core::delta::operation::{Attributes, Operation};
 use crate::core::delta::Delta;
 use crate::core::interval::Interval;
-use crate::core::operation::{Attributes, Operation};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use std::{cmp::min, iter::Enumerate, slice::Iter};
 

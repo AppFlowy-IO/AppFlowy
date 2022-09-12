@@ -1,5 +1,5 @@
+use crate::core::delta::operation::Attributes;
 use crate::core::delta::{trim, Delta};
-use crate::core::operation::Attributes;
 use crate::core::Operation;
 
 /// A builder for creating new [Delta] objects.
