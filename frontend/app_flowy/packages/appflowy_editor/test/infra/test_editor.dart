@@ -28,6 +28,9 @@ class EditorWidgetTester {
         home: Scaffold(
           body: AppFlowyEditor(
             editorState: _editorState,
+            editorStyle: const EditorStyle(
+              padding: EdgeInsets.symmetric(vertical: 30),
+            ),
           ),
         ),
       ),
