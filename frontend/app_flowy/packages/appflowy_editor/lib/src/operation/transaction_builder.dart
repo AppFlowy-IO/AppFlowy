@@ -10,7 +10,6 @@ import 'package:appflowy_editor/src/document/text_delta.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/operation/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction.dart';
-import 'package:logging/logging.dart';
 
 /// A [TransactionBuilder] is used to build the transaction from the state.
 /// It will save a snapshot of the cursor selection state automatically.

@@ -181,30 +181,29 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
   final transactionBuilder = TransactionBuilder(editorState);
   if (textNodes.length == 1) {
     final textNode = textNodes.first;
+    // The cursor is at the end of the line,
+    // merge next line into this line.
     if (selection.start.offset >= textNode.delta.length) {
-      final nextNode = textNode.next;
-      if (nextNode == null) {
-        return KeyEventResult.ignored;
-      }
-      if (nextNode is TextNode) {
-        transactionBuilder.mergeText(textNode, nextNode);
-      }
-      transactionBuilder.deleteNode(nextNode);
+      return _mergeNextLineIntoThisLine(
+        editorState,
+        textNode,
+        transactionBuilder,
+        selection,
+      );
+    }
+    final index = textNode.delta.nextRunePosition(selection.start.offset);
+    if (selection.isCollapsed) {
+      transactionBuilder.deleteText(
+        textNode,
+        selection.start.offset,
+        index - selection.start.offset,
+      );
     } else {
-      final index = textNode.delta.nextRunePosition(selection.start.offset);
-      if (selection.isCollapsed) {
-        transactionBuilder.deleteText(
-          textNode,
-          selection.start.offset,
-          index - selection.start.offset,
-        );
-      } else {
-        transactionBuilder.deleteText(
-          textNode,
-          selection.start.offset,
-          selection.end.offset - selection.start.offset,
-        );
-      }
+      transactionBuilder.deleteText(
+        textNode,
+        selection.start.offset,
+        selection.end.offset - selection.start.offset,
+      );
     }
     transactionBuilder.commit();
   } else {
@@ -217,6 +216,28 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
       makeFollowingNodesIncremental(
           editorState, startPosition.path, transactionBuilder.afterSelection!);
     }
+  }
+
+  return KeyEventResult.handled;
+}
+
+KeyEventResult _mergeNextLineIntoThisLine(
+    EditorState editorState,
+    TextNode textNode,
+    TransactionBuilder transactionBuilder,
+    Selection selection) {
+  final nextNode = textNode.next;
+  if (nextNode == null) {
+    return KeyEventResult.ignored;
+  }
+  if (nextNode is TextNode) {
+    transactionBuilder.mergeText(textNode, nextNode);
+  }
+  transactionBuilder.deleteNode(nextNode);
+  transactionBuilder.commit();
+
+  if (textNode.subtype == StyleKey.numberList) {
+    makeFollowingNodesIncremental(editorState, textNode.path, selection);
   }
 
   return KeyEventResult.handled;
