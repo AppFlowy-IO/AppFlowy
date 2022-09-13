@@ -11,21 +11,21 @@ impl std::ops::Deref for Path {
     }
 }
 
-impl std::convert::Into<Path> for usize {
-    fn into(self) -> Path {
-        Path(vec![self])
+impl std::convert::From<usize> for Path {
+    fn from(val: usize) -> Self {
+        Path(vec![val])
     }
 }
 
-impl std::convert::Into<Path> for &usize {
-    fn into(self) -> Path {
-        Path(vec![*self])
+impl std::convert::From<&usize> for Path {
+    fn from(val: &usize) -> Self {
+        Path(vec![*val])
     }
 }
 
-impl std::convert::Into<Path> for &Path {
-    fn into(self) -> Path {
-        self.clone()
+impl std::convert::From<&Path> for Path {
+    fn from(path: &Path) -> Self {
+        path.clone()
     }
 }
 

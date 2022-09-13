@@ -1,6 +1,6 @@
 #![cfg_attr(rustfmt, rustfmt::skip)]
 use crate::editor::{TestBuilder, TestOp::*};
-use flowy_sync::client_document::{NewlineDoc, PlainDoc};
+use flowy_sync::client_document::{NewlineDoc, EmptyDoc};
 use lib_ot::core::{Interval, OperationTransform, NEW_LINE, WHITESPACE, OTString};
 use unicode_segmentation::UnicodeSegmentation;
 use lib_ot::text_delta::TextDelta;
@@ -14,12 +14,12 @@ fn attributes_bold_added() {
             0,
             r#"[
             {"insert":"123"},
-            {"insert":"45","attributes":{"bold":"true"}},
+            {"insert":"45","attributes":{"bold":true}},
             {"insert":"6"}
             ]"#,
         ),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -27,11 +27,11 @@ fn attributes_bold_added_and_invert_all() {
     let ops = vec![
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
-        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":true}}]"#),
         Bold(0, Interval::new(0, 3), false),
         AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -39,11 +39,11 @@ fn attributes_bold_added_and_invert_partial_suffix() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 4), true),
-        AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":true}}]"#),
         Bold(0, Interval::new(2, 4), false),
-        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#),
+        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":true}},{"insert":"34"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -51,13 +51,13 @@ fn attributes_bold_added_and_invert_partial_suffix2() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 4), true),
-        AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":true}}]"#),
         Bold(0, Interval::new(2, 4), false),
-        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#),
+        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":true}},{"insert":"34"}]"#),
         Bold(0, Interval::new(2, 4), true),
-        AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":true}}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -67,22 +67,22 @@ fn attributes_bold_added_with_new_line() {
         Bold(0, Interval::new(0, 6), true),
         AssertDocJson(
             0,
-            r#"[{"insert":"123456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
+            r#"[{"insert":"123456","attributes":{"bold":true}},{"insert":"\n"}]"#,
         ),
         Insert(0, "\n", 3),
         AssertDocJson(
             0,
-            r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n"},{"insert":"456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
+            r#"[{"insert":"123","attributes":{"bold":true}},{"insert":"\n"},{"insert":"456","attributes":{"bold":true}},{"insert":"\n"}]"#,
         ),
         Insert(0, "\n", 4),
         AssertDocJson(
             0,
-            r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\n\n"},{"insert":"456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
+            r#"[{"insert":"123","attributes":{"bold":true}},{"insert":"\n\n"},{"insert":"456","attributes":{"bold":true}},{"insert":"\n"}]"#,
         ),
         Insert(0, "a", 4),
         AssertDocJson(
             0,
-            r#"[{"insert":"123","attributes":{"bold":"true"}},{"insert":"\na\n"},{"insert":"456","attributes":{"bold":"true"}},{"insert":"\n"}]"#,
+            r#"[{"insert":"123","attributes":{"bold":true}},{"insert":"\na\n"},{"insert":"456","attributes":{"bold":true}},{"insert":"\n"}]"#,
         ),
     ];
     TestBuilder::new().run_scripts::<NewlineDoc>(ops);
@@ -93,11 +93,11 @@ fn attributes_bold_added_and_invert_partial_prefix() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 4), true),
-        AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":true}}]"#),
         Bold(0, Interval::new(0, 2), false),
-        AssertDocJson(0, r#"[{"insert":"12"},{"insert":"34","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"12"},{"insert":"34","attributes":{"bold":true}}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -105,11 +105,11 @@ fn attributes_bold_added_consecutive() {
     let ops = vec![
         Insert(0, "1234", 0),
         Bold(0, Interval::new(0, 1), true),
-        AssertDocJson(0, r#"[{"insert":"1","attributes":{"bold":"true"}},{"insert":"234"}]"#),
+        AssertDocJson(0, r#"[{"insert":"1","attributes":{"bold":true}},{"insert":"234"}]"#),
         Bold(0, Interval::new(1, 2), true),
-        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":"true"}},{"insert":"34"}]"#),
+        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":true}},{"insert":"34"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -120,12 +120,12 @@ fn attributes_bold_added_italic() {
         Italic(0, Interval::new(0, 4), true),
         AssertDocJson(
             0,
-            r#"[{"insert":"1234","attributes":{"italic":"true","bold":"true"}},{"insert":"\n"}]"#,
+            r#"[{"insert":"1234","attributes":{"italic":true,"bold":true}},{"insert":"\n"}]"#,
         ),
         Insert(0, "5678", 4),
         AssertDocJson(
             0,
-            r#"[{"insert":"12345678","attributes":{"bold":"true","italic":"true"}},{"insert":"\n"}]"#,
+            r#"[{"insert":"12345678","attributes":{"bold":true,"italic":true}},{"insert":"\n"}]"#,
         ),
     ];
     TestBuilder::new().run_scripts::<NewlineDoc>(ops);
@@ -136,27 +136,27 @@ fn attributes_bold_added_italic2() {
     let ops = vec![
         Insert(0, "123456", 0),
         Bold(0, Interval::new(0, 6), true),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
         Italic(0, Interval::new(0, 2), true),
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
-            {"insert":"3456","attributes":{"bold":"true"}}]
+            {"insert":"12","attributes":{"italic":true,"bold":true}},
+            {"insert":"3456","attributes":{"bold":true}}]
             "#,
         ),
         Italic(0, Interval::new(4, 6), true),
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
-            {"insert":"34","attributes":{"bold":"true"}},
-            {"insert":"56","attributes":{"italic":"true","bold":"true"}}]
+            {"insert":"12","attributes":{"italic":true,"bold":true}},
+            {"insert":"34","attributes":{"bold":true}},
+            {"insert":"56","attributes":{"italic":true,"bold":true}}]
             "#,
         ),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -168,16 +168,16 @@ fn attributes_bold_added_italic3() {
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"345","attributes":{"bold":"true"}},{"insert":"6789"}]
+            {"insert":"12","attributes":{"bold":true,"italic":true}},
+            {"insert":"345","attributes":{"bold":true}},{"insert":"6789"}]
             "#,
         ),
         Italic(0, Interval::new(2, 4), true),
         AssertDocJson(
             0,
             r#"[
-            {"insert":"1234","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"5","attributes":{"bold":"true"}},
+            {"insert":"1234","attributes":{"bold":true,"italic":true}},
+            {"insert":"5","attributes":{"bold":true}},
             {"insert":"6789"}]
             "#,
         ),
@@ -185,15 +185,15 @@ fn attributes_bold_added_italic3() {
         AssertDocJson(
             0,
             r#"[
-            {"insert":"1234","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"5","attributes":{"bold":"true"}},
+            {"insert":"1234","attributes":{"bold":true,"italic":true}},
+            {"insert":"5","attributes":{"bold":true}},
             {"insert":"67"},
-            {"insert":"89","attributes":{"bold":"true"}}]
+            {"insert":"89","attributes":{"bold":true}}]
             "#,
         ),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -205,57 +205,57 @@ fn attributes_bold_added_italic_delete() {
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
-            {"insert":"345","attributes":{"bold":"true"}},{"insert":"6789"}]
+            {"insert":"12","attributes":{"italic":true,"bold":true}},
+            {"insert":"345","attributes":{"bold":true}},{"insert":"6789"}]
             "#,
         ),
         Italic(0, Interval::new(2, 4), true),
         AssertDocJson(
             0,
             r#"[
-            {"insert":"1234","attributes":{"bold":"true","italic":"true"}}
-            ,{"insert":"5","attributes":{"bold":"true"}},{"insert":"6789"}]"#,
+            {"insert":"1234","attributes":{"bold":true,"italic":true}}
+            ,{"insert":"5","attributes":{"bold":true}},{"insert":"6789"}]"#,
         ),
         Bold(0, Interval::new(7, 9), true),
         AssertDocJson(
             0,
             r#"[
-            {"insert":"1234","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"5","attributes":{"bold":"true"}},{"insert":"67"},
-            {"insert":"89","attributes":{"bold":"true"}}]
+            {"insert":"1234","attributes":{"bold":true,"italic":true}},
+            {"insert":"5","attributes":{"bold":true}},{"insert":"67"},
+            {"insert":"89","attributes":{"bold":true}}]
             "#,
         ),
         Delete(0, Interval::new(0, 5)),
-        AssertDocJson(0, r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"67"},{"insert":"89","attributes":{"bold":true}}]"#),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
 fn attributes_merge_inserted_text_with_same_attribute() {
     let ops = vec![
         InsertBold(0, "123", Interval::new(0, 3)),
-        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":true}}]"#),
         InsertBold(0, "456", Interval::new(3, 6)),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
 fn attributes_compose_attr_attributes_with_attr_attributes_test() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
         InsertBold(1, "7", Interval::new(0, 1)),
-        AssertDocJson(1, r#"[{"insert":"7","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(1, r#"[{"insert":"7","attributes":{"bold":true}}]"#),
         Transform(0, 1),
-        AssertDocJson(0, r#"[{"insert":"1234567","attributes":{"bold":"true"}}]"#),
-        AssertDocJson(1, r#"[{"insert":"1234567","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"1234567","attributes":{"bold":true}}]"#),
+        AssertDocJson(1, r#"[{"insert":"1234567","attributes":{"bold":true}}]"#),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -268,113 +268,113 @@ fn attributes_compose_attr_attributes_with_attr_attributes_test2() {
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"34","attributes":{"bold":"true"}},
-            {"insert":"56","attributes":{"italic":"true","bold":"true"}}]
+            {"insert":"12","attributes":{"bold":true,"italic":true}},
+            {"insert":"34","attributes":{"bold":true}},
+            {"insert":"56","attributes":{"italic":true,"bold":true}}]
             "#,
         ),
         InsertBold(1, "7", Interval::new(0, 1)),
-        AssertDocJson(1, r#"[{"insert":"7","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(1, r#"[{"insert":"7","attributes":{"bold":true}}]"#),
         Transform(0, 1),
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
-            {"insert":"34","attributes":{"bold":"true"}},
-            {"insert":"56","attributes":{"italic":"true","bold":"true"}},
-            {"insert":"7","attributes":{"bold":"true"}}]
+            {"insert":"12","attributes":{"italic":true,"bold":true}},
+            {"insert":"34","attributes":{"bold":true}},
+            {"insert":"56","attributes":{"italic":true,"bold":true}},
+            {"insert":"7","attributes":{"bold":true}}]
             "#,
         ),
         AssertDocJson(
             1,
             r#"[
-            {"insert":"12","attributes":{"italic":"true","bold":"true"}},
-            {"insert":"34","attributes":{"bold":"true"}},
-            {"insert":"56","attributes":{"italic":"true","bold":"true"}},
-            {"insert":"7","attributes":{"bold":"true"}}]
+            {"insert":"12","attributes":{"italic":true,"bold":true}},
+            {"insert":"34","attributes":{"bold":true}},
+            {"insert":"56","attributes":{"italic":true,"bold":true}},
+            {"insert":"7","attributes":{"bold":true}}]
             "#,
         ),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
 fn attributes_compose_attr_attributes_with_no_attr_attributes_test() {
-    let expected = r#"[{"insert":"123456","attributes":{"bold":"true"}},{"insert":"7"}]"#;
+    let expected = r#"[{"insert":"123456","attributes":{"bold":true}},{"insert":"7"}]"#;
 
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
         Insert(1, "7", 0),
         AssertDocJson(1, r#"[{"insert":"7"}]"#),
         Transform(0, 1),
         AssertDocJson(0, expected),
         AssertDocJson(1, expected),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
 fn attributes_replace_heading() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
         Delete(0, Interval::new(0, 2)),
-        AssertDocJson(0, r#"[{"insert":"3456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"3456","attributes":{"bold":true}}]"#),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
 fn attributes_replace_trailing() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
         Delete(0, Interval::new(5, 6)),
-        AssertDocJson(0, r#"[{"insert":"12345","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"12345","attributes":{"bold":true}}]"#),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
 fn attributes_replace_middle() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
         Delete(0, Interval::new(0, 2)),
-        AssertDocJson(0, r#"[{"insert":"3456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"3456","attributes":{"bold":true}}]"#),
         Delete(0, Interval::new(2, 4)),
-        AssertDocJson(0, r#"[{"insert":"34","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"34","attributes":{"bold":true}}]"#),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
 fn attributes_replace_all() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
         Delete(0, Interval::new(0, 6)),
         AssertDocJson(0, r#"[]"#),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
 fn attributes_replace_with_text() {
     let ops = vec![
         InsertBold(0, "123456", Interval::new(0, 6)),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
         Replace(0, Interval::new(0, 3), "ab"),
-        AssertDocJson(0, r#"[{"insert":"ab"},{"insert":"456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"ab"},{"insert":"456","attributes":{"bold":true}}]"#),
     ];
 
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -472,7 +472,7 @@ fn attributes_link_format_with_bold() {
         AssertDocJson(
             0,
             r#"[
-            {"insert":"123","attributes":{"bold":"true","link":"https://appflowy.io"}},
+            {"insert":"123","attributes":{"bold":true,"link":"https://appflowy.io"}},
             {"insert":"456","attributes":{"link":"https://appflowy.io"}},
             {"insert":"\n"}]
             "#,

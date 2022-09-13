@@ -1,12 +1,8 @@
 #![allow(clippy::all)]
 use crate::editor::{Rng, TestBuilder, TestOp::*};
-use flowy_sync::client_document::{NewlineDoc, PlainDoc};
+use flowy_sync::client_document::{EmptyDoc, NewlineDoc};
 use lib_ot::text_delta::TextDeltaBuilder;
-use lib_ot::{
-    core::Interval,
-    core::*,
-    text_delta::{AttributeBuilder, TextAttribute, TextAttributes, TextDelta},
-};
+use lib_ot::{core::Interval, core::*, text_delta::TextDelta};
 
 #[test]
 fn attributes_insert_text() {
@@ -15,7 +11,7 @@ fn attributes_insert_text() {
         Insert(0, "456", 3),
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -25,7 +21,7 @@ fn attributes_insert_text_at_head() {
         Insert(0, "456", 0),
         AssertDocJson(0, r#"[{"insert":"456123"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -35,7 +31,7 @@ fn attributes_insert_text_at_middle() {
         Insert(0, "456", 1),
         AssertDocJson(0, r#"[{"insert":"145623"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -207,8 +203,8 @@ fn delta_utf16_code_unit_seek() {
 fn delta_utf16_code_unit_seek_with_attributes() {
     let mut delta = TextDelta::default();
     let attributes = AttributeBuilder::new()
-        .add_attr(TextAttribute::Bold(true))
-        .add_attr(TextAttribute::Italic(true))
+        .insert("bold", true)
+        .insert("italic", true)
         .build();
 
     delta.add(Operation::insert_with_attributes("1234", attributes.clone()));
@@ -304,13 +300,13 @@ fn lengths() {
     let mut delta = TextDelta::default();
     assert_eq!(delta.utf16_base_len, 0);
     assert_eq!(delta.utf16_target_len, 0);
-    delta.retain(5, TextAttributes::default());
+    delta.retain(5, Attributes::default());
     assert_eq!(delta.utf16_base_len, 5);
     assert_eq!(delta.utf16_target_len, 5);
-    delta.insert("abc", TextAttributes::default());
+    delta.insert("abc", Attributes::default());
     assert_eq!(delta.utf16_base_len, 5);
     assert_eq!(delta.utf16_target_len, 8);
-    delta.retain(2, TextAttributes::default());
+    delta.retain(2, Attributes::default());
     assert_eq!(delta.utf16_base_len, 7);
     assert_eq!(delta.utf16_target_len, 10);
     delta.delete(2);
@@ -320,10 +316,10 @@ fn lengths() {
 #[test]
 fn sequence() {
     let mut delta = TextDelta::default();
-    delta.retain(5, TextAttributes::default());
-    delta.retain(0, TextAttributes::default());
-    delta.insert("appflowy", TextAttributes::default());
-    delta.insert("", TextAttributes::default());
+    delta.retain(5, Attributes::default());
+    delta.retain(0, Attributes::default());
+    delta.insert("appflowy", Attributes::default());
+    delta.insert("", Attributes::default());
     delta.delete(3);
     delta.delete(0);
     assert_eq!(delta.ops.len(), 3);
@@ -353,15 +349,15 @@ fn apply_test() {
 #[test]
 fn base_len_test() {
     let mut delta_a = TextDelta::default();
-    delta_a.insert("a", TextAttributes::default());
-    delta_a.insert("b", TextAttributes::default());
-    delta_a.insert("c", TextAttributes::default());
+    delta_a.insert("a", Attributes::default());
+    delta_a.insert("b", Attributes::default());
+    delta_a.insert("c", Attributes::default());
 
     let s = "hello world,".to_owned();
     delta_a.delete(s.len());
     let after_a = delta_a.apply(&s).unwrap();
 
-    delta_a.insert("d", TextAttributes::default());
+    delta_a.insert("d", Attributes::default());
     assert_eq!("abc", &after_a);
 }
 
@@ -392,8 +388,8 @@ fn invert_test() {
 #[test]
 fn empty_ops() {
     let mut delta = TextDelta::default();
-    delta.retain(0, TextAttributes::default());
-    delta.insert("", TextAttributes::default());
+    delta.retain(0, Attributes::default());
+    delta.insert("", Attributes::default());
     delta.delete(0);
     assert_eq!(delta.ops.len(), 0);
 }
@@ -401,33 +397,33 @@ fn empty_ops() {
 fn eq() {
     let mut delta_a = TextDelta::default();
     delta_a.delete(1);
-    delta_a.insert("lo", TextAttributes::default());
-    delta_a.retain(2, TextAttributes::default());
-    delta_a.retain(3, TextAttributes::default());
+    delta_a.insert("lo", Attributes::default());
+    delta_a.retain(2, Attributes::default());
+    delta_a.retain(3, Attributes::default());
     let mut delta_b = TextDelta::default();
     delta_b.delete(1);
-    delta_b.insert("l", TextAttributes::default());
-    delta_b.insert("o", TextAttributes::default());
-    delta_b.retain(5, TextAttributes::default());
+    delta_b.insert("l", Attributes::default());
+    delta_b.insert("o", Attributes::default());
+    delta_b.retain(5, Attributes::default());
     assert_eq!(delta_a, delta_b);
     delta_a.delete(1);
-    delta_b.retain(1, TextAttributes::default());
+    delta_b.retain(1, Attributes::default());
     assert_ne!(delta_a, delta_b);
 }
 #[test]
 fn ops_merging() {
     let mut delta = TextDelta::default();
     assert_eq!(delta.ops.len(), 0);
-    delta.retain(2, TextAttributes::default());
+    delta.retain(2, Attributes::default());
     assert_eq!(delta.ops.len(), 1);
     assert_eq!(delta.ops.last(), Some(&Operation::retain(2)));
-    delta.retain(3, TextAttributes::default());
+    delta.retain(3, Attributes::default());
     assert_eq!(delta.ops.len(), 1);
     assert_eq!(delta.ops.last(), Some(&Operation::retain(5)));
-    delta.insert("abc", TextAttributes::default());
+    delta.insert("abc", Attributes::default());
     assert_eq!(delta.ops.len(), 2);
     assert_eq!(delta.ops.last(), Some(&Operation::insert("abc")));
-    delta.insert("xyz", TextAttributes::default());
+    delta.insert("xyz", Attributes::default());
     assert_eq!(delta.ops.len(), 2);
     assert_eq!(delta.ops.last(), Some(&Operation::insert("abcxyz")));
     delta.delete(1);
@@ -442,11 +438,11 @@ fn ops_merging() {
 fn is_noop() {
     let mut delta = TextDelta::default();
     assert!(delta.is_noop());
-    delta.retain(5, TextAttributes::default());
+    delta.retain(5, Attributes::default());
     assert!(delta.is_noop());
-    delta.retain(3, TextAttributes::default());
+    delta.retain(3, Attributes::default());
     assert!(delta.is_noop());
-    delta.insert("lorem", TextAttributes::default());
+    delta.insert("lorem", Attributes::default());
     assert!(!delta.is_noop());
 }
 #[test]
@@ -490,16 +486,13 @@ fn transform_random_delta() {
 fn transform_with_two_delta() {
     let mut a = TextDelta::default();
     let mut a_s = String::new();
-    a.insert(
-        "123",
-        AttributeBuilder::new().add_attr(TextAttribute::Bold(true)).build(),
-    );
+    a.insert("123", AttributeBuilder::new().insert("bold", true).build());
     a_s = a.apply(&a_s).unwrap();
     assert_eq!(&a_s, "123");
 
     let mut b = TextDelta::default();
     let mut b_s = String::new();
-    b.insert("456", TextAttributes::default());
+    b.insert("456", Attributes::default());
     b_s = b.apply(&b_s).unwrap();
     assert_eq!(&b_s, "456");
 
@@ -535,7 +528,7 @@ fn transform_two_plain_delta() {
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
         AssertDocJson(1, r#"[{"insert":"123456"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -549,7 +542,7 @@ fn transform_two_plain_delta2() {
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
         AssertDocJson(1, r#"[{"insert":"123456"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -567,7 +560,7 @@ fn transform_two_non_seq_delta() {
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
         AssertDocJson(1, r#"[{"insert":"123456789"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -582,7 +575,7 @@ fn transform_two_conflict_non_seq_delta() {
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
         AssertDocJson(1, r#"[{"insert":"12378456"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -609,7 +602,7 @@ fn delta_invert_no_attribute_delta2() {
         Invert(0, 1),
         AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -617,12 +610,12 @@ fn delta_invert_attribute_delta_with_no_attribute_delta() {
     let ops = vec![
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
-        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":true}}]"#),
         Insert(1, "4567", 0),
         Invert(0, 1),
-        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":true}}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -634,16 +627,16 @@ fn delta_invert_attribute_delta_with_no_attribute_delta2() {
         AssertDocJson(
             0,
             r#"[
-            {"insert":"123456","attributes":{"bold":"true"}}]
+            {"insert":"123456","attributes":{"bold":true}}]
             "#,
         ),
         Italic(0, Interval::new(2, 4), true),
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"bold":"true"}}, 
-            {"insert":"34","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"56","attributes":{"bold":"true"}}
+            {"insert":"12","attributes":{"bold":true}}, 
+            {"insert":"34","attributes":{"bold":true,"italic":true}},
+            {"insert":"56","attributes":{"bold":true}}
             ]"#,
         ),
         Insert(1, "abc", 0),
@@ -651,13 +644,13 @@ fn delta_invert_attribute_delta_with_no_attribute_delta2() {
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"bold":"true"}},
-            {"insert":"34","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"56","attributes":{"bold":"true"}}
+            {"insert":"12","attributes":{"bold":true}},
+            {"insert":"34","attributes":{"bold":true,"italic":true}},
+            {"insert":"56","attributes":{"bold":true}}
             ]"#,
         ),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -666,11 +659,11 @@ fn delta_invert_no_attribute_delta_with_attribute_delta() {
         Insert(0, "123", 0),
         Insert(1, "4567", 0),
         Bold(1, Interval::new(0, 3), true),
-        AssertDocJson(1, r#"[{"insert":"456","attributes":{"bold":"true"}},{"insert":"7"}]"#),
+        AssertDocJson(1, r#"[{"insert":"456","attributes":{"bold":true}},{"insert":"7"}]"#),
         Invert(0, 1),
         AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -684,12 +677,12 @@ fn delta_invert_no_attribute_delta_with_attribute_delta2() {
         Italic(1, Interval::new(1, 3), true),
         AssertDocJson(
             1,
-            r#"[{"insert":"a","attributes":{"bold":"true"}},{"insert":"bc","attributes":{"bold":"true","italic":"true"}},{"insert":"d","attributes":{"bold":"true"}}]"#,
+            r#"[{"insert":"a","attributes":{"bold":true}},{"insert":"bc","attributes":{"bold":true,"italic":true}},{"insert":"d","attributes":{"bold":true}}]"#,
         ),
         Invert(0, 1),
         AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]
@@ -698,14 +691,14 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         Insert(0, "123", 0),
         Bold(0, Interval::new(0, 3), true),
         Insert(0, "456", 3),
-        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":"true"}}]"#),
+        AssertDocJson(0, r#"[{"insert":"123456","attributes":{"bold":true}}]"#),
         Italic(0, Interval::new(2, 4), true),
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"bold":"true"}},
-            {"insert":"34","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"56","attributes":{"bold":"true"}}
+            {"insert":"12","attributes":{"bold":true}},
+            {"insert":"34","attributes":{"bold":true,"italic":true}},
+            {"insert":"56","attributes":{"bold":true}}
             ]"#,
         ),
         Insert(1, "abc", 0),
@@ -715,22 +708,22 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
         AssertDocJson(
             1,
             r#"[
-            {"insert":"a","attributes":{"bold":"true"}},
-            {"insert":"bc","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"d","attributes":{"bold":"true"}}
+            {"insert":"a","attributes":{"bold":true}},
+            {"insert":"bc","attributes":{"bold":true,"italic":true}},
+            {"insert":"d","attributes":{"bold":true}}
             ]"#,
         ),
         Invert(0, 1),
         AssertDocJson(
             0,
             r#"[
-            {"insert":"12","attributes":{"bold":"true"}},
-            {"insert":"34","attributes":{"bold":"true","italic":"true"}},
-            {"insert":"56","attributes":{"bold":"true"}}
+            {"insert":"12","attributes":{"bold":true}},
+            {"insert":"34","attributes":{"bold":true,"italic":true}},
+            {"insert":"56","attributes":{"bold":true}}
             ]"#,
         ),
     ];
-    TestBuilder::new().run_scripts::<PlainDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
 }
 
 #[test]

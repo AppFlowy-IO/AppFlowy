@@ -7,9 +7,9 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 use dissimilar::Chunk;
-use lib_ot::core::{Delta, EmptyAttributes, OTString, OperationBuilder};
+use lib_ot::core::{Delta, EmptyAttributes, OTString, OperationAttributes, OperationBuilder};
 use lib_ot::{
-    core::{Attributes, OperationTransform, Operations, NEW_LINE, WHITESPACE},
+    core::{OperationTransform, Operations, NEW_LINE, WHITESPACE},
     text_delta::TextDelta,
 };
 use serde::de::DeserializeOwned;
@@ -64,7 +64,7 @@ impl RevIdCounter {
 #[tracing::instrument(level = "trace", skip(revisions), err)]
 pub fn make_delta_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<Operations<T>>
 where
-    T: Attributes + DeserializeOwned,
+    T: OperationAttributes + DeserializeOwned,
 {
     let mut delta = Operations::<T>::new();
     for revision in revisions {
@@ -87,7 +87,7 @@ pub fn make_text_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateRe
 
 pub fn make_delta_from_revision_pb<T>(revisions: Vec<Revision>) -> CollaborateResult<Operations<T>>
 where
-    T: Attributes + DeserializeOwned,
+    T: OperationAttributes + DeserializeOwned,
 {
     let mut new_delta = Operations::<T>::new();
     for revision in revisions {
@@ -206,7 +206,7 @@ pub fn rev_id_from_str(s: &str) -> Result<i64, CollaborateError> {
     Ok(rev_id)
 }
 
-pub fn cal_diff<T: Attributes>(old: String, new: String) -> Option<Operations<T>> {
+pub fn cal_diff<T: OperationAttributes>(old: String, new: String) -> Option<Operations<T>> {
     let chunks = dissimilar::diff(&old, &new);
     let mut delta_builder = OperationBuilder::<T>::new();
     for chunk in &chunks {

@@ -1,6 +1,8 @@
+use lib_ot::core::AttributeEntry;
+use lib_ot::text_delta::is_inline;
 use lib_ot::{
     core::{Interval, OperationBuilder, OperationIterator},
-    text_delta::{AttributeScope, TextAttribute, TextDelta},
+    text_delta::{AttributeScope, TextDelta},
 };
 
 use crate::{
@@ -14,8 +16,8 @@ impl FormatExt for ResolveInlineFormat {
         "ResolveInlineFormat"
     }
 
-    fn apply(&self, delta: &TextDelta, interval: Interval, attribute: &TextAttribute) -> Option<TextDelta> {
-        if attribute.scope != AttributeScope::Inline {
+    fn apply(&self, delta: &TextDelta, interval: Interval, attribute: &AttributeEntry) -> Option<TextDelta> {
+        if !is_inline(&attribute.key) {
             return None;
         }
         let mut new_delta = OperationBuilder::new().retain(interval.start).build();

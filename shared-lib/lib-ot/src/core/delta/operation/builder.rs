@@ -1,17 +1,16 @@
-use crate::core::delta::operation::{Attributes, EmptyAttributes, Operation};
-use crate::text_delta::TextAttributes;
+use crate::core::delta::operation::{EmptyAttributes, Operation, OperationAttributes};
 
-pub type RichTextOpBuilder = OperationsBuilder<TextAttributes>;
+// pub type RichTextOpBuilder = OperationsBuilder<TextAttributes>;
 pub type PlainTextOpBuilder = OperationsBuilder<EmptyAttributes>;
 
 #[derive(Default)]
-pub struct OperationsBuilder<T: Attributes> {
+pub struct OperationsBuilder<T: OperationAttributes> {
     operations: Vec<Operation<T>>,
 }
 
 impl<T> OperationsBuilder<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub fn new() -> OperationsBuilder<T> {
         OperationsBuilder::default()

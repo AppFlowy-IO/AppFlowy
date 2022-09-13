@@ -1,5 +1,6 @@
+use crate::core::attributes::Attributes;
 use crate::core::document::path::Path;
-use crate::core::{Node, NodeAttributes, NodeBodyChangeset, NodeData, NodeOperation, OperationTransform, Transaction};
+use crate::core::{Node, NodeBodyChangeset, NodeData, NodeOperation, OperationTransform, Transaction};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, Children, FollowingSiblings, NodeId};
 
@@ -81,8 +82,8 @@ impl NodeTree {
         let mut path = vec![];
         let mut current_node = node_id;
         // Use .skip(1) on the ancestors iterator to skip the root node.
-        let mut ancestors = node_id.ancestors(&self.arena).skip(1);
-        while let Some(parent_node) = ancestors.next() {
+        let ancestors = node_id.ancestors(&self.arena).skip(1);
+        for parent_node in ancestors {
             let counter = self.index_of_node(parent_node, current_node);
             path.push(counter);
             current_node = parent_node;
@@ -93,8 +94,8 @@ impl NodeTree {
 
     fn index_of_node(&self, parent_node: NodeId, child_node: NodeId) -> usize {
         let mut counter: usize = 0;
-        let mut iter = parent_node.children(&self.arena);
-        while let Some(node) = iter.next() {
+        let iter = parent_node.children(&self.arena);
+        for node in iter {
             if node == child_node {
                 return counter;
             }
@@ -198,7 +199,7 @@ impl NodeTree {
     fn insert_nodes_before(&mut self, node_id: &NodeId, nodes: Vec<NodeData>) {
         for node in nodes {
             let (node, children) = node.split();
-            let new_node_id = self.arena.new_node(node.into());
+            let new_node_id = self.arena.new_node(node);
             if node_id.is_removed(&self.arena) {
                 tracing::warn!("Node:{:?} is remove before insert", node_id);
                 return;
@@ -231,16 +232,16 @@ impl NodeTree {
     fn append_nodes(&mut self, parent: &NodeId, nodes: Vec<NodeData>) {
         for node in nodes {
             let (node, children) = node.split();
-            let new_node_id = self.arena.new_node(node.into());
+            let new_node_id = self.arena.new_node(node);
             parent.append(new_node_id, &mut self.arena);
 
             self.append_nodes(&new_node_id, children);
         }
     }
 
-    fn update_attributes(&mut self, path: &Path, attributes: NodeAttributes) -> Result<(), OTError> {
+    fn update_attributes(&mut self, path: &Path, attributes: Attributes) -> Result<(), OTError> {
         self.mut_node_at_path(path, |node| {
-            let new_attributes = NodeAttributes::compose(&node.attributes, &attributes)?;
+            let new_attributes = Attributes::compose(&node.attributes, &attributes)?;
             node.attributes = new_attributes;
             Ok(())
         })

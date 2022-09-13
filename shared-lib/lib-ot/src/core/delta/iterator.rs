@@ -1,8 +1,9 @@
 use super::cursor::*;
-use crate::core::delta::operation::{Attributes, Operation};
+use crate::core::delta::operation::{Operation, OperationAttributes};
 use crate::core::delta::{Operations, NEW_LINE};
 use crate::core::interval::Interval;
-use crate::text_delta::TextAttributes;
+use crate::core::Attributes;
+
 use std::ops::{Deref, DerefMut};
 
 pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
@@ -28,13 +29,13 @@ pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
 ///     vec![Operation::insert("23")]
 ///  );
 /// ```
-pub struct OperationIterator<'a, T: Attributes> {
+pub struct OperationIterator<'a, T: OperationAttributes> {
     cursor: OperationsCursor<'a, T>,
 }
 
 impl<'a, T> OperationIterator<'a, T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub fn new(delta: &'a Operations<T>) -> Self {
         let interval = Interval::new(0, MAX_IV_LEN);
@@ -124,7 +125,7 @@ where
 
 impl<'a, T> Iterator for OperationIterator<'a, T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     type Item = Operation<T>;
     fn next(&mut self) -> Option<Self::Item> {
@@ -132,7 +133,7 @@ where
     }
 }
 
-pub fn is_empty_line_at_index(delta: &Operations<TextAttributes>, index: usize) -> bool {
+pub fn is_empty_line_at_index(delta: &Operations<Attributes>, index: usize) -> bool {
     let mut iter = OperationIterator::new(delta);
     let (prev, next) = (iter.next_op_with_len(index), iter.next_op());
     if prev.is_none() {
@@ -148,13 +149,13 @@ pub fn is_empty_line_at_index(delta: &Operations<TextAttributes>, index: usize) 
     OpNewline::parse(&prev).is_end() && OpNewline::parse(&next).is_start()
 }
 
-pub struct AttributesIter<'a, T: Attributes> {
+pub struct AttributesIter<'a, T: OperationAttributes> {
     delta_iter: OperationIterator<'a, T>,
 }
 
 impl<'a, T> AttributesIter<'a, T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub fn new(delta: &'a Operations<T>) -> Self {
         let interval = Interval::new(0, usize::MAX);
@@ -176,7 +177,7 @@ where
 
 impl<'a, T> Deref for AttributesIter<'a, T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     type Target = OperationIterator<'a, T>;
 
@@ -187,7 +188,7 @@ where
 
 impl<'a, T> DerefMut for AttributesIter<'a, T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.delta_iter
@@ -196,7 +197,7 @@ where
 
 impl<'a, T> Iterator for AttributesIter<'a, T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     type Item = (usize, T);
     fn next(&mut self) -> Option<Self::Item> {
@@ -234,7 +235,7 @@ pub enum OpNewline {
 }
 
 impl OpNewline {
-    pub fn parse<T: Attributes>(op: &Operation<T>) -> OpNewline {
+    pub fn parse<T: OperationAttributes>(op: &Operation<T>) -> OpNewline {
         let s = op.get_data();
 
         if s == NEW_LINE {

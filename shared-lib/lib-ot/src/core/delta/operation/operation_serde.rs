@@ -1,4 +1,4 @@
-use crate::core::delta::operation::{Attributes, Insert, Operation, Retain};
+use crate::core::delta::operation::{Insert, Operation, OperationAttributes, Retain};
 use crate::core::ot_str::OTString;
 use serde::{
     de,
@@ -10,7 +10,7 @@ use std::{fmt, marker::PhantomData};
 
 impl<T> Serialize for Operation<T>
 where
-    T: Attributes + Serialize,
+    T: OperationAttributes + Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -30,7 +30,7 @@ where
 
 impl<'de, T> Deserialize<'de> for Operation<T>
 where
-    T: Attributes + Deserialize<'de>,
+    T: OperationAttributes + Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Operation<T>, D::Error>
     where
@@ -40,7 +40,7 @@ where
 
         impl<'de, T> Visitor<'de> for OperationVisitor<T>
         where
-            T: Attributes + Deserialize<'de>,
+            T: OperationAttributes + Deserialize<'de>,
         {
             type Value = Operation<T>;
 
@@ -105,7 +105,7 @@ where
 
 impl<T> Serialize for Retain<T>
 where
-    T: Attributes + Serialize,
+    T: OperationAttributes + Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -123,7 +123,7 @@ where
 
 impl<'de, T> Deserialize<'de> for Retain<T>
 where
-    T: Attributes + Deserialize<'de>,
+    T: OperationAttributes + Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
     where
@@ -133,7 +133,7 @@ where
 
         impl<'de, T> Visitor<'de> for RetainVisitor<T>
         where
-            T: Attributes + Deserialize<'de>,
+            T: OperationAttributes + Deserialize<'de>,
         {
             type Value = Retain<T>;
 
@@ -208,7 +208,7 @@ where
 
 impl<T> Serialize for Insert<T>
 where
-    T: Attributes + Serialize,
+    T: OperationAttributes + Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -226,7 +226,7 @@ where
 
 impl<'de, T> Deserialize<'de> for Insert<T>
 where
-    T: Attributes + Deserialize<'de>,
+    T: OperationAttributes + Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, <D as Deserializer<'de>>::Error>
     where
@@ -236,7 +236,7 @@ where
 
         impl<'de, T> Visitor<'de> for InsertVisitor<T>
         where
-            T: Attributes + Deserialize<'de>,
+            T: OperationAttributes + Deserialize<'de>,
         {
             type Value = Insert<T>;
 

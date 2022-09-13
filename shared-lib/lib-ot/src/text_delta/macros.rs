@@ -1,62 +1,33 @@
 #[macro_export]
-macro_rules! inline_attribute {
+macro_rules! inline_attribute_entry {
     (
         $key: ident,
         $value: ty
     ) => {
-        pub fn $key(value: $value) -> Self {
-            Self {
-                key: TextAttributeKey::$key,
+        pub fn $key(value: $value) -> crate::core::AttributeEntry {
+            AttributeEntry {
+                key: BuildInTextAttributeKey::$key.as_ref().to_string(),
                 value: value.into(),
-                scope: AttributeScope::Inline,
             }
         }
     };
 }
 
 #[macro_export]
-macro_rules! block_attribute {
-    (
-        $key: ident,
-        $value: ty
-    ) => {
-        pub fn $key(value: $value) -> Self {
-            Self {
-                key: TextAttributeKey::$key,
-                value: value.into(),
-                scope: AttributeScope::Block,
-            }
-        }
-    };
-}
-
-#[macro_export]
-macro_rules! list_attribute {
+macro_rules! inline_list_attribute_entry {
     (
         $key: ident,
         $value: expr
     ) => {
-        pub fn $key(b: bool) -> Self {
+        pub fn $key(b: bool) -> crate::core::AttributeEntry {
             let value = match b {
                 true => $value,
                 false => "",
             };
-            TextAttribute::List(value)
-        }
-    };
-}
 
-#[macro_export]
-macro_rules! ignore_attribute {
-    (
-        $key: ident,
-        $value: ident
-    ) => {
-        pub fn $key(value: $value) -> Self {
-            Self {
-                key: TextAttributeKey::$key,
+            AttributeEntry {
+                key: BuildInTextAttributeKey::List.as_ref().to_string(),
                 value: value.into(),
-                scope: AttributeScope::Ignore,
             }
         }
     };

@@ -1,7 +1,8 @@
 use crate::{client_document::InsertExt, util::is_newline};
+use lib_ot::core::Attributes;
 use lib_ot::{
     core::{OperationBuilder, OperationIterator, Utf16CodeUnitMetric, NEW_LINE},
-    text_delta::{TextAttributeKey, TextAttributes, TextDelta},
+    text_delta::{BuildInTextAttributeKey, TextDelta},
 };
 
 pub struct ResetLineFormatOnNewLine {}
@@ -22,9 +23,12 @@ impl InsertExt for ResetLineFormatOnNewLine {
             return None;
         }
 
-        let mut reset_attribute = TextAttributes::new();
-        if next_op.get_attributes().contains_key(&TextAttributeKey::Header) {
-            reset_attribute.delete(&TextAttributeKey::Header);
+        let mut reset_attribute = Attributes::new();
+        if next_op
+            .get_attributes()
+            .contains_key(BuildInTextAttributeKey::Header.as_ref())
+        {
+            reset_attribute.remove_value(BuildInTextAttributeKey::Header);
         }
 
         let len = index + replace_len;
