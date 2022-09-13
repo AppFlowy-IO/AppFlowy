@@ -26,7 +26,7 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   nodes = selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
   selection = selection.isBackward ? selection : selection.reversed;
   final textNodes = nodes.whereType<TextNode>().toList();
-  final nonTextNodes =
+  final List<Node> nonTextNodes =
       nodes.where((node) => node is! TextNode).toList(growable: false);
 
   final transactionBuilder = TransactionBuilder(editorState);
@@ -59,23 +59,13 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       } else {
         // 2. non-style
         // find previous text node.
-        var previous = textNode.previous;
-        while (previous != null) {
-          if (previous is TextNode) {
-            transactionBuilder
-              ..mergeText(previous, textNode)
-              ..deleteNode(textNode)
-              ..afterSelection = Selection.collapsed(
-                Position(
-                  path: previous.path,
-                  offset: previous.toRawString().length,
-                ),
-              );
-            break;
-          } else {
-            previous = previous.previous;
-          }
-        }
+        return _backDeleteToPreviousTextNode(
+          editorState,
+          textNode,
+          transactionBuilder,
+          nonTextNodes,
+          selection,
+        );
       }
     } else {
       if (selection.isCollapsed) {
@@ -103,7 +93,10 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
 
     if (nodeAtStart is TextNode && nodeAtStart.subtype == StyleKey.numberList) {
       makeFollowingNodesIncremental(
-          editorState, startPosition.path, transactionBuilder.afterSelection!);
+        editorState,
+        startPosition.path,
+        transactionBuilder.afterSelection!,
+      );
     }
     return KeyEventResult.handled;
   }
@@ -117,8 +110,55 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
 
   if (cancelNumberListPath != null) {
     makeFollowingNodesIncremental(
-        editorState, cancelNumberListPath, Selection.collapsed(selection.start),
-        beginNum: 0);
+      editorState,
+      cancelNumberListPath,
+      Selection.collapsed(selection.start),
+      beginNum: 0,
+    );
+  }
+
+  return KeyEventResult.handled;
+}
+
+KeyEventResult _backDeleteToPreviousTextNode(
+    EditorState editorState,
+    TextNode textNode,
+    TransactionBuilder transactionBuilder,
+    List<Node> nonTextNodes,
+    Selection selection) {
+  var previous = textNode.previous;
+  bool prevIsNumberList = false;
+  while (previous != null) {
+    if (previous is TextNode) {
+      if (previous.subtype == StyleKey.numberList) {
+        prevIsNumberList = true;
+      }
+
+      transactionBuilder
+        ..mergeText(previous, textNode)
+        ..deleteNode(textNode)
+        ..afterSelection = Selection.collapsed(
+          Position(
+            path: previous.path,
+            offset: previous.toRawString().length,
+          ),
+        );
+      break;
+    } else {
+      previous = previous.previous;
+    }
+  }
+
+  if (transactionBuilder.operations.isNotEmpty) {
+    if (nonTextNodes.isNotEmpty) {
+      transactionBuilder.afterSelection = Selection.collapsed(selection.start);
+    }
+    transactionBuilder.commit();
+  }
+
+  if (prevIsNumberList) {
+    makeFollowingNodesIncremental(
+        editorState, previous!.path, transactionBuilder.afterSelection!);
   }
 
   return KeyEventResult.handled;
