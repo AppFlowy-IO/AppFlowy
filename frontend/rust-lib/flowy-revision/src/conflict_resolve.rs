@@ -9,8 +9,8 @@ use flowy_sync::{
     util::make_delta_from_revisions,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{EmptyAttributes, OperationAttributes, Operations};
-use lib_ot::text_delta::TextAttributes;
+use lib_ot::core::{Attributes, EmptyAttributes, OperationAttributes, Operations};
+
 use serde::de::DeserializeOwned;
 use std::{convert::TryFrom, sync::Arc};
 
@@ -30,7 +30,7 @@ pub trait ConflictRevisionSink: Send + Sync + 'static {
     fn ack(&self, rev_id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError>;
 }
 
-pub type RichTextConflictController = ConflictController<TextAttributes>;
+pub type RichTextConflictController = ConflictController<Attributes>;
 pub type PlainTextConflictController = ConflictController<EmptyAttributes>;
 
 pub struct ConflictController<T>
@@ -175,7 +175,7 @@ where
     }
 }
 
-pub type RichTextTransformDeltas = TransformDeltas<TextAttributes>;
+pub type RichTextTransformDeltas = TransformDeltas<Attributes>;
 
 pub struct TransformDeltas<T>
 where

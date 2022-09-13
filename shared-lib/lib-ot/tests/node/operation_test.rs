@@ -41,7 +41,7 @@ fn operation_update_node_attributes_serde_test() {
 
     assert_eq!(
         result,
-        r#"{"op":"update","path":[0,1],"attributes":{"bold":true},"oldAttributes":{"bold":false}}"#
+        r#"{"op":"update","path":[0,1],"attributes":{"bold":true},"oldAttributes":{"bold":null}}"#
     );
 }
 

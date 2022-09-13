@@ -1,7 +1,8 @@
 use super::script::{NodeScript::*, *};
+use lib_ot::core::AttributeBuilder;
 use lib_ot::{
     core::{NodeData, Path},
-    text_delta::{TextAttribute, TextDeltaAttributeBuilder, TextDeltaBuilder},
+    text_delta::TextDeltaBuilder,
 };
 
 #[test]
@@ -14,15 +15,11 @@ fn editor_deserialize_node_test() {
         .insert("👋 ")
         .insert_with_attributes(
             "Welcome to ",
-            TextDeltaAttributeBuilder::new()
-                .add_attr(TextAttribute::Bold(true))
-                .build(),
+            AttributeBuilder::new().insert("href", "appflowy.io").build(),
         )
         .insert_with_attributes(
             "AppFlowy Editor",
-            TextDeltaAttributeBuilder::new()
-                .add_attr(TextAttribute::Italic(true))
-                .build(),
+            AttributeBuilder::new().insert("italic", true).build(),
         )
         .build();
 
@@ -81,7 +78,7 @@ const EXAMPLE_JSON: &str = r#"
           {
             "insert": "Welcome to ",
             "attributes": {
-              "bold": true
+              "href": "appflowy.io"
             }
           },
           {

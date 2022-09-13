@@ -13,9 +13,10 @@ use flowy_sync::{
     errors::CollaborateResult,
     util::make_delta_from_revisions,
 };
+use lib_ot::core::AttributeEntry;
 use lib_ot::{
     core::{Interval, Operation},
-    text_delta::{TextAttribute, TextDelta},
+    text_delta::TextDelta,
 };
 use lib_ws::WSConnectState;
 use std::sync::Arc;
@@ -85,7 +86,7 @@ impl TextBlockEditor {
         Ok(())
     }
 
-    pub async fn format(&self, interval: Interval, attribute: TextAttribute) -> Result<(), FlowyError> {
+    pub async fn format(&self, interval: Interval, attribute: AttributeEntry) -> Result<(), FlowyError> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
         let msg = EditorCommand::Format {
             interval,

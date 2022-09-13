@@ -1,9 +1,8 @@
 use crate::{client_document::InsertExt, util::is_newline};
+use lib_ot::core::Attributes;
 use lib_ot::{
     core::{OperationBuilder, OperationIterator, NEW_LINE},
-    text_delta::{
-        attributes_except_header, plain_attributes, TextAttribute, TextAttributeKey, TextAttributes, TextDelta,
-    },
+    text_delta::{attributes_except_header, empty_attributes, BuildInTextAttributeKey, TextDelta},
 };
 
 pub struct PreserveBlockFormatOnInsert {}
@@ -27,16 +26,16 @@ impl InsertExt for PreserveBlockFormatOnInsert {
                     return None;
                 }
 
-                let mut reset_attribute = TextAttributes::new();
-                if newline_attributes.contains_key(&TextAttributeKey::Header) {
-                    reset_attribute.add(TextAttribute::Header(1));
+                let mut reset_attribute = Attributes::new();
+                if newline_attributes.contains_key(BuildInTextAttributeKey::Header.as_ref()) {
+                    reset_attribute.insert(BuildInTextAttributeKey::Header, 1);
                 }
 
                 let lines: Vec<_> = text.split(NEW_LINE).collect();
                 let mut new_delta = OperationBuilder::new().retain(index + replace_len).build();
                 lines.iter().enumerate().for_each(|(i, line)| {
                     if !line.is_empty() {
-                        new_delta.insert(line, plain_attributes());
+                        new_delta.insert(line, empty_attributes());
                     }
 
                     if i == 0 {
@@ -48,9 +47,9 @@ impl InsertExt for PreserveBlockFormatOnInsert {
                     }
                 });
                 if !reset_attribute.is_empty() {
-                    new_delta.retain(offset, plain_attributes());
+                    new_delta.retain(offset, empty_attributes());
                     let len = newline_op.get_data().find(NEW_LINE).unwrap();
-                    new_delta.retain(len, plain_attributes());
+                    new_delta.retain(len, empty_attributes());
                     new_delta.retain(1, reset_attribute);
                 }
 

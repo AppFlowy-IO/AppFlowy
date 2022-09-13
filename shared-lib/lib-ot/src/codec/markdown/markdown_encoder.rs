@@ -1,6 +1,8 @@
-use crate::core::{OperationIterator, Operations};
-use crate::text_delta::{is_block, TextAttributeKey, TextAttributeValue, TextAttributes};
+use crate::core::{AttributeKey, AttributeValue, Attributes, OperationIterator, Operations};
+use crate::text_delta::{is_block, TextAttributeKey};
 use std::collections::HashMap;
+use std::str::FromStr;
+use strum_macros::EnumString;
 
 const LINEFEEDASCIICODE: i32 = 0x0A;
 
@@ -98,14 +100,14 @@ mod tests {
 }
 
 struct Attribute {
-    key: TextAttributeKey,
-    value: TextAttributeValue,
+    key: AttributeKey,
+    value: AttributeValue,
 }
 
-pub fn markdown_encoder(delta: &Operations<TextAttributes>) -> String {
+pub fn markdown_encoder(delta: &Operations<Attributes>) -> String {
     let mut markdown_buffer = String::new();
     let mut line_buffer = String::new();
-    let mut current_inline_style = TextAttributes::default();
+    let mut current_inline_style = Attributes::default();
     let mut current_block_lines: Vec<String> = Vec::new();
     let mut iterator = OperationIterator::new(delta);
     let mut current_block_style: Option<Attribute> = None;
@@ -137,23 +139,20 @@ pub fn markdown_encoder(delta: &Operations<TextAttributes>) -> String {
     markdown_buffer
 }
 
-fn handle_inline(
-    current_inline_style: &mut TextAttributes,
-    buffer: &mut String,
-    mut text: String,
-    attributes: TextAttributes,
-) {
-    let mut marked_for_removal: HashMap<TextAttributeKey, TextAttributeValue> = HashMap::new();
+fn handle_inline(current_inline_style: &mut Attributes, buffer: &mut String, mut text: String, attributes: Attributes) {
+    let mut marked_for_removal: HashMap<AttributeKey, AttributeValue> = HashMap::new();
 
     for key in current_inline_style
         .clone()
         .keys()
-        .collect::<Vec<&TextAttributeKey>>()
+        .collect::<Vec<&AttributeKey>>()
         .into_iter()
         .rev()
     {
-        if is_block(key) {
-            continue;
+        if let Some(attribute) = TextAttributeKey::from_str(key) {
+            if is_block(&attribute) {
+                continue;
+            }
         }
 
         if attributes.contains_key(key) {
@@ -161,7 +160,7 @@ fn handle_inline(
         }
 
         let padding = trim_right(buffer);
-        write_attribute(buffer, key, current_inline_style.get(key).unwrap(), true);
+        write_attribute(buffer, key, current_inline_style.get(key.as_ref()).unwrap(), true);
         if !padding.is_empty() {
             buffer.push_str(&padding)
         }
@@ -175,8 +174,10 @@ fn handle_inline(
     }
 
     for (key, value) in attributes.iter() {
-        if is_block(key) {
-            continue;
+        if let Some(attribute) = TextAttributeKey::from_str(key) {
+            if is_block(&attribute) {
+                continue;
+            }
         }
         if current_inline_style.contains_key(key) {
             continue;
@@ -205,7 +206,8 @@ fn trim_right(buffer: &mut String) -> String {
     " ".repeat(text.len() - result.len())
 }
 
-fn write_attribute(buffer: &mut String, key: &TextAttributeKey, value: &TextAttributeValue, close: bool) {
+fn write_attribute(buffer: &mut String, key: &AttributeKey, value: &AttributeValue, close: bool) {
+    let key = TextAttributeKey::from_str(key);
     match key {
         TextAttributeKey::Bold => buffer.push_str("**"),
         TextAttributeKey::Italic => buffer.push('_'),
@@ -247,10 +249,10 @@ fn handle_line(
     buffer: &mut String,
     markdown_buffer: &mut String,
     data: String,
-    attributes: TextAttributes,
+    attributes: Attributes,
     current_block_style: &mut Option<Attribute>,
     current_block_lines: &mut Vec<String>,
-    current_inline_style: &mut TextAttributes,
+    current_inline_style: &mut Attributes,
 ) {
     let mut span = String::new();
     for c in data.chars() {
@@ -258,14 +260,15 @@ fn handle_line(
             if !span.is_empty() {
                 handle_inline(current_inline_style, buffer, span.clone(), attributes.clone());
             }
-            handle_inline(
-                current_inline_style,
-                buffer,
-                String::from(""),
-                TextAttributes::default(),
-            );
+            handle_inline(current_inline_style, buffer, String::from(""), Attributes::default());
 
-            let line_block_key = attributes.keys().find(|key| is_block(*key));
+            let line_block_key = attributes.keys().find(|key| {
+                if let Some(attribute) = TextAttributeKey::from_str(key) {
+                    is_block(&attribute)
+                } else {
+                    false
+                }
+            });
 
             match (line_block_key, &current_block_style) {
                 (Some(line_block_key), Some(current_block_style))
@@ -321,7 +324,7 @@ fn handle_block(
             markdown_buffer.push_str(&current_block_lines.join("\n"));
             markdown_buffer.push('\n');
         }
-        Some(block_style) if block_style.key == TextAttributeKey::CodeBlock => {
+        Some(block_style) if block_style.key == AttributeKey::CodeBlock => {
             write_attribute(markdown_buffer, &block_style.key, &block_style.value, false);
             markdown_buffer.push_str(&current_block_lines.join("\n"));
             write_attribute(markdown_buffer, &block_style.key, &block_style.value, true);
@@ -342,9 +345,9 @@ fn write_block_tag(buffer: &mut String, block: &Attribute, close: bool) {
         return;
     }
 
-    if block.key == TextAttributeKey::BlockQuote {
+    if block.key == AttributeKey::BlockQuote {
         buffer.push_str("> ");
-    } else if block.key == TextAttributeKey::List {
+    } else if block.key == AttributeKey::List {
         if block.value.0.as_ref().unwrap().eq("bullet") {
             buffer.push_str("* ");
         } else if block.value.0.as_ref().unwrap().eq("checked") {
@@ -356,14 +359,14 @@ fn write_block_tag(buffer: &mut String, block: &Attribute, close: bool) {
         } else {
             buffer.push_str("* ");
         }
-    } else if block.key == TextAttributeKey::Header {
+    } else if block.key == AttributeKey::Header {
         if block.value.0.as_ref().unwrap().eq("1") {
             buffer.push_str("# ");
         } else if block.value.0.as_ref().unwrap().eq("2") {
             buffer.push_str("## ");
         } else if block.value.0.as_ref().unwrap().eq("3") {
             buffer.push_str("### ");
-        } else if block.key == TextAttributeKey::List {
+        } else if block.key == AttributeKey::List {
         }
     }
 }

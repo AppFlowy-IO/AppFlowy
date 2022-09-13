@@ -1,21 +1,21 @@
-use flowy_sync::client_document::{ClientDocument, PlainDoc};
-use lib_ot::text_delta::RichTextOperation;
+use flowy_sync::client_document::{ClientDocument, EmptyDoc};
+use lib_ot::text_delta::TextOperation;
 use lib_ot::{
     core::*,
-    text_delta::{TextAttribute, TextAttributeValue, TextDelta, TextDeltaAttributeBuilder},
+    text_delta::{BuildInTextAttribute, TextDelta},
 };
 
 #[test]
 fn operation_insert_serialize_test() {
-    let attributes = TextDeltaAttributeBuilder::new()
-        .add_attr(TextAttribute::Bold(true))
-        .add_attr(TextAttribute::Italic(true))
+    let attributes = AttributeBuilder::new()
+        .insert("bold", true)
+        .insert("italic", true)
         .build();
     let operation = Operation::insert_with_attributes("123", attributes);
     let json = serde_json::to_string(&operation).unwrap();
     eprintln!("{}", json);
 
-    let insert_op: RichTextOperation = serde_json::from_str(&json).unwrap();
+    let insert_op: TextOperation = serde_json::from_str(&json).unwrap();
     assert_eq!(insert_op, operation);
 }
 
@@ -24,23 +24,23 @@ fn operation_retain_serialize_test() {
     let operation = Operation::Retain(12.into());
     let json = serde_json::to_string(&operation).unwrap();
     eprintln!("{}", json);
-    let insert_op: RichTextOperation = serde_json::from_str(&json).unwrap();
+    let insert_op: TextOperation = serde_json::from_str(&json).unwrap();
     assert_eq!(insert_op, operation);
 }
 
 #[test]
 fn operation_delete_serialize_test() {
-    let operation = RichTextOperation::Delete(2);
+    let operation = TextOperation::Delete(2);
     let json = serde_json::to_string(&operation).unwrap();
-    let insert_op: RichTextOperation = serde_json::from_str(&json).unwrap();
+    let insert_op: TextOperation = serde_json::from_str(&json).unwrap();
     assert_eq!(insert_op, operation);
 }
 
 #[test]
 fn attributes_serialize_test() {
-    let attributes = TextDeltaAttributeBuilder::new()
-        .add_attr(TextAttribute::Bold(true))
-        .add_attr(TextAttribute::Italic(true))
+    let attributes = AttributeBuilder::new()
+        .insert_entry(BuildInTextAttribute::Bold(true))
+        .insert_entry(BuildInTextAttribute::Italic(true))
         .build();
     let retain = Operation::insert_with_attributes("123", attributes);
 
@@ -52,9 +52,9 @@ fn attributes_serialize_test() {
 fn delta_serialize_multi_attribute_test() {
     let mut delta = Operations::default();
 
-    let attributes = TextDeltaAttributeBuilder::new()
-        .add_attr(TextAttribute::Bold(true))
-        .add_attr(TextAttribute::Italic(true))
+    let attributes = AttributeBuilder::new()
+        .insert_entry(BuildInTextAttribute::Bold(true))
+        .insert_entry(BuildInTextAttribute::Italic(true))
         .build();
     let retain = Operation::insert_with_attributes("123", attributes);
 
@@ -74,7 +74,7 @@ fn delta_deserialize_test() {
     let json = r#"[
         {"retain":2,"attributes":{"italic":true}},
         {"retain":2,"attributes":{"italic":123}},
-        {"retain":2,"attributes":{"italic":"true","bold":"true"}},
+        {"retain":2,"attributes":{"italic":true,"bold":true}},
         {"retain":2,"attributes":{"italic":true,"bold":true}}
      ]"#;
     let delta = TextDelta::from_json(json).unwrap();
@@ -88,26 +88,20 @@ fn delta_deserialize_null_test() {
      ]"#;
     let delta1 = TextDelta::from_json(json).unwrap();
 
-    let mut attribute = TextAttribute::Bold(true);
-    attribute.value = TextAttributeValue(None);
+    let mut attribute = BuildInTextAttribute::Bold(true);
+    attribute.remove_value();
+
     let delta2 = OperationBuilder::new()
         .retain_with_attributes(7, attribute.into())
         .build();
 
-    assert_eq!(delta2.json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
+    assert_eq!(delta2.json_str(), r#"[{"retain":7,"attributes":{"bold":null}}]"#);
     assert_eq!(delta1, delta2);
 }
 
 #[test]
-fn delta_serde_null_test() {
-    let mut attribute = TextAttribute::Bold(true);
-    attribute.value = TextAttributeValue(None);
-    assert_eq!(attribute.to_json(), r#"{"bold":""}"#);
-}
-
-#[test]
 fn document_insert_serde_test() {
-    let mut document = ClientDocument::new::<PlainDoc>();
+    let mut document = ClientDocument::new::<EmptyDoc>();
     document.insert(0, "\n").unwrap();
     document.insert(0, "123").unwrap();
     let json = document.delta_str();

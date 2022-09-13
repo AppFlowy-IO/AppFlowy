@@ -1,7 +1,8 @@
 use crate::{client_document::InsertExt, util::is_whitespace};
+use lib_ot::core::Attributes;
 use lib_ot::{
     core::{count_utf16_code_units, OperationBuilder, OperationIterator},
-    text_delta::{plain_attributes, TextAttribute, TextAttributes, TextDelta},
+    text_delta::{empty_attributes, BuildInTextAttribute, TextDelta},
 };
 use std::cmp::min;
 use url::Url;
@@ -36,7 +37,7 @@ impl InsertExt for AutoFormatExt {
                     });
 
                     let next_attributes = match iter.next_op() {
-                        None => plain_attributes(),
+                        None => empty_attributes(),
                         Some(op) => op.get_attributes(),
                     };
 
@@ -60,9 +61,9 @@ pub enum AutoFormatter {
 }
 
 impl AutoFormatter {
-    pub fn to_attributes(&self) -> TextAttributes {
+    pub fn to_attributes(&self) -> Attributes {
         match self {
-            AutoFormatter::Url(url) => TextAttribute::Link(url.as_str()).into(),
+            AutoFormatter::Url(url) => BuildInTextAttribute::Link(url.as_str()).into(),
         }
     }
 

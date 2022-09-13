@@ -576,7 +576,7 @@ where
     ///     {"retain":7,"attributes":{"bold":null}}
     ///  ]"#;
     /// let delta = TextDelta::from_json(json).unwrap();
-    /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":""}}]"#);
+    /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":null}}]"#);
     /// ```
     pub fn from_json(json: &str) -> Result<Self, OTError> {
         let delta = serde_json::from_str(json).map_err(|e| {

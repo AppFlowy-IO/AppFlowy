@@ -8,12 +8,10 @@ use derive_more::Display;
 use flowy_sync::client_document::{ClientDocument, InitialDocumentText};
 use lib_ot::{
     core::*,
-    text_delta::{TextAttribute, TextAttributes, TextDelta},
+    text_delta::{BuildInTextAttribute, TextDelta},
 };
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
-
-const LEVEL: &str = "info";
 
 #[derive(Clone, Debug, Display)]
 pub enum TestOp {
@@ -92,7 +90,8 @@ impl TestBuilder {
         static INIT: Once = Once::new();
         INIT.call_once(|| {
             let _ = color_eyre::install();
-            std::env::set_var("RUST_LOG", LEVEL);
+            // let subscriber = FmtSubscriber::builder().with_max_level(Level::INFO).finish();
+            // tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
         });
 
         Self {
@@ -127,11 +126,11 @@ impl TestBuilder {
             TestOp::InsertBold(delta_i, s, iv) => {
                 let document = &mut self.documents[*delta_i];
                 document.insert(iv.start, s).unwrap();
-                document.format(*iv, TextAttribute::Bold(true)).unwrap();
+                document.format(*iv, BuildInTextAttribute::Bold(true)).unwrap();
             }
             TestOp::Bold(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = TextAttribute::Bold(*enable);
+                let attribute = BuildInTextAttribute::Bold(*enable);
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::trace!("Bold delta: {}", delta.json_str());
                 self.deltas.insert(*delta_i, Some(delta));
@@ -139,8 +138,8 @@ impl TestBuilder {
             TestOp::Italic(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
                 let attribute = match *enable {
-                    true => TextAttribute::Italic(true),
-                    false => TextAttribute::Italic(false),
+                    true => BuildInTextAttribute::Italic(true),
+                    false => BuildInTextAttribute::Italic(false),
                 };
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::trace!("Italic delta: {}", delta.json_str());
@@ -148,21 +147,21 @@ impl TestBuilder {
             }
             TestOp::Header(delta_i, iv, level) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = TextAttribute::Header(*level);
+                let attribute = BuildInTextAttribute::Header(*level);
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::trace!("Header delta: {}", delta.json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Link(delta_i, iv, link) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = TextAttribute::Link(link.to_owned());
+                let attribute = BuildInTextAttribute::Link(link.to_owned());
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::trace!("Link delta: {}", delta.json_str());
                 self.deltas.insert(*delta_i, Some(delta));
             }
             TestOp::Bullet(delta_i, iv, enable) => {
                 let document = &mut self.documents[*delta_i];
-                let attribute = TextAttribute::Bullet(*enable);
+                let attribute = BuildInTextAttribute::Bullet(*enable);
                 let delta = document.format(*iv, attribute).unwrap();
                 tracing::debug!("Bullet delta: {}", delta.json_str());
 
@@ -313,18 +312,18 @@ impl Rng {
             };
             match self.0.gen_range(0.0..1.0) {
                 f if f < 0.2 => {
-                    delta.insert(&self.gen_string(i), TextAttributes::default());
+                    delta.insert(&self.gen_string(i), Attributes::default());
                 }
                 f if f < 0.4 => {
                     delta.delete(i);
                 }
                 _ => {
-                    delta.retain(i, TextAttributes::default());
+                    delta.retain(i, Attributes::default());
                 }
             }
         }
         if self.0.gen_range(0.0..1.0) < 0.3 {
-            delta.insert(&("1".to_owned() + &self.gen_string(10)), TextAttributes::default());
+            delta.insert(&("1".to_owned() + &self.gen_string(10)), Attributes::default());
         }
         delta
     }

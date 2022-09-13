@@ -7,18 +7,15 @@ use crate::{
     errors::CollaborateError,
 };
 use bytes::Bytes;
-use lib_ot::{
-    core::*,
-    text_delta::{TextAttribute, TextDelta},
-};
+use lib_ot::{core::*, text_delta::TextDelta};
 use tokio::sync::mpsc;
 
 pub trait InitialDocumentText {
     fn initial_delta() -> TextDelta;
 }
 
-pub struct PlainDoc();
-impl InitialDocumentText for PlainDoc {
+pub struct EmptyDoc();
+impl InitialDocumentText for EmptyDoc {
     fn initial_delta() -> TextDelta {
         TextDelta::new()
     }
@@ -141,9 +138,9 @@ impl ClientDocument {
         Ok(delete)
     }
 
-    pub fn format(&mut self, interval: Interval, attribute: TextAttribute) -> Result<TextDelta, CollaborateError> {
+    pub fn format(&mut self, interval: Interval, attribute: AttributeEntry) -> Result<TextDelta, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
-        tracing::trace!("format {} with {}", interval, attribute);
+        tracing::trace!("format {} with {:?}", interval, attribute);
         let format_delta = self.view.format(&self.delta, attribute, interval).unwrap();
         self.compose_delta(format_delta.clone())?;
         Ok(format_delta)

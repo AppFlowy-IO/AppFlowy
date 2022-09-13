@@ -1,6 +1,6 @@
 use crate::{client_document::InsertExt, util::is_newline};
 use lib_ot::core::{is_empty_line_at_index, OperationBuilder, OperationIterator};
-use lib_ot::text_delta::{attributes_except_header, TextAttributeKey, TextDelta};
+use lib_ot::text_delta::{attributes_except_header, BuildInTextAttributeKey, TextDelta};
 
 pub struct AutoExitBlock {}
 
@@ -42,7 +42,7 @@ impl InsertExt for AutoExitBlock {
             }
         }
 
-        attributes.mark_all_as_removed_except(Some(TextAttributeKey::Header));
+        attributes.retain_values(&[BuildInTextAttributeKey::Header.as_ref()]);
 
         Some(
             OperationBuilder::new()

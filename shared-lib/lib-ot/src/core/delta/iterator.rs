@@ -2,7 +2,8 @@ use super::cursor::*;
 use crate::core::delta::operation::{Operation, OperationAttributes};
 use crate::core::delta::{Operations, NEW_LINE};
 use crate::core::interval::Interval;
-use crate::text_delta::TextAttributes;
+use crate::core::Attributes;
+
 use std::ops::{Deref, DerefMut};
 
 pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
@@ -132,7 +133,7 @@ where
     }
 }
 
-pub fn is_empty_line_at_index(delta: &Operations<TextAttributes>, index: usize) -> bool {
+pub fn is_empty_line_at_index(delta: &Operations<Attributes>, index: usize) -> bool {
     let mut iter = OperationIterator::new(delta);
     let (prev, next) = (iter.next_op_with_len(index), iter.next_op());
     if prev.is_none() {

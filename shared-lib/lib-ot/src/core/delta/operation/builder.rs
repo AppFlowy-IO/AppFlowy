@@ -1,7 +1,6 @@
 use crate::core::delta::operation::{EmptyAttributes, Operation, OperationAttributes};
-use crate::text_delta::TextAttributes;
 
-pub type RichTextOpBuilder = OperationsBuilder<TextAttributes>;
+// pub type RichTextOpBuilder = OperationsBuilder<TextAttributes>;
 pub type PlainTextOpBuilder = OperationsBuilder<EmptyAttributes>;
 
 #[derive(Default)]
