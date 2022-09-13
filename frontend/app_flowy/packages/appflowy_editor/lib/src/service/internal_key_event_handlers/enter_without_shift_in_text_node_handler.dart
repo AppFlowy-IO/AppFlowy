@@ -76,9 +76,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
 
   // If selection is collapsed and position.start.offset == 0,
   //  insert a empty text node before.
-  if (selection.isCollapsed &&
-      selection.start.offset == 0 &&
-      textNode.subtype != StyleKey.numberList) {
+  if (selection.isCollapsed && selection.start.offset == 0) {
     if (textNode.toRawString().isEmpty && textNode.subtype != null) {
       final afterSelection = Selection.collapsed(
         Position(path: textNode.path, offset: 0),
@@ -92,17 +90,44 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
             ))
         ..afterSelection = afterSelection
         ..commit();
+
+      final nextNode = textNode.next;
+      if (nextNode is TextNode && nextNode.subtype == StyleKey.numberList) {
+        makeFollowingNodesIncremental(
+            editorState, textNode.path, afterSelection,
+            beginNum: 0);
+      }
     } else {
+      final subtype = textNode.subtype;
       final afterSelection = Selection.collapsed(
         Position(path: textNode.path.next, offset: 0),
       );
-      TransactionBuilder(editorState)
-        ..insertNode(
-          textNode.path,
-          TextNode.empty(),
-        )
-        ..afterSelection = afterSelection
-        ..commit();
+
+      if (subtype == StyleKey.numberList) {
+        final prevNumber = textNode.attributes[StyleKey.number] as int;
+        final newNode = TextNode.empty();
+        newNode.attributes[StyleKey.subtype] = StyleKey.numberList;
+        newNode.attributes[StyleKey.number] = prevNumber;
+        final insertPath = textNode.path;
+        TransactionBuilder(editorState)
+          ..insertNode(
+            insertPath,
+            newNode,
+          )
+          ..afterSelection = afterSelection
+          ..commit();
+
+        makeFollowingNodesIncremental(editorState, insertPath, afterSelection,
+            beginNum: prevNumber);
+      } else {
+        TransactionBuilder(editorState)
+          ..insertNode(
+            textNode.path,
+            TextNode.empty(),
+          )
+          ..afterSelection = afterSelection
+          ..commit();
+      }
     }
     return KeyEventResult.handled;
   }
