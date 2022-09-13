@@ -5,17 +5,34 @@ use indextree::NodeId;
 
 use super::{NodeBodyChangeset, NodeOperationList};
 
+#[derive(Debug, Clone)]
 pub struct Transaction {
     operations: NodeOperationList,
 }
 
 impl Transaction {
-    pub fn new(operations: NodeOperationList) -> Transaction {
-        Transaction { operations }
+    pub fn new() -> Self {
+        Transaction {
+            operations: vec![].into(),
+        }
+    }
+
+    pub fn from_operations<T: Into<NodeOperationList>>(operations: T) -> Self {
+        Self {
+            operations: operations.into(),
+        }
     }
 
     pub fn into_operations(self) -> Vec<NodeOperation> {
         self.operations.into_inner()
+    }
+
+    pub fn transform(&self, other: &mut Transaction) {
+        for other_operation in other.iter_mut() {
+            for operation in self.operations.iter() {
+                operation.mut_transform(other_operation);
+            }
+        }
     }
 }
 
@@ -177,6 +194,6 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     pub fn finalize(self) -> Transaction {
-        Transaction::new(self.operations)
+        Transaction::from_operations(self.operations)
     }
 }

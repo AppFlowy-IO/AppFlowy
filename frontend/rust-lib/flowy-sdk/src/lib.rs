@@ -11,7 +11,7 @@ use flowy_net::{
     local_server::LocalServer,
     ws::connection::{listen_on_websocket, FlowyWebSocketConnect},
 };
-use flowy_text_block::TextBlockManager;
+use flowy_text_block::TextEditorManager;
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
@@ -89,7 +89,7 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub text_block_manager: Arc<TextBlockManager>,
+    pub text_block_manager: Arc<TextEditorManager>,
     pub folder_manager: Arc<FolderManager>,
     pub grid_manager: Arc<GridManager>,
     pub dispatcher: Arc<EventDispatcher>,

@@ -4,7 +4,7 @@ use crate::{
 };
 use flowy_error::FlowyError;
 use flowy_sync::entities::text_block::{CreateTextBlockParams, DocumentPB, ResetTextBlockParams, TextBlockIdPB};
-use flowy_text_block::BlockCloudService;
+use flowy_text_block::TextEditorCloudService;
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
@@ -20,20 +20,20 @@ impl BlockHttpCloudService {
     }
 }
 
-impl BlockCloudService for BlockHttpCloudService {
-    fn create_block(&self, token: &str, params: CreateTextBlockParams) -> FutureResult<(), FlowyError> {
+impl TextEditorCloudService for BlockHttpCloudService {
+    fn create_text_block(&self, token: &str, params: CreateTextBlockParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { create_document_request(&token, params, &url).await })
     }
 
-    fn read_block(&self, token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError> {
+    fn read_text_block(&self, token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { read_document_request(&token, params, &url).await })
     }
 
-    fn update_block(&self, token: &str, params: ResetTextBlockParams) -> FutureResult<(), FlowyError> {
+    fn update_text_block(&self, token: &str, params: ResetTextBlockParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { reset_doc_request(&token, params, &url).await })

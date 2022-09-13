@@ -4,22 +4,28 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-sync/text_block.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
 
 class DocumentService {
-  Future<Either<TextBlockDeltaPB, FlowyError>> openDocument({
+  Future<Either<TextBlockPB, FlowyError>> openDocument({
     required String docId,
   }) async {
     await FolderEventSetLatestView(ViewIdPB(value: docId)).send();
 
     final payload = TextBlockIdPB(value: docId);
-    return TextBlockEventGetBlockData(payload).send();
+    return TextBlockEventGetTextBlock(payload).send();
   }
 
-  Future<Either<TextBlockDeltaPB, FlowyError>> composeDelta({required String docId, required String data}) {
-    final payload = TextBlockDeltaPB.create()
-      ..blockId = docId
-      ..deltaStr = data;
-    return TextBlockEventApplyDelta(payload).send();
+  Future<Either<Unit, FlowyError>> applyEdit({
+    required String docId,
+    required String data,
+    String operations = "",
+  }) {
+    final payload = EditPayloadPB.create()
+      ..textBlockId = docId
+      ..operations = operations
+      ..delta = data;
+    return TextBlockEventApplyEdit(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> closeDocument({required String docId}) {
