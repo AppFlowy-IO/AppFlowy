@@ -43,7 +43,7 @@ class HistoryItem extends LinkedListEntry<HistoryItem> {
     for (var i = operations.length - 1; i >= 0; i--) {
       final operation = operations[i];
       final inverted = operation.invert();
-      builder.add(inverted);
+      builder.add(inverted, transform: false);
     }
     builder.afterSelection = beforeSelection;
     builder.beforeSelection = afterSelection;
@@ -123,11 +123,12 @@ class UndoManager {
     }
     final transaction = historyItem.toTransaction(s);
     s.apply(
-        transaction,
-        const ApplyOptions(
-          recordUndo: false,
-          recordRedo: true,
-        ));
+      transaction,
+      const ApplyOptions(
+        recordUndo: false,
+        recordRedo: true,
+      ),
+    );
   }
 
   redo() {
@@ -142,10 +143,11 @@ class UndoManager {
     }
     final transaction = historyItem.toTransaction(s);
     s.apply(
-        transaction,
-        const ApplyOptions(
-          recordUndo: true,
-          recordRedo: false,
-        ));
+      transaction,
+      const ApplyOptions(
+        recordUndo: true,
+        recordRedo: false,
+      ),
+    );
   }
 }
