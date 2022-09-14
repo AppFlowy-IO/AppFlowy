@@ -56,7 +56,8 @@ class _CreateTextFieldDialog extends State<TextFieldDialog> {
           FlowyFormTextInput(
             hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
             initialValue: widget.value,
-            textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+            textStyle:
+                const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
             autoFocus: true,
             onChanged: (text) {
               newValue = text;
@@ -120,7 +121,7 @@ class _CreateFlowyAlertDialog extends State<FlowyAlertDialog> {
             const VSpace(20),
             OkCancelButton(
               onOkPressed: widget.confirm!,
-              onCancelPressed: widget.confirm,
+              onCancelPressed: widget.cancel,
             )
           ]
         ],
@@ -158,7 +159,7 @@ class OkCancelDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (title != null) ...[
-            Text(title!.toUpperCase(), style: TextStyles.T1.textColor(theme.shader1)),
+            FlowyText.medium(title!.toUpperCase(), color: theme.shader1),
             VSpace(Insets.sm * 1.5),
             Container(color: theme.bg1, height: 1),
             VSpace(Insets.m * 1.5),
@@ -185,7 +186,12 @@ class OkCancelButton extends StatelessWidget {
   final double? minHeight;
 
   const OkCancelButton(
-      {Key? key, this.onOkPressed, this.onCancelPressed, this.okTitle, this.cancelTitle, this.minHeight})
+      {Key? key,
+      this.onOkPressed,
+      this.onCancelPressed,
+      this.okTitle,
+      this.cancelTitle,
+      this.minHeight})
       : super(key: key);
 
   @override
@@ -200,7 +206,7 @@ class OkCancelButton extends StatelessWidget {
               cancelTitle ?? LocaleKeys.button_Cancel.tr(),
               onPressed: () {
                 onCancelPressed!();
-                AppGlobals.nav.pop();
+                Navigator.of(context).pop();
               },
               bigMode: true,
             ),
@@ -210,7 +216,7 @@ class OkCancelButton extends StatelessWidget {
               okTitle ?? LocaleKeys.button_OK.tr(),
               onPressed: () {
                 onOkPressed!();
-                AppGlobals.nav.pop();
+                Navigator.of(context).pop();
               },
               bigMode: true,
             ),

@@ -1,5 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
+import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -206,9 +207,15 @@ extension _FieldActionExtension on FieldAction {
             .add(const FieldActionSheetEvent.duplicateField());
         break;
       case FieldAction.delete:
-        context
-            .read<FieldActionSheetBloc>()
-            .add(const FieldActionSheetEvent.deleteField());
+        FlowyAlertDialog(
+          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+          confirm: () {
+            context
+                .read<FieldActionSheetBloc>()
+                .add(const FieldActionSheetEvent.deleteField());
+          },
+        ).show(context);
+
         break;
     }
   }

@@ -133,7 +133,9 @@ class StyledDialogRoute<T> extends PopupRoute<T> {
         super(settings: settings, filter: barrier.filter);
 
   @override
-  bool get barrierDismissible => barrier.dismissible;
+  bool get barrierDismissible {
+    return barrier.dismissible;
+  }
 
   @override
   String get barrierLabel => barrier.label;

@@ -146,6 +146,7 @@ class _PropertyList extends StatelessWidget {
                 ),
               ),
             ),
+            const VSpace(10),
             _CreateFieldButton(
               viewId: viewId,
               onCreated: () {
@@ -185,8 +186,9 @@ class _CreateFieldButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
 
-    return SizedBox(
+    return Container(
       height: 40,
+      decoration: _makeBoxDecoration(context),
       child: FlowyButton(
         text: FlowyText.medium(
           LocaleKeys.grid_field_newColumn.tr(),
@@ -196,6 +198,15 @@ class _CreateFieldButton extends StatelessWidget {
         onTap: () => onCreated(),
         leftIcon: svgWidget("home/add"),
       ),
+    );
+  }
+
+  BoxDecoration _makeBoxDecoration(BuildContext context) {
+    final theme = context.read<AppTheme>();
+    final borderSide = BorderSide(color: theme.shader6, width: 1.0);
+    return BoxDecoration(
+      color: theme.surface,
+      border: Border(top: borderSide),
     );
   }
 }
@@ -251,6 +262,7 @@ class _RowDetailCell extends StatelessWidget {
     FieldEditor(
       gridId: cellId.gridId,
       fieldName: cellId.fieldContext.name,
+      isGroupField: cellId.fieldContext.isGroupField,
       typeOptionLoader: FieldTypeOptionLoader(
         gridId: cellId.gridId,
         field: cellId.fieldContext.field,
