@@ -7,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -176,9 +177,10 @@ class CreateFieldButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
-    return Popover(
+    return AppFlowyStylePopover(
       triggerActions: PopoverTriggerActionFlags.click,
       direction: PopoverDirection.bottomWithRightAligned,
+      constraints: BoxConstraints.loose(const Size(240, 200)),
       child: FlowyButton(
         text: FlowyText.medium(
           LocaleKeys.grid_field_newColumn.tr(),
@@ -189,13 +191,10 @@ class CreateFieldButton extends StatelessWidget {
         leftIcon: svgWidget("home/add"),
       ),
       popupBuilder: (BuildContext popover) {
-        return OverlayContainer(
-          constraints: BoxConstraints.loose(const Size(240, 200)),
-          child: FieldEditor(
-            gridId: gridId,
-            fieldName: "",
-            typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
-          ),
+        return FieldEditor(
+          gridId: gridId,
+          fieldName: "",
+          typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
         );
       },
     );

@@ -64,12 +64,9 @@ class _DateCellEditor extends State<DateCellEditor> {
       return Container();
     }
 
-    return OverlayContainer(
-      constraints: BoxConstraints.loose(const Size(320, 500)),
-      child: _CellCalendarWidget(
-        cellContext: widget.cellController,
-        dateTypeOptionPB: _dateTypeOptionPB!,
-      ),
+    return _CellCalendarWidget(
+      cellContext: widget.cellController,
+      dateTypeOptionPB: _dateTypeOptionPB!,
     );
   }
 }
@@ -302,10 +299,11 @@ class _DateTypeOptionButton extends StatelessWidget {
     return BlocSelector<DateCalBloc, DateCalState, DateTypeOptionPB>(
       selector: (state) => state.dateTypeOptionPB,
       builder: (context, dateTypeOptionPB) {
-        return Popover(
+        return AppFlowyStylePopover(
           triggerActions:
               PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
           offset: const Offset(20, 0),
+          constraints: BoxConstraints.loose(const Size(140, 100)),
           child: FlowyButton(
             text: FlowyText.medium(title, fontSize: 12),
             hoverColor: theme.hover,
@@ -313,12 +311,9 @@ class _DateTypeOptionButton extends StatelessWidget {
             rightIcon: svgWidget("grid/more", color: theme.iconColor),
           ),
           popupBuilder: (BuildContext popContext) {
-            return OverlayContainer(
-              constraints: BoxConstraints.loose(const Size(140, 100)),
-              child: _CalDateTimeSetting(
-                dateTypeOptionPB: dateTypeOptionPB,
-                onEvent: (event) => context.read<DateCalBloc>().add(event),
-              ),
+            return _CalDateTimeSetting(
+              dateTypeOptionPB: dateTypeOptionPB,
+              onEvent: (event) => context.read<DateCalBloc>().add(event),
             );
           },
         );
