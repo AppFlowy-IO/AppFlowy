@@ -185,7 +185,10 @@ fn node_delete_test() {
             node_data: inserted_node,
             rev_id: 1,
         },
-        DeleteNode { path: path.clone() },
+        DeleteNode {
+            path: path.clone(),
+            rev_id: 2,
+        },
         AssertNodeData { path, expected: None },
     ];
     test.run_scripts(scripts);

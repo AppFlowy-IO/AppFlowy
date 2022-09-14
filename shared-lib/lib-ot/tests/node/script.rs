@@ -22,6 +22,7 @@ pub enum NodeScript {
     },
     DeleteNode {
         path: Path,
+        rev_id: usize,
     },
     AssertNumberOfNodesAtPath {
         path: Option<Path>,
@@ -33,15 +34,11 @@ pub enum NodeScript {
     },
     AssertNode {
         path: Path,
-        expected: Node,
+        expected: Option<Node>,
     },
     AssertNodeDelta {
         path: Path,
         expected: TextDelta,
-    },
-    ApplyTransaction {
-        transaction: Transaction,
-        rev_id: usize,
     },
 }
 
@@ -92,15 +89,20 @@ impl NodeTest {
                     .finalize();
                 self.apply_transaction(transaction);
             }
-            NodeScript::DeleteNode { path } => {
-                let transaction = TransactionBuilder::new(&self.node_tree)
+            NodeScript::DeleteNode { path, rev_id } => {
+                let mut transaction = TransactionBuilder::new(&self.node_tree)
                     .delete_node_at_path(&path)
                     .finalize();
+                self.transform_transaction_if_need(&mut transaction, rev_id);
                 self.apply_transaction(transaction);
             }
             NodeScript::AssertNode { path, expected } => {
-                let node_id = self.node_tree.node_id_at_path(path).unwrap();
-                let node = self.node_tree.get_node(node_id).cloned().unwrap();
+                let node_id = self.node_tree.node_id_at_path(path);
+                if expected.is_none() && node_id.is_none() {
+                    return;
+                }
+
+                let node = self.node_tree.get_node(node_id.unwrap()).cloned();
                 assert_eq!(node, expected);
             }
             NodeScript::AssertNodeData { path, expected } => {
@@ -135,14 +137,6 @@ impl NodeTest {
                 } else {
                     panic!("Node body type not match, expect Delta");
                 }
-            }
-
-            NodeScript::ApplyTransaction {
-                mut transaction,
-                rev_id,
-            } => {
-                self.transform_transaction_if_need(&mut transaction, rev_id);
-                self.apply_transaction(transaction);
             }
         }
     }
