@@ -93,7 +93,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [1], startOffset: 0),
       );
-      if (Platform.isWindows || Platform.isLinux) {
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         await editor.pressLogicKey(
           LogicalKeyboardKey.arrowRight,
           isControlPressed: true,
@@ -148,7 +148,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [1], startOffset: text.length),
       );
-      if (Platform.isWindows || Platform.isLinux) {
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         await editor.pressLogicKey(
           LogicalKeyboardKey.home,
         );
@@ -191,7 +191,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [1], startOffset: text.length),
       );
-      if (Platform.isWindows || Platform.isLinux) {
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
         await editor.pressLogicKey(
           LogicalKeyboardKey.end,
         );
