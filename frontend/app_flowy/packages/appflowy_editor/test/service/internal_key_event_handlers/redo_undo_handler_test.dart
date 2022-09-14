@@ -43,7 +43,7 @@ Future<void> _testBackspaceUndoRedo(
   await editor.pressLogicKey(LogicalKeyboardKey.backspace);
   expect(editor.documentLength, 2);
 
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       LogicalKeyboardKey.keyZ,
       isControlPressed: true,
@@ -59,7 +59,7 @@ Future<void> _testBackspaceUndoRedo(
   expect((editor.nodeAtPath([1]) as TextNode).toRawString(), text);
   expect(editor.documentSelection, selection);
 
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       LogicalKeyboardKey.keyZ,
       isControlPressed: true,
