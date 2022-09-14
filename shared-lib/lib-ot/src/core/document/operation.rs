@@ -1,8 +1,9 @@
 use crate::core::attributes::Attributes;
 use crate::core::document::path::Path;
-use crate::core::{NodeBodyChangeset, NodeData, OperationTransform};
+use crate::core::{NodeBodyChangeset, NodeData};
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
+use std::rc::Rc;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "op")]
@@ -10,12 +11,11 @@ pub enum NodeOperation {
     #[serde(rename = "insert")]
     Insert { path: Path, nodes: Vec<NodeData> },
 
-    #[serde(rename = "update")]
+    #[serde(rename = "update-attribute")]
     UpdateAttributes {
         path: Path,
-        attributes: Attributes,
-        #[serde(rename = "oldAttributes")]
-        old_attributes: Attributes,
+        new: Attributes,
+        old: Attributes,
     },
 
     #[serde(rename = "update-body")]
@@ -27,35 +27,6 @@ pub enum NodeOperation {
     Delete { path: Path, nodes: Vec<NodeData> },
 }
 
-// impl OperationTransform for NodeOperation {
-//     fn compose(&self, other: &Self) -> Result<Self, OTError>
-//     where
-//         Self: Sized,
-//     {
-//         match self {
-//             NodeOperation::Insert { path, nodes } => {
-//                 let new_path = Path::transform(path, other.path(), nodes.len() as i64);
-//                 Ok((self.clone(), other.clone_with_new_path(new_path)))
-//             }
-//             NodeOperation::Delete { path, nodes } => {
-//                 let new_path = Path::transform(path, other.path(), nodes.len() as i64);
-//                 other.clone_with_new_path(new_path)
-//             }
-//             _ => other.clone(),
-//         }
-//     }
-//
-//     fn transform(&self, other: &Self) -> Result<(Self, Self), OTError>
-//     where
-//         Self: Sized,
-//     {
-//         todo!()
-//     }
-//
-//     fn invert(&self, other: &Self) -> Self {
-//         todo!()
-//     }
-// }
 impl NodeOperation {
     pub fn get_path(&self) -> &Path {
         match self {
@@ -83,12 +54,12 @@ impl NodeOperation {
             },
             NodeOperation::UpdateAttributes {
                 path,
-                attributes,
-                old_attributes,
+                new: attributes,
+                old: old_attributes,
             } => NodeOperation::UpdateAttributes {
                 path: path.clone(),
-                attributes: old_attributes.clone(),
-                old_attributes: attributes.clone(),
+                new: old_attributes.clone(),
+                old: attributes.clone(),
             },
             NodeOperation::Delete { path, nodes } => NodeOperation::Insert {
                 path: path.clone(),
@@ -101,10 +72,10 @@ impl NodeOperation {
         }
     }
 
-    /// Make the `other` operation to be applied to the version that has been modified.
+    /// Make the `other` operation can be applied to the version after applying the `self` operation.
     /// The semantics of transform is used when editing conflicts occur, which is often determined by the version id。
-    /// For example, if the inserted position has been acquired by others, then you need to do transform to make sure
-    /// your position is value.
+    /// For example, if the inserted position has been acquired by others, then it's needed to do the transform to
+    /// make sure the inserted position is right.
     ///
     /// # Arguments
     ///
@@ -143,24 +114,30 @@ impl NodeOperation {
                 let new_path = path.transform(other.get_path(), nodes.len());
                 *other.get_mut_path() = new_path;
             }
-            _ => {}
+            _ => {
+                // Only insert/delete will change the path.
+            }
         }
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct NodeOperationList {
-    operations: Vec<NodeOperation>,
+    operations: Vec<Rc<NodeOperation>>,
 }
 
 impl NodeOperationList {
-    pub fn into_inner(self) -> Vec<NodeOperation> {
+    pub fn into_inner(self) -> Vec<Rc<NodeOperation>> {
         self.operations
+    }
+
+    pub fn add_op(&mut self, operation: NodeOperation) {
+        self.operations.push(Rc::new(operation));
     }
 }
 
 impl std::ops::Deref for NodeOperationList {
-    type Target = Vec<NodeOperation>;
+    type Target = Vec<Rc<NodeOperation>>;
 
     fn deref(&self) -> &Self::Target {
         &self.operations
@@ -175,13 +152,15 @@ impl std::ops::DerefMut for NodeOperationList {
 
 impl std::convert::From<Vec<NodeOperation>> for NodeOperationList {
     fn from(operations: Vec<NodeOperation>) -> Self {
-        Self { operations }
+        Self::new(operations)
     }
 }
 
 impl NodeOperationList {
     pub fn new(operations: Vec<NodeOperation>) -> Self {
-        Self { operations }
+        Self {
+            operations: operations.into_iter().map(Rc::new).collect(),
+        }
     }
 
     pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, OTError> {

@@ -1,4 +1,4 @@
-use crate::entities::{EditParams, EditPayloadPB};
+use crate::entities::EditParams;
 use crate::queue::TextBlockRevisionCompactor;
 use crate::{editor::TextBlockEditor, errors::FlowyError, TextEditorCloudService};
 use bytes::Bytes;

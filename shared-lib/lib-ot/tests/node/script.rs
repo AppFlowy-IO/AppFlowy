@@ -1,4 +1,4 @@
-use lib_ot::core::{Node, NodeOperation, Transaction};
+use lib_ot::core::{Node, Transaction};
 use lib_ot::{
     core::attributes::Attributes,
     core::{NodeBody, NodeBodyChangeset, NodeData, NodeTree, Path, TransactionBuilder},
@@ -144,14 +144,14 @@ impl NodeTest {
     fn apply_transaction(&mut self, transaction: Transaction) {
         self.rev_id += 1;
         self.rev_operations.insert(self.rev_id, transaction.clone());
-        self.node_tree.apply(transaction).unwrap();
+        self.node_tree.apply_transaction(transaction).unwrap();
     }
 
     fn transform_transaction_if_need(&mut self, transaction: &mut Transaction, rev_id: usize) {
         if self.rev_id >= rev_id {
             for rev_id in rev_id..=self.rev_id {
                 let old_transaction = self.rev_operations.get(&rev_id).unwrap();
-                old_transaction.transform(transaction);
+                *transaction = old_transaction.transform(transaction).unwrap();
             }
         }
     }

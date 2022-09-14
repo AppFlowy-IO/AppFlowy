@@ -1,7 +1,7 @@
 use crate::entities::{EditParams, EditPayloadPB, ExportDataPB, ExportParams, ExportPayloadPB, TextBlockPB};
 use crate::TextEditorManager;
 use flowy_error::FlowyError;
-use flowy_sync::entities::text_block::{TextBlockDeltaPB, TextBlockIdPB};
+use flowy_sync::entities::text_block::TextBlockIdPB;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::convert::TryInto;
 use std::sync::Arc;

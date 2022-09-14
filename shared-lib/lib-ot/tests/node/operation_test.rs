@@ -1,6 +1,6 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
-use lib_ot::core::{AttributeBuilder, Node, NodeTree, Transaction, TransactionBuilder};
+use lib_ot::core::{AttributeBuilder, Node};
 use lib_ot::{
     core::{NodeBodyChangeset, NodeData, NodeDataBuilder, NodeOperation, Path},
     text_delta::TextDeltaBuilder,
@@ -35,15 +35,14 @@ fn operation_insert_node_with_children_serde_test() {
 fn operation_update_node_attributes_serde_test() {
     let operation = NodeOperation::UpdateAttributes {
         path: Path(vec![0, 1]),
-        attributes: AttributeBuilder::new().insert("bold", true).build(),
-        old_attributes: AttributeBuilder::new().insert("bold", false).build(),
+        new: AttributeBuilder::new().insert("bold", true).build(),
+        old: AttributeBuilder::new().insert("bold", false).build(),
     };
 
     let result = serde_json::to_string(&operation).unwrap();
-
     assert_eq!(
         result,
-        r#"{"op":"update","path":[0,1],"attributes":{"bold":true},"oldAttributes":{"bold":null}}"#
+        r#"{"op":"update-attribute","path":[0,1],"new":{"bold":true},"old":{"bold":null}}"#
     );
 }
 
@@ -119,17 +118,17 @@ fn operation_insert_transform_one_level_path_test() {
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: node_data_1.clone(),
+            node_data: node_data_1,
             rev_id: 1,
         },
         InsertNode {
             path: 1.into(),
-            node_data: node_data_2.clone(),
+            node_data: node_data_2,
             rev_id: 2,
         },
         InsertNode {
             path: 1.into(),
-            node_data: node_data_3.clone(),
+            node_data: node_data_3,
             rev_id: 1,
         },
         AssertNode {
@@ -157,12 +156,12 @@ fn operation_insert_transform_multiple_level_path_test() {
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: node_data_1.clone(),
+            node_data: node_data_1,
             rev_id: 1,
         },
         InsertNode {
             path: 1.into(),
-            node_data: node_data_2.clone(),
+            node_data: node_data_2,
             rev_id: 2,
         },
         InsertNode {
@@ -189,12 +188,12 @@ fn operation_delete_transform_path_test() {
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: node_data_1.clone(),
+            node_data: node_data_1,
             rev_id: 1,
         },
         InsertNode {
             path: 1.into(),
-            node_data: node_data_2.clone(),
+            node_data: node_data_2,
             rev_id: 2,
         },
         // The node's in the tree will be:
@@ -206,7 +205,7 @@ fn operation_delete_transform_path_test() {
         // but it was moved to index 2.
         InsertNode {
             path: 1.into(),
-            node_data: node_data_3.clone(),
+            node_data: node_data_3,
             rev_id: 3,
         },
         // 0: text_1

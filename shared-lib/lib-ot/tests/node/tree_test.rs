@@ -114,7 +114,7 @@ fn node_insert_node_in_ordered_nodes_test() {
         },
         InsertNode {
             path: path_3.clone(),
-            node_data: node_3.clone(),
+            node_data: node_3,
             rev_id: 3,
         },
         // 0:text_1
@@ -166,12 +166,12 @@ fn node_insert_nested_nodes_test() {
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: node_data_1.clone(),
+            node_data: node_data_1,
             rev_id: 1,
         },
         InsertNode {
             path: 1.into(),
-            node_data: node_data_2.clone(),
+            node_data: node_data_2,
             rev_id: 2,
         },
         // the tree will be:
@@ -214,7 +214,7 @@ fn node_insert_node_before_existing_nested_nodes_test() {
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: node_data_1.clone(),
+            node_data: node_data_1,
             rev_id: 1,
         },
         // 0:text_1

@@ -1,20 +1,20 @@
 use crate::core::attributes::Attributes;
 use crate::core::document::path::Path;
 use crate::core::{NodeData, NodeOperation, NodeTree};
+use crate::errors::OTError;
 use indextree::NodeId;
+use std::rc::Rc;
 
 use super::{NodeBodyChangeset, NodeOperationList};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Transaction {
     operations: NodeOperationList,
 }
 
 impl Transaction {
     pub fn new() -> Self {
-        Transaction {
-            operations: vec![].into(),
-        }
+        Self::default()
     }
 
     pub fn from_operations<T: Into<NodeOperationList>>(operations: T) -> Self {
@@ -23,25 +23,36 @@ impl Transaction {
         }
     }
 
-    pub fn into_operations(self) -> Vec<NodeOperation> {
+    pub fn into_operations(self) -> Vec<Rc<NodeOperation>> {
         self.operations.into_inner()
     }
 
-    /// Make the `other` to be applied to the version that has been modified.
+    /// Make the `other` can be applied to the version after applying the `self` transaction.
     ///
     /// The semantics of transform is used when editing conflicts occur, which is often determined by the version id。
     /// the operations of the transaction will be transformed into the conflict operations.
-    pub fn transform(&self, other: &mut Transaction) {
-        for other_operation in other.iter_mut() {
+    pub fn transform(&self, other: &Transaction) -> Result<Transaction, OTError> {
+        let mut new_transaction = other.clone();
+        for other_operation in new_transaction.iter_mut() {
+            let other_operation = Rc::make_mut(other_operation);
             for operation in self.operations.iter() {
                 operation.transform(other_operation);
             }
         }
+        Ok(new_transaction)
+    }
+
+    pub fn compose(&mut self, other: &Transaction) -> Result<(), OTError> {
+        // For the moment, just append `other` operations to the end of `self`.
+        for operation in other.operations.iter() {
+            self.operations.push(operation.clone());
+        }
+        Ok(())
     }
 }
 
 impl std::ops::Deref for Transaction {
-    type Target = NodeOperationList;
+    type Target = Vec<Rc<NodeOperation>>;
 
     fn deref(&self) -> &Self::Target {
         &self.operations
@@ -85,7 +96,7 @@ impl<'a> TransactionBuilder<'a> {
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_nodes_at_path(0,vec![ NodeData::new("text_1"),  NodeData::new("text_2")])
     ///     .finalize();
-    ///  node_tree.apply(transaction).unwrap();
+    ///  node_tree.apply_transaction(transaction).unwrap();
     ///
     ///  node_tree.node_id_at_path(vec![0, 0]);
     /// ```
@@ -115,7 +126,7 @@ impl<'a> TransactionBuilder<'a> {
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_node_at_path(0, NodeData::new("text"))
     ///     .finalize();
-    ///  node_tree.apply(transaction).unwrap();
+    ///  node_tree.apply_transaction(transaction).unwrap();
     /// ```
     ///
     pub fn insert_node_at_path<T: Into<Path>>(self, path: T, node: NodeData) -> Self {
@@ -133,10 +144,10 @@ impl<'a> TransactionBuilder<'a> {
                     }
                 }
 
-                self.operations.push(NodeOperation::UpdateAttributes {
+                self.operations.add_op(NodeOperation::UpdateAttributes {
                     path: path.clone(),
-                    attributes,
-                    old_attributes,
+                    new: attributes,
+                    old: old_attributes,
                 });
             }
             None => tracing::warn!("Update attributes at path: {:?} failed. Node is not exist", path),
@@ -147,7 +158,7 @@ impl<'a> TransactionBuilder<'a> {
     pub fn update_body_at_path(mut self, path: &Path, changeset: NodeBodyChangeset) -> Self {
         match self.node_tree.node_id_at_path(path) {
             Some(_) => {
-                self.operations.push(NodeOperation::UpdateBody {
+                self.operations.add_op(NodeOperation::UpdateBody {
                     path: path.clone(),
                     changeset,
                 });
@@ -169,7 +180,7 @@ impl<'a> TransactionBuilder<'a> {
             node = self.node_tree.following_siblings(node).next().unwrap();
         }
 
-        self.operations.push(NodeOperation::Delete {
+        self.operations.add_op(NodeOperation::Delete {
             path: path.clone(),
             nodes: deleted_nodes,
         });
@@ -193,7 +204,7 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     pub fn push(mut self, op: NodeOperation) -> Self {
-        self.operations.push(op);
+        self.operations.add_op(op);
         self
     }
 

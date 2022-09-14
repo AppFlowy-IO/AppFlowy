@@ -3,6 +3,7 @@ use crate::core::document::path::Path;
 use crate::core::{Node, NodeBodyChangeset, NodeData, NodeOperation, OperationTransform, Transaction};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, Children, FollowingSiblings, NodeId};
+use std::rc::Rc;
 
 use super::NodeOperationList;
 
@@ -26,14 +27,13 @@ impl NodeTree {
     }
 
     pub fn from_bytes(root_name: &str, bytes: Vec<u8>) -> Result<Self, OTError> {
-        let operations = NodeOperationList::from_bytes(bytes)?.into_inner();
+        let operations = NodeOperationList::from_bytes(bytes)?;
         Self::from_operations(root_name, operations)
     }
 
-    pub fn from_operations(root_name: &str, operations: Vec<NodeOperation>) -> Result<Self, OTError> {
+    pub fn from_operations(root_name: &str, operations: NodeOperationList) -> Result<Self, OTError> {
         let mut node_tree = NodeTree::new(root_name);
-
-        for operation in operations {
+        for operation in operations.into_inner().into_iter() {
             let _ = node_tree.apply_op(operation)?;
         }
         Ok(node_tree)
@@ -54,13 +54,14 @@ impl NodeTree {
     /// # Examples
     ///
     /// ```
+    /// use std::rc::Rc;
     /// use lib_ot::core::{NodeOperation, NodeTree, NodeData, Path};
     /// let nodes = vec![NodeData::new("text".to_string())];
     /// let root_path: Path = vec![0].into();
     /// let op = NodeOperation::Insert {path: root_path.clone(),nodes };
     ///
     /// let mut node_tree = NodeTree::new("root");
-    /// node_tree.apply_op(op).unwrap();
+    /// node_tree.apply_op(Rc::new(op)).unwrap();
     /// let node_id = node_tree.node_id_at_path(&root_path).unwrap();
     /// let node_path = node_tree.path_from_node_id(node_id);
     /// debug_assert_eq!(node_path, root_path);
@@ -105,23 +106,25 @@ impl NodeTree {
         counter
     }
 
-    ///
+    /// Returns the note_id at the position of the tree with id note_id
     /// # Arguments
     ///
-    /// * `node_id`:
-    /// * `index`:
+    /// * `node_id`: the node id of the child's parent
+    /// * `index`: index of the node in parent children list
     ///
     /// returns: Option<NodeId>
     ///
     /// # Examples
     ///
     /// ```
+    /// use std::rc::Rc;
     /// use lib_ot::core::{NodeOperation, NodeTree, NodeData, Path};
     /// let node_1 = NodeData::new("text".to_string());
     /// let inserted_path: Path = vec![0].into();
     ///
     /// let mut node_tree = NodeTree::new("root");
-    /// node_tree.apply_op(NodeOperation::Insert {path: inserted_path.clone(),nodes: vec![node_1.clone()] }).unwrap();
+    /// let op = NodeOperation::Insert {path: inserted_path.clone(),nodes: vec![node_1.clone()] };
+    /// node_tree.apply_op(Rc::new(op)).unwrap();
     ///
     /// let node_2 = node_tree.get_node_at_path(&inserted_path).unwrap();
     /// assert_eq!(node_2.node_type, node_1.node_type);
@@ -137,6 +140,10 @@ impl NodeTree {
         None
     }
 
+    /// Returns all children whose parent node id is node_id
+    ///
+    /// * `node_id`: the children's parent node id
+    ///
     pub fn children_from_node(&self, node_id: NodeId) -> Children<'_, Node> {
         node_id.children(&self.arena)
     }
@@ -159,7 +166,7 @@ impl NodeTree {
         node_id.following_siblings(&self.arena)
     }
 
-    pub fn apply(&mut self, transaction: Transaction) -> Result<(), OTError> {
+    pub fn apply_transaction(&mut self, transaction: Transaction) -> Result<(), OTError> {
         let operations = transaction.into_operations();
         for operation in operations {
             self.apply_op(operation)?;
@@ -167,10 +174,15 @@ impl NodeTree {
         Ok(())
     }
 
-    pub fn apply_op(&mut self, op: NodeOperation) -> Result<(), OTError> {
+    pub fn apply_op(&mut self, op: Rc<NodeOperation>) -> Result<(), OTError> {
+        let op = match Rc::try_unwrap(op) {
+            Ok(op) => op,
+            Err(op) => op.as_ref().clone(),
+        };
+
         match op {
             NodeOperation::Insert { path, nodes } => self.insert_nodes(&path, nodes),
-            NodeOperation::UpdateAttributes { path, attributes, .. } => self.update_attributes(&path, attributes),
+            NodeOperation::UpdateAttributes { path, new, .. } => self.update_attributes(&path, new),
             NodeOperation::UpdateBody { path, changeset } => self.update_body(&path, changeset),
             NodeOperation::Delete { path, nodes } => self.delete_node(&path, nodes),
         }
