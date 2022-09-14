@@ -2,6 +2,13 @@ import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart'
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
+import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +20,7 @@ import 'field_type_option_editor.dart';
 class FieldEditor extends StatefulWidget {
   final String gridId;
   final String fieldName;
+  final bool isGroupField;
   final VoidCallback? onRemoved;
 
   final IFieldTypeOptionLoader typeOptionLoader;
@@ -20,6 +28,7 @@ class FieldEditor extends StatefulWidget {
     required this.gridId,
     this.fieldName = "",
     required this.typeOptionLoader,
+    this.isGroupField = false,
     this.onRemoved,
     Key? key,
   }) : super(key: key);
@@ -41,9 +50,10 @@ class _FieldEditorState extends State<FieldEditor> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => FieldEditorBloc(
-        gridId: widget.gridId,
-        fieldName: widget.fieldName,
-        loader: widget.typeOptionLoader,
+        gridId: gridId,
+        fieldName: fieldName,
+        isGroupField: isGroupField,
+        loader: typeOptionLoader,
       )..add(const FieldEditorEvent.initial()),
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
         buildWhen: (p, c) => false,
@@ -55,6 +65,8 @@ class _FieldEditorState extends State<FieldEditor> {
                   fontSize: 12),
               const VSpace(10),
               const _FieldNameCell(),
+              const VSpace(10),
+              const _DeleteFieldButton(),
               const VSpace(10),
               _FieldTypeOptionCell(popoverMutex: popoverMutex),
             ],
@@ -113,4 +125,48 @@ class _FieldNameCell extends StatelessWidget {
       },
     );
   }
+}
+
+class _DeleteFieldButton extends StatelessWidget {
+  const _DeleteFieldButton({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      builder: (context, state) {
+        final enable = !state.canDelete && !state.isGroupField;
+        return SizedBox(
+          height: GridSize.typeOptionItemHeight,
+          child: FlowyButton(
+            text: FlowyText.medium(
+              LocaleKeys.grid_field_delete.tr(),
+              fontSize: 12,
+              color: enable ? null : theme.shader4,
+            ),
+            hoverColor: theme.hover,
+            onTap: () {
+              if (enable) {
+                FlowyAlertDialog(
+                  title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+                  cancel: () {
+                    FlowyOverlay.of(context).remove(FieldEditor.identifier());
+                  },
+                  confirm: () {
+                    context
+                        .read<FieldEditorBloc>()
+                        .add(const FieldEditorEvent.deleteField());
+                    FlowyOverlay.of(context).remove(FieldEditor.identifier());
+                  },
+                ).show(context);
+              }
+            },
+            leftIcon: svgWidget('grid/delete', color: theme.iconColor),
+          ),
+        );
+      },
+    );
+  }
+
+  void so() {}
 }

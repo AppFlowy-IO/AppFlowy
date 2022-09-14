@@ -287,8 +287,13 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  void _openCard(String gridId, GridFieldController fieldController,
-      RowPB rowPB, GridRowCache rowCache, BuildContext context) {
+  void _openCard(
+    String gridId,
+    GridFieldController fieldController,
+    RowPB rowPB,
+    GridRowCache rowCache,
+    BuildContext context,
+  ) {
     final rowInfo = RowInfo(
       gridId: gridId,
       fields: UnmodifiableListView(fieldController.fieldContexts),

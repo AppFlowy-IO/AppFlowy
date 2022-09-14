@@ -133,6 +133,7 @@ class _PropertyList extends StatelessWidget {
                 ),
               ),
             ),
+            const VSpace(10),
             _CreateFieldButton(
               viewId: viewId,
               onClosed: () {
@@ -180,8 +181,9 @@ class _CreateFieldButton extends StatelessWidget {
       triggerActions: PopoverTriggerActionFlags.click,
       direction: PopoverDirection.bottomWithLeftAligned,
       onClose: onClosed,
-      child: SizedBox(
+      child: Container(
         height: 40,
+        decoration: _makeBoxDecoration(context),
         child: FlowyButton(
           text: FlowyText.medium(
             LocaleKeys.grid_field_newColumn.tr(),
@@ -193,6 +195,15 @@ class _CreateFieldButton extends StatelessWidget {
         ),
       ),
       popupBuilder: (BuildContext context) => onOpened(),
+    );
+  }
+
+  BoxDecoration _makeBoxDecoration(BuildContext context) {
+    final theme = context.read<AppTheme>();
+    final borderSide = BorderSide(color: theme.shader6, width: 1.0);
+    return BoxDecoration(
+      color: theme.surface,
+      border: Border(top: borderSide),
     );
   }
 }
@@ -247,6 +258,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
                     child: FieldEditor(
                       gridId: widget.cellId.gridId,
                       fieldName: widget.cellId.fieldContext.field.name,
+                      isGroupField: widget.cellId.fieldContext.isGroupField,
                       typeOptionLoader: FieldTypeOptionLoader(
                         gridId: widget.cellId.gridId,
                         field: widget.cellId.fieldContext.field,
