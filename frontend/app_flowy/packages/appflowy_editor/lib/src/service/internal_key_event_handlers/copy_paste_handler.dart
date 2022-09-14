@@ -1,10 +1,31 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/html_converter.dart';
 import 'package:appflowy_editor/src/document/node_iterator.dart';
+import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
 
-_handleCopy(EditorState editorState) async {
+int _textLengthOfNode(Node node) {
+  if (node is TextNode) {
+    return node.delta.length;
+  }
+
+  return 0;
+}
+
+Selection _computeSelectionAfterPasteMultipleNodes(
+    EditorState editorState, List<Node> nodes) {
+  final currentSelection = editorState.cursorSelection!;
+  final currentCursor = currentSelection.start;
+  final currentPath = [...currentCursor.path];
+  currentPath[currentPath.length - 1] += nodes.length;
+  int lenOfLastNode = _textLengthOfNode(nodes.last);
+  return Selection.collapsed(
+      Position(path: currentPath, offset: lenOfLastNode));
+}
+
+void _handleCopy(EditorState editorState) async {
   final selection = editorState.cursorSelection?.normalize;
   if (selection == null || selection.isCollapsed) {
     return;
@@ -40,7 +61,7 @@ _handleCopy(EditorState editorState) async {
   RichClipboard.setData(RichClipboardData(html: copyString));
 }
 
-_pasteHTML(EditorState editorState, String html) {
+void _pasteHTML(EditorState editorState, String html) {
   final selection = editorState.cursorSelection?.normalize;
   if (selection == null) {
     return;
@@ -78,7 +99,7 @@ _pasteHTML(EditorState editorState, String html) {
   _pasteMultipleLinesInText(editorState, path, selection.start.offset, nodes);
 }
 
-_pasteMultipleLinesInText(
+void _pasteMultipleLinesInText(
     EditorState editorState, List<int> path, int offset, List<Node> nodes) {
   final tb = TransactionBuilder(editorState);
 
@@ -86,6 +107,11 @@ _pasteMultipleLinesInText(
   final nodeAtPath = editorState.document.nodeAtPath(path)!;
 
   if (nodeAtPath.type == "text" && firstNode.type == "text") {
+    int? startNumber;
+    if (nodeAtPath.subtype == StyleKey.numberList) {
+      startNumber = nodeAtPath.attributes[StyleKey.number] as int;
+    }
+
     // split and merge
     final textNodeAtPath = nodeAtPath as TextNode;
     final firstTextNode = firstNode as TextNode;
@@ -100,7 +126,12 @@ _pasteMultipleLinesInText(
             firstTextNode.delta);
 
     final tailNodes = nodes.sublist(1);
+    final originalPath = [...path];
     path[path.length - 1]++;
+
+    final afterSelection =
+        _computeSelectionAfterPasteMultipleNodes(editorState, tailNodes);
+
     if (tailNodes.isNotEmpty) {
       if (tailNodes.last.type == "text") {
         final tailTextNode = tailNodes.last as TextNode;
@@ -112,17 +143,27 @@ _pasteMultipleLinesInText(
       tailNodes.add(TextNode(type: "text", delta: remain));
     }
 
+    tb.setAfterSelection(afterSelection);
     tb.insertNodes(path, tailNodes);
     tb.commit();
+
+    if (startNumber != null) {
+      makeFollowingNodesIncremental(editorState, originalPath, afterSelection,
+          beginNum: startNumber);
+    }
     return;
   }
 
+  final afterSelection =
+      _computeSelectionAfterPasteMultipleNodes(editorState, nodes);
+
   path[path.length - 1]++;
+  tb.setAfterSelection(afterSelection);
   tb.insertNodes(path, nodes);
   tb.commit();
 }
 
-_handlePaste(EditorState editorState) async {
+void _handlePaste(EditorState editorState) async {
   final data = await RichClipboard.getData();
 
   if (editorState.cursorSelection?.isCollapsed ?? false) {
@@ -137,7 +178,7 @@ _handlePaste(EditorState editorState) async {
   });
 }
 
-_pastRichClipboard(EditorState editorState, RichClipboardData data) {
+void _pastRichClipboard(EditorState editorState, RichClipboardData data) {
   if (data.html != null) {
     _pasteHTML(editorState, data.html!);
     return;
@@ -148,7 +189,8 @@ _pastRichClipboard(EditorState editorState, RichClipboardData data) {
   }
 }
 
-_pasteSingleLine(EditorState editorState, Selection selection, String line) {
+void _pasteSingleLine(
+    EditorState editorState, Selection selection, String line) {
   final node = editorState.document.nodeAtPath(selection.end.path)! as TextNode;
   final beginOffset = selection.end.offset;
   TransactionBuilder(editorState)
@@ -188,7 +230,7 @@ Delta _lineContentToDelta(String lineContent) {
   return delta;
 }
 
-_handlePastePlainText(EditorState editorState, String plainText) {
+void _handlePastePlainText(EditorState editorState, String plainText) {
   final selection = editorState.cursorSelection?.normalize;
   if (selection == null) {
     return;
@@ -219,16 +261,21 @@ _handlePastePlainText(EditorState editorState, String plainText) {
     final insertedLineSuffix = node.delta.slice(beginOffset);
 
     path[path.length - 1]++;
-    var index = 0;
     final tb = TransactionBuilder(editorState);
-    final nodes = remains.map((e) {
-      if (index++ == remains.length - 1) {
-        return TextNode(
-            type: "text",
-            delta: _lineContentToDelta(e)..addAll(insertedLineSuffix));
-      }
-      return TextNode(type: "text", delta: _lineContentToDelta(e));
-    }).toList();
+    final List<TextNode> nodes = remains
+        .map((e) => TextNode(type: "text", delta: _lineContentToDelta(e)))
+        .toList();
+
+    final afterSelection =
+        _computeSelectionAfterPasteMultipleNodes(editorState, nodes);
+
+    // append remain text to the last line
+    if (nodes.isNotEmpty) {
+      final last = nodes.last;
+      nodes[nodes.length - 1] =
+          TextNode(type: "text", delta: last.delta..addAll(insertedLineSuffix));
+    }
+
     // insert first line
     tb.textEdit(
         node,
@@ -238,22 +285,19 @@ _handlePastePlainText(EditorState editorState, String plainText) {
           ..delete(node.delta.length - beginOffset));
     // insert remains
     tb.insertNodes(path, nodes);
+    tb.setAfterSelection(afterSelection);
     tb.commit();
-
-    // fixme: don't set the cursor manually
-    editorState.updateCursorSelection(Selection.collapsed(
-        Position(path: nodes.last.path, offset: lines.last.length)));
   }
 }
 
 /// 1. copy the selected content
 /// 2. delete selected content
-_handleCut(EditorState editorState) {
+void _handleCut(EditorState editorState) {
   _handleCopy(editorState);
   _deleteSelectedContent(editorState);
 }
 
-_deleteSelectedContent(EditorState editorState) {
+void _deleteSelectedContent(EditorState editorState) {
   final selection = editorState.cursorSelection?.normalize;
   if (selection == null || selection.isCollapsed) {
     return;

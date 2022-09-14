@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -25,10 +26,11 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   nodes = selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
   selection = selection.isBackward ? selection : selection.reversed;
   final textNodes = nodes.whereType<TextNode>().toList();
-  final nonTextNodes =
+  final List<Node> nonTextNodes =
       nodes.where((node) => node is! TextNode).toList(growable: false);
 
   final transactionBuilder = TransactionBuilder(editorState);
+  List<int>? cancelNumberListPath;
 
   if (nonTextNodes.isNotEmpty) {
     transactionBuilder.deleteNodes(nonTextNodes);
@@ -40,6 +42,9 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     if (index < 0 && selection.isCollapsed) {
       // 1. style
       if (textNode.subtype != null) {
+        if (textNode.subtype == StyleKey.numberList) {
+          cancelNumberListPath = textNode.path;
+        }
         transactionBuilder
           ..updateNode(textNode, {
             StyleKey.subtype: null,
@@ -54,23 +59,13 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       } else {
         // 2. non-style
         // find previous text node.
-        var previous = textNode.previous;
-        while (previous != null) {
-          if (previous is TextNode) {
-            transactionBuilder
-              ..mergeText(previous, textNode)
-              ..deleteNode(textNode)
-              ..afterSelection = Selection.collapsed(
-                Position(
-                  path: previous.path,
-                  offset: previous.toRawString().length,
-                ),
-              );
-            break;
-          } else {
-            previous = previous.previous;
-          }
-        }
+        return _backDeleteToPreviousTextNode(
+          editorState,
+          textNode,
+          transactionBuilder,
+          nonTextNodes,
+          selection,
+        );
       }
     } else {
       if (selection.isCollapsed) {
@@ -88,8 +83,69 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       }
     }
   } else {
-    if (textNodes.isNotEmpty) {
-      _deleteTextNodes(transactionBuilder, textNodes, selection);
+    if (textNodes.isEmpty) {
+      return KeyEventResult.handled;
+    }
+    final startPosition = selection.start;
+    final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
+    _deleteTextNodes(transactionBuilder, textNodes, selection);
+    transactionBuilder.commit();
+
+    if (nodeAtStart is TextNode && nodeAtStart.subtype == StyleKey.numberList) {
+      makeFollowingNodesIncremental(
+        editorState,
+        startPosition.path,
+        transactionBuilder.afterSelection!,
+      );
+    }
+    return KeyEventResult.handled;
+  }
+
+  if (transactionBuilder.operations.isNotEmpty) {
+    if (nonTextNodes.isNotEmpty) {
+      transactionBuilder.afterSelection = Selection.collapsed(selection.start);
+    }
+    transactionBuilder.commit();
+  }
+
+  if (cancelNumberListPath != null) {
+    makeFollowingNodesIncremental(
+      editorState,
+      cancelNumberListPath,
+      Selection.collapsed(selection.start),
+      beginNum: 0,
+    );
+  }
+
+  return KeyEventResult.handled;
+}
+
+KeyEventResult _backDeleteToPreviousTextNode(
+    EditorState editorState,
+    TextNode textNode,
+    TransactionBuilder transactionBuilder,
+    List<Node> nonTextNodes,
+    Selection selection) {
+  var previous = textNode.previous;
+  bool prevIsNumberList = false;
+  while (previous != null) {
+    if (previous is TextNode) {
+      if (previous.subtype == StyleKey.numberList) {
+        prevIsNumberList = true;
+      }
+
+      transactionBuilder
+        ..mergeText(previous, textNode)
+        ..deleteNode(textNode)
+        ..afterSelection = Selection.collapsed(
+          Position(
+            path: previous.path,
+            offset: previous.toRawString().length,
+          ),
+        );
+      break;
+    } else {
+      previous = previous.previous;
     }
   }
 
@@ -98,6 +154,11 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       transactionBuilder.afterSelection = Selection.collapsed(selection.start);
     }
     transactionBuilder.commit();
+  }
+
+  if (prevIsNumberList) {
+    makeFollowingNodesIncremental(
+        editorState, previous!.path, transactionBuilder.afterSelection!);
   }
 
   return KeyEventResult.handled;
@@ -120,36 +181,64 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
   final transactionBuilder = TransactionBuilder(editorState);
   if (textNodes.length == 1) {
     final textNode = textNodes.first;
+    // The cursor is at the end of the line,
+    // merge next line into this line.
     if (selection.start.offset >= textNode.delta.length) {
-      final nextNode = textNode.next;
-      if (nextNode == null) {
-        return KeyEventResult.ignored;
-      }
-      if (nextNode is TextNode) {
-        transactionBuilder.mergeText(textNode, nextNode);
-      }
-      transactionBuilder.deleteNode(nextNode);
-    } else {
-      final index = textNode.delta.nextRunePosition(selection.start.offset);
-      if (selection.isCollapsed) {
-        transactionBuilder.deleteText(
-          textNode,
-          selection.start.offset,
-          index - selection.start.offset,
-        );
-      } else {
-        transactionBuilder.deleteText(
-          textNode,
-          selection.start.offset,
-          selection.end.offset - selection.start.offset,
-        );
-      }
+      return _mergeNextLineIntoThisLine(
+        editorState,
+        textNode,
+        transactionBuilder,
+        selection,
+      );
     }
+    final index = textNode.delta.nextRunePosition(selection.start.offset);
+    if (selection.isCollapsed) {
+      transactionBuilder.deleteText(
+        textNode,
+        selection.start.offset,
+        index - selection.start.offset,
+      );
+    } else {
+      transactionBuilder.deleteText(
+        textNode,
+        selection.start.offset,
+        selection.end.offset - selection.start.offset,
+      );
+    }
+    transactionBuilder.commit();
   } else {
+    final startPosition = selection.start;
+    final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
     _deleteTextNodes(transactionBuilder, textNodes, selection);
+    transactionBuilder.commit();
+
+    if (nodeAtStart is TextNode && nodeAtStart.subtype == StyleKey.numberList) {
+      makeFollowingNodesIncremental(
+          editorState, startPosition.path, transactionBuilder.afterSelection!);
+    }
   }
 
+  return KeyEventResult.handled;
+}
+
+KeyEventResult _mergeNextLineIntoThisLine(
+    EditorState editorState,
+    TextNode textNode,
+    TransactionBuilder transactionBuilder,
+    Selection selection) {
+  final nextNode = textNode.next;
+  if (nextNode == null) {
+    return KeyEventResult.ignored;
+  }
+  if (nextNode is TextNode) {
+    transactionBuilder.mergeText(textNode, nextNode);
+  }
+  transactionBuilder.deleteNode(nextNode);
   transactionBuilder.commit();
+
+  if (textNode.subtype == StyleKey.numberList) {
+    makeFollowingNodesIncremental(editorState, textNode.path, selection);
+  }
 
   return KeyEventResult.handled;
 }

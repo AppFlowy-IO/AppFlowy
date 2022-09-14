@@ -193,7 +193,7 @@ class TransactionBuilder {
   ///
   /// Also, this method will transform the path of the operations
   /// to avoid conflicts.
-  add(Operation op) {
+  add(Operation op, {bool transform = true}) {
     final Operation? last = operations.isEmpty ? null : operations.last;
     if (last != null) {
       if (op is TextEditOperation &&
@@ -208,8 +208,10 @@ class TransactionBuilder {
         return;
       }
     }
-    for (var i = 0; i < operations.length; i++) {
-      op = transformOperation(operations[i], op);
+    if (transform) {
+      for (var i = 0; i < operations.length; i++) {
+        op = transformOperation(operations[i], op);
+      }
     }
     if (op is TextEditOperation && op.delta.isEmpty) {
       return;
