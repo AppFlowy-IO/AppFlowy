@@ -1,6 +1,7 @@
 use super::node_serde::*;
+use crate::core::attributes::{AttributeKey, AttributeValue, Attributes};
 use crate::core::NodeBody::Delta;
-use crate::core::{AttributeKey, AttributeValue, NodeAttributes, OperationTransform};
+use crate::core::OperationTransform;
 use crate::errors::OTError;
 use crate::text_delta::TextDelta;
 use serde::{Deserialize, Serialize};
@@ -10,9 +11,9 @@ pub struct NodeData {
     #[serde(rename = "type")]
     pub node_type: String,
 
-    #[serde(skip_serializing_if = "NodeAttributes::is_empty")]
+    #[serde(skip_serializing_if = "Attributes::is_empty")]
     #[serde(default)]
-    pub attributes: NodeAttributes,
+    pub attributes: Attributes,
 
     #[serde(serialize_with = "serialize_body")]
     #[serde(deserialize_with = "deserialize_body")]
@@ -104,10 +105,7 @@ impl std::default::Default for NodeBody {
 
 impl NodeBody {
     fn is_empty(&self) -> bool {
-        match self {
-            NodeBody::Empty => true,
-            _ => false,
-        }
+        matches!(self, NodeBody::Empty)
     }
 }
 
@@ -118,7 +116,7 @@ impl OperationTransform for NodeBody {
         Self: Sized,
     {
         match (self, other) {
-            (Delta(a), Delta(b)) => a.compose(b).map(|delta| Delta(delta)),
+            (Delta(a), Delta(b)) => a.compose(b).map(Delta),
             (NodeBody::Empty, NodeBody::Empty) => Ok(NodeBody::Empty),
             (l, r) => {
                 let msg = format!("{:?} can not compose {:?}", l, r);
@@ -181,21 +179,21 @@ impl NodeBodyChangeset {
 pub struct Node {
     pub node_type: String,
     pub body: NodeBody,
-    pub attributes: NodeAttributes,
+    pub attributes: Attributes,
 }
 
 impl Node {
     pub fn new(node_type: &str) -> Node {
         Node {
             node_type: node_type.into(),
-            attributes: NodeAttributes::new(),
+            attributes: Attributes::new(),
             body: NodeBody::Empty,
         }
     }
 
     pub fn apply_body_changeset(&mut self, changeset: NodeBodyChangeset) {
         match changeset {
-            NodeBodyChangeset::Delta { delta, inverted: _ } => match self.body.compose(&Delta(delta.clone())) {
+            NodeBodyChangeset::Delta { delta, inverted: _ } => match self.body.compose(&Delta(delta)) {
                 Ok(new_body) => self.body = new_body,
                 Err(e) => tracing::error!("{:?}", e),
             },

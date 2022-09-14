@@ -1,8 +1,9 @@
 use crate::client_document::*;
+use lib_ot::core::AttributeEntry;
 use lib_ot::{
     core::{trim, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
-    text_delta::{TextAttribute, TextDelta},
+    text_delta::TextDelta,
 };
 
 pub const RECORD_THRESHOLD: usize = 400; // in milliseconds
@@ -27,7 +28,7 @@ impl ViewExtensions {
         for ext in &self.insert_exts {
             if let Some(mut delta) = ext.apply(delta, interval.size(), text, interval.start) {
                 trim(&mut delta);
-                tracing::debug!("[{} extension]: process: {}", ext.ext_name(), delta);
+                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }
@@ -44,7 +45,7 @@ impl ViewExtensions {
         for ext in &self.delete_exts {
             if let Some(mut delta) = ext.apply(delta, interval) {
                 trim(&mut delta);
-                tracing::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
+                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }
@@ -59,14 +60,14 @@ impl ViewExtensions {
     pub(crate) fn format(
         &self,
         delta: &TextDelta,
-        attribute: TextAttribute,
+        attribute: AttributeEntry,
         interval: Interval,
     ) -> Result<TextDelta, OTError> {
         let mut new_delta = None;
         for ext in &self.format_exts {
             if let Some(mut delta) = ext.apply(delta, interval, &attribute) {
                 trim(&mut delta);
-                tracing::trace!("[{}]: applied, delta: {}", ext.ext_name(), delta);
+                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), delta);
                 new_delta = Some(delta);
                 break;
             }

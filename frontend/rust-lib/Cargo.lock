@@ -1172,6 +1172,7 @@ dependencies = [
  "strum_macros",
  "tokio",
  "tracing",
+ "tracing-subscriber",
  "unicode-segmentation",
  "url",
 ]

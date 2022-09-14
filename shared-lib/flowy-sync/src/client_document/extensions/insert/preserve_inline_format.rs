@@ -4,7 +4,7 @@ use crate::{
 };
 use lib_ot::{
     core::{OpNewline, OperationBuilder, OperationIterator, NEW_LINE},
-    text_delta::{plain_attributes, TextAttributeKey, TextDelta},
+    text_delta::{empty_attributes, BuildInTextAttributeKey, TextDelta},
 };
 
 pub struct PreserveInlineFormat {}
@@ -25,7 +25,7 @@ impl InsertExt for PreserveInlineFormat {
         }
 
         let mut attributes = prev.get_attributes();
-        if attributes.is_empty() || !attributes.contains_key(&TextAttributeKey::Link) {
+        if attributes.is_empty() || !attributes.contains_key(BuildInTextAttributeKey::Link.as_ref()) {
             return Some(
                 OperationBuilder::new()
                     .retain(index + replace_len)
@@ -36,10 +36,10 @@ impl InsertExt for PreserveInlineFormat {
 
         let next = iter.next_op();
         match &next {
-            None => attributes = plain_attributes(),
+            None => attributes = empty_attributes(),
             Some(next) => {
                 if OpNewline::parse(next).is_equal() {
-                    attributes = plain_attributes();
+                    attributes = empty_attributes();
                 }
             }
         }
@@ -77,11 +77,11 @@ impl InsertExt for PreserveLineFormatOnSplit {
         }
 
         let mut new_delta = TextDelta::new();
-        new_delta.retain(index + replace_len, plain_attributes());
+        new_delta.retain(index + replace_len, empty_attributes());
 
         if newline_status.is_contain() {
             debug_assert!(!next.has_attribute());
-            new_delta.insert(NEW_LINE, plain_attributes());
+            new_delta.insert(NEW_LINE, empty_attributes());
             return Some(new_delta);
         }
 

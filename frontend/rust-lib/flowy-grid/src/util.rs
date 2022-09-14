@@ -49,8 +49,8 @@ pub fn make_default_board() -> BuildGridContext {
     let done_option = SelectOptionPB::with_color("Done", SelectOptionColorPB::Yellow);
     let single_select_type_option = SingleSelectTypeOptionBuilder::default()
         .add_option(to_do_option.clone())
-        .add_option(doing_option.clone())
-        .add_option(done_option.clone());
+        .add_option(doing_option)
+        .add_option(done_option);
     let single_select_field = FieldBuilder::new(single_select_type_option)
         .name("Status")
         .visibility(true)

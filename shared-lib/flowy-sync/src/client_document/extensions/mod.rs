@@ -1,10 +1,8 @@
 pub use delete::*;
 pub use format::*;
 pub use insert::*;
-use lib_ot::{
-    core::Interval,
-    text_delta::{TextAttribute, TextDelta},
-};
+use lib_ot::core::AttributeEntry;
+use lib_ot::{core::Interval, text_delta::TextDelta};
 
 mod delete;
 mod format;
@@ -22,7 +20,7 @@ pub trait InsertExt {
 
 pub trait FormatExt {
     fn ext_name(&self) -> &str;
-    fn apply(&self, delta: &TextDelta, interval: Interval, attribute: &TextAttribute) -> Option<TextDelta>;
+    fn apply(&self, delta: &TextDelta, interval: Interval, attribute: &AttributeEntry) -> Option<TextDelta>;
 }
 
 pub trait DeleteExt {

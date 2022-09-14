@@ -1,5 +1,6 @@
+use lib_ot::core::AttributeBuilder;
 use lib_ot::{
-    core::{NodeAttributeBuilder, NodeBodyChangeset, NodeData, NodeDataBuilder, NodeOperation, Path},
+    core::{NodeBodyChangeset, NodeData, NodeDataBuilder, NodeOperation, Path},
     text_delta::TextDeltaBuilder,
 };
 
@@ -32,15 +33,15 @@ fn operation_insert_node_with_children_serde_test() {
 fn operation_update_node_attributes_serde_test() {
     let operation = NodeOperation::UpdateAttributes {
         path: Path(vec![0, 1]),
-        attributes: NodeAttributeBuilder::new().insert("bold", true).build(),
-        old_attributes: NodeAttributeBuilder::new().insert("bold", false).build(),
+        attributes: AttributeBuilder::new().insert("bold", true).build(),
+        old_attributes: AttributeBuilder::new().insert("bold", false).build(),
     };
 
     let result = serde_json::to_string(&operation).unwrap();
 
     assert_eq!(
         result,
-        r#"{"op":"update","path":[0,1],"attributes":{"bold":true},"oldAttributes":{"bold":false}}"#
+        r#"{"op":"update","path":[0,1],"attributes":{"bold":true},"oldAttributes":{"bold":null}}"#
     );
 }
 

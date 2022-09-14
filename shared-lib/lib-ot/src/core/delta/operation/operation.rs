@@ -70,7 +70,7 @@ pub trait OperationTransform {
 ///Because [Operation] is generic over the T, so you must specify the T. For example, the [Delta] uses
 ///[EmptyAttributes] as the T. [EmptyAttributes] does nothing, just a phantom.
 ///
-pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + OperationTransform {
+pub trait OperationAttributes: Default + Display + Eq + PartialEq + Clone + Debug + OperationTransform {
     fn is_empty(&self) -> bool {
         true
     }
@@ -96,7 +96,7 @@ pub trait Attributes: Default + Display + Eq + PartialEq + Clone + Debug + Opera
 /// to json string. You could check out the operation_serde.rs for more information.
 ///
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum Operation<T: Attributes> {
+pub enum Operation<T: OperationAttributes> {
     Delete(usize),
     Retain(Retain<T>),
     Insert(Insert<T>),
@@ -104,7 +104,7 @@ pub enum Operation<T: Attributes> {
 
 impl<T> Operation<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub fn delete(n: usize) -> Self {
         Self::Delete(n)
@@ -281,7 +281,7 @@ where
 
 impl<T> fmt::Display for Operation<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("{")?;
@@ -302,14 +302,14 @@ where
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Retain<T: Attributes> {
+pub struct Retain<T: OperationAttributes> {
     pub n: usize,
     pub attributes: T,
 }
 
 impl<T> fmt::Display for Retain<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         if self.attributes.is_empty() {
@@ -322,7 +322,7 @@ where
 
 impl<T> Retain<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub fn merge_or_new(&mut self, n: usize, attributes: T) -> Option<Operation<T>> {
         // tracing::trace!(
@@ -346,7 +346,7 @@ where
 
 impl<T> std::convert::From<usize> for Retain<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn from(n: usize) -> Self {
         Retain {
@@ -358,7 +358,7 @@ where
 
 impl<T> Deref for Retain<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     type Target = usize;
 
@@ -369,7 +369,7 @@ where
 
 impl<T> DerefMut for Retain<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.n
@@ -377,14 +377,14 @@ where
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Insert<T: Attributes> {
+pub struct Insert<T: OperationAttributes> {
     pub s: OTString,
     pub attributes: T,
 }
 
 impl<T> fmt::Display for Insert<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let mut s = self.s.clone();
@@ -405,7 +405,7 @@ where
 
 impl<T> Insert<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub fn utf16_size(&self) -> usize {
         self.s.utf16_len()
@@ -427,7 +427,7 @@ where
 
 impl<T> std::convert::From<String> for Insert<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn from(s: String) -> Self {
         Insert {
@@ -439,7 +439,7 @@ where
 
 impl<T> std::convert::From<&str> for Insert<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn from(s: &str) -> Self {
         Insert::from(s.to_owned())
@@ -448,7 +448,7 @@ where
 
 impl<T> std::convert::From<OTString> for Insert<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn from(s: OTString) -> Self {
         Insert {
@@ -466,7 +466,7 @@ impl fmt::Display for EmptyAttributes {
     }
 }
 
-impl Attributes for EmptyAttributes {}
+impl OperationAttributes for EmptyAttributes {}
 
 impl OperationTransform for EmptyAttributes {
     fn compose(&self, _other: &Self) -> Result<Self, OTError> {

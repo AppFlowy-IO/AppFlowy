@@ -1,5 +1,5 @@
 #![allow(clippy::while_let_on_iterator)]
-use crate::core::delta::operation::{Attributes, Operation};
+use crate::core::delta::operation::{Operation, OperationAttributes};
 use crate::core::delta::Operations;
 use crate::core::interval::Interval;
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
@@ -7,7 +7,7 @@ use std::{cmp::min, iter::Enumerate, slice::Iter};
 
 /// A [OperationsCursor] is used to iterate the delta and return the corresponding delta.
 #[derive(Debug)]
-pub struct OperationsCursor<'a, T: Attributes> {
+pub struct OperationsCursor<'a, T: OperationAttributes> {
     pub(crate) delta: &'a Operations<T>,
     pub(crate) origin_iv: Interval,
     pub(crate) consume_iv: Interval,
@@ -19,7 +19,7 @@ pub struct OperationsCursor<'a, T: Attributes> {
 
 impl<'a, T> OperationsCursor<'a, T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     /// # Arguments
     ///
@@ -184,7 +184,7 @@ where
 
 fn find_next<'a, T>(cursor: &mut OperationsCursor<'a, T>) -> Option<&'a Operation<T>>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     match cursor.iter.next() {
         None => None,
@@ -197,7 +197,7 @@ where
 
 type SeekResult = Result<(), OTError>;
 pub trait Metric {
-    fn seek<T: Attributes>(cursor: &mut OperationsCursor<T>, offset: usize) -> SeekResult;
+    fn seek<T: OperationAttributes>(cursor: &mut OperationsCursor<T>, offset: usize) -> SeekResult;
 }
 
 /// [OpMetric] is used by [DeltaIterator] for seeking operations
@@ -205,7 +205,7 @@ pub trait Metric {
 pub struct OpMetric();
 
 impl Metric for OpMetric {
-    fn seek<T: Attributes>(cursor: &mut OperationsCursor<T>, op_offset: usize) -> SeekResult {
+    fn seek<T: OperationAttributes>(cursor: &mut OperationsCursor<T>, op_offset: usize) -> SeekResult {
         let _ = check_bound(cursor.op_offset, op_offset)?;
         let mut seek_cursor = OperationsCursor::new(cursor.delta, cursor.origin_iv);
 
@@ -224,7 +224,7 @@ impl Metric for OpMetric {
 pub struct Utf16CodeUnitMetric();
 
 impl Metric for Utf16CodeUnitMetric {
-    fn seek<T: Attributes>(cursor: &mut OperationsCursor<T>, offset: usize) -> SeekResult {
+    fn seek<T: OperationAttributes>(cursor: &mut OperationsCursor<T>, offset: usize) -> SeekResult {
         if offset > 0 {
             let _ = check_bound(cursor.consume_count, offset)?;
             let _ = cursor.next_with_len(Some(offset));

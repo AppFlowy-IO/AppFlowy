@@ -1,4 +1,4 @@
-use crate::core::delta::operation::Attributes;
+use crate::core::delta::operation::OperationAttributes;
 use crate::core::delta::Operations;
 use serde::{
     de::{SeqAccess, Visitor},
@@ -9,7 +9,7 @@ use std::{fmt, marker::PhantomData};
 
 impl<T> Serialize for Operations<T>
 where
-    T: Attributes + Serialize,
+    T: OperationAttributes + Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -25,7 +25,7 @@ where
 
 impl<'de, T> Deserialize<'de> for Operations<T>
 where
-    T: Attributes + Deserialize<'de>,
+    T: OperationAttributes + Deserialize<'de>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Operations<T>, D::Error>
     where
@@ -35,7 +35,7 @@ where
 
         impl<'de, T> Visitor<'de> for OperationSeqVisitor<T>
         where
-            T: Attributes + Deserialize<'de>,
+            T: OperationAttributes + Deserialize<'de>,
         {
             type Value = Operations<T>;
 

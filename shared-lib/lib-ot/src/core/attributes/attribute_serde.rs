@@ -1,47 +1,48 @@
-use std::fmt;
+use crate::core::attributes::AttributeValue;
 
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer, Serialize, Serializer,
 };
-
-use super::AttributeValue;
+use std::fmt;
 
 impl Serialize for AttributeValue {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        match self.ty {
-            super::ValueType::IntType => {
-                //
-                if let Some(value) = self.int_value() {
-                    serializer.serialize_i64(value)
-                } else {
-                    serializer.serialize_none()
+        match &self.ty {
+            None => serializer.serialize_none(),
+            Some(ty) => match ty {
+                super::ValueType::IntType => {
+                    if let Some(value) = self.int_value() {
+                        serializer.serialize_i64(value)
+                    } else {
+                        serializer.serialize_none()
+                    }
                 }
-            }
-            super::ValueType::FloatType => {
-                if let Some(value) = self.float_value() {
-                    serializer.serialize_f64(value)
-                } else {
-                    serializer.serialize_none()
+                super::ValueType::FloatType => {
+                    if let Some(value) = self.float_value() {
+                        serializer.serialize_f64(value)
+                    } else {
+                        serializer.serialize_none()
+                    }
                 }
-            }
-            super::ValueType::StrType => {
-                if let Some(value) = self.str_value() {
-                    serializer.serialize_str(&value)
-                } else {
-                    serializer.serialize_none()
+                super::ValueType::StrType => {
+                    if let Some(value) = self.str_value() {
+                        serializer.serialize_str(&value)
+                    } else {
+                        serializer.serialize_none()
+                    }
                 }
-            }
-            super::ValueType::BoolType => {
-                if let Some(value) = self.bool_value() {
-                    serializer.serialize_bool(value)
-                } else {
-                    serializer.serialize_none()
+                super::ValueType::BoolType => {
+                    if let Some(value) = self.bool_value() {
+                        serializer.serialize_bool(value)
+                    } else {
+                        serializer.serialize_none()
+                    }
                 }
-            }
+            },
         }
     }
 }
@@ -125,14 +126,14 @@ impl<'de> Deserialize<'de> for AttributeValue {
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_str(s))
+                Ok(AttributeValue::from_string(s))
             }
 
             fn visit_none<E>(self) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::empty())
+                Ok(AttributeValue::none())
             }
 
             fn visit_unit<E>(self) -> Result<Self::Value, E>
@@ -140,7 +141,7 @@ impl<'de> Deserialize<'de> for AttributeValue {
                 E: de::Error,
             {
                 // the value that contains null will be processed here.
-                Ok(AttributeValue::empty())
+                Ok(AttributeValue::none())
             }
 
             fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>

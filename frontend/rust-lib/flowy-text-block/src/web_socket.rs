@@ -10,7 +10,8 @@ use flowy_sync::{
     errors::CollaborateResult,
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::text_delta::TextAttributes;
+use lib_ot::core::Attributes;
+
 use lib_ot::text_delta::TextDelta;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
@@ -111,7 +112,7 @@ struct TextBlockConflictResolver {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ConflictResolver<TextAttributes> for TextBlockConflictResolver {
+impl ConflictResolver<Attributes> for TextBlockConflictResolver {
     fn compose_delta(&self, delta: TextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {

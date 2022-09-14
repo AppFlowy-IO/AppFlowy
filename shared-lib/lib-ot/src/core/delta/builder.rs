@@ -1,4 +1,4 @@
-use crate::core::delta::operation::Attributes;
+use crate::core::delta::operation::OperationAttributes;
 use crate::core::delta::{trim, Operations};
 use crate::core::Operation;
 
@@ -16,13 +16,13 @@ use crate::core::Operation;
 ///         .build();
 /// assert_eq!(delta.content().unwrap(), "AppFlowy");
 /// ```
-pub struct OperationBuilder<T: Attributes> {
+pub struct OperationBuilder<T: OperationAttributes> {
     delta: Operations<T>,
 }
 
 impl<T> std::default::Default for OperationBuilder<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     fn default() -> Self {
         Self {
@@ -33,7 +33,7 @@ where
 
 impl<T> OperationBuilder<T>
 where
-    T: Attributes,
+    T: OperationAttributes,
 {
     pub fn new() -> Self {
         OperationBuilder::default()
@@ -52,9 +52,9 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::text_delta::{TextAttribute, TextDelta, TextDeltaBuilder};
+    /// use lib_ot::text_delta::{BuildInTextAttribute, TextDelta, TextDeltaBuilder};
     ///
-    /// let mut attribute = TextAttribute::Bold(true);
+    /// let mut attribute = BuildInTextAttribute::Bold(true);
     /// let delta = TextDeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
     ///
     /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
@@ -111,7 +111,7 @@ where
     ///
     /// ```
     /// use lib_ot::core::{OperationTransform, DeltaBuilder};
-    /// use lib_ot::text_delta::{TextAttribute, TextDeltaBuilder};
+    /// use lib_ot::text_delta::{BuildInTextAttribute, TextDeltaBuilder};
     /// let delta = DeltaBuilder::new()
     ///         .retain(3)
     ///         .trim()
@@ -119,7 +119,7 @@ where
     /// assert_eq!(delta.ops.len(), 0);
     ///
     /// let delta = TextDeltaBuilder::new()
-    ///         .retain_with_attributes(3, TextAttribute::Bold(true).into())
+    ///         .retain_with_attributes(3, BuildInTextAttribute::Bold(true).into())
     ///         .trim()
     ///         .build();
     /// assert_eq!(delta.ops.len(), 1);

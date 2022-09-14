@@ -1,5 +1,6 @@
+use crate::core::attributes::Attributes;
 use crate::core::document::path::Path;
-use crate::core::{NodeAttributes, NodeData, NodeOperation, NodeTree};
+use crate::core::{NodeData, NodeOperation, NodeTree};
 use indextree::NodeId;
 
 use super::{NodeBodyChangeset, NodeOperationList};
@@ -100,10 +101,10 @@ impl<'a> TransactionBuilder<'a> {
         self.insert_nodes_at_path(path, vec![node])
     }
 
-    pub fn update_attributes_at_path(mut self, path: &Path, attributes: NodeAttributes) -> Self {
+    pub fn update_attributes_at_path(mut self, path: &Path, attributes: Attributes) -> Self {
         match self.node_tree.get_node_at_path(path) {
             Some(node) => {
-                let mut old_attributes = NodeAttributes::new();
+                let mut old_attributes = Attributes::new();
                 for key in attributes.keys() {
                     let old_attrs = &node.attributes;
                     if let Some(value) = old_attrs.get(key.as_str()) {

@@ -1,5 +1,6 @@
+use crate::core::attributes::Attributes;
 use crate::core::document::path::Path;
-use crate::core::{NodeAttributes, NodeBodyChangeset, NodeData};
+use crate::core::{NodeBodyChangeset, NodeData};
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
 
@@ -12,9 +13,9 @@ pub enum NodeOperation {
     #[serde(rename = "update")]
     UpdateAttributes {
         path: Path,
-        attributes: NodeAttributes,
+        attributes: Attributes,
         #[serde(rename = "oldAttributes")]
-        old_attributes: NodeAttributes,
+        old_attributes: Attributes,
     },
 
     #[serde(rename = "update-body")]

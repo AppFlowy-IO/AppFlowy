@@ -8,6 +8,7 @@ import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import './number_list_helper.dart';
 
 @visibleForTesting
 List<String> get checkboxListSymbols => _checkboxListSymbols;
@@ -19,6 +20,8 @@ List<String> get bulletedListSymbols => _bulletedListSymbols;
 const _bulletedListSymbols = ['*', '-'];
 const _checkboxListSymbols = ['[x]', '-[x]'];
 const _unCheckboxListSymbols = ['[]', '-[]'];
+
+final _numberRegex = RegExp(r'^(\d+)\.');
 
 ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
   if (event.logicalKey != LogicalKeyboardKey.space) {
@@ -42,6 +45,16 @@ ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
 
   final textNode = textNodes.first;
   final text = textNode.toRawString();
+
+  final numberMatch = _numberRegex.firstMatch(text);
+  if (numberMatch != null) {
+    final matchText = numberMatch.group(0);
+    final numText = numberMatch.group(1);
+    if (matchText != null && numText != null) {
+      return _toNumberList(editorState, textNode, matchText, numText);
+    }
+  }
+
   if ((_checkboxListSymbols + _unCheckboxListSymbols).any(text.startsWith)) {
     return _toCheckboxList(editorState, textNode);
   } else if (_bulletedListSymbols.any(text.startsWith)) {
@@ -52,6 +65,52 @@ ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
 
   return KeyEventResult.ignored;
 };
+
+KeyEventResult _toNumberList(EditorState editorState, TextNode textNode,
+    String matchText, String numText) {
+  if (textNode.subtype == StyleKey.bulletedList) {
+    return KeyEventResult.ignored;
+  }
+
+  final numValue = int.tryParse(numText);
+  if (numValue == null) {
+    return KeyEventResult.ignored;
+  }
+
+  // The user types number + . + space, he wants to turn
+  // this line into number list, but we should check if previous line
+  // is number list.
+  //
+  // Check whether the number input by the user is the successor of the previous
+  // line. If it's not, ignore it.
+  final prevNode = textNode.previous;
+  if (prevNode != null &&
+      prevNode is TextNode &&
+      prevNode.attributes[StyleKey.subtype] == StyleKey.numberList) {
+    final prevNumber = prevNode.attributes[StyleKey.number] as int;
+    if (numValue != prevNumber + 1) {
+      return KeyEventResult.ignored;
+    }
+  }
+
+  final afterSelection = Selection.collapsed(Position(
+    path: textNode.path,
+    offset: 0,
+  ));
+
+  final insertPath = textNode.path;
+
+  TransactionBuilder(editorState)
+    ..deleteText(textNode, 0, matchText.length)
+    ..updateNode(textNode,
+        {StyleKey.subtype: StyleKey.numberList, StyleKey.number: numValue})
+    ..afterSelection = afterSelection
+    ..commit();
+
+  makeFollowingNodesIncremental(editorState, insertPath, afterSelection);
+
+  return KeyEventResult.handled;
+}
 
 KeyEventResult _toBulletedList(EditorState editorState, TextNode textNode) {
   if (textNode.subtype == StyleKey.bulletedList) {
