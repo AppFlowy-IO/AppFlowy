@@ -67,7 +67,7 @@ void main() async {
           );
         }
       }
-      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      if (Platform.isWindows || Platform.isMacOS) {
         await editor.pressLogicKey(
           LogicalKeyboardKey.arrowLeft,
           isAltPressed: true,
