@@ -59,8 +59,10 @@ class _SettingButton extends StatelessWidget {
       child: FlowyIconButton(
         width: 22,
         hoverColor: theme.hover,
-        icon: svgWidget("grid/setting/setting")
-            .padding(horizontal: 3, vertical: 3),
+        icon: svgWidget(
+          "grid/setting/setting",
+          color: theme.iconColor,
+        ).padding(horizontal: 3, vertical: 3),
       ),
       popupBuilder: (BuildContext context) {
         return _GridSettingListPopover(settingContext: settingContext);
