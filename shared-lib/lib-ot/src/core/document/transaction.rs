@@ -27,10 +27,14 @@ impl Transaction {
         self.operations.into_inner()
     }
 
+    /// Make the `other` to be applied to the version that has been modified.
+    ///
+    /// The semantics of transform is used when editing conflicts occur, which is often determined by the version id。
+    /// the operations of the transaction will be transformed into the conflict operations.
     pub fn transform(&self, other: &mut Transaction) {
         for other_operation in other.iter_mut() {
             for operation in self.operations.iter() {
-                operation.mut_transform(other_operation);
+                operation.transform(other_operation);
             }
         }
     }

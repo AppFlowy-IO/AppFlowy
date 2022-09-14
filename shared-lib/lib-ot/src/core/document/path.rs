@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// The `Path` represents as a path to reference to the node in the `NodeTree`.
 #[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
 pub struct Path(pub Vec<usize>);
 
@@ -48,8 +49,56 @@ impl From<&[usize]> for Path {
 }
 
 impl Path {
+    ///
+    ///
+    /// The path will be changed is
+    /// # Arguments
+    ///
+    /// * `other`:
+    /// * `offset`: represents the len of nodes referenced by this path
+    ///
+    /// returns: Path
+    ///
+    /// # Examples
+    ///
+    /// ```
+    ///
+    /// ```
+    pub fn transform(&self, other: &Path, offset: usize) -> Path {
+        if self.len() > other.len() {
+            return other.clone();
+        }
+        if self.is_empty() || other.is_empty() {
+            return other.clone();
+        }
+        for i in 0..(self.len() - 1) {
+            if self.0[i] != other.0[i] {
+                return other.clone();
+            }
+        }
+
+        // Splits the `Path` into two part. The suffix will contain the last element of the `Path`.
+        let second_last_index = self.0.len() - 1;
+        let mut prefix: Vec<usize> = self.0[0..second_last_index].into();
+        let mut suffix: Vec<usize> = other.0[self.0.len()..].into();
+        let last_value = self.0.last().unwrap().clone();
+
+        let other_second_last_value = other.0[second_last_index];
+
+        //
+        if last_value <= other_second_last_value {
+            prefix.push(other_second_last_value + offset);
+        } else {
+            prefix.push(other_second_last_value);
+        }
+
+        // concat the prefix and suffix into a new path
+        prefix.append(&mut suffix);
+        Path(prefix)
+    }
+
     // delta is default to be 1
-    pub fn transform(pre_insert_path: &Path, b: &Path, offset: i64) -> Path {
+    pub fn transform3(pre_insert_path: &Path, b: &Path, offset: i64) -> Path {
         if pre_insert_path.len() > b.len() {
             return b.clone();
         }
@@ -83,12 +132,12 @@ mod tests {
     #[test]
     fn path_transform_test_1() {
         assert_eq!(
-            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 1]), 1) }.0,
+            { Path::transform3(&Path(vec![0, 1]), &Path(vec![0, 1]), 1) }.0,
             vec![0, 2]
         );
 
         assert_eq!(
-            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 1]), 5) }.0,
+            { Path::transform3(&Path(vec![0, 1]), &Path(vec![0, 1]), 5) }.0,
             vec![0, 6]
         );
     }
@@ -96,7 +145,7 @@ mod tests {
     #[test]
     fn path_transform_test_2() {
         assert_eq!(
-            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 2]), 1) }.0,
+            { Path::transform3(&Path(vec![0, 1]), &Path(vec![0, 2]), 1) }.0,
             vec![0, 3]
         );
     }
@@ -104,7 +153,7 @@ mod tests {
     #[test]
     fn path_transform_test_3() {
         assert_eq!(
-            { Path::transform(&Path(vec![0, 1]), &Path(vec![0, 2, 7, 8, 9]), 1) }.0,
+            { Path::transform3(&Path(vec![0, 1]), &Path(vec![0, 2, 7, 8, 9]), 1) }.0,
             vec![0, 3, 7, 8, 9]
         );
     }
@@ -112,15 +161,15 @@ mod tests {
     #[test]
     fn path_transform_no_changed_test() {
         assert_eq!(
-            { Path::transform(&Path(vec![0, 1, 2]), &Path(vec![0, 0, 7, 8, 9]), 1) }.0,
+            { Path::transform3(&Path(vec![0, 1, 2]), &Path(vec![0, 0, 7, 8, 9]), 1) }.0,
             vec![0, 0, 7, 8, 9]
         );
         assert_eq!(
-            { Path::transform(&Path(vec![0, 1, 2]), &Path(vec![0, 1]), 1) }.0,
+            { Path::transform3(&Path(vec![0, 1, 2]), &Path(vec![0, 1]), 1) }.0,
             vec![0, 1]
         );
         assert_eq!(
-            { Path::transform(&Path(vec![1, 1]), &Path(vec![1, 0]), 1) }.0,
+            { Path::transform3(&Path(vec![1, 1]), &Path(vec![1, 0]), 1) }.0,
             vec![1, 0]
         );
     }

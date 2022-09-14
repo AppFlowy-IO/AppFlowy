@@ -149,7 +149,7 @@ impl NodeTest {
 
     fn transform_transaction_if_need(&mut self, transaction: &mut Transaction, rev_id: usize) {
         if self.rev_id >= rev_id {
-            for rev_id in rev_id..self.rev_id {
+            for rev_id in rev_id..=self.rev_id {
                 let old_transaction = self.rev_operations.get(&rev_id).unwrap();
                 old_transaction.transform(transaction);
             }

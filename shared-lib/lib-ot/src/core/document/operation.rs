@@ -66,15 +66,12 @@ impl NodeOperation {
         }
     }
 
-    pub fn mut_path<F>(&mut self, f: F)
-    where
-        F: FnOnce(&mut Path),
-    {
+    pub fn get_mut_path(&mut self) -> &mut Path {
         match self {
-            NodeOperation::Insert { path, .. } => f(path),
-            NodeOperation::UpdateAttributes { path, .. } => f(path),
-            NodeOperation::Delete { path, .. } => f(path),
-            NodeOperation::UpdateBody { path, .. } => f(path),
+            NodeOperation::Insert { path, .. } => path,
+            NodeOperation::UpdateAttributes { path, .. } => path,
+            NodeOperation::Delete { path, .. } => path,
+            NodeOperation::UpdateBody { path, .. } => path,
         }
     }
 
@@ -104,14 +101,14 @@ impl NodeOperation {
         }
     }
 
-    /// Transform the `other` operation into a new operation that carries the changes made by
-    /// the current operation.
+    /// Make the `other` operation to be applied to the version that has been modified.
+    /// The semantics of transform is used when editing conflicts occur, which is often determined by the version id。
+    /// For example, if the inserted position has been acquired by others, then you need to do transform to make sure
+    /// your position is value.
     ///
     /// # Arguments
     ///
     /// * `other`: The operation that is going to be transformed
-    ///
-    /// returns: NodeOperation
     ///
     /// # Examples
     ///
@@ -130,39 +127,21 @@ impl NodeOperation {
     ///     nodes: vec![node_2],
     /// };
     ///
-    /// assert_eq!(serde_json::to_string(&op_2).unwrap(), r#"{"op":"insert","path":[0,1],
-    /// "nodes":[{"type":"text_2"}]}"#);
+    /// assert_eq!(serde_json::to_string(&op_2).unwrap(), r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text_2"}]}"#);
     ///
-    /// let new_op = op_1.transform(&op_2);
-    /// assert_eq!(serde_json::to_string(&new_op).unwrap(), r#"{"op":"insert","path":[0,2],
-    /// "nodes":[{"type":"text_2"}]}"#);
+    /// op_1.transform(&mut op_2);
+    /// assert_eq!(serde_json::to_string(&op_2).unwrap(), r#"{"op":"insert","path":[0,2],"nodes":[{"type":"text_2"}]}"#);
     ///
     /// ```
-    pub fn transform(&self, other: &NodeOperation) -> NodeOperation {
-        let mut other = other.clone();
+    pub fn transform(&self, other: &mut NodeOperation) {
         match self {
             NodeOperation::Insert { path, nodes } => {
-                let new_path = Path::transform(path, other.get_path(), nodes.len() as i64);
-                other.mut_path(|path| *path = new_path);
+                let new_path = path.transform(other.get_path(), nodes.len());
+                *other.get_mut_path() = new_path;
             }
-            NodeOperation::Delete { path: a_path, nodes } => {
-                let new_path = Path::transform(a_path, other.get_path(), nodes.len() as i64);
-                other.mut_path(|path| *path = new_path);
-            }
-            _ => {}
-        }
-        other
-    }
-
-    pub fn mut_transform(&self, other: &mut NodeOperation) {
-        match self {
-            NodeOperation::Insert { path, nodes } => {
-                let new_path = Path::transform(path, other.get_path(), nodes.len() as i64);
-                other.mut_path(|path| *path = new_path);
-            }
-            NodeOperation::Delete { path: a_path, nodes } => {
-                let new_path = Path::transform(a_path, other.get_path(), nodes.len() as i64);
-                other.mut_path(|path| *path = new_path);
+            NodeOperation::Delete { path, nodes } => {
+                let new_path = path.transform(other.get_path(), nodes.len());
+                *other.get_mut_path() = new_path;
             }
             _ => {}
         }

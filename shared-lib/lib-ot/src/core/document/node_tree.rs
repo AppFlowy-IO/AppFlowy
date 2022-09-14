@@ -216,8 +216,8 @@ impl NodeTree {
             return Ok(());
         }
 
-        /// Append the node to the end of the children list if index greater or equal to the
-        /// length of the children.
+        // Append the node to the end of the children list if index greater or equal to the
+        // length of the children.
         if index >= parent.children(&self.arena).count() {
             self.append_nodes(&parent, nodes);
             return Ok(());
