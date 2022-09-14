@@ -83,7 +83,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                       context
                           .read<NumberTypeOptionBloc>()
                           .add(NumberTypeOptionEvent.didSelectFormat(format));
-                      PopoverContainerState.of(popoverContext).closeAll();
+                      PopoverContainer.of(popoverContext).closeAll();
                     },
                     selectedFormat: state.typeOption.format,
                   ),

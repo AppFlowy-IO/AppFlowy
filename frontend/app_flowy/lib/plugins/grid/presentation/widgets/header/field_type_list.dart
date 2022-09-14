@@ -26,7 +26,7 @@ class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
         fieldType: fieldType,
         onSelectField: (fieldType) {
           onSelectField(fieldType);
-          PopoverContainerState.of(context).closeAll();
+          PopoverContainer.of(context).closeAll();
         },
       );
     }).toList();

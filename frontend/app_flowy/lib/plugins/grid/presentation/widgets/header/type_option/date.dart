@@ -76,7 +76,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
               context
                   .read<DateTypeOptionBloc>()
                   .add(DateTypeOptionEvent.didSelectDateFormat(format));
-              PopoverContainerState.of(popoverContext).closeAll();
+              PopoverContainer.of(popoverContext).closeAll();
             },
           ),
         );
@@ -100,7 +100,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
                 context
                     .read<DateTypeOptionBloc>()
                     .add(DateTypeOptionEvent.didSelectTimeFormat(format));
-                PopoverContainerState.of(popoverContext).closeAll();
+                PopoverContainer.of(popoverContext).closeAll();
               }),
         );
       },
