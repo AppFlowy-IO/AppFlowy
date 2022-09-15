@@ -116,6 +116,7 @@ class NumberFormatList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const _FilterTextField(),
+            const VSpace(10),
             BlocBuilder<NumberFormatBloc, NumberFormatState>(
               builder: (context, state) {
                 final cells = state.formats.map((format) {
