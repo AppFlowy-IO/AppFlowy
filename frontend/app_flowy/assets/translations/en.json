@@ -191,7 +191,8 @@
       "optionTitle": "Options",
       "addOption": "Add option",
       "editProperty": "Edit property",
-      "newColumn": "New column"
+      "newColumn": "New column",
+      "deleteFieldPromptMessage": "Are you sure? This property will be deleted"
     },
     "row": {
       "duplicate": "Duplicate",

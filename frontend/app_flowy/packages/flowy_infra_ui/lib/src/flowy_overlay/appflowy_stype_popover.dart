@@ -35,6 +35,8 @@ class AppFlowyStylePopover extends StatelessWidget {
       mutex: mutex,
       triggerActions: triggerActions,
       popupBuilder: (context) {
+        final child = popupBuilder(context);
+        debugPrint('$child popover');
         return OverlayContainer(
           constraints: constraints,
           child: popupBuilder(context),

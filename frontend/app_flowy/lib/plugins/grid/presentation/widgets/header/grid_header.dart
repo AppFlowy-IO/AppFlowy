@@ -187,7 +187,10 @@ class CreateFieldButton extends StatelessWidget {
         ),
         hoverColor: theme.shader6,
         onTap: () {},
-        leftIcon: svgWidget("home/add"),
+        leftIcon: svgWidget(
+          "home/add",
+          color: theme.iconColor,
+        ),
       ),
       popupBuilder: (BuildContext popover) {
         return FieldEditor(

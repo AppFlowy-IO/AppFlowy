@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:async';
@@ -23,6 +24,13 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
           },
           didReceiveCellDatas: (_DidReceiveCellDatas value) {
             emit(state.copyWith(gridCells: value.gridCells));
+          },
+          deleteField: (_DeleteField value) {
+            final fieldService = FieldService(
+              gridId: dataController.rowInfo.gridId,
+              fieldId: value.fieldId,
+            );
+            fieldService.deleteField();
           },
         );
       },
@@ -49,6 +57,7 @@ class RowDetailBloc extends Bloc<RowDetailEvent, RowDetailState> {
 @freezed
 class RowDetailEvent with _$RowDetailEvent {
   const factory RowDetailEvent.initial() = _Initial;
+  const factory RowDetailEvent.deleteField(String fieldId) = _DeleteField;
   const factory RowDetailEvent.didReceiveCellDatas(
       List<GridCellIdentifier> gridCells) = _DidReceiveCellDatas;
 }

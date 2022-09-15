@@ -59,7 +59,7 @@ class Popover extends StatefulWidget {
   final Decoration? maskDecoration;
 
   /// The function used to build the popover.
-  final Widget Function(BuildContext context) popupBuilder;
+  final Widget? Function(BuildContext context) popupBuilder;
 
   final int triggerActions;
 
@@ -265,7 +265,7 @@ class _PopoverMaskState extends State<_PopoverMask> {
 }
 
 class PopoverContainer extends StatefulWidget {
-  final Widget Function(BuildContext context) popupBuilder;
+  final Widget? Function(BuildContext context) popupBuilder;
   final PopoverDirection direction;
   final PopoverLink popoverLink;
   final Offset offset;

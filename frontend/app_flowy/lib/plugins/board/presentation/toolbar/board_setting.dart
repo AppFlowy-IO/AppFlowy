@@ -2,7 +2,9 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/board/application/toolbar/board_setting_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
+import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_group.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_property.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -141,10 +143,12 @@ extension _GridSettingExtension on BoardSettingAction {
 }
 
 class BoardSettingListPopover extends StatefulWidget {
+  final PopoverController popoverController;
   final BoardSettingContext settingContext;
 
   const BoardSettingListPopover({
     Key? key,
+    required this.popoverController,
     required this.settingContext,
   }) : super(key: key);
 
@@ -153,36 +157,33 @@ class BoardSettingListPopover extends StatefulWidget {
 }
 
 class _BoardSettingListPopoverState extends State<BoardSettingListPopover> {
-  bool _showGridPropertyList = false;
+  BoardSettingAction? _action;
 
   @override
   Widget build(BuildContext context) {
-    if (_showGridPropertyList) {
-      return OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(260, 400)),
-        child: GridPropertyList(
-          gridId: widget.settingContext.viewId,
-          fieldController: widget.settingContext.fieldController,
-        ),
-      );
+    if (_action != null) {
+      switch (_action!) {
+        case BoardSettingAction.groups:
+          return GridGroupList(
+            viewId: widget.settingContext.viewId,
+            fieldController: widget.settingContext.fieldController,
+            onDismissed: () {
+              widget.popoverController.close();
+            },
+          );
+        case BoardSettingAction.properties:
+          return GridPropertyList(
+            gridId: widget.settingContext.viewId,
+            fieldController: widget.settingContext.fieldController,
+          );
+      }
     }
 
-    return OverlayContainer(
-      constraints: BoxConstraints.loose(const Size(140, 400)),
-      child: BoardSettingList(
-        settingContext: widget.settingContext,
-        onAction: (action, settingContext) {
-          switch (action) {
-            case BoardSettingAction.groups:
-              break;
-            case BoardSettingAction.properties:
-              setState(() {
-                _showGridPropertyList = true;
-              });
-              break;
-          }
-        },
-      ),
+    return BoardSettingList(
+      settingContext: widget.settingContext,
+      onAction: (action, settingContext) {
+        setState(() => _action = action);
+      },
     );
   }
 }

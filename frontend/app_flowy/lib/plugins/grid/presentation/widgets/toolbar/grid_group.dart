@@ -3,7 +3,6 @@ import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -15,9 +14,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class GridGroupList extends StatelessWidget {
   final String viewId;
   final GridFieldController fieldController;
+  final VoidCallback onDismissed;
   const GridGroupList({
     required this.viewId,
     required this.fieldController,
+    required this.onDismissed,
     Key? key,
   }) : super(key: key);
 
@@ -33,6 +34,7 @@ class GridGroupList extends StatelessWidget {
           final cells = state.fieldContexts.map((fieldContext) {
             Widget cell = _GridGroupCell(
               fieldContext: fieldContext,
+              onSelected: () => onDismissed(),
               key: ValueKey(fieldContext.id),
             );
 
@@ -56,29 +58,16 @@ class GridGroupList extends StatelessWidget {
       ),
     );
   }
-
-  void show(BuildContext context) {
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(260, 400)),
-        child: this,
-      ),
-      identifier: identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.bottomRight,
-      style: FlowyOverlayStyle(blur: false),
-    );
-  }
-
-  static String identifier() {
-    return (GridGroupList).toString();
-  }
 }
 
 class _GridGroupCell extends StatelessWidget {
+  final VoidCallback onSelected;
   final GridFieldContext fieldContext;
-  const _GridGroupCell({required this.fieldContext, Key? key})
-      : super(key: key);
+  const _GridGroupCell({
+    required this.fieldContext,
+    required this.onSelected,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -97,8 +86,10 @@ class _GridGroupCell extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(fieldContext.name, fontSize: 12),
         hoverColor: theme.hover,
-        leftIcon: svgWidget(fieldContext.fieldType.iconName(),
-            color: theme.iconColor),
+        leftIcon: svgWidget(
+          fieldContext.fieldType.iconName(),
+          color: theme.iconColor,
+        ),
         rightIcon: rightIcon,
         onTap: () {
           context.read<GridGroupBloc>().add(
@@ -107,7 +98,8 @@ class _GridGroupCell extends StatelessWidget {
                   fieldContext.fieldType,
                 ),
               );
-          FlowyOverlay.of(context).remove(GridGroupList.identifier());
+          onSelected();
+          // FlowyOverlay.of(context).remove(GridGroupList.identifier());
         },
       ),
     );

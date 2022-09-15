@@ -2,6 +2,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:async';
 import 'package:dartz/dartz.dart';
+import 'field_service.dart';
 import 'type_option/type_option_context.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -15,10 +16,11 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
   FieldEditorBloc({
     required String gridId,
     required String fieldName,
+    required bool isGroupField,
     required IFieldTypeOptionLoader loader,
   })  : dataController =
             TypeOptionDataController(gridId: gridId, loader: loader),
-        super(FieldEditorState.initial(gridId, fieldName)) {
+        super(FieldEditorState.initial(gridId, fieldName, isGroupField)) {
     on<FieldEditorEvent>(
       (event, emit) async {
         await event.when(
@@ -35,7 +37,23 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             emit(state.copyWith(name: name));
           },
           didReceiveFieldChanged: (FieldPB field) {
-            emit(state.copyWith(field: Some(field), name: field.name));
+            emit(state.copyWith(
+              field: Some(field),
+              name: field.name,
+              canDelete: field.isPrimary,
+            ));
+          },
+          deleteField: () {
+            state.field.fold(
+              () => null,
+              (field) {
+                final fieldService = FieldService(
+                  gridId: gridId,
+                  fieldId: field.id,
+                );
+                fieldService.deleteField();
+              },
+            );
           },
         );
       },
@@ -52,6 +70,7 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
 class FieldEditorEvent with _$FieldEditorEvent {
   const factory FieldEditorEvent.initial() = _InitialField;
   const factory FieldEditorEvent.updateName(String name) = _UpdateName;
+  const factory FieldEditorEvent.deleteField() = _DeleteField;
   const factory FieldEditorEvent.didReceiveFieldChanged(FieldPB field) =
       _DidReceiveFieldChanged;
 }
@@ -63,16 +82,21 @@ class FieldEditorState with _$FieldEditorState {
     required String errorText,
     required String name,
     required Option<FieldPB> field,
+    required bool canDelete,
+    required bool isGroupField,
   }) = _FieldEditorState;
 
   factory FieldEditorState.initial(
     String gridId,
     String fieldName,
+    bool isGroupField,
   ) =>
       FieldEditorState(
         gridId: gridId,
         errorText: '',
         field: none(),
+        canDelete: false,
         name: fieldName,
+        isGroupField: isGroupField,
       );
 }

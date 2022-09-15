@@ -53,14 +53,17 @@ class _SettingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return Popover(
+    return AppFlowyStylePopover(
+      constraints: BoxConstraints.loose(const Size(260, 400)),
       triggerActions: PopoverTriggerActionFlags.click,
       offset: const Offset(0, 10),
       child: FlowyIconButton(
         width: 22,
         hoverColor: theme.hover,
-        icon: svgWidget("grid/setting/setting")
-            .padding(horizontal: 3, vertical: 3),
+        icon: svgWidget(
+          "grid/setting/setting",
+          color: theme.iconColor,
+        ).padding(horizontal: 3, vertical: 3),
       ),
       popupBuilder: (BuildContext context) {
         return _GridSettingListPopover(settingContext: settingContext);
@@ -85,25 +88,19 @@ class _GridSettingListPopoverState extends State<_GridSettingListPopover> {
   @override
   Widget build(BuildContext context) {
     if (_action == GridSettingAction.properties) {
-      return OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(260, 400)),
-        child: GridPropertyList(
-          gridId: widget.settingContext.gridId,
-          fieldController: widget.settingContext.fieldController,
-        ),
+      return GridPropertyList(
+        gridId: widget.settingContext.gridId,
+        fieldController: widget.settingContext.fieldController,
       );
     }
 
-    return OverlayContainer(
-      constraints: BoxConstraints.loose(const Size(140, 400)),
-      child: GridSettingList(
-        settingContext: widget.settingContext,
-        onAction: (action, settingContext) {
-          setState(() {
-            _action = action;
-          });
-        },
-      ),
+    return GridSettingList(
+      settingContext: widget.settingContext,
+      onAction: (action, settingContext) {
+        setState(() {
+          _action = action;
+        });
+      },
     );
   }
 }
