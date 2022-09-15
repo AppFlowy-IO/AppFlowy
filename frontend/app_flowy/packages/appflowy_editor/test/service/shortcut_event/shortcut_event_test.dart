@@ -93,14 +93,14 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [1], startOffset: 0),
       );
-      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      if (Platform.isWindows || Platform.isLinux) {
         await editor.pressLogicKey(
           LogicalKeyboardKey.arrowRight,
           isControlPressed: true,
         );
       } else {
         await editor.pressLogicKey(
-          LogicalKeyboardKey.arrowLeft,
+          LogicalKeyboardKey.arrowRight,
           isMetaPressed: true,
         );
       }
@@ -121,17 +121,10 @@ void main() async {
           );
         }
       }
-      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-        await editor.pressLogicKey(
-          LogicalKeyboardKey.arrowRight,
-          isAltPressed: true,
-        );
-      } else {
-        await editor.pressLogicKey(
-          LogicalKeyboardKey.arrowRight,
-          isMetaPressed: true,
-        );
-      }
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.arrowRight,
+        isAltPressed: true,
+      );
       expect(
         editor.documentSelection,
         Selection.single(path: [1], startOffset: text.length),
