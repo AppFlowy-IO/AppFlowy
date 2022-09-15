@@ -146,18 +146,15 @@ class _PropertyList extends StatelessWidget {
                 });
               },
               onOpened: (controller) {
-                return OverlayContainer(
-                  constraints: BoxConstraints.loose(const Size(240, 200)),
-                  child: FieldEditor(
-                    gridId: viewId,
-                    typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
-                    onDeleted: (fieldId) {
-                      controller.close();
-                      context
-                          .read<RowDetailBloc>()
-                          .add(RowDetailEvent.deleteField(fieldId));
-                    },
-                  ),
+                return FieldEditor(
+                  gridId: viewId,
+                  typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
+                  onDeleted: (fieldId) {
+                    controller.close();
+                    context
+                        .read<RowDetailBloc>()
+                        .add(RowDetailEvent.deleteField(fieldId));
+                  },
                 );
               },
             ),
@@ -168,13 +165,12 @@ class _PropertyList extends StatelessWidget {
   }
 }
 
-class _CreateFieldButton extends StatelessWidget {
+class _CreateFieldButton extends StatefulWidget {
   final String viewId;
   final Widget Function(PopoverController) onOpened;
   final VoidCallback onClosed;
-  final PopoverController popoverController = PopoverController();
 
-  _CreateFieldButton({
+  const _CreateFieldButton({
     required this.viewId,
     required this.onOpened,
     required this.onClosed,
@@ -182,14 +178,28 @@ class _CreateFieldButton extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_CreateFieldButton> createState() => _CreateFieldButtonState();
+}
+
+class _CreateFieldButtonState extends State<_CreateFieldButton> {
+  late PopoverController popoverController;
+
+  @override
+  void initState() {
+    popoverController = PopoverController();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
 
-    return Popover(
+    return AppFlowyStylePopover(
+      constraints: BoxConstraints.loose(const Size(240, 200)),
       controller: popoverController,
       triggerActions: PopoverTriggerActionFlags.click,
       direction: PopoverDirection.topWithLeftAligned,
-      onClose: onClosed,
+      onClose: widget.onClosed,
       child: Container(
         height: 40,
         decoration: _makeBoxDecoration(context),
@@ -203,7 +213,8 @@ class _CreateFieldButton extends StatelessWidget {
           leftIcon: svgWidget("home/add"),
         ),
       ),
-      popupBuilder: (BuildContext context) => onOpened(popoverController),
+      popupBuilder: (BuildContext context) =>
+          widget.onOpened(popoverController),
     );
   }
 
