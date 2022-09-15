@@ -287,7 +287,7 @@ void main() async {
       LogicalKeyboardKey.arrowDown,
       isShiftPressed: true,
     );
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       await editor.pressLogicKey(
         LogicalKeyboardKey.arrowRight,
         isShiftPressed: true,
@@ -321,7 +321,7 @@ void main() async {
       LogicalKeyboardKey.arrowUp,
       isShiftPressed: true,
     );
-    if (Platform.isWindows) {
+    if (Platform.isWindows || Platform.isLinux) {
       await editor.pressLogicKey(
         LogicalKeyboardKey.arrowLeft,
         isShiftPressed: true,
@@ -398,7 +398,7 @@ Future<void> _testPressArrowKeyWithMetaInSelection(
     }
   }
   await editor.updateSelection(selection);
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       LogicalKeyboardKey.arrowLeft,
       isControlPressed: true,
@@ -415,7 +415,7 @@ Future<void> _testPressArrowKeyWithMetaInSelection(
     Selection.single(path: [0], startOffset: 0),
   );
 
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       LogicalKeyboardKey.arrowRight,
       isControlPressed: true,
@@ -432,7 +432,7 @@ Future<void> _testPressArrowKeyWithMetaInSelection(
     Selection.single(path: [0], startOffset: text.length),
   );
 
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       LogicalKeyboardKey.arrowUp,
       isControlPressed: true,
@@ -449,7 +449,7 @@ Future<void> _testPressArrowKeyWithMetaInSelection(
     Selection.single(path: [0], startOffset: 0),
   );
 
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       LogicalKeyboardKey.arrowDown,
       isControlPressed: true,

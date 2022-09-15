@@ -84,7 +84,7 @@ Future<void> _testUpdateTextStyleByCommandX(
   var selection =
       Selection.single(path: [1], startOffset: 2, endOffset: text.length - 2);
   await editor.updateSelection(selection);
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       key,
       isShiftPressed: isShiftPressed,
@@ -111,7 +111,7 @@ Future<void> _testUpdateTextStyleByCommandX(
   selection =
       Selection.single(path: [1], startOffset: 0, endOffset: text.length);
   await editor.updateSelection(selection);
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       key,
       isShiftPressed: isShiftPressed,
@@ -136,7 +136,7 @@ Future<void> _testUpdateTextStyleByCommandX(
       true);
 
   await editor.updateSelection(selection);
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       key,
       isShiftPressed: isShiftPressed,
@@ -158,7 +158,7 @@ Future<void> _testUpdateTextStyleByCommandX(
     end: Position(path: [2], offset: text.length),
   );
   await editor.updateSelection(selection);
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       key,
       isShiftPressed: isShiftPressed,
@@ -193,7 +193,7 @@ Future<void> _testUpdateTextStyleByCommandX(
 
   await editor.updateSelection(selection);
 
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(
       key,
       isShiftPressed: isShiftPressed,
@@ -239,7 +239,7 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
   expect(find.byType(ToolbarWidget), findsOneWidget);
 
   // trigger the link menu
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(LogicalKeyboardKey.keyK, isControlPressed: true);
   } else {
     await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
@@ -262,7 +262,7 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
       true);
 
   await editor.updateSelection(selection);
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(LogicalKeyboardKey.keyK, isControlPressed: true);
   } else {
     await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
@@ -279,7 +279,7 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
   expect(find.byType(LinkMenu), findsNothing);
 
   // Remove link
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(LogicalKeyboardKey.keyK, isControlPressed: true);
   } else {
     await editor.pressLogicKey(LogicalKeyboardKey.keyK, isMetaPressed: true);
