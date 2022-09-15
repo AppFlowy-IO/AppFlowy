@@ -261,7 +261,7 @@ use flowy_folder::entities::{
 use flowy_folder_data_model::revision::{
     gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision,
 };
-use flowy_text_block::BlockCloudService;
+use flowy_text_block::TextEditorCloudService;
 use flowy_user::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
@@ -414,12 +414,12 @@ impl UserCloudService for LocalServer {
     }
 }
 
-impl BlockCloudService for LocalServer {
-    fn create_block(&self, _token: &str, _params: CreateTextBlockParams) -> FutureResult<(), FlowyError> {
+impl TextEditorCloudService for LocalServer {
+    fn create_text_block(&self, _token: &str, _params: CreateTextBlockParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_block(&self, _token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError> {
+    fn read_text_block(&self, _token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError> {
         let doc = DocumentPB {
             block_id: params.value,
             text: initial_quill_delta_string(),
@@ -429,7 +429,7 @@ impl BlockCloudService for LocalServer {
         FutureResult::new(async { Ok(Some(doc)) })
     }
 
-    fn update_block(&self, _token: &str, _params: ResetTextBlockParams) -> FutureResult<(), FlowyError> {
+    fn update_text_block(&self, _token: &str, _params: ResetTextBlockParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 }

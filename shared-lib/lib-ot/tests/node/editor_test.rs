@@ -26,7 +26,8 @@ fn editor_deserialize_node_test() {
     test.run_scripts(vec![
         InsertNode {
             path,
-            node: node.clone(),
+            node_data: node.clone(),
+            rev_id: 1,
         },
         AssertNumberOfNodesAtPath { path: None, len: 1 },
         AssertNumberOfNodesAtPath {
@@ -41,11 +42,11 @@ fn editor_deserialize_node_test() {
             path: vec![0, 1].into(),
             expected: expected_delta,
         },
-        AssertNode {
+        AssertNodeData {
             path: vec![0, 0].into(),
             expected: Some(node.children[0].clone()),
         },
-        AssertNode {
+        AssertNodeData {
             path: vec![0, 3].into(),
             expected: Some(node.children[3].clone()),
         },

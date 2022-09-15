@@ -90,7 +90,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
     final result = await service.openDocument(docId: view.id);
     result.fold(
       (block) {
-        document = _decodeJsonToDocument(block.deltaStr);
+        document = _decodeJsonToDocument(block.snapshot);
         _subscription = document.changes.listen((event) {
           final delta = event.item2;
           final documentDelta = document.toDelta();
@@ -115,16 +115,12 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   void _composeDelta(Delta composedDelta, Delta documentDelta) async {
     final json = jsonEncode(composedDelta.toJson());
     Log.debug("doc_id: $view.id - Send json: $json");
-    final result = await service.composeDelta(docId: view.id, data: json);
+    final result = await service.applyEdit(docId: view.id, data: json);
 
-    result.fold((rustDoc) {
-      // final json = utf8.decode(doc.data);
-      final rustDelta = Delta.fromJson(jsonDecode(rustDoc.deltaStr));
-      if (documentDelta != rustDelta) {
-        Log.error("Receive : $rustDelta");
-        Log.error("Expected : $documentDelta");
-      }
-    }, (r) => null);
+    result.fold(
+      (_) {},
+      (r) => Log.error(r),
+    );
   }
 
   Document _decodeJsonToDocument(String data) {

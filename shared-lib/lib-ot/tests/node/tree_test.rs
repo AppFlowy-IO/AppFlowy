@@ -14,9 +14,10 @@ fn node_insert_test() {
     let scripts = vec![
         InsertNode {
             path: path.clone(),
-            node: inserted_node.clone(),
+            node_data: inserted_node.clone(),
+            rev_id: 1,
         },
-        AssertNode {
+        AssertNodeData {
             path,
             expected: Some(inserted_node),
         },
@@ -32,9 +33,10 @@ fn node_insert_node_with_children_test() {
     let scripts = vec![
         InsertNode {
             path: path.clone(),
-            node: inserted_node.clone(),
+            node_data: inserted_node.clone(),
+            rev_id: 1,
         },
-        AssertNode {
+        AssertNodeData {
             path,
             expected: Some(inserted_node),
         },
@@ -57,25 +59,28 @@ fn node_insert_multi_nodes_test() {
     let scripts = vec![
         InsertNode {
             path: path_1.clone(),
-            node: node_1.clone(),
+            node_data: node_1.clone(),
+            rev_id: 1,
         },
         InsertNode {
             path: path_2.clone(),
-            node: node_2.clone(),
+            node_data: node_2.clone(),
+            rev_id: 2,
         },
         InsertNode {
             path: path_3.clone(),
-            node: node_3.clone(),
+            node_data: node_3.clone(),
+            rev_id: 3,
         },
-        AssertNode {
+        AssertNodeData {
             path: path_1,
             expected: Some(node_1),
         },
-        AssertNode {
+        AssertNodeData {
             path: path_2,
             expected: Some(node_2),
         },
-        AssertNode {
+        AssertNodeData {
             path: path_3,
             expected: Some(node_3),
         },
@@ -96,48 +101,145 @@ fn node_insert_node_in_ordered_nodes_test() {
     let path_3: Path = 2.into();
     let node_3 = NodeData::new("text_3");
 
-    let path_4: Path = 3.into();
-
     let scripts = vec![
         InsertNode {
             path: path_1.clone(),
-            node: node_1.clone(),
+            node_data: node_1.clone(),
+            rev_id: 1,
         },
         InsertNode {
             path: path_2.clone(),
-            node: node_2_1.clone(),
+            node_data: node_2_1.clone(),
+            rev_id: 2,
         },
         InsertNode {
             path: path_3.clone(),
-            node: node_3.clone(),
+            node_data: node_3,
+            rev_id: 3,
         },
-        // 0:note_1 , 1: note_2_1, 2: note_3
+        // 0:text_1
+        // 1:text_2_1
+        // 2:text_3
         InsertNode {
             path: path_2.clone(),
-            node: node_2_2.clone(),
+            node_data: node_2_2.clone(),
+            rev_id: 4,
         },
-        // 0:note_1 , 1:note_2_2,  2: note_2_1, 3: note_3
-        AssertNode {
+        // 0:text_1
+        // 1:text_2_2
+        // 2:text_2_1
+        // 3:text_3
+        AssertNodeData {
             path: path_1,
             expected: Some(node_1),
         },
-        AssertNode {
+        AssertNodeData {
             path: path_2,
             expected: Some(node_2_2),
         },
-        AssertNode {
+        AssertNodeData {
             path: path_3,
             expected: Some(node_2_1),
-        },
-        AssertNode {
-            path: path_4,
-            expected: Some(node_3),
         },
         AssertNumberOfNodesAtPath { path: None, len: 4 },
     ];
     test.run_scripts(scripts);
 }
 
+#[test]
+fn node_insert_nested_nodes_test() {
+    let mut test = NodeTest::new();
+    let node_data_1_1 = NodeDataBuilder::new("text_1_1").build();
+    let node_data_1_2 = NodeDataBuilder::new("text_1_2").build();
+    let node_data_1 = NodeDataBuilder::new("text_1")
+        .add_node(node_data_1_1.clone())
+        .add_node(node_data_1_2.clone())
+        .build();
+
+    let node_data_2_1 = NodeDataBuilder::new("text_2_1").build();
+    let node_data_2_2 = NodeDataBuilder::new("text_2_2").build();
+    let node_data_2 = NodeDataBuilder::new("text_2")
+        .add_node(node_data_2_1.clone())
+        .add_node(node_data_2_2.clone())
+        .build();
+
+    let scripts = vec![
+        InsertNode {
+            path: 0.into(),
+            node_data: node_data_1,
+            rev_id: 1,
+        },
+        InsertNode {
+            path: 1.into(),
+            node_data: node_data_2,
+            rev_id: 2,
+        },
+        // the tree will be:
+        // 0:text_1
+        //      0:text_1_1
+        //      1:text_1_2
+        // 1:text_2
+        //      0:text_2_1
+        //      1:text_2_2
+        AssertNode {
+            path: vec![0, 0].into(),
+            expected: Some(node_data_1_1.into()),
+        },
+        AssertNode {
+            path: vec![0, 1].into(),
+            expected: Some(node_data_1_2.into()),
+        },
+        AssertNode {
+            path: vec![1, 0].into(),
+            expected: Some(node_data_2_1.into()),
+        },
+        AssertNode {
+            path: vec![1, 1].into(),
+            expected: Some(node_data_2_2.into()),
+        },
+    ];
+    test.run_scripts(scripts);
+}
+
+#[test]
+fn node_insert_node_before_existing_nested_nodes_test() {
+    let mut test = NodeTest::new();
+    let node_data_1_1 = NodeDataBuilder::new("text_1_1").build();
+    let node_data_1_2 = NodeDataBuilder::new("text_1_2").build();
+    let node_data_1 = NodeDataBuilder::new("text_1")
+        .add_node(node_data_1_1.clone())
+        .add_node(node_data_1_2.clone())
+        .build();
+
+    let scripts = vec![
+        InsertNode {
+            path: 0.into(),
+            node_data: node_data_1,
+            rev_id: 1,
+        },
+        // 0:text_1
+        //      0:text_1_1
+        //      1:text_1_2
+        InsertNode {
+            path: 0.into(),
+            node_data: NodeDataBuilder::new("text_0").build(),
+            rev_id: 2,
+        },
+        // 0:text_0
+        // 1:text_1
+        //      0:text_1_1
+        //      1:text_1_2
+        AssertNode {
+            path: vec![1, 0].into(),
+            expected: Some(node_data_1_1.into()),
+        },
+        AssertNode {
+            path: vec![1, 1].into(),
+            expected: Some(node_data_1_2.into()),
+        },
+    ];
+    test.run_scripts(scripts);
+}
 #[test]
 fn node_insert_with_attributes_test() {
     let mut test = NodeTest::new();
@@ -149,13 +251,14 @@ fn node_insert_with_attributes_test() {
     let scripts = vec![
         InsertNode {
             path: path.clone(),
-            node: inserted_node.clone(),
+            node_data: inserted_node.clone(),
+            rev_id: 1,
         },
         UpdateAttributes {
             path: path.clone(),
             attributes: inserted_node.attributes.clone(),
         },
-        AssertNode {
+        AssertNodeData {
             path,
             expected: Some(inserted_node),
         },
@@ -172,10 +275,14 @@ fn node_delete_test() {
     let scripts = vec![
         InsertNode {
             path: path.clone(),
-            node: inserted_node,
+            node_data: inserted_node,
+            rev_id: 1,
         },
-        DeleteNode { path: path.clone() },
-        AssertNode { path, expected: None },
+        DeleteNode {
+            path: path.clone(),
+            rev_id: 2,
+        },
+        AssertNodeData { path, expected: None },
     ];
     test.run_scripts(scripts);
 }
@@ -198,7 +305,8 @@ fn node_update_body_test() {
     let scripts = vec![
         InsertNode {
             path: path.clone(),
-            node,
+            node_data: node,
+            rev_id: 1,
         },
         UpdateBody {
             path: path.clone(),

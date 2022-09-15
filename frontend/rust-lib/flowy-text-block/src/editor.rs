@@ -2,7 +2,7 @@ use crate::web_socket::EditorCommandSender;
 use crate::{
     errors::FlowyError,
     queue::{EditBlockQueue, EditorCommand},
-    TextBlockUser,
+    TextEditorUser,
 };
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyResult};
@@ -24,7 +24,6 @@ use tokio::sync::{mpsc, oneshot};
 
 pub struct TextBlockEditor {
     pub doc_id: String,
-    #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
     #[cfg(feature = "sync")]
     ws_manager: Arc<flowy_revision::RevisionWebSocketManager>,
@@ -35,7 +34,7 @@ impl TextBlockEditor {
     #[allow(unused_variables)]
     pub(crate) async fn new(
         doc_id: &str,
-        user: Arc<dyn TextBlockUser>,
+        user: Arc<dyn TextEditorUser>,
         mut rev_manager: RevisionManager,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
@@ -194,7 +193,7 @@ impl std::ops::Drop for TextBlockEditor {
 
 // The edit queue will exit after the EditorCommandSender was dropped.
 fn spawn_edit_queue(
-    user: Arc<dyn TextBlockUser>,
+    user: Arc<dyn TextEditorUser>,
     rev_manager: Arc<RevisionManager>,
     delta: TextDelta,
 ) -> EditorCommandSender {

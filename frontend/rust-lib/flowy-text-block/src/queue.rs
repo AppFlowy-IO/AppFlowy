@@ -1,5 +1,5 @@
 use crate::web_socket::EditorCommandReceiver;
-use crate::TextBlockUser;
+use crate::TextEditorUser;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
@@ -23,14 +23,14 @@ use tokio::sync::{oneshot, RwLock};
 // serial.
 pub(crate) struct EditBlockQueue {
     document: Arc<RwLock<ClientDocument>>,
-    user: Arc<dyn TextBlockUser>,
+    user: Arc<dyn TextEditorUser>,
     rev_manager: Arc<RevisionManager>,
     receiver: Option<EditorCommandReceiver>,
 }
 
 impl EditBlockQueue {
     pub(crate) fn new(
-        user: Arc<dyn TextBlockUser>,
+        user: Arc<dyn TextEditorUser>,
         rev_manager: Arc<RevisionManager>,
         delta: TextDelta,
         receiver: EditorCommandReceiver,
