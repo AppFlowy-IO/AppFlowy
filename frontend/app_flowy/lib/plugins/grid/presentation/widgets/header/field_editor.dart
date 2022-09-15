@@ -50,10 +50,10 @@ class _FieldEditorState extends State<FieldEditor> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => FieldEditorBloc(
-        gridId: gridId,
-        fieldName: fieldName,
-        isGroupField: isGroupField,
-        loader: typeOptionLoader,
+        gridId: widget.gridId,
+        fieldName: widget.fieldName,
+        isGroupField: widget.isGroupField,
+        loader: widget.typeOptionLoader,
       )..add(const FieldEditorEvent.initial()),
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
         buildWhen: (p, c) => false,
@@ -66,7 +66,7 @@ class _FieldEditorState extends State<FieldEditor> {
               const VSpace(10),
               const _FieldNameCell(),
               const VSpace(10),
-              const _DeleteFieldButton(),
+              _DeleteFieldButton(popoverMutex: popoverMutex),
               const VSpace(10),
               _FieldTypeOptionCell(popoverMutex: popoverMutex),
             ],
@@ -128,7 +128,12 @@ class _FieldNameCell extends StatelessWidget {
 }
 
 class _DeleteFieldButton extends StatelessWidget {
-  const _DeleteFieldButton({Key? key}) : super(key: key);
+  final PopoverMutex popoverMutex;
+
+  const _DeleteFieldButton({
+    required this.popoverMutex,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -136,37 +141,36 @@ class _DeleteFieldButton extends StatelessWidget {
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       builder: (context, state) {
         final enable = !state.canDelete && !state.isGroupField;
-        return SizedBox(
-          height: GridSize.typeOptionItemHeight,
+
+        return Popover(
+          triggerActions: PopoverTriggerActionFlags.click,
+          mutex: popoverMutex,
+          direction: PopoverDirection.center,
+          popupBuilder: (context) {
+            return FlowyAlertDialog(
+              title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+              cancel: () {
+                // FlowyOverlay.of(context).remove(FieldEditor.identifier())
+                // popoverMutex.state?.close();
+              },
+              confirm: () {
+                context
+                    .read<FieldEditorBloc>()
+                    .add(const FieldEditorEvent.deleteField());
+
+                // FlowyOverlay.of(context).remove(FieldEditor.identifier());
+              },
+            );
+          },
           child: FlowyButton(
             text: FlowyText.medium(
               LocaleKeys.grid_field_delete.tr(),
               fontSize: 12,
               color: enable ? null : theme.shader4,
             ),
-            hoverColor: theme.hover,
-            onTap: () {
-              if (enable) {
-                FlowyAlertDialog(
-                  title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-                  cancel: () {
-                    FlowyOverlay.of(context).remove(FieldEditor.identifier());
-                  },
-                  confirm: () {
-                    context
-                        .read<FieldEditorBloc>()
-                        .add(const FieldEditorEvent.deleteField());
-                    FlowyOverlay.of(context).remove(FieldEditor.identifier());
-                  },
-                ).show(context);
-              }
-            },
-            leftIcon: svgWidget('grid/delete', color: theme.iconColor),
           ),
         );
       },
     );
   }
-
-  void so() {}
 }
