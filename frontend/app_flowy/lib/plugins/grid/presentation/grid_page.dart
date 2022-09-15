@@ -317,9 +317,7 @@ class _GridFooter extends StatelessWidget {
           height: GridSize.footerHeight,
           child: Padding(
             padding: GridSize.footerContentInsets,
-            child: const Expanded(
-              child: SizedBox(height: 40, child: GridAddRowButton()),
-            ),
+            child: const SizedBox(height: 40, child: GridAddRowButton()),
           ),
         ),
       ),

@@ -1,5 +1,27 @@
 # Release Notes
 
+## Version 0.0.5.1 - 09/14/2022
+
+New features
+- Enable deleting a field in board 
+- Fix some bugs
+
+
+## Version 0.0.5 - 09/08/2022
+New Features - Kanban Board like Notion and Trello beta
+Boards are the best way to manage projects & tasks. Use them to group your databases by select, multiselect, and checkbox.
+
+<p align="left"><img src="https://user-images.githubusercontent.com/12026239/190055984-6efa2d7a-ee38-4551-859e-ee56388e1859.gif" width="1000px" /></p>
+
+- Set up columns that represent a specific phase of the project cycle and use cards to represent each project / task
+- Drag and drop a card from one phase / column to another phase / column
+- Update database properties in the Board view by clicking on a property and making edits on the card
+
+### Other Features & Improvements
+- Settings allow users to change avatars
+- Click and drag the right edge to resize your sidebar
+- And many user interface improvements (link)
+
 ## Version 0.0.5 - beta.2 - beta.1 - 09/01/2022
 
 New features

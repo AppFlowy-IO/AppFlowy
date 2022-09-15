@@ -30,7 +30,7 @@ class NewAppButton extends StatelessWidget {
   }
 
   Future<void> _showCreateAppDialog(BuildContext context) async {
-    return TextFieldDialog(
+    return NavigatorTextFieldDialog(
       title: LocaleKeys.newPageText.tr(),
       value: "",
       confirm: (newValue) {
