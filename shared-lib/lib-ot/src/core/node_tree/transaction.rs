@@ -1,6 +1,5 @@
 use crate::core::attributes::Attributes;
-use crate::core::document::path::Path;
-use crate::core::{NodeData, NodeOperation, NodeTree};
+use crate::core::{NodeData, NodeOperation, NodeTree, Path};
 use crate::errors::OTError;
 use indextree::NodeId;
 use std::rc::Rc;

@@ -1,6 +1,5 @@
 use crate::core::attributes::Attributes;
-use crate::core::document::path::Path;
-use crate::core::{Node, NodeBodyChangeset, NodeData, NodeOperation, OperationTransform, Transaction};
+use crate::core::{Node, NodeBodyChangeset, NodeData, NodeOperation, OperationTransform, Path, Transaction};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, Children, FollowingSiblings, NodeId};
 use std::rc::Rc;

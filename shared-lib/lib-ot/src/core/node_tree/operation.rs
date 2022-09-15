@@ -1,6 +1,5 @@
 use crate::core::attributes::Attributes;
-use crate::core::document::path::Path;
-use crate::core::{NodeBodyChangeset, NodeData};
+use crate::core::{NodeBodyChangeset, NodeData, Path};
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
