@@ -1,9 +1,10 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 
 void main() async {
   setUpAll(() {
@@ -45,8 +46,8 @@ void main() async {
 
         final textNode = (editor.nodeAtPath([i - 1]) as TextNode);
 
-        expect(textNode.subtype, StyleKey.heading);
-        // StyleKey.h1 ~ StyleKey.h6
+        expect(textNode.subtype, BuiltInAttributeKey.heading);
+        // BuiltInAttributeKey.h1 ~ BuiltInAttributeKey.h6
         expect(textNode.attributes.heading, 'h$i');
       }
     });
@@ -85,8 +86,8 @@ void main() async {
 
         final textNode = (editor.nodeAtPath([i - 1]) as TextNode);
 
-        expect(textNode.subtype, StyleKey.heading);
-        // StyleKey.h1 ~ StyleKey.h6
+        expect(textNode.subtype, BuiltInAttributeKey.heading);
+        // BuiltInAttributeKey.h1 ~ BuiltInAttributeKey.h6
         expect(textNode.attributes.heading, 'h$i');
         expect(textNode.toRawString().startsWith('##'), true);
       }
@@ -117,8 +118,8 @@ void main() async {
         await editor.insertText(textNode, '#' * i, 0);
         await editor.pressLogicKey(LogicalKeyboardKey.space);
 
-        expect(textNode.subtype, StyleKey.heading);
-        // StyleKey.h2 ~ StyleKey.h6
+        expect(textNode.subtype, BuiltInAttributeKey.heading);
+        // BuiltInAttributeKey.h2 ~ BuiltInAttributeKey.h6
         expect(textNode.attributes.heading, 'h$i');
       }
     });
@@ -136,7 +137,7 @@ void main() async {
         );
         await editor.insertText(textNode, symbol, 0);
         await editor.pressLogicKey(LogicalKeyboardKey.space);
-        expect(textNode.subtype, StyleKey.checkbox);
+        expect(textNode.subtype, BuiltInAttributeKey.checkbox);
         expect(textNode.attributes.check, false);
       }
     });
@@ -154,7 +155,7 @@ void main() async {
         );
         await editor.insertText(textNode, symbol, 0);
         await editor.pressLogicKey(LogicalKeyboardKey.space);
-        expect(textNode.subtype, StyleKey.checkbox);
+        expect(textNode.subtype, BuiltInAttributeKey.checkbox);
         expect(textNode.attributes.check, true);
       }
     });
@@ -171,7 +172,7 @@ void main() async {
         );
         await editor.insertText(textNode, symbol, 0);
         await editor.pressLogicKey(LogicalKeyboardKey.space);
-        expect(textNode.subtype, StyleKey.bulletedList);
+        expect(textNode.subtype, BuiltInAttributeKey.bulletedList);
       }
     });
   });

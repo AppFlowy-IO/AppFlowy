@@ -21,6 +21,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [
+        AppFlowyEditorLocalizations.delegate,
+      ],
+      supportedLocales: AppFlowyEditorLocalizations.delegate.supportedLocales,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -40,7 +44,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _pageIndex = 0;
-  late EditorState _editorState;
+  EditorState? _editorState;
+  bool darkMode = false;
+  EditorStyle _editorStyle = EditorStyle.defaultStyle();
   Future<String>? _jsonString;
 
   @override
@@ -78,24 +84,29 @@ class _MyHomePageState extends State<MyHomePage> {
     return FutureBuilder<String>(
       future: jsonString,
       builder: (_, snapshot) {
-        if (snapshot.hasData) {
-          _editorState = EditorState(
+        if (snapshot.hasData &&
+            snapshot.connectionState == ConnectionState.done) {
+          _editorState ??= EditorState(
             document: StateTree.fromJson(
               Map<String, Object>.from(
                 json.decode(snapshot.data!),
               ),
             ),
           );
-          _editorState.logConfiguration
+          _editorState!.logConfiguration
             ..level = LogLevel.all
             ..handler = (message) {
               debugPrint(message);
             };
-          return SizedBox(
+          _editorState!.operationStream.listen((event) {
+            debugPrint('Operation: ${event.toJson()}');
+          });
+          return Container(
+            color: darkMode ? Colors.black : Colors.white,
             width: MediaQuery.of(context).size.width,
             child: AppFlowyEditor(
-              editorState: _editorState,
-              editorStyle: const EditorStyle.defaultStyle(),
+              editorState: _editorState!,
+              editorStyle: _editorStyle,
               shortcutEvents: [
                 underscoreToItalicEvent,
               ],
@@ -127,11 +138,25 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () => _switchToPage(2),
         ),
         ActionButton(
-            icon: const Icon(Icons.print),
-            onPressed: () => {_exportDocument(_editorState)}),
+          icon: const Icon(Icons.print),
+          onPressed: () => _exportDocument(_editorState!),
+        ),
         ActionButton(
           icon: const Icon(Icons.import_export),
           onPressed: () => _importDocument(),
+        ),
+        ActionButton(
+          icon: const Icon(Icons.color_lens),
+          onPressed: () {
+            setState(() {
+              _editorStyle = _editorStyle.copyWith(
+                textStyle: darkMode
+                    ? BuiltInTextStyle.builtIn()
+                    : BuiltInTextStyle.builtInDarkMode(),
+              );
+              darkMode = !darkMode;
+            });
+          },
         ),
       ],
     );
@@ -166,6 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _switchToPage(int pageIndex) {
     if (pageIndex != _pageIndex) {
       setState(() {
+        _editorState = null;
         _pageIndex = pageIndex;
       });
     }

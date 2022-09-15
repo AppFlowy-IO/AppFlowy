@@ -60,7 +60,11 @@ class EditorState {
   List<SelectionMenuItem> selectionMenuItems = [];
 
   /// Stores the editor style.
-  EditorStyle editorStyle = const EditorStyle.defaultStyle();
+  EditorStyle editorStyle = EditorStyle.defaultStyle();
+
+  /// Operation stream.
+  Stream<Operation> get operationStream => _observer.stream;
+  final StreamController<Operation> _observer = StreamController.broadcast();
 
   final UndoManager undoManager = UndoManager();
   Selection? _cursorSelection;
@@ -70,6 +74,15 @@ class EditorState {
 
   Selection? get cursorSelection {
     return _cursorSelection;
+  }
+
+  RenderBox? get renderBox {
+    final renderObject =
+        service.scrollServiceKey.currentContext?.findRenderObject();
+    if (renderObject != null && renderObject is RenderBox) {
+      return renderObject;
+    }
+    return null;
   }
 
   updateCursorSelection(Selection? cursorSelection,
@@ -151,5 +164,6 @@ class EditorState {
     } else if (op is TextEditOperation) {
       document.textEdit(op.path, op.delta);
     }
+    _observer.add(op);
   }
 }

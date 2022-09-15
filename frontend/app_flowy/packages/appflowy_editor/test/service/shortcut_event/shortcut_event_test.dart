@@ -81,6 +81,8 @@ void main() async {
         editor.documentSelection,
         Selection.single(path: [1], startOffset: 0),
       );
+
+      tester.pumpAndSettle();
     });
   });
 }

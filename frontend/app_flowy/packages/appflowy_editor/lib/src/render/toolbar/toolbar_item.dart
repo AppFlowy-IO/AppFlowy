@@ -2,12 +2,13 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/extensions/editor_state_extensions.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
+
 import 'package:flutter/material.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 typedef ToolbarItemEventHandler = void Function(
     EditorState editorState, BuildContext context);
@@ -63,7 +64,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.h1',
     type: 1,
-    tooltipsMessage: 'Heading 1',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.heading1,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/h1',
       color: isHighlight ? Colors.lightBlue : null,
@@ -71,15 +72,16 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _onlyShowInSingleTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.heading,
-      (value) => value == StyleKey.h1,
+      BuiltInAttributeKey.heading,
+      (value) => value == BuiltInAttributeKey.h1,
     ),
-    handler: (editorState, context) => formatHeading(editorState, StyleKey.h1),
+    handler: (editorState, context) =>
+        formatHeading(editorState, BuiltInAttributeKey.h1),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.h2',
     type: 1,
-    tooltipsMessage: 'Heading 2',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.heading2,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/h2',
       color: isHighlight ? Colors.lightBlue : null,
@@ -87,15 +89,16 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _onlyShowInSingleTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.heading,
-      (value) => value == StyleKey.h2,
+      BuiltInAttributeKey.heading,
+      (value) => value == BuiltInAttributeKey.h2,
     ),
-    handler: (editorState, context) => formatHeading(editorState, StyleKey.h2),
+    handler: (editorState, context) =>
+        formatHeading(editorState, BuiltInAttributeKey.h2),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.h3',
     type: 1,
-    tooltipsMessage: 'Heading 3',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.heading3,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/h3',
       color: isHighlight ? Colors.lightBlue : null,
@@ -103,15 +106,16 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _onlyShowInSingleTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.heading,
-      (value) => value == StyleKey.h3,
+      BuiltInAttributeKey.heading,
+      (value) => value == BuiltInAttributeKey.h3,
     ),
-    handler: (editorState, context) => formatHeading(editorState, StyleKey.h3),
+    handler: (editorState, context) =>
+        formatHeading(editorState, BuiltInAttributeKey.h3),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.bold',
     type: 2,
-    tooltipsMessage: 'Bold',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.bold,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/bold',
       color: isHighlight ? Colors.lightBlue : null,
@@ -119,7 +123,7 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _showInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.bold,
+      BuiltInAttributeKey.bold,
       (value) => value == true,
     ),
     handler: (editorState, context) => formatBold(editorState),
@@ -127,7 +131,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.italic',
     type: 2,
-    tooltipsMessage: 'Italic',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.italic,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/italic',
       color: isHighlight ? Colors.lightBlue : null,
@@ -135,7 +139,7 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _showInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.italic,
+      BuiltInAttributeKey.italic,
       (value) => value == true,
     ),
     handler: (editorState, context) => formatItalic(editorState),
@@ -143,7 +147,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.underline',
     type: 2,
-    tooltipsMessage: 'Underline',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.underline,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/underline',
       color: isHighlight ? Colors.lightBlue : null,
@@ -151,7 +155,7 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _showInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.underline,
+      BuiltInAttributeKey.underline,
       (value) => value == true,
     ),
     handler: (editorState, context) => formatUnderline(editorState),
@@ -159,7 +163,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.strikethrough',
     type: 2,
-    tooltipsMessage: 'Strikethrough',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.strikethrough,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/strikethrough',
       color: isHighlight ? Colors.lightBlue : null,
@@ -167,7 +171,7 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _showInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.strikethrough,
+      BuiltInAttributeKey.strikethrough,
       (value) => value == true,
     ),
     handler: (editorState, context) => formatStrikethrough(editorState),
@@ -175,7 +179,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.code',
     type: 2,
-    tooltipsMessage: 'Embed Code',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.embedCode,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/code',
       color: isHighlight ? Colors.lightBlue : null,
@@ -183,15 +187,15 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _showInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.code,
-      (value) => value == StyleKey.code,
+      BuiltInAttributeKey.code,
+      (value) => value == true,
     ),
     handler: (editorState, context) => formatEmbedCode(editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.quote',
     type: 3,
-    tooltipsMessage: 'Quote',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.quote,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/quote',
       color: isHighlight ? Colors.lightBlue : null,
@@ -199,15 +203,15 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _onlyShowInSingleTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.subtype,
-      (value) => value == StyleKey.quote,
+      BuiltInAttributeKey.subtype,
+      (value) => value == BuiltInAttributeKey.quote,
     ),
     handler: (editorState, context) => formatQuote(editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.bulleted_list',
     type: 3,
-    tooltipsMessage: 'Bulleted list',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.bulletedList,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/bulleted_list',
       color: isHighlight ? Colors.lightBlue : null,
@@ -215,15 +219,15 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _onlyShowInSingleTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.subtype,
-      (value) => value == StyleKey.bulletedList,
+      BuiltInAttributeKey.subtype,
+      (value) => value == BuiltInAttributeKey.bulletedList,
     ),
     handler: (editorState, context) => formatBulletedList(editorState),
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.link',
     type: 4,
-    tooltipsMessage: 'Link',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.link,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/link',
       color: isHighlight ? Colors.lightBlue : null,
@@ -231,7 +235,7 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _onlyShowInSingleTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.href,
+      BuiltInAttributeKey.href,
       (value) => value != null,
     ),
     handler: (editorState, context) => showLinkMenu(context, editorState),
@@ -239,7 +243,7 @@ List<ToolbarItem> defaultToolbarItems = [
   ToolbarItem(
     id: 'appflowy.toolbar.highlight',
     type: 4,
-    tooltipsMessage: 'Highlight',
+    tooltipsMessage: AppFlowyEditorLocalizations.current.highlight,
     iconBuilder: (isHighlight) => FlowySvg(
       name: 'toolbar/highlight',
       color: isHighlight ? Colors.lightBlue : null,
@@ -247,10 +251,13 @@ List<ToolbarItem> defaultToolbarItems = [
     validator: _showInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
-      StyleKey.backgroundColor,
+      BuiltInAttributeKey.backgroundColor,
       (value) => value != null,
     ),
-    handler: (editorState, context) => formatHighlight(editorState),
+    handler: (editorState, context) => formatHighlight(
+      editorState,
+      editorState.editorStyle.textStyle.highlightColorHex,
+    ),
   ),
 ];
 
@@ -296,6 +303,9 @@ void showLinkMenu(
       matchRect = rect;
     }
   }
+  final baseOffset =
+      editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+  matchRect = matchRect.shift(-baseOffset);
 
   _dismissLinkMenu();
   _editorState = editorState;
@@ -314,7 +324,8 @@ void showLinkMenu(
   final textNode = node.first as TextNode;
   String? linkText;
   if (textNode.allSatisfyLinkInSelection(selection)) {
-    linkText = textNode.getAttributeInSelection(selection, StyleKey.href);
+    linkText =
+        textNode.getAttributeInSelection(selection, BuiltInAttributeKey.href);
   }
   _linkMenuOverlay = OverlayEntry(builder: (context) {
     return Positioned(
@@ -328,7 +339,8 @@ void showLinkMenu(
           },
           onSubmitted: (text) {
             TransactionBuilder(editorState)
-              ..formatText(textNode, index, length, {StyleKey.href: text})
+              ..formatText(
+                  textNode, index, length, {BuiltInAttributeKey.href: text})
               ..commit();
             _dismissLinkMenu();
           },
@@ -338,7 +350,8 @@ void showLinkMenu(
           },
           onRemoveLink: () {
             TransactionBuilder(editorState)
-              ..formatText(textNode, index, length, {StyleKey.href: null})
+              ..formatText(
+                  textNode, index, length, {BuiltInAttributeKey.href: null})
               ..commit();
             _dismissLinkMenu();
           },

@@ -145,6 +145,12 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: formatHighlightEventHandler,
   ),
   ShortcutEvent(
+    key: 'Format embed code',
+    command: 'meta+e',
+    windowsCommand: 'ctrl+e',
+    handler: formatEmbedCodeEventHandler,
+  ),
+  ShortcutEvent(
     key: 'Format link',
     command: 'meta+k',
     windowsCommand: 'ctrl+k',

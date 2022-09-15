@@ -1,7 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/html_converter.dart';
 import 'package:appflowy_editor/src/document/node_iterator.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
@@ -108,8 +108,8 @@ void _pasteMultipleLinesInText(
 
   if (nodeAtPath.type == "text" && firstNode.type == "text") {
     int? startNumber;
-    if (nodeAtPath.subtype == StyleKey.numberList) {
-      startNumber = nodeAtPath.attributes[StyleKey.number] as int;
+    if (nodeAtPath.subtype == BuiltInAttributeKey.numberList) {
+      startNumber = nodeAtPath.attributes[BuiltInAttributeKey.number] as int;
     }
 
     // split and merge

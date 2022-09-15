@@ -2,24 +2,24 @@ import 'dart:io';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
     TestWidgetsFlutterBinding.ensureInitialized();
   });
 
-  group('update_text_style_by_command_x_handler.dart', () {
+  group('format_style_handler.dart', () {
     testWidgets('Presses Command + B to update text style', (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
-        StyleKey.bold,
+        BuiltInAttributeKey.bold,
         true,
         LogicalKeyboardKey.keyB,
       );
@@ -27,7 +27,7 @@ void main() async {
     testWidgets('Presses Command + I to update text style', (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
-        StyleKey.italic,
+        BuiltInAttributeKey.italic,
         true,
         LogicalKeyboardKey.keyI,
       );
@@ -35,7 +35,7 @@ void main() async {
     testWidgets('Presses Command + U to update text style', (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
-        StyleKey.underline,
+        BuiltInAttributeKey.underline,
         true,
         LogicalKeyboardKey.keyU,
       );
@@ -44,7 +44,7 @@ void main() async {
         (tester) async {
       await _testUpdateTextStyleByCommandX(
         tester,
-        StyleKey.strikethrough,
+        BuiltInAttributeKey.strikethrough,
         true,
         LogicalKeyboardKey.keyS,
       );
@@ -52,16 +52,26 @@ void main() async {
 
     testWidgets('Presses Command + Shift + H to update text style',
         (tester) async {
+      // FIXME: customize the highlight color instead of using magic number.
       await _testUpdateTextStyleByCommandX(
         tester,
-        StyleKey.backgroundColor,
-        defaultHighlightColor,
+        BuiltInAttributeKey.backgroundColor,
+        '0x6000BCF0',
         LogicalKeyboardKey.keyH,
       );
     });
 
     testWidgets('Presses Command + K to trigger link menu', (tester) async {
       await _testLinkMenuInSingleTextSelection(tester);
+    });
+
+    testWidgets('Presses Command + E to update text style', (tester) async {
+      await _testUpdateTextStyleByCommandX(
+        tester,
+        BuiltInAttributeKey.code,
+        true,
+        LogicalKeyboardKey.keyE,
+      );
     });
   });
 }
@@ -256,7 +266,7 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
   expect(
       node.allSatisfyInSelection(
         selection,
-        StyleKey.href,
+        BuiltInAttributeKey.href,
         (value) => value == link,
       ),
       true);
@@ -293,7 +303,7 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
   expect(
       node.allSatisfyInSelection(
         selection,
-        StyleKey.href,
+        BuiltInAttributeKey.href,
         (value) => value == link,
       ),
       false);

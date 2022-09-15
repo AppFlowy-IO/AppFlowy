@@ -1,8 +1,8 @@
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
+import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
@@ -23,14 +23,16 @@ class RichTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
       });
 }
 
-class RichTextNodeWidget extends StatefulWidget {
+class RichTextNodeWidget extends BuiltInTextWidget {
   const RichTextNodeWidget({
     Key? key,
     required this.textNode,
     required this.editorState,
   }) : super(key: key);
 
+  @override
   final TextNode textNode;
+  @override
   final EditorState editorState;
 
   @override
@@ -40,7 +42,7 @@ class RichTextNodeWidget extends StatefulWidget {
 // customize
 
 class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
-    with SelectableMixin, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
   @override
   GlobalKey? get iconKey => null;
 
@@ -51,12 +53,18 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
       _richTextKey.currentState as SelectableMixin;
 
   @override
+  Offset get baseOffset {
+    return padding.topLeft;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: defaultLinePadding),
+      padding: padding,
       child: FlowyRichText(
         key: _richTextKey,
         textNode: widget.textNode,
+        lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
         editorState: widget.editorState,
       ),
     );

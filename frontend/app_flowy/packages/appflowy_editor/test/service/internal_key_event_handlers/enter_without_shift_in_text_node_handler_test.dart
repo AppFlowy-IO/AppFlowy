@@ -1,8 +1,8 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
@@ -95,16 +95,16 @@ void main() async {
     // [Style] Welcome to Appflowy 😁
     // [Style]
     testWidgets('Presses enter key in bulleted list', (tester) async {
-      await _testStyleNeedToBeCopy(tester, StyleKey.bulletedList);
+      await _testStyleNeedToBeCopy(tester, BuiltInAttributeKey.bulletedList);
     });
     testWidgets('Presses enter key in numbered list', (tester) async {
-      await _testStyleNeedToBeCopy(tester, StyleKey.numberList);
+      await _testStyleNeedToBeCopy(tester, BuiltInAttributeKey.numberList);
     });
     testWidgets('Presses enter key in checkbox styled text', (tester) async {
-      await _testStyleNeedToBeCopy(tester, StyleKey.checkbox);
+      await _testStyleNeedToBeCopy(tester, BuiltInAttributeKey.checkbox);
     });
     testWidgets('Presses enter key in quoted text', (tester) async {
-      await _testStyleNeedToBeCopy(tester, StyleKey.quote);
+      await _testStyleNeedToBeCopy(tester, BuiltInAttributeKey.quote);
     });
 
     testWidgets('Presses enter key in multiple selection from top to bottom',
@@ -143,12 +143,12 @@ void main() async {
 Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
   const text = 'Welcome to Appflowy 😁';
   Attributes attributes = {
-    StyleKey.subtype: style,
+    BuiltInAttributeKey.subtype: style,
   };
-  if (style == StyleKey.checkbox) {
-    attributes[StyleKey.checkbox] = true;
-  } else if (style == StyleKey.numberList) {
-    attributes[StyleKey.number] = 1;
+  if (style == BuiltInAttributeKey.checkbox) {
+    attributes[BuiltInAttributeKey.checkbox] = true;
+  } else if (style == BuiltInAttributeKey.numberList) {
+    attributes[BuiltInAttributeKey.number] = 1;
   }
   final editor = tester.editor
     ..insertTextNode(text)

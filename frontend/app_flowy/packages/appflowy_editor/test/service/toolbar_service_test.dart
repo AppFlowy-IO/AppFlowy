@@ -1,10 +1,10 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_item_widget.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../infra/test_editor.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
@@ -45,13 +45,13 @@ void main() async {
     });
 
     testWidgets(
-        'Test toolbar service in single text selection with StyleKey.partialStyleKeys',
+        'Test toolbar service in single text selection with BuiltInAttributeKey.partialStyleKeys',
         (tester) async {
-      final attributes = StyleKey.partialStyleKeys.fold<Attributes>({},
-          (previousValue, element) {
-        if (element == StyleKey.backgroundColor) {
+      final attributes = BuiltInAttributeKey.partialStyleKeys
+          .fold<Attributes>({}, (previousValue, element) {
+        if (element == BuiltInAttributeKey.backgroundColor) {
           previousValue[element] = '0x6000BCF0';
-        } else if (element == StyleKey.href) {
+        } else if (element == BuiltInAttributeKey.href) {
           previousValue[element] = 'appflowy.io';
         } else {
           previousValue[element] = true;
@@ -77,11 +77,11 @@ void main() async {
       expect(find.byType(ToolbarWidget), findsOneWidget);
 
       void testHighlight(bool expectedValue) {
-        for (final styleKey in StyleKey.partialStyleKeys) {
+        for (final styleKey in BuiltInAttributeKey.partialStyleKeys) {
           var key = styleKey;
-          if (styleKey == StyleKey.backgroundColor) {
+          if (styleKey == BuiltInAttributeKey.backgroundColor) {
             key = 'highlight';
-          } else if (styleKey == StyleKey.href) {
+          } else if (styleKey == BuiltInAttributeKey.href) {
             key = 'link';
           } else {
             continue;
@@ -116,22 +116,24 @@ void main() async {
     });
 
     testWidgets(
-        'Test toolbar service in single text selection with StyleKey.globalStyleKeys',
+        'Test toolbar service in single text selection with BuiltInAttributeKey.globalStyleKeys',
         (tester) async {
       const text = 'Welcome to Appflowy 😁';
 
       final editor = tester.editor
         ..insertTextNode(text, attributes: {
-          StyleKey.subtype: StyleKey.heading,
-          StyleKey.heading: StyleKey.h1,
+          BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
+          BuiltInAttributeKey.heading: BuiltInAttributeKey.h1,
         })
         ..insertTextNode(
           text,
-          attributes: {StyleKey.subtype: StyleKey.quote},
+          attributes: {BuiltInAttributeKey.subtype: BuiltInAttributeKey.quote},
         )
         ..insertTextNode(
           text,
-          attributes: {StyleKey.subtype: StyleKey.bulletedList},
+          attributes: {
+            BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList
+          },
         );
       await editor.startTesting();
 
@@ -167,12 +169,12 @@ void main() async {
         ..insertTextNode(
           null,
           attributes: {
-            StyleKey.subtype: StyleKey.heading,
-            StyleKey.heading: StyleKey.h1,
+            BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
+            BuiltInAttributeKey.heading: BuiltInAttributeKey.h1,
           },
           delta: Delta([
             TextInsert(text, {
-              StyleKey.bold: true,
+              BuiltInAttributeKey.bold: true,
             })
           ]),
         )

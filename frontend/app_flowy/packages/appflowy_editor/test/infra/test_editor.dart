@@ -23,18 +23,20 @@ class EditorWidgetTester {
       _editorState.service.selectionService.currentSelection.value;
 
   Future<EditorWidgetTester> startTesting() async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: AppFlowyEditor(
-            editorState: _editorState,
-            editorStyle: const EditorStyle(
-              padding: EdgeInsets.symmetric(vertical: 30),
-            ),
-          ),
+    final app = MaterialApp(
+      localizationsDelegates: const [
+        AppFlowyEditorLocalizations.delegate,
+      ],
+      supportedLocales: AppFlowyEditorLocalizations.delegate.supportedLocales,
+      home: Scaffold(
+        body: AppFlowyEditor(
+          editorState: _editorState,
+          editorStyle: EditorStyle.defaultStyle(),
         ),
       ),
     );
+    await tester.pumpWidget(app);
+    await tester.pump();
     return this;
   }
 
