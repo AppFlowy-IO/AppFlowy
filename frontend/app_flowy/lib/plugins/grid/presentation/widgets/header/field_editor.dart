@@ -163,22 +163,20 @@ class _DeleteFieldButton extends StatelessWidget {
   }
 
   Widget _wrapPopover(Widget widget) {
-    return Popover(
+    return AppFlowyStylePopover(
       triggerActions: PopoverTriggerActionFlags.click,
+      constraints: BoxConstraints.loose(const Size(400, 240)),
       mutex: popoverMutex,
       direction: PopoverDirection.center,
       popupBuilder: (popupContext) {
-        return OverlayContainer(
-          constraints: BoxConstraints.loose(const Size(400, 240)),
-          child: PopoverAlertView(
-            title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-            cancel: () => popoverMutex.state?.close(),
-            confirm: () {
-              onDeleted?.call();
-              popoverMutex.state?.close();
-            },
-            popoverMutex: popoverMutex,
-          ),
+        return PopoverAlertView(
+          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+          cancel: () => popoverMutex.state?.close(),
+          confirm: () {
+            onDeleted?.call();
+            popoverMutex.state?.close();
+          },
+          popoverMutex: popoverMutex,
         );
       },
       child: widget,

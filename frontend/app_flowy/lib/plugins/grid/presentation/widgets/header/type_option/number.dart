@@ -55,11 +55,12 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
           listener: (context, state) =>
               typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
-            return Popover(
+            return AppFlowyStylePopover(
               mutex: popoverMutex,
               triggerActions: PopoverTriggerActionFlags.hover |
                   PopoverTriggerActionFlags.click,
               offset: const Offset(20, 0),
+              constraints: BoxConstraints.loose(const Size(460, 440)),
               child: FlowyButton(
                 margin: GridSize.typeOptionContentInsets,
                 hoverColor: theme.hover,
@@ -76,17 +77,14 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                 ),
               ),
               popupBuilder: (BuildContext popoverContext) {
-                return OverlayContainer(
-                  constraints: BoxConstraints.loose(const Size(460, 440)),
-                  child: NumberFormatList(
-                    onSelected: (format) {
-                      context
-                          .read<NumberTypeOptionBloc>()
-                          .add(NumberTypeOptionEvent.didSelectFormat(format));
-                      PopoverContainerState.of(popoverContext).closeAll();
-                    },
-                    selectedFormat: state.typeOption.format,
-                  ),
+                return NumberFormatList(
+                  onSelected: (format) {
+                    context
+                        .read<NumberTypeOptionBloc>()
+                        .add(NumberTypeOptionEvent.didSelectFormat(format));
+                    PopoverContainer.of(popoverContext).closeAll();
+                  },
+                  selectedFormat: state.typeOption.format,
                 );
               },
             );

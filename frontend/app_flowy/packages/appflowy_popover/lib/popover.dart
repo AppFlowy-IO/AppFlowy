@@ -284,6 +284,15 @@ class PopoverContainer extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => PopoverContainerState();
+
+  static PopoverContainerState of(BuildContext context) {
+    if (context is StatefulElement && context.state is PopoverContainerState) {
+      return context.state as PopoverContainerState;
+    }
+    final PopoverContainerState? result =
+        context.findAncestorStateOfType<PopoverContainerState>();
+    return result!;
+  }
 }
 
 class PopoverContainerState extends State<PopoverContainer> {
@@ -302,13 +311,4 @@ class PopoverContainerState extends State<PopoverContainer> {
   close() => widget.onClose();
 
   closeAll() => widget.onCloseAll();
-
-  static PopoverContainerState of(BuildContext context) {
-    if (context is StatefulElement && context.state is PopoverContainerState) {
-      return context.state as PopoverContainerState;
-    }
-    final PopoverContainerState? result =
-        context.findAncestorStateOfType<PopoverContainerState>();
-    return result!;
-  }
 }

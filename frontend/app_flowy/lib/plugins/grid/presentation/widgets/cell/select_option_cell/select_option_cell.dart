@@ -3,7 +3,7 @@ import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:appflowy_popover/popover.dart';
 
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 // ignore: unused_import
 import 'package:flowy_sdk/log.dart';
@@ -194,8 +194,10 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       alignment: AlignmentDirectional.center,
       fit: StackFit.expand,
       children: [
-        Popover(
+        AppFlowyStylePopover(
           controller: _popover,
+          constraints: BoxConstraints.loose(
+              Size(SelectOptionCellEditor.editorPanelWidth, 300)),
           offset: const Offset(0, 20),
           direction: PopoverDirection.bottomWithLeftAligned,
           // triggerActions: PopoverTriggerActionFlags.c,
@@ -203,18 +205,14 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
             WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
               widget.onFocus?.call(true);
             });
-            return OverlayContainer(
-              constraints: BoxConstraints.loose(
-                  Size(SelectOptionCellEditor.editorPanelWidth, 300)),
-              child: SizedBox(
-                width: SelectOptionCellEditor.editorPanelWidth,
-                child: SelectOptionCellEditor(
-                  cellController: widget.cellControllerBuilder.build()
-                      as GridSelectOptionCellController,
-                  onDismissed: () {
-                    widget.onFocus?.call(false);
-                  },
-                ),
+            return SizedBox(
+              width: SelectOptionCellEditor.editorPanelWidth,
+              child: SelectOptionCellEditor(
+                cellController: widget.cellControllerBuilder.build()
+                    as GridSelectOptionCellController,
+                onDismissed: () {
+                  widget.onFocus?.call(false);
+                },
               ),
             );
           },

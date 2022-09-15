@@ -62,23 +62,21 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderDateFormatButton(BuildContext context, DateFormat dataFormat) {
-    return Popover(
+    return AppFlowyStylePopover(
       mutex: popoverMutex,
       triggerActions:
           PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
       offset: const Offset(20, 0),
+      constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (popoverContext) {
-        return OverlayContainer(
-          constraints: BoxConstraints.loose(const Size(460, 440)),
-          child: DateFormatList(
-            selectedFormat: dataFormat,
-            onSelected: (format) {
-              context
-                  .read<DateTypeOptionBloc>()
-                  .add(DateTypeOptionEvent.didSelectDateFormat(format));
-              PopoverContainerState.of(popoverContext).closeAll();
-            },
-          ),
+        return DateFormatList(
+          selectedFormat: dataFormat,
+          onSelected: (format) {
+            context
+                .read<DateTypeOptionBloc>()
+                .add(DateTypeOptionEvent.didSelectDateFormat(format));
+            PopoverContainer.of(popoverContext).closeAll();
+          },
         );
       },
       child: const DateFormatButton(),
@@ -86,22 +84,21 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
-    return Popover(
+    return AppFlowyStylePopover(
       mutex: popoverMutex,
       triggerActions:
           PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
       offset: const Offset(20, 0),
+      constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (BuildContext popoverContext) {
-        return OverlayContainer(
-          constraints: BoxConstraints.loose(const Size(460, 440)),
-          child: TimeFormatList(
-              selectedFormat: timeFormat,
-              onSelected: (format) {
-                context
-                    .read<DateTypeOptionBloc>()
-                    .add(DateTypeOptionEvent.didSelectTimeFormat(format));
-                PopoverContainerState.of(popoverContext).closeAll();
-              }),
+        return TimeFormatList(
+          selectedFormat: timeFormat,
+          onSelected: (format) {
+            context
+                .read<DateTypeOptionBloc>()
+                .add(DateTypeOptionEvent.didSelectTimeFormat(format));
+            PopoverContainer.of(popoverContext).closeAll();
+          },
         );
       },
       child: TimeFormatButton(timeFormat: timeFormat),
