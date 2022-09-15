@@ -151,7 +151,7 @@ extension _RowActionExtension on _RowAction {
             .add(const RowActionSheetEvent.duplicateRow());
         break;
       case _RowAction.delete:
-        FlowyAlertDialog(
+        NavigatorAlertDialog(
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
           confirm: () {
             context

@@ -186,7 +186,8 @@ class DocumentShareButton extends StatelessWidget {
                 'Exported to: ${LocaleKeys.notifications_export_path.tr()}');
             break;
           case ShareAction.copyLink:
-            FlowyAlertDialog(title: LocaleKeys.shareAction_workInProgress.tr())
+            NavigatorAlertDialog(
+                    title: LocaleKeys.shareAction_workInProgress.tr())
                 .show(context);
             break;
         }

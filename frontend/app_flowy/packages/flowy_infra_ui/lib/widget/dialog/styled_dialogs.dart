@@ -65,7 +65,7 @@ class StyledDialog extends StatelessWidget {
 
     return FocusTraversalGroup(
       child: Container(
-        margin: margin ?? EdgeInsets.all(Insets.lGutter * 2),
+        margin: margin ?? EdgeInsets.all(Insets.sm * 2),
         alignment: Alignment.center,
         child: Container(
           constraints: BoxConstraints(

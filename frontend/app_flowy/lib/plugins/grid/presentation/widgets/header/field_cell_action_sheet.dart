@@ -169,7 +169,7 @@ class FieldActionCell extends StatelessWidget {
         }
       },
       leftIcon: svgWidget(action.iconName(),
-        color: enable ? theme.iconColor : theme.disableIconColor),
+          color: enable ? theme.iconColor : theme.disableIconColor),
     );
   }
 }
@@ -216,7 +216,7 @@ extension _FieldActionExtension on FieldAction {
             .add(const FieldActionSheetEvent.duplicateField());
         break;
       case FieldAction.delete:
-        FlowyAlertDialog(
+        NavigatorAlertDialog(
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
           confirm: () {
             context

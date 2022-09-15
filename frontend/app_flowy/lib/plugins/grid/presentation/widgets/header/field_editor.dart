@@ -2,15 +2,13 @@ import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart'
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
@@ -21,7 +19,7 @@ class FieldEditor extends StatefulWidget {
   final String gridId;
   final String fieldName;
   final bool isGroupField;
-  final VoidCallback? onRemoved;
+  final Function(String)? onDeleted;
 
   final IFieldTypeOptionLoader typeOptionLoader;
   const FieldEditor({
@@ -29,7 +27,7 @@ class FieldEditor extends StatefulWidget {
     this.fieldName = "",
     required this.typeOptionLoader,
     this.isGroupField = false,
-    this.onRemoved,
+    this.onDeleted,
     Key? key,
   }) : super(key: key);
 
@@ -56,7 +54,6 @@ class _FieldEditorState extends State<FieldEditor> {
         loader: widget.typeOptionLoader,
       )..add(const FieldEditorEvent.initial()),
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
-        buildWhen: (p, c) => false,
         builder: (context, state) {
           return ListView(
             shrinkWrap: true,
@@ -66,7 +63,15 @@ class _FieldEditorState extends State<FieldEditor> {
               const VSpace(10),
               const _FieldNameCell(),
               const VSpace(10),
-              _DeleteFieldButton(popoverMutex: popoverMutex),
+              _DeleteFieldButton(
+                popoverMutex: popoverMutex,
+                onDeleted: () {
+                  state.field.fold(
+                    () => Log.error('Can not delete the field'),
+                    (field) => widget.onDeleted?.call(field.id),
+                  );
+                },
+              ),
               const VSpace(10),
               _FieldTypeOptionCell(popoverMutex: popoverMutex),
             ],
@@ -129,9 +134,11 @@ class _FieldNameCell extends StatelessWidget {
 
 class _DeleteFieldButton extends StatelessWidget {
   final PopoverMutex popoverMutex;
+  final VoidCallback? onDeleted;
 
   const _DeleteFieldButton({
     required this.popoverMutex,
+    required this.onDeleted,
     Key? key,
   }) : super(key: key);
 
@@ -139,38 +146,42 @@ class _DeleteFieldButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
+      buildWhen: (previous, current) => previous != current,
       builder: (context, state) {
         final enable = !state.canDelete && !state.isGroupField;
+        Widget button = FlowyButton(
+          text: FlowyText.medium(
+            LocaleKeys.grid_field_delete.tr(),
+            fontSize: 12,
+            color: enable ? null : theme.shader4,
+          ),
+        );
+        if (enable) button = _wrapPopover(button);
+        return button;
+      },
+    );
+  }
 
-        return Popover(
-          triggerActions: PopoverTriggerActionFlags.click,
-          mutex: popoverMutex,
-          direction: PopoverDirection.center,
-          popupBuilder: (context) {
-            return FlowyAlertDialog(
-              title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-              cancel: () {
-                // FlowyOverlay.of(context).remove(FieldEditor.identifier())
-                // popoverMutex.state?.close();
-              },
-              confirm: () {
-                context
-                    .read<FieldEditorBloc>()
-                    .add(const FieldEditorEvent.deleteField());
-
-                // FlowyOverlay.of(context).remove(FieldEditor.identifier());
-              },
-            );
-          },
-          child: FlowyButton(
-            text: FlowyText.medium(
-              LocaleKeys.grid_field_delete.tr(),
-              fontSize: 12,
-              color: enable ? null : theme.shader4,
-            ),
+  Widget _wrapPopover(Widget widget) {
+    return Popover(
+      triggerActions: PopoverTriggerActionFlags.click,
+      mutex: popoverMutex,
+      direction: PopoverDirection.center,
+      popupBuilder: (popupContext) {
+        return OverlayContainer(
+          constraints: BoxConstraints.loose(const Size(400, 240)),
+          child: PopoverAlertView(
+            title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+            cancel: () => popoverMutex.state?.close(),
+            confirm: () {
+              onDeleted?.call();
+              popoverMutex.state?.close();
+            },
+            popoverMutex: popoverMutex,
           ),
         );
       },
+      child: widget,
     );
   }
 }
