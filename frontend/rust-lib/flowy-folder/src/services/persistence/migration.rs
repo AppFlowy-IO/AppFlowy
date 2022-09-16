@@ -78,7 +78,7 @@ impl FolderMigration {
 
         let folder = FolderPad::new(workspaces, trash)?;
         KV::set_bool(&key, true);
-        tracing::trace!("Run folder v1 migration");
+        tracing::info!("Run folder v1 migration");
         Ok(Some(folder))
     }
 
@@ -89,11 +89,10 @@ impl FolderMigration {
         }
         let _ = self.migration_folder_rev_struct(folder_id).await?;
         KV::set_bool(&key, true);
-        tracing::trace!("Run folder v2 migration");
+        // tracing::info!("Run folder v2 migration");
         Ok(())
     }
 
-    #[allow(dead_code)]
     pub async fn run_v3_migration(&self, folder_id: &FolderId) -> FlowyResult<()> {
         let key = migration_flag_key(&self.user_id, V3_MIGRATION);
         if KV::get_bool(&key) {
@@ -101,7 +100,7 @@ impl FolderMigration {
         }
         let _ = self.migration_folder_rev_struct(folder_id).await?;
         KV::set_bool(&key, true);
-        tracing::trace!("Run folder v3 migration");
+        tracing::info!("Run folder v3 migration");
         Ok(())
     }
 
