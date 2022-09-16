@@ -23,6 +23,8 @@ impl std::ops::Deref for GridViewRevisionPad {
 }
 
 impl GridViewRevisionPad {
+    // For the moment, the view_id is equal to grid_id. The grid_id represents the database id.
+    // A database can be referenced by multiple views.
     pub fn new(grid_id: String, view_id: String) -> Self {
         let view = Arc::new(GridViewRevision::new(grid_id, view_id));
         let json = serde_json::to_string(&view).unwrap();
@@ -30,11 +32,15 @@ impl GridViewRevisionPad {
         Self { view, delta }
     }
 
-    pub fn from_delta(delta: Delta) -> CollaborateResult<Self> {
+
+    pub fn from_delta(view_id: &str, delta: Delta) -> CollaborateResult<Self> {
+        if delta.is_empty() {
+            return Ok(GridViewRevisionPad::new(view_id.to_owned(), view_id.to_owned()));
+        }
         let s = delta.content()?;
         let view: GridViewRevision = serde_json::from_str(&s).map_err(|e| {
             let msg = format!("Deserialize delta to GridViewRevision failed: {}", e);
-            tracing::error!("{}", s);
+            tracing::error!("parsing json: {}", s);
             CollaborateError::internal().context(msg)
         })?;
         Ok(Self {
@@ -43,9 +49,15 @@ impl GridViewRevisionPad {
         })
     }
 
+<<<<<<< HEAD
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
         let delta: Delta = make_text_delta_from_revisions(revisions)?;
         Self::from_delta(delta)
+=======
+    pub fn from_revisions(view_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
+        let delta: TextDelta = make_text_delta_from_revisions(revisions)?;
+        Self::from_delta(view_id, delta)
+>>>>>>> 01dbc68d4 (chore: fix open application error when upgrade to 0.0.5.1)
     }
 
     pub fn get_groups_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
