@@ -41,7 +41,7 @@ impl GroupAction for CheckboxGroupController {
 
     fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
-        self.group_ctx.iter_mut_groups(|group| {
+        self.group_ctx.iter_mut_all_groups(|group| {
             let mut changeset = GroupChangesetPB::new(group.id.clone());
             let is_contained = group.contains_row(&row_rev.id);
             if group.id == CHECK && cell_data.is_check() {
@@ -63,7 +63,7 @@ impl GroupAction for CheckboxGroupController {
 
     fn remove_row_if_match(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
-        self.group_ctx.iter_mut_groups(|group| {
+        self.group_ctx.iter_mut_all_groups(|group| {
             let mut changeset = GroupChangesetPB::new(group.id.clone());
             if group.contains_row(&row_rev.id) {
                 changeset.deleted_rows.push(row_rev.id.clone());
@@ -79,7 +79,7 @@ impl GroupAction for CheckboxGroupController {
 
     fn move_row(&mut self, _cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
         let mut group_changeset = vec![];
-        self.group_ctx.iter_mut_groups(|group| {
+        self.group_ctx.iter_mut_all_groups(|group| {
             if let Some(changeset) = move_group_row(group, &mut context) {
                 group_changeset.push(changeset);
             }
