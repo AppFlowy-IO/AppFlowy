@@ -1,5 +1,4 @@
 import 'package:app_flowy/plugins/grid/application/row/row_action_sheet_bloc.dart';
-import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';
@@ -151,14 +150,9 @@ extension _RowActionExtension on _RowAction {
             .add(const RowActionSheetEvent.duplicateRow());
         break;
       case _RowAction.delete:
-        FlowyAlertDialog(
-          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-          confirm: () {
-            context
-                .read<RowActionSheetBloc>()
-                .add(const RowActionSheetEvent.deleteRow());
-          },
-        ).show(context);
+        context
+            .read<RowActionSheetBloc>()
+            .add(const RowActionSheetEvent.deleteRow());
 
         break;
     }
