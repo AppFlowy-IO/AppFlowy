@@ -485,6 +485,20 @@ mod tests {
     }
 
     #[test]
+    fn folder_deserialize_invalid_json_test() {
+        for json in vec![
+            // No timestamp
+            r#"{"workspaces":[{"id":"1","name":"first workspace","desc":"","apps":[]}],"trash":[]}"#,
+            // Trailing characters
+            r#"{"workspaces":[{"id":"1","name":"first workspace","desc":"","apps":[]}],"trash":[]}123"#,
+        ] {
+            let mut deserializer = serde_json::Deserializer::from_reader(json.as_bytes());
+            let folder_rev = FolderRevision::deserialize(&mut deserializer).unwrap();
+            assert_eq!(folder_rev.workspaces.first().as_ref().unwrap().name, "first workspace");
+        }
+    }
+
+    #[test]
     fn folder_update_workspace() {
         let (mut folder, initial_delta, workspace) = test_folder();
         assert_folder_equal(

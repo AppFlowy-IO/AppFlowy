@@ -14,7 +14,9 @@ pub struct WorkspaceRevision {
 
     pub apps: Vec<AppRevision>,
 
+    #[serde(default)]
     pub modified_time: i64,
 
+    #[serde(default)]
     pub create_time: i64,
 }
