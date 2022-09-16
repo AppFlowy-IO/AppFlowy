@@ -22,21 +22,21 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "bold": MessageLookupByLibrary.simpleMessage("加粗"),
-        "bulletedList": MessageLookupByLibrary.simpleMessage("无序列表"),
-        "checkbox": MessageLookupByLibrary.simpleMessage("复选框"),
-        "embedCode": MessageLookupByLibrary.simpleMessage("内嵌代码"),
-        "heading1": MessageLookupByLibrary.simpleMessage("标题 1"),
-        "heading2": MessageLookupByLibrary.simpleMessage("标题 2"),
-        "heading3": MessageLookupByLibrary.simpleMessage("标题 3"),
-        "highlight": MessageLookupByLibrary.simpleMessage("高亮"),
-        "image": MessageLookupByLibrary.simpleMessage("图片"),
-        "italic": MessageLookupByLibrary.simpleMessage("斜体"),
-        "link": MessageLookupByLibrary.simpleMessage("链接"),
-        "numberedList": MessageLookupByLibrary.simpleMessage("有序列表"),
-        "quote": MessageLookupByLibrary.simpleMessage("引用"),
-        "strikethrough": MessageLookupByLibrary.simpleMessage("删除线"),
-        "text": MessageLookupByLibrary.simpleMessage("文字"),
-        "underline": MessageLookupByLibrary.simpleMessage("下划线")
+        "bold": MessageLookupByLibrary.simpleMessage(""),
+        "bulletedList": MessageLookupByLibrary.simpleMessage(""),
+        "checkbox": MessageLookupByLibrary.simpleMessage(""),
+        "embedCode": MessageLookupByLibrary.simpleMessage(""),
+        "heading1": MessageLookupByLibrary.simpleMessage(""),
+        "heading2": MessageLookupByLibrary.simpleMessage(""),
+        "heading3": MessageLookupByLibrary.simpleMessage(""),
+        "highlight": MessageLookupByLibrary.simpleMessage(""),
+        "image": MessageLookupByLibrary.simpleMessage(""),
+        "italic": MessageLookupByLibrary.simpleMessage(""),
+        "link": MessageLookupByLibrary.simpleMessage(""),
+        "numberedList": MessageLookupByLibrary.simpleMessage(""),
+        "quote": MessageLookupByLibrary.simpleMessage(""),
+        "strikethrough": MessageLookupByLibrary.simpleMessage(""),
+        "text": MessageLookupByLibrary.simpleMessage(""),
+        "underline": MessageLookupByLibrary.simpleMessage("")
       };
 }

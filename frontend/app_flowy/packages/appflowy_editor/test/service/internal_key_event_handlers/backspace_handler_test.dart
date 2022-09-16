@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import '../../infra/test_editor.dart';
 import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
-import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 
 void main() async {
   setUpAll(() {
