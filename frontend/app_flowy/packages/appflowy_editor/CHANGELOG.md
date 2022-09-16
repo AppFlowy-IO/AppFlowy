@@ -1,3 +1,10 @@
+## 0.0.5
+* Support customize the hotkey for a shortcut on different platform.
+* Support customize a theme.
+* Support localizations.
+* Support insert numbered list.
+* Fix some bugs.
+
 ## 0.0.4
 * Support more shortcut events.
 * Fix some bugs.

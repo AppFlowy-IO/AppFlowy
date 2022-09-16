@@ -7,6 +7,7 @@ import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
 
 class QuotedTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -77,6 +78,10 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
                 key: _richTextKey,
                 placeholderText: 'Quote',
                 textNode: widget.textNode,
+                textSpanDecorator: (textSpan) =>
+                    textSpan.updateTextStyle(textStyle),
+                placeholderTextSpanDecorator: (textSpan) =>
+                    textSpan.updateTextStyle(textStyle),
                 lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
                 editorState: widget.editorState,
               ),

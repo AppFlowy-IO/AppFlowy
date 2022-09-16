@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:example/plugin/underscore_to_italic_key_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:path_provider/path_provider.dart';
 
@@ -22,6 +24,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
         AppFlowyEditorLocalizations.delegate,
       ],
       supportedLocales: AppFlowyEditorLocalizations.delegate.supportedLocales,
@@ -149,11 +154,8 @@ class _MyHomePageState extends State<MyHomePage> {
           icon: const Icon(Icons.color_lens),
           onPressed: () {
             setState(() {
-              _editorStyle = _editorStyle.copyWith(
-                textStyle: darkMode
-                    ? BuiltInTextStyle.builtIn()
-                    : BuiltInTextStyle.builtInDarkMode(),
-              );
+              _editorStyle =
+                  darkMode ? EditorStyle.defaultStyle() : _customizedStyle();
               darkMode = !darkMode;
             });
           },
@@ -195,5 +197,45 @@ class _MyHomePageState extends State<MyHomePage> {
         _pageIndex = pageIndex;
       });
     }
+  }
+
+  EditorStyle _customizedStyle() {
+    final editorStyle = EditorStyle.defaultStyle();
+    return editorStyle.copyWith(
+      cursorColor: Colors.white,
+      selectionColor: Colors.blue.withOpacity(0.3),
+      textStyle: editorStyle.textStyle.copyWith(
+        defaultTextStyle: GoogleFonts.poppins().copyWith(
+          color: Colors.white,
+          fontSize: 14.0,
+        ),
+        defaultPlaceholderTextStyle: GoogleFonts.poppins().copyWith(
+          color: Colors.white.withOpacity(0.5),
+          fontSize: 14.0,
+        ),
+        bold: const TextStyle(fontWeight: FontWeight.w900),
+        code: TextStyle(
+          fontStyle: FontStyle.italic,
+          color: Colors.red[300],
+          backgroundColor: Colors.grey.withOpacity(0.3),
+        ),
+        highlightColorHex: '0x6FFFEB3B',
+      ),
+      pluginStyles: {
+        'text/quote': builtInPluginStyle
+          ..update(
+            'textStyle',
+            (_) {
+              return (EditorState editorState, Node node) {
+                return TextStyle(
+                  color: Colors.blue[200],
+                  fontStyle: FontStyle.italic,
+                  fontSize: 12.0,
+                );
+              };
+            },
+          ),
+      },
+    );
   }
 }

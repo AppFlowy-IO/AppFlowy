@@ -36,8 +36,8 @@ and the Flutter guide for
 * Design and modify an ever expanding list of customizable features including
   * components (such as form input controls, numbered lists, and rich text widgets)
   * shortcut events
+  * themes
   * menu options (**coming soon!**)
-  * themes (**coming soon!**)
 * [Test-coverage](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/testing.md) and on-going maintenance by AppFlowy's core team and community of more than 1,000 builders
 
 ## Getting Started
@@ -54,11 +54,13 @@ flutter pub get
 Start by creating a new empty AppFlowyEditor object. 
 
 ```dart
+final editorStyle = EditorStyle.defaultStyle();
 final editorState = EditorState.empty(); // an empty state
 final editor = AppFlowyEditor(
     editorState: editorState,
-    keyEventHandlers: const [],
+    shortcutEvents: const [],
     customBuilders: const {},
+    editorStyle: editorStyle,
 );
 ```
 
@@ -66,11 +68,22 @@ You can also create an editor from a JSON object in order to configure your init
 
 ```dart
 final json = ...;
+final editorStyle = EditorStyle.defaultStyle();
 final editorState = EditorState(StateTree.fromJson(data));
 final editor = AppFlowyEditor(
     editorState: editorState,
-    keyEventHandlers: const [],
+    shortcutEvents: const [],
     customBuilders: const {},
+    editorStyle: editorStyle,
+);
+```
+
+> Note: The parameters `localizationsDelegates` need to be assigned in MaterialApp widget
+```dart
+MaterialApp(
+    localizationsDelegates: const [
+        AppFlowyEditorLocalizations.delegate,
+    ]，
 );
 ```
 

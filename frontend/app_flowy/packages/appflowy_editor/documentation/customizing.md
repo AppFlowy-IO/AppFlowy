@@ -16,7 +16,9 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
+        editorStyle: EditorStyle.defaultStyle(),
         shortcutEvents: const [],
+        customBuilders: const {},
       ),
     ),
   );
@@ -116,6 +118,8 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
+        editorStyle: EditorStyle.defaultStyle(),
+        customBuilders: const {},
         shortcutEvents: [
             _underscoreToItalicHandler,
         ],
@@ -145,7 +149,9 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
-        keyEventHandlers: const [],
+        editorStyle: EditorStyle.defaultStyle(),
+        shortcutEvents: const [],
+        customBuilders: const {},
       ),
     ),
   );
@@ -283,6 +289,8 @@ final editorState = EditorState(
 );
 return AppFlowyEditor(
   editorState: editorState,
+  editorStyle: EditorStyle.defaultStyle(),
+  shortcutEvents: const [],
   customBuilders: {
     'network_image': NetworkImageNodeWidgetBuilder(),
   },
@@ -292,3 +300,95 @@ return AppFlowyEditor(
 ![Whew!](./images/customizing_a_component.gif)
 
 Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/network_image_node_widget.dart) file of this example.
+
+## Customizing a Theme (New Feature in 0.0.5, Alpha)
+
+We will use a simple example to illustrate how to quickly customize a theme.
+
+Let's start with a blank document:
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Container(
+      alignment: Alignment.topCenter,
+      child: AppFlowyEditor(
+        editorState: EditorState.empty(),
+        editorStyle: EditorStyle.defaultStyle(),
+        shortcutEvents: const [],
+        customBuilders: const {},
+      ),
+    ),
+  );
+}
+```
+
+At this point, the editor looks like ...
+![Before](./images/customizing_a_theme_before.png)
+
+
+Next, we will customize the `EditorStyle`.
+
+```dart
+EditorStyle _customizedStyle() {
+  final editorStyle = EditorStyle.defaultStyle();
+  return editorStyle.copyWith(
+    cursorColor: Colors.white,
+    selectionColor: Colors.blue.withOpacity(0.3),
+    textStyle: editorStyle.textStyle.copyWith(
+      defaultTextStyle: GoogleFonts.poppins().copyWith(
+        color: Colors.white,
+        fontSize: 14.0,
+      ),
+      defaultPlaceholderTextStyle: GoogleFonts.poppins().copyWith(
+        color: Colors.white.withOpacity(0.5),
+        fontSize: 14.0,
+      ),
+      bold: const TextStyle(fontWeight: FontWeight.w900),
+      code: TextStyle(
+        fontStyle: FontStyle.italic,
+        color: Colors.red[300],
+        backgroundColor: Colors.grey.withOpacity(0.3),
+      ),
+      highlightColorHex: '0x6FFFEB3B',
+    ),
+    pluginStyles: {
+      'text/quote': builtInPluginStyle
+        ..update(
+          'textStyle',
+          (_) {
+            return (EditorState editorState, Node node) {
+              return TextStyle(
+                color: Colors.blue[200],
+                fontStyle: FontStyle.italic,
+                fontSize: 12.0,
+              );
+            };
+          },
+        ),
+    },
+  );
+}
+```
+
+Now our 'customize style' function is done and the only task left is to inject it into the AppFlowyEditor.
+
+```dart
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Container(
+      alignment: Alignment.topCenter,
+      child: AppFlowyEditor(
+        editorState: EditorState.empty(),
+        editorStyle: _customizedStyle(),
+        shortcutEvents: const [],
+        customBuilders: const {},
+      ),
+    ),
+  );
+}
+```
+
+![After](./images/customizing_a_theme_after.png)
