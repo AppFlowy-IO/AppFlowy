@@ -6,31 +6,31 @@ import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void insertHeadingAfterSelection(EditorState editorState, String heading) {
   insertTextNodeAfterSelection(editorState, {
-    StyleKey.subtype: StyleKey.heading,
-    StyleKey.heading: heading,
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
+    BuiltInAttributeKey.heading: heading,
   });
 }
 
 void insertQuoteAfterSelection(EditorState editorState) {
   insertTextNodeAfterSelection(editorState, {
-    StyleKey.subtype: StyleKey.quote,
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.quote,
   });
 }
 
 void insertCheckboxAfterSelection(EditorState editorState) {
   insertTextNodeAfterSelection(editorState, {
-    StyleKey.subtype: StyleKey.checkbox,
-    StyleKey.checkbox: false,
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
+    BuiltInAttributeKey.checkbox: false,
   });
 }
 
 void insertBulletedListAfterSelection(EditorState editorState) {
   insertTextNodeAfterSelection(editorState, {
-    StyleKey.subtype: StyleKey.bulletedList,
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
   });
 }
 
@@ -68,27 +68,27 @@ void formatText(EditorState editorState) {
 
 void formatHeading(EditorState editorState, String heading) {
   formatTextNodes(editorState, {
-    StyleKey.subtype: StyleKey.heading,
-    StyleKey.heading: heading,
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
+    BuiltInAttributeKey.heading: heading,
   });
 }
 
 void formatQuote(EditorState editorState) {
   formatTextNodes(editorState, {
-    StyleKey.subtype: StyleKey.quote,
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.quote,
   });
 }
 
-void formatCheckbox(EditorState editorState) {
+void formatCheckbox(EditorState editorState, bool check) {
   formatTextNodes(editorState, {
-    StyleKey.subtype: StyleKey.checkbox,
-    StyleKey.checkbox: false,
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
+    BuiltInAttributeKey.checkbox: check,
   });
 }
 
 void formatBulletedList(EditorState editorState) {
   formatTextNodes(editorState, {
-    StyleKey.subtype: StyleKey.bulletedList,
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
   });
 }
 
@@ -107,7 +107,7 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
       ..updateNode(
         textNode,
         Attributes.fromIterable(
-          StyleKey.globalStyleKeys,
+          BuiltInAttributeKey.globalStyleKeys,
           value: (_) => null,
         )..addAll(attributes),
       )
@@ -124,44 +124,58 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
 }
 
 bool formatBold(EditorState editorState) {
-  return formatRichTextPartialStyle(editorState, StyleKey.bold);
+  return formatRichTextPartialStyle(editorState, BuiltInAttributeKey.bold);
 }
 
 bool formatItalic(EditorState editorState) {
-  return formatRichTextPartialStyle(editorState, StyleKey.italic);
+  return formatRichTextPartialStyle(editorState, BuiltInAttributeKey.italic);
 }
 
 bool formatUnderline(EditorState editorState) {
-  return formatRichTextPartialStyle(editorState, StyleKey.underline);
+  return formatRichTextPartialStyle(editorState, BuiltInAttributeKey.underline);
 }
 
 bool formatStrikethrough(EditorState editorState) {
-  return formatRichTextPartialStyle(editorState, StyleKey.strikethrough);
+  return formatRichTextPartialStyle(
+      editorState, BuiltInAttributeKey.strikethrough);
 }
 
 bool formatEmbedCode(EditorState editorState) {
-  return formatRichTextPartialStyle(editorState, StyleKey.code);
+  return formatRichTextPartialStyle(editorState, BuiltInAttributeKey.code);
 }
 
-bool formatHighlight(EditorState editorState) {
+bool formatHighlight(EditorState editorState, String colorHex) {
   bool value = _allSatisfyInSelection(
-      editorState, StyleKey.backgroundColor, defaultHighlightColor);
-  return formatRichTextPartialStyle(editorState, StyleKey.backgroundColor,
-      customValue: value ? defaultBackgroundColor : defaultHighlightColor);
+    editorState,
+    BuiltInAttributeKey.backgroundColor,
+    colorHex,
+  );
+  return formatRichTextPartialStyle(
+    editorState,
+    BuiltInAttributeKey.backgroundColor,
+    customValue: value ? '0x00000000' : colorHex,
+  );
 }
 
 bool formatRichTextPartialStyle(EditorState editorState, String styleKey,
     {Object? customValue}) {
   Attributes attributes = {
     styleKey: customValue ??
-        !_allSatisfyInSelection(editorState, styleKey, customValue ?? true),
+        !_allSatisfyInSelection(
+          editorState,
+          styleKey,
+          customValue ?? true,
+        ),
   };
 
   return formatRichTextStyle(editorState, attributes);
 }
 
 bool _allSatisfyInSelection(
-    EditorState editorState, String styleKey, dynamic matchValue) {
+  EditorState editorState,
+  String styleKey,
+  dynamic matchValue,
+) {
   final selection = editorState.service.selectionService.currentSelection.value;
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final textNodes = nodes.whereType<TextNode>().toList(growable: false);

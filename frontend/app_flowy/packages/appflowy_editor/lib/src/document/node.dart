@@ -24,6 +24,13 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     return null;
   }
 
+  String get id {
+    if (subtype != null) {
+      return '$type/$subtype';
+    }
+    return type;
+  }
+
   Path get path => _path();
 
   Attributes get attributes => _attributes;

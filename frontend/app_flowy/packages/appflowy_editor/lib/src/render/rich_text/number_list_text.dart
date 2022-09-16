@@ -1,12 +1,13 @@
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/infra/flowy_svg.dart';
+import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
+import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
 
 class NumberListTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -24,14 +25,16 @@ class NumberListTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
       });
 }
 
-class NumberListTextNodeWidget extends StatefulWidget {
+class NumberListTextNodeWidget extends BuiltInTextWidget {
   const NumberListTextNodeWidget({
     Key? key,
     required this.textNode,
     required this.editorState,
   }) : super(key: key);
 
+  @override
   final TextNode textNode;
+  @override
   final EditorState editorState;
 
   @override
@@ -39,11 +42,8 @@ class NumberListTextNodeWidget extends StatefulWidget {
       _NumberListTextNodeWidgetState();
 }
 
-// customize
-const double _numberHorizontalPadding = 8;
-
 class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
-    with SelectableMixin, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
   @override
   final iconKey = GlobalKey();
 
@@ -54,30 +54,41 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
       _richTextKey.currentState as SelectableMixin;
 
   @override
+  Offset get baseOffset {
+    return super.baseOffset.translate(0, padding.top);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.only(bottom: defaultLinePadding),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              key: iconKey,
-              padding: const EdgeInsets.symmetric(
-                  horizontal: _numberHorizontalPadding, vertical: 0),
-              child: Text(
-                '${widget.textNode.attributes.number.toString()}.',
-                style: const TextStyle(fontSize: 16),
-              ),
+      padding: padding,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            key: iconKey,
+            padding: iconPadding,
+            child: Text(
+              '${widget.textNode.attributes.number.toString()}.',
+              // FIXME: customize
+              style: const TextStyle(fontSize: 16.0, color: Colors.black),
             ),
-            Flexible(
-              child: FlowyRichText(
-                key: _richTextKey,
-                placeholderText: 'List',
-                textNode: widget.textNode,
-                editorState: widget.editorState,
-              ),
+          ),
+          Flexible(
+            child: FlowyRichText(
+              key: _richTextKey,
+              placeholderText: 'List',
+              textNode: widget.textNode,
+              editorState: widget.editorState,
+              lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+              placeholderTextSpanDecorator: (textSpan) =>
+                  textSpan.updateTextStyle(textStyle),
+              textSpanDecorator: (textSpan) =>
+                  textSpan.updateTextStyle(textStyle),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 }

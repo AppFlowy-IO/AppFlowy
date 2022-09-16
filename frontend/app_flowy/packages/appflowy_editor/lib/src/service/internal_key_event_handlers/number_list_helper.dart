@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/document/attributes.dart';
 
@@ -11,7 +11,7 @@ void makeFollowingNodesIncremental(
   if (insertNode == null) {
     return;
   }
-  beginNum ??= insertNode.attributes[StyleKey.number] as int;
+  beginNum ??= insertNode.attributes[BuiltInAttributeKey.number] as int;
 
   int numPtr = beginNum + 1;
   var ptr = insertNode.next;
@@ -19,13 +19,13 @@ void makeFollowingNodesIncremental(
   final builder = TransactionBuilder(editorState);
 
   while (ptr != null) {
-    if (ptr.subtype != StyleKey.numberList) {
+    if (ptr.subtype != BuiltInAttributeKey.numberList) {
       break;
     }
-    final currentNum = ptr.attributes[StyleKey.number] as int;
+    final currentNum = ptr.attributes[BuiltInAttributeKey.number] as int;
     if (currentNum != numPtr) {
       Attributes updateAttributes = {};
-      updateAttributes[StyleKey.number] = numPtr;
+      updateAttributes[BuiltInAttributeKey.number] = numPtr;
       builder.updateNode(ptr, updateAttributes);
     }
 

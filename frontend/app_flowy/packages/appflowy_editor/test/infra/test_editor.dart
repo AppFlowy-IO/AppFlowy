@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'test_raw_key_event.dart';
@@ -22,19 +23,27 @@ class EditorWidgetTester {
   Selection? get documentSelection =>
       _editorState.service.selectionService.currentSelection.value;
 
-  Future<EditorWidgetTester> startTesting() async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: AppFlowyEditor(
-            editorState: _editorState,
-            editorStyle: const EditorStyle(
-              padding: EdgeInsets.symmetric(vertical: 30),
-            ),
-          ),
+  Future<EditorWidgetTester> startTesting({
+    Locale locale = const Locale('en'),
+  }) async {
+    final app = MaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        AppFlowyEditorLocalizations.delegate,
+      ],
+      supportedLocales: AppFlowyEditorLocalizations.delegate.supportedLocales,
+      locale: locale,
+      home: Scaffold(
+        body: AppFlowyEditor(
+          editorState: _editorState,
+          editorStyle: EditorStyle.defaultStyle(),
         ),
       ),
     );
+    await tester.pumpWidget(app);
+    await tester.pump();
     return this;
   }
 

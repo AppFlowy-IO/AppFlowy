@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_item_widget.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -229,7 +229,7 @@ void main() async {
       expect(
         node.allSatisfyInSelection(
           code,
-          StyleKey.code,
+          BuiltInAttributeKey.code,
           (value) {
             return value == true;
           },
@@ -319,7 +319,7 @@ void main() async {
       expect(
         node.allSatisfyInSelection(
           selection,
-          StyleKey.backgroundColor,
+          BuiltInAttributeKey.backgroundColor,
           (value) {
             return value == blue;
           },

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:appflowy_editor/src/extensions/path_extensions.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import './number_list_helper.dart';
 
 /// Handle some cases where enter is pressed and shift is not pressed.
@@ -59,7 +59,8 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
       ..afterSelection = afterSelection
       ..commit();
 
-    if (startNode is TextNode && startNode.subtype == StyleKey.numberList) {
+    if (startNode is TextNode &&
+        startNode.subtype == BuiltInAttributeKey.numberList) {
       makeFollowingNodesIncremental(
           editorState, selection.start.path, afterSelection);
     }
@@ -82,17 +83,15 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
         Position(path: textNode.path, offset: 0),
       );
       TransactionBuilder(editorState)
-        ..updateNode(
-            textNode,
-            Attributes.fromIterable(
-              StyleKey.globalStyleKeys,
-              value: (_) => null,
-            ))
+        ..updateNode(textNode, {
+          BuiltInAttributeKey.subtype: null,
+        })
         ..afterSelection = afterSelection
         ..commit();
 
       final nextNode = textNode.next;
-      if (nextNode is TextNode && nextNode.subtype == StyleKey.numberList) {
+      if (nextNode is TextNode &&
+          nextNode.subtype == BuiltInAttributeKey.numberList) {
         makeFollowingNodesIncremental(
             editorState, textNode.path, afterSelection,
             beginNum: 0);
@@ -103,11 +102,13 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
         Position(path: textNode.path.next, offset: 0),
       );
 
-      if (subtype == StyleKey.numberList) {
-        final prevNumber = textNode.attributes[StyleKey.number] as int;
+      if (subtype == BuiltInAttributeKey.numberList) {
+        final prevNumber =
+            textNode.attributes[BuiltInAttributeKey.number] as int;
         final newNode = TextNode.empty();
-        newNode.attributes[StyleKey.subtype] = StyleKey.numberList;
-        newNode.attributes[StyleKey.number] = prevNumber;
+        newNode.attributes[BuiltInAttributeKey.subtype] =
+            BuiltInAttributeKey.numberList;
+        newNode.attributes[BuiltInAttributeKey.number] = prevNumber;
         final insertPath = textNode.path;
         TransactionBuilder(editorState)
           ..insertNode(
@@ -159,7 +160,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
 
   // If the new type of a text node is number list,
   // the numbers of the following nodes should be incremental.
-  if (textNode.subtype == StyleKey.numberList) {
+  if (textNode.subtype == BuiltInAttributeKey.numberList) {
     makeFollowingNodesIncremental(editorState, nextPath, afterSelection);
   }
 
@@ -169,17 +170,17 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
 Attributes _attributesFromPreviousLine(TextNode textNode) {
   final prevAttributes = textNode.attributes;
   final subType = textNode.subtype;
-  if (subType == null || subType == StyleKey.heading) {
+  if (subType == null || subType == BuiltInAttributeKey.heading) {
     return {};
   }
 
   final copy = Attributes.from(prevAttributes);
-  if (subType == StyleKey.numberList) {
+  if (subType == BuiltInAttributeKey.numberList) {
     return _nextNumberAttributesFromPreviousLine(copy, textNode);
   }
 
-  if (subType == StyleKey.checkbox) {
-    copy[StyleKey.checkbox] = false;
+  if (subType == BuiltInAttributeKey.checkbox) {
+    copy[BuiltInAttributeKey.checkbox] = false;
     return copy;
   }
 
@@ -188,7 +189,7 @@ Attributes _attributesFromPreviousLine(TextNode textNode) {
 
 Attributes _nextNumberAttributesFromPreviousLine(
     Attributes copy, TextNode textNode) {
-  final prevNum = textNode.attributes[StyleKey.number] as int?;
-  copy[StyleKey.number] = prevNum == null ? 1 : prevNum + 1;
+  final prevNum = textNode.attributes[BuiltInAttributeKey.number] as int?;
+  copy[BuiltInAttributeKey.number] = prevNum == null ? 1 : prevNum + 1;
   return copy;
 }

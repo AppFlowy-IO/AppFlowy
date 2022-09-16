@@ -22,8 +22,8 @@ editor.insertTextNode(text);
 
 // Insert the same text, but with the heading style.
 editor.insertTextNode(text, attributes: {
-    StyleKey.subtype: StyleKey.heading,
-    StyleKey.heading: StyleKey.h1,
+    BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
+    BuiltInAttributeKey.heading: BuiltInAttributeKey.h1,
 });
 
 // Insert our text with the bulleted list style and the bold style.
@@ -31,10 +31,10 @@ editor.insertTextNode(text, attributes: {
 editor.insertTextNode(
     '',
     attributes: {
-        StyleKey.subtype: StyleKey.bulletedList,
+        BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
     },
     delta: Delta([
-        TextInsert(text, {StyleKey.bold: true}),
+        TextInsert(text, {BuiltInAttributeKey.bold: true}),
     ]),
 );
 ```

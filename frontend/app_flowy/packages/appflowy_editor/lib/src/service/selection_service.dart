@@ -82,7 +82,7 @@ abstract class AppFlowySelectionService {
 class AppFlowySelection extends StatefulWidget {
   const AppFlowySelection({
     Key? key,
-    this.cursorColor = Colors.black,
+    this.cursorColor = const Color(0xFF00BCF0),
     this.selectionColor = const Color.fromARGB(53, 111, 201, 231),
     required this.editorState,
     required this.child,
@@ -343,8 +343,10 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     currentSelectedNodes = nodes;
 
     // TODO: need to be refactored.
-    Rect? topmostRect;
+    Offset? toolbarOffset;
     LayerLink? layerLink;
+    final editorOffset =
+        editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
 
     final backwardNodes =
         selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
@@ -381,13 +383,20 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
         }
       }
 
+      const baseToolbarOffset = Offset(0, 35.0);
       final rects = selectable.getRectsInSelection(newSelection);
       for (final rect in rects) {
-        // TODO: Need to compute more precise location.
-        topmostRect ??= rect;
-        layerLink ??= node.layerLink;
+        final selectionRect = _transformRectToGlobal(selectable, rect);
+        selectionRects.add(selectionRect);
 
-        selectionRects.add(_transformRectToGlobal(selectable, rect));
+        // TODO: Need to compute more precise location.
+        if ((selectionRect.topLeft.dy - editorOffset.dy) <=
+            baseToolbarOffset.dy) {
+          toolbarOffset ??= rect.bottomLeft;
+        } else {
+          toolbarOffset ??= rect.topLeft - baseToolbarOffset;
+        }
+        layerLink ??= node.layerLink;
 
         final overlay = OverlayEntry(
           builder: (context) => SelectionWidget(
@@ -402,9 +411,11 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     Overlay.of(context)?.insertAll(_selectionAreas);
 
-    if (topmostRect != null && layerLink != null) {
-      editorState.service.toolbarService
-          ?.showInOffset(topmostRect.topLeft, layerLink);
+    if (toolbarOffset != null && layerLink != null) {
+      editorState.service.toolbarService?.showInOffset(
+        toolbarOffset,
+        layerLink,
+      );
     }
   }
 

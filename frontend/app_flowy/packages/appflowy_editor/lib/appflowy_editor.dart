@@ -26,3 +26,5 @@ export 'src/service/input_service.dart';
 export 'src/service/shortcut_event/keybinding.dart';
 export 'src/service/shortcut_event/shortcut_event.dart';
 export 'src/service/shortcut_event/shortcut_event_handler.dart';
+export 'src/extensions/attributes_extension.dart';
+export 'src/l10n/l10n.dart';

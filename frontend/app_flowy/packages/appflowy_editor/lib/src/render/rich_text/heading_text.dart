@@ -1,11 +1,13 @@
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
+import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
+import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
 
 class HeadingTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -23,14 +25,16 @@ class HeadingTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
       });
 }
 
-class HeadingTextNodeWidget extends StatefulWidget {
+class HeadingTextNodeWidget extends BuiltInTextWidget {
   const HeadingTextNodeWidget({
     Key? key,
     required this.textNode,
     required this.editorState,
   }) : super(key: key);
 
+  @override
   final TextNode textNode;
+  @override
   final EditorState editorState;
 
   @override
@@ -39,12 +43,11 @@ class HeadingTextNodeWidget extends StatefulWidget {
 
 // customize
 class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
-    with SelectableMixin, DefaultSelectable {
+    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
   @override
   GlobalKey? get iconKey => null;
 
   final _richTextKey = GlobalKey(debugLabel: 'heading_text');
-  final _topPadding = 5.0;
 
   @override
   SelectableMixin<StatefulWidget> get forward =>
@@ -52,58 +55,23 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
 
   @override
   Offset get baseOffset {
-    return Offset(0, _topPadding);
+    return padding.topLeft;
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        top: _topPadding,
-        bottom: defaultLinePadding,
-      ),
+      padding: padding,
       child: FlowyRichText(
         key: _richTextKey,
         placeholderText: 'Heading',
-        placeholderTextSpanDecorator: _placeholderTextSpanDecorator,
-        textSpanDecorator: _textSpanDecorator,
+        placeholderTextSpanDecorator: (textSpan) =>
+            textSpan.updateTextStyle(textStyle),
+        textSpanDecorator: (textSpan) => textSpan.updateTextStyle(textStyle),
+        lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
         textNode: widget.textNode,
         editorState: widget.editorState,
       ),
-    );
-  }
-
-  TextSpan _textSpanDecorator(TextSpan textSpan) {
-    return TextSpan(
-      children: textSpan.children
-          ?.whereType<TextSpan>()
-          .map(
-            (span) => TextSpan(
-              text: span.text,
-              style: span.style?.copyWith(
-                fontSize: widget.textNode.attributes.fontSize,
-              ),
-              recognizer: span.recognizer,
-            ),
-          )
-          .toList(),
-    );
-  }
-
-  TextSpan _placeholderTextSpanDecorator(TextSpan textSpan) {
-    return TextSpan(
-      children: textSpan.children
-          ?.whereType<TextSpan>()
-          .map(
-            (span) => TextSpan(
-              text: span.text,
-              style: span.style?.copyWith(
-                fontSize: widget.textNode.attributes.fontSize,
-              ),
-              recognizer: span.recognizer,
-            ),
-          )
-          .toList(),
     );
   }
 }

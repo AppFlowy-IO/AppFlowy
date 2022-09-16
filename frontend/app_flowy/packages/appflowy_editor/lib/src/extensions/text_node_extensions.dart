@@ -3,7 +3,7 @@ import 'package:appflowy_editor/src/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 extension TextNodeExtension on TextNode {
   dynamic getAttributeInSelection(Selection selection, String styleKey) {
@@ -29,27 +29,28 @@ extension TextNodeExtension on TextNode {
   }
 
   bool allSatisfyLinkInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, StyleKey.href, (value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.href, (value) {
         return value != null;
       });
 
   bool allSatisfyBoldInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, StyleKey.bold, (value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.bold, (value) {
         return value == true;
       });
 
   bool allSatisfyItalicInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, StyleKey.italic, (value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.italic, (value) {
         return value == true;
       });
 
   bool allSatisfyUnderlineInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, StyleKey.underline, (value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.underline, (value) {
         return value == true;
       });
 
   bool allSatisfyStrikethroughInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, StyleKey.strikethrough, (value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.strikethrough,
+          (value) {
         return value == true;
       });
 
@@ -58,11 +59,11 @@ extension TextNodeExtension on TextNode {
     String styleKey,
     bool Function(dynamic value) test,
   ) {
-    if (StyleKey.globalStyleKeys.contains(styleKey)) {
+    if (BuiltInAttributeKey.globalStyleKeys.contains(styleKey)) {
       if (attributes.containsKey(styleKey)) {
         return test(attributes[styleKey]);
       }
-    } else if (StyleKey.partialStyleKeys.contains(styleKey)) {
+    } else if (BuiltInAttributeKey.partialStyleKeys.contains(styleKey)) {
       final ops = delta.whereType<TextInsert>();
       final startOffset =
           selection.isBackward ? selection.start.offset : selection.end.offset;
@@ -120,28 +121,28 @@ extension TextNodeExtension on TextNode {
 extension TextNodesExtension on List<TextNode> {
   bool allSatisfyBoldInSelection(Selection selection) => allSatisfyInSelection(
         selection,
-        StyleKey.bold,
+        BuiltInAttributeKey.bold,
         (value) => value == true,
       );
 
   bool allSatisfyItalicInSelection(Selection selection) =>
       allSatisfyInSelection(
         selection,
-        StyleKey.italic,
+        BuiltInAttributeKey.italic,
         (value) => value == true,
       );
 
   bool allSatisfyUnderlineInSelection(Selection selection) =>
       allSatisfyInSelection(
         selection,
-        StyleKey.underline,
+        BuiltInAttributeKey.underline,
         (value) => value == true,
       );
 
   bool allSatisfyStrikethroughInSelection(Selection selection) =>
       allSatisfyInSelection(
         selection,
-        StyleKey.strikethrough,
+        BuiltInAttributeKey.strikethrough,
         (value) => value == true,
       );
 

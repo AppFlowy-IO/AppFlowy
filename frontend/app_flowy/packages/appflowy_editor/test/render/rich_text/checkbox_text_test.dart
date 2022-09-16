@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
@@ -25,15 +25,15 @@ void main() async {
         ..insertTextNode(
           '',
           attributes: {
-            StyleKey.subtype: StyleKey.checkbox,
-            StyleKey.checkbox: false,
+            BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
+            BuiltInAttributeKey.checkbox: false,
           },
           delta: Delta([
             TextInsert(text, {
-              StyleKey.bold: true,
-              StyleKey.italic: true,
-              StyleKey.underline: true,
-              StyleKey.strikethrough: true,
+              BuiltInAttributeKey.bold: true,
+              BuiltInAttributeKey.italic: true,
+              BuiltInAttributeKey.underline: true,
+              BuiltInAttributeKey.strikethrough: true,
             }),
           ]),
         );

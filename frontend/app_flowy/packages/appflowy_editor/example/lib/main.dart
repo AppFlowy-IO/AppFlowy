@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:example/plugin/underscore_to_italic_key_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:path_provider/path_provider.dart';
 
@@ -21,6 +23,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        AppFlowyEditorLocalizations.delegate,
+      ],
+      supportedLocales: AppFlowyEditorLocalizations.delegate.supportedLocales,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -40,7 +49,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _pageIndex = 0;
-  late EditorState _editorState;
+  EditorState? _editorState;
+  bool darkMode = false;
+  EditorStyle _editorStyle = EditorStyle.defaultStyle();
   Future<String>? _jsonString;
 
   @override
@@ -78,24 +89,29 @@ class _MyHomePageState extends State<MyHomePage> {
     return FutureBuilder<String>(
       future: jsonString,
       builder: (_, snapshot) {
-        if (snapshot.hasData) {
-          _editorState = EditorState(
+        if (snapshot.hasData &&
+            snapshot.connectionState == ConnectionState.done) {
+          _editorState ??= EditorState(
             document: StateTree.fromJson(
               Map<String, Object>.from(
                 json.decode(snapshot.data!),
               ),
             ),
           );
-          _editorState.logConfiguration
+          _editorState!.logConfiguration
             ..level = LogLevel.all
             ..handler = (message) {
               debugPrint(message);
             };
-          return SizedBox(
+          _editorState!.operationStream.listen((event) {
+            debugPrint('Operation: ${event.toJson()}');
+          });
+          return Container(
+            color: darkMode ? Colors.black : Colors.white,
             width: MediaQuery.of(context).size.width,
             child: AppFlowyEditor(
-              editorState: _editorState,
-              editorStyle: const EditorStyle.defaultStyle(),
+              editorState: _editorState!,
+              editorStyle: _editorStyle,
               shortcutEvents: [
                 underscoreToItalicEvent,
               ],
@@ -127,11 +143,22 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () => _switchToPage(2),
         ),
         ActionButton(
-            icon: const Icon(Icons.print),
-            onPressed: () => {_exportDocument(_editorState)}),
+          icon: const Icon(Icons.print),
+          onPressed: () => _exportDocument(_editorState!),
+        ),
         ActionButton(
           icon: const Icon(Icons.import_export),
           onPressed: () => _importDocument(),
+        ),
+        ActionButton(
+          icon: const Icon(Icons.color_lens),
+          onPressed: () {
+            setState(() {
+              _editorStyle =
+                  darkMode ? EditorStyle.defaultStyle() : _customizedStyle();
+              darkMode = !darkMode;
+            });
+          },
         ),
       ],
     );
@@ -166,8 +193,49 @@ class _MyHomePageState extends State<MyHomePage> {
   void _switchToPage(int pageIndex) {
     if (pageIndex != _pageIndex) {
       setState(() {
+        _editorState = null;
         _pageIndex = pageIndex;
       });
     }
+  }
+
+  EditorStyle _customizedStyle() {
+    final editorStyle = EditorStyle.defaultStyle();
+    return editorStyle.copyWith(
+      cursorColor: Colors.white,
+      selectionColor: Colors.blue.withOpacity(0.3),
+      textStyle: editorStyle.textStyle.copyWith(
+        defaultTextStyle: GoogleFonts.poppins().copyWith(
+          color: Colors.white,
+          fontSize: 14.0,
+        ),
+        defaultPlaceholderTextStyle: GoogleFonts.poppins().copyWith(
+          color: Colors.white.withOpacity(0.5),
+          fontSize: 14.0,
+        ),
+        bold: const TextStyle(fontWeight: FontWeight.w900),
+        code: TextStyle(
+          fontStyle: FontStyle.italic,
+          color: Colors.red[300],
+          backgroundColor: Colors.grey.withOpacity(0.3),
+        ),
+        highlightColorHex: '0x6FFFEB3B',
+      ),
+      pluginStyles: {
+        'text/quote': builtInPluginStyle
+          ..update(
+            'textStyle',
+            (_) {
+              return (EditorState editorState, Node node) {
+                return TextStyle(
+                  color: Colors.blue[200],
+                  fontStyle: FontStyle.italic,
+                  fontSize: 12.0,
+                );
+              };
+            },
+          ),
+      },
+    );
   }
 }

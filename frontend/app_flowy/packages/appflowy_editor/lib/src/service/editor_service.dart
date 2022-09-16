@@ -38,7 +38,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.customBuilders = const {},
     this.shortcutEvents = const [],
     this.selectionMenuItems = const [],
-    this.editorStyle = const EditorStyle.defaultStyle(),
+    required this.editorStyle,
   }) : super(key: key);
 
   final EditorState editorState;
@@ -58,6 +58,8 @@ class AppFlowyEditor extends StatefulWidget {
 }
 
 class _AppFlowyEditorState extends State<AppFlowyEditor> {
+  Widget? services;
+
   EditorState get editorState => widget.editorState;
 
   @override
@@ -75,19 +77,34 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
 
     if (editorState.service != oldWidget.editorState.service) {
       editorState.selectionMenuItems = widget.selectionMenuItems;
-      editorState.editorStyle = widget.editorStyle;
       editorState.service.renderPluginService = _createRenderPlugin();
     }
+
+    editorState.editorStyle = widget.editorStyle;
+    services = null;
   }
 
   @override
   Widget build(BuildContext context) {
+    services ??= _buildServices(context);
+    return Overlay(
+      initialEntries: [
+        OverlayEntry(
+          builder: (context) => services!,
+        ),
+      ],
+    );
+  }
+
+  AppFlowyScroll _buildServices(BuildContext context) {
     return AppFlowyScroll(
       key: editorState.service.scrollServiceKey,
       child: Padding(
         padding: widget.editorStyle.padding,
         child: AppFlowySelection(
           key: editorState.service.selectionServiceKey,
+          cursorColor: widget.editorStyle.cursorColor,
+          selectionColor: widget.editorStyle.selectionColor,
           editorState: editorState,
           child: AppFlowyInput(
             key: editorState.service.inputServiceKey,

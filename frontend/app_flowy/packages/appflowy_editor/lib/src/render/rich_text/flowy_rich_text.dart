@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
-import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,8 +11,12 @@ import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
+import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
+import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
+import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
+
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 
 typedef FlowyTextSpanDecorator = TextSpan Function(TextSpan textSpan);
 
@@ -23,6 +25,7 @@ class FlowyRichText extends StatefulWidget {
     Key? key,
     this.cursorHeight,
     this.cursorWidth = 1.0,
+    this.lineHeight = 1.0,
     this.textSpanDecorator,
     this.placeholderText = ' ',
     this.placeholderTextSpanDecorator,
@@ -34,6 +37,7 @@ class FlowyRichText extends StatefulWidget {
   final EditorState editorState;
   final double? cursorHeight;
   final double cursorWidth;
+  final double lineHeight;
   final FlowyTextSpanDecorator? textSpanDecorator;
   final String placeholderText;
   final FlowyTextSpanDecorator? placeholderTextSpanDecorator;
@@ -45,8 +49,6 @@ class FlowyRichText extends StatefulWidget {
 class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   var _textKey = GlobalKey();
   final _placeholderTextKey = GlobalKey();
-
-  final _lineHeight = 1.5;
 
   RenderParagraph get _renderParagraph =>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
@@ -89,20 +91,6 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
           _placeholderRenderParagraph.getFullHeightForCaret(textPosition);
       cursorOffset = _placeholderRenderParagraph.getOffsetForCaret(
           textPosition, Rect.zero);
-    }
-    if (cursorHeight != null) {
-      // workaround: Calling the `getFullHeightForCaret` function will return
-      // the full height of rich text component instead of the plain text
-      // if we set the line height.
-      // So need to divide by the line height to get the expected value.
-      //
-      // And the default height of plain text is too short. Add a magic height
-      // to expand it.
-      const magicHeight = 3.0;
-      cursorOffset = cursorOffset.translate(
-          0, (cursorHeight - cursorHeight / _lineHeight) / 2.0);
-      cursorHeight /= _lineHeight;
-      cursorHeight += magicHeight;
     }
     final rect = Rect.fromLTWH(
       cursorOffset.dx - (widget.cursorWidth / 2),
@@ -190,8 +178,8 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
       key: _placeholderTextKey,
       textHeightBehavior: const TextHeightBehavior(
           applyHeightToFirstAscent: false, applyHeightToLastDescent: false),
-      text: widget.textSpanDecorator != null
-          ? widget.textSpanDecorator!(textSpan)
+      text: widget.placeholderTextSpanDecorator != null
+          ? widget.placeholderTextSpanDecorator!(textSpan)
           : textSpan,
     );
   }
@@ -210,42 +198,73 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
     );
   }
 
-  TextSpan get _textSpan {
-    var offset = 0;
+  TextSpan get _placeholderTextSpan {
+    final style = widget.editorState.editorStyle.textStyle;
     return TextSpan(
-      children: widget.textNode.delta.whereType<TextInsert>().map((insert) {
-        GestureRecognizer? gestureRecognizer;
-        if (insert.attributes?[StyleKey.href] != null) {
-          gestureRecognizer = _buildTapHrefGestureRecognizer(
-            insert.attributes![StyleKey.href],
-            Selection.single(
-              path: widget.textNode.path,
-              startOffset: offset,
-              endOffset: offset + insert.length,
-            ),
-          );
-        }
-        offset += insert.length;
-        final textSpan = RichTextStyle(
-          attributes: insert.attributes ?? {},
-          text: insert.content,
-          height: _lineHeight,
-          gestureRecognizer: gestureRecognizer,
-        ).toTextSpan();
-        return textSpan;
-      }).toList(growable: false),
+      children: [
+        TextSpan(
+          text: widget.placeholderText,
+          style: style.defaultPlaceholderTextStyle,
+        ),
+      ],
     );
   }
 
-  TextSpan get _placeholderTextSpan => TextSpan(children: [
-        RichTextStyle(
-          text: widget.placeholderText,
-          attributes: {
-            StyleKey.color: '0xFF707070',
-          },
-          height: _lineHeight,
-        ).toTextSpan()
-      ]);
+  TextSpan get _textSpan {
+    var offset = 0;
+    List<TextSpan> textSpans = [];
+    final style = widget.editorState.editorStyle.textStyle;
+    final textInserts = widget.textNode.delta.whereType<TextInsert>();
+    for (final textInsert in textInserts) {
+      var textStyle = style.defaultTextStyle;
+      GestureRecognizer? recognizer;
+      final attributes = textInsert.attributes;
+      if (attributes != null) {
+        if (attributes.bold == true) {
+          textStyle = textStyle.combine(style.bold);
+        }
+        if (attributes.italic == true) {
+          textStyle = textStyle.combine(style.italic);
+        }
+        if (attributes.underline == true) {
+          textStyle = textStyle.combine(style.underline);
+        }
+        if (attributes.strikethrough == true) {
+          textStyle = textStyle.combine(style.strikethrough);
+        }
+        if (attributes.href != null) {
+          textStyle = textStyle.combine(style.href);
+          recognizer = _buildTapHrefGestureRecognizer(
+            attributes.href!,
+            Selection.single(
+              path: widget.textNode.path,
+              startOffset: offset,
+              endOffset: offset + textInsert.length,
+            ),
+          );
+        }
+        if (attributes.code == true) {
+          textStyle = textStyle.combine(style.code);
+        }
+        if (attributes.backgroundColor != null) {
+          textStyle = textStyle.combine(
+            TextStyle(backgroundColor: attributes.backgroundColor),
+          );
+        }
+      }
+      offset += textInsert.length;
+      textSpans.add(
+        TextSpan(
+          text: textInsert.content,
+          style: textStyle,
+          recognizer: recognizer,
+        ),
+      );
+    }
+    return TextSpan(
+      children: textSpans,
+    );
+  }
 
   GestureRecognizer _buildTapHrefGestureRecognizer(
       String href, Selection selection) {

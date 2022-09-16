@@ -1,8 +1,7 @@
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 // Handle delete text.
@@ -42,12 +41,12 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     if (index < 0 && selection.isCollapsed) {
       // 1. style
       if (textNode.subtype != null) {
-        if (textNode.subtype == StyleKey.numberList) {
+        if (textNode.subtype == BuiltInAttributeKey.numberList) {
           cancelNumberListPath = textNode.path;
         }
         transactionBuilder
           ..updateNode(textNode, {
-            StyleKey.subtype: null,
+            BuiltInAttributeKey.subtype: null,
             textNode.subtype!: null,
           })
           ..afterSelection = Selection.collapsed(
@@ -91,7 +90,8 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     _deleteTextNodes(transactionBuilder, textNodes, selection);
     transactionBuilder.commit();
 
-    if (nodeAtStart is TextNode && nodeAtStart.subtype == StyleKey.numberList) {
+    if (nodeAtStart is TextNode &&
+        nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
       makeFollowingNodesIncremental(
         editorState,
         startPosition.path,
@@ -130,7 +130,7 @@ KeyEventResult _backDeleteToPreviousTextNode(
   bool prevIsNumberList = false;
   while (previous != null) {
     if (previous is TextNode) {
-      if (previous.subtype == StyleKey.numberList) {
+      if (previous.subtype == BuiltInAttributeKey.numberList) {
         prevIsNumberList = true;
       }
 
@@ -212,7 +212,8 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
     _deleteTextNodes(transactionBuilder, textNodes, selection);
     transactionBuilder.commit();
 
-    if (nodeAtStart is TextNode && nodeAtStart.subtype == StyleKey.numberList) {
+    if (nodeAtStart is TextNode &&
+        nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
       makeFollowingNodesIncremental(
           editorState, startPosition.path, transactionBuilder.afterSelection!);
     }
@@ -236,7 +237,7 @@ KeyEventResult _mergeNextLineIntoThisLine(
   transactionBuilder.deleteNode(nextNode);
   transactionBuilder.commit();
 
-  if (textNode.subtype == StyleKey.numberList) {
+  if (textNode.subtype == BuiltInAttributeKey.numberList) {
     makeFollowingNodesIncremental(editorState, textNode.path, selection);
   }
 
