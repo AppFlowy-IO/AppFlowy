@@ -92,17 +92,33 @@ where
         })
     }
 
-    /// Returns the groups without the default group
-    pub(crate) fn concrete_groups(&self) -> Vec<&Group> {
-        self.groups_map.values().collect()
-    }
-
-    pub(crate) fn default_group(&self) -> &Group {
+    pub(crate) fn get_default_group(&self) -> &Group {
         &self.default_group
     }
 
+    pub(crate) fn get_mut_default_group(&mut self) -> &mut Group {
+        &mut self.default_group
+    }
+
+    /// Returns the groups without the default group
+    pub(crate) fn groups(&self) -> Vec<&Group> {
+        self.groups_map.values().collect()
+    }
+
+    pub(crate) fn get_mut_group(&mut self, group_id: &str) -> Option<&mut Group> {
+        self.groups_map.get_mut(group_id)
+    }
+
+    // Returns the index and group specified by the group_id
+    pub(crate) fn get_group(&self, group_id: &str) -> Option<(usize, &Group)> {
+        match (self.groups_map.get_index_of(group_id), self.groups_map.get(group_id)) {
+            (Some(index), Some(group)) => Some((index, group)),
+            _ => None,
+        }
+    }
+
     /// Iterate mut the groups. The default group will be the last one that get mutated.
-    pub(crate) fn iter_mut_groups(&mut self, mut each: impl FnMut(&mut Group)) {
+    pub(crate) fn iter_mut_all_groups(&mut self, mut each: impl FnMut(&mut Group)) {
         self.groups_map.iter_mut().for_each(|(_, group)| {
             each(group);
         });
@@ -251,22 +267,6 @@ where
             group_rev.visible = true;
         })?;
         Ok(())
-    }
-
-    pub(crate) fn get_mut_default_group(&mut self) -> &mut Group {
-        &mut self.default_group
-    }
-
-    pub(crate) fn get_mut_group(&mut self, group_id: &str) -> Option<&mut Group> {
-        self.groups_map.get_mut(group_id)
-    }
-
-    // Returns the index and group specified by the group_id
-    pub(crate) fn get_group(&self, group_id: &str) -> Option<(usize, &Group)> {
-        match (self.groups_map.get_index_of(group_id), self.groups_map.get(group_id)) {
-            (Some(index), Some(group)) => Some((index, group)),
-            _ => None,
-        }
     }
 
     pub fn save_configuration(&self) -> FlowyResult<()> {

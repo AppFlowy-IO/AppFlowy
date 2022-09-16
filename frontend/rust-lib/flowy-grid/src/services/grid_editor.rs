@@ -420,6 +420,7 @@ impl GridRevisionEditor {
 
     pub async fn delete_row(&self, row_id: &str) -> FlowyResult<()> {
         let row_rev = self.block_manager.delete_row(row_id).await?;
+        tracing::trace!("Did delete row:{:?}", row_rev);
         if let Some(row_rev) = row_rev {
             self.view_manager.did_delete_row(row_rev).await;
         }
