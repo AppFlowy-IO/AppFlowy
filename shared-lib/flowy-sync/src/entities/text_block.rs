@@ -69,7 +69,7 @@ pub struct ResetTextBlockParams {
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct TextBlockDeltaPB {
     #[pb(index = 1)]
-    pub block_id: String,
+    pub text_block_id: String,
 
     #[pb(index = 2)]
     pub delta_str: String,

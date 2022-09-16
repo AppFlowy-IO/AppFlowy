@@ -6,7 +6,7 @@ use crate::errors::OTError;
 use crate::text_delta::TextDelta;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq)]
+#[derive(Default, Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
 pub struct NodeData {
     #[serde(rename = "type")]
     pub node_type: String,

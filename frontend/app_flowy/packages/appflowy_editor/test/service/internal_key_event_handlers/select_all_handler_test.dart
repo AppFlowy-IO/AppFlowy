@@ -28,7 +28,7 @@ Future<void> _testSelectAllHandler(WidgetTester tester, int lines) async {
     editor.insertTextNode(text);
   }
   await editor.startTesting();
-  if (Platform.isWindows) {
+  if (Platform.isWindows || Platform.isLinux) {
     await editor.pressLogicKey(LogicalKeyboardKey.keyA, isControlPressed: true);
   } else {
     await editor.pressLogicKey(LogicalKeyboardKey.keyA, isMetaPressed: true);

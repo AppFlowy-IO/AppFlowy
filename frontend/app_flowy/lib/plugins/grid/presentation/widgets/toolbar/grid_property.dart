@@ -116,10 +116,11 @@ class _GridPropertyCell extends StatelessWidget {
   }
 
   Widget _editFieldButton(AppTheme theme, BuildContext context) {
-    return Popover(
+    return AppFlowyStylePopover(
       mutex: popoverMutex,
       triggerActions: PopoverTriggerActionFlags.click,
       offset: const Offset(20, 0),
+      constraints: BoxConstraints.loose(const Size(240, 200)),
       child: FlowyButton(
         text: FlowyText.medium(fieldContext.name, fontSize: 12),
         hoverColor: theme.hover,
@@ -127,14 +128,11 @@ class _GridPropertyCell extends StatelessWidget {
             color: theme.iconColor),
       ),
       popupBuilder: (BuildContext context) {
-        return OverlayContainer(
-          constraints: BoxConstraints.loose(const Size(240, 200)),
-          child: FieldEditor(
-            gridId: gridId,
-            fieldName: fieldContext.name,
-            typeOptionLoader: FieldTypeOptionLoader(
-                gridId: gridId, field: fieldContext.field),
-          ),
+        return FieldEditor(
+          gridId: gridId,
+          fieldName: fieldContext.name,
+          typeOptionLoader:
+              FieldTypeOptionLoader(gridId: gridId, field: fieldContext.field),
         );
       },
     );

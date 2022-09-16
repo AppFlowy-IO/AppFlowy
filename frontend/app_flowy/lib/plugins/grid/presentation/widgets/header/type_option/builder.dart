@@ -54,9 +54,10 @@ Widget? makeTypeOptionWidget({
   return builder.build(context);
 }
 
-TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder(
-    {required TypeOptionDataController dataController,
-    required PopoverMutex popoverMutex}) {
+TypeOptionWidgetBuilder makeTypeOptionWidgetBuilder({
+  required TypeOptionDataController dataController,
+  required PopoverMutex popoverMutex,
+}) {
   final gridId = dataController.gridId;
   final fieldType = dataController.field.fieldType;
 

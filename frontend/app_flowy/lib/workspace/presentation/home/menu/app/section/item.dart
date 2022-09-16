@@ -109,7 +109,7 @@ class ViewSectionItem extends StatelessWidget {
     action.foldRight({}, (action, previous) {
       switch (action) {
         case ViewDisclosureAction.rename:
-          TextFieldDialog(
+          NavigatorTextFieldDialog(
             title: LocaleKeys.disclosureAction_rename.tr(),
             value: context.read<ViewBloc>().state.view.name,
             confirm: (newValue) {

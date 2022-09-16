@@ -1,12 +1,12 @@
 pub mod attributes;
 mod delta;
-mod document;
 mod interval;
+mod node_tree;
 mod ot_str;
 
 pub use attributes::*;
 pub use delta::operation::*;
 pub use delta::*;
-pub use document::*;
 pub use interval::*;
+pub use node_tree::*;
 pub use ot_str::*;

@@ -251,9 +251,10 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return Popover(
+    return AppFlowyStylePopover(
       controller: _popoverController,
       offset: const Offset(20, 0),
+      constraints: BoxConstraints.loose(const Size(200, 300)),
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
         child: Row(
@@ -286,23 +287,20 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
         ),
       ),
       popupBuilder: (BuildContext popoverContext) {
-        return OverlayContainer(
-          constraints: BoxConstraints.loose(const Size(200, 300)),
-          child: SelectOptionTypeOptionEditor(
-            option: widget.option,
-            onDeleted: () {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.deleteOption(widget.option));
-            },
-            onUpdated: (updatedOption) {
-              context
-                  .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.updateOption(updatedOption));
-            },
-            key: ValueKey(widget.option
-                .id), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
-          ),
+        return SelectOptionTypeOptionEditor(
+          option: widget.option,
+          onDeleted: () {
+            context
+                .read<SelectOptionCellEditorBloc>()
+                .add(SelectOptionEditorEvent.deleteOption(widget.option));
+          },
+          onUpdated: (updatedOption) {
+            context
+                .read<SelectOptionCellEditorBloc>()
+                .add(SelectOptionEditorEvent.updateOption(updatedOption));
+          },
+          key: ValueKey(widget.option
+              .id), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
         );
       },
     );

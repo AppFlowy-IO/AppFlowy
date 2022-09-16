@@ -64,19 +64,15 @@ class FieldTypeOptionEditor extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
-      child: Popover(
-        triggerActions:
-            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+      child: AppFlowyStylePopover(
+        constraints: BoxConstraints.loose(const Size(460, 440)),
+        triggerActions: PopoverTriggerActionFlags.click,
         mutex: popoverMutex,
         offset: const Offset(20, 0),
         popupBuilder: (context) {
-          final list = FieldTypeList(onSelectField: (newFieldType) {
+          return FieldTypeList(onSelectField: (newFieldType) {
             dataController.switchToField(newFieldType);
           });
-          return OverlayContainer(
-            constraints: BoxConstraints.loose(const Size(460, 440)),
-            child: list,
-          );
         },
         child: FlowyButton(
           text: FlowyText.medium(field.fieldType.title(), fontSize: 12),

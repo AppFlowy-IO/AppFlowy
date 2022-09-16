@@ -18,10 +18,10 @@ use crate::errors::FlowyError;
 use flowy_sync::entities::text_block::{CreateTextBlockParams, DocumentPB, ResetTextBlockParams, TextBlockIdPB};
 use lib_infra::future::FutureResult;
 
-pub trait BlockCloudService: Send + Sync {
-    fn create_block(&self, token: &str, params: CreateTextBlockParams) -> FutureResult<(), FlowyError>;
+pub trait TextEditorCloudService: Send + Sync {
+    fn create_text_block(&self, token: &str, params: CreateTextBlockParams) -> FutureResult<(), FlowyError>;
 
-    fn read_block(&self, token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError>;
+    fn read_text_block(&self, token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError>;
 
-    fn update_block(&self, token: &str, params: ResetTextBlockParams) -> FutureResult<(), FlowyError>;
+    fn update_text_block(&self, token: &str, params: ResetTextBlockParams) -> FutureResult<(), FlowyError>;
 }

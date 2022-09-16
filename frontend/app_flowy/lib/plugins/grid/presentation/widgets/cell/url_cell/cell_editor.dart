@@ -1,6 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/url_cell_editor_bloc.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -79,15 +78,12 @@ class URLEditorPopover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return OverlayContainer(
-      constraints: BoxConstraints.loose(const Size(300, 160)),
-      child: SizedBox(
-        width: 200,
-        child: Padding(
-          padding: const EdgeInsets.all(6),
-          child: URLCellEditor(
-            cellController: cellController,
-          ),
+    return SizedBox(
+      width: 200,
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: URLCellEditor(
+          cellController: cellController,
         ),
       ),
     );
