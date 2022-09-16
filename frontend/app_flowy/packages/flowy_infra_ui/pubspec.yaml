@@ -27,6 +27,8 @@ dependencies:
     path: flowy_infra_ui_platform_interface
   flowy_infra_ui_web:
     path: flowy_infra_ui_web
+  appflowy_popover:
+    path: ../appflowy_popover
 
   # Flowy packages
   flowy_infra:

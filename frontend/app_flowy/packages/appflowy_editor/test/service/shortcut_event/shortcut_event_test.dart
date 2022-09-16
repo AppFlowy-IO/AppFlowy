@@ -39,7 +39,7 @@ void main() async {
       await editor.updateSelection(
         Selection.single(path: [1], startOffset: text.length),
       );
-      if (Platform.isWindows) {
+      if (Platform.isWindows || Platform.isLinux) {
         await editor.pressLogicKey(
           LogicalKeyboardKey.arrowLeft,
           isControlPressed: true,
@@ -62,11 +62,12 @@ void main() async {
         if (event.key == 'Move cursor begin') {
           event.updateCommand(
             windowsCommand: 'alt+arrow left',
+            linuxCommand: 'alt+arrow left',
             macOSCommand: 'alt+arrow left',
           );
         }
       }
-      if (Platform.isWindows || Platform.isMacOS) {
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
         await editor.pressLogicKey(
           LogicalKeyboardKey.arrowLeft,
           isAltPressed: true,
@@ -80,6 +81,142 @@ void main() async {
       expect(
         editor.documentSelection,
         Selection.single(path: [1], startOffset: 0),
+      );
+
+      tester.pumpAndSettle();
+    });
+
+    testWidgets('redefine move cursor end command', (tester) async {
+      const text = 'Welcome to Appflowy 😁';
+      final editor = tester.editor
+        ..insertTextNode(text)
+        ..insertTextNode(text);
+      await editor.startTesting();
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: 0),
+      );
+      if (Platform.isWindows || Platform.isLinux) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.arrowRight,
+          isControlPressed: true,
+        );
+      } else {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.arrowRight,
+          isMetaPressed: true,
+        );
+      }
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: text.length),
+      );
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: 0),
+      );
+
+      for (final event in builtInShortcutEvents) {
+        if (event.key == 'Move cursor end') {
+          event.updateCommand(
+            windowsCommand: 'alt+arrow right',
+            linuxCommand: 'alt+arrow right',
+            macOSCommand: 'alt+arrow right',
+          );
+        }
+      }
+      await editor.pressLogicKey(
+        LogicalKeyboardKey.arrowRight,
+        isAltPressed: true,
+      );
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: text.length),
+      );
+    });
+
+    testWidgets('Test Home Key to move to start of current text',
+        (tester) async {
+      const text = 'Welcome to Appflowy 😁';
+      final editor = tester.editor
+        ..insertTextNode(text)
+        ..insertTextNode(text);
+      await editor.startTesting();
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: text.length),
+      );
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.home,
+        );
+      }
+
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: 0),
+      );
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: text.length),
+      );
+
+      for (final event in builtInShortcutEvents) {
+        if (event.key == 'Move cursor begin') {
+          event.updateCommand(
+            windowsCommand: 'home',
+            linuxCommand: 'home',
+            macOSCommand: 'home',
+          );
+        }
+      }
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.home,
+        );
+      }
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: 0),
+      );
+    });
+
+    testWidgets('Test End Key to move to end of current text', (tester) async {
+      const text = 'Welcome to Appflowy 😁';
+      final editor = tester.editor
+        ..insertTextNode(text)
+        ..insertTextNode(text);
+      await editor.startTesting();
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: text.length),
+      );
+      if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.end,
+        );
+      }
+
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: text.length),
+      );
+      await editor.updateSelection(
+        Selection.single(path: [1], startOffset: 0),
+      );
+
+      for (final event in builtInShortcutEvents) {
+        if (event.key == 'Move cursor end') {
+          event.updateCommand(
+            windowsCommand: 'end',
+            linuxCommand: 'end',
+            macOSCommand: 'end',
+          );
+        }
+      }
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+        await editor.pressLogicKey(
+          LogicalKeyboardKey.end,
+        );
+      }
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: text.length),
       );
     });
   });

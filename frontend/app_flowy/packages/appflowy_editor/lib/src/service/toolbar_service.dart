@@ -44,7 +44,7 @@ class _FlowyToolbarState extends State<FlowyToolbar>
         key: _toolbarWidgetKey,
         editorState: widget.editorState,
         layerLink: layerLink,
-        offset: offset.translate(0, -37.0),
+        offset: offset,
         items: _filterItems(defaultToolbarItems),
       ),
     );

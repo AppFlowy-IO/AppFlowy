@@ -1,10 +1,10 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/image/image_node_widget.dart';
-import 'package:appflowy_editor/src/render/rich_text/rich_text_style.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import '../../infra/test_editor.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
@@ -132,17 +132,18 @@ void main() async {
   //
   testWidgets('Presses backspace key in styled text (checkbox)',
       (tester) async {
-    await _deleteStyledTextByBackspace(tester, StyleKey.checkbox);
+    await _deleteStyledTextByBackspace(tester, BuiltInAttributeKey.checkbox);
   });
   testWidgets('Presses backspace key in styled text (bulletedList)',
       (tester) async {
-    await _deleteStyledTextByBackspace(tester, StyleKey.bulletedList);
+    await _deleteStyledTextByBackspace(
+        tester, BuiltInAttributeKey.bulletedList);
   });
   testWidgets('Presses backspace key in styled text (heading)', (tester) async {
-    await _deleteStyledTextByBackspace(tester, StyleKey.heading);
+    await _deleteStyledTextByBackspace(tester, BuiltInAttributeKey.heading);
   });
   testWidgets('Presses backspace key in styled text (quote)', (tester) async {
-    await _deleteStyledTextByBackspace(tester, StyleKey.quote);
+    await _deleteStyledTextByBackspace(tester, BuiltInAttributeKey.quote);
   });
 
   // Before
@@ -157,17 +158,17 @@ void main() async {
   // [Style] Welcome to Appflowy 😁
   //
   testWidgets('Presses delete key in styled text (checkbox)', (tester) async {
-    await _deleteStyledTextByDelete(tester, StyleKey.checkbox);
+    await _deleteStyledTextByDelete(tester, BuiltInAttributeKey.checkbox);
   });
   testWidgets('Presses delete key in styled text (bulletedList)',
       (tester) async {
-    await _deleteStyledTextByDelete(tester, StyleKey.bulletedList);
+    await _deleteStyledTextByDelete(tester, BuiltInAttributeKey.bulletedList);
   });
   testWidgets('Presses delete key in styled text (heading)', (tester) async {
-    await _deleteStyledTextByDelete(tester, StyleKey.heading);
+    await _deleteStyledTextByDelete(tester, BuiltInAttributeKey.heading);
   });
   testWidgets('Presses delete key in styled text (quote)', (tester) async {
-    await _deleteStyledTextByDelete(tester, StyleKey.quote);
+    await _deleteStyledTextByDelete(tester, BuiltInAttributeKey.quote);
   });
 
   // Before
@@ -250,7 +251,7 @@ void main() async {
     await editor.pressLogicKey(LogicalKeyboardKey.space);
     expect(
       (editor.nodeAtPath([0]) as TextNode).attributes.heading,
-      StyleKey.h1,
+      BuiltInAttributeKey.h1,
     );
 
     await editor.pressLogicKey(LogicalKeyboardKey.backspace);
@@ -263,7 +264,7 @@ void main() async {
     await editor.pressLogicKey(LogicalKeyboardKey.space);
     expect(
       (editor.nodeAtPath([0]) as TextNode).attributes.heading,
-      StyleKey.h1,
+      BuiltInAttributeKey.h1,
     );
   });
 }
@@ -330,14 +331,14 @@ Future<void> _deleteStyledTextByBackspace(
     WidgetTester tester, String style) async {
   const text = 'Welcome to Appflowy 😁';
   Attributes attributes = {
-    StyleKey.subtype: style,
+    BuiltInAttributeKey.subtype: style,
   };
-  if (style == StyleKey.checkbox) {
-    attributes[StyleKey.checkbox] = true;
-  } else if (style == StyleKey.numberList) {
-    attributes[StyleKey.number] = 1;
-  } else if (style == StyleKey.heading) {
-    attributes[StyleKey.heading] = StyleKey.h1;
+  if (style == BuiltInAttributeKey.checkbox) {
+    attributes[BuiltInAttributeKey.checkbox] = true;
+  } else if (style == BuiltInAttributeKey.numberList) {
+    attributes[BuiltInAttributeKey.number] = 1;
+  } else if (style == BuiltInAttributeKey.heading) {
+    attributes[BuiltInAttributeKey.heading] = BuiltInAttributeKey.h1;
   }
   final editor = tester.editor
     ..insertTextNode(text)
@@ -377,14 +378,14 @@ Future<void> _deleteStyledTextByDelete(
     WidgetTester tester, String style) async {
   const text = 'Welcome to Appflowy 😁';
   Attributes attributes = {
-    StyleKey.subtype: style,
+    BuiltInAttributeKey.subtype: style,
   };
-  if (style == StyleKey.checkbox) {
-    attributes[StyleKey.checkbox] = true;
-  } else if (style == StyleKey.numberList) {
-    attributes[StyleKey.number] = 1;
-  } else if (style == StyleKey.heading) {
-    attributes[StyleKey.heading] = StyleKey.h1;
+  if (style == BuiltInAttributeKey.checkbox) {
+    attributes[BuiltInAttributeKey.checkbox] = true;
+  } else if (style == BuiltInAttributeKey.numberList) {
+    attributes[BuiltInAttributeKey.number] = 1;
+  } else if (style == BuiltInAttributeKey.heading) {
+    attributes[BuiltInAttributeKey.heading] = BuiltInAttributeKey.h1;
   }
   final editor = tester.editor
     ..insertTextNode(text)

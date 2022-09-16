@@ -84,7 +84,7 @@ class FlowyLinkStyleButtonState extends State<FlowyLinkStyleButton> {
       value = values.first;
     }
 
-    TextFieldDialog(
+    NavigatorTextFieldDialog(
       title: 'URL',
       value: value,
       confirm: (newValue) {

@@ -41,7 +41,7 @@ class MultiSelectTypeOptionWidget extends TypeOptionWidget {
     return SelectOptionTypeOptionWidget(
       options: selectOptionAction.typeOption.options,
       beginEdit: () {
-        PopoverContainerState.of(context).closeAll();
+        PopoverContainer.of(context).closeAll();
       },
       popoverMutex: popoverMutex,
       typeOptionAction: selectOptionAction,

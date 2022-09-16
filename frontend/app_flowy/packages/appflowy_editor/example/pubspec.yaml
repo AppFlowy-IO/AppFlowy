@@ -39,8 +39,10 @@ dependencies:
   url_launcher: ^6.1.5
   video_player: ^2.4.5
   pod_player: 0.0.8
-  flutter_inappwebview: ^5.4.3+7
   path_provider: ^2.0.11
+  google_fonts: ^3.0.1
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

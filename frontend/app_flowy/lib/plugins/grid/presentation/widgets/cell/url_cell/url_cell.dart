@@ -6,6 +6,7 @@ import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -129,8 +130,9 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             ),
           );
 
-          return Popover(
+          return AppFlowyStylePopover(
             controller: _popoverController,
+            constraints: BoxConstraints.loose(const Size(300, 160)),
             direction: PopoverDirection.bottomWithLeftAligned,
             offset: const Offset(0, 20),
             child: SizedBox.expand(
@@ -214,7 +216,8 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return Popover(
+    return AppFlowyStylePopover(
+      constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       triggerActions: PopoverTriggerActionFlags.click,

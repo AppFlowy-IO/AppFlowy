@@ -133,6 +133,7 @@ class _PropertyList extends StatelessWidget {
                 ),
               ),
             ),
+            const VSpace(10),
             _CreateFieldButton(
               viewId: viewId,
               onClosed: () {
@@ -144,13 +145,16 @@ class _PropertyList extends StatelessWidget {
                   );
                 });
               },
-              onOpened: () {
-                return OverlayContainer(
-                  constraints: BoxConstraints.loose(const Size(240, 200)),
-                  child: FieldEditor(
-                    gridId: viewId,
-                    typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
-                  ),
+              onOpened: (controller) {
+                return FieldEditor(
+                  gridId: viewId,
+                  typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
+                  onDeleted: (fieldId) {
+                    controller.close();
+                    context
+                        .read<RowDetailBloc>()
+                        .add(RowDetailEvent.deleteField(fieldId));
+                  },
                 );
               },
             ),
@@ -161,10 +165,11 @@ class _PropertyList extends StatelessWidget {
   }
 }
 
-class _CreateFieldButton extends StatelessWidget {
+class _CreateFieldButton extends StatefulWidget {
   final String viewId;
-  final Widget Function() onOpened;
+  final Widget Function(PopoverController) onOpened;
   final VoidCallback onClosed;
+
   const _CreateFieldButton({
     required this.viewId,
     required this.onOpened,
@@ -173,15 +178,31 @@ class _CreateFieldButton extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_CreateFieldButton> createState() => _CreateFieldButtonState();
+}
+
+class _CreateFieldButtonState extends State<_CreateFieldButton> {
+  late PopoverController popoverController;
+
+  @override
+  void initState() {
+    popoverController = PopoverController();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
 
-    return Popover(
+    return AppFlowyStylePopover(
+      constraints: BoxConstraints.loose(const Size(240, 200)),
+      controller: popoverController,
       triggerActions: PopoverTriggerActionFlags.click,
-      direction: PopoverDirection.bottomWithLeftAligned,
-      onClose: onClosed,
-      child: SizedBox(
+      direction: PopoverDirection.topWithLeftAligned,
+      onClose: widget.onClosed,
+      child: Container(
         height: 40,
+        decoration: _makeBoxDecoration(context),
         child: FlowyButton(
           text: FlowyText.medium(
             LocaleKeys.grid_field_newColumn.tr(),
@@ -192,7 +213,17 @@ class _CreateFieldButton extends StatelessWidget {
           leftIcon: svgWidget("home/add"),
         ),
       ),
-      popupBuilder: (BuildContext context) => onOpened(),
+      popupBuilder: (BuildContext context) =>
+          widget.onOpened(popoverController),
+    );
+  }
+
+  BoxDecoration _makeBoxDecoration(BuildContext context) {
+    final theme = context.read<AppTheme>();
+    final borderSide = BorderSide(color: theme.shader6, width: 1.0);
+    return BoxDecoration(
+      color: theme.surface,
+      border: Border(top: borderSide),
     );
   }
 }
@@ -241,16 +272,23 @@ class _RowDetailCellState extends State<_RowDetailCell> {
               child: Popover(
                 controller: popover,
                 offset: const Offset(20, 0),
-                popupBuilder: (context) {
+                popupBuilder: (popoverContext) {
                   return OverlayContainer(
                     constraints: BoxConstraints.loose(const Size(240, 200)),
                     child: FieldEditor(
                       gridId: widget.cellId.gridId,
                       fieldName: widget.cellId.fieldContext.field.name,
+                      isGroupField: widget.cellId.fieldContext.isGroupField,
                       typeOptionLoader: FieldTypeOptionLoader(
                         gridId: widget.cellId.gridId,
                         field: widget.cellId.fieldContext.field,
                       ),
+                      onDeleted: (fieldId) {
+                        popover.close();
+                        context
+                            .read<RowDetailBloc>()
+                            .add(RowDetailEvent.deleteField(fieldId));
+                      },
                     ),
                   );
                 },

@@ -56,7 +56,7 @@
       {
         "type": "text",
         "attributes": { "subtype": "quote" },
-        "delta": [{ "insert": "Here is an exmaple you can give it a try" }]
+        "delta": [{ "insert": "Here is an example you can give a try" }]
       },
       { "type": "text", "delta": [] },
       {
