@@ -187,35 +187,31 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   Widget _buildFooter(BuildContext context, AppFlowyGroupData columnData) {
-    final boardCustomData = columnData.customData as BoardCustomData;
-    final group = boardCustomData.group;
+    // final boardCustomData = columnData.customData as BoardCustomData;
+    // final group = boardCustomData.group;
 
-    if (group.isDefault) {
-      return const SizedBox();
-    } else {
-      return AppFlowyGroupFooter(
-        icon: SizedBox(
-          height: 20,
-          width: 20,
-          child: svgWidget(
-            "home/add",
-            color: context.read<AppTheme>().iconColor,
-          ),
+    return AppFlowyGroupFooter(
+      icon: SizedBox(
+        height: 20,
+        width: 20,
+        child: svgWidget(
+          "home/add",
+          color: context.read<AppTheme>().iconColor,
         ),
-        title: FlowyText.medium(
-          LocaleKeys.board_column_create_new_card.tr(),
-          fontSize: 14,
-          color: context.read<AppTheme>().textColor,
-        ),
-        height: 50,
-        margin: config.footerPadding,
-        onAddButtonClick: () {
-          context.read<BoardBloc>().add(
-                BoardEvent.createBottomRow(columnData.id),
-              );
-        },
-      );
-    }
+      ),
+      title: FlowyText.medium(
+        LocaleKeys.board_column_create_new_card.tr(),
+        fontSize: 14,
+        color: context.read<AppTheme>().textColor,
+      ),
+      height: 50,
+      margin: config.footerPadding,
+      onAddButtonClick: () {
+        context.read<BoardBloc>().add(
+              BoardEvent.createBottomRow(columnData.id),
+            );
+      },
+    );
   }
 
   Widget _buildCard(
