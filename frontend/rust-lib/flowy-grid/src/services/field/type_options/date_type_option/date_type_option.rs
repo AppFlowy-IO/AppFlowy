@@ -52,7 +52,7 @@ impl DateTypeOptionPB {
 
         let mut time = "".to_string();
         if has_time && self.include_time {
-            let fmt = format!("{} {}", self.date_format.format_str(), self.time_format.format_str());
+            let fmt = format!("{}{}", self.date_format.format_str(), self.time_format.format_str());
             time = format!("{}", utc.format_with_items(StrftimeItems::new(&fmt))).replace(&date, "");
         }
 

@@ -108,7 +108,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
         (err) {
           switch (ErrorCode.valueOf(err.code)!) {
             case ErrorCode.InvalidDateTimeFormat:
-              updateCalData(none(), Some(timeFormatPrompt(err)));
+              updateCalData(state.calData, Some(timeFormatPrompt(err)));
               break;
             default:
               Log.error(err);
