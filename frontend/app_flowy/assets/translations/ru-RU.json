@@ -200,8 +200,8 @@
       "searchOption": "Поиск"
     },
     "date": {
-      "timeHintTextInTwelveHour": "12:00 AM",
-      "timeHintTextInTwentyFourHour": "12:00"
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
     }
   },
   "sideBar": {
