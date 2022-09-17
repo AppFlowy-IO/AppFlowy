@@ -21,8 +21,8 @@ body:
     attributes:
       label: Expected Behavior
       description: A clear and concise description of what you expected to happen
-      validations:
-        required: true
+    validations:
+      required: true
   - type: input
     id: os
     attributes:
@@ -42,7 +42,7 @@ body:
     attributes:
       label: Screenshots
       description: If applicable, please add screenshots to help explain your problem
-  - type: textbox
+  - type: textarea
     id: context
     attributes:
       label: Additional Context
