@@ -50,7 +50,9 @@ Widget? makeTypeOptionWidget({
   required PopoverMutex popoverMutex,
 }) {
   final builder = makeTypeOptionWidgetBuilder(
-      dataController: dataController, popoverMutex: popoverMutex);
+    dataController: dataController,
+    popoverMutex: popoverMutex,
+  );
   return builder.build(context);
 }
 

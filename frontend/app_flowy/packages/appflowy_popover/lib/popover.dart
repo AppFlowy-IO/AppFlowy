@@ -6,7 +6,42 @@ import 'package:flutter/services.dart';
 /// If multiple popovers are exclusive,
 /// pass the same mutex to them.
 class PopoverMutex {
-  PopoverState? state;
+  final ValueNotifier<PopoverState?> _stateNofitier = ValueNotifier(null);
+  PopoverMutex();
+
+  void removePopoverStateListener(VoidCallback listener) {
+    _stateNofitier.removeListener(listener);
+  }
+
+  VoidCallback listenOnPopoverStateChanged(VoidCallback callback) {
+    listenerCallback() {
+      callback();
+    }
+
+    _stateNofitier.addListener(listenerCallback);
+    return listenerCallback;
+  }
+
+  void close() {
+    _stateNofitier.value?.close();
+  }
+
+  PopoverState? get state => _stateNofitier.value;
+
+  set state(PopoverState? newState) {
+    if (_stateNofitier.value != null && _stateNofitier.value != newState) {
+      _stateNofitier.value?.close();
+    }
+    _stateNofitier.value = newState;
+  }
+
+  void _removeState() {
+    _stateNofitier.value = null;
+  }
+
+  void dispose() {
+    _stateNofitier.dispose();
+  }
 }
 
 class PopoverController {
@@ -109,11 +144,7 @@ class PopoverState extends State<Popover> {
     close();
 
     if (widget.mutex != null) {
-      if (widget.mutex!.state != null && widget.mutex!.state != this) {
-        widget.mutex!.state!.close();
-      }
-
-      widget.mutex!.state = this;
+      widget.mutex?.state = this;
     }
 
     if (_popoverWithMask == null) {
@@ -163,7 +194,7 @@ class PopoverState extends State<Popover> {
     }
 
     if (widget.mutex?.state == this) {
-      widget.mutex!.state = null;
+      widget.mutex?._removeState();
     }
   }
 

@@ -23,7 +23,7 @@ class EditableRowNotifier {
   EditableRowNotifier({required bool isEditing})
       : isEditing = ValueNotifier(isEditing);
 
-  void insertCell(
+  void bindCell(
     GridCellIdentifier cellIdentifier,
     EditableCellNotifier notifier,
   ) {
@@ -59,7 +59,7 @@ class EditableRowNotifier {
     _cells.values.first.isCellEditing.value = false;
   }
 
-  void clear() {
+  void unbind() {
     for (final notifier in _cells.values) {
       notifier.dispose();
     }

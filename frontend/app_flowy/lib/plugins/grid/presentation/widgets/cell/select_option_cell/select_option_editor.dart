@@ -25,17 +25,13 @@ import 'text_field.dart';
 
 const double _editorPanelWidth = 300;
 
-class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
+class SelectOptionCellEditor extends StatelessWidget {
   final GridSelectOptionCellController cellController;
-  final VoidCallback? onDismissed;
 
   static double editorPanelWidth = 300;
 
-  const SelectOptionCellEditor({
-    required this.cellController,
-    this.onDismissed,
-    Key? key,
-  }) : super(key: key);
+  const SelectOptionCellEditor({required this.cellController, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -60,44 +56,6 @@ class SelectOptionCellEditor extends StatelessWidget with FlowyOverlayDelegate {
       ),
     );
   }
-
-  static void show({
-    required BuildContext context,
-    required GridSelectOptionCellController cellController,
-    VoidCallback? onDismissed,
-  }) {
-    SelectOptionCellEditor.remove(context);
-    final editor = SelectOptionCellEditor(
-      cellController: cellController,
-      onDismissed: onDismissed,
-    );
-
-    //
-    FlowyOverlay.of(context).insertWithAnchor(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(_editorPanelWidth, 300)),
-        child: SizedBox(width: _editorPanelWidth, child: editor),
-      ),
-      identifier: SelectOptionCellEditor.identifier(),
-      anchorContext: context,
-      anchorDirection: AnchorDirection.bottomWithCenterAligned,
-      delegate: editor,
-    );
-  }
-
-  static void remove(BuildContext context) {
-    FlowyOverlay.of(context).remove(identifier());
-  }
-
-  static String identifier() {
-    return (SelectOptionCellEditor).toString();
-  }
-
-  @override
-  bool asBarrier() => true;
-
-  @override
-  void didRemove() => onDismissed?.call();
 }
 
 class _OptionList extends StatelessWidget {
