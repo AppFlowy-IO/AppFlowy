@@ -123,8 +123,6 @@ class NumberFormatList extends StatelessWidget {
                       format: format,
                       onSelected: (format) {
                         onSelected(format);
-                        FlowyOverlay.of(context)
-                            .remove(NumberFormatList.identifier());
                       });
                 }).toList();
 

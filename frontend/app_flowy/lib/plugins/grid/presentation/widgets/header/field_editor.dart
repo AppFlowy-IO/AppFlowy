@@ -7,12 +7,12 @@ import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
+import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'field_name_input.dart';
 import 'field_type_option_editor.dart';
 
 class FieldEditor extends StatefulWidget {
@@ -45,6 +45,12 @@ class _FieldEditorState extends State<FieldEditor> {
   }
 
   @override
+  void dispose() {
+    popoverMutex.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => FieldEditorBloc(
@@ -58,27 +64,37 @@ class _FieldEditorState extends State<FieldEditor> {
           return ListView(
             shrinkWrap: true,
             children: [
-              FlowyText.medium(LocaleKeys.grid_field_editProperty.tr(),
-                  fontSize: 12),
-              const VSpace(10),
-              const _FieldNameCell(),
-              const VSpace(10),
-              _DeleteFieldButton(
-                popoverMutex: popoverMutex,
-                onDeleted: () {
-                  state.field.fold(
-                    () => Log.error('Can not delete the field'),
-                    (field) => widget.onDeleted?.call(field.id),
-                  );
-                },
+              FlowyText.medium(
+                LocaleKeys.grid_field_editProperty.tr(),
+                fontSize: 12,
               ),
               const VSpace(10),
+              _FieldNameTextField(popoverMutex: popoverMutex),
+              ..._addDeleteFieldButton(state),
               _FieldTypeOptionCell(popoverMutex: popoverMutex),
             ],
           );
         },
       ),
     );
+  }
+
+  List<Widget> _addDeleteFieldButton(FieldEditorState state) {
+    if (widget.onDeleted == null) {
+      return [];
+    }
+    return [
+      const VSpace(10),
+      _DeleteFieldButton(
+        popoverMutex: popoverMutex,
+        onDeleted: () {
+          state.field.fold(
+            () => Log.error('Can not delete the field'),
+            (field) => widget.onDeleted?.call(field.id),
+          );
+        },
+      ),
+    ];
   }
 }
 
@@ -111,24 +127,88 @@ class _FieldTypeOptionCell extends StatelessWidget {
   }
 }
 
-class _FieldNameCell extends StatelessWidget {
-  const _FieldNameCell({Key? key}) : super(key: key);
+class _FieldNameTextField extends StatefulWidget {
+  final PopoverMutex popoverMutex;
+  const _FieldNameTextField({
+    required this.popoverMutex,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_FieldNameTextField> createState() => _FieldNameTextFieldState();
+}
+
+class _FieldNameTextFieldState extends State<_FieldNameTextField> {
+  late String name;
+  FocusNode focusNode = FocusNode();
+  VoidCallback? _popoverCallback;
+  TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    focusNode.addListener(() {
+      if (focusNode.hasFocus) {
+        widget.popoverMutex.close();
+      }
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FieldEditorBloc, FieldEditorState>(
-      builder: (context, state) {
-        return FieldNameTextField(
-          name: state.name,
-          errorText: context.read<FieldEditorBloc>().state.errorText,
-          onNameChanged: (newName) {
-            context
-                .read<FieldEditorBloc>()
-                .add(FieldEditorEvent.updateName(newName));
-          },
-        );
+    final theme = context.watch<AppTheme>();
+
+    controller.text = context.read<FieldEditorBloc>().state.name;
+    return BlocListener<FieldEditorBloc, FieldEditorState>(
+      listenWhen: (previous, current) => previous.name != current.name,
+      listener: (context, state) {
+        controller.text = state.name;
       },
+      child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
+        builder: (context, state) {
+          listenOnPopoverChhanged(context);
+
+          return RoundedInputField(
+            height: 36,
+            autoFocus: true,
+            focusNode: focusNode,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+            controller: controller,
+            normalBorderColor: theme.shader4,
+            errorBorderColor: theme.red,
+            focusBorderColor: theme.main1,
+            cursorColor: theme.main1,
+            errorText: context.read<FieldEditorBloc>().state.errorText,
+            onChanged: (newName) {
+              context
+                  .read<FieldEditorBloc>()
+                  .add(FieldEditorEvent.updateName(newName));
+            },
+          );
+        },
+      ),
     );
+  }
+
+  void listenOnPopoverChhanged(BuildContext context) {
+    if (_popoverCallback != null) {
+      widget.popoverMutex.removePopoverStateListener(_popoverCallback!);
+    }
+    _popoverCallback = widget.popoverMutex.listenOnPopoverStateChanged(() {
+      if (focusNode.hasFocus) {
+        final node = FocusScope.of(context);
+        node.unfocus();
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant _FieldNameTextField oldWidget) {
+    controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length));
+
+    super.didUpdateWidget(oldWidget);
   }
 }
 
@@ -171,12 +251,10 @@ class _DeleteFieldButton extends StatelessWidget {
       popupBuilder: (popupContext) {
         return PopoverAlertView(
           title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-          cancel: () => popoverMutex.state?.close(),
+          cancel: () {},
           confirm: () {
             onDeleted?.call();
-            popoverMutex.state?.close();
           },
-          popoverMutex: popoverMutex,
         );
       },
       child: widget,
