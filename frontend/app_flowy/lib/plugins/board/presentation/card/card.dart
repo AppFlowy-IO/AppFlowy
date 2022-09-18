@@ -1,6 +1,5 @@
 import 'package:app_flowy/plugins/board/application/card/card_bloc.dart';
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
-import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_action_sheet.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -64,10 +63,16 @@ class _BoardCardState extends State<BoardCard> {
       value: _cardBloc,
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
         buildWhen: (previous, current) {
+          // Rebuild when:
+          // 1.If the lenght of the cells is not the same
+          // 2.isEditing changed
           if (previous.cells.length != current.cells.length ||
               previous.isEditing != current.isEditing) {
             return true;
           }
+
+          // 3.Compare the content of the cells. The cells consisits of
+          // list of [BoardCellEquatable] that extends the [Equatable].
           return !listEquals(previous.cells, current.cells);
         },
         builder: (context, state) {
@@ -75,21 +80,16 @@ class _BoardCardState extends State<BoardCard> {
             buildAccessoryWhen: () => state.isEditing == false,
             accessoryBuilder: (context) {
               return [
-                _CardEditOption(
-                  startEditing: () => rowNotifier.becomeFirstResponder(),
-                ),
+                _CardEditOption(rowNotifier: rowNotifier),
                 const _CardMoreOption(),
               ];
             },
-            onTap: (context) {
-              widget.openCard(context);
-            },
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: _makeCells(
-                context,
-                state.cells.map((cell) => cell.identifier).toList(),
-              ),
+            onTap: (context) => widget.openCard(context),
+            child: _CellColumn(
+              groupId: widget.groupId,
+              rowNotifier: rowNotifier,
+              cellBuilder: widget.cellBuilder,
+              cells: state.cells,
             ),
           );
         },
@@ -97,49 +97,68 @@ class _BoardCardState extends State<BoardCard> {
     );
   }
 
+  @override
+  Future<void> dispose() async {
+    rowNotifier.dispose();
+    _cardBloc.close();
+    super.dispose();
+  }
+}
+
+class _CellColumn extends StatelessWidget {
+  final String groupId;
+  final BoardCellBuilder cellBuilder;
+  final EditableRowNotifier rowNotifier;
+  final List<BoardCellEquatable> cells;
+  const _CellColumn({
+    required this.groupId,
+    required this.rowNotifier,
+    required this.cellBuilder,
+    required this.cells,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: _makeCells(context, cells),
+    );
+  }
+
   List<Widget> _makeCells(
     BuildContext context,
-    List<GridCellIdentifier> cells,
+    List<BoardCellEquatable> cells,
   ) {
     final List<Widget> children = [];
-    rowNotifier.clear();
+    // Remove all the cell listeners.
+    rowNotifier.unbind();
+
     cells.asMap().forEach(
-      (int index, GridCellIdentifier cellId) {
-        EditableCellNotifier cellNotifier;
+      (int index, BoardCellEquatable cell) {
+        final isEditing = index == 0 ? rowNotifier.isEditing.value : false;
+        final cellNotifier = EditableCellNotifier(isEditing: isEditing);
+
         if (index == 0) {
           // Only use the first cell to receive user's input when click the edit
           // button
-          cellNotifier = EditableCellNotifier(
-            isEditing: rowNotifier.isEditing.value,
-          );
-          rowNotifier.insertCell(cellId, cellNotifier);
-        } else {
-          cellNotifier = EditableCellNotifier();
+          rowNotifier.bindCell(cell.identifier, cellNotifier);
         }
 
-        Widget child = widget.cellBuilder.buildCell(
-          widget.groupId,
-          cellId,
-          cellNotifier,
-        );
-
-        child = Padding(
-          key: cellId.key(),
+        final child = Padding(
+          key: cell.identifier.key(),
           padding: const EdgeInsets.only(left: 4, right: 4),
-          child: child,
+          child: cellBuilder.buildCell(
+            groupId,
+            cell.identifier,
+            cellNotifier,
+          ),
         );
 
         children.add(child);
       },
     );
     return children;
-  }
-
-  @override
-  Future<void> dispose() async {
-    rowNotifier.dispose();
-    _cardBloc.close();
-    super.dispose();
   }
 }
 
@@ -164,9 +183,9 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
 }
 
 class _CardEditOption extends StatelessWidget with CardAccessory {
-  final VoidCallback startEditing;
+  final EditableRowNotifier rowNotifier;
   const _CardEditOption({
-    required this.startEditing,
+    required this.rowNotifier,
     Key? key,
   }) : super(key: key);
 
@@ -183,6 +202,6 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
 
   @override
   void onTap(BuildContext context) {
-    startEditing();
+    rowNotifier.becomeFirstResponder();
   }
 }

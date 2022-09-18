@@ -72,50 +72,44 @@ class CardAccessoryContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
     final children = accessories.map((accessory) {
-      final hover = FlowyHover(
-        style: HoverStyle(
-          hoverColor: theme.hover,
-          backgroundColor: theme.surface,
-          borderRadius: BorderRadius.zero,
-        ),
-        builder: (_, onHover) => SizedBox(
-          width: 24,
-          height: 24,
-          child: accessory,
-        ),
-      );
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => accessory.onTap(context),
-        child: hover,
+        child: _wrapHover(theme, accessory),
       );
     }).toList();
+    return _wrapDecoration(context, Row(children: children));
+  }
 
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      decoration: _makeBoxDecoration(context),
-      child: Row(children: children),
+  FlowyHover _wrapHover(AppTheme theme, CardAccessory accessory) {
+    return FlowyHover(
+      style: HoverStyle(
+        hoverColor: theme.hover,
+        backgroundColor: theme.surface,
+        borderRadius: BorderRadius.zero,
+      ),
+      builder: (_, onHover) => SizedBox(
+        width: 24,
+        height: 24,
+        child: accessory,
+      ),
     );
   }
-}
 
-BoxDecoration _makeBoxDecoration(BuildContext context) {
-  final theme = context.read<AppTheme>();
-  final borderSide = BorderSide(color: theme.shader6, width: 1.0);
-  return BoxDecoration(
-    color: Colors.transparent,
-    border: Border.fromBorderSide(borderSide),
-    // boxShadow: const [
-    //   BoxShadow(
-    //     color: Colors.transparent,
-    //     spreadRadius: 0,
-    //     blurRadius: 5,
-    //     offset: Offset.zero,
-    //   )
-    // ],
-
-    borderRadius: const BorderRadius.all(Radius.circular(4)),
-  );
+  Widget _wrapDecoration(BuildContext context, Widget child) {
+    final theme = context.read<AppTheme>();
+    final borderSide = BorderSide(color: theme.shader6, width: 1.0);
+    final decoration = BoxDecoration(
+      color: Colors.transparent,
+      border: Border.fromBorderSide(borderSide),
+      borderRadius: const BorderRadius.all(Radius.circular(4)),
+    );
+    return Container(
+      clipBehavior: Clip.hardEdge,
+      decoration: decoration,
+      child: child,
+    );
+  }
 }
 
 class _CardEnterRegion extends StatelessWidget {
