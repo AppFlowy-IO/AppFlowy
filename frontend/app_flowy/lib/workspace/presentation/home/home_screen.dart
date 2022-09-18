@@ -148,7 +148,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
 
-
   Widget _buildEditPanel(
       {required HomeState homeState,
       required BuildContext context,
@@ -204,18 +203,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }) {
     return Stack(
       children: [
-        homeMenu
-            .animatedPanelX(
-              closeX: -layout.menuWidth,
-              isClosed: !layout.showMenu,
-            )
-            .positioned(
-                left: 0,
-                top: 0,
-                width: layout.menuWidth,
-                bottom: 0,
-                animate: true)
-            .animate(layout.animDuration, Curves.easeOut),
         homeStack
             .constrained(minWidth: 500)
             .positioned(
@@ -241,6 +228,18 @@ class _HomeScreenState extends State<HomeScreen> {
             )
             .positioned(
                 right: 0, top: 0, bottom: 0, width: layout.editPanelWidth),
+        homeMenu
+            .animatedPanelX(
+              closeX: -layout.menuWidth,
+              isClosed: !layout.showMenu,
+            )
+            .positioned(
+                left: 0,
+                top: 0,
+                width: layout.menuWidth,
+                bottom: 0,
+                animate: true)
+            .animate(layout.animDuration, Curves.easeOut),
       ],
     );
   }
