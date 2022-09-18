@@ -16,7 +16,8 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
 
   AppearanceSettingModel(this.setting)
       : _theme = AppTheme.fromName(name: setting.theme),
-        _locale = Locale(setting.locale.languageCode, setting.locale.countryCode);
+        _locale =
+            Locale(setting.locale.languageCode, setting.locale.countryCode);
 
   AppTheme get theme => _theme;
   Locale get locale => _locale;
@@ -34,7 +35,8 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   }
 
   void swapTheme() {
-    final themeType = (_theme.ty == ThemeType.light ? ThemeType.dark : ThemeType.light);
+    final themeType =
+        (_theme.ty == ThemeType.light ? ThemeType.dark : ThemeType.light);
 
     if (_theme.ty != themeType) {
       _theme = AppTheme.fromType(themeType);
@@ -45,14 +47,15 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
   }
 
   void setLocale(BuildContext context, Locale newLocale) {
-    if (_locale != newLocale) {
-      if (!context.supportedLocales.contains(newLocale)) {
-        Log.warn("Unsupported locale: $newLocale");
-        newLocale = const Locale('en');
-        Log.debug("Fallback to locale: $newLocale");
-      }
+    if (!context.supportedLocales.contains(newLocale)) {
+      Log.warn("Unsupported locale: $newLocale");
+      newLocale = const Locale('en');
+      Log.debug("Fallback to locale: $newLocale");
+    }
 
-      context.setLocale(newLocale);
+    context.setLocale(newLocale);
+
+    if (_locale != newLocale) {
       _locale = newLocale;
       setting.locale.languageCode = _locale.languageCode;
       setting.locale.countryCode = _locale.countryCode ?? "";
@@ -67,6 +70,10 @@ class AppearanceSettingModel extends ChangeNotifier with EquatableMixin {
       save();
 
       setLocale(context, context.deviceLocale);
+      return;
     }
+
+    // when opening app the first time
+    setLocale(context, _locale);
   }
 }
