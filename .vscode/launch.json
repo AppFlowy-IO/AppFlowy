@@ -14,7 +14,7 @@
             "env": {
                 "RUST_LOG": "info"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/frontend/app_flowy"
         },
         {
             // This task builds the Rust and Dart code of AppFlowy for android.
@@ -26,7 +26,7 @@
             "env": {
                 "RUST_LOG": "info"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/frontend/app_flowy"
         },
         {
             "name": "AF: Debug Rust",
@@ -43,7 +43,7 @@
             "env": {
                 "RUST_LOG": "debug"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/frontend/app_flowy"
         },
         {
             // This task builds will:
@@ -58,7 +58,7 @@
             "env": {
                 "RUST_LOG": "trace"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/frontend/app_flowy"
         },
         {
             // This task builds will:
@@ -73,7 +73,7 @@
             "env": {
                 "RUST_LOG": "info"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/frontend/app_flowy"
         },
         {
             "name": "AF: Build All (rustlog: trace)",
@@ -84,7 +84,7 @@
             "env": {
                 "RUST_LOG": "trace"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/frontend/app_flowy"
         },
         {
             "name": "AF: Build All Android (rustlog: trace)",
@@ -95,7 +95,7 @@
             "env": {
                 "RUST_LOG": "trace"
             },
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/frontend/app_flowy"
         },
         {
             "name": "AF: app_flowy (profile mode)",
@@ -103,7 +103,7 @@
             "program": "./lib/main.dart",
             "type": "dart",
             "flutterMode": "profile",
-            "cwd": "${workspaceRoot}/app_flowy"
+            "cwd": "${workspaceRoot}/frontendapp_flowy"
         },
     ]
 }

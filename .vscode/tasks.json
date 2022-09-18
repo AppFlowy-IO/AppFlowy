@@ -51,7 +51,7 @@
 			"command": "cargo make --profile development-android flowy-sdk-dev-android",
 			"group": "build",
 			"options": {
-				"cwd": "${workspaceFolder}"
+				"cwd": "${workspaceFolder}/frontend"
 			}
 		},
 		{
@@ -89,7 +89,7 @@
 			},
 			"group": "build",
 			"options": {
-				"cwd": "${workspaceFolder}"
+				"cwd": "${workspaceFolder}/frontend"
 			}
 		},
 		{
@@ -117,7 +117,7 @@
 			"type": "shell",
 			"command": "flutter clean",
 			"options": {
-				"cwd": "${workspaceFolder}/app_flowy"
+				"cwd": "${workspaceFolder}/frontend/app_flowy"
 			}
 		},
 		{
@@ -125,7 +125,7 @@
 			"type": "shell",
 			"command": "flutter pub get",
 			"options": {
-				"cwd": "${workspaceFolder}/app_flowy"
+				"cwd": "${workspaceFolder}/frontend/app_flowy"
 			}
 		},
 		{
@@ -133,7 +133,7 @@
 			"type": "shell",
 			"command": "flutter packages pub get",
 			"options": {
-				"cwd": "${workspaceFolder}/app_flowy"
+				"cwd": "${workspaceFolder}/frontend/app_flowy"
 			}
 		},
 		{
@@ -141,7 +141,7 @@
 			"type": "shell",
 			"command": "flutter pub run build_runner build --delete-conflicting-outputs",
 			"options": {
-				"cwd": "${workspaceFolder}/app_flowy"
+				"cwd": "${workspaceFolder}/frontend/app_flowy"
 			}
 		},
 		{
@@ -162,7 +162,7 @@
 			},
 			"group": "build",
 			"options": {
-				"cwd": "${workspaceFolder}"
+				"cwd": "${workspaceFolder}/frontend"
 			}
 		},
 		{
@@ -171,7 +171,7 @@
 			"command": "cargo make flowy_clean",
 			"group": "build",
 			"options": {
-				"cwd": "${workspaceFolder}"
+				"cwd": "${workspaceFolder}/frontend"
 			}
 		},
 		{
