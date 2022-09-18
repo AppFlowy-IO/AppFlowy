@@ -207,13 +207,13 @@ class _OptionCellState extends State<_OptionCell> {
             context
                 .read<SelectOptionTypeOptionBloc>()
                 .add(SelectOptionTypeOptionEvent.deleteOption(widget.option));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
           onUpdated: (updatedOption) {
             context
                 .read<SelectOptionTypeOptionBloc>()
                 .add(SelectOptionTypeOptionEvent.updateOption(updatedOption));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
           key: ValueKey(widget.option.id),
         );

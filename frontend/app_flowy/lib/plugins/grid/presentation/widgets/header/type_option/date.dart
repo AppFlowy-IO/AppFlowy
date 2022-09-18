@@ -75,7 +75,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
             context
                 .read<DateTypeOptionBloc>()
                 .add(DateTypeOptionEvent.didSelectDateFormat(format));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
         );
       },
@@ -97,7 +97,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
             context
                 .read<DateTypeOptionBloc>()
                 .add(DateTypeOptionEvent.didSelectTimeFormat(format));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
         );
       },
@@ -201,12 +201,10 @@ class DateFormatList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = DateFormat.values.map((format) {
       return DateFormatCell(
-          dateFormat: format,
-          onSelected: (format) {
-            onSelected(format);
-            FlowyOverlay.of(context).remove(DateFormatList.identifier());
-          },
-          isSelected: selectedFormat == format);
+        dateFormat: format,
+        onSelected: onSelected,
+        isSelected: selectedFormat == format,
+      );
     }).toList();
 
     return SizedBox(
@@ -223,10 +221,6 @@ class DateFormatList extends StatelessWidget {
         },
       ),
     );
-  }
-
-  static String identifier() {
-    return (DateFormatList).toString();
   }
 }
 
@@ -291,12 +285,10 @@ class TimeFormatList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = TimeFormat.values.map((format) {
       return TimeFormatCell(
-          isSelected: format == selectedFormat,
-          timeFormat: format,
-          onSelected: (format) {
-            onSelected(format);
-            FlowyOverlay.of(context).remove(TimeFormatList.identifier());
-          });
+        isSelected: format == selectedFormat,
+        timeFormat: format,
+        onSelected: onSelected,
+      );
     }).toList();
 
     return SizedBox(
@@ -313,10 +305,6 @@ class TimeFormatList extends StatelessWidget {
         },
       ),
     );
-  }
-
-  static String identifier() {
-    return (TimeFormatList).toString();
   }
 }
 

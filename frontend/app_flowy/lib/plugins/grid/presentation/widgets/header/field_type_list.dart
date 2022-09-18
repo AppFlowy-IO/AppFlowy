@@ -47,10 +47,6 @@ class FieldTypeList extends StatelessWidget with FlowyOverlayDelegate {
       ),
     );
   }
-
-  static String identifier() {
-    return (FieldTypeList).toString();
-  }
 }
 
 class FieldTypeCell extends StatelessWidget {

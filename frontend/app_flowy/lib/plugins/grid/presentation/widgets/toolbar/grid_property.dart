@@ -131,8 +131,10 @@ class _GridPropertyCell extends StatelessWidget {
         return FieldEditor(
           gridId: gridId,
           fieldName: fieldContext.name,
-          typeOptionLoader:
-              FieldTypeOptionLoader(gridId: gridId, field: fieldContext.field),
+          typeOptionLoader: FieldTypeOptionLoader(
+            gridId: gridId,
+            field: fieldContext.field,
+          ),
         );
       },
     );

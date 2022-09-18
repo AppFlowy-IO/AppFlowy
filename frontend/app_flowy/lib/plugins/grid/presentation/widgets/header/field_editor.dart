@@ -70,6 +70,7 @@ class _FieldEditorState extends State<FieldEditor> {
               ),
               const VSpace(10),
               _FieldNameTextField(popoverMutex: popoverMutex),
+              const VSpace(10),
               ..._addDeleteFieldButton(state),
               _FieldTypeOptionCell(popoverMutex: popoverMutex),
             ],
@@ -84,7 +85,6 @@ class _FieldEditorState extends State<FieldEditor> {
       return [];
     }
     return [
-      const VSpace(10),
       _DeleteFieldButton(
         popoverMutex: popoverMutex,
         onDeleted: () {

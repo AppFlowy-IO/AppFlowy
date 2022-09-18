@@ -82,7 +82,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                     context
                         .read<NumberTypeOptionBloc>()
                         .add(NumberTypeOptionEvent.didSelectFormat(format));
-                    PopoverContainer.of(popoverContext).closeAll();
+                    PopoverContainer.of(popoverContext).close();
                   },
                   selectedFormat: state.typeOption.format,
                 );
@@ -144,10 +144,6 @@ class NumberFormatList extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  static String identifier() {
-    return (NumberFormatList).toString();
   }
 }
 
