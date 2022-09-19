@@ -201,8 +201,8 @@
       "aquaColor": "Agua",
       "blueColor": "Azul",
       "deleteTag": "Borrar etiqueta",
-      "colorPannelTitle": "Colores",
-      "pannelTitle": "Selecciona una opción o crea una",
+      "colorPanelTitle": "Colores",
+      "panelTitle": "Selecciona una opción o crea una",
       "searchOption": "Buscar una opción"
     },
     "menuName": "Grid"

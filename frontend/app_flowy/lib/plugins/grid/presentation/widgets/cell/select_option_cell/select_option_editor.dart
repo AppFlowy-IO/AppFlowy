@@ -177,7 +177,7 @@ class _Title extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6),
         child: FlowyText.medium(
-          LocaleKeys.grid_selectOption_pannelTitle.tr(),
+          LocaleKeys.grid_selectOption_panelTitle.tr(),
           fontSize: 12,
           color: theme.shader3,
         ),
