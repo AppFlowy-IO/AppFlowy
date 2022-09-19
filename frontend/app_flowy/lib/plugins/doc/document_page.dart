@@ -99,10 +99,7 @@ class _DocumentPageState extends State<DocumentPage> {
     );
     return Expanded(
       child: SizedBox.expand(
-        child: Container(
-          color: Colors.red.withOpacity(0.3),
-          child: editor,
-        ),
+        child: editor,
       ),
     );
   }
