@@ -299,7 +299,7 @@ class _DateTypeOptionButton extends StatelessWidget {
     return BlocSelector<DateCalBloc, DateCalState, DateTypeOptionPB>(
       selector: (state) => state.dateTypeOptionPB,
       builder: (context, dateTypeOptionPB) {
-        return AppFlowyStylePopover(
+        return AppFlowyPopover(
           triggerActions:
               PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
           offset: const Offset(20, 0),

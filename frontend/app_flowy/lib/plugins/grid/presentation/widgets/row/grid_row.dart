@@ -1,8 +1,10 @@
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -56,20 +58,21 @@ class _GridRowWidgetState extends State<GridRowWidget> {
         child: BlocBuilder<RowBloc, RowState>(
           buildWhen: (p, c) => p.rowInfo.rowPB.height != c.rowInfo.rowPB.height,
           builder: (context, state) {
-            final children = [
-              const _RowLeading(),
-              Expanded(
-                child: RowContent(
-                  builder: widget.cellBuilder,
-                  onExpand: () => widget.openDetailPage(
-                    context,
-                    widget.cellBuilder,
-                  ),
+            final content = Expanded(
+              child: RowContent(
+                builder: widget.cellBuilder,
+                onExpand: () => widget.openDetailPage(
+                  context,
+                  widget.cellBuilder,
                 ),
               ),
+            );
+
+            return Row(children: [
+              const _RowLeading(),
+              content,
               const _RowTrailing(),
-            ];
-            return Row(children: children);
+            ]);
           },
         ),
       ),
@@ -83,26 +86,51 @@ class _GridRowWidgetState extends State<GridRowWidget> {
   }
 }
 
-class _RowLeading extends StatelessWidget {
+class _RowLeading extends StatefulWidget {
   const _RowLeading({Key? key}) : super(key: key);
 
   @override
+  State<_RowLeading> createState() => _RowLeadingState();
+}
+
+class _RowLeadingState extends State<_RowLeading> {
+  late PopoverController popoverController;
+
+  @override
+  void initState() {
+    popoverController = PopoverController();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer<RegionStateNotifier>(
-      builder: (context, state, _) {
-        return SizedBox(
-            width: GridSize.leadingHeaderPadding,
-            child: state.onEnter ? _activeWidget() : null);
+    return AppFlowyPopover(
+      controller: popoverController,
+      constraints: BoxConstraints.loose(const Size(140, 200)),
+      direction: PopoverDirection.rightWithCenterAligned,
+      popupBuilder: (BuildContext popoverContext) {
+        return GridRowActionSheet(
+            rowData: context.read<RowBloc>().state.rowInfo);
       },
+      child: Consumer<RegionStateNotifier>(
+        builder: (context, state, _) {
+          return SizedBox(
+            width: GridSize.leadingHeaderPadding,
+            child: state.onEnter ? _activeWidget() : null,
+          );
+        },
+      ),
     );
   }
 
   Widget _activeWidget() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        _InsertRowButton(),
-        _DeleteRowButton(),
+      children: [
+        const _InsertButton(),
+        _MenuButton(openMenu: () {
+          popoverController.show();
+        }),
       ],
     );
   }
@@ -117,8 +145,8 @@ class _RowTrailing extends StatelessWidget {
   }
 }
 
-class _InsertRowButton extends StatelessWidget {
-  const _InsertRowButton({Key? key}) : super(key: key);
+class _InsertButton extends StatelessWidget {
+  const _InsertButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -128,17 +156,29 @@ class _InsertRowButton extends StatelessWidget {
       hoverColor: theme.hover,
       width: 20,
       height: 30,
-      onPressed: () => context.read<RowBloc>().add(
-            const RowEvent.createRow(),
-          ),
+      onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
       iconPadding: const EdgeInsets.all(3),
       icon: svgWidget("home/add"),
     );
   }
 }
 
-class _DeleteRowButton extends StatelessWidget {
-  const _DeleteRowButton({Key? key}) : super(key: key);
+class _MenuButton extends StatefulWidget {
+  final VoidCallback openMenu;
+  const _MenuButton({
+    required this.openMenu,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_MenuButton> createState() => _MenuButtonState();
+}
+
+class _MenuButtonState extends State<_MenuButton> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -148,9 +188,7 @@ class _DeleteRowButton extends StatelessWidget {
       hoverColor: theme.hover,
       width: 20,
       height: 30,
-      onPressed: () => GridRowActionSheet(
-        rowData: context.read<RowBloc>().state.rowInfo,
-      ).show(context),
+      onPressed: () => widget.openMenu(),
       iconPadding: const EdgeInsets.all(3),
       icon: svgWidget("editor/details"),
     );

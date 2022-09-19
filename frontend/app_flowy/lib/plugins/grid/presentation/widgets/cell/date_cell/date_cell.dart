@@ -63,7 +63,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
         builder: (context, state) {
-          return AppFlowyStylePopover(
+          return AppFlowyPopover(
             controller: _popover,
             offset: const Offset(0, 20),
             direction: PopoverDirection.bottomWithLeftAligned,

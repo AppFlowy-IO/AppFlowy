@@ -62,7 +62,7 @@ class _SettingButtonState extends State<_SettingButton> {
   @override
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       controller: popoverController,
       constraints: BoxConstraints.loose(const Size(260, 400)),
       triggerActions: PopoverTriggerActionFlags.click,

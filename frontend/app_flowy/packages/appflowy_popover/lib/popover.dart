@@ -6,11 +6,11 @@ import 'package:flutter/services.dart';
 /// If multiple popovers are exclusive,
 /// pass the same mutex to them.
 class PopoverMutex {
-  final ValueNotifier<PopoverState?> _stateNofitier = ValueNotifier(null);
+  final ValueNotifier<PopoverState?> _stateNotifier = ValueNotifier(null);
   PopoverMutex();
 
   void removePopoverStateListener(VoidCallback listener) {
-    _stateNofitier.removeListener(listener);
+    _stateNotifier.removeListener(listener);
   }
 
   VoidCallback listenOnPopoverStateChanged(VoidCallback callback) {
@@ -18,29 +18,29 @@ class PopoverMutex {
       callback();
     }
 
-    _stateNofitier.addListener(listenerCallback);
+    _stateNotifier.addListener(listenerCallback);
     return listenerCallback;
   }
 
   void close() {
-    _stateNofitier.value?.close();
+    _stateNotifier.value?.close();
   }
 
-  PopoverState? get state => _stateNofitier.value;
+  PopoverState? get state => _stateNotifier.value;
 
   set state(PopoverState? newState) {
-    if (_stateNofitier.value != null && _stateNofitier.value != newState) {
-      _stateNofitier.value?.close();
+    if (_stateNotifier.value != null && _stateNotifier.value != newState) {
+      _stateNotifier.value?.close();
     }
-    _stateNofitier.value = newState;
+    _stateNotifier.value = newState;
   }
 
   void _removeState() {
-    _stateNofitier.value = null;
+    _stateNotifier.value = null;
   }
 
   void dispose() {
-    _stateNofitier.dispose();
+    _stateNotifier.dispose();
   }
 }
 

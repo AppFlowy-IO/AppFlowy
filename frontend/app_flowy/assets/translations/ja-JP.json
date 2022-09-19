@@ -191,8 +191,8 @@
       "aquaColor": "水色",
       "blueColor": "青",
       "deleteTag": "選択候補を削除",
-      "colorPannelTitle": "色",
-      "pannelTitle": "選択候補を検索 または 作成する",
+      "colorPanelTitle": "色",
+      "panelTitle": "選択候補を検索 または 作成する",
       "searchOption": "選択候補を検索"
     }
   },

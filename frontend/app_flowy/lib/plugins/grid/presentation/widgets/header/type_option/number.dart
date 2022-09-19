@@ -55,7 +55,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
           listener: (context, state) =>
               typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
-            return AppFlowyStylePopover(
+            return AppFlowyPopover(
               mutex: popoverMutex,
               triggerActions: PopoverTriggerActionFlags.hover |
                   PopoverTriggerActionFlags.click,

@@ -25,31 +25,47 @@ import 'text_field.dart';
 
 const double _editorPanelWidth = 300;
 
-class SelectOptionCellEditor extends StatelessWidget {
+class SelectOptionCellEditor extends StatefulWidget {
   final GridSelectOptionCellController cellController;
-
   static double editorPanelWidth = 300;
 
   const SelectOptionCellEditor({required this.cellController, Key? key})
       : super(key: key);
 
   @override
+  State<SelectOptionCellEditor> createState() => _SelectOptionCellEditorState();
+}
+
+class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
+  late PopoverMutex popoverMutex;
+
+  @override
+  void initState() {
+    popoverMutex = PopoverMutex();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => SelectOptionCellEditorBloc(
-        cellController: cellController,
+        cellController: widget.cellController,
       )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
           return CustomScrollView(
             shrinkWrap: true,
             slivers: [
-              SliverToBoxAdapter(child: _TextField()),
+              SliverToBoxAdapter(
+                child: _TextField(popoverMutex: popoverMutex),
+              ),
               const SliverToBoxAdapter(child: VSpace(6)),
               const SliverToBoxAdapter(child: TypeOptionSeparator()),
               const SliverToBoxAdapter(child: VSpace(6)),
               const SliverToBoxAdapter(child: _Title()),
-              const SliverToBoxAdapter(child: _OptionList()),
+              SliverToBoxAdapter(
+                child: _OptionList(popoverMutex: popoverMutex),
+              ),
             ],
           );
         },
@@ -59,7 +75,11 @@ class SelectOptionCellEditor extends StatelessWidget {
 }
 
 class _OptionList extends StatelessWidget {
-  const _OptionList({Key? key}) : super(key: key);
+  final PopoverMutex popoverMutex;
+  const _OptionList({
+    required this.popoverMutex,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +88,10 @@ class _OptionList extends StatelessWidget {
         List<Widget> cells = [];
         cells.addAll(state.options.map((option) {
           return _SelectOptionCell(
-              option, state.selectedOptions.contains(option));
+            option: option,
+            isSelected: state.selectedOptions.contains(option),
+            popoverMutex: popoverMutex,
+          );
         }).toList());
 
         state.createOption.fold(
@@ -101,9 +124,13 @@ class _OptionList extends StatelessWidget {
 }
 
 class _TextField extends StatelessWidget {
+  final PopoverMutex popoverMutex;
   final TextfieldTagsController _tagController = TextfieldTagsController();
 
-  _TextField({Key? key}) : super(key: key);
+  _TextField({
+    required this.popoverMutex,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +148,7 @@ class _TextField extends StatelessWidget {
             selectedOptionMap: optionMap,
             distanceToText: _editorPanelWidth * 0.7,
             tagController: _tagController,
-            onClick: () => FlowyOverlay.of(context)
-                .remove(SelectOptionTypeOptionEditor.identifier),
+            onClick: () => popoverMutex.close(),
             newText: (text) {
               context
                   .read<SelectOptionCellEditorBloc>()
@@ -151,7 +177,7 @@ class _Title extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 6),
         child: FlowyText.medium(
-          LocaleKeys.grid_selectOption_pannelTitle.tr(),
+          LocaleKeys.grid_selectOption_panelTitle.tr(),
           fontSize: 12,
           color: theme.shader3,
         ),
@@ -189,9 +215,14 @@ class _CreateOptionCell extends StatelessWidget {
 
 class _SelectOptionCell extends StatefulWidget {
   final SelectOptionPB option;
+  final PopoverMutex popoverMutex;
   final bool isSelected;
-  const _SelectOptionCell(this.option, this.isSelected, {Key? key})
-      : super(key: key);
+  const _SelectOptionCell({
+    required this.option,
+    required this.isSelected,
+    required this.popoverMutex,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<_SelectOptionCell> createState() => _SelectOptionCellState();
@@ -209,10 +240,11 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       controller: _popoverController,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(200, 300)),
+      mutex: widget.popoverMutex,
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
         child: Row(
@@ -257,8 +289,9 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
                 .read<SelectOptionCellEditorBloc>()
                 .add(SelectOptionEditorEvent.updateOption(updatedOption));
           },
-          key: ValueKey(widget.option
-              .id), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
+          key: ValueKey(
+            widget.option.id,
+          ), // Use ValueKey to refresh the UI, otherwise, it will remain the old value.
         );
       },
     );

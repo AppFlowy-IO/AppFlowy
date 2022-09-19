@@ -199,8 +199,8 @@
       "aquaColor": "Aqua",
       "blueColor": "Bleu",
       "deleteTag": "Supprimer l'étiquette",
-      "colorPannelTitle": "Couleurs",
-      "pannelTitle": "Sélectionnez une option ou créez-en une",
+      "colorPanelTitle": "Couleurs",
+      "panelTitle": "Sélectionnez une option ou créez-en une",
       "searchOption": "Rechercher une option"
     },
     "menuName": "Grille"

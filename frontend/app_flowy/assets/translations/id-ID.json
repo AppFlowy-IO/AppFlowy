@@ -202,8 +202,8 @@
       "aquaColor": "Air",
       "blueColor": "Biru",
       "deleteTag": "Hapus tag",
-      "colorPannelTitle": "Warna",
-      "pannelTitle": "Pilih opsi atau buat baru",
+      "colorPanelTitle": "Warna",
+      "panelTitle": "Pilih opsi atau buat baru",
       "searchOption": "Cari opsi"
     },
     "menuName": "Grid"

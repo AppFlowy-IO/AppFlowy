@@ -64,7 +64,7 @@ class FieldTypeOptionEditor extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
-      child: AppFlowyStylePopover(
+      child: AppFlowyPopover(
         constraints: BoxConstraints.loose(const Size(460, 440)),
         triggerActions:
             PopoverTriggerActionFlags.click | PopoverTriggerActionFlags.hover,

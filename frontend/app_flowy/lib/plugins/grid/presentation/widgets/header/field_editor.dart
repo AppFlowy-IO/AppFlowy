@@ -167,7 +167,7 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
       },
       child: BlocBuilder<FieldEditorBloc, FieldEditorState>(
         builder: (context, state) {
-          listenOnPopoverChhanged(context);
+          listenOnPopoverChanged(context);
 
           return RoundedInputField(
             height: 36,
@@ -191,7 +191,7 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
     );
   }
 
-  void listenOnPopoverChhanged(BuildContext context) {
+  void listenOnPopoverChanged(BuildContext context) {
     if (_popoverCallback != null) {
       widget.popoverMutex.removePopoverStateListener(_popoverCallback!);
     }
@@ -243,7 +243,7 @@ class _DeleteFieldButton extends StatelessWidget {
   }
 
   Widget _wrapPopover(Widget widget) {
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       triggerActions: PopoverTriggerActionFlags.click,
       constraints: BoxConstraints.loose(const Size(400, 240)),
       mutex: popoverMutex,

@@ -87,7 +87,7 @@ class _BoardSelectOptionCellState extends State<BoardSelectOptionCell> {
       SelectOptionCellEditor.editorPanelWidth,
       300,
     ));
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       controller: _popover,
       constraints: constraints,
       direction: PopoverDirection.bottomWithLeftAligned,

@@ -53,7 +53,7 @@ class _SettingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(260, 400)),
       triggerActions: PopoverTriggerActionFlags.click,
       offset: const Offset(0, 10),

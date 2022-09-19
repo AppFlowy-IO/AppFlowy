@@ -180,7 +180,7 @@ class _OptionCellState extends State<_OptionCell> {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       controller: _popoverController,
       mutex: widget.popoverMutex,
       offset: const Offset(20, 0),

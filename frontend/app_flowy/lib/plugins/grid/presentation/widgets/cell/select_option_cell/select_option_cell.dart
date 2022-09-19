@@ -181,7 +181,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       SelectOptionCellEditor.editorPanelWidth,
       300,
     ));
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       controller: _popover,
       constraints: constraints,
       direction: PopoverDirection.bottomWithLeftAligned,
