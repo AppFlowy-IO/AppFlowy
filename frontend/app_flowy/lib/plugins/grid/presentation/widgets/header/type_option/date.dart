@@ -11,7 +11,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import '../../../layout/sizes.dart';
 import '../field_type_option_editor.dart';
 import 'builder.dart';
@@ -64,8 +64,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   Widget _renderDateFormatButton(BuildContext context, DateFormat dataFormat) {
     return AppFlowyPopover(
       mutex: popoverMutex,
-      triggerActions:
-          PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (popoverContext) {
@@ -86,8 +85,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
     return AppFlowyPopover(
       mutex: popoverMutex,
-      triggerActions:
-          PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (BuildContext popoverContext) {

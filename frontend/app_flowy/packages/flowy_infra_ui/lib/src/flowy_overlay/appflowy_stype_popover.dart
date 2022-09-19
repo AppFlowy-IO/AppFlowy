@@ -1,5 +1,5 @@
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 
 class AppFlowyPopover extends StatelessWidget {

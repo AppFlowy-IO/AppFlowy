@@ -1,7 +1,7 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -300,8 +300,7 @@ class _DateTypeOptionButton extends StatelessWidget {
       selector: (state) => state.dateTypeOptionPB,
       builder: (context, dateTypeOptionPB) {
         return AppFlowyPopover(
-          triggerActions:
-              PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+          triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
           offset: const Offset(20, 0),
           constraints: BoxConstraints.loose(const Size(140, 100)),
           child: FlowyButton(
@@ -342,8 +341,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
     List<Widget> children = [
       Popover(
         mutex: _popoverMutex,
-        triggerActions:
-            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+        triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
           return OverlayContainer(
@@ -359,8 +357,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       ),
       Popover(
         mutex: _popoverMutex,
-        triggerActions:
-            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+        triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
           return OverlayContainer(

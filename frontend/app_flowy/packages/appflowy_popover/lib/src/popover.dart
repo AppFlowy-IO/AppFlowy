@@ -1,62 +1,23 @@
-import 'package:appflowy_popover/layout.dart';
+import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-/// If multiple popovers are exclusive,
-/// pass the same mutex to them.
-class PopoverMutex {
-  final ValueNotifier<PopoverState?> _stateNotifier = ValueNotifier(null);
-  PopoverMutex();
-
-  void removePopoverStateListener(VoidCallback listener) {
-    _stateNotifier.removeListener(listener);
-  }
-
-  VoidCallback listenOnPopoverStateChanged(VoidCallback callback) {
-    listenerCallback() {
-      callback();
-    }
-
-    _stateNotifier.addListener(listenerCallback);
-    return listenerCallback;
-  }
-
-  void close() {
-    _stateNotifier.value?.close();
-  }
-
-  PopoverState? get state => _stateNotifier.value;
-
-  set state(PopoverState? newState) {
-    if (_stateNotifier.value != null && _stateNotifier.value != newState) {
-      _stateNotifier.value?.close();
-    }
-    _stateNotifier.value = newState;
-  }
-
-  void _removeState() {
-    _stateNotifier.value = null;
-  }
-
-  void dispose() {
-    _stateNotifier.dispose();
-  }
-}
+import 'mask.dart';
+import 'mutex.dart';
 
 class PopoverController {
-  PopoverState? state;
+  PopoverState? _state;
 
   close() {
-    state?.close();
+    _state?.close();
   }
 
   show() {
-    state?.showOverlay();
+    _state?.showOverlay();
   }
 }
 
-class PopoverTriggerActionFlags {
+class PopoverTriggerFlags {
   static int click = 0x01;
   static int hover = 0x02;
 }
@@ -136,11 +97,11 @@ class PopoverState extends State<Popover> {
 
   @override
   void initState() {
-    widget.controller?.state = this;
+    widget.controller?._state = this;
     super.initState();
   }
 
-  showOverlay() {
+  void showOverlay() {
     close();
 
     if (widget.mutex != null) {
@@ -150,14 +111,14 @@ class PopoverState extends State<Popover> {
     if (_popoverWithMask == null) {
       _popoverWithMask = this;
     } else {
-      hasMask = false;
+      // hasMask = false;
     }
 
     final newEntry = OverlayEntry(builder: (context) {
       final children = <Widget>[];
 
       if (hasMask) {
-        children.add(_PopoverMask(
+        children.add(PopoverMask(
           decoration: widget.maskDecoration,
           onTap: () => close(),
           onExit: () => close(),
@@ -178,27 +139,29 @@ class PopoverState extends State<Popover> {
 
     _overlayEntry = newEntry;
 
+    final OverlayState s = Overlay.of(context)!;
+
     Overlay.of(context)?.insert(newEntry);
   }
 
-  close() {
+  void close() {
     if (_overlayEntry != null) {
       _overlayEntry!.remove();
       _overlayEntry = null;
+
       if (_popoverWithMask == this) {
         _popoverWithMask = null;
       }
-      if (widget.onClose != null) {
-        widget.onClose!();
-      }
+
+      widget.onClose?.call();
     }
 
     if (widget.mutex?.state == this) {
-      widget.mutex?._removeState();
+      widget.mutex?.removeState();
     }
   }
 
-  closeAll() {
+  void closeAll() {
     _popoverWithMask?.close();
   }
 
@@ -208,88 +171,32 @@ class PopoverState extends State<Popover> {
     super.deactivate();
   }
 
-  _handleTargetPointerDown(PointerDownEvent event) {
-    if (widget.triggerActions & PopoverTriggerActionFlags.click != 0) {
-      showOverlay();
-    }
+  @override
+  Widget build(BuildContext context) {
+    return PopoverTarget(
+      link: popoverLink,
+      child: _buildChild(context),
+    );
   }
 
-  _handleTargetPointerEnter(PointerEnterEvent event) {
-    if (widget.triggerActions & PopoverTriggerActionFlags.hover != 0) {
-      showOverlay();
-    }
-  }
-
-  _buildContent(BuildContext context) {
+  Widget _buildChild(BuildContext context) {
     if (widget.triggerActions == 0) {
       return widget.child;
     }
 
     return MouseRegion(
-      onEnter: _handleTargetPointerEnter,
+      onEnter: (PointerEnterEvent event) {
+        if (widget.triggerActions & PopoverTriggerFlags.hover != 0) {
+          showOverlay();
+        }
+      },
       child: Listener(
-        onPointerDown: _handleTargetPointerDown,
         child: widget.child,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return PopoverTarget(
-      link: popoverLink,
-      child: _buildContent(context),
-    );
-  }
-}
-
-class _PopoverMask extends StatefulWidget {
-  final void Function() onTap;
-  final void Function()? onExit;
-  final Decoration? decoration;
-
-  const _PopoverMask(
-      {Key? key, required this.onTap, this.onExit, this.decoration})
-      : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _PopoverMaskState();
-}
-
-class _PopoverMaskState extends State<_PopoverMask> {
-  @override
-  void initState() {
-    HardwareKeyboard.instance.addHandler(_handleGlobalKeyEvent);
-    super.initState();
-  }
-
-  bool _handleGlobalKeyEvent(KeyEvent event) {
-    if (event.logicalKey == LogicalKeyboardKey.escape) {
-      if (widget.onExit != null) {
-        widget.onExit!();
-      }
-
-      return true;
-    }
-    return false;
-  }
-
-  @override
-  void deactivate() {
-    HardwareKeyboard.instance.removeHandler(_handleGlobalKeyEvent);
-    super.deactivate();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
-        // decoration: widget.decoration,
-        decoration: widget.decoration ??
-            const BoxDecoration(
-              color: Color.fromARGB(0, 244, 67, 54),
-            ),
+        onPointerDown: (PointerDownEvent event) {
+          if (widget.triggerActions & PopoverTriggerFlags.click != 0) {
+            showOverlay();
+          }
+        },
       ),
     );
   }

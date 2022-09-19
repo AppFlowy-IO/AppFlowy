@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/number_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/number_format_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -57,8 +57,8 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
           builder: (context, state) {
             return AppFlowyPopover(
               mutex: popoverMutex,
-              triggerActions: PopoverTriggerActionFlags.hover |
-                  PopoverTriggerActionFlags.click,
+              triggerActions:
+                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
               offset: const Offset(20, 0),
               constraints: BoxConstraints.loose(const Size(460, 440)),
               child: FlowyButton(

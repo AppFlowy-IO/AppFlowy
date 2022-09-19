@@ -3,7 +3,7 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_editor.
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/setting/property_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_extension.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -118,7 +118,7 @@ class _GridPropertyCell extends StatelessWidget {
   Widget _editFieldButton(AppTheme theme, BuildContext context) {
     return AppFlowyPopover(
       mutex: popoverMutex,
-      triggerActions: PopoverTriggerActionFlags.click,
+      triggerActions: PopoverTriggerFlags.click,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(240, 200)),
       child: FlowyButton(

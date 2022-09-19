@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -33,7 +33,7 @@ class GridFieldCell extends StatelessWidget {
           final button = AppFlowyPopover(
             constraints: BoxConstraints.loose(const Size(240, 840)),
             direction: PopoverDirection.bottomWithLeftAligned,
-            triggerActions: PopoverTriggerActionFlags.click,
+            triggerActions: PopoverTriggerFlags.click,
             offset: const Offset(0, 10),
             popupBuilder: (BuildContext context) {
               return GridFieldCellActionSheet(

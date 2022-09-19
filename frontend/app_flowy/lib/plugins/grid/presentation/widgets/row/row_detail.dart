@@ -15,7 +15,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 
 import '../../layout/sizes.dart';
 import '../cell/cell_accessory.dart';
@@ -197,7 +197,7 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(240, 200)),
       controller: popoverController,
-      triggerActions: PopoverTriggerActionFlags.click,
+      triggerActions: PopoverTriggerFlags.click,
       direction: PopoverDirection.topWithLeftAligned,
       onClose: widget.onClosed,
       child: Container(

@@ -1,6 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flowy_infra/theme.dart';
@@ -244,7 +244,7 @@ class _DeleteFieldButton extends StatelessWidget {
 
   Widget _wrapPopover(Widget widget) {
     return AppFlowyPopover(
-      triggerActions: PopoverTriggerActionFlags.click,
+      triggerActions: PopoverTriggerFlags.click,
       constraints: BoxConstraints.loose(const Size(400, 240)),
       mutex: popoverMutex,
       direction: PopoverDirection.center,
