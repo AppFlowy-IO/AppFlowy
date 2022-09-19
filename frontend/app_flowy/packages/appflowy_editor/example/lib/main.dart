@@ -186,6 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final path = directory.path;
     final file = File('$path/editor.json');
     setState(() {
+      _editorState = null;
       _jsonString = file.readAsString();
     });
   }

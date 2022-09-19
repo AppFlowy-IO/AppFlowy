@@ -174,5 +174,45 @@ void main() async {
         expect(textNode.subtype, BuiltInAttributeKey.bulletedList);
       }
     });
+
+    testWidgets('Presses whitespace key in edge cases', (tester) async {
+      const text = '';
+      final editor = tester.editor..insertTextNode(text);
+      await editor.startTesting();
+
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: 0),
+      );
+
+      await editor.insertText(textNode, '*', 0);
+      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      expect(textNode.subtype, BuiltInAttributeKey.bulletedList);
+
+      await editor.insertText(textNode, '[]', 0);
+      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      expect(textNode.subtype, BuiltInAttributeKey.checkbox);
+      expect(textNode.attributes.check, false);
+
+      await editor.insertText(textNode, '1.', 0);
+      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      expect(textNode.subtype, BuiltInAttributeKey.numberList);
+
+      await editor.insertText(textNode, '#', 0);
+      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      expect(textNode.subtype, BuiltInAttributeKey.heading);
+
+      await editor.insertText(textNode, '[x]', 0);
+      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      expect(textNode.subtype, BuiltInAttributeKey.checkbox);
+      expect(textNode.attributes.check, true);
+
+      const insertedText = '[]AppFlowy';
+      await editor.insertText(textNode, insertedText, 0);
+      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      expect(textNode.subtype, BuiltInAttributeKey.checkbox);
+      expect(textNode.attributes.check, true);
+      expect(textNode.toRawString(), insertedText);
+    });
   });
 }
