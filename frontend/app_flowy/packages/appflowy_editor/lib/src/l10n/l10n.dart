@@ -29,7 +29,8 @@ class AppFlowyEditorLocalizations {
     final name = (locale.countryCode?.isEmpty ?? false)
         ? locale.languageCode
         : locale.toString();
-    final localeName = Intl.canonicalizedLocale(name);
+    // FIXME: supports more languages.
+    final localeName = Intl.canonicalizedLocale('en_US');
     return initializeMessages(localeName).then((_) {
       Intl.defaultLocale = localeName;
       final instance = AppFlowyEditorLocalizations();
