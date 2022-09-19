@@ -91,6 +91,7 @@ dependencies:
   bloc: ^8.1.0
   textstyle_extensions: "2.0.0-nullsafety"
   shared_preferences: ^2.0.15
+  google_fonts: ^3.0.1
 
 dev_dependencies:
   flutter_lints: ^2.0.1
@@ -127,6 +128,26 @@ flutter:
     - family: FlowyIconData
       fonts:
         - asset: assets/fonts/FlowyIconData.ttf
+    - family: Poppins
+      fonts:
+        - asset: assets/google_fonts/Poppins/Poppins-ExtraLight.ttf
+          weight: 100
+        - asset: assets/google_fonts/Poppins/Poppins-Thin.ttf
+          weight: 200
+        - asset: assets/google_fonts/Poppins/Poppins-Light.ttf
+          weight: 300          
+        - asset: assets/google_fonts/Poppins/Poppins-Regular.ttf          
+          weight: 400
+        - asset: assets/google_fonts/Poppins/Poppins-Medium.ttf          
+          weight: 500
+        - asset: assets/google_fonts/Poppins/Poppins-SemiBold.ttf          
+          weight: 600
+        - asset: assets/google_fonts/Poppins/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/google_fonts/Poppins/Poppins-Black.ttf
+          weight: 800
+        - asset: assets/google_fonts/Poppins/Poppins-ExtraBold.ttf
+          weight: 900     
 
   # To add assets to your application, add an assets section, like this:
   assets:

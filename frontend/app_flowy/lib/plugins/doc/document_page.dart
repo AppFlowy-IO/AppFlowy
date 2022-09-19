@@ -1,9 +1,9 @@
+import 'package:app_flowy/plugins/doc/editor_styles.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/plugins/doc/presentation/banner.dart';
 import 'package:app_flowy/plugins/doc/presentation/toolbar/tool_bar.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
@@ -24,7 +24,6 @@ class DocumentPage extends StatefulWidget {
 
 class _DocumentPageState extends State<DocumentPage> {
   late DocumentBloc documentBloc;
-  final scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -76,17 +75,7 @@ class _DocumentPageState extends State<DocumentPage> {
     return Column(
       children: [
         if (state.isDeleted) _renderBanner(context),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _renderEditor(controller),
-              const VSpace(10),
-              _renderToolbar(controller),
-              const VSpace(10),
-            ],
-          ),
-        ),
+        _renderAppFlowyEditor(controller),
       ],
     );
   }
@@ -101,7 +90,26 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
+  // FIXME: data persistence
+  final EditorState _editorState = EditorState.empty();
+  Widget _renderAppFlowyEditor(quill.QuillController controller) {
+    final editor = AppFlowyEditor(
+      editorState: _editorState,
+      editorStyle: customEditorStyle(context),
+    );
+    return Expanded(
+      child: SizedBox.expand(
+        child: Container(
+          color: Colors.red.withOpacity(0.3),
+          child: editor,
+        ),
+      ),
+    );
+  }
+
   Widget _renderEditor(quill.QuillController controller) {
+    final scrollController = ScrollController();
+
     final editor = quill.QuillEditor(
       controller: controller,
       focusNode: _focusNode,
@@ -117,12 +125,7 @@ class _DocumentPageState extends State<DocumentPage> {
     );
 
     return Expanded(
-      child: ScrollbarListStack(
-        axis: Axis.vertical,
-        controller: scrollController,
-        barSize: 6.0,
-        child: SizedBox.expand(child: editor),
-      ),
+      child: SizedBox.expand(child: editor),
     );
   }
 
