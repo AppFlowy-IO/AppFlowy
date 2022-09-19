@@ -27,7 +27,7 @@ Widget build(BuildContext context) {
 
 At this point, nothing magic will happen after typing `_xxx_`.
 
-![Before](./images/customizing_a_shortcut_event_before.gif)
+![Before](./images/customize_a_shortcut_event_before.gif)
 
 To implement our shortcut event we will create a `ShortcutEvent` instance to handle an underscore input.
 
@@ -39,11 +39,10 @@ We need to define `key` and `command` in a ShortCutEvent object to customize hot
 ```dart
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 ShortcutEvent underscoreToItalicEvent = ShortcutEvent(
   key: 'Underscore to italic',
-  command: 'underscore',
+  command: 'shift+underscore',
   handler: _underscoreToItalicHandler,
 );
 
@@ -82,9 +81,12 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
 
   final textNode = textNodes.first;
   final text = textNode.toRawString();
-  // Determine if an 'underscore' already exists in the text node
-  final previousUnderscore = text.indexOf('_');
-  if (previousUnderscore == -1) {
+  // Determine if an 'underscore' already exists in the text node and only once.
+  final firstUnderscore = text.indexOf('_');
+  final lastUnderscore = text.lastIndexOf('_');
+  if (firstUnderscore == -1 ||
+      firstUnderscore != lastUnderscore ||
+      firstUnderscore == selection.start.offset - 1) {
     return KeyEventResult.ignored;
   }
 
@@ -92,15 +94,20 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
   // update the style of the text surrounded by the two underscores to 'italic',
   // and update the cursor position.
   TransactionBuilder(editorState)
-    ..deleteText(textNode, previousUnderscore, 1)
+    ..deleteText(textNode, firstUnderscore, 1)
     ..formatText(
       textNode,
-      previousUnderscore,
-      selection.end.offset - previousUnderscore - 1,
-      {'italic': true},
+      firstUnderscore,
+      selection.end.offset - firstUnderscore - 1,
+      {
+        BuiltInAttributeKey.italic: true,
+      },
     )
     ..afterSelection = Selection.collapsed(
-      Position(path: textNode.path, offset: selection.end.offset - 1),
+      Position(
+        path: textNode.path,
+        offset: selection.end.offset - 1,
+      ),
     )
     ..commit();
 
@@ -121,7 +128,7 @@ Widget build(BuildContext context) {
         editorStyle: EditorStyle.defaultStyle(),
         customBuilders: const {},
         shortcutEvents: [
-            _underscoreToItalicHandler,
+          underscoreToItalic,
         ],
       ),
     ),
@@ -129,9 +136,9 @@ Widget build(BuildContext context) {
 }
 ```
 
-![After](./images/customizing_a_shortcut_event_after.gif)
+![After](./images/customize_a_shortcut_event_after.gif)
 
-Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/underscore_to_italic_key_event_handler.dart) file of this example.
+Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/underscore_to_italic.dart) file of this example.
 
 
 ## Customizing a Component
@@ -297,7 +304,7 @@ return AppFlowyEditor(
 );
 ```
 
-![Whew!](./images/customizing_a_component.gif)
+![Whew!](./images/customize_a_component.gif)
 
 Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/network_image_node_widget.dart) file of this example.
 
