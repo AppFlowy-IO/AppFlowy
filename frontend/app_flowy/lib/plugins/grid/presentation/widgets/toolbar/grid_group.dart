@@ -99,7 +99,6 @@ class _GridGroupCell extends StatelessWidget {
                 ),
               );
           onSelected();
-          // FlowyOverlay.of(context).remove(GridGroupList.identifier());
         },
       ),
     );

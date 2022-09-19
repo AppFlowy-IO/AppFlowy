@@ -130,7 +130,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             ),
           );
 
-          return AppFlowyStylePopover(
+          return AppFlowyPopover(
             controller: _popoverController,
             constraints: BoxConstraints.loose(const Size(300, 160)),
             direction: PopoverDirection.bottomWithLeftAligned,
@@ -216,7 +216,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,

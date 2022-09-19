@@ -116,7 +116,7 @@ class _GridPropertyCell extends StatelessWidget {
   }
 
   Widget _editFieldButton(AppTheme theme, BuildContext context) {
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       mutex: popoverMutex,
       triggerActions: PopoverTriggerActionFlags.click,
       offset: const Offset(20, 0),

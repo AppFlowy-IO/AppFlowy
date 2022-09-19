@@ -243,7 +243,7 @@ class _DeleteFieldButton extends StatelessWidget {
   }
 
   Widget _wrapPopover(Widget widget) {
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       triggerActions: PopoverTriggerActionFlags.click,
       constraints: BoxConstraints.loose(const Size(400, 240)),
       mutex: popoverMutex,

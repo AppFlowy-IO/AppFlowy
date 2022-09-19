@@ -176,7 +176,7 @@ class CreateFieldButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       triggerActions: PopoverTriggerActionFlags.click,
       direction: PopoverDirection.bottomWithRightAligned,
       constraints: BoxConstraints.loose(const Size(240, 200)),

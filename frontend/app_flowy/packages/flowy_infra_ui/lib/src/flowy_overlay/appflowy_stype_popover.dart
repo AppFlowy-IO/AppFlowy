@@ -2,7 +2,7 @@ import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:appflowy_popover/popover.dart';
 import 'package:flutter/material.dart';
 
-class AppFlowyStylePopover extends StatelessWidget {
+class AppFlowyPopover extends StatelessWidget {
   final Widget child;
   final PopoverController? controller;
   final Widget Function(BuildContext context) popupBuilder;
@@ -13,7 +13,7 @@ class AppFlowyStylePopover extends StatelessWidget {
   final PopoverMutex? mutex;
   final Offset? offset;
 
-  const AppFlowyStylePopover({
+  const AppFlowyPopover({
     Key? key,
     required this.child,
     required this.popupBuilder,

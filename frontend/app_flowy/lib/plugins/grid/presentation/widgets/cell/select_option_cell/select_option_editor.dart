@@ -148,11 +148,7 @@ class _TextField extends StatelessWidget {
             selectedOptionMap: optionMap,
             distanceToText: _editorPanelWidth * 0.7,
             tagController: _tagController,
-            onClick: () {
-              popoverMutex.close();
-              // FlowyOverlay.of(context)
-              //     .remove(SelectOptionTypeOptionEditor.identifier);
-            },
+            onClick: () => popoverMutex.close(),
             newText: (text) {
               context
                   .read<SelectOptionCellEditorBloc>()
@@ -244,7 +240,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       controller: _popoverController,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(200, 300)),

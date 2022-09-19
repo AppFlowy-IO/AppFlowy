@@ -40,7 +40,6 @@ class GridSettingList extends StatelessWidget {
             previous.selectedAction != current.selectedAction,
         listener: (context, state) {
           state.selectedAction.foldLeft(null, (_, action) {
-            FlowyOverlay.of(context).remove(identifier());
             onAction(action, settingContext);
           });
         },

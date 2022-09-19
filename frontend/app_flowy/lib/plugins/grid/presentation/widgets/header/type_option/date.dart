@@ -62,7 +62,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderDateFormatButton(BuildContext context, DateFormat dataFormat) {
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       mutex: popoverMutex,
       triggerActions:
           PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
@@ -84,7 +84,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       mutex: popoverMutex,
       triggerActions:
           PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,

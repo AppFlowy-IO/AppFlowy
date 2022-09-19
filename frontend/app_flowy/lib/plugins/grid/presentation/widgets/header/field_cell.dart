@@ -30,7 +30,7 @@ class GridFieldCell extends StatelessWidget {
       },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
-          final button = AppFlowyStylePopover(
+          final button = AppFlowyPopover(
             constraints: BoxConstraints.loose(const Size(240, 840)),
             direction: PopoverDirection.bottomWithLeftAligned,
             triggerActions: PopoverTriggerActionFlags.click,

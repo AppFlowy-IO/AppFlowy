@@ -194,7 +194,7 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
 
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(240, 200)),
       controller: popoverController,
       triggerActions: PopoverTriggerActionFlags.click,

@@ -1,15 +1,17 @@
 import 'package:app_flowy/plugins/board/application/card/card_bloc.dart';
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_action_sheet.dart';
+import 'package:appflowy_popover/popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'board_cell.dart';
 import 'card_cell_builder.dart';
-import 'card_container.dart';
+import 'container/accessory.dart';
+import 'container/card_container.dart';
 
 class BoardCard extends StatefulWidget {
   final String gridId;
@@ -38,6 +40,8 @@ class BoardCard extends StatefulWidget {
 class _BoardCardState extends State<BoardCard> {
   late BoardCardBloc _cardBloc;
   late EditableRowNotifier rowNotifier;
+  late PopoverController popoverController;
+  AccessoryType? accessoryType;
 
   @override
   void initState() {
@@ -54,6 +58,7 @@ class _BoardCardState extends State<BoardCard> {
       _cardBloc.add(BoardCardEvent.setIsEditing(rowNotifier.isEditing.value));
     });
 
+    popoverController = PopoverController();
     super.initState();
   }
 
@@ -64,37 +69,71 @@ class _BoardCardState extends State<BoardCard> {
       child: BlocBuilder<BoardCardBloc, BoardCardState>(
         buildWhen: (previous, current) {
           // Rebuild when:
-          // 1.If the lenght of the cells is not the same
+          // 1.If the length of the cells is not the same
           // 2.isEditing changed
           if (previous.cells.length != current.cells.length ||
               previous.isEditing != current.isEditing) {
             return true;
           }
 
-          // 3.Compare the content of the cells. The cells consisits of
+          // 3.Compare the content of the cells. The cells consists of
           // list of [BoardCellEquatable] that extends the [Equatable].
           return !listEquals(previous.cells, current.cells);
         },
         builder: (context, state) {
-          return BoardCardContainer(
-            buildAccessoryWhen: () => state.isEditing == false,
-            accessoryBuilder: (context) {
-              return [
-                _CardEditOption(rowNotifier: rowNotifier),
-                const _CardMoreOption(),
-              ];
-            },
-            onTap: (context) => widget.openCard(context),
-            child: _CellColumn(
-              groupId: widget.groupId,
-              rowNotifier: rowNotifier,
-              cellBuilder: widget.cellBuilder,
-              cells: state.cells,
+          return AppFlowyPopover(
+            controller: popoverController,
+            constraints: BoxConstraints.loose(const Size(140, 200)),
+            direction: PopoverDirection.rightWithCenterAligned,
+            popupBuilder: (popoverContext) => _handlePopoverBuilder(
+              context,
+              popoverContext,
+            ),
+            child: BoardCardContainer(
+              buildAccessoryWhen: () => state.isEditing == false,
+              accessoryBuilder: (context) {
+                return [
+                  _CardEditOption(rowNotifier: rowNotifier),
+                  _CardMoreOption(),
+                ];
+              },
+              openAccessory: _handleOpenAccessory,
+              openCard: (context) => widget.openCard(context),
+              child: _CellColumn(
+                groupId: widget.groupId,
+                rowNotifier: rowNotifier,
+                cellBuilder: widget.cellBuilder,
+                cells: state.cells,
+              ),
             ),
           );
         },
       ),
     );
+  }
+
+  void _handleOpenAccessory(AccessoryType newAccessoryType) {
+    accessoryType = newAccessoryType;
+    switch (newAccessoryType) {
+      case AccessoryType.edit:
+        break;
+      case AccessoryType.more:
+        popoverController.show();
+        break;
+    }
+  }
+
+  Widget _handlePopoverBuilder(
+    BuildContext context,
+    BuildContext popoverContext,
+  ) {
+    switch (accessoryType!) {
+      case AccessoryType.edit:
+        throw UnimplementedError();
+      case AccessoryType.more:
+        return GridRowActionSheet(
+            rowData: context.read<BoardCardBloc>().rowInfo());
+    }
   }
 
   @override
@@ -163,7 +202,7 @@ class _CellColumn extends StatelessWidget {
 }
 
 class _CardMoreOption extends StatelessWidget with CardAccessory {
-  const _CardMoreOption({Key? key}) : super(key: key);
+  _CardMoreOption({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -175,11 +214,7 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
   }
 
   @override
-  void onTap(BuildContext context) {
-    GridRowActionSheet(
-      rowData: context.read<BoardCardBloc>().rowInfo(),
-    ).show(context, direction: AnchorDirection.bottomWithCenterAligned);
-  }
+  AccessoryType get type => AccessoryType.more;
 }
 
 class _CardEditOption extends StatelessWidget with CardAccessory {
@@ -201,7 +236,8 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
   }
 
   @override
-  void onTap(BuildContext context) {
-    rowNotifier.becomeFirstResponder();
-  }
+  void onTap(BuildContext context) => rowNotifier.becomeFirstResponder();
+
+  @override
+  AccessoryType get type => AccessoryType.edit;
 }
