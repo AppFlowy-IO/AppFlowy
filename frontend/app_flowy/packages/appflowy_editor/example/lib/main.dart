@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         AppFlowyEditorLocalizations.delegate,
       ],
-      supportedLocales: AppFlowyEditorLocalizations.delegate.supportedLocales,
+      supportedLocales: const [Locale('en', 'US')],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
