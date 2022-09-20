@@ -139,6 +139,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.keyZ) {
       return PhysicalKeyboardKey.keyZ;
     }
+    if (this == LogicalKeyboardKey.asterisk) {
+      return PhysicalKeyboardKey.digit8;
+    }
     throw UnimplementedError();
   }
 }
