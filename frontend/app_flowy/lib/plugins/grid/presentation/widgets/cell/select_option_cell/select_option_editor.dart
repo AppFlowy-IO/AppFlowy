@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/select_option_editor_bloc.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -243,6 +243,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
     return AppFlowyPopover(
       controller: _popoverController,
       offset: const Offset(20, 0),
+      asBarrier: true,
       constraints: BoxConstraints.loose(const Size(200, 300)),
       mutex: widget.popoverMutex,
       child: SizedBox(

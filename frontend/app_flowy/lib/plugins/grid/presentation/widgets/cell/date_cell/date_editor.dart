@@ -1,7 +1,7 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -300,8 +300,7 @@ class _DateTypeOptionButton extends StatelessWidget {
       selector: (state) => state.dateTypeOptionPB,
       builder: (context, dateTypeOptionPB) {
         return AppFlowyPopover(
-          triggerActions:
-              PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+          triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
           offset: const Offset(20, 0),
           constraints: BoxConstraints.loose(const Size(140, 100)),
           child: FlowyButton(
@@ -340,36 +339,30 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [
-      Popover(
+      AppFlowyPopover(
         mutex: _popoverMutex,
-        triggerActions:
-            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+        asBarrier: true,
+        triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
-          return OverlayContainer(
-            constraints: BoxConstraints.loose(const Size(460, 440)),
-            child: DateFormatList(
-              selectedFormat: widget.dateTypeOptionPB.dateFormat,
-              onSelected: (format) =>
-                  widget.onEvent(DateCalEvent.setDateFormat(format)),
-            ),
+          return DateFormatList(
+            selectedFormat: widget.dateTypeOptionPB.dateFormat,
+            onSelected: (format) =>
+                widget.onEvent(DateCalEvent.setDateFormat(format)),
           );
         },
         child: const DateFormatButton(),
       ),
-      Popover(
+      AppFlowyPopover(
         mutex: _popoverMutex,
-        triggerActions:
-            PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+        asBarrier: true,
+        triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
-          return OverlayContainer(
-            constraints: BoxConstraints.loose(const Size(460, 440)),
-            child: TimeFormatList(
-              selectedFormat: widget.dateTypeOptionPB.timeFormat,
-              onSelected: (format) =>
-                  widget.onEvent(DateCalEvent.setTimeFormat(format)),
-            ),
+          return TimeFormatList(
+            selectedFormat: widget.dateTypeOptionPB.timeFormat,
+            onSelected: (format) =>
+                widget.onEvent(DateCalEvent.setTimeFormat(format)),
           );
         },
         child: TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),

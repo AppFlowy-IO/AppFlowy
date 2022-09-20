@@ -1,5 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/select_option_type_option_bloc.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -184,6 +184,7 @@ class _OptionCellState extends State<_OptionCell> {
       controller: _popoverController,
       mutex: widget.popoverMutex,
       offset: const Offset(20, 0),
+      asBarrier: true,
       constraints: BoxConstraints.loose(const Size(460, 440)),
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
