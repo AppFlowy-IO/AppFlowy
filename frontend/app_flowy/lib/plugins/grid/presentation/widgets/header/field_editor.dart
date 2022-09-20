@@ -201,9 +201,9 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
 
   void listenOnPopoverChanged(BuildContext context) {
     if (_popoverCallback != null) {
-      widget.popoverMutex.removePopoverStateListener(_popoverCallback!);
+      widget.popoverMutex.removePopoverListener(_popoverCallback!);
     }
-    _popoverCallback = widget.popoverMutex.listenOnPopoverStateChanged(() {
+    _popoverCallback = widget.popoverMutex.listenOnPopoverChanged(() {
       if (focusNode.hasFocus) {
         final node = FocusScope.of(context);
         node.unfocus();

@@ -5,14 +5,14 @@ import 'popover.dart';
 /// If multiple popovers are exclusive,
 /// pass the same mutex to them.
 class PopoverMutex {
-  final ValueNotifier<PopoverState?> _stateNotifier = ValueNotifier(null);
+  final _PopoverStateNotifier _stateNotifier = _PopoverStateNotifier();
   PopoverMutex();
 
-  void removePopoverStateListener(VoidCallback listener) {
+  void removePopoverListener(VoidCallback listener) {
     _stateNotifier.removeListener(listener);
   }
 
-  VoidCallback listenOnPopoverStateChanged(VoidCallback callback) {
+  VoidCallback listenOnPopoverChanged(VoidCallback callback) {
     listenerCallback() {
       callback();
     }
@@ -21,24 +21,31 @@ class PopoverMutex {
     return listenerCallback;
   }
 
-  void close() {
-    _stateNotifier.value?.close();
-  }
+  void close() => _stateNotifier.state?.close();
 
-  PopoverState? get state => _stateNotifier.value;
+  PopoverState? get state => _stateNotifier.state;
 
-  set state(PopoverState? newState) {
-    if (_stateNotifier.value != null && _stateNotifier.value != newState) {
-      _stateNotifier.value?.close();
-    }
-    _stateNotifier.value = newState;
-  }
+  set state(PopoverState? newState) => _stateNotifier.state = newState;
 
   void removeState() {
-    _stateNotifier.value = null;
+    _stateNotifier.state = null;
   }
 
   void dispose() {
     _stateNotifier.dispose();
+  }
+}
+
+class _PopoverStateNotifier extends ChangeNotifier {
+  PopoverState? _state;
+
+  PopoverState? get state => _state;
+
+  set state(PopoverState? newState) {
+    if (_state != null && _state != newState) {
+      _state?.close();
+    }
+    _state = newState;
+    notifyListeners();
   }
 }
