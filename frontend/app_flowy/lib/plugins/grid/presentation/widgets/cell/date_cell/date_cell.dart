@@ -58,7 +58,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
   Widget build(BuildContext context) {
     final alignment = widget.cellStyle != null
         ? widget.cellStyle!.alignment
-        : Alignment.center;
+        : Alignment.centerLeft;
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
@@ -77,7 +77,10 @@ class _DateCellState extends GridCellState<GridDateCell> {
                   cursor: SystemMouseCursors.click,
                   child: Align(
                     alignment: alignment,
-                    child: FlowyText.medium(state.dateStr, fontSize: 12),
+                    child: FlowyText.medium(
+                      state.dateStr,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
               ),

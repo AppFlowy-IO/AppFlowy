@@ -86,42 +86,6 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
   }
 }
 
-class PopoverAlertView extends StatelessWidget {
-  final String title;
-  final void Function()? cancel;
-  final void Function()? confirm;
-
-  const PopoverAlertView({
-    required this.title,
-    this.confirm,
-    this.cancel,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    return StyledDialog(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          ...[
-            FlowyText.medium(title, color: theme.shader4),
-          ],
-          if (confirm != null) ...[
-            const VSpace(20),
-            OkCancelButton(
-              onOkPressed: confirm,
-              onCancelPressed: cancel,
-            )
-          ]
-        ],
-      ),
-    );
-  }
-}
-
 class NavigatorAlertDialog extends StatefulWidget {
   final String title;
   final void Function()? cancel;

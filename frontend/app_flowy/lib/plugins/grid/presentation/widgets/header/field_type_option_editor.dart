@@ -65,7 +65,7 @@ class FieldTypeOptionEditor extends StatelessWidget {
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: AppFlowyPopover(
-        constraints: BoxConstraints.loose(const Size(460, 440)),
+        constraints: BoxConstraints.loose(const Size(460, 540)),
         asBarrier: true,
         triggerActions: PopoverTriggerFlags.click | PopoverTriggerFlags.hover,
         mutex: popoverMutex,
