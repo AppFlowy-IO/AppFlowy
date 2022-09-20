@@ -120,7 +120,7 @@ class _GridPropertyCell extends StatelessWidget {
       mutex: popoverMutex,
       triggerActions: PopoverTriggerFlags.click,
       offset: const Offset(20, 0),
-      constraints: BoxConstraints.loose(const Size(240, 200)),
+      constraints: BoxConstraints.loose(const Size(240, 400)),
       child: FlowyButton(
         text: FlowyText.medium(fieldContext.name, fontSize: 12),
         hoverColor: theme.hover,

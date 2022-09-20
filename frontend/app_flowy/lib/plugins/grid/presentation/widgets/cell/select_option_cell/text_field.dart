@@ -49,8 +49,14 @@ class SelectOptionTextField extends StatelessWidget {
       initialTags: selectedOptionMap.keys.toList(),
       focusNode: _focusNode,
       textSeparators: const [','],
-      inputfieldBuilder: (BuildContext context, editController, focusNode,
-          error, onChanged, onSubmitted) {
+      inputfieldBuilder: (
+        BuildContext context,
+        editController,
+        focusNode,
+        error,
+        onChanged,
+        onSubmitted,
+      ) {
         return ((context, sc, tags, onTagDelegate) {
           return TextField(
             autofocus: true,
