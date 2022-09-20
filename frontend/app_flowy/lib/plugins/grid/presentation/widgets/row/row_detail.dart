@@ -285,6 +285,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
               child: SizedBox(
                 width: 150,
                 child: FieldCellButton(
+                  maxLines: null,
                   field: widget.cellId.fieldContext.field,
                   onTap: () {
                     popover.show();
