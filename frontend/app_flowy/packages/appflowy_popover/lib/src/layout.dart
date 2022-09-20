@@ -323,9 +323,21 @@ class PopoverTargetRenderBox extends RenderProxyBox {
 
   @override
   void detach() {
+    super.detach();
     link.leaderOffset = null;
     link.leaderSize = null;
-    super.detach();
+  }
+
+  @override
+  void attach(covariant PipelineOwner owner) {
+    super.attach(owner);
+    if (hasSize) {
+      // The leaderSize was set after [performLayout], but was
+      // set to null when [detach] get called.
+      //
+      // set the leaderSize when attach get called
+      link.leaderSize = size;
+    }
   }
 
   @override
