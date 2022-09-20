@@ -1,7 +1,6 @@
+import 'dart:async';
 import 'package:appflowy_popover/src/layout.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-
 import 'mask.dart';
 import 'mutex.dart';
 
@@ -68,6 +67,8 @@ class Popover extends StatefulWidget {
 
   final void Function()? onClose;
 
+  final bool asBarrier;
+
   /// The content area of the popover.
   final Widget child;
 
@@ -77,11 +78,14 @@ class Popover extends StatefulWidget {
     required this.popupBuilder,
     this.controller,
     this.offset,
-    this.maskDecoration,
+    this.maskDecoration = const BoxDecoration(
+      color: Color.fromARGB(0, 244, 67, 54),
+    ),
     this.triggerActions = 0,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.mutex,
     this.onClose,
+    this.asBarrier = false,
   }) : super(key: key);
 
   @override
@@ -89,11 +93,9 @@ class Popover extends StatefulWidget {
 }
 
 class PopoverState extends State<Popover> {
+  static final RootOverlayEntry _rootEntry = RootOverlayEntry();
   final PopoverLink popoverLink = PopoverLink();
-  OverlayEntry? _overlayEntry;
-  bool hasMask = true;
-
-  static PopoverState? _popoverWithMask;
+  Timer? _debounceEnterRegionAction;
 
   @override
   void initState() {
@@ -107,62 +109,49 @@ class PopoverState extends State<Popover> {
     if (widget.mutex != null) {
       widget.mutex?.state = this;
     }
-
-    if (_popoverWithMask == null) {
-      _popoverWithMask = this;
-    } else {
-      // hasMask = false;
-    }
-
+    final shouldAddMask = _rootEntry.isEmpty;
     final newEntry = OverlayEntry(builder: (context) {
       final children = <Widget>[];
-
-      if (hasMask) {
-        children.add(PopoverMask(
-          decoration: widget.maskDecoration,
-          onTap: () => close(),
-          onExit: () => close(),
-        ));
+      if (shouldAddMask) {
+        children.add(
+          PopoverMask(
+            decoration: widget.maskDecoration,
+            onTap: () => _removeRootOverlay(),
+            onExit: () => _removeRootOverlay(),
+          ),
+        );
       }
 
-      children.add(PopoverContainer(
-        direction: widget.direction,
-        popoverLink: popoverLink,
-        offset: widget.offset ?? Offset.zero,
-        popupBuilder: widget.popupBuilder,
-        onClose: () => close(),
-        onCloseAll: () => closeAll(),
-      ));
+      children.add(
+        PopoverContainer(
+          direction: widget.direction,
+          popoverLink: popoverLink,
+          offset: widget.offset ?? Offset.zero,
+          popupBuilder: widget.popupBuilder,
+          onClose: () => close(),
+          onCloseAll: () => _removeRootOverlay(),
+        ),
+      );
 
       return Stack(children: children);
     });
 
-    _overlayEntry = newEntry;
-
-    final OverlayState s = Overlay.of(context)!;
-
-    Overlay.of(context)?.insert(newEntry);
+    _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
   }
 
   void close() {
-    if (_overlayEntry != null) {
-      _overlayEntry!.remove();
-      _overlayEntry = null;
-
-      if (_popoverWithMask == this) {
-        _popoverWithMask = null;
-      }
-
+    if (_rootEntry.contains(this)) {
+      _rootEntry.removeEntry(this);
       widget.onClose?.call();
     }
+  }
+
+  void _removeRootOverlay() {
+    _rootEntry.popEntry();
 
     if (widget.mutex?.state == this) {
       widget.mutex?.removeState();
     }
-  }
-
-  void closeAll() {
-    _popoverWithMask?.close();
   }
 
   @override
@@ -185,10 +174,17 @@ class PopoverState extends State<Popover> {
     }
 
     return MouseRegion(
-      onEnter: (PointerEnterEvent event) {
-        if (widget.triggerActions & PopoverTriggerFlags.hover != 0) {
-          showOverlay();
-        }
+      onEnter: (event) {
+        _debounceEnterRegionAction =
+            Timer(const Duration(milliseconds: 200), () {
+          if (widget.triggerActions & PopoverTriggerFlags.hover != 0) {
+            showOverlay();
+          }
+        });
+      },
+      onExit: (event) {
+        _debounceEnterRegionAction?.cancel();
+        _debounceEnterRegionAction = null;
       },
       child: Listener(
         child: widget.child,

@@ -341,6 +341,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
     List<Widget> children = [
       Popover(
         mutex: _popoverMutex,
+        asBarrier: true,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
@@ -357,6 +358,7 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
       ),
       Popover(
         mutex: _popoverMutex,
+        asBarrier: true,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
