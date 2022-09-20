@@ -274,7 +274,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
                 offset: const Offset(20, 0),
                 popupBuilder: (popoverContext) {
                   return OverlayContainer(
-                    constraints: BoxConstraints.loose(const Size(240, 200)),
+                    constraints: BoxConstraints.loose(const Size(240, 600)),
                     child: FieldEditor(
                       gridId: widget.cellId.gridId,
                       fieldName: widget.cellId.fieldContext.field.name,

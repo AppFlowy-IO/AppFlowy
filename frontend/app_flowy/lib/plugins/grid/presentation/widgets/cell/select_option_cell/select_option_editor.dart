@@ -243,6 +243,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
     return AppFlowyPopover(
       controller: _popoverController,
       offset: const Offset(20, 0),
+      asBarrier: true,
       constraints: BoxConstraints.loose(const Size(200, 300)),
       mutex: widget.popoverMutex,
       child: SizedBox(

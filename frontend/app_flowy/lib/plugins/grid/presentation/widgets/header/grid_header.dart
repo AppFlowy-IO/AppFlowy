@@ -179,7 +179,8 @@ class CreateFieldButton extends StatelessWidget {
     return AppFlowyPopover(
       triggerActions: PopoverTriggerFlags.click,
       direction: PopoverDirection.bottomWithRightAligned,
-      constraints: BoxConstraints.loose(const Size(240, 200)),
+      asBarrier: true,
+      constraints: BoxConstraints.loose(const Size(240, 600)),
       child: FlowyButton(
         text: FlowyText.medium(
           LocaleKeys.grid_field_newColumn.tr(),

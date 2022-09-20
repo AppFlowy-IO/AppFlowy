@@ -339,36 +339,30 @@ class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [
-      Popover(
+      AppFlowyPopover(
         mutex: _popoverMutex,
         asBarrier: true,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
-          return OverlayContainer(
-            constraints: BoxConstraints.loose(const Size(460, 440)),
-            child: DateFormatList(
-              selectedFormat: widget.dateTypeOptionPB.dateFormat,
-              onSelected: (format) =>
-                  widget.onEvent(DateCalEvent.setDateFormat(format)),
-            ),
+          return DateFormatList(
+            selectedFormat: widget.dateTypeOptionPB.dateFormat,
+            onSelected: (format) =>
+                widget.onEvent(DateCalEvent.setDateFormat(format)),
           );
         },
         child: const DateFormatButton(),
       ),
-      Popover(
+      AppFlowyPopover(
         mutex: _popoverMutex,
         asBarrier: true,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
-          return OverlayContainer(
-            constraints: BoxConstraints.loose(const Size(460, 440)),
-            child: TimeFormatList(
-              selectedFormat: widget.dateTypeOptionPB.timeFormat,
-              onSelected: (format) =>
-                  widget.onEvent(DateCalEvent.setTimeFormat(format)),
-            ),
+          return TimeFormatList(
+            selectedFormat: widget.dateTypeOptionPB.timeFormat,
+            onSelected: (format) =>
+                widget.onEvent(DateCalEvent.setTimeFormat(format)),
           );
         },
         child: TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),

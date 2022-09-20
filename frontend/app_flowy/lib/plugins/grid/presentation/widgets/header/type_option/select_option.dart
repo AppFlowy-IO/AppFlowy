@@ -184,6 +184,7 @@ class _OptionCellState extends State<_OptionCell> {
       controller: _popoverController,
       mutex: widget.popoverMutex,
       offset: const Offset(20, 0),
+      asBarrier: true,
       constraints: BoxConstraints.loose(const Size(460, 440)),
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
