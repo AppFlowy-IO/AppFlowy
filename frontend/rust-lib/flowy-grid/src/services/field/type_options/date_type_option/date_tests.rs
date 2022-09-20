@@ -49,6 +49,13 @@ mod tests {
                         "May 27,2022 23:00",
                         &field_rev,
                     );
+                    assert_date(
+                        &type_option,
+                        1653609600,
+                        Some("8:00".to_owned()),
+                        "May 27,2022 08:00",
+                        &field_rev,
+                    );
                 }
                 TimeFormat::TwelveHour => {
                     assert_date(&type_option, 1653609600, None, "May 27,2022", &field_rev);
@@ -59,10 +66,32 @@ mod tests {
                         "May 27,2022 11:23 PM",
                         &field_rev,
                     );
+                    assert_date(
+                        &type_option,
+                        1653609600,
+                        Some("9:00 am".to_owned()),
+                        "May 27,2022 09:00 AM",
+                        &field_rev,
+                    );
                 }
             }
         }
     }
+
+    // #[test]
+    // fn date_type_midnight_include_time_str_test() {
+    //     let mut type_option = DateTypeOptionPB::new();
+    //     type_option.include_time = true;
+    //     let field_type = FieldType::DateTime;
+    //     let field_rev = FieldBuilder::from_field_type(&field_type).build();
+    //     assert_date(
+    //         &type_option,
+    //         1653609600,
+    //         Some("00:00".to_owned()),
+    //         "May 27,2022 00:00",
+    //         &field_rev,
+    //     );
+    // }
 
     #[test]
     fn date_type_option_invalid_date_str_test() {
@@ -86,6 +115,13 @@ mod tests {
             "May 27,2022 01:00",
             &field_rev,
         );
+        assert_date(
+            &type_option,
+            1653609600,
+            Some("24:00".to_owned()),
+            "May 28,2022 00:00",
+            &field_rev,
+        );
     }
 
     #[test]
@@ -97,7 +133,7 @@ mod tests {
         assert_date(&type_option, 1653609600, Some("".to_owned()), "May 27,2022", &field_rev);
     }
 
-    /// The default time format is TwentyFourHour, so the include_time_str  in twelve_hours_format will cause parser error.
+    /// The default time format is TwentyFourHour, so the include_time_str in twelve_hours_format will cause parser error.
     #[test]
     #[should_panic]
     fn date_type_option_twelve_hours_include_time_str_in_twenty_four_hours_format() {
@@ -113,6 +149,24 @@ mod tests {
             &field_rev,
         );
     }
+
+    #[test]
+    #[should_panic]
+    fn date_type_option_twenty_four_hours_include_time_str_in_twelve_hours_format() {
+        let mut type_option = DateTypeOptionPB::new();
+        type_option.include_time = true;
+        type_option.time_format = TimeFormat::TwelveHour;
+        let field_rev = FieldBuilder::from_field_type(&FieldType::DateTime).build();
+
+        assert_date(
+            &type_option,
+            1653609600,
+            Some("20:00".to_owned()),
+            "May 27,2022 08:00 PM",
+            &field_rev,
+        );
+    }
+
     fn assert_date<T: ToString>(
         type_option: &DateTypeOptionPB,
         timestamp: T,
