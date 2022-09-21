@@ -192,7 +192,6 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(240, 200)),
       controller: popoverController,
-      triggerActions: PopoverTriggerFlags.click,
       direction: PopoverDirection.topWithLeftAligned,
       onClose: widget.onClosed,
       child: Container(

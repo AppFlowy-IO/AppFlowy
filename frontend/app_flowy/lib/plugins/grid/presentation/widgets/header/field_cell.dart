@@ -15,7 +15,7 @@ import 'field_type_extension.dart';
 
 import 'field_cell_action_sheet.dart';
 
-class GridFieldCell extends StatelessWidget {
+class GridFieldCell extends StatefulWidget {
   final GridFieldCellContext cellContext;
   const GridFieldCell({
     Key? key,
@@ -23,26 +23,39 @@ class GridFieldCell extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<GridFieldCell> createState() => _GridFieldCellState();
+}
+
+class _GridFieldCellState extends State<GridFieldCell> {
+  late PopoverController popoverController;
+
+  @override
+  void initState() {
+    popoverController = PopoverController();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return FieldCellBloc(cellContext: cellContext);
+        return FieldCellBloc(cellContext: widget.cellContext);
       },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
           final button = AppFlowyPopover(
+            triggerActions: PopoverTriggerFlags.none,
             constraints: BoxConstraints.loose(const Size(240, 840)),
             direction: PopoverDirection.bottomWithLeftAligned,
-            triggerActions: PopoverTriggerFlags.click,
-            offset: const Offset(0, 10),
+            controller: popoverController,
             popupBuilder: (BuildContext context) {
               return GridFieldCellActionSheet(
-                cellContext: cellContext,
+                cellContext: widget.cellContext,
               );
             },
             child: FieldCellButton(
-              field: cellContext.field,
-              onTap: () {},
+              field: widget.cellContext.field,
+              onTap: () => popoverController.show(),
             ),
           );
 

@@ -17,8 +17,9 @@ class PopoverController {
 }
 
 class PopoverTriggerFlags {
-  static int click = 0x01;
-  static int hover = 0x02;
+  static const int none = 0x00;
+  static const int click = 0x01;
+  static const int hover = 0x02;
 }
 
 enum PopoverDirection {

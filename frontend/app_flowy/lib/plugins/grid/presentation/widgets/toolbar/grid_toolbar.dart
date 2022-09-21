@@ -1,4 +1,3 @@
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_bloc.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -55,7 +54,6 @@ class _SettingButton extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(260, 400)),
-      triggerActions: PopoverTriggerFlags.click,
       offset: const Offset(0, 10),
       child: FlowyIconButton(
         width: 22,
