@@ -141,7 +141,9 @@ mod tests {
             .unwrap();
 
         if type_option.include_time {
-            format!("{}{}", decoded_data.date, decoded_data.time)
+            format!("{} {}", decoded_data.date, decoded_data.time)
+                .trim_end()
+                .to_owned()
         } else {
             decoded_data.date
         }

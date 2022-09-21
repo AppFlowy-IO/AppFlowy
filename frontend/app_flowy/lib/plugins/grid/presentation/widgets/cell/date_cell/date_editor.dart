@@ -261,6 +261,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
             child: RoundedInputField(
               height: 40,
               focusNode: _focusNode,
+              autoFocus: true,
               hintText: state.timeHintText,
               controller: _controller,
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
