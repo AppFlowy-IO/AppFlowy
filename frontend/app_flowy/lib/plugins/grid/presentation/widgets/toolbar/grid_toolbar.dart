@@ -55,7 +55,6 @@ class _SettingButton extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(260, 400)),
-      triggerActions: PopoverTriggerFlags.click,
       offset: const Offset(0, 10),
       child: FlowyIconButton(
         width: 22,

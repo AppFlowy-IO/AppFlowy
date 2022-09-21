@@ -102,10 +102,8 @@ class _GridHeaderState extends State<_GridHeader> {
             .where((field) => field.visibility)
             .map((field) =>
                 GridFieldCellContext(gridId: widget.gridId, field: field.field))
-            .map((ctx) => GridFieldCell(
-                  key: _getKeyById(ctx.field.id),
-                  cellContext: ctx,
-                ))
+            .map((ctx) =>
+                GridFieldCell(key: _getKeyById(ctx.field.id), cellContext: ctx))
             .toList();
 
         return Container(
@@ -115,6 +113,7 @@ class _GridHeaderState extends State<_GridHeader> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               scrollController: ScrollController(),
               header: const _CellLeading(),
+              needsLongPressDraggable: false,
               footer: _CellTrailing(gridId: widget.gridId),
               onReorder: (int oldIndex, int newIndex) {
                 _onReorder(cells, oldIndex, context, newIndex);
@@ -177,7 +176,6 @@ class CreateFieldButton extends StatelessWidget {
     final theme = context.watch<AppTheme>();
 
     return AppFlowyPopover(
-      triggerActions: PopoverTriggerFlags.click,
       direction: PopoverDirection.bottomWithRightAligned,
       asBarrier: true,
       constraints: BoxConstraints.loose(const Size(240, 600)),

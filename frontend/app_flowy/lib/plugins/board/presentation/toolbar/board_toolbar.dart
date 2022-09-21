@@ -65,7 +65,6 @@ class _SettingButtonState extends State<_SettingButton> {
     return AppFlowyPopover(
       controller: popoverController,
       constraints: BoxConstraints.loose(const Size(260, 400)),
-      triggerActions: PopoverTriggerFlags.click,
       child: FlowyIconButton(
         hoverColor: theme.hover,
         width: 22,

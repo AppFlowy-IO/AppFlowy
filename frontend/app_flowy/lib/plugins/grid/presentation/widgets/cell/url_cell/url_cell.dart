@@ -220,7 +220,6 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
       constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      triggerActions: PopoverTriggerFlags.click,
       offset: const Offset(0, 20),
       child: svgWidget("editor/edit", color: theme.iconColor),
       popupBuilder: (BuildContext popoverContext) {
