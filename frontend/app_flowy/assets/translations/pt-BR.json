@@ -1,32 +1,32 @@
 {
     "appName": "AppFlowy",
-    "defaultUsername": "Me",
-    "welcomeText": "Bem vindo @:appName",
-    "githubStarText": "Star on GitHub",
-    "subscribeNewsletterText": "Se inscreva na Newsletter",
+    "defaultUsername": "Eu",
+    "welcomeText": "Bem-vindo @:appName",
+    "githubStarText": "Dar uma estrela no Github",
+    "subscribeNewsletterText": "Inscreva-se para receber novidades",
     "letsGoButtonText": "Vamos lá",
     "title": "Título",
     "signUp": {
-      "buttonText": "Se inscreva",
-      "title": "Se inscreva no @:appName",
+      "buttonText": "Inscreva-se",
+      "title": "Inscreva-se no @:appName",
       "getStartedText": "Começar",
       "emptyPasswordError": "Senha não pode estar em branco.",
-      "repeatPasswordEmptyError": "Confirmar a senha não pode estar em branco.",
+      "repeatPasswordEmptyError": "Senha não estar em branco.",
       "unmatchedPasswordError": "As senhas não conferem.",
       "alreadyHaveAnAccount": "Já possui uma conta?",
-      "emailHint": "Email",
-      "passwordHint": "Senha",
+      "emailHint": "E-mail",
+      "passwordHint": "Dica de senha",
       "repeatPasswordHint": "Confirme a senha"
     },
     "signIn": {
-      "loginTitle": "Entre no @:appName",
-      "loginButtonText": "Login",
+      "loginTitle": "Conectar-se ao @:appName",
+      "loginButtonText": "Conectar-se",
       "buttonText": "Entre",
       "forgotPassword": "Esqueceu a senha?",
-      "emailHint": "Email",
+      "emailHint": "E-mail",
       "passwordHint": "Senha",
       "dontHaveAnAccount": "Não possui uma conta?",
-      "repeatPasswordEmptyError": "Confirmar a senha não pode estar em branco.",
+      "repeatPasswordEmptyError": "Senha não pode estar em branco.",
       "unmatchedPasswordError": "As senhas não conferem."
     },
     "workspace": {
@@ -42,7 +42,7 @@
     },
     "disclosureAction": {
       "rename": "Renomear",
-      "delete": "Deletar",
+      "delete": "Apagar",
       "duplicate": "Duplicar"
     },
     "blankPageTitle": "Página em branco",
@@ -50,7 +50,7 @@
     "trash": {
       "text": "Lixeira",
       "restoreAll": "Restaurar todos",
-      "deleteAll": "Deletar todos",
+      "deleteAll": "Apagar tudo",
       "pageHeader": {
         "fileName": "Nome do arquivo",
         "lastModified": "Última modificação",
@@ -59,8 +59,8 @@
     },
     "deletePagePrompt": {
       "text": "Está página está na lixeira",
-      "restore": "Restaurar a oágina",
-      "deletePermanent": "Deletar permanentemente"
+      "restore": "Restaurar a página",
+      "deletePermanent": "Apagar permanentemente"
     },
     "dialogCreatePageNameHint": "Nome da página",
     "questionBubble": {
@@ -68,12 +68,12 @@
       "help": "Ajuda & Suporte",
       "debug": {
         "name": "Informação de depuração",
-        "success": "Copiar informação de debug para o clipboard!",
-        "fail": "Falha em copiar a informação de debug para o clipboard"
+        "success": "Informação de depuração copiada para a área de transferência!",
+        "fail": "Falha ao copiar a informação de depuração para a área de transferência"
       }
     },
     "menuAppHeader": {
-      "addPageTooltip": "Adicione uma nova página.",
+      "addPageTooltip": "Adicionar uma nova página.",
       "defaultNewPageName": "Sem título",
       "renameDialog": "Renomear"
     },
@@ -112,9 +112,9 @@
     },
     "label": {
       "welcome": "Bem vindo!",
-      "firstName": "Primeiro Nome",
-      "middleName": "Nome do Meio",
-      "lastName": "Último Nome",
+      "firstName": "Primeiro nome",
+      "middleName": "Nome do meio",
+      "lastName": "Último nome",
       "stepX": "Passo {X}"
     },
     "oAuth": {
@@ -123,8 +123,8 @@
         "failedMsg": "Verifique se você concluiu o processo de login em seu navegador."
       },
       "google": {
-        "title": "GOOGLE SIGN-IN",
-        "instruction1": "Para importar seus Contatos do Google, você precisará autorizar este aplicativo usando seu navegador web.",
+        "title": "Conexão com o GOOGLE",
+        "instruction1": "Para importar seus Contatos do Google, você precisará autorizar este aplicativo usando seu navegador.",
         "instruction2": "Copie este código para sua área de transferência clicando no ícone ou selecionando o texto:",
         "instruction3": "Navegue até o link a seguir em seu navegador e digite o código acima:",
         "instruction4": "Pressione o botão abaixo ao concluir a inscrição:"
@@ -143,9 +143,7 @@
       }
     },
     "sideBar": {
-      "openSidebar": "Open sidebar",
-      "closeSidebar": "Close sidebar"
+      "openSidebar": "Abrir barra lateral",
+      "closeSidebar": "Fechar barra lateral"
     }
   }
- 
-
