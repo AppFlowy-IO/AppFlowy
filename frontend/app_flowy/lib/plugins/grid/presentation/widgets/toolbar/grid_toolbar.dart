@@ -1,4 +1,3 @@
-import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:app_flowy/plugins/grid/application/setting/setting_bloc.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
