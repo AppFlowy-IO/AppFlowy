@@ -93,8 +93,20 @@
     "highlight": "Выделение"
   },
   "tooltip": {
-    "lightMode": "Переключиться в светлую тему",
-    "darkMode": "Переключиться в тёмную тему"
+    "darkMode": "Переключиться в тёмную тему",
+     "openAsPage": "Открыть как страницу",
+     "addNewRow": "Добавить новую строку",
+     "openMenu": "Открыть меню"
+  },
+  "sideBar": {
+    "closeSidebar": "Закрыть боковое меню",
+    "openSidebar": "Открыть боковое меню"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Заметка экспортирована в Markdown",
+      "path": "Документы/flowy"
+    }
   },
   "contactsPage": {
     "title": "Контакты",
@@ -127,7 +139,7 @@
       "instruction1": "Чтобы импортировать ваши Google Контакты, вам нужно будет авторизовать приложение через браузер.",
       "instruction2": "Скопируйте этот код в буфер обмена (нажав кнопку или выделив текст):",
       "instruction3": "Пройдите по ссылке и введите этот код:",
-      "instruction4": "Нажмите на кнопку, когда завершите вход:"
+      "instruction4": "Нажмите на кнопку ниже, когда завершите вход:"
     }
   },
   "settings": {
@@ -135,18 +147,20 @@
     "menu": {
       "appearance": "Внешний вид",
       "language": "Язык",
+      "user": "Пользователь",
       "open": "Открыть настройки"
     },
     "appearance": {
-      "lightLabel": "Светлая тема",
-      "darkLabel": "Тёмная тема"
+      "lightLabel": "Светлая",
+      "darkLabel": "Тёмная"
     }
   },
   "grid": {
     "settings": {
       "filter": "Фильтр",
       "sortBy": "Сортировать",
-      "Properties": "Свойства"
+      "Properties": "Свойства",
+      "group": "Группировать"
     },
     "field": {
       "hide": "Скрыть",
@@ -155,11 +169,11 @@
       "duplicate": "Дублировать",
       "delete": "Удалить",
       "textFieldName": "Текст",
-      "checkboxFieldName": "Checkbox",
+      "checkboxFieldName": "Чекбокс",
       "dateFieldName": "Дата",
       "numberFieldName": "Число",
       "singleSelectFieldName": "Выбор",
-      "multiSelectFieldName": "Выбор многих",
+      "multiSelectFieldName": "Выбор нескольких",
       "urlFieldName": "URL",
       "numberFormat": " Формат числа",
       "dateFormat": " Формат даты",
@@ -175,13 +189,16 @@
       "addSelectOption": "Добавить вариант",
       "optionTitle": "Варианты",
       "addOption": "Добавить",
-      "editProperty": "Редактировать свойство"
+      "editProperty": "Редактировать свойство",
+      "newColumn": "Добавить колонку",
+      "deleteFieldPromptMessage": "Вы уверены? Свойство будет удалено"
     },
     "row": {
       "duplicate": "Дублировать",
       "delete": "Удалить",
       "textPlaceholder": "Пусто",
-      "copyProperty": "Свойство скопировано"
+      "copyProperty": "Свойство скопировано",
+      "count": "Количество"
     },
     "selectOption": {
       "create": "Создать",
@@ -192,20 +209,25 @@
       "yellowColor": "Желтый",
       "limeColor": "Ярко-зелёный",
       "greenColor": "Зелёный",
-      "aquaColor": "Морской волны",
+      "aquaColor": "Бирюзовый",
       "blueColor": "Синий",
       "deleteTag": "Удалить вариант",
       "colorPanelTitle": "Цвета",
       "panelTitle": "Выберите или создайте вариант",
       "searchOption": "Поиск"
     },
+    "menuName": "Сетка"
+  },
+  "document": {
+    "menuName": "Документ",
     "date": {
       "timeHintTextInTwelveHour": "12:00 AM",
       "timeHintTextInTwentyFourHour": "12:00"
     }
   },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
+  "board": {
+    "column": {
+      "create_new_card": "Создать"
+    }
   }
 }
