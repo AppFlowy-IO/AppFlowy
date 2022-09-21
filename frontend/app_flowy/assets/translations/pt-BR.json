@@ -68,7 +68,7 @@
       "help": "Ajuda & Suporte",
       "debug": {
         "name": "Informação de depuração",
-        "success": "Copiar informação de depuração para a área de transferência!",
+        "success": "Informação de depuração copiada para a área de transferência!",
         "fail": "Falha ao copiar a informação de depuração para a área de transferência"
       }
     },
