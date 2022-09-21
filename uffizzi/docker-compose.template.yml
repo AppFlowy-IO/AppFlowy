@@ -1,0 +1,29 @@
+version: "3"
+
+# Uffizzi extension
+x-uffizzi:
+  ingress:
+    service: loadbalancer
+    port: 8080  
+
+services:
+  app:
+    build: .
+    image: appflowy/appflowy:latest
+    stdin_open: true
+    # tty: true
+    devices:
+      - "/dev/dri:/dev/dri" # fixes MESA-LOADER error
+    environment:
+      - DISPLAY=${DISPLAY}
+      - NO_AT_BRIDGE=1 # fixes dbind-WARNING
+    volumes:
+      - $HOME/.Xauthority:/root/.Xauthority:rw
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /dev/dri:/dev/dri
+      - /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket
+      - appflowy-data:/home/makepkg
+    network_mode: host
+
+volumes:
+  appflowy-data:
