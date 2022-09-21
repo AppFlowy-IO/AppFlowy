@@ -44,23 +44,22 @@ ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString();
+  final text = textNode.toRawString().substring(0, selection.end.offset);
 
   final numberMatch = _numberRegex.firstMatch(text);
-  if (numberMatch != null) {
+
+  if ((_checkboxListSymbols + _unCheckboxListSymbols).contains(text)) {
+    return _toCheckboxList(editorState, textNode);
+  } else if (_bulletedListSymbols.contains(text)) {
+    return _toBulletedList(editorState, textNode);
+  } else if (_countOfSign(text, selection) != 0) {
+    return _toHeadingStyle(editorState, textNode, selection);
+  } else if (numberMatch != null) {
     final matchText = numberMatch.group(0);
     final numText = numberMatch.group(1);
     if (matchText != null && numText != null) {
       return _toNumberList(editorState, textNode, matchText, numText);
     }
-  }
-
-  if ((_checkboxListSymbols + _unCheckboxListSymbols).any(text.startsWith)) {
-    return _toCheckboxList(editorState, textNode);
-  } else if (_bulletedListSymbols.any(text.startsWith)) {
-    return _toBulletedList(editorState, textNode);
-  } else if (_countOfSign(text, selection) != 0) {
-    return _toHeadingStyle(editorState, textNode, selection);
   }
 
   return KeyEventResult.ignored;
@@ -196,7 +195,7 @@ KeyEventResult _toHeadingStyle(
 
 int _countOfSign(String text, Selection selection) {
   for (var i = 6; i >= 0; i--) {
-    if (text.substring(0, selection.end.offset).startsWith('#' * i)) {
+    if (text.substring(0, selection.end.offset).contains('#' * i)) {
       return i;
     }
   }

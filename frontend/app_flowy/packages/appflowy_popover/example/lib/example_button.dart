@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 
 class PopoverMenu extends StatefulWidget {
   const PopoverMenu({Key? key}) : super(key: key);
@@ -41,8 +41,8 @@ class _PopoverMenuState extends State<PopoverMenu> {
                       decoration: null)),
             ),
             Popover(
-              triggerActions: PopoverTriggerActionFlags.hover |
-                  PopoverTriggerActionFlags.click,
+              triggerActions:
+                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
               mutex: popOverMutex,
               offset: const Offset(10, 0),
               popupBuilder: (BuildContext context) {
@@ -54,8 +54,8 @@ class _PopoverMenuState extends State<PopoverMenu> {
               ),
             ),
             Popover(
-              triggerActions: PopoverTriggerActionFlags.hover |
-                  PopoverTriggerActionFlags.click,
+              triggerActions:
+                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
               mutex: popOverMutex,
               offset: const Offset(10, 0),
               popupBuilder: (BuildContext context) {
@@ -86,7 +86,7 @@ class ExampleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Popover(
-      triggerActions: PopoverTriggerActionFlags.click,
+      triggerActions: PopoverTriggerFlags.click,
       offset: offset,
       direction: direction ?? PopoverDirection.rightWithTopAligned,
       child: TextButton(child: Text(label), onPressed: () {}),

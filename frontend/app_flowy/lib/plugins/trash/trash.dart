@@ -140,23 +140,23 @@ class _TrashPageState extends State<TrashPage> {
     return SizedBox(
       height: 36,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           FlowyText.semibold(LocaleKeys.trash_text.tr()),
           const Spacer(),
-          SizedBox.fromSize(
-            size: const Size(102, 30),
+          IntrinsicWidth(
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_restoreAll.tr(),
                   fontSize: 12),
               leftIcon: svgWidget('editor/restore', color: theme.iconColor),
               hoverColor: theme.hover,
-              onTap: () =>
-                  context.read<TrashBloc>().add(const TrashEvent.restoreAll()),
+              onTap: () => context.read<TrashBloc>().add(
+                    const TrashEvent.restoreAll(),
+                  ),
             ),
           ),
           const HSpace(6),
-          SizedBox.fromSize(
-            size: const Size(102, 30),
+          IntrinsicWidth(
             child: FlowyButton(
               text: FlowyText.medium(LocaleKeys.trash_deleteAll.tr(),
                   fontSize: 12),

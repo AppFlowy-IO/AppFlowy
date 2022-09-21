@@ -4,7 +4,7 @@ import 'package:app_flowy/plugins/grid/application/field/type_option/type_option
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -176,10 +176,11 @@ class CreateFieldButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
-    return AppFlowyStylePopover(
-      triggerActions: PopoverTriggerActionFlags.click,
+    return AppFlowyPopover(
+      triggerActions: PopoverTriggerFlags.click,
       direction: PopoverDirection.bottomWithRightAligned,
-      constraints: BoxConstraints.loose(const Size(240, 200)),
+      asBarrier: true,
+      constraints: BoxConstraints.loose(const Size(240, 600)),
       child: FlowyButton(
         text: FlowyText.medium(
           LocaleKeys.grid_field_newColumn.tr(),

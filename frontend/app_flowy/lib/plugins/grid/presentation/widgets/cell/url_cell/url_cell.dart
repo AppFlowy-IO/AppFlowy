@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/url_cell_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -130,7 +130,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             ),
           );
 
-          return AppFlowyStylePopover(
+          return AppFlowyPopover(
             controller: _popoverController,
             constraints: BoxConstraints.loose(const Size(300, 160)),
             direction: PopoverDirection.bottomWithLeftAligned,
@@ -216,11 +216,11 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      triggerActions: PopoverTriggerActionFlags.click,
+      triggerActions: PopoverTriggerFlags.click,
       offset: const Offset(0, 20),
       child: svgWidget("editor/edit", color: theme.iconColor),
       popupBuilder: (BuildContext popoverContext) {

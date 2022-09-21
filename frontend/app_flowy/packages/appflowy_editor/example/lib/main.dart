@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:example/plugin/underscore_to_italic_key_event_handler.dart';
+import 'package:example/plugin/underscore_to_italic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         AppFlowyEditorLocalizations.delegate,
       ],
-      supportedLocales: AppFlowyEditorLocalizations.delegate.supportedLocales,
+      supportedLocales: const [Locale('en', 'US')],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -113,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
               editorState: _editorState!,
               editorStyle: _editorStyle,
               shortcutEvents: [
-                underscoreToItalicEvent,
+                underscoreToItalic,
               ],
             ),
           );
@@ -186,6 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final path = directory.path;
     final file = File('$path/editor.json');
     setState(() {
+      _editorState = null;
       _jsonString = file.readAsString();
     });
   }

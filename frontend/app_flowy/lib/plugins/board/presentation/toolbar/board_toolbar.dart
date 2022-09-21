@@ -1,5 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -62,10 +62,10 @@ class _SettingButtonState extends State<_SettingButton> {
   @override
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       controller: popoverController,
       constraints: BoxConstraints.loose(const Size(260, 400)),
-      triggerActions: PopoverTriggerActionFlags.click,
+      triggerActions: PopoverTriggerFlags.click,
       child: FlowyIconButton(
         hoverColor: theme.hover,
         width: 22,

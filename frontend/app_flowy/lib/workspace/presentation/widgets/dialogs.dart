@@ -1,4 +1,3 @@
-import 'package:appflowy_popover/popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
@@ -81,44 +80,6 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
               Navigator.of(context).pop();
             },
           )
-        ],
-      ),
-    );
-  }
-}
-
-class PopoverAlertView extends StatelessWidget {
-  final PopoverMutex popoverMutex;
-  final String title;
-  final void Function()? cancel;
-  final void Function()? confirm;
-
-  const PopoverAlertView({
-    required this.popoverMutex,
-    required this.title,
-    this.confirm,
-    this.cancel,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    return StyledDialog(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          ...[
-            FlowyText.medium(title, color: theme.shader4),
-          ],
-          if (confirm != null) ...[
-            const VSpace(20),
-            OkCancelButton(
-              onOkPressed: confirm,
-              onCancelPressed: cancel,
-            )
-          ]
         ],
       ),
     );

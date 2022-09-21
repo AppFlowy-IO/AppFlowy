@@ -27,7 +27,7 @@ and the Flutter guide for
 </p>
 
 <div align="center">
-    <img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/images/appflowy-editor-example.gif?raw=true" width = "700" style = "padding: 100"/>
+    <img src="https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/documentation/images/appflowy_editor_example.mp4?raw=true" width = "700" style = "padding: 100"/>
 </div>
 
 ## Key Features
@@ -58,8 +58,6 @@ final editorStyle = EditorStyle.defaultStyle();
 final editorState = EditorState.empty(); // an empty state
 final editor = AppFlowyEditor(
     editorState: editorState,
-    shortcutEvents: const [],
-    customBuilders: const {},
     editorStyle: editorStyle,
 );
 ```
@@ -72,8 +70,6 @@ final editorStyle = EditorStyle.defaultStyle();
 final editorState = EditorState(StateTree.fromJson(data));
 final editor = AppFlowyEditor(
     editorState: editorState,
-    shortcutEvents: const [],
-    customBuilders: const {},
     editorStyle: editorStyle,
 );
 ```
@@ -113,7 +109,7 @@ Please refer to our documentation on customizing AppFlowy for a detailed discuss
 
 Below are some examples of shortcut event customizations:
 
- * [BIUS](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/update_text_style_by_command_x_handler.dart) demonstrates how to make text bold/italic/underline/strikethrough through shortcut keys
+ * [BIUS](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/format_style_handler.dart) demonstrates how to make text bold/italic/underline/strikethrough through shortcut keys
  * [Paste HTML](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/copy_paste_handler.dart) gives you an idea on how to handle pasted styles through shortcut keys
  * Need more examples? Check out [Internal key event handlers](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/service/internal_key_event_handlers)
 

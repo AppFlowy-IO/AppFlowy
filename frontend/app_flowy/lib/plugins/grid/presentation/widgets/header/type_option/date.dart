@@ -11,7 +11,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import '../../../layout/sizes.dart';
 import '../field_type_option_editor.dart';
 import 'builder.dart';
@@ -62,10 +62,10 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderDateFormatButton(BuildContext context, DateFormat dataFormat) {
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       mutex: popoverMutex,
-      triggerActions:
-          PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+      asBarrier: true,
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (popoverContext) {
@@ -75,7 +75,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
             context
                 .read<DateTypeOptionBloc>()
                 .add(DateTypeOptionEvent.didSelectDateFormat(format));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
         );
       },
@@ -84,10 +84,10 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       mutex: popoverMutex,
-      triggerActions:
-          PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+      asBarrier: true,
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (BuildContext popoverContext) {
@@ -97,7 +97,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
             context
                 .read<DateTypeOptionBloc>()
                 .add(DateTypeOptionEvent.didSelectTimeFormat(format));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
         );
       },
@@ -201,12 +201,10 @@ class DateFormatList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = DateFormat.values.map((format) {
       return DateFormatCell(
-          dateFormat: format,
-          onSelected: (format) {
-            onSelected(format);
-            FlowyOverlay.of(context).remove(DateFormatList.identifier());
-          },
-          isSelected: selectedFormat == format);
+        dateFormat: format,
+        onSelected: onSelected,
+        isSelected: selectedFormat == format,
+      );
     }).toList();
 
     return SizedBox(
@@ -223,10 +221,6 @@ class DateFormatList extends StatelessWidget {
         },
       ),
     );
-  }
-
-  static String identifier() {
-    return (DateFormatList).toString();
   }
 }
 
@@ -291,12 +285,10 @@ class TimeFormatList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = TimeFormat.values.map((format) {
       return TimeFormatCell(
-          isSelected: format == selectedFormat,
-          timeFormat: format,
-          onSelected: (format) {
-            onSelected(format);
-            FlowyOverlay.of(context).remove(TimeFormatList.identifier());
-          });
+        isSelected: format == selectedFormat,
+        timeFormat: format,
+        onSelected: onSelected,
+      );
     }).toList();
 
     return SizedBox(
@@ -313,10 +305,6 @@ class TimeFormatList extends StatelessWidget {
         },
       ),
     );
-  }
-
-  static String identifier() {
-    return (TimeFormatList).toString();
   }
 }
 

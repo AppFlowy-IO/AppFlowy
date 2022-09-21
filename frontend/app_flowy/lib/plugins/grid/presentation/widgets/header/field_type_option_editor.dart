@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -64,9 +64,10 @@ class FieldTypeOptionEditor extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
-      child: AppFlowyStylePopover(
-        constraints: BoxConstraints.loose(const Size(460, 440)),
-        triggerActions: PopoverTriggerActionFlags.click,
+      child: AppFlowyPopover(
+        constraints: BoxConstraints.loose(const Size(460, 540)),
+        asBarrier: true,
+        triggerActions: PopoverTriggerFlags.click | PopoverTriggerFlags.hover,
         mutex: popoverMutex,
         offset: const Offset(20, 0),
         popupBuilder: (context) {

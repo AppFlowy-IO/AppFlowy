@@ -1,4 +1,4 @@
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 import "./example_button.dart";
 

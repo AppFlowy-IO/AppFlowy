@@ -1,8 +1,9 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -29,9 +30,10 @@ class GridFieldCell extends StatelessWidget {
       },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
-          final button = Popover(
+          final button = AppFlowyPopover(
+            constraints: BoxConstraints.loose(const Size(240, 840)),
             direction: PopoverDirection.bottomWithLeftAligned,
-            triggerActions: PopoverTriggerActionFlags.click,
+            triggerActions: PopoverTriggerFlags.click,
             offset: const Offset(0, 10),
             popupBuilder: (BuildContext context) {
               return GridFieldCellActionSheet(
@@ -135,9 +137,11 @@ class _DragToExpandLine extends StatelessWidget {
 class FieldCellButton extends StatelessWidget {
   final VoidCallback onTap;
   final FieldPB field;
+  final int? maxLines;
   const FieldCellButton({
     required this.field,
     required this.onTap,
+    this.maxLines = 1,
     Key? key,
   }) : super(key: key);
 
@@ -148,7 +152,11 @@ class FieldCellButton extends StatelessWidget {
       hoverColor: theme.shader6,
       onTap: onTap,
       leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
-      text: FlowyText.medium(field.name, fontSize: 12),
+      text: FlowyText.medium(
+        field.name,
+        fontSize: 12,
+        maxLines: maxLines,
+      ),
       margin: GridSize.cellContentInsets,
     );
   }
