@@ -1,12 +1,6 @@
 name: Build images and deploy with Uffizzi
 
 on:
-  push:
-    branches:
-      - main
-      - master
-      - develop
-      - qa
   pull_request:
     types: [opened, reopened, synchronize, closed]
 
@@ -53,7 +47,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Render Compose File
         run: |
-          APP_FLOWY_IMAGE=$(echo ${{ needs.build-appflowt.outputs.tags }})
+          APP_FLOWY_IMAGE=$(echo ${{ needs.build-appflowy.outputs.tags }})
           export APP_FLOWY_IMAGE
           # Render simple template from environment variables.
           envsubst < docker-compose.template.yml > docker-compose.rendered.yml
@@ -84,8 +78,6 @@ jobs:
     secrets:
       password: ${{ secrets.UFFIZZI_PASSWORD }}
       personal-access-token: ${{ secrets.GHCR_ACCESS_TOKEN }}
-      url-username: admin
-      url-password: ${{ secrets.URL_PASSWORD }}
     permissions:
       contents: read
       pull-requests: write
