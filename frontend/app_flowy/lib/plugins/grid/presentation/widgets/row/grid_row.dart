@@ -106,6 +106,7 @@ class _RowLeadingState extends State<_RowLeading> {
   Widget build(BuildContext context) {
     return AppFlowyPopover(
       controller: popoverController,
+      triggerActions: PopoverTriggerFlags.none,
       constraints: BoxConstraints.loose(const Size(140, 200)),
       direction: PopoverDirection.rightWithCenterAligned,
       popupBuilder: (BuildContext popoverContext) {
