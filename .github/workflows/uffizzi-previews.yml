@@ -20,13 +20,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Checkout git repository
         uses: actions/checkout@v3
-
       - name: Docker metadata
         id: meta
         uses: docker/metadata-action@v3
         with:
           images: ghcr.io/${{ github.repository_owner }}/AppFlowy
-
       - name: Build and Push Image to Githug Container Registry
         uses: docker/build-push-action@v2
         with:
@@ -52,7 +50,6 @@ jobs:
           # Render simple template from environment variables.
           envsubst < docker-compose.template.yml > docker-compose.rendered.yml
           cat docker-compose.rendered.yml
-      
       - name: Hash Rendered Compose File
         id: hash
         run: echo "::set-output name=hash::$(md5sum docker-compose.rendered.yml | awk '{ print $1 }')"
@@ -63,7 +60,6 @@ jobs:
           path: docker-compose.rendered.yml
           key: ${{ steps.hash.outputs.hash }}
 
-    # Create and update test environments with Uffizzi
   deploy-uffizzi-preview:
     name: Use Remote Workflow to Preview on Uffizzi
     needs: render-compose-file
@@ -82,7 +78,6 @@ jobs:
       contents: read
       pull-requests: write
 
-  # Delete test environments with Uffizzi
   delete-uffizzi-preview:
     name: Use Remote Workflow to Delete an Existing Preview
     uses: UffizziCloud/preview-action/.github/workflows/reusable.yaml@v2.1.0
