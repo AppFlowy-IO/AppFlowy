@@ -152,7 +152,8 @@ class AppTheme {
   ThemeData get themeData {
     var t = ThemeData(
       textTheme: TextTheme(bodyText2: TextStyle(color: textColor)),
-      textSelectionTheme: TextSelectionThemeData(cursorColor: main2, selectionHandleColor: main2),
+      textSelectionTheme: TextSelectionThemeData(
+          cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
       iconTheme: IconThemeData(color: shader1),
       canvasColor: shader6,
@@ -179,7 +180,8 @@ class AppTheme {
         toggleableActiveColor: main1);
   }
 
-  Color shift(Color c, double d) => ColorUtils.shiftHsl(c, d * (isDark ? -1 : 1));
+  Color shift(Color c, double d) =>
+      ColorUtils.shiftHsl(c, d * (isDark ? -1 : 1));
 }
 
 class ColorUtils {
@@ -188,14 +190,18 @@ class ColorUtils {
     return hslc.withLightness((hslc.lightness + amt).clamp(0.0, 1.0)).toColor();
   }
 
-  static Color parseHex(String value) => Color(int.parse(value.substring(1, 7), radix: 16) + 0xFF000000);
+  static Color parseHex(String value) =>
+      Color(int.parse(value.substring(1, 7), radix: 16) + 0xFF000000);
 
   static Color blend(Color dst, Color src, double opacity) {
     return Color.fromARGB(
       255,
-      (dst.red.toDouble() * (1.0 - opacity) + src.red.toDouble() * opacity).toInt(),
-      (dst.green.toDouble() * (1.0 - opacity) + src.green.toDouble() * opacity).toInt(),
-      (dst.blue.toDouble() * (1.0 - opacity) + src.blue.toDouble() * opacity).toInt(),
+      (dst.red.toDouble() * (1.0 - opacity) + src.red.toDouble() * opacity)
+          .toInt(),
+      (dst.green.toDouble() * (1.0 - opacity) + src.green.toDouble() * opacity)
+          .toInt(),
+      (dst.blue.toDouble() * (1.0 - opacity) + src.blue.toDouble() * opacity)
+          .toInt(),
     );
   }
 }
