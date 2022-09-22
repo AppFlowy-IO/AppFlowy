@@ -31,7 +31,10 @@ import 'toolbar/board_toolbar.dart';
 
 class BoardPage extends StatelessWidget {
   final ViewPB view;
-  BoardPage({required this.view, Key? key}) : super(key: ValueKey(view.id));
+  BoardPage({
+    required this.view,
+    Key? key,
+  }) : super(key: ValueKey(view.id));
 
   @override
   Widget build(BuildContext context) {

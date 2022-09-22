@@ -120,7 +120,7 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactoryParam<AppBloc, AppPB, void>(
     (app, _) => AppBloc(
       app: app,
-      appService: AppService(appId: app.id),
+      appService: AppService(),
       appListener: AppListener(appId: app.id),
     ),
   );

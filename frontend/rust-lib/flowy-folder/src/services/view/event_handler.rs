@@ -40,7 +40,7 @@ pub(crate) async fn read_view_info_handler(
     controller: AppData<Arc<ViewController>>,
 ) -> DataResult<ViewInfoPB, FlowyError> {
     let view_id: ViewIdPB = data.into_inner();
-    let view_info = controller.read_view_info(view_id.clone()).await?;
+    let view_info = controller.read_view_pb(view_id.clone()).await?;
     data_result(view_info)
 }
 
@@ -62,7 +62,7 @@ pub(crate) async fn delete_view_handler(
 ) -> Result<(), FlowyError> {
     let params: RepeatedViewIdPB = data.into_inner();
     for view_id in &params.items {
-        let _ = view_controller.delete_view(view_id.into()).await;
+        let _ = view_controller.move_view_to_trash(view_id.into()).await;
     }
 
     let trash = view_controller

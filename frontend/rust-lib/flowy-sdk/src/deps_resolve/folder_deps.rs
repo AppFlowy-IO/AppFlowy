@@ -152,15 +152,6 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         })
     }
 
-    fn delete_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
-        let manager = self.0.clone();
-        let view_id = view_id.to_string();
-        FutureResult::new(async move {
-            let _ = manager.close_text_editor(view_id)?;
-            Ok(())
-        })
-    }
-
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
         let manager = self.0.clone();
         let view_id = view_id.to_string();
@@ -226,15 +217,6 @@ impl ViewDataProcessor for GridViewDataProcessor {
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
             let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
-            Ok(())
-        })
-    }
-
-    fn delete_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
-        let grid_manager = self.0.clone();
-        let view_id = view_id.to_string();
-        FutureResult::new(async move {
-            let _ = grid_manager.delete_grid(view_id).await?;
             Ok(())
         })
     }

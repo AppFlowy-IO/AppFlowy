@@ -53,7 +53,9 @@ class TrashPluginDisplay extends PluginDisplay {
   Widget? get rightBarItem => null;
 
   @override
-  Widget buildWidget() => const TrashPage(key: ValueKey('TrashPage'));
+  Widget buildWidget(PluginContext context) => const TrashPage(
+        key: ValueKey('TrashPage'),
+      );
 
   @override
   List<NavigationItem> get navigationItems => [this];

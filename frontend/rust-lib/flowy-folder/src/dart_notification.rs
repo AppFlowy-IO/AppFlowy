@@ -16,6 +16,7 @@ pub(crate) enum FolderNotification {
     ViewUpdated = 31,
     ViewDeleted = 32,
     ViewRestored = 33,
+    ViewMoveToTrash = 34,
     UserUnauthorized = 100,
     TrashUpdated = 1000,
 }

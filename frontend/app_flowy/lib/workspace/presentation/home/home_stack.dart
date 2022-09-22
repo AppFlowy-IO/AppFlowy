@@ -2,7 +2,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/blank/blank.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time/time.dart';
@@ -17,14 +17,21 @@ import 'home_layout.dart';
 
 typedef NavigationCallback = void Function(String id);
 
-class HomeStack extends StatelessWidget {
-  const HomeStack({Key? key, required this.layout}) : super(key: key);
+abstract class HomeStackDelegate {
+  void didDeleteStackWidget(ViewPB view);
+}
 
+class HomeStack extends StatelessWidget {
+  final HomeStackDelegate delegate;
   final HomeLayout layout;
+  const HomeStack({
+    required this.delegate,
+    required this.layout,
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Log.info('HomePage build');
     final theme = context.watch<AppTheme>();
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -34,7 +41,9 @@ class HomeStack extends StatelessWidget {
           child: Container(
             color: theme.surface,
             child: FocusTraversalGroup(
-              child: getIt<HomeStackManager>().stackWidget(),
+              child: getIt<HomeStackManager>().stackWidget(onDeleted: (view) {
+                delegate.didDeleteStackWidget(view);
+              }),
             ),
           ),
         ),
@@ -114,18 +123,18 @@ class HomeStackNotifier extends ChangeNotifier {
       return;
     }
 
-    _plugin.display.notifier?.removeListener(notifyListeners);
+    _plugin.notifier?.isDisplayChanged.addListener(notifyListeners);
     _plugin.dispose();
 
     _plugin = newPlugin;
-    _plugin.display.notifier?.addListener(notifyListeners);
+    _plugin.notifier?.isDisplayChanged.removeListener(notifyListeners);
     notifyListeners();
   }
 
   Plugin get plugin => _plugin;
 }
 
-// HomeStack is initialized as singleton to controll the page stack.
+// HomeStack is initialized as singleton to control the page stack.
 class HomeStackManager {
   final HomeStackNotifier _notifier = HomeStackNotifier();
   HomeStackManager();
@@ -140,7 +149,9 @@ class HomeStackManager {
     _notifier.plugin = newPlugin;
   }
 
-  void setStackWithId(String id) {}
+  void setStackWithId(String id) {
+    // Navigate to the page with id
+  }
 
   Widget stackTopBar({required HomeLayout layout}) {
     return MultiProvider(
@@ -156,18 +167,16 @@ class HomeStackManager {
     );
   }
 
-  Widget stackWidget() {
+  Widget stackWidget({required Function(ViewPB) onDeleted}) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: _notifier),
-      ],
+      providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(builder: (ctx, HomeStackNotifier notifier, child) {
         return FadingIndexedStack(
           index: getIt<PluginSandbox>().indexOf(notifier.plugin.ty),
           children: getIt<PluginSandbox>().supportPluginTypes.map((pluginType) {
             if (pluginType == notifier.plugin.ty) {
               return notifier.plugin.display
-                  .buildWidget()
+                  .buildWidget(PluginContext(onDeleted: onDeleted))
                   .padding(horizontal: 40, vertical: 28);
             } else {
               return const BlankPage();

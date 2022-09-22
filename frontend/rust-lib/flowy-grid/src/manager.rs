@@ -109,17 +109,6 @@ impl GridManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, grid_id), fields(doc_id), err)]
-    pub async fn delete_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
-        let grid_id = grid_id.as_ref();
-        tracing::Span::current().record("grid_id", &grid_id);
-        self.grid_editors.remove(grid_id);
-        self.task_scheduler.write().await.unregister_handler(grid_id);
-        Ok(())
-    }
-
-    // pub fn update_grid_info()
-
     // #[tracing::instrument(level = "debug", skip(self), err)]
     pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
         match self.grid_editors.get(grid_id) {
