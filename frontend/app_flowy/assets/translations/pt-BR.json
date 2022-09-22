@@ -1,149 +1,234 @@
 {
-    "appName": "AppFlowy",
-    "defaultUsername": "Eu",
-    "welcomeText": "Bem-vindo @:appName",
-    "githubStarText": "Dar uma estrela no Github",
-    "subscribeNewsletterText": "Inscreva-se para receber novidades",
-    "letsGoButtonText": "Vamos lá",
-    "title": "Título",
-    "signUp": {
-      "buttonText": "Inscreva-se",
-      "title": "Inscreva-se no @:appName",
-      "getStartedText": "Começar",
-      "emptyPasswordError": "Senha não pode estar em branco.",
-      "repeatPasswordEmptyError": "Senha não estar em branco.",
-      "unmatchedPasswordError": "As senhas não conferem.",
-      "alreadyHaveAnAccount": "Já possui uma conta?",
-      "emailHint": "E-mail",
-      "passwordHint": "Dica de senha",
-      "repeatPasswordHint": "Confirme a senha"
-    },
-    "signIn": {
-      "loginTitle": "Conectar-se ao @:appName",
-      "loginButtonText": "Conectar-se",
-      "buttonText": "Entre",
-      "forgotPassword": "Esqueceu a senha?",
-      "emailHint": "E-mail",
-      "passwordHint": "Senha",
-      "dontHaveAnAccount": "Não possui uma conta?",
-      "repeatPasswordEmptyError": "Senha não pode estar em branco.",
-      "unmatchedPasswordError": "As senhas não conferem."
-    },
-    "workspace": {
-      "create": "Crie uma área de trabalho",
-      "hint": "área de trabalho",
-      "notFoundError": "Área de trabalho não encontrada"
-    },
-    "shareAction": {
-      "buttonText": "Compartilhar",
-      "workInProgress": "Em breve",
-      "markdown": "Markdown",
-      "copyLink": "Copiar o link"
-    },
-    "disclosureAction": {
-      "rename": "Renomear",
-      "delete": "Apagar",
-      "duplicate": "Duplicar"
-    },
-    "blankPageTitle": "Página em branco",
-    "newPageText": "Nova página",
-    "trash": {
-      "text": "Lixeira",
-      "restoreAll": "Restaurar todos",
-      "deleteAll": "Apagar tudo",
-      "pageHeader": {
-        "fileName": "Nome do arquivo",
-        "lastModified": "Última modificação",
-        "created": "Criado"
-      }
-    },
-    "deletePagePrompt": {
-      "text": "Está página está na lixeira",
-      "restore": "Restaurar a página",
-      "deletePermanent": "Apagar permanentemente"
-    },
-    "dialogCreatePageNameHint": "Nome da página",
+  "appName": "AppFlowy",
+  "defaultUsername": "Eu",
+  "welcomeText": "Bem-vindo @:appName",
+  "githubStarText": "Dar uma estrela no Github",
+  "subscribeNewsletterText": "Inscreva-se para receber novidades",
+  "letsGoButtonText": "Vamos lá",
+  "title": "Título",
+  "signUp": {
+    "buttonText": "Inscreva-se",
+    "title": "Inscreva-se no @:appName",
+    "getStartedText": "Começar",
+    "emptyPasswordError": "Senha não pode estar em branco.",
+    "repeatPasswordEmptyError": "Senha não estar em branco.",
+    "unmatchedPasswordError": "As senhas não conferem.",
+    "alreadyHaveAnAccount": "Já possui uma conta?",
+    "emailHint": "E-mail",
+    "passwordHint": "Dica de senha",
+    "repeatPasswordHint": "Confirme a senha"
+  },
+  "signIn": {
+    "loginTitle": "Conectar-se ao @:appName",
+    "loginButtonText": "Conectar-se",
+    "buttonText": "Entre",
+    "forgotPassword": "Esqueceu sua senha?",
+    "emailHint": "E-mail",
+    "passwordHint": "Senha",
+    "dontHaveAnAccount": "Não possui uma conta?",
+    "repeatPasswordEmptyError": "Senha não pode estar em branco.",
+    "unmatchedPasswordError": "As senhas não conferem."
+  },
+  "workspace": {
+    "create": "Crie uma área de trabalho",
+    "hint": "Espaço de trabalho",
+    "notFoundError": "Espaço de trabalho não encontrada"
+  },
+  "shareAction": {
+    "buttonText": "Compartilhar",
+    "workInProgress": "Em breve",
+    "markdown": "Marcador",
+    "copyLink": "Copiar o link"
+  },
+  "disclosureAction": {
+    "rename": "Renomear",
+    "delete": "Apagar",
+    "duplicate": "Duplicar"
+  },
+  "blankPageTitle": "Página em branco",
+  "newPageText": "Nova página",
+  "trash": {
+    "text": "Lixeira",
+    "restoreAll": "Restaurar tudo",
+    "deleteAll": "Apagar tudo",
+    "pageHeader": {
+      "fileName": "Nome do arquivo",
+      "lastModified": "Última modificação",
+      "created": "Criado"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Está página está na lixeira",
+    "restore": "Restaurar a página",
+    "deletePermanent": "Apagar permanentemente"
+  },
+  "dialogCreatePageNameHint": "Nome da página",
     "questionBubble": {
-      "whatsNew": "O que há de novo?",
-      "help": "Ajuda & Suporte",
-      "debug": {
-        "name": "Informação de depuração",
-        "success": "Informação de depuração copiada para a área de transferência!",
-        "fail": "Falha ao copiar a informação de depuração para a área de transferência"
-      }
+    "whatsNew": "O que há de novo?",
+    "help": "Ajuda e Suporte",
+    "debug": {
+    "name": "Informação de depuração",
+    "success": "Informação de depuração copiada para a área de transferência!",
+    "fail": "Falha ao copiar a informação de depuração para a área de transferência"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Adicionar uma nova página.",
+    "defaultNewPageName": "Sem título",
+    "renameDialog": "Renomear"
+  },
+  "toolbar": {
+    "undo": "Desfazer",
+    "redo": "Refazer",
+    "bold": "Negrito",
+    "italic": "Itálico",
+    "underline": "Sublinhado",
+    "strike": "Tachado",
+    "numList": "Lista numerada",
+    "bulletList": "Lista com marcadores",
+    "checkList": "Check list",
+    "inlineCode": "Embutir código",
+    "quote": "Citação em bloco",
+    "header": "Cabeçalho",
+    "highlight": "Realçar"
+  },
+  "tooltip": {
+    "lightMode": "Mudar para o modo claro",
+    "darkMode": "Mudar para o modo escuro",
+    "openAsPage": "Abrir como uma página",
+    "addNewRow": "Adicionar uma nova linha",
+    "openMenu": "Clique para abrir o menu"
+  },
+  "sideBar": {
+    "openSidebar": "Abrir barra lateral",
+    "closeSidebar": "Fechar barra lateral"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Nota exportada como um marcador",
+      "path": "Documentos/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "Contatos",
+    "whatsHappening": "O que está acontecendo essa semana?",
+    "addContact": "Adicionar um contato",
+    "editContact": "Editar um contato"
+  },
+  "button": {
+    "OK": "Ok",
+    "Cancel": "Cancelar",
+    "signIn": "Conectar",
+    "signOut": "Desconectar",
+    "complete": "Completar",
+    "save": "Salvar"
+  },
+  "label": {
+    "welcome": "Welcome!",
+    "firstName": "Nome",
+    "middleName": "Sobrenome",
+    "lastName": "Último nome",
+    "stepX": "Passo {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Erro ao conectar a sua conta.",
+      "failedMsg": "Verifique se você concluiu o processo de conexão em seu navegador."
     },
-    "menuAppHeader": {
-      "addPageTooltip": "Adicionar uma nova página.",
-      "defaultNewPageName": "Sem título",
-      "renameDialog": "Renomear"
+    "google": {
+      "title": "Conexão com o GOOGLE",
+      "instruction1": "Para importar seus Contatos do Google, você precisará autorizar este aplicativo usando seu navegador.",
+      "instruction2": "Copie este código para sua área de transferência clicando no ícone ou selecionando o texto:",
+      "instruction3": "Navegue até o link a seguir em seu navegador e digite o código acima:",
+      "instruction4": "Pressione o botão abaixo ao concluir a inscrição:"
+    }
+  },
+  "settings": {
+    "title": "Configurações",
+    "menu": {
+      "appearance": "Aparência",
+      "language": "Idioma",
+      "user":"Usuário",
+      "open": "Abrir as Configurações"
     },
-    "toolbar": {
-      "undo": "Desfazer",
-      "redo": "Refazer",
-      "bold": "Negrito",
-      "italic": "Itálico",
-      "underline": "Sublinhado",
-      "strike": "Tachado",
-      "numList": "Lista numerada",
-      "bulletList": "Lista com marcadores",
-      "checkList": "Check List",
-      "inlineCode": "Embutir código",
-      "quote": "Citação em bloco",
-      "header": "Cabeçalho",
-      "highlight": "Realçar"
-    },
-    "tooltip": {
-      "lightMode": "Mudar para o modo Claro.",
-      "darkMode": "Mudar para o modo Escuro."
-    },
-    "contactsPage": {
-      "title": "Contatos",
-      "whatsHappening": "O que está acontecendo essa semana?",
-      "addContact": "Adicionar um contato",
-      "editContact": "Editar um contato"
-    },
-    "button": {
-      "OK": "OK",
-      "Cancel": "Cancelar",
-      "signIn": "Entrar",
-      "signOut": "Sair",
-      "complete": "Completar",
-      "save": "Salvar"
-    },
-    "label": {
-      "welcome": "Bem vindo!",
-      "firstName": "Primeiro nome",
-      "middleName": "Nome do meio",
-      "lastName": "Último nome",
-      "stepX": "Passo {X}"
-    },
-    "oAuth": {
-      "err": {
-        "failedTitle": "Erro ao conectar a sua conta.",
-        "failedMsg": "Verifique se você concluiu o processo de login em seu navegador."
-      },
-      "google": {
-        "title": "Conexão com o GOOGLE",
-        "instruction1": "Para importar seus Contatos do Google, você precisará autorizar este aplicativo usando seu navegador.",
-        "instruction2": "Copie este código para sua área de transferência clicando no ícone ou selecionando o texto:",
-        "instruction3": "Navegue até o link a seguir em seu navegador e digite o código acima:",
-        "instruction4": "Pressione o botão abaixo ao concluir a inscrição:"
-      }
-    },
+    "appearance": {
+      "lightLabel": "Modo Claro",
+      "darkLabel": "Modo Escuro"
+    }
+  },
+  "grid": {
     "settings": {
-      "title": "Configurações",
-      "menu": {
-        "appearance": "Aparência",
-        "language": "Idioma",
-        "open": "Abrir as Configurações"
-      },
-      "appearance": {
-        "lightLabel": "Modo Claro",
-        "darkLabel": "Modo Escuro"
-      }
+      "filter": "Filtro",
+      "sortBy": "Ordenar por",
+      "Properties": "Propriedades",
+      "group": "Grupo"
     },
-    "sideBar": {
-      "openSidebar": "Abrir barra lateral",
-      "closeSidebar": "Fechar barra lateral"
+    "field": {
+      "hide": "Esconder",
+      "insertLeft": "Inserir à esquerda",
+      "insertRight": "Inserir à direita",
+      "duplicate": "Duplicar",
+      "delete": "Apagar",
+      "textFieldName": "Texto",
+      "checkboxFieldName": "Caixa de seleção",
+      "dateFieldName": "Data",
+      "numberFieldName": "Números",
+      "singleSelectFieldName": "Selecionar",
+      "multiSelectFieldName": "Seleção múltipla",
+      "urlFieldName": "URL",
+      "numberFormat": "Formato numérico",
+      "dateFormat": "Formato de data",
+      "includeTime": "Incluir horário",
+      "dateFormatFriendly": "Mês/Dia/Ano",
+      "dateFormatISO": "Ano/Mês/Dia",
+      "dateFormatLocal": "Ano/Mês/Dia",
+      "dateFormatUS": "Ano/Mês/Dia",
+      "timeFormat": "Formato de hora",
+      "invalidTimeFormat": "Formato Inválido",
+      "timeFormatTwelveHour": "12 horas",
+      "timeFormatTwentyFourHour": "24 horas",
+      "addSelectOption": "Adicionar uma opção",
+      "optionTitle": "Opções",
+      "addOption": "Adicionar opção",
+      "editProperty": "Editar propriedade",
+      "newColumn": "Nova coluna",
+      "deleteFieldPromptMessage": "Tem certeza? Esta propriedade será excluída"
+    },
+    "row": {
+      "duplicate": "Duplicar",
+      "delete": "Apagar",
+      "textPlaceholder": "Vazio",
+      "copyProperty": "Propriedade copiada para a área de transferência",
+      "count": "Contagem"
+    },
+    "selectOption": {
+      "create": "Criar",
+      "purpleColor": "Roxo",
+      "pinkColor": "Rosa",
+      "lightPinkColor": "Rosa claro",
+      "orangeColor": "Laranja",
+      "yellowColor": "Amarelo",
+      "limeColor": "Verde limão",
+      "greenColor": "Verde",
+      "aquaColor": "Áqua",
+      "blueColor": "Azul",
+      "deleteTag": "Apagar etiqueta",
+      "colorPannelTitle": "Cores",
+      "pannelTitle": "Escolha uma opção ou crie uma",
+      "searchOption": "Procure uma opção"
+    },
+    "menuName": "Grade"
+  },
+  "document": {
+    "menuName": "Doc",
+    "date": {
+      "timeHintTextInTwelveHour": "12:00 AM",
+      "timeHintTextInTwentyFourHour": "12:00"
+    }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "Novo"
     }
   }
+}
