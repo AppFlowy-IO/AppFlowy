@@ -2,7 +2,6 @@ import 'package:app_flowy/plugins/grid/application/setting/setting_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -40,7 +39,6 @@ class GridSettingList extends StatelessWidget {
             previous.selectedAction != current.selectedAction,
         listener: (context, state) {
           state.selectedAction.foldLeft(null, (_, action) {
-            FlowyOverlay.of(context).remove(identifier());
             onAction(action, settingContext);
           });
         },

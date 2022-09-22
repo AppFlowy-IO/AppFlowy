@@ -36,16 +36,15 @@ test "" = "$(grep '^Signed-off-by: ' "$1" |
 .githooks/gitlint \
 	 --msg-file=$1 \
 	 --subject-regex="^(build|chore|ci|docs|feat|feature|fix|perf|refactor|revert|style|test)(.*)?:\s?.*" \
-    --subject-maxlen=100 \
+    --subject-maxlen=150 \
     --subject-minlen=10 \
     --body-regex=".*" \
-    --body-maxlen=200 \
     --max-parents=1
 
 if [ $? -ne 0 ]
 then
     printError "Please fix your commit message to match AppFlowy coding standards"
-    printError "https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/software-contributions/submitting-code/style-guides"
+    printError "https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/software-contributions/submitting-code/code-submission-guidelines#commit-message-guidelines"
     exit 1
 fi
 

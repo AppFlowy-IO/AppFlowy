@@ -2,7 +2,7 @@ import 'package:app_flowy/plugins/grid/application/field/type_option/single_sele
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:flutter/material.dart';
 import '../field_type_option_editor.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'builder.dart';
 import 'select_option.dart';
 

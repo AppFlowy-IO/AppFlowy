@@ -5,7 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart' show MoveFolderItemPayloadPB, MoveFolderItemType;
+import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart'
+    show MoveFolderItemPayloadPB, MoveFolderItemType;
 import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
@@ -15,7 +16,8 @@ class WorkspaceService {
   WorkspaceService({
     required this.workspaceId,
   });
-  Future<Either<AppPB, FlowyError>> createApp({required String name, required String desc}) {
+  Future<Either<AppPB, FlowyError>> createApp(
+      {required String name, required String desc}) {
     final payload = CreateAppPayloadPB.create()
       ..name = name
       ..workspaceId = workspaceId
@@ -31,7 +33,8 @@ class WorkspaceService {
           assert(workspaces.items.length == 1);
 
           if (workspaces.items.isEmpty) {
-            return right(FlowyError.create()..msg = LocaleKeys.workspace_notFoundError.tr());
+            return right(FlowyError.create()
+              ..msg = LocaleKeys.workspace_notFoundError.tr());
           } else {
             return left(workspaces.items[0]);
           }

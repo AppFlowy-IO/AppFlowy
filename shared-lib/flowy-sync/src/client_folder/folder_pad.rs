@@ -12,6 +12,7 @@ use flowy_folder_data_model::revision::{AppRevision, FolderRevision, TrashRevisi
 use lib_infra::util::move_vec_element;
 use lib_ot::core::*;
 
+use serde::Deserialize;
 use std::sync::Arc;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -44,7 +45,9 @@ impl FolderPad {
     pub fn from_delta(delta: FolderDelta) -> CollaborateResult<Self> {
         // TODO: Reconvert from history if delta.to_str() failed.
         let content = delta.content()?;
-        let folder_rev: FolderRevision = serde_json::from_str(&content).map_err(|e| {
+        let mut deserializer = serde_json::Deserializer::from_reader(content.as_bytes());
+
+        let folder_rev = FolderRevision::deserialize(&mut deserializer).map_err(|e| {
             tracing::error!("Deserialize folder from {} failed", content);
             return CollaborateError::internal().context(format!("Deserialize delta to folder failed: {}", e));
         })?;
@@ -455,6 +458,7 @@ mod tests {
     #![allow(clippy::all)]
     use crate::{client_folder::folder_pad::FolderPad, entities::folder::FolderDelta};
     use chrono::Utc;
+    use serde::Deserialize;
 
     use flowy_folder_data_model::revision::{
         AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision,
@@ -476,6 +480,20 @@ mod tests {
 
         let folder_from_delta = make_folder_from_delta(initial_delta, vec![delta_1, delta_2]);
         assert_eq!(folder, folder_from_delta);
+    }
+
+    #[test]
+    fn folder_deserialize_invalid_json_test() {
+        for json in vec![
+            // No timestamp
+            r#"{"workspaces":[{"id":"1","name":"first workspace","desc":"","apps":[]}],"trash":[]}"#,
+            // Trailing characters
+            r#"{"workspaces":[{"id":"1","name":"first workspace","desc":"","apps":[]}],"trash":[]}123"#,
+        ] {
+            let mut deserializer = serde_json::Deserializer::from_reader(json.as_bytes());
+            let folder_rev = FolderRevision::deserialize(&mut deserializer).unwrap();
+            assert_eq!(folder_rev.workspaces.first().as_ref().unwrap().name, "first workspace");
+        }
     }
 
     #[test]

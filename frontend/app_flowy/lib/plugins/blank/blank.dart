@@ -9,7 +9,7 @@ import 'package:app_flowy/startup/plugin/plugin.dart';
 class BlankPluginBuilder extends PluginBuilder {
   @override
   Plugin build(dynamic data) {
-    return BlankPagePlugin(pluginType: pluginType);
+    return BlankPagePlugin();
   }
 
   @override
@@ -25,11 +25,6 @@ class BlankPluginConfig implements PluginConfig {
 }
 
 class BlankPagePlugin extends Plugin {
-  final PluginType _pluginType;
-  BlankPagePlugin({
-    required PluginType pluginType,
-  }) : _pluginType = pluginType;
-
   @override
   PluginDisplay get display => BlankPagePluginDisplay();
 
@@ -37,7 +32,7 @@ class BlankPagePlugin extends Plugin {
   PluginId get id => "BlankStack";
 
   @override
-  PluginType get ty => _pluginType;
+  PluginType get ty => PluginType.blank;
 }
 
 class BlankPagePluginDisplay extends PluginDisplay with NavigationItem {
@@ -46,7 +41,7 @@ class BlankPagePluginDisplay extends PluginDisplay with NavigationItem {
       FlowyText.medium(LocaleKeys.blankPageTitle.tr(), fontSize: 12);
 
   @override
-  Widget buildWidget() => const BlankPage();
+  Widget buildWidget(PluginContext context) => const BlankPage();
 
   @override
   List<NavigationItem> get navigationItems => [this];

@@ -139,7 +139,7 @@ class SelectOptionColorList extends StatelessWidget {
           child: SizedBox(
             height: GridSize.typeOptionItemHeight,
             child: FlowyText.medium(
-              LocaleKeys.grid_selectOption_colorPannelTitle.tr(),
+              LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
               fontSize: 12,
               textAlign: TextAlign.left,
             ),

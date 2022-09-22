@@ -202,8 +202,8 @@
       "aquaColor": "Air",
       "blueColor": "Biru",
       "deleteTag": "Hapus tag",
-      "colorPannelTitle": "Warna",
-      "pannelTitle": "Pilih opsi atau buat baru",
+      "colorPanelTitle": "Warna",
+      "panelTitle": "Pilih opsi atau buat baru",
       "searchOption": "Cari opsi"
     },
     "menuName": "Grid"
@@ -211,8 +211,8 @@
   "document": {
     "menuName": "Doc",
     "date": {
-      "timeHintTextInTwelveHour": "12:00 AM",
-      "timeHintTextInTwentyFourHour": "12:00"
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
     }
   },
   "sideBar": {

@@ -24,6 +24,7 @@ use tokio::sync::{mpsc, oneshot};
 
 pub struct TextBlockEditor {
     pub doc_id: String,
+    #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
     #[cfg(feature = "sync")]
     ws_manager: Arc<flowy_revision::RevisionWebSocketManager>,

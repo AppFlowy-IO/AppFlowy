@@ -183,11 +183,11 @@ where
 
     fn groups(&self) -> Vec<Group> {
         if self.use_default_group() {
-            let mut groups: Vec<Group> = self.group_ctx.concrete_groups().into_iter().cloned().collect();
-            groups.push(self.group_ctx.default_group().clone());
+            let mut groups: Vec<Group> = self.group_ctx.groups().into_iter().cloned().collect();
+            groups.push(self.group_ctx.get_default_group().clone());
             groups
         } else {
-            self.group_ctx.concrete_groups().into_iter().cloned().collect()
+            self.group_ctx.groups().into_iter().cloned().collect()
         }
     }
 
@@ -208,7 +208,7 @@ where
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
                 let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev);
                 let cell_data = cell_bytes.parser::<P>()?;
-                for group in self.group_ctx.concrete_groups() {
+                for group in self.group_ctx.groups() {
                     if self.can_group(&group.filter_content, &cell_data) {
                         grouped_rows.push(GroupedRow {
                             row: row_rev.into(),
@@ -264,12 +264,17 @@ where
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
+        // if the cell_rev is none, then the row must be crated from the default group.
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.remove_row_if_match(row_rev, &cell_data))
         } else {
-            Ok(vec![])
+            let group = self.group_ctx.get_default_group();
+            Ok(vec![GroupChangesetPB::delete(
+                group.id.clone(),
+                vec![row_rev.id.clone()],
+            )])
         }
     }
 

@@ -25,6 +25,7 @@ You are in charge of your data and customizations.
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12026239/174754661-682980e4-e386-4685-bb6f-2da357390b61.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
 <p align="center"><img src="https://user-images.githubusercontent.com/12026239/174753177-98e4c899-2356-4137-bb42-374bba2b127b.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/12026239/190650183-a940f1e0-a2c5-4797-ab3a-56758f6f696c.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
 
 ## User Installation
 

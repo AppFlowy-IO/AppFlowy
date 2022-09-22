@@ -42,7 +42,12 @@ class _MenuAppState extends State<MenuApp> {
         listeners: [
           BlocListener<AppBloc, AppState>(
             listenWhen: (p, c) => p.latestCreatedView != c.latestCreatedView,
-            listener: (context, state) => getIt<MenuSharedState>().latestOpenView = state.latestCreatedView,
+            listener: (context, state) {
+              if (state.latestCreatedView != null) {
+                getIt<MenuSharedState>().latestOpenView =
+                    state.latestCreatedView;
+              }
+            },
           ),
           BlocListener<AppBloc, AppState>(
             listenWhen: (p, c) => p.views != c.views,
@@ -65,7 +70,8 @@ class _MenuAppState extends State<MenuApp> {
     );
   }
 
-  ExpandableNotifier expandableWrapper(BuildContext context, AppViewDataContext viewDataContext) {
+  ExpandableNotifier expandableWrapper(
+      BuildContext context, AppViewDataContext viewDataContext) {
     return ExpandableNotifier(
       controller: viewDataContext.expandController,
       child: ScrollOnExpand(
@@ -83,7 +89,8 @@ class _MenuAppState extends State<MenuApp> {
                 hasIcon: false,
               ),
               header: ChangeNotifierProvider.value(
-                value: Provider.of<AppearanceSettingModel>(context, listen: true),
+                value:
+                    Provider.of<AppearanceSettingModel>(context, listen: true),
                 child: MenuAppHeader(widget.app),
               ),
               expanded: ViewSection(appViewData: viewDataContext),

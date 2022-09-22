@@ -34,6 +34,8 @@ else
    printMessage "Skipping Rust installation."
 fi
 
+abvc
+
 # Install sqllite
 printMessage "Installing sqlLite3."
 brew install sqlite3 

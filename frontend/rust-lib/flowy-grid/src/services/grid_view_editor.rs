@@ -109,6 +109,7 @@ impl GridViewRevisionEditor {
         }
     }
 
+    #[tracing::instrument(level = "trace", skip_all)]
     pub(crate) async fn did_delete_row(&self, row_rev: &RowRevision) {
         // Send the group notification if the current view has groups;
         let changesets = self
@@ -116,6 +117,7 @@ impl GridViewRevisionEditor {
             .await;
 
         if let Some(changesets) = changesets {
+            tracing::trace!("{:?}", changesets);
             for changeset in changesets {
                 self.notify_did_update_group(changeset).await;
             }

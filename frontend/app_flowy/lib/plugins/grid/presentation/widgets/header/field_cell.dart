@@ -1,8 +1,9 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -14,7 +15,7 @@ import 'field_type_extension.dart';
 
 import 'field_cell_action_sheet.dart';
 
-class GridFieldCell extends StatelessWidget {
+class GridFieldCell extends StatefulWidget {
   final GridFieldCellContext cellContext;
   const GridFieldCell({
     Key? key,
@@ -22,25 +23,39 @@ class GridFieldCell extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<GridFieldCell> createState() => _GridFieldCellState();
+}
+
+class _GridFieldCellState extends State<GridFieldCell> {
+  late PopoverController popoverController;
+
+  @override
+  void initState() {
+    popoverController = PopoverController();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
-        return FieldCellBloc(cellContext: cellContext);
+        return FieldCellBloc(cellContext: widget.cellContext);
       },
       child: BlocBuilder<FieldCellBloc, FieldCellState>(
         builder: (context, state) {
-          final button = Popover(
+          final button = AppFlowyPopover(
+            triggerActions: PopoverTriggerFlags.none,
+            constraints: BoxConstraints.loose(const Size(240, 840)),
             direction: PopoverDirection.bottomWithLeftAligned,
-            triggerActions: PopoverTriggerActionFlags.click,
-            offset: const Offset(0, 10),
+            controller: popoverController,
             popupBuilder: (BuildContext context) {
               return GridFieldCellActionSheet(
-                cellContext: cellContext,
+                cellContext: widget.cellContext,
               );
             },
             child: FieldCellButton(
-              field: cellContext.field,
-              onTap: () {},
+              field: widget.cellContext.field,
+              onTap: () => popoverController.show(),
             ),
           );
 
@@ -135,9 +150,11 @@ class _DragToExpandLine extends StatelessWidget {
 class FieldCellButton extends StatelessWidget {
   final VoidCallback onTap;
   final FieldPB field;
+  final int? maxLines;
   const FieldCellButton({
     required this.field,
     required this.onTap,
+    this.maxLines = 1,
     Key? key,
   }) : super(key: key);
 
@@ -148,7 +165,11 @@ class FieldCellButton extends StatelessWidget {
       hoverColor: theme.shader6,
       onTap: onTap,
       leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
-      text: FlowyText.medium(field.name, fontSize: 12),
+      text: FlowyText.medium(
+        field.name,
+        fontSize: 12,
+        maxLines: maxLines,
+      ),
       margin: GridSize.cellContentInsets,
     );
   }

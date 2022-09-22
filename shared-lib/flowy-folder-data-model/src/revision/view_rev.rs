@@ -9,7 +9,6 @@ pub fn gen_view_id() -> String {
 pub struct ViewRevision {
     pub id: String,
 
-    // Maybe app_id or vi
     #[serde(rename = "belong_to_id")]
     pub app_id: String,
 
@@ -24,8 +23,10 @@ pub struct ViewRevision {
 
     pub belongings: Vec<ViewRevision>,
 
+    #[serde(default)]
     pub modified_time: i64,
 
+    #[serde(default)]
     pub create_time: i64,
 
     #[serde(default)]

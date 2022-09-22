@@ -1,3 +1,4 @@
+import 'package:app_flowy/plugins/util.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/left_bar_item.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
@@ -35,34 +36,45 @@ class BoardPluginConfig implements PluginConfig {
 }
 
 class BoardPlugin extends Plugin {
-  final ViewPB _view;
+  @override
+  final ViewPluginNotifier notifier;
   final PluginType _pluginType;
 
   BoardPlugin({
     required ViewPB view,
     required PluginType pluginType,
   })  : _pluginType = pluginType,
-        _view = view;
+        notifier = ViewPluginNotifier(view: view);
 
   @override
-  PluginDisplay get display => GridPluginDisplay(view: _view);
+  PluginDisplay get display => GridPluginDisplay(notifier: notifier);
 
   @override
-  PluginId get id => _view.id;
+  PluginId get id => notifier.view.id;
 
   @override
   PluginType get ty => _pluginType;
 }
 
 class GridPluginDisplay extends PluginDisplay {
-  final ViewPB _view;
-  GridPluginDisplay({required ViewPB view, Key? key}) : _view = view;
+  final ViewPluginNotifier notifier;
+  GridPluginDisplay({required this.notifier, Key? key});
+
+  ViewPB get view => notifier.view;
 
   @override
-  Widget get leftBarItem => ViewLeftBarItem(view: _view);
+  Widget get leftBarItem => ViewLeftBarItem(view: view);
 
   @override
-  Widget buildWidget() => BoardPage(view: _view);
+  Widget buildWidget(PluginContext context) {
+    notifier.isDeleted.addListener(() {
+      if (notifier.isDeleted.value) {
+        context.onDeleted(view);
+      }
+    });
+
+    return BoardPage(key: ValueKey(view.id), view: view);
+  }
 
   @override
   List<NavigationItem> get navigationItems => [this];

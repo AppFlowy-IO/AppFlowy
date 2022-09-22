@@ -33,8 +33,10 @@ class FieldEditorBloc extends Bloc<FieldEditorEvent, FieldEditorState> {
             await dataController.loadTypeOptionData();
           },
           updateName: (name) {
-            dataController.fieldName = name;
-            emit(state.copyWith(name: name));
+            if (state.name != name) {
+              dataController.fieldName = name;
+              emit(state.copyWith(name: name));
+            }
           },
           didReceiveFieldChanged: (FieldPB field) {
             emit(state.copyWith(

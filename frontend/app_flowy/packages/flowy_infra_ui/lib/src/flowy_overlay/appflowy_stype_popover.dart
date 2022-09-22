@@ -1,8 +1,8 @@
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 
-class AppFlowyStylePopover extends StatelessWidget {
+class AppFlowyPopover extends StatelessWidget {
   final Widget child;
   final PopoverController? controller;
   final Widget Function(BuildContext context) popupBuilder;
@@ -12,18 +12,20 @@ class AppFlowyStylePopover extends StatelessWidget {
   final void Function()? onClose;
   final PopoverMutex? mutex;
   final Offset? offset;
+  final bool asBarrier;
 
-  const AppFlowyStylePopover({
+  const AppFlowyPopover({
     Key? key,
     required this.child,
     required this.popupBuilder,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.onClose,
-    this.constraints,
+    this.constraints = const BoxConstraints(maxWidth: 240, maxHeight: 600),
     this.mutex,
-    this.triggerActions = 0,
+    this.triggerActions = PopoverTriggerFlags.click,
     this.offset,
     this.controller,
+    this.asBarrier = false,
   }) : super(key: key);
 
   @override
@@ -33,6 +35,7 @@ class AppFlowyStylePopover extends StatelessWidget {
       onClose: onClose,
       direction: direction,
       mutex: mutex,
+      asBarrier: asBarrier,
       triggerActions: triggerActions,
       popupBuilder: (context) {
         final child = popupBuilder(context);

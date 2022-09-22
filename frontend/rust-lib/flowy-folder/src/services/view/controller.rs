@@ -125,7 +125,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
-    pub(crate) async fn read_view_info(&self, view_id: ViewIdPB) -> Result<ViewInfoPB, FlowyError> {
+    pub(crate) async fn read_view_pb(&self, view_id: ViewIdPB) -> Result<ViewInfoPB, FlowyError> {
         let view_info = self
             .persistence
             .begin_transaction(|transaction| {
@@ -179,14 +179,20 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn delete_view(&self, params: TextBlockIdPB) -> Result<(), FlowyError> {
-        if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
-            if view_id == params.value {
+    pub(crate) async fn move_view_to_trash(&self, params: TextBlockIdPB) -> Result<(), FlowyError> {
+        let view_id = params.value;
+        if let Some(latest_view_id) = KV::get_str(LATEST_VIEW_ID) {
+            if latest_view_id == view_id {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let processor = self.get_data_processor_from_view_id(&params.value).await?;
-        let _ = processor.delete_container(&params.value).await?;
+        let view_id_pb = ViewIdPB::from(view_id.as_str());
+        send_dart_notification(&view_id, FolderNotification::ViewMoveToTrash)
+            .payload(view_id_pb)
+            .send();
+
+        let processor = self.get_data_processor_from_view_id(&view_id).await?;
+        let _ = processor.close_container(&view_id).await?;
         Ok(())
     }
 

@@ -1,10 +1,8 @@
 import 'package:app_flowy/plugins/grid/application/row/row_action_sheet_bloc.dart';
-import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -28,10 +26,7 @@ class GridRowActionSheet extends StatelessWidget {
           final cells = _RowAction.values
               .where((value) => value.enable())
               .map(
-                (action) => _RowActionCell(
-                  action: action,
-                  onDismissed: () => remove(context),
-                ),
+                (action) => _RowActionCell(action: action),
               )
               .toList();
 
@@ -53,37 +48,11 @@ class GridRowActionSheet extends StatelessWidget {
       ),
     );
   }
-
-  void show(
-    BuildContext overlayContext, {
-    AnchorDirection direction = AnchorDirection.leftWithCenterAligned,
-  }) {
-    FlowyOverlay.of(overlayContext).insertWithAnchor(
-      widget: OverlayContainer(
-        constraints: BoxConstraints.loose(const Size(140, 200)),
-        child: this,
-      ),
-      identifier: GridRowActionSheet.identifier(),
-      anchorContext: overlayContext,
-      anchorDirection: direction,
-    );
-  }
-
-  void remove(BuildContext overlayContext) {
-    FlowyOverlay.of(overlayContext).remove(GridRowActionSheet.identifier());
-  }
-
-  static String identifier() {
-    return (GridRowActionSheet).toString();
-  }
 }
 
 class _RowActionCell extends StatelessWidget {
   final _RowAction action;
-  final VoidCallback onDismissed;
-  const _RowActionCell(
-      {required this.action, required this.onDismissed, Key? key})
-      : super(key: key);
+  const _RowActionCell({required this.action, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +71,6 @@ class _RowActionCell extends StatelessWidget {
           if (action.enable()) {
             action.performAction(context);
           }
-          onDismissed();
         },
         leftIcon: svgWidget(action.iconName(), color: theme.iconColor),
       ),
@@ -151,14 +119,9 @@ extension _RowActionExtension on _RowAction {
             .add(const RowActionSheetEvent.duplicateRow());
         break;
       case _RowAction.delete:
-        NavigatorAlertDialog(
-          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
-          confirm: () {
-            context
-                .read<RowActionSheetBloc>()
-                .add(const RowActionSheetEvent.deleteRow());
-          },
-        ).show(context);
+        context
+            .read<RowActionSheetBloc>()
+            .add(const RowActionSheetEvent.deleteRow());
 
         break;
     }

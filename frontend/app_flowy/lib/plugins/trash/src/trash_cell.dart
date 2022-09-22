@@ -15,26 +15,41 @@ class TrashCell extends StatelessWidget {
   final VoidCallback onRestore;
   final VoidCallback onDelete;
   final TrashPB object;
-  const TrashCell({required this.object, required this.onRestore, required this.onDelete, Key? key}) : super(key: key);
+  const TrashCell(
+      {required this.object,
+      required this.onRestore,
+      required this.onDelete,
+      Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
     return Row(
       children: [
-        SizedBox(width: TrashSizes.fileNameWidth, child: FlowyText(object.name, fontSize: 12)),
-        SizedBox(width: TrashSizes.lashModifyWidth, child: FlowyText(dateFormatter(object.modifiedTime), fontSize: 12)),
-        SizedBox(width: TrashSizes.createTimeWidth, child: FlowyText(dateFormatter(object.createTime), fontSize: 12)),
+        SizedBox(
+            width: TrashSizes.fileNameWidth,
+            child: FlowyText(object.name, fontSize: 12)),
+        SizedBox(
+            width: TrashSizes.lashModifyWidth,
+            child: FlowyText(dateFormatter(object.modifiedTime), fontSize: 12)),
+        SizedBox(
+            width: TrashSizes.createTimeWidth,
+            child: FlowyText(dateFormatter(object.createTime), fontSize: 12)),
         const Spacer(),
         FlowyIconButton(
-          width: 16,
+          width: 26,
           onPressed: onRestore,
+          hoverColor: theme.hover,
+          iconPadding: const EdgeInsets.all(5),
           icon: svgWidget("editor/restore", color: theme.iconColor),
         ),
         const HSpace(20),
         FlowyIconButton(
-          width: 16,
+          width: 26,
           onPressed: onDelete,
+          hoverColor: theme.hover,
+          iconPadding: const EdgeInsets.all(5),
           icon: svgWidget("editor/delete", color: theme.iconColor),
         ),
       ],
@@ -43,7 +58,8 @@ class TrashCell extends StatelessWidget {
 
   String dateFormatter($fixnum.Int64 inputTimestamps) {
     var outputFormat = DateFormat('MM/dd/yyyy hh:mm a');
-    var date = DateTime.fromMillisecondsSinceEpoch(inputTimestamps.toInt() * 1000);
+    var date =
+        DateTime.fromMillisecondsSinceEpoch(inputTimestamps.toInt() * 1000);
     var outputDate = outputFormat.format(date);
     return outputDate;
   }
