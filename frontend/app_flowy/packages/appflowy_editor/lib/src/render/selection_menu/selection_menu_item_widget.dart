@@ -37,7 +37,7 @@ class SelectionMenuItemWidget extends StatelessWidget {
                 : MaterialStateProperty.all(Colors.transparent),
           ),
           label: Text(
-            item.name,
+            item.name(),
             textAlign: TextAlign.left,
             style: const TextStyle(
               color: Colors.black,

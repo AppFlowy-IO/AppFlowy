@@ -17,7 +17,7 @@ void main() async {
       final menuService = _TestSelectionMenuService();
       const icon = Icon(Icons.abc);
       final item = SelectionMenuItem(
-        name: 'example',
+        name: () => 'example',
         icon: icon,
         keywords: ['example A', 'example B'],
         handler: (editorState, menuService, context) {

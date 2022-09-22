@@ -13,29 +13,40 @@ void main() async {
   });
 
   group('selection_menu_widget.dart', () {
-    // const i = defaultSelectionMenuItems.length;
-    //
-    // Because the `defaultSelectionMenuItems` uses localization,
-    // and the MaterialApp has not been initialized at the time of getting the value,
-    // it will crash.
-    //
-    // Use const value temporarily instead.
-    const i = 7;
-    testWidgets('Selects number.$i item in selection menu', (tester) async {
-      final editor = await _prepare(tester);
-      for (var j = 0; j < i; j++) {
-        await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
-      }
+    for (var i = 0; i < defaultSelectionMenuItems.length; i += 1) {
+      testWidgets('Selects number.$i item in selection menu with enter', (
+          tester) async {
+        final editor = await _prepare(tester);
+        for (var j = 0; j < i; j++) {
+          await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
+        }
 
-      await editor.pressLogicKey(LogicalKeyboardKey.enter);
-      expect(
-        find.byType(SelectionMenuWidget, skipOffstage: false),
-        findsNothing,
-      );
-      if (defaultSelectionMenuItems[i].name != 'Image') {
-        await _testDefaultSelectionMenuItems(i, editor);
-      }
-    });
+        await editor.pressLogicKey(LogicalKeyboardKey.enter);
+        expect(
+          find.byType(SelectionMenuWidget, skipOffstage: false),
+          findsNothing,
+        );
+        if (defaultSelectionMenuItems[i].name() != 'Image') {
+          await _testDefaultSelectionMenuItems(i, editor);
+        }
+      });
+
+      testWidgets('Selects number.$i item in selection menu with click', (
+          tester) async {
+        final editor = await _prepare(tester);
+
+        await tester.tap(find.byType(SelectionMenuItemWidget).at(i));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byType(SelectionMenuWidget, skipOffstage: false),
+          findsNothing,
+        );
+        if (defaultSelectionMenuItems[i].name() != 'Image') {
+          await _testDefaultSelectionMenuItems(i, editor);
+        }
+      });
+    }
 
     testWidgets('Search item in selection menu util no results',
         (tester) async {
@@ -138,23 +149,27 @@ Future<void> _testDefaultSelectionMenuItems(
     int index, EditorWidgetTester editor) async {
   expect(editor.documentLength, 4);
   expect(editor.documentSelection, Selection.single(path: [2], startOffset: 0));
+  expect((editor.nodeAtPath([1]) as TextNode).toRawString(), 'Welcome to Appflowy 😁');
   final node = editor.nodeAtPath([2]);
   final item = defaultSelectionMenuItems[index];
-  if (item.name == 'Text') {
+  final itemName = item.name();
+  if (itemName == 'Text') {
     expect(node?.subtype == null, true);
-  } else if (item.name == 'Heading 1') {
+  } else if (itemName == 'Heading 1') {
     expect(node?.subtype, BuiltInAttributeKey.heading);
     expect(node?.attributes.heading, BuiltInAttributeKey.h1);
-  } else if (item.name == 'Heading 2') {
+  } else if (itemName == 'Heading 2') {
     expect(node?.subtype, BuiltInAttributeKey.heading);
     expect(node?.attributes.heading, BuiltInAttributeKey.h2);
-  } else if (item.name == 'Heading 3') {
+  } else if (itemName == 'Heading 3') {
     expect(node?.subtype, BuiltInAttributeKey.heading);
     expect(node?.attributes.heading, BuiltInAttributeKey.h3);
-  } else if (item.name == 'Bulleted list') {
+  } else if (itemName == 'Bulleted list') {
     expect(node?.subtype, BuiltInAttributeKey.bulletedList);
-  } else if (item.name == 'Checkbox') {
+  } else if (itemName == 'Checkbox') {
     expect(node?.subtype, BuiltInAttributeKey.checkbox);
     expect(node?.attributes.check, false);
+  } else if (itemName == 'Quote') {
+    expect(node?.subtype, BuiltInAttributeKey.quote);
   }
 }
