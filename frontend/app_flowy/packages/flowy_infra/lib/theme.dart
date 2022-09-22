@@ -104,7 +104,7 @@ class AppTheme {
           ..tint6 = const Color(0xfff5ffdc)
           ..tint7 = const Color(0xffddffd6)
           ..tint8 = const Color(0xffdefff1)
-          ..tint9 = const Color(0xffdefff1)
+          ..tint9 = const Color(0xffe1fbff)
           ..main1 = const Color(0xff00bcf0)
           ..main2 = const Color(0xff00b7ea)
           ..textColor = _black
