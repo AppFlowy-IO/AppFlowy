@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import '../../infra/test_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
@@ -266,6 +265,60 @@ void main() async {
       (editor.nodeAtPath([0]) as TextNode).attributes.heading,
       BuiltInAttributeKey.h1,
     );
+  });
+
+  testWidgets('Delete the nested bulleted list', (tester) async {
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    const text = 'Welcome to Appflowy 😁';
+    final node = TextNode(
+      type: 'text',
+      delta: Delta()..insert(text),
+      attributes: {
+        BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
+      },
+    );
+    node.insert(
+      node.copyWith()
+        ..insert(
+          node.copyWith(),
+        ),
+    );
+
+    final editor = tester.editor..insert(node);
+    await editor.startTesting();
+
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    // Welcome to Appflowy 😁
+    await editor.updateSelection(
+      Selection.single(path: [0, 0, 0], startOffset: 0),
+    );
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(editor.nodeAtPath([0, 0, 0])?.subtype, null);
+    await editor.updateSelection(
+      Selection.single(path: [0, 0, 0], startOffset: 0),
+    );
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(editor.nodeAtPath([0, 1]) != null, true);
+    await editor.updateSelection(
+      Selection.single(path: [0, 1], startOffset: 0),
+    );
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(editor.nodeAtPath([1]) != null, true);
+    await editor.updateSelection(
+      Selection.single(path: [1], startOffset: 0),
+    );
+
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁Welcome to Appflowy 😁
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(
+      editor.documentSelection,
+      Selection.single(path: [0, 0], startOffset: text.length),
+    );
+    expect((editor.nodeAtPath([0, 0]) as TextNode).toRawString(), text * 2);
   });
 }
 

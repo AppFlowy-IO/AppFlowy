@@ -9,6 +9,7 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/redo_und
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/select_all_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/slash_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/format_style_handler.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/tab_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 
@@ -242,5 +243,10 @@ List<ShortcutEvent> builtInShortcutEvents = [
     key: 'Page down',
     command: 'page down',
     handler: pageDownHandler,
+  ),
+  ShortcutEvent(
+    key: 'Tab',
+    command: 'tab',
+    handler: tabHandler,
   ),
 ];

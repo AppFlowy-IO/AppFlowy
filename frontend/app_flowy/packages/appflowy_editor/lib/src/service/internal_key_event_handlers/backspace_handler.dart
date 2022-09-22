@@ -1,8 +1,8 @@
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 
 // Handle delete text.
 ShortcutEventHandler deleteTextHandler = (editorState, event) {
@@ -121,32 +121,40 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
 }
 
 KeyEventResult _backDeleteToPreviousTextNode(
-    EditorState editorState,
-    TextNode textNode,
-    TransactionBuilder transactionBuilder,
-    List<Node> nonTextNodes,
-    Selection selection) {
-  var previous = textNode.previous;
-  bool prevIsNumberList = false;
-  while (previous != null) {
-    if (previous is TextNode) {
-      if (previous.subtype == BuiltInAttributeKey.numberList) {
-        prevIsNumberList = true;
-      }
+  EditorState editorState,
+  TextNode textNode,
+  TransactionBuilder transactionBuilder,
+  List<Node> nonTextNodes,
+  Selection selection,
+) {
+  // Not reach to the root.
+  if (textNode.parent?.parent != null) {
+    transactionBuilder
+      ..deleteNode(textNode)
+      ..insertNode(textNode.parent!.path.next, textNode)
+      ..afterSelection = Selection.collapsed(
+        Position(path: textNode.parent!.path.next, offset: 0),
+      )
+      ..commit();
+    return KeyEventResult.handled;
+  }
 
-      transactionBuilder
-        ..mergeText(previous, textNode)
-        ..deleteNode(textNode)
-        ..afterSelection = Selection.collapsed(
-          Position(
-            path: previous.path,
-            offset: previous.toRawString().length,
-          ),
-        );
-      break;
-    } else {
-      previous = previous.previous;
+  bool prevIsNumberList = false;
+  final previousTextNode = _closestTextNode(textNode.previous);
+  if (previousTextNode != null && previousTextNode is TextNode) {
+    if (previousTextNode.subtype == BuiltInAttributeKey.numberList) {
+      prevIsNumberList = true;
     }
+
+    transactionBuilder
+      ..mergeText(previousTextNode, textNode)
+      ..deleteNode(textNode)
+      ..afterSelection = Selection.collapsed(
+        Position(
+          path: previousTextNode.path,
+          offset: previousTextNode.toRawString().length,
+        ),
+      );
   }
 
   if (transactionBuilder.operations.isNotEmpty) {
@@ -157,8 +165,8 @@ KeyEventResult _backDeleteToPreviousTextNode(
   }
 
   if (prevIsNumberList) {
-    makeFollowingNodesIncremental(
-        editorState, previous!.path, transactionBuilder.afterSelection!);
+    makeFollowingNodesIncremental(editorState, previousTextNode!.path,
+        transactionBuilder.afterSelection!);
   }
 
   return KeyEventResult.handled;
@@ -260,4 +268,23 @@ void _deleteTextNodes(TransactionBuilder transactionBuilder,
       firstOffset: selection.start.offset,
       secondOffset: selection.end.offset,
     );
+}
+
+// TODO: Just a simple solution for textNode, need to be optimized.
+Node? _closestTextNode(Node? node) {
+  if (node is TextNode) {
+    var children = node.children;
+    if (children.isEmpty) {
+      return node;
+    }
+    var last = children.last;
+    while (last.children.isNotEmpty) {
+      last = children.last;
+    }
+    return last;
+  }
+  if (node?.previous != null) {
+    return _closestTextNode(node!.previous!);
+  }
+  return null;
 }
