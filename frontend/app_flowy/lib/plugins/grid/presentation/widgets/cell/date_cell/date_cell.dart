@@ -65,23 +65,17 @@ class _DateCellState extends GridCellState<GridDateCell> {
         builder: (context, state) {
           return AppFlowyPopover(
             controller: _popover,
-            offset: const Offset(0, 20),
+            triggerActions: PopoverTriggerFlags.none,
             direction: PopoverDirection.bottomWithLeftAligned,
             constraints: BoxConstraints.loose(const Size(320, 500)),
+            margin: EdgeInsets.zero,
             child: SizedBox.expand(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => _showCalendar(context),
-                child: MouseRegion(
-                  opaque: false,
-                  cursor: SystemMouseCursors.click,
-                  child: Align(
-                    alignment: alignment,
-                    child: FlowyText.medium(
-                      state.dateStr,
-                      fontSize: 12,
-                    ),
-                  ),
+                onTap: () => _popover.show(),
+                child: Align(
+                  alignment: alignment,
+                  child: FlowyText.medium(state.dateStr, fontSize: 12),
                 ),
               ),
             ),
@@ -99,10 +93,6 @@ class _DateCellState extends GridCellState<GridDateCell> {
         },
       ),
     );
-  }
-
-  void _showCalendar(BuildContext context) {
-    _popover.show();
   }
 
   @override
