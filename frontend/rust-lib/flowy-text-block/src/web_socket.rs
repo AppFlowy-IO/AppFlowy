@@ -10,9 +10,9 @@ use flowy_sync::{
     errors::CollaborateResult,
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::core::Attributes;
+use lib_ot::core::AttributeHashMap;
 
-use lib_ot::text_delta::TextDelta;
+use lib_ot::text_delta::TextOperations;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
 use tokio::sync::{
@@ -112,8 +112,8 @@ struct TextBlockConflictResolver {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ConflictResolver<Attributes> for TextBlockConflictResolver {
-    fn compose_delta(&self, delta: TextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
+impl ConflictResolver<AttributeHashMap> for TextBlockConflictResolver {
+    fn compose_delta(&self, delta: TextOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel();
@@ -132,7 +132,7 @@ impl ConflictResolver<Attributes> for TextBlockConflictResolver {
 
     fn transform_delta(
         &self,
-        delta: TextDelta,
+        delta: TextOperations,
     ) -> BoxResultFuture<flowy_revision::RichTextTransformDeltas, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {
@@ -147,7 +147,7 @@ impl ConflictResolver<Attributes> for TextBlockConflictResolver {
         })
     }
 
-    fn reset_delta(&self, delta: TextDelta) -> BoxResultFuture<DeltaMD5, FlowyError> {
+    fn reset_delta(&self, delta: TextOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel();

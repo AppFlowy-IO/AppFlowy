@@ -3,7 +3,7 @@ use crate::{
     errors::CollaborateError,
 };
 use flowy_derive::ProtoBuf;
-use lib_ot::{errors::OTError, text_delta::TextDelta};
+use lib_ot::{errors::OTError, text_delta::TextOperations};
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateTextBlockParams {
@@ -30,8 +30,8 @@ pub struct DocumentPB {
 }
 
 impl DocumentPB {
-    pub fn delta(&self) -> Result<TextDelta, OTError> {
-        let delta = TextDelta::from_bytes(&self.text)?;
+    pub fn delta(&self) -> Result<TextOperations, OTError> {
+        let delta = TextOperations::from_bytes(&self.text)?;
         Ok(delta)
     }
 }
@@ -45,7 +45,7 @@ impl std::convert::TryFrom<Revision> for DocumentPB {
                 .context("Revision's rev_id should be 0 when creating the document"));
         }
 
-        let delta = TextDelta::from_bytes(&revision.delta_data)?;
+        let delta = TextOperations::from_bytes(&revision.bytes)?;
         let doc_json = delta.json_str();
 
         Ok(DocumentPB {

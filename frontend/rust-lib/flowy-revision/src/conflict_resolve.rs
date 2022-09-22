@@ -6,23 +6,23 @@ use flowy_sync::{
         revision::{RepeatedRevision, Revision, RevisionRange},
         ws_data::ServerRevisionWSDataType,
     },
-    util::make_delta_from_revisions,
+    util::make_operations_from_revisions,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{Attributes, EmptyAttributes, OperationAttributes, Operations};
+use lib_ot::core::{AttributeHashMap, DeltaOperations, EmptyAttributes, OperationAttributes};
 
 use serde::de::DeserializeOwned;
 use std::{convert::TryFrom, sync::Arc};
 
-pub type DeltaMD5 = String;
+pub type OperationsMD5 = String;
 
 pub trait ConflictResolver<T>
 where
     T: OperationAttributes + Send + Sync,
 {
-    fn compose_delta(&self, delta: Operations<T>) -> BoxResultFuture<DeltaMD5, FlowyError>;
-    fn transform_delta(&self, delta: Operations<T>) -> BoxResultFuture<TransformDeltas<T>, FlowyError>;
-    fn reset_delta(&self, delta: Operations<T>) -> BoxResultFuture<DeltaMD5, FlowyError>;
+    fn compose_delta(&self, delta: DeltaOperations<T>) -> BoxResultFuture<OperationsMD5, FlowyError>;
+    fn transform_delta(&self, delta: DeltaOperations<T>) -> BoxResultFuture<TransformDeltas<T>, FlowyError>;
+    fn reset_delta(&self, delta: DeltaOperations<T>) -> BoxResultFuture<OperationsMD5, FlowyError>;
 }
 
 pub trait ConflictRevisionSink: Send + Sync + 'static {
@@ -30,7 +30,7 @@ pub trait ConflictRevisionSink: Send + Sync + 'static {
     fn ack(&self, rev_id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError>;
 }
 
-pub type RichTextConflictController = ConflictController<Attributes>;
+pub type RichTextConflictController = ConflictController<AttributeHashMap>;
 pub type PlainTextConflictController = ConflictController<EmptyAttributes>;
 
 pub struct ConflictController<T>
@@ -103,7 +103,7 @@ where
             }
         }
 
-        let new_delta = make_delta_from_revisions(revisions.clone())?;
+        let new_delta = make_operations_from_revisions(revisions.clone())?;
 
         let TransformDeltas {
             client_prime,
@@ -142,8 +142,8 @@ where
 fn make_client_and_server_revision<T>(
     user_id: &str,
     rev_manager: &Arc<RevisionManager>,
-    client_delta: Operations<T>,
-    server_delta: Option<Operations<T>>,
+    client_delta: DeltaOperations<T>,
+    server_delta: Option<DeltaOperations<T>>,
     md5: String,
 ) -> (Revision, Option<Revision>)
 where
@@ -175,12 +175,12 @@ where
     }
 }
 
-pub type RichTextTransformDeltas = TransformDeltas<Attributes>;
+pub type RichTextTransformDeltas = TransformDeltas<AttributeHashMap>;
 
 pub struct TransformDeltas<T>
 where
     T: OperationAttributes,
 {
-    pub client_prime: Operations<T>,
-    pub server_prime: Option<Operations<T>>,
+    pub client_prime: DeltaOperations<T>,
+    pub server_prime: Option<DeltaOperations<T>>,
 }

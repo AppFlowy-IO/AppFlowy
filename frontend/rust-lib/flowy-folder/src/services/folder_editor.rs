@@ -4,7 +4,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
     RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
 };
-use flowy_sync::util::make_text_delta_from_revisions;
+use flowy_sync::util::make_delta_from_revisions;
 use flowy_sync::{
     client_folder::{FolderChangeset, FolderPad},
     entities::{revision::Revision, ws_data::ServerRevisionWSData},
@@ -131,7 +131,7 @@ impl FolderEditor {
 pub struct FolderRevisionCompactor();
 impl RevisionCompactor for FolderRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_text_delta_from_revisions(revisions)?;
+        let delta = make_delta_from_revisions(revisions)?;
         Ok(delta.json_bytes())
     }
 }

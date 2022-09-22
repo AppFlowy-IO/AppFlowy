@@ -5,7 +5,7 @@ use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowChange
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridBlockRevisionChangeset, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
-use flowy_sync::util::make_text_delta_from_revisions;
+use flowy_sync::util::make_delta_from_revisions;
 use lib_infra::future::FutureResult;
 
 use std::borrow::Cow;
@@ -204,7 +204,7 @@ impl RevisionObjectBuilder for GridBlockRevisionPadBuilder {
 pub struct GridBlockRevisionCompactor();
 impl RevisionCompactor for GridBlockRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_text_delta_from_revisions(revisions)?;
+        let delta = make_delta_from_revisions(revisions)?;
         Ok(delta.json_bytes())
     }
 }

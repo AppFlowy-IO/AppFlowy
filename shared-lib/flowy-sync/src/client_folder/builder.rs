@@ -1,5 +1,5 @@
 use crate::entities::folder::FolderDelta;
-use crate::util::make_text_delta_from_revisions;
+use crate::util::make_delta_from_revisions;
 use crate::{
     client_folder::{default_folder_delta, FolderPad},
     entities::revision::Revision,
@@ -37,7 +37,7 @@ impl FolderPadBuilder {
     }
 
     pub(crate) fn build_with_revisions(self, revisions: Vec<Revision>) -> CollaborateResult<FolderPad> {
-        let mut folder_delta: FolderDelta = make_text_delta_from_revisions(revisions)?;
+        let mut folder_delta: FolderDelta = make_delta_from_revisions(revisions)?;
         if folder_delta.is_empty() {
             folder_delta = default_folder_delta();
         }

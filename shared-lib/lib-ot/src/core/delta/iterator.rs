@@ -1,8 +1,8 @@
 use super::cursor::*;
-use crate::core::delta::operation::{Operation, OperationAttributes};
-use crate::core::delta::{Operations, NEW_LINE};
+use crate::core::delta::operation::{DeltaOperation, OperationAttributes};
+use crate::core::delta::{DeltaOperations, NEW_LINE};
 use crate::core::interval::Interval;
-use crate::core::Attributes;
+use crate::core::AttributeHashMap;
 
 use std::ops::{Deref, DerefMut};
 
@@ -14,19 +14,19 @@ pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
 /// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/backend/delta) out for more information.
 ///
 /// ```
-///  use lib_ot::core::{OperationIterator, Interval, Operation};
-///  use lib_ot::text_delta::TextDelta;
-///  let mut delta = TextDelta::default();
-///  delta.add(Operation::insert("123"));
-///  delta.add(Operation::insert("4"));
+///  use lib_ot::core::{OperationIterator, Interval, DeltaOperation};
+///  use lib_ot::text_delta::TextOperations;
+///  let mut delta = TextOperations::default();
+///  delta.add(DeltaOperation::insert("123"));
+///  delta.add(DeltaOperation::insert("4"));
 ///  assert_eq!(
 ///     OperationIterator::from_interval(&delta, Interval::new(0, 2)).ops(),
-///     vec![Operation::insert("12")]
+///     vec![DeltaOperation::insert("12")]
 ///  );
 ///
 ///  assert_eq!(
 ///     OperationIterator::from_interval(&delta, Interval::new(1, 3)).ops(),
-///     vec![Operation::insert("23")]
+///     vec![DeltaOperation::insert("23")]
 ///  );
 /// ```
 pub struct OperationIterator<'a, T: OperationAttributes> {
@@ -37,24 +37,24 @@ impl<'a, T> OperationIterator<'a, T>
 where
     T: OperationAttributes,
 {
-    pub fn new(delta: &'a Operations<T>) -> Self {
+    pub fn new(delta: &'a DeltaOperations<T>) -> Self {
         let interval = Interval::new(0, MAX_IV_LEN);
         Self::from_interval(delta, interval)
     }
 
-    pub fn from_offset(delta: &'a Operations<T>, offset: usize) -> Self {
+    pub fn from_offset(delta: &'a DeltaOperations<T>, offset: usize) -> Self {
         let interval = Interval::new(0, MAX_IV_LEN);
         let mut iter = Self::from_interval(delta, interval);
         iter.seek::<Utf16CodeUnitMetric>(offset);
         iter
     }
 
-    pub fn from_interval(delta: &'a Operations<T>, interval: Interval) -> Self {
+    pub fn from_interval(delta: &'a DeltaOperations<T>, interval: Interval) -> Self {
         let cursor = OperationsCursor::new(delta, interval);
         Self { cursor }
     }
 
-    pub fn ops(&mut self) -> Vec<Operation<T>> {
+    pub fn ops(&mut self) -> Vec<DeltaOperation<T>> {
         self.collect::<Vec<_>>()
     }
 
@@ -67,16 +67,16 @@ where
         }
     }
 
-    pub fn next_op(&mut self) -> Option<Operation<T>> {
+    pub fn next_op(&mut self) -> Option<DeltaOperation<T>> {
         self.cursor.get_next_op()
     }
 
-    pub fn next_op_with_len(&mut self, len: usize) -> Option<Operation<T>> {
+    pub fn next_op_with_len(&mut self, len: usize) -> Option<DeltaOperation<T>> {
         self.cursor.next_with_len(Some(len))
     }
 
     // find next op contains NEW_LINE
-    pub fn next_op_with_newline(&mut self) -> Option<(Operation<T>, usize)> {
+    pub fn next_op_with_newline(&mut self) -> Option<(DeltaOperation<T>, usize)> {
         let mut offset = 0;
         while self.has_next() {
             if let Some(op) = self.next_op() {
@@ -127,13 +127,13 @@ impl<'a, T> Iterator for OperationIterator<'a, T>
 where
     T: OperationAttributes,
 {
-    type Item = Operation<T>;
+    type Item = DeltaOperation<T>;
     fn next(&mut self) -> Option<Self::Item> {
         self.next_op()
     }
 }
 
-pub fn is_empty_line_at_index(delta: &Operations<Attributes>, index: usize) -> bool {
+pub fn is_empty_line_at_index(delta: &DeltaOperations<AttributeHashMap>, index: usize) -> bool {
     let mut iter = OperationIterator::new(delta);
     let (prev, next) = (iter.next_op_with_len(index), iter.next_op());
     if prev.is_none() {
@@ -157,12 +157,12 @@ impl<'a, T> AttributesIter<'a, T>
 where
     T: OperationAttributes,
 {
-    pub fn new(delta: &'a Operations<T>) -> Self {
+    pub fn new(delta: &'a DeltaOperations<T>) -> Self {
         let interval = Interval::new(0, usize::MAX);
         Self::from_interval(delta, interval)
     }
 
-    pub fn from_interval(delta: &'a Operations<T>, interval: Interval) -> Self {
+    pub fn from_interval(delta: &'a DeltaOperations<T>, interval: Interval) -> Self {
         let delta_iter = OperationIterator::from_interval(delta, interval);
         Self { delta_iter }
     }
@@ -207,16 +207,16 @@ where
         let mut attributes = T::default();
 
         match next_op.unwrap() {
-            Operation::<T>::Delete(_n) => {}
-            Operation::<T>::Retain(retain) => {
+            DeltaOperation::<T>::Delete(_n) => {}
+            DeltaOperation::<T>::Retain(retain) => {
                 tracing::trace!("extend retain attributes with {} ", &retain.attributes);
-                attributes.extend_other(retain.attributes.clone());
+                attributes.extend(retain.attributes.clone());
 
                 length = retain.n;
             }
-            Operation::<T>::Insert(insert) => {
+            DeltaOperation::<T>::Insert(insert) => {
                 tracing::trace!("extend insert attributes with {} ", &insert.attributes);
-                attributes.extend_other(insert.attributes.clone());
+                attributes.extend(insert.attributes.clone());
                 length = insert.utf16_size();
             }
         }
@@ -235,7 +235,7 @@ pub enum OpNewline {
 }
 
 impl OpNewline {
-    pub fn parse<T: OperationAttributes>(op: &Operation<T>) -> OpNewline {
+    pub fn parse<T: OperationAttributes>(op: &DeltaOperation<T>) -> OpNewline {
         let s = op.get_data();
 
         if s == NEW_LINE {

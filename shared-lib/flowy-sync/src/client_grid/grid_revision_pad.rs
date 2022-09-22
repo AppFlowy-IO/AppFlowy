@@ -1,6 +1,6 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
-use crate::util::{cal_diff, make_text_delta_from_revisions};
+use crate::util::{cal_diff, make_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
@@ -64,7 +64,7 @@ impl GridRevisionPad {
     }
 
     pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let grid_delta: GridRevisionDelta = make_text_delta_from_revisions(revisions)?;
+        let grid_delta: GridRevisionDelta = make_delta_from_revisions(revisions)?;
         Self::from_delta(grid_delta)
     }
 

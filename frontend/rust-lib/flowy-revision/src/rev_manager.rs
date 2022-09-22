@@ -9,6 +9,8 @@ use flowy_sync::{
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
+pub type SyncObject = lib_ot::text_delta::TextOperations;
+
 pub trait RevisionCloudService: Send + Sync {
     fn fetch_object(&self, user_id: &str, object_id: &str) -> FutureResult<Vec<Revision>, FlowyError>;
 }
@@ -33,8 +35,8 @@ pub trait RevisionCompactor: Send + Sync {
 
         let (base_rev_id, rev_id) = first_revision.pair_rev_id();
         let md5 = last_revision.md5.clone();
-        let delta_data = self.bytes_from_revisions(revisions)?;
-        Ok(Revision::new(object_id, base_rev_id, rev_id, delta_data, user_id, md5))
+        let bytes = self.bytes_from_revisions(revisions)?;
+        Ok(Revision::new(object_id, base_rev_id, rev_id, bytes, user_id, md5))
     }
 
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes>;
@@ -113,7 +115,7 @@ impl RevisionManager {
 
     #[tracing::instrument(level = "debug", skip(self, revision), err)]
     pub async fn add_remote_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
-        if revision.delta_data.is_empty() {
+        if revision.bytes.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
 
@@ -125,7 +127,7 @@ impl RevisionManager {
 
     #[tracing::instrument(level = "debug", skip_all, err)]
     pub async fn add_local_revision(&self, revision: &Revision) -> Result<(), FlowyError> {
-        if revision.delta_data.is_empty() {
+        if revision.bytes.is_empty() {
             return Err(FlowyError::internal().context("Delta data should be empty"));
         }
         let rev_id = self

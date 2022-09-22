@@ -3,7 +3,7 @@ use crate::node::script::NodeTest;
 use lib_ot::core::{AttributeBuilder, Node};
 use lib_ot::{
     core::{NodeBodyChangeset, NodeData, NodeDataBuilder, NodeOperation, Path},
-    text_delta::TextDeltaBuilder,
+    text_delta::TextOperationBuilder,
 };
 
 #[test]
@@ -48,7 +48,7 @@ fn operation_update_node_attributes_serde_test() {
 
 #[test]
 fn operation_update_node_body_serialize_test() {
-    let delta = TextDeltaBuilder::new().insert("AppFlowy...").build();
+    let delta = TextOperationBuilder::new().insert("AppFlowy...").build();
     let inverted = delta.invert_str("");
     let changeset = NodeBodyChangeset::Delta { delta, inverted };
     let insert = NodeOperation::UpdateBody {

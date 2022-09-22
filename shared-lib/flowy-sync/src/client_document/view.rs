@@ -3,7 +3,7 @@ use lib_ot::core::AttributeEntry;
 use lib_ot::{
     core::{trim, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
-    text_delta::TextDelta,
+    text_delta::TextOperations,
 };
 
 pub const RECORD_THRESHOLD: usize = 400; // in milliseconds
@@ -23,7 +23,12 @@ impl ViewExtensions {
         }
     }
 
-    pub(crate) fn insert(&self, delta: &TextDelta, text: &str, interval: Interval) -> Result<TextDelta, OTError> {
+    pub(crate) fn insert(
+        &self,
+        delta: &TextOperations,
+        text: &str,
+        interval: Interval,
+    ) -> Result<TextOperations, OTError> {
         let mut new_delta = None;
         for ext in &self.insert_exts {
             if let Some(mut delta) = ext.apply(delta, interval.size(), text, interval.start) {
@@ -40,7 +45,7 @@ impl ViewExtensions {
         }
     }
 
-    pub(crate) fn delete(&self, delta: &TextDelta, interval: Interval) -> Result<TextDelta, OTError> {
+    pub(crate) fn delete(&self, delta: &TextOperations, interval: Interval) -> Result<TextOperations, OTError> {
         let mut new_delta = None;
         for ext in &self.delete_exts {
             if let Some(mut delta) = ext.apply(delta, interval) {
@@ -59,10 +64,10 @@ impl ViewExtensions {
 
     pub(crate) fn format(
         &self,
-        delta: &TextDelta,
+        delta: &TextOperations,
         attribute: AttributeEntry,
         interval: Interval,
-    ) -> Result<TextDelta, OTError> {
+    ) -> Result<TextOperations, OTError> {
         let mut new_delta = None;
         for ext in &self.format_exts {
             if let Some(mut delta) = ext.apply(delta, interval, &attribute) {

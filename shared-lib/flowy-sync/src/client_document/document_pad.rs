@@ -7,29 +7,29 @@ use crate::{
     errors::CollaborateError,
 };
 use bytes::Bytes;
-use lib_ot::{core::*, text_delta::TextDelta};
+use lib_ot::{core::*, text_delta::TextOperations};
 use tokio::sync::mpsc;
 
 pub trait InitialDocumentText {
-    fn initial_delta() -> TextDelta;
+    fn initial_delta() -> TextOperations;
 }
 
 pub struct EmptyDoc();
 impl InitialDocumentText for EmptyDoc {
-    fn initial_delta() -> TextDelta {
-        TextDelta::new()
+    fn initial_delta() -> TextOperations {
+        TextOperations::new()
     }
 }
 
 pub struct NewlineDoc();
 impl InitialDocumentText for NewlineDoc {
-    fn initial_delta() -> TextDelta {
+    fn initial_delta() -> TextOperations {
         initial_quill_delta()
     }
 }
 
 pub struct ClientDocument {
-    delta: TextDelta,
+    delta: TextOperations,
     history: History,
     view: ViewExtensions,
     last_edit_time: usize,
@@ -41,7 +41,7 @@ impl ClientDocument {
         Self::from_delta(C::initial_delta())
     }
 
-    pub fn from_delta(delta: TextDelta) -> Self {
+    pub fn from_delta(delta: TextOperations) -> Self {
         ClientDocument {
             delta,
             history: History::new(),
@@ -52,7 +52,7 @@ impl ClientDocument {
     }
 
     pub fn from_json(json: &str) -> Result<Self, CollaborateError> {
-        let delta = TextDelta::from_json(json)?;
+        let delta = TextOperations::from_json(json)?;
         Ok(Self::from_delta(delta))
     }
 
@@ -68,7 +68,7 @@ impl ClientDocument {
         self.delta.apply("").unwrap()
     }
 
-    pub fn delta(&self) -> &TextDelta {
+    pub fn delta(&self) -> &TextOperations {
         &self.delta
     }
 
@@ -81,7 +81,7 @@ impl ClientDocument {
         self.notify = Some(notify);
     }
 
-    pub fn set_delta(&mut self, data: TextDelta) {
+    pub fn set_delta(&mut self, data: TextOperations) {
         tracing::trace!("document: {}", data.json_str());
         self.delta = data;
 
@@ -93,7 +93,7 @@ impl ClientDocument {
         }
     }
 
-    pub fn compose_delta(&mut self, delta: TextDelta) -> Result<(), CollaborateError> {
+    pub fn compose_delta(&mut self, delta: TextOperations) -> Result<(), CollaborateError> {
         tracing::trace!("{} compose {}", &self.delta.json_str(), delta.json_str());
         let composed_delta = self.delta.compose(&delta)?;
         let mut undo_delta = delta.invert(&self.delta);
@@ -119,7 +119,7 @@ impl ClientDocument {
         Ok(())
     }
 
-    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<TextDelta, CollaborateError> {
+    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<TextOperations, CollaborateError> {
         let text = data.to_string();
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.delta, &interval)?;
@@ -128,7 +128,7 @@ impl ClientDocument {
         Ok(delta)
     }
 
-    pub fn delete(&mut self, interval: Interval) -> Result<TextDelta, CollaborateError> {
+    pub fn delete(&mut self, interval: Interval) -> Result<TextOperations, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
         debug_assert!(!interval.is_empty());
         let delete = self.view.delete(&self.delta, interval)?;
@@ -138,7 +138,11 @@ impl ClientDocument {
         Ok(delete)
     }
 
-    pub fn format(&mut self, interval: Interval, attribute: AttributeEntry) -> Result<TextDelta, CollaborateError> {
+    pub fn format(
+        &mut self,
+        interval: Interval,
+        attribute: AttributeEntry,
+    ) -> Result<TextOperations, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
         tracing::trace!("format {} with {:?}", interval, attribute);
         let format_delta = self.view.format(&self.delta, attribute, interval).unwrap();
@@ -146,9 +150,9 @@ impl ClientDocument {
         Ok(format_delta)
     }
 
-    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<TextDelta, CollaborateError> {
+    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<TextOperations, CollaborateError> {
         let _ = validate_interval(&self.delta, &interval)?;
-        let mut delta = TextDelta::default();
+        let mut delta = TextOperations::default();
         let text = data.to_string();
         if !text.is_empty() {
             delta = self.view.insert(&self.delta, &text, interval)?;
@@ -202,7 +206,7 @@ impl ClientDocument {
 }
 
 impl ClientDocument {
-    fn invert(&self, delta: &TextDelta) -> Result<(TextDelta, TextDelta), CollaborateError> {
+    fn invert(&self, delta: &TextOperations) -> Result<(TextOperations, TextOperations), CollaborateError> {
         // c = a.compose(b)
         // d = b.invert(a)
         // a = c.compose(d)
@@ -212,7 +216,7 @@ impl ClientDocument {
     }
 }
 
-fn validate_interval(delta: &TextDelta, interval: &Interval) -> Result<(), CollaborateError> {
+fn validate_interval(delta: &TextOperations, interval: &Interval) -> Result<(), CollaborateError> {
     if delta.utf16_target_len < interval.end {
         log::error!("{:?} out of bounds. should 0..{}", interval, delta.utf16_target_len);
         return Err(CollaborateError::out_of_bound());

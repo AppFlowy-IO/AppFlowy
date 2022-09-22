@@ -1,5 +1,5 @@
-use crate::core::{Attributes, Operation, OperationBuilder, Operations};
+use crate::core::{AttributeHashMap, DeltaOperation, DeltaOperations, OperationBuilder};
 
-pub type TextDelta = Operations<Attributes>;
-pub type TextDeltaBuilder = OperationBuilder<Attributes>;
-pub type TextOperation = Operation<Attributes>;
+pub type TextOperations = DeltaOperations<AttributeHashMap>;
+pub type TextOperationBuilder = OperationBuilder<AttributeHashMap>;
+pub type TextOperation = DeltaOperation<AttributeHashMap>;

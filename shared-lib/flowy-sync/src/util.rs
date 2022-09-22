@@ -9,8 +9,8 @@ use crate::{
 use dissimilar::Chunk;
 use lib_ot::core::{Delta, EmptyAttributes, OTString, OperationAttributes, OperationBuilder};
 use lib_ot::{
-    core::{OperationTransform, Operations, NEW_LINE, WHITESPACE},
-    text_delta::TextDelta,
+    core::{DeltaOperations, OperationTransform, NEW_LINE, WHITESPACE},
+    text_delta::TextOperations,
 };
 use serde::de::DeserializeOwned;
 use std::sync::atomic::{AtomicI64, Ordering::SeqCst};
@@ -62,42 +62,28 @@ impl RevIdCounter {
 }
 
 #[tracing::instrument(level = "trace", skip(revisions), err)]
-pub fn make_delta_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<Operations<T>>
+pub fn make_operations_from_revisions<T>(revisions: Vec<Revision>) -> CollaborateResult<DeltaOperations<T>>
 where
     T: OperationAttributes + DeserializeOwned,
 {
-    let mut delta = Operations::<T>::new();
+    let mut new_operations = DeltaOperations::<T>::new();
     for revision in revisions {
-        if revision.delta_data.is_empty() {
+        if revision.bytes.is_empty() {
             tracing::warn!("revision delta_data is empty");
+            continue;
         }
 
-        let revision_delta = Operations::<T>::from_bytes(revision.delta_data).map_err(|e| {
+        let operations = DeltaOperations::<T>::from_bytes(revision.bytes).map_err(|e| {
             let err_msg = format!("Deserialize remote revision failed: {:?}", e);
             CollaborateError::internal().context(err_msg)
         })?;
-        delta = delta.compose(&revision_delta)?;
+        new_operations = new_operations.compose(&operations)?;
     }
-    Ok(delta)
+    Ok(new_operations)
 }
 
-pub fn make_text_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Delta> {
-    make_delta_from_revisions::<EmptyAttributes>(revisions)
-}
-
-pub fn make_delta_from_revision_pb<T>(revisions: Vec<Revision>) -> CollaborateResult<Operations<T>>
-where
-    T: OperationAttributes + DeserializeOwned,
-{
-    let mut new_delta = Operations::<T>::new();
-    for revision in revisions {
-        let delta = Operations::<T>::from_bytes(revision.delta_data).map_err(|e| {
-            let err_msg = format!("Deserialize remote revision failed: {:?}", e);
-            CollaborateError::internal().context(err_msg)
-        })?;
-        new_delta = new_delta.compose(&delta)?;
-    }
-    Ok(new_delta)
+pub fn make_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Delta> {
+    make_operations_from_revisions::<EmptyAttributes>(revisions)
 }
 
 pub fn pair_rev_id_from_revision_pbs(revisions: &[Revision]) -> (i64, i64) {
@@ -146,10 +132,10 @@ pub fn make_folder_from_revisions_pb(
     for revision in revisions {
         base_rev_id = revision.base_rev_id;
         rev_id = revision.rev_id;
-        if revision.delta_data.is_empty() {
+        if revision.bytes.is_empty() {
             tracing::warn!("revision delta_data is empty");
         }
-        let delta = FolderDelta::from_bytes(revision.delta_data)?;
+        let delta = FolderDelta::from_bytes(revision.bytes)?;
         folder_delta = folder_delta.compose(&delta)?;
     }
 
@@ -172,18 +158,18 @@ pub fn make_document_from_revision_pbs(
         return Ok(None);
     }
 
-    let mut delta = TextDelta::new();
+    let mut delta = TextOperations::new();
     let mut base_rev_id = 0;
     let mut rev_id = 0;
     for revision in revisions {
         base_rev_id = revision.base_rev_id;
         rev_id = revision.rev_id;
 
-        if revision.delta_data.is_empty() {
+        if revision.bytes.is_empty() {
             tracing::warn!("revision delta_data is empty");
         }
 
-        let new_delta = TextDelta::from_bytes(revision.delta_data)?;
+        let new_delta = TextOperations::from_bytes(revision.bytes)?;
         delta = delta.compose(&new_delta)?;
     }
 
@@ -206,7 +192,7 @@ pub fn rev_id_from_str(s: &str) -> Result<i64, CollaborateError> {
     Ok(rev_id)
 }
 
-pub fn cal_diff<T: OperationAttributes>(old: String, new: String) -> Option<Operations<T>> {
+pub fn cal_diff<T: OperationAttributes>(old: String, new: String) -> Option<DeltaOperations<T>> {
     let chunks = dissimilar::diff(&old, &new);
     let mut delta_builder = OperationBuilder::<T>::new();
     for chunk in &chunks {

@@ -75,17 +75,13 @@ pub trait OperationAttributes: Default + Display + Eq + PartialEq + Clone + Debu
         true
     }
 
-    /// Remove the empty attribute which value is None.
-    fn remove_empty(&mut self) {
-        // Do nothing
-    }
+    /// Remove the attribute which value is None.
+    fn remove(&mut self) {}
 
-    fn extend_other(&mut self, _other: Self) {
-        // Do nothing
-    }
+    fn extend(&mut self, _other: Self) {}
 }
 
-/// [Operation] consists of three types.
+/// [DeltaOperation] consists of three types.
 /// * Delete
 /// * Retain
 /// * Insert
@@ -96,13 +92,13 @@ pub trait OperationAttributes: Default + Display + Eq + PartialEq + Clone + Debu
 /// to json string. You could check out the operation_serde.rs for more information.
 ///
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum Operation<T: OperationAttributes> {
+pub enum DeltaOperation<T: OperationAttributes> {
     Delete(usize),
     Retain(Retain<T>),
     Insert(Insert<T>),
 }
 
-impl<T> Operation<T>
+impl<T> DeltaOperation<T>
 where
     T: OperationAttributes,
 {
@@ -142,25 +138,25 @@ where
     /// Return the String if the operation is [Insert] operation, otherwise return the empty string.
     pub fn get_data(&self) -> &str {
         match self {
-            Operation::Delete(_) => "",
-            Operation::Retain(_) => "",
-            Operation::Insert(insert) => &insert.s,
+            DeltaOperation::Delete(_) => "",
+            DeltaOperation::Retain(_) => "",
+            DeltaOperation::Insert(insert) => &insert.s,
         }
     }
 
     pub fn get_attributes(&self) -> T {
         match self {
-            Operation::Delete(_) => T::default(),
-            Operation::Retain(retain) => retain.attributes.clone(),
-            Operation::Insert(insert) => insert.attributes.clone(),
+            DeltaOperation::Delete(_) => T::default(),
+            DeltaOperation::Retain(retain) => retain.attributes.clone(),
+            DeltaOperation::Insert(insert) => insert.attributes.clone(),
         }
     }
 
     pub fn set_attributes(&mut self, attributes: T) {
         match self {
-            Operation::Delete(_) => log::error!("Delete should not contains attributes"),
-            Operation::Retain(retain) => retain.attributes = attributes,
-            Operation::Insert(insert) => insert.attributes = attributes,
+            DeltaOperation::Delete(_) => log::error!("Delete should not contains attributes"),
+            DeltaOperation::Retain(retain) => retain.attributes = attributes,
+            DeltaOperation::Insert(insert) => insert.attributes = attributes,
         }
     }
 
@@ -170,9 +166,9 @@ where
 
     pub fn len(&self) -> usize {
         match self {
-            Operation::Delete(n) => *n,
-            Operation::Retain(r) => r.n,
-            Operation::Insert(i) => i.utf16_size(),
+            DeltaOperation::Delete(n) => *n,
+            DeltaOperation::Retain(r) => r.n,
+            DeltaOperation::Insert(i) => i.utf16_size(),
         }
     }
 
@@ -181,26 +177,26 @@ where
     }
 
     #[allow(dead_code)]
-    pub fn split(&self, index: usize) -> (Option<Operation<T>>, Option<Operation<T>>) {
+    pub fn split(&self, index: usize) -> (Option<DeltaOperation<T>>, Option<DeltaOperation<T>>) {
         debug_assert!(index < self.len());
         let left;
         let right;
         match self {
-            Operation::Delete(n) => {
-                left = Some(Operation::<T>::delete(index));
-                right = Some(Operation::<T>::delete(*n - index));
+            DeltaOperation::Delete(n) => {
+                left = Some(DeltaOperation::<T>::delete(index));
+                right = Some(DeltaOperation::<T>::delete(*n - index));
             }
-            Operation::Retain(retain) => {
-                left = Some(Operation::<T>::delete(index));
-                right = Some(Operation::<T>::delete(retain.n - index));
+            DeltaOperation::Retain(retain) => {
+                left = Some(DeltaOperation::<T>::delete(index));
+                right = Some(DeltaOperation::<T>::delete(retain.n - index));
             }
-            Operation::Insert(insert) => {
+            DeltaOperation::Insert(insert) => {
                 let attributes = self.get_attributes();
-                left = Some(Operation::<T>::insert_with_attributes(
+                left = Some(DeltaOperation::<T>::insert_with_attributes(
                     &insert.s[0..index],
                     attributes.clone(),
                 ));
-                right = Some(Operation::<T>::insert_with_attributes(
+                right = Some(DeltaOperation::<T>::insert_with_attributes(
                     &insert.s[index..insert.utf16_size()],
                     attributes,
                 ));
@@ -218,27 +214,27 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{Interval, Operation, EmptyAttributes};
-    /// let operation = Operation::<EmptyAttributes>::insert("1234");
+    /// use lib_ot::core::{Interval, DeltaOperation, EmptyAttributes};
+    /// let operation = DeltaOperation::<EmptyAttributes>::insert("1234");
     ///
     /// let op1 = operation.shrink(Interval::new(0,3)).unwrap();
-    /// assert_eq!(op1 , Operation::insert("123"));
+    /// assert_eq!(op1 , DeltaOperation::insert("123"));
     ///
     /// let op2= operation.shrink(Interval::new(3,4)).unwrap();
-    /// assert_eq!(op2, Operation::insert("4"));
+    /// assert_eq!(op2, DeltaOperation::insert("4"));
     /// ```
-    pub fn shrink(&self, interval: Interval) -> Option<Operation<T>> {
+    pub fn shrink(&self, interval: Interval) -> Option<DeltaOperation<T>> {
         let op = match self {
-            Operation::Delete(n) => Operation::delete(min(*n, interval.size())),
-            Operation::Retain(retain) => {
-                Operation::retain_with_attributes(min(retain.n, interval.size()), retain.attributes.clone())
+            DeltaOperation::Delete(n) => DeltaOperation::delete(min(*n, interval.size())),
+            DeltaOperation::Retain(retain) => {
+                DeltaOperation::retain_with_attributes(min(retain.n, interval.size()), retain.attributes.clone())
             }
-            Operation::Insert(insert) => {
+            DeltaOperation::Insert(insert) => {
                 if interval.start > insert.utf16_size() {
-                    Operation::insert("")
+                    DeltaOperation::insert("")
                 } else {
                     let s = insert.s.sub_str(interval).unwrap_or_else(|| "".to_owned());
-                    Operation::insert_with_attributes(&s, insert.attributes.clone())
+                    DeltaOperation::insert_with_attributes(&s, insert.attributes.clone())
                 }
             }
         };
@@ -250,21 +246,21 @@ where
     }
 
     pub fn is_delete(&self) -> bool {
-        if let Operation::Delete(_) = self {
+        if let DeltaOperation::Delete(_) = self {
             return true;
         }
         false
     }
 
     pub fn is_insert(&self) -> bool {
-        if let Operation::Insert(_) = self {
+        if let DeltaOperation::Insert(_) = self {
             return true;
         }
         false
     }
 
     pub fn is_retain(&self) -> bool {
-        if let Operation::Retain(_) = self {
+        if let DeltaOperation::Retain(_) = self {
             return true;
         }
         false
@@ -272,27 +268,27 @@ where
 
     pub fn is_plain(&self) -> bool {
         match self {
-            Operation::Delete(_) => true,
-            Operation::Retain(retain) => retain.is_plain(),
-            Operation::Insert(insert) => insert.is_plain(),
+            DeltaOperation::Delete(_) => true,
+            DeltaOperation::Retain(retain) => retain.is_plain(),
+            DeltaOperation::Insert(insert) => insert.is_plain(),
         }
     }
 }
 
-impl<T> fmt::Display for Operation<T>
+impl<T> fmt::Display for DeltaOperation<T>
 where
     T: OperationAttributes,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str("{")?;
         match self {
-            Operation::Delete(n) => {
+            DeltaOperation::Delete(n) => {
                 f.write_fmt(format_args!("delete: {}", n))?;
             }
-            Operation::Retain(r) => {
+            DeltaOperation::Retain(r) => {
                 f.write_fmt(format_args!("{}", r))?;
             }
-            Operation::Insert(i) => {
+            DeltaOperation::Insert(i) => {
                 f.write_fmt(format_args!("{}", i))?;
             }
         }
@@ -324,7 +320,7 @@ impl<T> Retain<T>
 where
     T: OperationAttributes,
 {
-    pub fn merge_or_new(&mut self, n: usize, attributes: T) -> Option<Operation<T>> {
+    pub fn merge_or_new(&mut self, n: usize, attributes: T) -> Option<DeltaOperation<T>> {
         // tracing::trace!(
         //     "merge_retain_or_new_op: len: {:?}, l: {} - r: {}",
         //     n,
@@ -335,7 +331,7 @@ where
             self.n += n;
             None
         } else {
-            Some(Operation::retain_with_attributes(n, attributes))
+            Some(DeltaOperation::retain_with_attributes(n, attributes))
         }
     }
 
@@ -411,12 +407,12 @@ where
         self.s.utf16_len()
     }
 
-    pub fn merge_or_new_op(&mut self, s: &str, attributes: T) -> Option<Operation<T>> {
+    pub fn merge_or_new_op(&mut self, s: &str, attributes: T) -> Option<DeltaOperation<T>> {
         if self.attributes == attributes {
             self.s += s;
             None
         } else {
-            Some(Operation::<T>::insert_with_attributes(s, attributes))
+            Some(DeltaOperation::<T>::insert_with_attributes(s, attributes))
         }
     }
 

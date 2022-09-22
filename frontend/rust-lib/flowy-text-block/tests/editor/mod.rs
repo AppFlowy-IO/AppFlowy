@@ -8,7 +8,7 @@ use derive_more::Display;
 use flowy_sync::client_document::{ClientDocument, InitialDocumentText};
 use lib_ot::{
     core::*,
-    text_delta::{BuildInTextAttribute, TextDelta},
+    text_delta::{BuildInTextAttribute, TextOperations},
 };
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
@@ -81,8 +81,8 @@ pub enum TestOp {
 
 pub struct TestBuilder {
     documents: Vec<ClientDocument>,
-    deltas: Vec<Option<TextDelta>>,
-    primes: Vec<Option<TextDelta>>,
+    deltas: Vec<Option<TextOperations>>,
+    primes: Vec<Option<TextOperations>>,
 }
 
 impl TestBuilder {
@@ -226,8 +226,8 @@ impl TestBuilder {
 
             TestOp::AssertDocJson(delta_i, expected) => {
                 let delta_json = self.documents[*delta_i].delta_str();
-                let expected_delta: TextDelta = serde_json::from_str(expected).unwrap();
-                let target_delta: TextDelta = serde_json::from_str(&delta_json).unwrap();
+                let expected_delta: TextOperations = serde_json::from_str(expected).unwrap();
+                let target_delta: TextOperations = serde_json::from_str(&delta_json).unwrap();
 
                 if expected_delta != target_delta {
                     log::error!("✅ expect: {}", expected,);
@@ -238,8 +238,8 @@ impl TestBuilder {
 
             TestOp::AssertPrimeJson(doc_i, expected) => {
                 let prime_json = self.primes[*doc_i].as_ref().unwrap().json_str();
-                let expected_prime: TextDelta = serde_json::from_str(expected).unwrap();
-                let target_prime: TextDelta = serde_json::from_str(&prime_json).unwrap();
+                let expected_prime: TextOperations = serde_json::from_str(expected).unwrap();
+                let target_prime: TextOperations = serde_json::from_str(&prime_json).unwrap();
 
                 if expected_prime != target_prime {
                     log::error!("✅ expect prime: {}", expected,);
@@ -297,8 +297,8 @@ impl Rng {
             .collect()
     }
 
-    pub fn gen_delta(&mut self, s: &str) -> TextDelta {
-        let mut delta = TextDelta::default();
+    pub fn gen_delta(&mut self, s: &str) -> TextOperations {
+        let mut delta = TextOperations::default();
         let s = OTString::from(s);
         loop {
             let left = s.utf16_len() - delta.utf16_base_len;
@@ -312,18 +312,18 @@ impl Rng {
             };
             match self.0.gen_range(0.0..1.0) {
                 f if f < 0.2 => {
-                    delta.insert(&self.gen_string(i), Attributes::default());
+                    delta.insert(&self.gen_string(i), AttributeHashMap::default());
                 }
                 f if f < 0.4 => {
                     delta.delete(i);
                 }
                 _ => {
-                    delta.retain(i, Attributes::default());
+                    delta.retain(i, AttributeHashMap::default());
                 }
             }
         }
         if self.0.gen_range(0.0..1.0) < 0.3 {
-            delta.insert(&("1".to_owned() + &self.gen_string(10)), Attributes::default());
+            delta.insert(&("1".to_owned() + &self.gen_string(10)), AttributeHashMap::default());
         }
         delta
     }
