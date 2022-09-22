@@ -1,5 +1,7 @@
+import 'package:app_flowy/plugins/blank/blank.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
+import 'package:app_flowy/workspace/application/home/home_service.dart';
 
 import 'package:app_flowy/workspace/presentation/home/hotkeys.dart';
 import 'package:app_flowy/workspace/application/view/view_ext.dart';
@@ -78,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
               return FlowyContainer(
                 Theme.of(context).colorScheme.surface,
                 // Colors.white,
-                child: _buildBody(state),
+                child: _buildBody(context, state),
               );
             },
           ),
@@ -87,12 +89,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildBody(HomeState state) {
+  Widget _buildBody(BuildContext context, HomeState state) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         final layout = HomeLayout(context, constraints, state.forceCollapse);
         final homeStack = HomeStack(
           layout: layout,
+          delegate: HomeScreenStackAdaptor(
+            buildContext: context,
+            homeState: state,
+          ),
         );
         final menu = _buildHomeMenu(
           layout: layout,
@@ -132,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
       getIt<HomeStackManager>().setPlugin(plugin);
     }
 
-    HomeMenu homeMenu = HomeMenu(
+    final homeMenu = HomeMenu(
       user: widget.user,
       workspaceSetting: workspaceSetting,
       collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
@@ -147,7 +153,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }
-
 
   Widget _buildEditPanel(
       {required HomeState homeState,
@@ -243,5 +248,40 @@ class _HomeScreenState extends State<HomeScreen> {
                 right: 0, top: 0, bottom: 0, width: layout.editPanelWidth),
       ],
     );
+  }
+}
+
+class HomeScreenStackAdaptor extends HomeStackDelegate {
+  final BuildContext buildContext;
+  final HomeState homeState;
+
+  HomeScreenStackAdaptor({
+    required this.buildContext,
+    required this.homeState,
+  });
+
+  @override
+  void didDeleteStackWidget(ViewPB view) {
+    final homeService = HomeService();
+    homeService.readApp(appId: view.appId).then((result) {
+      result.fold(
+        (appPB) {
+          final List<ViewPB> views = appPB.belongings.items;
+          if (views.isNotEmpty) {
+            final lastView = views.last;
+            final plugin = makePlugin(
+              pluginType: lastView.pluginType,
+              data: lastView,
+            );
+            getIt<MenuSharedState>().latestOpenView = lastView;
+            getIt<HomeStackManager>().setPlugin(plugin);
+          } else {
+            getIt<MenuSharedState>().latestOpenView = null;
+            getIt<HomeStackManager>().setPlugin(BlankPagePlugin());
+          }
+        },
+        (err) => Log.error(err),
+      );
+    });
   }
 }

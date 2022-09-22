@@ -3,7 +3,6 @@ library flowy_plugin;
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
-import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/widgets.dart';
 
@@ -17,32 +16,28 @@ enum PluginType {
   board,
 }
 
-// extension FlowyDefaultPluginExt on DefaultPlugin {
-//   int type() {
-//     switch (this) {
-//       case DefaultPlugin.editor:
-//         return 0;
-//       case DefaultPlugin.blank:
-//         return 1;
-//       case DefaultPlugin.trash:
-//         return 2;
-//       case DefaultPlugin.grid:
-//         return 3;
-//       case DefaultPlugin.board:
-//         return 4;
-//     }
-//   }
-// }
-
-// typedef PluginType = int;
 typedef PluginId = String;
 
-abstract class Plugin {
+abstract class Plugin<T> {
   PluginId get id;
 
   PluginDisplay get display;
 
+  PluginNotifier? get notifier => null;
+
   PluginType get ty;
+
+  void dispose() {
+    notifier?.dispose();
+  }
+}
+
+abstract class PluginNotifier {
+  /// Notify if the plugin get deleted
+  ValueNotifier<bool> get isDeleted;
+
+  /// Notify if the [PluginDisplay]'s content was changed
+  ValueNotifier<int> get isDisplayChanged;
 
   void dispose() {}
 }
@@ -64,12 +59,17 @@ abstract class PluginConfig {
   bool get creatable => true;
 }
 
-abstract class PluginDisplay<T> with NavigationItem {
+abstract class PluginDisplay with NavigationItem {
   List<NavigationItem> get navigationItems;
 
-  PublishNotifier<T>? get notifier => null;
+  Widget buildWidget(PluginContext context);
+}
 
-  Widget buildWidget();
+class PluginContext {
+  // calls when widget of the plugin get deleted
+  final Function(ViewPB) onDeleted;
+
+  PluginContext({required this.onDeleted});
 }
 
 void registerPlugin({required PluginBuilder builder, PluginConfig? config}) {

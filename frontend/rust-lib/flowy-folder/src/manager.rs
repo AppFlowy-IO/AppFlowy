@@ -251,8 +251,6 @@ pub trait ViewDataProcessor {
 
     fn create_container(&self, user_id: &str, view_id: &str, delta_data: Bytes) -> FutureResult<(), FlowyError>;
 
-    fn delete_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
-
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
     fn get_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
