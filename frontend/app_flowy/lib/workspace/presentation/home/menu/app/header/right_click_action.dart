@@ -44,7 +44,7 @@ class DisclosureActionWrapper extends ActionItem {
 
   DisclosureActionWrapper(this.inner);
   @override
-  Widget? icon(Color iconColor) => inner.icon;
+  Widget? icon(Color iconColor) => inner.icon(iconColor);
 
   @override
   String get name => inner.name;
