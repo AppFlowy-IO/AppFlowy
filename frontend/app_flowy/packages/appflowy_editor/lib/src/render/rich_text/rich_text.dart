@@ -43,7 +43,11 @@ class RichTextNodeWidget extends BuiltInTextWidget {
 // customize
 
 class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with
+        SelectableMixin,
+        DefaultSelectable,
+        BuiltInStyleMixin,
+        BuiltInTextWidgetMixin {
   @override
   GlobalKey? get iconKey => null;
 
@@ -59,7 +63,7 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildWithSingle(BuildContext context) {
     return Padding(
       padding: padding,
       child: FlowyRichText(

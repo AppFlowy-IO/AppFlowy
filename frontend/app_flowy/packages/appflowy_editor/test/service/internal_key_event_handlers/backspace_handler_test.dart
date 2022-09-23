@@ -1,5 +1,9 @@
+import 'dart:collection';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/image/image_node_widget.dart';
+import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/backspace_handler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
@@ -319,6 +323,133 @@ void main() async {
       Selection.single(path: [0, 0], startOffset: text.length),
     );
     expect((editor.nodeAtPath([0, 0]) as TextNode).toRawString(), text * 2);
+  });
+
+  testWidgets('Delete the complicated nested bulleted list', (tester) async {
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    const text = 'Welcome to Appflowy 😁';
+    final node = TextNode(
+      type: 'text',
+      delta: Delta()..insert(text),
+      attributes: {
+        BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
+      },
+    );
+
+    node
+      ..insert(
+        node.copyWith(children: LinkedList()),
+      )
+      ..insert(
+        node.copyWith(children: LinkedList())
+          ..insert(
+            node.copyWith(children: LinkedList()),
+          )
+          ..insert(
+            node.copyWith(children: LinkedList()),
+          ),
+      );
+
+    final editor = tester.editor..insert(node);
+    await editor.startTesting();
+
+    await editor.updateSelection(
+      Selection.single(path: [0, 1], startOffset: 0),
+    );
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(
+      editor.nodeAtPath([0, 1])!.subtype != BuiltInAttributeKey.bulletedList,
+      true,
+    );
+    expect(
+      editor.nodeAtPath([0, 1, 0])!.subtype,
+      BuiltInAttributeKey.bulletedList,
+    );
+    expect(
+      editor.nodeAtPath([0, 1, 1])!.subtype,
+      BuiltInAttributeKey.bulletedList,
+    );
+    expect(find.byType(FlowyRichText), findsNWidgets(5));
+
+    // Before
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //  Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    // After
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    // Welcome to Appflowy 😁
+    //   * Welcome to Appflowy 😁
+    //   * Welcome to Appflowy 😁
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(
+      editor.nodeAtPath([1])!.subtype != BuiltInAttributeKey.bulletedList,
+      true,
+    );
+    expect(
+      editor.nodeAtPath([1, 0])!.subtype == BuiltInAttributeKey.bulletedList,
+      true,
+    );
+    expect(
+      editor.nodeAtPath([1, 1])!.subtype == BuiltInAttributeKey.bulletedList,
+      true,
+    );
+
+    // After
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁Welcome to Appflowy 😁
+    // * Welcome to Appflowy 😁
+    // * Welcome to Appflowy 😁
+  });
+
+  test('find the last text node', () {
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    //      * Welcome to Appflowy 😁
+    //      * Welcome to Appflowy 😁
+    const text = 'Welcome to Appflowy 😁';
+    TextNode textNode() {
+      return TextNode(
+        type: 'text',
+        delta: Delta()..insert(text),
+      );
+    }
+
+    final node110 = textNode();
+    final node111 = textNode();
+    final node11 = textNode()
+      ..insert(node110)
+      ..insert(node111);
+    final node10 = textNode();
+    final node1 = textNode()
+      ..insert(node10)
+      ..insert(node11);
+    final node0 = textNode();
+    final node = textNode()
+      ..insert(node0)
+      ..insert(node1);
+
+    expect(findLastTextNode(node)?.path, [1, 1, 1]);
+    expect(findLastTextNode(node0)?.path, [0]);
+    expect(findLastTextNode(node1)?.path, [1, 1, 1]);
+    expect(findLastTextNode(node10)?.path, [1, 0]);
+    expect(findLastTextNode(node11)?.path, [1, 1, 1]);
+
+    expect(forwardNearestTextNode(node111)?.path, [1, 1, 0]);
+    expect(forwardNearestTextNode(node110)?.path, [1, 1]);
+    expect(forwardNearestTextNode(node11)?.path, [1, 0]);
+    expect(forwardNearestTextNode(node10)?.path, [1]);
+    expect(forwardNearestTextNode(node1)?.path, [0]);
+    expect(forwardNearestTextNode(node0)?.path, []);
   });
 }
 
