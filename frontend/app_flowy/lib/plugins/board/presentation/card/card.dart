@@ -83,6 +83,7 @@ class _BoardCardState extends State<BoardCard> {
         builder: (context, state) {
           return AppFlowyPopover(
             controller: popoverController,
+            triggerActions: PopoverTriggerFlags.none,
             constraints: BoxConstraints.loose(const Size(140, 200)),
             direction: PopoverDirection.rightWithCenterAligned,
             popupBuilder: (popoverContext) => _handlePopoverBuilder(
