@@ -277,6 +277,7 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
+    #[tracing::instrument(level = "debug", skip_all, err)]
     pub(crate) async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
         if let Some(field_rev) = self.field_delegate.get_field_rev(field_id).await {
             let new_group_controller = new_group_controller_with_field_rev(
@@ -374,13 +375,14 @@ impl GridViewRevisionEditor {
 async fn new_group_controller(
     user_id: String,
     view_id: String,
-    pad: Arc<RwLock<GridViewRevisionPad>>,
+    view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
     rev_manager: Arc<RevisionManager>,
     field_delegate: Arc<dyn GridViewFieldDelegate>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
-    let configuration_reader = GroupConfigurationReaderImpl(pad.clone());
+    let configuration_reader = GroupConfigurationReaderImpl(view_rev_pad.clone());
     let field_revs = field_delegate.get_field_revs().await;
+    let layout = view_rev_pad.read().await.layout();
     // Read the group field or find a new group field
     let field_rev = configuration_reader
         .get_configuration()
@@ -391,24 +393,24 @@ async fn new_group_controller(
                 .find(|field_rev| field_rev.id == configuration.field_id)
                 .cloned()
         })
-        .unwrap_or_else(|| find_group_field(&field_revs).unwrap());
+        .unwrap_or_else(|| find_group_field(&field_revs, &layout).unwrap());
 
-    new_group_controller_with_field_rev(user_id, view_id, pad, rev_manager, field_rev, row_delegate).await
+    new_group_controller_with_field_rev(user_id, view_id, view_rev_pad, rev_manager, field_rev, row_delegate).await
 }
 
 async fn new_group_controller_with_field_rev(
     user_id: String,
     view_id: String,
-    pad: Arc<RwLock<GridViewRevisionPad>>,
+    view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
     rev_manager: Arc<RevisionManager>,
     field_rev: Arc<FieldRevision>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
-    let configuration_reader = GroupConfigurationReaderImpl(pad.clone());
+    let configuration_reader = GroupConfigurationReaderImpl(view_rev_pad.clone());
     let configuration_writer = GroupConfigurationWriterImpl {
         user_id,
         rev_manager,
-        view_pad: pad,
+        view_pad: view_rev_pad,
     };
     let row_revs = row_delegate.gv_row_revs().await;
     make_group_controller(view_id, field_rev, row_revs, configuration_reader, configuration_writer).await

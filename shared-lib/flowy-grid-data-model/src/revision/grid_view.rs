@@ -48,11 +48,11 @@ pub struct GridViewRevision {
 }
 
 impl GridViewRevision {
-    pub fn new(grid_id: String, view_id: String) -> Self {
+    pub fn new(grid_id: String, view_id: String, layout: LayoutRevision) -> Self {
         GridViewRevision {
             view_id,
             grid_id,
-            layout: Default::default(),
+            layout,
             filters: Default::default(),
             groups: Default::default(),
             // row_orders: vec![],

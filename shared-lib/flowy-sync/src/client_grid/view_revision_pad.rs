@@ -3,7 +3,7 @@ use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_text_delta_from_revisions};
 use flowy_grid_data_model::revision::{
     FieldRevision, FieldTypeRevision, FilterConfigurationRevision, FilterConfigurationsByFieldId, GridViewRevision,
-    GroupConfigurationRevision, GroupConfigurationsByFieldId,
+    GroupConfigurationRevision, GroupConfigurationsByFieldId, LayoutRevision,
 };
 use lib_ot::core::{Delta, DeltaBuilder, EmptyAttributes, OperationTransform};
 use std::sync::Arc;
@@ -25,8 +25,8 @@ impl std::ops::Deref for GridViewRevisionPad {
 impl GridViewRevisionPad {
     // For the moment, the view_id is equal to grid_id. The grid_id represents the database id.
     // A database can be referenced by multiple views.
-    pub fn new(grid_id: String, view_id: String) -> Self {
-        let view = Arc::new(GridViewRevision::new(grid_id, view_id));
+    pub fn new(grid_id: String, view_id: String, layout: LayoutRevision) -> Self {
+        let view = Arc::new(GridViewRevision::new(grid_id, view_id, layout));
         let json = serde_json::to_string(&view).unwrap();
         let delta = DeltaBuilder::new().insert(&json).build();
         Self { view, delta }
@@ -34,7 +34,11 @@ impl GridViewRevisionPad {
 
     pub fn from_delta(view_id: &str, delta: Delta) -> CollaborateResult<Self> {
         if delta.is_empty() {
-            return Ok(GridViewRevisionPad::new(view_id.to_owned(), view_id.to_owned()));
+            return Ok(GridViewRevisionPad::new(
+                view_id.to_owned(),
+                view_id.to_owned(),
+                LayoutRevision::Table,
+            ));
         }
         let s = delta.content()?;
         let view: GridViewRevision = serde_json::from_str(&s).map_err(|e| {
@@ -161,6 +165,10 @@ impl GridViewRevisionPad {
 
     pub fn json_str(&self) -> CollaborateResult<String> {
         make_grid_view_rev_json_str(&self.view)
+    }
+
+    pub fn layout(&self) -> LayoutRevision {
+        self.layout.clone()
     }
 
     fn modify<F>(&mut self, f: F) -> CollaborateResult<Option<GridViewRevisionChangeset>>
