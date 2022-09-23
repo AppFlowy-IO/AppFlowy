@@ -54,13 +54,11 @@ class GridURLCell extends GridCellWidget {
       GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
     switch (ty) {
       case GridURLCellAccessoryType.edit:
-        final cellController =
-            cellControllerBuilder.build() as GridURLCellController;
         return GridCellAccessoryBuilder(
           builder: (Key key) => _EditURLAccessory(
             key: key,
-            cellContext: cellController,
             anchorContext: buildContext.anchorContext,
+            cellControllerBuilder: cellControllerBuilder,
           ),
         );
 
@@ -191,10 +189,10 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
 }
 
 class _EditURLAccessory extends StatefulWidget {
-  final GridURLCellController cellContext;
+  final GridCellControllerBuilder cellControllerBuilder;
   final BuildContext anchorContext;
   const _EditURLAccessory({
-    required this.cellContext,
+    required this.cellControllerBuilder,
     required this.anchorContext,
     Key? key,
   }) : super(key: key);
@@ -224,7 +222,8 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
       child: svgWidget("editor/edit", color: theme.iconColor),
       popupBuilder: (BuildContext popoverContext) {
         return URLEditorPopover(
-          cellController: widget.cellContext.clone(),
+          cellController:
+              widget.cellControllerBuilder.build() as GridURLCellController,
         );
       },
     );

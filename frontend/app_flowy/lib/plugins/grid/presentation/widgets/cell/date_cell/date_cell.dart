@@ -80,9 +80,9 @@ class _DateCellState extends GridCellState<GridDateCell> {
               ),
             ),
             popupBuilder: (BuildContext popoverContent) {
-              final bloc = context.read<DateCellBloc>();
               return DateCellEditor(
-                cellController: bloc.cellController.clone(),
+                cellController: widget.cellControllerBuilder.build()
+                    as GridDateCellController,
                 onDismissed: () => widget.onCellEditing.value = false,
               );
             },
