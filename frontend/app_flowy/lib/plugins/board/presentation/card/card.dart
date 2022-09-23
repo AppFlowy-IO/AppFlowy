@@ -133,7 +133,8 @@ class _BoardCardState extends State<BoardCard> {
         throw UnimplementedError();
       case AccessoryType.more:
         return GridRowActionSheet(
-            rowData: context.read<BoardCardBloc>().rowInfo());
+          rowData: context.read<BoardCardBloc>().rowInfo(),
+        );
     }
   }
 

@@ -233,7 +233,7 @@ class ShareActionWrapper extends ActionItem {
   ShareActionWrapper(this.inner);
 
   @override
-  Widget? get icon => null;
+  Widget? icon(Color iconColor) => null;
 
   @override
   String get name => inner.name;

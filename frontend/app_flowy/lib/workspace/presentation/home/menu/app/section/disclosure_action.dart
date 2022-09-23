@@ -80,7 +80,7 @@ class ViewDisclosureRegion extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return Listener(
-      onPointerDown: (event) => {_handleClick(event, context)},
+      onPointerDown: (event) => _handleClick(event, context),
       child: child,
     );
   }
@@ -123,7 +123,7 @@ class ViewDisclosureActionWrapper extends ActionItem {
 
   ViewDisclosureActionWrapper(this.inner);
   @override
-  Widget? get icon => inner.icon;
+  Widget? icon(Color iconColor) => inner.icon(iconColor);
 
   @override
   String get name => inner.name;

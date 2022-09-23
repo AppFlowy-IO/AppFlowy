@@ -5,9 +5,12 @@ import 'package:flutter/material.dart';
 
 import 'header.dart';
 
-class AppDisclosureActionSheet with ActionList<DisclosureActionWrapper>, FlowyOverlayDelegate {
+class AppDisclosureActionSheet
+    with ActionList<DisclosureActionWrapper>, FlowyOverlayDelegate {
   final Function(dartz.Option<AppDisclosureAction>) onSelected;
-  final _items = AppDisclosureAction.values.map((action) => DisclosureActionWrapper(action)).toList();
+  final _items = AppDisclosureAction.values
+      .map((action) => DisclosureActionWrapper(action))
+      .toList();
 
   AppDisclosureActionSheet({
     required this.onSelected,
@@ -17,7 +20,8 @@ class AppDisclosureActionSheet with ActionList<DisclosureActionWrapper>, FlowyOv
   List<DisclosureActionWrapper> get items => _items;
 
   @override
-  void Function(dartz.Option<DisclosureActionWrapper> p1) get selectCallback => (result) {
+  void Function(dartz.Option<DisclosureActionWrapper> p1) get selectCallback =>
+      (result) {
         result.fold(
           () => onSelected(dartz.none()),
           (wrapper) => onSelected(
@@ -40,7 +44,7 @@ class DisclosureActionWrapper extends ActionItem {
 
   DisclosureActionWrapper(this.inner);
   @override
-  Widget? get icon => inner.icon;
+  Widget? icon(Color iconColor) => inner.icon;
 
   @override
   String get name => inner.name;

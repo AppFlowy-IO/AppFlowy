@@ -59,7 +59,7 @@ abstract class ActionList<T extends ActionItem> {
 }
 
 abstract class ActionItem {
-  Widget? get icon;
+  Widget? icon(Color iconColor);
   String get name;
 }
 
@@ -83,6 +83,7 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    final icon = action.icon(theme.iconColor);
 
     return FlowyHover(
       style: HoverStyle(hoverColor: theme.hover),
@@ -94,12 +95,9 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (action.icon != null) action.icon!,
+              if (icon != null) icon,
               HSpace(ActionListSizes.itemHPadding),
-              FlowyText.medium(
-                action.name,
-                fontSize: 12,
-              ),
+              FlowyText.medium(action.name, fontSize: 12),
             ],
           ),
         ).padding(
