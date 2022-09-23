@@ -136,7 +136,6 @@ class PopoverState extends State<Popover> {
 
       return Stack(children: children);
     });
-
     _rootEntry.addEntry(context, this, newEntry, widget.asBarrier);
   }
 
@@ -243,7 +242,7 @@ class PopoverContainerState extends State<PopoverContainer> {
     );
   }
 
-  close() => widget.onClose();
+  void close() => widget.onClose();
 
-  closeAll() => widget.onCloseAll();
+  void closeAll() => widget.onCloseAll();
 }
