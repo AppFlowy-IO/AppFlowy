@@ -1,5 +1,5 @@
 pub use crate::entities::view::ViewDataTypePB;
-use crate::entities::ViewInfoPB;
+use crate::entities::{ViewInfoPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -67,10 +67,20 @@ impl ViewController {
             params.view_content_data = view_data.to_vec();
         } else {
             let delta_data = processor
-                .create_view_from_delta_data(&user_id, &params.view_id, params.view_content_data.clone())
+                .create_view_from_delta_data(
+                    &user_id,
+                    &params.view_id,
+                    params.view_content_data.clone(),
+                    params.layout.clone(),
+                )
                 .await?;
             let _ = self
-                .create_view(&params.view_id, params.data_type.clone(), delta_data)
+                .create_view(
+                    &params.view_id,
+                    params.data_type.clone(),
+                    params.layout.clone(),
+                    delta_data,
+                )
                 .await?;
         };
 
@@ -84,6 +94,7 @@ impl ViewController {
         &self,
         view_id: &str,
         data_type: ViewDataTypePB,
+        layout_type: ViewLayoutTypePB,
         delta_data: Bytes,
     ) -> Result<(), FlowyError> {
         if delta_data.is_empty() {
@@ -91,7 +102,9 @@ impl ViewController {
         }
         let user_id = self.user.user_id()?;
         let processor = self.get_data_processor(data_type)?;
-        let _ = processor.create_container(&user_id, view_id, delta_data).await?;
+        let _ = processor
+            .create_container(&user_id, view_id, layout_type, delta_data)
+            .await?;
         Ok(())
     }
 

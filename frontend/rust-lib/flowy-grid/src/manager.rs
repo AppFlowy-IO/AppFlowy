@@ -1,3 +1,4 @@
+use crate::entities::GridLayout;
 use crate::services::block_editor::GridBlockRevisionCompactor;
 use crate::services::grid_editor::{GridRevisionCompactor, GridRevisionEditor};
 use crate::services::grid_view_manager::make_grid_view_rev_manager;
@@ -178,6 +179,7 @@ impl GridManager {
 pub async fn make_grid_view_data(
     user_id: &str,
     view_id: &str,
+    layout: GridLayout,
     grid_manager: Arc<GridManager>,
     build_context: BuildGridContext,
 ) -> FlowyResult<Bytes> {
@@ -208,7 +210,7 @@ pub async fn make_grid_view_data(
     let _ = grid_manager.create_grid(&grid_id, repeated_revision).await?;
 
     // Create grid view
-    let grid_view = GridViewRevision::new(grid_id, view_id.to_owned());
+    let grid_view = GridViewRevision::new(grid_id, view_id.to_owned(), layout.into());
     let grid_view_delta = make_grid_view_delta(&grid_view);
     let grid_view_delta_bytes = grid_view_delta.json_bytes();
     let repeated_revision: RepeatedRevision =

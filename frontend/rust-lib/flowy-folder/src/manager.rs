@@ -221,8 +221,9 @@ impl DefaultFolderBuilder {
                     initial_quill_delta_string()
                 };
                 let _ = view_controller.set_latest_view(&view.id);
+                let layout_type = ViewLayoutTypePB::from(view.layout.clone());
                 let _ = view_controller
-                    .create_view(&view.id, ViewDataTypePB::Text, Bytes::from(view_data))
+                    .create_view(&view.id, ViewDataTypePB::Text, layout_type, Bytes::from(view_data))
                     .await?;
             }
         }
@@ -249,7 +250,13 @@ impl FolderManager {
 pub trait ViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError>;
 
-    fn create_container(&self, user_id: &str, view_id: &str, delta_data: Bytes) -> FutureResult<(), FlowyError>;
+    fn create_container(
+        &self,
+        user_id: &str,
+        view_id: &str,
+        layout: ViewLayoutTypePB,
+        delta_data: Bytes,
+    ) -> FutureResult<(), FlowyError>;
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
@@ -267,6 +274,7 @@ pub trait ViewDataProcessor {
         user_id: &str,
         view_id: &str,
         data: Vec<u8>,
+        layout: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError>;
 
     fn data_type(&self) -> ViewDataTypePB;

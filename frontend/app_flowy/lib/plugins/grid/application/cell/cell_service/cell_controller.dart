@@ -283,7 +283,12 @@ class IGridCellController<T, D> extends Equatable {
     _loadDataOperation?.cancel();
     _loadDataOperation = Timer(const Duration(milliseconds: 10), () {
       _cellDataLoader.loadData().then((data) {
-        _cellsCache.insert(_cacheKey, GridCell(object: data));
+        if (data != null) {
+          _cellsCache.insert(_cacheKey, GridCell(object: data));
+        } else {
+          _cellsCache.remove(_cacheKey);
+        }
+
         _cellDataNotifier?.value = data;
       });
     });

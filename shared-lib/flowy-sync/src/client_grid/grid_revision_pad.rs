@@ -1,5 +1,5 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
-use crate::errors::{internal_error, CollaborateError, CollaborateResult};
+use crate::errors::{internal_error, CollaborateError, CollaborateResult };
 use crate::util::{cal_diff, make_text_delta_from_revisions};
 use bytes::Bytes;
 use flowy_grid_data_model::revision::{
@@ -103,8 +103,12 @@ impl GridRevisionPad {
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
                 Some(index) => {
-                    grid_meta.fields.remove(index);
-                    Ok(Some(()))
+                    if grid_meta.fields[index].is_primary {
+                        Err(CollaborateError::can_not_delete_primary_field())
+                    } else {
+                        grid_meta.fields.remove(index);
+                        Ok(Some(()))
+                    }
                 }
             },
         )
