@@ -149,18 +149,13 @@ class IGridCellController<T, D> extends Equatable {
         _cellDataPersistence = cellDataPersistence,
         _fieldNotifier = fieldNotifier,
         _fieldService = FieldService(
-            gridId: cellId.gridId, fieldId: cellId.fieldContext.id),
+          gridId: cellId.gridId,
+          fieldId: cellId.fieldContext.id,
+        ),
         _cacheKey = GridCellCacheKey(
-            rowId: cellId.rowId, fieldId: cellId.fieldContext.id);
-
-  IGridCellController<T, D> clone() {
-    return IGridCellController(
-        cellId: cellId,
-        cellDataLoader: _cellDataLoader,
-        cellCache: _cellsCache,
-        fieldNotifier: _fieldNotifier,
-        cellDataPersistence: _cellDataPersistence);
-  }
+          rowId: cellId.rowId,
+          fieldId: cellId.fieldContext.id,
+        );
 
   String get gridId => cellId.gridId;
 
@@ -172,9 +167,10 @@ class IGridCellController<T, D> extends Equatable {
 
   FieldType get fieldType => cellId.fieldContext.fieldType;
 
-  VoidCallback? startListening(
-      {required void Function(T?) onCellChanged,
-      VoidCallback? onCellFieldChanged}) {
+  VoidCallback? startListening({
+    required void Function(T?) onCellChanged,
+    VoidCallback? onCellFieldChanged,
+  }) {
     if (isListening) {
       Log.error("Already started. It seems like you should call clone first");
       return null;
