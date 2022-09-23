@@ -180,6 +180,7 @@ class CreateFieldButton extends StatelessWidget {
       asBarrier: true,
       constraints: BoxConstraints.loose(const Size(240, 600)),
       child: FlowyButton(
+        radius: BorderRadius.zero,
         text: FlowyText.medium(
           LocaleKeys.grid_field_newColumn.tr(),
           fontSize: 12,

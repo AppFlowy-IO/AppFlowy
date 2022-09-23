@@ -12,6 +12,8 @@ class FlowyButton extends StatelessWidget {
   final Widget? rightIcon;
   final Color hoverColor;
   final bool isSelected;
+  final BorderRadius radius;
+
   const FlowyButton({
     Key? key,
     required this.text,
@@ -22,6 +24,7 @@ class FlowyButton extends StatelessWidget {
     this.rightIcon,
     this.hoverColor = Colors.transparent,
     this.isSelected = false,
+    this.radius = const BorderRadius.all(Radius.circular(6)),
   }) : super(key: key);
 
   @override
@@ -29,8 +32,10 @@ class FlowyButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: FlowyHover(
-        style:
-            HoverStyle(borderRadius: BorderRadius.zero, hoverColor: hoverColor),
+        style: HoverStyle(
+          borderRadius: radius,
+          hoverColor: hoverColor,
+        ),
         onHover: onHover,
         setSelected: () => isSelected,
         builder: (context, onHover) => _render(),

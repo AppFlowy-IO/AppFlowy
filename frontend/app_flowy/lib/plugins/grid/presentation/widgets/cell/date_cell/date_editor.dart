@@ -358,8 +358,10 @@ class _DateTypeOptionButton extends StatelessWidget {
           popupBuilder: (BuildContext popContext) {
             return _CalDateTimeSetting(
               dateTypeOptionPB: dateTypeOptionPB,
-              popoverMutex: popoverMutex,
-              onEvent: (event) => context.read<DateCalBloc>().add(event),
+              onEvent: (event) {
+                context.read<DateCalBloc>().add(event);
+                popoverMutex.close();
+              },
             );
           },
         );
@@ -369,12 +371,10 @@ class _DateTypeOptionButton extends StatelessWidget {
 }
 
 class _CalDateTimeSetting extends StatefulWidget {
-  final PopoverMutex popoverMutex;
   final DateTypeOptionPB dateTypeOptionPB;
   final Function(DateCalEvent) onEvent;
   const _CalDateTimeSetting({
     required this.dateTypeOptionPB,
-    required this.popoverMutex,
     required this.onEvent,
     Key? key,
   }) : super(key: key);
@@ -384,36 +384,38 @@ class _CalDateTimeSetting extends StatefulWidget {
 }
 
 class _CalDateTimeSettingState extends State<_CalDateTimeSetting> {
+  final timeSettingPopoverMutex = PopoverMutex();
   String? overlayIdentifier;
 
   @override
   Widget build(BuildContext context) {
     List<Widget> children = [
       AppFlowyPopover(
-        mutex: widget.popoverMutex,
-        asBarrier: true,
+        mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
           return DateFormatList(
             selectedFormat: widget.dateTypeOptionPB.dateFormat,
-            onSelected: (format) =>
-                widget.onEvent(DateCalEvent.setDateFormat(format)),
+            onSelected: (format) {
+              widget.onEvent(DateCalEvent.setDateFormat(format));
+              timeSettingPopoverMutex.close();
+            },
           );
         },
         child: const DateFormatButton(),
       ),
       AppFlowyPopover(
-        mutex: widget.popoverMutex,
-        asBarrier: true,
+        mutex: timeSettingPopoverMutex,
         triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
         offset: const Offset(20, 0),
         popupBuilder: (BuildContext context) {
           return TimeFormatList(
-            selectedFormat: widget.dateTypeOptionPB.timeFormat,
-            onSelected: (format) =>
-                widget.onEvent(DateCalEvent.setTimeFormat(format)),
-          );
+              selectedFormat: widget.dateTypeOptionPB.timeFormat,
+              onSelected: (format) {
+                widget.onEvent(DateCalEvent.setTimeFormat(format));
+                timeSettingPopoverMutex.close();
+              });
         },
         child: TimeFormatButton(timeFormat: widget.dateTypeOptionPB.timeFormat),
       ),
