@@ -109,6 +109,7 @@ class _RowLeadingState extends State<_RowLeading> {
       triggerActions: PopoverTriggerFlags.none,
       constraints: BoxConstraints.loose(const Size(140, 200)),
       direction: PopoverDirection.rightWithCenterAligned,
+      margin: const EdgeInsets.all(6),
       popupBuilder: (BuildContext popoverContext) {
         return GridRowActionSheet(
             rowData: context.read<RowBloc>().state.rowInfo);
