@@ -2,6 +2,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -11,6 +12,7 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/log.dart';
+import 'package:flowy_sdk/protobuf/flowy-error/errors.pbserver.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,34 +41,37 @@ class DateCellEditor extends StatefulWidget {
 }
 
 class _DateCellEditor extends State<DateCellEditor> {
-  DateTypeOptionPB? _dateTypeOptionPB;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchData();
-  }
-
-  _fetchData() async {
-    final result = await widget.cellController
-        .getFieldTypeOption(DateTypeOptionDataParser());
-
-    result.fold((dateTypeOptionPB) {
-      setState(() {
-        _dateTypeOptionPB = dateTypeOptionPB;
-      });
-    }, (err) => Log.error(err));
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (_dateTypeOptionPB == null) {
-      return Container();
-    }
+    return FutureBuilder<Either<dynamic, FlowyError>>(
+      future: widget.cellController.getFieldTypeOption(
+        DateTypeOptionDataParser(),
+      ),
+      builder: (BuildContext context, snapshot) {
+        if (snapshot.hasData) {
+          return _buildWidget(snapshot);
+        } else {
+          return const SizedBox();
+        }
+      },
+    );
+  }
 
-    return _CellCalendarWidget(
-      cellContext: widget.cellController,
-      dateTypeOptionPB: _dateTypeOptionPB!,
+  Widget _buildWidget(AsyncSnapshot<Either<dynamic, FlowyError>> snapshot) {
+    return snapshot.data!.fold(
+      (dateTypeOptionPB) {
+        return Padding(
+          padding: const EdgeInsets.all(12),
+          child: _CellCalendarWidget(
+            cellContext: widget.cellController,
+            dateTypeOptionPB: dateTypeOptionPB,
+          ),
+        );
+      },
+      (err) {
+        Log.error(err);
+        return const SizedBox();
+      },
     );
   }
 }
