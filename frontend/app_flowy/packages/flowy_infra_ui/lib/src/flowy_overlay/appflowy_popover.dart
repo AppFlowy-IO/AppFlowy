@@ -30,7 +30,7 @@ class AppFlowyPopover extends StatelessWidget {
     this.offset,
     this.controller,
     this.asBarrier = false,
-    this.margin = const EdgeInsets.all(6),
+    this.margin = const EdgeInsets.all(12),
   }) : super(key: key);
 
   @override

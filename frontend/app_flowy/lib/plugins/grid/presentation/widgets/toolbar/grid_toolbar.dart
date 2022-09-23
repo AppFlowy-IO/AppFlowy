@@ -55,6 +55,7 @@ class _SettingButton extends StatelessWidget {
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(260, 400)),
       offset: const Offset(0, 10),
+      margin: const EdgeInsets.all(6),
       child: FlowyIconButton(
         width: 22,
         hoverColor: theme.hover,
