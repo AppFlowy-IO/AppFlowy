@@ -34,7 +34,3 @@ pub fn send_dart_notification(id: &str, ty: GridNotification) -> DartNotifyBuild
     DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }
 
-#[tracing::instrument(level = "trace")]
-pub fn send_anonymous_dart_notification(ty: GridNotification) -> DartNotifyBuilder {
-    DartNotifyBuilder::new("", ty, OBSERVABLE_CATEGORY)
-}

@@ -1,6 +1,7 @@
 use crate::entities::FieldType;
 use crate::services::cell::{AnyCellData, CellBytes};
 use crate::services::field::*;
+use std::fmt::Debug;
 
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, FieldRevision, FieldTypeRevision};
@@ -73,20 +74,30 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
     Ok(AnyCellData::new(s, field_type).json())
 }
 
-pub fn decode_any_cell_data<T: TryInto<AnyCellData>>(data: T, field_rev: &FieldRevision) -> CellBytes {
-    if let Ok(any_cell_data) = data.try_into() {
-        let AnyCellData { data, field_type } = any_cell_data;
-        let to_field_type = field_rev.ty.into();
-        match try_decode_cell_data(data.into(), field_rev, &field_type, &to_field_type) {
-            Ok(cell_bytes) => cell_bytes,
-            Err(e) => {
-                tracing::error!("Decode cell data failed, {:?}", e);
-                CellBytes::default()
+pub fn decode_any_cell_data<T: TryInto<AnyCellData, Error = FlowyError> + Debug>(
+    data: T,
+    field_rev: &FieldRevision,
+) -> CellBytes {
+    match data.try_into() {
+        Ok(any_cell_data) => {
+            let AnyCellData { data, field_type } = any_cell_data;
+            let to_field_type = field_rev.ty.into();
+            match try_decode_cell_data(data.into(), field_rev, &field_type, &to_field_type) {
+                Ok(cell_bytes) => cell_bytes,
+                Err(e) => {
+                    tracing::error!("Decode cell data failed, {:?}", e);
+                    CellBytes::default()
+                }
             }
         }
-    } else {
-        tracing::error!("Decode type option data failed");
-        CellBytes::default()
+        Err(err) => {
+            tracing::error!(
+                "Decode type option data to type: {} failed: {:?}",
+                std::any::type_name::<T>(),
+                err,
+            );
+            CellBytes::default()
+        }
     }
 }
 

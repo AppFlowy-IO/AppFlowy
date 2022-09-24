@@ -1,12 +1,10 @@
-use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
-use crate::services::cell::{decode_any_cell_data, CellBytesParser};
+use crate::entities::{ GroupChangesetPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
+use crate::services::cell::{decode_any_cell_data, CellBytesParser,};
 use crate::services::group::action::GroupAction;
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::Group;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{
-    FieldRevision, GroupConfigurationContentSerde, GroupRevision, RowChangeset, RowRevision, TypeOptionDataDeserializer,
-};
+use flowy_grid_data_model::revision::{ FieldRevision, GroupConfigurationContentSerde, GroupRevision, RowChangeset, RowRevision, TypeOptionDataDeserializer};
 use std::marker::PhantomData;
 use std::sync::Arc;
 
@@ -86,8 +84,7 @@ where
     G: GroupGenerator<Context = GroupContext<C>, TypeOptionType = T>,
 {
     pub async fn new(field_rev: &Arc<FieldRevision>, mut configuration: GroupContext<C>) -> FlowyResult<Self> {
-        let field_type_rev = field_rev.ty;
-        let type_option = field_rev.get_type_option::<T>(field_type_rev);
+        let type_option = field_rev.get_type_option::<T>(field_rev.ty);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
         let _ = configuration.init_groups(groups, true)?;
 
@@ -278,12 +275,19 @@ where
         }
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
-        if let Some(cell_rev) = context.row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), context.field_rev);
+        let cell_rev = match context.row_rev.cells.get(&self.field_id) {
+            Some(cell_rev) => Some(cell_rev.clone()),
+            None => self.default_cell_rev(),
+        };
+
+        if let Some(cell_rev) = cell_rev {
+            let cell_bytes = decode_any_cell_data(cell_rev.data, context.field_rev);
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.move_row(&cell_data, context))
         } else {
+            tracing::warn!("Unexpected moving group row, changes should not be empty");
             Ok(vec![])
         }
     }
