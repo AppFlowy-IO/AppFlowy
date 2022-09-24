@@ -179,23 +179,20 @@ impl GridRevisionEditor {
             None => Err(ErrorCode::FieldDoesNotExist.into()),
             Some(field_type) => {
                 let _ = self.update_field_rev(params, field_type).await?;
-                match self.view_manager.did_update_field(&field_id).await {
-                    Ok(_) => {}
-                    Err(e) => tracing::error!("View manager update field failed: {:?}", e),
-                }
                 let _ = self.notify_did_update_grid_field(&field_id).await?;
                 Ok(())
             }
         }
     }
 
+    // Replaces the field revision with new field revision.
     pub async fn replace_field(&self, field_rev: Arc<FieldRevision>) -> FlowyResult<()> {
         let field_id = field_rev.id.clone();
         let _ = self
             .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev.clone())?))
             .await?;
 
-        match self.view_manager.did_update_field(&field_rev.id).await {
+        match self.view_manager.did_update_field(&field_rev.id, false).await {
             Ok(_) => {}
             Err(e) => tracing::error!("View manager update field failed: {:?}", e),
         }
@@ -279,6 +276,7 @@ impl GridRevisionEditor {
     }
 
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
+        let mut is_type_option_changed = false;
         let _ = self
             .modify(|grid| {
                 let deserializer = TypeOptionJsonDeserializer(field_type);
@@ -319,6 +317,7 @@ impl GridRevisionEditor {
                             Ok(json_str) => {
                                 let field_type = field.ty;
                                 field.insert_type_option_str(&field_type, json_str);
+                                is_type_option_changed = true;
                                 is_changed = Some(())
                             }
                             Err(err) => {
@@ -333,7 +332,11 @@ impl GridRevisionEditor {
             })
             .await?;
 
-        match self.view_manager.did_update_field(&params.field_id).await {
+        match self
+            .view_manager
+            .did_update_field(&params.field_id, is_type_option_changed)
+            .await
+        {
             Ok(_) => {}
             Err(e) => tracing::error!("View manager update field failed: {:?}", e),
         }
@@ -537,7 +540,7 @@ impl GridRevisionEditor {
         self.view_manager.get_filters().await
     }
 
-    pub async fn create_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+    pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
         self.view_manager.insert_or_update_group(params).await
     }
 

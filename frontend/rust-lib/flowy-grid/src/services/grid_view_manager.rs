@@ -175,9 +175,15 @@ impl GridViewManager {
         Ok(())
     }
 
-    pub(crate) async fn did_update_field(&self, field_id: &str) -> FlowyResult<()> {
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub(crate) async fn did_update_field(&self, field_id: &str, is_type_option_changed: bool) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.did_update_field(field_id).await?;
+        if is_type_option_changed {
+            let _ = view_editor.group_by_field(field_id).await?;
+        } else {
+            let _ = view_editor.did_update_field(field_id).await?;
+        }
+
         Ok(())
     }
 
