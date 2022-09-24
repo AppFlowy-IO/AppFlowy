@@ -1,7 +1,9 @@
+import 'package:appflowy_editor/src/infra/infra.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 
 // Handle delete text.
 ShortcutEventHandler deleteTextHandler = (editorState, event) {
@@ -126,33 +128,34 @@ KeyEventResult _backDeleteToPreviousTextNode(
   List<Node> nonTextNodes,
   Selection selection,
 ) {
-  // Not reach to the root.
-  // if (textNode.parent?.parent != null) {
-  //   transactionBuilder
-  //     ..deleteNode(textNode)
-  //     ..insertNode(textNode.parent!.path.next, textNode)
-  //     ..afterSelection = Selection.collapsed(
-  //       Position(path: textNode.parent!.path.next, offset: 0),
-  //     )
-  //     ..commit();
-  //   return KeyEventResult.handled;
-  // }
+  if (textNode.next == null &&
+      textNode.children.isEmpty &&
+      textNode.parent?.parent != null) {
+    transactionBuilder
+      ..deleteNode(textNode)
+      ..insertNode(textNode.parent!.path.next, textNode)
+      ..afterSelection = Selection.collapsed(
+        Position(path: textNode.parent!.path.next, offset: 0),
+      )
+      ..commit();
+    return KeyEventResult.handled;
+  }
 
   bool prevIsNumberList = false;
-  final previousTextNode = forwardNearestTextNode(textNode);
+  final previousTextNode = Infra.forwardNearestTextNode(textNode);
   if (previousTextNode != null) {
     if (previousTextNode.subtype == BuiltInAttributeKey.numberList) {
       prevIsNumberList = true;
     }
 
     transactionBuilder.mergeText(previousTextNode, textNode);
-    transactionBuilder.deleteNode(textNode);
     if (textNode.children.isNotEmpty) {
       transactionBuilder.insertNodes(
-        previousTextNode.path + [0],
+        previousTextNode.path.next,
         textNode.children.toList(growable: false),
       );
     }
+    transactionBuilder.deleteNode(textNode);
     transactionBuilder.afterSelection = Selection.collapsed(
       Position(
         path: previousTextNode.path,
@@ -272,47 +275,4 @@ void _deleteTextNodes(TransactionBuilder transactionBuilder,
       firstOffset: selection.start.offset,
       secondOffset: selection.end.offset,
     );
-}
-
-// TODO: Just a simple solution for textNode, need to be optimized.
-TextNode? findLastTextNode(Node node) {
-  final children = node.children.toList(growable: false).reversed;
-  for (final child in children) {
-    if (child.children.isNotEmpty) {
-      final result = findLastTextNode(child);
-      if (result != null) {
-        return result;
-      }
-    }
-    if (child is TextNode) {
-      return child;
-    }
-  }
-  if (node is TextNode) {
-    return node;
-  }
-  return null;
-}
-
-// find the forward nearest text node
-TextNode? forwardNearestTextNode(Node node) {
-  var previous = node.previous;
-  while (previous != null) {
-    final lastTextNode = findLastTextNode(previous);
-    if (lastTextNode != null) {
-      return lastTextNode;
-    }
-    if (previous is TextNode) {
-      return previous;
-    }
-    previous = previous.previous;
-  }
-  final parent = node.parent;
-  if (parent != null) {
-    if (parent is TextNode) {
-      return parent;
-    }
-    return forwardNearestTextNode(parent);
-  }
-  return null;
 }
