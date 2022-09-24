@@ -183,7 +183,14 @@ pub async fn make_grid_view_data(
     grid_manager: Arc<GridManager>,
     build_context: BuildGridContext,
 ) -> FlowyResult<Bytes> {
-    for block_meta_data in &build_context.blocks {
+    let BuildGridContext {
+        field_revs,
+        block_metas,
+        blocks,
+        grid_view_revision_data,
+    } = build_context;
+
+    for block_meta_data in &blocks {
         let block_id = &block_meta_data.block_id;
         // Indexing the block's rows
         block_meta_data.rows.iter().for_each(|row| {
@@ -200,7 +207,7 @@ pub async fn make_grid_view_data(
 
     // Will replace the grid_id with the value returned by the gen_grid_id()
     let grid_id = view_id.to_owned();
-    let grid_rev = GridRevision::from_build_context(&grid_id, build_context);
+    let grid_rev = GridRevision::from_build_context(&grid_id, field_revs, block_metas);
 
     // Create grid
     let grid_rev_delta = make_grid_delta(&grid_rev);
@@ -210,7 +217,11 @@ pub async fn make_grid_view_data(
     let _ = grid_manager.create_grid(&grid_id, repeated_revision).await?;
 
     // Create grid view
-    let grid_view = GridViewRevision::new(grid_id, view_id.to_owned(), layout.into());
+    let grid_view = if grid_view_revision_data.is_empty() {
+        GridViewRevision::new(grid_id, view_id.to_owned(), layout.into())
+    } else {
+        GridViewRevision::from_json(grid_view_revision_data)?
+    };
     let grid_view_delta = make_grid_view_delta(&grid_view);
     let grid_view_delta_bytes = grid_view_delta.json_bytes();
     let repeated_revision: RepeatedRevision =

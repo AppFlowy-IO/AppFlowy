@@ -61,11 +61,13 @@ impl ViewController {
         let processor = self.get_data_processor(params.data_type.clone())?;
         let user_id = self.user.user_id()?;
         if params.view_content_data.is_empty() {
+            tracing::trace!("Create view with build-in data");
             let view_data = processor
                 .create_default_view(&user_id, &params.view_id, params.layout.clone())
                 .await?;
             params.view_content_data = view_data.to_vec();
         } else {
+            tracing::trace!("Create view with view data");
             let delta_data = processor
                 .create_view_from_delta_data(
                     &user_id,
@@ -231,7 +233,7 @@ impl ViewController {
             .await?;
 
         let processor = self.get_data_processor(view_rev.data_type.clone())?;
-        let delta_bytes = processor.get_delta_data(view_id).await?;
+        let view_data = processor.get_view_data(view_id).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view_rev.app_id.clone(),
             name: format!("{} (copy)", &view_rev.name),
@@ -239,7 +241,7 @@ impl ViewController {
             thumbnail: view_rev.thumbnail,
             data_type: view_rev.data_type.into(),
             layout: view_rev.layout.into(),
-            view_content_data: delta_bytes.to_vec(),
+            view_content_data: view_data.to_vec(),
             view_id: gen_view_id(),
         };
 

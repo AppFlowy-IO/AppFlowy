@@ -58,6 +58,10 @@ impl GridViewRevision {
             // row_orders: vec![],
         }
     }
+
+    pub fn from_json(json: String) -> Result<Self, serde_json::Error> {
+        serde_json::from_str(&json)
+    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]

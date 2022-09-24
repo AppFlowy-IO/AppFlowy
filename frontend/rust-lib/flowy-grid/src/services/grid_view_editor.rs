@@ -74,6 +74,11 @@ impl GridViewRevisionEditor {
         })
     }
 
+    pub(crate) async fn duplicate_view_data(&self) -> FlowyResult<String> {
+        let json_str = self.pad.read().await.json_str()?;
+        Ok(json_str)
+    }
+
     pub(crate) async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         if params.group_id.is_none() {
             return;
