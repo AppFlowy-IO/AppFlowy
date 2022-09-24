@@ -260,7 +260,7 @@ pub trait ViewDataProcessor {
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
-    fn get_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
+    fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
 
     fn create_default_view(
         &self,

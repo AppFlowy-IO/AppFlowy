@@ -80,7 +80,7 @@ impl GroupAction for CheckboxGroupController {
     fn move_row(&mut self, _cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
         let mut group_changeset = vec![];
         self.group_ctx.iter_mut_all_groups(|group| {
-            if let Some(changeset) = move_group_row(group,  &mut context) {
+            if let Some(changeset) = move_group_row(group, &mut context) {
                 group_changeset.push(changeset);
             }
         });

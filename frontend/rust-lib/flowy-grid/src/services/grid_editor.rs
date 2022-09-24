@@ -673,6 +673,7 @@ impl GridRevisionEditor {
 
     pub async fn duplicate_grid(&self) -> FlowyResult<BuildGridContext> {
         let grid_pad = self.grid_pad.read().await;
+        let grid_view_revision_data = self.view_manager.duplicate_grid_view().await?;
         let original_blocks = grid_pad.get_block_meta_revs();
         let (duplicated_fields, duplicated_blocks) = grid_pad.duplicate_grid_block_meta().await;
 
@@ -698,6 +699,7 @@ impl GridRevisionEditor {
             field_revs: duplicated_fields.into_iter().map(Arc::new).collect(),
             block_metas: duplicated_blocks,
             blocks: blocks_meta_data,
+            grid_view_revision_data,
         })
     }
 

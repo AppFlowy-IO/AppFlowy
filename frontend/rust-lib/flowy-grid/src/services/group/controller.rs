@@ -1,10 +1,12 @@
-use crate::entities::{ GroupChangesetPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
-use crate::services::cell::{decode_any_cell_data, CellBytesParser,};
+use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
+use crate::services::cell::{decode_any_cell_data, CellBytesParser};
 use crate::services::group::action::GroupAction;
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::Group;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{ FieldRevision, GroupConfigurationContentSerde, GroupRevision, RowChangeset, RowRevision, TypeOptionDataDeserializer};
+use flowy_grid_data_model::revision::{
+    FieldRevision, GroupConfigurationContentSerde, GroupRevision, RowChangeset, RowRevision, TypeOptionDataDeserializer,
+};
 use std::marker::PhantomData;
 use std::sync::Arc;
 

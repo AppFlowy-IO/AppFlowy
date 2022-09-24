@@ -170,7 +170,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         })
     }
 
-    fn get_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+    fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         FutureResult::new(async move {
@@ -247,7 +247,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn get_delta_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
+    fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
