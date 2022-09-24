@@ -1,13 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:example/plugin/underscore_to_italic.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:example/plugin/underscore_to_italic.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:path_provider/path_provider.dart';
+import 'package:universal_html/html.dart' as html;
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 
@@ -112,6 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: AppFlowyEditor(
               editorState: _editorState!,
               editorStyle: _editorStyle,
+              editable: true,
               shortcutEvents: [
                 underscoreToItalic,
               ],
@@ -148,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         ActionButton(
           icon: const Icon(Icons.import_export),
-          onPressed: () => _importDocument(),
+          onPressed: () async => await _importDocument(),
         ),
         ActionButton(
           icon: const Icon(Icons.color_lens),
@@ -167,28 +171,53 @@ class _MyHomePageState extends State<MyHomePage> {
   void _exportDocument(EditorState editorState) async {
     final document = editorState.document.toJson();
     final json = jsonEncode(document);
-    final directory = await getTemporaryDirectory();
-    final path = directory.path;
-    final file = File('$path/editor.json');
-    await file.writeAsString(json);
+    if (kIsWeb) {
+      final blob = html.Blob([json], 'text/plain', 'native');
+      html.AnchorElement(
+        href: html.Url.createObjectUrlFromBlob(blob).toString(),
+      )
+        ..setAttribute('download', 'editor.json')
+        ..click();
+    } else {
+      final directory = await getTemporaryDirectory();
+      final path = directory.path;
+      final file = File('$path/editor.json');
+      await file.writeAsString(json);
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('The document is saved to the ${file.path}'),
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('The document is saved to the ${file.path}'),
+          ),
+        );
+      }
     }
   }
 
-  void _importDocument() async {
-    final directory = await getTemporaryDirectory();
-    final path = directory.path;
-    final file = File('$path/editor.json');
-    setState(() {
-      _editorState = null;
-      _jsonString = file.readAsString();
-    });
+  Future<void> _importDocument() async {
+    if (kIsWeb) {
+      final result = await FilePicker.platform.pickFiles(
+        allowMultiple: false,
+        allowedExtensions: ['json'],
+        type: FileType.custom,
+      );
+      final bytes = result?.files.first.bytes;
+      if (bytes != null) {
+        final jsonString = const Utf8Decoder().convert(bytes);
+        setState(() {
+          _editorState = null;
+          _jsonString = Future.value(jsonString);
+        });
+      }
+    } else {
+      final directory = await getTemporaryDirectory();
+      final path = '${directory.path}/editor.json';
+      final file = File(path);
+      setState(() {
+        _editorState = null;
+        _jsonString = file.readAsString();
+      });
+    }
   }
 
   void _switchToPage(int pageIndex) {

@@ -193,16 +193,24 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     return parent!._path([index, ...previous]);
   }
 
-  Node deepClone() {
-    final newNode = Node(
-        type: type, children: LinkedList<Node>(), attributes: {...attributes});
-
-    for (final node in children) {
-      final newNode = node.deepClone();
-      newNode.parent = this;
-      newNode.children.add(newNode);
+  Node copyWith({
+    String? type,
+    LinkedList<Node>? children,
+    Attributes? attributes,
+  }) {
+    final node = Node(
+      type: type ?? this.type,
+      attributes: attributes ?? {..._attributes},
+      children: children ?? LinkedList(),
+    );
+    if (children == null && this.children.isNotEmpty) {
+      for (final child in this.children) {
+        node.children.add(
+          child.copyWith()..parent = node,
+        );
+      }
     }
-    return newNode;
+    return node;
   }
 }
 
@@ -215,7 +223,10 @@ class TextNode extends Node {
     LinkedList<Node>? children,
     Attributes? attributes,
   })  : _delta = delta,
-        super(children: children ?? LinkedList(), attributes: attributes ?? {});
+        super(
+          children: children ?? LinkedList(),
+          attributes: attributes ?? {},
+        );
 
   TextNode.empty({Attributes? attributes})
       : _delta = Delta([TextInsert('')]),
@@ -241,33 +252,27 @@ class TextNode extends Node {
     return map;
   }
 
+  @override
   TextNode copyWith({
     String? type,
     LinkedList<Node>? children,
     Attributes? attributes,
     Delta? delta,
-  }) =>
-      TextNode(
-        type: type ?? this.type,
-        children: children ?? this.children,
-        attributes: attributes ?? _attributes,
-        delta: delta ?? this.delta,
-      );
-
-  @override
-  TextNode deepClone() {
-    final newNode = TextNode(
-        type: type,
-        children: LinkedList<Node>(),
-        delta: delta.slice(0),
-        attributes: {...attributes});
-
-    for (final node in children) {
-      final newNode = node.deepClone();
-      newNode.parent = this;
-      newNode.children.add(newNode);
+  }) {
+    final textNode = TextNode(
+      type: type ?? this.type,
+      children: children,
+      attributes: attributes ?? _attributes,
+      delta: delta ?? this.delta,
+    );
+    if (children == null && this.children.isNotEmpty) {
+      for (final child in this.children) {
+        textNode.children.add(
+          child.copyWith()..parent = textNode,
+        );
+      }
     }
-    return newNode;
+    return textNode;
   }
 
   String toRawString() => _delta.toRawString();

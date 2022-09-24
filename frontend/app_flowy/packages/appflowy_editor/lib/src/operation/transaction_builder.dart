@@ -36,7 +36,7 @@ class TransactionBuilder {
   /// Inserts a sequence of nodes at the position of path.
   insertNodes(Path path, List<Node> nodes) {
     beforeSelection = state.cursorSelection;
-    add(InsertOperation(path, nodes.map((node) => node.deepClone()).toList()));
+    add(InsertOperation(path, nodes.map((node) => node.copyWith()).toList()));
   }
 
   /// Updates the attributes of nodes.
@@ -75,7 +75,7 @@ class TransactionBuilder {
       nodes.add(node);
     }
 
-    add(DeleteOperation(path, nodes.map((node) => node.deepClone()).toList()));
+    add(DeleteOperation(path, nodes.map((node) => node.copyWith()).toList()));
   }
 
   textEdit(TextNode node, Delta Function() f) {

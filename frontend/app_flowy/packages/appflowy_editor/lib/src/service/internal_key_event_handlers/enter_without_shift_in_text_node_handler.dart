@@ -1,9 +1,9 @@
+import 'dart:collection';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'package:appflowy_editor/src/extensions/path_extensions.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import './number_list_helper.dart';
 
 /// Handle some cases where enter is pressed and shift is not pressed.
@@ -16,10 +16,6 @@ import './number_list_helper.dart';
 ///   2.2 or insert a empty text node before.
 ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     (editorState, event) {
-  if (event.logicalKey != LogicalKeyboardKey.enter || event.isShiftPressed) {
-    return KeyEventResult.ignored;
-  }
-
   var selection = editorState.service.selectionService.currentSelection.value;
   var nodes = editorState.service.selectionService.currentSelectedNodes;
   if (selection == null) {
@@ -124,7 +120,10 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
         TransactionBuilder(editorState)
           ..insertNode(
             textNode.path,
-            TextNode.empty(),
+            textNode.copyWith(
+              children: LinkedList(),
+              delta: Delta(),
+            ),
           )
           ..afterSelection = afterSelection
           ..commit();
@@ -142,21 +141,25 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     Position(path: nextPath, offset: 0),
   );
 
-  TransactionBuilder(editorState)
-    ..insertNode(
-      textNode.path.next,
-      textNode.copyWith(
-        attributes: attributes,
-        delta: textNode.delta.slice(selection.end.offset),
-      ),
-    )
-    ..deleteText(
-      textNode,
-      selection.start.offset,
-      textNode.toRawString().length - selection.start.offset,
-    )
-    ..afterSelection = afterSelection
-    ..commit();
+  final transactionBuilder = TransactionBuilder(editorState);
+  transactionBuilder.insertNode(
+    textNode.path.next,
+    textNode.copyWith(
+      attributes: attributes,
+      delta: textNode.delta.slice(selection.end.offset),
+    ),
+  );
+  transactionBuilder.deleteText(
+    textNode,
+    selection.start.offset,
+    textNode.toRawString().length - selection.start.offset,
+  );
+  if (textNode.children.isNotEmpty) {
+    final children = textNode.children.toList(growable: false);
+    transactionBuilder.deleteNodes(children);
+  }
+  transactionBuilder.afterSelection = afterSelection;
+  transactionBuilder.commit();
 
   // If the new type of a text node is number list,
   // the numbers of the following nodes should be incremental.
