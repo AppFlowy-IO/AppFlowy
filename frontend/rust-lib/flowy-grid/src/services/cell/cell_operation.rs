@@ -90,12 +90,10 @@ pub fn decode_any_cell_data<T: TryInto<AnyCellData, Error = FlowyError> + Debug>
                 }
             }
         }
-        Err(err) => {
-            tracing::error!(
-                "Decode type option data to type: {} failed: {:?}",
-                std::any::type_name::<T>(),
-                err,
-            );
+        Err(_err) => {
+            // It's okay to ignore this error, because it's okay that the current cell can't
+            // display the existing cell data. For example, the UI of the text cell will be blank if
+            // the type of the data of cell is Number.
             CellBytes::default()
         }
     }

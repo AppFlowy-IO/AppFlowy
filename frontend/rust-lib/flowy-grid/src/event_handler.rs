@@ -44,7 +44,7 @@ pub(crate) async fn update_grid_setting_handler(
 
     let editor = manager.get_grid_editor(&params.grid_id)?;
     if let Some(insert_params) = params.insert_group {
-        let _ = editor.create_group(insert_params).await?;
+        let _ = editor.insert_group(insert_params).await?;
     }
 
     if let Some(delete_params) = params.delete_group {

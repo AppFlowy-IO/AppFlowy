@@ -73,7 +73,12 @@ macro_rules! impl_type_option {
                 match serde_json::from_str(s) {
                     Ok(obj) => obj,
                     Err(err) => {
-                        tracing::error!("{} convert from any data failed, {:?}", stringify!($target), err);
+                        tracing::error!(
+                            "{} type option deserialize from {} failed, {:?}",
+                            stringify!($target),
+                            s,
+                            err
+                        );
                         $target::default()
                     }
                 }
