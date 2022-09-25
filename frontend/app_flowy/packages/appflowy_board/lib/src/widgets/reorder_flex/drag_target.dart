@@ -1,3 +1,4 @@
+import 'package:appflowy_board/src/utils/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
@@ -184,8 +185,9 @@ class _ReorderDragTargetState<T extends DragTargetData>
           /// When the drag does not end inside a DragTarget widget, the
           /// drag fails, but we still reorder the widget to the last position it
           /// had been dragged to.
-          onDraggableCanceled: (Velocity velocity, Offset offset) =>
-              widget.onDragEnded(widget.dragTargetData),
+          onDraggableCanceled: (Velocity velocity, Offset offset) {
+            widget.onDragEnded(widget.dragTargetData);
+          },
           child: widget.child,
         );
 
@@ -221,8 +223,11 @@ class DragTargetAnimation {
   // where the widget used to be.
   late AnimationController phantomController;
 
+  // Uses to simulate the insert animation when card was moved from on group to
+  // another group. Check out the [FakeDragTarget].
   late AnimationController insertController;
 
+  // Used to remove the phantom
   late AnimationController deleteController;
 
   DragTargetAnimation({
@@ -238,7 +243,7 @@ class DragTargetAnimation {
         value: 0, vsync: vsync, duration: reorderAnimationDuration);
 
     insertController = AnimationController(
-        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 200));
+        value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 100));
 
     deleteController = AnimationController(
         value: 0.0, vsync: vsync, duration: const Duration(milliseconds: 1));
@@ -423,7 +428,6 @@ abstract class FakeDragTargetEventData {
 }
 
 class FakeDragTarget<T extends DragTargetData> extends StatefulWidget {
-  final Duration animationDuration;
   final FakeDragTargetEventTrigger eventTrigger;
   final FakeDragTargetEventData eventData;
   final DragTargetOnStarted onDragStarted;
@@ -442,7 +446,6 @@ class FakeDragTarget<T extends DragTargetData> extends StatefulWidget {
     required this.insertAnimationController,
     required this.deleteAnimationController,
     required this.child,
-    this.animationDuration = const Duration(milliseconds: 250),
   }) : super(key: key);
 
   @override
@@ -468,12 +471,20 @@ class _FakeDragTargetState<T extends DragTargetData>
     // });
 
     widget.eventTrigger.fakeOnDragEnded(() {
+      Log.trace("[$FakeDragTarget] on drag end");
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onDragEnded(widget.eventData.dragTargetData as T);
       });
     });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    widget.insertAnimationController
+        .removeStatusListener(_onInsertedAnimationStatusChanged);
+    super.dispose();
   }
 
   @override
@@ -503,14 +514,18 @@ class _FakeDragTargetState<T extends DragTargetData>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() {
-        simulateDragging = true;
-        widget.deleteAnimationController.reverse(from: 1.0);
-        widget.onWillAccept(widget.eventData.dragTargetData as T);
-        widget.onDragStarted(
-          widget.child,
-          widget.eventData.index,
-          widget.eventData.feedbackSize,
-        );
+        if (widget.onWillAccept(widget.eventData.dragTargetData as T)) {
+          Log.trace("[$FakeDragTarget] on drag start");
+          simulateDragging = true;
+          widget.deleteAnimationController.reverse(from: 1.0);
+          widget.onDragStarted(
+            widget.child,
+            widget.eventData.index,
+            widget.eventData.feedbackSize,
+          );
+        } else {
+          Log.trace("[$FakeDragTarget] cancel start drag");
+        }
       });
     });
   }

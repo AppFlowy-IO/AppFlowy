@@ -22,6 +22,8 @@ class FlexDragTargetData extends DragTargetData {
 
   Size? get feedbackSize => _state.feedbackSize;
 
+  bool get isDragging => _state.isDragging();
+
   final String dragTargetId;
 
   Offset dragTargetOffset = Offset.zero;
@@ -48,38 +50,19 @@ class FlexDragTargetData extends DragTargetData {
 
   bool isOverlapWithWidgets(List<GlobalObjectKey> widgetKeys) {
     final renderBox = dragTargetIndexKey.currentContext?.findRenderObject();
-
     if (renderBox == null) return false;
     if (renderBox is! RenderBox) return false;
     final size = feedbackSize ?? Size.zero;
-    final Rect rect = dragTargetOffset & size;
 
+    final Rect dragTargetRect = renderBox.localToGlobal(Offset.zero) & size;
     for (final widgetKey in widgetKeys) {
       final renderObject = widgetKey.currentContext?.findRenderObject();
       if (renderObject != null && renderObject is RenderBox) {
         Rect widgetRect =
             renderObject.localToGlobal(Offset.zero) & renderObject.size;
-        // return rect.overlaps(widgetRect);
-        if (rect.right <= widgetRect.left || widgetRect.right <= rect.left) {
-          return false;
-        }
-
-        if (rect.bottom <= widgetRect.top || widgetRect.bottom <= rect.top) {
-          return false;
-        }
-        return true;
+        return dragTargetRect.overlaps(widgetRect);
       }
     }
-
-    // final HitTestResult result = HitTestResult();
-    // WidgetsBinding.instance.hitTest(result, position);
-    // for (final HitTestEntry entry in result.path) {
-    //   final HitTestTarget target = entry.target;
-    //   if (target is RenderMetaData) {
-    //     print(target.metaData);
-    //   }
-    //   print(target);
-    // }
 
     return false;
   }
@@ -113,7 +96,7 @@ class DraggingState {
   int currentIndex = -1;
 
   /// The widget to move the dragging widget too after the current index.
-  int nextIndex = 0;
+  int nextIndex = -1;
 
   /// Whether or not we are currently scrolling this view to show a widget.
   bool scrolling = false;
@@ -149,6 +132,7 @@ class DraggingState {
     dragStartIndex = -1;
     phantomIndex = -1;
     currentIndex = -1;
+    nextIndex = -1;
     _draggingWidget = null;
   }
 
