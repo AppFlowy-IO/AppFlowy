@@ -144,11 +144,24 @@ class _HomeScreenState extends State<HomeScreen> {
       collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
     );
 
-    final latestView =
-        workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null;
-    if (getIt<MenuSharedState>().latestOpenView == null) {
-      /// AppFlowy will open the view that the last time the user opened it. The _buildHomeMenu will get called when AppFlowy's screen resizes. So we only set the latestOpenView when it's null.
-      getIt<MenuSharedState>().latestOpenView = latestView;
+    // Only open the last opened view if the [HomeStackManager] current opened
+    // plugin is blank and the last opened view is not null.
+    //
+    // All opened widgets that display on the home screen are in the form
+    // of plugins. There is a list of built-in plugins defined in the
+    // [PluginType] enum, including board, grid and trash.
+
+    if (getIt<HomeStackManager>().plugin.ty == PluginType.blank) {
+      // Open the last opened view.
+      if (workspaceSetting.hasLatestView()) {
+        final view = workspaceSetting.latestView;
+        final plugin = makePlugin(
+          pluginType: view.pluginType,
+          data: view,
+        );
+        getIt<HomeStackManager>().setPlugin(plugin);
+        getIt<MenuSharedState>().latestOpenView = view;
+      }
     }
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));

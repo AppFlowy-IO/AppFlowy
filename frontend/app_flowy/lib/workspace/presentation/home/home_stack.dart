@@ -144,6 +144,7 @@ class HomeStackManager {
   }
 
   PublishNotifier<bool> get collapsedNotifier => _notifier.collapsedNotifier;
+  Plugin get plugin => _notifier.plugin;
 
   void setPlugin(Plugin newPlugin) {
     _notifier.plugin = newPlugin;
