@@ -61,8 +61,7 @@ class ActionList {
       itemBuilder: (context, index) => items[index],
       anchorContext: anchorContext,
       anchorDirection: AnchorDirection.bottomRight,
-      width: 120,
-      height: 80,
+      constraints: BoxConstraints.tight(const Size(120, 80)),
     );
   }
 }

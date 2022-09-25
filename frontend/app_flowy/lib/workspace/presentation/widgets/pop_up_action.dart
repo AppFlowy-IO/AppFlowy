@@ -13,7 +13,9 @@ abstract class ActionList<T extends ActionItem> {
 
   String get identifier => toString();
 
-  double get maxWidth => 162;
+  double get maxWidth => 300;
+
+  double get minWidth => 120;
 
   double get itemHeight => ActionListSizes.itemHeight;
 
@@ -29,28 +31,29 @@ abstract class ActionList<T extends ActionItem> {
     AnchorDirection anchorDirection = AnchorDirection.bottomRight,
     Offset? anchorOffset,
   }) {
-    final widgets = items
-        .map(
-          (action) => ActionCell<T>(
-            action: action,
-            itemHeight: itemHeight,
-            onSelected: (action) {
-              FlowyOverlay.of(buildContext).remove(identifier);
-              selectCallback(dartz.some(action));
-            },
-          ),
-        )
-        .toList();
-
     ListOverlay.showWithAnchor(
       buildContext,
       identifier: identifier,
-      itemCount: widgets.length,
-      itemBuilder: (context, index) => widgets[index],
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final action = items[index];
+        return ActionCell<T>(
+          action: action,
+          itemHeight: itemHeight,
+          onSelected: (action) {
+            FlowyOverlay.of(buildContext).remove(identifier);
+            selectCallback(dartz.some(action));
+          },
+        );
+      },
       anchorContext: anchorContext ?? buildContext,
       anchorDirection: anchorDirection,
-      width: maxWidth,
-      height: widgets.length * (itemHeight + ActionListSizes.padding * 2),
+      constraints: BoxConstraints(
+        minHeight: items.length * (itemHeight + ActionListSizes.padding * 2),
+        maxHeight: items.length * (itemHeight + ActionListSizes.padding * 2),
+        maxWidth: maxWidth,
+        minWidth: minWidth,
+      ),
       delegate: delegate,
       anchorOffset: anchorOffset,
       footer: footer,
@@ -93,7 +96,7 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
         child: SizedBox(
           height: itemHeight,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (icon != null) icon,
               HSpace(ActionListSizes.itemHPadding),
