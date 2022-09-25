@@ -34,19 +34,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  ViewPB? initialView;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(covariant HomeScreen oldWidget) {
-    initialView = null;
-    super.didUpdateWidget(oldWidget);
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -129,13 +116,26 @@ class _HomeScreenState extends State<HomeScreen> {
       required BuildContext context,
       required HomeState state}) {
     final workspaceSetting = state.workspaceSetting;
-    if (initialView == null && workspaceSetting.hasLatestView()) {
-      initialView = workspaceSetting.latestView;
-      final plugin = makePlugin(
-        pluginType: initialView!.pluginType,
-        data: initialView,
-      );
-      getIt<HomeStackManager>().setPlugin(plugin);
+
+    /// Only open the plugin if the [HomeStackManager] current opened plugin is
+    /// null and the view that the last time the user opend it is not null.
+    ///
+    /// All opened widgets that display on the home screen are in the form
+    /// of plugins. There is a list of built-in plugins defined in the
+    /// [PluginType] enum, including board,grid and the trash. For example,
+    /// the type of the [HomeStackManager]'s plugin will be PluginType.trash.
+    ///
+    if (getIt<HomeStackManager>().plugin == null) {
+      // Open the view that the last time the user opened it.
+      if (workspaceSetting.hasLatestView()) {
+        final view = workspaceSetting.latestView;
+        final plugin = makePlugin(
+          pluginType: view.pluginType,
+          data: view,
+        );
+        getIt<HomeStackManager>().setPlugin(plugin);
+        getIt<MenuSharedState>().latestOpenView = view;
+      }
     }
 
     final homeMenu = HomeMenu(
@@ -143,13 +143,6 @@ class _HomeScreenState extends State<HomeScreen> {
       workspaceSetting: workspaceSetting,
       collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
     );
-
-    final latestView =
-        workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null;
-    if (getIt<MenuSharedState>().latestOpenView == null) {
-      /// AppFlowy will open the view that the last time the user opened it. The _buildHomeMenu will get called when AppFlowy's screen resizes. So we only set the latestOpenView when it's null.
-      getIt<MenuSharedState>().latestOpenView = latestView;
-    }
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
   }

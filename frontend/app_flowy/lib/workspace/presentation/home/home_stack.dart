@@ -143,6 +143,14 @@ class HomeStackManager {
     return _notifier.plugin.display.leftBarItem;
   }
 
+  Plugin? get plugin {
+    if (_notifier.plugin.ty == PluginType.blank) {
+      return null;
+    } else {
+      return _notifier.plugin;
+    }
+  }
+
   PublishNotifier<bool> get collapsedNotifier => _notifier.collapsedNotifier;
 
   void setPlugin(Plugin newPlugin) {
