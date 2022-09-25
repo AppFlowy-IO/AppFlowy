@@ -165,7 +165,7 @@
       "includeTime": " 時刻を含める",
       "dateFormatFriendly": "月 日,年",
       "dateFormatISO": "年-月-日",
-      "dateFormatLocal": "年/月/日",
+      "dateFormatLocal": "月/日/年",
       "dateFormatUS": "年/月/日",
       "timeFormat": " 時刻書式",
       "timeFormatTwelveHour": "12 時間表記",

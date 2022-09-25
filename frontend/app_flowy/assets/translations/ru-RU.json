@@ -94,9 +94,9 @@
   },
   "tooltip": {
     "darkMode": "Переключиться в тёмную тему",
-     "openAsPage": "Открыть как страницу",
-     "addNewRow": "Добавить новую строку",
-     "openMenu": "Открыть меню"
+    "openAsPage": "Открыть как страницу",
+    "addNewRow": "Добавить новую строку",
+    "openMenu": "Открыть меню"
   },
   "sideBar": {
     "closeSidebar": "Закрыть боковое меню",
@@ -180,7 +180,7 @@
       "includeTime": " Время",
       "dateFormatFriendly": "День Месяц, Год",
       "dateFormatISO": "Год-Месяц-День",
-      "dateFormatLocal": "Год/Месяц/День",
+      "dateFormatLocal": "Месяц/День/Год",
       "dateFormatUS": "Год/Месяц/День",
       "timeFormat": " Форматировать время",
       "invalidTimeFormat": "Неверный формат",
