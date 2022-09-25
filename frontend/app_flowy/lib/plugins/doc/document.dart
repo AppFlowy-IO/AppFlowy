@@ -196,9 +196,6 @@ class ShareActions with ActionList<ShareActionWrapper>, FlowyOverlayDelegate {
   ShareActions({required this.onSelected});
 
   @override
-  double get maxWidth => 130;
-
-  @override
   double get itemHeight => 22;
 
   @override

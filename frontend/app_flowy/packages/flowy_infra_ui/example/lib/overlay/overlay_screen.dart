@@ -218,8 +218,8 @@ class OverlayScreen extends StatelessWidget {
                           overlapBehaviour: providerContext
                               .read<OverlayDemoConfiguration>()
                               .overlapBehaviour,
-                          width: 200.0,
-                          height: 200.0,
+                          constraints:
+                              BoxConstraints.tight(const Size(200, 200)),
                         );
                       },
                       child: const Text('Show List Overlay'),
