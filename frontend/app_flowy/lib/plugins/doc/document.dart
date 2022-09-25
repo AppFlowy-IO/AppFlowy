@@ -196,9 +196,6 @@ class ShareActions with ActionList<ShareActionWrapper>, FlowyOverlayDelegate {
   ShareActions({required this.onSelected});
 
   @override
-  double get maxWidth => 130;
-
-  @override
   double get itemHeight => 22;
 
   @override
@@ -233,7 +230,7 @@ class ShareActionWrapper extends ActionItem {
   ShareActionWrapper(this.inner);
 
   @override
-  Widget? get icon => null;
+  Widget? icon(Color iconColor) => null;
 
   @override
   String get name => inner.name;

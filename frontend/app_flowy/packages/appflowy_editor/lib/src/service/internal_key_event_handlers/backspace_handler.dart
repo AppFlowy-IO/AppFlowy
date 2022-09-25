@@ -1,8 +1,9 @@
+import 'package:appflowy_editor/src/infra/infra.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 
 // Handle delete text.
 ShortcutEventHandler deleteTextHandler = (editorState, event) {
@@ -121,32 +122,46 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
 }
 
 KeyEventResult _backDeleteToPreviousTextNode(
-    EditorState editorState,
-    TextNode textNode,
-    TransactionBuilder transactionBuilder,
-    List<Node> nonTextNodes,
-    Selection selection) {
-  var previous = textNode.previous;
-  bool prevIsNumberList = false;
-  while (previous != null) {
-    if (previous is TextNode) {
-      if (previous.subtype == BuiltInAttributeKey.numberList) {
-        prevIsNumberList = true;
-      }
+  EditorState editorState,
+  TextNode textNode,
+  TransactionBuilder transactionBuilder,
+  List<Node> nonTextNodes,
+  Selection selection,
+) {
+  if (textNode.next == null &&
+      textNode.children.isEmpty &&
+      textNode.parent?.parent != null) {
+    transactionBuilder
+      ..deleteNode(textNode)
+      ..insertNode(textNode.parent!.path.next, textNode)
+      ..afterSelection = Selection.collapsed(
+        Position(path: textNode.parent!.path.next, offset: 0),
+      )
+      ..commit();
+    return KeyEventResult.handled;
+  }
 
-      transactionBuilder
-        ..mergeText(previous, textNode)
-        ..deleteNode(textNode)
-        ..afterSelection = Selection.collapsed(
-          Position(
-            path: previous.path,
-            offset: previous.toRawString().length,
-          ),
-        );
-      break;
-    } else {
-      previous = previous.previous;
+  bool prevIsNumberList = false;
+  final previousTextNode = Infra.forwardNearestTextNode(textNode);
+  if (previousTextNode != null) {
+    if (previousTextNode.subtype == BuiltInAttributeKey.numberList) {
+      prevIsNumberList = true;
     }
+
+    transactionBuilder.mergeText(previousTextNode, textNode);
+    if (textNode.children.isNotEmpty) {
+      transactionBuilder.insertNodes(
+        previousTextNode.path.next,
+        textNode.children.toList(growable: false),
+      );
+    }
+    transactionBuilder.deleteNode(textNode);
+    transactionBuilder.afterSelection = Selection.collapsed(
+      Position(
+        path: previousTextNode.path,
+        offset: previousTextNode.toRawString().length,
+      ),
+    );
   }
 
   if (transactionBuilder.operations.isNotEmpty) {
@@ -157,8 +172,8 @@ KeyEventResult _backDeleteToPreviousTextNode(
   }
 
   if (prevIsNumberList) {
-    makeFollowingNodesIncremental(
-        editorState, previous!.path, transactionBuilder.afterSelection!);
+    makeFollowingNodesIncremental(editorState, previousTextNode!.path,
+        transactionBuilder.afterSelection!);
   }
 
   return KeyEventResult.handled;

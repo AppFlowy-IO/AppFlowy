@@ -172,7 +172,7 @@
       "includeTime": " Incluir tiempo",
       "dateFormatFriendly": "Mes Día, Año",
       "dateFormatISO": "Año-Mes-Día",
-      "dateFormatLocal": "Año/Mes/Día",
+      "dateFormatLocal": "Mes/Día/Año",
       "dateFormatUS": "Año/Mes/Día",
       "timeFormat": " Time format",
       "invalidTimeFormat": "Formato de tiempo",

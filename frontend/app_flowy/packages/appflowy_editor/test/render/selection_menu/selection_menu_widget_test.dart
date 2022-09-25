@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_item_widget.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';

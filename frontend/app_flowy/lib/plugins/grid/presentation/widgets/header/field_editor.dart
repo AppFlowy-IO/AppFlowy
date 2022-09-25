@@ -139,7 +139,6 @@ class _FieldNameTextField extends StatefulWidget {
 
 class _FieldNameTextFieldState extends State<_FieldNameTextField> {
   FocusNode focusNode = FocusNode();
-  VoidCallback? _popoverCallback;
   late TextEditingController controller;
 
   @override
@@ -148,6 +147,12 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
         widget.popoverMutex.close();
+      }
+    });
+
+    widget.popoverMutex.listenOnPopoverChanged(() {
+      if (focusNode.hasFocus) {
+        focusNode.unfocus();
       }
     });
 
@@ -176,8 +181,6 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
         buildWhen: (previous, current) =>
             previous.errorText != current.errorText,
         builder: (context, state) {
-          listenOnPopoverChanged(context);
-
           return RoundedInputField(
             height: 36,
             focusNode: focusNode,
@@ -197,18 +200,6 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
         },
       ),
     );
-  }
-
-  void listenOnPopoverChanged(BuildContext context) {
-    if (_popoverCallback != null) {
-      widget.popoverMutex.removePopoverListener(_popoverCallback!);
-    }
-    _popoverCallback = widget.popoverMutex.listenOnPopoverChanged(() {
-      if (focusNode.hasFocus) {
-        final node = FocusScope.of(context);
-        node.unfocus();
-      }
-    });
   }
 }
 
@@ -236,9 +227,10 @@ class _DeleteFieldButton extends StatelessWidget {
             color: enable ? null : theme.shader4,
           ),
           onTap: () => onDeleted?.call(),
+          hoverColor: theme.hover,
+          onHover: (_) => popoverMutex.close(),
         );
-        // if (enable) button = button;
-        return button;
+        return SizedBox(height: 36, child: button);
       },
     );
   }

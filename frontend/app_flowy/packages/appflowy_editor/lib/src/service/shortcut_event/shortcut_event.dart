@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:appflowy_editor/src/service/shortcut_event/keybinding.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
+import 'package:flutter/foundation.dart';
 
 /// Defines the implementation of shortcut event.
 class ShortcutEvent {
@@ -56,7 +57,10 @@ class ShortcutEvent {
     String? linuxCommand,
   }) {
     var matched = false;
-    if (Platform.isWindows &&
+    if (kIsWeb && command != null && command.isNotEmpty) {
+      this.command = command;
+      matched = true;
+    } else if (Platform.isWindows &&
         windowsCommand != null &&
         windowsCommand.isNotEmpty) {
       this.command = windowsCommand;

@@ -84,6 +84,7 @@ class AppFlowySelection extends StatefulWidget {
     Key? key,
     this.cursorColor = const Color(0xFF00BCF0),
     this.selectionColor = const Color.fromARGB(53, 111, 201, 231),
+    this.editable = true,
     required this.editorState,
     required this.child,
   }) : super(key: key);
@@ -92,6 +93,7 @@ class AppFlowySelection extends StatefulWidget {
   final Widget child;
   final Color cursorColor;
   final Color selectionColor;
+  final bool editable;
 
   @override
   State<AppFlowySelection> createState() => _AppFlowySelectionState();
@@ -144,15 +146,21 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
   @override
   Widget build(BuildContext context) {
-    return SelectionGestureDetector(
-      onPanStart: _onPanStart,
-      onPanUpdate: _onPanUpdate,
-      onPanEnd: _onPanEnd,
-      onTapDown: _onTapDown,
-      onDoubleTapDown: _onDoubleTapDown,
-      onTripleTapDown: _onTripleTapDown,
-      child: widget.child,
-    );
+    if (!widget.editable) {
+      return Container(
+        child: widget.child,
+      );
+    } else {
+      return SelectionGestureDetector(
+        onPanStart: _onPanStart,
+        onPanUpdate: _onPanUpdate,
+        onPanEnd: _onPanEnd,
+        onTapDown: _onTapDown,
+        onDoubleTapDown: _onDoubleTapDown,
+        onTripleTapDown: _onTripleTapDown,
+        child: widget.child,
+      );
+    }
   }
 
   @override
@@ -184,6 +192,10 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
   @override
   void updateSelection(Selection? selection) {
+    if (!widget.editable) {
+      return;
+    }
+
     selectionRects.clear();
     clearSelection();
 
@@ -323,6 +335,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     // compute the selection in range.
     if (first != null && last != null) {
+      Log.selection.debug('first = $first, last = $last');
       final start =
           first.getSelectionInRange(panStartOffset, panEndOffset).start;
       final end = last.getSelectionInRange(panStartOffset, panEndOffset).end;
@@ -352,6 +365,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
         selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
     final normalizedSelection = selection.normalize;
     assert(normalizedSelection.isBackward);
+
+    Log.selection.debug('update selection areas, $normalizedSelection');
 
     for (var i = 0; i < backwardNodes.length; i++) {
       final node = backwardNodes[i];

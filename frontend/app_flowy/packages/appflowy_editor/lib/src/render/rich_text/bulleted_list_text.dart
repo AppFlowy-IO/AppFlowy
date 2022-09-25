@@ -45,7 +45,11 @@ class BulletedListTextNodeWidget extends BuiltInTextWidget {
 // customize
 
 class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with
+        SelectableMixin,
+        DefaultSelectable,
+        BuiltInStyleMixin,
+        BuiltInTextWidgetMixin {
   @override
   final iconKey = GlobalKey();
 
@@ -61,7 +65,7 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildWithSingle(BuildContext context) {
     return Padding(
       padding: padding,
       child: Row(

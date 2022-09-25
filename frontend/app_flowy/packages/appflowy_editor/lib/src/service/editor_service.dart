@@ -38,6 +38,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.customBuilders = const {},
     this.shortcutEvents = const [],
     this.selectionMenuItems = const [],
+    this.editable = true,
     required this.editorStyle,
   }) : super(key: key);
 
@@ -52,6 +53,8 @@ class AppFlowyEditor extends StatefulWidget {
   final List<SelectionMenuItem> selectionMenuItems;
 
   final EditorStyle editorStyle;
+
+  final bool editable;
 
   @override
   State<AppFlowyEditor> createState() => _AppFlowyEditorState();
@@ -106,11 +109,14 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
           cursorColor: widget.editorStyle.cursorColor,
           selectionColor: widget.editorStyle.selectionColor,
           editorState: editorState,
+          editable: widget.editable,
           child: AppFlowyInput(
             key: editorState.service.inputServiceKey,
             editorState: editorState,
+            editable: widget.editable,
             child: AppFlowyKeyboard(
               key: editorState.service.keyboardServiceKey,
+              editable: widget.editable,
               shortcutEvents: [
                 ...builtInShortcutEvents,
                 ...widget.shortcutEvents,

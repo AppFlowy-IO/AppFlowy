@@ -19,6 +19,7 @@ class EditorWidgetTester {
   EditorState get editorState => _editorState;
   Node get root => _editorState.document.root;
 
+  StateTree get document => _editorState.document;
   int get documentLength => _editorState.document.root.children.length;
   Selection? get documentSelection =>
       _editorState.service.selectionService.currentSelection.value;

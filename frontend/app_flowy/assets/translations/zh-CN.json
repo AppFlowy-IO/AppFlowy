@@ -177,7 +177,7 @@
       "includeTime": " 包含时间",
       "dateFormatFriendly": "月 日,年",
       "dateFormatISO": "年-月-日",
-      "dateFormatLocal": "年/月/日",
+      "dateFormatLocal": "月/日/年",
       "dateFormatUS": "年/月/日",
       "timeFormat": " 时间格式",
       "invalidTimeFormat": "时间格式错误",
