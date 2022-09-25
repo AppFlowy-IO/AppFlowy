@@ -178,7 +178,7 @@ class FlowyVersionDescription extends StatelessWidget {
               ),
             ],
           ).padding(
-            horizontal: ActionListSizes.itemHPadding + ActionListSizes.padding,
+            horizontal: ActionListSizes.itemHPadding + ActionListSizes.hPadding,
           );
         } else {
           return const CircularProgressIndicator();
