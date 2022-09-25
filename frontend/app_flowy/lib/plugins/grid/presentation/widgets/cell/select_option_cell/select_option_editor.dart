@@ -154,10 +154,10 @@ class _TextField extends StatelessWidget {
                   .read<SelectOptionCellEditorBloc>()
                   .add(SelectOptionEditorEvent.filterOption(text));
             },
-            onNewTag: (tagName) {
+            onSubmitted: (tagName) {
               context
                   .read<SelectOptionCellEditorBloc>()
-                  .add(SelectOptionEditorEvent.newOption(tagName));
+                  .add(SelectOptionEditorEvent.trySelectOption(tagName));
             },
           ),
         );
