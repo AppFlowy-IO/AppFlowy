@@ -70,9 +70,11 @@ class GridPluginDisplay extends PluginDisplay {
   @override
   Widget buildWidget(PluginContext context) {
     notifier.isDeleted.addListener(() {
-      if (notifier.isDeleted.value) {
-        context.onDeleted(view);
-      }
+      notifier.isDeleted.value.fold(() => null, (deletedView) {
+        if (deletedView.hasIndex()) {
+          context.onDeleted(view, deletedView.index);
+        }
+      });
     });
 
     return GridPage(key: ValueKey(view.id), view: view);
