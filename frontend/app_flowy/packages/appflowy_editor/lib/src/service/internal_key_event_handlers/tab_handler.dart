@@ -16,6 +16,9 @@ ShortcutEventHandler tabHandler = (editorState, event) {
   if (textNode.subtype != BuiltInAttributeKey.bulletedList ||
       previous == null ||
       previous.subtype != BuiltInAttributeKey.bulletedList) {
+    TransactionBuilder(editorState)
+      ..insertText(textNode, selection.end.offset, ' ' * 4)
+      ..commit();
     return KeyEventResult.handled;
   }
 
