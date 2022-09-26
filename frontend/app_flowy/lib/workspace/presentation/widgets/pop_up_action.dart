@@ -49,8 +49,8 @@ abstract class ActionList<T extends ActionItem> {
       anchorContext: anchorContext ?? buildContext,
       anchorDirection: anchorDirection,
       constraints: BoxConstraints(
-        minHeight: items.length * (itemHeight + ActionListSizes.padding * 2),
-        maxHeight: items.length * (itemHeight + ActionListSizes.padding * 2),
+        minHeight: items.length * (itemHeight + ActionListSizes.vPadding * 2),
+        maxHeight: items.length * (itemHeight + ActionListSizes.vPadding * 2),
         maxWidth: maxWidth,
         minWidth: minWidth,
       ),
@@ -69,7 +69,8 @@ abstract class ActionItem {
 class ActionListSizes {
   static double itemHPadding = 10;
   static double itemHeight = 20;
-  static double padding = 6;
+  static double vPadding = 6;
+  static double hPadding = 10;
 }
 
 class ActionCell<T extends ActionItem> extends StatelessWidget {
@@ -104,8 +105,8 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
             ],
           ),
         ).padding(
-          horizontal: ActionListSizes.padding,
-          vertical: ActionListSizes.padding,
+          horizontal: ActionListSizes.hPadding,
+          vertical: ActionListSizes.vPadding,
         ),
       ),
     );

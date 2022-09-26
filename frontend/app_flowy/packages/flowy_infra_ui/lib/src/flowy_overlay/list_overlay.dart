@@ -60,7 +60,7 @@ class ListOverlay extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: IntrinsicWidth(
           child: Column(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             children: [
               ...children,
               if (footer != null)
