@@ -38,20 +38,13 @@ abstract class ReorderDragTargetIndexKeyStorage {
 
 class ReorderFlexConfig {
   /// The opacity of the dragging widget
-  final double draggingWidgetOpacity = 0.3;
+  final double draggingWidgetOpacity = 0.4;
 
   // How long an animation to reorder an element
-  final Duration reorderAnimationDuration = const Duration(milliseconds: 300);
+  final Duration reorderAnimationDuration = const Duration(milliseconds: 200);
 
   // How long an animation to scroll to an off-screen element
-  final Duration scrollAnimationDuration = const Duration(milliseconds: 300);
-
-  /// Determines if setSatte method needs to be called when the drag is complete.
-  /// Default value is [true].
-  ///
-  /// If the [ReorderFlex] needs to be rebuild after the [ReorderFlex] end dragging,
-  /// the [setStateWhenEndDrag] should set to [true].
-  final bool setStateWhenEndDrag;
+  final Duration scrollAnimationDuration = const Duration(milliseconds: 200);
 
   final bool useMoveAnimation;
 
@@ -59,7 +52,6 @@ class ReorderFlexConfig {
 
   const ReorderFlexConfig({
     this.useMoveAnimation = true,
-    this.setStateWhenEndDrag = true,
   }) : useMovePlaceholder = !useMoveAnimation;
 }
 
@@ -149,6 +141,7 @@ class ReorderFlexState extends State<ReorderFlex>
       reorderAnimationDuration: widget.config.reorderAnimationDuration,
       entranceAnimateStatusChanged: (status) {
         if (status == AnimationStatus.completed) {
+          if (dragState.nextIndex == -1) return;
           setState(() => _requestAnimationToNextIndex());
         }
       },
@@ -377,12 +370,18 @@ class ReorderFlexState extends State<ReorderFlex>
         dragTargetData.dragTargetOffset = offset;
       },
       onDragEnded: (dragTargetData) {
-        if (!mounted) return;
+        if (!mounted) {
+          Log.warn(
+              "[DragTarget]: Group:[${widget.dataSource.identifier}] end dragging but current widget was unmounted");
+          return;
+        }
         Log.debug(
             "[DragTarget]: Group:[${widget.dataSource.identifier}] end dragging");
-        _notifier.updateDragTargetIndex(-1);
 
-        onDragEnded() {
+        _notifier.updateDragTargetIndex(-1);
+        _animation.insertController.stop();
+
+        setState(() {
           if (dragTargetData.reorderFlexId == widget.reorderFlexId) {
             _onReordered(
               dragState.dragStartIndex,
@@ -391,13 +390,7 @@ class ReorderFlexState extends State<ReorderFlex>
           }
           dragState.endDragging();
           widget.onDragEnded?.call();
-        }
-
-        if (widget.config.setStateWhenEndDrag) {
-          setState(() => onDragEnded());
-        } else {
-          onDragEnded();
-        }
+        });
       },
       onWillAccept: (FlexDragTargetData dragTargetData) {
         // Do not receive any events if the Insert item is animating.
@@ -405,19 +398,23 @@ class ReorderFlexState extends State<ReorderFlex>
           return false;
         }
 
-        assert(widget.dataSource.items.length > dragTargetIndex);
-        if (_interceptDragTarget(dragTargetData, (interceptor) {
-          interceptor.onWillAccept(
-            context: builderContext,
-            reorderFlexState: this,
-            dragTargetData: dragTargetData,
-            dragTargetId: reorderFlexItem.id,
-            dragTargetIndex: dragTargetIndex,
-          );
-        })) {
-          return true;
+        if (dragTargetData.isDragging) {
+          assert(widget.dataSource.items.length > dragTargetIndex);
+          if (_interceptDragTarget(dragTargetData, (interceptor) {
+            interceptor.onWillAccept(
+              context: builderContext,
+              reorderFlexState: this,
+              dragTargetData: dragTargetData,
+              dragTargetId: reorderFlexItem.id,
+              dragTargetIndex: dragTargetIndex,
+            );
+          })) {
+            return true;
+          } else {
+            return handleOnWillAccept(builderContext, dragTargetIndex);
+          }
         } else {
-          return handleOnWillAccept(builderContext, dragTargetIndex);
+          return false;
         }
       },
       onAccept: (dragTargetData) {
@@ -485,6 +482,10 @@ class ReorderFlexState extends State<ReorderFlex>
   }
 
   void resetDragTargetIndex(int dragTargetIndex) {
+    if (dragTargetIndex > widget.dataSource.items.length) {
+      return;
+    }
+
     dragState.setStartDraggingIndex(dragTargetIndex);
     widget.dragStateStorage?.write(
       widget.reorderFlexId,
@@ -521,6 +522,9 @@ class ReorderFlexState extends State<ReorderFlex>
   }
 
   void _onReordered(int fromIndex, int toIndex) {
+    if (toIndex == -1) return;
+    if (fromIndex == -1) return;
+
     if (fromIndex != toIndex) {
       widget.onReorder.call(fromIndex, toIndex);
     }

@@ -94,7 +94,8 @@ class BoardPhantomController extends OverlapDragTargetDelegate
 
   /// Remove the phantom in the group if it contains phantom
   void _removePhantom(String groupId) {
-    if (delegate.removePhantom(groupId)) {
+    final didRemove = delegate.removePhantom(groupId);
+    if (didRemove) {
       phantomState.notifyDidRemovePhantom(groupId);
       phantomState.removeGroupListener(groupId);
     }
@@ -195,7 +196,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   }
 
   @override
-  void moveTo(
+  void dragTargetDidMoveToReorderFlex(
     String reorderFlexId,
     FlexDragTargetData dragTargetData,
     int dragTargetIndex,

@@ -112,7 +112,7 @@ class AppFlowyBoardGroup extends StatefulWidget {
     this.itemMargin = EdgeInsets.zero,
     this.cornerRadius = 0.0,
     this.backgroundColor = Colors.transparent,
-  })  : config = const ReorderFlexConfig(setStateWhenEndDrag: false),
+  })  : config = const ReorderFlexConfig(),
         super(key: key);
 
   @override

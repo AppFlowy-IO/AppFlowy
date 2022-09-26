@@ -124,6 +124,8 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
       Log.debug('[$AppFlowyGroupController] $groupData add $newItem');
     } else {
       if (index >= groupData._items.length) {
+        Log.warn(
+            '[$AppFlowyGroupController] unexpected items length, index should less than the count of the items. Index: $index, items count: ${items.length}');
         return;
       }
 
