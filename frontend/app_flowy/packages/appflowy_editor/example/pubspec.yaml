@@ -43,6 +43,8 @@ dependencies:
     sdk: flutter
   file_picker: ^5.0.1
   universal_html: ^2.0.8
+  highlight: ^0.7.0
+  flutter_highlight: ^0.7.0
 
 dev_dependencies:
   flutter_test:
