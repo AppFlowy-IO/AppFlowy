@@ -1,5 +1,30 @@
 # Release Notes
 
+## Version 0.0.5.3 - 09/26/2022
+
+New features
+- Open the next page automatically after deleting the current page
+- Refresh the Kanban board after altering a property type
+
+### Bug Fixes
+- Fix switch board bug
+- Fix delete the Kanban board's row error
+- Remove duplicate time format
+- Fix can't delete field in property edit panel
+- Adjust some display UI issues
+
+
+## Version 0.0.5.2 - 09/16/2022
+
+New features
+- Enable adding a new card to the "No Status" group
+- Fix some bugs
+
+### Bug Fixes
+- Fix cannot open AppFlowy error
+- Fix delete the Kanban board's row error
+
+
 ## Version 0.0.5.1 - 09/14/2022
 
 New features
