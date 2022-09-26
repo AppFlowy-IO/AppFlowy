@@ -124,6 +124,8 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
         final result = shortcutEvent.handler(widget.editorState, event);
         if (result == KeyEventResult.handled) {
           return KeyEventResult.handled;
+        } else if (result == KeyEventResult.skipRemainingHandlers) {
+          return KeyEventResult.skipRemainingHandlers;
         }
         continue;
       }
