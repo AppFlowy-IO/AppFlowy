@@ -2,6 +2,7 @@ import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/l10n/l10n.dart';
 import 'package:appflowy_editor/src/render/image/image_upload_widget.dart';
+import 'package:appflowy_editor/src/render/video/video_upload_widget.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
 
@@ -160,6 +161,12 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     icon: _selectionMenuIcon('image'),
     keywords: ['image'],
     handler: showImageUploadMenu,
+  ),
+  SelectionMenuItem(
+    name: AppFlowyEditorLocalizations.current.video,
+    icon: _selectionMenuIcon('video'),
+    keywords: ['video'],
+    handler: showVideoUploadMenu,
   ),
   SelectionMenuItem(
     name: AppFlowyEditorLocalizations.current.bulletedList,

@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:appflowy_editor/src/render/style/editor_style.dart';
+import 'package:appflowy_editor/src/render/video/video_node_builder.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/built_in_shortcut_events.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,7 @@ NodeWidgetBuilders defaultBuilders = {
   'text/number-list': NumberListTextNodeWidgetBuilder(),
   'text/quote': QuotedTextNodeWidgetBuilder(),
   'image': ImageNodeBuilder(),
+  'video': VideoNodeBuilder(),
 };
 
 class AppFlowyEditor extends StatefulWidget {

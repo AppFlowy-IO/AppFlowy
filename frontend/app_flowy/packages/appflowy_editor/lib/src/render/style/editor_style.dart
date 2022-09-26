@@ -125,6 +125,7 @@ Map<String, PluginStyle> builtInTextStylers = {
     ),
   'text/quote': builtInPluginStyle,
   'image': builtInPluginStyle,
+  'video': builtInPluginStyle,
 };
 
 class BuiltInTextStyle {

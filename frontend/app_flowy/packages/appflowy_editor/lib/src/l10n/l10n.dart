@@ -141,6 +141,16 @@ class AppFlowyEditorLocalizations {
     );
   }
 
+  /// `Video`
+  String get video {
+    return Intl.message(
+      'Video',
+      name: 'Video',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Italic`
   String get italic {
     return Intl.message(
