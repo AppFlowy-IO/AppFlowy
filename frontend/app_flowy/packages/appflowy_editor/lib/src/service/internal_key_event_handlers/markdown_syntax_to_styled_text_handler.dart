@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 import 'package:flutter/material.dart';
 
 // convert **abc** to bold abc.
@@ -51,6 +52,7 @@ ShortcutEventHandler doubleAsterisksToBold = (editorState, event) {
       selection.end.offset - thirdToLastAsteriskIndex - 2,
       {
         BuiltInAttributeKey.bold: true,
+        BuiltInAttributeKey.defaultFormating: true,
       },
     )
     ..afterSelection = Selection.collapsed(
@@ -116,6 +118,7 @@ ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
       selection.end.offset - thirdToLastUnderscoreIndex - 2,
       {
         BuiltInAttributeKey.bold: true,
+        BuiltInAttributeKey.defaultFormating: true,
       },
     )
     ..afterSelection = Selection.collapsed(
@@ -125,7 +128,6 @@ ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
       ),
     )
     ..commit();
-  editorState.editorStyle == EditorStyle.defaultStyle();
 
   return KeyEventResult.handled;
 };

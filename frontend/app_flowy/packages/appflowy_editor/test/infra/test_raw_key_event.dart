@@ -143,7 +143,7 @@ extension on LogicalKeyboardKey {
       return PhysicalKeyboardKey.digit8;
     }
     if (this == LogicalKeyboardKey.underscore) {
-      return PhysicalKeyboardKey.minus gg;
+      return PhysicalKeyboardKey.minus;
     }
     throw UnimplementedError();
   }

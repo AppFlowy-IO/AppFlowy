@@ -92,6 +92,45 @@ void main() async {
         expect(textNode.toRawString(), '*AppFlowy');
       });
 
+      testWidgets('**AppFlowy** application to bold AppFlowy only',
+          (tester) async {
+        const boldText = '**AppFlowy*';
+        const normalText = ' application';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+
+        for (var i = 0; i < boldText.length; i++) {
+          await editor.insertText(textNode, boldText[i], i);
+        }
+        await insertAsterisk(editor);
+        for (var i = 0; i < normalText.length; i++) {
+          await editor.insertText(
+              textNode, normalText[i], i + boldText.length - 3);
+        }
+        final boldTextLength = boldText.replaceAll('*', '').length;
+        final appFlowyBold = textNode.allSatisfyBoldInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: 0,
+            endOffset: boldTextLength,
+          ),
+        );
+        final applicationNormal = textNode.allSatisfyBoldInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: boldTextLength,
+            endOffset: textNode.toRawString().length,
+          ),
+        );
+        expect(appFlowyBold, true);
+        expect(applicationNormal, false);
+        expect(textNode.toRawString(), 'AppFlowy application');
+      });
+
       testWidgets('**** nothing changes', (tester) async {
         const text = '***';
         final editor = tester.editor..insertTextNode('');
@@ -196,6 +235,45 @@ void main() async {
         );
         expect(allBold, true);
         expect(textNode.toRawString(), '_AppFlowy');
+      });
+
+      testWidgets('__AppFlowy__ application to bold AppFlowy only',
+          (tester) async {
+        const boldText = '__AppFlowy_';
+        const normalText = ' application';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+
+        for (var i = 0; i < boldText.length; i++) {
+          await editor.insertText(textNode, boldText[i], i);
+        }
+        await insertUnderscore(editor);
+        for (var i = 0; i < normalText.length; i++) {
+          await editor.insertText(
+              textNode, normalText[i], i + boldText.length - 3);
+        }
+        final boldTextLength = boldText.replaceAll('_', '').length;
+        final appFlowyBold = textNode.allSatisfyBoldInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: 0,
+            endOffset: boldTextLength,
+          ),
+        );
+        final applicationNormal = textNode.allSatisfyBoldInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: boldTextLength,
+            endOffset: textNode.toRawString().length,
+          ),
+        );
+        expect(appFlowyBold, true);
+        expect(applicationNormal, false);
+        expect(textNode.toRawString(), 'AppFlowy application');
       });
 
       testWidgets('____ nothing changes', (tester) async {
