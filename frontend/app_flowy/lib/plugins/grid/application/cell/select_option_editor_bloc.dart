@@ -57,6 +57,10 @@ class SelectOptionCellEditorBloc
           trySelectOption: (_TrySelectOption value) {
             _trySelectOption(value.optionName, emit);
           },
+          selectMultipleOptions: (_SelectMultipleOptions value) {
+            _selectMultipleOptions(value.optionNames);
+            _filterOption(value.remainder, emit);
+          },
           filterOption: (_SelectOptionFilter value) {
             _filterOption(value.optionName, emit);
           },
@@ -104,7 +108,7 @@ class SelectOptionCellEditorBloc
   }
 
   void _trySelectOption(
-      String optionName, Emitter<SelectOptionEditorState> emit) async {
+      String optionName, Emitter<SelectOptionEditorState> emit) {
     SelectOptionPB? matchingOption;
     bool optionExistsButSelected = false;
 
@@ -131,6 +135,14 @@ class SelectOptionCellEditorBloc
 
     // clear the filter
     emit(state.copyWith(filter: none()));
+  }
+
+  void _selectMultipleOptions(List<String> optionNames) async {
+    final options = state.options.where((e) =>
+        optionNames.contains(e.name) && !state.selectedOptions.contains(e));
+    for (final option in options) {
+      await _selectOptionService.select(optionId: option.id);
+    }
   }
 
   void _filterOption(String optionName, Emitter<SelectOptionEditorState> emit) {
@@ -222,6 +234,8 @@ class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
       _SelectOptionFilter;
   const factory SelectOptionEditorEvent.trySelectOption(String optionName) =
       _TrySelectOption;
+  const factory SelectOptionEditorEvent.selectMultipleOptions(
+      List<String> optionNames, String remainder) = _SelectMultipleOptions;
 }
 
 @freezed
