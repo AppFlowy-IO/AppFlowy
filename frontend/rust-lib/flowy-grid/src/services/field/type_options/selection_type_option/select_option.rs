@@ -120,6 +120,21 @@ where
     ) -> FlowyResult<CellBytes> {
         CellBytes::from(self.selected_select_option(cell_data))
     }
+
+    fn display_string(
+        &self,
+        cell_data: CellData<SelectOptionIds>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        Ok(self
+            .selected_select_option(cell_data)
+            .select_options
+            .into_iter()
+            .map(|option| option.name)
+            .collect::<Vec<String>>()
+            .join(SELECTION_IDS_SEPARATOR))
+    }
 }
 
 pub fn select_option_operation(field_rev: &FieldRevision) -> FlowyResult<Box<dyn SelectOptionOperation>> {

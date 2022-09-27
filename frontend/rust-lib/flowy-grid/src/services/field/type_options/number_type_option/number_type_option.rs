@@ -1,6 +1,6 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
-use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation};
+use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::type_options::number_type_option::format::*;
 use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBuilder};
 use bytes::Bytes;
@@ -102,22 +102,43 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
     s
 }
 
-impl CellDataOperation<String, String> for NumberTypeOptionPB {
-    fn decode_cell_data(
+impl CellDisplayable<String> for NumberTypeOptionPB {
+    fn display_data(
         &self,
         cell_data: CellData<String>,
-        decoded_field_type: &FieldType,
+        _decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        if decoded_field_type.is_date() {
-            return Ok(CellBytes::default());
-        }
-
         let cell_data: String = cell_data.try_into_inner()?;
         match self.format_cell_data(&cell_data) {
             Ok(num) => Ok(CellBytes::new(num.to_string())),
             Err(_) => Ok(CellBytes::default()),
         }
+    }
+
+    fn display_string(
+        &self,
+        cell_data: CellData<String>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let cell_data: String = cell_data.try_into_inner()?;
+        Ok(cell_data)
+    }
+}
+
+impl CellDataOperation<String, String> for NumberTypeOptionPB {
+    fn decode_cell_data(
+        &self,
+        cell_data: CellData<String>,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
+        if decoded_field_type.is_date() {
+            return Ok(CellBytes::default());
+        }
+
+        self.display_data(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
