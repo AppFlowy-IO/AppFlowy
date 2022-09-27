@@ -121,6 +121,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
   final _richTextKey = GlobalKey(debugLabel: 'code_block_text');
   final _padding = const EdgeInsets.only(left: 20, top: 20, bottom: 20);
   String? get _language => widget.textNode.attributes['language'] as String?;
+  String? _detectLanguage;
 
   @override
   SelectableMixin<StatefulWidget> get forward =>
@@ -148,6 +149,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
       language: _language,
       autoDetection: _language == null,
     );
+    _detectLanguage = _language ?? result.language;
     final code = result.nodes;
     final codeTextSpan = _convert(code!);
     return Container(
@@ -174,7 +176,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
       top: -5,
       right: 0,
       child: DropdownButton<String>(
-        value: _language,
+        value: _detectLanguage,
         onChanged: (value) {
           TransactionBuilder(widget.editorState)
             ..updateNode(widget.textNode, {
