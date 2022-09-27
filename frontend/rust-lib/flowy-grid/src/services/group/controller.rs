@@ -205,7 +205,7 @@ where
 
             if let Some(cell_rev) = cell_rev {
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
-                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev);
+                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev).1;
                 let cell_data = cell_bytes.parser::<P>()?;
                 for group in self.group_ctx.groups() {
                     if self.can_group(&group.filter_content, &cell_data) {
@@ -244,7 +244,7 @@ where
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             let mut changesets = self.add_row_if_match(row_rev, &cell_data);
             let default_group_changeset = self.update_default_group(row_rev, &changesets);
@@ -265,7 +265,7 @@ where
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
         // if the cell_rev is none, then the row must be crated from the default group.
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.remove_row_if_match(row_rev, &cell_data))
         } else {
@@ -285,7 +285,7 @@ where
         };
 
         if let Some(cell_rev) = cell_rev {
-            let cell_bytes = decode_any_cell_data(cell_rev.data, context.field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data, context.field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.move_row(&cell_data, context))
         } else {

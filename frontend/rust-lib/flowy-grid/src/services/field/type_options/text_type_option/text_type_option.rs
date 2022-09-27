@@ -1,8 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    try_decode_cell_data, CellBytes, CellBytesParser, CellData, CellDataChangeset, CellDataOperation, CellDisplayable,
-    FromCellString,
+    decode_cell_data_to_string, CellBytes, CellBytesParser, CellData, CellDataChangeset, CellDataOperation,
+    CellDisplayable, FromCellString,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -44,6 +44,16 @@ impl CellDisplayable<String> for RichTextTypeOptionPB {
         let cell_str: String = cell_data.try_into_inner()?;
         Ok(CellBytes::new(cell_str))
     }
+
+    fn display_string(
+        &self,
+        cell_data: CellData<String>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let cell_str: String = cell_data.try_into_inner()?;
+        Ok(cell_str)
+    }
 }
 
 impl CellDataOperation<String, String> for RichTextTypeOptionPB {
@@ -57,8 +67,10 @@ impl CellDataOperation<String, String> for RichTextTypeOptionPB {
             || decoded_field_type.is_single_select()
             || decoded_field_type.is_multi_select()
             || decoded_field_type.is_number()
+            || decoded_field_type.is_url()
         {
-            try_decode_cell_data(cell_data, decoded_field_type, decoded_field_type, field_rev)
+            let s = decode_cell_data_to_string(cell_data, decoded_field_type, decoded_field_type, field_rev);
+            Ok(CellBytes::new(s.unwrap_or_else(|_| "".to_owned())))
         } else {
             self.display_data(cell_data, decoded_field_type, field_rev)
         }
@@ -85,12 +97,26 @@ impl AsRef<str> for TextCellData {
     }
 }
 
+impl std::ops::Deref for TextCellData {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 impl FromCellString for TextCellData {
     fn from_cell_str(s: &str) -> FlowyResult<Self>
     where
         Self: Sized,
     {
         Ok(TextCellData(s.to_owned()))
+    }
+}
+
+impl ToString for TextCellData {
+    fn to_string(&self) -> String {
+        self.0.clone()
     }
 }
 
