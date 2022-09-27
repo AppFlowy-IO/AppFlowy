@@ -49,7 +49,7 @@ ShortcutEventHandler doubleAsterisksToBold = (editorState, event) {
     ..formatText(
       textNode,
       thirdToLastAsteriskIndex,
-      selection.end.offset - thirdToLastAsteriskIndex - 2,
+      selection.end.offset - thirdToLastAsteriskIndex - 3,
       {
         BuiltInAttributeKey.bold: true,
         BuiltInAttributeKey.defaultFormating: true,
@@ -115,7 +115,7 @@ ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
     ..formatText(
       textNode,
       thirdToLastUnderscoreIndex,
-      selection.end.offset - thirdToLastUnderscoreIndex - 2,
+      selection.end.offset - thirdToLastUnderscoreIndex - 3,
       {
         BuiltInAttributeKey.bold: true,
         BuiltInAttributeKey.defaultFormating: true,
