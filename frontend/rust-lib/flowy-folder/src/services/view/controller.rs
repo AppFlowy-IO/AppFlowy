@@ -210,7 +210,7 @@ impl ViewController {
                 let index = views
                     .iter()
                     .position(|view| view.id == view_id)
-                    .and_then(|index| Some(index as i32));
+                    .map(|index| index as i32);
                 Ok(DeletedViewPB {
                     view_id: view_id.clone(),
                     index,
