@@ -34,19 +34,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  ViewPB? initialView;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(covariant HomeScreen oldWidget) {
-    initialView = null;
-    super.didUpdateWidget(oldWidget);
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -129,15 +116,6 @@ class _HomeScreenState extends State<HomeScreen> {
       required BuildContext context,
       required HomeState state}) {
     final workspaceSetting = state.workspaceSetting;
-    if (initialView == null && workspaceSetting.hasLatestView()) {
-      initialView = workspaceSetting.latestView;
-      final plugin = makePlugin(
-        pluginType: initialView!.pluginType,
-        data: initialView,
-      );
-      getIt<HomeStackManager>().setPlugin(plugin);
-    }
-
     final homeMenu = HomeMenu(
       user: widget.user,
       workspaceSetting: workspaceSetting,
@@ -150,7 +128,6 @@ class _HomeScreenState extends State<HomeScreen> {
     // All opened widgets that display on the home screen are in the form
     // of plugins. There is a list of built-in plugins defined in the
     // [PluginType] enum, including board, grid and trash.
-
     if (getIt<HomeStackManager>().plugin.ty == PluginType.blank) {
       // Open the last opened view.
       if (workspaceSetting.hasLatestView()) {
