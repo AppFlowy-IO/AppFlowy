@@ -251,14 +251,18 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
   });
 
   @override
-  void didDeleteStackWidget(ViewPB view) {
+  void didDeleteStackWidget(ViewPB view, int? index) {
     final homeService = HomeService();
     homeService.readApp(appId: view.appId).then((result) {
       result.fold(
         (appPB) {
           final List<ViewPB> views = appPB.belongings.items;
           if (views.isNotEmpty) {
-            final lastView = views.last;
+            var lastView = views.last;
+            if (index != null && index != 0 && views.length > index - 1) {
+              lastView = views[index - 1];
+            }
+
             final plugin = makePlugin(
               pluginType: lastView.pluginType,
               data: lastView,

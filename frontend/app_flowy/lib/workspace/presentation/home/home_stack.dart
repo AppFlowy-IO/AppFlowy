@@ -18,7 +18,7 @@ import 'home_layout.dart';
 typedef NavigationCallback = void Function(String id);
 
 abstract class HomeStackDelegate {
-  void didDeleteStackWidget(ViewPB view);
+  void didDeleteStackWidget(ViewPB view, int? index);
 }
 
 class HomeStack extends StatelessWidget {
@@ -41,9 +41,11 @@ class HomeStack extends StatelessWidget {
           child: Container(
             color: theme.surface,
             child: FocusTraversalGroup(
-              child: getIt<HomeStackManager>().stackWidget(onDeleted: (view) {
-                delegate.didDeleteStackWidget(view);
-              }),
+              child: getIt<HomeStackManager>().stackWidget(
+                onDeleted: (view, index) {
+                  delegate.didDeleteStackWidget(view, index);
+                },
+              ),
             ),
           ),
         ),
@@ -168,7 +170,7 @@ class HomeStackManager {
     );
   }
 
-  Widget stackWidget({required Function(ViewPB) onDeleted}) {
+  Widget stackWidget({required Function(ViewPB, int?) onDeleted}) {
     return MultiProvider(
       providers: [ChangeNotifierProvider.value(value: _notifier)],
       child: Consumer(builder: (ctx, HomeStackNotifier notifier, child) {

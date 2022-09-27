@@ -77,7 +77,7 @@ impl NumberTypeOptionPB {
 
     pub(crate) fn format_cell_data(&self, s: &str) -> FlowyResult<NumberCellData> {
         match self.format {
-            NumberFormat::Num | NumberFormat::Percent => match Decimal::from_str(s) {
+            NumberFormat::Num => match Decimal::from_str(s) {
                 Ok(value, ..) => Ok(NumberCellData::from_decimal(value)),
                 Err(_) => Ok(NumberCellData::new()),
             },

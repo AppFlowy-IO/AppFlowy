@@ -1,15 +1,16 @@
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 
-class ViewPluginNotifier extends PluginNotifier {
+class ViewPluginNotifier extends PluginNotifier<Option<DeletedViewPB>> {
   final ViewListener? _viewListener;
   ViewPB view;
 
   @override
-  final ValueNotifier<bool> isDeleted = ValueNotifier(false);
+  final ValueNotifier<Option<DeletedViewPB>> isDeleted = ValueNotifier(none());
 
   @override
   final ValueNotifier<int> isDisplayChanged = ValueNotifier(0);
@@ -27,9 +28,7 @@ class ViewPluginNotifier extends PluginNotifier {
       );
     }, onViewMoveToTrash: (result) {
       result.fold(
-        (deletedView) {
-          isDeleted.value = true;
-        },
+        (deletedView) => isDeleted.value = some(deletedView),
         (err) => Log.error(err),
       );
     });
