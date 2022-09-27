@@ -44,7 +44,7 @@ ShortcutEventHandler _ignorekHandler = (editorState, event) {
   return KeyEventResult.ignored;
 };
 
-SelectionMenuItem codeBlockItem = SelectionMenuItem(
+SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
   name: 'Code Block',
   icon: const Icon(Icons.abc),
   keywords: ['code block'],

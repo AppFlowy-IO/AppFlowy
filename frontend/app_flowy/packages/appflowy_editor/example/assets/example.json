@@ -10,6 +10,12 @@
         }
       },
       {
+        "type": "tex",
+        "attributes": {
+          "tex": "x = 2"
+        }
+      },
+      {
         "type": "text",
         "attributes": { "subtype": "heading", "heading": "h1" },
         "delta": [
