@@ -25,11 +25,6 @@
           }
         ]
       },
-      {
-        "type": "text",
-        "attributes": { "subtype": "code_block", "theme": "vs", "language": "dart" },
-        "delta": [{ "insert": "final x = 0;\nprint($x);" }]
-      },
       { "type": "text", "delta": [] },
       {
         "type": "text",
