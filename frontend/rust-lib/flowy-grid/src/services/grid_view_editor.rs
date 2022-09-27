@@ -201,6 +201,10 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
+    pub(crate) async fn group_id(&self) -> String {
+        self.group_controller.read().await.field_id().to_owned()
+    }
+
     pub(crate) async fn get_setting(&self) -> GridSettingPB {
         let field_revs = self.field_delegate.get_field_revs().await;
         let grid_setting = make_grid_setting(&*self.pad.read().await, &field_revs);
