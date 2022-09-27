@@ -14,5 +14,6 @@ pub trait GroupAction: Send + Sync {
     fn can_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool;
     fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB>;
     fn remove_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB>;
+    // Move row from one group to another
     fn move_row(&mut self, cell_data: &Self::CellDataType, context: MoveGroupRowContext) -> Vec<GroupChangesetPB>;
 }

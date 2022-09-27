@@ -153,7 +153,7 @@ impl DateFormat {
     // https://docs.rs/chrono/0.4.19/chrono/format/strftime/index.html
     pub fn format_str(&self) -> &'static str {
         match self {
-            DateFormat::Local => "%Y/%m/%d",
+            DateFormat::Local => "%m/%d/%Y",
             DateFormat::US => "%Y/%m/%d",
             DateFormat::ISO => "%Y-%m-%d",
             DateFormat::Friendly => "%b %d,%Y",

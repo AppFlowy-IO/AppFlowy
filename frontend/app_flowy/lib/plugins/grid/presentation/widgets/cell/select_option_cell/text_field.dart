@@ -17,7 +17,7 @@ class SelectOptionTextField extends StatefulWidget {
   final LinkedHashMap<String, SelectOptionPB> selectedOptionMap;
   final double distanceToText;
 
-  final Function(String) onNewTag;
+  final Function(String) onSubmitted;
   final Function(String) newText;
   final VoidCallback? onClick;
 
@@ -26,7 +26,7 @@ class SelectOptionTextField extends StatefulWidget {
     required this.selectedOptionMap,
     required this.distanceToText,
     required this.tagController,
-    required this.onNewTag,
+    required this.onSubmitted,
     required this.newText,
     this.onClick,
     TextEditingController? textController,
@@ -88,7 +88,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               }
 
               if (text.isNotEmpty) {
-                widget.onNewTag(text);
+                widget.onSubmitted(text);
                 focusNode.requestFocus();
               }
             },

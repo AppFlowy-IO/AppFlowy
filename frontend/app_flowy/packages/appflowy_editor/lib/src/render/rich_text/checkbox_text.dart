@@ -46,7 +46,11 @@ class CheckboxNodeWidget extends BuiltInTextWidget {
 }
 
 class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with
+        SelectableMixin,
+        DefaultSelectable,
+        BuiltInStyleMixin,
+        BuiltInTextWidgetMixin {
   @override
   final iconKey = GlobalKey();
 
@@ -62,15 +66,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (widget.textNode.children.isEmpty) {
-      return _buildWithSingle(context);
-    } else {
-      return _buildWithChildren(context);
-    }
-  }
-
-  Widget _buildWithSingle(BuildContext context) {
+  Widget buildWithSingle(BuildContext context) {
     final check = widget.textNode.attributes.check;
     return Padding(
       padding: padding,
@@ -104,42 +100,6 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildWithChildren(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildWithSingle(context),
-        Row(
-          children: [
-            const SizedBox(
-              width: 20,
-            ),
-            Column(
-              children: widget.textNode.children
-                  .map(
-                    (child) => widget.editorState.service.renderPluginService
-                        .buildPluginWidget(
-                      child is TextNode
-                          ? NodeWidgetContext<TextNode>(
-                              context: context,
-                              node: child,
-                              editorState: widget.editorState,
-                            )
-                          : NodeWidgetContext<Node>(
-                              context: context,
-                              node: child,
-                              editorState: widget.editorState,
-                            ),
-                    ),
-                  )
-                  .toList(),
-            )
-          ],
-        )
-      ],
     );
   }
 }

@@ -8,7 +8,7 @@ use crate::services::group::{
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision, GroupConfigurationRevision,
-    NumberGroupConfigurationRevision, RowRevision, SelectOptionGroupConfigurationRevision,
+    LayoutRevision, NumberGroupConfigurationRevision, RowRevision, SelectOptionGroupConfigurationRevision,
     TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
 };
 use std::sync::Arc;
@@ -62,15 +62,17 @@ where
     Ok(group_controller)
 }
 
-pub fn find_group_field(field_revs: &[Arc<FieldRevision>]) -> Option<Arc<FieldRevision>> {
-    let field_rev = field_revs
-        .iter()
-        .find(|field_rev| {
-            let field_type: FieldType = field_rev.ty.into();
-            field_type.can_be_group()
-        })
-        .cloned();
-    field_rev
+pub fn find_group_field(field_revs: &[Arc<FieldRevision>], layout: &LayoutRevision) -> Option<Arc<FieldRevision>> {
+    match layout {
+        LayoutRevision::Table => field_revs.iter().find(|field_rev| field_rev.is_primary).cloned(),
+        LayoutRevision::Board => field_revs
+            .iter()
+            .find(|field_rev| {
+                let field_type: FieldType = field_rev.ty.into();
+                field_type.can_be_group()
+            })
+            .cloned(),
+    }
 }
 
 pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurationRevision {

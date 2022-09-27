@@ -93,6 +93,11 @@ mod tests {
                     assert_number(&type_option, "€0.5", "€0,5", &field_type, &field_rev);
                     assert_number(&type_option, "€1844", "€1.844", &field_type, &field_rev);
                 }
+                NumberFormat::Percent => {
+                    assert_number(&type_option, "1", "1%", &field_type, &field_rev);
+                    assert_number(&type_option, "10.1", "10.1%", &field_type, &field_rev);
+                    assert_number(&type_option, "100", "100%", &field_type, &field_rev);
+                }
                 _ => {}
             }
         }

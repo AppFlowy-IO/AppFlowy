@@ -1,6 +1,9 @@
-import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
+
+import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/decoration.dart';
+import 'package:provider/provider.dart';
 
 class AppFlowyPopover extends StatelessWidget {
   final Widget child;
@@ -13,6 +16,7 @@ class AppFlowyPopover extends StatelessWidget {
   final PopoverMutex? mutex;
   final Offset? offset;
   final bool asBarrier;
+  final EdgeInsets margin;
 
   const AppFlowyPopover({
     Key? key,
@@ -26,6 +30,7 @@ class AppFlowyPopover extends StatelessWidget {
     this.offset,
     this.controller,
     this.asBarrier = false,
+    this.margin = const EdgeInsets.all(6),
   }) : super(key: key);
 
   @override
@@ -39,13 +44,44 @@ class AppFlowyPopover extends StatelessWidget {
       triggerActions: triggerActions,
       popupBuilder: (context) {
         final child = popupBuilder(context);
-        debugPrint('$child popover');
-        return OverlayContainer(
+        debugPrint('Show $child popover');
+        return _PopoverContainer(
           constraints: constraints,
-          child: popupBuilder(context),
+          margin: margin,
+          child: child,
         );
       },
       child: child,
+    );
+  }
+}
+
+class _PopoverContainer extends StatelessWidget {
+  final Widget child;
+  final BoxConstraints? constraints;
+  final EdgeInsets margin;
+  const _PopoverContainer({
+    required this.child,
+    required this.margin,
+    this.constraints,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    final decoration = FlowyDecoration.decoration(
+      theme.surface,
+      theme.shadowColor.withOpacity(0.15),
+    );
+    return Material(
+      type: MaterialType.transparency,
+      child: Container(
+        padding: margin,
+        decoration: decoration,
+        constraints: constraints,
+        child: child,
+      ),
     );
   }
 }

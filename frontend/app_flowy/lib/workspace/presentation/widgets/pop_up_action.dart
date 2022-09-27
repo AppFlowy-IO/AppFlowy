@@ -13,7 +13,9 @@ abstract class ActionList<T extends ActionItem> {
 
   String get identifier => toString();
 
-  double get maxWidth => 162;
+  double get maxWidth => 300;
+
+  double get minWidth => 120;
 
   double get itemHeight => ActionListSizes.itemHeight;
 
@@ -29,28 +31,29 @@ abstract class ActionList<T extends ActionItem> {
     AnchorDirection anchorDirection = AnchorDirection.bottomRight,
     Offset? anchorOffset,
   }) {
-    final widgets = items
-        .map(
-          (action) => ActionCell<T>(
-            action: action,
-            itemHeight: itemHeight,
-            onSelected: (action) {
-              FlowyOverlay.of(buildContext).remove(identifier);
-              selectCallback(dartz.some(action));
-            },
-          ),
-        )
-        .toList();
-
     ListOverlay.showWithAnchor(
       buildContext,
       identifier: identifier,
-      itemCount: widgets.length,
-      itemBuilder: (context, index) => widgets[index],
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final action = items[index];
+        return ActionCell<T>(
+          action: action,
+          itemHeight: itemHeight,
+          onSelected: (action) {
+            FlowyOverlay.of(buildContext).remove(identifier);
+            selectCallback(dartz.some(action));
+          },
+        );
+      },
       anchorContext: anchorContext ?? buildContext,
       anchorDirection: anchorDirection,
-      width: maxWidth,
-      height: widgets.length * (itemHeight + ActionListSizes.padding * 2),
+      constraints: BoxConstraints(
+        minHeight: items.length * (itemHeight + ActionListSizes.vPadding * 2),
+        maxHeight: items.length * (itemHeight + ActionListSizes.vPadding * 2),
+        maxWidth: maxWidth,
+        minWidth: minWidth,
+      ),
       delegate: delegate,
       anchorOffset: anchorOffset,
       footer: footer,
@@ -59,14 +62,15 @@ abstract class ActionList<T extends ActionItem> {
 }
 
 abstract class ActionItem {
-  Widget? get icon;
+  Widget? icon(Color iconColor);
   String get name;
 }
 
 class ActionListSizes {
   static double itemHPadding = 10;
   static double itemHeight = 20;
-  static double padding = 6;
+  static double vPadding = 6;
+  static double hPadding = 10;
 }
 
 class ActionCell<T extends ActionItem> extends StatelessWidget {
@@ -83,6 +87,7 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    final icon = action.icon(theme.iconColor);
 
     return FlowyHover(
       style: HoverStyle(hoverColor: theme.hover),
@@ -92,19 +97,16 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
         child: SizedBox(
           height: itemHeight,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (action.icon != null) action.icon!,
+              if (icon != null) icon,
               HSpace(ActionListSizes.itemHPadding),
-              FlowyText.medium(
-                action.name,
-                fontSize: 12,
-              ),
+              FlowyText.medium(action.name, fontSize: 12),
             ],
           ),
         ).padding(
-          horizontal: ActionListSizes.padding,
-          vertical: ActionListSizes.padding,
+          horizontal: ActionListSizes.hPadding,
+          vertical: ActionListSizes.vPadding,
         ),
       ),
     );

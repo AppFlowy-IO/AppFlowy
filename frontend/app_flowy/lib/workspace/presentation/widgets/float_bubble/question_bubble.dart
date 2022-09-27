@@ -101,16 +101,15 @@ class _DebugToast {
   }
 }
 
-class QuestionBubbleActionSheet with ActionList<BubbleActionWrapper>, FlowyOverlayDelegate {
+class QuestionBubbleActionSheet
+    with ActionList<BubbleActionWrapper>, FlowyOverlayDelegate {
   final Function(dartz.Option<BubbleAction>) onSelected;
-  final _items = BubbleAction.values.map((action) => BubbleActionWrapper(action)).toList();
+  final _items =
+      BubbleAction.values.map((action) => BubbleActionWrapper(action)).toList();
 
   QuestionBubbleActionSheet({
     required this.onSelected,
   });
-
-  @override
-  double get maxWidth => 170;
 
   @override
   double get itemHeight => 22;
@@ -119,7 +118,8 @@ class QuestionBubbleActionSheet with ActionList<BubbleActionWrapper>, FlowyOverl
   List<BubbleActionWrapper> get items => _items;
 
   @override
-  void Function(dartz.Option<BubbleActionWrapper> p1) get selectCallback => (result) {
+  void Function(dartz.Option<BubbleActionWrapper> p1) get selectCallback =>
+      (result) {
         result.fold(
           () => onSelected(dartz.none()),
           (wrapper) => onSelected(
@@ -139,7 +139,7 @@ class QuestionBubbleActionSheet with ActionList<BubbleActionWrapper>, FlowyOverl
   @override
   ListOverlayFooter? get footer => ListOverlayFooter(
         widget: const FlowyVersionDescription(),
-        height: 30,
+        height: 40,
         padding: const EdgeInsets.only(top: 6),
       );
 }
@@ -156,7 +156,8 @@ class FlowyVersionDescription extends StatelessWidget {
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           if (snapshot.hasError) {
-            return FlowyText("Error: ${snapshot.error}", fontSize: 12, color: theme.shader4);
+            return FlowyText("Error: ${snapshot.error}",
+                fontSize: 12, color: theme.shader4);
           }
 
           PackageInfo packageInfo = snapshot.data;
@@ -170,10 +171,14 @@ class FlowyVersionDescription extends StatelessWidget {
             children: [
               Divider(height: 1, color: theme.shader6, thickness: 1.0),
               const VSpace(6),
-              FlowyText("$appName $version.$buildNumber", fontSize: 12, color: theme.shader4),
+              FlowyText(
+                "$appName $version.$buildNumber",
+                fontSize: 12,
+                color: theme.shader4,
+              ),
             ],
           ).padding(
-            horizontal: ActionListSizes.itemHPadding + ActionListSizes.padding,
+            horizontal: ActionListSizes.itemHPadding + ActionListSizes.hPadding,
           );
         } else {
           return const CircularProgressIndicator();
@@ -190,7 +195,7 @@ class BubbleActionWrapper extends ActionItem {
 
   BubbleActionWrapper(this.inner);
   @override
-  Widget? get icon => inner.emoji;
+  Widget? icon(Color iconColor) => inner.emoji;
 
   @override
   String get name => inner.name;

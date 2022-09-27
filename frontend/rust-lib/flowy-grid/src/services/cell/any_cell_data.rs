@@ -19,7 +19,10 @@ impl std::str::FromStr for AnyCellData {
     type Err = FlowyError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let type_option_cell_data: AnyCellData = serde_json::from_str(s)?;
+        let type_option_cell_data: AnyCellData = serde_json::from_str(s).map_err(|err| {
+            let msg = format!("Deserialize {} to any cell data failed. Serde error: {}", s, err);
+            FlowyError::internal().context(msg)
+        })?;
         Ok(type_option_cell_data)
     }
 }

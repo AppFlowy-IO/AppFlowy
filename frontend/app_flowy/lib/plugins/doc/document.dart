@@ -74,15 +74,26 @@ class DocumentPlugin extends Plugin<int> {
 class DocumentPluginDisplay extends PluginDisplay with NavigationItem {
   final ViewPluginNotifier notifier;
   ViewPB get view => notifier.view;
+  int? deletedViewIndex;
 
   DocumentPluginDisplay({required this.notifier, Key? key});
 
   @override
-  Widget buildWidget(PluginContext context) => DocumentPage(
-        view: view,
-        onDeleted: () => context.onDeleted(view),
-        key: ValueKey(view.id),
-      );
+  Widget buildWidget(PluginContext context) {
+    notifier.isDeleted.addListener(() {
+      notifier.isDeleted.value.fold(() => null, (deletedView) {
+        if (deletedView.hasIndex()) {
+          deletedViewIndex = deletedView.index;
+        }
+      });
+    });
+
+    return DocumentPage(
+      view: view,
+      onDeleted: () => context.onDeleted(view, deletedViewIndex),
+      key: ValueKey(view.id),
+    );
+  }
 
   @override
   Widget get leftBarItem => ViewLeftBarItem(view: view);
@@ -196,9 +207,6 @@ class ShareActions with ActionList<ShareActionWrapper>, FlowyOverlayDelegate {
   ShareActions({required this.onSelected});
 
   @override
-  double get maxWidth => 130;
-
-  @override
   double get itemHeight => 22;
 
   @override
@@ -233,7 +241,7 @@ class ShareActionWrapper extends ActionItem {
   ShareActionWrapper(this.inner);
 
   @override
-  Widget? get icon => null;
+  Widget? icon(Color iconColor) => null;
 
   @override
   String get name => inner.name;

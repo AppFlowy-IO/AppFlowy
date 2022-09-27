@@ -382,11 +382,8 @@ async fn group_insert_single_select_option_test() {
         AssertGroupCount(5),
     ];
     test.run_scripts(scripts).await;
-
-    // the group at index 4 is the default_group, so the new insert group will be the
-    // index 3.
-    let group_3 = test.group_at_index(3).await;
-    assert_eq!(group_3.desc, new_option_name);
+    let new_group = test.group_at_index(0).await;
+    assert_eq!(new_group.desc, new_option_name);
 }
 
 #[tokio::test]

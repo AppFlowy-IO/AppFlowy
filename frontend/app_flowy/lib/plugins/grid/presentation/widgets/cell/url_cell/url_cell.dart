@@ -54,13 +54,11 @@ class GridURLCell extends GridCellWidget {
       GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
     switch (ty) {
       case GridURLCellAccessoryType.edit:
-        final cellController =
-            cellControllerBuilder.build() as GridURLCellController;
         return GridCellAccessoryBuilder(
           builder: (Key key) => _EditURLAccessory(
             key: key,
-            cellContext: cellController,
             anchorContext: buildContext.anchorContext,
+            cellControllerBuilder: cellControllerBuilder,
           ),
         );
 
@@ -99,7 +97,6 @@ class GridURLCell extends GridCellWidget {
 
 class _GridURLCellState extends GridCellState<GridURLCell> {
   final _popoverController = PopoverController();
-  GridURLCellController? _cellContext;
   late URLCellBloc _cellBloc;
 
   @override
@@ -134,6 +131,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             controller: _popoverController,
             constraints: BoxConstraints.loose(const Size(300, 160)),
             direction: PopoverDirection.bottomWithLeftAligned,
+            triggerActions: PopoverTriggerFlags.none,
             offset: const Offset(0, 20),
             child: SizedBox.expand(
               child: GestureDetector(
@@ -146,7 +144,8 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             ),
             popupBuilder: (BuildContext popoverContext) {
               return URLEditorPopover(
-                cellController: _cellContext!,
+                cellController: widget.cellControllerBuilder.build()
+                    as GridURLCellController,
               );
             },
             onClose: () {
@@ -168,17 +167,13 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
     final uri = Uri.parse(url);
     if (url.isNotEmpty && await canLaunchUrl(uri)) {
       await launchUrl(uri);
-    } else {
-      _cellContext =
-          widget.cellControllerBuilder.build() as GridURLCellController;
-      widget.onCellEditing.value = true;
-      _popoverController.show();
     }
   }
 
   @override
   void requestBeginFocus() {
-    _openUrlOrEdit(_cellBloc.state.url);
+    widget.onCellEditing.value = true;
+    _popoverController.show();
   }
 
   @override
@@ -191,10 +186,10 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
 }
 
 class _EditURLAccessory extends StatefulWidget {
-  final GridURLCellController cellContext;
+  final GridCellControllerBuilder cellControllerBuilder;
   final BuildContext anchorContext;
   const _EditURLAccessory({
-    required this.cellContext,
+    required this.cellControllerBuilder,
     required this.anchorContext,
     Key? key,
   }) : super(key: key);
@@ -224,7 +219,8 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
       child: svgWidget("editor/edit", color: theme.iconColor),
       popupBuilder: (BuildContext popoverContext) {
         return URLEditorPopover(
-          cellController: widget.cellContext.clone(),
+          cellController:
+              widget.cellControllerBuilder.build() as GridURLCellController,
         );
       },
     );

@@ -103,8 +103,12 @@ impl GridRevisionPad {
             |grid_meta| match grid_meta.fields.iter().position(|field| field.id == field_id) {
                 None => Ok(None),
                 Some(index) => {
-                    grid_meta.fields.remove(index);
-                    Ok(Some(()))
+                    if grid_meta.fields[index].is_primary {
+                        Err(CollaborateError::can_not_delete_primary_field())
+                    } else {
+                        grid_meta.fields.remove(index);
+                        Ok(Some(()))
+                    }
                 }
             },
         )

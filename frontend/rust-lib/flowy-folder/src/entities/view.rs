@@ -206,6 +206,15 @@ impl std::convert::From<&str> for ViewIdPB {
     }
 }
 
+#[derive(Default, ProtoBuf, Clone, Debug)]
+pub struct DeletedViewPB {
+    #[pb(index = 1)]
+    pub view_id: String,
+
+    #[pb(index = 2, one_of)]
+    pub index: Option<i32>,
+}
+
 impl std::ops::Deref for ViewIdPB {
     type Target = str;
 

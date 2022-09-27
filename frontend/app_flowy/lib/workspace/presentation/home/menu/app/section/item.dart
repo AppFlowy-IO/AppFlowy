@@ -53,7 +53,7 @@ class ViewSectionItem extends StatelessWidget {
                 _handleAction(context, action);
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding: const EdgeInsets.symmetric(vertical: 2),
                 child: InkWell(
                   onTap: () => onSelected(context.read<ViewBloc>().state.view),
                   child: FlowyHover(
@@ -73,13 +73,18 @@ class ViewSectionItem extends StatelessWidget {
       BuildContext context, bool onHover, ViewState state, Color iconColor) {
     List<Widget> children = [
       SizedBox(
-          width: 16,
-          height: 16,
-          child: state.view.renderThumbnail(iconColor: iconColor)),
+        width: 16,
+        height: 16,
+        child: state.view.renderThumbnail(iconColor: iconColor),
+      ),
       const HSpace(2),
       Expanded(
-          child: FlowyText.regular(state.view.name,
-              fontSize: 12, overflow: TextOverflow.clip)),
+        child: FlowyText.regular(
+          state.view.name,
+          fontSize: 12,
+          overflow: TextOverflow.clip,
+        ),
+      ),
     ];
 
     if (onHover || state.isEditing) {
@@ -147,14 +152,14 @@ extension ViewDisclosureExtension on ViewDisclosureAction {
     }
   }
 
-  Widget get icon {
+  Widget icon(Color iconColor) {
     switch (this) {
       case ViewDisclosureAction.rename:
-        return svgWidget('editor/edit', color: const Color(0xff999999));
+        return svgWidget('editor/edit', color: iconColor);
       case ViewDisclosureAction.delete:
-        return svgWidget('editor/delete', color: const Color(0xff999999));
+        return svgWidget('editor/delete', color: iconColor);
       case ViewDisclosureAction.duplicate:
-        return svgWidget('editor/copy', color: const Color(0xff999999));
+        return svgWidget('editor/copy', color: iconColor);
     }
   }
 }

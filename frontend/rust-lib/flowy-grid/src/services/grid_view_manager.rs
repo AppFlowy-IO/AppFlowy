@@ -56,6 +56,12 @@ impl GridViewManager {
         })
     }
 
+    pub(crate) async fn duplicate_grid_view(&self) -> FlowyResult<String> {
+        let editor = self.get_default_view_editor().await?;
+        let view_data = editor.duplicate_view_data().await?;
+        Ok(view_data)
+    }
+
     /// When the row was created, we may need to modify the [RowRevision] according to the [CreateRowParams].
     pub(crate) async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         for view_editor in self.view_editors.iter() {
@@ -169,9 +175,19 @@ impl GridViewManager {
         Ok(())
     }
 
-    pub(crate) async fn did_update_field(&self, field_id: &str) -> FlowyResult<()> {
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub(crate) async fn did_update_field(&self, field_id: &str, is_type_option_changed: bool) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.did_update_field(field_id).await?;
+        // Only the field_id of the updated field is equal to the field_id of the group.
+        // Update the group
+        if view_editor.group_id().await != field_id {
+            return Ok(());
+        }
+        if is_type_option_changed {
+            let _ = view_editor.group_by_field(field_id).await?;
+        } else {
+            let _ = view_editor.did_update_field(field_id).await?;
+        }
         Ok(())
     }
 

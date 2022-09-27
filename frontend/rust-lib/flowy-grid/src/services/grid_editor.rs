@@ -179,23 +179,20 @@ impl GridRevisionEditor {
             None => Err(ErrorCode::FieldDoesNotExist.into()),
             Some(field_type) => {
                 let _ = self.update_field_rev(params, field_type).await?;
-                match self.view_manager.did_update_field(&field_id).await {
-                    Ok(_) => {}
-                    Err(e) => tracing::error!("View manager update field failed: {:?}", e),
-                }
                 let _ = self.notify_did_update_grid_field(&field_id).await?;
                 Ok(())
             }
         }
     }
 
+    // Replaces the field revision with new field revision.
     pub async fn replace_field(&self, field_rev: Arc<FieldRevision>) -> FlowyResult<()> {
         let field_id = field_rev.id.clone();
         let _ = self
             .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev.clone())?))
             .await?;
 
-        match self.view_manager.did_update_field(&field_rev.id).await {
+        match self.view_manager.did_update_field(&field_rev.id, false).await {
             Ok(_) => {}
             Err(e) => tracing::error!("View manager update field failed: {:?}", e),
         }
@@ -279,6 +276,7 @@ impl GridRevisionEditor {
     }
 
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
+        let mut is_type_option_changed = false;
         let _ = self
             .modify(|grid| {
                 let deserializer = TypeOptionJsonDeserializer(field_type);
@@ -319,6 +317,7 @@ impl GridRevisionEditor {
                             Ok(json_str) => {
                                 let field_type = field.ty;
                                 field.insert_type_option_str(&field_type, json_str);
+                                is_type_option_changed = true;
                                 is_changed = Some(())
                             }
                             Err(err) => {
@@ -333,7 +332,11 @@ impl GridRevisionEditor {
             })
             .await?;
 
-        match self.view_manager.did_update_field(&params.field_id).await {
+        match self
+            .view_manager
+            .did_update_field(&params.field_id, is_type_option_changed)
+            .await
+        {
             Ok(_) => {}
             Err(e) => tracing::error!("View manager update field failed: {:?}", e),
         }
@@ -432,14 +435,18 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_cell(&self, params: &GridCellIdParams) -> Option<GridCellPB> {
-        let cell_bytes = self.get_cell_bytes(params).await?;
-        Some(GridCellPB::new(&params.field_id, cell_bytes.to_vec()))
+        let (field_type, cell_bytes) = self.decode_any_cell_data(params).await?;
+        Some(GridCellPB::new(&params.field_id, field_type, cell_bytes.to_vec()))
     }
 
     pub async fn get_cell_bytes(&self, params: &GridCellIdParams) -> Option<CellBytes> {
+        let (_, cell_data) = self.decode_any_cell_data(params).await?;
+        Some(cell_data)
+    }
+
+    async fn decode_any_cell_data(&self, params: &GridCellIdParams) -> Option<(FieldType, CellBytes)> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let row_rev = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
-
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
         Some(decode_any_cell_data(cell_rev.data, &field_rev))
     }
@@ -537,7 +544,7 @@ impl GridRevisionEditor {
         self.view_manager.get_filters().await
     }
 
-    pub async fn create_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+    pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
         self.view_manager.insert_or_update_group(params).await
     }
 
@@ -673,6 +680,7 @@ impl GridRevisionEditor {
 
     pub async fn duplicate_grid(&self) -> FlowyResult<BuildGridContext> {
         let grid_pad = self.grid_pad.read().await;
+        let grid_view_revision_data = self.view_manager.duplicate_grid_view().await?;
         let original_blocks = grid_pad.get_block_meta_revs();
         let (duplicated_fields, duplicated_blocks) = grid_pad.duplicate_grid_block_meta().await;
 
@@ -698,6 +706,7 @@ impl GridRevisionEditor {
             field_revs: duplicated_fields.into_iter().map(Arc::new).collect(),
             block_metas: duplicated_blocks,
             blocks: blocks_meta_data,
+            grid_view_revision_data,
         })
     }
 

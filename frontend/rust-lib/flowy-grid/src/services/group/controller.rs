@@ -86,8 +86,7 @@ where
     G: GroupGenerator<Context = GroupContext<C>, TypeOptionType = T>,
 {
     pub async fn new(field_rev: &Arc<FieldRevision>, mut configuration: GroupContext<C>) -> FlowyResult<Self> {
-        let field_type_rev = field_rev.ty;
-        let type_option = field_rev.get_type_option::<T>(field_type_rev);
+        let type_option = field_rev.get_type_option::<T>(field_rev.ty);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
         let _ = configuration.init_groups(groups, true)?;
 
@@ -206,7 +205,7 @@ where
 
             if let Some(cell_rev) = cell_rev {
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
-                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev);
+                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev).1;
                 let cell_data = cell_bytes.parser::<P>()?;
                 for group in self.group_ctx.groups() {
                     if self.can_group(&group.filter_content, &cell_data) {
@@ -245,7 +244,7 @@ where
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             let mut changesets = self.add_row_if_match(row_rev, &cell_data);
             let default_group_changeset = self.update_default_group(row_rev, &changesets);
@@ -266,7 +265,7 @@ where
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
         // if the cell_rev is none, then the row must be crated from the default group.
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.remove_row_if_match(row_rev, &cell_data))
         } else {
@@ -278,12 +277,19 @@ where
         }
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
-        if let Some(cell_rev) = context.row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), context.field_rev);
+        let cell_rev = match context.row_rev.cells.get(&self.field_id) {
+            Some(cell_rev) => Some(cell_rev.clone()),
+            None => self.default_cell_rev(),
+        };
+
+        if let Some(cell_rev) = cell_rev {
+            let cell_bytes = decode_any_cell_data(cell_rev.data, context.field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.move_row(&cell_data, context))
         } else {
+            tracing::warn!("Unexpected moving group row, changes should not be empty");
             Ok(vec![])
         }
     }

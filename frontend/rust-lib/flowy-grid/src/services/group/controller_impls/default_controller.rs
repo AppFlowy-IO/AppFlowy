@@ -55,7 +55,7 @@ impl GroupControllerSharedOperation for DefaultGroupController {
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
-        todo!()
+        Ok(vec![])
     }
 
     fn did_delete_row(
@@ -63,7 +63,7 @@ impl GroupControllerSharedOperation for DefaultGroupController {
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
-        todo!()
+        Ok(vec![])
     }
 
     fn move_group_row(&mut self, _context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {

@@ -83,7 +83,9 @@ class _BoardCardState extends State<BoardCard> {
         builder: (context, state) {
           return AppFlowyPopover(
             controller: popoverController,
+            triggerActions: PopoverTriggerFlags.none,
             constraints: BoxConstraints.loose(const Size(140, 200)),
+            margin: const EdgeInsets.all(6),
             direction: PopoverDirection.rightWithCenterAligned,
             popupBuilder: (popoverContext) => _handlePopoverBuilder(
               context,
@@ -132,7 +134,8 @@ class _BoardCardState extends State<BoardCard> {
         throw UnimplementedError();
       case AccessoryType.more:
         return GridRowActionSheet(
-            rowData: context.read<BoardCardBloc>().rowInfo());
+          rowData: context.read<BoardCardBloc>().rowInfo(),
+        );
     }
   }
 

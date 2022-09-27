@@ -32,9 +32,9 @@ abstract class Plugin<T> {
   }
 }
 
-abstract class PluginNotifier {
+abstract class PluginNotifier<T> {
   /// Notify if the plugin get deleted
-  ValueNotifier<bool> get isDeleted;
+  ValueNotifier<T> get isDeleted;
 
   /// Notify if the [PluginDisplay]'s content was changed
   ValueNotifier<int> get isDisplayChanged;
@@ -67,7 +67,7 @@ abstract class PluginDisplay with NavigationItem {
 
 class PluginContext {
   // calls when widget of the plugin get deleted
-  final Function(ViewPB) onDeleted;
+  final Function(ViewPB, int?) onDeleted;
 
   PluginContext({required this.onDeleted});
 }
