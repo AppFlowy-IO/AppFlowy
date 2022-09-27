@@ -13,10 +13,17 @@ ShortcutEventHandler tabHandler = (editorState, event) {
 
   final textNode = textNodes.first;
   final previous = textNode.previous;
-  if (textNode.subtype != BuiltInAttributeKey.bulletedList ||
-      previous == null ||
-      previous.subtype != BuiltInAttributeKey.bulletedList) {
+
+  if (textNode.subtype != BuiltInAttributeKey.bulletedList) {
+    TransactionBuilder(editorState)
+      ..insertText(textNode, selection.end.offset, ' ' * 4)
+      ..commit();
     return KeyEventResult.handled;
+  }
+
+  if (previous == null ||
+      previous.subtype != BuiltInAttributeKey.bulletedList) {
+    return KeyEventResult.ignored;
   }
 
   final path = previous.path + [previous.children.length];

@@ -2,7 +2,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
@@ -171,13 +170,27 @@ Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
     LogicalKeyboardKey.enter,
   );
   expect(editor.documentSelection, Selection.single(path: [4], startOffset: 0));
-  expect(editor.nodeAtPath([4])?.subtype, style);
 
-  await editor.pressLogicKey(
-    LogicalKeyboardKey.enter,
-  );
-  expect(editor.documentSelection, Selection.single(path: [4], startOffset: 0));
-  expect(editor.nodeAtPath([4])?.subtype, null);
+  if ([BuiltInAttributeKey.heading, BuiltInAttributeKey.quote]
+      .contains(style)) {
+    expect(editor.nodeAtPath([4])?.subtype, null);
+
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.enter,
+    );
+    expect(
+        editor.documentSelection, Selection.single(path: [5], startOffset: 0));
+    expect(editor.nodeAtPath([5])?.subtype, null);
+  } else {
+    expect(editor.nodeAtPath([4])?.subtype, style);
+
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.enter,
+    );
+    expect(
+        editor.documentSelection, Selection.single(path: [4], startOffset: 0));
+    expect(editor.nodeAtPath([4])?.subtype, null);
+  }
 }
 
 Future<void> _testMultipleSelection(

@@ -118,8 +118,8 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
               key: editorState.service.keyboardServiceKey,
               editable: widget.editable,
               shortcutEvents: [
-                ...builtInShortcutEvents,
                 ...widget.shortcutEvents,
+                ...builtInShortcutEvents,
               ],
               editorState: editorState,
               child: FlowyToolbar(

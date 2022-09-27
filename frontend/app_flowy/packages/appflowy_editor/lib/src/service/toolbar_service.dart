@@ -38,14 +38,17 @@ class _FlowyToolbarState extends State<FlowyToolbar>
   @override
   void showInOffset(Offset offset, LayerLink layerLink) {
     hide();
-
+    final items = _filterItems(defaultToolbarItems);
+    if (items.isEmpty) {
+      return;
+    }
     _toolbarOverlay = OverlayEntry(
       builder: (context) => ToolbarWidget(
         key: _toolbarWidgetKey,
         editorState: widget.editorState,
         layerLink: layerLink,
         offset: offset,
-        items: _filterItems(defaultToolbarItems),
+        items: items,
       ),
     );
     Overlay.of(context)?.insert(_toolbarOverlay!);
@@ -102,9 +105,4 @@ class _FlowyToolbarState extends State<FlowyToolbar>
     }
     return dividedItems;
   }
-
-  // List<ToolbarItem> _highlightItems(
-  //   List<ToolbarItem> items,
-  //   Selection selection,
-  // ) {}
 }
