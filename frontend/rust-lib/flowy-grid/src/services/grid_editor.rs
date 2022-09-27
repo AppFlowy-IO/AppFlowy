@@ -435,14 +435,18 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_cell(&self, params: &GridCellIdParams) -> Option<GridCellPB> {
-        let cell_bytes = self.get_cell_bytes(params).await?;
-        Some(GridCellPB::new(&params.field_id, cell_bytes.to_vec()))
+        let (field_type, cell_bytes) = self.decode_any_cell_data(params).await?;
+        Some(GridCellPB::new(&params.field_id, field_type, cell_bytes.to_vec()))
     }
 
     pub async fn get_cell_bytes(&self, params: &GridCellIdParams) -> Option<CellBytes> {
+        let (_, cell_data) = self.decode_any_cell_data(params).await?;
+        Some(cell_data)
+    }
+
+    async fn decode_any_cell_data(&self, params: &GridCellIdParams) -> Option<(FieldType, CellBytes)> {
         let field_rev = self.get_field_rev(&params.field_id).await?;
         let row_rev = self.block_manager.get_row_rev(&params.row_id).await.ok()??;
-
         let cell_rev = row_rev.cells.get(&params.field_id)?.clone();
         Some(decode_any_cell_data(cell_rev.data, &field_rev))
     }
