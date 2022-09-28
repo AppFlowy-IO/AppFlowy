@@ -74,8 +74,8 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
               padding: iconPadding,
               name: check ? 'check' : 'uncheck',
             ),
-            onTap: () {
-              formatTextToCheckbox(
+            onTap: () async {
+              await formatTextToCheckbox(
                 widget.editorState,
                 !check,
                 textNode: widget.textNode,

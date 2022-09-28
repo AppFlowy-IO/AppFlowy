@@ -3,29 +3,25 @@ import 'package:appflowy_editor/src/document/attributes.dart';
 import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/document/path.dart';
+import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 
 Future<void> formatBuiltInTextAttributes(
   EditorState editorState,
   String key,
   Attributes attributes, {
+  Selection? selection,
   Path? path,
   TextNode? textNode,
 }) async {
+  final result = getTextNodeToBeFormatted(
+    editorState,
+    path: path,
+    textNode: textNode,
+  );
   if (BuiltInAttributeKey.globalStyleKeys.contains(key)) {
-    assert(!(path != null && textNode != null));
-    assert(!(path == null && textNode == null));
-
-    TextNode formattedTextNode;
-    if (textNode != null) {
-      formattedTextNode = textNode;
-    } else if (path != null) {
-      formattedTextNode = editorState.document.nodeAtPath(path) as TextNode;
-    } else {
-      throw Exception('path and textNode cannot be null at the same time');
-    }
     // remove all the existing style
-    final newAttributes = formattedTextNode.attributes
+    final newAttributes = result.attributes
       ..removeWhere((key, value) {
         if (BuiltInAttributeKey.globalStyleKeys.contains(key)) {
           return true;
@@ -39,6 +35,13 @@ Future<void> formatBuiltInTextAttributes(
     return updateTextNodeAttributes(
       editorState,
       newAttributes,
+      textNode: textNode,
+    );
+  } else if (BuiltInAttributeKey.partialStyleKeys.contains(key)) {
+    return updateTextNodeDeltaAttributes(
+      editorState,
+      selection,
+      attributes,
       textNode: textNode,
     );
   }
@@ -55,6 +58,23 @@ Future<void> formatTextToCheckbox(
     BuiltInAttributeKey.checkbox,
     {
       BuiltInAttributeKey.checkbox: check,
+    },
+    path: path,
+    textNode: textNode,
+  );
+}
+
+Future<void> formatLinkInText(
+  EditorState editorState,
+  String? link, {
+  Path? path,
+  TextNode? textNode,
+}) async {
+  return formatBuiltInTextAttributes(
+    editorState,
+    BuiltInAttributeKey.href,
+    {
+      BuiltInAttributeKey.href: link,
     },
     path: path,
     textNode: textNode,
