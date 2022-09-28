@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/src/commands/format_text.dart';
+import 'package:appflowy_editor/src/commands/text_command_infra.dart';
 import 'package:appflowy_editor/src/document/attributes.dart';
 import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/document/node.dart';
