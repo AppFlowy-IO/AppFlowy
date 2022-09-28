@@ -1,6 +1,8 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
@@ -230,11 +232,13 @@ class _IncludeTimeButton extends StatelessWidget {
                 FlowyText.medium(LocaleKeys.grid_field_includeTime.tr(),
                     fontSize: 14),
                 const Spacer(),
-                Switch(
+                Toggle(
                   value: includeTime,
-                  onChanged: (newValue) => context
+                  onChanged: (value) => context
                       .read<DateCalBloc>()
-                      .add(DateCalEvent.setIncludeTime(newValue)),
+                      .add(DateCalEvent.setIncludeTime(!value)),
+                  style: ToggleStyle.big(theme),
+                  padding: EdgeInsets.zero,
                 ),
               ],
             ),
