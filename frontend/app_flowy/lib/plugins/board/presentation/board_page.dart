@@ -104,8 +104,8 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildBoard(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSettingModel>(context, listen: true),
-      child: Selector<AppearanceSettingModel, AppTheme>(
+      value: Provider.of<AppearanceSetting>(context, listen: true),
+      child: Selector<AppearanceSetting, AppTheme>(
         selector: (ctx, notifier) => notifier.theme,
         builder: (ctx, theme, child) => Expanded(
           child: AppFlowyBoard(
@@ -331,8 +331,8 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
         );
 
         return ChangeNotifierProvider.value(
-          value: Provider.of<AppearanceSettingModel>(context, listen: true),
-          child: Selector<AppearanceSettingModel, AppTheme>(
+          value: Provider.of<AppearanceSetting>(context, listen: true),
+          child: Selector<AppearanceSetting, AppTheme>(
             selector: (ctx, notifier) => notifier.theme,
             builder: (ctx, theme, child) {
               return BoardToolbar(toolbarContext: toolbarContext);
