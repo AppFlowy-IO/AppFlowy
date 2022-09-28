@@ -13,7 +13,7 @@ class SettingsLanguageView extends StatelessWidget {
   Widget build(BuildContext context) {
     context.watch<AppTheme>();
     return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSettingModel>(context, listen: true),
+      value: Provider.of<AppearanceSetting>(context, listen: true),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +43,8 @@ class LanguageSelectorDropdown extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<LanguageSelectorDropdown> createState() => _LanguageSelectorDropdownState();
+  State<LanguageSelectorDropdown> createState() =>
+      _LanguageSelectorDropdownState();
 }
 
 class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
@@ -77,10 +78,10 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
         ),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<Locale>(
-            value: context.read<AppearanceSettingModel>().locale,
+            value: context.read<AppearanceSetting>().locale,
             onChanged: (val) {
               setState(() {
-                context.read<AppearanceSettingModel>().setLocale(context, val!);
+                context.read<AppearanceSetting>().setLocale(context, val!);
               });
             },
             icon: const Visibility(

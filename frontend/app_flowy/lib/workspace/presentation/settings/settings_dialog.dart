@@ -33,8 +33,7 @@ class SettingsDialog extends StatelessWidget {
           ..add(const SettingsDialogEvent.initial()),
         child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
             builder: (context, state) => ChangeNotifierProvider.value(
-                  value: Provider.of<AppearanceSettingModel>(context,
-                      listen: true),
+                  value: Provider.of<AppearanceSetting>(context, listen: true),
                   child: FlowyDialog(
                     title: Text(
                       LocaleKeys.settings_title.tr(),

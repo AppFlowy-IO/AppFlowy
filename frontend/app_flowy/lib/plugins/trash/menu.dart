@@ -33,8 +33,8 @@ class MenuTrash extends StatelessWidget {
   Widget _render(BuildContext context) {
     return Row(children: [
       ChangeNotifierProvider.value(
-        value: Provider.of<AppearanceSettingModel>(context, listen: true),
-        child: Selector<AppearanceSettingModel, AppTheme>(
+        value: Provider.of<AppearanceSetting>(context, listen: true),
+        child: Selector<AppearanceSetting, AppTheme>(
           selector: (ctx, notifier) => notifier.theme,
           builder: (ctx, theme, child) => SizedBox(
               width: 16,
@@ -44,8 +44,8 @@ class MenuTrash extends StatelessWidget {
       ),
       const HSpace(6),
       ChangeNotifierProvider.value(
-        value: Provider.of<AppearanceSettingModel>(context, listen: true),
-        child: Selector<AppearanceSettingModel, Locale>(
+        value: Provider.of<AppearanceSetting>(context, listen: true),
+        child: Selector<AppearanceSetting, Locale>(
           selector: (ctx, notifier) => notifier.locale,
           builder: (ctx, _, child) =>
               FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),

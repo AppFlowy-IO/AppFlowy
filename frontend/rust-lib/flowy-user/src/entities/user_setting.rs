@@ -1,5 +1,6 @@
 use flowy_derive::ProtoBuf;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct UserPreferencesPB {
@@ -21,7 +22,11 @@ pub struct AppearanceSettingsPB {
 
     #[pb(index = 3)]
     #[serde(default = "DEFAULT_RESET_VALUE")]
-    pub reset_as_default: bool,
+    pub reset_to_default: bool,
+
+    #[pb(index = 4)]
+    #[serde(default)]
+    pub setting_key_value: HashMap<String, String>,
 }
 
 const DEFAULT_RESET_VALUE: fn() -> bool = || APPEARANCE_RESET_AS_DEFAULT;
@@ -52,7 +57,8 @@ impl std::default::Default for AppearanceSettingsPB {
         AppearanceSettingsPB {
             theme: APPEARANCE_DEFAULT_THEME.to_owned(),
             locale: LocaleSettingsPB::default(),
-            reset_as_default: APPEARANCE_RESET_AS_DEFAULT,
+            reset_to_default: APPEARANCE_RESET_AS_DEFAULT,
+            setting_key_value: HashMap::default(),
         }
     }
 }
