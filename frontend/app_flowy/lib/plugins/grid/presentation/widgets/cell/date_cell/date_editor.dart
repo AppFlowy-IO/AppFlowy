@@ -169,6 +169,18 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             rightChevronMargin: EdgeInsets.zero,
             rightChevronIcon: svgWidget("home/arrow_right"),
           ),
+          daysOfWeekStyle: DaysOfWeekStyle(
+            dowTextFormatter: (date, locale) =>
+                DateFormat.E(locale).format(date).toUpperCase(),
+            weekdayStyle: TextStyle(
+              fontSize: 13,
+              color: theme.shader3,
+            ),
+            weekendStyle: TextStyle(
+              fontSize: 13,
+              color: theme.shader3,
+            ),
+          ),
           calendarStyle: CalendarStyle(
             selectedDecoration: BoxDecoration(
               color: theme.main1,
@@ -354,7 +366,7 @@ class _DateTypeOptionButton extends StatelessWidget {
           offset: const Offset(20, 0),
           constraints: BoxConstraints.loose(const Size(140, 100)),
           child: FlowyButton(
-            text: FlowyText.medium(title, fontSize: 12),
+            text: FlowyText.medium(title, fontSize: 14),
             hoverColor: theme.hover,
             margin: kMargin,
             rightIcon: svgWidget("grid/more", color: theme.iconColor),
