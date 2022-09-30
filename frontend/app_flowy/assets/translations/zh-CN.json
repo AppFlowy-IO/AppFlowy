@@ -192,7 +192,8 @@
       "duplicate": "复制",
       "delete": "删除",
       "textPlaceholder": "空",
-      "copyProperty": "复制列"
+      "copyProperty": "复制列",
+      "newRow": "添加一行" 
     },
     "selectOption": {
       "create": "新建",
