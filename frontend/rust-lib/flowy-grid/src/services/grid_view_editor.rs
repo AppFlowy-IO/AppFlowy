@@ -173,6 +173,7 @@ impl GridViewRevisionEditor {
         Ok(groups.into_iter().map(GroupPB::from).collect())
     }
 
+    #[tracing::instrument(level = "trace", err)]
     pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let _ = self
             .group_controller
@@ -180,7 +181,7 @@ impl GridViewRevisionEditor {
             .await
             .move_group(&params.from_group_id, &params.to_group_id)?;
         match self.group_controller.read().await.get_group(&params.from_group_id) {
-            None => {}
+            None => tracing::warn!("Can not find the group with id: {}", params.from_group_id),
             Some((index, group)) => {
                 let inserted_group = InsertedGroupPB {
                     group: GroupPB::from(group),

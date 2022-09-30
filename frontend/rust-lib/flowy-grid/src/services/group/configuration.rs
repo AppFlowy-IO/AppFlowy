@@ -135,6 +135,7 @@ where
                 self.mut_configuration(|configuration| {
                     let from_index = configuration.groups.iter().position(|group| group.id == from_id);
                     let to_index = configuration.groups.iter().position(|group| group.id == to_id);
+                    tracing::trace!("Swap group index:{:?} with index:{:?}", from_index, to_index);
                     if let (Some(from), Some(to)) = (from_index, to_index) {
                         configuration.groups.swap(from, to);
                     }

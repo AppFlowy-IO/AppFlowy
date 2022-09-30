@@ -31,9 +31,32 @@ abstract class ReoderFlexItem {
   String get id;
 }
 
-abstract class ReorderDragTargetIndexKeyStorage {
-  void addKey(String reorderFlexId, String key, GlobalObjectKey value);
-  GlobalObjectKey? readKey(String reorderFlexId, String key);
+/// Cache each dragTarget's key.
+/// For the moment, the key is used to locate the render object that will
+/// be passed in the [ScrollPosition]'s [ensureVisible] function.
+///
+abstract class ReorderDragTargeKeys {
+  void insertDragTarget(
+    String reorderFlexId,
+    String key,
+    GlobalObjectKey value,
+  );
+
+  GlobalObjectKey? getDragTarget(
+    String reorderFlexId,
+    String key,
+  );
+
+  void removeDragTarget(String reorderFlexId);
+}
+
+abstract class ReorderFlexAction {
+  void Function(void Function(BuildContext)?)? _scrollToBottom;
+  void Function(void Function(BuildContext)?) get scrollToBottom =>
+      _scrollToBottom!;
+
+  void Function(int)? _resetDragTargetIndex;
+  void Function(int) get resetDragTargetIndex => _resetDragTargetIndex!;
 }
 
 class ReorderFlexConfig {
@@ -78,9 +101,12 @@ class ReorderFlex extends StatefulWidget {
 
   final DragTargetInterceptor? interceptor;
 
+  /// Save the [DraggingState] if the current [ReorderFlex] get reinitialize.
   final DraggingStateStorage? dragStateStorage;
 
-  final ReorderDragTargetIndexKeyStorage? dragTargetIndexKeyStorage;
+  final ReorderDragTargeKeys? dragTargetKeys;
+
+  final ReorderFlexAction? reorderFlexAction;
 
   final bool reorderable;
 
@@ -93,10 +119,11 @@ class ReorderFlex extends StatefulWidget {
     required this.onReorder,
     this.reorderable = true,
     this.dragStateStorage,
-    this.dragTargetIndexKeyStorage,
+    this.dragTargetKeys,
     this.onDragStarted,
     this.onDragEnded,
     this.interceptor,
+    this.reorderFlexAction,
     this.direction = Axis.vertical,
   })  : assert(children.every((Widget w) => w.key != null),
             'All child must have a key.'),
@@ -109,7 +136,7 @@ class ReorderFlex extends StatefulWidget {
 }
 
 class ReorderFlexState extends State<ReorderFlex>
-    with ReorderFlexMinxi, TickerProviderStateMixin<ReorderFlex> {
+    with ReorderFlexMixin, TickerProviderStateMixin<ReorderFlex> {
   /// Controls scrolls and measures scroll progress.
   late ScrollController _scrollController;
 
@@ -131,11 +158,11 @@ class ReorderFlexState extends State<ReorderFlex>
   void initState() {
     _notifier = ReorderFlexNotifier();
     final flexId = widget.reorderFlexId;
-    dragState = widget.dragStateStorage?.read(flexId) ??
+    dragState = widget.dragStateStorage?.readState(flexId) ??
         DraggingState(widget.reorderFlexId);
     Log.trace('[DragTarget] init dragState: $dragState');
 
-    widget.dragStateStorage?.remove(flexId);
+    widget.dragStateStorage?.removeState(flexId);
 
     _animation = DragTargetAnimation(
       reorderAnimationDuration: widget.config.reorderAnimationDuration,
@@ -147,6 +174,14 @@ class ReorderFlexState extends State<ReorderFlex>
       },
       vsync: this,
     );
+
+    widget.reorderFlexAction?._scrollToBottom = (fn) {
+      scrollToBottom(fn);
+    };
+
+    widget.reorderFlexAction?._resetDragTargetIndex = (index) {
+      resetDragTargetIndex(index);
+    };
 
     super.initState();
   }
@@ -184,7 +219,7 @@ class ReorderFlexState extends State<ReorderFlex>
 
       final indexKey = GlobalObjectKey(child.key!);
       // Save the index key for quick access
-      widget.dragTargetIndexKeyStorage?.addKey(
+      widget.dragTargetKeys?.insertDragTarget(
         widget.reorderFlexId,
         item.id,
         indexKey,
@@ -212,6 +247,7 @@ class ReorderFlexState extends State<ReorderFlex>
     }
 
     _animation.dispose();
+    widget.dragTargetKeys?.removeDragTarget(widget.reorderFlexId);
     super.dispose();
   }
 
@@ -236,8 +272,12 @@ class ReorderFlexState extends State<ReorderFlex>
   /// [childIndex]: the index of the child in a list
   Widget _wrap(Widget child, int childIndex, GlobalObjectKey indexKey) {
     return Builder(builder: (context) {
-      final ReorderDragTarget dragTarget =
-          _buildDragTarget(context, child, childIndex, indexKey);
+      final ReorderDragTarget dragTarget = _buildDragTarget(
+        context,
+        child,
+        childIndex,
+        indexKey,
+      );
       int shiftedIndex = childIndex;
 
       if (dragState.isOverlapWithPhantom()) {
@@ -342,6 +382,15 @@ class ReorderFlexState extends State<ReorderFlex>
     });
   }
 
+  static ReorderFlexState of(BuildContext context) {
+    if (context is StatefulElement && context.state is ReorderFlexState) {
+      return context.state as ReorderFlexState;
+    }
+    final ReorderFlexState? result =
+        context.findAncestorStateOfType<ReorderFlexState>();
+    return result!;
+  }
+
   ReorderDragTarget _buildDragTarget(
     BuildContext builderContext,
     Widget child,
@@ -364,7 +413,7 @@ class ReorderFlexState extends State<ReorderFlex>
             "[DragTarget] Group:[${widget.dataSource.identifier}] start dragging item at $draggingIndex");
         _startDragging(draggingWidget, draggingIndex, size);
         widget.onDragStarted?.call(draggingIndex);
-        widget.dragStateStorage?.remove(widget.reorderFlexId);
+        widget.dragStateStorage?.removeState(widget.reorderFlexId);
       },
       onDragMoved: (dragTargetData, offset) {
         dragTargetData.dragTargetOffset = offset;
@@ -435,6 +484,7 @@ class ReorderFlexState extends State<ReorderFlex>
       draggableTargetBuilder: widget.interceptor?.draggableTargetBuilder,
       useMoveAnimation: widget.config.useMoveAnimation,
       draggable: widget.reorderable,
+      draggingOpacity: widget.config.draggingWidgetOpacity,
       child: child,
     );
   }
@@ -487,7 +537,7 @@ class ReorderFlexState extends State<ReorderFlex>
     }
 
     dragState.setStartDraggingIndex(dragTargetIndex);
-    widget.dragStateStorage?.write(
+    widget.dragStateStorage?.insertState(
       widget.reorderFlexId,
       dragState,
     );
@@ -581,46 +631,46 @@ class ReorderFlexState extends State<ReorderFlex>
     }
   }
 
-  void scrollToBottom(VoidCallback? completed) {
+  void scrollToBottom(void Function(BuildContext)? completed) {
     if (_scrolling) {
-      completed?.call();
+      completed?.call(context);
       return;
     }
 
     if (widget.dataSource.items.isNotEmpty) {
       final item = widget.dataSource.items.last;
-      final indexKey = widget.dragTargetIndexKeyStorage?.readKey(
+      final dragTargetKey = widget.dragTargetKeys?.getDragTarget(
         widget.reorderFlexId,
         item.id,
       );
-      if (indexKey == null) {
-        completed?.call();
+      if (dragTargetKey == null) {
+        completed?.call(context);
         return;
       }
 
-      final indexContext = indexKey.currentContext;
-      if (indexContext == null || _scrollController.hasClients == false) {
-        completed?.call();
+      final dragTargetContext = dragTargetKey.currentContext;
+      if (dragTargetContext == null || _scrollController.hasClients == false) {
+        completed?.call(context);
         return;
       }
 
-      final renderObject = indexContext.findRenderObject();
-      if (renderObject != null) {
+      final dragTargetRenderObject = dragTargetContext.findRenderObject();
+      if (dragTargetRenderObject != null) {
         _scrolling = true;
         _scrollController.position
             .ensureVisible(
-          renderObject,
+          dragTargetRenderObject,
           alignment: 0.5,
           duration: const Duration(milliseconds: 120),
         )
             .then((value) {
           setState(() {
             _scrolling = false;
-            completed?.call();
+            completed?.call(context);
           });
         });
       } else {
-        completed?.call();
+        completed?.call(context);
       }
     }
   }
