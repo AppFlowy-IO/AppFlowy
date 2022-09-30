@@ -214,8 +214,8 @@
       "aquaColor": "水蓝色",
       "blueColor": "蓝色",
       "deleteTag": "删除标签",
-      "colorPannelTitle": "颜色",
-      "pannelTitle": "选择或新建一个标签",
+      "colorPanelTitle": "颜色",
+      "panelTitle": "选择或新建一个标签",
       "searchOption": "搜索标签"
     },
     "menuName": "网格"
