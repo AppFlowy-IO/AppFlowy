@@ -50,13 +50,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           unauthorized: (_Unauthorized value) {
             emit(state.copyWith(unauthorized: true));
           },
-          collapseMenu: (e) {
+          collapseMenu: (_CollapseMenu e) {
             emit(state.copyWith(isMenuCollapsed: !state.isMenuCollapsed));
           },
-          editPanelResized: (e) {
-            final newOffset =
-                (state.resizeOffset + e.offset).clamp(-50, 200).toDouble();
-            emit(state.copyWith(resizeOffset: newOffset));
+          editPanelResizeStart: (_EditPanelResizeStart e) {
+            emit(state.copyWith(resizeStart: state.resizeOffset));
+          },
+          editPanelResized: (_EditPanelResized e) {
+            final newPosition =
+                (e.offset + state.resizeStart).clamp(-50, 200).toDouble();
+            if (state.resizeOffset != newPosition) {
+              emit(state.copyWith(resizeOffset: newPosition));
+            }
           },
         );
       },
@@ -91,6 +96,7 @@ class HomeEvent with _$HomeEvent {
   const factory HomeEvent.unauthorized(String msg) = _Unauthorized;
   const factory HomeEvent.collapseMenu() = _CollapseMenu;
   const factory HomeEvent.editPanelResized(double offset) = _EditPanelResized;
+  const factory HomeEvent.editPanelResizeStart() = _EditPanelResizeStart;
 }
 
 @freezed
@@ -103,6 +109,7 @@ class HomeState with _$HomeState {
     required bool unauthorized,
     required bool isMenuCollapsed,
     required double resizeOffset,
+    required double resizeStart,
   }) = _HomeState;
 
   factory HomeState.initial(CurrentWorkspaceSettingPB workspaceSetting) =>
@@ -114,5 +121,6 @@ class HomeState with _$HomeState {
         unauthorized: false,
         isMenuCollapsed: false,
         resizeOffset: 0,
+        resizeStart: 0,
       );
 }
