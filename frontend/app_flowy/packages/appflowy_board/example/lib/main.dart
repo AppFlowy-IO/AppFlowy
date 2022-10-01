@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
           appBar: AppBar(
             title: const Text('AppFlowy Board'),
           ),
-          body: _examples[_currentIndex],
+          body: Container(color: Colors.white, child: _examples[_currentIndex]),
           bottomNavigationBar: BottomNavigationBar(
             fixedColor: _bottomNavigationColor,
             showSelectedLabels: true,

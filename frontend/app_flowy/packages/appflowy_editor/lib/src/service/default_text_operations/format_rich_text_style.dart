@@ -103,13 +103,17 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
   final builder = TransactionBuilder(editorState);
 
   for (final textNode in textNodes) {
+    var newAttributes = {...textNode.attributes};
+    for (final globalStyleKey in BuiltInAttributeKey.globalStyleKeys) {
+      if (newAttributes.keys.contains(globalStyleKey)) {
+        newAttributes[globalStyleKey] = null;
+      }
+    }
+    newAttributes.addAll(attributes);
     builder
       ..updateNode(
         textNode,
-        Attributes.fromIterable(
-          BuiltInAttributeKey.globalStyleKeys,
-          value: (_) => null,
-        )..addAll(attributes),
+        newAttributes,
       )
       ..afterSelection = Selection.collapsed(
         Position(

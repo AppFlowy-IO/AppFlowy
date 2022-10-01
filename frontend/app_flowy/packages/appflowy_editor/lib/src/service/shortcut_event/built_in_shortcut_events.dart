@@ -10,9 +10,11 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/redo_und
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/select_all_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/slash_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/format_style_handler.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/space_on_web_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/tab_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
+import 'package:flutter/foundation.dart';
 
 //
 List<ShortcutEvent> builtInShortcutEvents = [
@@ -255,4 +257,14 @@ List<ShortcutEvent> builtInShortcutEvents = [
     command: 'backquote',
     handler: backquoteToCodeHandler,
   ),
+  // https://github.com/flutter/flutter/issues/104944
+  // Workaround: Using space editing on the web platform often results in errors,
+  //  so adding a shortcut event to handle the space input instead of using the
+  //  `input_service`.
+  if (kIsWeb)
+    ShortcutEvent(
+      key: 'Space on the Web',
+      command: 'space',
+      handler: spaceOnWebHandler,
+    ),
 ];

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:example/plugin/code_block_node_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -116,8 +117,16 @@ class _MyHomePageState extends State<MyHomePage> {
               editorState: _editorState!,
               editorStyle: _editorStyle,
               editable: true,
+              customBuilders: {
+                'text/code_block': CodeBlockNodeWidgetBuilder(),
+              },
               shortcutEvents: [
+                enterInCodeBlock,
+                ignoreKeysInCodeBlock,
                 underscoreToItalic,
+              ],
+              selectionMenuItems: [
+                codeBlockItem,
               ],
             ),
           );

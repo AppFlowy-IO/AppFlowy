@@ -15,23 +15,24 @@ void main() async {
         ..insertTextNode(text)
         ..insertTextNode(text);
       await editor.startTesting();
-      final document = editor.document;
 
       var selection = Selection.single(path: [0], startOffset: 0);
       await editor.updateSelection(selection);
       await editor.pressLogicKey(LogicalKeyboardKey.tab);
 
-      // nothing happens
-      expect(editor.documentSelection, selection);
-      expect(editor.document.toJson(), document.toJson());
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [0], startOffset: 4),
+      );
 
       selection = Selection.single(path: [1], startOffset: 0);
       await editor.updateSelection(selection);
       await editor.pressLogicKey(LogicalKeyboardKey.tab);
 
-      // nothing happens
-      expect(editor.documentSelection, selection);
-      expect(editor.document.toJson(), document.toJson());
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [1], startOffset: 4),
+      );
     });
 
     testWidgets('press tab in bulleted list', (tester) async {
@@ -63,7 +64,10 @@ void main() async {
       await editor.pressLogicKey(LogicalKeyboardKey.tab);
 
       // nothing happens
-      expect(editor.documentSelection, selection);
+      expect(
+        editor.documentSelection,
+        Selection.single(path: [0], startOffset: 0),
+      );
       expect(editor.document.toJson(), document.toJson());
 
       // Before

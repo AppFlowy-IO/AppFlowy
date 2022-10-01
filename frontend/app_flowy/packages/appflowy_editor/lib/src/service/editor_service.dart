@@ -72,6 +72,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     editorState.selectionMenuItems = widget.selectionMenuItems;
     editorState.editorStyle = widget.editorStyle;
     editorState.service.renderPluginService = _createRenderPlugin();
+    editorState.editable = widget.editable;
   }
 
   @override
@@ -84,6 +85,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     }
 
     editorState.editorStyle = widget.editorStyle;
+    editorState.editable = widget.editable;
     services = null;
   }
 
@@ -118,8 +120,8 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
               key: editorState.service.keyboardServiceKey,
               editable: widget.editable,
               shortcutEvents: [
-                ...builtInShortcutEvents,
                 ...widget.shortcutEvents,
+                ...builtInShortcutEvents,
               ],
               editorState: editorState,
               child: FlowyToolbar(

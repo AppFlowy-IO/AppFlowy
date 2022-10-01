@@ -42,6 +42,16 @@ impl CellDisplayable<URLCellDataPB> for URLTypeOptionPB {
         let cell_data: URLCellDataPB = cell_data.try_into_inner()?;
         CellBytes::from(cell_data)
     }
+
+    fn display_string(
+        &self,
+        cell_data: CellData<URLCellDataPB>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let cell_data: URLCellDataPB = cell_data.try_into_inner()?;
+        Ok(cell_data.content)
+    }
 }
 
 impl CellDataOperation<URLCellDataPB, String> for URLTypeOptionPB {

@@ -11,7 +11,10 @@ class NumberFormatBloc extends Bloc<NumberFormatEvent, NumberFormatState> {
         event.map(setFilter: (_SetFilter value) {
           final List<NumberFormat> formats = List.from(NumberFormat.values);
           if (value.filter.isNotEmpty) {
-            formats.retainWhere((element) => element.title().toLowerCase().contains(value.filter.toLowerCase()));
+            formats.retainWhere((element) => element
+                .title()
+                .toLowerCase()
+                .contains(value.filter.toLowerCase()));
           }
           emit(state.copyWith(formats: formats, filter: value.filter));
         });
@@ -91,7 +94,7 @@ extension NumberFormatExtension on NumberFormat {
       case NumberFormat.Percent:
         return "Percent";
       case NumberFormat.PhilippinePeso:
-        return "Percent";
+        return "PhilippinePeso";
       case NumberFormat.Pound:
         return "Pound";
       case NumberFormat.Rand:

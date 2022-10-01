@@ -28,4 +28,8 @@ export 'src/service/shortcut_event/keybinding.dart';
 export 'src/service/shortcut_event/shortcut_event.dart';
 export 'src/service/shortcut_event/shortcut_event_handler.dart';
 export 'src/extensions/attributes_extension.dart';
+export 'src/extensions/path_extensions.dart';
+export 'src/render/rich_text/default_selectable.dart';
+export 'src/render/rich_text/flowy_rich_text.dart';
+export 'src/render/selection_menu/selection_menu_widget.dart';
 export 'src/l10n/l10n.dart';

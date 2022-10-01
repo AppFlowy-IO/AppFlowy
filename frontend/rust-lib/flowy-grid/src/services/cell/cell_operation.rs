@@ -24,14 +24,28 @@ pub trait CellDisplayable<CD> {
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes>;
+
+    fn display_string(
+        &self,
+        cell_data: CellData<CD>,
+        decoded_field_type: &FieldType,
+        field_rev: &FieldRevision,
+    ) -> FlowyResult<String>;
 }
 
 // CD: Short for CellData. This type is the type return by apply_changeset function.
 // CS: Short for Changeset. Parse the string into specific Changeset type.
 pub trait CellDataOperation<CD, CS> {
-    /// The cell_data is able to parse into the specific data if CD impl the FromCellData trait.
-    /// For example:
-    /// URLCellData, DateCellData. etc.
+    /// Decode the cell data into `CD` that is certain type of data.
+    ///
+    /// Each `CD` type represents as a specific field type data. For example:
+    /// FieldType::URL => URLCellData
+    /// FieldType::Date=> DateCellData
+    ///
+    /// `decoded_field_type`: the field type of the cell data
+    ///
+    /// Returns the error if the cell data can't be parsed into `CD`.
+    ///
     fn decode_cell_data(
         &self,
         cell_data: CellData<CD>,
@@ -77,16 +91,16 @@ pub fn apply_cell_data_changeset<C: ToString, T: AsRef<FieldRevision>>(
 pub fn decode_any_cell_data<T: TryInto<AnyCellData, Error = FlowyError> + Debug>(
     data: T,
     field_rev: &FieldRevision,
-) -> CellBytes {
+) -> (FieldType, CellBytes) {
+    let to_field_type = field_rev.ty.into();
     match data.try_into() {
         Ok(any_cell_data) => {
             let AnyCellData { data, field_type } = any_cell_data;
-            let to_field_type = field_rev.ty.into();
-            match try_decode_cell_data(data.into(), field_rev, &field_type, &to_field_type) {
-                Ok(cell_bytes) => cell_bytes,
+            match try_decode_cell_data(data.into(), &field_type, &to_field_type, field_rev) {
+                Ok(cell_bytes) => (field_type, cell_bytes),
                 Err(e) => {
                     tracing::error!("Decode cell data failed, {:?}", e);
-                    CellBytes::default()
+                    (field_type, CellBytes::default())
                 }
             }
         }
@@ -94,42 +108,93 @@ pub fn decode_any_cell_data<T: TryInto<AnyCellData, Error = FlowyError> + Debug>
             // It's okay to ignore this error, because it's okay that the current cell can't
             // display the existing cell data. For example, the UI of the text cell will be blank if
             // the type of the data of cell is Number.
-            CellBytes::default()
+
+            (to_field_type, CellBytes::default())
         }
     }
 }
 
+pub fn decode_cell_data_to_string(
+    cell_data: CellData<String>,
+    from_field_type: &FieldType,
+    to_field_type: &FieldType,
+    field_rev: &FieldRevision,
+) -> FlowyResult<String> {
+    let cell_data = cell_data.try_into_inner()?;
+    let get_cell_display_str = || {
+        let field_type: FieldTypeRevision = to_field_type.into();
+        let result = match to_field_type {
+            FieldType::RichText => field_rev
+                .get_type_option::<RichTextTypeOptionPB>(field_type)?
+                .display_string(cell_data.into(), from_field_type, field_rev),
+            FieldType::Number => field_rev
+                .get_type_option::<NumberTypeOptionPB>(field_type)?
+                .display_string(cell_data.into(), from_field_type, field_rev),
+            FieldType::DateTime => field_rev
+                .get_type_option::<DateTypeOptionPB>(field_type)?
+                .display_string(cell_data.into(), from_field_type, field_rev),
+            FieldType::SingleSelect => field_rev
+                .get_type_option::<SingleSelectTypeOptionPB>(field_type)?
+                .display_string(cell_data.into(), from_field_type, field_rev),
+            FieldType::MultiSelect => field_rev
+                .get_type_option::<MultiSelectTypeOptionPB>(field_type)?
+                .display_string(cell_data.into(), from_field_type, field_rev),
+            FieldType::Checkbox => field_rev
+                .get_type_option::<CheckboxTypeOptionPB>(field_type)?
+                .display_string(cell_data.into(), from_field_type, field_rev),
+            FieldType::URL => field_rev
+                .get_type_option::<URLTypeOptionPB>(field_type)?
+                .display_string(cell_data.into(), from_field_type, field_rev),
+        };
+        Some(result)
+    };
+
+    match get_cell_display_str() {
+        Some(Ok(s)) => Ok(s),
+        Some(Err(err)) => {
+            tracing::error!("{:?}", err);
+            Ok("".to_owned())
+        }
+        None => Ok("".to_owned()),
+    }
+}
+
+/// Use the `to_field_type`'s TypeOption to parse the cell data into `from_field_type` type's data.
+///
+/// Each `FieldType` has its corresponding `TypeOption` that implements the `CellDisplayable`
+/// and `CellDataOperation` traits.
+///
 pub fn try_decode_cell_data(
     cell_data: CellData<String>,
+    from_field_type: &FieldType,
+    to_field_type: &FieldType,
     field_rev: &FieldRevision,
-    s_field_type: &FieldType,
-    t_field_type: &FieldType,
 ) -> FlowyResult<CellBytes> {
     let cell_data = cell_data.try_into_inner()?;
     let get_cell_data = || {
-        let field_type: FieldTypeRevision = t_field_type.into();
-        let data = match t_field_type {
+        let field_type: FieldTypeRevision = to_field_type.into();
+        let data = match to_field_type {
             FieldType::RichText => field_rev
                 .get_type_option::<RichTextTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
             FieldType::Number => field_rev
                 .get_type_option::<NumberTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
             FieldType::DateTime => field_rev
                 .get_type_option::<DateTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
             FieldType::SingleSelect => field_rev
                 .get_type_option::<SingleSelectTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
             FieldType::MultiSelect => field_rev
                 .get_type_option::<MultiSelectTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
             FieldType::Checkbox => field_rev
                 .get_type_option::<CheckboxTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
             FieldType::URL => field_rev
                 .get_type_option::<URLTypeOptionPB>(field_type)?
-                .decode_cell_data(cell_data.into(), s_field_type, field_rev),
+                .decode_cell_data(cell_data.into(), from_field_type, field_rev),
         };
         Some(data)
     };
@@ -221,6 +286,12 @@ where
                 CellData(None)
             }
         }
+    }
+}
+
+impl std::convert::From<usize> for CellData<String> {
+    fn from(n: usize) -> Self {
+        CellData(Some(n.to_string()))
     }
 }
 

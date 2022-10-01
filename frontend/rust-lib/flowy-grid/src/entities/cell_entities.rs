@@ -1,3 +1,4 @@
+use crate::entities::FieldType;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
 use flowy_grid_data_model::parser::NotEmptyStr;
@@ -74,15 +75,20 @@ pub struct GridCellPB {
     #[pb(index = 1)]
     pub field_id: String,
 
+    // The data was encoded in field_type's data type
     #[pb(index = 2)]
     pub data: Vec<u8>,
+
+    #[pb(index = 3, one_of)]
+    pub field_type: Option<FieldType>,
 }
 
 impl GridCellPB {
-    pub fn new(field_id: &str, data: Vec<u8>) -> Self {
+    pub fn new(field_id: &str, field_type: FieldType, data: Vec<u8>) -> Self {
         Self {
             field_id: field_id.to_owned(),
             data,
+            field_type: Some(field_type),
         }
     }
 
@@ -90,6 +96,7 @@ impl GridCellPB {
         Self {
             field_id: field_id.to_owned(),
             data: vec![],
+            field_type: None,
         }
     }
 }

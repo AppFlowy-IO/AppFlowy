@@ -371,6 +371,28 @@ async fn group_move_group_test() {
 }
 
 #[tokio::test]
+async fn group_default_move_group_test() {
+    let mut test = GridGroupTest::new().await;
+    let group_0 = test.group_at_index(0).await;
+    let group_3 = test.group_at_index(3).await;
+    let scripts = vec![
+        MoveGroup {
+            from_group_index: 3,
+            to_group_index: 0,
+        },
+        AssertGroup {
+            group_index: 0,
+            expected_group: group_3,
+        },
+        AssertGroup {
+            group_index: 1,
+            expected_group: group_0,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
 async fn group_insert_single_select_option_test() {
     let mut test = GridGroupTest::new().await;
     let new_option_name = "New option";
@@ -402,7 +424,7 @@ async fn group_group_by_other_field() {
             group_index: 1,
             row_count: 2,
         },
-        AssertGroupCount(4),
+        AssertGroupCount(5),
     ];
     test.run_scripts(scripts).await;
 }

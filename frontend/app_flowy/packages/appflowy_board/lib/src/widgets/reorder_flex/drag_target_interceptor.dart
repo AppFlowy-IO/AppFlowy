@@ -35,7 +35,7 @@ abstract class DragTargetInterceptor {
 
 abstract class OverlapDragTargetDelegate {
   void cancel();
-  void moveTo(
+  void dragTargetDidMoveToReorderFlex(
     String reorderFlexId,
     FlexDragTargetData dragTargetData,
     int dragTargetIndex,
@@ -81,7 +81,7 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
       delegate.cancel();
     } else {
       // Ignore the event if the dragTarget overlaps with the other column's dragTargets.
-      final columnKeys = columnsState.groupDragDragTargets[dragTargetId];
+      final columnKeys = columnsState.groupDragTargetKeys[dragTargetId];
       if (columnKeys != null) {
         final keys = columnKeys.values.toList();
         if (dragTargetData.isOverlapWithWidgets(keys)) {
@@ -99,10 +99,10 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
         if (index != -1) {
           Log.trace(
               '[$OverlappingDragTargetInterceptor] move to $dragTargetId at $index');
-          delegate.moveTo(dragTargetId, dragTargetData, index);
+          delegate.dragTargetDidMoveToReorderFlex(
+              dragTargetId, dragTargetData, index);
 
-          columnsState
-              .getReorderFlexState(groupId: dragTargetId)
+          columnsState.reorderFlexActionMap[dragTargetId]
               ?.resetDragTargetIndex(index);
         }
       });
@@ -153,7 +153,7 @@ class CrossReorderFlexDragTargetInterceptor extends DragTargetInterceptor {
       /// it means the dragTarget is dragging on the top of its own list.
       /// Otherwise, it means the dargTarget was moved to another list.
       Log.trace(
-          "[$CrossReorderFlexDragTargetInterceptor] $reorderFlexId accept ${dragTargetData.reorderFlexId} ${reorderFlexId != dragTargetData.reorderFlexId}");
+          "[$CrossReorderFlexDragTargetInterceptor] $reorderFlexId should accept ${dragTargetData.reorderFlexId} : ${reorderFlexId != dragTargetData.reorderFlexId}");
       return reorderFlexId != dragTargetData.reorderFlexId;
     } else {
       Log.trace(

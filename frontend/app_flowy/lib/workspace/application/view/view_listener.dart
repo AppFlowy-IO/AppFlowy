@@ -16,7 +16,7 @@ typedef UpdateViewNotifiedValue = Either<ViewPB, FlowyError>;
 // Restore the view from trash
 typedef RestoreViewNotifiedValue = Either<ViewPB, FlowyError>;
 // Move the view to trash
-typedef MoveToTrashNotifiedValue = Either<ViewIdPB, FlowyError>;
+typedef MoveToTrashNotifiedValue = Either<DeletedViewPB, FlowyError>;
 
 class ViewListener {
   StreamSubscription<SubscribeObject>? _subscription;
@@ -98,8 +98,8 @@ class ViewListener {
         break;
       case FolderNotification.ViewMoveToTrash:
         result.fold(
-          (payload) =>
-              _moveToTrashNotifier.value = left(ViewIdPB.fromBuffer(payload)),
+          (payload) => _moveToTrashNotifier.value =
+              left(DeletedViewPB.fromBuffer(payload)),
           (error) => _moveToTrashNotifier.value = right(error),
         );
         break;

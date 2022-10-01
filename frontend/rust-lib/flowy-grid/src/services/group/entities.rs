@@ -9,16 +9,17 @@ pub struct Group {
     pub is_visible: bool,
     pub(crate) rows: Vec<RowPB>,
 
-    /// [content] is used to determine which group the cell belongs to.
+    /// [filter_content] is used to determine which group the cell belongs to.
     pub filter_content: String,
 }
 
 impl Group {
     pub fn new(id: String, field_id: String, name: String, filter_content: String) -> Self {
+        let is_default = id == field_id;
         Self {
             id,
             field_id,
-            is_default: false,
+            is_default,
             is_visible: true,
             name,
             rows: vec![],

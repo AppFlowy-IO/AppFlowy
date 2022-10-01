@@ -31,7 +31,7 @@ pub(crate) async fn read_view_handler(
     controller: AppData<Arc<ViewController>>,
 ) -> DataResult<ViewPB, FlowyError> {
     let view_id: ViewIdPB = data.into_inner();
-    let view_rev = controller.read_view(view_id.clone()).await?;
+    let view_rev = controller.read_view(&view_id.value).await?;
     data_result(view_rev.into())
 }
 

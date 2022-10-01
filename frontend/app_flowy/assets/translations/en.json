@@ -199,7 +199,8 @@
       "delete": "Delete",
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
-      "count": "Count"
+      "count": "Count",
+      "newRow": "New row"
     },
     "selectOption": {
       "create": "Create",
