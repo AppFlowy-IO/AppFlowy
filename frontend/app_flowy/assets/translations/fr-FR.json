@@ -105,7 +105,7 @@
   },
   "notifications": {
     "export": {
-      "markdown": "Exporté en Markdown",
+      "markdown": "Note exportée en Markdown",
       "path": "Documents/flowy"
     }
   },
