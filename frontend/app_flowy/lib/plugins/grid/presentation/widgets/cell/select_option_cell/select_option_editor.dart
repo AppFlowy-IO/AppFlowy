@@ -248,32 +248,25 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
       mutex: widget.popoverMutex,
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
-        child: Row(
+        child: SelectOptionTagCell(
+          option: widget.option,
+          onSelected: (option) {
+            context
+                .read<SelectOptionCellEditorBloc>()
+                .add(SelectOptionEditorEvent.selectOption(option.id));
+          },
           children: [
-            Flexible(
-              fit: FlexFit.loose,
-              child: SelectOptionTagCell(
-                option: widget.option,
-                onSelected: (option) {
-                  context
-                      .read<SelectOptionCellEditorBloc>()
-                      .add(SelectOptionEditorEvent.selectOption(option.id));
-                },
-                children: [
-                  if (widget.isSelected)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 6),
-                      child: svgWidget("grid/checkmark"),
-                    ),
-                ],
+            if (widget.isSelected)
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: svgWidget("grid/checkmark"),
               ),
-            ),
             FlowyIconButton(
               width: 30,
               onPressed: () => _popoverController.show(),
               iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
               icon: svgWidget("editor/details", color: theme.iconColor),
-            )
+            ),
           ],
         ),
       ),
