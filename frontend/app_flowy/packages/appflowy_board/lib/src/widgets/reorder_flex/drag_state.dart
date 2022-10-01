@@ -69,9 +69,9 @@ class FlexDragTargetData extends DragTargetData {
 }
 
 abstract class DraggingStateStorage {
-  void write(String reorderFlexId, DraggingState state);
-  void remove(String reorderFlexId);
-  DraggingState? read(String reorderFlexId);
+  void insertState(String reorderFlexId, DraggingState state);
+  void removeState(String reorderFlexId);
+  DraggingState? readState(String reorderFlexId);
 }
 
 class DraggingState {

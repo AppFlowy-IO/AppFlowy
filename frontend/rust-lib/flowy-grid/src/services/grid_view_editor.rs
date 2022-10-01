@@ -173,6 +173,7 @@ impl GridViewRevisionEditor {
         Ok(groups.into_iter().map(GroupPB::from).collect())
     }
 
+    #[tracing::instrument(level = "trace", skip(self), err)]
     pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let _ = self
             .group_controller
@@ -180,7 +181,7 @@ impl GridViewRevisionEditor {
             .await
             .move_group(&params.from_group_id, &params.to_group_id)?;
         match self.group_controller.read().await.get_group(&params.from_group_id) {
-            None => {}
+            None => tracing::warn!("Can not find the group with id: {}", params.from_group_id),
             Some((index, group)) => {
                 let inserted_group = InsertedGroupPB {
                     group: GroupPB::from(group),
@@ -228,7 +229,11 @@ impl GridViewRevisionEditor {
             let _ = self
                 .modify(|pad| {
                     let configuration = default_group_configuration(&field_rev);
-                    let changeset = pad.insert_group(&params.field_id, &params.field_type_rev, configuration)?;
+                    let changeset = pad.insert_or_update_group_configuration(
+                        &params.field_id,
+                        &params.field_type_rev,
+                        configuration,
+                    )?;
                     Ok(changeset)
                 })
                 .await?;
@@ -496,10 +501,11 @@ impl GroupConfigurationWriter for GroupConfigurationWriterImpl {
         let field_id = field_id.to_owned();
 
         wrap_future(async move {
-            let changeset = view_pad
-                .write()
-                .await
-                .insert_group(&field_id, &field_type, group_configuration)?;
+            let changeset = view_pad.write().await.insert_or_update_group_configuration(
+                &field_id,
+                &field_type,
+                group_configuration,
+            )?;
 
             if let Some(changeset) = changeset {
                 let _ = apply_change(&user_id, rev_manager, changeset).await?;

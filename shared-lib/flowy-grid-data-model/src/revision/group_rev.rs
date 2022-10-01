@@ -128,14 +128,6 @@ impl GroupRevision {
         }
     }
 
-    pub fn default_group(id: String, group_name: String) -> Self {
-        Self {
-            id,
-            name: group_name,
-            visible: true,
-        }
-    }
-
     pub fn update_with_other(&mut self, other: &GroupRevision) {
         self.visible = other.visible
     }
