@@ -136,7 +136,7 @@
       "failedMsg": "Assurez-vous d'avoir terminé le processus de connexion dans votre navigateur."
     },
     "google": {
-      "title": "CONNEXION via GOOGLE",
+      "title": "CONNEXION VIA GOOGLE",
       "instruction1": "Pour importer vos contacts Google, vous devez autoriser cette application à l'aide de votre navigateur web.",
       "instruction2": "Copiez ce code dans votre presse-papiers en cliquant sur l'icône ou en sélectionnant le texte:",
       "instruction3": "Accédez au lien suivant dans votre navigateur web et saisissez le code ci-dessus:",
