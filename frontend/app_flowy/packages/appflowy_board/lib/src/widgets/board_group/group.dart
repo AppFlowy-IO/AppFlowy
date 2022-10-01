@@ -90,21 +90,21 @@ class AppFlowyBoardGroup extends StatefulWidget {
 
   final DraggingStateStorage? dragStateStorage;
 
-  final ReorderDragTargetIndexKeyStorage? dragTargetIndexKeyStorage;
+  final ReorderDragTargeKeys? dragTargetKeys;
 
-  final GlobalObjectKey reorderFlexKey;
+  final ReorderFlexAction? reorderFlexAction;
 
   const AppFlowyBoardGroup({
     Key? key,
-    required this.reorderFlexKey,
     this.headerBuilder,
     this.footerBuilder,
     required this.cardBuilder,
     required this.onReorder,
     required this.dataSource,
     required this.phantomController,
+    this.reorderFlexAction,
     this.dragStateStorage,
-    this.dragTargetIndexKeyStorage,
+    this.dragTargetKeys,
     this.scrollController,
     this.onDragStarted,
     this.onDragEnded,
@@ -112,7 +112,7 @@ class AppFlowyBoardGroup extends StatefulWidget {
     this.itemMargin = EdgeInsets.zero,
     this.cornerRadius = 0.0,
     this.backgroundColor = Colors.transparent,
-  })  : config = const ReorderFlexConfig(setStateWhenEndDrag: false),
+  })  : config = const ReorderFlexConfig(),
         super(key: key);
 
   @override
@@ -146,9 +146,9 @@ class _AppFlowyBoardGroupState extends State<AppFlowyBoardGroup> {
         );
 
         Widget reorderFlex = ReorderFlex(
-          key: widget.reorderFlexKey,
+          key: ValueKey(widget.groupId),
           dragStateStorage: widget.dragStateStorage,
-          dragTargetIndexKeyStorage: widget.dragTargetIndexKeyStorage,
+          dragTargetKeys: widget.dragTargetKeys,
           scrollController: widget.scrollController,
           config: widget.config,
           onDragStarted: (index) {
@@ -168,6 +168,7 @@ class _AppFlowyBoardGroupState extends State<AppFlowyBoardGroup> {
           },
           dataSource: widget.dataSource,
           interceptor: interceptor,
+          reorderFlexAction: widget.reorderFlexAction,
           children: children,
         );
 

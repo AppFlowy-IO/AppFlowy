@@ -181,7 +181,7 @@
       "includeTime": " Include time",
       "dateFormatFriendly": "Month Day,Year",
       "dateFormatISO": "Year-Month-Day",
-      "dateFormatLocal": "Year/Month/Day",
+      "dateFormatLocal": "Month/Day/Year",
       "dateFormatUS": "Year/Month/Day",
       "timeFormat": " Time format",
       "invalidTimeFormat": "Invalid format",
@@ -199,7 +199,8 @@
       "delete": "Delete",
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
-      "count": "Count"
+      "count": "Count",
+      "newRow": "New row"
     },
     "selectOption": {
       "create": "Create",

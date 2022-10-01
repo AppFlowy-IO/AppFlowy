@@ -88,7 +88,7 @@ where
     pub async fn new(field_rev: &Arc<FieldRevision>, mut configuration: GroupContext<C>) -> FlowyResult<Self> {
         let type_option = field_rev.get_type_option::<T>(field_rev.ty);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
-        let _ = configuration.init_groups(groups, true)?;
+        let _ = configuration.init_groups(groups)?;
 
         Ok(Self {
             field_id: field_rev.id.clone(),
@@ -105,8 +105,8 @@ where
         &mut self,
         row_rev: &RowRevision,
         other_group_changesets: &[GroupChangesetPB],
-    ) -> GroupChangesetPB {
-        let default_group = self.group_ctx.get_mut_default_group();
+    ) -> Option<GroupChangesetPB> {
+        let default_group = self.group_ctx.get_mut_default_group()?;
 
         // [other_group_inserted_row] contains all the inserted rows except the default group.
         let other_group_inserted_row = other_group_changesets
@@ -163,7 +163,7 @@ where
         }
         default_group.rows.retain(|row| !deleted_row_ids.contains(&row.id));
         changeset.deleted_rows.extend(deleted_row_ids);
-        changeset
+        Some(changeset)
     }
 }
 
@@ -182,11 +182,14 @@ where
 
     fn groups(&self) -> Vec<Group> {
         if self.use_default_group() {
-            let mut groups: Vec<Group> = self.group_ctx.groups().into_iter().cloned().collect();
-            groups.push(self.group_ctx.get_default_group().clone());
-            groups
-        } else {
             self.group_ctx.groups().into_iter().cloned().collect()
+        } else {
+            self.group_ctx
+                .groups()
+                .into_iter()
+                .filter(|group| group.id != self.field_id)
+                .cloned()
+                .collect::<Vec<_>>()
         }
     }
 
@@ -205,7 +208,7 @@ where
 
             if let Some(cell_rev) = cell_rev {
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
-                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev);
+                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev).1;
                 let cell_data = cell_bytes.parser::<P>()?;
                 for group in self.group_ctx.groups() {
                     if self.can_group(&group.filter_content, &cell_data) {
@@ -216,17 +219,18 @@ where
                     }
                 }
 
-                if grouped_rows.is_empty() {
-                    self.group_ctx.get_mut_default_group().add_row(row_rev.into());
-                } else {
+                if !grouped_rows.is_empty() {
                     for group_row in grouped_rows {
                         if let Some(group) = self.group_ctx.get_mut_group(&group_row.group_id) {
                             group.add_row(group_row.row);
                         }
                     }
+                    continue;
                 }
-            } else {
-                self.group_ctx.get_mut_default_group().add_row(row_rev.into());
+            }
+            match self.group_ctx.get_mut_default_group() {
+                None => {}
+                Some(default_group) => default_group.add_row(row_rev.into()),
             }
         }
 
@@ -244,13 +248,14 @@ where
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             let mut changesets = self.add_row_if_match(row_rev, &cell_data);
-            let default_group_changeset = self.update_default_group(row_rev, &changesets);
-            tracing::trace!("default_group_changeset: {}", default_group_changeset);
-            if !default_group_changeset.is_empty() {
-                changesets.push(default_group_changeset);
+            if let Some(default_group_changeset) = self.update_default_group(row_rev, &changesets) {
+                tracing::trace!("default_group_changeset: {}", default_group_changeset);
+                if !default_group_changeset.is_empty() {
+                    changesets.push(default_group_changeset);
+                }
             }
             Ok(changesets)
         } else {
@@ -265,15 +270,16 @@ where
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
         // if the cell_rev is none, then the row must be crated from the default group.
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.remove_row_if_match(row_rev, &cell_data))
-        } else {
-            let group = self.group_ctx.get_default_group();
+        } else if let Some(group) = self.group_ctx.get_default_group() {
             Ok(vec![GroupChangesetPB::delete(
                 group.id.clone(),
                 vec![row_rev.id.clone()],
             )])
+        } else {
+            Ok(vec![])
         }
     }
 
@@ -285,7 +291,7 @@ where
         };
 
         if let Some(cell_rev) = cell_rev {
-            let cell_bytes = decode_any_cell_data(cell_rev.data, context.field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data, context.field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.move_row(&cell_data, context))
         } else {
@@ -297,7 +303,7 @@ where
     fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
         let type_option = field_rev.get_type_option::<T>(field_rev.ty);
         let groups = G::generate_groups(&field_rev.id, &self.group_ctx, &type_option);
-        let changeset = self.group_ctx.init_groups(groups, false)?;
+        let changeset = self.group_ctx.init_groups(groups)?;
         Ok(changeset)
     }
 }

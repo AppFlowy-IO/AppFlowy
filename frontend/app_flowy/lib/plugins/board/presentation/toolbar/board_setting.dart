@@ -106,8 +106,11 @@ class _SettingItem extends StatelessWidget {
       height: 30,
       child: FlowyButton(
         isSelected: isSelected,
-        text: FlowyText.medium(action.title(),
-            fontSize: 12, color: theme.textColor),
+        text: FlowyText.medium(
+          action.title(),
+          fontSize: 12,
+          color: theme.textColor,
+        ),
         hoverColor: theme.hover,
         onTap: () {
           context

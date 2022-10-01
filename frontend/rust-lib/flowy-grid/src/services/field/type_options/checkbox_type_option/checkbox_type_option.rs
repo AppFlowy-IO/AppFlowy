@@ -48,6 +48,16 @@ impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
         let cell_data = cell_data.try_into_inner()?;
         Ok(CellBytes::new(cell_data))
     }
+
+    fn display_string(
+        &self,
+        cell_data: CellData<CheckboxCellData>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let cell_data = cell_data.try_into_inner()?;
+        Ok(cell_data.to_string())
+    }
 }
 
 impl CellDataOperation<CheckboxCellData, String> for CheckboxTypeOptionPB {

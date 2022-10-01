@@ -69,7 +69,6 @@ class BoardContent extends StatefulWidget {
 
 class _BoardContentState extends State<BoardContent> {
   late AppFlowyBoardScrollController scrollManager;
-  final Map<String, ValueKey> cardKeysCache = {};
 
   final config = AppFlowyBoardConfig(
     groupBackgroundColor: HexColor.fromHex('#F7F8FC'),
@@ -104,8 +103,8 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildBoard(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSettingModel>(context, listen: true),
-      child: Selector<AppearanceSettingModel, AppTheme>(
+      value: Provider.of<AppearanceSetting>(context, listen: true),
+      child: Selector<AppearanceSetting, AppTheme>(
         selector: (ctx, notifier) => notifier.theme,
         builder: (ctx, theme, child) => Expanded(
           child: AppFlowyBoard(
@@ -139,7 +138,7 @@ class _BoardContentState extends State<BoardContent> {
                 .read<BoardBloc>()
                 .add(BoardEvent.endEditRow(editingRow.row.id));
           } else {
-            scrollManager.scrollToBottom(editingRow.columnId, () {
+            scrollManager.scrollToBottom(editingRow.columnId, (boardContext) {
               context
                   .read<BoardBloc>()
                   .add(BoardEvent.endEditRow(editingRow.row.id));
@@ -247,15 +246,8 @@ class _BoardContentState extends State<BoardContent> {
     );
 
     final groupItemId = columnItem.id + group.id;
-    ValueKey? key = cardKeysCache[groupItemId];
-    if (key == null) {
-      final newKey = ValueKey(groupItemId);
-      cardKeysCache[groupItemId] = newKey;
-      key = newKey;
-    }
-
     return AppFlowyGroupCard(
-      key: key,
+      key: ValueKey(groupItemId),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: BoardCard(
@@ -331,8 +323,8 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
         );
 
         return ChangeNotifierProvider.value(
-          value: Provider.of<AppearanceSettingModel>(context, listen: true),
-          child: Selector<AppearanceSettingModel, AppTheme>(
+          value: Provider.of<AppearanceSetting>(context, listen: true),
+          child: Selector<AppearanceSetting, AppTheme>(
             selector: (ctx, notifier) => notifier.theme,
             builder: (ctx, theme, child) {
               return BoardToolbar(toolbarContext: toolbarContext);

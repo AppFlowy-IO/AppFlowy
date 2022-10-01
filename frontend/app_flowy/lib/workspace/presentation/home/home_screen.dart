@@ -34,19 +34,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  ViewPB? initialView;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(covariant HomeScreen oldWidget) {
-    initialView = null;
-    super.didUpdateWidget(oldWidget);
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -129,26 +116,29 @@ class _HomeScreenState extends State<HomeScreen> {
       required BuildContext context,
       required HomeState state}) {
     final workspaceSetting = state.workspaceSetting;
-    if (initialView == null && workspaceSetting.hasLatestView()) {
-      initialView = workspaceSetting.latestView;
-      final plugin = makePlugin(
-        pluginType: initialView!.pluginType,
-        data: initialView,
-      );
-      getIt<HomeStackManager>().setPlugin(plugin);
-    }
-
     final homeMenu = HomeMenu(
       user: widget.user,
       workspaceSetting: workspaceSetting,
       collapsedNotifier: getIt<HomeStackManager>().collapsedNotifier,
     );
 
-    final latestView =
-        workspaceSetting.hasLatestView() ? workspaceSetting.latestView : null;
-    if (getIt<MenuSharedState>().latestOpenView == null) {
-      /// AppFlowy will open the view that the last time the user opened it. The _buildHomeMenu will get called when AppFlowy's screen resizes. So we only set the latestOpenView when it's null.
-      getIt<MenuSharedState>().latestOpenView = latestView;
+    // Only open the last opened view if the [HomeStackManager] current opened
+    // plugin is blank and the last opened view is not null.
+    //
+    // All opened widgets that display on the home screen are in the form
+    // of plugins. There is a list of built-in plugins defined in the
+    // [PluginType] enum, including board, grid and trash.
+    if (getIt<HomeStackManager>().plugin.ty == PluginType.blank) {
+      // Open the last opened view.
+      if (workspaceSetting.hasLatestView()) {
+        final view = workspaceSetting.latestView;
+        final plugin = makePlugin(
+          pluginType: view.pluginType,
+          data: view,
+        );
+        getIt<HomeStackManager>().setPlugin(plugin);
+        getIt<MenuSharedState>().latestOpenView = view;
+      }
     }
 
     return FocusTraversalGroup(child: RepaintBoundary(child: homeMenu));
@@ -261,14 +251,18 @@ class HomeScreenStackAdaptor extends HomeStackDelegate {
   });
 
   @override
-  void didDeleteStackWidget(ViewPB view) {
+  void didDeleteStackWidget(ViewPB view, int? index) {
     final homeService = HomeService();
     homeService.readApp(appId: view.appId).then((result) {
       result.fold(
         (appPB) {
           final List<ViewPB> views = appPB.belongings.items;
           if (views.isNotEmpty) {
-            final lastView = views.last;
+            var lastView = views.last;
+            if (index != null && index != 0 && views.length > index - 1) {
+              lastView = views[index - 1];
+            }
+
             final plugin = makePlugin(
               pluginType: lastView.pluginType,
               data: lastView,

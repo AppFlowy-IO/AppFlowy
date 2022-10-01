@@ -134,7 +134,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
   Widget _renderToolbar(quill.QuillController controller) {
     return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSettingModel>(context, listen: true),
+      value: Provider.of<AppearanceSetting>(context, listen: true),
       child: EditorToolbar.basic(
         controller: controller,
       ),

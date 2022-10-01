@@ -53,7 +53,7 @@ class ViewSectionItem extends StatelessWidget {
                 _handleAction(context, action);
               },
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
+                padding: const EdgeInsets.symmetric(vertical: 2),
                 child: InkWell(
                   onTap: () => onSelected(context.read<ViewBloc>().state.view),
                   child: FlowyHover(
@@ -73,13 +73,18 @@ class ViewSectionItem extends StatelessWidget {
       BuildContext context, bool onHover, ViewState state, Color iconColor) {
     List<Widget> children = [
       SizedBox(
-          width: 16,
-          height: 16,
-          child: state.view.renderThumbnail(iconColor: iconColor)),
+        width: 16,
+        height: 16,
+        child: state.view.renderThumbnail(iconColor: iconColor),
+      ),
       const HSpace(2),
       Expanded(
-          child: FlowyText.regular(state.view.name,
-              fontSize: 12, overflow: TextOverflow.clip)),
+        child: FlowyText.regular(
+          state.view.name,
+          fontSize: 12,
+          overflow: TextOverflow.clip,
+        ),
+      ),
     ];
 
     if (onHover || state.isEditing) {

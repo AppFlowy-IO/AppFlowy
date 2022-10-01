@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/commands/format_built_in_text.dart';
 import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
@@ -8,7 +9,6 @@ import 'package:appflowy_editor/src/service/default_text_operations/format_rich_
 
 import 'package:flutter/material.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 typedef ToolbarItemEventHandler = void Function(
     EditorState editorState, BuildContext context);
@@ -120,7 +120,7 @@ List<ToolbarItem> defaultToolbarItems = [
       name: 'toolbar/bold',
       color: isHighlight ? Colors.lightBlue : null,
     ),
-    validator: _showInTextSelection,
+    validator: _showInBuiltInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.bold,
@@ -136,7 +136,7 @@ List<ToolbarItem> defaultToolbarItems = [
       name: 'toolbar/italic',
       color: isHighlight ? Colors.lightBlue : null,
     ),
-    validator: _showInTextSelection,
+    validator: _showInBuiltInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.italic,
@@ -152,7 +152,7 @@ List<ToolbarItem> defaultToolbarItems = [
       name: 'toolbar/underline',
       color: isHighlight ? Colors.lightBlue : null,
     ),
-    validator: _showInTextSelection,
+    validator: _showInBuiltInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.underline,
@@ -168,7 +168,7 @@ List<ToolbarItem> defaultToolbarItems = [
       name: 'toolbar/strikethrough',
       color: isHighlight ? Colors.lightBlue : null,
     ),
-    validator: _showInTextSelection,
+    validator: _showInBuiltInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.strikethrough,
@@ -184,7 +184,7 @@ List<ToolbarItem> defaultToolbarItems = [
       name: 'toolbar/code',
       color: isHighlight ? Colors.lightBlue : null,
     ),
-    validator: _showInTextSelection,
+    validator: _showInBuiltInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.code,
@@ -248,7 +248,7 @@ List<ToolbarItem> defaultToolbarItems = [
       name: 'toolbar/highlight',
       color: isHighlight ? Colors.lightBlue : null,
     ),
-    validator: _showInTextSelection,
+    validator: _showInBuiltInTextSelection,
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.backgroundColor,
@@ -262,13 +262,22 @@ List<ToolbarItem> defaultToolbarItems = [
 ];
 
 ToolbarItemValidator _onlyShowInSingleTextSelection = (editorState) {
+  final result = _showInBuiltInTextSelection(editorState);
+  if (!result) {
+    return false;
+  }
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   return (nodes.length == 1 && nodes.first is TextNode);
 };
 
-ToolbarItemValidator _showInTextSelection = (editorState) {
+ToolbarItemValidator _showInBuiltInTextSelection = (editorState) {
   final nodes = editorState.service.selectionService.currentSelectedNodes
-      .whereType<TextNode>();
+      .whereType<TextNode>()
+      .where(
+        (textNode) =>
+            BuiltInAttributeKey.globalStyleKeys.contains(textNode.subtype) ||
+            textNode.subtype == null,
+      );
   return nodes.isNotEmpty;
 };
 
@@ -337,11 +346,8 @@ void showLinkMenu(
           onOpenLink: () async {
             await safeLaunchUrl(linkText);
           },
-          onSubmitted: (text) {
-            TransactionBuilder(editorState)
-              ..formatText(
-                  textNode, index, length, {BuiltInAttributeKey.href: text})
-              ..commit();
+          onSubmitted: (text) async {
+            await formatLinkInText(editorState, text, textNode: textNode);
             _dismissLinkMenu();
           },
           onCopyLink: () {
@@ -369,6 +375,7 @@ void showLinkMenu(
   Overlay.of(context)?.insert(_linkMenuOverlay!);
 
   editorState.service.scrollService?.disable();
+  editorState.service.keyboardService?.disable();
   editorState.service.selectionService.currentSelection
       .addListener(_dismissLinkMenu);
 }

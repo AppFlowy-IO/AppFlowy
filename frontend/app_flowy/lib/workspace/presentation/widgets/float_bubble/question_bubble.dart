@@ -112,9 +112,6 @@ class QuestionBubbleActionSheet
   });
 
   @override
-  double get maxWidth => 170;
-
-  @override
   double get itemHeight => 22;
 
   @override
@@ -142,7 +139,7 @@ class QuestionBubbleActionSheet
   @override
   ListOverlayFooter? get footer => ListOverlayFooter(
         widget: const FlowyVersionDescription(),
-        height: 30,
+        height: 40,
         padding: const EdgeInsets.only(top: 6),
       );
 }
@@ -174,11 +171,14 @@ class FlowyVersionDescription extends StatelessWidget {
             children: [
               Divider(height: 1, color: theme.shader6, thickness: 1.0),
               const VSpace(6),
-              FlowyText("$appName $version.$buildNumber",
-                  fontSize: 12, color: theme.shader4),
+              FlowyText(
+                "$appName $version.$buildNumber",
+                fontSize: 12,
+                color: theme.shader4,
+              ),
             ],
           ).padding(
-            horizontal: ActionListSizes.itemHPadding + ActionListSizes.padding,
+            horizontal: ActionListSizes.itemHPadding + ActionListSizes.hPadding,
           );
         } else {
           return const CircularProgressIndicator();

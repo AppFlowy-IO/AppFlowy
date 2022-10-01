@@ -149,7 +149,7 @@
   "grid": {
     "settings": {
       "filter": "Filtrer",
-      "sortBy": "Trier par",
+      "sortBy": "Filtrer par",
       "Properties": "Propriétés"
     },
     "field": {
@@ -170,7 +170,7 @@
       "includeTime": " Inclure l'heure",
       "dateFormatFriendly": "Mois Jour, Année",
       "dateFormatISO": "Année-Mois-Jour",
-      "dateFormatLocal": "Année/Mois/Jour",
+      "dateFormatLocal": "Mois/Jour/Année",
       "dateFormatUS": "Année/Mois/Jour",
       "timeFormat": " Format du temps",
       "invalidTimeFormat": "Format invalide",

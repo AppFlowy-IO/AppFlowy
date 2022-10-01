@@ -66,7 +66,7 @@ impl GridViewRevisionPad {
     }
 
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub fn insert_group(
+    pub fn insert_or_update_group_configuration(
         &mut self,
         field_id: &str,
         field_type: &FieldTypeRevision,

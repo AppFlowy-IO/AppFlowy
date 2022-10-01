@@ -63,13 +63,13 @@
     "deletePermanent": "Apagar permanentemente"
   },
   "dialogCreatePageNameHint": "Nome da página",
-    "questionBubble": {
+  "questionBubble": {
     "whatsNew": "O que há de novo?",
     "help": "Ajuda e Suporte",
     "debug": {
-    "name": "Informação de depuração",
-    "success": "Informação de depuração copiada para a área de transferência!",
-    "fail": "Falha ao copiar a informação de depuração para a área de transferência"
+      "name": "Informação de depuração",
+      "success": "Informação de depuração copiada para a área de transferência!",
+      "fail": "Falha ao copiar a informação de depuração para a área de transferência"
     }
   },
   "menuAppHeader": {
@@ -148,7 +148,7 @@
     "menu": {
       "appearance": "Aparência",
       "language": "Idioma",
-      "user":"Usuário",
+      "user": "Usuário",
       "open": "Abrir as Configurações"
     },
     "appearance": {
@@ -181,7 +181,7 @@
       "includeTime": "Incluir horário",
       "dateFormatFriendly": "Mês/Dia/Ano",
       "dateFormatISO": "Ano/Mês/Dia",
-      "dateFormatLocal": "Ano/Mês/Dia",
+      "dateFormatLocal": "Mês/Dia/Ano",
       "dateFormatUS": "Ano/Mês/Dia",
       "timeFormat": "Formato de hora",
       "invalidTimeFormat": "Formato Inválido",

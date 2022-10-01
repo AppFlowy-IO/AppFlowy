@@ -173,7 +173,7 @@
       "includeTime": " Sertakan waktu",
       "dateFormatFriendly": "Bulan Hari,Tahun",
       "dateFormatISO": "Tahun-Bulan-Hari",
-      "dateFormatLocal": "Tahun/Bulan/Hari",
+      "dateFormatLocal": "Bulan/Hari/Tahun",
       "dateFormatUS": "Tahun/Bulan/Hari",
       "timeFormat": " Format waktu",
       "invalidTimeFormat": "Format yang tidak valid",

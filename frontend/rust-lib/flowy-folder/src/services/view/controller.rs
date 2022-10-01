@@ -1,5 +1,5 @@
 pub use crate::entities::view::ViewDataTypePB;
-use crate::entities::{ViewInfoPB, ViewLayoutTypePB};
+use crate::entities::{DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -122,12 +122,12 @@ impl ViewController {
             .await
     }
 
-    #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
-    pub(crate) async fn read_view(&self, view_id: ViewIdPB) -> Result<ViewRevision, FlowyError> {
+    #[tracing::instrument(level = "debug", skip(self, view_id), err)]
+    pub(crate) async fn read_view(&self, view_id: &str) -> Result<ViewRevision, FlowyError> {
         let view_rev = self
             .persistence
             .begin_transaction(|transaction| {
-                let view = transaction.read_view(&view_id.value)?;
+                let view = transaction.read_view(view_id)?;
                 let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
                 if trash_ids.contains(&view.id) {
                     return Err(FlowyError::record_not_found());
@@ -135,7 +135,6 @@ impl ViewController {
                 Ok(view)
             })
             .await?;
-        let _ = self.read_view_on_server(view_id);
         Ok(view_rev)
     }
 
@@ -201,9 +200,26 @@ impl ViewController {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let view_id_pb = ViewIdPB::from(view_id.as_str());
+
+        let deleted_view = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let view = transaction.read_view(&view_id)?;
+                let views = read_belonging_views_on_local(&view.app_id, self.trash_controller.clone(), &transaction)?;
+
+                let index = views
+                    .iter()
+                    .position(|view| view.id == view_id)
+                    .map(|index| index as i32);
+                Ok(DeletedViewPB {
+                    view_id: view_id.clone(),
+                    index,
+                })
+            })
+            .await?;
+
         send_dart_notification(&view_id, FolderNotification::ViewMoveToTrash)
-            .payload(view_id_pb)
+            .payload(deleted_view)
             .send();
 
         let processor = self.get_data_processor_from_view_id(&view_id).await?;

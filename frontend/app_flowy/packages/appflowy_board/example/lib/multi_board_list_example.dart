@@ -21,8 +21,11 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
     },
   );
 
+  late AppFlowyBoardScrollController boardController;
+
   @override
   void initState() {
+    boardController = AppFlowyBoardScrollController();
     final group1 = AppFlowyGroupData(id: "To Do", name: "To Do", items: [
       TextItem("Card 1"),
       TextItem("Card 2"),
@@ -67,12 +70,16 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
             child: _buildCard(groupItem),
           );
         },
+        boardScrollController: boardController,
         footerBuilder: (context, columnData) {
           return AppFlowyGroupFooter(
             icon: const Icon(Icons.add, size: 20),
             title: const Text('New'),
             height: 50,
             margin: config.groupItemPadding,
+            onAddButtonClick: () {
+              boardController.scrollToBottom(columnData.id, (p0) {});
+            },
           );
         },
         headerBuilder: (context, columnData) {

@@ -70,6 +70,15 @@ define_currency_set!(
             symbol: "RUB",
             symbol_first: false,
         },
+        PERCENT : {
+            code: "",
+            exponent: 2,
+            locale: EnIn,
+            minor_units: 1,
+            name: "percent",
+            symbol: "%",
+            symbol_first: false,
+        },
         USD : {
             code: "USD",
             exponent: 2,
@@ -435,7 +444,7 @@ impl NumberFormat {
             NumberFormat::Leu => number_currency::RON,
             NumberFormat::ArgentinePeso => number_currency::ARS,
             NumberFormat::UruguayanPeso => number_currency::UYU,
-            NumberFormat::Percent => number_currency::USD,
+            NumberFormat::Percent => number_currency::PERCENT,
         }
     }
 

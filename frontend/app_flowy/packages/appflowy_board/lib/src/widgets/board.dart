@@ -13,10 +13,8 @@ import '../rendering/board_overlay.dart';
 class AppFlowyBoardScrollController {
   AppFlowyBoardState? _groupState;
 
-  void scrollToBottom(String groupId, VoidCallback? completed) {
-    _groupState
-        ?.getReorderFlexState(groupId: groupId)
-        ?.scrollToBottom(completed);
+  void scrollToBottom(String groupId, void Function(BuildContext)? completed) {
+    _groupState?.reorderFlexActionMap[groupId]?.scrollToBottom(completed);
   }
 }
 
@@ -133,7 +131,7 @@ class AppFlowyBoard extends StatelessWidget {
             dataController: controller,
             scrollController: scrollController,
             scrollManager: boardScrollController,
-            columnsState: _groupState,
+            groupState: _groupState,
             background: background,
             delegate: _phantomController,
             groupConstraints: groupConstraints,
@@ -158,7 +156,7 @@ class _AppFlowyBoardContent extends StatefulWidget {
   final ReorderFlexConfig reorderFlexConfig;
   final BoxConstraints groupConstraints;
   final AppFlowyBoardScrollController? scrollManager;
-  final AppFlowyBoardState columnsState;
+  final AppFlowyBoardState groupState;
   final AppFlowyBoardCardBuilder cardBuilder;
   final AppFlowyBoardHeaderBuilder? headerBuilder;
   final AppFlowyBoardFooterBuilder? footerBuilder;
@@ -171,7 +169,7 @@ class _AppFlowyBoardContent extends StatefulWidget {
     required this.delegate,
     required this.dataController,
     required this.scrollManager,
-    required this.columnsState,
+    required this.groupState,
     this.scrollController,
     this.background,
     required this.groupConstraints,
@@ -192,8 +190,6 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
       GlobalKey(debugLabel: '$_AppFlowyBoardContent overlay key');
   late BoardOverlayEntry _overlayEntry;
 
-  final Map<String, GlobalObjectKey> _reorderFlexKeys = {};
-
   @override
   void initState() {
     _overlayEntry = BoardOverlayEntry(
@@ -202,7 +198,7 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
           reorderFlexId: widget.dataController.identifier,
           acceptedReorderFlexId: widget.dataController.groupIds,
           delegate: widget.delegate,
-          columnsState: widget.columnsState,
+          columnsState: widget.groupState,
         );
 
         final reorderFlex = ReorderFlex(
@@ -212,7 +208,7 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
           dataSource: widget.dataController,
           direction: Axis.horizontal,
           interceptor: interceptor,
-          reorderable: false,
+          reorderable: true,
           children: _buildColumns(),
         );
 
@@ -257,18 +253,16 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
           dataController: widget.dataController,
         );
 
-        if (_reorderFlexKeys[columnData.id] == null) {
-          _reorderFlexKeys[columnData.id] = GlobalObjectKey(columnData.id);
-        }
+        final reorderFlexAction = ReorderFlexActionImpl();
+        widget.groupState.reorderFlexActionMap[columnData.id] =
+            reorderFlexAction;
 
-        GlobalObjectKey reorderFlexKey = _reorderFlexKeys[columnData.id]!;
         return ChangeNotifierProvider.value(
           key: ValueKey(columnData.id),
           value: widget.dataController.getGroupController(columnData.id),
           child: Consumer<AppFlowyGroupController>(
             builder: (context, value, child) {
               final boardColumn = AppFlowyBoardGroup(
-                reorderFlexKey: reorderFlexKey,
                 // key: PageStorageKey<String>(columnData.id),
                 margin: _marginFromIndex(columnIndex),
                 itemMargin: widget.config.groupItemPadding,
@@ -281,11 +275,11 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
                 onReorder: widget.dataController.moveGroupItem,
                 cornerRadius: widget.config.cornerRadius,
                 backgroundColor: widget.config.groupBackgroundColor,
-                dragStateStorage: widget.columnsState,
-                dragTargetIndexKeyStorage: widget.columnsState,
+                dragStateStorage: widget.groupState,
+                dragTargetKeys: widget.groupState,
+                reorderFlexAction: reorderFlexAction,
               );
 
-              widget.columnsState.addGroup(columnData.id, boardColumn);
               return ConstrainedBox(
                 constraints: widget.groupConstraints,
                 child: boardColumn,
@@ -356,71 +350,61 @@ class AppFlowyGroupContext {
 }
 
 class AppFlowyBoardState extends DraggingStateStorage
-    with ReorderDragTargetIndexKeyStorage {
+    with ReorderDragTargeKeys {
+  final Map<String, DraggingState> groupDragStates = {};
+  final Map<String, Map<String, GlobalObjectKey>> groupDragTargetKeys = {};
+
   /// Quick access to the [AppFlowyBoardGroup], the [GlobalKey] is bind to the
   /// AppFlowyBoardGroup's [ReorderFlex] widget.
-  final Map<String, GlobalKey> groupReorderFlexKeys = {};
-  final Map<String, DraggingState> groupDragStates = {};
-  final Map<String, Map<String, GlobalObjectKey>> groupDragDragTargets = {};
-
-  void addGroup(String groupId, AppFlowyBoardGroup groupWidget) {
-    groupReorderFlexKeys[groupId] = groupWidget.reorderFlexKey;
-  }
-
-  ReorderFlexState? getReorderFlexState({required String groupId}) {
-    final flexGlobalKey = groupReorderFlexKeys[groupId];
-    if (flexGlobalKey == null) return null;
-    if (flexGlobalKey.currentState is! ReorderFlexState) return null;
-    final state = flexGlobalKey.currentState as ReorderFlexState;
-    return state;
-  }
-
-  ReorderFlex? getReorderFlex({required String groupId}) {
-    final flexGlobalKey = groupReorderFlexKeys[groupId];
-    if (flexGlobalKey == null) return null;
-    if (flexGlobalKey.currentWidget is! ReorderFlex) return null;
-    final widget = flexGlobalKey.currentWidget as ReorderFlex;
-    return widget;
-  }
+  final Map<String, ReorderFlexActionImpl> reorderFlexActionMap = {};
 
   @override
-  DraggingState? read(String reorderFlexId) {
+  DraggingState? readState(String reorderFlexId) {
     return groupDragStates[reorderFlexId];
   }
 
   @override
-  void write(String reorderFlexId, DraggingState state) {
+  void insertState(String reorderFlexId, DraggingState state) {
     Log.trace('$reorderFlexId Write dragging state: $state');
     groupDragStates[reorderFlexId] = state;
   }
 
   @override
-  void remove(String reorderFlexId) {
+  void removeState(String reorderFlexId) {
     groupDragStates.remove(reorderFlexId);
   }
 
   @override
-  void addKey(
+  void insertDragTarget(
     String reorderFlexId,
     String key,
     GlobalObjectKey<State<StatefulWidget>> value,
   ) {
-    Map<String, GlobalObjectKey>? group = groupDragDragTargets[reorderFlexId];
+    Map<String, GlobalObjectKey>? group = groupDragTargetKeys[reorderFlexId];
     if (group == null) {
       group = {};
-      groupDragDragTargets[reorderFlexId] = group;
+      groupDragTargetKeys[reorderFlexId] = group;
     }
     group[key] = value;
   }
 
   @override
-  GlobalObjectKey<State<StatefulWidget>>? readKey(
-      String reorderFlexId, String key) {
-    Map<String, GlobalObjectKey>? group = groupDragDragTargets[reorderFlexId];
+  GlobalObjectKey<State<StatefulWidget>>? getDragTarget(
+    String reorderFlexId,
+    String key,
+  ) {
+    Map<String, GlobalObjectKey>? group = groupDragTargetKeys[reorderFlexId];
     if (group != null) {
       return group[key];
     } else {
       return null;
     }
   }
+
+  @override
+  void removeDragTarget(String reorderFlexId) {
+    groupDragTargetKeys.remove(reorderFlexId);
+  }
 }
+
+class ReorderFlexActionImpl extends ReorderFlexAction {}

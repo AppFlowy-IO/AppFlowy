@@ -117,12 +117,17 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
         makeFollowingNodesIncremental(editorState, insertPath, afterSelection,
             beginNum: prevNumber);
       } else {
+        bool needCopyAttributes = ![
+          BuiltInAttributeKey.heading,
+          BuiltInAttributeKey.quote,
+        ].contains(subtype);
         TransactionBuilder(editorState)
           ..insertNode(
             textNode.path,
             textNode.copyWith(
               children: LinkedList(),
               delta: Delta(),
+              attributes: needCopyAttributes ? null : {},
             ),
           )
           ..afterSelection = afterSelection
@@ -173,7 +178,9 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
 Attributes _attributesFromPreviousLine(TextNode textNode) {
   final prevAttributes = textNode.attributes;
   final subType = textNode.subtype;
-  if (subType == null || subType == BuiltInAttributeKey.heading) {
+  if (subType == null ||
+      subType == BuiltInAttributeKey.heading ||
+      subType == BuiltInAttributeKey.quote) {
     return {};
   }
 
