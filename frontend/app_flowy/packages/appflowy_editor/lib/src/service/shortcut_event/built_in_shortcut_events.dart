@@ -4,6 +4,7 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/arrow_ke
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/backspace_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/copy_paste_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/enter_without_shift_in_text_node_handler.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/markdown_syntax_to_styled_text.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/page_up_down_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/redo_undo_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/select_all_handler.dart';
@@ -250,6 +251,11 @@ List<ShortcutEvent> builtInShortcutEvents = [
     key: 'Tab',
     command: 'tab',
     handler: tabHandler,
+  ),
+  ShortcutEvent(
+    key: 'Backquote to code',
+    command: 'backquote',
+    handler: backquoteToCodeHandler,
   ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,
