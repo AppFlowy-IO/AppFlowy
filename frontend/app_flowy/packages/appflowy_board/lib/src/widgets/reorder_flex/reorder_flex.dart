@@ -247,7 +247,6 @@ class ReorderFlexState extends State<ReorderFlex>
     }
 
     _animation.dispose();
-    widget.dragTargetKeys?.removeDragTarget(widget.reorderFlexId);
     super.dispose();
   }
 

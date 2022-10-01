@@ -98,7 +98,7 @@ pub struct MoveGroupPayloadPB {
     pub to_group_id: String,
 }
 
-#[derive(debug, Debug)]
+#[derive(Debug)]
 pub struct MoveGroupParams {
     pub view_id: String,
     pub from_group_id: String,

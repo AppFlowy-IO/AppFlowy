@@ -36,21 +36,21 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
       onMoveGroup: (
-        fromColumnId,
+        fromGroupId,
         fromIndex,
-        toColumnId,
+        toGroupId,
         toIndex,
       ) {
-        _moveGroup(fromColumnId, toColumnId);
+        _moveGroup(fromGroupId, toGroupId);
       },
       onMoveGroupItem: (
-        columnId,
+        groupId,
         fromIndex,
         toIndex,
       ) {
-        final fromRow = groupControllers[columnId]?.rowAtIndex(fromIndex);
-        final toRow = groupControllers[columnId]?.rowAtIndex(toIndex);
-        _moveRow(fromRow, columnId, toRow);
+        final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
+        final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
+        _moveRow(fromRow, groupId, toRow);
       },
       onMoveGroupItemToGroup: (
         fromGroupId,

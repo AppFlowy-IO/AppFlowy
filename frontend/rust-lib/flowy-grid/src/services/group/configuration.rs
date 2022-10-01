@@ -1,5 +1,5 @@
 use crate::entities::{GroupPB, GroupViewChangesetPB};
-use crate::services::group::{default_group_configuration, GeneratedGroup, Group};
+use crate::services::group::{default_group_configuration, make_default_group, GeneratedGroup, Group};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
     FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision, GroupRevision,
@@ -29,10 +29,7 @@ impl<T> std::fmt::Display for GroupContext<T> {
         self.groups_map.iter().for_each(|(_, group)| {
             let _ = f.write_fmt(format_args!("Group:{} has {} rows \n", group.id, group.rows.len()));
         });
-        let _ = f.write_fmt(format_args!(
-            "Default group has {} rows \n",
-            self.default_group.rows.len()
-        ));
+
         Ok(())
     }
 }
@@ -44,7 +41,7 @@ pub struct GroupContext<C> {
     field_rev: Arc<FieldRevision>,
     groups_map: IndexMap<String, Group>,
     /// default_group is used to store the rows that don't belong to any groups.
-    default_group: Group,
+    // default_group: Group,
     writer: Arc<dyn GroupConfigurationWriter>,
 }
 
@@ -59,16 +56,6 @@ where
         reader: Arc<dyn GroupConfigurationReader>,
         writer: Arc<dyn GroupConfigurationWriter>,
     ) -> FlowyResult<Self> {
-        let default_group_id = format!("{}_default_group", view_id);
-        let default_group = Group {
-            id: default_group_id,
-            field_id: field_rev.id.clone(),
-            name: format!("No {}", field_rev.name),
-            is_default: true,
-            is_visible: true,
-            rows: vec![],
-            filter_content: "".to_string(),
-        };
         let configuration = match reader.get_configuration().await {
             None => {
                 let default_configuration = default_group_configuration(&field_rev);
@@ -80,24 +67,22 @@ where
             Some(configuration) => configuration,
         };
 
-        // let configuration = C::from_configuration_content(&configuration_rev.content)?;
         Ok(Self {
             view_id,
             field_rev,
             groups_map: IndexMap::new(),
-            default_group,
             writer,
             configuration,
             configuration_content: PhantomData,
         })
     }
 
-    pub(crate) fn get_default_group(&self) -> &Group {
-        &self.default_group
+    pub(crate) fn get_default_group(&self) -> Option<&Group> {
+        self.groups_map.get(&self.field_rev.id)
     }
 
-    pub(crate) fn get_mut_default_group(&mut self) -> &mut Group {
-        &mut self.default_group
+    pub(crate) fn get_mut_default_group(&mut self) -> Option<&mut Group> {
+        self.groups_map.get_mut(&self.field_rev.id)
     }
 
     /// Returns the groups without the default group
@@ -122,8 +107,6 @@ where
         self.groups_map.iter_mut().for_each(|(_, group)| {
             each(group);
         });
-
-        each(&mut self.default_group);
     }
 
     pub(crate) fn move_group(&mut self, from_id: &str, to_id: &str) -> FlowyResult<()> {
@@ -131,19 +114,23 @@ where
         let to_index = self.groups_map.get_index_of(to_id);
         match (from_index, to_index) {
             (Some(from_index), Some(to_index)) => {
-                self.groups_map.swap_indices(from_index, to_index);
+                self.groups_map.move_index(from_index, to_index);
+
                 self.mut_configuration(|configuration| {
                     let from_index = configuration.groups.iter().position(|group| group.id == from_id);
                     let to_index = configuration.groups.iter().position(|group| group.id == to_id);
-                    tracing::trace!("Swap group index:{:?} with index:{:?}", from_index, to_index);
-                    if let (Some(from), Some(to)) = (from_index, to_index) {
-                        configuration.groups.swap(from, to);
+                    tracing::info!("Configuration groups: {:?} ", configuration.groups);
+                    if let (Some(from), Some(to)) = &(from_index, to_index) {
+                        tracing::trace!("Move group from index:{:?} to index:{:?}", from_index, to_index);
+                        let group = configuration.groups.remove(*from);
+                        configuration.groups.insert(*to, group);
                     }
-                    true
+
+                    from_index.is_some() && to_index.is_some()
                 })?;
                 Ok(())
             }
-            _ => Err(FlowyError::out_of_bounds()),
+            _ => Err(FlowyError::record_not_found().context("Moving group failed. Groups are not exist")),
         }
     }
 
@@ -151,7 +138,6 @@ where
     pub(crate) fn init_groups(
         &mut self,
         generated_groups: Vec<GeneratedGroup>,
-        reset: bool,
     ) -> FlowyResult<Option<GroupViewChangesetPB>> {
         let mut new_groups = vec![];
         let mut filter_content_map = HashMap::new();
@@ -160,16 +146,17 @@ where
             new_groups.push(generate_group.group_rev);
         });
 
+        let mut old_groups = self.configuration.groups.clone();
+        if !old_groups.iter().any(|group| group.id == self.field_rev.id) {
+            old_groups.push(make_default_group(&self.field_rev));
+        }
+
         let MergeGroupResult {
             mut all_group_revs,
             new_group_revs,
             updated_group_revs: _,
             deleted_group_revs,
-        } = if reset {
-            merge_groups(&[], new_groups)
-        } else {
-            merge_groups(&self.configuration.groups, new_groups)
-        };
+        } = merge_groups(old_groups, new_groups);
 
         let deleted_group_ids = deleted_group_revs
             .into_iter()
@@ -198,31 +185,23 @@ where
                     Some(pos) => {
                         let mut old_group = configuration.groups.remove(pos);
                         group_rev.update_with_other(&old_group);
+                        is_changed = is_group_changed(group_rev, &old_group);
 
-                        // Take the GroupRevision if the name has changed
-                        if is_group_changed(group_rev, &old_group) {
-                            old_group.name = group_rev.name.clone();
-                            is_changed = true;
-                            configuration.groups.insert(pos, old_group);
-                        }
+                        old_group.name = group_rev.name.clone();
+                        configuration.groups.insert(pos, old_group);
                     }
                 }
             }
             is_changed
         })?;
 
-        // The len of the filter_content_map should equal to the len of the all_group_revs
-        debug_assert_eq!(filter_content_map.len(), all_group_revs.len());
         all_group_revs.into_iter().for_each(|group_rev| {
-            if let Some(filter_content) = filter_content_map.get(&group_rev.id) {
-                let group = Group::new(
-                    group_rev.id,
-                    self.field_rev.id.clone(),
-                    group_rev.name,
-                    filter_content.clone(),
-                );
-                self.groups_map.insert(group.id.clone(), group);
-            }
+            let filter_content = filter_content_map
+                .get(&group_rev.id)
+                .cloned()
+                .unwrap_or_else(|| "".to_owned());
+            let group = Group::new(group_rev.id, self.field_rev.id.clone(), group_rev.name, filter_content);
+            self.groups_map.insert(group.id.clone(), group);
         });
 
         let new_groups = new_group_revs
@@ -270,6 +249,7 @@ where
         Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     pub fn save_configuration(&self) -> FlowyResult<()> {
         let configuration = (&*self.configuration).clone();
         let writer = self.writer.clone();
@@ -312,13 +292,14 @@ where
     }
 }
 
-fn merge_groups(old_groups: &[GroupRevision], new_groups: Vec<GroupRevision>) -> MergeGroupResult {
+fn merge_groups(old_groups: Vec<GroupRevision>, new_groups: Vec<GroupRevision>) -> MergeGroupResult {
     let mut merge_result = MergeGroupResult::new();
-    if old_groups.is_empty() {
-        merge_result.all_group_revs = new_groups.clone();
-        merge_result.new_group_revs = new_groups;
-        return merge_result;
-    }
+    // if old_groups.is_empty() {
+    //     merge_result.all_group_revs.extend(new_groups.clone());
+    //     merge_result.all_group_revs.push(default_group);
+    //     merge_result.new_group_revs = new_groups;
+    //     return merge_result;
+    // }
 
     // group_map is a helper map is used to filter out the new groups.
     let mut new_group_map: IndexMap<String, GroupRevision> = IndexMap::new();
@@ -330,19 +311,20 @@ fn merge_groups(old_groups: &[GroupRevision], new_groups: Vec<GroupRevision>) ->
     for old in old_groups {
         if let Some(new) = new_group_map.remove(&old.id) {
             merge_result.all_group_revs.push(new.clone());
-            if is_group_changed(&new, old) {
+            if is_group_changed(&new, &old) {
                 merge_result.updated_group_revs.push(new);
             }
         } else {
-            merge_result.deleted_group_revs.push(old.clone());
+            merge_result.all_group_revs.push(old);
         }
     }
 
     // Find out the new groups
+    new_group_map.reverse();
     let new_groups = new_group_map.into_values();
     for (_, group) in new_groups.into_iter().enumerate() {
-        merge_result.all_group_revs.push(group.clone());
-        merge_result.new_group_revs.push(group);
+        merge_result.all_group_revs.insert(0, group.clone());
+        merge_result.new_group_revs.insert(0, group);
     }
     merge_result
 }
