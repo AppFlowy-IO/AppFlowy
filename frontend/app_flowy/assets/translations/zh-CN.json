@@ -181,7 +181,7 @@
       "includeTime": " 包含时间",
       "dateFormatFriendly": "月 日,年",
       "dateFormatISO": "年-月-日",
-      "dateFormatLocal": "年/月/日",
+      "dateFormatLocal": "月/日/年",
       "dateFormatUS": "年/月/日",
       "timeFormat": " 时间格式",
       "invalidTimeFormat": "时间格式错误",
@@ -200,7 +200,7 @@
       "textPlaceholder": "空",
       "copyProperty": "复制列",
       "count": "数量",
-      "newRow": "添加一行" 
+      "newRow": "添加一行"
     },
     "selectOption": {
       "create": "新建",
