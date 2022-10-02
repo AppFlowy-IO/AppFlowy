@@ -80,9 +80,8 @@ class RoundedImageButton extends StatelessWidget {
       child: TextButton(
         onPressed: press,
         style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-          borderRadius: borderRadius,
-        ))),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(borderRadius: borderRadius))),
         child: child,
       ),
     );
