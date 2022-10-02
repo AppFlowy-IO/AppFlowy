@@ -13,7 +13,7 @@ class SettingsAppearanceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
+    final theme = context.watch<AppTheme>();
 
     return SingleChildScrollView(
       child: Column(
