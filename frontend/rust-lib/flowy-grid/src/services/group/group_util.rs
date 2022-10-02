@@ -8,8 +8,8 @@ use crate::services::group::{
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision, GroupConfigurationRevision,
-    LayoutRevision, NumberGroupConfigurationRevision, RowRevision, SelectOptionGroupConfigurationRevision,
-    TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
+    GroupRevision, LayoutRevision, NumberGroupConfigurationRevision, RowRevision,
+    SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision, UrlGroupConfigurationRevision,
 };
 use std::sync::Arc;
 
@@ -79,7 +79,7 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
     let field_id = field_rev.id.clone();
     let field_type_rev = field_rev.ty;
     let field_type: FieldType = field_rev.ty.into();
-    match field_type {
+    let mut group_configuration_rev = match field_type {
         FieldType::RichText => {
             GroupConfigurationRevision::new(field_id, field_type_rev, TextGroupConfigurationRevision::default())
                 .unwrap()
@@ -112,5 +112,23 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
         FieldType::URL => {
             GroupConfigurationRevision::new(field_id, field_type_rev, UrlGroupConfigurationRevision::default()).unwrap()
         }
+    };
+
+    // Append the no `status` group
+    let default_group_rev = GroupRevision {
+        id: field_rev.id.clone(),
+        name: format!("No {}", field_rev.name),
+        visible: true,
+    };
+
+    group_configuration_rev.groups.push(default_group_rev);
+    group_configuration_rev
+}
+
+pub fn make_default_group(field_rev: &FieldRevision) -> GroupRevision {
+    GroupRevision {
+        id: field_rev.id.clone(),
+        name: format!("No {}", field_rev.name),
+        visible: true,
     }
 }

@@ -72,6 +72,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     editorState.selectionMenuItems = widget.selectionMenuItems;
     editorState.editorStyle = widget.editorStyle;
     editorState.service.renderPluginService = _createRenderPlugin();
+    editorState.editable = widget.editable;
   }
 
   @override
@@ -84,6 +85,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     }
 
     editorState.editorStyle = widget.editorStyle;
+    editorState.editable = widget.editable;
     services = null;
   }
 

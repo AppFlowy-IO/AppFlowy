@@ -53,6 +53,10 @@ class Selection {
 
   Selection get reversed => copyWith(start: end, end: start);
 
+  int get startIndex => normalize.start.offset;
+  int get endIndex => normalize.end.offset;
+  int get length => endIndex - startIndex;
+
   Selection collapse({bool atStart = false}) {
     if (atStart) {
       return Selection(start: start, end: start);

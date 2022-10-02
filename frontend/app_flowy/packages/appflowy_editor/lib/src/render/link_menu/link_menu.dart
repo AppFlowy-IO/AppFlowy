@@ -31,6 +31,7 @@ class _LinkMenuState extends State<LinkMenu> {
   void initState() {
     super.initState();
     _textEditingController.text = widget.linkText ?? '';
+    _focusNode.requestFocus();
     _focusNode.addListener(_onFocusChange);
   }
 

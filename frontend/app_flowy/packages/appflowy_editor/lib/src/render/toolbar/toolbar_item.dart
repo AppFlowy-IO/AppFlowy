@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/commands/format_built_in_text.dart';
 import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
@@ -345,11 +346,8 @@ void showLinkMenu(
           onOpenLink: () async {
             await safeLaunchUrl(linkText);
           },
-          onSubmitted: (text) {
-            TransactionBuilder(editorState)
-              ..formatText(
-                  textNode, index, length, {BuiltInAttributeKey.href: text})
-              ..commit();
+          onSubmitted: (text) async {
+            await formatLinkInText(editorState, text, textNode: textNode);
             _dismissLinkMenu();
           },
           onCopyLink: () {
@@ -377,6 +375,7 @@ void showLinkMenu(
   Overlay.of(context)?.insert(_linkMenuOverlay!);
 
   editorState.service.scrollService?.disable();
+  editorState.service.keyboardService?.disable();
   editorState.service.selectionService.currentSelection
       .addListener(_dismissLinkMenu);
 }

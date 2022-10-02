@@ -72,6 +72,8 @@ class EditorState {
   // TODO: only for testing.
   bool disableSealTimer = false;
 
+  bool editable = true;
+
   Selection? get cursorSelection {
     return _cursorSelection;
   }
@@ -112,6 +114,9 @@ class EditorState {
   /// should record the transaction in undo/redo stack.
   apply(Transaction transaction,
       [ApplyOptions options = const ApplyOptions()]) {
+    if (!editable) {
+      return;
+    }
     // TODO: validate the transation.
     for (final op in transaction.operations) {
       _applyOperation(op);

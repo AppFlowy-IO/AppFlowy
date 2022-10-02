@@ -142,7 +142,6 @@
       "darkLabel": "Mode sombre"
     }
   },
-<<<<<<< HEAD
   "sideBar": {
     "openSidebar": "Open sidebar",
     "closeSidebar": "Close sidebar"
@@ -150,13 +149,7 @@
   "grid": {
     "settings": {
       "filter": "Filtrer",
-      "sortBy": "Trier par",
-=======
-  "grid": {
-    "settings": {
-      "filter": "Filtrer",
       "sortBy": "Filtrer par",
->>>>>>> fbc1fe90b (Translate new words to French)
       "Properties": "Propriétés"
     },
     "field": {
@@ -166,7 +159,6 @@
       "duplicate": "Dupliquer",
       "delete": "Supprimer",
       "textFieldName": "Texte",
-<<<<<<< HEAD
       "checkboxFieldName": "Case à cocher",
       "dateFieldName": "Date",
       "numberFieldName": "Nombre",
@@ -182,39 +174,17 @@
       "dateFormatUS": "Année/Mois/Jour",
       "timeFormat": " Format du temps",
       "invalidTimeFormat": "Format invalide",
-=======
-      "checkboxFieldName": "Checkbox",
-      "dateFieldName": "Date",
-      "numberFieldName": "Nombre",
-      "singleSelectFieldName": "Sélection",
-      "multiSelectFieldName": "Sélection multiple",
-      "urlFieldName": "URL (lien)",
-      "numberFormat": " Format des nombres",
-      "dateFormat": " Format de la date",
-      "includeTime": " Inclure le temps",
-      "dateFormatFriendly": "Mois Jour,Année",
-      "dateFormatISO": "Année-Mois-Jour",
-      "dateFormatLocal": "Mois/Mois/Jour",
-      "dateFormatUS": "Mois/Mois/Jour",
-      "timeFormat": " Format du temps",
-      "invalidTimeFormat": "Format Invalide",
->>>>>>> fbc1fe90b (Translate new words to French)
       "timeFormatTwelveHour": "12 heures",
       "timeFormatTwentyFourHour": "24 heures",
       "addSelectOption": "Ajouter une option",
       "optionTitle": "Options",
       "addOption": "Ajouter une option",
-<<<<<<< HEAD
       "editProperty": "Modifier la propriété"
-=======
-      "editProperty": "Modifier"
->>>>>>> fbc1fe90b (Translate new words to French)
     },
     "row": {
       "duplicate": "Dupliquer",
       "delete": "Supprimer",
       "textPlaceholder": "Vide",
-<<<<<<< HEAD
       "copyProperty": "Copie de la propriété dans le presse-papiers"
     },
     "selectOption": {
@@ -240,33 +210,6 @@
     "date": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
-=======
-      "copyProperty": "Copié sur le presse-papier"
-    },
-    "selectOption": {
-      "create": "Créer",
-      "purpleColor": "Violet",
-      "pinkColor": "Rose",
-      "lightPinkColor": "Rose Indien",
-      "orangeColor": "Orange",
-      "yellowColor": "Jaune",
-      "limeColor": "Vert Citron",
-      "greenColor": "Vert",
-      "aquaColor": "Bleu Ciel",
-      "blueColor": "Bleu",
-      "deleteTag": "Supprimer le tag",
-      "colorPannelTitle": "Couleurs",
-      "pannelTitle": "Selectionner une option",
-      "searchOption": "Chercher une option"
-    },
-    "menuName": "Menu"
-  },
-  "document": {
-    "menuName": "Document",
-    "date": {
-      "timeHintTextInTwelveHour": "12h00",
-      "timeHintTextInTwentyFourHour": "00h00"
->>>>>>> fbc1fe90b (Translate new words to French)
     }
   }
 }

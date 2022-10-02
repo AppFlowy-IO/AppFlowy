@@ -368,6 +368,7 @@ impl GridRevisionEditor {
         Ok(row_pb)
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     pub async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let _ = self.view_manager.move_group(params).await?;
         Ok(())
