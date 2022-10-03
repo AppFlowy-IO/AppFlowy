@@ -99,6 +99,7 @@ class MenuAppHeader extends StatelessWidget {
               app.name,
               fontSize: 12,
               color: theme.textColor,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ),
