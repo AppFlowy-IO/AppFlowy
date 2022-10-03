@@ -16,6 +16,7 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/tab_hand
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 import 'package:flutter/foundation.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/italcis_handler.dart';
 
 //
 List<ShortcutEvent> builtInShortcutEvents = [
