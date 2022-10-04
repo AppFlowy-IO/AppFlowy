@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/image/image_node_widget.dart';
-import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';

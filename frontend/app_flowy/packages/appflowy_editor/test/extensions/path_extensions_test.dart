@@ -1,6 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 
 void main() async {
   setUpAll(() {

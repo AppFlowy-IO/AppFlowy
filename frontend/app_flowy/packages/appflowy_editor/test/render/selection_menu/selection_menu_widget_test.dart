@@ -1,7 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_item_widget.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
-import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
@@ -13,8 +12,8 @@ void main() async {
 
   group('selection_menu_widget.dart', () {
     for (var i = 0; i < defaultSelectionMenuItems.length; i += 1) {
-      testWidgets('Selects number.$i item in selection menu with enter', (
-          tester) async {
+      testWidgets('Selects number.$i item in selection menu with enter',
+          (tester) async {
         final editor = await _prepare(tester);
         for (var j = 0; j < i; j++) {
           await editor.pressLogicKey(LogicalKeyboardKey.arrowDown);
@@ -30,8 +29,8 @@ void main() async {
         }
       });
 
-      testWidgets('Selects number.$i item in selection menu with click', (
-          tester) async {
+      testWidgets('Selects number.$i item in selection menu with click',
+          (tester) async {
         final editor = await _prepare(tester);
 
         await tester.tap(find.byType(SelectionMenuItemWidget).at(i));
@@ -148,7 +147,8 @@ Future<void> _testDefaultSelectionMenuItems(
     int index, EditorWidgetTester editor) async {
   expect(editor.documentLength, 4);
   expect(editor.documentSelection, Selection.single(path: [2], startOffset: 0));
-  expect((editor.nodeAtPath([1]) as TextNode).toRawString(), 'Welcome to Appflowy 😁');
+  expect((editor.nodeAtPath([1]) as TextNode).toRawString(),
+      'Welcome to Appflowy 😁');
   final node = editor.nodeAtPath([2]);
   final item = defaultSelectionMenuItems[index];
   final itemName = item.name();

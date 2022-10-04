@@ -1,6 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
-import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';

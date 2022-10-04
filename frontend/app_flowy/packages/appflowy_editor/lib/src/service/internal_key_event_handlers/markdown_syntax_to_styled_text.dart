@@ -1,4 +1,3 @@
-import "dart:math";
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
@@ -49,7 +48,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
       .substring(selection.start.offset, selection.end.offset);
 
   // toggle code style when selected some text
-  if (selectionText.length > 0) {
+  if (selectionText.isNotEmpty) {
     formatEmbedCode(editorState);
     return KeyEventResult.handled;
   }
