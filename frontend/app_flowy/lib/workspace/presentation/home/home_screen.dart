@@ -182,6 +182,12 @@ class _HomeScreenState extends State<HomeScreen> {
           onHorizontalDragUpdate: (details) => context
               .read<HomeBloc>()
               .add(HomeEvent.editPanelResized(details.localPosition.dx)),
+          onHorizontalDragEnd: (details) => context
+              .read<HomeBloc>()
+              .add(const HomeEvent.editPanelResizeEnd()),
+          onHorizontalDragCancel: () => context
+              .read<HomeBloc>()
+              .add(const HomeEvent.editPanelResizeEnd()),
           behavior: HitTestBehavior.translucent,
           child: SizedBox(
             width: 10,
