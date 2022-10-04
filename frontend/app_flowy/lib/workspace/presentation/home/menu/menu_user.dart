@@ -64,7 +64,11 @@ class MenuUser extends StatelessWidget {
     if (name.isEmpty) {
       name = context.read<MenuUserBloc>().state.userProfile.email;
     }
-    return FlowyText(name, fontSize: 12, overflow: TextOverflow.ellipsis);
+    return FlowyText.medium(
+      name,
+      fontSize: FontSizes.s12,
+      overflow: TextOverflow.ellipsis,
+    );
   }
 
   Widget _renderSettingsButton(BuildContext context) {
