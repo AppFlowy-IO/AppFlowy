@@ -82,7 +82,7 @@ class ViewSectionItem extends StatelessWidget {
         child: FlowyText.regular(
           state.view.name,
           fontSize: 12,
-          overflow: TextOverflow.clip,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     ];
