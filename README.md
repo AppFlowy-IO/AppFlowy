@@ -1,9 +1,11 @@
-<h1 align="center" style="border-bottom: none">
+<h2 align="center" style="border-bottom: none">
     <b>
-        <a href="https://www.appflowy.io">AppFlowy.IO</a><br>
+        <a href="https://www.appflowy.io">
+            <img src="/frontend/app_flowy/assets/images/flowy_logo.svg" alt="AppFlowy"><br>
+        AppFlowy</a><br>
     </b>
     ⭐️  The Open Source Alternative To Notion  ⭐️ <br>
-</h1>
+</h2>
 
 <p align="center">
 You are in charge of your data and customizations.
