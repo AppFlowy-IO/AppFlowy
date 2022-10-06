@@ -28,8 +28,9 @@ class MenuUser extends StatelessWidget {
           children: [
             _renderAvatar(context),
             const HSpace(10),
-            _renderUserName(context),
-            const Spacer(),
+            Expanded(
+              child: _renderUserName(context),
+            ),
             _renderSettingsButton(context),
             //ToDo: when the user is allowed to create another workspace,
             //we get the below block back
@@ -63,7 +64,7 @@ class MenuUser extends StatelessWidget {
     if (name.isEmpty) {
       name = context.read<MenuUserBloc>().state.userProfile.email;
     }
-    return FlowyText(name, fontSize: 12);
+    return FlowyText(name, fontSize: 12, overflow: TextOverflow.ellipsis);
   }
 
   Widget _renderSettingsButton(BuildContext context) {

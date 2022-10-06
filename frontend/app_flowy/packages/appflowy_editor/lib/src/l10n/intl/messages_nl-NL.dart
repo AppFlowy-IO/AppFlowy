@@ -1,5 +1,5 @@
 // DO NOT EDIT. This is code generated via package:intl/generate_localized.dart
-// This is a library that provides messages for a it_IT locale. All the
+// This is a library that provides messages for a nl_NL locale. All the
 // messages from the main program should be duplicated here with the same
 // function name.
 
@@ -18,25 +18,26 @@ final messages = new MessageLookup();
 typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 
 class MessageLookup extends MessageLookupByLibrary {
-  String get localeName => 'it_IT';
+  String get localeName => 'nl_NL';
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "bold": MessageLookupByLibrary.simpleMessage("Grassetto"),
-        "bulletedList": MessageLookupByLibrary.simpleMessage("Elenco puntato"),
-        "checkbox": MessageLookupByLibrary.simpleMessage("Casella di spunta"),
-        "embedCode": MessageLookupByLibrary.simpleMessage("Incorpora codice"),
+        "bold": MessageLookupByLibrary.simpleMessage("Vet"),
+        "bulletedList":
+            MessageLookupByLibrary.simpleMessage("Opsommingstekens"),
+        "checkbox": MessageLookupByLibrary.simpleMessage("Selectievakje"),
+        "embedCode": MessageLookupByLibrary.simpleMessage("Invoegcode"),
         "heading1": MessageLookupByLibrary.simpleMessage("H1"),
         "heading2": MessageLookupByLibrary.simpleMessage("H2"),
         "heading3": MessageLookupByLibrary.simpleMessage("H3"),
-        "highlight": MessageLookupByLibrary.simpleMessage("Evidenzia"),
-        "image": MessageLookupByLibrary.simpleMessage("Immagine"),
-        "italic": MessageLookupByLibrary.simpleMessage("Corsivo"),
-        "link": MessageLookupByLibrary.simpleMessage("Collegamento"),
-        "numberedList": MessageLookupByLibrary.simpleMessage("Elenco numerato"),
-        "quote": MessageLookupByLibrary.simpleMessage("Cita"),
-        "strikethrough": MessageLookupByLibrary.simpleMessage("Barrato"),
-        "text": MessageLookupByLibrary.simpleMessage("Testo"),
-        "underline": MessageLookupByLibrary.simpleMessage("Sottolineato")
+        "highlight": MessageLookupByLibrary.simpleMessage("Highlight"),
+        "image": MessageLookupByLibrary.simpleMessage("Afbeelding"),
+        "italic": MessageLookupByLibrary.simpleMessage("Cursief"),
+        "link": MessageLookupByLibrary.simpleMessage(""),
+        "numberedList": MessageLookupByLibrary.simpleMessage("Nummering"),
+        "quote": MessageLookupByLibrary.simpleMessage("Quote"),
+        "strikethrough": MessageLookupByLibrary.simpleMessage("Doorhalen"),
+        "text": MessageLookupByLibrary.simpleMessage("Tekst"),
+        "underline": MessageLookupByLibrary.simpleMessage("Onderstrepen")
       };
 }

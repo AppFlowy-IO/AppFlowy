@@ -170,6 +170,14 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
+    name: () => AppFlowyEditorLocalizations.current.numberedList,
+    icon: _selectionMenuIcon('number'),
+    keywords: ['numbered list', 'list', 'ordered list'],
+    handler: (editorState, _, __) {
+      insertNumberedListAfterSelection(editorState);
+    },
+  ),
+  SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.checkbox,
     icon: _selectionMenuIcon('checkbox'),
     keywords: ['todo list', 'list', 'checkbox list'],
