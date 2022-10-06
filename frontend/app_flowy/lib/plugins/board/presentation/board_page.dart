@@ -83,7 +83,7 @@ class _BoardContentState extends State<BoardContent> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<BoardBloc, BoardState>(
-      listener: (context, state) => _handleEditState(state, context),
+      listener: (context, state) => _handleEditStateChanged(state, context),
       child: BlocBuilder<BoardBloc, BoardState>(
         buildWhen: (previous, current) => previous.groupIds != current.groupIds,
         builder: (context, state) {
@@ -128,21 +128,14 @@ class _BoardContentState extends State<BoardContent> {
     );
   }
 
-  void _handleEditState(BoardState state, BuildContext context) {
+  void _handleEditStateChanged(BoardState state, BuildContext context) {
     state.editingRow.fold(
       () => null,
       (editingRow) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (editingRow.index != null) {
-            context
-                .read<BoardBloc>()
-                .add(BoardEvent.endEditRow(editingRow.row.id));
           } else {
-            scrollManager.scrollToBottom(editingRow.columnId, (boardContext) {
-              context
-                  .read<BoardBloc>()
-                  .add(BoardEvent.endEditRow(editingRow.row.id));
-            });
+            scrollManager.scrollToBottom(editingRow.group.groupId);
           }
         });
       },
@@ -156,14 +149,14 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildHeader(
     BuildContext context,
-    AppFlowyGroupData columnData,
+    AppFlowyGroupData groupData,
   ) {
-    final boardCustomData = columnData.customData as BoardCustomData;
+    final boardCustomData = groupData.customData as GroupData;
     return AppFlowyGroupHeader(
       title: Flexible(
         fit: FlexFit.tight,
         child: FlowyText.medium(
-          columnData.headerData.groupName,
+          groupData.headerData.groupName,
           fontSize: 14,
           overflow: TextOverflow.clip,
           color: context.read<AppTheme>().textColor,
@@ -180,7 +173,7 @@ class _BoardContentState extends State<BoardContent> {
       ),
       onAddButtonClick: () {
         context.read<BoardBloc>().add(
-              BoardEvent.createHeaderRow(columnData.id),
+              BoardEvent.createHeaderRow(groupData.id),
             );
       },
       height: 50,
@@ -218,15 +211,16 @@ class _BoardContentState extends State<BoardContent> {
 
   Widget _buildCard(
     BuildContext context,
-    AppFlowyGroupData group,
-    AppFlowyGroupItem columnItem,
+    AppFlowyGroupData afGroupData,
+    AppFlowyGroupItem afGroupItem,
   ) {
-    final boardColumnItem = columnItem as BoardColumnItem;
-    final rowPB = boardColumnItem.row;
+    final groupItem = afGroupItem as GroupItem;
+    final groupData = afGroupData.customData as GroupData;
+    final rowPB = groupItem.row;
     final rowCache = context.read<BoardBloc>().getRowCache(rowPB.blockId);
 
     /// Return placeholder widget if the rowCache is null.
-    if (rowCache == null) return SizedBox(key: ObjectKey(columnItem));
+    if (rowCache == null) return SizedBox(key: ObjectKey(groupItem));
 
     final fieldController = context.read<BoardBloc>().fieldController;
     final gridId = context.read<BoardBloc>().gridId;
@@ -241,19 +235,19 @@ class _BoardContentState extends State<BoardContent> {
     context.read<BoardBloc>().state.editingRow.fold(
       () => null,
       (editingRow) {
-        isEditing = editingRow.row.id == columnItem.row.id;
+        isEditing = editingRow.row.id == groupItem.row.id;
       },
     );
 
-    final groupItemId = columnItem.id + group.id;
+    final groupItemId = groupItem.row.id + groupData.group.groupId;
     return AppFlowyGroupCard(
       key: ValueKey(groupItemId),
       margin: config.cardPadding,
       decoration: _makeBoxDecoration(context),
       child: BoardCard(
         gridId: gridId,
-        groupId: group.id,
-        fieldId: boardColumnItem.fieldContext.id,
+        groupId: groupData.group.groupId,
+        fieldId: groupItem.fieldContext.id,
         isEditing: isEditing,
         cellBuilder: cellBuilder,
         dataController: cardController,
@@ -264,6 +258,19 @@ class _BoardContentState extends State<BoardContent> {
           rowCache,
           context,
         ),
+        onStartEditing: () {
+          context.read<BoardBloc>().add(
+                BoardEvent.startEditingRow(
+                  groupData.group,
+                  groupItem.row,
+                ),
+              );
+        },
+        onEndEditing: () {
+          context
+              .read<BoardBloc>()
+              .add(BoardEvent.endEditingRow(groupItem.row.id));
+        },
       ),
     );
   }
@@ -345,7 +352,7 @@ extension HexColor on Color {
   }
 }
 
-Widget? _buildHeaderIcon(BoardCustomData customData) {
+Widget? _buildHeaderIcon(GroupData customData) {
   Widget? widget;
   switch (customData.fieldType) {
     case FieldType.Checkbox:

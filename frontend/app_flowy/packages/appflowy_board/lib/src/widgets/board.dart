@@ -13,7 +13,8 @@ import '../rendering/board_overlay.dart';
 class AppFlowyBoardScrollController {
   AppFlowyBoardState? _groupState;
 
-  void scrollToBottom(String groupId, void Function(BuildContext)? completed) {
+  void scrollToBottom(String groupId,
+      {void Function(BuildContext)? completed}) {
     _groupState?.reorderFlexActionMap[groupId]?.scrollToBottom(completed);
   }
 }
@@ -39,9 +40,6 @@ class AppFlowyBoardConfig {
 }
 
 class AppFlowyBoard extends StatelessWidget {
-  /// The direction to use as the main axis.
-  final Axis direction = Axis.vertical;
-
   /// The widget that will be rendered as the background of the board.
   final Widget? background;
 
@@ -178,7 +176,10 @@ class _AppFlowyBoardContent extends StatefulWidget {
     this.headerBuilder,
     required this.phantomController,
     Key? key,
-  })  : reorderFlexConfig = const ReorderFlexConfig(),
+  })  : reorderFlexConfig = const ReorderFlexConfig(
+          direction: Axis.horizontal,
+          dragDirection: Axis.horizontal,
+        ),
         super(key: key);
 
   @override
@@ -206,9 +207,7 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
           scrollController: widget.scrollController,
           onReorder: widget.onReorder,
           dataSource: widget.dataController,
-          direction: Axis.horizontal,
           interceptor: interceptor,
-          reorderable: true,
           children: _buildColumns(),
         );
 

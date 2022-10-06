@@ -5,6 +5,8 @@ import 'package:appflowy_board/src/widgets/reorder_flex/reorder_flex.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
+typedef IsDraggable = bool;
+
 /// A item represents the generic data model of each group card.
 ///
 /// Each item displayed in the group required to implement this class.
@@ -153,6 +155,15 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
   bool _containsItem(AppFlowyGroupItem item) {
     return groupData._items.indexWhere((element) => element.id == item.id) !=
         -1;
+  }
+
+  void enableDragging(bool isEnable) {
+    groupData.draggable = isEnable;
+
+    for (var item in groupData._items) {
+      item.draggable = isEnable;
+    }
+    _notify();
   }
 
   void _notify() {

@@ -202,6 +202,14 @@ class AppFlowyBoardController extends ChangeNotifier
     getGroupController(groupId)?.replaceOrInsertItem(item);
   }
 
+  void enableGroupDragging(bool isEnable) {
+    for (var groupController in _groupControllers.values) {
+      groupController.enableDragging(isEnable);
+    }
+
+    notifyListeners();
+  }
+
   /// Moves the item at [fromGroupIndex] in group with id [fromGroupId] to
   /// group with id [toGroupId] at [toGroupIndex]
   @override
