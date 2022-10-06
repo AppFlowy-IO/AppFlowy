@@ -297,7 +297,11 @@ class _AppFlowyInputState extends State<AppFlowyInput>
         _updateCaretPosition(textNodes.first, selection);
       }
     } else {
-      // close();
+      // https://github.com/flutter/flutter/issues/104944
+      // Disable IME for the Web.
+      if (kIsWeb) {
+        close();
+      }
     }
   }
 

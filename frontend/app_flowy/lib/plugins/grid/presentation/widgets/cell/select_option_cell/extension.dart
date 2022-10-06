@@ -130,14 +130,10 @@ class SelectOptionTagCell extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Flexible(
-                    fit: FlexFit.loose,
-                    flex: 2,
-                    child: SelectOptionTag.fromOption(
-                      context: context,
-                      option: option,
-                      onSelected: () => onSelected(option),
-                    ),
+                  SelectOptionTag.fromOption(
+                    context: context,
+                    option: option,
+                    onSelected: () => onSelected(option),
                   ),
                   const Spacer(),
                   ...children,

@@ -124,7 +124,7 @@ List<SelectionMenuItem> get defaultSelectionMenuItems =>
     _defaultSelectionMenuItems;
 final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   SelectionMenuItem(
-    name: AppFlowyEditorLocalizations.current.text,
+    name: () => AppFlowyEditorLocalizations.current.text,
     icon: _selectionMenuIcon('text'),
     keywords: ['text'],
     handler: (editorState, _, __) {
@@ -132,7 +132,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: AppFlowyEditorLocalizations.current.heading1,
+    name: () => AppFlowyEditorLocalizations.current.heading1,
     icon: _selectionMenuIcon('h1'),
     keywords: ['heading 1, h1'],
     handler: (editorState, _, __) {
@@ -140,7 +140,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: AppFlowyEditorLocalizations.current.heading2,
+    name: () => AppFlowyEditorLocalizations.current.heading2,
     icon: _selectionMenuIcon('h2'),
     keywords: ['heading 2, h2'],
     handler: (editorState, _, __) {
@@ -148,7 +148,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: AppFlowyEditorLocalizations.current.heading3,
+    name: () => AppFlowyEditorLocalizations.current.heading3,
     icon: _selectionMenuIcon('h3'),
     keywords: ['heading 3, h3'],
     handler: (editorState, _, __) {
@@ -156,13 +156,13 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: AppFlowyEditorLocalizations.current.image,
+    name: () => AppFlowyEditorLocalizations.current.image,
     icon: _selectionMenuIcon('image'),
     keywords: ['image'],
     handler: showImageUploadMenu,
   ),
   SelectionMenuItem(
-    name: AppFlowyEditorLocalizations.current.bulletedList,
+    name: () => AppFlowyEditorLocalizations.current.bulletedList,
     icon: _selectionMenuIcon('bulleted_list'),
     keywords: ['bulleted list', 'list', 'unordered list'],
     handler: (editorState, _, __) {
@@ -170,7 +170,15 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: AppFlowyEditorLocalizations.current.checkbox,
+    name: () => AppFlowyEditorLocalizations.current.numberedList,
+    icon: _selectionMenuIcon('number'),
+    keywords: ['numbered list', 'list', 'ordered list'],
+    handler: (editorState, _, __) {
+      insertNumberedListAfterSelection(editorState);
+    },
+  ),
+  SelectionMenuItem(
+    name: () => AppFlowyEditorLocalizations.current.checkbox,
     icon: _selectionMenuIcon('checkbox'),
     keywords: ['todo list', 'list', 'checkbox list'],
     handler: (editorState, _, __) {
@@ -178,7 +186,7 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
     },
   ),
   SelectionMenuItem(
-    name: AppFlowyEditorLocalizations.current.quote,
+    name: () => AppFlowyEditorLocalizations.current.quote,
     icon: _selectionMenuIcon('quote'),
     keywords: ['quote', 'refer'],
     handler: (editorState, _, __) {

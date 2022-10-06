@@ -81,7 +81,7 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
       delegate.cancel();
     } else {
       // Ignore the event if the dragTarget overlaps with the other column's dragTargets.
-      final columnKeys = columnsState.groupDragDragTargets[dragTargetId];
+      final columnKeys = columnsState.groupDragTargetKeys[dragTargetId];
       if (columnKeys != null) {
         final keys = columnKeys.values.toList();
         if (dragTargetData.isOverlapWithWidgets(keys)) {
@@ -102,8 +102,7 @@ class OverlappingDragTargetInterceptor extends DragTargetInterceptor {
           delegate.dragTargetDidMoveToReorderFlex(
               dragTargetId, dragTargetData, index);
 
-          columnsState
-              .getReorderFlexState(groupId: dragTargetId)
+          columnsState.reorderFlexActionMap[dragTargetId]
               ?.resetDragTargetIndex(index);
         }
       });

@@ -73,10 +73,14 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
   final ReorderFlexDraggableTargetBuilder? draggableTargetBuilder;
 
   final AnimationController insertAnimationController;
+
   final AnimationController deleteAnimationController;
 
   final bool useMoveAnimation;
+
   final bool draggable;
+
+  final double draggingOpacity;
 
   const ReorderDragTarget({
     Key? key,
@@ -94,6 +98,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
     this.onAccept,
     this.onLeave,
     this.draggableTargetBuilder,
+    this.draggingOpacity = 0.3,
   }) : super(key: key);
 
   @override
@@ -164,6 +169,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
           feedback: feedbackBuilder,
           childWhenDragging: IgnorePointerWidget(
             useIntrinsicSize: !widget.useMoveAnimation,
+            opacity: widget.draggingOpacity,
             child: widget.child,
           ),
           onDragStarted: () {
@@ -195,7 +201,10 @@ class _ReorderDragTargetState<T extends DragTargetData>
   }
 
   Widget _buildDraggableFeedback(
-      BuildContext context, BoxConstraints constraints, Widget child) {
+    BuildContext context,
+    BoxConstraints constraints,
+    Widget child,
+  ) {
     return Transform(
       transform: Matrix4.rotationZ(0),
       alignment: FractionalOffset.topLeft,
@@ -205,7 +214,7 @@ class _ReorderDragTargetState<T extends DragTargetData>
         clipBehavior: Clip.hardEdge,
         child: ConstrainedBox(
           constraints: constraints,
-          child: Opacity(opacity: 0.3, child: child),
+          child: Opacity(opacity: widget.draggingOpacity, child: child),
         ),
       ),
     );
@@ -274,8 +283,11 @@ class DragTargetAnimation {
 class IgnorePointerWidget extends StatelessWidget {
   final Widget? child;
   final bool useIntrinsicSize;
+  final double opacity;
+
   const IgnorePointerWidget({
     required this.child,
+    required this.opacity,
     this.useIntrinsicSize = false,
     Key? key,
   }) : super(key: key);
@@ -286,11 +298,10 @@ class IgnorePointerWidget extends StatelessWidget {
         ? child
         : SizedBox(width: 0.0, height: 0.0, child: child);
 
-    final opacity = useIntrinsicSize ? 0.3 : 0.0;
     return IgnorePointer(
       ignoring: true,
       child: Opacity(
-        opacity: opacity,
+        opacity: useIntrinsicSize ? opacity : 0.0,
         child: sizedChild,
       ),
     );
@@ -300,8 +311,10 @@ class IgnorePointerWidget extends StatelessWidget {
 class AbsorbPointerWidget extends StatelessWidget {
   final Widget? child;
   final bool useIntrinsicSize;
+  final double opacity;
   const AbsorbPointerWidget({
     required this.child,
+    required this.opacity,
     this.useIntrinsicSize = false,
     Key? key,
   }) : super(key: key);
@@ -312,10 +325,9 @@ class AbsorbPointerWidget extends StatelessWidget {
         ? child
         : SizedBox(width: 0.0, height: 0.0, child: child);
 
-    final opacity = useIntrinsicSize ? 0.3 : 0.0;
     return AbsorbPointer(
       child: Opacity(
-        opacity: opacity,
+        opacity: useIntrinsicSize ? opacity : 0.0,
         child: sizedChild,
       ),
     );
@@ -494,6 +506,7 @@ class _FakeDragTargetState<T extends DragTargetData>
         sizeFactor: widget.deleteAnimationController,
         axis: Axis.vertical,
         child: AbsorbPointerWidget(
+          opacity: 0.3,
           child: widget.child,
         ),
       );
@@ -503,6 +516,7 @@ class _FakeDragTargetState<T extends DragTargetData>
         axis: Axis.vertical,
         child: AbsorbPointerWidget(
           useIntrinsicSize: true,
+          opacity: 0.3,
           child: widget.child,
         ),
       );

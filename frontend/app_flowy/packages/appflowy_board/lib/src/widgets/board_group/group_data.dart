@@ -41,7 +41,7 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
   void updateGroupName(String newName) {
     if (groupData.headerData.groupName != newName) {
       groupData.headerData.groupName = newName;
-      notifyListeners();
+      _notify();
     }
   }
 
@@ -56,7 +56,7 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
     Log.debug('[$AppFlowyGroupController] $groupData remove item at $index');
     final item = groupData._items.removeAt(index);
     if (notify) {
-      notifyListeners();
+      _notify();
     }
     return item;
   }
@@ -81,7 +81,7 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
         '[$AppFlowyGroupController] $groupData move item from $fromIndex to $toIndex');
     final item = groupData._items.removeAt(fromIndex);
     groupData._items.insert(toIndex, item);
-    notifyListeners();
+    _notify();
     return true;
   }
 
@@ -102,7 +102,7 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
         groupData._items.add(item);
       }
 
-      if (notify) notifyListeners();
+      if (notify) _notify();
       return true;
     }
   }
@@ -112,7 +112,7 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
       return false;
     } else {
       groupData._items.add(item);
-      if (notify) notifyListeners();
+      if (notify) _notify();
       return true;
     }
   }
@@ -135,7 +135,7 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
           '[$AppFlowyGroupController] $groupData replace $removedItem with $newItem at $index');
     }
 
-    notifyListeners();
+    _notify();
   }
 
   void replaceOrInsertItem(AppFlowyGroupItem newItem) {
@@ -143,16 +143,20 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
     if (index != -1) {
       groupData._items.removeAt(index);
       groupData._items.insert(index, newItem);
-      notifyListeners();
+      _notify();
     } else {
       groupData._items.add(newItem);
-      notifyListeners();
+      _notify();
     }
   }
 
   bool _containsItem(AppFlowyGroupItem item) {
     return groupData._items.indexWhere((element) => element.id == item.id) !=
         -1;
+  }
+
+  void _notify() {
+    notifyListeners();
   }
 }
 

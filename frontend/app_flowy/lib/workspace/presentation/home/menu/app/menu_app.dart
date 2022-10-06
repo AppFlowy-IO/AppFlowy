@@ -89,8 +89,7 @@ class _MenuAppState extends State<MenuApp> {
                 hasIcon: false,
               ),
               header: ChangeNotifierProvider.value(
-                value:
-                    Provider.of<AppearanceSettingModel>(context, listen: true),
+                value: Provider.of<AppearanceSetting>(context, listen: true),
                 child: MenuAppHeader(widget.app),
               ),
               expanded: ViewSection(appViewData: viewDataContext),

@@ -12,7 +12,7 @@ serde_json = {version = "1.0"}
 serde_repr = "0.1"
 nanoid = "0.4.0"
 flowy-error-code = { path = "../flowy-error-code"}
-indexmap = {version = "1.8.1", features = ["serde"]}
+indexmap = {version = "1.9.1", features = ["serde"]}
 tracing = { version = "0.1", features = ["log"] }
 
 [build-dependencies]

@@ -30,9 +30,7 @@ class SettingsAppearanceView extends StatelessWidget {
               ),
               Toggle(
                 value: theme.isDark,
-                onChanged: (val) {
-                  context.read<AppearanceSettingModel>().swapTheme();
-                },
+                onChanged: (_) => setTheme(context),
                 style: ToggleStyle.big(theme),
               ),
               Text(
@@ -47,5 +45,14 @@ class SettingsAppearanceView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void setTheme(BuildContext context) {
+    final theme = context.read<AppTheme>();
+    if (theme.isDark) {
+      context.read<AppearanceSetting>().setTheme(ThemeType.light);
+    } else {
+      context.read<AppearanceSetting>().setTheme(ThemeType.dark);
+    }
   }
 }

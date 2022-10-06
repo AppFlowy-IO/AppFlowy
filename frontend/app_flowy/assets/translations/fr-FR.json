@@ -94,7 +94,20 @@
   },
   "tooltip": {
     "lightMode": "Passer en mode clair",
-    "darkMode": "Passer en mode sombre"
+    "darkMode": "Passer en mode sombre",
+    "openAsPage": "Ouvrir en tant que page",
+    "addNewRow": "Ajouter une ligne",
+    "openMenu": "Cliquer pour ouvrir le menu"
+  },
+  "sideBar": {
+    "closeSidebar": "Fermer le menu latéral",
+    "openSidebar": "Ouvrir le menu latéral"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Note exportée en Markdown",
+      "path": "Documents/flowy"
+    }
   },
   "contactsPage": {
     "title": "Contacts",
@@ -123,7 +136,7 @@
       "failedMsg": "Assurez-vous d'avoir terminé le processus de connexion dans votre navigateur."
     },
     "google": {
-      "title": "CONNEXION GOOGLE",
+      "title": "CONNEXION VIA GOOGLE",
       "instruction1": "Pour importer vos contacts Google, vous devez autoriser cette application à l'aide de votre navigateur web.",
       "instruction2": "Copiez ce code dans votre presse-papiers en cliquant sur l'icône ou en sélectionnant le texte:",
       "instruction3": "Accédez au lien suivant dans votre navigateur web et saisissez le code ci-dessus:",
@@ -135,6 +148,7 @@
     "menu": {
       "appearance": "Apparence",
       "language": "Langue",
+      "user": "Utilisateur",
       "open": "Ouvrir les paramètres"
     },
     "appearance": {
@@ -142,15 +156,12 @@
       "darkLabel": "Mode sombre"
     }
   },
-  "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
-  },
   "grid": {
     "settings": {
       "filter": "Filtrer",
-      "sortBy": "Trier par",
-      "Properties": "Propriétés"
+      "sortBy": "Filtrer par",
+      "Properties": "Propriétés",
+      "group": "Groupe"
     },
     "field": {
       "hide": "Cacher",
@@ -179,13 +190,17 @@
       "addSelectOption": "Ajouter une option",
       "optionTitle": "Options",
       "addOption": "Ajouter une option",
-      "editProperty": "Modifier la propriété"
+      "editProperty": "Modifier la propriété",
+      "newColumn": "Nouvelle colonne",
+      "deleteFieldPromptMessage": "Vous voulez supprimer cette propriété ?"
     },
     "row": {
       "duplicate": "Dupliquer",
       "delete": "Supprimer",
       "textPlaceholder": "Vide",
-      "copyProperty": "Copie de la propriété dans le presse-papiers"
+      "copyProperty": "Copie de la propriété dans le presse-papiers",
+      "count": "Nombre",
+      "newRow": "Nouvelle ligne"
     },
     "selectOption": {
       "create": "Créer",
@@ -210,6 +225,11 @@
     "date": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
+    }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "Nouveau"
     }
   }
 }

@@ -220,6 +220,7 @@ class AppLocalizationDelegate
     return const <Locale>[
       Locale.fromSubtags(languageCode: 'en'),
       Locale.fromSubtags(languageCode: 'ca'),
+      Locale.fromSubtags(languageCode: 'cs', countryCode: 'CZ'),
       Locale.fromSubtags(languageCode: 'de', countryCode: 'DE'),
       Locale.fromSubtags(languageCode: 'es', countryCode: 'VE'),
       Locale.fromSubtags(languageCode: 'fr', countryCode: 'CA'),
@@ -228,6 +229,7 @@ class AppLocalizationDelegate
       Locale.fromSubtags(languageCode: 'id', countryCode: 'ID'),
       Locale.fromSubtags(languageCode: 'it', countryCode: 'IT'),
       Locale.fromSubtags(languageCode: 'ja', countryCode: 'JP'),
+      Locale.fromSubtags(languageCode: 'nl', countryCode: 'NL'),
       Locale.fromSubtags(languageCode: 'pl', countryCode: 'PL'),
       Locale.fromSubtags(languageCode: 'pt', countryCode: 'BR'),
       Locale.fromSubtags(languageCode: 'pt', countryCode: 'PT'),

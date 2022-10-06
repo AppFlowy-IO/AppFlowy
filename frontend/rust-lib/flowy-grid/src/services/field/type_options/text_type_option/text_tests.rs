@@ -17,10 +17,10 @@ mod tests {
             type_option
                 .decode_cell_data(1647251762.into(), &field_type, &field_rev)
                 .unwrap()
-                .parser::<DateCellDataParser>()
+                .parser::<TextCellDataParser>()
                 .unwrap()
-                .date,
-            "Mar 14,2022".to_owned()
+                .as_ref(),
+            "Mar 14,2022"
         );
     }
 
@@ -40,10 +40,10 @@ mod tests {
             type_option
                 .decode_cell_data(option_id.into(), &field_type, &field_rev)
                 .unwrap()
-                .parser::<SelectOptionCellDataParser>()
+                .parser::<TextCellDataParser>()
                 .unwrap()
-                .select_options,
-            vec![done_option],
+                .to_string(),
+            done_option.name,
         );
     }
 }

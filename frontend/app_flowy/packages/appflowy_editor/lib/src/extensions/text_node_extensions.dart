@@ -54,6 +54,11 @@ extension TextNodeExtension on TextNode {
         return value == true;
       });
 
+  bool allSatisfyCodeInSelection(Selection selection) =>
+      allSatisfyInSelection(selection, BuiltInAttributeKey.code, (value) {
+        return value == true;
+      });
+
   bool allSatisfyInSelection(
     Selection selection,
     String styleKey,
