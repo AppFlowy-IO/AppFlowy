@@ -128,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 underscoreToItalic,
               ],
               selectionMenuItems: [
-                codeBlockMenuItem,
+                codeBlockItem,
                 teXBlockMenuItem,
               ],
             ),
