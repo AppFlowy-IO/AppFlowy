@@ -58,7 +58,7 @@ void main() async {
       await editor.pressLogicKey(LogicalKeyboardKey.backspace);
       expect(
         find.byType(SelectionMenuItemWidget, skipOffstage: false),
-        findsNWidgets(4),
+        findsNWidgets(5),
       );
       await editor.pressLogicKey(LogicalKeyboardKey.keyE);
       expect(

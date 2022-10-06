@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:example/plugin/code_block_node_widget.dart';
+import 'package:example/plugin/tex_block_node_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -119,6 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
               editable: true,
               customBuilders: {
                 'text/code_block': CodeBlockNodeWidgetBuilder(),
+                'tex': TeXBlockNodeWidgetBuidler(),
               },
               shortcutEvents: [
                 enterInCodeBlock,
@@ -126,7 +128,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 underscoreToItalic,
               ],
               selectionMenuItems: [
-                codeBlockItem,
+                codeBlockMenuItem,
+                teXBlockMenuItem,
               ],
             ),
           );
