@@ -139,6 +139,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.keyZ) {
       return PhysicalKeyboardKey.keyZ;
     }
+    if (this == LogicalKeyboardKey.tilde) {
+      return PhysicalKeyboardKey.backquote;
+    }
     throw UnimplementedError();
   }
 }

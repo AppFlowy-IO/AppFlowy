@@ -258,6 +258,11 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: backquoteToCodeHandler,
   ),
   ShortcutEvent(
+    key: 'Double tilde to strikethrough',
+    command: 'shift+tilde',
+    handler: doubleTildeToStrikethrough,
+  ),
+  ShortcutEvent(
     key: 'Markdown link to link',
     command: 'shift+parenthesis right',
     handler: markdownLinkToLinkHandler,
