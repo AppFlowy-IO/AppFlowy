@@ -1,0 +1,53 @@
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "frontend/rustlib/**"
+      - "shared-lib/**"
+
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "frontend/rustlib/**"
+      - "shared-lib/**"
+
+env:
+  CARGO_TERM_COLOR: always
+
+
+jobs:
+  test-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - id: rust_toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 'stable-2022-04-07'
+
+      - name: Cache Cargo
+        uses: actions/cache@v2
+        with: 
+          path: |
+            ~/.cargo
+          key: ${{ runner.os }}-cargo-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}
+
+      - name: Cache Rust
+        uses: actions/cache@v2
+        with: 
+          path: |
+            frontend/rust-lib/target
+            shared-lib/target
+          key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
+
+      - name: Install cargo-make
+        working-directory: frontend
+        run: cargo install cargo-make
+
+      - name: Run Coverage tests and generate LCOV report
+        working-directory: frontend
+        run: cargo make get_ci_test_coverage
