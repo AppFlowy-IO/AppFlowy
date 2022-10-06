@@ -142,7 +142,7 @@ class _TextField extends StatelessWidget {
             value: (option) => option);
 
         return SizedBox(
-          height: 42,
+          height: 62, // TODO dynamic height
           child: SelectOptionTextField(
             options: state.options,
             selectedOptionMap: optionMap,
