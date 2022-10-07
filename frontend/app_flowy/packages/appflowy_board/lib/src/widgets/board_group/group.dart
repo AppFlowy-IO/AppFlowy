@@ -156,9 +156,9 @@ class _AppFlowyBoardGroupState extends State<AppFlowyBoardGroup> {
             widget.onDragStarted?.call(index);
           },
           onReorder: ((fromIndex, toIndex) {
-            if (widget.phantomController.isFromGroup(widget.groupId)) {
+            if (widget.phantomController.shouldReorder(widget.groupId)) {
               widget.onReorder(widget.groupId, fromIndex, toIndex);
-              widget.phantomController.transformIndex(fromIndex, toIndex);
+              widget.phantomController.updateIndex(fromIndex, toIndex);
             }
           }),
           onDragEnded: () {
