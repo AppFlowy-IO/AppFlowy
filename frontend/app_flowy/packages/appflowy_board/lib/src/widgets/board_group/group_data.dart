@@ -52,8 +52,17 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
   /// * [notify] the default value of [notify] is true, it will notify the
   /// listener. Set to false if you do not want to notify the listeners.
   ///
-  AppFlowyGroupItem removeAt(int index, {bool notify = true}) {
-    assert(index >= 0);
+  AppFlowyGroupItem? removeAt(int index, {bool notify = true}) {
+    if (groupData._items.length <= index) {
+      Log.error(
+          'Fatal error, index is out of bounds. Index: $index,  len: ${groupData._items.length}');
+      return null;
+    }
+
+    if (index < 0) {
+      Log.error('Invalid index:$index');
+      return null;
+    }
 
     Log.debug('[$AppFlowyGroupController] $groupData remove item at $index');
     final item = groupData._items.removeAt(index);
@@ -73,12 +82,17 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
   /// Move the item from [fromIndex] to [toIndex]. It will do nothing if the
   /// [fromIndex] equal to the [toIndex].
   bool move(int fromIndex, int toIndex) {
-    assert(fromIndex >= 0);
     assert(toIndex >= 0);
+    if (groupData._items.length < fromIndex) {
+      Log.error(
+          'Out of bounds error. index: $fromIndex should not greater than ${groupData._items.length}');
+      return false;
+    }
 
     if (fromIndex == toIndex) {
       return false;
     }
+
     Log.debug(
         '[$AppFlowyGroupController] $groupData move item from $fromIndex to $toIndex');
     final item = groupData._items.removeAt(fromIndex);
@@ -126,7 +140,7 @@ class AppFlowyGroupController extends ChangeNotifier with EquatableMixin {
       Log.debug('[$AppFlowyGroupController] $groupData add $newItem');
     } else {
       if (index >= groupData._items.length) {
-        Log.warn(
+        Log.error(
             '[$AppFlowyGroupController] unexpected items length, index should less than the count of the items. Index: $index, items count: ${items.length}');
         return;
       }

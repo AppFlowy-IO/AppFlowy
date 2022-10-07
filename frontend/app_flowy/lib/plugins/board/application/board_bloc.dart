@@ -166,11 +166,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
   }
 
-  void _moveGroup(String fromColumnId, String toColumnId) {
+  void _moveGroup(String fromGroupId, String toGroupId) {
     _rowService
         .moveGroup(
-      fromGroupId: fromColumnId,
-      toGroupId: toColumnId,
+      fromGroupId: fromGroupId,
+      toGroupId: toGroupId,
     )
         .then((result) {
       result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
