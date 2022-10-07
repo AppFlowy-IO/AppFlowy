@@ -24,6 +24,7 @@ class RoundedInputField extends StatefulWidget {
   final FocusNode? focusNode;
   final TextEditingController? controller;
   final bool autoFocus;
+  final int? maxLength;
 
   const RoundedInputField({
     Key? key,
@@ -47,6 +48,7 @@ class RoundedInputField extends StatefulWidget {
     this.focusNode,
     this.controller,
     this.autoFocus = false,
+    this.maxLength,
   }) : super(key: key);
 
   @override
