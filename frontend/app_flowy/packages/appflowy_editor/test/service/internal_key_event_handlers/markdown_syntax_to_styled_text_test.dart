@@ -256,5 +256,175 @@ void main() async {
         expect(textNode.toRawString(), text);
       });
     });
+
+    group('convert asterik to italic', () {
+      Future<void> insertAsterisk(
+        EditorWidgetTester editor, {
+        int repeat = 1,
+      }) async {
+        for (var i = 0; i < repeat; i++) {
+          await editor.pressLogicKey(
+            // Presses Command + Shift + asterik
+            LogicalKeyboardKey.asterik,
+            isMetaPressed: true,
+            isShiftPressed: true,
+          );
+        }
+      }
+
+      testWidgets('*AppFlowy* to italic AppFlowy', (tester) async {
+        const text = '*AppFlowy*';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+        for (var i = 0; i < text.length; i++) {
+          await editor.insertText(textNode, text[i], i);
+        }
+        await insertAsterisk(editor);
+        final allItalic = textNode.allSatisfyItalicInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: 0,
+            endOffset: textNode.toRawString().length,
+          ),
+        );
+        expect(allItalic, true);
+        expect(textNode.toRawString(), 'AppFlowy');
+      });
+
+      testWidgets('App*Flowy* to italic AppFlowy', (tester) async {
+        const text = 'App*Flowy*';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+        for (var i = 0; i < text.length; i++) {
+          await editor.insertText(textNode, text[i], i);
+        }
+        await insertAsterisk(editor);
+        final allItalic = textNode.allSatisfyItalicInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: 3,
+            endOffset: textNode.toRawString().length,
+          ),
+        );
+        expect(allItalic, true);
+        expect(textNode.toRawString(), 'AppFlowy');
+      });
+
+      testWidgets('** nothing changes', (tester) async {
+        const text = '*';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+        for (var i = 0; i < text.length; i++) {
+          await editor.insertText(textNode, text[i], i);
+        }
+        await insertAsterisk(editor);
+        final allItalic = textNode.allSatisfyItalicInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: 0,
+            endOffset: textNode.toRawString().length,
+          ),
+        );
+        expect(allItalic, false);
+        expect(textNode.toRawString(), text);
+      });
+
+    group('convert underscore to italic', () {
+      Future<void> insertUnderscore(
+        EditorWidgetTester editor, {
+        int repeat = 1,
+      }) async {
+        for (var i = 0; i < repeat; i++) {
+          await editor.pressLogicKey(
+            // Presses Command + Shift + underscore
+            LogicalKeyboardKey.underscore,
+            isMetaPressed: true,
+            isShiftPressed: true,
+          );
+        }
+      }
+
+      testWidgets('_AppFlowy_ to italic AppFlowy', (tester) async {
+        const text = '_AppFlowy_';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+        for (var i = 0; i < text.length; i++) {
+          await editor.insertText(textNode, text[i], i);
+        }
+        await insertUnderscore(editor);
+        final allItalic = textNode.allSatisfyItalicInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: 0,
+            endOffset: textNode.toRawString().length,
+          ),
+        );
+        expect(allItalic, true);
+        expect(textNode.toRawString(), 'AppFlowy');
+      });
+
+      testWidgets('App_Flowy_ to italic AppFlowy', (tester) async {
+        const text = 'App_Flowy_';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+        for (var i = 0; i < text.length; i++) {
+          await editor.insertText(textNode, text[i], i);
+        }
+        await insertUnderscore(editor);
+        final allItalic = textNode.allSatisfyItalicInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: 3,
+            endOffset: textNode.toRawString().length,
+          ),
+        );
+        expect(allItalic, true);
+        expect(textNode.toRawString(), 'AppFlowy');
+      });
+
+      testWidgets('__ nothing changes', (tester) async {
+        const text = '_';
+        final editor = tester.editor..insertTextNode('');
+        await editor.startTesting();
+        await editor.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+        final textNode = editor.nodeAtPath([0]) as TextNode;
+        for (var i = 0; i < text.length; i++) {
+          await editor.insertText(textNode, text[i], i);
+        }
+        await insertUnderscore(editor);
+        final allItalic = textNode.allSatisfyItalicInSelection(
+          Selection.single(
+            path: [0],
+            startOffset: 0,
+            endOffset: textNode.toRawString().length,
+          ),
+        );
+        expect(allItalic, false);
+        expect(textNode.toRawString(), text);
+      });
+    });
   });
+});
 }

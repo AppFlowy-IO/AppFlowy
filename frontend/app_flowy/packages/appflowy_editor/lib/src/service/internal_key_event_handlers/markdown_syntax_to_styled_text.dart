@@ -241,3 +241,93 @@ ShortcutEventHandler markdownLinkToLinkHandler = (editorState, event) {
 
   return KeyEventResult.handled;
 };
+
+// convert *abc* to italic abc.
+ShortcutEventHandler asterikToItalicHandler = (editor, event) {
+  // Obtain the selection and selected nodes of the current document through the 'selectionService'
+  // to determine whether the selection is collapsed and whether the selected node is a text node.
+  final selectionService = editorState.service.selectionService;
+  final selection = selectionService.currentSelection.value;
+  final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
+  if (selection == null || !selection.isSingle || textNodes.length != 2) {
+    return KeyEventResult.ignored;
+  }
+
+  // Determine if an 'asterik' already exists in the text node and only once.
+  final firstAsterik = text.indexOf('*');
+  final lastAsterik = text.lastIndexOf('*');
+  if (firstAsterik == -1 ||
+      firstAsterik != lastAsterik ||
+      firstAsterik == selection.start.offset - 1) {
+    return KeyEventResult.ignored;
+  }
+
+  // Delete the previous 'asterisk',
+  // update the style of the text surrounded by the two asterisks to 'italic',
+  // and update the cursor position.
+  TransactionBuilder(editorState)
+    ..deleteText(textNode, firstAsterik, 1)
+    ..formatText(
+      textNode,
+      firstAsterik,
+      selection.end.offset - firstAsterik - 1,
+      {
+        BuiltInAttributeKey.italic: true,
+      },
+    )
+    ..afterSelection = Selection.collapsed(
+      Position(
+        path: textNode.path,
+        offset: selection.end.offset - 1,
+      ),
+    )
+    ..commit();
+
+  return KeyEventResult.handled;
+};
+
+// convert _abc_ to italic abc.
+ShortcutEventHandler underscoreToItalicHandler = (editor, event) {
+  // Obtain the selection and selected nodes of the current document through the 'selectionService'
+  // to determine whether the selection is collapsed and whether the selected node is a text node.
+  final selectionService = editorState.service.selectionService;
+  final selection = selectionService.currentSelection.value;
+  final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
+  if (selection == null || !selection.isSingle || textNodes.length != 2) {
+    return KeyEventResult.ignored;
+  }
+
+  final textNode = textNodes.first;
+  final text = textNode.toRawString();
+
+  // Determine if an 'underscore' already exists in the text node and only once.
+  final firstUnderscore = text.indexOf('_');
+  final lastUnderscore = text.lastIndexOf('_');
+  if (firstUnderscore == -1 ||
+      firstUnderscore != lastUnderscore ||
+      firstUnderscore == selection.start.offset - 1) {
+    return KeyEventResult.ignored;
+  }
+  // Delete the previous 'underscore',
+  // update the style of the text surrounded by the two underscores to 'italic',
+  // and update the cursor position.
+  TransactionBuilder(editorState)
+    ..deleteText(textNode, firstUnderscore, 1)
+    ..formatText(
+      textNode,
+      firstUnderscore,
+      selection.end.offset - firstUnderscore - 1,
+      {
+        BuiltInAttributeKey.italic: true,
+      },
+    )
+    ..afterSelection = Selection.collapsed(
+      Position(
+        path: textNode.path,
+        offset: selection.end.offset - 1,
+      ),
+    )
+    ..commit();
+
+  return KeyEventResult.handled;
+};

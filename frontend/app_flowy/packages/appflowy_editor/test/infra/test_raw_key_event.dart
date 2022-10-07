@@ -79,9 +79,6 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.enter) {
       return PhysicalKeyboardKey.enter;
     }
-    if (this == LogicalKeyboardKey.underscore) {
-      return PhysicalKeyboardKey.minus;
-    }
     if (this == LogicalKeyboardKey.space) {
       return PhysicalKeyboardKey.space;
     }

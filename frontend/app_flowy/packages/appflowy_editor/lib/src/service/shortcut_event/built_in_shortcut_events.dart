@@ -16,7 +16,6 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/tab_hand
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespace_handler.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 import 'package:flutter/foundation.dart';
-import 'package:appflowy_editor/src/service/internal_key_event_handlers/italcis_handler.dart';
 
 //
 List<ShortcutEvent> builtInShortcutEvents = [
@@ -278,6 +277,20 @@ List<ShortcutEvent> builtInShortcutEvents = [
     key: 'Markdown link to link',
     command: 'shift+parenthesis right',
     handler: markdownLinkToLinkHandler,
+  ),
+  ShortcutEvent(
+    key: 'Asterik to italic',
+    command: 'meta+shift+asterik',
+    windowsCommand: 'ctrl+shift+asterik',
+    linuxCommand: 'ctrl+shift+asterik',
+    handler: asterikToItalicHandler,
+  ),
+  ShortcutEvent(
+    key: 'Underscore to italic',
+    command: 'meta+shift+underscore',
+    windowsCommand: 'ctrl+shift+underscore',
+    linuxCommand: 'ctrl+shift+underscore',
+    handler: underscoreToItalicHandler,
   ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,
