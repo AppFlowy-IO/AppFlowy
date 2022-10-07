@@ -1,8 +1,14 @@
+# 0.0.9
+* Enable slide to select text in card
+* Fix some bugs
+
 # 0.0.8
 * Enable drag and drop group  
+
 # 0.0.7
 * Rename some classes
 * Add documentation
+
 # 0.0.6
 * Support scroll to bottom
 * Fix some bugs
