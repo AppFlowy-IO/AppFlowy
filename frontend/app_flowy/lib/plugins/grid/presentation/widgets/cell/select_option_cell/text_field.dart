@@ -21,6 +21,7 @@ class SelectOptionTextField extends StatefulWidget {
   final Function(String) onSubmitted;
   final Function(String) newText;
   final VoidCallback? onClick;
+  final int? maxLength;
 
   const SelectOptionTextField({
     required this.options,
@@ -30,6 +31,7 @@ class SelectOptionTextField extends StatefulWidget {
     required this.onSubmitted,
     required this.newText,
     this.onClick,
+    this.maxLength,
     TextEditingController? textController,
     FocusNode? focusNode,
     Key? key,
@@ -94,7 +96,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               }
             },
             maxLines: 1,
-            maxLength: 30,
+            maxLength: widget.maxLength,
             maxLengthEnforcement:
                 MaxLengthEnforcement.truncateAfterCompositionEnds,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),

@@ -43,11 +43,13 @@ class _InputTextFieldState extends State<InputTextField> {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
+    final height = widget.maxLength == null ? 36.0 : 56.0;
+
     return RoundedInputField(
       controller: _controller,
       focusNode: _focusNode,
       autoFocus: true,
-      height: 56, // TODO dynamic height
+      height: height,
       maxLength: widget.maxLength,
       style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
       normalBorderColor: theme.shader4,
