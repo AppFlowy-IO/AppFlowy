@@ -42,6 +42,9 @@ class _BoardTextCellState extends State<BoardTextCell> {
       focusNode.requestFocus();
     }
 
+    // If the focusNode lost its focus, the widget's editableNotifier will
+    // set to false, which will cause the [EditableRowNotifier] to receive
+    // end edit event.
     focusNode.addListener(() {
       if (!focusNode.hasFocus) {
         focusWhenInit = false;
@@ -131,7 +134,11 @@ class _BoardTextCellState extends State<BoardTextCell> {
       padding: EdgeInsets.symmetric(
         vertical: BoardSizes.cardCellVPadding,
       ),
-      child: FlowyText.medium(state.content, fontSize: 14),
+      child: FlowyText.medium(
+        state.content,
+        fontSize: 14,
+        maxLines: null, // Enable multiple lines
+      ),
     );
   }
 

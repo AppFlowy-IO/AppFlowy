@@ -159,6 +159,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           focusedDay: state.focusedDay,
           rowHeight: 40,
           calendarFormat: state.format,
+          daysOfWeekHeight: 40,
           headerStyle: HeaderStyle(
             formatButtonVisible: false,
             titleCentered: true,
@@ -168,6 +169,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             rightChevronPadding: EdgeInsets.zero,
             rightChevronMargin: EdgeInsets.zero,
             rightChevronIcon: svgWidget("home/arrow_right"),
+            headerMargin: const EdgeInsets.only(bottom: 8.0),
           ),
           daysOfWeekStyle: DaysOfWeekStyle(
             dowTextFormatter: (date, locale) =>
@@ -182,13 +184,31 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             ),
           ),
           calendarStyle: CalendarStyle(
+            cellMargin: const EdgeInsets.all(3),
+            defaultDecoration: BoxDecoration(
+              color: theme.surface,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
+            ),
             selectedDecoration: BoxDecoration(
               color: theme.main1,
-              shape: BoxShape.circle,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
             todayDecoration: BoxDecoration(
               color: theme.shader4,
-              shape: BoxShape.circle,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
+            ),
+            weekendDecoration: BoxDecoration(
+              color: theme.surface,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
+            ),
+            outsideDecoration: BoxDecoration(
+              color: theme.surface,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
             selectedTextStyle: TextStyle(
               color: theme.surface,

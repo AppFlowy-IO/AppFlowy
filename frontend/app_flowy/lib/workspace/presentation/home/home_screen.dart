@@ -176,11 +176,18 @@ class _HomeScreenState extends State<HomeScreen> {
       cursor: SystemMouseCursors.resizeLeftRight,
       child: GestureDetector(
           dragStartBehavior: DragStartBehavior.down,
-          onPanUpdate: ((details) {
-            context
-                .read<HomeBloc>()
-                .add(HomeEvent.editPanelResized(details.delta.dx));
-          }),
+          onHorizontalDragStart: (details) => context
+              .read<HomeBloc>()
+              .add(const HomeEvent.editPanelResizeStart()),
+          onHorizontalDragUpdate: (details) => context
+              .read<HomeBloc>()
+              .add(HomeEvent.editPanelResized(details.localPosition.dx)),
+          onHorizontalDragEnd: (details) => context
+              .read<HomeBloc>()
+              .add(const HomeEvent.editPanelResizeEnd()),
+          onHorizontalDragCancel: () => context
+              .read<HomeBloc>()
+              .add(const HomeEvent.editPanelResizeEnd()),
           behavior: HitTestBehavior.translucent,
           child: SizedBox(
             width: 10,
@@ -208,7 +215,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 top: 0,
                 animate: true)
             .animate(layout.animDuration, Curves.easeOut),
-        homeMenuResizer.positioned(left: layout.homePageLOffset - 5),
         bubble
             .positioned(
               right: 20,
@@ -235,6 +241,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: layout.menuWidth,
                 bottom: 0,
                 animate: true)
+            .animate(layout.animDuration, Curves.easeOut),
+        homeMenuResizer
+            .positioned(left: layout.homePageLOffset - 5)
             .animate(layout.animDuration, Curves.easeOut),
       ],
     );

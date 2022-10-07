@@ -3,7 +3,6 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_l
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 
 // Handle delete text.
 ShortcutEventHandler deleteTextHandler = (editorState, event) {
@@ -84,6 +83,11 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     }
   } else {
     if (textNodes.isEmpty) {
+      if (nonTextNodes.isNotEmpty) {
+        transactionBuilder.afterSelection =
+            Selection.collapsed(selection.start);
+      }
+      transactionBuilder.commit();
       return KeyEventResult.handled;
     }
     final startPosition = selection.start;

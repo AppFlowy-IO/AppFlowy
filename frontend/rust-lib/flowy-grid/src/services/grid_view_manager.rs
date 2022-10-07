@@ -65,14 +65,14 @@ impl GridViewManager {
     /// When the row was created, we may need to modify the [RowRevision] according to the [CreateRowParams].
     pub(crate) async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         for view_editor in self.view_editors.iter() {
-            view_editor.will_create_row(row_rev, params).await;
+            view_editor.will_create_view_row(row_rev, params).await;
         }
     }
 
     /// Notify the view that the row was created. For the moment, the view is just sending notifications.
     pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
         for view_editor in self.view_editors.iter() {
-            view_editor.did_create_row(row_pb, params).await;
+            view_editor.did_create_view_row(row_pb, params).await;
         }
     }
 
@@ -84,7 +84,7 @@ impl GridViewManager {
             }
             Some(row_rev) => {
                 for view_editor in self.view_editors.iter() {
-                    view_editor.did_update_row(&row_rev).await;
+                    view_editor.did_update_view_row(&row_rev).await;
                 }
             }
         }
@@ -102,33 +102,33 @@ impl GridViewManager {
 
     pub(crate) async fn did_delete_row(&self, row_rev: Arc<RowRevision>) {
         for view_editor in self.view_editors.iter() {
-            view_editor.did_delete_row(&row_rev).await;
+            view_editor.did_delete_view_row(&row_rev).await;
         }
     }
 
     pub(crate) async fn get_setting(&self) -> FlowyResult<GridSettingPB> {
         let view_editor = self.get_default_view_editor().await?;
-        Ok(view_editor.get_setting().await)
+        Ok(view_editor.get_view_setting().await)
     }
 
     pub(crate) async fn get_filters(&self) -> FlowyResult<Vec<GridFilterConfigurationPB>> {
         let view_editor = self.get_default_view_editor().await?;
-        Ok(view_editor.get_filters().await)
+        Ok(view_editor.get_view_filters().await)
     }
 
     pub(crate) async fn insert_or_update_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        view_editor.insert_filter(params).await
+        view_editor.insert_view_filter(params).await
     }
 
     pub(crate) async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        view_editor.delete_filter(params).await
+        view_editor.delete_view_filter(params).await
     }
 
     pub(crate) async fn load_groups(&self) -> FlowyResult<RepeatedGridGroupPB> {
         let view_editor = self.get_default_view_editor().await?;
-        let groups = view_editor.load_groups().await?;
+        let groups = view_editor.load_view_groups().await?;
         Ok(RepeatedGridGroupPB { items: groups })
     }
 
@@ -139,12 +139,12 @@ impl GridViewManager {
 
     pub(crate) async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        view_editor.delete_group(params).await
+        view_editor.delete_view_group(params).await
     }
 
     pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.move_group(params).await?;
+        let _ = view_editor.move_view_group(params).await?;
         Ok(())
     }
 
@@ -161,7 +161,7 @@ impl GridViewManager {
         let mut row_changeset = RowChangeset::new(row_rev.id.clone());
         let view_editor = self.get_default_view_editor().await?;
         let group_changesets = view_editor
-            .move_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
+            .move_view_group_row(&row_rev, &mut row_changeset, &to_group_id, to_row_id.clone())
             .await;
 
         if !row_changeset.is_empty() {
