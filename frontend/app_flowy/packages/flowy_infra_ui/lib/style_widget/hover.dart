@@ -8,19 +8,21 @@ class FlowyHover extends StatefulWidget {
   final HoverStyle style;
   final HoverBuilder? builder;
   final Widget? child;
-  final bool Function()? setSelected;
+  final bool Function()? isSelected;
   final void Function(bool)? onHover;
   final MouseCursor? cursor;
+  final bool Function()? buildWhen;
 
-  const FlowyHover(
-      {Key? key,
-      this.builder,
-      this.child,
-      required this.style,
-      this.setSelected,
-      this.onHover,
-      this.cursor})
-      : super(key: key);
+  const FlowyHover({
+    Key? key,
+    this.builder,
+    this.child,
+    required this.style,
+    this.isSelected,
+    this.onHover,
+    this.cursor,
+    this.buildWhen,
+  }) : super(key: key);
 
   @override
   State<FlowyHover> createState() => _FlowyHoverState();
@@ -35,15 +37,23 @@ class _FlowyHoverState extends State<FlowyHover> {
       cursor: widget.cursor != null ? widget.cursor! : SystemMouseCursors.click,
       opaque: false,
       onEnter: (p) {
-        setState(() => _onHover = true);
-        if (widget.onHover != null) {
-          widget.onHover!(true);
+        if (_onHover) return;
+
+        if (widget.buildWhen?.call() ?? true) {
+          setState(() => _onHover = true);
+          if (widget.onHover != null) {
+            widget.onHover!(true);
+          }
         }
       },
       onExit: (p) {
-        setState(() => _onHover = false);
-        if (widget.onHover != null) {
-          widget.onHover!(false);
+        if (_onHover == false) return;
+
+        if (widget.buildWhen?.call() ?? true) {
+          setState(() => _onHover = false);
+          if (widget.onHover != null) {
+            widget.onHover!(false);
+          }
         }
       },
       child: renderWidget(),
@@ -52,8 +62,8 @@ class _FlowyHoverState extends State<FlowyHover> {
 
   Widget renderWidget() {
     var showHover = _onHover;
-    if (!showHover && widget.setSelected != null) {
-      showHover = widget.setSelected!();
+    if (!showHover && widget.isSelected != null) {
+      showHover = widget.isSelected!();
     }
 
     final child = widget.child ?? widget.builder!(context, _onHover);
