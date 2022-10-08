@@ -139,6 +139,12 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.keyZ) {
       return PhysicalKeyboardKey.keyZ;
     }
+    if (this == LogicalKeyboardKey.asterisk) {
+      return PhysicalKeyboardKey.digit8;
+    }
+    if (this == LogicalKeyboardKey.underscore) {
+      return PhysicalKeyboardKey.minus;
+    }
     if (this == LogicalKeyboardKey.tilde) {
       return PhysicalKeyboardKey.backquote;
     }
