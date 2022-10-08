@@ -83,6 +83,11 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     }
   } else {
     if (textNodes.isEmpty) {
+      if (nonTextNodes.isNotEmpty) {
+        transactionBuilder.afterSelection =
+            Selection.collapsed(selection.start);
+      }
+      transactionBuilder.commit();
       return KeyEventResult.handled;
     }
     final startPosition = selection.start;

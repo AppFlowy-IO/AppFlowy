@@ -97,10 +97,8 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
         child: SizedBox(
           height: itemHeight,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (icon != null) icon,
-              HSpace(ActionListSizes.itemHPadding),
+              if (icon != null) ...[icon, HSpace(ActionListSizes.itemHPadding)],
               FlowyText.medium(action.name, fontSize: 12),
             ],
           ),

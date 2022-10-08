@@ -195,7 +195,7 @@ bool _allSatisfyInSelection(
     return false;
   }
 
-  return textNodes.allSatisfyInSelection(selection, styleKey, <bool>(value) {
+  return textNodes.allSatisfyInSelection(selection, styleKey, (value) {
     return value == matchValue;
   });
 }

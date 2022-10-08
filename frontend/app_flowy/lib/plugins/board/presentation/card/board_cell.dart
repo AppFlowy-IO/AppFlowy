@@ -76,6 +76,10 @@ class EditableRowNotifier {
 }
 
 abstract class EditableCell {
+  // Each cell notifier will be bind to the [EditableRowNotifier], which enable
+  // the row notifier receive its cells event. For example: begin editing the
+  // cell or end editing the cell.
+  //
   EditableCellNotifier? get editableNotifier;
 }
 

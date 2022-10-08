@@ -6,7 +6,11 @@ import 'package:flutter_math_fork/flutter_math.dart';
 
 SelectionMenuItem teXBlockMenuItem = SelectionMenuItem(
   name: () => 'Tex',
-  icon: const Icon(Icons.text_fields_rounded),
+  icon: const Icon(
+    Icons.text_fields_rounded,
+    color: Colors.black,
+    size: 18.0,
+  ),
   keywords: ['tex, latex, katex'],
   handler: (editorState, _, __) {
     final selection =

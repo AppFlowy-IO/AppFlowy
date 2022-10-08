@@ -119,12 +119,20 @@ where
                 self.mut_configuration(|configuration| {
                     let from_index = configuration.groups.iter().position(|group| group.id == from_id);
                     let to_index = configuration.groups.iter().position(|group| group.id == to_id);
-                    tracing::info!("Configuration groups: {:?} ", configuration.groups);
                     if let (Some(from), Some(to)) = &(from_index, to_index) {
                         tracing::trace!("Move group from index:{:?} to index:{:?}", from_index, to_index);
                         let group = configuration.groups.remove(*from);
                         configuration.groups.insert(*to, group);
                     }
+                    tracing::debug!(
+                        "Group order: {:?} ",
+                        configuration
+                            .groups
+                            .iter()
+                            .map(|group| group.name.clone())
+                            .collect::<Vec<String>>()
+                            .join(",")
+                    );
 
                     from_index.is_some() && to_index.is_some()
                 })?;

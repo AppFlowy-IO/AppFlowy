@@ -87,12 +87,12 @@ class BoardDataController {
               onUpdatedGroup.call(changeset.updateGroups);
             }
 
-            if (changeset.insertedGroups.isNotEmpty) {
-              onInsertedGroup.call(changeset.insertedGroups);
-            }
-
             if (changeset.deletedGroups.isNotEmpty) {
               onDeletedGroup.call(changeset.deletedGroups);
+            }
+
+            if (changeset.insertedGroups.isNotEmpty) {
+              onInsertedGroup.call(changeset.insertedGroups);
             }
           },
           (e) => _onError?.call(e),

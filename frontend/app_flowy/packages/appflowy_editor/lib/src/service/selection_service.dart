@@ -457,6 +457,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
           rect: cursorRect,
           color: widget.cursorColor,
           layerLink: node.layerLink,
+          shouldBlink: selectable.shouldCursorBlink,
+          cursorStyle: selectable.cursorStyle,
         ),
       );
 

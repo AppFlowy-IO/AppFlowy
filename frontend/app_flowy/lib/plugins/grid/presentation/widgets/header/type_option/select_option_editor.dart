@@ -106,6 +106,7 @@ class _OptionNameTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return InputTextField(
       text: name,
+      maxLength: 30,
       onCanceled: () {},
       onDone: (optionName) {
         if (name != optionName) {
