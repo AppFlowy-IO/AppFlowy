@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:example/plugin/code_block_node_widget.dart';
+import 'package:example/plugin/horizontal_rule_node_widget.dart';
 import 'package:example/plugin/tex_block_node_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -121,15 +122,18 @@ class _MyHomePageState extends State<MyHomePage> {
               customBuilders: {
                 'text/code_block': CodeBlockNodeWidgetBuilder(),
                 'tex': TeXBlockNodeWidgetBuidler(),
+                'horizontal_rule': HorizontalRuleWidgetBuilder(),
               },
               shortcutEvents: [
                 enterInCodeBlock,
                 ignoreKeysInCodeBlock,
                 underscoreToItalic,
+                insertHorizontalRule,
               ],
               selectionMenuItems: [
-                codeBlockItem,
+                codeBlockMenuItem,
                 teXBlockMenuItem,
+                horizontalRuleMenuItem,
               ],
             ),
           );

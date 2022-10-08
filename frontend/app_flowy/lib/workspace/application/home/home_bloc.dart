@@ -1,5 +1,6 @@
 import 'package:app_flowy/user/application/user_listener.dart';
 import 'package:app_flowy/workspace/application/edit_panel/edit_context.dart';
+import 'package:flowy_infra/time/duration.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error-code/code.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -50,13 +51,24 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           unauthorized: (_Unauthorized value) {
             emit(state.copyWith(unauthorized: true));
           },
-          collapseMenu: (e) {
+          collapseMenu: (_CollapseMenu e) {
             emit(state.copyWith(isMenuCollapsed: !state.isMenuCollapsed));
           },
-          editPanelResized: (e) {
-            final newOffset =
-                (state.resizeOffset + e.offset).clamp(-50, 200).toDouble();
-            emit(state.copyWith(resizeOffset: newOffset));
+          editPanelResizeStart: (_EditPanelResizeStart e) {
+            emit(state.copyWith(
+              resizeType: MenuResizeType.drag,
+              resizeStart: state.resizeOffset,
+            ));
+          },
+          editPanelResized: (_EditPanelResized e) {
+            final newPosition =
+                (e.offset + state.resizeStart).clamp(-50, 200).toDouble();
+            if (state.resizeOffset != newPosition) {
+              emit(state.copyWith(resizeOffset: newPosition));
+            }
+          },
+          editPanelResizeEnd: (_EditPanelResizeEnd e) {
+            emit(state.copyWith(resizeType: MenuResizeType.slide));
           },
         );
       },
@@ -78,6 +90,22 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 }
 
+enum MenuResizeType {
+  slide,
+  drag,
+}
+
+extension MenuResizeTypeExtension on MenuResizeType {
+  Duration duration() {
+    switch (this) {
+      case MenuResizeType.drag:
+        return 30.milliseconds;
+      case MenuResizeType.slide:
+        return 350.milliseconds;
+    }
+  }
+}
+
 @freezed
 class HomeEvent with _$HomeEvent {
   const factory HomeEvent.initial() = _Initial;
@@ -91,6 +119,8 @@ class HomeEvent with _$HomeEvent {
   const factory HomeEvent.unauthorized(String msg) = _Unauthorized;
   const factory HomeEvent.collapseMenu() = _CollapseMenu;
   const factory HomeEvent.editPanelResized(double offset) = _EditPanelResized;
+  const factory HomeEvent.editPanelResizeStart() = _EditPanelResizeStart;
+  const factory HomeEvent.editPanelResizeEnd() = _EditPanelResizeEnd;
 }
 
 @freezed
@@ -103,6 +133,8 @@ class HomeState with _$HomeState {
     required bool unauthorized,
     required bool isMenuCollapsed,
     required double resizeOffset,
+    required double resizeStart,
+    required MenuResizeType resizeType,
   }) = _HomeState;
 
   factory HomeState.initial(CurrentWorkspaceSettingPB workspaceSetting) =>
@@ -114,5 +146,7 @@ class HomeState with _$HomeState {
         unauthorized: false,
         isMenuCollapsed: false,
         resizeOffset: 0,
+        resizeStart: 0,
+        resizeType: MenuResizeType.slide,
       );
 }

@@ -2,6 +2,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/time/duration.dart';
+import 'package:flutter/services.dart';
 
 class RoundedInputField extends StatefulWidget {
   final String? hintText;
@@ -24,6 +25,7 @@ class RoundedInputField extends StatefulWidget {
   final FocusNode? focusNode;
   final TextEditingController? controller;
   final bool autoFocus;
+  final int? maxLength;
 
   const RoundedInputField({
     Key? key,
@@ -47,6 +49,7 @@ class RoundedInputField extends StatefulWidget {
     this.focusNode,
     this.controller,
     this.autoFocus = false,
+    this.maxLength,
   }) : super(key: key);
 
   @override
@@ -89,6 +92,9 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
           initialValue: widget.initialValue,
           focusNode: widget.focusNode,
           autofocus: widget.autoFocus,
+          maxLength: widget.maxLength,
+          maxLengthEnforcement:
+              MaxLengthEnforcement.truncateAfterCompositionEnds,
           onChanged: (value) {
             inputText = value;
             if (widget.onChanged != null) {

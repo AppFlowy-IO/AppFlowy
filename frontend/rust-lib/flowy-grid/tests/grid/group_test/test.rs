@@ -358,6 +358,36 @@ async fn group_move_group_test() {
             from_group_index: 0,
             to_group_index: 1,
         },
+        AssertGroupRowCount {
+            group_index: 0,
+            row_count: 2,
+        },
+        AssertGroup {
+            group_index: 0,
+            expected_group: group_1,
+        },
+        AssertGroupRowCount {
+            group_index: 1,
+            row_count: 2,
+        },
+        AssertGroup {
+            group_index: 1,
+            expected_group: group_0,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn group_move_group_row_after_move_group_test() {
+    let mut test = GridGroupTest::new().await;
+    let group_0 = test.group_at_index(0).await;
+    let group_1 = test.group_at_index(1).await;
+    let scripts = vec![
+        MoveGroup {
+            from_group_index: 0,
+            to_group_index: 1,
+        },
         AssertGroup {
             group_index: 0,
             expected_group: group_1,
@@ -365,6 +395,20 @@ async fn group_move_group_test() {
         AssertGroup {
             group_index: 1,
             expected_group: group_0,
+        },
+        MoveRow {
+            from_group_index: 0,
+            from_row_index: 0,
+            to_group_index: 1,
+            to_row_index: 0,
+        },
+        AssertGroupRowCount {
+            group_index: 0,
+            row_count: 1,
+        },
+        AssertGroupRowCount {
+            group_index: 1,
+            row_count: 3,
         },
     ];
     test.run_scripts(scripts).await;

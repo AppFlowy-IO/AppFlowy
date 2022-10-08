@@ -623,7 +623,7 @@ impl GridRevisionEditor {
                 self.view_manager
                     .move_group_row(row_rev, to_group_id, to_row_id.clone(), |row_changeset| {
                         wrap_future(async move {
-                            tracing::trace!("Move group row cause row data changed: {:?}", row_changeset);
+                            tracing::trace!("Row data changed: {:?}", row_changeset);
                             let cell_changesets = row_changeset
                                 .cell_by_field_id
                                 .into_iter()

@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 typedef SelectionMenuItemHandler = void Function(
-    EditorState editorState,
-    SelectionMenuService menuService,
-    BuildContext context,
-    );
+  EditorState editorState,
+  SelectionMenuService menuService,
+  BuildContext context,
+);
 
 /// Selection Menu Item
 class SelectionMenuItem {
@@ -23,7 +23,7 @@ class SelectionMenuItem {
     this.handler = (editorState, menuService, context) {
       _deleteToSlash(editorState);
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            handler(editorState, menuService, context);
+        handler(editorState, menuService, context);
       });
     };
   }

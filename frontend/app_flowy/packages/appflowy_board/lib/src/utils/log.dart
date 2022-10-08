@@ -32,4 +32,8 @@ class Log {
           'AppFlowyBoard: ❗️[Trace] - ${DateTime.now().second}=> $message');
     }
   }
+
+  static void error(String? message) {
+    debugPrint('AppFlowyBoard: ❌[Error] - ${DateTime.now().second}=> $message');
+  }
 }
