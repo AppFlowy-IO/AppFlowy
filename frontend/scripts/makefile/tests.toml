@@ -18,7 +18,6 @@ RUST_LOG=info cargo test --no-default-features
 
 [tasks.clean_profraw_files]
 description = "Cleans profraw files that are created by `cargo test`"
-# private = true
 script_runner = "@duckscript"
 script = [
   """
@@ -43,9 +42,10 @@ script_runner = "@shell"
 script = [
   """
   echo --- Running coverage tests ---
+  export PATH="$PATH":"$HOME/.pub-cache/bin"
   cd rust-lib/
 
-  CARGO_INCREMENTAL=1 \
+  CARGO_INCREMENTAL=0 \
   RUSTFLAGS='-C instrument-coverage' \
   LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
   cargo test --no-default-features --features="sync"
@@ -61,7 +61,7 @@ script = [
   echo --- Running coverage tests ---
   cd ../shared-lib
 
-  CARGO_INCREMENTAL=1 \
+  CARGO_INCREMENTAL=0 \
   RUSTFLAGS='-C instrument-coverage' \
   LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
   cargo test --no-default-features 
