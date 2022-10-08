@@ -11,12 +11,11 @@ import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/widgets/left_bar_item.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:clipboard/clipboard.dart';
-import 'package:dartz/dartz.dart' as dartz;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -130,7 +129,6 @@ class DocumentShareButton extends StatelessWidget {
         },
         child: BlocBuilder<DocShareBloc, DocShareState>(
           builder: (context, state) {
-            final theme = context.watch<AppTheme>();
             return ChangeNotifierProvider.value(
               value: Provider.of<AppearanceSetting>(context, listen: true),
               child: Selector<AppearanceSetting, Locale>(
@@ -140,14 +138,7 @@ class DocumentShareButton extends StatelessWidget {
                     height: 30,
                     width: 100,
                   ),
-                  child: RoundedTextButton(
-                    title: LocaleKeys.shareAction_buttonText.tr(),
-                    fontSize: 12,
-                    borderRadius: Corners.s6Border,
-                    color: theme.main1,
-                    onPressed: () =>
-                        _showActionList(context, const Offset(0, 10)),
-                  ),
+                  child: const ShareActionList(),
                 ),
               ),
             );
@@ -171,11 +162,30 @@ class DocumentShareButton extends StatelessWidget {
   }
 
   void _handleExportError(FlowyError error) {}
+}
 
-  void _showActionList(BuildContext context, Offset offset) {
-    final actionList = ShareActions(onSelected: (result) {
-      result.fold(() {}, (action) {
-        switch (action) {
+class ShareActionList extends StatelessWidget {
+  const ShareActionList({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
+    return PopoverActionList<ShareActionWrapper>(
+      direction: PopoverDirection.bottomWithCenterAligned,
+      actions: ShareAction.values
+          .map((action) => ShareActionWrapper(action))
+          .toList(),
+      withChild: (controller) {
+        return RoundedTextButton(
+          title: LocaleKeys.shareAction_buttonText.tr(),
+          fontSize: 12,
+          borderRadius: Corners.s6Border,
+          color: theme.main1,
+          onPressed: () => controller.show(),
+        );
+      },
+      onSelected: (action, controller) {
+        switch (action.inner) {
           case ShareAction.markdown:
             context
                 .read<DocShareBloc>()
@@ -189,45 +199,10 @@ class DocumentShareButton extends StatelessWidget {
                 .show(context);
             break;
         }
-      });
-    });
-    actionList.show(
-      context,
-      anchorDirection: AnchorDirection.bottomWithRightAligned,
-      anchorOffset: offset,
+        controller.close();
+      },
     );
   }
-}
-
-class ShareActions with ActionList<ShareActionWrapper>, FlowyOverlayDelegate {
-  final Function(dartz.Option<ShareAction>) onSelected;
-  final _items =
-      ShareAction.values.map((action) => ShareActionWrapper(action)).toList();
-
-  ShareActions({required this.onSelected});
-
-  @override
-  double get itemHeight => 22;
-
-  @override
-  List<ShareActionWrapper> get items => _items;
-
-  @override
-  void Function(dartz.Option<ShareActionWrapper> p1) get selectCallback =>
-      (result) {
-        result.fold(
-          () => onSelected(dartz.none()),
-          (wrapper) => onSelected(
-            dartz.some(wrapper.inner),
-          ),
-        );
-      };
-
-  @override
-  FlowyOverlayDelegate? get delegate => this;
-
-  @override
-  void didRemove() => onSelected(dartz.none());
 }
 
 enum ShareAction {
@@ -235,7 +210,7 @@ enum ShareAction {
   copyLink,
 }
 
-class ShareActionWrapper extends ActionItem {
+class ShareActionWrapper extends ActionCell {
   final ShareAction inner;
 
   ShareActionWrapper(this.inner);
