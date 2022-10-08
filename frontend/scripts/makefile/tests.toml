@@ -42,7 +42,11 @@ script_runner = "@shell"
 script = [
   """
   echo --- Running coverage tests ---
+
+  # Install Protobuf compiler
+  cargo make install_protobuf_compiler
   export PATH="$PATH":"$HOME/.pub-cache/bin"
+
   cd rust-lib/
 
   CARGO_INCREMENTAL=0 \
@@ -59,6 +63,11 @@ script_runner = "@shell"
 script = [
   """
   echo --- Running coverage tests ---
+
+  # Install Protobuf compiler
+  cargo make install_protobuf_compiler
+  export PATH="$PATH":"$HOME/.pub-cache/bin"
+
   cd ../shared-lib
 
   CARGO_INCREMENTAL=0 \
