@@ -1,16 +1,18 @@
+name: Rust coverage tests
+
 on:
   push:
     branches:
       - "main"
     paths:
-      - "frontend/rustlib/**"
+      - "frontend/rust-lib/**"
       - "shared-lib/**"
 
   pull_request:
     branches:
       - "main"
     paths:
-      - "frontend/rustlib/**"
+      - "frontend/rust-lib/**"
       - "shared-lib/**"
 
 env:
