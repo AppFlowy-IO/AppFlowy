@@ -68,7 +68,6 @@ class _SettingButtonState extends State<_SettingButton> {
       child: FlowyIconButton(
         hoverColor: theme.hover,
         width: 22,
-        onPressed: () {},
         icon: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 3.0),
           child: svgWidget("grid/setting/setting", color: theme.iconColor),

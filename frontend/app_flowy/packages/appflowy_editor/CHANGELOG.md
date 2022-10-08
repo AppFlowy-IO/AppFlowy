@@ -1,3 +1,13 @@
+## 0.0.6
+* Add three plugins: Code Block, LateX, and Horizontal rule.
+* Support web platform.
+* Support more markdown syntax conversions.
+    * `~ ~` to format text as strikethrough
+    * `_ _` to format text as italic
+    * \` \` to format text as code
+    * `[]()` to format text as link
+* Fix some bugs.
+
 ## 0.0.5
 * Support customize the hotkeys for a shortcut on different platforms.
 * Support customize a theme.

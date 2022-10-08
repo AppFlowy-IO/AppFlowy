@@ -256,6 +256,7 @@ class _CreateOptionTextField extends StatelessWidget {
         final text = state.newOptionName.foldRight("", (a, previous) => a);
         return InputTextField(
           autoClearWhenDone: true,
+          maxLength: 30,
           text: text,
           onCanceled: () {
             context

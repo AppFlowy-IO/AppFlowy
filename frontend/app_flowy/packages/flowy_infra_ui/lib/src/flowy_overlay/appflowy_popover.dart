@@ -11,7 +11,7 @@ class AppFlowyPopover extends StatelessWidget {
   final Widget Function(BuildContext context) popupBuilder;
   final PopoverDirection direction;
   final int triggerActions;
-  final BoxConstraints? constraints;
+  final BoxConstraints constraints;
   final void Function()? onClose;
   final PopoverMutex? mutex;
   final Offset? offset;
@@ -58,12 +58,12 @@ class AppFlowyPopover extends StatelessWidget {
 
 class _PopoverContainer extends StatelessWidget {
   final Widget child;
-  final BoxConstraints? constraints;
+  final BoxConstraints constraints;
   final EdgeInsets margin;
   const _PopoverContainer({
     required this.child,
     required this.margin,
-    this.constraints,
+    required this.constraints,
     Key? key,
   }) : super(key: key);
 
@@ -74,6 +74,7 @@ class _PopoverContainer extends StatelessWidget {
       theme.surface,
       theme.shadowColor.withOpacity(0.15),
     );
+
     return Material(
       type: MaterialType.transparency,
       child: Container(
@@ -81,6 +82,14 @@ class _PopoverContainer extends StatelessWidget {
         decoration: decoration,
         constraints: constraints,
         child: child,
+
+        // SingleChildScrollView(
+        //   scrollDirection: Axis.horizontal,
+        //   child: ConstrainedBox(
+        //     constraints: constraints,
+        //     child: child,
+        //   ),
+        // ),
       ),
     );
   }

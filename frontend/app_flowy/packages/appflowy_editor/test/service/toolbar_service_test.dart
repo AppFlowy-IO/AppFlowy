@@ -4,7 +4,6 @@ import 'package:appflowy_editor/src/render/toolbar/toolbar_item_widget.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../infra/test_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {

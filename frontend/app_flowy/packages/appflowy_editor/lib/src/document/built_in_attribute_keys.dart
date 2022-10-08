@@ -37,6 +37,7 @@ class BuiltInAttributeKey {
   static String checkbox = 'checkbox';
   static String code = 'code';
   static String number = 'number';
+  static String defaultFormating = 'defaultFormating';
 
   static List<String> partialStyleKeys = [
     BuiltInAttributeKey.bold,
