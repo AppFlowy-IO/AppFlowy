@@ -13,12 +13,14 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
             flutter_profile: development-linux-x86_64
           - os: macos-latest
             flutter_profile: development-mac-x86_64
+          - os: windows-latest
+            flutter_profile: development-windows-x86_64
     runs-on: ${{ matrix.os }}
 
     steps:
