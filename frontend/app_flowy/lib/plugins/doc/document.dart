@@ -175,7 +175,7 @@ class ShareActionList extends StatelessWidget {
       actions: ShareAction.values
           .map((action) => ShareActionWrapper(action))
           .toList(),
-      withChild: (controller) {
+      buildChild: (controller) {
         return RoundedTextButton(
           title: LocaleKeys.shareAction_buttonText.tr(),
           fontSize: 12,

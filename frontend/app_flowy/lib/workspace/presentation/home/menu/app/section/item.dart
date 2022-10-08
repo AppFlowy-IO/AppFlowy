@@ -177,7 +177,7 @@ class ViewDisclosureButton extends StatelessWidget {
       actions: ViewDisclosureAction.values
           .map((action) => ViewDisclosureActionWrapper(action))
           .toList(),
-      withChild: (controller) {
+      buildChild: (controller) {
         return FlowyIconButton(
           iconPadding: const EdgeInsets.all(5),
           width: 26,
@@ -192,6 +192,9 @@ class ViewDisclosureButton extends StatelessWidget {
         onEdit(false);
         onAction(action.inner);
         controller.close();
+      },
+      onClosed: () {
+        onEdit(false);
       },
     );
   }
