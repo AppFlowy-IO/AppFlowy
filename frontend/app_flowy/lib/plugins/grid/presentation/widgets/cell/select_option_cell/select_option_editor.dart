@@ -142,11 +142,12 @@ class _TextField extends StatelessWidget {
             value: (option) => option);
 
         return SizedBox(
-          height: 42,
+          height: 62,
           child: SelectOptionTextField(
             options: state.options,
             selectedOptionMap: optionMap,
             distanceToText: _editorPanelWidth * 0.7,
+            maxLength: 30,
             tagController: _tagController,
             onClick: () => popoverMutex.close(),
             newText: (text) {
