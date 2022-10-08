@@ -95,7 +95,6 @@ void main() async {
       testWidgets('**AppFlowy** application to bold AppFlowy only',
           (tester) async {
         const boldText = '**AppFlowy*';
-        const normalText = ' application';
         final editor = tester.editor..insertTextNode('');
         await editor.startTesting();
         await editor.updateSelection(
@@ -107,10 +106,6 @@ void main() async {
           await editor.insertText(textNode, boldText[i], i);
         }
         await insertAsterisk(editor);
-        for (var i = 0; i < normalText.length; i++) {
-          await editor.insertText(
-              textNode, normalText[i], i + boldText.length - 3);
-        }
         final boldTextLength = boldText.replaceAll('*', '').length;
         final appFlowyBold = textNode.allSatisfyBoldInSelection(
           Selection.single(
@@ -119,16 +114,8 @@ void main() async {
             endOffset: boldTextLength,
           ),
         );
-        final applicationNormal = textNode.allSatisfyBoldInSelection(
-          Selection.single(
-            path: [0],
-            startOffset: boldTextLength,
-            endOffset: textNode.toRawString().length,
-          ),
-        );
         expect(appFlowyBold, true);
-        expect(applicationNormal, false);
-        expect(textNode.toRawString(), 'AppFlowy application');
+        expect(textNode.toRawString(), 'AppFlowy');
       });
 
       testWidgets('**** nothing changes', (tester) async {
@@ -240,7 +227,6 @@ void main() async {
       testWidgets('__AppFlowy__ application to bold AppFlowy only',
           (tester) async {
         const boldText = '__AppFlowy_';
-        const normalText = ' application';
         final editor = tester.editor..insertTextNode('');
         await editor.startTesting();
         await editor.updateSelection(
@@ -252,10 +238,6 @@ void main() async {
           await editor.insertText(textNode, boldText[i], i);
         }
         await insertUnderscore(editor);
-        for (var i = 0; i < normalText.length; i++) {
-          await editor.insertText(
-              textNode, normalText[i], i + boldText.length - 3);
-        }
         final boldTextLength = boldText.replaceAll('_', '').length;
         final appFlowyBold = textNode.allSatisfyBoldInSelection(
           Selection.single(
@@ -264,16 +246,8 @@ void main() async {
             endOffset: boldTextLength,
           ),
         );
-        final applicationNormal = textNode.allSatisfyBoldInSelection(
-          Selection.single(
-            path: [0],
-            startOffset: boldTextLength,
-            endOffset: textNode.toRawString().length,
-          ),
-        );
         expect(appFlowyBold, true);
-        expect(applicationNormal, false);
-        expect(textNode.toRawString(), 'AppFlowy application');
+        expect(textNode.toRawString(), 'AppFlowy');
       });
 
       testWidgets('____ nothing changes', (tester) async {

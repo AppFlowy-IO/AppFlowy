@@ -1,7 +1,6 @@
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/document/attributes.dart';
 import 'package:appflowy_editor/src/document/node.dart';
 import 'package:appflowy_editor/src/document/path.dart';
@@ -115,17 +114,21 @@ class TransactionBuilder {
 
   /// Inserts content at a specified index.
   /// Optionally, you may specify formatting attributes that are applied to the inserted string.
-  /// When no formatting attributes specified, the formating attributes before the insert position will be used if they don't have defaultFormatting flag set
-  /// When defaultFormatting flag is set before the insert position, it will be cleared.
-  /// When insert position is within a text having defaultFormatting flag set, the flag will be ignored and clear (formatting attributes of the text will be applied)
+  /// By default, the formatting attributes before the insert position will be used.
   insertText(
     TextNode node,
     int index,
     String content, {
     Attributes? attributes,
   }) {
-    final newAttributes = attributes ?? _getAttributesAt(node, index);
-
+    var newAttributes = attributes;
+    if (index != 0 && attributes == null) {
+      newAttributes =
+          node.delta.slice(max(index - 1, 0), index).first.attributes;
+      if (newAttributes != null) {
+        newAttributes = Attributes.from(newAttributes);
+      }
+    }
     textEdit(
       node,
       () => Delta()
@@ -223,39 +226,5 @@ class TransactionBuilder {
       beforeSelection: beforeSelection,
       afterSelection: afterSelection,
     );
-  }
-
-  Attributes? _getAttributesAt(TextNode node, int index) {
-    if (index == 0) {
-      return null;
-    }
-
-    final previousAttributes =
-        node.delta.slice(index - 1, index).first.attributes;
-
-    final nextAttributes = node.delta.length > index
-        ? node.delta.slice(index, index + 1).first.attributes
-        : null;
-
-    if (previousAttributes == null) {
-      return null;
-    }
-
-    if (previousAttributes.containsKey(BuiltInAttributeKey.defaultFormating)) {
-      Attributes newAttributes = Map.from(previousAttributes)
-        ..removeWhere((key, _) => key == BuiltInAttributeKey.defaultFormating);
-
-      if (node.previous != null) {
-        updateNode(node.next!, newAttributes);
-        if (previousAttributes == nextAttributes) {
-          updateNode(node.next!, newAttributes);
-          return newAttributes;
-        }
-      }
-
-      return null;
-    }
-
-    return Attributes.from(previousAttributes);
   }
 }
