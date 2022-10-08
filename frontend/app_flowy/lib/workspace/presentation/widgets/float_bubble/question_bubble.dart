@@ -45,7 +45,7 @@ class BubbleActionList extends StatelessWidget {
     return PopoverActionList<PopoverAction>(
       direction: PopoverDirection.topWithRightAligned,
       actions: actions,
-      withChild: (controller) {
+      buildChild: (controller) {
         return FlowyTextButton(
           '?',
           tooltip: LocaleKeys.questionBubble_help.tr(),
