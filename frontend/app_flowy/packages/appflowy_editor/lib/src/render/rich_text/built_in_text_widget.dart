@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:flutter/material.dart';
 
 abstract class BuiltInTextWidget extends StatefulWidget {

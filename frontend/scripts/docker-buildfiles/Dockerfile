@@ -47,7 +47,7 @@ RUN pacman -Syy && \
 RUN xdg-user-dirs-update
 
 COPY --from=builder /usr/sbin/yay /usr/sbin/yay
-RUN yay -S --noconfirm gtk3
+RUN yay -S --noconfirm gtk3 libkeybinder3
 
 ARG user=appflowy
 ARG uid=1000

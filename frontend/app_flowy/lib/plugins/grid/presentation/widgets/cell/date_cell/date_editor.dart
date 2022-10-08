@@ -1,6 +1,8 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
@@ -157,6 +159,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           focusedDay: state.focusedDay,
           rowHeight: 40,
           calendarFormat: state.format,
+          daysOfWeekHeight: 40,
           headerStyle: HeaderStyle(
             formatButtonVisible: false,
             titleCentered: true,
@@ -166,15 +169,46 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             rightChevronPadding: EdgeInsets.zero,
             rightChevronMargin: EdgeInsets.zero,
             rightChevronIcon: svgWidget("home/arrow_right"),
+            headerMargin: const EdgeInsets.only(bottom: 8.0),
+          ),
+          daysOfWeekStyle: DaysOfWeekStyle(
+            dowTextFormatter: (date, locale) =>
+                DateFormat.E(locale).format(date).toUpperCase(),
+            weekdayStyle: TextStyle(
+              fontSize: 13,
+              color: theme.shader3,
+            ),
+            weekendStyle: TextStyle(
+              fontSize: 13,
+              color: theme.shader3,
+            ),
           ),
           calendarStyle: CalendarStyle(
+            cellMargin: const EdgeInsets.all(3),
+            defaultDecoration: BoxDecoration(
+              color: theme.surface,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
+            ),
             selectedDecoration: BoxDecoration(
               color: theme.main1,
-              shape: BoxShape.circle,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
             todayDecoration: BoxDecoration(
               color: theme.shader4,
-              shape: BoxShape.circle,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
+            ),
+            weekendDecoration: BoxDecoration(
+              color: theme.surface,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
+            ),
+            outsideDecoration: BoxDecoration(
+              color: theme.surface,
+              shape: BoxShape.rectangle,
+              borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
             selectedTextStyle: TextStyle(
               color: theme.surface,
@@ -230,11 +264,13 @@ class _IncludeTimeButton extends StatelessWidget {
                 FlowyText.medium(LocaleKeys.grid_field_includeTime.tr(),
                     fontSize: 14),
                 const Spacer(),
-                Switch(
+                Toggle(
                   value: includeTime,
-                  onChanged: (newValue) => context
+                  onChanged: (value) => context
                       .read<DateCalBloc>()
-                      .add(DateCalEvent.setIncludeTime(newValue)),
+                      .add(DateCalEvent.setIncludeTime(!value)),
+                  style: ToggleStyle.big(theme),
+                  padding: EdgeInsets.zero,
                 ),
               ],
             ),
@@ -350,7 +386,7 @@ class _DateTypeOptionButton extends StatelessWidget {
           offset: const Offset(20, 0),
           constraints: BoxConstraints.loose(const Size(140, 100)),
           child: FlowyButton(
-            text: FlowyText.medium(title, fontSize: 12),
+            text: FlowyText.medium(title, fontSize: 14),
             hoverColor: theme.hover,
             margin: kMargin,
             rightIcon: svgWidget("grid/more", color: theme.iconColor),

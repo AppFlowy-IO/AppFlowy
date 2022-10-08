@@ -11,10 +11,11 @@ import 'reorder_phantom/phantom_controller.dart';
 import '../rendering/board_overlay.dart';
 
 class AppFlowyBoardScrollController {
-  AppFlowyBoardState? _groupState;
+  AppFlowyBoardState? _boardState;
 
-  void scrollToBottom(String groupId, void Function(BuildContext)? completed) {
-    _groupState?.reorderFlexActionMap[groupId]?.scrollToBottom(completed);
+  void scrollToBottom(String groupId,
+      {void Function(BuildContext)? completed}) {
+    _boardState?.reorderFlexActionMap[groupId]?.scrollToBottom(completed);
   }
 }
 
@@ -39,9 +40,6 @@ class AppFlowyBoardConfig {
 }
 
 class AppFlowyBoard extends StatelessWidget {
-  /// The direction to use as the main axis.
-  final Axis direction = Axis.vertical;
-
   /// The widget that will be rendered as the background of the board.
   final Widget? background;
 
@@ -94,11 +92,7 @@ class AppFlowyBoard extends StatelessWidget {
   ///
   final AppFlowyBoardScrollController? boardScrollController;
 
-  final AppFlowyBoardState _groupState = AppFlowyBoardState();
-
-  late final BoardPhantomController _phantomController;
-
-  AppFlowyBoard({
+  const AppFlowyBoard({
     required this.controller,
     required this.cardBuilder,
     this.background,
@@ -109,12 +103,7 @@ class AppFlowyBoard extends StatelessWidget {
     this.groupConstraints = const BoxConstraints(maxWidth: 200),
     this.config = const AppFlowyBoardConfig(),
     Key? key,
-  }) : super(key: key) {
-    _phantomController = BoardPhantomController(
-      delegate: controller,
-      groupsState: _groupState,
-    );
-  }
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -122,8 +111,14 @@ class AppFlowyBoard extends StatelessWidget {
       value: controller,
       child: Consumer<AppFlowyBoardController>(
         builder: (context, notifier, child) {
+          final boardState = AppFlowyBoardState();
+          BoardPhantomController phantomController = BoardPhantomController(
+            delegate: controller,
+            groupsState: boardState,
+          );
+
           if (boardScrollController != null) {
-            boardScrollController!._groupState = _groupState;
+            boardScrollController!._boardState = boardState;
           }
 
           return _AppFlowyBoardContent(
@@ -131,14 +126,14 @@ class AppFlowyBoard extends StatelessWidget {
             dataController: controller,
             scrollController: scrollController,
             scrollManager: boardScrollController,
-            groupState: _groupState,
+            boardState: boardState,
             background: background,
-            delegate: _phantomController,
+            delegate: phantomController,
             groupConstraints: groupConstraints,
             cardBuilder: cardBuilder,
             footerBuilder: footerBuilder,
             headerBuilder: headerBuilder,
-            phantomController: _phantomController,
+            phantomController: phantomController,
             onReorder: controller.moveGroup,
           );
         },
@@ -156,7 +151,7 @@ class _AppFlowyBoardContent extends StatefulWidget {
   final ReorderFlexConfig reorderFlexConfig;
   final BoxConstraints groupConstraints;
   final AppFlowyBoardScrollController? scrollManager;
-  final AppFlowyBoardState groupState;
+  final AppFlowyBoardState boardState;
   final AppFlowyBoardCardBuilder cardBuilder;
   final AppFlowyBoardHeaderBuilder? headerBuilder;
   final AppFlowyBoardFooterBuilder? footerBuilder;
@@ -169,7 +164,7 @@ class _AppFlowyBoardContent extends StatefulWidget {
     required this.delegate,
     required this.dataController,
     required this.scrollManager,
-    required this.groupState,
+    required this.boardState,
     this.scrollController,
     this.background,
     required this.groupConstraints,
@@ -178,7 +173,10 @@ class _AppFlowyBoardContent extends StatefulWidget {
     this.headerBuilder,
     required this.phantomController,
     Key? key,
-  })  : reorderFlexConfig = const ReorderFlexConfig(),
+  })  : reorderFlexConfig = const ReorderFlexConfig(
+          direction: Axis.horizontal,
+          dragDirection: Axis.horizontal,
+        ),
         super(key: key);
 
   @override
@@ -198,7 +196,7 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
           reorderFlexId: widget.dataController.identifier,
           acceptedReorderFlexId: widget.dataController.groupIds,
           delegate: widget.delegate,
-          columnsState: widget.groupState,
+          columnsState: widget.boardState,
         );
 
         final reorderFlex = ReorderFlex(
@@ -206,9 +204,7 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
           scrollController: widget.scrollController,
           onReorder: widget.onReorder,
           dataSource: widget.dataController,
-          direction: Axis.horizontal,
           interceptor: interceptor,
-          reorderable: true,
           children: _buildColumns(),
         );
 
@@ -254,7 +250,7 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
         );
 
         final reorderFlexAction = ReorderFlexActionImpl();
-        widget.groupState.reorderFlexActionMap[columnData.id] =
+        widget.boardState.reorderFlexActionMap[columnData.id] =
             reorderFlexAction;
 
         return ChangeNotifierProvider.value(
@@ -275,8 +271,8 @@ class _AppFlowyBoardContentState extends State<_AppFlowyBoardContent> {
                 onReorder: widget.dataController.moveGroupItem,
                 cornerRadius: widget.config.cornerRadius,
                 backgroundColor: widget.config.groupBackgroundColor,
-                dragStateStorage: widget.groupState,
-                dragTargetKeys: widget.groupState,
+                dragStateStorage: widget.boardState,
+                dragTargetKeys: widget.boardState,
                 reorderFlexAction: reorderFlexAction,
               );
 

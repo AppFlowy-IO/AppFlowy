@@ -16,13 +16,13 @@ class FlexDragTargetData extends DragTargetData {
   @override
   final int draggingIndex;
 
-  final DraggingState _state;
+  final DraggingState _draggingState;
 
-  Widget? get draggingWidget => _state.draggingWidget;
+  Widget? get draggingWidget => _draggingState.draggingWidget;
 
-  Size? get feedbackSize => _state.feedbackSize;
+  Size? get feedbackSize => _draggingState.feedbackSize;
 
-  bool get isDragging => _state.isDragging();
+  bool get isDragging => _draggingState.isDragging();
 
   final String dragTargetId;
 
@@ -40,8 +40,8 @@ class FlexDragTargetData extends DragTargetData {
     required this.reorderFlexId,
     required this.reorderFlexItem,
     required this.dragTargetIndexKey,
-    required DraggingState state,
-  }) : _state = state;
+    required DraggingState draggingState,
+  }) : _draggingState = draggingState;
 
   @override
   String toString() {

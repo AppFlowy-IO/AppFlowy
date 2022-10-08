@@ -263,9 +263,20 @@ List<ShortcutEvent> builtInShortcutEvents = [
     command: 'shift+underscore',
     handler: doubleUnderscoresToBold,
   ),
+  ShortcutEvent(
     key: 'Backquote to code',
     command: 'backquote',
     handler: backquoteToCodeHandler,
+  ),
+  ShortcutEvent(
+    key: 'Double tilde to strikethrough',
+    command: 'shift+tilde',
+    handler: doubleTildeToStrikethrough,
+  ),
+  ShortcutEvent(
+    key: 'Markdown link to link',
+    command: 'shift+parenthesis right',
+    handler: markdownLinkToLinkHandler,
   ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,

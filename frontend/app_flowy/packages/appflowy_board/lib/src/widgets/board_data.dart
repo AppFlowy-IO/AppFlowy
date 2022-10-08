@@ -138,7 +138,11 @@ class AppFlowyBoardController extends ChangeNotifier
   /// groups or get ready to reinitialize the [AppFlowyBoard].
   void clear() {
     _groupDatas.clear();
+    for (final group in _groupControllers.values) {
+      group.dispose();
+    }
     _groupControllers.clear();
+
     notifyListeners();
   }
 
@@ -202,6 +206,14 @@ class AppFlowyBoardController extends ChangeNotifier
     getGroupController(groupId)?.replaceOrInsertItem(item);
   }
 
+  void enableGroupDragging(bool isEnable) {
+    for (var groupController in _groupControllers.values) {
+      groupController.enableDragging(isEnable);
+    }
+
+    notifyListeners();
+  }
+
   /// Moves the item at [fromGroupIndex] in group with id [fromGroupId] to
   /// group with id [toGroupId] at [toGroupIndex]
   @override
@@ -215,6 +227,8 @@ class AppFlowyBoardController extends ChangeNotifier
     final fromGroupController = getGroupController(fromGroupId)!;
     final toGroupController = getGroupController(toGroupId)!;
     final fromGroupItem = fromGroupController.removeAt(fromGroupIndex);
+    if (fromGroupItem == null) return;
+
     if (toGroupController.items.length > toGroupIndex) {
       assert(toGroupController.items[toGroupIndex] is PhantomGroupItem);
 
@@ -275,7 +289,9 @@ class AppFlowyBoardController extends ChangeNotifier
         Log.trace(
             '[$BoardPhantomController] update $groupId:$index to $groupId:$newIndex');
         final item = groupController.removeAt(index, notify: false);
-        groupController.insert(newIndex, item, notify: false);
+        if (item != null) {
+          groupController.insert(newIndex, item, notify: false);
+        }
       }
     }
   }

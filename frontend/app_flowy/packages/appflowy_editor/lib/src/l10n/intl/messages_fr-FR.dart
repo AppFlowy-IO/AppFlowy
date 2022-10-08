@@ -22,21 +22,21 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "bold": MessageLookupByLibrary.simpleMessage(""),
-        "bulletedList": MessageLookupByLibrary.simpleMessage(""),
-        "checkbox": MessageLookupByLibrary.simpleMessage(""),
-        "embedCode": MessageLookupByLibrary.simpleMessage(""),
-        "heading1": MessageLookupByLibrary.simpleMessage(""),
-        "heading2": MessageLookupByLibrary.simpleMessage(""),
-        "heading3": MessageLookupByLibrary.simpleMessage(""),
-        "highlight": MessageLookupByLibrary.simpleMessage(""),
-        "image": MessageLookupByLibrary.simpleMessage(""),
-        "italic": MessageLookupByLibrary.simpleMessage(""),
-        "link": MessageLookupByLibrary.simpleMessage(""),
-        "numberedList": MessageLookupByLibrary.simpleMessage(""),
-        "quote": MessageLookupByLibrary.simpleMessage(""),
-        "strikethrough": MessageLookupByLibrary.simpleMessage(""),
-        "text": MessageLookupByLibrary.simpleMessage(""),
-        "underline": MessageLookupByLibrary.simpleMessage("")
+        "bold": MessageLookupByLibrary.simpleMessage("Gras"),
+        "bulletedList": MessageLookupByLibrary.simpleMessage("List à puces"),
+        "checkbox": MessageLookupByLibrary.simpleMessage("Case à cocher"),
+        "embedCode": MessageLookupByLibrary.simpleMessage("Incorporer code"),
+        "heading1": MessageLookupByLibrary.simpleMessage("Titre 1"),
+        "heading2": MessageLookupByLibrary.simpleMessage("Titre 2"),
+        "heading3": MessageLookupByLibrary.simpleMessage("Titre 3"),
+        "highlight": MessageLookupByLibrary.simpleMessage("Surligné"),
+        "image": MessageLookupByLibrary.simpleMessage("Image"),
+        "italic": MessageLookupByLibrary.simpleMessage("Italique"),
+        "link": MessageLookupByLibrary.simpleMessage("Lien"),
+        "numberedList": MessageLookupByLibrary.simpleMessage("Liste numérotée"),
+        "quote": MessageLookupByLibrary.simpleMessage("Citation"),
+        "strikethrough": MessageLookupByLibrary.simpleMessage("Barré"),
+        "text": MessageLookupByLibrary.simpleMessage("Texte"),
+        "underline": MessageLookupByLibrary.simpleMessage("Souligné")
       };
 }

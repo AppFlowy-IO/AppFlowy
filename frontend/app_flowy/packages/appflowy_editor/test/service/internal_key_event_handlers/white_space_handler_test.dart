@@ -3,7 +3,6 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespa
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {

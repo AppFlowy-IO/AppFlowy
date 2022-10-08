@@ -145,6 +145,9 @@ extension on LogicalKeyboardKey {
     if (this == LogicalKeyboardKey.underscore) {
       return PhysicalKeyboardKey.minus;
     }
+    if (this == LogicalKeyboardKey.tilde) {
+      return PhysicalKeyboardKey.backquote;
+    }
     throw UnimplementedError();
   }
 }

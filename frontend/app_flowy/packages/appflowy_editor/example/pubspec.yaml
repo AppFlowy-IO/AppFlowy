@@ -44,6 +44,7 @@ dependencies:
   file_picker: ^5.0.1
   universal_html: ^2.0.8
   highlight: ^0.7.0
+  flutter_math_fork: ^0.6.3+1
 
 dev_dependencies:
   flutter_test:

@@ -333,8 +333,10 @@ void showLinkMenu(
   final textNode = node.first as TextNode;
   String? linkText;
   if (textNode.allSatisfyLinkInSelection(selection)) {
-    linkText =
-        textNode.getAttributeInSelection(selection, BuiltInAttributeKey.href);
+    linkText = textNode.getAttributeInSelection<String>(
+      selection,
+      BuiltInAttributeKey.href,
+    );
   }
   _linkMenuOverlay = OverlayEntry(builder: (context) {
     return Positioned(

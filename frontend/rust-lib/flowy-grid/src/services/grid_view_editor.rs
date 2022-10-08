@@ -79,7 +79,7 @@ impl GridViewRevisionEditor {
         Ok(json_str)
     }
 
-    pub(crate) async fn will_create_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
+    pub(crate) async fn will_create_view_row(&self, row_rev: &mut RowRevision, params: &CreateRowParams) {
         if params.group_id.is_none() {
             return;
         }
@@ -92,7 +92,7 @@ impl GridViewRevisionEditor {
             .await;
     }
 
-    pub(crate) async fn did_create_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
+    pub(crate) async fn did_create_view_row(&self, row_pb: &RowPB, params: &CreateRowParams) {
         // Send the group notification if the current view has groups
         match params.group_id.as_ref() {
             None => {}
@@ -115,7 +115,7 @@ impl GridViewRevisionEditor {
     }
 
     #[tracing::instrument(level = "trace", skip_all)]
-    pub(crate) async fn did_delete_row(&self, row_rev: &RowRevision) {
+    pub(crate) async fn did_delete_view_row(&self, row_rev: &RowRevision) {
         // Send the group notification if the current view has groups;
         let changesets = self
             .mut_group_controller(|group_controller, field_rev| group_controller.did_delete_row(row_rev, &field_rev))
@@ -129,7 +129,7 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn did_update_row(&self, row_rev: &RowRevision) {
+    pub(crate) async fn did_update_view_row(&self, row_rev: &RowRevision) {
         let changesets = self
             .mut_group_controller(|group_controller, field_rev| group_controller.did_update_row(row_rev, &field_rev))
             .await;
@@ -141,7 +141,7 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn move_group_row(
+    pub(crate) async fn move_view_group_row(
         &self,
         row_rev: &RowRevision,
         row_changeset: &mut RowChangeset,
@@ -167,14 +167,14 @@ impl GridViewRevisionEditor {
     }
     /// Only call once after grid view editor initialized
     #[tracing::instrument(level = "trace", skip(self))]
-    pub(crate) async fn load_groups(&self) -> FlowyResult<Vec<GroupPB>> {
+    pub(crate) async fn load_view_groups(&self) -> FlowyResult<Vec<GroupPB>> {
         let groups = self.group_controller.read().await.groups();
         tracing::trace!("Number of groups: {}", groups.len());
         Ok(groups.into_iter().map(GroupPB::from).collect())
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub(crate) async fn move_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
+    pub(crate) async fn move_view_group(&self, params: MoveGroupParams) -> FlowyResult<()> {
         let _ = self
             .group_controller
             .write()
@@ -206,13 +206,13 @@ impl GridViewRevisionEditor {
         self.group_controller.read().await.field_id().to_owned()
     }
 
-    pub(crate) async fn get_setting(&self) -> GridSettingPB {
+    pub(crate) async fn get_view_setting(&self) -> GridSettingPB {
         let field_revs = self.field_delegate.get_field_revs().await;
         let grid_setting = make_grid_setting(&*self.pad.read().await, &field_revs);
         grid_setting
     }
 
-    pub(crate) async fn get_filters(&self) -> Vec<GridFilterConfigurationPB> {
+    pub(crate) async fn get_view_filters(&self) -> Vec<GridFilterConfigurationPB> {
         let field_revs = self.field_delegate.get_field_revs().await;
         match self.pad.read().await.get_all_filters(&field_revs) {
             None => vec![],
@@ -245,7 +245,7 @@ impl GridViewRevisionEditor {
         Ok(())
     }
 
-    pub(crate) async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
+    pub(crate) async fn delete_view_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
         self.modify(|pad| {
             let changeset = pad.delete_filter(&params.field_id, &params.field_type_rev, &params.group_id)?;
             Ok(changeset)
@@ -253,7 +253,7 @@ impl GridViewRevisionEditor {
         .await
     }
 
-    pub(crate) async fn insert_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
+    pub(crate) async fn insert_view_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
         self.modify(|pad| {
             let filter_rev = FilterConfigurationRevision {
                 id: gen_grid_filter_id(),
@@ -267,7 +267,7 @@ impl GridViewRevisionEditor {
         .await
     }
 
-    pub(crate) async fn delete_filter(&self, delete_filter: DeleteFilterParams) -> FlowyResult<()> {
+    pub(crate) async fn delete_view_filter(&self, delete_filter: DeleteFilterParams) -> FlowyResult<()> {
         self.modify(|pad| {
             let changeset = pad.delete_filter(
                 &delete_filter.field_id,
@@ -324,7 +324,7 @@ impl GridViewRevisionEditor {
     }
 
     async fn notify_did_update_setting(&self) {
-        let setting = self.get_setting().await;
+        let setting = self.get_view_setting().await;
         send_dart_notification(&self.view_id, GridNotification::DidUpdateGridSetting)
             .payload(setting)
             .send();
