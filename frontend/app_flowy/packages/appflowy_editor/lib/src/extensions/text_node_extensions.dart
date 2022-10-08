@@ -19,8 +19,9 @@ extension TextNodeExtension on TextNode {
       }
       final length = op.length;
       if (start < endOffset && start + length > startOffset) {
-        if (op.attributes?.containsKey(styleKey) == true) {
-          return op.attributes![styleKey];
+        final attributes = op.attributes;
+        if (attributes != null && attributes[styleKey] is T?) {
+          return attributes[styleKey];
         }
       }
       start += length;
@@ -29,42 +30,40 @@ extension TextNodeExtension on TextNode {
   }
 
   bool allSatisfyLinkInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, BuiltInAttributeKey.href, <bool>(value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.href, (value) {
         return value != null;
       });
 
   bool allSatisfyBoldInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, BuiltInAttributeKey.bold, <bool>(value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.bold, (value) {
         return value == true;
       });
 
   bool allSatisfyItalicInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, BuiltInAttributeKey.italic,
-          <bool>(value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.italic, (value) {
         return value == true;
       });
 
   bool allSatisfyUnderlineInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, BuiltInAttributeKey.underline,
-          <bool>(value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.underline, (value) {
         return value == true;
       });
 
   bool allSatisfyStrikethroughInSelection(Selection selection) =>
       allSatisfyInSelection(selection, BuiltInAttributeKey.strikethrough,
-          <bool>(value) {
+          (value) {
         return value == true;
       });
 
   bool allSatisfyCodeInSelection(Selection selection) =>
-      allSatisfyInSelection(selection, BuiltInAttributeKey.code, <bool>(value) {
+      allSatisfyInSelection(selection, BuiltInAttributeKey.code, (value) {
         return value == true;
       });
 
   bool allSatisfyInSelection(
     Selection selection,
     String styleKey,
-    bool Function<T>(T value) test,
+    bool Function(dynamic value) test,
   ) {
     if (BuiltInAttributeKey.globalStyleKeys.contains(styleKey)) {
       if (attributes.containsKey(styleKey)) {
@@ -129,40 +128,40 @@ extension TextNodesExtension on List<TextNode> {
   bool allSatisfyBoldInSelection(Selection selection) => allSatisfyInSelection(
         selection,
         BuiltInAttributeKey.bold,
-        <bool>(value) => value == true,
+        (value) => value == true,
       );
 
   bool allSatisfyItalicInSelection(Selection selection) =>
       allSatisfyInSelection(
         selection,
         BuiltInAttributeKey.italic,
-        <bool>(value) => value == true,
+        (value) => value == true,
       );
 
   bool allSatisfyUnderlineInSelection(Selection selection) =>
       allSatisfyInSelection(
         selection,
         BuiltInAttributeKey.underline,
-        <bool>(value) => value == true,
+        (value) => value == true,
       );
 
   bool allSatisfyStrikethroughInSelection(Selection selection) =>
       allSatisfyInSelection(
         selection,
         BuiltInAttributeKey.strikethrough,
-        <bool>(value) => value == true,
+        (value) => value == true,
       );
 
   bool allSatisfyInSelection(
     Selection selection,
     String styleKey,
-    bool Function<T>(T value) test,
+    bool Function(dynamic value) test,
   ) {
     if (isEmpty) {
       return false;
     }
     if (length == 1) {
-      return first.allSatisfyInSelection(selection, styleKey, <bool>(value) {
+      return first.allSatisfyInSelection(selection, styleKey, (value) {
         return test(value);
       });
     } else {

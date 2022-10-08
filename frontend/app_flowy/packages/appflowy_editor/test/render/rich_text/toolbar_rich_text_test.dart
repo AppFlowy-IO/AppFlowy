@@ -229,7 +229,7 @@ void main() async {
         node.allSatisfyInSelection(
           code,
           BuiltInAttributeKey.code,
-          <bool>(value) {
+          (value) {
             return value == true;
           },
         ),
@@ -319,7 +319,7 @@ void main() async {
         node.allSatisfyInSelection(
           selection,
           BuiltInAttributeKey.backgroundColor,
-          <bool>(value) {
+          (value) {
             return value == blue;
           },
         ),

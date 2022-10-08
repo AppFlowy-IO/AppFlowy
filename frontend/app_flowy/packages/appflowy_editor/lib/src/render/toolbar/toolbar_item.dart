@@ -73,7 +73,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.heading,
-      <bool>(value) => value == BuiltInAttributeKey.h1,
+      (value) => value == BuiltInAttributeKey.h1,
     ),
     handler: (editorState, context) =>
         formatHeading(editorState, BuiltInAttributeKey.h1),
@@ -90,7 +90,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.heading,
-      <bool>(value) => value == BuiltInAttributeKey.h2,
+      (value) => value == BuiltInAttributeKey.h2,
     ),
     handler: (editorState, context) =>
         formatHeading(editorState, BuiltInAttributeKey.h2),
@@ -107,7 +107,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.heading,
-      <bool>(value) => value == BuiltInAttributeKey.h3,
+      (value) => value == BuiltInAttributeKey.h3,
     ),
     handler: (editorState, context) =>
         formatHeading(editorState, BuiltInAttributeKey.h3),
@@ -124,7 +124,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.bold,
-      <bool>(value) => value == true,
+      (value) => value == true,
     ),
     handler: (editorState, context) => formatBold(editorState),
   ),
@@ -140,7 +140,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.italic,
-      <bool>(value) => value == true,
+      (value) => value == true,
     ),
     handler: (editorState, context) => formatItalic(editorState),
   ),
@@ -156,7 +156,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.underline,
-      <bool>(value) => value == true,
+      (value) => value == true,
     ),
     handler: (editorState, context) => formatUnderline(editorState),
   ),
@@ -172,7 +172,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.strikethrough,
-      <bool>(value) => value == true,
+      (value) => value == true,
     ),
     handler: (editorState, context) => formatStrikethrough(editorState),
   ),
@@ -188,7 +188,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.code,
-      <bool>(value) => value == true,
+      (value) => value == true,
     ),
     handler: (editorState, context) => formatEmbedCode(editorState),
   ),
@@ -204,7 +204,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.subtype,
-      <bool>(value) => value == BuiltInAttributeKey.quote,
+      (value) => value == BuiltInAttributeKey.quote,
     ),
     handler: (editorState, context) => formatQuote(editorState),
   ),
@@ -220,7 +220,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.subtype,
-      <bool>(value) => value == BuiltInAttributeKey.bulletedList,
+      (value) => value == BuiltInAttributeKey.bulletedList,
     ),
     handler: (editorState, context) => formatBulletedList(editorState),
   ),
@@ -236,7 +236,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.href,
-      <bool>(value) => value != null,
+      (value) => value != null,
     ),
     handler: (editorState, context) => showLinkMenu(context, editorState),
   ),
@@ -252,7 +252,7 @@ List<ToolbarItem> defaultToolbarItems = [
     highlightCallback: (editorState) => _allSatisfy(
       editorState,
       BuiltInAttributeKey.backgroundColor,
-      <bool>(value) => value != null,
+      (value) => value != null,
     ),
     handler: (editorState, context) => formatHighlight(
       editorState,
@@ -284,7 +284,7 @@ ToolbarItemValidator _showInBuiltInTextSelection = (editorState) {
 bool _allSatisfy(
   EditorState editorState,
   String styleKey,
-  bool Function<T>(T value) test,
+  bool Function(dynamic value) test,
 ) {
   final selection = editorState.service.selectionService.currentSelection.value;
   return selection != null &&

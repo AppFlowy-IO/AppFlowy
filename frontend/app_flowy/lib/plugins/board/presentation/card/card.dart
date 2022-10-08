@@ -21,6 +21,8 @@ class BoardCard extends StatefulWidget {
   final CardDataController dataController;
   final BoardCellBuilder cellBuilder;
   final void Function(BuildContext) openCard;
+  final VoidCallback onStartEditing;
+  final VoidCallback onEndEditing;
 
   const BoardCard({
     required this.gridId,
@@ -30,6 +32,8 @@ class BoardCard extends StatefulWidget {
     required this.dataController,
     required this.cellBuilder,
     required this.openCard,
+    required this.onStartEditing,
+    required this.onEndEditing,
     Key? key,
   }) : super(key: key);
 
@@ -56,6 +60,12 @@ class _BoardCardState extends State<BoardCard> {
     rowNotifier.isEditing.addListener(() {
       if (!mounted) return;
       _cardBloc.add(BoardCardEvent.setIsEditing(rowNotifier.isEditing.value));
+
+      if (rowNotifier.isEditing.value) {
+        widget.onStartEditing();
+      } else {
+        widget.onEndEditing();
+      }
     });
 
     popoverController = PopoverController();

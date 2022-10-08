@@ -111,7 +111,7 @@ Future<void> _testUpdateTextStyleByCommandX(
       textNode.allSatisfyInSelection(
         selection,
         matchStyle,
-        <bool>(value) {
+        (value) {
           return value == matchValue;
         },
       ),
@@ -138,7 +138,7 @@ Future<void> _testUpdateTextStyleByCommandX(
       textNode.allSatisfyInSelection(
         selection,
         matchStyle,
-        <bool>(value) {
+        (value) {
           return value == matchValue;
         },
       ),
@@ -192,7 +192,7 @@ Future<void> _testUpdateTextStyleByCommandX(
           endOffset: text.length,
         ),
         matchStyle,
-        <bool>(value) {
+        (value) {
           return value == matchValue;
         },
       ),
@@ -266,7 +266,7 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
       node.allSatisfyInSelection(
         selection,
         BuiltInAttributeKey.href,
-        <bool>(value) => value == link,
+        (value) => value == link,
       ),
       true);
 
@@ -303,7 +303,7 @@ Future<void> _testLinkMenuInSingleTextSelection(WidgetTester tester) async {
       node.allSatisfyInSelection(
         selection,
         BuiltInAttributeKey.href,
-        <bool>(value) => value == link,
+        (value) => value == link,
       ),
       false);
 }

@@ -2,7 +2,6 @@ import 'dart:io' show Platform;
 
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/material.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:sized_context/sized_context.dart';
@@ -44,7 +43,7 @@ class HomeLayout {
     homePageLOffset = (showMenu && !menuIsDrawer) ? menuWidth : 0.0;
 
     menuSpacing = !showMenu && Platform.isMacOS ? 80.0 : 0.0;
-    animDuration = .35.seconds;
+    animDuration = homeBlocState.resizeType.duration();
 
     editPanelWidth = HomeSizes.editPanelWidth;
     homePageROffset = showEditPanel ? editPanelWidth : 0;
