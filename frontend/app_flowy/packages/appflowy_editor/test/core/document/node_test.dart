@@ -4,10 +4,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() async {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
-
   group('node.dart', () {
     test('test node copyWith', () {
       final node = Node(

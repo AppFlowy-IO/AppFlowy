@@ -2,7 +2,7 @@ import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/document/node_iterator.dart';
+import 'package:appflowy_editor/src/core/document/node_iterator.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
@@ -179,8 +179,11 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     final startNode = editorState.document.nodeAtPath(start);
     final endNode = editorState.document.nodeAtPath(end);
     if (startNode != null && endNode != null) {
-      final nodes =
-          NodeIterator(editorState.document, startNode, endNode).toList();
+      final nodes = NodeIterator(
+        stateTree: editorState.document,
+        startNode: startNode,
+        endNode: endNode,
+      ).toList();
       if (selection.isBackward) {
         return nodes;
       } else {

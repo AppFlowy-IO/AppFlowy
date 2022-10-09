@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/html_converter.dart';
-import 'package:appflowy_editor/src/document/node_iterator.dart';
+import 'package:appflowy_editor/src/core/document/node_iterator.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
@@ -49,7 +49,11 @@ void _handleCopy(EditorState editorState) async {
   final beginNode = editorState.document.nodeAtPath(selection.start.path)!;
   final endNode = editorState.document.nodeAtPath(selection.end.path)!;
 
-  final nodes = NodeIterator(editorState.document, beginNode, endNode).toList();
+  final nodes = NodeIterator(
+    stateTree: editorState.document,
+    startNode: beginNode,
+    endNode: endNode,
+  ).toList();
 
   final copyString = NodesToHTMLConverter(
           nodes: nodes,
@@ -316,8 +320,11 @@ void _deleteSelectedContent(EditorState editorState) {
     tb.commit();
     return;
   }
-  final traverser = NodeIterator(editorState.document, beginNode, endNode);
-
+  final traverser = NodeIterator(
+    stateTree: editorState.document,
+    startNode: beginNode,
+    endNode: endNode,
+  );
   final tb = TransactionBuilder(editorState);
   while (traverser.moveNext()) {
     final item = traverser.current;
