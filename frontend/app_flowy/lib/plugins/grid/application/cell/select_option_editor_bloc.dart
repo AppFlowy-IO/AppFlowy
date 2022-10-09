@@ -101,9 +101,9 @@ class SelectOptionCellEditorBloc
     final hasSelected = state.selectedOptions
         .firstWhereOrNull((option) => option.id == optionId);
     if (hasSelected != null) {
-      _selectOptionService.unSelect(optionId: optionId);
+      _selectOptionService.unSelect(optionIds: [optionId]);
     } else {
-      _selectOptionService.select(optionId: optionId);
+      _selectOptionService.select(optionIds: [optionId]);
     }
   }
 
@@ -130,19 +130,19 @@ class SelectOptionCellEditorBloc
 
     // if there is an unselected matching option, select it
     if (matchingOption != null) {
-      _selectOptionService.select(optionId: matchingOption.id);
+      _selectOptionService.select(optionIds: [matchingOption.id]);
     }
 
     // clear the filter
     emit(state.copyWith(filter: none()));
   }
 
-  void _selectMultipleOptions(List<String> optionNames) async {
-    final options = state.options.where((e) =>
-        optionNames.contains(e.name) && !state.selectedOptions.contains(e));
-    for (final option in options) {
-      await _selectOptionService.select(optionId: option.id);
-    }
+  void _selectMultipleOptions(List<String> optionNames) {
+    final optionIds = state.options
+        .where((e) =>
+            optionNames.contains(e.name) && !state.selectedOptions.contains(e))
+        .map((e) => e.id);
+    _selectOptionService.select(optionIds: optionIds);
   }
 
   void _filterOption(String optionName, Emitter<SelectOptionEditorState> emit) {

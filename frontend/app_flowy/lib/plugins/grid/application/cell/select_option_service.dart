@@ -64,17 +64,19 @@ class SelectOptionService {
     return GridEventGetSelectOptionCellData(payload).send();
   }
 
-  Future<Either<void, FlowyError>> select({required String optionId}) {
+  Future<Either<void, FlowyError>> select(
+      {required Iterable<String> optionIds}) {
     final payload = SelectOptionCellChangesetPayloadPB.create()
       ..cellIdentifier = _cellIdentifier()
-      ..insertOptionIds.add(optionId);
+      ..insertOptionIds.addAll(optionIds);
     return GridEventUpdateSelectOptionCell(payload).send();
   }
 
-  Future<Either<void, FlowyError>> unSelect({required String optionId}) {
+  Future<Either<void, FlowyError>> unSelect(
+      {required Iterable<String> optionIds}) {
     final payload = SelectOptionCellChangesetPayloadPB.create()
       ..cellIdentifier = _cellIdentifier()
-      ..deleteOptionIds.add(optionId);
+      ..deleteOptionIds.addAll(optionIds);
     return GridEventUpdateSelectOptionCell(payload).send();
   }
 
