@@ -1,6 +1,6 @@
 import 'dart:collection';
 
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';

@@ -44,7 +44,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
 
   final textNode = textNodes.first;
   final selectionText = textNode
-      .toRawString()
+      .toPlainText()
       .substring(selection.start.offset, selection.end.offset);
 
   // toggle code style when selected some text
@@ -53,7 +53,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
     return KeyEventResult.handled;
   }
 
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
   final backquoteIndexes = _findBackquoteIndexes(text, textNode);
   if (backquoteIndexes.isEmpty) {
     return KeyEventResult.ignored;
@@ -134,7 +134,7 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
 
   // make sure the last two characters are ~~.
   if (text.length < 2 || text[selection.end.offset - 1] != '~') {
@@ -199,7 +199,7 @@ ShortcutEventHandler markdownLinkToLinkHandler = (editorState, event) {
 
   // find all of the indexs for important characters
   final textNode = textNodes.first;
-  final text = textNode.toRawString();
+  final text = textNode.toPlainText();
   final firstOpeningBracket = text.indexOf('[');
   final firstClosingBracket = text.indexOf(']');
 

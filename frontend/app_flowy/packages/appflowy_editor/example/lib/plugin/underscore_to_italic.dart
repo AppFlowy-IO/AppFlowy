@@ -18,7 +18,7 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString();
+  final text = textNode.toPlainText();
   // Determine if an 'underscore' already exists in the text node and only once.
   final firstUnderscore = text.indexOf('_');
   final lastUnderscore = text.lastIndexOf('_');

@@ -44,7 +44,7 @@ class SelectionMenuItem {
     if (selection != null && nodes.length == 1) {
       final node = nodes.first as TextNode;
       final end = selection.start.offset;
-      final start = node.toRawString().substring(0, end).lastIndexOf('/');
+      final start = node.toPlainText().substring(0, end).lastIndexOf('/');
       TransactionBuilder(editorState)
         ..deleteText(
           node,

@@ -136,10 +136,10 @@ void _pasteMultipleLinesInText(
         final tailTextNode = tailNodes.last as TextNode;
         tailTextNode.delta = tailTextNode.delta + remain;
       } else if (remain.isNotEmpty) {
-        tailNodes.add(TextNode(type: "text", delta: remain));
+        tailNodes.add(TextNode(delta: remain));
       }
     } else {
-      tailNodes.add(TextNode(type: "text", delta: remain));
+      tailNodes.add(TextNode(delta: remain));
     }
 
     tb.setAfterSelection(afterSelection);
@@ -261,9 +261,8 @@ void _handlePastePlainText(EditorState editorState, String plainText) {
 
     path[path.length - 1]++;
     final tb = TransactionBuilder(editorState);
-    final List<TextNode> nodes = remains
-        .map((e) => TextNode(type: "text", delta: _lineContentToDelta(e)))
-        .toList();
+    final List<TextNode> nodes =
+        remains.map((e) => TextNode(delta: _lineContentToDelta(e))).toList();
 
     final afterSelection =
         _computeSelectionAfterPasteMultipleNodes(editorState, nodes);
@@ -272,7 +271,7 @@ void _handlePastePlainText(EditorState editorState, String plainText) {
     if (nodes.isNotEmpty) {
       final last = nodes.last;
       nodes[nodes.length - 1] =
-          TextNode(type: "text", delta: last.delta..addAll(insertedLineSuffix));
+          TextNode(delta: last.delta..addAll(insertedLineSuffix));
     }
 
     // insert first line

@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:math';
 
 import 'package:appflowy_editor/src/document/attributes.dart';
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
@@ -42,8 +42,7 @@ class TransactionBuilder {
   /// Updates the attributes of nodes.
   updateNode(Node node, Attributes attributes) {
     beforeSelection = state.cursorSelection;
-
-    final inverted = invertAttributes(attributes, node.attributes);
+    final inverted = invertAttributes(node.attributes, attributes);
     add(UpdateOperation(
       node.path,
       {...attributes},

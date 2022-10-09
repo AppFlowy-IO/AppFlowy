@@ -87,7 +87,7 @@ void main() async {
         expect(textNode.subtype, BuiltInAttributeKey.heading);
         // BuiltInAttributeKey.h1 ~ BuiltInAttributeKey.h6
         expect(textNode.attributes.heading, 'h$i');
-        expect(textNode.toRawString().startsWith('##'), true);
+        expect(textNode.toPlainText().startsWith('##'), true);
       }
     });
 
@@ -211,7 +211,7 @@ void main() async {
       await editor.pressLogicKey(LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.checkbox);
       expect(textNode.attributes.check, true);
-      expect(textNode.toRawString(), insertedText);
+      expect(textNode.toPlainText(), insertedText);
     });
   });
 }

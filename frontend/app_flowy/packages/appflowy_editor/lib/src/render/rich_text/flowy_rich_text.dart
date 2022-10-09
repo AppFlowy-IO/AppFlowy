@@ -5,7 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
@@ -163,7 +163,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   Widget _buildRichText(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.text,
-      child: widget.textNode.toRawString().isEmpty
+      child: widget.textNode.toPlainText().isEmpty
           ? Stack(
               children: [
                 _buildPlaceholderText(context),

@@ -11,7 +11,7 @@ ShortcutEventHandler doubleAsterisksToBold = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
 
   // make sure the last two characters are **.
   if (text.length < 2 || text[selection.end.offset - 1] != '*') {
@@ -75,7 +75,7 @@ ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
 
   // make sure the last two characters are __.
   if (text.length < 2 || text[selection.end.offset - 1] != '_') {

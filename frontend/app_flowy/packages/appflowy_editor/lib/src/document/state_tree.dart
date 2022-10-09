@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/path.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
 import './attributes.dart';

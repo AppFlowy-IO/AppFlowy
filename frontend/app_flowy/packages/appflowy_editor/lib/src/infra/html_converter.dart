@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'dart:ui';
 
 import 'package:appflowy_editor/src/document/attributes.dart';
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
 import 'package:appflowy_editor/src/extensions/color_extension.dart';
 import 'package:flutter/material.dart';
@@ -89,7 +89,7 @@ class HTMLToNodesConverter {
       }
     }
     if (delta.isNotEmpty) {
-      result.add(TextNode(type: "text", delta: delta));
+      result.add(TextNode(delta: delta));
     }
     return result;
   }
@@ -134,7 +134,7 @@ class HTMLToNodesConverter {
       final delta = Delta();
       delta.insert(element.text);
       if (delta.isNotEmpty) {
-        return [TextNode(type: "text", delta: delta)];
+        return [TextNode(delta: delta)];
       }
     }
     return [];
@@ -271,8 +271,7 @@ class HTMLToNodesConverter {
       }
     }
 
-    final textNode =
-        TextNode(type: "text", delta: delta, attributes: attributes);
+    final textNode = TextNode(delta: delta, attributes: attributes);
     if (isCheckbox) {
       textNode.attributes["subtype"] = BuiltInAttributeKey.checkbox;
       textNode.attributes["checkbox"] = checked;
@@ -315,7 +314,6 @@ class HTMLToNodesConverter {
     final delta = Delta();
     delta.insert(element.text);
     return TextNode(
-        type: "text",
         attributes: {"subtype": "heading", "heading": headingStyle},
         delta: delta);
   }

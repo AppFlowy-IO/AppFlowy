@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
@@ -282,7 +282,7 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     // FIXME: upward and selection update.
     if (textNodes.isNotEmpty && selection != null) {
       final text = textNodes.fold<String>(
-          '', (sum, textNode) => '$sum${textNode.toRawString()}\n');
+          '', (sum, textNode) => '$sum${textNode.toPlainText()}\n');
       attach(
         TextEditingValue(
           text: text,

@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/path.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';

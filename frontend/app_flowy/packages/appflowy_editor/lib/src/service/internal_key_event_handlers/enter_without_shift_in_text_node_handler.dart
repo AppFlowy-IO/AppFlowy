@@ -43,7 +43,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
       ..deleteText(
         textNodes.first,
         selection.start.offset,
-        textNodes.first.toRawString().length,
+        textNodes.first.toPlainText().length,
       )
       ..deleteNodes(subTextNodes)
       ..deleteText(
@@ -73,7 +73,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
   // If selection is collapsed and position.start.offset == 0,
   //  insert a empty text node before.
   if (selection.isCollapsed && selection.start.offset == 0) {
-    if (textNode.toRawString().isEmpty && textNode.subtype != null) {
+    if (textNode.toPlainText().isEmpty && textNode.subtype != null) {
       final afterSelection = Selection.collapsed(
         Position(path: textNode.path, offset: 0),
       );
@@ -156,7 +156,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
   transactionBuilder.deleteText(
     textNode,
     selection.start.offset,
-    textNode.toRawString().length - selection.start.offset,
+    textNode.toPlainText().length - selection.start.offset,
   );
   if (textNode.children.isNotEmpty) {
     final children = textNode.children.toList(growable: false);

@@ -60,7 +60,7 @@ SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
     if (selection == null || textNodes.isEmpty) {
       return;
     }
-    if (textNodes.first.toRawString().isEmpty) {
+    if (textNodes.first.toPlainText().isEmpty) {
       TransactionBuilder(editorState)
         ..updateNode(textNodes.first, {
           'subtype': 'code_block',
@@ -74,7 +74,6 @@ SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
         ..insertNode(
           selection.end.path.next,
           TextNode(
-            type: 'text',
             children: LinkedList(),
             attributes: {
               'subtype': 'code_block',
@@ -149,7 +148,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
 
   Widget _buildCodeBlock(BuildContext context) {
     final result = highlight.highlight.parse(
-      widget.textNode.toRawString(),
+      widget.textNode.toPlainText(),
       language: _language,
       autoDetection: _language == null,
     );

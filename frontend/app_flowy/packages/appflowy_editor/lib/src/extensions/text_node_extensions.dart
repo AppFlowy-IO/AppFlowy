@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
@@ -171,7 +171,7 @@ extension TextNodesExtension on List<TextNode> {
         if (i == 0 && pathEquals(node.path, selection.start.path)) {
           if (selection.isBackward) {
             newSelection = selection.copyWith(
-              end: Position(path: node.path, offset: node.toRawString().length),
+              end: Position(path: node.path, offset: node.toPlainText().length),
             );
           } else {
             newSelection = selection.copyWith(
@@ -187,13 +187,13 @@ extension TextNodesExtension on List<TextNode> {
           } else {
             newSelection = selection.copyWith(
               start:
-                  Position(path: node.path, offset: node.toRawString().length),
+                  Position(path: node.path, offset: node.toPlainText().length),
             );
           }
         } else {
           newSelection = Selection(
             start: Position(path: node.path, offset: 0),
-            end: Position(path: node.path, offset: node.toRawString().length),
+            end: Position(path: node.path, offset: node.toPlainText().length),
           );
         }
         if (!node.allSatisfyInSelection(newSelection, styleKey, test)) {

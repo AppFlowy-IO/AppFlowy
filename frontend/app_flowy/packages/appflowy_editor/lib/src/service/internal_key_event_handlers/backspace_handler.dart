@@ -163,7 +163,7 @@ KeyEventResult _backDeleteToPreviousTextNode(
     transactionBuilder.afterSelection = Selection.collapsed(
       Position(
         path: previousTextNode.path,
-        offset: previousTextNode.toRawString().length,
+        offset: previousTextNode.toPlainText().length,
       ),
     );
   }
@@ -267,7 +267,7 @@ void _deleteTextNodes(TransactionBuilder transactionBuilder,
     List<TextNode> textNodes, Selection selection) {
   final first = textNodes.first;
   final last = textNodes.last;
-  var content = textNodes.last.toRawString();
+  var content = textNodes.last.toPlainText();
   content = content.substring(selection.end.offset, content.length);
   // Merge the fist and the last text node content,
   //  and delete the all nodes expect for the first.

@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 
 class Infra {
 // find the forward nearest text node

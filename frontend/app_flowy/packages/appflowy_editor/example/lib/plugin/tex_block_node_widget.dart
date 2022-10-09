@@ -21,7 +21,7 @@ SelectionMenuItem teXBlockMenuItem = SelectionMenuItem(
       return;
     }
     final Path texNodePath;
-    if (textNodes.first.toRawString().isEmpty) {
+    if (textNodes.first.toPlainText().isEmpty) {
       texNodePath = selection.end.path;
       TransactionBuilder(editorState)
         ..insertNode(

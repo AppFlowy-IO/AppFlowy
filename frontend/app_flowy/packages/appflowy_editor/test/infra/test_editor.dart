@@ -63,7 +63,6 @@ class EditorWidgetTester {
   void insertTextNode(String? text, {Attributes? attributes, Delta? delta}) {
     insert(
       TextNode(
-        type: 'text',
         delta: delta ?? Delta([TextInsert(text ?? 'Test')]),
         attributes: attributes,
       ),
@@ -103,7 +102,7 @@ class EditorWidgetTester {
       {Selection? selection}) async {
     await apply([
       TextEditingDeltaInsertion(
-        oldText: textNode.toRawString(),
+        oldText: textNode.toPlainText(),
         textInserted: text,
         insertionOffset: offset,
         selection: selection != null

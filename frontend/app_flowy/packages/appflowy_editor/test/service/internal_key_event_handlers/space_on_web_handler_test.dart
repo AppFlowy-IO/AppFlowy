@@ -26,7 +26,7 @@ void main() async {
         );
         await editor.pressLogicKey(LogicalKeyboardKey.space);
         expect(
-          (editor.nodeAtPath([i]) as TextNode).toRawString(),
+          (editor.nodeAtPath([i]) as TextNode).toPlainText(),
           'W elcome to Appflowy 😁',
         );
       }
@@ -36,7 +36,7 @@ void main() async {
         );
         await editor.pressLogicKey(LogicalKeyboardKey.space);
         expect(
-          (editor.nodeAtPath([i]) as TextNode).toRawString(),
+          (editor.nodeAtPath([i]) as TextNode).toPlainText(),
           'W elcome to Appflowy 😁 ',
         );
       }

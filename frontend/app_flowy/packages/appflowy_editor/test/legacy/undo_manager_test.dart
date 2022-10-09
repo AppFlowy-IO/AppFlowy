@@ -21,12 +21,12 @@ void main() async {
     final editorState = EditorState(document: document);
 
     final historyItem = HistoryItem();
-    historyItem.add(DeleteOperation(
-        [0], [TextNode(type: 'text', delta: Delta()..insert('0'))]));
-    historyItem.add(DeleteOperation(
-        [0], [TextNode(type: 'text', delta: Delta()..insert('1'))]));
-    historyItem.add(DeleteOperation(
-        [0], [TextNode(type: 'text', delta: Delta()..insert('2'))]));
+    historyItem
+        .add(DeleteOperation([0], [TextNode(delta: Delta()..insert('0'))]));
+    historyItem
+        .add(DeleteOperation([0], [TextNode(delta: Delta()..insert('1'))]));
+    historyItem
+        .add(DeleteOperation([0], [TextNode(delta: Delta()..insert('2'))]));
 
     final transaction = historyItem.toTransaction(editorState);
     assert(isInsertAndPathEqual(transaction.operations[0], [0], '2'));
@@ -39,8 +39,8 @@ void main() async {
     final editorState = EditorState(document: document);
 
     final historyItem = HistoryItem();
-    historyItem.add(DeleteOperation(
-        [0], [TextNode(type: 'text', delta: Delta()..insert('0'))]));
+    historyItem
+        .add(DeleteOperation([0], [TextNode(delta: Delta()..insert('0'))]));
     historyItem
         .add(UpdateOperation([0], {"subType": "number"}, {"subType": null}));
     historyItem.add(DeleteOperation([0], [TextNode.empty(), TextNode.empty()]));
@@ -72,5 +72,5 @@ bool isInsertAndPathEqual(Operation operation, Path path, [String? content]) {
     return true;
   }
 
-  return firstNode.delta.toRawString() == content;
+  return firstNode.delta.toPlainText() == content;
 }

@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/src/document/attributes.dart';
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
@@ -125,7 +125,7 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
       ..afterSelection = Selection.collapsed(
         Position(
           path: textNode.path,
-          offset: textNode.toRawString().length,
+          offset: textNode.toPlainText().length,
         ),
       );
   }
@@ -232,10 +232,10 @@ bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
     for (var i = 0; i < textNodes.length; i++) {
       final textNode = textNodes[i];
       var index = 0;
-      var length = textNode.toRawString().length;
+      var length = textNode.toPlainText().length;
       if (i == 0 && textNode == nodes.first) {
         index = selection.start.offset;
-        length = textNode.toRawString().length - selection.start.offset;
+        length = textNode.toPlainText().length - selection.start.offset;
       } else if (i == textNodes.length - 1 && textNode == nodes.last) {
         length = selection.end.offset;
       }

@@ -17,7 +17,7 @@ ShortcutEventHandler _insertHorzaontalRule = (editorState, event) {
     return KeyEventResult.ignored;
   }
   final textNode = textNodes.first;
-  if (textNode.toRawString() == '--') {
+  if (textNode.toPlainText() == '--') {
     TransactionBuilder(editorState)
       ..deleteText(textNode, 0, 2)
       ..insertNode(
@@ -53,7 +53,7 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
       return;
     }
     final textNode = textNodes.first;
-    if (textNode.toRawString().isEmpty) {
+    if (textNode.toPlainText().isEmpty) {
       TransactionBuilder(editorState)
         ..insertNode(
           textNode.path,
@@ -71,7 +71,6 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
         ..insertNode(
           selection.end.path.next,
           TextNode(
-            type: 'text',
             children: LinkedList(),
             attributes: {
               'subtype': 'horizontal_rule',

@@ -47,7 +47,9 @@ class TextInsert extends TextOperation {
     final contentHash = content.hashCode;
     final attrs = _attributes;
     return Object.hash(
-        contentHash, attrs == null ? null : hashAttributes(attrs));
+      contentHash,
+      attrs != null ? hashAttributes(attrs) : null,
+    );
   }
 
   @override
@@ -101,7 +103,10 @@ class TextRetain extends TextOperation {
   @override
   int get hashCode {
     final attrs = _attributes;
-    return Object.hash(_length, attrs == null ? null : hashAttributes(attrs));
+    return Object.hash(
+      _length,
+      attrs != null ? hashAttributes(attrs) : null,
+    );
   }
 
   @override
@@ -401,7 +406,11 @@ class Delta extends Iterable<TextOperation> {
         final thisOp = thisIter._next(length);
         final otherOp = otherIter._next(length);
         final attributes = composeAttributes(
-            thisOp.attributes, otherOp.attributes, thisOp is TextRetain);
+          thisOp.attributes,
+          otherOp.attributes,
+          keepNull: thisOp is TextRetain,
+        );
+
         if (otherOp is TextRetain && otherOp.length > 0) {
           TextOperation? newOp;
           if (thisOp is TextRetain) {
@@ -480,8 +489,10 @@ class Delta extends Iterable<TextOperation> {
           if (op is TextDelete) {
             inverted.add(baseOp);
           } else if (op is TextRetain && op.attributes != null) {
-            inverted.retain(baseOp.length,
-                invertAttributes(op.attributes, baseOp.attributes));
+            inverted.retain(
+              baseOp.length,
+              invertAttributes(baseOp.attributes, op.attributes),
+            );
           }
         }
         return previousValue + length;
@@ -520,7 +531,7 @@ class Delta extends Iterable<TextOperation> {
   ///
   /// This method can help you to compute the position of the next character.
   int nextRunePosition(int pos) {
-    final stringContent = toRawString();
+    final stringContent = toPlainText();
     if (pos >= stringContent.length - 1) {
       return stringContent.length;
     }
@@ -535,7 +546,7 @@ class Delta extends Iterable<TextOperation> {
     return stringContent.length;
   }
 
-  String toRawString() {
+  String toPlainText() {
     _rawString ??=
         _operations.whereType<TextInsert>().map((op) => op.content).join();
     return _rawString!;

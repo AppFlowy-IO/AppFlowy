@@ -147,7 +147,7 @@ Future<void> _testDefaultSelectionMenuItems(
     int index, EditorWidgetTester editor) async {
   expect(editor.documentLength, 4);
   expect(editor.documentSelection, Selection.single(path: [2], startOffset: 0));
-  expect((editor.nodeAtPath([1]) as TextNode).toRawString(),
+  expect((editor.nodeAtPath([1]) as TextNode).toPlainText(),
       'Welcome to Appflowy 😁');
   final node = editor.nodeAtPath([2]);
   final item = defaultSelectionMenuItems[index];

@@ -1,47 +1,21 @@
 import 'dart:collection';
+
+import 'package:flutter/material.dart';
+
+import 'package:appflowy_editor/src/document/attributes.dart';
+import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/document/path.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
-import 'package:flutter/material.dart';
-import './attributes.dart';
 
 class Node extends ChangeNotifier with LinkedListEntry<Node> {
-  Node? parent;
-  final String type;
-  final LinkedList<Node> children;
-  Attributes _attributes;
-
-  GlobalKey? key;
-  // TODO: abstract a selectable node??
-  final layerLink = LayerLink();
-
-  String? get subtype {
-    // TODO: make 'subtype' as a const value.
-    if (_attributes.containsKey('subtype')) {
-      assert(_attributes['subtype'] is String?,
-          'subtype must be a [String] or [null]');
-      return _attributes['subtype'] as String?;
-    }
-    return null;
-  }
-
-  String get id {
-    if (subtype != null) {
-      return '$type/$subtype';
-    }
-    return type;
-  }
-
-  Path get path => _path();
-
-  Attributes get attributes => _attributes;
-
   Node({
     required this.type,
-    required this.children,
-    required Attributes attributes,
+    Attributes? attributes,
     this.parent,
-  }) : _attributes = attributes {
-    for (final child in children) {
+    LinkedList<Node>? children,
+  })  : children = children ?? LinkedList<Node>(),
+        _attributes = attributes ?? {} {
+    for (final child in this.children) {
       child.parent = this;
     }
   }
@@ -49,14 +23,13 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   factory Node.fromJson(Map<String, Object> json) {
     assert(json['type'] is String);
 
-    // TODO: check the type that not exist on plugins.
     final jType = json['type'] as String;
     final jChildren = json['children'] as List?;
     final jAttributes = json['attributes'] != null
         ? Attributes.from(json['attributes'] as Map)
         : Attributes.from({});
 
-    final LinkedList<Node> children = LinkedList();
+    final children = LinkedList<Node>();
     if (jChildren != null) {
       children.addAll(
         jChildren.map(
@@ -69,14 +42,14 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
 
     Node node;
 
-    if (jType == "text") {
+    if (jType == 'text') {
       final jDelta = json['delta'] as List<dynamic>?;
       final delta = jDelta == null ? Delta() : Delta.fromJson(jDelta);
       node = TextNode(
-          type: jType,
-          children: children,
-          attributes: jAttributes,
-          delta: delta);
+        children: children,
+        attributes: jAttributes,
+        delta: delta,
+      );
     } else {
       node = Node(
         type: jType,
@@ -92,20 +65,48 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     return node;
   }
 
+  final String type;
+  final LinkedList<Node> children;
+  Node? parent;
+  Attributes _attributes;
+
+  // Renderable
+  GlobalKey? key;
+  final layerLink = LayerLink();
+
+  Attributes get attributes => {..._attributes};
+
+  String get id {
+    if (subtype != null) {
+      return '$type/$subtype';
+    }
+    return type;
+  }
+
+  String? get subtype {
+    if (attributes[BuiltInAttributeKey.subtype] is String) {
+      return attributes[BuiltInAttributeKey.subtype] as String;
+    }
+    return null;
+  }
+
+  Path get path => _computePath();
+
   void updateAttributes(Attributes attributes) {
-    final oldAttributes = {..._attributes};
-    _attributes = composeAttributes(_attributes, attributes) ?? {};
+    final oldAttributes = this.attributes;
+
+    _attributes = composeAttributes(this.attributes, attributes) ?? {};
 
     // Notifies the new attributes
     // if attributes contains 'subtype', should notify parent to rebuild node
     // else, just notify current node.
     bool shouldNotifyParent =
-        _attributes['subtype'] != oldAttributes['subtype'];
+        this.attributes['subtype'] != oldAttributes['subtype'];
     shouldNotifyParent ? parent?.notifyListeners() : notifyListeners();
   }
 
   Node? childAtIndex(int index) {
-    if (children.length <= index) {
+    if (children.length <= index || index < 0) {
       return null;
     }
 
@@ -121,7 +122,8 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   }
 
   void insert(Node entry, {int? index}) {
-    index ??= children.length;
+    final length = children.length;
+    index ??= length;
 
     if (children.isEmpty) {
       entry.parent = this;
@@ -130,8 +132,9 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
       return;
     }
 
-    final length = children.length;
-
+    // If index is out of range, insert at the end.
+    // If index is negative, insert at the beginning.
+    // If index is positive, insert at the index.
     if (index >= length) {
       children.last.insertAfter(entry);
     } else if (index <= 0) {
@@ -173,26 +176,12 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     };
     if (children.isNotEmpty) {
       map['children'] =
-          (children.map((node) => node.toJson())).toList(growable: false);
+          children.map((node) => node.toJson()).toList(growable: false);
     }
-    if (_attributes.isNotEmpty) {
-      map['attributes'] = _attributes;
+    if (attributes.isNotEmpty) {
+      map['attributes'] = attributes;
     }
     return map;
-  }
-
-  Path _path([Path previous = const []]) {
-    if (parent == null) {
-      return previous;
-    }
-    var index = 0;
-    for (var child in parent!.children) {
-      if (child == this) {
-        break;
-      }
-      index += 1;
-    }
-    return parent!._path([index, ...previous]);
   }
 
   Node copyWith({
@@ -202,8 +191,8 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
   }) {
     final node = Node(
       type: type ?? this.type,
-      attributes: attributes ?? {..._attributes},
-      children: children ?? LinkedList(),
+      attributes: attributes ?? {...this.attributes},
+      children: children,
     );
     if (children == null && this.children.isNotEmpty) {
       for (final child in this.children) {
@@ -214,19 +203,31 @@ class Node extends ChangeNotifier with LinkedListEntry<Node> {
     }
     return node;
   }
+
+  Path _computePath([Path previous = const []]) {
+    if (parent == null) {
+      return previous;
+    }
+    var index = 0;
+    for (final child in parent!.children) {
+      if (child == this) {
+        break;
+      }
+      index += 1;
+    }
+    return parent!._computePath([index, ...previous]);
+  }
 }
 
 class TextNode extends Node {
-  Delta _delta;
-
   TextNode({
-    required super.type,
     required Delta delta,
     LinkedList<Node>? children,
     Attributes? attributes,
   })  : _delta = delta,
         super(
-          children: children ?? LinkedList(),
+          type: 'text',
+          children: children,
           attributes: attributes ?? {},
         );
 
@@ -234,14 +235,11 @@ class TextNode extends Node {
       : _delta = Delta([TextInsert('')]),
         super(
           type: 'text',
-          children: LinkedList(),
           attributes: attributes ?? {},
         );
 
-  Delta get delta {
-    return _delta;
-  }
-
+  Delta _delta;
+  Delta get delta => _delta;
   set delta(Delta v) {
     _delta = v;
     notifyListeners();
@@ -250,21 +248,20 @@ class TextNode extends Node {
   @override
   Map<String, Object> toJson() {
     final map = super.toJson();
-    map['delta'] = _delta.toJson();
+    map['delta'] = delta.toJson();
     return map;
   }
 
   @override
   TextNode copyWith({
-    String? type,
+    String? type = 'text',
     LinkedList<Node>? children,
     Attributes? attributes,
     Delta? delta,
   }) {
     final textNode = TextNode(
-      type: type ?? this.type,
       children: children,
-      attributes: attributes ?? _attributes,
+      attributes: attributes ?? this.attributes,
       delta: delta ?? this.delta,
     );
     if (children == null && this.children.isNotEmpty) {
@@ -277,5 +274,5 @@ class TextNode extends Node {
     return textNode;
   }
 
-  String toRawString() => _delta.toRawString();
+  String toPlainText() => _delta.toPlainText();
 }

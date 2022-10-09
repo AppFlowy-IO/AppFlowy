@@ -2,7 +2,7 @@ import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handle
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
@@ -44,7 +44,7 @@ ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
 
   final numberMatch = _numberRegex.firstMatch(text);
 
@@ -140,13 +140,13 @@ KeyEventResult _toCheckboxList(EditorState editorState, TextNode textNode) {
   final String symbol;
   bool check = false;
   final symbols = List<String>.from(_checkboxListSymbols)
-    ..retainWhere(textNode.toRawString().startsWith);
+    ..retainWhere(textNode.toPlainText().startsWith);
   if (symbols.isNotEmpty) {
     symbol = symbols.first;
     check = true;
   } else {
     symbol = (List<String>.from(_unCheckboxListSymbols)
-          ..retainWhere(textNode.toRawString().startsWith))
+          ..retainWhere(textNode.toPlainText().startsWith))
         .first;
     check = false;
   }
@@ -170,7 +170,7 @@ KeyEventResult _toCheckboxList(EditorState editorState, TextNode textNode) {
 KeyEventResult _toHeadingStyle(
     EditorState editorState, TextNode textNode, Selection selection) {
   final x = _countOfSign(
-    textNode.toRawString(),
+    textNode.toPlainText(),
     selection,
   );
   final hX = 'h$x';

@@ -57,7 +57,6 @@ void main() async {
 
     test('test textNode copyWith', () {
       final textNode = TextNode(
-        type: 'example',
         children: LinkedList(),
         attributes: {
           'example': 'example',
@@ -65,7 +64,7 @@ void main() async {
         delta: Delta()..insert('AppFlowy'),
       );
       expect(textNode.toJson(), {
-        'type': 'example',
+        'type': 'text',
         'attributes': {
           'example': 'example',
         },
@@ -79,7 +78,6 @@ void main() async {
       );
 
       final textNodeWithChildren = TextNode(
-        type: 'example',
         children: LinkedList()..add(textNode),
         attributes: {
           'example': 'example',
@@ -87,7 +85,7 @@ void main() async {
         delta: Delta()..insert('AppFlowy'),
       );
       expect(textNodeWithChildren.toJson(), {
-        'type': 'example',
+        'type': 'text',
         'attributes': {
           'example': 'example',
         },
@@ -96,7 +94,7 @@ void main() async {
         ],
         'children': [
           {
-            'type': 'example',
+            'type': 'text',
             'attributes': {
               'example': 'example',
             },

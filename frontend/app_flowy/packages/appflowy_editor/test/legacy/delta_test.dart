@@ -318,12 +318,12 @@ void main() {
   });
   group("attributes", () {
     test("compose", () {
-      final attrs = composeAttributes({"a": null}, {"b": null}, true);
+      final attrs = composeAttributes({'a': null}, {'b': null}, keepNull: true);
       expect(attrs != null, true);
-      expect(attrs!.containsKey("a"), true);
-      expect(attrs.containsKey("b"), true);
-      expect(attrs["a"], null);
-      expect(attrs["b"], null);
+      expect(attrs?.containsKey("a"), true);
+      expect(attrs?.containsKey("b"), true);
+      expect(attrs?["a"], null);
+      expect(attrs?["b"], null);
     });
   });
 }
