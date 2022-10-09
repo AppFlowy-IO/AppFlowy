@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
-import 'package:appflowy_editor/src/document/text_delta.dart';
+import 'package:appflowy_editor/src/core/document/text_delta.dart';
 
 class Node extends ChangeNotifier with LinkedListEntry<Node> {
   Node({
@@ -232,7 +232,7 @@ class TextNode extends Node {
         );
 
   TextNode.empty({Attributes? attributes})
-      : _delta = Delta([TextInsert('')]),
+      : _delta = Delta(operations: [TextInsert('')]),
         super(
           type: 'text',
           attributes: attributes ?? {},

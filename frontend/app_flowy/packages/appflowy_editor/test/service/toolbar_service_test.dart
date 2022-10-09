@@ -63,9 +63,9 @@ void main() async {
         ..insertTextNode(text)
         ..insertTextNode(
           null,
-          delta: Delta([
+          delta: Delta(operations: [
             TextInsert(text),
-            TextInsert(text, attributes),
+            TextInsert(text, attributes: attributes),
             TextInsert(text),
           ]),
         );
@@ -171,8 +171,8 @@ void main() async {
             BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
             BuiltInAttributeKey.heading: BuiltInAttributeKey.h1,
           },
-          delta: Delta([
-            TextInsert(text, {
+          delta: Delta(operations: [
+            TextInsert(text, attributes: {
               BuiltInAttributeKey.bold: true,
             })
           ]),

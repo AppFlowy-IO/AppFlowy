@@ -222,7 +222,7 @@ Delta _lineContentToDelta(String lineContent) {
       delta.insert(lineContent.substring(lastUrlEndOffset, match.start));
     }
     final linkContent = lineContent.substring(match.start, match.end);
-    delta.insert(linkContent, {"href": linkContent});
+    delta.insert(linkContent, attributes: {"href": linkContent});
     lastUrlEndOffset = match.end;
   }
 

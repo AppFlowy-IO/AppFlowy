@@ -6,7 +6,7 @@ import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
-import 'package:appflowy_editor/src/document/text_delta.dart';
+import 'package:appflowy_editor/src/core/document/text_delta.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/operation/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction.dart';
@@ -134,7 +134,7 @@ class TransactionBuilder {
         ..retain(index)
         ..insert(
           content,
-          newAttributes,
+          attributes: newAttributes,
         ),
     );
     afterSelection = Selection.collapsed(
@@ -148,7 +148,7 @@ class TransactionBuilder {
         node,
         () => Delta()
           ..retain(index)
-          ..retain(length, attributes));
+          ..retain(length, attributes: attributes));
     afterSelection = beforeSelection;
   }
 
@@ -177,7 +177,7 @@ class TransactionBuilder {
       () => Delta()
         ..retain(index)
         ..delete(length)
-        ..insert(content, newAttributes),
+        ..insert(content, attributes: newAttributes),
     );
     afterSelection = Selection.collapsed(
       Position(

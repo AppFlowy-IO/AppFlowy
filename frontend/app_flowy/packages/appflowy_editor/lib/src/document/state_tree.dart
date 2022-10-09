@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
-import 'package:appflowy_editor/src/document/text_delta.dart';
+import 'package:appflowy_editor/src/core/document/text_delta.dart';
 import '../core/document/attributes.dart';
 
 class StateTree {

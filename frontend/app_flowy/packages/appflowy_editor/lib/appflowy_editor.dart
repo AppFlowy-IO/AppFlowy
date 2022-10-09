@@ -8,7 +8,7 @@ export 'src/core/document/path.dart';
 export 'src/document/position.dart';
 export 'src/document/selection.dart';
 export 'src/document/state_tree.dart';
-export 'src/document/text_delta.dart';
+export 'src/core/document/text_delta.dart';
 export 'src/core/document/attributes.dart';
 export 'src/document/built_in_attribute_keys.dart';
 export 'src/editor_state.dart';
