@@ -20,7 +20,7 @@ jobs:
           - os: macos-latest
             flutter_profile: development-mac-x86_64
           - os: windows-latest
-            flutter_profile: development-windows-x86_64
+            flutter_profile: development(production)-windows-x86
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -85,6 +85,8 @@ jobs:
             flutter config --enable-linux-desktop
           elif [ "$RUNNER_OS" == "macOS" ]; then
             flutter config --enable-macos-desktop
+          if [ "$RUNNER_OS" == "windows" ]; then
+            flutter config --enable-windows-desktop
           fi
         shell: bash
 
