@@ -59,7 +59,7 @@ bool isInsertAndPathEqual(Operation operation, Path path, [String? content]) {
     return false;
   }
 
-  if (!pathEquals(operation.path, path)) {
+  if (!operation.path.equals(path)) {
     return false;
   }
 

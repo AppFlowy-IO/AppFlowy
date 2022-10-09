@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/document/path.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
@@ -168,7 +168,7 @@ extension TextNodesExtension on List<TextNode> {
       for (var i = 0; i < length; i++) {
         final node = this[i];
         final Selection newSelection;
-        if (i == 0 && pathEquals(node.path, selection.start.path)) {
+        if (i == 0 && node.path.equals(selection.start.path)) {
           if (selection.isBackward) {
             newSelection = selection.copyWith(
               end: Position(path: node.path, offset: node.toPlainText().length),
@@ -178,8 +178,7 @@ extension TextNodesExtension on List<TextNode> {
               end: Position(path: node.path, offset: 0),
             );
           }
-        } else if (i == length - 1 &&
-            pathEquals(node.path, selection.end.path)) {
+        } else if (i == length - 1 && node.path.equals(selection.end.path)) {
           if (selection.isBackward) {
             newSelection = selection.copyWith(
               start: Position(path: node.path, offset: 0),

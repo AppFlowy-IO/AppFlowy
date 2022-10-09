@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/src/document/path.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -72,7 +72,7 @@ void main() {
   test('test path utils 1', () {
     final path1 = <int>[1];
     final path2 = <int>[1];
-    expect(pathEquals(path1, path2), true);
+    expect(path1.equals(path2), true);
 
     expect(Object.hashAll(path1), Object.hashAll(path2));
   });
@@ -80,7 +80,7 @@ void main() {
   test('test path utils 2', () {
     final path1 = <int>[1];
     final path2 = <int>[2];
-    expect(pathEquals(path1, path2), false);
+    expect(path1.equals(path2), false);
 
     expect(Object.hashAll(path1) != Object.hashAll(path2), true);
   });

@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/document/path.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
@@ -197,7 +197,7 @@ class TransactionBuilder {
     if (last != null) {
       if (op is TextEditOperation &&
           last is TextEditOperation &&
-          pathEquals(op.path, last.path)) {
+          op.path.equals(last.path)) {
         final newOp = TextEditOperation(
           op.path,
           last.delta.compose(op.delta),

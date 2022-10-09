@@ -149,23 +149,23 @@ void main() async {
         type: 'base',
       );
 
-      // insert at the front
+      // insert at the front when node's children is empty
       final childA = Node(
         type: 'child',
       );
-      base.insert(childA, index: -1);
+      base.insert(childA);
       expect(
         identical(base.childAtIndex(0), childA),
         true,
       );
 
-      // insert at the last
+      // insert at the front
       final childB = Node(
         type: 'child',
       );
-      base.insert(childB, index: 1000);
+      base.insert(childB, index: -1);
       expect(
-        identical(base.childAtIndex(base.children.length - 1), childB),
+        identical(base.childAtIndex(0), childB),
         true,
       );
 
@@ -173,19 +173,39 @@ void main() async {
       final childC = Node(
         type: 'child',
       );
-      base.insert(childC);
+      base.insert(childC, index: 1000);
       expect(
         identical(base.childAtIndex(base.children.length - 1), childC),
+        true,
+      );
+
+      // insert at the last
+      final childD = Node(
+        type: 'child',
+      );
+      base.insert(childD);
+      expect(
+        identical(base.childAtIndex(base.children.length - 1), childD),
+        true,
+      );
+
+      // insert at the second
+      final childE = Node(
+        type: 'child',
+      );
+      base.insert(childE, index: 1);
+      expect(
+        identical(base.childAtIndex(1), childE),
         true,
       );
     });
 
     test('test fromJson', () {
       final node = Node.fromJson({
-        'type': 'example',
-        'attributes': {
-          'example': 'example',
-        },
+        'type': 'text',
+        'delta': [
+          {'insert': 'example'},
+        ],
         'children': [
           {
             'type': 'example',
@@ -195,8 +215,10 @@ void main() async {
           },
         ],
       });
-      expect(node.type, 'example');
-      expect(node.attributes, {'example': 'example'});
+      expect(node.type, 'text');
+      expect(node is TextNode, true);
+      expect((node as TextNode).delta.toPlainText(), 'example');
+      expect(node.attributes, {});
       expect(node.children.length, 1);
       expect(node.children.first.type, 'example');
       expect(node.children.first.attributes, {'example': 'example'});

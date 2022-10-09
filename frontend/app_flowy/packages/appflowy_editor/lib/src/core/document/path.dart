@@ -1,17 +1,23 @@
-import 'package:appflowy_editor/src/document/path.dart';
-
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+
+typedef Path = List<int>;
+
 extension PathExtensions on Path {
+  bool equals(Path other) {
+    return listEquals(this, other);
+  }
+
   bool operator >=(Path other) {
-    if (pathEquals(this, other)) {
+    if (equals(other)) {
       return true;
     }
     return this > other;
   }
 
   bool operator >(Path other) {
-    if (pathEquals(this, other)) {
+    if (equals(other)) {
       return false;
     }
     final length = min(this.length, other.length);
@@ -29,14 +35,14 @@ extension PathExtensions on Path {
   }
 
   bool operator <=(Path other) {
-    if (pathEquals(this, other)) {
+    if (equals(other)) {
       return true;
     }
     return this < other;
   }
 
   bool operator <(Path other) {
-    if (pathEquals(this, other)) {
+    if (equals(other)) {
       return false;
     }
     final length = min(this.length, other.length);

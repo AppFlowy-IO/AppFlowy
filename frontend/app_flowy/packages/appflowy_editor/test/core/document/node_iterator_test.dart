@@ -27,6 +27,7 @@ void main() async {
           expect(nodes.current.type, 'node_${i}_$j');
         }
       }
+      expect(nodes.moveNext(), false);
     });
   });
 }

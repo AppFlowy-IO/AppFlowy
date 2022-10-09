@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/document/path.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
@@ -123,7 +123,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   @override
   List<Rect> getRectsInSelection(Selection selection) {
     assert(selection.isSingle &&
-        pathEquals(selection.start.path, widget.textNode.path));
+        selection.start.path.equals(widget.textNode.path));
 
     final textSelection = TextSelection(
       baseOffset: selection.start.offset,

@@ -1,6 +1,5 @@
-import 'package:appflowy_editor/src/document/path.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
-import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 
 /// Selection represents the selected area or the cursor area in the editor.
 ///
@@ -38,7 +37,7 @@ class Selection {
   final Position end;
 
   bool get isCollapsed => start == end;
-  bool get isSingle => pathEquals(start.path, end.path);
+  bool get isSingle => start.path.equals(end.path);
   bool get isForward =>
       (start.path > end.path) || (isSingle && start.offset > end.offset);
   bool get isBackward =>

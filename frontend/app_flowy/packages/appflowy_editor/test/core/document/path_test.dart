@@ -2,11 +2,7 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() async {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
-
-  group('path_extensions.dart', () {
+  group('path.dart', () {
     test('test path equality', () {
       var p1 = [0, 0];
       var p2 = [0];

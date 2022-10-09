@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/node_iterator.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/document/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
-import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 import 'package:appflowy_editor/src/render/selection/cursor_widget.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:appflowy_editor/src/render/selection/selection_widget.dart';

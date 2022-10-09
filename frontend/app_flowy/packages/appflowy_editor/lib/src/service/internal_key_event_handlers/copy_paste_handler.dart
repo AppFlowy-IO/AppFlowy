@@ -29,7 +29,7 @@ void _handleCopy(EditorState editorState) async {
   if (selection == null || selection.isCollapsed) {
     return;
   }
-  if (pathEquals(selection.start.path, selection.end.path)) {
+  if (selection.start.path.equals(selection.end.path)) {
     final nodeAtPath = editorState.document.nodeAtPath(selection.end.path)!;
     if (nodeAtPath.type == "text") {
       final textNode = nodeAtPath as TextNode;
@@ -306,7 +306,7 @@ void _deleteSelectedContent(EditorState editorState) {
   }
   final beginNode = editorState.document.nodeAtPath(selection.start.path)!;
   final endNode = editorState.document.nodeAtPath(selection.end.path)!;
-  if (pathEquals(selection.start.path, selection.end.path) &&
+  if (selection.start.path.equals(selection.end.path) &&
       beginNode.type == "text") {
     final textItem = beginNode as TextNode;
     final tb = TransactionBuilder(editorState);

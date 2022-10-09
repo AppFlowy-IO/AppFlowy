@@ -1,4 +1,4 @@
-import './path.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
 
 class Position {
   final Path path;
@@ -14,7 +14,7 @@ class Position {
     if (other is! Position) {
       return false;
     }
-    return pathEquals(path, other.path) && offset == other.offset;
+    return path.equals(other.path) && offset == other.offset;
   }
 
   @override
