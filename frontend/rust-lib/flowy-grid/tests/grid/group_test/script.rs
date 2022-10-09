@@ -136,16 +136,24 @@ impl GridGroupTest {
 
                 let cell_rev = if to_group.is_default {
                     match field_type {
-                        FieldType::SingleSelect => delete_select_option_cell(to_group.group_id.clone(), &field_rev),
-                        FieldType::MultiSelect => delete_select_option_cell(to_group.group_id.clone(), &field_rev),
+                        FieldType::SingleSelect => {
+                            delete_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+                        }
+                        FieldType::MultiSelect => {
+                            delete_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+                        }
                         _ => {
                             panic!("Unsupported group field type");
                         }
                     }
                 } else {
                     match field_type {
-                        FieldType::SingleSelect => insert_select_option_cell(to_group.group_id.clone(), &field_rev),
-                        FieldType::MultiSelect => insert_select_option_cell(to_group.group_id.clone(), &field_rev),
+                        FieldType::SingleSelect => {
+                            insert_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+                        }
+                        FieldType::MultiSelect => {
+                            insert_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+                        }
                         _ => {
                             panic!("Unsupported group field type");
                         }

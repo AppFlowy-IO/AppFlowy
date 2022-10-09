@@ -200,6 +200,10 @@ impl FromCellString for SelectOptionIds {
 
 impl std::convert::From<String> for SelectOptionIds {
     fn from(s: String) -> Self {
+        if s.is_empty() {
+            return Self(vec![]);
+        }
+
         let ids = s
             .split(SELECTION_IDS_SEPARATOR)
             .map(|id| id.to_string())
@@ -352,17 +356,31 @@ impl FromCellChangeset for SelectOptionCellChangeset {
 }
 
 impl SelectOptionCellChangeset {
-    pub fn from_insert(option_id: &str) -> Self {
+    pub fn from_insert_option_id(option_id: &str) -> Self {
         SelectOptionCellChangeset {
             insert_option_ids: vec![option_id.to_string()],
             delete_option_ids: vec![],
         }
     }
 
-    pub fn from_delete(option_id: &str) -> Self {
+    pub fn from_insert_options(option_ids: Vec<String>) -> Self {
+        SelectOptionCellChangeset {
+            insert_option_ids: option_ids,
+            delete_option_ids: vec![],
+        }
+    }
+
+    pub fn from_delete_option_id(option_id: &str) -> Self {
         SelectOptionCellChangeset {
             insert_option_ids: vec![],
             delete_option_ids: vec![option_id.to_string()],
+        }
+    }
+
+    pub fn from_delete_options(option_ids: Vec<String>) -> Self {
+        SelectOptionCellChangeset {
+            insert_option_ids: vec![],
+            delete_option_ids: option_ids,
         }
     }
 

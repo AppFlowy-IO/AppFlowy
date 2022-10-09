@@ -133,11 +133,11 @@ pub fn make_inserted_cell_rev(group_id: &str, field_rev: &FieldRevision) -> Opti
     let field_type: FieldType = field_rev.ty.into();
     match field_type {
         FieldType::SingleSelect => {
-            let cell_rev = insert_select_option_cell(group_id.to_owned(), field_rev);
+            let cell_rev = insert_select_option_cell(vec![group_id.to_owned()], field_rev);
             Some(cell_rev)
         }
         FieldType::MultiSelect => {
-            let cell_rev = insert_select_option_cell(group_id.to_owned(), field_rev);
+            let cell_rev = insert_select_option_cell(vec![group_id.to_owned()], field_rev);
             Some(cell_rev)
         }
         FieldType::Checkbox => {

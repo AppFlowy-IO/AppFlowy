@@ -61,15 +61,22 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
         cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let content_changeset = changeset.try_into_inner()?;
+
+        let insert_option_ids = content_changeset
+            .insert_option_ids
+            .into_iter()
+            .filter(|insert_option_id| self.options.iter().any(|option| &option.id == insert_option_id))
+            .collect::<Vec<String>>();
+
         let new_cell_data: String;
         match cell_rev {
             None => {
-                new_cell_data = SelectOptionIds::from(content_changeset.insert_option_ids).to_string();
+                new_cell_data = SelectOptionIds::from(insert_option_ids).to_string();
             }
             Some(cell_rev) => {
                 let cell_data = get_cell_data(&cell_rev);
                 let mut select_ids: SelectOptionIds = cell_data.into();
-                for insert_option_id in content_changeset.insert_option_ids {
+                for insert_option_id in insert_option_ids {
                     if select_ids.contains(&insert_option_id) {
                         select_ids.retain(|id| id != &insert_option_id);
                     } else {
@@ -112,22 +119,86 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
 }
 #[cfg(test)]
 mod tests {
-    use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
     use crate::services::field::type_options::selection_type_option::*;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{MultiSelectTypeOptionBuilder, MultiSelectTypeOptionPB};
-    use flowy_grid_data_model::revision::FieldRevision;
 
     #[test]
-    fn multi_select_test() {
-        let google_option = SelectOptionPB::new("Google");
-        let facebook_option = SelectOptionPB::new("Facebook");
-        let twitter_option = SelectOptionPB::new("Twitter");
+    fn multi_select_insert_multi_option_test() {
+        let google = SelectOptionPB::new("Google");
+        let facebook = SelectOptionPB::new("Facebook");
         let multi_select = MultiSelectTypeOptionBuilder::default()
-            .add_option(google_option.clone())
-            .add_option(facebook_option.clone())
-            .add_option(twitter_option);
+            .add_option(google.clone())
+            .add_option(facebook.clone());
+
+        let field_rev = FieldBuilder::new(multi_select).name("Platform").build();
+        let type_option = MultiSelectTypeOptionPB::from(&field_rev);
+        let option_ids = vec![google.id, facebook.id];
+        let data = SelectOptionCellChangeset::from_insert_options(option_ids.clone()).to_str();
+        let select_option_ids: SelectOptionIds = type_option.apply_changeset(data.into(), None).unwrap().into();
+
+        assert_eq!(&*select_option_ids, &option_ids);
+    }
+
+    #[test]
+    fn multi_select_unselect_multi_option_test() {
+        let google = SelectOptionPB::new("Google");
+        let facebook = SelectOptionPB::new("Facebook");
+        let multi_select = MultiSelectTypeOptionBuilder::default()
+            .add_option(google.clone())
+            .add_option(facebook.clone());
+
+        let field_rev = FieldBuilder::new(multi_select).name("Platform").build();
+        let type_option = MultiSelectTypeOptionPB::from(&field_rev);
+        let option_ids = vec![google.id, facebook.id];
+
+        // insert
+        let data = SelectOptionCellChangeset::from_insert_options(option_ids.clone()).to_str();
+        let select_option_ids: SelectOptionIds = type_option.apply_changeset(data.into(), None).unwrap().into();
+        assert_eq!(&*select_option_ids, &option_ids);
+
+        // delete
+        let data = SelectOptionCellChangeset::from_delete_options(option_ids).to_str();
+        let select_option_ids: SelectOptionIds = type_option.apply_changeset(data.into(), None).unwrap().into();
+        assert!(select_option_ids.is_empty());
+    }
+
+    #[test]
+    fn multi_select_insert_single_option_test() {
+        let google = SelectOptionPB::new("Google");
+        let multi_select = MultiSelectTypeOptionBuilder::default().add_option(google.clone());
+
+        let field_rev = FieldBuilder::new(multi_select)
+            .name("Platform")
+            .visibility(true)
+            .build();
+
+        let type_option = MultiSelectTypeOptionPB::from(&field_rev);
+        let data = SelectOptionCellChangeset::from_insert_option_id(&google.id).to_str();
+        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
+        assert_eq!(cell_option_ids, google.id);
+    }
+
+    #[test]
+    fn multi_select_insert_non_exist_option_test() {
+        let google = SelectOptionPB::new("Google");
+        let multi_select = MultiSelectTypeOptionBuilder::default();
+        let field_rev = FieldBuilder::new(multi_select)
+            .name("Platform")
+            .visibility(true)
+            .build();
+
+        let type_option = MultiSelectTypeOptionPB::from(&field_rev);
+        let data = SelectOptionCellChangeset::from_insert_option_id(&google.id).to_str();
+        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
+        assert!(cell_option_ids.is_empty());
+    }
+
+    #[test]
+    fn multi_select_insert_invalid_option_id_test() {
+        let google = SelectOptionPB::new("Google");
+        let multi_select = MultiSelectTypeOptionBuilder::default().add_option(google);
 
         let field_rev = FieldBuilder::new(multi_select)
             .name("Platform")
@@ -136,51 +207,23 @@ mod tests {
 
         let type_option = MultiSelectTypeOptionPB::from(&field_rev);
 
-        let option_ids = vec![google_option.id.clone(), facebook_option.id.clone()].join(SELECTION_IDS_SEPARATOR);
-        let data = SelectOptionCellChangeset::from_insert(&option_ids).to_str();
-        let cell_data = type_option.apply_changeset(data.into(), None).unwrap();
-        assert_multi_select_options(
-            cell_data,
-            &type_option,
-            &field_rev,
-            vec![google_option.clone(), facebook_option],
-        );
+        // empty option id string
+        let data = SelectOptionCellChangeset::from_insert_option_id("").to_str();
+        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
+        assert_eq!(cell_option_ids, "");
 
-        let data = SelectOptionCellChangeset::from_insert(&google_option.id).to_str();
-        let cell_data = type_option.apply_changeset(data.into(), None).unwrap();
-        assert_multi_select_options(cell_data, &type_option, &field_rev, vec![google_option]);
-
-        // Invalid option id
-        let cell_data = type_option
-            .apply_changeset(SelectOptionCellChangeset::from_insert("").to_str().into(), None)
-            .unwrap();
-        assert_multi_select_options(cell_data, &type_option, &field_rev, vec![]);
-
-        // Invalid option id
-        let cell_data = type_option
-            .apply_changeset(SelectOptionCellChangeset::from_insert("123,456").to_str().into(), None)
-            .unwrap();
-        assert_multi_select_options(cell_data, &type_option, &field_rev, vec![]);
-
-        // Invalid changeset
-        assert!(type_option.apply_changeset("123".to_owned().into(), None).is_err());
+        let data = SelectOptionCellChangeset::from_insert_option_id("123,456").to_str();
+        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
+        assert_eq!(cell_option_ids, "");
     }
 
-    fn assert_multi_select_options(
-        cell_data: String,
-        type_option: &MultiSelectTypeOptionPB,
-        field_rev: &FieldRevision,
-        expected: Vec<SelectOptionPB>,
-    ) {
-        let field_type: FieldType = field_rev.ty.into();
-        assert_eq!(
-            expected,
-            type_option
-                .decode_cell_data(cell_data.into(), &field_type, field_rev)
-                .unwrap()
-                .parser::<SelectOptionCellDataParser>()
-                .unwrap()
-                .select_options,
-        );
+    #[test]
+    fn multi_select_invalid_changeset_data_test() {
+        let multi_select = MultiSelectTypeOptionBuilder::default();
+        let field_rev = FieldBuilder::new(multi_select).name("Platform").build();
+        let type_option = MultiSelectTypeOptionPB::from(&field_rev);
+
+        // The type of the changeset should be SelectOptionCellChangeset
+        assert!(type_option.apply_changeset("123".to_owned().into(), None).is_err());
     }
 }

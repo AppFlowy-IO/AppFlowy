@@ -244,14 +244,14 @@ pub fn insert_date_cell(timestamp: i64, field_rev: &FieldRevision) -> CellRevisi
     CellRevision::new(data)
 }
 
-pub fn insert_select_option_cell(option_id: String, field_rev: &FieldRevision) -> CellRevision {
-    let cell_data = SelectOptionCellChangeset::from_insert(&option_id).to_str();
+pub fn insert_select_option_cell(option_ids: Vec<String>, field_rev: &FieldRevision) -> CellRevision {
+    let cell_data = SelectOptionCellChangeset::from_insert_options(option_ids).to_str();
     let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
     CellRevision::new(data)
 }
 
-pub fn delete_select_option_cell(option_id: String, field_rev: &FieldRevision) -> CellRevision {
-    let cell_data = SelectOptionCellChangeset::from_delete(&option_id).to_str();
+pub fn delete_select_option_cell(option_ids: Vec<String>, field_rev: &FieldRevision) -> CellRevision {
+    let cell_data = SelectOptionCellChangeset::from_delete_options(option_ids).to_str();
     let data = apply_cell_data_changeset(cell_data, None, field_rev).unwrap();
     CellRevision::new(data)
 }
