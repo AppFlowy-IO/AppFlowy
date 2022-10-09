@@ -4,7 +4,7 @@ use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOper
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{
     make_selected_select_options, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB,
-    SelectOptionIds, SelectOptionOperation, SelectOptionPB, TypeOptionBuilder, SELECTION_IDS_SEPARATOR,
+    SelectOptionIds, SelectOptionOperation, SelectOptionPB, TypeOptionBuilder,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -64,13 +64,12 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
         let new_cell_data: String;
         match cell_rev {
             None => {
-                new_cell_data = content_changeset.insert_option_id.unwrap_or_else(|| "".to_owned());
+                new_cell_data = SelectOptionIds::from(content_changeset.insert_option_ids).to_string();
             }
             Some(cell_rev) => {
                 let cell_data = get_cell_data(&cell_rev);
                 let mut select_ids: SelectOptionIds = cell_data.into();
-                if let Some(insert_option_id) = content_changeset.insert_option_id {
-                    tracing::trace!("Insert multi select option: {}", &insert_option_id);
+                for insert_option_id in content_changeset.insert_option_ids {
                     if select_ids.contains(&insert_option_id) {
                         select_ids.retain(|id| id != &insert_option_id);
                     } else {
@@ -78,12 +77,11 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
                     }
                 }
 
-                if let Some(delete_option_id) = content_changeset.delete_option_id {
-                    tracing::trace!("Delete multi select option: {}", &delete_option_id);
+                for delete_option_id in content_changeset.delete_option_ids {
                     select_ids.retain(|id| id != &delete_option_id);
                 }
 
-                new_cell_data = select_ids.join(SELECTION_IDS_SEPARATOR);
+                new_cell_data = select_ids.to_string();
                 tracing::trace!("Multi select cell data: {}", &new_cell_data);
             }
         }

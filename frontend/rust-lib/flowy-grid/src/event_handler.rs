@@ -349,18 +349,20 @@ pub(crate) async fn update_select_option_handler(
     if let Some(mut field_rev) = editor.get_field_rev(&changeset.cell_identifier.field_id).await {
         let mut_field_rev = Arc::make_mut(&mut field_rev);
         let mut type_option = select_option_operation(mut_field_rev)?;
+
+        //
         let mut cell_content_changeset = None;
 
-        if let Some(option) = changeset.insert_option {
+        for option in changeset.insert_options {
             cell_content_changeset = Some(SelectOptionCellChangeset::from_insert(&option.id).to_str());
             type_option.insert_option(option);
         }
 
-        if let Some(option) = changeset.update_option {
+        for option in changeset.update_options {
             type_option.insert_option(option);
         }
 
-        if let Some(option) = changeset.delete_option {
+        for option in changeset.delete_options {
             cell_content_changeset = Some(SelectOptionCellChangeset::from_delete(&option.id).to_str());
             type_option.delete_option(option);
         }

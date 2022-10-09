@@ -62,12 +62,18 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         changeset: CellDataChangeset<SelectOptionCellChangeset>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
-        let select_option_changeset = changeset.try_into_inner()?;
+        let mut select_option_changeset = changeset.try_into_inner()?;
         let new_cell_data: String;
-        if let Some(insert_option_id) = select_option_changeset.insert_option_id {
-            new_cell_data = insert_option_id;
-        } else {
+
+        // In single select, the insert_option_ids should only contain one select option id.
+        // Sometimes, the insert_option_ids may contain list of option ids. For example,
+        // copy/paste a ids string.
+        if select_option_changeset.insert_option_ids.is_empty() {
             new_cell_data = "".to_string()
+        } else {
+            // Just take the first select option
+            let _ = select_option_changeset.insert_option_ids.drain(1..);
+            new_cell_data = select_option_changeset.insert_option_ids.pop().unwrap();
         }
 
         Ok(new_cell_data)

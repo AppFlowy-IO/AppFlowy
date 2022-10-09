@@ -26,7 +26,7 @@ class SelectOptionService {
               ..fieldId = fieldId
               ..rowId = rowId;
             final payload = SelectOptionChangesetPayloadPB.create()
-              ..insertOption = option
+              ..insertOptions.add(option)
               ..cellIdentifier = cellIdentifier;
             return GridEventUpdateSelectOption(payload).send();
           },
@@ -40,7 +40,7 @@ class SelectOptionService {
     required SelectOptionPB option,
   }) {
     final payload = SelectOptionChangesetPayloadPB.create()
-      ..updateOption = option
+      ..updateOptions.add(option)
       ..cellIdentifier = _cellIdentifier();
     return GridEventUpdateSelectOption(payload).send();
   }
@@ -49,7 +49,7 @@ class SelectOptionService {
     required SelectOptionPB option,
   }) {
     final payload = SelectOptionChangesetPayloadPB.create()
-      ..deleteOption = option
+      ..deleteOptions.add(option)
       ..cellIdentifier = _cellIdentifier();
 
     return GridEventUpdateSelectOption(payload).send();
@@ -67,14 +67,14 @@ class SelectOptionService {
   Future<Either<void, FlowyError>> select({required String optionId}) {
     final payload = SelectOptionCellChangesetPayloadPB.create()
       ..cellIdentifier = _cellIdentifier()
-      ..insertOptionId = optionId;
+      ..insertOptionIds.add(optionId);
     return GridEventUpdateSelectOptionCell(payload).send();
   }
 
   Future<Either<void, FlowyError>> unSelect({required String optionId}) {
     final payload = SelectOptionCellChangesetPayloadPB.create()
       ..cellIdentifier = _cellIdentifier()
-      ..deleteOptionId = optionId;
+      ..deleteOptionIds.add(optionId);
     return GridEventUpdateSelectOptionCell(payload).send();
   }
 
