@@ -8,10 +8,18 @@ class FlowyHover extends StatefulWidget {
   final HoverStyle style;
   final HoverBuilder? builder;
   final Widget? child;
+
   final bool Function()? isSelected;
   final void Function(bool)? onHover;
   final MouseCursor? cursor;
-  final bool Function()? buildWhen;
+
+  /// Determined whether the [builder] should get called when onEnter/onExit
+  /// happened
+  ///
+  /// [FlowyHover] show hover when [MouseRegion]'s onEnter get called
+  /// [FlowyHover] hide hover when [MouseRegion]'s onExit get called
+  ///
+  final bool Function()? buildWhenOnHover;
 
   const FlowyHover({
     Key? key,
@@ -21,7 +29,7 @@ class FlowyHover extends StatefulWidget {
     this.isSelected,
     this.onHover,
     this.cursor,
-    this.buildWhen,
+    this.buildWhenOnHover,
   }) : super(key: key);
 
   @override
@@ -32,6 +40,13 @@ class _FlowyHoverState extends State<FlowyHover> {
   bool _onHover = false;
 
   @override
+  void didUpdateWidget(covariant FlowyHover oldWidget) {
+    // Reset the _onHover to false when the parent widget get rebuild.
+    _onHover = false;
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: widget.cursor != null ? widget.cursor! : SystemMouseCursors.click,
@@ -39,7 +54,7 @@ class _FlowyHoverState extends State<FlowyHover> {
       onEnter: (p) {
         if (_onHover) return;
 
-        if (widget.buildWhen?.call() ?? true) {
+        if (widget.buildWhenOnHover?.call() ?? true) {
           setState(() => _onHover = true);
           if (widget.onHover != null) {
             widget.onHover!(true);
@@ -49,7 +64,7 @@ class _FlowyHoverState extends State<FlowyHover> {
       onExit: (p) {
         if (_onHover == false) return;
 
-        if (widget.buildWhen?.call() ?? true) {
+        if (widget.buildWhenOnHover?.call() ?? true) {
           setState(() => _onHover = false);
           if (widget.onHover != null) {
             widget.onHover!(false);

@@ -51,7 +51,9 @@ class ViewSectionItem extends StatelessWidget {
               onTap: () => onSelected(blocContext.read<ViewBloc>().state.view),
               child: FlowyHover(
                 style: HoverStyle(hoverColor: theme.bg3),
-                buildWhen: () => !state.isEditing || !isSelected,
+                // If current state.isEditing is true, the hover should not
+                // rebuild when onEnter/onExit events happened.
+                buildWhenOnHover: () => !state.isEditing,
                 builder: (_, onHover) => _render(
                   blocContext,
                   onHover,
