@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 
-import 'package:appflowy_editor/src/document/attributes.dart';
+import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:flutter/foundation.dart';
 
 // constant number: 2^53 - 1

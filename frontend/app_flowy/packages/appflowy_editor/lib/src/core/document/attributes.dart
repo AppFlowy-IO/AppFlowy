@@ -23,21 +23,27 @@ Attributes? composeAttributes(
   return attributes.isNotEmpty ? attributes : null;
 }
 
-Attributes invertAttributes(Attributes? base, Attributes? other) {
-  base ??= {};
-  other ??= {};
-  final Attributes attributes = base.keys.fold({}, (previousValue, key) {
-    if (other!.containsKey(key) && other[key] != base![key]) {
-      previousValue[key] = base[key];
+Attributes invertAttributes(Attributes? from, Attributes? to) {
+  from ??= {};
+  to ??= {};
+  final attributes = Attributes.from({});
+
+  // key in from but not in to, or value is different
+  for (final entry in from.entries) {
+    if ((!to.containsKey(entry.key) && entry.value != null) ||
+        to[entry.key] != entry.value) {
+      attributes[entry.key] = entry.value;
     }
-    return previousValue;
-  });
-  return other.keys.fold(attributes, (previousValue, key) {
-    if (!base!.containsKey(key) && other![key] != base[key]) {
-      previousValue[key] = null;
+  }
+
+  // key in to but not in from, or value is different
+  for (final entry in to.entries) {
+    if (!from.containsKey(entry.key) && entry.value != null) {
+      attributes[entry.key] = null;
     }
-    return previousValue;
-  });
+  }
+
+  return attributes;
 }
 
 int hashAttributes(Attributes base) => Object.hashAllUnordered(

@@ -147,5 +147,68 @@ void main() async {
       expect(identical(node.children, base.children), false);
       expect(identical(node.children.first, base.children.first), false);
     });
+
+    test('test insert', () {
+      final base = Node(
+        type: 'base',
+      );
+
+      // insert at the front
+      final childA = Node(
+        type: 'child',
+      );
+      base.insert(childA, index: -1);
+      expect(
+        identical(base.childAtIndex(0), childA),
+        true,
+      );
+
+      // insert at the last
+      final childB = Node(
+        type: 'child',
+      );
+      base.insert(childB, index: 1000);
+      expect(
+        identical(base.childAtIndex(base.children.length - 1), childB),
+        true,
+      );
+
+      // insert at the last
+      final childC = Node(
+        type: 'child',
+      );
+      base.insert(childC);
+      expect(
+        identical(base.childAtIndex(base.children.length - 1), childC),
+        true,
+      );
+    });
+
+    test('test fromJson', () {
+      final node = Node.fromJson({
+        'type': 'example',
+        'attributes': {
+          'example': 'example',
+        },
+        'children': [
+          {
+            'type': 'example',
+            'attributes': {
+              'example': 'example',
+            },
+          },
+        ],
+      });
+      expect(node.type, 'example');
+      expect(node.attributes, {'example': 'example'});
+      expect(node.children.length, 1);
+      expect(node.children.first.type, 'example');
+      expect(node.children.first.attributes, {'example': 'example'});
+    });
+
+    test('test toPlainText', () {
+      final textNode = TextNode.empty()..delta = (Delta()..insert('AppFlowy'));
+      expect(textNode.toPlainText(), 'AppFlowy');
+    });
   });
 }

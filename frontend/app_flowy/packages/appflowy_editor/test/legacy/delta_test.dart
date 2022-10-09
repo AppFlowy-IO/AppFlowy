@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/src/document/attributes.dart';
+import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
 

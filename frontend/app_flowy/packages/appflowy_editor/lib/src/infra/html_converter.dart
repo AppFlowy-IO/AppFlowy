@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:ui';
 
-import 'package:appflowy_editor/src/document/attributes.dart';
+import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/document/text_delta.dart';
 import 'package:appflowy_editor/src/extensions/color_extension.dart';
