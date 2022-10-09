@@ -20,7 +20,7 @@ jobs:
           - os: macos-latest
             flutter_profile: development-mac-x86_64
           - os: windows-latest
-            flutter_profile: development(production)-windows-x86
+            flutter_profile: development-windows-x86
     runs-on: ${{ matrix.os }}
 
     steps:
