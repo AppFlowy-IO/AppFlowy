@@ -283,15 +283,8 @@ impl GridViewRevisionEditor {
         .await
     }
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub(crate) async fn did_update_view_field(&self, field_id: &str) -> FlowyResult<()> {
-        if let Some(field_rev) = self.field_delegate.get_field_rev(field_id).await {
-            match self.group_controller.write().await.did_update_group_field(&field_rev)? {
-                None => {}
-                Some(changeset) => {
-                    self.notify_did_update_view(changeset).await;
-                }
-            }
-        }
+    pub(crate) async fn did_update_view_field(&self, _field_id: &str) -> FlowyResult<()> {
+        // Do nothing
         Ok(())
     }
 

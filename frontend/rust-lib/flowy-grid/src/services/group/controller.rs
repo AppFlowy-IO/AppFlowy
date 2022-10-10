@@ -319,11 +319,8 @@ where
         }
     }
 
-    fn did_update_group_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
-        let type_option = field_rev.get_type_option::<T>(field_rev.ty);
-        let groups = G::generate_groups(&field_rev.id, &self.group_ctx, &type_option);
-        let changeset = self.group_ctx.init_groups(groups)?;
-        Ok(changeset)
+    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
+        Ok(None)
     }
 }
 

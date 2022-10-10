@@ -1,5 +1,4 @@
-use crate::core::{AttributeHashMap, DeltaOperation, DeltaOperations, OperationBuilder, OperationTransform};
-use std::fmt::Debug;
+use crate::core::{AttributeHashMap, DeltaOperation, DeltaOperations, OperationBuilder};
 
 pub type TextOperations = DeltaOperations<AttributeHashMap>;
 pub type TextOperationBuilder = OperationBuilder<AttributeHashMap>;
