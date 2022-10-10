@@ -1,6 +1,6 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import './operation.dart';
 
 /// A [Transaction] has a list of [Operation] objects that will be applied

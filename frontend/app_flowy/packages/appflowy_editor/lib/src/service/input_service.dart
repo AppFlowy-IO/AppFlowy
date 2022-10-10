@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';

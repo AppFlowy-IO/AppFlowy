@@ -25,7 +25,7 @@ Selection _computeSelectionAfterPasteMultipleNodes(
 }
 
 void _handleCopy(EditorState editorState) async {
-  final selection = editorState.cursorSelection?.normalize;
+  final selection = editorState.cursorSelection?.normalized;
   if (selection == null || selection.isCollapsed) {
     return;
   }
@@ -65,7 +65,7 @@ void _handleCopy(EditorState editorState) async {
 }
 
 void _pasteHTML(EditorState editorState, String html) {
-  final selection = editorState.cursorSelection?.normalize;
+  final selection = editorState.cursorSelection?.normalized;
   if (selection == null) {
     return;
   }
@@ -234,7 +234,7 @@ Delta _lineContentToDelta(String lineContent) {
 }
 
 void _handlePastePlainText(EditorState editorState, String plainText) {
-  final selection = editorState.cursorSelection?.normalize;
+  final selection = editorState.cursorSelection?.normalized;
   if (selection == null) {
     return;
   }
@@ -300,7 +300,7 @@ void _handleCut(EditorState editorState) {
 }
 
 void _deleteSelectedContent(EditorState editorState) {
-  final selection = editorState.cursorSelection?.normalize;
+  final selection = editorState.cursorSelection?.normalized;
   if (selection == null || selection.isCollapsed) {
     return;
   }

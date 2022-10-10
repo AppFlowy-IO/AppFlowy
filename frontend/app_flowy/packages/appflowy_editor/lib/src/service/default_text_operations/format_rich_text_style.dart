@@ -1,8 +1,8 @@
 import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
-import 'package:appflowy_editor/src/core/selection/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/position.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';

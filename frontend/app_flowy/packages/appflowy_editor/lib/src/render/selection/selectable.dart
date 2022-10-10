@@ -1,5 +1,5 @@
-import 'package:appflowy_editor/src/core/selection/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/position.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:flutter/material.dart';
 
 enum CursorStyle {

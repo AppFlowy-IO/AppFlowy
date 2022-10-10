@@ -5,7 +5,7 @@ import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:appflowy_editor/src/service/service.dart';
 import 'package:flutter/material.dart';
 
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/document/state_tree.dart';
 import 'package:appflowy_editor/src/operation/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction.dart';

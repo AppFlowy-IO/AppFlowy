@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/node_iterator.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
-import 'package:appflowy_editor/src/core/selection/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/position.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
@@ -366,7 +366,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     final backwardNodes =
         selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
-    final normalizedSelection = selection.normalize;
+    final normalizedSelection = selection.normalized;
     assert(normalizedSelection.isBackward);
 
     Log.selection.debug('update selection areas, $normalizedSelection');
@@ -378,7 +378,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
         continue;
       }
 
-      var newSelection = normalizedSelection.copy();
+      var newSelection = normalizedSelection.copyWith();
 
       /// In the case of multiple selections,
       ///  we need to return a new selection for each selected node individually.

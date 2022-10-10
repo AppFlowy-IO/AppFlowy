@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/core/selection/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/position.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 
