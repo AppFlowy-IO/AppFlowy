@@ -8,7 +8,7 @@ import 'package:appflowy_editor/src/extensions/color_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 
 class HTMLTag {
   static const h1 = "h1";

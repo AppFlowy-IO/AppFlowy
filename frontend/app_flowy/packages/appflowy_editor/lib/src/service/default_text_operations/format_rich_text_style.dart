@@ -6,7 +6,7 @@ import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 
 void insertHeadingAfterSelection(EditorState editorState, String heading) {
   insertTextNodeAfterSelection(editorState, {

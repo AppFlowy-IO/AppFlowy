@@ -1,9 +1,9 @@
 import 'dart:collection';
 
+import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/core/document/text_delta.dart';
-import '../document/attributes.dart';
 
 /// [Document] reprensents a AppFlowy Editor document structure.
 ///

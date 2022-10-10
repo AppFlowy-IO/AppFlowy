@@ -10,7 +10,7 @@ export 'src/core/location/selection.dart';
 export 'src/core/state/document.dart';
 export 'src/core/document/text_delta.dart';
 export 'src/core/document/attributes.dart';
-export 'src/document/built_in_attribute_keys.dart';
+export 'src/core/legacy/built_in_attribute_keys.dart';
 export 'src/editor_state.dart';
 export 'src/operation/operation.dart';
 export 'src/operation/transaction.dart';
