@@ -3,7 +3,7 @@ use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell};
 use crate::services::field::{SelectOptionCellDataPB, SelectOptionPB, CHECK};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::{GeneratedGroup, Group};
+use crate::services::group::{GeneratedGroupConfig, Group};
 use flowy_grid_data_model::revision::{
     CellRevision, FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision,
 };
@@ -155,10 +155,10 @@ pub fn generate_select_option_groups(
     _field_id: &str,
     _group_ctx: &SelectOptionGroupContext,
     options: &[SelectOptionPB],
-) -> Vec<GeneratedGroup> {
+) -> Vec<GeneratedGroupConfig> {
     let groups = options
         .iter()
-        .map(|option| GeneratedGroup {
+        .map(|option| GeneratedGroupConfig {
             group_rev: GroupRevision::new(option.id.clone(), option.name.clone()),
             filter_content: option.id.clone(),
         })

@@ -92,7 +92,7 @@ impl GridViewManager {
 
     pub(crate) async fn group_by_field(&self, field_id: &str) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        let _ = view_editor.group_by_field(field_id).await?;
+        let _ = view_editor.group_by_view_field(field_id).await?;
         Ok(())
     }
 
@@ -176,18 +176,28 @@ impl GridViewManager {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub(crate) async fn did_update_field(&self, field_id: &str, is_type_option_changed: bool) -> FlowyResult<()> {
+    pub(crate) async fn did_update_view_field(&self, field_id: &str) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
         // Only the field_id of the updated field is equal to the field_id of the group.
         // Update the group
         if view_editor.group_id().await != field_id {
             return Ok(());
         }
-        if is_type_option_changed {
-            let _ = view_editor.group_by_field(field_id).await?;
-        } else {
-            let _ = view_editor.did_update_field(field_id).await?;
-        }
+        let _ = view_editor.did_update_view_field(field_id).await?;
+        Ok(())
+    }
+
+    /// Notifies the view's field type option data is changed
+    /// For the moment, only the groups will be generated after the type option data changed. A
+    /// [FieldRevision] has a property named type_options contains a list of type option data.
+    /// # Arguments
+    ///
+    /// * `field_id`: the id of the field in current view
+    ///
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub(crate) async fn did_update_view_field_type_option(&self, field_id: &str) -> FlowyResult<()> {
+        let view_editor = self.get_default_view_editor().await?;
+        let _ = view_editor.group_by_view_field(field_id).await?;
         Ok(())
     }
 

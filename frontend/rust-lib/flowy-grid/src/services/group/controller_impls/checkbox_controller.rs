@@ -7,7 +7,7 @@ use crate::services::group::controller::{
 };
 
 use crate::services::cell::insert_checkbox_cell;
-use crate::services::group::{move_group_row, GeneratedGroup};
+use crate::services::group::{move_group_row, GeneratedGroupConfig};
 use flowy_grid_data_model::revision::{
     CellRevision, CheckboxGroupConfigurationRevision, FieldRevision, GroupRevision, RowRevision,
 };
@@ -116,13 +116,13 @@ impl GroupGenerator for CheckboxGroupGenerator {
         _field_id: &str,
         _group_ctx: &Self::Context,
         _type_option: &Option<Self::TypeOptionType>,
-    ) -> Vec<GeneratedGroup> {
-        let check_group = GeneratedGroup {
+    ) -> Vec<GeneratedGroupConfig> {
+        let check_group = GeneratedGroupConfig {
             group_rev: GroupRevision::new(CHECK.to_string(), "".to_string()),
             filter_content: CHECK.to_string(),
         };
 
-        let uncheck_group = GeneratedGroup {
+        let uncheck_group = GeneratedGroupConfig {
             group_rev: GroupRevision::new(UNCHECK.to_string(), "".to_string()),
             filter_content: UNCHECK.to_string(),
         };
