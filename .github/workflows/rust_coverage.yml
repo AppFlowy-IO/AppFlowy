@@ -61,7 +61,10 @@ jobs:
 
       - name: Install cargo-make
         working-directory: frontend
-        run: cargo install cargo-make
+        run: |
+          cargo install cargo-make
+          cargo install grcov
+          rustup component add llvm-tools-preview
 
       - name: Run Coverage tests and generate LCOV report
         working-directory: frontend
