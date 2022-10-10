@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/core/document/attributes.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
-import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/core/document/text_delta.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 
 class Node extends ChangeNotifier with LinkedListEntry<Node> {
   Node({
@@ -275,4 +275,27 @@ class TextNode extends Node {
   }
 
   String toPlainText() => _delta.toPlainText();
+}
+
+extension NodeEquality on Iterable<Node> {
+  bool equals(Iterable<Node> other) {
+    if (length != other.length) {
+      return false;
+    }
+    for (var i = 0; i < length; i++) {
+      if (!_nodeEquals(elementAt(i), other.elementAt(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool _nodeEquals<T, U>(T base, U other) {
+    if (identical(this, other)) return true;
+
+    return base is Node &&
+        other is Node &&
+        other.type == base.type &&
+        other.children.equals(base.children);
+  }
 }
