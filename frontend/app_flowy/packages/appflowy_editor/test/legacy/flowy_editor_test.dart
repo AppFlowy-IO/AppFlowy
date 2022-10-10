@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/src/core/document/path.dart';
-import 'package:appflowy_editor/src/document/position.dart';
+import 'package:appflowy_editor/src/core/selection/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:flutter_test/flutter_test.dart';
 

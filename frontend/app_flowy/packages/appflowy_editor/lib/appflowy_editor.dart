@@ -5,7 +5,7 @@ export 'src/infra/log.dart';
 export 'src/render/style/editor_style.dart';
 export 'src/core/document/node.dart';
 export 'src/core/document/path.dart';
-export 'src/document/position.dart';
+export 'src/core/selection/position.dart';
 export 'src/document/selection.dart';
 export 'src/document/state_tree.dart';
 export 'src/core/document/text_delta.dart';

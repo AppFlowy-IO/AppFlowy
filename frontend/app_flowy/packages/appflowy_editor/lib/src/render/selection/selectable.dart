@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/src/document/position.dart';
+import 'package:appflowy_editor/src/core/selection/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:flutter/material.dart';
 

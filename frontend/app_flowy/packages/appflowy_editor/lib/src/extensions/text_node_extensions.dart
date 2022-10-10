@@ -1,6 +1,6 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
-import 'package:appflowy_editor/src/document/position.dart';
+import 'package:appflowy_editor/src/core/selection/position.dart';
 import 'package:appflowy_editor/src/document/selection.dart';
 import 'package:appflowy_editor/src/core/document/text_delta.dart';
 import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';

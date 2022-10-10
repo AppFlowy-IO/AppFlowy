@@ -11,17 +11,18 @@ class Position {
 
   @override
   bool operator ==(Object other) {
-    if (other is! Position) {
-      return false;
-    }
-    return path.equals(other.path) && offset == other.offset;
+    if (identical(this, other)) return true;
+
+    return other is Position &&
+        other.path.equals(path) &&
+        other.offset == offset;
   }
 
   @override
-  int get hashCode {
-    final pathHash = Object.hashAll(path);
-    return Object.hash(pathHash, offset);
-  }
+  int get hashCode => Object.hash(offset, Object.hashAll(path));
+
+  @override
+  String toString() => 'path = $path, offset = $offset';
 
   Position copyWith({Path? path, int? offset}) {
     return Position(
@@ -30,13 +31,10 @@ class Position {
     );
   }
 
-  @override
-  String toString() => 'path = $path, offset = $offset';
-
   Map<String, dynamic> toJson() {
     return {
-      "path": path.toList(),
-      "offset": offset,
+      'path': path,
+      'offset': offset,
     };
   }
 }
