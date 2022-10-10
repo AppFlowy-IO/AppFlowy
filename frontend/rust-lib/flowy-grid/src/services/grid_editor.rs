@@ -105,7 +105,7 @@ impl GridRevisionEditor {
                 frozen: Some(field.frozen),
                 visibility: Some(field.visibility),
                 width: Some(field.width),
-                type_option_data: Some(type_option_data),
+                type_option_data: None,
             };
 
             let _ = self.update_field_rev(changeset, field.field_type).await?;

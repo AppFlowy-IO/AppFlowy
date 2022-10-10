@@ -67,25 +67,6 @@ class FieldService {
     return GridEventUpdateField(payload).send();
   }
 
-  // Create the field if it does not exist. Otherwise, update the field.
-  static Future<Either<Unit, FlowyError>> insertField({
-    required String gridId,
-    required FieldPB field,
-    List<int>? typeOptionData,
-    String? startFieldId,
-  }) {
-    var payload = InsertFieldPayloadPB.create()
-      ..gridId = gridId
-      ..field_2 = field
-      ..typeOptionData = typeOptionData ?? [];
-
-    if (startFieldId != null) {
-      payload.startFieldId = startFieldId;
-    }
-
-    return GridEventInsertField(payload).send();
-  }
-
   static Future<Either<Unit, FlowyError>> updateFieldTypeOption({
     required String gridId,
     required String fieldId,

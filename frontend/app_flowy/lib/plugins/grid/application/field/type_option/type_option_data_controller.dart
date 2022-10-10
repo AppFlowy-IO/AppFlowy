@@ -47,64 +47,41 @@ class TypeOptionDataController {
     return _data.field_2;
   }
 
-  set field(FieldPB field) {
-    _updateData(newField: field);
-  }
-
   T getTypeOption<T>(TypeOptionDataParser<T> parser) {
     return parser.fromBuffer(_data.typeOptionData);
   }
 
   set fieldName(String name) {
-    _updateData(newName: name);
-  }
-
-  set typeOptionData(List<int> typeOptionData) {
-    _updateData(newTypeOptionData: typeOptionData);
-  }
-
-  void _updateData({
-    String? newName,
-    FieldPB? newField,
-    List<int>? newTypeOptionData,
-  }) {
     _data = _data.rebuild((rebuildData) {
-      if (newName != null) {
-        rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {
-          rebuildField.name = newName;
-        });
-      }
-
-      if (newField != null) {
-        rebuildData.field_2 = newField;
-      }
-
-      if (newTypeOptionData != null) {
-        rebuildData.typeOptionData = newTypeOptionData;
-      }
+      rebuildData.field_2 = rebuildData.field_2.rebuild((rebuildField) {
+        rebuildField.name = name;
+      });
     });
 
     _fieldNotifier.value = _data.field_2;
 
-    FieldService.insertField(
+    FieldService(gridId: gridId, fieldId: field.id).updateField(name: name);
+  }
+
+  set typeOptionData(List<int> typeOptionData) {
+    _data = _data.rebuild((rebuildData) {
+      if (typeOptionData.isNotEmpty) {
+        rebuildData.typeOptionData = typeOptionData;
+      }
+    });
+
+    FieldService.updateFieldTypeOption(
       gridId: gridId,
-      field: field,
-      typeOptionData: _data.typeOptionData,
+      fieldId: field.id,
+      typeOptionData: typeOptionData,
     );
   }
 
   Future<void> switchToField(FieldType newFieldType) {
     return loader.switchToField(field.id, newFieldType).then((result) {
       return result.fold(
-        (fieldTypeOptionData) {
-          _updateData(
-            newField: fieldTypeOptionData.field_2,
-            newTypeOptionData: fieldTypeOptionData.typeOptionData,
-          );
-        },
-        (err) {
-          Log.error(err);
-        },
+        (_) {},
+        (err) => Log.error(err),
       );
     });
   }
