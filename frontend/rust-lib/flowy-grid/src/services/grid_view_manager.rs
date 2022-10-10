@@ -12,8 +12,9 @@ use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
 use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
 use flowy_revision::{RevisionCompactor, RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
 use flowy_sync::entities::revision::Revision;
-use flowy_sync::util::make_text_delta_from_revisions;
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::AFFuture;
+use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
 
 type ViewId = String;
@@ -262,7 +263,7 @@ pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str)
 pub struct GridViewRevisionCompactor();
 impl RevisionCompactor for GridViewRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_text_delta_from_revisions(revisions)?;
-        Ok(delta.json_bytes())
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
     }
 }

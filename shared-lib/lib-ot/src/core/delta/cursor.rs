@@ -1,6 +1,6 @@
 #![allow(clippy::while_let_on_iterator)]
-use crate::core::delta::operation::{Operation, OperationAttributes};
-use crate::core::delta::Operations;
+use crate::core::delta::operation::{DeltaOperation, OperationAttributes};
+use crate::core::delta::DeltaOperations;
 use crate::core::interval::Interval;
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use std::{cmp::min, iter::Enumerate, slice::Iter};
@@ -8,13 +8,13 @@ use std::{cmp::min, iter::Enumerate, slice::Iter};
 /// A [OperationsCursor] is used to iterate the delta and return the corresponding delta.
 #[derive(Debug)]
 pub struct OperationsCursor<'a, T: OperationAttributes> {
-    pub(crate) delta: &'a Operations<T>,
+    pub(crate) delta: &'a DeltaOperations<T>,
     pub(crate) origin_iv: Interval,
     pub(crate) consume_iv: Interval,
     pub(crate) consume_count: usize,
     pub(crate) op_offset: usize,
-    iter: Enumerate<Iter<'a, Operation<T>>>,
-    next_op: Option<Operation<T>>,
+    iter: Enumerate<Iter<'a, DeltaOperation<T>>>,
+    next_op: Option<DeltaOperation<T>>,
 }
 
 impl<'a, T> OperationsCursor<'a, T>
@@ -29,19 +29,19 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::{OperationsCursor, OperationIterator, Interval, Operation};
-    /// use lib_ot::text_delta::TextDelta;
-    /// let mut delta = TextDelta::default();   
-    /// delta.add(Operation::insert("123"));    
-    /// delta.add(Operation::insert("4"));
+    /// use lib_ot::core::{OperationsCursor, OperationIterator, Interval, DeltaOperation};
+    /// use lib_ot::text_delta::TextOperations;
+    /// let mut delta = TextOperations::default();   
+    /// delta.add(DeltaOperation::insert("123"));    
+    /// delta.add(DeltaOperation::insert("4"));
     ///
     /// let mut cursor = OperationsCursor::new(&delta, Interval::new(0, 3));
     /// assert_eq!(cursor.next_iv(), Interval::new(0,3));
-    /// assert_eq!(cursor.next_with_len(Some(2)).unwrap(), Operation::insert("12"));
-    /// assert_eq!(cursor.get_next_op().unwrap(), Operation::insert("3"));
+    /// assert_eq!(cursor.next_with_len(Some(2)).unwrap(), DeltaOperation::insert("12"));
+    /// assert_eq!(cursor.get_next_op().unwrap(), DeltaOperation::insert("3"));
     /// assert_eq!(cursor.get_next_op(), None);
     /// ```
-    pub fn new(delta: &'a Operations<T>, interval: Interval) -> OperationsCursor<'a, T> {
+    pub fn new(delta: &'a DeltaOperations<T>, interval: Interval) -> OperationsCursor<'a, T> {
         // debug_assert!(interval.start <= delta.target_len);
         let mut cursor = Self {
             delta,
@@ -62,12 +62,12 @@ where
     }
 
     /// Returns the next operation
-    pub fn get_next_op(&mut self) -> Option<Operation<T>> {
+    pub fn get_next_op(&mut self) -> Option<DeltaOperation<T>> {
         self.next_with_len(None)
     }
 
     /// Returns the reference of the next operation
-    pub fn next_op(&self) -> Option<&Operation<T>> {
+    pub fn next_op(&self) -> Option<&DeltaOperation<T>> {
         let mut next_op = self.next_op.as_ref();
         if next_op.is_none() {
             let mut offset = 0;
@@ -87,7 +87,7 @@ where
     /// * `expected_len`: Return the next operation with the specified length.
     ///
     ///
-    pub fn next_with_len(&mut self, expected_len: Option<usize>) -> Option<Operation<T>> {
+    pub fn next_with_len(&mut self, expected_len: Option<usize>) -> Option<DeltaOperation<T>> {
         let mut find_op = None;
         let holder = self.next_op.clone();
         let mut next_op = holder.as_ref();
@@ -182,7 +182,7 @@ where
     }
 }
 
-fn find_next<'a, T>(cursor: &mut OperationsCursor<'a, T>) -> Option<&'a Operation<T>>
+fn find_next<'a, T>(cursor: &mut OperationsCursor<'a, T>) -> Option<&'a DeltaOperation<T>>
 where
     T: OperationAttributes,
 {

@@ -2,7 +2,7 @@ use lib_ot::core::AttributeEntry;
 use lib_ot::text_delta::is_block;
 use lib_ot::{
     core::{Interval, OperationBuilder, OperationIterator},
-    text_delta::{empty_attributes, AttributeScope, TextDelta},
+    text_delta::{empty_attributes, AttributeScope, TextOperations},
 };
 
 use crate::{
@@ -16,7 +16,7 @@ impl FormatExt for ResolveBlockFormat {
         "ResolveBlockFormat"
     }
 
-    fn apply(&self, delta: &TextDelta, interval: Interval, attribute: &AttributeEntry) -> Option<TextDelta> {
+    fn apply(&self, delta: &TextOperations, interval: Interval, attribute: &AttributeEntry) -> Option<TextOperations> {
         if !is_block(&attribute.key) {
             return None;
         }

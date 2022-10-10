@@ -16,7 +16,7 @@ use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
-use flowy_sync::client_document::default::initial_quill_delta_string;
+use flowy_sync::client_document::default::initial_document_str;
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use flowy_sync::entities::ws_data::ClientRevisionWSData;
 use flowy_text_block::TextEditorManager;
@@ -191,7 +191,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         FutureResult::new(async move {
-            let view_data = initial_quill_delta_string();
+            let view_data = initial_document_str();
             let delta_data = Bytes::from(view_data);
             let repeated_revision: RepeatedRevision =
                 Revision::initial_revision(&user_id, &view_id, delta_data.clone()).into();

@@ -1,7 +1,8 @@
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use lib_ot::text_delta::TextDelta;
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
+
+pub type RevisionObject = lib_ot::text_delta::TextOperations;
 
 #[derive(PartialEq, Eq, Clone, Default, ProtoBuf)]
 pub struct Revision {
@@ -12,7 +13,7 @@ pub struct Revision {
     pub rev_id: i64,
 
     #[pb(index = 3)]
-    pub delta_data: Vec<u8>,
+    pub bytes: Vec<u8>,
 
     #[pb(index = 4)]
     pub md5: String,
@@ -47,22 +48,15 @@ impl Revision {
         self.rev_id == 0
     }
 
-    pub fn initial_revision(user_id: &str, object_id: &str, delta_data: Bytes) -> Self {
-        let md5 = md5(&delta_data);
-        Self::new(object_id, 0, 0, delta_data, user_id, md5)
+    pub fn initial_revision(user_id: &str, object_id: &str, bytes: Bytes) -> Self {
+        let md5 = md5(&bytes);
+        Self::new(object_id, 0, 0, bytes, user_id, md5)
     }
 
-    pub fn new(
-        object_id: &str,
-        base_rev_id: i64,
-        rev_id: i64,
-        delta_data: Bytes,
-        user_id: &str,
-        md5: String,
-    ) -> Revision {
+    pub fn new(object_id: &str, base_rev_id: i64, rev_id: i64, bytes: Bytes, user_id: &str, md5: String) -> Revision {
         let user_id = user_id.to_owned();
         let object_id = object_id.to_owned();
-        let delta_data = delta_data.to_vec();
+        let bytes = bytes.to_vec();
         let base_rev_id = base_rev_id;
         let rev_id = rev_id;
 
@@ -73,7 +67,7 @@ impl Revision {
         Self {
             base_rev_id,
             rev_id,
-            delta_data,
+            bytes,
             md5,
             object_id,
             ty: RevType::DeprecatedLocal,
@@ -87,12 +81,12 @@ impl std::fmt::Debug for Revision {
         let _ = f.write_fmt(format_args!("object_id {}, ", self.object_id))?;
         let _ = f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
         let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
-        match TextDelta::from_bytes(&self.delta_data) {
-            Ok(delta) => {
-                let _ = f.write_fmt(format_args!("delta {:?}", delta.json_str()))?;
+        match RevisionObject::from_bytes(&self.bytes) {
+            Ok(object) => {
+                let _ = f.write_fmt(format_args!("object {:?}", object.json_str()))?;
             }
             Err(e) => {
-                let _ = f.write_fmt(format_args!("delta {:?}", e))?;
+                let _ = f.write_fmt(format_args!("object {:?}", e))?;
             }
         }
         Ok(())

@@ -1,22 +1,22 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
-use crate::util::{cal_diff, make_text_delta_from_revisions};
-use bytes::Bytes;
+use crate::util::{cal_diff, make_operations_from_revisions};
+
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
     GridRevision,
 };
 use lib_infra::util::move_vec_element;
-use lib_ot::core::{Delta, DeltaBuilder, EmptyAttributes, OperationTransform};
+use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub type GridRevisionDelta = Delta;
-pub type GridRevisionDeltaBuilder = DeltaBuilder;
+pub type GridOperations = DeltaOperations<EmptyAttributes>;
+pub type GridOperationsBuilder = DeltaBuilder;
 
 pub struct GridRevisionPad {
     grid_rev: Arc<GridRevision>,
-    delta: GridRevisionDelta,
+    operations: GridOperations,
 }
 
 pub trait JsonDeserializer {
@@ -49,23 +49,23 @@ impl GridRevisionPad {
         (fields, blocks)
     }
 
-    pub fn from_delta(delta: GridRevisionDelta) -> CollaborateResult<Self> {
-        let content = delta.content()?;
+    pub fn from_operations(operations: GridOperations) -> CollaborateResult<Self> {
+        let content = operations.content()?;
         let grid: GridRevision = serde_json::from_str(&content).map_err(|e| {
-            let msg = format!("Deserialize delta to grid failed: {}", e);
+            let msg = format!("Deserialize operations to grid failed: {}", e);
             tracing::error!("{}", msg);
             CollaborateError::internal().context(msg)
         })?;
 
         Ok(Self {
             grid_rev: Arc::new(grid),
-            delta,
+            operations,
         })
     }
 
     pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let grid_delta: GridRevisionDelta = make_text_delta_from_revisions(revisions)?;
-        Self::from_delta(grid_delta)
+        let operations: GridOperations = make_operations_from_revisions(revisions)?;
+        Self::from_operations(operations)
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
@@ -293,18 +293,14 @@ impl GridRevisionPad {
     }
 
     pub fn md5(&self) -> String {
-        md5(&self.delta.json_bytes())
+        md5(&self.operations.json_bytes())
     }
 
-    pub fn delta_str(&self) -> String {
-        self.delta.json_str()
+    pub fn operations_json_str(&self) -> String {
+        self.operations.json_str()
     }
 
-    pub fn delta_bytes(&self) -> Bytes {
-        self.delta.json_bytes()
-    }
-
-    pub fn fields(&self) -> &[Arc<FieldRevision>] {
+    pub fn get_fields(&self) -> &[Arc<FieldRevision>] {
         &self.grid_rev.fields
     }
 
@@ -320,9 +316,12 @@ impl GridRevisionPad {
                 let new = self.json_str()?;
                 match cal_diff::<EmptyAttributes>(old, new) {
                     None => Ok(None),
-                    Some(delta) => {
-                        self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(GridRevisionChangeset { delta, md5: self.md5() }))
+                    Some(operations) => {
+                        self.operations = self.operations.compose(&operations)?;
+                        Ok(Some(GridRevisionChangeset {
+                            operations,
+                            md5: self.md5(),
+                        }))
                     }
                 }
             }
@@ -377,19 +376,19 @@ pub fn make_grid_rev_json_str(grid_revision: &GridRevision) -> CollaborateResult
 }
 
 pub struct GridRevisionChangeset {
-    pub delta: GridRevisionDelta,
+    pub operations: GridOperations,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,
 }
 
-pub fn make_grid_delta(grid_rev: &GridRevision) -> GridRevisionDelta {
+pub fn make_grid_operations(grid_rev: &GridRevision) -> GridOperations {
     let json = serde_json::to_string(&grid_rev).unwrap();
-    DeltaBuilder::new().insert(&json).build()
+    GridOperationsBuilder::new().insert(&json).build()
 }
 
 pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {
-    let delta = make_grid_delta(grid_rev);
-    let bytes = delta.json_bytes();
+    let operations = make_grid_operations(grid_rev);
+    let bytes = operations.json_bytes();
     let revision = Revision::initial_revision(user_id, &grid_rev.grid_id, bytes);
     revision.into()
 }
@@ -397,10 +396,10 @@ pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRe
 impl std::default::Default for GridRevisionPad {
     fn default() -> Self {
         let grid = GridRevision::new(&gen_grid_id());
-        let delta = make_grid_delta(&grid);
+        let operations = make_grid_operations(&grid);
         GridRevisionPad {
             grid_rev: Arc::new(grid),
-            delta,
+            operations,
         }
     }
 }

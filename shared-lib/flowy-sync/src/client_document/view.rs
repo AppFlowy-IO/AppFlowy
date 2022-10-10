@@ -3,7 +3,7 @@ use lib_ot::core::AttributeEntry;
 use lib_ot::{
     core::{trim, Interval},
     errors::{ErrorBuilder, OTError, OTErrorCode},
-    text_delta::TextDelta,
+    text_delta::TextOperations,
 };
 
 pub const RECORD_THRESHOLD: usize = 400; // in milliseconds
@@ -23,24 +23,29 @@ impl ViewExtensions {
         }
     }
 
-    pub(crate) fn insert(&self, delta: &TextDelta, text: &str, interval: Interval) -> Result<TextDelta, OTError> {
-        let mut new_delta = None;
+    pub(crate) fn insert(
+        &self,
+        operations: &TextOperations,
+        text: &str,
+        interval: Interval,
+    ) -> Result<TextOperations, OTError> {
+        let mut new_operations = None;
         for ext in &self.insert_exts {
-            if let Some(mut delta) = ext.apply(delta, interval.size(), text, interval.start) {
-                trim(&mut delta);
-                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), delta);
-                new_delta = Some(delta);
+            if let Some(mut operations) = ext.apply(operations, interval.size(), text, interval.start) {
+                trim(&mut operations);
+                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), operations);
+                new_operations = Some(operations);
                 break;
             }
         }
 
-        match new_delta {
+        match new_operations {
             None => Err(ErrorBuilder::new(OTErrorCode::ApplyInsertFail).build()),
-            Some(new_delta) => Ok(new_delta),
+            Some(new_operations) => Ok(new_operations),
         }
     }
 
-    pub(crate) fn delete(&self, delta: &TextDelta, interval: Interval) -> Result<TextDelta, OTError> {
+    pub(crate) fn delete(&self, delta: &TextOperations, interval: Interval) -> Result<TextOperations, OTError> {
         let mut new_delta = None;
         for ext in &self.delete_exts {
             if let Some(mut delta) = ext.apply(delta, interval) {
@@ -59,23 +64,23 @@ impl ViewExtensions {
 
     pub(crate) fn format(
         &self,
-        delta: &TextDelta,
+        operations: &TextOperations,
         attribute: AttributeEntry,
         interval: Interval,
-    ) -> Result<TextDelta, OTError> {
-        let mut new_delta = None;
+    ) -> Result<TextOperations, OTError> {
+        let mut new_operations = None;
         for ext in &self.format_exts {
-            if let Some(mut delta) = ext.apply(delta, interval, &attribute) {
-                trim(&mut delta);
-                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), delta);
-                new_delta = Some(delta);
+            if let Some(mut operations) = ext.apply(operations, interval, &attribute) {
+                trim(&mut operations);
+                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), operations);
+                new_operations = Some(operations);
                 break;
             }
         }
 
-        match new_delta {
+        match new_operations {
             None => Err(ErrorBuilder::new(OTErrorCode::ApplyFormatFail).build()),
-            Some(new_delta) => Ok(new_delta),
+            Some(new_operations) => Ok(new_operations),
         }
     }
 }

@@ -9,7 +9,7 @@ use crate::{
     util::*,
 };
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::{OperationAttributes, Operations};
+use lib_ot::core::{DeltaOperations, OperationAttributes};
 use parking_lot::RwLock;
 use serde::de::DeserializeOwned;
 use std::{
@@ -21,6 +21,14 @@ use std::{
     },
     time::Duration,
 };
+
+pub type RevisionOperations<Attribute> = DeltaOperations<Attribute>;
+
+pub trait RevisionOperations2<Attribute>: Send + Sync {
+    fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, CollaborateError>
+    where
+        Self: Sized;
+}
 
 pub trait RevisionUser: Send + Sync + Debug {
     fn user_id(&self) -> String;
@@ -43,12 +51,19 @@ pub trait RevisionSyncPersistence: Send + Sync + 'static {
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
-pub trait RevisionSyncObject<T: OperationAttributes>: Send + Sync + 'static {
-    fn id(&self) -> &str;
-    fn compose(&mut self, other: &Operations<T>) -> Result<(), CollaborateError>;
-    fn transform(&self, other: &Operations<T>) -> Result<(Operations<T>, Operations<T>), CollaborateError>;
-    fn to_json(&self) -> String;
-    fn set_delta(&mut self, new_delta: Operations<T>);
+pub trait RevisionSyncObject<Attribute: OperationAttributes>: Send + Sync + 'static {
+    fn object_id(&self) -> &str;
+
+    fn object_json(&self) -> String;
+
+    fn compose(&mut self, other: &RevisionOperations<Attribute>) -> Result<(), CollaborateError>;
+
+    fn transform(
+        &self,
+        other: &RevisionOperations<Attribute>,
+    ) -> Result<(RevisionOperations<Attribute>, RevisionOperations<Attribute>), CollaborateError>;
+
+    fn set_operations(&mut self, operations: RevisionOperations<Attribute>);
 }
 
 pub enum RevisionSyncResponse {
@@ -57,25 +72,25 @@ pub enum RevisionSyncResponse {
     Ack(ServerRevisionWSData),
 }
 
-pub struct RevisionSynchronizer<T: OperationAttributes> {
+pub struct RevisionSynchronizer<Attribute: OperationAttributes> {
     object_id: String,
     rev_id: AtomicI64,
-    object: Arc<RwLock<dyn RevisionSyncObject<T>>>,
+    object: Arc<RwLock<dyn RevisionSyncObject<Attribute>>>,
     persistence: Arc<dyn RevisionSyncPersistence>,
 }
 
-impl<T> RevisionSynchronizer<T>
+impl<Attribute> RevisionSynchronizer<Attribute>
 where
-    T: OperationAttributes + DeserializeOwned + serde::Serialize + 'static,
+    Attribute: OperationAttributes + DeserializeOwned + serde::Serialize + 'static,
 {
-    pub fn new<S, P>(rev_id: i64, sync_object: S, persistence: P) -> RevisionSynchronizer<T>
+    pub fn new<S, P>(rev_id: i64, sync_object: S, persistence: P) -> RevisionSynchronizer<Attribute>
     where
-        S: RevisionSyncObject<T>,
+        S: RevisionSyncObject<Attribute>,
         P: RevisionSyncPersistence,
     {
         let object = Arc::new(RwLock::new(sync_object));
         let persistence = Arc::new(persistence);
-        let object_id = object.read().id().to_owned();
+        let object_id = object.read().object_id().to_owned();
         RevisionSynchronizer {
             object_id,
             rev_id: AtomicI64::new(rev_id),
@@ -117,7 +132,7 @@ where
                     }
                     let _ = self.persistence.save_revisions(repeated_revision).await?;
                 } else {
-                    // The server delta is outdated, pull the missing revision from the client.
+                    // The server ops is outdated, pull the missing revision from the client.
                     let range = RevisionRange {
                         start: server_rev_id,
                         end: first_revision.rev_id,
@@ -131,9 +146,9 @@ where
                 tracing::trace!("Applied {} revision rev_id is the same as cur_rev_id", self.object_id);
             }
             Ordering::Greater => {
-                // The client delta is outdated. Transform the client revision delta and then
-                // send the prime delta to the client. Client should compose the this prime
-                // delta.
+                // The client ops is outdated. Transform the client revision ops and then
+                // send the prime ops to the client. Client should compose the this prime
+                // ops.
                 let from_rev_id = first_revision.rev_id;
                 let to_rev_id = server_base_rev_id;
                 let _ = self.push_revisions_to_user(user, from_rev_id, to_rev_id).await;
@@ -153,9 +168,9 @@ where
             }
             Ordering::Equal => tracing::trace!("{} is up to date.", object_id),
             Ordering::Greater => {
-                // The client delta is outdated. Transform the client revision delta and then
-                // send the prime delta to the client. Client should compose the this prime
-                // delta.
+                // The client ops is outdated. Transform the client revision ops and then
+                // send the prime ops to the client. Client should compose the this prime
+                // ops.
                 let from_rev_id = client_rev_id;
                 let to_rev_id = server_rev_id;
                 tracing::trace!("Push revisions to user");
@@ -171,40 +186,43 @@ where
         tracing::Span::current().record("object_id", &object_id.as_str());
         let revisions: Vec<Revision> = repeated_revision.clone().into_inner();
         let (_, rev_id) = pair_rev_id_from_revision_pbs(&revisions);
-        let delta = make_delta_from_revision_pb(revisions)?;
+        let operations = make_operations_from_revisions(revisions)?;
         let _ = self.persistence.reset_object(&object_id, repeated_revision).await?;
-        self.object.write().set_delta(delta);
+        self.object.write().set_operations(operations);
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(rev_id));
         Ok(())
     }
 
     pub fn object_json(&self) -> String {
-        self.object.read().to_json()
+        self.object.read().object_json()
     }
 
     fn compose_revision(&self, revision: &Revision) -> Result<(), CollaborateError> {
-        let delta = Operations::<T>::from_bytes(&revision.delta_data)?;
-        let _ = self.compose_delta(delta)?;
+        let operations = RevisionOperations::<Attribute>::from_bytes(&revision.bytes)?;
+        let _ = self.compose_operations(operations)?;
         let _ = self.rev_id.fetch_update(SeqCst, SeqCst, |_e| Some(revision.rev_id));
         Ok(())
     }
 
     #[tracing::instrument(level = "debug", skip(self, revision))]
-    fn transform_revision(&self, revision: &RevisionPB) -> Result<(Operations<T>, Operations<T>), CollaborateError> {
-        let cli_delta = Operations::<T>::from_bytes(&revision.delta_data)?;
-        let result = self.object.read().transform(&cli_delta)?;
+    fn transform_revision(
+        &self,
+        revision: &RevisionPB,
+    ) -> Result<(RevisionOperations<Attribute>, RevisionOperations<Attribute>), CollaborateError> {
+        let client_operations = RevisionOperations::<Attribute>::from_bytes(&revision.bytes)?;
+        let result = self.object.read().transform(&client_operations)?;
         Ok(result)
     }
 
-    fn compose_delta(&self, delta: Operations<T>) -> Result<(), CollaborateError> {
-        if delta.is_empty() {
-            log::warn!("Composed delta is empty");
+    fn compose_operations(&self, operations: RevisionOperations<Attribute>) -> Result<(), CollaborateError> {
+        if operations.is_empty() {
+            log::warn!("Composed operations is empty");
         }
 
         match self.object.try_write_for(Duration::from_millis(300)) {
             None => log::error!("Failed to acquire write lock of object"),
             Some(mut write_guard) => {
-                let _ = write_guard.compose(&delta)?;
+                let _ = write_guard.compose(&operations)?;
             }
         }
         Ok(())

@@ -1,9 +1,9 @@
 use crate::util::find_newline;
 use lib_ot::core::AttributeEntry;
-use lib_ot::text_delta::{empty_attributes, AttributeScope, TextDelta, TextOperation};
+use lib_ot::text_delta::{empty_attributes, AttributeScope, TextOperation, TextOperations};
 
-pub(crate) fn line_break(op: &TextOperation, attribute: &AttributeEntry, scope: AttributeScope) -> TextDelta {
-    let mut new_delta = TextDelta::new();
+pub(crate) fn line_break(op: &TextOperation, attribute: &AttributeEntry, scope: AttributeScope) -> TextOperations {
+    let mut new_delta = TextOperations::new();
     let mut start = 0;
     let end = op.len();
     let mut s = op.get_data();

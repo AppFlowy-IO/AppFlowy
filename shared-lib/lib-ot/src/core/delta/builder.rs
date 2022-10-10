@@ -1,6 +1,6 @@
 use crate::core::delta::operation::OperationAttributes;
-use crate::core::delta::{trim, Operations};
-use crate::core::Operation;
+use crate::core::delta::{trim, DeltaOperations};
+use crate::core::DeltaOperation;
 
 /// A builder for creating new [Operations] objects.
 ///
@@ -17,7 +17,7 @@ use crate::core::Operation;
 /// assert_eq!(delta.content().unwrap(), "AppFlowy");
 /// ```
 pub struct OperationBuilder<T: OperationAttributes> {
-    delta: Operations<T>,
+    delta: DeltaOperations<T>,
 }
 
 impl<T> std::default::Default for OperationBuilder<T>
@@ -26,7 +26,7 @@ where
 {
     fn default() -> Self {
         Self {
-            delta: Operations::new(),
+            delta: DeltaOperations::new(),
         }
     }
 }
@@ -39,7 +39,7 @@ where
         OperationBuilder::default()
     }
 
-    pub fn from_operations(operations: Vec<Operation<T>>) -> Operations<T> {
+    pub fn from_operations(operations: Vec<DeltaOperation<T>>) -> DeltaOperations<T> {
         let mut delta = OperationBuilder::default().build();
         operations.into_iter().for_each(|operation| {
             delta.add(operation);
@@ -52,10 +52,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::text_delta::{BuildInTextAttribute, TextDelta, TextDeltaBuilder};
+    /// use lib_ot::text_delta::{BuildInTextAttribute, TextOperations, TextOperationBuilder};
     ///
     /// let mut attribute = BuildInTextAttribute::Bold(true);
-    /// let delta = TextDeltaBuilder::new().retain_with_attributes(7, attribute.into()).build();
+    /// let delta = TextOperationBuilder::new().retain_with_attributes(7, attribute.into()).build();
     ///
     /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
     /// ```
@@ -111,14 +111,14 @@ where
     ///
     /// ```
     /// use lib_ot::core::{OperationTransform, DeltaBuilder};
-    /// use lib_ot::text_delta::{BuildInTextAttribute, TextDeltaBuilder};
+    /// use lib_ot::text_delta::{BuildInTextAttribute, TextOperationBuilder};
     /// let delta = DeltaBuilder::new()
     ///         .retain(3)
     ///         .trim()
     ///         .build();
     /// assert_eq!(delta.ops.len(), 0);
     ///
-    /// let delta = TextDeltaBuilder::new()
+    /// let delta = TextOperationBuilder::new()
     ///         .retain_with_attributes(3, BuildInTextAttribute::Bold(true).into())
     ///         .trim()
     ///         .build();
@@ -130,7 +130,7 @@ where
     }
 
     /// Builds the `Delta`
-    pub fn build(self) -> Operations<T> {
+    pub fn build(self) -> DeltaOperations<T> {
         self.delta
     }
 }
