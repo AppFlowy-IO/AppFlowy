@@ -179,8 +179,7 @@ impl GridViewManager {
     #[tracing::instrument(level = "trace", skip(self), err)]
     pub(crate) async fn did_update_view_field(&self, field_id: &str) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        // Only the field_id of the updated field is equal to the field_id of the group.
-        // Update the group
+        // Update the group if the group_id equal to the field_id
         if view_editor.group_id().await != field_id {
             return Ok(());
         }

@@ -16,7 +16,7 @@ use flowy_grid_data_model::revision::*;
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
 use flowy_sync::entities::revision::Revision;
-use flowy_sync::errors::CollaborateResult;
+use flowy_sync::errors::{CollaborateError, CollaborateResult};
 use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{wrap_future, FutureResult};
 
@@ -157,18 +157,28 @@ impl GridRevisionEditor {
         }
     }
 
-    // Replaces the field revision with new field revision.
-    pub async fn replace_field(&self, field_rev: Arc<FieldRevision>) -> FlowyResult<()> {
-        let field_id = field_rev.id.clone();
+    pub async fn modify_field_rev<F>(&self, field_id: &str, f: F) -> FlowyResult<()>
+    where
+        F: for<'a> FnOnce(&'a mut FieldRevision) -> FlowyResult<Option<()>>,
+    {
+        let mut is_changed = false;
         let _ = self
-            .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev.clone())?))
+            .modify(|grid| {
+                let changeset = grid.modify_field(field_id, |field_rev| {
+                    Ok(f(field_rev).map_err(|e| CollaborateError::internal().context(e))?)
+                })?;
+                is_changed = changeset.is_some();
+                Ok(changeset)
+            })
             .await?;
 
-        match self.view_manager.did_update_view_field(&field_rev.id).await {
-            Ok(_) => {}
-            Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+        if is_changed {
+            match self.view_manager.did_update_view_field_type_option(field_id).await {
+                Ok(_) => {}
+                Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+            }
+            let _ = self.notify_did_update_grid_field(field_id).await?;
         }
-        let _ = self.notify_did_update_grid_field(&field_id).await?;
         Ok(())
     }
 

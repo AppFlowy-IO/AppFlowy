@@ -335,38 +335,52 @@ pub(crate) async fn update_select_option_handler(
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&changeset.cell_identifier.grid_id)?;
 
-    if let Some(mut field_rev) = editor.get_field_rev(&changeset.cell_identifier.field_id).await {
-        let mut_field_rev = Arc::make_mut(&mut field_rev);
-        let mut type_option = select_option_operation(mut_field_rev)?;
-        let mut cell_content_changeset = None;
+    let _ = editor
+        .modify_field_rev(&changeset.cell_identifier.field_id, |field_rev| {
+            let mut type_option = select_option_operation(field_rev)?;
+            let mut cell_content_changeset = None;
+            let mut is_changed = None;
 
-        if let Some(option) = changeset.insert_option {
-            cell_content_changeset = Some(SelectOptionCellChangeset::from_insert(&option.id).to_str());
-            type_option.insert_option(option);
-        }
+            if let Some(option) = changeset.insert_option {
+                cell_content_changeset = Some(SelectOptionCellChangeset::from_insert(&option.id).to_str());
+                type_option.insert_option(option);
+                is_changed = Some(());
+            }
 
-        if let Some(option) = changeset.update_option {
-            type_option.insert_option(option);
-        }
+            if let Some(option) = changeset.update_option {
+                type_option.insert_option(option);
+                is_changed = Some(());
+            }
 
-        if let Some(option) = changeset.delete_option {
-            cell_content_changeset = Some(SelectOptionCellChangeset::from_delete(&option.id).to_str());
-            type_option.delete_option(option);
-        }
+            if let Some(option) = changeset.delete_option {
+                cell_content_changeset = Some(SelectOptionCellChangeset::from_delete(&option.id).to_str());
+                type_option.delete_option(option);
+                is_changed = Some(());
+            }
 
-        mut_field_rev.insert_type_option(&*type_option);
-        let _ = editor.replace_field(field_rev).await?;
+            if is_changed.is_some() {
+                field_rev.insert_type_option(&*type_option);
+            }
 
-        if let Some(cell_content_changeset) = cell_content_changeset {
-            let changeset = CellChangesetPB {
-                grid_id: changeset.cell_identifier.grid_id,
-                row_id: changeset.cell_identifier.row_id,
-                field_id: changeset.cell_identifier.field_id,
-                content: cell_content_changeset,
-            };
-            let _ = editor.update_cell(changeset).await?;
-        }
-    }
+            if let Some(cell_content_changeset) = cell_content_changeset {
+                let changeset = CellChangesetPB {
+                    grid_id: changeset.cell_identifier.grid_id,
+                    row_id: changeset.cell_identifier.row_id,
+                    field_id: changeset.cell_identifier.field_id.clone(),
+                    content: cell_content_changeset,
+                };
+                let cloned_editor = editor.clone();
+                tokio::spawn(async move {
+                    match cloned_editor.update_cell(changeset).await {
+                        Ok(_) => {}
+                        Err(_) => {}
+                    }
+                });
+            }
+            Ok(is_changed)
+        })
+        .await?;
+
     Ok(())
 }
 

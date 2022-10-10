@@ -172,7 +172,7 @@ where
     /// [GroupConfigurationRevision] as old groups. The old groups and the new groups will be merged
     /// while keeping the order of the old groups.
     ///
-    #[tracing::instrument(level = "debug", skip(self, generated_group_configs), err)]
+    #[tracing::instrument(level = "trace", skip(self, generated_group_configs), err)]
     pub(crate) fn init_groups(
         &mut self,
         generated_group_configs: Vec<GeneratedGroupConfig>,
