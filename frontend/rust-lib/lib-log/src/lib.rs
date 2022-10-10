@@ -12,7 +12,7 @@ use tracing_bunyan_formatter::JsonStorageLayer;
 use tracing_log::LogTracer;
 use tracing_subscriber::{layer::SubscriberExt, EnvFilter};
 
-// Revert this.
+// Revert this again.
 
 lazy_static! {
     static ref LOG_GUARD: RwLock<Option<WorkerGuard>> = RwLock::new(None);
