@@ -8,7 +8,7 @@ import 'package:appflowy_editor/src/core/location/position.dart';
 import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/core/document/text_delta.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/operation/operation.dart';
+import 'package:appflowy_editor/src/core/transform/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction.dart';
 
 /// A [TransactionBuilder] is used to build the transaction from the state.
@@ -85,7 +85,7 @@ class TransactionBuilder {
 
     final inverted = delta.invert(node.delta);
 
-    add(TextEditOperation(path, delta, inverted));
+    add(UpdateTextOperation(path, delta, inverted));
   }
 
   setAfterSelection(Selection sel) {
@@ -195,10 +195,10 @@ class TransactionBuilder {
   add(Operation op, {bool transform = true}) {
     final Operation? last = operations.isEmpty ? null : operations.last;
     if (last != null) {
-      if (op is TextEditOperation &&
-          last is TextEditOperation &&
+      if (op is UpdateTextOperation &&
+          last is UpdateTextOperation &&
           op.path.equals(last.path)) {
-        final newOp = TextEditOperation(
+        final newOp = UpdateTextOperation(
           op.path,
           last.delta.compose(op.delta),
           op.inverted.compose(last.inverted),
@@ -212,7 +212,7 @@ class TransactionBuilder {
         op = transformOperation(operations[i], op);
       }
     }
-    if (op is TextEditOperation && op.delta.isEmpty) {
+    if (op is UpdateTextOperation && op.delta.isEmpty) {
       return;
     }
     operations.add(op);

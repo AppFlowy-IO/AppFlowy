@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/core/location/selection.dart';
-import './operation.dart';
+import '../core/transform/operation.dart';
 
 /// A [Transaction] has a list of [Operation] objects that will be applied
 /// to the editor. It is an immutable class and used to store and transmit.

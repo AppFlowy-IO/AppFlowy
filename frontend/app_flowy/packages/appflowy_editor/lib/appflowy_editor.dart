@@ -12,7 +12,7 @@ export 'src/core/document/text_delta.dart';
 export 'src/core/document/attributes.dart';
 export 'src/core/legacy/built_in_attribute_keys.dart';
 export 'src/editor_state.dart';
-export 'src/operation/operation.dart';
+export 'src/core/transform/operation.dart';
 export 'src/operation/transaction.dart';
 export 'src/operation/transaction_builder.dart';
 export 'src/render/selection/selectable.dart';

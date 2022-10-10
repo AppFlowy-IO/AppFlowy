@@ -63,7 +63,7 @@ bool isInsertAndPathEqual(Operation operation, Path path, [String? content]) {
     return false;
   }
 
-  final firstNode = operation.nodes[0];
+  final firstNode = operation.nodes.first;
   if (firstNode is! TextNode) {
     return false;
   }

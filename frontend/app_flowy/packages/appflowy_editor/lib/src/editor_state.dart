@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/core/document/document.dart';
-import 'package:appflowy_editor/src/operation/operation.dart';
+import 'package:appflowy_editor/src/core/transform/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction.dart';
 import 'package:appflowy_editor/src/undo_manager.dart';
 
@@ -166,7 +166,7 @@ class EditorState {
       document.update(op.path, op.attributes);
     } else if (op is DeleteOperation) {
       document.delete(op.path, op.nodes.length);
-    } else if (op is TextEditOperation) {
+    } else if (op is UpdateTextOperation) {
       document.updateText(op.path, op.delta);
     }
     _observer.add(op);

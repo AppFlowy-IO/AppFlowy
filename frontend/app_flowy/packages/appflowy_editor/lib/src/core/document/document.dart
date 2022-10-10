@@ -42,7 +42,7 @@ class Document {
   }
 
   /// Inserts a [Node]s at the given [Path].
-  bool insert(Path path, List<Node> nodes) {
+  bool insert(Path path, Iterable<Node> nodes) {
     if (path.isEmpty || nodes.isEmpty) {
       return false;
     }
