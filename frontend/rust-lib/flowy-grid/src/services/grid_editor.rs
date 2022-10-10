@@ -193,7 +193,7 @@ impl GridRevisionEditor {
             .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev.clone())?))
             .await?;
 
-        match self.view_manager.did_update_field(&field_rev.id, false).await {
+        match self.view_manager.did_update_view_field(&field_rev.id).await {
             Ok(_) => {}
             Err(e) => tracing::error!("View manager update field failed: {:?}", e),
         }
@@ -214,27 +214,28 @@ impl GridRevisionEditor {
         Ok(())
     }
 
+    /// Switch the field with id to a new field type.  
+    ///
+    /// If the field type is not exist before, the default type option data will be created.
+    /// Each field type has its corresponding data, aka, the type option data. Check out [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
+    /// for more information
+    ///
+    /// # Arguments
+    ///
+    /// * `field_id`: the id of the field
+    /// * `field_type`: the new field type of the field
+    ///
     pub async fn switch_to_field_type(&self, field_id: &str, field_type: &FieldType) -> FlowyResult<()> {
-        // let block_ids = self
-        //     .get_block_metas()
-        //     .await?
-        //     .into_iter()
-        //     .map(|block_meta| block_meta.block_id)
-        //     .collect();
-        // let cell_revs = self
-        //     .block_meta_manager
-        //     .get_cell_revs(block_ids, field_id, None)
-        //     .await?;
-
-        let type_option_json_builder = |field_type: &FieldTypeRevision| -> String {
+        let type_option_builder = |field_type: &FieldTypeRevision| -> String {
             let field_type: FieldType = field_type.into();
+
             return default_type_option_builder_from_type(&field_type)
                 .data_format()
                 .json_str();
         };
 
         let _ = self
-            .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_json_builder)?))
+            .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_builder)?))
             .await?;
 
         let _ = self.notify_did_update_grid_field(field_id).await?;
@@ -276,6 +277,7 @@ impl GridRevisionEditor {
         Ok(field_revs)
     }
 
+    #[tracing::instrument(level = "debug", skip_all, err)]
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
         let mut is_type_option_changed = false;
         let _ = self
@@ -333,14 +335,15 @@ impl GridRevisionEditor {
             })
             .await?;
 
-        match self
-            .view_manager
-            .did_update_field(&params.field_id, is_type_option_changed)
-            .await
-        {
-            Ok(_) => {}
-            Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+        if is_type_option_changed {
+            let _ = self
+                .view_manager
+                .did_update_view_field_type_option(&params.field_id)
+                .await?;
+        } else {
+            let _ = self.view_manager.did_update_view_field(&params.field_id).await?;
         }
+
         Ok(())
     }
 

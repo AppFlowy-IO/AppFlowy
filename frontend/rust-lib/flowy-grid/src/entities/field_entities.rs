@@ -250,13 +250,6 @@ impl TryInto<FieldTypeOptionIdParams> for FieldTypeOptionIdPB {
     }
 }
 
-/// Certain field types have user-defined options such as color, date format, number format,
-/// or a list of values for a multi-select list. These options are defined within a specialization
-/// of the FieldTypeOption class.
-///
-/// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
-/// for more information.
-///
 #[derive(Debug, Default, ProtoBuf)]
 pub struct FieldTypeOptionDataPB {
     #[pb(index = 1)]
@@ -510,7 +503,15 @@ pub struct FieldChangesetParams {
 
     pub type_option_data: Option<Vec<u8>>,
 }
-
+/// Certain field types have user-defined options such as color, date format, number format,
+/// or a list of values for a multi-select list. These options are defined within a specialization
+/// of the FieldTypeOption class.
+///
+/// You could check [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
+/// for more information.
+///
+/// The order of the enum can't be changed. If you want to add a new type,
+/// it would be better to append it to the end of the list.
 #[derive(
     Debug,
     Clone,
@@ -525,8 +526,6 @@ pub struct FieldChangesetParams {
     Serialize_repr,
     Deserialize_repr,
 )]
-/// The order of the enum can't be changed. If you want to add a new type,
-/// it would be better to append it to the end of the list.
 #[repr(u8)]
 pub enum FieldType {
     RichText = 0,
