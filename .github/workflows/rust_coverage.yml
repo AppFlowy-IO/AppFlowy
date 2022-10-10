@@ -59,7 +59,7 @@ jobs:
           fi
         shell: bash
 
-      - name: Install cargo-make
+      - name: Install cargo-make, grcov and llvm-tools-preview
         working-directory: frontend
         run: |
           cargo install cargo-make
