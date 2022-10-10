@@ -6,7 +6,7 @@ import 'package:appflowy_editor/src/service/service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/core/location/selection.dart';
-import 'package:appflowy_editor/src/core/state/document.dart';
+import 'package:appflowy_editor/src/core/document/document.dart';
 import 'package:appflowy_editor/src/operation/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction.dart';
 import 'package:appflowy_editor/src/undo_manager.dart';
