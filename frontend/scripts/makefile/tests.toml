@@ -21,7 +21,7 @@ description = "Check if `grcov` is installled"
 script_runner = "@shell"
 script = '''
 export PATH=$PATH:"$HOME/.cargo/bin/"
-if command -v z > /dev/null; then
+if command -v grcov > /dev/null; then
   echo "Found 'grcov' executable."
 else
   echo "[!] Could not find 'grcov' executable."
