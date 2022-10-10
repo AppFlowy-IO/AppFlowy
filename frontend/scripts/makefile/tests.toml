@@ -20,6 +20,7 @@ RUST_LOG=info cargo test --no-default-features
 description = "Check if `grcov` is installled"
 script_runner = "@shell"
 script = '''
+export PATH=$PATH:"$HOME/.cargo/bin/"
 if command -v z > /dev/null; then
   echo "Found 'grcov' executable."
 else
@@ -62,6 +63,7 @@ script = [
   # Install Protobuf compiler
   cargo make install_protobuf_compiler
   export PATH="$PATH":"$HOME/.pub-cache/bin"
+  export PATH="$PATH":"$HOME/.cargo/bin/"
 
   cd rust-lib/
 
@@ -83,6 +85,7 @@ script = [
   # Install Protobuf compiler
   cargo make install_protobuf_compiler
   export PATH="$PATH":"$HOME/.pub-cache/bin"
+  export PATH="$PATH":"$HOME/.cargo/bin/"
 
   cd ../shared-lib
 
