@@ -19,7 +19,7 @@ class EditorWidgetTester {
   EditorState get editorState => _editorState;
   Node get root => _editorState.document.root;
 
-  StateTree get document => _editorState.document;
+  Document get document => _editorState.document;
   int get documentLength => _editorState.document.root.children.length;
   Selection? get documentSelection =>
       _editorState.service.selectionService.currentSelection.value;
@@ -155,7 +155,7 @@ class EditorWidgetTester {
 
   EditorState _createEmptyDocument() {
     return EditorState(
-      document: StateTree(
+      document: Document(
         root: _createEmptyEditorRoot(),
       ),
     )..disableSealTimer = true;

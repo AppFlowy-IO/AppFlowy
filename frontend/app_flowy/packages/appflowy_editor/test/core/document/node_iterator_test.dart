@@ -14,7 +14,7 @@ void main() async {
         root.insert(node);
       }
       final nodes = NodeIterator(
-        stateTree: StateTree(root: root),
+        document: Document(root: root),
         startNode: root.childAtPath([0])!,
         endNode: root.childAtPath([10, 10]),
       );

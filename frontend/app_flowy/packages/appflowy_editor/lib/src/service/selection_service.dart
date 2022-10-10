@@ -180,7 +180,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     final endNode = editorState.document.nodeAtPath(end);
     if (startNode != null && endNode != null) {
       final nodes = NodeIterator(
-        stateTree: editorState.document,
+        document: editorState.document,
         startNode: startNode,
         endNode: endNode,
       ).toList();

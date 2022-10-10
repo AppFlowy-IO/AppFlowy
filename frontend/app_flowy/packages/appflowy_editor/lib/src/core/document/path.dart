@@ -69,4 +69,22 @@ extension PathExtensions on Path {
       ..removeLast()
       ..add(last + 1);
   }
+
+  Path get previous {
+    Path previousPath = Path.from(this, growable: true);
+    if (isEmpty) {
+      return previousPath;
+    }
+    final last = previousPath.last;
+    return previousPath
+      ..removeLast()
+      ..add(max(0, last - 1));
+  }
+
+  Path get parent {
+    if (isEmpty) {
+      return this;
+    }
+    return Path.from(this, growable: true)..removeLast();
+  }
 }

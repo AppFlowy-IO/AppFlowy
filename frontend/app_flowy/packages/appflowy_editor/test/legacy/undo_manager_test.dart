@@ -17,7 +17,7 @@ void main() async {
   }
 
   test("HistoryItem #1", () {
-    final document = StateTree(root: _createEmptyEditorRoot());
+    final document = Document(root: _createEmptyEditorRoot());
     final editorState = EditorState(document: document);
 
     final historyItem = HistoryItem();
@@ -35,7 +35,7 @@ void main() async {
   });
 
   test("HistoryItem #2", () {
-    final document = StateTree(root: _createEmptyEditorRoot());
+    final document = Document(root: _createEmptyEditorRoot());
     final editorState = EditorState(document: document);
 
     final historyItem = HistoryItem();

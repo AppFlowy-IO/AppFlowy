@@ -7,7 +7,7 @@ export 'src/core/document/node.dart';
 export 'src/core/document/path.dart';
 export 'src/core/location/position.dart';
 export 'src/core/location/selection.dart';
-export 'src/document/state_tree.dart';
+export 'src/core/state/document.dart';
 export 'src/core/document/text_delta.dart';
 export 'src/core/document/attributes.dart';
 export 'src/document/built_in_attribute_keys.dart';

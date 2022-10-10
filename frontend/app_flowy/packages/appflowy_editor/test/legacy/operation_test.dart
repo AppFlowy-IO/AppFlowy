@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:appflowy_editor/src/operation/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/document/state_tree.dart';
+import 'package:appflowy_editor/src/core/state/document.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -56,7 +56,7 @@ void main() {
             item2,
             item3,
           ]));
-    final state = EditorState(document: StateTree(root: root));
+    final state = EditorState(document: Document(root: root));
 
     expect(item1.path, [0]);
     expect(item2.path, [1]);
@@ -74,7 +74,7 @@ void main() {
   group("toJson", () {
     test("insert", () {
       final root = Node(type: "root", attributes: {}, children: LinkedList());
-      final state = EditorState(document: StateTree(root: root));
+      final state = EditorState(document: Document(root: root));
 
       final item1 = Node(type: "node", attributes: {}, children: LinkedList());
       final tb = TransactionBuilder(state);
@@ -100,7 +100,7 @@ void main() {
             ..addAll([
               item1,
             ]));
-      final state = EditorState(document: StateTree(root: root));
+      final state = EditorState(document: Document(root: root));
       final tb = TransactionBuilder(state);
       tb.deleteNode(item1);
       final transaction = tb.finish();

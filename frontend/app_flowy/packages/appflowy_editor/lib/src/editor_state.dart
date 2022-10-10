@@ -6,7 +6,7 @@ import 'package:appflowy_editor/src/service/service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/core/location/selection.dart';
-import 'package:appflowy_editor/src/document/state_tree.dart';
+import 'package:appflowy_editor/src/core/state/document.dart';
 import 'package:appflowy_editor/src/operation/operation.dart';
 import 'package:appflowy_editor/src/operation/transaction.dart';
 import 'package:appflowy_editor/src/undo_manager.dart';
@@ -46,7 +46,7 @@ enum CursorUpdateReason {
 ///
 /// Mutating the document with document's API is not recommended.
 class EditorState {
-  final StateTree document;
+  final Document document;
 
   // Service reference.
   final service = FlowyService();
@@ -105,7 +105,7 @@ class EditorState {
   }
 
   factory EditorState.empty() {
-    return EditorState(document: StateTree.empty());
+    return EditorState(document: Document.empty());
   }
 
   /// Apply the transaction to the state.
@@ -167,7 +167,7 @@ class EditorState {
     } else if (op is DeleteOperation) {
       document.delete(op.path, op.nodes.length);
     } else if (op is TextEditOperation) {
-      document.textEdit(op.path, op.delta);
+      document.updateText(op.path, op.delta);
     }
     _observer.add(op);
   }

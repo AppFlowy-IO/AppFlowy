@@ -50,7 +50,7 @@ void _handleCopy(EditorState editorState) async {
   final endNode = editorState.document.nodeAtPath(selection.end.path)!;
 
   final nodes = NodeIterator(
-    stateTree: editorState.document,
+    document: editorState.document,
     startNode: beginNode,
     endNode: endNode,
   ).toList();
@@ -321,7 +321,7 @@ void _deleteSelectedContent(EditorState editorState) {
     return;
   }
   final traverser = NodeIterator(
-    stateTree: editorState.document,
+    document: editorState.document,
     startNode: beginNode,
     endNode: endNode,
   );

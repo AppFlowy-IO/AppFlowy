@@ -1,15 +1,15 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/document/state_tree.dart';
+import 'package:appflowy_editor/src/core/state/document.dart';
 
 /// [NodeIterator] is used to traverse the nodes in visual order.
 class NodeIterator implements Iterator<Node> {
   NodeIterator({
-    required this.stateTree,
+    required this.document,
     required this.startNode,
     this.endNode,
   });
 
-  final StateTree stateTree;
+  final Document document;
   final Node startNode;
   final Node? endNode;
 
