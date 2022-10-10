@@ -28,11 +28,11 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   final List<Node> nonTextNodes =
       nodes.where((node) => node is! TextNode).toList(growable: false);
 
-  final transactionBuilder = TransactionBuilder(editorState);
+  final transaction = editorState.transaction;
   List<int>? cancelNumberListPath;
 
   if (nonTextNodes.isNotEmpty) {
-    transactionBuilder.deleteNodes(nonTextNodes);
+    transaction.deleteNodes(nonTextNodes);
   }
 
   if (textNodes.length == 1) {
@@ -44,7 +44,7 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
         if (textNode.subtype == BuiltInAttributeKey.numberList) {
           cancelNumberListPath = textNode.path;
         }
-        transactionBuilder
+        transaction
           ..updateNode(textNode, {
             BuiltInAttributeKey.subtype: null,
             textNode.subtype!: null,
@@ -61,20 +61,20 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
         return _backDeleteToPreviousTextNode(
           editorState,
           textNode,
-          transactionBuilder,
+          transaction,
           nonTextNodes,
           selection,
         );
       }
     } else {
       if (selection.isCollapsed) {
-        transactionBuilder.deleteText(
+        transaction.deleteText(
           textNode,
           index,
           selection.start.offset - index,
         );
       } else {
-        transactionBuilder.deleteText(
+        transaction.deleteText(
           textNode,
           selection.start.offset,
           selection.end.offset - selection.start.offset,
@@ -84,33 +84,32 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   } else {
     if (textNodes.isEmpty) {
       if (nonTextNodes.isNotEmpty) {
-        transactionBuilder.afterSelection =
-            Selection.collapsed(selection.start);
+        transaction.afterSelection = Selection.collapsed(selection.start);
       }
-      transactionBuilder.commit();
+      editorState.commit();
       return KeyEventResult.handled;
     }
     final startPosition = selection.start;
     final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
-    _deleteTextNodes(transactionBuilder, textNodes, selection);
-    transactionBuilder.commit();
+    _deleteTextNodes(transaction, textNodes, selection);
+    editorState.commit();
 
     if (nodeAtStart is TextNode &&
         nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
       makeFollowingNodesIncremental(
         editorState,
         startPosition.path,
-        transactionBuilder.afterSelection!,
+        transaction.afterSelection!,
       );
     }
     return KeyEventResult.handled;
   }
 
-  if (transactionBuilder.operations.isNotEmpty) {
+  if (transaction.operations.isNotEmpty) {
     if (nonTextNodes.isNotEmpty) {
-      transactionBuilder.afterSelection = Selection.collapsed(selection.start);
+      transaction.afterSelection = Selection.collapsed(selection.start);
     }
-    transactionBuilder.commit();
+    editorState.commit();
   }
 
   if (cancelNumberListPath != null) {
@@ -128,20 +127,20 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
 KeyEventResult _backDeleteToPreviousTextNode(
   EditorState editorState,
   TextNode textNode,
-  TransactionBuilder transactionBuilder,
+  Transaction transaction,
   List<Node> nonTextNodes,
   Selection selection,
 ) {
   if (textNode.next == null &&
       textNode.children.isEmpty &&
       textNode.parent?.parent != null) {
-    transactionBuilder
+    transaction
       ..deleteNode(textNode)
       ..insertNode(textNode.parent!.path.next, textNode)
       ..afterSelection = Selection.collapsed(
         Position(path: textNode.parent!.path.next, offset: 0),
-      )
-      ..commit();
+      );
+    editorState.commit();
     return KeyEventResult.handled;
   }
 
@@ -152,15 +151,15 @@ KeyEventResult _backDeleteToPreviousTextNode(
       prevIsNumberList = true;
     }
 
-    transactionBuilder.mergeText(previousTextNode, textNode);
+    transaction.mergeText(previousTextNode, textNode);
     if (textNode.children.isNotEmpty) {
-      transactionBuilder.insertNodes(
+      transaction.insertNodes(
         previousTextNode.path.next,
         textNode.children.toList(growable: false),
       );
     }
-    transactionBuilder.deleteNode(textNode);
-    transactionBuilder.afterSelection = Selection.collapsed(
+    transaction.deleteNode(textNode);
+    transaction.afterSelection = Selection.collapsed(
       Position(
         path: previousTextNode.path,
         offset: previousTextNode.toPlainText().length,
@@ -168,16 +167,16 @@ KeyEventResult _backDeleteToPreviousTextNode(
     );
   }
 
-  if (transactionBuilder.operations.isNotEmpty) {
+  if (transaction.operations.isNotEmpty) {
     if (nonTextNodes.isNotEmpty) {
-      transactionBuilder.afterSelection = Selection.collapsed(selection.start);
+      transaction.afterSelection = Selection.collapsed(selection.start);
     }
-    transactionBuilder.commit();
+    editorState.commit();
   }
 
   if (prevIsNumberList) {
-    makeFollowingNodesIncremental(editorState, previousTextNode!.path,
-        transactionBuilder.afterSelection!);
+    makeFollowingNodesIncremental(
+        editorState, previousTextNode!.path, transaction.afterSelection!);
   }
 
   return KeyEventResult.handled;
@@ -197,7 +196,7 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
     return KeyEventResult.ignored;
   }
 
-  final transactionBuilder = TransactionBuilder(editorState);
+  final transaction = editorState.transaction;
   if (textNodes.length == 1) {
     final textNode = textNodes.first;
     // The cursor is at the end of the line,
@@ -206,55 +205,52 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
       return _mergeNextLineIntoThisLine(
         editorState,
         textNode,
-        transactionBuilder,
+        transaction,
         selection,
       );
     }
     final index = textNode.delta.nextRunePosition(selection.start.offset);
     if (selection.isCollapsed) {
-      transactionBuilder.deleteText(
+      transaction.deleteText(
         textNode,
         selection.start.offset,
         index - selection.start.offset,
       );
     } else {
-      transactionBuilder.deleteText(
+      transaction.deleteText(
         textNode,
         selection.start.offset,
         selection.end.offset - selection.start.offset,
       );
     }
-    transactionBuilder.commit();
+    editorState.commit();
   } else {
     final startPosition = selection.start;
     final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
-    _deleteTextNodes(transactionBuilder, textNodes, selection);
-    transactionBuilder.commit();
+    _deleteTextNodes(transaction, textNodes, selection);
+    editorState.commit();
 
     if (nodeAtStart is TextNode &&
         nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
       makeFollowingNodesIncremental(
-          editorState, startPosition.path, transactionBuilder.afterSelection!);
+          editorState, startPosition.path, transaction.afterSelection!);
     }
   }
 
   return KeyEventResult.handled;
 }
 
-KeyEventResult _mergeNextLineIntoThisLine(
-    EditorState editorState,
-    TextNode textNode,
-    TransactionBuilder transactionBuilder,
-    Selection selection) {
+KeyEventResult _mergeNextLineIntoThisLine(EditorState editorState,
+    TextNode textNode, Transaction transaction, Selection selection) {
   final nextNode = textNode.next;
   if (nextNode == null) {
     return KeyEventResult.ignored;
   }
   if (nextNode is TextNode) {
-    transactionBuilder.mergeText(textNode, nextNode);
+    transaction.mergeText(textNode, nextNode);
   }
-  transactionBuilder.deleteNode(nextNode);
-  transactionBuilder.commit();
+  transaction.deleteNode(nextNode);
+  editorState.commit();
 
   if (textNode.subtype == BuiltInAttributeKey.numberList) {
     makeFollowingNodesIncremental(editorState, textNode.path, selection);
@@ -263,15 +259,15 @@ KeyEventResult _mergeNextLineIntoThisLine(
   return KeyEventResult.handled;
 }
 
-void _deleteTextNodes(TransactionBuilder transactionBuilder,
-    List<TextNode> textNodes, Selection selection) {
+void _deleteTextNodes(
+    Transaction transaction, List<TextNode> textNodes, Selection selection) {
   final first = textNodes.first;
   final last = textNodes.last;
   var content = textNodes.last.toPlainText();
   content = content.substring(selection.end.offset, content.length);
   // Merge the fist and the last text node content,
   //  and delete the all nodes expect for the first.
-  transactionBuilder
+  transaction
     ..deleteNodes(textNodes.sublist(1))
     ..mergeText(
       first,

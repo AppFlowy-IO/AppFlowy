@@ -18,7 +18,7 @@ ShortcutEventHandler _insertHorzaontalRule = (editorState, event) {
   }
   final textNode = textNodes.first;
   if (textNode.toPlainText() == '--') {
-    TransactionBuilder(editorState)
+    editorState.transaction
       ..deleteText(textNode, 0, 2)
       ..insertNode(
         textNode.path,
@@ -29,8 +29,8 @@ ShortcutEventHandler _insertHorzaontalRule = (editorState, event) {
         ),
       )
       ..afterSelection =
-          Selection.single(path: textNode.path.next, startOffset: 0)
-      ..commit();
+          Selection.single(path: textNode.path.next, startOffset: 0);
+    editorState.commit();
     return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;
@@ -54,7 +54,7 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
     }
     final textNode = textNodes.first;
     if (textNode.toPlainText().isEmpty) {
-      TransactionBuilder(editorState)
+      editorState.transaction
         ..insertNode(
           textNode.path,
           Node(
@@ -64,10 +64,10 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
           ),
         )
         ..afterSelection =
-            Selection.single(path: textNode.path.next, startOffset: 0)
-        ..commit();
+            Selection.single(path: textNode.path.next, startOffset: 0);
+      editorState.commit();
     } else {
-      TransactionBuilder(editorState)
+      editorState.transaction
         ..insertNode(
           selection.end.path.next,
           TextNode(
@@ -78,8 +78,8 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
             delta: Delta()..insert('---'),
           ),
         )
-        ..afterSelection = selection
-        ..commit();
+        ..afterSelection = selection;
+      editorState.commit();
     }
   },
 );

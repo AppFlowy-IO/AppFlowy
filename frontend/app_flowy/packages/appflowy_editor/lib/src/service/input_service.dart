@@ -1,4 +1,5 @@
 import 'package:appflowy_editor/src/infra/log.dart';
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +8,6 @@ import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 
 /// [AppFlowyInputService] is responsible for processing text input,
 ///   including text insertion, deletion and replacement.
@@ -160,13 +160,12 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     }
     if (currentSelection.isSingle) {
       final textNode = selectionService.currentSelectedNodes.first as TextNode;
-      TransactionBuilder(_editorState)
-        ..insertText(
-          textNode,
-          delta.insertionOffset,
-          delta.textInserted,
-        )
-        ..commit();
+      _editorState.transaction.insertText(
+        textNode,
+        delta.insertionOffset,
+        delta.textInserted,
+      );
+      _editorState.commit();
     } else {
       // TODO: implement
     }
@@ -181,9 +180,9 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     if (currentSelection.isSingle) {
       final textNode = selectionService.currentSelectedNodes.first as TextNode;
       final length = delta.deletedRange.end - delta.deletedRange.start;
-      TransactionBuilder(_editorState)
-        ..deleteText(textNode, delta.deletedRange.start, length)
-        ..commit();
+      _editorState.transaction
+          .deleteText(textNode, delta.deletedRange.start, length);
+      _editorState.commit();
     } else {
       // TODO: implement
     }
@@ -198,10 +197,9 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     if (currentSelection.isSingle) {
       final textNode = selectionService.currentSelectedNodes.first as TextNode;
       final length = delta.replacedRange.end - delta.replacedRange.start;
-      TransactionBuilder(_editorState)
-        ..replaceText(
-            textNode, delta.replacedRange.start, length, delta.replacementText)
-        ..commit();
+      _editorState.transaction.replaceText(
+          textNode, delta.replacedRange.start, length, delta.replacementText);
+      _editorState.commit();
     } else {
       // TODO: implement
     }

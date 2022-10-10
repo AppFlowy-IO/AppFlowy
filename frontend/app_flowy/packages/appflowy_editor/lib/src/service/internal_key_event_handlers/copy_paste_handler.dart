@@ -85,16 +85,16 @@ void _pasteHTML(EditorState editorState, String html) {
   } else if (nodes.length == 1) {
     final firstNode = nodes[0];
     final nodeAtPath = editorState.document.nodeAtPath(path)!;
-    final tb = TransactionBuilder(editorState);
+    final tb = editorState.transaction;
     final startOffset = selection.start.offset;
     if (nodeAtPath.type == "text" && firstNode.type == "text") {
       final textNodeAtPath = nodeAtPath as TextNode;
       final firstTextNode = firstNode as TextNode;
-      tb.textEdit(textNodeAtPath,
-          () => (Delta()..retain(startOffset)) + firstTextNode.delta);
-      tb.setAfterSelection(Selection.collapsed(Position(
+      tb.updateText(
+          textNodeAtPath, (Delta()..retain(startOffset)) + firstTextNode.delta);
+      tb.afterSelection = (Selection.collapsed(Position(
           path: path, offset: startOffset + firstTextNode.delta.length)));
-      tb.commit();
+      editorState.commit();
       return;
     }
   }
@@ -104,7 +104,7 @@ void _pasteHTML(EditorState editorState, String html) {
 
 void _pasteMultipleLinesInText(
     EditorState editorState, List<int> path, int offset, List<Node> nodes) {
-  final tb = TransactionBuilder(editorState);
+  final tb = editorState.transaction;
 
   final firstNode = nodes[0];
   final nodeAtPath = editorState.document.nodeAtPath(path)!;
@@ -120,10 +120,9 @@ void _pasteMultipleLinesInText(
     final firstTextNode = firstNode as TextNode;
     final remain = textNodeAtPath.delta.slice(offset);
 
-    tb.textEdit(
+    tb.updateText(
         textNodeAtPath,
-        () =>
-            (Delta()
+        (Delta()
               ..retain(offset)
               ..delete(remain.length)) +
             firstTextNode.delta);
@@ -146,9 +145,9 @@ void _pasteMultipleLinesInText(
       tailNodes.add(TextNode(delta: remain));
     }
 
-    tb.setAfterSelection(afterSelection);
+    tb.afterSelection = afterSelection;
     tb.insertNodes(path, tailNodes);
-    tb.commit();
+    editorState.commit();
 
     if (startNumber != null) {
       makeFollowingNodesIncremental(editorState, originalPath, afterSelection,
@@ -161,9 +160,9 @@ void _pasteMultipleLinesInText(
       _computeSelectionAfterPasteMultipleNodes(editorState, nodes);
 
   path[path.length - 1]++;
-  tb.setAfterSelection(afterSelection);
+  tb.afterSelection = afterSelection;
   tb.insertNodes(path, nodes);
-  tb.commit();
+  editorState.commit();
 }
 
 void _handlePaste(EditorState editorState) async {
@@ -196,15 +195,15 @@ void _pasteSingleLine(
     EditorState editorState, Selection selection, String line) {
   final node = editorState.document.nodeAtPath(selection.end.path)! as TextNode;
   final beginOffset = selection.end.offset;
-  TransactionBuilder(editorState)
-    ..textEdit(
+  editorState.transaction
+    ..updateText(
         node,
-        () => Delta()
+        Delta()
           ..retain(beginOffset)
           ..addAll(_lineContentToDelta(line)))
-    ..setAfterSelection(Selection.collapsed(
-        Position(path: selection.end.path, offset: beginOffset + line.length)))
-    ..commit();
+    ..afterSelection = (Selection.collapsed(
+        Position(path: selection.end.path, offset: beginOffset + line.length)));
+  editorState.commit();
 }
 
 /// parse url from the line text
@@ -264,7 +263,7 @@ void _handlePastePlainText(EditorState editorState, String plainText) {
     final insertedLineSuffix = node.delta.slice(beginOffset);
 
     path[path.length - 1]++;
-    final tb = TransactionBuilder(editorState);
+    final tb = editorState.transaction;
     final List<TextNode> nodes =
         remains.map((e) => TextNode(delta: _lineContentToDelta(e))).toList();
 
@@ -279,16 +278,16 @@ void _handlePastePlainText(EditorState editorState, String plainText) {
     }
 
     // insert first line
-    tb.textEdit(
+    tb.updateText(
         node,
-        () => Delta()
+        Delta()
           ..retain(beginOffset)
           ..insert(firstLine)
           ..delete(node.delta.length - beginOffset));
     // insert remains
     tb.insertNodes(path, nodes);
-    tb.setAfterSelection(afterSelection);
-    tb.commit();
+    tb.afterSelection = afterSelection;
+    editorState.commit();
   }
 }
 
@@ -309,15 +308,15 @@ void _deleteSelectedContent(EditorState editorState) {
   if (selection.start.path.equals(selection.end.path) &&
       beginNode.type == "text") {
     final textItem = beginNode as TextNode;
-    final tb = TransactionBuilder(editorState);
+    final tb = editorState.transaction;
     final len = selection.end.offset - selection.start.offset;
-    tb.textEdit(
+    tb.updateText(
         textItem,
-        () => Delta()
+        Delta()
           ..retain(selection.start.offset)
           ..delete(len));
-    tb.setAfterSelection(Selection.collapsed(selection.start));
-    tb.commit();
+    tb.afterSelection = Selection.collapsed(selection.start);
+    editorState.commit();
     return;
   }
   final traverser = NodeIterator(
@@ -325,13 +324,13 @@ void _deleteSelectedContent(EditorState editorState) {
     startNode: beginNode,
     endNode: endNode,
   );
-  final tb = TransactionBuilder(editorState);
+  final tb = editorState.transaction;
   while (traverser.moveNext()) {
     final item = traverser.current;
     if (item.type == "text" && beginNode == item) {
       final textItem = item as TextNode;
       final deleteLen = textItem.delta.length - selection.start.offset;
-      tb.textEdit(textItem, () {
+      tb.updateText(textItem, () {
         final delta = Delta()
           ..retain(selection.start.offset)
           ..delete(deleteLen);
@@ -342,13 +341,13 @@ void _deleteSelectedContent(EditorState editorState) {
         }
 
         return delta;
-      });
+      }());
     } else {
       tb.deleteNode(item);
     }
   }
-  tb.setAfterSelection(Selection.collapsed(selection.start));
-  tb.commit();
+  tb.afterSelection = Selection.collapsed(selection.start);
+  editorState.commit();
 }
 
 ShortcutEventHandler copyEventHandler = (editorState, event) {

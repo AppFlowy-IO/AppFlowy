@@ -6,7 +6,7 @@ import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:flutter/widgets.dart';
 
 Future<void> updateTextNodeAttributes(
@@ -23,9 +23,8 @@ Future<void> updateTextNodeAttributes(
 
   final completer = Completer<void>();
 
-  TransactionBuilder(editorState)
-    ..updateNode(result, attributes)
-    ..commit();
+  editorState.transaction.updateNode(result, attributes);
+  editorState.commit();
 
   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
     completer.complete();
@@ -49,15 +48,13 @@ Future<void> updateTextNodeDeltaAttributes(
   final newSelection = getSelection(editorState, selection: selection);
 
   final completer = Completer<void>();
-
-  TransactionBuilder(editorState)
-    ..formatText(
-      result,
-      newSelection.startIndex,
-      newSelection.length,
-      attributes,
-    )
-    ..commit();
+  editorState.transaction.formatText(
+    result,
+    newSelection.startIndex,
+    newSelection.length,
+    attributes,
+  );
+  editorState.commit();
 
   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
     completer.complete();

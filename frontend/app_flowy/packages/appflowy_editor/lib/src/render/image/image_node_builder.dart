@@ -1,5 +1,4 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:rich_clipboard/rich_clipboard.dart';
@@ -25,23 +24,20 @@ class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
         RichClipboard.setData(RichClipboardData(text: src));
       },
       onDelete: () {
-        TransactionBuilder(context.editorState)
-          ..deleteNode(context.node)
-          ..commit();
+        context.editorState.transaction.deleteNode(context.node);
+        context.editorState.commit();
       },
       onAlign: (alignment) {
-        TransactionBuilder(context.editorState)
-          ..updateNode(context.node, {
-            'align': _alignmentToText(alignment),
-          })
-          ..commit();
+        context.editorState.transaction.updateNode(context.node, {
+          'align': _alignmentToText(alignment),
+        });
+        context.editorState.commit();
       },
       onResize: (width) {
-        TransactionBuilder(context.editorState)
-          ..updateNode(context.node, {
-            'width': width,
-          })
-          ..commit();
+        context.editorState.transaction.updateNode(context.node, {
+          'width': width,
+        });
+        context.editorState.commit();
       },
     );
   }

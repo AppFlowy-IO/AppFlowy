@@ -1,12 +1,5 @@
-import 'package:appflowy_editor/src/core/document/attributes.dart';
-import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/core/document/path.dart';
-import 'package:appflowy_editor/src/core/location/position.dart';
-import 'package:appflowy_editor/src/core/location/selection.dart';
-import 'package:appflowy_editor/src/editor_state.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
-import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 
 void insertHeadingAfterSelection(EditorState editorState, String heading) {
   insertTextNodeAfterSelection(editorState, {
@@ -54,16 +47,15 @@ bool insertTextNodeAfterSelection(
     formatTextNodes(editorState, attributes);
   } else {
     final next = selection.end.path.next;
-    final builder = TransactionBuilder(editorState);
-    builder
+    editorState.transaction
       ..insertNode(
         next,
         TextNode.empty(attributes: attributes),
       )
       ..afterSelection = Selection.collapsed(
         Position(path: next, offset: 0),
-      )
-      ..commit();
+      );
+    editorState.commit();
   }
 
   return true;
@@ -107,7 +99,7 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
     return false;
   }
 
-  final builder = TransactionBuilder(editorState);
+  final transaction = editorState.transaction;
 
   for (final textNode in textNodes) {
     var newAttributes = {...textNode.attributes};
@@ -117,7 +109,7 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
       }
     }
     newAttributes.addAll(attributes);
-    builder
+    transaction
       ..updateNode(
         textNode,
         newAttributes,
@@ -130,7 +122,7 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
       );
   }
 
-  builder.commit();
+  editorState.commit();
   return true;
 }
 
@@ -216,13 +208,13 @@ bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
     return false;
   }
 
-  final builder = TransactionBuilder(editorState);
+  final transaction = editorState.transaction;
 
   // 1. All nodes are text nodes.
   // 2. The first node is not TextNode.
   // 3. The last node is not TextNode.
   if (nodes.length == textNodes.length && textNodes.length == 1) {
-    builder.formatText(
+    transaction.formatText(
       textNodes.first,
       selection.start.offset,
       selection.end.offset - selection.start.offset,
@@ -239,7 +231,7 @@ bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
       } else if (i == textNodes.length - 1 && textNode == nodes.last) {
         length = selection.end.offset;
       }
-      builder.formatText(
+      transaction.formatText(
         textNode,
         index,
         length,
@@ -248,7 +240,7 @@ bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
     }
   }
 
-  builder.commit();
+  editorState.commit();
 
   return true;
 }

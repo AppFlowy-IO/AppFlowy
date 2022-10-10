@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
+
 import 'package:flutter/material.dart';
 
 bool _isCodeStyle(TextNode textNode, int index) {
@@ -72,7 +73,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
       return KeyEventResult.ignored;
     }
 
-    TransactionBuilder(editorState)
+    editorState.transaction
       ..deleteText(textNode, lastBackquoteIndex, 1)
       ..deleteText(textNode, firstBackquoteIndex, 2)
       ..formatText(
@@ -88,8 +89,8 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
           path: textNode.path,
           offset: endIndex - 3,
         ),
-      )
-      ..commit();
+      );
+    editorState.commit();
 
     return KeyEventResult.handled;
   }
@@ -103,7 +104,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
   // delete the backquote.
   // update the style of the text surround by ` ` to code.
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, startIndex, 1)
     ..formatText(
       textNode,
@@ -118,8 +119,8 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
         path: textNode.path,
         offset: endIndex - 1,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
 
   return KeyEventResult.handled;
 };
@@ -165,7 +166,7 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
   // delete the last three tildes.
   // update the style of the text surround by `~~ ~~` to strikethrough.
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, lastTildeIndex, 1)
     ..deleteText(textNode, thirdToLastTildeIndex, 2)
     ..formatText(
@@ -181,8 +182,8 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
         path: textNode.path,
         offset: selection.end.offset - 3,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
 
   return KeyEventResult.handled;
 };
@@ -219,7 +220,7 @@ ShortcutEventHandler markdownLinkToLinkHandler = (editorState, event) {
   // update the href attribute of the text surrounded by [ ] to the url,
   // delete everything after the text,
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, firstOpeningBracket, 1)
     ..formatText(
       textNode,
@@ -236,8 +237,8 @@ ShortcutEventHandler markdownLinkToLinkHandler = (editorState, event) {
         path: textNode.path,
         offset: firstOpeningBracket + linkText!.length,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
 
   return KeyEventResult.handled;
 };

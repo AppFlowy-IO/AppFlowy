@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/core/document/document.dart';
 import 'package:appflowy_editor/src/core/transform/operation.dart';
-import 'package:appflowy_editor/src/operation/transaction.dart';
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:appflowy_editor/src/undo_manager.dart';
 
 class ApplyOptions {
@@ -73,6 +73,24 @@ class EditorState {
   bool disableSealTimer = false;
 
   bool editable = true;
+
+  Transaction get transaction {
+    if (_transaction != null) {
+      return _transaction!;
+    }
+    _transaction = Transaction(document: document);
+    _transaction!.beforeSelection = _cursorSelection;
+    return _transaction!;
+  }
+
+  Transaction? _transaction;
+
+  void commit() {
+    if (_transaction != null) {
+      apply(_transaction!, const ApplyOptions(recordUndo: true));
+      _transaction = null;
+    }
+  }
 
   Selection? get cursorSelection {
     return _cursorSelection;

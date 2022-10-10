@@ -1,3 +1,4 @@
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,7 +7,6 @@ import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/location/position.dart';
 import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import './number_list_helper.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 
@@ -99,15 +99,14 @@ KeyEventResult _toNumberList(EditorState editorState, TextNode textNode,
   ));
 
   final insertPath = textNode.path;
-
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, 0, matchText.length)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.numberList,
       BuiltInAttributeKey.number: numValue
     })
-    ..afterSelection = afterSelection
-    ..commit();
+    ..afterSelection = afterSelection;
+  editorState.commit();
 
   makeFollowingNodesIncremental(editorState, insertPath, afterSelection);
 
@@ -118,7 +117,7 @@ KeyEventResult _toBulletedList(EditorState editorState, TextNode textNode) {
   if (textNode.subtype == BuiltInAttributeKey.bulletedList) {
     return KeyEventResult.ignored;
   }
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, 0, 1)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
@@ -128,8 +127,8 @@ KeyEventResult _toBulletedList(EditorState editorState, TextNode textNode) {
         path: textNode.path,
         offset: 0,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
   return KeyEventResult.handled;
 }
 
@@ -151,7 +150,7 @@ KeyEventResult _toCheckboxList(EditorState editorState, TextNode textNode) {
     check = false;
   }
 
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, 0, symbol.length)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
@@ -162,8 +161,8 @@ KeyEventResult _toCheckboxList(EditorState editorState, TextNode textNode) {
         path: textNode.path,
         offset: 0,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
   return KeyEventResult.handled;
 }
 
@@ -177,7 +176,7 @@ KeyEventResult _toHeadingStyle(
   if (textNode.attributes.heading == hX) {
     return KeyEventResult.ignored;
   }
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, 0, x)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
@@ -188,8 +187,8 @@ KeyEventResult _toHeadingStyle(
         path: textNode.path,
         offset: 0,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
   return KeyEventResult.handled;
 }
 
