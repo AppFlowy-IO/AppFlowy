@@ -192,7 +192,9 @@ pub(crate) async fn create_field_type_option_data_handler(
 ) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_rev = editor.create_next_field_rev(&params.field_type).await?;
+    let field_rev = editor
+        .create_new_field_rev(&params.field_type, params.type_option_data)
+        .await?;
     let field_type: FieldType = field_rev.ty.into();
     let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 

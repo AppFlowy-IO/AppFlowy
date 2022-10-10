@@ -164,11 +164,16 @@ pub struct CreateFieldPayloadPB {
 
     #[pb(index = 2)]
     pub field_type: FieldType,
+
+    #[pb(index = 3, one_of)]
+    pub type_option_data: Option<Vec<u8>>,
 }
 
+#[derive(Clone)]
 pub struct CreateFieldParams {
     pub grid_id: String,
     pub field_type: FieldType,
+    pub type_option_data: Option<Vec<u8>>,
 }
 
 impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
@@ -179,6 +184,7 @@ impl TryInto<CreateFieldParams> for CreateFieldPayloadPB {
         Ok(CreateFieldParams {
             grid_id: grid_id.0,
             field_type: self.field_type,
+            type_option_data: self.type_option_data,
         })
     }
 }
@@ -311,50 +317,6 @@ impl std::convert::From<String> for RepeatedFieldIdPB {
         RepeatedFieldIdPB {
             items: vec![FieldIdPB::from(s)],
         }
-    }
-}
-
-#[derive(ProtoBuf, Default)]
-pub struct InsertFieldPayloadPB {
-    #[pb(index = 1)]
-    pub grid_id: String,
-
-    #[pb(index = 2)]
-    pub field: FieldPB,
-
-    #[pb(index = 3)]
-    pub type_option_data: Vec<u8>,
-
-    #[pb(index = 4, one_of)]
-    pub start_field_id: Option<String>,
-}
-
-#[derive(Clone)]
-pub struct InsertFieldParams {
-    pub grid_id: String,
-    pub field: FieldPB,
-    pub type_option_data: Vec<u8>,
-    pub start_field_id: Option<String>,
-}
-
-impl TryInto<InsertFieldParams> for InsertFieldPayloadPB {
-    type Error = ErrorCode;
-
-    fn try_into(self) -> Result<InsertFieldParams, Self::Error> {
-        let grid_id = NotEmptyStr::parse(self.grid_id).map_err(|_| ErrorCode::GridIdIsEmpty)?;
-        let _ = NotEmptyStr::parse(self.field.id.clone()).map_err(|_| ErrorCode::FieldIdIsEmpty)?;
-
-        let start_field_id = match self.start_field_id {
-            None => None,
-            Some(id) => Some(NotEmptyStr::parse(id).map_err(|_| ErrorCode::FieldIdIsEmpty)?.0),
-        };
-
-        Ok(InsertFieldParams {
-            grid_id: grid_id.0,
-            field: self.field,
-            type_option_data: self.type_option_data,
-            start_field_id,
-        })
     }
 }
 

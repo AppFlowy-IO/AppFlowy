@@ -472,7 +472,7 @@ mod tests {
     use flowy_folder_data_model::revision::{
         AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision,
     };
-    use lib_ot::core::{DeltaBuilder, OperationTransform};
+    use lib_ot::core::OperationTransform;
 
     #[test]
     fn folder_add_workspace() {

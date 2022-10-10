@@ -87,43 +87,6 @@ impl GridRevisionEditor {
         Ok(editor)
     }
 
-    pub async fn insert_field(&self, params: InsertFieldParams) -> FlowyResult<()> {
-        let InsertFieldParams {
-            field,
-            type_option_data,
-            start_field_id,
-            grid_id,
-        } = params;
-        let field_id = field.id.clone();
-        if self.contain_field(&field_id).await {
-            let changeset = FieldChangesetParams {
-                field_id: field.id,
-                grid_id,
-                name: Some(field.name),
-                desc: Some(field.desc),
-                field_type: Some(field.field_type.clone().into()),
-                frozen: Some(field.frozen),
-                visibility: Some(field.visibility),
-                width: Some(field.width),
-                type_option_data: None,
-            };
-
-            let _ = self.update_field_rev(changeset, field.field_type).await?;
-            let _ = self.notify_did_update_grid_field(&field_id).await?;
-        } else {
-            let _ = self
-                .modify(|grid| {
-                    let builder = type_option_builder_from_bytes(type_option_data, &field.field_type);
-                    let field_rev = FieldBuilder::from_field(field, builder).build();
-                    Ok(grid.create_field_rev(field_rev, start_field_id)?)
-                })
-                .await?;
-            let _ = self.notify_did_insert_grid_field(&field_id).await?;
-        }
-
-        Ok(())
-    }
-
     pub async fn update_field_type_option(
         &self,
         grid_id: &str,
@@ -153,8 +116,16 @@ impl GridRevisionEditor {
         Ok(field_rev)
     }
 
-    pub async fn create_next_field_rev(&self, field_type: &FieldType) -> FlowyResult<FieldRevision> {
-        let field_rev = self.next_field_rev(field_type).await?;
+    pub async fn create_new_field_rev(
+        &self,
+        field_type: &FieldType,
+        type_option_data: Option<Vec<u8>>,
+    ) -> FlowyResult<FieldRevision> {
+        let mut field_rev = self.next_field_rev(field_type).await?;
+        if let Some(type_option_data) = type_option_data {
+            let type_option_builder = type_option_builder_from_bytes(type_option_data, field_type);
+            field_rev.insert_type_option(type_option_builder.data_format());
+        }
         let _ = self
             .modify(|grid| Ok(grid.create_field_rev(field_rev.clone(), None)?))
             .await?;
