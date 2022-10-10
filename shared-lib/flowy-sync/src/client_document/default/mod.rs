@@ -1,13 +1,13 @@
 use lib_ot::{core::OperationBuilder, text_delta::TextOperations};
 
 #[inline]
-pub fn initial_quill_delta() -> TextOperations {
+pub fn initial_document_operations() -> TextOperations {
     OperationBuilder::new().insert("\n").build()
 }
 
 #[inline]
-pub fn initial_quill_delta_string() -> String {
-    initial_quill_delta().json_str()
+pub fn initial_document_str() -> String {
+    initial_document_operations().json_str()
 }
 
 #[inline]

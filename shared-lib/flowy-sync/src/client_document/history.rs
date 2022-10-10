@@ -4,7 +4,7 @@ const MAX_UNDOES: usize = 20;
 
 #[derive(Debug, Clone)]
 pub struct UndoResult {
-    pub delta: TextOperations,
+    pub operations: TextOperations,
 }
 
 #[derive(Debug, Clone)]

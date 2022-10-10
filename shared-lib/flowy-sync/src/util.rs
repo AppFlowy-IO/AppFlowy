@@ -1,13 +1,14 @@
+use crate::server_folder::FolderOperations;
 use crate::{
     entities::{
-        folder::{FolderDelta, FolderInfo},
+        folder::FolderInfo,
         revision::{RepeatedRevision, Revision},
         text_block::DocumentPB,
     },
     errors::{CollaborateError, CollaborateResult},
 };
 use dissimilar::Chunk;
-use lib_ot::core::{Delta, EmptyAttributes, OTString, OperationAttributes, OperationBuilder};
+use lib_ot::core::{OTString, OperationAttributes, OperationBuilder};
 use lib_ot::{
     core::{DeltaOperations, OperationTransform, NEW_LINE, WHITESPACE},
     text_delta::TextOperations,
@@ -82,10 +83,6 @@ where
     Ok(new_operations)
 }
 
-pub fn make_delta_from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Delta> {
-    make_operations_from_revisions::<EmptyAttributes>(revisions)
-}
-
 pub fn pair_rev_id_from_revision_pbs(revisions: &[Revision]) -> (i64, i64) {
     let mut rev_id = 0;
     revisions.iter().for_each(|revision| {
@@ -126,7 +123,7 @@ pub fn make_folder_from_revisions_pb(
         return Ok(None);
     }
 
-    let mut folder_delta = FolderDelta::new();
+    let mut folder_delta = FolderOperations::new();
     let mut base_rev_id = 0;
     let mut rev_id = 0;
     for revision in revisions {
@@ -135,7 +132,7 @@ pub fn make_folder_from_revisions_pb(
         if revision.bytes.is_empty() {
             tracing::warn!("revision delta_data is empty");
         }
-        let delta = FolderDelta::from_bytes(revision.bytes)?;
+        let delta = FolderOperations::from_bytes(revision.bytes)?;
         folder_delta = folder_delta.compose(&delta)?;
     }
 

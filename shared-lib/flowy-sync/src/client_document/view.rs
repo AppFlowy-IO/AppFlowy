@@ -25,23 +25,23 @@ impl ViewExtensions {
 
     pub(crate) fn insert(
         &self,
-        delta: &TextOperations,
+        operations: &TextOperations,
         text: &str,
         interval: Interval,
     ) -> Result<TextOperations, OTError> {
-        let mut new_delta = None;
+        let mut new_operations = None;
         for ext in &self.insert_exts {
-            if let Some(mut delta) = ext.apply(delta, interval.size(), text, interval.start) {
-                trim(&mut delta);
-                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), delta);
-                new_delta = Some(delta);
+            if let Some(mut operations) = ext.apply(operations, interval.size(), text, interval.start) {
+                trim(&mut operations);
+                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), operations);
+                new_operations = Some(operations);
                 break;
             }
         }
 
-        match new_delta {
+        match new_operations {
             None => Err(ErrorBuilder::new(OTErrorCode::ApplyInsertFail).build()),
-            Some(new_delta) => Ok(new_delta),
+            Some(new_operations) => Ok(new_operations),
         }
     }
 
@@ -64,23 +64,23 @@ impl ViewExtensions {
 
     pub(crate) fn format(
         &self,
-        delta: &TextOperations,
+        operations: &TextOperations,
         attribute: AttributeEntry,
         interval: Interval,
     ) -> Result<TextOperations, OTError> {
-        let mut new_delta = None;
+        let mut new_operations = None;
         for ext in &self.format_exts {
-            if let Some(mut delta) = ext.apply(delta, interval, &attribute) {
-                trim(&mut delta);
-                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), delta);
-                new_delta = Some(delta);
+            if let Some(mut operations) = ext.apply(operations, interval, &attribute) {
+                trim(&mut operations);
+                tracing::trace!("[{}] applied, delta: {}", ext.ext_name(), operations);
+                new_operations = Some(operations);
                 break;
             }
         }
 
-        match new_delta {
+        match new_operations {
             None => Err(ErrorBuilder::new(OTErrorCode::ApplyFormatFail).build()),
-            Some(new_delta) => Ok(new_delta),
+            Some(new_operations) => Ok(new_operations),
         }
     }
 }

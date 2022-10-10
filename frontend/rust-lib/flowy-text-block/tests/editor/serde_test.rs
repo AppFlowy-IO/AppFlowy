@@ -104,10 +104,10 @@ fn document_insert_serde_test() {
     let mut document = ClientDocument::new::<EmptyDoc>();
     document.insert(0, "\n").unwrap();
     document.insert(0, "123").unwrap();
-    let json = document.delta_str();
+    let json = document.get_operations_json();
     assert_eq!(r#"[{"insert":"123\n"}]"#, json);
     assert_eq!(
         r#"[{"insert":"123\n"}]"#,
-        ClientDocument::from_json(&json).unwrap().delta_str()
+        ClientDocument::from_json(&json).unwrap().get_operations_json()
     );
 }

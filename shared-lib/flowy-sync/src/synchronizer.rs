@@ -24,6 +24,12 @@ use std::{
 
 pub type RevisionOperations<Attribute> = DeltaOperations<Attribute>;
 
+pub trait RevisionOperations2<Attribute>: Send + Sync {
+    fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, CollaborateError>
+    where
+        Self: Sized;
+}
+
 pub trait RevisionUser: Send + Sync + Debug {
     fn user_id(&self) -> String;
     fn receive(&self, resp: RevisionSyncResponse);
@@ -46,13 +52,17 @@ pub trait RevisionSyncPersistence: Send + Sync + 'static {
 }
 
 pub trait RevisionSyncObject<Attribute: OperationAttributes>: Send + Sync + 'static {
-    fn id(&self) -> &str;
+    fn object_id(&self) -> &str;
+
+    fn object_json(&self) -> String;
+
     fn compose(&mut self, other: &RevisionOperations<Attribute>) -> Result<(), CollaborateError>;
+
     fn transform(
         &self,
         other: &RevisionOperations<Attribute>,
     ) -> Result<(RevisionOperations<Attribute>, RevisionOperations<Attribute>), CollaborateError>;
-    fn to_json(&self) -> String;
+
     fn set_operations(&mut self, operations: RevisionOperations<Attribute>);
 }
 
@@ -80,7 +90,7 @@ where
     {
         let object = Arc::new(RwLock::new(sync_object));
         let persistence = Arc::new(persistence);
-        let object_id = object.read().id().to_owned();
+        let object_id = object.read().object_id().to_owned();
         RevisionSynchronizer {
             object_id,
             rev_id: AtomicI64::new(rev_id),
@@ -184,7 +194,7 @@ where
     }
 
     pub fn object_json(&self) -> String {
-        self.object.read().to_json()
+        self.object.read().object_json()
     }
 
     fn compose_revision(&self, revision: &Revision) -> Result<(), CollaborateError> {

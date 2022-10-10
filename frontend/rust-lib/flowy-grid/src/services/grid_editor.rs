@@ -17,9 +17,10 @@ use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, R
 use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::CollaborateResult;
-use flowy_sync::util::make_delta_from_revisions;
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{wrap_future, FutureResult};
 
+use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -147,7 +148,7 @@ impl GridRevisionEditor {
     }
 
     pub async fn next_field_rev(&self, field_type: &FieldType) -> FlowyResult<FieldRevision> {
-        let name = format!("Property {}", self.grid_pad.read().await.fields().len() + 1);
+        let name = format!("Property {}", self.grid_pad.read().await.get_fields().len() + 1);
         let field_rev = FieldBuilder::from_field_type(field_type).name(&name).build();
         Ok(field_rev)
     }
@@ -675,10 +676,6 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn delta_bytes(&self) -> Bytes {
-        self.grid_pad.read().await.delta_bytes()
-    }
-
     pub async fn duplicate_grid(&self) -> FlowyResult<BuildGridContext> {
         let grid_pad = self.grid_pad.read().await;
         let grid_view_revision_data = self.view_manager.duplicate_grid_view().await?;
@@ -750,7 +747,7 @@ impl GridRevisionEditor {
     }
 
     async fn apply_change(&self, change: GridRevisionChangeset) -> FlowyResult<()> {
-        let GridRevisionChangeset { delta, md5 } = change;
+        let GridRevisionChangeset { operations: delta, md5 } = change;
         let user_id = self.user.user_id()?;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
@@ -844,8 +841,8 @@ impl RevisionCloudService for GridRevisionCloudService {
 pub struct GridRevisionCompactor();
 impl RevisionCompactor for GridRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_delta_from_revisions(revisions)?;
-        Ok(delta.json_bytes())
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
     }
 }
 

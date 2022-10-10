@@ -35,7 +35,7 @@ impl EditBlockQueue {
         delta: TextOperations,
         receiver: EditorCommandReceiver,
     ) -> Self {
-        let document = Arc::new(RwLock::new(ClientDocument::from_delta(delta)));
+        let document = Arc::new(RwLock::new(ClientDocument::from_operations(delta)));
         Self {
             document,
             user,
@@ -69,7 +69,7 @@ impl EditBlockQueue {
         match command {
             EditorCommand::ComposeLocalDelta { delta, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_delta(delta.clone())?;
+                let _ = document.compose_operations(delta.clone())?;
                 let md5 = document.md5();
                 drop(document);
                 let _ = self.save_local_delta(delta, md5).await?;
@@ -77,14 +77,14 @@ impl EditBlockQueue {
             }
             EditorCommand::ComposeRemoteDelta { client_delta, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_delta(client_delta.clone())?;
+                let _ = document.compose_operations(client_delta.clone())?;
                 let md5 = document.md5();
                 drop(document);
                 let _ = ret.send(Ok(md5));
             }
             EditorCommand::ResetDelta { delta, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.set_delta(delta);
+                let _ = document.set_operations(delta);
                 let md5 = document.md5();
                 drop(document);
                 let _ = ret.send(Ok(md5));
@@ -99,7 +99,7 @@ impl EditBlockQueue {
                         // Do nothing
                         client_prime = delta;
                     } else {
-                        let (s_prime, c_prime) = read_guard.delta().transform(&delta)?;
+                        let (s_prime, c_prime) = read_guard.get_operations().transform(&delta)?;
                         client_prime = c_prime;
                         server_prime = Some(s_prime);
                     }
@@ -151,24 +151,24 @@ impl EditBlockQueue {
             }
             EditorCommand::Undo { ret } => {
                 let mut write_guard = self.document.write().await;
-                let UndoResult { delta } = write_guard.undo()?;
+                let UndoResult { operations: delta } = write_guard.undo()?;
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::Redo { ret } => {
                 let mut write_guard = self.document.write().await;
-                let UndoResult { delta } = write_guard.redo()?;
+                let UndoResult { operations: delta } = write_guard.redo()?;
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::ReadDeltaStr { ret } => {
-                let data = self.document.read().await.delta_str();
+                let data = self.document.read().await.get_operations_json();
                 let _ = ret.send(Ok(data));
             }
             EditorCommand::ReadDelta { ret } => {
-                let delta = self.document.read().await.delta().clone();
+                let delta = self.document.read().await.get_operations().clone();
                 let _ = ret.send(Ok(delta));
             }
         }

@@ -1,17 +1,20 @@
 use crate::entities::revision::{md5, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
-use crate::util::{cal_diff, make_delta_from_revisions};
+use crate::util::{cal_diff, make_operations_from_revisions};
 use flowy_grid_data_model::revision::{
     FieldRevision, FieldTypeRevision, FilterConfigurationRevision, FilterConfigurationsByFieldId, GridViewRevision,
     GroupConfigurationRevision, GroupConfigurationsByFieldId, LayoutRevision,
 };
-use lib_ot::core::{Delta, DeltaBuilder, EmptyAttributes, OperationTransform};
+use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::sync::Arc;
+
+pub type GridViewOperations = DeltaOperations<EmptyAttributes>;
+pub type GridViewOperationsBuilder = DeltaBuilder;
 
 #[derive(Debug, Clone)]
 pub struct GridViewRevisionPad {
     view: Arc<GridViewRevision>,
-    delta: Delta,
+    operations: GridViewOperations,
 }
 
 impl std::ops::Deref for GridViewRevisionPad {
@@ -28,33 +31,33 @@ impl GridViewRevisionPad {
     pub fn new(grid_id: String, view_id: String, layout: LayoutRevision) -> Self {
         let view = Arc::new(GridViewRevision::new(grid_id, view_id, layout));
         let json = serde_json::to_string(&view).unwrap();
-        let delta = DeltaBuilder::new().insert(&json).build();
-        Self { view, delta }
+        let operations = GridViewOperationsBuilder::new().insert(&json).build();
+        Self { view, operations }
     }
 
-    pub fn from_delta(view_id: &str, delta: Delta) -> CollaborateResult<Self> {
-        if delta.is_empty() {
+    pub fn from_operations(view_id: &str, operations: GridViewOperations) -> CollaborateResult<Self> {
+        if operations.is_empty() {
             return Ok(GridViewRevisionPad::new(
                 view_id.to_owned(),
                 view_id.to_owned(),
                 LayoutRevision::Table,
             ));
         }
-        let s = delta.content()?;
+        let s = operations.content()?;
         let view: GridViewRevision = serde_json::from_str(&s).map_err(|e| {
-            let msg = format!("Deserialize delta to GridViewRevision failed: {}", e);
+            let msg = format!("Deserialize operations to GridViewRevision failed: {}", e);
             tracing::error!("parsing json: {}", s);
             CollaborateError::internal().context(msg)
         })?;
         Ok(Self {
             view: Arc::new(view),
-            delta,
+            operations,
         })
     }
 
     pub fn from_revisions(view_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let delta: Delta = make_delta_from_revisions(revisions)?;
-        Self::from_delta(view_id, delta)
+        let operations: GridViewOperations = make_operations_from_revisions(revisions)?;
+        Self::from_operations(view_id, operations)
     }
 
     pub fn get_groups_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
@@ -183,10 +186,10 @@ impl GridViewRevisionPad {
                 let new = self.json_str()?;
                 match cal_diff::<EmptyAttributes>(old, new) {
                     None => Ok(None),
-                    Some(delta) => {
-                        self.delta = self.delta.compose(&delta)?;
-                        let md5 = md5(&self.delta.json_bytes());
-                        Ok(Some(GridViewRevisionChangeset { delta, md5 }))
+                    Some(operations) => {
+                        self.operations = self.operations.compose(&operations)?;
+                        let md5 = md5(&self.operations.json_bytes());
+                        Ok(Some(GridViewRevisionChangeset { operations, md5 }))
                     }
                 }
             }
@@ -196,7 +199,7 @@ impl GridViewRevisionPad {
 
 #[derive(Debug)]
 pub struct GridViewRevisionChangeset {
-    pub delta: Delta,
+    pub operations: GridViewOperations,
     pub md5: String,
 }
 
@@ -206,7 +209,7 @@ pub fn make_grid_view_rev_json_str(grid_revision: &GridViewRevision) -> Collabor
     Ok(json)
 }
 
-pub fn make_grid_view_delta(grid_view: &GridViewRevision) -> Delta {
+pub fn make_grid_view_operations(grid_view: &GridViewRevision) -> GridViewOperations {
     let json = serde_json::to_string(grid_view).unwrap();
-    DeltaBuilder::new().insert(&json).build()
+    GridViewOperationsBuilder::new().insert(&json).build()
 }

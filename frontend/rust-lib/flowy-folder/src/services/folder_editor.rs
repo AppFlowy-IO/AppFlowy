@@ -4,13 +4,14 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
     RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
 };
-use flowy_sync::util::make_delta_from_revisions;
+use flowy_sync::util::make_operations_from_revisions;
 use flowy_sync::{
     client_folder::{FolderChangeset, FolderPad},
     entities::{revision::Revision, ws_data::ServerRevisionWSData},
 };
 use lib_infra::future::FutureResult;
 
+use lib_ot::core::EmptyAttributes;
 use parking_lot::RwLock;
 use std::sync::Arc;
 
@@ -77,7 +78,7 @@ impl FolderEditor {
     }
 
     pub(crate) fn apply_change(&self, change: FolderChangeset) -> FlowyResult<()> {
-        let FolderChangeset { delta, md5 } = change;
+        let FolderChangeset { operations: delta, md5 } = change;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
         let revision = Revision::new(
@@ -131,7 +132,7 @@ impl FolderEditor {
 pub struct FolderRevisionCompactor();
 impl RevisionCompactor for FolderRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_delta_from_revisions(revisions)?;
-        Ok(delta.json_bytes())
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
     }
 }

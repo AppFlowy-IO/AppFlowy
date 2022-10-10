@@ -14,7 +14,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{BuildGridContext, GridRevision, GridViewRevision};
 use flowy_revision::disk::{SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
-use flowy_sync::client_grid::{make_grid_block_delta, make_grid_delta, make_grid_view_delta};
+use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -198,7 +198,7 @@ pub async fn make_grid_view_data(
         });
 
         // Create grid's block
-        let grid_block_delta = make_grid_block_delta(block_meta_data);
+        let grid_block_delta = make_grid_block_operations(block_meta_data);
         let block_delta_data = grid_block_delta.json_bytes();
         let repeated_revision: RepeatedRevision =
             Revision::initial_revision(user_id, block_id, block_delta_data).into();
@@ -210,7 +210,7 @@ pub async fn make_grid_view_data(
     let grid_rev = GridRevision::from_build_context(&grid_id, field_revs, block_metas);
 
     // Create grid
-    let grid_rev_delta = make_grid_delta(&grid_rev);
+    let grid_rev_delta = make_grid_operations(&grid_rev);
     let grid_rev_delta_bytes = grid_rev_delta.json_bytes();
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, &grid_id, grid_rev_delta_bytes.clone()).into();
@@ -222,7 +222,7 @@ pub async fn make_grid_view_data(
     } else {
         GridViewRevision::from_json(grid_view_revision_data)?
     };
-    let grid_view_delta = make_grid_view_delta(&grid_view);
+    let grid_view_delta = make_grid_view_operations(&grid_view);
     let grid_view_delta_bytes = grid_view_delta.json_bytes();
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, view_id, grid_view_delta_bytes).into();
