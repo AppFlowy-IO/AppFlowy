@@ -9,7 +9,7 @@ void main() {
   test('create state tree', () async {
     // final String response = await rootBundle.loadString('assets/document.json');
     // final data = Map<String, Object>.from(json.decode(response));
-    // final document = StateTree.fromJson(data);
+    // final document = Document.fromJson(data);
     // expect(document.root.type, 'root');
     // expect(document.root.toJson(), data['document']);
   });
@@ -17,7 +17,7 @@ void main() {
   test('search node by Path in state tree', () async {
     // final String response = await rootBundle.loadString('assets/document.json');
     // final data = Map<String, Object>.from(json.decode(response));
-    // final document = StateTree.fromJson(data);
+    // final document = Document.fromJson(data);
     // final checkBoxNode = document.root.childAtPath([1, 0]);
     // expect(checkBoxNode != null, true);
     // final textType = checkBoxNode!.attributes['text-type'];
@@ -27,7 +27,7 @@ void main() {
   test('search node by Self in state tree', () async {
     // final String response = await rootBundle.loadString('assets/document.json');
     // final data = Map<String, Object>.from(json.decode(response));
-    // final document = StateTree.fromJson(data);
+    // final document = Document.fromJson(data);
     // final checkBoxNode = document.root.childAtPath([1, 0]);
     // expect(checkBoxNode != null, true);
     // final textType = checkBoxNode!.attributes['text-type'];
@@ -39,7 +39,7 @@ void main() {
   test('insert node in state tree', () async {
     // final String response = await rootBundle.loadString('assets/document.json');
     // final data = Map<String, Object>.from(json.decode(response));
-    // final document = StateTree.fromJson(data);
+    // final document = Document.fromJson(data);
     // final insertNode = Node.fromJson({
     //   'type': 'text',
     // });
@@ -51,7 +51,7 @@ void main() {
   test('delete node in state tree', () async {
     // final String response = await rootBundle.loadString('assets/document.json');
     // final data = Map<String, Object>.from(json.decode(response));
-    // final document = StateTree.fromJson(data);
+    // final document = Document.fromJson(data);
     // document.delete([1, 1], 1);
     // final node = document.nodeAtPath([1, 1]);
     // expect(node != null, true);
@@ -61,7 +61,7 @@ void main() {
   test('update node in state tree', () async {
     // final String response = await rootBundle.loadString('assets/document.json');
     // final data = Map<String, Object>.from(json.decode(response));
-    // final document = StateTree.fromJson(data);
+    // final document = Document.fromJson(data);
     // final test = document.update([1, 1], {'text-type': 'heading1'});
     // expect(test, true);
     // final updatedNode = document.nodeAtPath([1, 1]);
