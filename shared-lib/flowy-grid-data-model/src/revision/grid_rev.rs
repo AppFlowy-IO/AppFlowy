@@ -108,7 +108,7 @@ pub struct FieldRevision {
 
     /// type_options contains key/value pairs
     /// key: id of the FieldType
-    /// value: type option data that can be parsed into specified TypeOptionStruct.
+    /// value: type-option data that can be parsed into specified TypeOptionStruct.
     ///
     /// For example, CheckboxTypeOption, MultiSelectTypeOption etc.
     #[serde(with = "indexmap::serde_seq")]

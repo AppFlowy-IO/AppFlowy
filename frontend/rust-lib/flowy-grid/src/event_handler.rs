@@ -142,6 +142,7 @@ pub(crate) async fn switch_to_field_handler(
         .await
         .unwrap_or(Arc::new(editor.next_field_rev(&params.field_type).await?));
 
+    // Update the type-option data after the field type has been changed
     let type_option_data = get_type_option_data(&field_rev, &params.field_type).await?;
     let _ = editor
         .update_field_type_option(&params.grid_id, &field_rev.id, type_option_data)

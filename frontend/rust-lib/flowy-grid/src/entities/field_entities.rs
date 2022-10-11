@@ -5,6 +5,7 @@ use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
 use serde_repr::*;
 use std::sync::Arc;
 
+use crate::protobuf::FieldChangesetPayloadPB_oneof_one_of_name::name;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 /// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.
@@ -320,7 +321,7 @@ impl std::convert::From<String> for RepeatedFieldIdPB {
     }
 }
 
-/// [UpdateFieldTypeOptionPayloadPB] is used to update the type option data.
+/// [UpdateFieldTypeOptionPayloadPB] is used to update the type-option data.
 #[derive(ProtoBuf, Default)]
 pub struct UpdateFieldTypeOptionPayloadPB {
     #[pb(index = 1)]
@@ -464,6 +465,18 @@ pub struct FieldChangesetParams {
     pub width: Option<i32>,
 
     pub type_option_data: Option<Vec<u8>>,
+}
+
+impl FieldChangesetParams {
+    pub fn has_changes(&self) -> bool {
+        self.name.is_some()
+            || self.desc.is_some()
+            || self.field_type.is_some()
+            || self.frozen.is_some()
+            || self.type_option_data.is_some()
+            || self.frozen.is_some()
+            || self.width.is_some()
+    }
 }
 /// Certain field types have user-defined options such as color, date format, number format,
 /// or a list of values for a multi-select list. These options are defined within a specialization

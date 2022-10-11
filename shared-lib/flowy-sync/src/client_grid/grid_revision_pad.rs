@@ -139,7 +139,7 @@ impl GridRevisionPad {
     ///
     /// * `field_id`: the id of the field
     /// * `field_type`: the new field type of the field
-    /// * `type_option_builder`: builder for creating the field type's type option data
+    /// * `type_option_builder`: builder for creating the field type's type-option data
     ///
     ///
     pub fn switch_to_field<B, T>(
@@ -162,7 +162,7 @@ impl GridRevisionPad {
                 }
                 Some(field_rev) => {
                     let mut_field_rev = Arc::make_mut(field_rev);
-                    // If the type option data isn't exist before, creating the default type option data.
+                    // If the type-option data isn't exist before, creating the default type-option data.
                     if mut_field_rev.get_type_option_str(field_type).is_none() {
                         let type_option_json = type_option_builder(&field_type);
                         mut_field_rev.insert_type_option_str(&field_type, type_option_json);
