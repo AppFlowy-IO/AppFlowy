@@ -270,12 +270,16 @@ where
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             let mut changesets = self.add_row_if_match(row_rev, &cell_data);
-            if let Some(default_group_changeset) = self.update_default_group(row_rev, &changesets) {
-                tracing::trace!("default_group_changeset: {}", default_group_changeset);
-                if !default_group_changeset.is_empty() {
-                    changesets.push(default_group_changeset);
+
+            if self.use_default_group() {
+                if let Some(default_group_changeset) = self.update_default_group(row_rev, &changesets) {
+                    tracing::trace!("default_group_changeset: {}", default_group_changeset);
+                    if !default_group_changeset.is_empty() {
+                        changesets.push(default_group_changeset);
+                    }
                 }
             }
+
             Ok(changesets)
         } else {
             Ok(vec![])
