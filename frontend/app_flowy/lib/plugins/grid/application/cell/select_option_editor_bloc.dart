@@ -139,8 +139,7 @@ class SelectOptionCellEditorBloc
 
   void _selectMultipleOptions(List<String> optionNames) {
     final optionIds = state.options
-        .where((e) =>
-            optionNames.contains(e.name) && !state.selectedOptions.contains(e))
+        .where((e) => optionNames.contains(e.name))
         .map((e) => e.id);
     _selectOptionService.select(optionIds: optionIds);
   }

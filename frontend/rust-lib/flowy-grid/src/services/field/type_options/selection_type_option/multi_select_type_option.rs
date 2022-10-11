@@ -77,9 +77,7 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
                 let cell_data = get_cell_data(&cell_rev);
                 let mut select_ids: SelectOptionIds = cell_data.into();
                 for insert_option_id in insert_option_ids {
-                    if select_ids.contains(&insert_option_id) {
-                        select_ids.retain(|id| id != &insert_option_id);
-                    } else {
+                    if !select_ids.contains(&insert_option_id) {
                         select_ids.push(insert_option_id);
                     }
                 }
