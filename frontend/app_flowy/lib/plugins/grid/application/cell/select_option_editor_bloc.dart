@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
-import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
@@ -52,7 +51,10 @@ class SelectOptionCellEditorBloc
             _updateOption(value.option);
           },
           selectOption: (_SelectOption value) {
-            _onSelectOption(value.optionId);
+            _selectOptionService.select(optionIds: [value.optionId]);
+          },
+          unSelectOption: (_UnSelectOption value) {
+            _selectOptionService.unSelect(optionIds: [value.optionId]);
           },
           trySelectOption: (_TrySelectOption value) {
             _trySelectOption(value.optionName, emit);
@@ -95,16 +97,6 @@ class SelectOptionCellEditorBloc
     );
 
     result.fold((l) => null, (err) => Log.error(err));
-  }
-
-  void _onSelectOption(String optionId) {
-    final hasSelected = state.selectedOptions
-        .firstWhereOrNull((option) => option.id == optionId);
-    if (hasSelected != null) {
-      _selectOptionService.unSelect(optionIds: [optionId]);
-    } else {
-      _selectOptionService.select(optionIds: [optionId]);
-    }
   }
 
   void _trySelectOption(
@@ -225,6 +217,8 @@ class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
       _NewOption;
   const factory SelectOptionEditorEvent.selectOption(String optionId) =
       _SelectOption;
+  const factory SelectOptionEditorEvent.unSelectOption(String optionId) =
+      _UnSelectOption;
   const factory SelectOptionEditorEvent.updateOption(SelectOptionPB option) =
       _UpdateOption;
   const factory SelectOptionEditorEvent.deleteOption(SelectOptionPB option) =
