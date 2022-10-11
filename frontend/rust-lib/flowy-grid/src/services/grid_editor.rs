@@ -5,7 +5,10 @@ use crate::manager::{GridTaskSchedulerRwLock, GridUser};
 use crate::services::block_manager::GridBlockManager;
 
 use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellBytes};
-use crate::services::field::{default_type_option_builder_from_type, type_option_builder_from_bytes, FieldBuilder};
+use crate::services::field::{
+    default_type_option_builder_from_type, type_option_builder_from_bytes, type_option_builder_from_json_str,
+    FieldBuilder,
+};
 use crate::services::filter::GridFilterService;
 use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
@@ -20,7 +23,6 @@ use flowy_sync::errors::{CollaborateError, CollaborateResult};
 use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{wrap_future, FutureResult};
 
-use flowy_database::schema::rev_table::ty;
 use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -140,7 +142,7 @@ impl GridRevisionEditor {
         let mut field_rev = self.next_field_rev(field_type).await?;
         if let Some(type_option_data) = type_option_data {
             let type_option_builder = type_option_builder_from_bytes(type_option_data, field_type);
-            field_rev.insert_type_option(type_option_builder.data_format());
+            field_rev.insert_type_option(type_option_builder.serializer());
         }
         let _ = self
             .modify(|grid| Ok(grid.create_field_rev(field_rev.clone(), None)?))
@@ -181,7 +183,7 @@ impl GridRevisionEditor {
         let _ = self
             .modify(|grid| {
                 let changeset = grid.modify_field(field_id, |field_rev| {
-                    Ok(f(field_rev).map_err(|e| CollaborateError::internal().context(e))?)
+                    f(field_rev).map_err(|e| CollaborateError::internal().context(e))
                 })?;
                 is_changed = changeset.is_some();
                 Ok(changeset)
@@ -220,19 +222,35 @@ impl GridRevisionEditor {
     /// # Arguments
     ///
     /// * `field_id`: the id of the field
-    /// * `field_type`: the new field type of the field
+    /// * `new_field_type`: the new field type of the field
     ///
-    pub async fn switch_to_field_type(&self, field_id: &str, field_type: &FieldType) -> FlowyResult<()> {
-        let type_option_builder = |field_type: &FieldTypeRevision| -> String {
-            let field_type: FieldType = field_type.into();
-
-            return default_type_option_builder_from_type(&field_type)
-                .data_format()
+    pub async fn switch_to_field_type(&self, field_id: &str, new_field_type: &FieldType) -> FlowyResult<()> {
+        //
+        let make_default_type_option = || -> String {
+            return default_type_option_builder_from_type(new_field_type)
+                .serializer()
                 .json_str();
         };
 
+        let type_option_transform =
+            |prev_field_type: FieldTypeRevision, prev_type_option: Option<String>, current_type_option: String| {
+                let prev_field_type: FieldType = prev_field_type.into();
+                let mut type_option_builder = type_option_builder_from_json_str(&current_type_option, new_field_type);
+                if let Some(prev_type_option) = prev_type_option {
+                    type_option_builder.transform(&prev_field_type, prev_type_option)
+                }
+                type_option_builder.serializer().json_str()
+            };
+
         let _ = self
-            .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_builder)?))
+            .modify(|grid| {
+                Ok(grid.switch_to_field(
+                    field_id,
+                    new_field_type.clone(),
+                    make_default_type_option,
+                    type_option_transform,
+                )?)
+            })
             .await?;
 
         let _ = self.notify_did_update_grid_field(field_id).await?;
@@ -287,7 +305,7 @@ impl GridRevisionEditor {
     #[tracing::instrument(level = "debug", skip_all, err)]
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
         let mut is_type_option_changed = false;
-        if params.has_changes() == false {
+        if !params.has_changes() {
             return Ok(());
         }
 
@@ -847,7 +865,7 @@ impl JsonDeserializer for TypeOptionJsonDeserializer {
     fn deserialize(&self, type_option_data: Vec<u8>) -> CollaborateResult<String> {
         // The type_option_data sent from Dart is serialized by protobuf.
         let builder = type_option_builder_from_bytes(type_option_data, &self.0);
-        let json = builder.data_format().json_str();
+        let json = builder.serializer().json_str();
         tracing::trace!("Deserialize type-option data to: {}", json);
         Ok(json)
     }

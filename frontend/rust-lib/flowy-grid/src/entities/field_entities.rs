@@ -5,7 +5,6 @@ use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
 use serde_repr::*;
 use std::sync::Arc;
 
-use crate::protobuf::FieldChangesetPayloadPB_oneof_one_of_name::name;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 /// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.

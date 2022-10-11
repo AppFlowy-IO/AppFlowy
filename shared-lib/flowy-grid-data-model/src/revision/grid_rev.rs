@@ -149,7 +149,7 @@ impl FieldRevision {
 
     pub fn insert_type_option<T>(&mut self, type_option: &T)
     where
-        T: TypeOptionDataFormat + ?Sized,
+        T: TypeOptionDataSerializer + ?Sized,
     {
         let id = self.ty.to_string();
         self.type_options.insert(id, type_option.json_str());
@@ -172,9 +172,9 @@ impl FieldRevision {
     }
 }
 
-/// The macro [impl_type_option] will implement the [TypeOptionDataEntry] for the type that
+/// The macro [impl_type_option] will implement the [TypeOptionDataSerializer] for the type that
 /// supports the serde trait and the TryInto<Bytes> trait.
-pub trait TypeOptionDataFormat {
+pub trait TypeOptionDataSerializer {
     fn json_str(&self) -> String;
     fn protobuf_bytes(&self) -> Bytes;
 }

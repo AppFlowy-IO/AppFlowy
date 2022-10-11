@@ -1,11 +1,20 @@
 use crate::entities::FieldType;
 use crate::services::field::type_options::*;
 use bytes::Bytes;
-use flowy_grid_data_model::revision::TypeOptionDataFormat;
+use flowy_grid_data_model::revision::TypeOptionDataSerializer;
 
 pub trait TypeOptionBuilder {
     fn field_type(&self) -> FieldType;
-    fn data_format(&self) -> &dyn TypeOptionDataFormat;
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer;
+
+    /// Transform the data from passed-in type-option to current type-option
+    ///
+    /// # Arguments
+    ///
+    /// * `field_type`: represents as the field type of the passed-in type-option data
+    /// * `type_option_data`: type-option data
+    //
+    fn transform(&mut self, field_type: &FieldType, type_option_data: String);
 }
 
 pub fn default_type_option_builder_from_type(field_type: &FieldType) -> Box<dyn TypeOptionBuilder> {

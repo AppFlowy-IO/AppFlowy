@@ -5,7 +5,7 @@ use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
 use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataSerializer};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 
@@ -75,9 +75,8 @@ pub fn make_selected_select_options(
     }
 }
 
-pub trait SelectOptionOperation: TypeOptionDataFormat + Send + Sync {
+pub trait SelectOptionOperation: TypeOptionDataSerializer + Send + Sync {
     /// Insert the `SelectOptionPB` into corresponding type option.
-    /// Replace the old value if the option already exists in the option list.
     fn insert_option(&mut self, new_option: SelectOptionPB) {
         let options = self.mut_options();
         if let Some(index) = options
@@ -117,9 +116,13 @@ where
     fn display_data(
         &self,
         cell_data: CellData<SelectOptionIds>,
-        _decoded_field_type: &FieldType,
+        decoded_field_type: &FieldType,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
+        if !decoded_field_type.is_select_option() {
+            return Ok(CellBytes::default());
+        }
+
         CellBytes::from(self.selected_select_option(cell_data))
     }
 

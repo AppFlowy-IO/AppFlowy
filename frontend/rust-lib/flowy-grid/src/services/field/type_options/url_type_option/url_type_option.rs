@@ -6,7 +6,9 @@ use bytes::Bytes;
 use fancy_regex::Regex;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
 
@@ -20,8 +22,12 @@ impl TypeOptionBuilder for URLTypeOptionBuilder {
         FieldType::URL
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+
+    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
+        // Do nothing
     }
 }
 

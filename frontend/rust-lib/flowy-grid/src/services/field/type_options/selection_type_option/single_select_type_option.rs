@@ -9,7 +9,9 @@ use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 use serde::{Deserialize, Serialize};
 
 // Single select
@@ -50,10 +52,6 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        if !decoded_field_type.is_select_option() {
-            return Ok(CellBytes::default());
-        }
-
         self.display_data(cell_data, decoded_field_type, field_rev)
     }
 
@@ -103,8 +101,18 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
         FieldType::SingleSelect
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+
+    fn transform(&mut self, field_type: &FieldType, _type_option_data: String) {
+        match field_type {
+            FieldType::Checkbox => {
+                //add Yes and No options if it's not exist.
+            }
+            FieldType::MultiSelect => {}
+            _ => {}
+        }
     }
 }
 

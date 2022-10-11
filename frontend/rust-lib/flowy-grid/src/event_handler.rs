@@ -221,12 +221,12 @@ pub(crate) async fn move_field_handler(
 async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
     let s = field_rev.get_type_option_str(field_type).unwrap_or_else(|| {
         default_type_option_builder_from_type(field_type)
-            .data_format()
+            .serializer()
             .json_str()
     });
     let field_type: FieldType = field_rev.ty.into();
     let builder = type_option_builder_from_json_str(&s, &field_type);
-    let type_option_data = builder.data_format().protobuf_bytes().to_vec();
+    let type_option_data = builder.serializer().protobuf_bytes().to_vec();
 
     Ok(type_option_data)
 }
@@ -374,7 +374,7 @@ pub(crate) async fn update_select_option_handler(
                 tokio::spawn(async move {
                     match cloned_editor.update_cell(changeset).await {
                         Ok(_) => {}
-                        Err(_) => {}
+                        Err(e) => tracing::error!("{}", e),
                     }
                 });
             }
