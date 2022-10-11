@@ -1,4 +1,4 @@
-name: Unit test(Rust)
+name: Rust coverage tests
 
 on:
   push:
@@ -18,8 +18,9 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
+
 jobs:
-  tests:
+  test-coverage:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,14 +46,26 @@ jobs:
             shared-lib/target
           key: ${{ runner.os }}-rust-rust-lib-share-lib-${{ steps.rust_toolchain.outputs.rustc_hash }}-${{ hashFiles('./frontend/rust-lib/Cargo.toml') }}    
 
-      - name: Install cargo-make
+      - name: Setup Environment
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo wget -qO /etc/apt/trusted.gpg.d/dart_linux_signing_key.asc https://dl-ssl.google.com/linux/linux_signing_key.pub
+            sudo wget -qO /etc/apt/sources.list.d/dart_stable.list https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list
+            sudo apt-get update
+            sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
+            sudo apt-get install keybinder-3.0
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            echo 'do nothing'
+          fi
+        shell: bash
+
+      - name: Install cargo-make, grcov and llvm-tools-preview
         working-directory: frontend
-        run: cargo install cargo-make
-        
-      - name: Run rust-lib tests
-        working-directory: frontend/rust-lib
-        run: RUST_LOG=info cargo test --no-default-features --features="sync"
-        
-      - name: Run shared-lib tests
-        working-directory: shared-lib
-        run: RUST_LOG=info cargo test --no-default-features
+        run: |
+          cargo install cargo-make
+          cargo install grcov
+          rustup component add llvm-tools-preview
+
+      - name: Run Coverage tests and generate LCOV report
+        working-directory: frontend
+        run: cargo make get_ci_test_coverage

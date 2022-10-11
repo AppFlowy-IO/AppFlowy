@@ -29,7 +29,7 @@ jobs:
       - id: rust_toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: "stable-2022-01-20"
+          toolchain: "stable-2022-04-07"
 
       - id: flutter
         uses: subosito/flutter-action@v2
