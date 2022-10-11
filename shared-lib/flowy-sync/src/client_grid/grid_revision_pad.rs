@@ -10,8 +10,6 @@ use lib_infra::util::move_vec_element;
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tracing::field::Field;
-
 pub type GridOperations = DeltaOperations<EmptyAttributes>;
 pub type GridOperationsBuilder = DeltaBuilder;
 

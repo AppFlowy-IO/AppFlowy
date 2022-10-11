@@ -2,8 +2,8 @@ use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::{
-    make_selected_select_options, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds,
-    SelectOptionOperation, SelectOptionPB,
+    make_selected_select_options, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionColorPB,
+    SelectOptionIds, SelectOptionOperation, SelectOptionPB, CHECK, UNCHECK,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -109,6 +109,15 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
         match field_type {
             FieldType::Checkbox => {
                 //add Yes and No options if it's not exist.
+                if self.0.options.iter().find(|option| option.name == CHECK).is_none() {
+                    let check_option = SelectOptionPB::with_color(CHECK, SelectOptionColorPB::Green);
+                    self.0.options.push(check_option);
+                }
+
+                if self.0.options.iter().find(|option| option.name == UNCHECK).is_none() {
+                    let uncheck_option = SelectOptionPB::with_color(UNCHECK, SelectOptionColorPB::Yellow);
+                    self.0.options.push(uncheck_option);
+                }
             }
             FieldType::MultiSelect => {}
             _ => {}
@@ -118,10 +127,24 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
 
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-
     use crate::services::field::type_options::*;
-    use crate::services::field::FieldBuilder;
+    use crate::services::field::{FieldBuilder, TypeOptionBuilder};
+
+    #[test]
+    fn single_select_transform_with_checkbox_type_option_test() {
+        let checkbox_type_option_builder = CheckboxTypeOptionBuilder::default();
+        let checkbox_type_option_data = checkbox_type_option_builder.serializer().json_str();
+
+        let mut single_select = SingleSelectTypeOptionBuilder::default();
+        single_select.transform(&FieldType::Checkbox, checkbox_type_option_data.clone());
+        debug_assert_eq!(single_select.0.options.len(), 2);
+
+        // Already contain the yes/no option. It doesn't need to insert new options
+        single_select.transform(&FieldType::Checkbox, checkbox_type_option_data);
+        debug_assert_eq!(single_select.0.options.len(), 2);
+    }
 
     #[test]
     fn single_select_insert_multi_option_test() {

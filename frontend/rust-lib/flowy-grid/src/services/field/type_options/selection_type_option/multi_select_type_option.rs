@@ -4,7 +4,7 @@ use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOper
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{
     make_selected_select_options, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB,
-    SelectOptionIds, SelectOptionOperation, SelectOptionPB, TypeOptionBuilder,
+    SelectOptionColorPB, SelectOptionIds, SelectOptionOperation, SelectOptionPB, TypeOptionBuilder, CHECK, UNCHECK,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -50,10 +50,6 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        if !decoded_field_type.is_select_option() {
-            return Ok(CellBytes::default());
-        }
-
         self.display_data(cell_data, decoded_field_type, field_rev)
     }
 
@@ -116,16 +112,47 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
     fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
     }
-    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
-        // Do nothing
+
+    fn transform(&mut self, field_type: &FieldType, _type_option_data: String) {
+        match field_type {
+            FieldType::Checkbox => {
+                //Add Yes and No options if it's not exist.
+                if self.0.options.iter().find(|option| option.name == CHECK).is_none() {
+                    let check_option = SelectOptionPB::with_color(CHECK, SelectOptionColorPB::Green);
+                    self.0.options.push(check_option);
+                }
+
+                if self.0.options.iter().find(|option| option.name == UNCHECK).is_none() {
+                    let uncheck_option = SelectOptionPB::with_color(UNCHECK, SelectOptionColorPB::Yellow);
+                    self.0.options.push(uncheck_option);
+                }
+            }
+            FieldType::SingleSelect => {}
+            _ => {}
+        }
     }
 }
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
     use crate::services::field::type_options::selection_type_option::*;
-    use crate::services::field::FieldBuilder;
+    use crate::services::field::{CheckboxTypeOptionBuilder, FieldBuilder, TypeOptionBuilder};
     use crate::services::field::{MultiSelectTypeOptionBuilder, MultiSelectTypeOptionPB};
+
+    #[test]
+    fn multi_select_transform_with_checkbox_type_option_test() {
+        let checkbox_type_option_builder = CheckboxTypeOptionBuilder::default();
+        let checkbox_type_option_data = checkbox_type_option_builder.serializer().json_str();
+
+        let mut multi_select = MultiSelectTypeOptionBuilder::default();
+        multi_select.transform(&FieldType::Checkbox, checkbox_type_option_data.clone());
+        debug_assert_eq!(multi_select.0.options.len(), 2);
+
+        // Already contain the yes/no option. It doesn't need to insert new options
+        multi_select.transform(&FieldType::Checkbox, checkbox_type_option_data);
+        debug_assert_eq!(multi_select.0.options.len(), 2);
+    }
 
     #[test]
     fn multi_select_insert_multi_option_test() {
