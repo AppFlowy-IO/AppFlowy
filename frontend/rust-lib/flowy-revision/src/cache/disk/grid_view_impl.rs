@@ -106,7 +106,7 @@ impl GridViewRevisionSql {
                     dsl::object_id.eq(record.revision.object_id),
                     dsl::base_rev_id.eq(record.revision.base_rev_id),
                     dsl::rev_id.eq(record.revision.rev_id),
-                    dsl::data.eq(record.revision.delta_data),
+                    dsl::data.eq(record.revision.bytes),
                     dsl::state.eq(rev_state),
                 )
             })

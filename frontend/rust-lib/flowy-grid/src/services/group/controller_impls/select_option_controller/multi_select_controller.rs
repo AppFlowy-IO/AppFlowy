@@ -8,7 +8,7 @@ use crate::services::group::controller::{
 };
 use crate::services::group::controller_impls::select_option_controller::util::*;
 
-use crate::services::group::GeneratedGroup;
+use crate::services::group::GeneratedGroupConfig;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision, SelectOptionGroupConfigurationRevision};
 
 // MultiSelect
@@ -83,7 +83,7 @@ impl GroupGenerator for MultiSelectGroupGenerator {
         field_id: &str,
         group_ctx: &Self::Context,
         type_option: &Option<Self::TypeOptionType>,
-    ) -> Vec<GeneratedGroup> {
+    ) -> Vec<GeneratedGroupConfig> {
         match type_option {
             None => vec![],
             Some(type_option) => generate_select_option_groups(field_id, group_ctx, &type_option.options),

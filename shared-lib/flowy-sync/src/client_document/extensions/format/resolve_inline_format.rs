@@ -2,7 +2,7 @@ use lib_ot::core::AttributeEntry;
 use lib_ot::text_delta::is_inline;
 use lib_ot::{
     core::{Interval, OperationBuilder, OperationIterator},
-    text_delta::{AttributeScope, TextDelta},
+    text_delta::{AttributeScope, TextOperations},
 };
 
 use crate::{
@@ -16,7 +16,7 @@ impl FormatExt for ResolveInlineFormat {
         "ResolveInlineFormat"
     }
 
-    fn apply(&self, delta: &TextDelta, interval: Interval, attribute: &AttributeEntry) -> Option<TextDelta> {
+    fn apply(&self, delta: &TextOperations, interval: Interval, attribute: &AttributeEntry) -> Option<TextOperations> {
         if !is_inline(&attribute.key) {
             return None;
         }

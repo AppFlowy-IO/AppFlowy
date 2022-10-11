@@ -8,19 +8,29 @@ class FlowyHover extends StatefulWidget {
   final HoverStyle style;
   final HoverBuilder? builder;
   final Widget? child;
-  final bool Function()? setSelected;
+
+  final bool Function()? isSelected;
   final void Function(bool)? onHover;
   final MouseCursor? cursor;
 
-  const FlowyHover(
-      {Key? key,
-      this.builder,
-      this.child,
-      required this.style,
-      this.setSelected,
-      this.onHover,
-      this.cursor})
-      : super(key: key);
+  /// Determined whether the [builder] should get called when onEnter/onExit
+  /// happened
+  ///
+  /// [FlowyHover] show hover when [MouseRegion]'s onEnter get called
+  /// [FlowyHover] hide hover when [MouseRegion]'s onExit get called
+  ///
+  final bool Function()? buildWhenOnHover;
+
+  const FlowyHover({
+    Key? key,
+    this.builder,
+    this.child,
+    required this.style,
+    this.isSelected,
+    this.onHover,
+    this.cursor,
+    this.buildWhenOnHover,
+  }) : super(key: key);
 
   @override
   State<FlowyHover> createState() => _FlowyHoverState();
@@ -30,20 +40,35 @@ class _FlowyHoverState extends State<FlowyHover> {
   bool _onHover = false;
 
   @override
+  void didUpdateWidget(covariant FlowyHover oldWidget) {
+    // Reset the _onHover to false when the parent widget get rebuild.
+    _onHover = false;
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MouseRegion(
       cursor: widget.cursor != null ? widget.cursor! : SystemMouseCursors.click,
       opaque: false,
       onEnter: (p) {
-        setState(() => _onHover = true);
-        if (widget.onHover != null) {
-          widget.onHover!(true);
+        if (_onHover) return;
+
+        if (widget.buildWhenOnHover?.call() ?? true) {
+          setState(() => _onHover = true);
+          if (widget.onHover != null) {
+            widget.onHover!(true);
+          }
         }
       },
       onExit: (p) {
-        setState(() => _onHover = false);
-        if (widget.onHover != null) {
-          widget.onHover!(false);
+        if (_onHover == false) return;
+
+        if (widget.buildWhenOnHover?.call() ?? true) {
+          setState(() => _onHover = false);
+          if (widget.onHover != null) {
+            widget.onHover!(false);
+          }
         }
       },
       child: renderWidget(),
@@ -52,8 +77,8 @@ class _FlowyHoverState extends State<FlowyHover> {
 
   Widget renderWidget() {
     var showHover = _onHover;
-    if (!showHover && widget.setSelected != null) {
-      showHover = widget.setSelected!();
+    if (!showHover && widget.isSelected != null) {
+      showHover = widget.isSelected!();
     }
 
     final child = widget.child ?? widget.builder!(context, _onHover);

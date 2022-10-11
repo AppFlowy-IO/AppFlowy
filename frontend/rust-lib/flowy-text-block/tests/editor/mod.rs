@@ -5,10 +5,10 @@ mod serde_test;
 mod undo_redo_test;
 
 use derive_more::Display;
-use flowy_sync::client_document::{ClientDocument, InitialDocumentText};
+use flowy_sync::client_document::{ClientDocument, InitialDocumentContent};
 use lib_ot::{
     core::*,
-    text_delta::{BuildInTextAttribute, TextDelta},
+    text_delta::{BuildInTextAttribute, TextOperations},
 };
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
@@ -81,8 +81,8 @@ pub enum TestOp {
 
 pub struct TestBuilder {
     documents: Vec<ClientDocument>,
-    deltas: Vec<Option<TextDelta>>,
-    primes: Vec<Option<TextDelta>>,
+    deltas: Vec<Option<TextOperations>>,
+    primes: Vec<Option<TextOperations>>,
 }
 
 impl TestBuilder {
@@ -169,29 +169,29 @@ impl TestBuilder {
             }
             TestOp::Transform(delta_a_i, delta_b_i) => {
                 let (a_prime, b_prime) = self.documents[*delta_a_i]
-                    .delta()
-                    .transform(self.documents[*delta_b_i].delta())
+                    .get_operations()
+                    .transform(self.documents[*delta_b_i].get_operations())
                     .unwrap();
                 tracing::trace!("a:{:?},b:{:?}", a_prime, b_prime);
 
-                let data_left = self.documents[*delta_a_i].delta().compose(&b_prime).unwrap();
-                let data_right = self.documents[*delta_b_i].delta().compose(&a_prime).unwrap();
+                let data_left = self.documents[*delta_a_i].get_operations().compose(&b_prime).unwrap();
+                let data_right = self.documents[*delta_b_i].get_operations().compose(&a_prime).unwrap();
 
-                self.documents[*delta_a_i].set_delta(data_left);
-                self.documents[*delta_b_i].set_delta(data_right);
+                self.documents[*delta_a_i].set_operations(data_left);
+                self.documents[*delta_b_i].set_operations(data_right);
             }
             TestOp::TransformPrime(a_doc_index, b_doc_index) => {
                 let (prime_left, prime_right) = self.documents[*a_doc_index]
-                    .delta()
-                    .transform(self.documents[*b_doc_index].delta())
+                    .get_operations()
+                    .transform(self.documents[*b_doc_index].get_operations())
                     .unwrap();
 
                 self.primes.insert(*a_doc_index, Some(prime_left));
                 self.primes.insert(*b_doc_index, Some(prime_right));
             }
             TestOp::Invert(delta_a_i, delta_b_i) => {
-                let delta_a = &self.documents[*delta_a_i].delta();
-                let delta_b = &self.documents[*delta_b_i].delta();
+                let delta_a = &self.documents[*delta_a_i].get_operations();
+                let delta_b = &self.documents[*delta_b_i].get_operations();
                 tracing::debug!("Invert: ");
                 tracing::debug!("a: {}", delta_a.json_str());
                 tracing::debug!("b: {}", delta_b.json_str());
@@ -209,7 +209,7 @@ impl TestBuilder {
 
                 assert_eq!(delta_a, &&new_delta_after_undo);
 
-                self.documents[*delta_a_i].set_delta(new_delta_after_undo);
+                self.documents[*delta_a_i].set_operations(new_delta_after_undo);
             }
             TestOp::Undo(delta_i) => {
                 self.documents[*delta_i].undo().unwrap();
@@ -221,13 +221,13 @@ impl TestBuilder {
                 std::thread::sleep(Duration::from_millis(*mills_sec as u64));
             }
             TestOp::AssertStr(delta_i, expected) => {
-                assert_eq!(&self.documents[*delta_i].to_plain_string(), expected);
+                assert_eq!(&self.documents[*delta_i].to_content(), expected);
             }
 
             TestOp::AssertDocJson(delta_i, expected) => {
-                let delta_json = self.documents[*delta_i].delta_str();
-                let expected_delta: TextDelta = serde_json::from_str(expected).unwrap();
-                let target_delta: TextDelta = serde_json::from_str(&delta_json).unwrap();
+                let delta_json = self.documents[*delta_i].get_operations_json();
+                let expected_delta: TextOperations = serde_json::from_str(expected).unwrap();
+                let target_delta: TextOperations = serde_json::from_str(&delta_json).unwrap();
 
                 if expected_delta != target_delta {
                     log::error!("✅ expect: {}", expected,);
@@ -238,8 +238,8 @@ impl TestBuilder {
 
             TestOp::AssertPrimeJson(doc_i, expected) => {
                 let prime_json = self.primes[*doc_i].as_ref().unwrap().json_str();
-                let expected_prime: TextDelta = serde_json::from_str(expected).unwrap();
-                let target_prime: TextDelta = serde_json::from_str(&prime_json).unwrap();
+                let expected_prime: TextOperations = serde_json::from_str(expected).unwrap();
+                let target_prime: TextOperations = serde_json::from_str(&prime_json).unwrap();
 
                 if expected_prime != target_prime {
                     log::error!("✅ expect prime: {}", expected,);
@@ -249,7 +249,7 @@ impl TestBuilder {
             }
             TestOp::DocComposeDelta(doc_index, delta_i) => {
                 let delta = self.deltas.get(*delta_i).unwrap().as_ref().unwrap();
-                self.documents[*doc_index].compose_delta(delta.clone()).unwrap();
+                self.documents[*doc_index].compose_operations(delta.clone()).unwrap();
             }
             TestOp::DocComposePrime(doc_index, prime_i) => {
                 let delta = self
@@ -258,13 +258,13 @@ impl TestBuilder {
                     .expect("Must call TransformPrime first")
                     .as_ref()
                     .unwrap();
-                let new_delta = self.documents[*doc_index].delta().compose(delta).unwrap();
-                self.documents[*doc_index].set_delta(new_delta);
+                let new_delta = self.documents[*doc_index].get_operations().compose(delta).unwrap();
+                self.documents[*doc_index].set_operations(new_delta);
             }
         }
     }
 
-    pub fn run_scripts<C: InitialDocumentText>(mut self, scripts: Vec<TestOp>) {
+    pub fn run_scripts<C: InitialDocumentContent>(mut self, scripts: Vec<TestOp>) {
         self.documents = vec![ClientDocument::new::<C>(), ClientDocument::new::<C>()];
         self.primes = vec![None, None];
         self.deltas = vec![None, None];
@@ -297,8 +297,8 @@ impl Rng {
             .collect()
     }
 
-    pub fn gen_delta(&mut self, s: &str) -> TextDelta {
-        let mut delta = TextDelta::default();
+    pub fn gen_delta(&mut self, s: &str) -> TextOperations {
+        let mut delta = TextOperations::default();
         let s = OTString::from(s);
         loop {
             let left = s.utf16_len() - delta.utf16_base_len;
@@ -312,18 +312,18 @@ impl Rng {
             };
             match self.0.gen_range(0.0..1.0) {
                 f if f < 0.2 => {
-                    delta.insert(&self.gen_string(i), Attributes::default());
+                    delta.insert(&self.gen_string(i), AttributeHashMap::default());
                 }
                 f if f < 0.4 => {
                     delta.delete(i);
                 }
                 _ => {
-                    delta.retain(i, Attributes::default());
+                    delta.retain(i, AttributeHashMap::default());
                 }
             }
         }
         if self.0.gen_range(0.0..1.0) < 0.3 {
-            delta.insert(&("1".to_owned() + &self.gen_string(10)), Attributes::default());
+            delta.insert(&("1".to_owned() + &self.gen_string(10)), AttributeHashMap::default());
         }
         delta
     }

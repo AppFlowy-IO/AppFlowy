@@ -6,7 +6,7 @@ import 'package:appflowy_editor/src/document/text_delta.dart';
 import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 extension TextNodeExtension on TextNode {
-  dynamic getAttributeInSelection(Selection selection, String styleKey) {
+  T? getAttributeInSelection<T>(Selection selection, String styleKey) {
     final ops = delta.whereType<TextInsert>();
     final startOffset =
         selection.isBackward ? selection.start.offset : selection.end.offset;
@@ -19,8 +19,9 @@ extension TextNodeExtension on TextNode {
       }
       final length = op.length;
       if (start < endOffset && start + length > startOffset) {
-        if (op.attributes?.containsKey(styleKey) == true) {
-          return op.attributes![styleKey];
+        final attributes = op.attributes;
+        if (attributes != null && attributes[styleKey] is T?) {
+          return attributes[styleKey];
         }
       }
       start += length;

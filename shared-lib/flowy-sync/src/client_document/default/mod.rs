@@ -1,19 +1,19 @@
-use lib_ot::{core::OperationBuilder, text_delta::TextDelta};
+use lib_ot::{core::OperationBuilder, text_delta::TextOperations};
 
 #[inline]
-pub fn initial_quill_delta() -> TextDelta {
+pub fn initial_document_operations() -> TextOperations {
     OperationBuilder::new().insert("\n").build()
 }
 
 #[inline]
-pub fn initial_quill_delta_string() -> String {
-    initial_quill_delta().json_str()
+pub fn initial_document_str() -> String {
+    initial_document_operations().json_str()
 }
 
 #[inline]
-pub fn initial_read_me() -> TextDelta {
+pub fn initial_read_me() -> TextOperations {
     let json = include_str!("READ_ME.json");
-    TextDelta::from_json(json).unwrap()
+    TextOperations::from_json(json).unwrap()
 }
 
 #[cfg(test)]

@@ -5,9 +5,10 @@ use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowChange
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridBlockRevisionChangeset, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
-use flowy_sync::util::make_text_delta_from_revisions;
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::FutureResult;
 
+use lib_ot::core::EmptyAttributes;
 use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -162,7 +163,7 @@ impl GridBlockRevisionEditor {
     }
 
     async fn apply_change(&self, change: GridBlockRevisionChangeset) -> FlowyResult<()> {
-        let GridBlockRevisionChangeset { delta, md5 } = change;
+        let GridBlockRevisionChangeset { operations: delta, md5 } = change;
         let user_id = self.user_id.clone();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
@@ -204,7 +205,7 @@ impl RevisionObjectBuilder for GridBlockRevisionPadBuilder {
 pub struct GridBlockRevisionCompactor();
 impl RevisionCompactor for GridBlockRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_text_delta_from_revisions(revisions)?;
-        Ok(delta.json_bytes())
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
     }
 }

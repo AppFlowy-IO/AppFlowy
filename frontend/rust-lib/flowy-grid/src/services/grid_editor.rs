@@ -16,10 +16,11 @@ use flowy_grid_data_model::revision::*;
 use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
 use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
 use flowy_sync::entities::revision::Revision;
-use flowy_sync::errors::CollaborateResult;
-use flowy_sync::util::make_text_delta_from_revisions;
+use flowy_sync::errors::{CollaborateError, CollaborateResult};
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{wrap_future, FutureResult};
 
+use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -86,43 +87,6 @@ impl GridRevisionEditor {
         Ok(editor)
     }
 
-    pub async fn insert_field(&self, params: InsertFieldParams) -> FlowyResult<()> {
-        let InsertFieldParams {
-            field,
-            type_option_data,
-            start_field_id,
-            grid_id,
-        } = params;
-        let field_id = field.id.clone();
-        if self.contain_field(&field_id).await {
-            let changeset = FieldChangesetParams {
-                field_id: field.id,
-                grid_id,
-                name: Some(field.name),
-                desc: Some(field.desc),
-                field_type: Some(field.field_type.clone().into()),
-                frozen: Some(field.frozen),
-                visibility: Some(field.visibility),
-                width: Some(field.width),
-                type_option_data: Some(type_option_data),
-            };
-
-            let _ = self.update_field_rev(changeset, field.field_type).await?;
-            let _ = self.notify_did_update_grid_field(&field_id).await?;
-        } else {
-            let _ = self
-                .modify(|grid| {
-                    let builder = type_option_builder_from_bytes(type_option_data, &field.field_type);
-                    let field_rev = FieldBuilder::from_field(field, builder).build();
-                    Ok(grid.create_field_rev(field_rev, start_field_id)?)
-                })
-                .await?;
-            let _ = self.notify_did_insert_grid_field(&field_id).await?;
-        }
-
-        Ok(())
-    }
-
     pub async fn update_field_type_option(
         &self,
         grid_id: &str,
@@ -147,13 +111,21 @@ impl GridRevisionEditor {
     }
 
     pub async fn next_field_rev(&self, field_type: &FieldType) -> FlowyResult<FieldRevision> {
-        let name = format!("Property {}", self.grid_pad.read().await.fields().len() + 1);
+        let name = format!("Property {}", self.grid_pad.read().await.get_fields().len() + 1);
         let field_rev = FieldBuilder::from_field_type(field_type).name(&name).build();
         Ok(field_rev)
     }
 
-    pub async fn create_next_field_rev(&self, field_type: &FieldType) -> FlowyResult<FieldRevision> {
-        let field_rev = self.next_field_rev(field_type).await?;
+    pub async fn create_new_field_rev(
+        &self,
+        field_type: &FieldType,
+        type_option_data: Option<Vec<u8>>,
+    ) -> FlowyResult<FieldRevision> {
+        let mut field_rev = self.next_field_rev(field_type).await?;
+        if let Some(type_option_data) = type_option_data {
+            let type_option_builder = type_option_builder_from_bytes(type_option_data, field_type);
+            field_rev.insert_type_option(type_option_builder.data_format());
+        }
         let _ = self
             .modify(|grid| Ok(grid.create_field_rev(field_rev.clone(), None)?))
             .await?;
@@ -185,18 +157,28 @@ impl GridRevisionEditor {
         }
     }
 
-    // Replaces the field revision with new field revision.
-    pub async fn replace_field(&self, field_rev: Arc<FieldRevision>) -> FlowyResult<()> {
-        let field_id = field_rev.id.clone();
+    pub async fn modify_field_rev<F>(&self, field_id: &str, f: F) -> FlowyResult<()>
+    where
+        F: for<'a> FnOnce(&'a mut FieldRevision) -> FlowyResult<Option<()>>,
+    {
+        let mut is_changed = false;
         let _ = self
-            .modify(|grid_pad| Ok(grid_pad.replace_field_rev(field_rev.clone())?))
+            .modify(|grid| {
+                let changeset = grid.modify_field(field_id, |field_rev| {
+                    Ok(f(field_rev).map_err(|e| CollaborateError::internal().context(e))?)
+                })?;
+                is_changed = changeset.is_some();
+                Ok(changeset)
+            })
             .await?;
 
-        match self.view_manager.did_update_field(&field_rev.id, false).await {
-            Ok(_) => {}
-            Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+        if is_changed {
+            match self.view_manager.did_update_view_field_type_option(field_id).await {
+                Ok(_) => {}
+                Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+            }
+            let _ = self.notify_did_update_grid_field(field_id).await?;
         }
-        let _ = self.notify_did_update_grid_field(&field_id).await?;
         Ok(())
     }
 
@@ -213,27 +195,28 @@ impl GridRevisionEditor {
         Ok(())
     }
 
+    /// Switch the field with id to a new field type.  
+    ///
+    /// If the field type is not exist before, the default type option data will be created.
+    /// Each field type has its corresponding data, aka, the type option data. Check out [this](https://appflowy.gitbook.io/docs/essential-documentation/contribute-to-appflowy/architecture/frontend/grid#fieldtype)
+    /// for more information
+    ///
+    /// # Arguments
+    ///
+    /// * `field_id`: the id of the field
+    /// * `field_type`: the new field type of the field
+    ///
     pub async fn switch_to_field_type(&self, field_id: &str, field_type: &FieldType) -> FlowyResult<()> {
-        // let block_ids = self
-        //     .get_block_metas()
-        //     .await?
-        //     .into_iter()
-        //     .map(|block_meta| block_meta.block_id)
-        //     .collect();
-        // let cell_revs = self
-        //     .block_meta_manager
-        //     .get_cell_revs(block_ids, field_id, None)
-        //     .await?;
-
-        let type_option_json_builder = |field_type: &FieldTypeRevision| -> String {
+        let type_option_builder = |field_type: &FieldTypeRevision| -> String {
             let field_type: FieldType = field_type.into();
+
             return default_type_option_builder_from_type(&field_type)
                 .data_format()
                 .json_str();
         };
 
         let _ = self
-            .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_json_builder)?))
+            .modify(|grid| Ok(grid.switch_to_field(field_id, field_type.clone(), type_option_builder)?))
             .await?;
 
         let _ = self.notify_did_update_grid_field(field_id).await?;
@@ -275,6 +258,7 @@ impl GridRevisionEditor {
         Ok(field_revs)
     }
 
+    #[tracing::instrument(level = "debug", skip_all, err)]
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
         let mut is_type_option_changed = false;
         let _ = self
@@ -332,14 +316,15 @@ impl GridRevisionEditor {
             })
             .await?;
 
-        match self
-            .view_manager
-            .did_update_field(&params.field_id, is_type_option_changed)
-            .await
-        {
-            Ok(_) => {}
-            Err(e) => tracing::error!("View manager update field failed: {:?}", e),
+        if is_type_option_changed {
+            let _ = self
+                .view_manager
+                .did_update_view_field_type_option(&params.field_id)
+                .await?;
+        } else {
+            let _ = self.view_manager.did_update_view_field(&params.field_id).await?;
         }
+
         Ok(())
     }
 
@@ -623,7 +608,7 @@ impl GridRevisionEditor {
                 self.view_manager
                     .move_group_row(row_rev, to_group_id, to_row_id.clone(), |row_changeset| {
                         wrap_future(async move {
-                            tracing::trace!("Move group row cause row data changed: {:?}", row_changeset);
+                            tracing::trace!("Row data changed: {:?}", row_changeset);
                             let cell_changesets = row_changeset
                                 .cell_by_field_id
                                 .into_iter()
@@ -673,10 +658,6 @@ impl GridRevisionEditor {
             let _ = self.notify_did_update_grid(notified_changeset).await?;
         }
         Ok(())
-    }
-
-    pub async fn delta_bytes(&self) -> Bytes {
-        self.grid_pad.read().await.delta_bytes()
     }
 
     pub async fn duplicate_grid(&self) -> FlowyResult<BuildGridContext> {
@@ -750,7 +731,7 @@ impl GridRevisionEditor {
     }
 
     async fn apply_change(&self, change: GridRevisionChangeset) -> FlowyResult<()> {
-        let GridRevisionChangeset { delta, md5 } = change;
+        let GridRevisionChangeset { operations: delta, md5 } = change;
         let user_id = self.user.user_id()?;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
@@ -844,8 +825,8 @@ impl RevisionCloudService for GridRevisionCloudService {
 pub struct GridRevisionCompactor();
 impl RevisionCompactor for GridRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_text_delta_from_revisions(revisions)?;
-        Ok(delta.json_bytes())
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
     }
 }
 

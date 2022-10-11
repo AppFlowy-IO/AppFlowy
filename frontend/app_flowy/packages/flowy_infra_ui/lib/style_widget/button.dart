@@ -37,7 +37,7 @@ class FlowyButton extends StatelessWidget {
           hoverColor: hoverColor,
         ),
         onHover: onHover,
-        setSelected: () => isSelected,
+        isSelected: () => isSelected,
         builder: (context, onHover) => _render(),
       ),
     );

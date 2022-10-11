@@ -1,3 +1,4 @@
+import 'package:appflowy_board/appflowy_board.dart';
 import 'package:appflowy_board/src/utils/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -78,9 +79,11 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
 
   final bool useMoveAnimation;
 
-  final bool draggable;
+  final IsDraggable draggable;
 
   final double draggingOpacity;
+
+  final Axis? dragDirection;
 
   const ReorderDragTarget({
     Key? key,
@@ -99,6 +102,7 @@ class ReorderDragTarget<T extends DragTargetData> extends StatefulWidget {
     this.onLeave,
     this.draggableTargetBuilder,
     this.draggingOpacity = 0.3,
+    this.dragDirection,
   }) : super(key: key);
 
   @override
@@ -115,8 +119,10 @@ class _ReorderDragTargetState<T extends DragTargetData>
     Widget dragTarget = DragTarget<T>(
       builder: _buildDraggableWidget,
       onWillAccept: (dragTargetData) {
-        assert(dragTargetData != null);
-        if (dragTargetData == null) return false;
+        if (dragTargetData == null) {
+          return false;
+        }
+
         return widget.onWillAccept(dragTargetData);
       },
       onAccept: widget.onAccept,
@@ -140,9 +146,6 @@ class _ReorderDragTargetState<T extends DragTargetData>
     List<T?> acceptedCandidates,
     List<dynamic> rejectedCandidates,
   ) {
-    if (!widget.draggable) {
-      return widget.child;
-    }
     Widget feedbackBuilder = Builder(builder: (BuildContext context) {
       BoxConstraints contentSizeConstraints =
           BoxConstraints.loose(_draggingFeedbackSize!);
@@ -163,7 +166,8 @@ class _ReorderDragTargetState<T extends DragTargetData>
           widget.deleteAnimationController,
         ) ??
         Draggable<DragTargetData>(
-          maxSimultaneousDrags: 1,
+          axis: widget.dragDirection,
+          maxSimultaneousDrags: widget.draggable ? 1 : 0,
           data: widget.dragTargetData,
           ignoringFeedbackSemantics: false,
           feedback: feedbackBuilder,

@@ -1,24 +1,23 @@
 use crate::errors::internal_error;
+use crate::server_folder::FolderOperations;
 use crate::util::cal_diff;
 use crate::{
     client_folder::builder::FolderPadBuilder,
-    entities::{
-        folder::FolderDelta,
-        revision::{md5, Revision},
-    },
+    entities::revision::{md5, Revision},
     errors::{CollaborateError, CollaborateResult},
 };
 use flowy_folder_data_model::revision::{AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_infra::util::move_vec_element;
 use lib_ot::core::*;
-
 use serde::Deserialize;
 use std::sync::Arc;
+
+pub type FolderOperationsBuilder = DeltaBuilder;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FolderPad {
     folder_rev: FolderRevision,
-    delta: FolderDelta,
+    operations: FolderOperations,
 }
 
 impl FolderPad {
@@ -33,43 +32,43 @@ impl FolderPad {
     pub fn from_folder_rev(folder_rev: FolderRevision) -> CollaborateResult<Self> {
         let json = serde_json::to_string(&folder_rev)
             .map_err(|e| CollaborateError::internal().context(format!("Serialize to folder json str failed: {}", e)))?;
-        let delta = DeltaBuilder::new().insert(&json).build();
+        let operations = FolderOperationsBuilder::new().insert(&json).build();
 
-        Ok(Self { folder_rev, delta })
+        Ok(Self { folder_rev, operations })
     }
 
     pub fn from_revisions(revisions: Vec<Revision>) -> CollaborateResult<Self> {
         FolderPadBuilder::new().build_with_revisions(revisions)
     }
 
-    pub fn from_delta(delta: FolderDelta) -> CollaborateResult<Self> {
+    pub fn from_operations(operations: FolderOperations) -> CollaborateResult<Self> {
         // TODO: Reconvert from history if delta.to_str() failed.
-        let content = delta.content()?;
+        let content = operations.content()?;
         let mut deserializer = serde_json::Deserializer::from_reader(content.as_bytes());
 
         let folder_rev = FolderRevision::deserialize(&mut deserializer).map_err(|e| {
             tracing::error!("Deserialize folder from {} failed", content);
-            return CollaborateError::internal().context(format!("Deserialize delta to folder failed: {}", e));
+            return CollaborateError::internal().context(format!("Deserialize operations to folder failed: {}", e));
         })?;
 
-        Ok(Self { folder_rev, delta })
+        Ok(Self { folder_rev, operations })
     }
 
-    pub fn delta(&self) -> &FolderDelta {
-        &self.delta
+    pub fn get_operations(&self) -> &FolderOperations {
+        &self.operations
     }
 
-    pub fn reset_folder(&mut self, delta: FolderDelta) -> CollaborateResult<String> {
-        let folder = FolderPad::from_delta(delta)?;
+    pub fn reset_folder(&mut self, operations: FolderOperations) -> CollaborateResult<String> {
+        let folder = FolderPad::from_operations(operations)?;
         self.folder_rev = folder.folder_rev;
-        self.delta = folder.delta;
+        self.operations = folder.operations;
 
         Ok(self.md5())
     }
 
-    pub fn compose_remote_delta(&mut self, delta: FolderDelta) -> CollaborateResult<String> {
-        let composed_delta = self.delta.compose(&delta)?;
-        self.reset_folder(composed_delta)
+    pub fn compose_remote_operations(&mut self, operations: FolderOperations) -> CollaborateResult<String> {
+        let composed_operations = self.operations.compose(&operations)?;
+        self.reset_folder(composed_operations)
     }
 
     pub fn is_empty(&self) -> bool {
@@ -318,7 +317,7 @@ impl FolderPad {
     }
 
     pub fn md5(&self) -> String {
-        md5(&self.delta.json_bytes())
+        md5(&self.operations.json_bytes())
     }
 
     pub fn to_json(&self) -> CollaborateResult<String> {
@@ -345,9 +344,12 @@ impl FolderPad {
                 let new = self.to_json()?;
                 match cal_diff::<EmptyAttributes>(old, new) {
                     None => Ok(None),
-                    Some(delta) => {
-                        self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(FolderChangeset { delta, md5: self.md5() }))
+                    Some(operations) => {
+                        self.operations = self.operations.compose(&operations)?;
+                        Ok(Some(FolderChangeset {
+                            operations,
+                            md5: self.md5(),
+                        }))
                     }
                 }
             }
@@ -380,9 +382,12 @@ impl FolderPad {
                 let new = self.to_json()?;
                 match cal_diff::<EmptyAttributes>(old, new) {
                     None => Ok(None),
-                    Some(delta) => {
-                        self.delta = self.delta.compose(&delta)?;
-                        Ok(Some(FolderChangeset { delta, md5: self.md5() }))
+                    Some(operations) => {
+                        self.operations = self.operations.compose(&operations)?;
+                        Ok(Some(FolderChangeset {
+                            operations,
+                            md5: self.md5(),
+                        }))
                     }
                 }
             }
@@ -428,58 +433,62 @@ impl FolderPad {
     }
 }
 
-pub fn default_folder_delta() -> FolderDelta {
-    DeltaBuilder::new().insert(r#"{"workspaces":[],"trash":[]}"#).build()
+pub fn default_folder_operations() -> FolderOperations {
+    FolderOperationsBuilder::new()
+        .insert(r#"{"workspaces":[],"trash":[]}"#)
+        .build()
 }
 
-pub fn initial_folder_delta(folder_pad: &FolderPad) -> CollaborateResult<FolderDelta> {
+pub fn initial_folder_operations(folder_pad: &FolderPad) -> CollaborateResult<FolderOperations> {
     let json = folder_pad.to_json()?;
-    let delta = DeltaBuilder::new().insert(&json).build();
-    Ok(delta)
+    let operations = FolderOperationsBuilder::new().insert(&json).build();
+    Ok(operations)
 }
 
 impl std::default::Default for FolderPad {
     fn default() -> Self {
         FolderPad {
             folder_rev: FolderRevision::default(),
-            delta: default_folder_delta(),
+            operations: default_folder_operations(),
         }
     }
 }
 
 pub struct FolderChangeset {
-    pub delta: FolderDelta,
-    /// md5: the md5 of the FolderPad's delta after applying the change.
+    pub operations: FolderOperations,
+    /// md5: the md5 of the FolderPad's operations after applying the change.
     pub md5: String,
 }
 
 #[cfg(test)]
 mod tests {
     #![allow(clippy::all)]
-    use crate::{client_folder::folder_pad::FolderPad, entities::folder::FolderDelta};
+    use crate::client_folder::folder_pad::FolderPad;
     use chrono::Utc;
     use serde::Deserialize;
 
+    use crate::client_folder::FolderOperationsBuilder;
+    use crate::server_folder::FolderOperations;
     use flowy_folder_data_model::revision::{
         AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision,
     };
-    use lib_ot::core::{Delta, DeltaBuilder, OperationTransform};
+    use lib_ot::core::OperationTransform;
 
     #[test]
     fn folder_add_workspace() {
-        let (mut folder, initial_delta, _) = test_folder();
+        let (mut folder, initial_operations, _) = test_folder();
 
         let _time = Utc::now();
         let mut workspace_1 = WorkspaceRevision::default();
         workspace_1.name = "My first workspace".to_owned();
-        let delta_1 = folder.create_workspace(workspace_1).unwrap().unwrap().delta;
+        let operations_1 = folder.create_workspace(workspace_1).unwrap().unwrap().operations;
 
         let mut workspace_2 = WorkspaceRevision::default();
         workspace_2.name = "My second workspace".to_owned();
-        let delta_2 = folder.create_workspace(workspace_2).unwrap().unwrap().delta;
+        let operations_2 = folder.create_workspace(workspace_2).unwrap().unwrap().operations;
 
-        let folder_from_delta = make_folder_from_delta(initial_delta, vec![delta_1, delta_2]);
-        assert_eq!(folder, folder_from_delta);
+        let folder_from_operations = make_folder_from_operations(initial_operations, vec![operations_1, operations_2]);
+        assert_eq!(folder, folder_from_operations);
     }
 
     #[test]
@@ -498,35 +507,35 @@ mod tests {
 
     #[test]
     fn folder_update_workspace() {
-        let (mut folder, initial_delta, workspace) = test_folder();
+        let (mut folder, initial_operation, workspace) = test_folder();
         assert_folder_equal(
             &folder,
-            &make_folder_from_delta(initial_delta.clone(), vec![]),
+            &make_folder_from_operations(initial_operation.clone(), vec![]),
             r#"{"workspaces":[{"id":"1","name":"😁 my first workspace","desc":"","apps":[],"modified_time":0,"create_time":0}],"trash":[]}"#,
         );
 
-        let delta = folder
+        let operations = folder
             .update_workspace(&workspace.id, Some("☺️ rename workspace️".to_string()), None)
             .unwrap()
             .unwrap()
-            .delta;
+            .operations;
 
-        let folder_from_delta = make_folder_from_delta(initial_delta, vec![delta]);
+        let folder_from_operations = make_folder_from_operations(initial_operation, vec![operations]);
         assert_folder_equal(
             &folder,
-            &folder_from_delta,
+            &folder_from_operations,
             r#"{"workspaces":[{"id":"1","name":"☺️ rename workspace️","desc":"","apps":[],"modified_time":0,"create_time":0}],"trash":[]}"#,
         );
     }
 
     #[test]
     fn folder_add_app() {
-        let (folder, initial_delta, _app) = test_app_folder();
-        let folder_from_delta = make_folder_from_delta(initial_delta, vec![]);
-        assert_eq!(folder, folder_from_delta);
+        let (folder, initial_operations, _app) = test_app_folder();
+        let folder_from_operations = make_folder_from_operations(initial_operations, vec![]);
+        assert_eq!(folder, folder_from_operations);
         assert_folder_equal(
             &folder,
-            &folder_from_delta,
+            &folder_from_operations,
             r#"{
                 "workspaces": [
                     {
@@ -556,14 +565,14 @@ mod tests {
 
     #[test]
     fn folder_update_app() {
-        let (mut folder, initial_delta, app) = test_app_folder();
-        let delta = folder
+        let (mut folder, initial_operations, app) = test_app_folder();
+        let operations = folder
             .update_app(&app.id, Some("🤪 rename app".to_owned()), None)
             .unwrap()
             .unwrap()
-            .delta;
+            .operations;
 
-        let new_folder = make_folder_from_delta(initial_delta, vec![delta]);
+        let new_folder = make_folder_from_operations(initial_operations, vec![operations]);
         assert_folder_equal(
             &folder,
             &new_folder,
@@ -596,9 +605,9 @@ mod tests {
 
     #[test]
     fn folder_delete_app() {
-        let (mut folder, initial_delta, app) = test_app_folder();
-        let delta = folder.delete_app(&app.id).unwrap().unwrap().delta;
-        let new_folder = make_folder_from_delta(initial_delta, vec![delta]);
+        let (mut folder, initial_operations, app) = test_app_folder();
+        let operations = folder.delete_app(&app.id).unwrap().unwrap().operations;
+        let new_folder = make_folder_from_operations(initial_operations, vec![operations]);
         assert_folder_equal(
             &folder,
             &new_folder,
@@ -620,10 +629,10 @@ mod tests {
 
     #[test]
     fn folder_add_view() {
-        let (folder, initial_delta, _view) = test_view_folder();
+        let (folder, initial_operations, _view) = test_view_folder();
         assert_folder_equal(
             &folder,
-            &make_folder_from_delta(initial_delta, vec![]),
+            &make_folder_from_operations(initial_operations, vec![]),
             r#"
         {
             "workspaces": [
@@ -666,14 +675,14 @@ mod tests {
 
     #[test]
     fn folder_update_view() {
-        let (mut folder, initial_delta, view) = test_view_folder();
-        let delta = folder
+        let (mut folder, initial_operations, view) = test_view_folder();
+        let operations = folder
             .update_view(&view.id, Some("😦 rename view".to_owned()), None, 123)
             .unwrap()
             .unwrap()
-            .delta;
+            .operations;
 
-        let new_folder = make_folder_from_delta(initial_delta, vec![delta]);
+        let new_folder = make_folder_from_operations(initial_operations, vec![operations]);
         assert_folder_equal(
             &folder,
             &new_folder,
@@ -718,10 +727,10 @@ mod tests {
 
     #[test]
     fn folder_delete_view() {
-        let (mut folder, initial_delta, view) = test_view_folder();
-        let delta = folder.delete_view(&view.id).unwrap().unwrap().delta;
+        let (mut folder, initial_operations, view) = test_view_folder();
+        let operations = folder.delete_view(&view.id).unwrap().unwrap().operations;
 
-        let new_folder = make_folder_from_delta(initial_delta, vec![delta]);
+        let new_folder = make_folder_from_operations(initial_operations, vec![operations]);
         assert_folder_equal(
             &folder,
             &new_folder,
@@ -754,10 +763,10 @@ mod tests {
 
     #[test]
     fn folder_add_trash() {
-        let (folder, initial_delta, _trash) = test_trash();
+        let (folder, initial_operations, _trash) = test_trash();
         assert_folder_equal(
             &folder,
-            &make_folder_from_delta(initial_delta, vec![]),
+            &make_folder_from_operations(initial_operations, vec![]),
             r#"{
                     "workspaces": [],
                     "trash": [
@@ -776,11 +785,11 @@ mod tests {
 
     #[test]
     fn folder_delete_trash() {
-        let (mut folder, initial_delta, trash) = test_trash();
-        let delta = folder.delete_trash(Some(vec![trash.id])).unwrap().unwrap().delta;
+        let (mut folder, initial_operations, trash) = test_trash();
+        let operations = folder.delete_trash(Some(vec![trash.id])).unwrap().unwrap().operations;
         assert_folder_equal(
             &folder,
-            &make_folder_from_delta(initial_delta, vec![delta]),
+            &make_folder_from_operations(initial_operations, vec![operations]),
             r#"{
                     "workspaces": [],
                     "trash": []
@@ -789,10 +798,10 @@ mod tests {
         );
     }
 
-    fn test_folder() -> (FolderPad, FolderDelta, WorkspaceRevision) {
+    fn test_folder() -> (FolderPad, FolderOperations, WorkspaceRevision) {
         let folder_rev = FolderRevision::default();
         let folder_json = serde_json::to_string(&folder_rev).unwrap();
-        let mut delta = DeltaBuilder::new().insert(&folder_json).build();
+        let mut operations = FolderOperationsBuilder::new().insert(&folder_json).build();
 
         let mut workspace_rev = WorkspaceRevision::default();
         workspace_rev.name = "😁 my first workspace".to_owned();
@@ -800,66 +809,75 @@ mod tests {
 
         let mut folder = FolderPad::from_folder_rev(folder_rev).unwrap();
 
-        delta = delta
-            .compose(&folder.create_workspace(workspace_rev.clone()).unwrap().unwrap().delta)
+        operations = operations
+            .compose(
+                &folder
+                    .create_workspace(workspace_rev.clone())
+                    .unwrap()
+                    .unwrap()
+                    .operations,
+            )
             .unwrap();
 
-        (folder, delta, workspace_rev)
+        (folder, operations, workspace_rev)
     }
 
-    fn test_app_folder() -> (FolderPad, FolderDelta, AppRevision) {
-        let (mut folder_rev, mut initial_delta, workspace) = test_folder();
+    fn test_app_folder() -> (FolderPad, FolderOperations, AppRevision) {
+        let (mut folder_rev, mut initial_operations, workspace) = test_folder();
         let mut app_rev = AppRevision::default();
         app_rev.workspace_id = workspace.id;
         app_rev.name = "😁 my first app".to_owned();
 
-        initial_delta = initial_delta
-            .compose(&folder_rev.create_app(app_rev.clone()).unwrap().unwrap().delta)
+        initial_operations = initial_operations
+            .compose(&folder_rev.create_app(app_rev.clone()).unwrap().unwrap().operations)
             .unwrap();
 
-        (folder_rev, initial_delta, app_rev)
+        (folder_rev, initial_operations, app_rev)
     }
 
-    fn test_view_folder() -> (FolderPad, FolderDelta, ViewRevision) {
-        let (mut folder, mut initial_delta, app) = test_app_folder();
+    fn test_view_folder() -> (FolderPad, FolderOperations, ViewRevision) {
+        let (mut folder, mut initial_operations, app) = test_app_folder();
         let mut view_rev = ViewRevision::default();
         view_rev.app_id = app.id.clone();
         view_rev.name = "🎃 my first view".to_owned();
 
-        initial_delta = initial_delta
-            .compose(&folder.create_view(view_rev.clone()).unwrap().unwrap().delta)
+        initial_operations = initial_operations
+            .compose(&folder.create_view(view_rev.clone()).unwrap().unwrap().operations)
             .unwrap();
 
-        (folder, initial_delta, view_rev)
+        (folder, initial_operations, view_rev)
     }
 
-    fn test_trash() -> (FolderPad, FolderDelta, TrashRevision) {
+    fn test_trash() -> (FolderPad, FolderOperations, TrashRevision) {
         let folder_rev = FolderRevision::default();
         let folder_json = serde_json::to_string(&folder_rev).unwrap();
-        let mut delta = DeltaBuilder::new().insert(&folder_json).build();
+        let mut operations = FolderOperationsBuilder::new().insert(&folder_json).build();
 
         let mut trash_rev = TrashRevision::default();
         trash_rev.name = "🚽 my first trash".to_owned();
         trash_rev.id = "1".to_owned();
         let mut folder = FolderPad::from_folder_rev(folder_rev).unwrap();
-        delta = delta
+        operations = operations
             .compose(
                 &folder
                     .create_trash(vec![trash_rev.clone().into()])
                     .unwrap()
                     .unwrap()
-                    .delta,
+                    .operations,
             )
             .unwrap();
 
-        (folder, delta, trash_rev)
+        (folder, operations, trash_rev)
     }
 
-    fn make_folder_from_delta(mut initial_delta: FolderDelta, deltas: Vec<Delta>) -> FolderPad {
-        for delta in deltas {
-            initial_delta = initial_delta.compose(&delta).unwrap();
+    fn make_folder_from_operations(
+        mut initial_operation: FolderOperations,
+        operations: Vec<FolderOperations>,
+    ) -> FolderPad {
+        for operation in operations {
+            initial_operation = initial_operation.compose(&operation).unwrap();
         }
-        FolderPad::from_delta(initial_delta).unwrap()
+        FolderPad::from_operations(initial_operation).unwrap()
     }
 
     fn assert_folder_equal(old: &FolderPad, new: &FolderPad, expected: &str) {

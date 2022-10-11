@@ -1,4 +1,4 @@
-use crate::core::delta::operation::{Insert, Operation, OperationAttributes, Retain};
+use crate::core::delta::operation::{DeltaOperation, Insert, OperationAttributes, Retain};
 use crate::core::ot_str::OTString;
 use serde::{
     de,
@@ -8,7 +8,7 @@ use serde::{
 };
 use std::{fmt, marker::PhantomData};
 
-impl<T> Serialize for Operation<T>
+impl<T> Serialize for DeltaOperation<T>
 where
     T: OperationAttributes + Serialize,
 {
@@ -17,22 +17,22 @@ where
         S: Serializer,
     {
         match self {
-            Operation::Retain(retain) => retain.serialize(serializer),
-            Operation::Delete(i) => {
+            DeltaOperation::Retain(retain) => retain.serialize(serializer),
+            DeltaOperation::Delete(i) => {
                 let mut map = serializer.serialize_map(Some(1))?;
                 map.serialize_entry("delete", i)?;
                 map.end()
             }
-            Operation::Insert(insert) => insert.serialize(serializer),
+            DeltaOperation::Insert(insert) => insert.serialize(serializer),
         }
     }
 }
 
-impl<'de, T> Deserialize<'de> for Operation<T>
+impl<'de, T> Deserialize<'de> for DeltaOperation<T>
 where
     T: OperationAttributes + Deserialize<'de>,
 {
-    fn deserialize<D>(deserializer: D) -> Result<Operation<T>, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<DeltaOperation<T>, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -42,7 +42,7 @@ where
         where
             T: OperationAttributes + Deserialize<'de>,
         {
-            type Value = Operation<T>;
+            type Value = DeltaOperation<T>;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("an integer between -2^64 and 2^63 or a string")
@@ -61,21 +61,21 @@ where
                             if operation.is_some() {
                                 return Err(de::Error::duplicate_field("operation"));
                             }
-                            operation = Some(Operation::<T>::Delete(map.next_value()?));
+                            operation = Some(DeltaOperation::<T>::Delete(map.next_value()?));
                         }
                         "retain" => {
                             if operation.is_some() {
                                 return Err(de::Error::duplicate_field("operation"));
                             }
                             let i: usize = map.next_value()?;
-                            operation = Some(Operation::<T>::Retain(i.into()));
+                            operation = Some(DeltaOperation::<T>::Retain(i.into()));
                         }
                         "insert" => {
                             if operation.is_some() {
                                 return Err(de::Error::duplicate_field("operation"));
                             }
                             let i: String = map.next_value()?;
-                            operation = Some(Operation::<T>::Insert(i.into()));
+                            operation = Some(DeltaOperation::<T>::Insert(i.into()));
                         }
                         "attributes" => {
                             if attributes.is_some() {

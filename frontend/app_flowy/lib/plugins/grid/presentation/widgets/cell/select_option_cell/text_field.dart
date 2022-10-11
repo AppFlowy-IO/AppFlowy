@@ -6,6 +6,7 @@ import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
@@ -22,6 +23,7 @@ class SelectOptionTextField extends StatefulWidget {
   final Function(String) newText;
   final Function(List<String>, String) onPaste;
   final VoidCallback? onClick;
+  final int? maxLength;
 
   const SelectOptionTextField({
     required this.options,
@@ -33,6 +35,7 @@ class SelectOptionTextField extends StatefulWidget {
     required this.newText,
     required this.textSeparators,
     this.onClick,
+    this.maxLength,
     TextEditingController? textController,
     FocusNode? focusNode,
     Key? key,
@@ -97,6 +100,9 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               }
             },
             maxLines: 1,
+            maxLength: widget.maxLength,
+            maxLengthEnforcement:
+                MaxLengthEnforcement.truncateAfterCompositionEnds,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(

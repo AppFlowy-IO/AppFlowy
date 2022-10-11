@@ -1,0 +1,236 @@
+{
+    "appName": "AppFlowy",
+    "defaultUsername": "Me",
+    "welcomeText": "@:appName 에 오신것을 환영합니다",
+    "githubStarText": "Star on GitHub",
+    "subscribeNewsletterText": "뉴스레터 구독",
+    "letsGoButtonText": "Let's Go",
+    "title": "제목",
+    "signUp": {
+      "buttonText": "회원가입",
+      "title": "@:appName 에 회원가입",
+      "getStartedText": "시작하기",
+      "emptyPasswordError": "비밀번호는 공백일 수 없습니다",
+      "repeatPasswordEmptyError": "비밀번호 재입력란은 공백일 수 없습니다",
+      "unmatchedPasswordError": "재입력 하신 비밀번호가 같지 않습니다",
+      "alreadyHaveAnAccount": "이미 계정이 있으신가요?",
+      "emailHint": "이메일",
+      "passwordHint": "비밀번호",
+      "repeatPasswordHint": "비밀번호 재입력"
+    },
+    "signIn": {
+      "loginTitle": "@:appName 에 로그인",
+      "loginButtonText": "로그인",
+      "buttonText": "로그인",
+      "forgotPassword": "비밀번호를 잊으셨나요?",
+      "emailHint": "이메일",
+      "passwordHint": "비밀번호",
+      "dontHaveAnAccount": "계정이 없으신가요?",
+      "repeatPasswordEmptyError": "비밀번호 재입력란은 공백일 수 없습니다",
+      "unmatchedPasswordError": "재입력 하신 비밀번호가 같지 않습니다"
+    },
+    "workspace": {
+      "create": "워크스페이스 생성",
+      "hint": "워크스페이스",
+      "notFoundError": "워크스페이스를 찾을 수 없습니다"
+    },
+    "shareAction": {
+      "buttonText": "공유",
+      "workInProgress": "Coming soon",
+      "markdown": "마크다운",
+      "copyLink": "링크 복사"
+    },
+    "disclosureAction": {
+      "rename": "이름변경",
+      "delete": "삭제",
+      "duplicate": "복제"
+    },
+    "blankPageTitle": "빈 페이지",
+    "newPageText": "새로운 페이지",
+    "trash": {
+      "text": "휴지통",
+      "restoreAll": "모두 복구",
+      "deleteAll": "모두 삭제",
+      "pageHeader": {
+        "fileName": "파일 이름",
+        "lastModified": "수정날짜",
+        "created": "생성날짜"
+      }
+    },
+    "deletePagePrompt": {
+      "text": "현재 페이지는 휴지통에 있습니다",
+      "restore": "페이지 복구",
+      "deletePermanent": "영구 삭제"
+    },
+    "dialogCreatePageNameHint": "페이지 이름",
+    "questionBubble": {
+      "whatsNew": "새로운 소식",
+      "help": "도움 및 지원",
+      "debug": {
+        "name": "디버그 정보",
+        "success": "디버그 정보를 클립보드로 복사했습니다.",
+        "fail": "디버그 정보를 클립보드로 복사할 수 없습니다."
+      }
+    },
+    "menuAppHeader": {
+      "addPageTooltip": "하위에 페이지 추가",
+      "defaultNewPageName": "제목없음",
+      "renameDialog": "이름변경"
+    },
+    "toolbar": {
+      "undo": "실행취소",
+      "redo": "재실행",
+      "bold": "굵게",
+      "italic": "기울임꼴",
+      "underline": "밑줄",
+      "strike": "취소선",
+      "numList": "번호 매기기 목록",
+      "bulletList": "글머리 기호 목록",
+      "checkList": "작업 목록",
+      "inlineCode": "인라인 코드",
+      "quote": "인용구 블록",
+      "header": "헤더",
+      "highlight": "하이라이트"
+    },
+    "tooltip": {
+      "lightMode": "라이트 모드로 변경",
+      "darkMode": "다크 모드로 변경",
+      "openAsPage": "페이지로 열기",
+      "addNewRow": "열 추가",
+      "openMenu": "메뉴를 여시려면 클릭하세요"
+    },
+    "sideBar": {
+      "closeSidebar": "사이드바 닫기",
+      "openSidebar": "사이드바 열기"
+    },
+    "notifications": {
+      "export": {
+        "markdown": "마크다운으로 노트를 내보냄",
+        "path": "Documents/flowy"
+      }
+    },
+    "contactsPage": {
+      "title": "연락처",
+      "whatsHappening": "이번주에는 무슨 일이 있나요?",
+      "addContact": "연락처 추가",
+      "editContact": "연락처 편집"
+    },
+    "button": {
+      "OK": "확인",
+      "Cancel": "취소",
+      "signIn": "로그인",
+      "signOut": "로그아웃",
+      "complete": "완료",
+      "save": "저장"
+    },
+    "label": {
+      "welcome": "환영합니다!",
+      "firstName": "이름",
+      "middleName": "중간 이름",
+      "lastName": "성",
+      "stepX": "{X} 단계"
+    },
+    "oAuth": {
+      "err": {
+        "failedTitle": "계정에 연결을 할 수 없습니다.",
+        "failedMsg": "브라우저에서 회원가입이 완료되었는지 확인해주세요."
+      },
+      "google": {
+        "title": "GOOGLE SIGN-IN",
+        "instruction1": "구글 연락처를 가져오기 위해서 웹브라우저로 앱을 승인 해야 합니다.",
+        "instruction2": "아이콘을 클릭 또는 텍스트를 선택해서 이 코드를 클립보드로 복사하세요:",
+        "instruction3": "웹브라우저로 다음 링크로 가셔서 위 코드를 입력해주세요:",
+        "instruction4": "가입 완료 후 아래 버튼을 눌러주세요:"
+      }
+    },
+    "settings": {
+      "title": "설정",
+      "menu": {
+        "appearance": "화면",
+        "language": "언어",
+        "user": "사용자",
+        "open": "설정 열기"
+      },
+      "appearance": {
+        "lightLabel": "라이트 모드",
+        "darkLabel": "다크 모드"
+      }
+    },
+    "grid": {
+      "settings": {
+        "filter": "필터",
+        "sortBy": "정렬 기준",
+        "Properties": "속성",
+        "group": "그룹"
+      },
+      "field": {
+        "hide": "숨기기",
+        "insertLeft": "왼쪽 삽입",
+        "insertRight": "오른쪽 삽입",
+        "duplicate": "복제",
+        "delete": "삭제",
+        "textFieldName": "텍스트",
+        "checkboxFieldName": "체크박스",
+        "dateFieldName": "날짜",
+        "numberFieldName": "숫자",
+        "singleSelectFieldName": "선택",
+        "multiSelectFieldName": "다중선택",
+        "urlFieldName": "링크",
+        "numberFormat": " 숫자 형식",
+        "dateFormat": " 날짜 형식",
+        "includeTime": " 시간 표시",
+        "dateFormatFriendly": "월 일,년",
+        "dateFormatISO": "년-월-일",
+        "dateFormatLocal": "월/일/년",
+        "dateFormatUS": "년/월/일",
+        "timeFormat": " 시간 형식",
+        "invalidTimeFormat": "잘못된 형식",
+        "timeFormatTwelveHour": "12 시간",
+        "timeFormatTwentyFourHour": "24 시간",
+        "addSelectOption": "옵션 추가",
+        "optionTitle": "옵션",
+        "addOption": "옵션 추가",
+        "editProperty": "속성 편집",
+        "newColumn": "열 추가",
+        "deleteFieldPromptMessage": "해당 속성을 삭제 하시겠습니까?"
+      },
+      "row": {
+        "duplicate": "복제",
+        "delete": "삭제",
+        "textPlaceholder": "비어있음",
+        "copyProperty": "속성이 클립보드로 복사됨",
+        "count": "개수",
+        "newRow": "행 추가"
+      },
+      "selectOption": {
+        "create": "생성",
+        "purpleColor": "보라색",
+        "pinkColor": "핑크색",
+        "lightPinkColor": "연한 핑크색",
+        "orangeColor": "오렌지색",
+        "yellowColor": "노랑색",
+        "limeColor": "라임색",
+        "greenColor": "초록색",
+        "aquaColor": "아쿠아색",
+        "blueColor": "파랑색",
+        "deleteTag": "태그 삭제",
+        "colorPanelTitle": "색상",
+        "panelTitle": "옵션 선택 또는 생성",
+        "searchOption": "옵션 검색"
+      },
+      "menuName": "그리드"
+    },
+    "document": {
+      "menuName": "도큐먼트",
+      "date": {
+        "timeHintTextInTwelveHour": "01:00 PM",
+        "timeHintTextInTwentyFourHour": "13:00"
+      }
+    },
+    "board": {
+      "column": {
+        "create_new_card": "추가"
+      }
+    }
+  }
+  

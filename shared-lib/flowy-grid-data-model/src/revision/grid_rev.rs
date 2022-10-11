@@ -157,7 +157,6 @@ impl FieldRevision {
 
     pub fn get_type_option<T: TypeOptionDataDeserializer>(&self, field_type_rev: FieldTypeRevision) -> Option<T> {
         let id = field_type_rev.to_string();
-        // TODO: cache the deserialized type option
         self.type_options.get(&id).map(|s| T::from_json_str(s))
     }
 

@@ -1,4 +1,4 @@
-name: FlowyEditor test
+name: AppFlowyEditor test
 
 on:
   push:
@@ -37,6 +37,8 @@ jobs:
         working-directory: frontend/app_flowy/packages/appflowy_editor
         run: |
           flutter pub get
+          flutter format --set-exit-if-changed .
+          flutter analyze .
           flutter test --coverage
 
       - uses: codecov/codecov-action@v3

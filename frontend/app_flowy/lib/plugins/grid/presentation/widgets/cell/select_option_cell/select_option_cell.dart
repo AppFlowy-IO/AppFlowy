@@ -210,15 +210,17 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
     } else {
       final children = widget.selectOptions.map(
         (option) {
-          return SelectOptionTag.fromOption(
-            context: context,
-            option: option,
+          return Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: SelectOptionTag.fromOption(
+              context: context,
+              option: option,
+            ),
           );
         },
       ).toList();
 
       child = Wrap(
-        spacing: 4,
         runSpacing: 2,
         children: children,
       );

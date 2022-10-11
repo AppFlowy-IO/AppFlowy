@@ -3,7 +3,7 @@ use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell};
 use crate::services::field::{SelectOptionCellDataPB, SelectOptionPB, CHECK};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::{GeneratedGroup, Group};
+use crate::services::group::{GeneratedGroupConfig, Group};
 use flowy_grid_data_model::revision::{
     CellRevision, FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision,
 };
@@ -80,9 +80,9 @@ pub fn move_group_row(group: &mut Group, context: &mut MoveGroupRowContext) -> O
     };
 
     // Remove the row in which group contains it
-    if from_index.is_some() {
+    if let Some(from_index) = &from_index {
         changeset.deleted_rows.push(row_rev.id.clone());
-        tracing::debug!("Group:{} remove row:{}", group.id, row_rev.id);
+        tracing::debug!("Group:{} remove {} at {}", group.id, row_rev.id, from_index);
         group.remove_row(&row_rev.id);
     }
 
@@ -97,10 +97,11 @@ pub fn move_group_row(group: &mut Group, context: &mut MoveGroupRowContext) -> O
             }
             Some(to_index) => {
                 if to_index < group.number_of_row() {
-                    tracing::debug!("Group:{} insert row:{} at {} ", group.id, row_rev.id, to_index);
+                    tracing::debug!("Group:{} insert {} at {} ", group.id, row_rev.id, to_index);
                     inserted_row.index = Some(to_index as i32);
                     group.insert_row(to_index, row_pb);
                 } else {
+                    tracing::warn!("Mote to index: {} is out of bounds", to_index);
                     tracing::debug!("Group:{} append row:{}", group.id, row_rev.id);
                     group.add_row(row_pb);
                 }
@@ -154,10 +155,10 @@ pub fn generate_select_option_groups(
     _field_id: &str,
     _group_ctx: &SelectOptionGroupContext,
     options: &[SelectOptionPB],
-) -> Vec<GeneratedGroup> {
+) -> Vec<GeneratedGroupConfig> {
     let groups = options
         .iter()
-        .map(|option| GeneratedGroup {
+        .map(|option| GeneratedGroupConfig {
             group_rev: GroupRevision::new(option.id.clone(), option.name.clone()),
             filter_content: option.id.clone(),
         })

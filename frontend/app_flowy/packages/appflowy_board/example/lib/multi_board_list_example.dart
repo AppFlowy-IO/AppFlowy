@@ -78,7 +78,7 @@ class _MultiBoardListExampleState extends State<MultiBoardListExample> {
             height: 50,
             margin: config.groupItemPadding,
             onAddButtonClick: () {
-              boardController.scrollToBottom(columnData.id, (p0) {});
+              boardController.scrollToBottom(columnData.id);
             },
           );
         },

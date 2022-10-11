@@ -2,7 +2,7 @@ use super::script::{NodeScript::*, *};
 use lib_ot::core::AttributeBuilder;
 use lib_ot::{
     core::{NodeData, Path},
-    text_delta::TextDeltaBuilder,
+    text_delta::TextOperationBuilder,
 };
 
 #[test]
@@ -11,7 +11,7 @@ fn editor_deserialize_node_test() {
     let node: NodeData = serde_json::from_str(EXAMPLE_JSON).unwrap();
     let path: Path = 0.into();
 
-    let expected_delta = TextDeltaBuilder::new()
+    let expected_delta = TextOperationBuilder::new()
         .insert("👋 ")
         .insert_with_attributes(
             "Welcome to ",
