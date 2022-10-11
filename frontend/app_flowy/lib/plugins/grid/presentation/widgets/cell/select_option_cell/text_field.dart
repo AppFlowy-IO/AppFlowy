@@ -17,9 +17,11 @@ class SelectOptionTextField extends StatefulWidget {
   final List<SelectOptionPB> options;
   final LinkedHashMap<String, SelectOptionPB> selectedOptionMap;
   final double distanceToText;
+  final List<String> textSeparators;
 
   final Function(String) onSubmitted;
   final Function(String) newText;
+  final Function(List<String>, String) onPaste;
   final VoidCallback? onClick;
   final int? maxLength;
 
@@ -29,7 +31,9 @@ class SelectOptionTextField extends StatefulWidget {
     required this.distanceToText,
     required this.tagController,
     required this.onSubmitted,
+    required this.onPaste,
     required this.newText,
+    required this.textSeparators,
     this.onClick,
     this.maxLength,
     TextEditingController? textController,
@@ -65,7 +69,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
       textfieldTagsController: widget.tagController,
       initialTags: widget.selectedOptionMap.keys.toList(),
       focusNode: focusNode,
-      textSeparators: const [','],
+      textSeparators: widget.textSeparators,
       inputfieldBuilder: (
         BuildContext context,
         editController,
@@ -83,7 +87,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               if (onChanged != null) {
                 onChanged(text);
               }
-              widget.newText(text);
+              _newText(text, editController);
             },
             onSubmitted: (text) {
               if (onSubmitted != null) {
@@ -119,6 +123,40 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         });
       },
     );
+  }
+
+  void _newText(String text, TextEditingController editingController) {
+    if (text.isEmpty) {
+      widget.newText('');
+      return;
+    }
+
+    final trimmedText = text.trim();
+    List<String> splits = [];
+    String currentString = '';
+
+    // split the string into tokens
+    for (final char in trimmedText.split('')) {
+      if (!widget.textSeparators.contains(char)) {
+        currentString += char;
+        continue;
+      }
+      if (currentString.isNotEmpty) {
+        splits.add(currentString);
+      }
+      currentString = '';
+    }
+    // add the remainder (might be '')
+    splits.add(currentString);
+
+    final submittedOptions =
+        splits.sublist(0, splits.length - 1).map((e) => e.trim()).toList();
+
+    final remainder = splits.elementAt(splits.length - 1).trimLeft();
+    editingController.text = remainder;
+    editingController.selection =
+        TextSelection.collapsed(offset: controller.text.length);
+    widget.onPaste(submittedOptions, remainder);
   }
 
   Widget? _renderTags(BuildContext context, ScrollController sc) {

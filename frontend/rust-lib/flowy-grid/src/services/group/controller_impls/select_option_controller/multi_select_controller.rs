@@ -62,7 +62,7 @@ impl GroupController for MultiSelectGroupController {
         match self.group_ctx.get_group(group_id) {
             None => tracing::warn!("Can not find the group: {}", group_id),
             Some((_, group)) => {
-                let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
+                let cell_rev = insert_select_option_cell(vec![group.id.clone()], field_rev);
                 row_rev.cells.insert(field_rev.id.clone(), cell_rev);
             }
         }

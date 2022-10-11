@@ -341,19 +341,19 @@ pub(crate) async fn update_select_option_handler(
             let mut cell_content_changeset = None;
             let mut is_changed = None;
 
-            if let Some(option) = changeset.insert_option {
-                cell_content_changeset = Some(SelectOptionCellChangeset::from_insert(&option.id).to_str());
+            for option in changeset.insert_options {
+                cell_content_changeset = Some(SelectOptionCellChangeset::from_insert_option_id(&option.id).to_str());
                 type_option.insert_option(option);
                 is_changed = Some(());
             }
 
-            if let Some(option) = changeset.update_option {
+            for option in changeset.update_options {
                 type_option.insert_option(option);
                 is_changed = Some(());
             }
 
-            if let Some(option) = changeset.delete_option {
-                cell_content_changeset = Some(SelectOptionCellChangeset::from_delete(&option.id).to_str());
+            for option in changeset.delete_options {
+                cell_content_changeset = Some(SelectOptionCellChangeset::from_delete_option_id(&option.id).to_str());
                 type_option.delete_option(option);
                 is_changed = Some(());
             }

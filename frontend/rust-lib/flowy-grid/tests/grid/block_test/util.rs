@@ -2,7 +2,7 @@ use flowy_grid::entities::FieldType;
 use std::sync::Arc;
 
 use flowy_grid::services::field::{
-    DateCellChangesetPB, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB, SELECTION_IDS_SEPARATOR,
+    DateCellChangesetPB, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
@@ -70,7 +70,7 @@ impl<'a> GridRowTestBuilder<'a> {
         let type_option = SingleSelectTypeOptionPB::from(&single_select_field);
         let option = f(type_option.options);
         self.inner_builder
-            .insert_select_option_cell(&single_select_field.id, option.id);
+            .insert_select_option_cell(&single_select_field.id, vec![option.id]);
 
         single_select_field.id.clone()
     }
@@ -82,11 +82,7 @@ impl<'a> GridRowTestBuilder<'a> {
         let multi_select_field = self.field_rev_with_type(&FieldType::MultiSelect);
         let type_option = MultiSelectTypeOptionPB::from(&multi_select_field);
         let options = f(type_option.options);
-        let ops_ids = options
-            .iter()
-            .map(|option| option.id.clone())
-            .collect::<Vec<_>>()
-            .join(SELECTION_IDS_SEPARATOR);
+        let ops_ids = options.iter().map(|option| option.id.clone()).collect::<Vec<_>>();
         self.inner_builder
             .insert_select_option_cell(&multi_select_field.id, ops_ids);
 

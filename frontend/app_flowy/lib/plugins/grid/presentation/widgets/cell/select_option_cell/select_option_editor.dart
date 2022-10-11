@@ -149,6 +149,7 @@ class _TextField extends StatelessWidget {
             distanceToText: _editorPanelWidth * 0.7,
             maxLength: 30,
             tagController: _tagController,
+            textSeparators: const [','],
             onClick: () => popoverMutex.close(),
             newText: (text) {
               context
@@ -159,6 +160,14 @@ class _TextField extends StatelessWidget {
               context
                   .read<SelectOptionCellEditorBloc>()
                   .add(SelectOptionEditorEvent.trySelectOption(tagName));
+            },
+            onPaste: (tagNames, remainder) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.selectMultipleOptions(
+                    tagNames,
+                    remainder,
+                  ));
             },
           ),
         );

@@ -63,7 +63,7 @@ impl GroupController for SingleSelectGroupController {
         match group {
             None => {}
             Some(group) => {
-                let cell_rev = insert_select_option_cell(group.id.clone(), field_rev);
+                let cell_rev = insert_select_option_cell(vec![group.id.clone()], field_rev);
                 row_rev.cells.insert(field_rev.id.clone(), cell_rev);
             }
         }
