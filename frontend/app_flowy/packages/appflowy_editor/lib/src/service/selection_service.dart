@@ -1,14 +1,14 @@
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/material.dart';
 
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/document/node_iterator.dart';
-import 'package:appflowy_editor/src/document/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node_iterator.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
+import 'package:appflowy_editor/src/core/location/position.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
 import 'package:appflowy_editor/src/extensions/object_extensions.dart';
-import 'package:appflowy_editor/src/extensions/path_extensions.dart';
 import 'package:appflowy_editor/src/render/selection/cursor_widget.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:appflowy_editor/src/render/selection/selection_widget.dart';
@@ -179,8 +179,11 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     final startNode = editorState.document.nodeAtPath(start);
     final endNode = editorState.document.nodeAtPath(end);
     if (startNode != null && endNode != null) {
-      final nodes =
-          NodeIterator(editorState.document, startNode, endNode).toList();
+      final nodes = NodeIterator(
+        document: editorState.document,
+        startNode: startNode,
+        endNode: endNode,
+      ).toList();
       if (selection.isBackward) {
         return nodes;
       } else {
@@ -363,7 +366,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     final backwardNodes =
         selection.isBackward ? nodes : nodes.reversed.toList(growable: false);
-    final normalizedSelection = selection.normalize;
+    final normalizedSelection = selection.normalized;
     assert(normalizedSelection.isBackward);
 
     Log.selection.debug('update selection areas, $normalizedSelection');
@@ -375,7 +378,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
         continue;
       }
 
-      var newSelection = normalizedSelection.copy();
+      var newSelection = normalizedSelection.copyWith();
 
       /// In the case of multiple selections,
       ///  we need to return a new selection for each selected node individually.

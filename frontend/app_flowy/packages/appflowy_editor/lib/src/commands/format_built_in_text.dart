@@ -1,10 +1,10 @@
 import 'package:appflowy_editor/src/commands/format_text.dart';
 import 'package:appflowy_editor/src/commands/text_command_infra.dart';
-import 'package:appflowy_editor/src/document/attributes.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/document/path.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/document/attributes.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 
 Future<void> formatBuiltInTextAttributes(

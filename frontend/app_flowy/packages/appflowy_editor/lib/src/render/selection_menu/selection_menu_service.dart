@@ -6,7 +6,7 @@ import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
 
 import 'package:flutter/material.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 
 abstract class SelectionMenuService {
   Offset get topLeft;

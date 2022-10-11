@@ -17,8 +17,8 @@ ShortcutEventHandler _insertHorzaontalRule = (editorState, event) {
     return KeyEventResult.ignored;
   }
   final textNode = textNodes.first;
-  if (textNode.toRawString() == '--') {
-    TransactionBuilder(editorState)
+  if (textNode.toPlainText() == '--') {
+    editorState.transaction
       ..deleteText(textNode, 0, 2)
       ..insertNode(
         textNode.path,
@@ -29,8 +29,8 @@ ShortcutEventHandler _insertHorzaontalRule = (editorState, event) {
         ),
       )
       ..afterSelection =
-          Selection.single(path: textNode.path.next, startOffset: 0)
-      ..commit();
+          Selection.single(path: textNode.path.next, startOffset: 0);
+    editorState.commit();
     return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;
@@ -53,8 +53,8 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
       return;
     }
     final textNode = textNodes.first;
-    if (textNode.toRawString().isEmpty) {
-      TransactionBuilder(editorState)
+    if (textNode.toPlainText().isEmpty) {
+      editorState.transaction
         ..insertNode(
           textNode.path,
           Node(
@@ -64,14 +64,13 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
           ),
         )
         ..afterSelection =
-            Selection.single(path: textNode.path.next, startOffset: 0)
-        ..commit();
+            Selection.single(path: textNode.path.next, startOffset: 0);
+      editorState.commit();
     } else {
-      TransactionBuilder(editorState)
+      editorState.transaction
         ..insertNode(
           selection.end.path.next,
           TextNode(
-            type: 'text',
             children: LinkedList(),
             attributes: {
               'subtype': 'horizontal_rule',
@@ -79,8 +78,8 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
             delta: Delta()..insert('---'),
           ),
         )
-        ..afterSelection = selection
-        ..commit();
+        ..afterSelection = selection;
+      editorState.commit();
     }
   },
 );

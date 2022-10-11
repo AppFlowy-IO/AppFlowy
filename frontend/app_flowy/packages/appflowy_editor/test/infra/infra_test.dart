@@ -15,7 +15,6 @@ void main() async {
       const text = 'Welcome to Appflowy 😁';
       TextNode textNode() {
         return TextNode(
-          type: 'text',
           delta: Delta()..insert(text),
         );
       }

@@ -15,9 +15,8 @@ ShortcutEventHandler tabHandler = (editorState, event) {
   final previous = textNode.previous;
 
   if (textNode.subtype != BuiltInAttributeKey.bulletedList) {
-    TransactionBuilder(editorState)
-      ..insertText(textNode, selection.end.offset, ' ' * 4)
-      ..commit();
+    editorState.transaction.insertText(textNode, selection.end.offset, ' ' * 4);
+    editorState.commit();
     return KeyEventResult.handled;
   }
 
@@ -31,11 +30,11 @@ ShortcutEventHandler tabHandler = (editorState, event) {
     start: selection.start.copyWith(path: path),
     end: selection.end.copyWith(path: path),
   );
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteNode(textNode)
     ..insertNode(path, textNode)
-    ..setAfterSelection(afterSelection)
-    ..commit();
+    ..afterSelection = afterSelection;
+  editorState.commit();
 
   return KeyEventResult.handled;
 };

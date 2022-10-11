@@ -67,7 +67,7 @@ You can also create an editor from a JSON object in order to configure your init
 ```dart
 final json = ...;
 final editorStyle = EditorStyle.defaultStyle();
-final editorState = EditorState(StateTree.fromJson(data));
+final editorState = EditorState(Document.fromJson(data));
 final editor = AppFlowyEditor(
     editorState: editorState,
     editorStyle: editorStyle,

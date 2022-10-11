@@ -4,10 +4,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() async {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
-
   group('node.dart', () {
     test('test node copyWith', () {
       final node = Node(
@@ -57,7 +53,6 @@ void main() async {
 
     test('test textNode copyWith', () {
       final textNode = TextNode(
-        type: 'example',
         children: LinkedList(),
         attributes: {
           'example': 'example',
@@ -65,7 +60,7 @@ void main() async {
         delta: Delta()..insert('AppFlowy'),
       );
       expect(textNode.toJson(), {
-        'type': 'example',
+        'type': 'text',
         'attributes': {
           'example': 'example',
         },
@@ -79,7 +74,6 @@ void main() async {
       );
 
       final textNodeWithChildren = TextNode(
-        type: 'example',
         children: LinkedList()..add(textNode),
         attributes: {
           'example': 'example',
@@ -87,7 +81,7 @@ void main() async {
         delta: Delta()..insert('AppFlowy'),
       );
       expect(textNodeWithChildren.toJson(), {
-        'type': 'example',
+        'type': 'text',
         'attributes': {
           'example': 'example',
         },
@@ -96,7 +90,7 @@ void main() async {
         ],
         'children': [
           {
-            'type': 'example',
+            'type': 'text',
             'attributes': {
               'example': 'example',
             },
@@ -148,6 +142,91 @@ void main() async {
       expect(identical(node.attributes, base.attributes), false);
       expect(identical(node.children, base.children), false);
       expect(identical(node.children.first, base.children.first), false);
+    });
+
+    test('test insert', () {
+      final base = Node(
+        type: 'base',
+      );
+
+      // insert at the front when node's children is empty
+      final childA = Node(
+        type: 'child',
+      );
+      base.insert(childA);
+      expect(
+        identical(base.childAtIndex(0), childA),
+        true,
+      );
+
+      // insert at the front
+      final childB = Node(
+        type: 'child',
+      );
+      base.insert(childB, index: -1);
+      expect(
+        identical(base.childAtIndex(0), childB),
+        true,
+      );
+
+      // insert at the last
+      final childC = Node(
+        type: 'child',
+      );
+      base.insert(childC, index: 1000);
+      expect(
+        identical(base.childAtIndex(base.children.length - 1), childC),
+        true,
+      );
+
+      // insert at the last
+      final childD = Node(
+        type: 'child',
+      );
+      base.insert(childD);
+      expect(
+        identical(base.childAtIndex(base.children.length - 1), childD),
+        true,
+      );
+
+      // insert at the second
+      final childE = Node(
+        type: 'child',
+      );
+      base.insert(childE, index: 1);
+      expect(
+        identical(base.childAtIndex(1), childE),
+        true,
+      );
+    });
+
+    test('test fromJson', () {
+      final node = Node.fromJson({
+        'type': 'text',
+        'delta': [
+          {'insert': 'example'},
+        ],
+        'children': [
+          {
+            'type': 'example',
+            'attributes': {
+              'example': 'example',
+            },
+          },
+        ],
+      });
+      expect(node.type, 'text');
+      expect(node is TextNode, true);
+      expect((node as TextNode).delta.toPlainText(), 'example');
+      expect(node.attributes, {});
+      expect(node.children.length, 1);
+      expect(node.children.first.type, 'example');
+      expect(node.children.first.attributes, {'example': 'example'});
+    });
+
+    test('test toPlainText', () {
+      final textNode = TextNode.empty()..delta = (Delta()..insert('AppFlowy'));
+      expect(textNode.toPlainText(), 'AppFlowy');
     });
   });
 }

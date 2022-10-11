@@ -1,9 +1,8 @@
 import 'dart:collection';
 
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
 import 'package:flutter/material.dart';
 
@@ -192,11 +191,10 @@ extension on EditorState {
         'align': 'center',
       },
     );
-    TransactionBuilder(this)
-      ..insertNode(
-        selection.start.path,
-        imageNode,
-      )
-      ..commit();
+    transaction.insertNode(
+      selection.start.path,
+      imageNode,
+    );
+    commit();
   }
 }

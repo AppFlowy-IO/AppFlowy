@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
           _editorState ??= EditorState(
-            document: StateTree.fromJson(
+            document: Document.fromJson(
               Map<String, Object>.from(
                 json.decode(snapshot.data!),
               ),

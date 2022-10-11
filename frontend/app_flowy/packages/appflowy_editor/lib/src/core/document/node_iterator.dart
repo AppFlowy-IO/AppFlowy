@@ -1,23 +1,28 @@
-import 'package:appflowy_editor/src/document/node.dart';
-
-import './state_tree.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/core/document/document.dart';
 
 /// [NodeIterator] is used to traverse the nodes in visual order.
 class NodeIterator implements Iterator<Node> {
-  final StateTree stateTree;
-  final Node _startNode;
-  final Node? _endNode;
+  NodeIterator({
+    required this.document,
+    required this.startNode,
+    this.endNode,
+  });
+
+  final Document document;
+  final Node startNode;
+  final Node? endNode;
+
   Node? _currentNode;
   bool _began = false;
 
-  NodeIterator(this.stateTree, Node startNode, [Node? endNode])
-      : _startNode = startNode,
-        _endNode = endNode;
+  @override
+  Node get current => _currentNode!;
 
   @override
   bool moveNext() {
     if (!_began) {
-      _currentNode = _startNode;
+      _currentNode = startNode;
       _began = true;
       return true;
     }
@@ -27,7 +32,7 @@ class NodeIterator implements Iterator<Node> {
       return false;
     }
 
-    if (_endNode != null && _endNode == node) {
+    if (endNode != null && endNode == node) {
       _currentNode = null;
       return false;
     }
@@ -42,11 +47,19 @@ class NodeIterator implements Iterator<Node> {
       if (nextOfParent == null) {
         _currentNode = null;
       } else {
-        _currentNode = _findLeadingChild(nextOfParent);
+        _currentNode = nextOfParent;
       }
     }
 
     return _currentNode != null;
+  }
+
+  List<Node> toList() {
+    final result = <Node>[];
+    while (moveNext()) {
+      result.add(current);
+    }
+    return result;
   }
 
   Node _findLeadingChild(Node node) {
@@ -54,20 +67,5 @@ class NodeIterator implements Iterator<Node> {
       node = node.children.first;
     }
     return node;
-  }
-
-  @override
-  Node get current {
-    return _currentNode!;
-  }
-
-  List<Node> toList() {
-    final result = <Node>[];
-
-    while (moveNext()) {
-      result.add(current);
-    }
-
-    return result;
   }
 }

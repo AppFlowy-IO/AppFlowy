@@ -357,10 +357,9 @@ void showLinkMenu(
             _dismissLinkMenu();
           },
           onRemoveLink: () {
-            TransactionBuilder(editorState)
-              ..formatText(
-                  textNode, index, length, {BuiltInAttributeKey.href: null})
-              ..commit();
+            editorState.transaction.formatText(
+                textNode, index, length, {BuiltInAttributeKey.href: null});
+            editorState.commit();
             _dismissLinkMenu();
           },
           onFocusChange: (value) {

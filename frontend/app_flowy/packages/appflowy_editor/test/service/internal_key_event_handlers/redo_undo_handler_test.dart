@@ -56,7 +56,7 @@ Future<void> _testBackspaceUndoRedo(
   }
 
   expect(editor.documentLength, 3);
-  expect((editor.nodeAtPath([1]) as TextNode).toRawString(), text);
+  expect((editor.nodeAtPath([1]) as TextNode).toPlainText(), text);
   expect(editor.documentSelection, selection);
 
   if (Platform.isWindows || Platform.isLinux) {

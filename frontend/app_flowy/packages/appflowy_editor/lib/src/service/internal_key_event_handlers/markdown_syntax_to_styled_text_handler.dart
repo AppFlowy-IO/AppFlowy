@@ -11,7 +11,7 @@ ShortcutEventHandler doubleAsterisksToBold = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
 
   // make sure the last two characters are **.
   if (text.length < 2 || text[selection.end.offset - 1] != '*') {
@@ -42,7 +42,7 @@ ShortcutEventHandler doubleAsterisksToBold = (editorState, event) {
   // delete the last three asterisks.
   // update the style of the text surround by `** **` to bold.
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, lastAsterisIndex, 1)
     ..deleteText(textNode, thirdToLastAsteriskIndex, 2)
     ..formatText(
@@ -59,8 +59,8 @@ ShortcutEventHandler doubleAsterisksToBold = (editorState, event) {
         path: textNode.path,
         offset: selection.end.offset - 3,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
 
   return KeyEventResult.handled;
 };
@@ -75,7 +75,7 @@ ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
 
   // make sure the last two characters are __.
   if (text.length < 2 || text[selection.end.offset - 1] != '_') {
@@ -108,7 +108,7 @@ ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
   // delete the last three underscores.
   // update the style of the text surround by `__ __` to bold.
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, lastAsterisIndex, 1)
     ..deleteText(textNode, thirdToLastUnderscoreIndex, 2)
     ..formatText(
@@ -125,8 +125,8 @@ ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
         path: textNode.path,
         offset: selection.end.offset - 3,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
 
   return KeyEventResult.handled;
 };

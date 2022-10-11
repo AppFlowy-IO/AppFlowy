@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:appflowy_editor/src/commands/text_command_infra.dart';
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/document/path.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:flutter/widgets.dart';
 
 Future<void> insertContextInText(
@@ -22,9 +22,8 @@ Future<void> insertContextInText(
 
   final completer = Completer<void>();
 
-  TransactionBuilder(editorState)
-    ..insertText(result, index, content)
-    ..commit();
+  editorState.transaction.insertText(result, index, content);
+  editorState.commit();
 
   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
     completer.complete();
