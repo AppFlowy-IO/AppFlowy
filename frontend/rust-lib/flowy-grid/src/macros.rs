@@ -52,7 +52,7 @@ macro_rules! impl_type_option {
             }
         }
 
-        impl TypeOptionDataFormat for $target {
+        impl TypeOptionDataSerializer for $target {
             fn json_str(&self) -> String {
                 match serde_json::to_string(&self) {
                     Ok(s) => s,

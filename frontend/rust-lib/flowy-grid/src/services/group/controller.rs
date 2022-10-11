@@ -87,7 +87,7 @@ pub trait GroupControllerActions: Send + Sync {
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
-/// T: the type option data deserializer that impl [TypeOptionDataDeserializer]
+/// T: the type-option data deserializer that impl [TypeOptionDataDeserializer]
 /// G: the group generator, [GroupGenerator]
 /// P: the parser that impl [CellBytesParser] for the CellBytes
 pub struct GenericGroupController<C, T, G, P> {

@@ -92,7 +92,7 @@ pub enum GridEvent {
     #[event(input = "FieldChangesetPayloadPB")]
     UpdateField = 11,
 
-    /// [UpdateFieldTypeOption] event is used to update the field's type option data. Certain field
+    /// [UpdateFieldTypeOption] event is used to update the field's type-option data. Certain field
     /// types have user-defined options such as color, date format, number format, or a list of values
     /// for a multi-select list. These options are defined within a specialization of the
     /// FieldTypeOption class.

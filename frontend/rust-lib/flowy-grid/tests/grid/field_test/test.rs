@@ -4,7 +4,7 @@ use crate::grid::field_test::util::*;
 use flowy_grid::entities::FieldChangesetParams;
 use flowy_grid::services::field::selection_type_option::SelectOptionPB;
 use flowy_grid::services::field::SingleSelectTypeOptionPB;
-use flowy_grid_data_model::revision::TypeOptionDataFormat;
+use flowy_grid_data_model::revision::TypeOptionDataSerializer;
 
 #[tokio::test]
 async fn grid_create_field() {
@@ -15,7 +15,7 @@ async fn grid_create_field() {
         CreateField { params },
         AssertFieldTypeOptionEqual {
             field_index: test.field_count(),
-            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty.clone()).unwrap(),
+            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty).unwrap(),
         },
     ];
     test.run_scripts(scripts).await;
@@ -25,7 +25,7 @@ async fn grid_create_field() {
         CreateField { params },
         AssertFieldTypeOptionEqual {
             field_index: test.field_count(),
-            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty.clone()).unwrap(),
+            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty).unwrap(),
         },
     ];
     test.run_scripts(scripts).await;
@@ -63,7 +63,7 @@ async fn grid_update_field_with_empty_change() {
         UpdateField { changeset },
         AssertFieldTypeOptionEqual {
             field_index: create_field_index,
-            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty.clone()).unwrap(),
+            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty).unwrap(),
         },
     ];
     test.run_scripts(scripts).await;
@@ -100,9 +100,7 @@ async fn grid_update_field() {
         UpdateField { changeset },
         AssertFieldTypeOptionEqual {
             field_index: create_field_index,
-            expected_type_option_data: expected_field_rev
-                .get_type_option_str(expected_field_rev.ty.clone())
-                .unwrap(),
+            expected_type_option_data: expected_field_rev.get_type_option_str(expected_field_rev.ty).unwrap(),
         },
     ];
     test.run_scripts(scripts).await;

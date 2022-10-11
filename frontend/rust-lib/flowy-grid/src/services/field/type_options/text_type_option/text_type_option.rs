@@ -8,7 +8,9 @@ use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
@@ -21,8 +23,11 @@ impl TypeOptionBuilder for RichTextTypeOptionBuilder {
         FieldType::RichText
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
+        // Do nothing
     }
 }
 

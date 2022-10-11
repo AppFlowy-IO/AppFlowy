@@ -187,9 +187,9 @@ impl GridViewManager {
         Ok(())
     }
 
-    /// Notifies the view's field type option data is changed
-    /// For the moment, only the groups will be generated after the type option data changed. A
-    /// [FieldRevision] has a property named type_options contains a list of type option data.
+    /// Notifies the view's field type-option data is changed
+    /// For the moment, only the groups will be generated after the type-option data changed. A
+    /// [FieldRevision] has a property named type_options contains a list of type-option data.
     /// # Arguments
     ///
     /// * `field_id`: the id of the field in current view

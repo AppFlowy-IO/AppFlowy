@@ -111,7 +111,7 @@ pub enum ErrorCode {
     #[display(fmt = "The operation in this field is invalid")]
     FieldInvalidOperation = 444,
 
-    #[display(fmt = "Field's type option data should not be empty")]
+    #[display(fmt = "Field's type-option data should not be empty")]
     TypeOptionDataIsEmpty = 450,
 
     #[display(fmt = "Group id is empty")]

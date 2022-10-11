@@ -79,7 +79,7 @@ impl FieldBuilder {
 
     pub fn build(self) -> FieldRevision {
         let mut field_rev = self.field_rev;
-        field_rev.insert_type_option(self.type_option_builder.data_format());
+        field_rev.insert_type_option(self.type_option_builder.serializer());
         field_rev
     }
 }
