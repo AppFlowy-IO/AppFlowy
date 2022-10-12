@@ -108,7 +108,7 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
 }
 
 impl CellDisplayable<String> for NumberTypeOptionPB {
-    fn display_data(
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<String>,
         _decoded_field_type: &FieldType,
@@ -121,7 +121,7 @@ impl CellDisplayable<String> for NumberTypeOptionPB {
         }
     }
 
-    fn display_string(
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<String>,
         _decoded_field_type: &FieldType,
@@ -143,7 +143,7 @@ impl CellDataOperation<String, String> for NumberTypeOptionPB {
             return Ok(CellBytes::default());
         }
 
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
