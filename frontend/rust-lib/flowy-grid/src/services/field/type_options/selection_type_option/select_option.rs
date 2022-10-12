@@ -115,7 +115,7 @@ impl<T> CellDisplayable<SelectOptionIds> for T
 where
     T: SelectOptionOperation,
 {
-    fn display_data(
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
@@ -128,7 +128,7 @@ where
         CellBytes::from(self.selected_select_option(cell_data))
     }
 
-    fn display_string(
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<SelectOptionIds>,
         _decoded_field_type: &FieldType,

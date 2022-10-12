@@ -39,7 +39,7 @@ pub struct URLTypeOptionPB {
 impl_type_option!(URLTypeOptionPB, FieldType::URL);
 
 impl CellDisplayable<URLCellDataPB> for URLTypeOptionPB {
-    fn display_data(
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<URLCellDataPB>,
         _decoded_field_type: &FieldType,
@@ -49,7 +49,7 @@ impl CellDisplayable<URLCellDataPB> for URLTypeOptionPB {
         CellBytes::from(cell_data)
     }
 
-    fn display_string(
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<URLCellDataPB>,
         _decoded_field_type: &FieldType,
@@ -70,7 +70,7 @@ impl CellDataOperation<URLCellDataPB, String> for URLTypeOptionPB {
         if !decoded_field_type.is_url() {
             return Ok(CellBytes::default());
         }
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(

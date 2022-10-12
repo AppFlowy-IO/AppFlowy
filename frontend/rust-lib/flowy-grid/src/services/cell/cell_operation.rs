@@ -18,14 +18,29 @@ pub trait CellGroupOperation {
 
 /// Return object that describes the cell.
 pub trait CellDisplayable<CD> {
-    fn display_data(
+    /// Serialize the cell data into `CellBytes` that will be posted to `Dart` side
+    ///
+    /// Using `utf8` to encode the cell data if the cell data using `String` as its data container.
+    /// Using `protobuf` to encode the cell data if the cell data using `Protobuf struct` as its data container.
+    ///
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<CD>,
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes>;
 
-    fn display_string(
+    /// Serialize the cell data into `String` that is readable
+    ///
+    /// The cell data is not readable which means it can't display the cell data directly to user.
+    /// For example,
+    /// 1. the cell data is timestamp if its field type is FieldType::Date that is not readable.
+    /// it needs to be parsed as the date string.
+    ///
+    /// 2. the cell data is a commas separated id if its field type if FieldType::MultiSelect that is not readable.
+    /// it needs to be parsed as a commas separated option name.
+    ///
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<CD>,
         decoded_field_type: &FieldType,
@@ -126,25 +141,25 @@ pub fn decode_cell_data_to_string(
         let result = match to_field_type {
             FieldType::RichText => field_rev
                 .get_type_option::<RichTextTypeOptionPB>(field_type)?
-                .display_string(cell_data.into(), from_field_type, field_rev),
+                .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
             FieldType::Number => field_rev
                 .get_type_option::<NumberTypeOptionPB>(field_type)?
-                .display_string(cell_data.into(), from_field_type, field_rev),
+                .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
             FieldType::DateTime => field_rev
                 .get_type_option::<DateTypeOptionPB>(field_type)?
-                .display_string(cell_data.into(), from_field_type, field_rev),
+                .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
             FieldType::SingleSelect => field_rev
                 .get_type_option::<SingleSelectTypeOptionPB>(field_type)?
-                .display_string(cell_data.into(), from_field_type, field_rev),
+                .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
             FieldType::MultiSelect => field_rev
                 .get_type_option::<MultiSelectTypeOptionPB>(field_type)?
-                .display_string(cell_data.into(), from_field_type, field_rev),
+                .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
             FieldType::Checkbox => field_rev
                 .get_type_option::<CheckboxTypeOptionPB>(field_type)?
-                .display_string(cell_data.into(), from_field_type, field_rev),
+                .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
             FieldType::URL => field_rev
                 .get_type_option::<URLTypeOptionPB>(field_type)?
-                .display_string(cell_data.into(), from_field_type, field_rev),
+                .displayed_cell_string(cell_data.into(), from_field_type, field_rev),
         };
         Some(result)
     };
