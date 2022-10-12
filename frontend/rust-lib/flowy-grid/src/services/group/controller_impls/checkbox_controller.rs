@@ -43,17 +43,37 @@ impl GroupAction for CheckboxGroupController {
         let mut changesets = vec![];
         self.group_ctx.iter_mut_all_groups(|group| {
             let mut changeset = GroupChangesetPB::new(group.id.clone());
-            let is_contained = group.contains_row(&row_rev.id);
-            if group.id == CHECK && cell_data.is_check() {
-                if !is_contained {
-                    let row_pb = RowPB::from(row_rev);
-                    changeset.inserted_rows.push(InsertedRowPB::new(row_pb.clone()));
-                    group.add_row(row_pb);
+            let is_not_contained = !group.contains_row(&row_rev.id);
+            if group.id == CHECK {
+                if cell_data.is_uncheck() {
+                    // Remove the row if the group.id is CHECK but the cell_data is UNCHECK
+                    changeset.deleted_rows.push(row_rev.id.clone());
+                    group.remove_row(&row_rev.id);
+                } else {
+                    // Add the row to the group if the group didn't contain the row
+                    if is_not_contained {
+                        let row_pb = RowPB::from(row_rev);
+                        changeset.inserted_rows.push(InsertedRowPB::new(row_pb.clone()));
+                        group.add_row(row_pb);
+                    }
                 }
-            } else if is_contained {
-                changeset.deleted_rows.push(row_rev.id.clone());
-                group.remove_row(&row_rev.id);
             }
+
+            if group.id == UNCHECK {
+                if cell_data.is_check() {
+                    // Remove the row if the group.id is UNCHECK but the cell_data is CHECK
+                    changeset.deleted_rows.push(row_rev.id.clone());
+                    group.remove_row(&row_rev.id);
+                } else {
+                    // Add the row to the group if the group didn't contain the row
+                    if is_not_contained {
+                        let row_pb = RowPB::from(row_rev);
+                        changeset.inserted_rows.push(InsertedRowPB::new(row_pb.clone()));
+                        group.add_row(row_pb);
+                    }
+                }
+            }
+
             if !changeset.is_empty() {
                 changesets.push(changeset);
             }

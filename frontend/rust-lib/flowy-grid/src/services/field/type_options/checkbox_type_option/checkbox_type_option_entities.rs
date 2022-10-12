@@ -12,6 +12,10 @@ impl CheckboxCellData {
     pub fn is_check(&self) -> bool {
         self.0 == CHECK
     }
+
+    pub fn is_uncheck(&self) -> bool {
+        self.0 == UNCHECK
+    }
 }
 
 impl AsRef<[u8]> for CheckboxCellData {
