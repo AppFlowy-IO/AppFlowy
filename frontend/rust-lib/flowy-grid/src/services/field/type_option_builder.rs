@@ -4,7 +4,10 @@ use bytes::Bytes;
 use flowy_grid_data_model::revision::TypeOptionDataSerializer;
 
 pub trait TypeOptionBuilder {
+    /// Returns the type of the type-option data
     fn field_type(&self) -> FieldType;
+
+    /// Returns a serializer that can be used to serialize the type-option data
     fn serializer(&self) -> &dyn TypeOptionDataSerializer;
 
     /// Transform the data from passed-in type-option to current type-option

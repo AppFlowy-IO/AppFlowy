@@ -1,5 +1,5 @@
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/single_select_type_option.pb.dart';
 import 'dart:async';
 import 'package:protobuf/protobuf.dart';
