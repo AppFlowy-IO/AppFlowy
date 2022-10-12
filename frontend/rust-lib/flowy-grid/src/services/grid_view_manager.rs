@@ -135,7 +135,7 @@ impl GridViewManager {
 
     pub(crate) async fn insert_or_update_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        view_editor.insert_group(params).await
+        view_editor.initialize_new_group(params).await
     }
 
     pub(crate) async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {

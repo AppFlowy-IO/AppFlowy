@@ -185,11 +185,20 @@ where
         });
 
         let mut old_groups = self.configuration.groups.clone();
-        if !old_groups.iter().any(|group| group.id == self.field_rev.id) {
-            old_groups.push(make_no_status_group(&self.field_rev));
+        // clear all the groups if grouping by a new field
+        if self.configuration.field_id != self.field_rev.id {
+            old_groups.clear();
         }
 
-        // The `all_group_revs` represents as the combination of the new groups and old groups
+        // When grouping by a new field, there is no `No status` group. So it needs
+        // to insert a `No status` group at index 0
+        // The `No status` group index is initialized to 0
+        //
+        if !old_groups.iter().any(|group| group.id == self.field_rev.id) {
+            old_groups.insert(0, make_no_status_group(&self.field_rev));
+        }
+
+        // The `all_group_revs` is the combination of the new groups and old groups
         let MergeGroupResult {
             mut all_group_revs,
             new_group_revs,
@@ -202,15 +211,17 @@ where
             .map(|group_rev| group_rev.id)
             .collect::<Vec<String>>();
 
-        // Delete/Insert the group in the current configuration
         self.mut_configuration(|configuration| {
-            let mut is_changed = false;
+            let mut is_changed = !deleted_group_ids.is_empty();
+
+            // Remove the groups
             if !deleted_group_ids.is_empty() {
                 configuration
                     .groups
                     .retain(|group| !deleted_group_ids.contains(&group.id));
-                is_changed = true;
             }
+
+            // Update/Insert new groups
             for group_rev in &mut all_group_revs {
                 match configuration
                     .groups
@@ -223,17 +234,14 @@ where
                         is_changed = true;
                     }
                     Some(pos) => {
-                        let mut old_group = configuration.groups.remove(pos);
-
+                        let mut old_group = configuration.groups.get_mut(pos).unwrap();
                         // Take the old group setting
                         group_rev.update_with_other(&old_group);
                         if !is_changed {
                             is_changed = is_group_changed(group_rev, &old_group);
                         }
-
                         // Consider the the name of the `group_rev` as the newest.
                         old_group.name = group_rev.name.clone();
-                        configuration.groups.insert(pos, old_group);
                     }
                 }
             }
@@ -331,6 +339,8 @@ where
     }
 }
 
+/// Merge the new groups into old groups while keeping the order in the old groups
+///
 fn merge_groups(old_groups: Vec<GroupRevision>, new_groups: Vec<GroupRevision>) -> MergeGroupResult {
     let mut merge_result = MergeGroupResult::new();
     // group_map is a helper map is used to filter out the new groups.
@@ -352,11 +362,10 @@ fn merge_groups(old_groups: Vec<GroupRevision>, new_groups: Vec<GroupRevision>) 
     }
 
     // Find out the new groups
-    new_group_map.reverse();
     let new_groups = new_group_map.into_values();
     for (_, group) in new_groups.into_iter().enumerate() {
-        merge_result.all_group_revs.insert(0, group.clone());
-        merge_result.new_group_revs.insert(0, group);
+        merge_result.all_group_revs.push(group.clone());
+        merge_result.new_group_revs.push(group);
     }
     merge_result
 }
