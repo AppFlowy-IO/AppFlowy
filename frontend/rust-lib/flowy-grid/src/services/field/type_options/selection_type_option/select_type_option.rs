@@ -2,7 +2,7 @@ use crate::entities::{CellChangesetPB, FieldType, GridCellIdPB, GridCellIdParams
 use crate::services::cell::{
     CellBytes, CellBytesParser, CellData, CellDataIsEmpty, CellDisplayable, FromCellChangeset, FromCellString,
 };
-use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
+use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, CHECK, UNCHECK};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
@@ -64,10 +64,7 @@ impl std::default::Default for SelectOptionColorPB {
     }
 }
 
-pub fn make_selected_select_options(
-    cell_data: CellData<SelectOptionIds>,
-    options: &[SelectOptionPB],
-) -> Vec<SelectOptionPB> {
+pub fn make_selected_options(cell_data: CellData<SelectOptionIds>, options: &[SelectOptionPB]) -> Vec<SelectOptionPB> {
     if let Ok(ids) = cell_data.try_into_inner() {
         ids.iter()
             .flat_map(|option_id| options.iter().find(|option| &option.id == option_id).cloned())
@@ -76,8 +73,11 @@ pub fn make_selected_select_options(
         vec![]
     }
 }
+/// Defines the shared actions used by SingleSelect or Multi-Select.
+pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
+    /// Returns `None` means there is no limited
+    fn number_of_max_options(&self) -> Option<usize>;
 
-pub trait SelectOptionOperation: TypeOptionDataSerializer + Send + Sync {
     /// Insert the `SelectOptionPB` into corresponding type option.
     fn insert_option(&mut self, new_option: SelectOptionPB) {
         let options = self.mut_options();
@@ -104,7 +104,60 @@ pub trait SelectOptionOperation: TypeOptionDataSerializer + Send + Sync {
         SelectOptionPB::with_color(name, color)
     }
 
-    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB;
+    /// Return a list of options that are selected by user
+    fn get_selected_options(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
+        let mut select_options = make_selected_options(cell_data, self.options());
+        match self.number_of_max_options() {
+            None => {}
+            Some(number_of_max_options) => {
+                select_options.truncate(number_of_max_options);
+            }
+        }
+        SelectOptionCellDataPB {
+            options: self.options().clone(),
+            select_options,
+        }
+    }
+
+    fn transform_type_option(&mut self, field_type: &FieldType, _type_option_data: String) {
+        match field_type {
+            FieldType::Checkbox => {
+                //add Yes and No options if it's not exist.
+                if !self.options().iter().any(|option| option.name == CHECK) {
+                    let check_option = SelectOptionPB::with_color(CHECK, SelectOptionColorPB::Green);
+                    self.mut_options().push(check_option);
+                }
+
+                if !self.options().iter().any(|option| option.name == UNCHECK) {
+                    let uncheck_option = SelectOptionPB::with_color(UNCHECK, SelectOptionColorPB::Yellow);
+                    self.mut_options().push(uncheck_option);
+                }
+            }
+            FieldType::MultiSelect => {}
+            _ => {}
+        }
+    }
+
+    fn transform_cell_data(
+        &self,
+        cell_data: CellData<SelectOptionIds>,
+        decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<CellBytes> {
+        match decoded_field_type {
+            FieldType::SingleSelect | FieldType::MultiSelect => {
+                // Do nothing
+            }
+            FieldType::Checkbox => {
+                // transform the cell data to the option id
+            }
+            _ => {
+                return Ok(CellBytes::default());
+            }
+        }
+
+        CellBytes::from(self.get_selected_options(cell_data))
+    }
 
     fn options(&self) -> &Vec<SelectOptionPB>;
 
@@ -113,19 +166,15 @@ pub trait SelectOptionOperation: TypeOptionDataSerializer + Send + Sync {
 
 impl<T> CellDisplayable<SelectOptionIds> for T
 where
-    T: SelectOptionOperation,
+    T: SelectTypeOptionSharedAction,
 {
     fn displayed_cell_bytes(
         &self,
         cell_data: CellData<SelectOptionIds>,
         decoded_field_type: &FieldType,
-        _field_rev: &FieldRevision,
+        field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        if !decoded_field_type.is_select_option() {
-            return Ok(CellBytes::default());
-        }
-
-        CellBytes::from(self.selected_select_option(cell_data))
+        self.transform_cell_data(cell_data, decoded_field_type, field_rev)
     }
 
     fn displayed_cell_string(
@@ -135,7 +184,7 @@ where
         _field_rev: &FieldRevision,
     ) -> FlowyResult<String> {
         Ok(self
-            .selected_select_option(cell_data)
+            .get_selected_options(cell_data)
             .select_options
             .into_iter()
             .map(|option| option.name)
@@ -144,7 +193,9 @@ where
     }
 }
 
-pub fn select_option_operation(field_rev: &FieldRevision) -> FlowyResult<Box<dyn SelectOptionOperation>> {
+pub fn select_type_option_from_field_rev(
+    field_rev: &FieldRevision,
+) -> FlowyResult<Box<dyn SelectTypeOptionSharedAction>> {
     let field_type: FieldType = field_rev.ty.into();
     match &field_type {
         FieldType::SingleSelect => {

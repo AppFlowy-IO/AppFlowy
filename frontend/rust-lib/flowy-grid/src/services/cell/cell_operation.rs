@@ -18,10 +18,30 @@ pub trait CellGroupOperation {
 
 /// Return object that describes the cell.
 pub trait CellDisplayable<CD> {
-    /// Serialize the cell data into `CellBytes` that will be posted to `Dart` side
+    /// Serialize the cell data into `CellBytes` that will be posted to the `Dart` side. Using the
+    /// corresponding protobuf struct implement in `Dart` to deserialize the data.
     ///
-    /// Using `utf8` to encode the cell data if the cell data using `String` as its data container.
-    /// Using `protobuf` to encode the cell data if the cell data using `Protobuf struct` as its data container.
+    /// Using `utf8` to encode the cell data if the cell data use `String` as its data container.
+    /// Using `protobuf` to encode the cell data if the cell data use `Protobuf struct` as its data container.
+    ///
+    /// When switching the field type of the `FieldRevision` to another field type. The `field_type`
+    /// of the `FieldRevision` is not equal to the `decoded_field_type`. The cell data is need to do
+    /// some custom transformation.
+    ///
+    /// For example, the current field type of the `FieldRevision` is a checkbox. When switching the field
+    /// type from the checkbox to single select, the `TypeOptionBuilder`'s transform method gets called.
+    /// It will create two new options,`Yes` and `No`, if they don't exist. But the cell data didn't change,
+    /// because we can't iterate all the rows to transform the cell data that can be parsed by the current
+    /// field type. One approach is to transform the cell data when it get read. For the moment,
+    /// the cell data is a string, `Yes` or `No`. It needs to compare with the option's name, if match
+    /// return the id of the option. Otherwise, return a default value of `CellBytes`.
+    ///
+    /// # Arguments
+    ///
+    /// * `cell_data`: the generic annotation `CD` represents as the deserialize data type of the cell.
+    /// * `decoded_field_type`: the field type of the cell_data when doing serialization
+    ///
+    /// returns: Result<CellBytes, FlowyError>
     ///
     fn displayed_cell_bytes(
         &self,
@@ -35,10 +55,10 @@ pub trait CellDisplayable<CD> {
     /// The cell data is not readable which means it can't display the cell data directly to user.
     /// For example,
     /// 1. the cell data is timestamp if its field type is FieldType::Date that is not readable.
-    /// it needs to be parsed as the date string.
+    /// It needs to be parsed as the date string.
     ///
     /// 2. the cell data is a commas separated id if its field type if FieldType::MultiSelect that is not readable.
-    /// it needs to be parsed as a commas separated option name.
+    /// It needs to be parsed as a commas separated option name.
     ///
     fn displayed_cell_string(
         &self,
@@ -48,16 +68,19 @@ pub trait CellDisplayable<CD> {
     ) -> FlowyResult<String>;
 }
 
-// CD: Short for CellData. This type is the type return by apply_changeset function.
-// CS: Short for Changeset. Parse the string into specific Changeset type.
 pub trait CellDataOperation<CD, CS> {
-    /// Decode the cell data into `CD` that is certain type of data.
+    /// The generic annotation `CD` represents as the deserialize data type of the cell data.
+    /// The Serialize/Deserialize struct of the cell is base on the field type of the cell.
     ///
-    /// Each `CD` type represents as a specific field type data. For example:
+    /// For example:
     /// FieldType::URL => URLCellData
     /// FieldType::Date=> DateCellData
     ///
-    /// `decoded_field_type`: the field type of the cell data
+    /// Each cell data is a opaque data, it needs to deserialized to a concrete data struct
+    ///
+    /// `cell_data`: the opaque data of the cell.
+    /// `decoded_field_type`: the field type of the cell data when doing serialization
+    /// `field_rev`: the field of the cell data
     ///
     /// Returns the error if the cell data can't be parsed into `CD`.
     ///
@@ -68,9 +91,12 @@ pub trait CellDataOperation<CD, CS> {
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes>;
 
-    /// The changeset is able to parse into the specific data if CS impl the FromCellChangeset trait.
+    /// The changeset is able to parse into the concrete data struct if CS implements  
+    /// the `FromCellChangeset` trait.
+    ///
     /// For example:
-    /// SelectOptionCellChangeset,DateCellChangeset. etc.  
+    /// SelectOptionCellChangeset,DateCellChangeset. etc.
+    ///  
     fn apply_changeset(&self, changeset: CellDataChangeset<CS>, cell_rev: Option<CellRevision>) -> FlowyResult<String>;
 }
 

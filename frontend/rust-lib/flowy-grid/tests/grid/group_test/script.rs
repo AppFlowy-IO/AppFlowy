@@ -4,7 +4,7 @@ use flowy_grid::entities::{
 };
 use flowy_grid::services::cell::{delete_select_option_cell, insert_select_option_cell};
 use flowy_grid::services::field::{
-    edit_single_select_type_option, SelectOptionOperation, SelectOptionPB, SingleSelectTypeOptionPB,
+    edit_single_select_type_option, SelectOptionPB, SelectTypeOptionSharedAction, SingleSelectTypeOptionPB,
 };
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset};
 use std::sync::Arc;
