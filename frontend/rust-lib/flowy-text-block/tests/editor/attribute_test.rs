@@ -3,7 +3,7 @@ use crate::editor::{TestBuilder, TestOp::*};
 use flowy_sync::client_document::{NewlineDoc, EmptyDoc};
 use lib_ot::core::{Interval, OperationTransform, NEW_LINE, WHITESPACE, OTString};
 use unicode_segmentation::UnicodeSegmentation;
-use lib_ot::text_delta::TextDelta;
+use lib_ot::text_delta::TextOperations;
 
 #[test]
 fn attributes_bold_added() {
@@ -762,12 +762,12 @@ fn attributes_preserve_list_format_on_merge() {
 
 #[test]
 fn delta_compose() {
-    let mut delta = TextDelta::from_json(r#"[{"insert":"\n"}]"#).unwrap();
+    let mut delta = TextOperations::from_json(r#"[{"insert":"\n"}]"#).unwrap();
     let deltas = vec![
-        TextDelta::from_json(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
-        TextDelta::from_json(r#"[{"insert":"a"}]"#).unwrap(),
-        TextDelta::from_json(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
-        TextDelta::from_json(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
+        TextOperations::from_json(r#"[{"retain":1,"attributes":{"list":"unchecked"}}]"#).unwrap(),
+        TextOperations::from_json(r#"[{"insert":"a"}]"#).unwrap(),
+        TextOperations::from_json(r#"[{"retain":1},{"insert":"\n","attributes":{"list":"unchecked"}}]"#).unwrap(),
+        TextOperations::from_json(r#"[{"retain":2},{"retain":1,"attributes":{"list":""}}]"#).unwrap(),
     ];
 
     for d in deltas {

@@ -19,6 +19,7 @@ class EditorWidgetTester {
   EditorState get editorState => _editorState;
   Node get root => _editorState.document.root;
 
+  Document get document => _editorState.document;
   int get documentLength => _editorState.document.root.children.length;
   Selection? get documentSelection =>
       _editorState.service.selectionService.currentSelection.value;
@@ -62,8 +63,7 @@ class EditorWidgetTester {
   void insertTextNode(String? text, {Attributes? attributes, Delta? delta}) {
     insert(
       TextNode(
-        type: 'text',
-        delta: delta ?? Delta([TextInsert(text ?? 'Test')]),
+        delta: delta ?? Delta(operations: [TextInsert(text ?? 'Test')]),
         attributes: attributes,
       ),
     );
@@ -102,7 +102,7 @@ class EditorWidgetTester {
       {Selection? selection}) async {
     await apply([
       TextEditingDeltaInsertion(
-        oldText: textNode.toRawString(),
+        oldText: textNode.toPlainText(),
         textInserted: text,
         insertionOffset: offset,
         selection: selection != null
@@ -155,7 +155,7 @@ class EditorWidgetTester {
 
   EditorState _createEmptyDocument() {
     return EditorState(
-      document: StateTree(
+      document: Document(
         root: _createEmptyEditorRoot(),
       ),
     )..disableSealTimer = true;

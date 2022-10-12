@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
@@ -43,7 +43,11 @@ class RichTextNodeWidget extends BuiltInTextWidget {
 // customize
 
 class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with
+        SelectableMixin,
+        DefaultSelectable,
+        BuiltInStyleMixin,
+        BuiltInTextWidgetMixin {
   @override
   GlobalKey? get iconKey => null;
 
@@ -59,7 +63,7 @@ class _RichTextNodeWidgetState extends State<RichTextNodeWidget>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildWithSingle(BuildContext context) {
     return Padding(
       padding: padding,
       child: FlowyRichText(

@@ -4,7 +4,7 @@ use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError};
 use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_sync::{
-    client_document::default::initial_quill_delta_string,
+    client_document::default::initial_document_str,
     entities::{
         text_block::{CreateTextBlockParams, DocumentPB, ResetTextBlockParams, TextBlockIdPB},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
@@ -422,7 +422,7 @@ impl TextEditorCloudService for LocalServer {
     fn read_text_block(&self, _token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError> {
         let doc = DocumentPB {
             block_id: params.value,
-            text: initial_quill_delta_string(),
+            text: initial_document_str(),
             rev_id: 0,
             base_rev_id: 0,
         };

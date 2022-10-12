@@ -2,7 +2,6 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
@@ -75,10 +74,10 @@ void main() async {
       expect(lastNode != null, true);
       expect(lastNode is TextNode, true);
       lastNode = lastNode as TextNode;
-      expect(lastNode.delta.toRawString(), text);
-      expect((lastNode.previous as TextNode).delta.toRawString(), '');
+      expect(lastNode.delta.toPlainText(), text);
+      expect((lastNode.previous as TextNode).delta.toPlainText(), '');
       expect(
-          (lastNode.previous!.previous as TextNode).delta.toRawString(), text);
+          (lastNode.previous!.previous as TextNode).delta.toPlainText(), text);
     });
 
     // Before
@@ -135,7 +134,7 @@ void main() async {
       );
       await editor.pressLogicKey(LogicalKeyboardKey.enter);
       expect(editor.documentLength, 2);
-      expect((editor.nodeAtPath([1]) as TextNode).toRawString(), text);
+      expect((editor.nodeAtPath([1]) as TextNode).toPlainText(), text);
     });
   });
 }
@@ -171,13 +170,27 @@ Future<void> _testStyleNeedToBeCopy(WidgetTester tester, String style) async {
     LogicalKeyboardKey.enter,
   );
   expect(editor.documentSelection, Selection.single(path: [4], startOffset: 0));
-  expect(editor.nodeAtPath([4])?.subtype, style);
 
-  await editor.pressLogicKey(
-    LogicalKeyboardKey.enter,
-  );
-  expect(editor.documentSelection, Selection.single(path: [4], startOffset: 0));
-  expect(editor.nodeAtPath([4])?.subtype, null);
+  if ([BuiltInAttributeKey.heading, BuiltInAttributeKey.quote]
+      .contains(style)) {
+    expect(editor.nodeAtPath([4])?.subtype, null);
+
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.enter,
+    );
+    expect(
+        editor.documentSelection, Selection.single(path: [5], startOffset: 0));
+    expect(editor.nodeAtPath([5])?.subtype, null);
+  } else {
+    expect(editor.nodeAtPath([4])?.subtype, style);
+
+    await editor.pressLogicKey(
+      LogicalKeyboardKey.enter,
+    );
+    expect(
+        editor.documentSelection, Selection.single(path: [4], startOffset: 0));
+    expect(editor.nodeAtPath([4])?.subtype, null);
+  }
 }
 
 Future<void> _testMultipleSelection(
@@ -214,6 +227,6 @@ Future<void> _testMultipleSelection(
   );
 
   expect(editor.documentLength, 2);
-  expect((editor.nodeAtPath([0]) as TextNode).toRawString(), 'Welcome');
-  expect((editor.nodeAtPath([1]) as TextNode).toRawString(), 'to Appflowy 😁');
+  expect((editor.nodeAtPath([0]) as TextNode).toPlainText(), 'Welcome');
+  expect((editor.nodeAtPath([1]) as TextNode).toPlainText(), 'to Appflowy 😁');
 }

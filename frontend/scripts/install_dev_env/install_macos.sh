@@ -22,9 +22,9 @@ printError() {
 printMessage "The Rust programming language is required to compile AppFlowy."
 printMessage "We can install it now if you don't already have it on your system."
 
-read -p "$(printSuccess "Do you want to install Rust? [Y/N]") " installrust
+read -p "$(printSuccess "Do you want to install Rust? [y/N]") " installrust
 
-if [ ${installrust} == "Y" ] || [ ${installrust} == "y" ]; then
+if [[ "${installrust:-N}" == [Yy] ]]; then
    printMessage "Installing Rust."
    brew install rustup-init
    rustup-init -y --default-toolchain=stable
@@ -60,7 +60,7 @@ tar -zxv --directory .githooks/. -f ${GOLINT_FILENAME} gitlint
 rm ${GOLINT_FILENAME}
 
 # Change to the frontend directory
-cd frontend
+cd frontend || exit 1
 
 # Install cargo make
 printMessage "Installing cargo-make."

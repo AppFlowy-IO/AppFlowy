@@ -1,9 +1,8 @@
+import 'dart:collection';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import 'package:appflowy_editor/src/extensions/path_extensions.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import './number_list_helper.dart';
 
 /// Handle some cases where enter is pressed and shift is not pressed.
@@ -16,10 +15,6 @@ import './number_list_helper.dart';
 ///   2.2 or insert a empty text node before.
 ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     (editorState, event) {
-  if (event.logicalKey != LogicalKeyboardKey.enter || event.isShiftPressed) {
-    return KeyEventResult.ignored;
-  }
-
   var selection = editorState.service.selectionService.currentSelection.value;
   var nodes = editorState.service.selectionService.currentSelectedNodes;
   if (selection == null) {
@@ -44,11 +39,11 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     final afterSelection = Selection.collapsed(
       Position(path: textNodes.first.path.next, offset: 0),
     );
-    TransactionBuilder(editorState)
+    editorState.transaction
       ..deleteText(
         textNodes.first,
         selection.start.offset,
-        textNodes.first.toRawString().length,
+        textNodes.first.toPlainText().length,
       )
       ..deleteNodes(subTextNodes)
       ..deleteText(
@@ -56,8 +51,8 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
         0,
         selection.end.offset,
       )
-      ..afterSelection = afterSelection
-      ..commit();
+      ..afterSelection = afterSelection;
+    editorState.commit();
 
     if (startNode is TextNode &&
         startNode.subtype == BuiltInAttributeKey.numberList) {
@@ -78,16 +73,16 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
   // If selection is collapsed and position.start.offset == 0,
   //  insert a empty text node before.
   if (selection.isCollapsed && selection.start.offset == 0) {
-    if (textNode.toRawString().isEmpty && textNode.subtype != null) {
+    if (textNode.toPlainText().isEmpty && textNode.subtype != null) {
       final afterSelection = Selection.collapsed(
         Position(path: textNode.path, offset: 0),
       );
-      TransactionBuilder(editorState)
+      editorState.transaction
         ..updateNode(textNode, {
           BuiltInAttributeKey.subtype: null,
         })
-        ..afterSelection = afterSelection
-        ..commit();
+        ..afterSelection = afterSelection;
+      editorState.commit();
 
       final nextNode = textNode.next;
       if (nextNode is TextNode &&
@@ -110,24 +105,32 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
             BuiltInAttributeKey.numberList;
         newNode.attributes[BuiltInAttributeKey.number] = prevNumber;
         final insertPath = textNode.path;
-        TransactionBuilder(editorState)
+        editorState.transaction
           ..insertNode(
             insertPath,
             newNode,
           )
-          ..afterSelection = afterSelection
-          ..commit();
+          ..afterSelection = afterSelection;
+        editorState.commit();
 
         makeFollowingNodesIncremental(editorState, insertPath, afterSelection,
             beginNum: prevNumber);
       } else {
-        TransactionBuilder(editorState)
+        bool needCopyAttributes = ![
+          BuiltInAttributeKey.heading,
+          BuiltInAttributeKey.quote,
+        ].contains(subtype);
+        editorState.transaction
           ..insertNode(
             textNode.path,
-            TextNode.empty(),
+            textNode.copyWith(
+              children: LinkedList(),
+              delta: Delta(),
+              attributes: needCopyAttributes ? null : {},
+            ),
           )
-          ..afterSelection = afterSelection
-          ..commit();
+          ..afterSelection = afterSelection;
+        editorState.commit();
       }
     }
     return KeyEventResult.handled;
@@ -142,21 +145,25 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     Position(path: nextPath, offset: 0),
   );
 
-  TransactionBuilder(editorState)
-    ..insertNode(
-      textNode.path.next,
-      textNode.copyWith(
-        attributes: attributes,
-        delta: textNode.delta.slice(selection.end.offset),
-      ),
-    )
-    ..deleteText(
-      textNode,
-      selection.start.offset,
-      textNode.toRawString().length - selection.start.offset,
-    )
-    ..afterSelection = afterSelection
-    ..commit();
+  final transaction = editorState.transaction;
+  transaction.insertNode(
+    textNode.path.next,
+    textNode.copyWith(
+      attributes: attributes,
+      delta: textNode.delta.slice(selection.end.offset),
+    ),
+  );
+  transaction.deleteText(
+    textNode,
+    selection.start.offset,
+    textNode.toPlainText().length - selection.start.offset,
+  );
+  if (textNode.children.isNotEmpty) {
+    final children = textNode.children.toList(growable: false);
+    transaction.deleteNodes(children);
+  }
+  transaction.afterSelection = afterSelection;
+  editorState.commit();
 
   // If the new type of a text node is number list,
   // the numbers of the following nodes should be incremental.
@@ -170,7 +177,9 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
 Attributes _attributesFromPreviousLine(TextNode textNode) {
   final prevAttributes = textNode.attributes;
   final subType = textNode.subtype;
-  if (subType == null || subType == BuiltInAttributeKey.heading) {
+  if (subType == null ||
+      subType == BuiltInAttributeKey.heading ||
+      subType == BuiltInAttributeKey.quote) {
     return {};
   }
 

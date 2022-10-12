@@ -1,12 +1,12 @@
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/document/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/core/location/position.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
 import './number_list_helper.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 
@@ -44,7 +44,7 @@ ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
 
   final numberMatch = _numberRegex.firstMatch(text);
 
@@ -99,15 +99,14 @@ KeyEventResult _toNumberList(EditorState editorState, TextNode textNode,
   ));
 
   final insertPath = textNode.path;
-
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, 0, matchText.length)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.numberList,
       BuiltInAttributeKey.number: numValue
     })
-    ..afterSelection = afterSelection
-    ..commit();
+    ..afterSelection = afterSelection;
+  editorState.commit();
 
   makeFollowingNodesIncremental(editorState, insertPath, afterSelection);
 
@@ -118,7 +117,7 @@ KeyEventResult _toBulletedList(EditorState editorState, TextNode textNode) {
   if (textNode.subtype == BuiltInAttributeKey.bulletedList) {
     return KeyEventResult.ignored;
   }
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, 0, 1)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
@@ -128,8 +127,8 @@ KeyEventResult _toBulletedList(EditorState editorState, TextNode textNode) {
         path: textNode.path,
         offset: 0,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
   return KeyEventResult.handled;
 }
 
@@ -140,18 +139,18 @@ KeyEventResult _toCheckboxList(EditorState editorState, TextNode textNode) {
   final String symbol;
   bool check = false;
   final symbols = List<String>.from(_checkboxListSymbols)
-    ..retainWhere(textNode.toRawString().startsWith);
+    ..retainWhere(textNode.toPlainText().startsWith);
   if (symbols.isNotEmpty) {
     symbol = symbols.first;
     check = true;
   } else {
     symbol = (List<String>.from(_unCheckboxListSymbols)
-          ..retainWhere(textNode.toRawString().startsWith))
+          ..retainWhere(textNode.toPlainText().startsWith))
         .first;
     check = false;
   }
 
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, 0, symbol.length)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
@@ -162,22 +161,22 @@ KeyEventResult _toCheckboxList(EditorState editorState, TextNode textNode) {
         path: textNode.path,
         offset: 0,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
   return KeyEventResult.handled;
 }
 
 KeyEventResult _toHeadingStyle(
     EditorState editorState, TextNode textNode, Selection selection) {
   final x = _countOfSign(
-    textNode.toRawString(),
+    textNode.toPlainText(),
     selection,
   );
   final hX = 'h$x';
   if (textNode.attributes.heading == hX) {
     return KeyEventResult.ignored;
   }
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, 0, x)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
@@ -188,8 +187,8 @@ KeyEventResult _toHeadingStyle(
         path: textNode.path,
         offset: 0,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
   return KeyEventResult.handled;
 }
 

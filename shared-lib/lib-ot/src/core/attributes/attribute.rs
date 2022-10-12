@@ -5,8 +5,6 @@ use std::collections::HashMap;
 use std::fmt;
 use std::fmt::Display;
 
-pub type AttributeMap = HashMap<AttributeKey, AttributeValue>;
-
 #[derive(Debug, Clone)]
 pub struct AttributeEntry {
     pub key: AttributeKey,
@@ -20,37 +18,37 @@ impl AttributeEntry {
     }
 }
 
-impl std::convert::From<AttributeEntry> for Attributes {
+impl std::convert::From<AttributeEntry> for AttributeHashMap {
     fn from(entry: AttributeEntry) -> Self {
-        let mut attributes = Attributes::new();
+        let mut attributes = AttributeHashMap::new();
         attributes.insert_entry(entry);
         attributes
     }
 }
 
 #[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
-pub struct Attributes(AttributeMap);
+pub struct AttributeHashMap(HashMap<AttributeKey, AttributeValue>);
 
-impl std::ops::Deref for Attributes {
-    type Target = AttributeMap;
+impl std::ops::Deref for AttributeHashMap {
+    type Target = HashMap<AttributeKey, AttributeValue>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl std::ops::DerefMut for Attributes {
+impl std::ops::DerefMut for AttributeHashMap {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
 }
 
-impl Attributes {
-    pub fn new() -> Attributes {
-        Attributes(HashMap::new())
+impl AttributeHashMap {
+    pub fn new() -> AttributeHashMap {
+        AttributeHashMap(HashMap::new())
     }
 
-    pub fn from_value(attribute_map: AttributeMap) -> Self {
+    pub fn from_value(attribute_map: HashMap<AttributeKey, AttributeValue>) -> Self {
         Self(attribute_map)
     }
 
@@ -91,7 +89,7 @@ impl Attributes {
 
     /// Create a new key/value map by constructing new attributes from the other
     /// if it's not None and replace the key/value with self key/value.
-    pub fn merge(&mut self, other: Option<Attributes>) {
+    pub fn merge(&mut self, other: Option<AttributeHashMap>) {
         if other.is_none() {
             return;
         }
@@ -108,7 +106,7 @@ impl Attributes {
     }
 }
 
-impl Display for Attributes {
+impl Display for AttributeHashMap {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for (key, value) in self.0.iter() {
             let _ = f.write_str(&format!("{:?}:{:?}", key, value))?;
@@ -117,21 +115,21 @@ impl Display for Attributes {
     }
 }
 
-impl OperationAttributes for Attributes {
+impl OperationAttributes for AttributeHashMap {
     fn is_empty(&self) -> bool {
         self.is_empty()
     }
 
-    fn remove_empty(&mut self) {
+    fn remove(&mut self) {
         self.retain(|_, v| v.value.is_some());
     }
 
-    fn extend_other(&mut self, other: Self) {
+    fn extend(&mut self, other: Self) {
         self.0.extend(other.0);
     }
 }
 
-impl OperationTransform for Attributes {
+impl OperationTransform for AttributeHashMap {
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
         Self: Sized,
@@ -145,25 +143,27 @@ impl OperationTransform for Attributes {
     where
         Self: Sized,
     {
-        let a = self.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
+        let a = self.iter().fold(AttributeHashMap::new(), |mut new_attributes, (k, v)| {
             if !other.contains_key(k) {
                 new_attributes.insert(k.clone(), v.clone());
             }
             new_attributes
         });
 
-        let b = other.iter().fold(Attributes::new(), |mut new_attributes, (k, v)| {
-            if !self.contains_key(k) {
-                new_attributes.insert(k.clone(), v.clone());
-            }
-            new_attributes
-        });
+        let b = other
+            .iter()
+            .fold(AttributeHashMap::new(), |mut new_attributes, (k, v)| {
+                if !self.contains_key(k) {
+                    new_attributes.insert(k.clone(), v.clone());
+                }
+                new_attributes
+            });
 
         Ok((a, b))
     }
 
     fn invert(&self, other: &Self) -> Self {
-        let base_inverted = other.iter().fold(Attributes::new(), |mut attributes, (k, v)| {
+        let base_inverted = other.iter().fold(AttributeHashMap::new(), |mut attributes, (k, v)| {
             if other.get(k) != self.get(k) && self.contains_key(k) {
                 attributes.insert(k.clone(), v.clone());
             }
@@ -275,7 +275,7 @@ impl std::convert::From<String> for AttributeValue {
 
 #[derive(Default)]
 pub struct AttributeBuilder {
-    attributes: Attributes,
+    attributes: AttributeHashMap,
 }
 
 impl AttributeBuilder {
@@ -298,7 +298,7 @@ impl AttributeBuilder {
         self
     }
 
-    pub fn build(self) -> Attributes {
+    pub fn build(self) -> AttributeHashMap {
         self.attributes
     }
 }

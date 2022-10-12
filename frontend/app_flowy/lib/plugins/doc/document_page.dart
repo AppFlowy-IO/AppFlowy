@@ -14,9 +14,14 @@ import 'application/doc_bloc.dart';
 import 'styles.dart';
 
 class DocumentPage extends StatefulWidget {
+  final VoidCallback onDeleted;
   final ViewPB view;
 
-  DocumentPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
+  DocumentPage({
+    required this.view,
+    required this.onDeleted,
+    Key? key,
+  }) : super(key: ValueKey(view.id));
 
   @override
   State<DocumentPage> createState() => _DocumentPageState();
@@ -48,7 +53,8 @@ class _DocumentPageState extends State<DocumentPage> {
           finish: (result) => result.successOrFail.fold(
             (_) {
               if (state.forceClose) {
-                return _renderAppPage();
+                widget.onDeleted();
+                return const SizedBox();
               } else {
                 return _renderDocument(context, state);
               }
@@ -128,16 +134,10 @@ class _DocumentPageState extends State<DocumentPage> {
 
   Widget _renderToolbar(quill.QuillController controller) {
     return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSettingModel>(context, listen: true),
+      value: Provider.of<AppearanceSetting>(context, listen: true),
       child: EditorToolbar.basic(
         controller: controller,
       ),
-    );
-  }
-
-  Widget _renderAppPage() {
-    return Container(
-      color: Colors.black,
     );
   }
 }

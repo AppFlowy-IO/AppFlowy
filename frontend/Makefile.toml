@@ -14,7 +14,7 @@ extend = [
 on_error_task = "catch"
 
 [tasks.catch]
-run_task = {name = ["restore-crate-type"]}
+run_task = { name = ["restore-crate-type"] }
 
 [env]
 RUST_LOG = "info"
@@ -22,7 +22,7 @@ CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 CARGO_MAKE_CRATE_FS_NAME = "dart_ffi"
 CARGO_MAKE_CRATE_NAME = "dart-ffi"
 LIB_NAME = "dart_ffi"
-CURRENT_APP_VERSION = "0.0.5.1"
+CURRENT_APP_VERSION = "0.0.5.2"
 FEATURES = "flutter"
 PRODUCT_NAME = "AppFlowy"
 # CRATE_TYPE: https://doc.rust-lang.org/reference/linkage.html
@@ -42,8 +42,8 @@ PRODUCT_NAME = "AppFlowy"
 CRATE_TYPE = "staticlib"
 SDK_EXT = "a"
 APP_ENVIRONMENT = "local"
-FLUTTER_FLOWY_SDK_PATH="app_flowy/packages/flowy_sdk"
-PROTOBUF_DERIVE_CACHE="../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
+FLUTTER_FLOWY_SDK_PATH = "app_flowy/packages/flowy_sdk"
+PROTOBUF_DERIVE_CACHE = "../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
 
 [env.development-mac-arm64]
 RUST_LOG = "info"
@@ -139,8 +139,7 @@ LINUX_ARCH = "arm64"
 APP_ENVIRONMENT = "production"
 
 [tasks.echo_env]
-script = [
-    '''
+script = ['''
     echo "-------- Env Parameters --------"
     echo CRATE_TYPE: ${CRATE_TYPE}
     echo BUILD_FLAG: ${BUILD_FLAG}
@@ -151,8 +150,7 @@ script = [
     echo APP_ENVIRONMENT: ${APP_ENVIRONMENT}
     echo ${platforms}
     echo ${BUILD_ARCHS}
-    '''
-]
+    ''']
 script_runner = "@shell"
 
 [env.production-ios]
@@ -166,6 +164,14 @@ BUILD_FLAG = "debug"
 TARGET_OS = "android"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
+FEATURES = "flutter,openssl_vendored"
+
+[env.production-android]
+BUILD_FLAG = "release"
+TARGET_OS = "android"
+CRATE_TYPE = "cdylib"
+FLUTTER_OUTPUT_DIR = "Release"
+FEATURES = "flutter,openssl_vendored"
 
 [tasks.setup-crate-type]
 private = true
@@ -192,11 +198,9 @@ script = [
 script_runner = "@duckscript"
 
 [tasks.test-build]
-condition = { env_set = [ "FLUTTER_FLOWY_SDK_PATH"] }
-script = [
-    """
+condition = { env_set = ["FLUTTER_FLOWY_SDK_PATH"] }
+script = ["""
       cd ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/flowy-net
       cargo build -vv --features=dart
-      """,
-]
+      """]
 script_runner = "@shell"

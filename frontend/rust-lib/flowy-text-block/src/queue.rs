@@ -3,18 +3,18 @@ use crate::TextEditorUser;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_revision::{DeltaMD5, RevisionCompactor, RevisionManager, RichTextTransformDeltas, TransformDeltas};
-use flowy_sync::util::make_delta_from_revisions;
+use flowy_revision::{OperationsMD5, RevisionCompactor, RevisionManager, RichTextTransformDeltas, TransformDeltas};
+use flowy_sync::util::make_operations_from_revisions;
 use flowy_sync::{
     client_document::{history::UndoResult, ClientDocument},
     entities::revision::{RevId, Revision},
     errors::CollaborateError,
 };
 use futures::stream::StreamExt;
-use lib_ot::core::{AttributeEntry, Attributes};
+use lib_ot::core::{AttributeEntry, AttributeHashMap};
 use lib_ot::{
     core::{Interval, OperationTransform},
-    text_delta::TextDelta,
+    text_delta::TextOperations,
 };
 use std::sync::Arc;
 use tokio::sync::{oneshot, RwLock};
@@ -32,10 +32,10 @@ impl EditBlockQueue {
     pub(crate) fn new(
         user: Arc<dyn TextEditorUser>,
         rev_manager: Arc<RevisionManager>,
-        delta: TextDelta,
+        delta: TextOperations,
         receiver: EditorCommandReceiver,
     ) -> Self {
-        let document = Arc::new(RwLock::new(ClientDocument::from_delta(delta)));
+        let document = Arc::new(RwLock::new(ClientDocument::from_operations(delta)));
         Self {
             document,
             user,
@@ -69,7 +69,7 @@ impl EditBlockQueue {
         match command {
             EditorCommand::ComposeLocalDelta { delta, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_delta(delta.clone())?;
+                let _ = document.compose_operations(delta.clone())?;
                 let md5 = document.md5();
                 drop(document);
                 let _ = self.save_local_delta(delta, md5).await?;
@@ -77,14 +77,14 @@ impl EditBlockQueue {
             }
             EditorCommand::ComposeRemoteDelta { client_delta, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_delta(client_delta.clone())?;
+                let _ = document.compose_operations(client_delta.clone())?;
                 let md5 = document.md5();
                 drop(document);
                 let _ = ret.send(Ok(md5));
             }
             EditorCommand::ResetDelta { delta, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.set_delta(delta);
+                let _ = document.set_operations(delta);
                 let md5 = document.md5();
                 drop(document);
                 let _ = ret.send(Ok(md5));
@@ -92,14 +92,14 @@ impl EditBlockQueue {
             EditorCommand::TransformDelta { delta, ret } => {
                 let f = || async {
                     let read_guard = self.document.read().await;
-                    let mut server_prime: Option<TextDelta> = None;
-                    let client_prime: TextDelta;
+                    let mut server_prime: Option<TextOperations> = None;
+                    let client_prime: TextOperations;
 
                     if read_guard.is_empty() {
                         // Do nothing
                         client_prime = delta;
                     } else {
-                        let (s_prime, c_prime) = read_guard.delta().transform(&delta)?;
+                        let (s_prime, c_prime) = read_guard.get_operations().transform(&delta)?;
                         client_prime = c_prime;
                         server_prime = Some(s_prime);
                     }
@@ -151,31 +151,31 @@ impl EditBlockQueue {
             }
             EditorCommand::Undo { ret } => {
                 let mut write_guard = self.document.write().await;
-                let UndoResult { delta } = write_guard.undo()?;
+                let UndoResult { operations: delta } = write_guard.undo()?;
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::Redo { ret } => {
                 let mut write_guard = self.document.write().await;
-                let UndoResult { delta } = write_guard.redo()?;
+                let UndoResult { operations: delta } = write_guard.redo()?;
                 let md5 = write_guard.md5();
                 let _ = self.save_local_delta(delta, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::ReadDeltaStr { ret } => {
-                let data = self.document.read().await.delta_str();
+                let data = self.document.read().await.get_operations_json();
                 let _ = ret.send(Ok(data));
             }
             EditorCommand::ReadDelta { ret } => {
-                let delta = self.document.read().await.delta().clone();
+                let delta = self.document.read().await.get_operations().clone();
                 let _ = ret.send(Ok(delta));
             }
         }
         Ok(())
     }
 
-    async fn save_local_delta(&self, delta: TextDelta, md5: String) -> Result<RevId, FlowyError> {
+    async fn save_local_delta(&self, delta: TextOperations, md5: String) -> Result<RevId, FlowyError> {
         let delta_data = delta.json_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let user_id = self.user.user_id()?;
@@ -195,7 +195,7 @@ impl EditBlockQueue {
 pub(crate) struct TextBlockRevisionCompactor();
 impl RevisionCompactor for TextBlockRevisionCompactor {
     fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_delta_from_revisions::<Attributes>(revisions)?;
+        let delta = make_operations_from_revisions::<AttributeHashMap>(revisions)?;
         Ok(delta.json_bytes())
     }
 }
@@ -204,19 +204,19 @@ pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
 
 pub(crate) enum EditorCommand {
     ComposeLocalDelta {
-        delta: TextDelta,
+        delta: TextOperations,
         ret: Ret<()>,
     },
     ComposeRemoteDelta {
-        client_delta: TextDelta,
-        ret: Ret<DeltaMD5>,
+        client_delta: TextOperations,
+        ret: Ret<OperationsMD5>,
     },
     ResetDelta {
-        delta: TextDelta,
-        ret: Ret<DeltaMD5>,
+        delta: TextOperations,
+        ret: Ret<OperationsMD5>,
     },
     TransformDelta {
-        delta: TextDelta,
+        delta: TextOperations,
         ret: Ret<RichTextTransformDeltas>,
     },
     Insert {
@@ -255,7 +255,7 @@ pub(crate) enum EditorCommand {
     },
     #[allow(dead_code)]
     ReadDelta {
-        ret: Ret<TextDelta>,
+        ret: Ret<TextOperations>,
     },
 }
 

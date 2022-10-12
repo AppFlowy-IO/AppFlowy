@@ -61,13 +61,20 @@ class ActionList {
       itemBuilder: (context, index) => items[index],
       anchorContext: anchorContext,
       anchorDirection: AnchorDirection.bottomRight,
-      width: 120,
-      height: 80,
+      constraints: BoxConstraints(
+        minWidth: 120,
+        maxWidth: 280,
+        minHeight: items.length * (CreateItem.height),
+        maxHeight: items.length * (CreateItem.height),
+      ),
     );
   }
 }
 
 class CreateItem extends StatelessWidget {
+  static const double height = 30;
+  static const double verticalPadding = 6;
+
   final PluginBuilder pluginBuilder;
   final Function(PluginBuilder) onSelected;
   const CreateItem({
@@ -86,11 +93,20 @@ class CreateItem extends StatelessWidget {
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => onSelected(pluginBuilder),
-        child: FlowyText.medium(
-          pluginBuilder.menuName,
-          color: theme.textColor,
-          fontSize: 12,
-        ).padding(horizontal: 10, vertical: 6),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: 120,
+            minHeight: CreateItem.height,
+          ),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: FlowyText.medium(
+              pluginBuilder.menuName,
+              color: theme.textColor,
+              fontSize: 12,
+            ).padding(horizontal: 10),
+          ),
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_detail_bloc.dart';
+import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -15,7 +16,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 
 import '../../layout/sizes.dart';
 import '../cell/cell_accessory.dart';
@@ -112,67 +113,61 @@ class _PropertyList extends StatelessWidget {
       builder: (context, state) {
         return Column(
           children: [
-            Expanded(
-              child: ScrollbarListStack(
-                axis: Axis.vertical,
-                controller: _scrollController,
-                barSize: GridSize.scrollBarSize,
-                autoHideScrollbar: false,
-                child: ListView.separated(
-                  controller: _scrollController,
-                  itemCount: state.gridCells.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return _RowDetailCell(
-                      cellId: state.gridCells[index],
-                      cellBuilder: cellBuilder,
-                    );
-                  },
-                  separatorBuilder: (BuildContext context, int index) {
-                    return const VSpace(2);
-                  },
-                ),
-              ),
-            ),
+            Expanded(child: _wrapScrollbar(buildList(state))),
             const VSpace(10),
             _CreateFieldButton(
               viewId: viewId,
-              onClosed: () {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _scrollController.animateTo(
-                    _scrollController.position.maxScrollExtent,
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.ease,
-                  );
-                });
-              },
-              onOpened: (controller) {
-                return FieldEditor(
-                  gridId: viewId,
-                  typeOptionLoader: NewFieldTypeOptionLoader(gridId: viewId),
-                  onDeleted: (fieldId) {
-                    controller.close();
-                    context
-                        .read<RowDetailBloc>()
-                        .add(RowDetailEvent.deleteField(fieldId));
-                  },
-                );
-              },
+              onClosed: _handleDidCreateField,
             ),
           ],
         );
       },
     );
   }
+
+  Widget buildList(RowDetailState state) {
+    return ListView.separated(
+      controller: _scrollController,
+      itemCount: state.gridCells.length,
+      itemBuilder: (BuildContext context, int index) {
+        return _RowDetailCell(
+          cellId: state.gridCells[index],
+          cellBuilder: cellBuilder,
+        );
+      },
+      separatorBuilder: (BuildContext context, int index) {
+        return const VSpace(2);
+      },
+    );
+  }
+
+  Widget _wrapScrollbar(Widget child) {
+    return ScrollbarListStack(
+      axis: Axis.vertical,
+      controller: _scrollController,
+      barSize: GridSize.scrollBarSize,
+      autoHideScrollbar: false,
+      child: child,
+    );
+  }
+
+  void _handleDidCreateField() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.ease,
+      );
+    });
+  }
 }
 
 class _CreateFieldButton extends StatefulWidget {
   final String viewId;
-  final Widget Function(PopoverController) onOpened;
   final VoidCallback onClosed;
 
   const _CreateFieldButton({
     required this.viewId,
-    required this.onOpened,
     required this.onClosed,
     Key? key,
   }) : super(key: key);
@@ -194,10 +189,9 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
   Widget build(BuildContext context) {
     final theme = context.read<AppTheme>();
 
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(240, 200)),
       controller: popoverController,
-      triggerActions: PopoverTriggerActionFlags.click,
       direction: PopoverDirection.topWithLeftAligned,
       onClose: widget.onClosed,
       child: Container(
@@ -213,8 +207,24 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
           leftIcon: svgWidget("home/add"),
         ),
       ),
-      popupBuilder: (BuildContext context) =>
-          widget.onOpened(popoverController),
+      popupBuilder: (BuildContext popOverContext) {
+        return FieldEditor(
+          gridId: widget.viewId,
+          typeOptionLoader: NewFieldTypeOptionLoader(gridId: widget.viewId),
+          onDeleted: (fieldId) {
+            popoverController.close();
+
+            NavigatorAlertDialog(
+              title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+              confirm: () {
+                context
+                    .read<RowDetailBloc>()
+                    .add(RowDetailEvent.deleteField(fieldId));
+              },
+            ).show(context);
+          },
+        );
+      },
     );
   }
 
@@ -260,41 +270,26 @@ class _RowDetailCellState extends State<_RowDetailCell> {
       ),
     );
 
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 40),
-      child: IntrinsicHeight(
+    return IntrinsicHeight(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 40),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 150,
-              child: Popover(
-                controller: popover,
-                offset: const Offset(20, 0),
-                popupBuilder: (popoverContext) {
-                  return OverlayContainer(
-                    constraints: BoxConstraints.loose(const Size(240, 200)),
-                    child: FieldEditor(
-                      gridId: widget.cellId.gridId,
-                      fieldName: widget.cellId.fieldContext.field.name,
-                      isGroupField: widget.cellId.fieldContext.isGroupField,
-                      typeOptionLoader: FieldTypeOptionLoader(
-                        gridId: widget.cellId.gridId,
-                        field: widget.cellId.fieldContext.field,
-                      ),
-                      onDeleted: (fieldId) {
-                        popover.close();
-                        context
-                            .read<RowDetailBloc>()
-                            .add(RowDetailEvent.deleteField(fieldId));
-                      },
-                    ),
-                  );
-                },
+            AppFlowyPopover(
+              controller: popover,
+              constraints: BoxConstraints.loose(const Size(240, 600)),
+              triggerActions: PopoverTriggerFlags.none,
+              popupBuilder: (popoverContext) => buildFieldEditor(),
+              child: SizedBox(
+                width: 150,
                 child: FieldCellButton(
+                  maxLines: null,
                   field: widget.cellId.fieldContext.field,
-                  onTap: () => popover.show(),
+                  onTap: () {
+                    popover.show();
+                  },
                 ),
               ),
             ),
@@ -303,6 +298,30 @@ class _RowDetailCellState extends State<_RowDetailCell> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildFieldEditor() {
+    return FieldEditor(
+      gridId: widget.cellId.gridId,
+      fieldName: widget.cellId.fieldContext.field.name,
+      isGroupField: widget.cellId.fieldContext.isGroupField,
+      typeOptionLoader: FieldTypeOptionLoader(
+        gridId: widget.cellId.gridId,
+        field: widget.cellId.fieldContext.field,
+      ),
+      onDeleted: (fieldId) {
+        popover.close();
+
+        NavigatorAlertDialog(
+          title: LocaleKeys.grid_field_deleteFieldPromptMessage.tr(),
+          confirm: () {
+            context
+                .read<RowDetailBloc>()
+                .add(RowDetailEvent.deleteField(fieldId));
+          },
+        ).show(context);
+      },
     );
   }
 }

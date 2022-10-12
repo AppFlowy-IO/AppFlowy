@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 
 import '../cell_builder.dart';
 import 'date_editor.dart';
@@ -58,34 +58,31 @@ class _DateCellState extends GridCellState<GridDateCell> {
   Widget build(BuildContext context) {
     final alignment = widget.cellStyle != null
         ? widget.cellStyle!.alignment
-        : Alignment.center;
+        : Alignment.centerLeft;
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<DateCellBloc, DateCellState>(
         builder: (context, state) {
-          return AppFlowyStylePopover(
+          return AppFlowyPopover(
             controller: _popover,
-            offset: const Offset(0, 20),
+            triggerActions: PopoverTriggerFlags.none,
             direction: PopoverDirection.bottomWithLeftAligned,
             constraints: BoxConstraints.loose(const Size(320, 500)),
+            margin: EdgeInsets.zero,
             child: SizedBox.expand(
               child: GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => _showCalendar(context),
-                child: MouseRegion(
-                  opaque: false,
-                  cursor: SystemMouseCursors.click,
-                  child: Align(
-                    alignment: alignment,
-                    child: FlowyText.medium(state.dateStr, fontSize: 12),
-                  ),
+                onTap: () => _popover.show(),
+                child: Align(
+                  alignment: alignment,
+                  child: FlowyText.medium(state.dateStr, fontSize: 12),
                 ),
               ),
             ),
             popupBuilder: (BuildContext popoverContent) {
-              final bloc = context.read<DateCellBloc>();
               return DateCellEditor(
-                cellController: bloc.cellController.clone(),
+                cellController: widget.cellControllerBuilder.build()
+                    as GridDateCellController,
                 onDismissed: () => widget.onCellEditing.value = false,
               );
             },
@@ -96,10 +93,6 @@ class _DateCellState extends GridCellState<GridDateCell> {
         },
       ),
     );
-  }
-
-  void _showCalendar(BuildContext context) {
-    _popover.show();
   }
 
   @override

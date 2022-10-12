@@ -1,9 +1,13 @@
 use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, RowPB};
-use crate::services::group::{Group, GroupController, GroupControllerSharedOperation, MoveGroupRowContext};
+use crate::services::group::{Group, GroupController, GroupControllerActions, MoveGroupRowContext};
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use std::sync::Arc;
 
+/// A [DefaultGroupController] is used to handle the group actions for the [FieldType] that doesn't
+/// implement its own group controller. The default group controller only contains one group, which
+/// means all rows will be grouped in the same group.
+///
 pub struct DefaultGroupController {
     pub field_id: String,
     pub group: Group,
@@ -26,7 +30,7 @@ impl DefaultGroupController {
     }
 }
 
-impl GroupControllerSharedOperation for DefaultGroupController {
+impl GroupControllerActions for DefaultGroupController {
     fn field_id(&self) -> &str {
         &self.field_id
     }
@@ -50,27 +54,27 @@ impl GroupControllerSharedOperation for DefaultGroupController {
         Ok(())
     }
 
-    fn did_update_row(
+    fn did_update_group_row(
         &mut self,
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
-        todo!()
+        Ok(vec![])
     }
 
-    fn did_delete_row(
+    fn did_delete_delete_row(
         &mut self,
         _row_rev: &RowRevision,
         _field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
-        todo!()
+        Ok(vec![])
     }
 
     fn move_group_row(&mut self, _context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
         todo!()
     }
 
-    fn did_update_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
+    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
         Ok(None)
     }
 }

@@ -92,13 +92,13 @@ impl<'a> RowRevisionBuilder<'a> {
         }
     }
 
-    pub fn insert_select_option_cell(&mut self, field_id: &str, data: String) {
+    pub fn insert_select_option_cell(&mut self, field_id: &str, option_ids: Vec<String>) {
         match self.field_rev_map.get(&field_id.to_owned()) {
             None => tracing::warn!("Can't find the select option field with id: {}", field_id),
             Some(field_rev) => {
                 self.payload
                     .cell_by_field_id
-                    .insert(field_id.to_owned(), insert_select_option_cell(data, field_rev));
+                    .insert(field_id.to_owned(), insert_select_option_cell(option_ids, field_rev));
             }
         }
     }

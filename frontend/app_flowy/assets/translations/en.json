@@ -181,7 +181,7 @@
       "includeTime": " Include time",
       "dateFormatFriendly": "Month Day,Year",
       "dateFormatISO": "Year-Month-Day",
-      "dateFormatLocal": "Year/Month/Day",
+      "dateFormatLocal": "Month/Day/Year",
       "dateFormatUS": "Year/Month/Day",
       "timeFormat": " Time format",
       "invalidTimeFormat": "Invalid format",
@@ -199,7 +199,8 @@
       "delete": "Delete",
       "textPlaceholder": "Empty",
       "copyProperty": "Copied property to clipboard",
-      "count": "Count"
+      "count": "Count",
+      "newRow": "New row"
     },
     "selectOption": {
       "create": "Create",
@@ -213,8 +214,8 @@
       "aquaColor": "Aqua",
       "blueColor": "Blue",
       "deleteTag": "Delete tag",
-      "colorPannelTitle": "Colors",
-      "pannelTitle": "Select an option or create one",
+      "colorPanelTitle": "Colors",
+      "panelTitle": "Select an option or create one",
       "searchOption": "Search for an option"
     },
     "menuName": "Grid"
@@ -222,8 +223,8 @@
   "document": {
     "menuName": "Doc",
     "date": {
-      "timeHintTextInTwelveHour": "12:00 AM",
-      "timeHintTextInTwentyFourHour": "12:00"
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
     }
   },
   "board": {

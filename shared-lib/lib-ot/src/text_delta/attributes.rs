@@ -1,5 +1,5 @@
 #![allow(non_snake_case)]
-use crate::core::{AttributeEntry, AttributeKey, Attributes};
+use crate::core::{AttributeEntry, AttributeHashMap, AttributeKey};
 use crate::text_delta::TextOperation;
 use crate::{inline_attribute_entry, inline_list_attribute_entry};
 use lazy_static::lazy_static;
@@ -8,11 +8,11 @@ use std::{collections::HashSet, iter::FromIterator};
 use strum_macros::{AsRefStr, Display, EnumString};
 
 #[inline(always)]
-pub fn empty_attributes() -> Attributes {
-    Attributes::default()
+pub fn empty_attributes() -> AttributeHashMap {
+    AttributeHashMap::default()
 }
 
-pub fn attributes_except_header(op: &TextOperation) -> Attributes {
+pub fn attributes_except_header(op: &TextOperation) -> AttributeHashMap {
     let mut attributes = op.get_attributes();
     attributes.remove_key(BuildInTextAttributeKey::Header);
     attributes

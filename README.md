@@ -25,6 +25,7 @@ You are in charge of your data and customizations.
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12026239/174754661-682980e4-e386-4685-bb6f-2da357390b61.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
 <p align="center"><img src="https://user-images.githubusercontent.com/12026239/174753177-98e4c899-2356-4137-bb42-374bba2b127b.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
+<p align="center"><img src="https://user-images.githubusercontent.com/12026239/190650183-a940f1e0-a2c5-4797-ab3a-56758f6f696c.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
 
 ## User Installation
 
@@ -61,7 +62,11 @@ Contributions are what make the open source community such an amazing place to b
 If your Pull Request is accepted as it fixes a bug, adds functionality, or makes AppFlowy's codebase significantly easier to use or understand, congratulations! If your administrative and managerial work behind the scenes that sustains the community as a whole, congratulations! You are now an official contributor to AppFlowy. Get in touch with us ([link](https://tally.so/r/mKP5z3)) to receive the very special Contributor T-shirt!
 Proudly wear your T-shirt and show it to us by tagging [@appflowy](https://twitter.com/appflowy) on Twitter.
 
-![DSCF3560](https://user-images.githubusercontent.com/12026239/186106423-a923f6fe-b169-477b-87e4-ffb2e375e0f6.jpg)
+
+## Join the community to build AppFlowy together!
+<a href="https://github.com/AppFlowy-IO/AppFlowy/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=AppFlowy-IO/AppFlowy" />
+</a>
 
 ## Why Are We Building This?
 
@@ -94,3 +99,4 @@ Special thanks to these amazing projects which help power AppFlowy.IO:
 
 - [flutter-quill](https://github.com/singerdmx/flutter-quill)
 - [cargo-make](https://github.com/sagiegurari/cargo-make)
+- [contrib.rocks](https://contrib.rocks)

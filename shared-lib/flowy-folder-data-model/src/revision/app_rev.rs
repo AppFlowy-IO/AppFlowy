@@ -17,10 +17,13 @@ pub struct AppRevision {
 
     pub belongings: Vec<ViewRevision>,
 
+    #[serde(default)]
     pub version: i64,
 
+    #[serde(default)]
     pub modified_time: i64,
 
+    #[serde(default)]
     pub create_time: i64,
 }
 

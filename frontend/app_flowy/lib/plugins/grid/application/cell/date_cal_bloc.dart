@@ -108,7 +108,7 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
         (err) {
           switch (ErrorCode.valueOf(err.code)!) {
             case ErrorCode.InvalidDateTimeFormat:
-              updateCalData(none(), Some(timeFormatPrompt(err)));
+              updateCalData(state.calData, Some(timeFormatPrompt(err)));
               break;
             default:
               Log.error(err);
@@ -119,13 +119,13 @@ class DateCalBloc extends Bloc<DateCalEvent, DateCalState> {
   }
 
   String timeFormatPrompt(FlowyError error) {
-    String msg = "${LocaleKeys.grid_field_invalidTimeFormat.tr()}. ";
+    String msg = "${LocaleKeys.grid_field_invalidTimeFormat.tr()}.";
     switch (state.dateTypeOptionPB.timeFormat) {
       case TimeFormat.TwelveHour:
-        msg = "${msg}e.g. 01: 00 AM";
+        msg = "$msg e.g. 01:00 PM";
         break;
       case TimeFormat.TwentyFourHour:
-        msg = "${msg}e.g. 13: 00";
+        msg = "$msg e.g. 13:00";
         break;
       default:
         break;

@@ -1,15 +1,8 @@
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/editor_state.dart';
+import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/commands/format_built_in_text.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
-import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
-import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
-import 'package:appflowy_editor/src/render/selection/selectable.dart';
-import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
 
-import 'package:appflowy_editor/src/service/render_plugin_service.dart';
-import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
 import 'package:flutter/material.dart';
 
@@ -46,7 +39,11 @@ class CheckboxNodeWidget extends BuiltInTextWidget {
 }
 
 class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with
+        SelectableMixin,
+        DefaultSelectable,
+        BuiltInStyleMixin,
+        BuiltInTextWidgetMixin {
   @override
   final iconKey = GlobalKey();
 
@@ -62,15 +59,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
   }
 
   @override
-  Widget build(BuildContext context) {
-    if (widget.textNode.children.isEmpty) {
-      return _buildWithSingle(context);
-    } else {
-      return _buildWithChildren(context);
-    }
-  }
-
-  Widget _buildWithSingle(BuildContext context) {
+  Widget buildWithSingle(BuildContext context) {
     final check = widget.textNode.attributes.check;
     return Padding(
       padding: padding,
@@ -85,8 +74,12 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
               padding: iconPadding,
               name: check ? 'check' : 'uncheck',
             ),
-            onTap: () {
-              formatCheckbox(widget.editorState, !check);
+            onTap: () async {
+              await formatTextToCheckbox(
+                widget.editorState,
+                !check,
+                textNode: widget.textNode,
+              );
             },
           ),
           Flexible(
@@ -104,42 +97,6 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildWithChildren(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildWithSingle(context),
-        Row(
-          children: [
-            const SizedBox(
-              width: 20,
-            ),
-            Column(
-              children: widget.textNode.children
-                  .map(
-                    (child) => widget.editorState.service.renderPluginService
-                        .buildPluginWidget(
-                      child is TextNode
-                          ? NodeWidgetContext<TextNode>(
-                              context: context,
-                              node: child,
-                              editorState: widget.editorState,
-                            )
-                          : NodeWidgetContext<Node>(
-                              context: context,
-                              node: child,
-                              editorState: widget.editorState,
-                            ),
-                    ),
-                  )
-                  .toList(),
-            )
-          ],
-        )
-      ],
     );
   }
 }

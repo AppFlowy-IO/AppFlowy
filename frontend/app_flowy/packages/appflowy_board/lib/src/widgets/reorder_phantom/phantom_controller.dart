@@ -46,15 +46,23 @@ class BoardPhantomController extends OverlapDragTargetDelegate
     required this.groupsState,
   });
 
-  bool isFromGroup(String groupId) {
+  /// Determines whether the group should perform reorder
+  ///
+  /// Returns `true` if the fromGroupId and toGroupId of the phantomRecord
+  /// equal to the passed in groupId.
+  ///
+  /// Returns `true` if the phantomRecord is null
+  ///
+  bool shouldReorder(String groupId) {
     if (phantomRecord != null) {
-      return phantomRecord!.fromGroupId == groupId;
+      return phantomRecord!.toGroupId == groupId &&
+          phantomRecord!.fromGroupId == groupId;
     } else {
       return true;
     }
   }
 
-  void transformIndex(int fromIndex, int toIndex) {
+  void updateIndex(int fromIndex, int toIndex) {
     if (phantomRecord == null) {
       return;
     }
@@ -69,7 +77,6 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   /// Remove the phantom in the group when the group is end dragging.
   void groupEndDragging(String groupId) {
     phantomState.setGroupIsDragging(groupId, false);
-
     if (phantomRecord == null) return;
 
     final fromGroupId = phantomRecord!.fromGroupId;
@@ -94,7 +101,8 @@ class BoardPhantomController extends OverlapDragTargetDelegate
 
   /// Remove the phantom in the group if it contains phantom
   void _removePhantom(String groupId) {
-    if (delegate.removePhantom(groupId)) {
+    final didRemove = delegate.removePhantom(groupId);
+    if (didRemove) {
       phantomState.notifyDidRemovePhantom(groupId);
       phantomState.removeGroupListener(groupId);
     }
@@ -195,7 +203,7 @@ class BoardPhantomController extends OverlapDragTargetDelegate
   }
 
   @override
-  void moveTo(
+  void dragTargetDidMoveToReorderFlex(
     String reorderFlexId,
     FlexDragTargetData dragTargetData,
     int dragTargetIndex,
@@ -245,10 +253,6 @@ class PhantomRecord {
   });
 
   void updateFromGroupIndex(int index) {
-    if (fromGroupIndex == index) {
-      return;
-    }
-
     fromGroupIndex = index;
   }
 

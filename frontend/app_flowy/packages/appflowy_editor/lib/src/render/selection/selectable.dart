@@ -1,6 +1,11 @@
-import 'package:appflowy_editor/src/document/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/position.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:flutter/material.dart';
+
+enum CursorStyle {
+  verticalLine,
+  borderLine,
+}
 
 /// [SelectableMixin] is used for the editor to calculate the position
 ///   and size of the selection.
@@ -53,4 +58,8 @@ mixin SelectableMixin<T extends StatefulWidget> on State<T> {
   Selection? getWorldBoundaryInOffset(Offset start) {
     return null;
   }
+
+  bool get shouldCursorBlink => true;
+
+  CursorStyle get cursorStyle => CursorStyle.verticalLine;
 }

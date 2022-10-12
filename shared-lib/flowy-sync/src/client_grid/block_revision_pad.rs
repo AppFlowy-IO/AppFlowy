@@ -1,18 +1,21 @@
 use crate::entities::revision::{md5, RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
-use crate::util::{cal_diff, make_text_delta_from_revisions};
+use crate::util::{cal_diff, make_operations_from_revisions};
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision,
 };
-use lib_ot::core::{Delta, DeltaBuilder, EmptyAttributes, OperationTransform};
+use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+pub type GridBlockOperations = DeltaOperations<EmptyAttributes>;
+pub type GridBlockOperationsBuilder = DeltaBuilder;
+
 #[derive(Debug, Clone)]
 pub struct GridBlockRevisionPad {
     block: GridBlockRevision,
-    delta: Delta,
+    operations: GridBlockOperations,
 }
 
 impl std::ops::Deref for GridBlockRevisionPad {
@@ -42,19 +45,22 @@ impl GridBlockRevisionPad {
         }
     }
 
-    pub fn from_delta(delta: Delta) -> CollaborateResult<Self> {
-        let s = delta.content()?;
+    pub fn from_operations(operations: GridBlockOperations) -> CollaborateResult<Self> {
+        let s = operations.content()?;
         let revision: GridBlockRevision = serde_json::from_str(&s).map_err(|e| {
-            let msg = format!("Deserialize delta to GridBlockRevision failed: {}", e);
+            let msg = format!("Deserialize operations to GridBlockRevision failed: {}", e);
             tracing::error!("{}", s);
             CollaborateError::internal().context(msg)
         })?;
-        Ok(Self { block: revision, delta })
+        Ok(Self {
+            block: revision,
+            operations,
+        })
     }
 
     pub fn from_revisions(_grid_id: &str, revisions: Vec<Revision>) -> CollaborateResult<Self> {
-        let block_delta: Delta = make_text_delta_from_revisions(revisions)?;
-        Self::from_delta(block_delta)
+        let operations: GridBlockOperations = make_operations_from_revisions(revisions)?;
+        Self::from_operations(operations)
     }
 
     #[tracing::instrument(level = "trace", skip(self, row), err)]
@@ -202,12 +208,12 @@ impl GridBlockRevisionPad {
                 let new = self.revision_json()?;
                 match cal_diff::<EmptyAttributes>(old, new) {
                     None => Ok(None),
-                    Some(delta) => {
-                        tracing::trace!("[GridBlockRevision] Composing delta {}", delta.json_str());
-                        self.delta = self.delta.compose(&delta)?;
+                    Some(operations) => {
+                        tracing::trace!("[GridBlockRevision] Composing operations {}", operations.json_str());
+                        self.operations = self.operations.compose(&operations)?;
                         Ok(Some(GridBlockRevisionChangeset {
-                            delta,
-                            md5: md5(&self.delta.json_bytes()),
+                            operations,
+                            md5: md5(&self.operations.json_bytes()),
                         }))
                     }
                 }
@@ -234,25 +240,25 @@ impl GridBlockRevisionPad {
             .map_err(|e| CollaborateError::internal().context(format!("serial block to json failed: {}", e)))
     }
 
-    pub fn json_str(&self) -> String {
-        self.delta.json_str()
+    pub fn operations_json_str(&self) -> String {
+        self.operations.json_str()
     }
 }
 
 pub struct GridBlockRevisionChangeset {
-    pub delta: Delta,
+    pub operations: GridBlockOperations,
     /// md5: the md5 of the grid after applying the change.
     pub md5: String,
 }
 
-pub fn make_grid_block_delta(block_rev: &GridBlockRevision) -> Delta {
+pub fn make_grid_block_operations(block_rev: &GridBlockRevision) -> GridBlockOperations {
     let json = serde_json::to_string(&block_rev).unwrap();
-    DeltaBuilder::new().insert(&json).build()
+    GridBlockOperationsBuilder::new().insert(&json).build()
 }
 
 pub fn make_grid_block_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
-    let delta = make_grid_block_delta(grid_block_meta_data);
-    let bytes = delta.json_bytes();
+    let operations = make_grid_block_operations(grid_block_meta_data);
+    let bytes = operations.json_bytes();
     let revision = Revision::initial_revision(user_id, &grid_block_meta_data.block_id, bytes);
     revision.into()
 }
@@ -264,19 +270,19 @@ impl std::default::Default for GridBlockRevisionPad {
             rows: vec![],
         };
 
-        let delta = make_grid_block_delta(&block_revision);
+        let operations = make_grid_block_operations(&block_revision);
         GridBlockRevisionPad {
             block: block_revision,
-            delta,
+            operations,
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::client_grid::GridBlockRevisionPad;
+    use crate::client_grid::{GridBlockOperations, GridBlockRevisionPad};
     use flowy_grid_data_model::revision::{RowChangeset, RowRevision};
-    use lib_ot::core::Delta;
+
     use std::borrow::Cow;
 
     #[test]
@@ -293,7 +299,7 @@ mod tests {
         let change = pad.add_row_rev(row.clone(), None).unwrap().unwrap();
         assert_eq!(pad.rows.first().unwrap().as_ref(), &row);
         assert_eq!(
-            change.delta.json_str(),
+            change.operations.json_str(),
             r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
     }
@@ -307,19 +313,19 @@ mod tests {
 
         let change = pad.add_row_rev(row_1.clone(), None).unwrap().unwrap();
         assert_eq!(
-            change.delta.json_str(),
+            change.operations.json_str(),
             r#"[{"retain":24},{"insert":"{\"id\":\"1\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
         let change = pad.add_row_rev(row_2.clone(), None).unwrap().unwrap();
         assert_eq!(
-            change.delta.json_str(),
+            change.operations.json_str(),
             r#"[{"retain":90},{"insert":",{\"id\":\"2\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
         let change = pad.add_row_rev(row_3.clone(), Some("2".to_string())).unwrap().unwrap();
         assert_eq!(
-            change.delta.json_str(),
+            change.operations.json_str(),
             r#"[{"retain":157},{"insert":",{\"id\":\"3\",\"block_id\":\"1\",\"cells\":[],\"height\":0,\"visibility\":false}"},{"retain":2}]"#
         );
 
@@ -373,7 +379,7 @@ mod tests {
     #[test]
     fn block_meta_delete_row() {
         let mut pad = test_pad();
-        let pre_delta_str = pad.json_str();
+        let pre_json_str = pad.operations_json_str();
         let row = RowRevision {
             id: "1".to_string(),
             block_id: pad.block_id.clone(),
@@ -384,9 +390,12 @@ mod tests {
 
         let _ = pad.add_row_rev(row.clone(), None).unwrap().unwrap();
         let change = pad.delete_rows(vec![Cow::Borrowed(&row.id)]).unwrap().unwrap();
-        assert_eq!(change.delta.json_str(), r#"[{"retain":24},{"delete":66},{"retain":2}]"#);
+        assert_eq!(
+            change.operations.json_str(),
+            r#"[{"retain":24},{"delete":66},{"retain":2}]"#
+        );
 
-        assert_eq!(pad.json_str(), pre_delta_str);
+        assert_eq!(pad.operations_json_str(), pre_json_str);
     }
 
     #[test]
@@ -411,7 +420,7 @@ mod tests {
         let change = pad.update_row(changeset).unwrap().unwrap();
 
         assert_eq!(
-            change.delta.json_str(),
+            change.operations.json_str(),
             r#"[{"retain":69},{"insert":"10"},{"retain":15},{"insert":"tru"},{"delete":4},{"retain":4}]"#
         );
 
@@ -422,7 +431,7 @@ mod tests {
     }
 
     fn test_pad() -> GridBlockRevisionPad {
-        let delta = Delta::from_json(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
-        GridBlockRevisionPad::from_delta(delta).unwrap()
+        let operations = GridBlockOperations::from_json(r#"[{"insert":"{\"block_id\":\"1\",\"rows\":[]}"}]"#).unwrap();
+        GridBlockRevisionPad::from_operations(operations).unwrap()
     }
 }

@@ -1,10 +1,11 @@
+import 'dart:collection';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/image/image_node_widget.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import '../../infra/test_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
@@ -116,7 +117,7 @@ void main() async {
     expect(editor.documentLength, 1);
     expect(editor.documentSelection,
         Selection.single(path: [0], startOffset: text.length));
-    expect((editor.nodeAtPath([0]) as TextNode).toRawString(), text * 2);
+    expect((editor.nodeAtPath([0]) as TextNode).toPlainText(), text * 2);
   });
 
   // Before
@@ -267,6 +268,138 @@ void main() async {
       BuiltInAttributeKey.h1,
     );
   });
+
+  testWidgets('Delete the nested bulleted list', (tester) async {
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    const text = 'Welcome to Appflowy 😁';
+    final node = TextNode(
+      delta: Delta()..insert(text),
+      attributes: {
+        BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
+      },
+    );
+    node.insert(
+      node.copyWith()
+        ..insert(
+          node.copyWith(),
+        ),
+    );
+
+    final editor = tester.editor..insert(node);
+    await editor.startTesting();
+
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    // Welcome to Appflowy 😁
+    await editor.updateSelection(
+      Selection.single(path: [0, 0, 0], startOffset: 0),
+    );
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(editor.nodeAtPath([0, 0, 0])?.subtype, null);
+    await editor.updateSelection(
+      Selection.single(path: [0, 0, 0], startOffset: 0),
+    );
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(editor.nodeAtPath([0, 1]) != null, true);
+    await editor.updateSelection(
+      Selection.single(path: [0, 1], startOffset: 0),
+    );
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(editor.nodeAtPath([1]) != null, true);
+    await editor.updateSelection(
+      Selection.single(path: [1], startOffset: 0),
+    );
+
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁Welcome to Appflowy 😁
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(
+      editor.documentSelection,
+      Selection.single(path: [0, 0], startOffset: text.length),
+    );
+    expect((editor.nodeAtPath([0, 0]) as TextNode).toPlainText(), text * 2);
+  });
+
+  testWidgets('Delete the complicated nested bulleted list', (tester) async {
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    const text = 'Welcome to Appflowy 😁';
+    final node = TextNode(
+      delta: Delta()..insert(text),
+      attributes: {
+        BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
+      },
+    );
+
+    node
+      ..insert(
+        node.copyWith(children: LinkedList()),
+      )
+      ..insert(
+        node.copyWith(children: LinkedList())
+          ..insert(
+            node.copyWith(children: LinkedList()),
+          )
+          ..insert(
+            node.copyWith(children: LinkedList()),
+          ),
+      );
+
+    final editor = tester.editor..insert(node);
+    await editor.startTesting();
+
+    await editor.updateSelection(
+      Selection.single(path: [0, 1], startOffset: 0),
+    );
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(
+      editor.nodeAtPath([0, 1])!.subtype != BuiltInAttributeKey.bulletedList,
+      true,
+    );
+    expect(
+      editor.nodeAtPath([0, 1, 0])!.subtype,
+      BuiltInAttributeKey.bulletedList,
+    );
+    expect(
+      editor.nodeAtPath([0, 1, 1])!.subtype,
+      BuiltInAttributeKey.bulletedList,
+    );
+    expect(find.byType(FlowyRichText), findsNWidgets(5));
+
+    // Before
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //  Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    //    * Welcome to Appflowy 😁
+    // After
+    // * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    //  * Welcome to Appflowy 😁
+    await editor.pressLogicKey(LogicalKeyboardKey.backspace);
+    expect(
+      editor.nodeAtPath([0, 0])!.subtype == BuiltInAttributeKey.bulletedList,
+      true,
+    );
+    expect(
+      (editor.nodeAtPath([0, 0]) as TextNode).toPlainText() == text * 2,
+      true,
+    );
+    expect(
+      editor.nodeAtPath([0, 1])!.subtype == BuiltInAttributeKey.bulletedList,
+      true,
+    );
+    expect(
+      editor.nodeAtPath([0, 2])!.subtype == BuiltInAttributeKey.bulletedList,
+      true,
+    );
+  });
 }
 
 Future<void> _deleteFirstImage(WidgetTester tester, bool isBackward) async {
@@ -361,7 +494,7 @@ Future<void> _deleteStyledTextByBackspace(
   expect(editor.documentSelection,
       Selection.single(path: [1], startOffset: text.length));
   expect(editor.nodeAtPath([1])?.subtype, style);
-  expect((editor.nodeAtPath([1]) as TextNode).toRawString(), text * 2);
+  expect((editor.nodeAtPath([1]) as TextNode).toPlainText(), text * 2);
 
   await editor.updateSelection(
     Selection.single(path: [1], startOffset: 0),
@@ -403,7 +536,7 @@ Future<void> _deleteStyledTextByDelete(
     expect(
         editor.documentSelection, Selection.single(path: [1], startOffset: 0));
     expect(editor.nodeAtPath([1])?.subtype, style);
-    expect((editor.nodeAtPath([1]) as TextNode).toRawString(),
+    expect((editor.nodeAtPath([1]) as TextNode).toPlainText(),
         text.safeSubString(i));
   }
 
@@ -413,7 +546,7 @@ Future<void> _deleteStyledTextByDelete(
   expect(editor.documentLength, 2);
   expect(editor.documentSelection, Selection.single(path: [1], startOffset: 0));
   expect(editor.nodeAtPath([1])?.subtype, style);
-  expect((editor.nodeAtPath([1]) as TextNode).toRawString(), text);
+  expect((editor.nodeAtPath([1]) as TextNode).toPlainText(), text);
 }
 
 Future<void> _deleteTextByBackspace(
@@ -433,7 +566,7 @@ Future<void> _deleteTextByBackspace(
 
   expect(editor.documentLength, 3);
   expect(editor.documentSelection, Selection.single(path: [1], startOffset: 9));
-  expect((editor.nodeAtPath([1]) as TextNode).toRawString(),
+  expect((editor.nodeAtPath([1]) as TextNode).toPlainText(),
       'Welcome t Appflowy 😁');
 
   // delete 'to '
@@ -443,7 +576,7 @@ Future<void> _deleteTextByBackspace(
   await editor.pressLogicKey(LogicalKeyboardKey.backspace);
   expect(editor.documentLength, 3);
   expect(editor.documentSelection, Selection.single(path: [2], startOffset: 8));
-  expect((editor.nodeAtPath([2]) as TextNode).toRawString(),
+  expect((editor.nodeAtPath([2]) as TextNode).toPlainText(),
       'Welcome Appflowy 😁');
 
   // delete 'Appflowy 😁
@@ -458,7 +591,7 @@ Future<void> _deleteTextByBackspace(
   expect(editor.documentLength, 1);
   expect(
       editor.documentSelection, Selection.single(path: [0], startOffset: 11));
-  expect((editor.nodeAtPath([0]) as TextNode).toRawString(),
+  expect((editor.nodeAtPath([0]) as TextNode).toPlainText(),
       'Welcome to Appflowy 😁');
 }
 
@@ -479,7 +612,7 @@ Future<void> _deleteTextByDelete(
 
   expect(editor.documentLength, 3);
   expect(editor.documentSelection, Selection.single(path: [1], startOffset: 9));
-  expect((editor.nodeAtPath([1]) as TextNode).toRawString(),
+  expect((editor.nodeAtPath([1]) as TextNode).toPlainText(),
       'Welcome t Appflowy 😁');
 
   // delete 'to '
@@ -489,7 +622,7 @@ Future<void> _deleteTextByDelete(
   await editor.pressLogicKey(LogicalKeyboardKey.delete);
   expect(editor.documentLength, 3);
   expect(editor.documentSelection, Selection.single(path: [2], startOffset: 8));
-  expect((editor.nodeAtPath([2]) as TextNode).toRawString(),
+  expect((editor.nodeAtPath([2]) as TextNode).toPlainText(),
       'Welcome Appflowy 😁');
 
   // delete 'Appflowy 😁
@@ -504,6 +637,6 @@ Future<void> _deleteTextByDelete(
   expect(editor.documentLength, 1);
   expect(
       editor.documentSelection, Selection.single(path: [0], startOffset: 11));
-  expect((editor.nodeAtPath([0]) as TextNode).toRawString(),
+  expect((editor.nodeAtPath([0]) as TextNode).toPlainText(),
       'Welcome to Appflowy 😁');
 }

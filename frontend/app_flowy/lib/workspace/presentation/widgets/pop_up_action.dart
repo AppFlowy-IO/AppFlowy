@@ -1,3 +1,4 @@
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -6,74 +7,105 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
-import 'package:dartz/dartz.dart' as dartz;
 
-abstract class ActionList<T extends ActionItem> {
-  List<T> get items;
+class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
+  final List<T> actions;
+  final Function(T, PopoverController) onSelected;
+  final BoxConstraints constraints;
+  final PopoverDirection direction;
+  final Widget Function(PopoverController) buildChild;
+  final VoidCallback? onClosed;
 
-  String get identifier => toString();
+  const PopoverActionList({
+    required this.actions,
+    required this.buildChild,
+    required this.onSelected,
+    this.onClosed,
+    this.direction = PopoverDirection.rightWithTopAligned,
+    this.constraints = const BoxConstraints(
+      minWidth: 120,
+      maxWidth: 360,
+      maxHeight: 300,
+    ),
+    Key? key,
+  }) : super(key: key);
 
-  double get maxWidth => 162;
+  @override
+  State<PopoverActionList<T>> createState() => _PopoverActionListState<T>();
+}
 
-  double get itemHeight => ActionListSizes.itemHeight;
+class _PopoverActionListState<T extends PopoverAction>
+    extends State<PopoverActionList<T>> {
+  late PopoverController popoverController;
 
-  ListOverlayFooter? get footer => null;
+  @override
+  void initState() {
+    popoverController = PopoverController();
+    super.initState();
+  }
 
-  void Function(dartz.Option<T>) get selectCallback;
+  @override
+  Widget build(BuildContext context) {
+    final child = widget.buildChild(popoverController);
 
-  FlowyOverlayDelegate? get delegate;
+    return AppFlowyPopover(
+      controller: popoverController,
+      constraints: widget.constraints,
+      direction: widget.direction,
+      triggerActions: PopoverTriggerFlags.none,
+      onClose: widget.onClosed,
+      popupBuilder: (BuildContext popoverContext) {
+        final List<Widget> children = widget.actions.map((action) {
+          if (action is ActionCell) {
+            return ActionCellWidget<T>(
+              action: action,
+              itemHeight: ActionListSizes.itemHeight,
+              onSelected: (action) {
+                widget.onSelected(action, popoverController);
+              },
+            );
+          } else {
+            final custom = action as CustomActionCell;
+            return custom.buildWithContext(context);
+          }
+        }).toList();
 
-  void show(
-    BuildContext buildContext, {
-    BuildContext? anchorContext,
-    AnchorDirection anchorDirection = AnchorDirection.bottomRight,
-    Offset? anchorOffset,
-  }) {
-    final widgets = items
-        .map(
-          (action) => ActionCell<T>(
-            action: action,
-            itemHeight: itemHeight,
-            onSelected: (action) {
-              FlowyOverlay.of(buildContext).remove(identifier);
-              selectCallback(dartz.some(action));
-            },
+        return IntrinsicHeight(
+          child: IntrinsicWidth(
+            child: Column(
+              children: children,
+            ),
           ),
-        )
-        .toList();
-
-    ListOverlay.showWithAnchor(
-      buildContext,
-      identifier: identifier,
-      itemCount: widgets.length,
-      itemBuilder: (context, index) => widgets[index],
-      anchorContext: anchorContext ?? buildContext,
-      anchorDirection: anchorDirection,
-      width: maxWidth,
-      height: widgets.length * (itemHeight + ActionListSizes.padding * 2),
-      delegate: delegate,
-      anchorOffset: anchorOffset,
-      footer: footer,
+        );
+      },
+      child: child,
     );
   }
 }
 
-abstract class ActionItem {
-  Widget? get icon;
+abstract class ActionCell extends PopoverAction {
+  Widget? icon(Color iconColor);
   String get name;
 }
+
+abstract class CustomActionCell extends PopoverAction {
+  Widget buildWithContext(BuildContext context);
+}
+
+abstract class PopoverAction {}
 
 class ActionListSizes {
   static double itemHPadding = 10;
   static double itemHeight = 20;
-  static double padding = 6;
+  static double vPadding = 6;
+  static double hPadding = 10;
 }
 
-class ActionCell<T extends ActionItem> extends StatelessWidget {
+class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
   final T action;
   final Function(T) onSelected;
   final double itemHeight;
-  const ActionCell({
+  const ActionCellWidget({
     Key? key,
     required this.action,
     required this.onSelected,
@@ -82,7 +114,9 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final actionCell = action as ActionCell;
     final theme = context.watch<AppTheme>();
+    final icon = actionCell.icon(theme.iconColor);
 
     return FlowyHover(
       style: HoverStyle(hoverColor: theme.hover),
@@ -92,19 +126,20 @@ class ActionCell<T extends ActionItem> extends StatelessWidget {
         child: SizedBox(
           height: itemHeight,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              if (action.icon != null) action.icon!,
-              HSpace(ActionListSizes.itemHPadding),
-              FlowyText.medium(
-                action.name,
-                fontSize: 12,
+              if (icon != null) ...[icon, HSpace(ActionListSizes.itemHPadding)],
+              Expanded(
+                child: FlowyText.medium(
+                  actionCell.name,
+                  fontSize: 12,
+                  overflow: TextOverflow.visible,
+                ),
               ),
             ],
           ),
         ).padding(
-          horizontal: ActionListSizes.padding,
-          vertical: ActionListSizes.padding,
+          horizontal: ActionListSizes.hPadding,
+          vertical: ActionListSizes.vPadding,
         ),
       ),
     );

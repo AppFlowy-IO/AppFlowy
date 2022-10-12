@@ -8,6 +8,7 @@ class FlowyText extends StatelessWidget {
   final double fontSize;
   final FontWeight fontWeight;
   final TextAlign? textAlign;
+  final int? maxLines;
   final Color? color;
 
   const FlowyText(
@@ -18,21 +19,40 @@ class FlowyText extends StatelessWidget {
     this.fontWeight = FontWeight.w400,
     this.textAlign,
     this.color,
+    this.maxLines = 1,
   }) : super(key: key);
 
-  const FlowyText.semibold(this.title,
-      {Key? key, this.fontSize = 16, this.overflow, this.color, this.textAlign})
-      : fontWeight = FontWeight.w600,
+  const FlowyText.semibold(
+    this.title, {
+    Key? key,
+    this.fontSize = 16,
+    this.overflow,
+    this.color,
+    this.textAlign,
+    this.maxLines = 1,
+  })  : fontWeight = FontWeight.w600,
         super(key: key);
 
-  const FlowyText.medium(this.title,
-      {Key? key, this.fontSize = 16, this.overflow, this.color, this.textAlign})
-      : fontWeight = FontWeight.w500,
+  const FlowyText.medium(
+    this.title, {
+    Key? key,
+    this.fontSize = 16,
+    this.overflow,
+    this.color,
+    this.textAlign,
+    this.maxLines = 1,
+  })  : fontWeight = FontWeight.w500,
         super(key: key);
 
-  const FlowyText.regular(this.title,
-      {Key? key, this.fontSize = 16, this.overflow, this.color, this.textAlign})
-      : fontWeight = FontWeight.w400,
+  const FlowyText.regular(
+    this.title, {
+    Key? key,
+    this.fontSize = 16,
+    this.overflow,
+    this.color,
+    this.textAlign,
+    this.maxLines = 1,
+  })  : fontWeight = FontWeight.w400,
         super(key: key);
 
   @override
@@ -40,6 +60,7 @@ class FlowyText extends StatelessWidget {
     final theme = context.watch<AppTheme>();
     return Text(
       title,
+      maxLines: maxLines,
       textAlign: textAlign,
       overflow: overflow ?? TextOverflow.clip,
       style: TextStyle(

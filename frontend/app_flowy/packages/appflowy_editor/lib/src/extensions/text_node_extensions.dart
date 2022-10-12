@@ -1,12 +1,12 @@
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/document/path.dart';
-import 'package:appflowy_editor/src/document/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
-import 'package:appflowy_editor/src/document/text_delta.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
+import 'package:appflowy_editor/src/core/location/position.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
+import 'package:appflowy_editor/src/core/document/text_delta.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 
 extension TextNodeExtension on TextNode {
-  dynamic getAttributeInSelection(Selection selection, String styleKey) {
+  T? getAttributeInSelection<T>(Selection selection, String styleKey) {
     final ops = delta.whereType<TextInsert>();
     final startOffset =
         selection.isBackward ? selection.start.offset : selection.end.offset;
@@ -19,8 +19,9 @@ extension TextNodeExtension on TextNode {
       }
       final length = op.length;
       if (start < endOffset && start + length > startOffset) {
-        if (op.attributes?.containsKey(styleKey) == true) {
-          return op.attributes![styleKey];
+        final attributes = op.attributes;
+        if (attributes != null && attributes[styleKey] is T?) {
+          return attributes[styleKey];
         }
       }
       start += length;
@@ -51,6 +52,11 @@ extension TextNodeExtension on TextNode {
   bool allSatisfyStrikethroughInSelection(Selection selection) =>
       allSatisfyInSelection(selection, BuiltInAttributeKey.strikethrough,
           (value) {
+        return value == true;
+      });
+
+  bool allSatisfyCodeInSelection(Selection selection) =>
+      allSatisfyInSelection(selection, BuiltInAttributeKey.code, (value) {
         return value == true;
       });
 
@@ -162,18 +168,17 @@ extension TextNodesExtension on List<TextNode> {
       for (var i = 0; i < length; i++) {
         final node = this[i];
         final Selection newSelection;
-        if (i == 0 && pathEquals(node.path, selection.start.path)) {
+        if (i == 0 && node.path.equals(selection.start.path)) {
           if (selection.isBackward) {
             newSelection = selection.copyWith(
-              end: Position(path: node.path, offset: node.toRawString().length),
+              end: Position(path: node.path, offset: node.toPlainText().length),
             );
           } else {
             newSelection = selection.copyWith(
               end: Position(path: node.path, offset: 0),
             );
           }
-        } else if (i == length - 1 &&
-            pathEquals(node.path, selection.end.path)) {
+        } else if (i == length - 1 && node.path.equals(selection.end.path)) {
           if (selection.isBackward) {
             newSelection = selection.copyWith(
               start: Position(path: node.path, offset: 0),
@@ -181,13 +186,13 @@ extension TextNodesExtension on List<TextNode> {
           } else {
             newSelection = selection.copyWith(
               start:
-                  Position(path: node.path, offset: node.toRawString().length),
+                  Position(path: node.path, offset: node.toPlainText().length),
             );
           }
         } else {
           newSelection = Selection(
             start: Position(path: node.path, offset: 0),
-            end: Position(path: node.path, offset: node.toRawString().length),
+            end: Position(path: node.path, offset: node.toPlainText().length),
           );
         }
         if (!node.allSatisfyInSelection(newSelection, styleKey, test)) {

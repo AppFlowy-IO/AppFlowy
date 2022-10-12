@@ -165,7 +165,7 @@
       "includeTime": " 時刻を含める",
       "dateFormatFriendly": "月 日,年",
       "dateFormatISO": "年-月-日",
-      "dateFormatLocal": "年/月/日",
+      "dateFormatLocal": "月/日/年",
       "dateFormatUS": "年/月/日",
       "timeFormat": " 時刻書式",
       "timeFormatTwelveHour": "12 時間表記",
@@ -191,8 +191,8 @@
       "aquaColor": "水色",
       "blueColor": "青",
       "deleteTag": "選択候補を削除",
-      "colorPannelTitle": "色",
-      "pannelTitle": "選択候補を検索 または 作成する",
+      "colorPanelTitle": "色",
+      "panelTitle": "選択候補を検索 または 作成する",
       "searchOption": "選択候補を検索"
     }
   },

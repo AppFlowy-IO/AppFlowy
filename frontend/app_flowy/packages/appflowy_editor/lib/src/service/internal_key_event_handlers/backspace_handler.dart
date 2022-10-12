@@ -1,7 +1,7 @@
+import 'package:appflowy_editor/src/infra/infra.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
 // Handle delete text.
@@ -28,11 +28,11 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   final List<Node> nonTextNodes =
       nodes.where((node) => node is! TextNode).toList(growable: false);
 
-  final transactionBuilder = TransactionBuilder(editorState);
+  final transaction = editorState.transaction;
   List<int>? cancelNumberListPath;
 
   if (nonTextNodes.isNotEmpty) {
-    transactionBuilder.deleteNodes(nonTextNodes);
+    transaction.deleteNodes(nonTextNodes);
   }
 
   if (textNodes.length == 1) {
@@ -44,7 +44,7 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
         if (textNode.subtype == BuiltInAttributeKey.numberList) {
           cancelNumberListPath = textNode.path;
         }
-        transactionBuilder
+        transaction
           ..updateNode(textNode, {
             BuiltInAttributeKey.subtype: null,
             textNode.subtype!: null,
@@ -61,20 +61,20 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
         return _backDeleteToPreviousTextNode(
           editorState,
           textNode,
-          transactionBuilder,
+          transaction,
           nonTextNodes,
           selection,
         );
       }
     } else {
       if (selection.isCollapsed) {
-        transactionBuilder.deleteText(
+        transaction.deleteText(
           textNode,
           index,
           selection.start.offset - index,
         );
       } else {
-        transactionBuilder.deleteText(
+        transaction.deleteText(
           textNode,
           selection.start.offset,
           selection.end.offset - selection.start.offset,
@@ -83,29 +83,33 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     }
   } else {
     if (textNodes.isEmpty) {
+      if (nonTextNodes.isNotEmpty) {
+        transaction.afterSelection = Selection.collapsed(selection.start);
+      }
+      editorState.commit();
       return KeyEventResult.handled;
     }
     final startPosition = selection.start;
     final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
-    _deleteTextNodes(transactionBuilder, textNodes, selection);
-    transactionBuilder.commit();
+    _deleteTextNodes(transaction, textNodes, selection);
+    editorState.commit();
 
     if (nodeAtStart is TextNode &&
         nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
       makeFollowingNodesIncremental(
         editorState,
         startPosition.path,
-        transactionBuilder.afterSelection!,
+        transaction.afterSelection!,
       );
     }
     return KeyEventResult.handled;
   }
 
-  if (transactionBuilder.operations.isNotEmpty) {
+  if (transaction.operations.isNotEmpty) {
     if (nonTextNodes.isNotEmpty) {
-      transactionBuilder.afterSelection = Selection.collapsed(selection.start);
+      transaction.afterSelection = Selection.collapsed(selection.start);
     }
-    transactionBuilder.commit();
+    editorState.commit();
   }
 
   if (cancelNumberListPath != null) {
@@ -121,44 +125,58 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
 }
 
 KeyEventResult _backDeleteToPreviousTextNode(
-    EditorState editorState,
-    TextNode textNode,
-    TransactionBuilder transactionBuilder,
-    List<Node> nonTextNodes,
-    Selection selection) {
-  var previous = textNode.previous;
-  bool prevIsNumberList = false;
-  while (previous != null) {
-    if (previous is TextNode) {
-      if (previous.subtype == BuiltInAttributeKey.numberList) {
-        prevIsNumberList = true;
-      }
-
-      transactionBuilder
-        ..mergeText(previous, textNode)
-        ..deleteNode(textNode)
-        ..afterSelection = Selection.collapsed(
-          Position(
-            path: previous.path,
-            offset: previous.toRawString().length,
-          ),
-        );
-      break;
-    } else {
-      previous = previous.previous;
-    }
+  EditorState editorState,
+  TextNode textNode,
+  Transaction transaction,
+  List<Node> nonTextNodes,
+  Selection selection,
+) {
+  if (textNode.next == null &&
+      textNode.children.isEmpty &&
+      textNode.parent?.parent != null) {
+    transaction
+      ..deleteNode(textNode)
+      ..insertNode(textNode.parent!.path.next, textNode)
+      ..afterSelection = Selection.collapsed(
+        Position(path: textNode.parent!.path.next, offset: 0),
+      );
+    editorState.commit();
+    return KeyEventResult.handled;
   }
 
-  if (transactionBuilder.operations.isNotEmpty) {
-    if (nonTextNodes.isNotEmpty) {
-      transactionBuilder.afterSelection = Selection.collapsed(selection.start);
+  bool prevIsNumberList = false;
+  final previousTextNode = Infra.forwardNearestTextNode(textNode);
+  if (previousTextNode != null) {
+    if (previousTextNode.subtype == BuiltInAttributeKey.numberList) {
+      prevIsNumberList = true;
     }
-    transactionBuilder.commit();
+
+    transaction.mergeText(previousTextNode, textNode);
+    if (textNode.children.isNotEmpty) {
+      transaction.insertNodes(
+        previousTextNode.path.next,
+        textNode.children.toList(growable: false),
+      );
+    }
+    transaction.deleteNode(textNode);
+    transaction.afterSelection = Selection.collapsed(
+      Position(
+        path: previousTextNode.path,
+        offset: previousTextNode.toPlainText().length,
+      ),
+    );
+  }
+
+  if (transaction.operations.isNotEmpty) {
+    if (nonTextNodes.isNotEmpty) {
+      transaction.afterSelection = Selection.collapsed(selection.start);
+    }
+    editorState.commit();
   }
 
   if (prevIsNumberList) {
     makeFollowingNodesIncremental(
-        editorState, previous!.path, transactionBuilder.afterSelection!);
+        editorState, previousTextNode!.path, transaction.afterSelection!);
   }
 
   return KeyEventResult.handled;
@@ -178,7 +196,7 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
     return KeyEventResult.ignored;
   }
 
-  final transactionBuilder = TransactionBuilder(editorState);
+  final transaction = editorState.transaction;
   if (textNodes.length == 1) {
     final textNode = textNodes.first;
     // The cursor is at the end of the line,
@@ -187,55 +205,52 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
       return _mergeNextLineIntoThisLine(
         editorState,
         textNode,
-        transactionBuilder,
+        transaction,
         selection,
       );
     }
     final index = textNode.delta.nextRunePosition(selection.start.offset);
     if (selection.isCollapsed) {
-      transactionBuilder.deleteText(
+      transaction.deleteText(
         textNode,
         selection.start.offset,
         index - selection.start.offset,
       );
     } else {
-      transactionBuilder.deleteText(
+      transaction.deleteText(
         textNode,
         selection.start.offset,
         selection.end.offset - selection.start.offset,
       );
     }
-    transactionBuilder.commit();
+    editorState.commit();
   } else {
     final startPosition = selection.start;
     final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
-    _deleteTextNodes(transactionBuilder, textNodes, selection);
-    transactionBuilder.commit();
+    _deleteTextNodes(transaction, textNodes, selection);
+    editorState.commit();
 
     if (nodeAtStart is TextNode &&
         nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
       makeFollowingNodesIncremental(
-          editorState, startPosition.path, transactionBuilder.afterSelection!);
+          editorState, startPosition.path, transaction.afterSelection!);
     }
   }
 
   return KeyEventResult.handled;
 }
 
-KeyEventResult _mergeNextLineIntoThisLine(
-    EditorState editorState,
-    TextNode textNode,
-    TransactionBuilder transactionBuilder,
-    Selection selection) {
+KeyEventResult _mergeNextLineIntoThisLine(EditorState editorState,
+    TextNode textNode, Transaction transaction, Selection selection) {
   final nextNode = textNode.next;
   if (nextNode == null) {
     return KeyEventResult.ignored;
   }
   if (nextNode is TextNode) {
-    transactionBuilder.mergeText(textNode, nextNode);
+    transaction.mergeText(textNode, nextNode);
   }
-  transactionBuilder.deleteNode(nextNode);
-  transactionBuilder.commit();
+  transaction.deleteNode(nextNode);
+  editorState.commit();
 
   if (textNode.subtype == BuiltInAttributeKey.numberList) {
     makeFollowingNodesIncremental(editorState, textNode.path, selection);
@@ -244,15 +259,15 @@ KeyEventResult _mergeNextLineIntoThisLine(
   return KeyEventResult.handled;
 }
 
-void _deleteTextNodes(TransactionBuilder transactionBuilder,
-    List<TextNode> textNodes, Selection selection) {
+void _deleteTextNodes(
+    Transaction transaction, List<TextNode> textNodes, Selection selection) {
   final first = textNodes.first;
   final last = textNodes.last;
-  var content = textNodes.last.toRawString();
+  var content = textNodes.last.toPlainText();
   content = content.substring(selection.end.offset, content.length);
   // Merge the fist and the last text node content,
   //  and delete the all nodes expect for the first.
-  transactionBuilder
+  transaction
     ..deleteNodes(textNodes.sublist(1))
     ..mergeText(
       first,

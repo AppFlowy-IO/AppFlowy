@@ -29,8 +29,13 @@ import 'widgets/toolbar/grid_toolbar.dart';
 
 class GridPage extends StatefulWidget {
   final ViewPB view;
+  final VoidCallback? onDeleted;
 
-  GridPage({Key? key, required this.view}) : super(key: ValueKey(view.id));
+  GridPage({
+    required this.view,
+    this.onDeleted,
+    Key? key,
+  }) : super(key: ValueKey(view.id));
 
   @override
   State<GridPage> createState() => _GridPageState();

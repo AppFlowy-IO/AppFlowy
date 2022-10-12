@@ -1,41 +1,45 @@
-use crate::{entities::folder::FolderDelta, errors::CollaborateError, synchronizer::RevisionSyncObject};
-use lib_ot::core::{Delta, EmptyAttributes, OperationTransform};
+use crate::synchronizer::{RevisionOperations, RevisionSynchronizer};
+use crate::{errors::CollaborateError, synchronizer::RevisionSyncObject};
+use lib_ot::core::{DeltaOperations, EmptyAttributes, OperationTransform};
+
+pub type FolderRevisionSynchronizer = RevisionSynchronizer<EmptyAttributes>;
+pub type FolderOperations = DeltaOperations<EmptyAttributes>;
 
 pub struct ServerFolder {
     folder_id: String,
-    delta: FolderDelta,
+    operations: FolderOperations,
 }
 
 impl ServerFolder {
-    pub fn from_delta(folder_id: &str, delta: FolderDelta) -> Self {
+    pub fn from_operations(folder_id: &str, operations: FolderOperations) -> Self {
         Self {
             folder_id: folder_id.to_owned(),
-            delta,
+            operations,
         }
     }
 }
 
 impl RevisionSyncObject<EmptyAttributes> for ServerFolder {
-    fn id(&self) -> &str {
+    fn object_id(&self) -> &str {
         &self.folder_id
     }
 
-    fn compose(&mut self, other: &Delta) -> Result<(), CollaborateError> {
-        let new_delta = self.delta.compose(other)?;
-        self.delta = new_delta;
+    fn object_json(&self) -> String {
+        self.operations.json_str()
+    }
+
+    fn compose(&mut self, other: &FolderOperations) -> Result<(), CollaborateError> {
+        let operations = self.operations.compose(other)?;
+        self.operations = operations;
         Ok(())
     }
 
-    fn transform(&self, other: &Delta) -> Result<(Delta, Delta), CollaborateError> {
-        let value = self.delta.transform(other)?;
+    fn transform(&self, other: &FolderOperations) -> Result<(FolderOperations, FolderOperations), CollaborateError> {
+        let value = self.operations.transform(other)?;
         Ok(value)
     }
 
-    fn to_json(&self) -> String {
-        self.delta.json_str()
-    }
-
-    fn set_delta(&mut self, new_delta: Delta) {
-        self.delta = new_delta;
+    fn set_operations(&mut self, operations: RevisionOperations<EmptyAttributes>) {
+        self.operations = operations;
     }
 }

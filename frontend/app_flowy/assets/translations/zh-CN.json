@@ -94,7 +94,14 @@
   },
   "tooltip": {
     "lightMode": "切换到亮色模式",
-    "darkMode": "切换到暗色模式"
+    "darkMode": "切换到暗色模式",
+    "openAsPage": "作为页面打开",
+    "addNewRow": "增加一行",
+    "openMenu": "点击打开菜单"
+  },
+  "sideBar": {
+    "openSidebar": "打开侧边栏",
+    "closeSidebar": "关闭侧边栏"
   },
   "notifications": {
     "export": {
@@ -149,15 +156,12 @@
       "darkLabel": "夜间模式"
     }
   },
-  "sideBar": {
-    "openSidebar": "打开侧边栏",
-    "closeSidebar": "关闭侧边栏"
-  },
   "grid": {
     "settings": {
       "filter": "过滤器",
       "sortBy": "排序",
-      "Properties": "属性"
+      "Properties": "属性",
+      "group": "组"
     },
     "field": {
       "hide": "隐藏",
@@ -177,7 +181,7 @@
       "includeTime": " 包含时间",
       "dateFormatFriendly": "月 日,年",
       "dateFormatISO": "年-月-日",
-      "dateFormatLocal": "年/月/日",
+      "dateFormatLocal": "月/日/年",
       "dateFormatUS": "年/月/日",
       "timeFormat": " 时间格式",
       "invalidTimeFormat": "时间格式错误",
@@ -186,13 +190,17 @@
       "addSelectOption": "添加一个标签",
       "optionTitle": "标签",
       "addOption": "添加标签",
-      "editProperty": "编辑列属性"
+      "editProperty": "编辑列属性",
+      "newColumn": "增加一列",
+      "deleteFieldPromptMessage": "确定要删除这个属性吗? "
     },
     "row": {
       "duplicate": "复制",
       "delete": "删除",
       "textPlaceholder": "空",
-      "copyProperty": "复制列"
+      "copyProperty": "复制列",
+      "count": "数量",
+      "newRow": "添加一行"
     },
     "selectOption": {
       "create": "新建",
@@ -206,8 +214,8 @@
       "aquaColor": "水蓝色",
       "blueColor": "蓝色",
       "deleteTag": "删除标签",
-      "colorPannelTitle": "颜色",
-      "pannelTitle": "选择或新建一个标签",
+      "colorPanelTitle": "颜色",
+      "panelTitle": "选择或新建一个标签",
       "searchOption": "搜索标签"
     },
     "menuName": "网格"
@@ -215,8 +223,14 @@
   "document": {
     "menuName": "文档",
     "date": {
-      "timeHintTextInTwelveHour": "12:00 AM",
-      "timeHintTextInTwentyFourHour": "12:00"
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
     }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "新建"
+    },
+    "menuName": "看板"
   }
 }

@@ -4,7 +4,7 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_group.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_property.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -50,7 +50,6 @@ class BoardSettingList extends StatelessWidget {
             previous.selectedAction != current.selectedAction,
         listener: (context, state) {
           state.selectedAction.foldLeft(null, (_, action) {
-            // FlowyOverlay.of(context).remove(identifier());
             onAction(action, settingContext);
           });
         },
@@ -107,8 +106,11 @@ class _SettingItem extends StatelessWidget {
       height: 30,
       child: FlowyButton(
         isSelected: isSelected,
-        text: FlowyText.medium(action.title(),
-            fontSize: 12, color: theme.textColor),
+        text: FlowyText.medium(
+          action.title(),
+          fontSize: 12,
+          color: theme.textColor,
+        ),
         hoverColor: theme.hover,
         onTap: () {
           context

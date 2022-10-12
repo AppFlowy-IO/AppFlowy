@@ -1,5 +1,5 @@
 pub use crate::entities::view::ViewDataTypePB;
-use crate::entities::ViewInfoPB;
+use crate::entities::{DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -61,16 +61,28 @@ impl ViewController {
         let processor = self.get_data_processor(params.data_type.clone())?;
         let user_id = self.user.user_id()?;
         if params.view_content_data.is_empty() {
+            tracing::trace!("Create view with build-in data");
             let view_data = processor
                 .create_default_view(&user_id, &params.view_id, params.layout.clone())
                 .await?;
             params.view_content_data = view_data.to_vec();
         } else {
+            tracing::trace!("Create view with view data");
             let delta_data = processor
-                .create_view_from_delta_data(&user_id, &params.view_id, params.view_content_data.clone())
+                .create_view_from_delta_data(
+                    &user_id,
+                    &params.view_id,
+                    params.view_content_data.clone(),
+                    params.layout.clone(),
+                )
                 .await?;
             let _ = self
-                .create_view(&params.view_id, params.data_type.clone(), delta_data)
+                .create_view(
+                    &params.view_id,
+                    params.data_type.clone(),
+                    params.layout.clone(),
+                    delta_data,
+                )
                 .await?;
         };
 
@@ -84,6 +96,7 @@ impl ViewController {
         &self,
         view_id: &str,
         data_type: ViewDataTypePB,
+        layout_type: ViewLayoutTypePB,
         delta_data: Bytes,
     ) -> Result<(), FlowyError> {
         if delta_data.is_empty() {
@@ -91,7 +104,9 @@ impl ViewController {
         }
         let user_id = self.user.user_id()?;
         let processor = self.get_data_processor(data_type)?;
-        let _ = processor.create_container(&user_id, view_id, delta_data).await?;
+        let _ = processor
+            .create_container(&user_id, view_id, layout_type, delta_data)
+            .await?;
         Ok(())
     }
 
@@ -107,12 +122,12 @@ impl ViewController {
             .await
     }
 
-    #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
-    pub(crate) async fn read_view(&self, view_id: ViewIdPB) -> Result<ViewRevision, FlowyError> {
+    #[tracing::instrument(level = "debug", skip(self, view_id), err)]
+    pub(crate) async fn read_view(&self, view_id: &str) -> Result<ViewRevision, FlowyError> {
         let view_rev = self
             .persistence
             .begin_transaction(|transaction| {
-                let view = transaction.read_view(&view_id.value)?;
+                let view = transaction.read_view(view_id)?;
                 let trash_ids = self.trash_controller.read_trash_ids(&transaction)?;
                 if trash_ids.contains(&view.id) {
                     return Err(FlowyError::record_not_found());
@@ -120,12 +135,11 @@ impl ViewController {
                 Ok(view)
             })
             .await?;
-        let _ = self.read_view_on_server(view_id);
         Ok(view_rev)
     }
 
     #[tracing::instrument(level = "debug", skip(self, view_id), fields(view_id = %view_id.value), err)]
-    pub(crate) async fn read_view_info(&self, view_id: ViewIdPB) -> Result<ViewInfoPB, FlowyError> {
+    pub(crate) async fn read_view_pb(&self, view_id: ViewIdPB) -> Result<ViewInfoPB, FlowyError> {
         let view_info = self
             .persistence
             .begin_transaction(|transaction| {
@@ -179,14 +193,37 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn delete_view(&self, params: TextBlockIdPB) -> Result<(), FlowyError> {
-        if let Some(view_id) = KV::get_str(LATEST_VIEW_ID) {
-            if view_id == params.value {
+    pub(crate) async fn move_view_to_trash(&self, params: TextBlockIdPB) -> Result<(), FlowyError> {
+        let view_id = params.value;
+        if let Some(latest_view_id) = KV::get_str(LATEST_VIEW_ID) {
+            if latest_view_id == view_id {
                 let _ = KV::remove(LATEST_VIEW_ID);
             }
         }
-        let processor = self.get_data_processor_from_view_id(&params.value).await?;
-        let _ = processor.delete_container(&params.value).await?;
+
+        let deleted_view = self
+            .persistence
+            .begin_transaction(|transaction| {
+                let view = transaction.read_view(&view_id)?;
+                let views = read_belonging_views_on_local(&view.app_id, self.trash_controller.clone(), &transaction)?;
+
+                let index = views
+                    .iter()
+                    .position(|view| view.id == view_id)
+                    .map(|index| index as i32);
+                Ok(DeletedViewPB {
+                    view_id: view_id.clone(),
+                    index,
+                })
+            })
+            .await?;
+
+        send_dart_notification(&view_id, FolderNotification::ViewMoveToTrash)
+            .payload(deleted_view)
+            .send();
+
+        let processor = self.get_data_processor_from_view_id(&view_id).await?;
+        let _ = processor.close_container(&view_id).await?;
         Ok(())
     }
 
@@ -212,7 +249,7 @@ impl ViewController {
             .await?;
 
         let processor = self.get_data_processor(view_rev.data_type.clone())?;
-        let delta_bytes = processor.get_delta_data(view_id).await?;
+        let view_data = processor.get_view_data(view_id).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view_rev.app_id.clone(),
             name: format!("{} (copy)", &view_rev.name),
@@ -220,7 +257,7 @@ impl ViewController {
             thumbnail: view_rev.thumbnail,
             data_type: view_rev.data_type.into(),
             layout: view_rev.layout.into(),
-            view_content_data: delta_bytes.to_vec(),
+            view_content_data: view_data.to_vec(),
             view_id: gen_view_id(),
         };
 

@@ -18,8 +18,8 @@ class InitAppWidgetTask extends LaunchTask {
   @override
   Future<void> initialize(LaunchContext context) async {
     final widget = context.getIt<EntryPoint>().create();
-    final setting = await UserSettingsService().getAppearanceSettings();
-    final settingModel = AppearanceSettingModel(setting);
+    final setting = await SettingsFFIService().getAppearanceSetting();
+    final settingModel = AppearanceSetting(setting);
     final app = ApplicationWidget(
       settingModel: settingModel,
       child: widget,
@@ -39,6 +39,7 @@ class InitAppWidgetTask extends LaunchTask {
           Locale('id', 'ID'),
           Locale('it', 'IT'),
           Locale('ja', 'JP'),
+          Locale('ko', 'KR'),
           Locale('pl', 'PL'),
           Locale('pt', 'BR'),
           Locale('ru', 'RU'),
@@ -59,7 +60,7 @@ class InitAppWidgetTask extends LaunchTask {
 
 class ApplicationWidget extends StatelessWidget {
   final Widget child;
-  final AppearanceSettingModel settingModel;
+  final AppearanceSetting settingModel;
 
   const ApplicationWidget({
     Key? key,
@@ -76,10 +77,10 @@ class ApplicationWidget extends StatelessWidget {
         const minWidth = 600.0;
         setWindowMinSize(const Size(minWidth, minWidth / ratio));
         settingModel.readLocaleWhenAppLaunch(context);
-        AppTheme theme = context.select<AppearanceSettingModel, AppTheme>(
+        AppTheme theme = context.select<AppearanceSetting, AppTheme>(
           (value) => value.theme,
         );
-        Locale locale = context.select<AppearanceSettingModel, Locale>(
+        Locale locale = context.select<AppearanceSetting, Locale>(
           (value) => value.locale,
         );
 

@@ -1,5 +1,7 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/date_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle.dart';
+import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';
@@ -11,7 +13,7 @@ import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/date_type_option_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import '../../../layout/sizes.dart';
 import '../field_type_option_editor.dart';
 import 'builder.dart';
@@ -62,10 +64,10 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderDateFormatButton(BuildContext context, DateFormat dataFormat) {
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       mutex: popoverMutex,
-      triggerActions:
-          PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+      asBarrier: true,
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (popoverContext) {
@@ -75,7 +77,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
             context
                 .read<DateTypeOptionBloc>()
                 .add(DateTypeOptionEvent.didSelectDateFormat(format));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
         );
       },
@@ -84,10 +86,10 @@ class DateTypeOptionWidget extends TypeOptionWidget {
   }
 
   Widget _renderTimeFormatButton(BuildContext context, TimeFormat timeFormat) {
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       mutex: popoverMutex,
-      triggerActions:
-          PopoverTriggerActionFlags.hover | PopoverTriggerActionFlags.click,
+      asBarrier: true,
+      triggerActions: PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
       offset: const Offset(20, 0),
       constraints: BoxConstraints.loose(const Size(460, 440)),
       popupBuilder: (BuildContext popoverContext) {
@@ -97,7 +99,7 @@ class DateTypeOptionWidget extends TypeOptionWidget {
             context
                 .read<DateTypeOptionBloc>()
                 .add(DateTypeOptionEvent.didSelectTimeFormat(format));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
         );
       },
@@ -161,6 +163,7 @@ class _IncludeTimeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppTheme>();
     return BlocSelector<DateTypeOptionBloc, DateTypeOptionState, bool>(
       selector: (state) => state.typeOption.includeTime,
       builder: (context, includeTime) {
@@ -173,13 +176,15 @@ class _IncludeTimeButton extends StatelessWidget {
                 FlowyText.medium(LocaleKeys.grid_field_includeTime.tr(),
                     fontSize: 12),
                 const Spacer(),
-                Switch(
+                Toggle(
                   value: includeTime,
-                  onChanged: (newValue) {
+                  onChanged: (value) {
                     context
                         .read<DateTypeOptionBloc>()
-                        .add(DateTypeOptionEvent.includeTime(newValue));
+                        .add(DateTypeOptionEvent.includeTime(!value));
                   },
+                  style: ToggleStyle.big(theme),
+                  padding: EdgeInsets.zero,
                 ),
               ],
             ),
@@ -201,12 +206,10 @@ class DateFormatList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = DateFormat.values.map((format) {
       return DateFormatCell(
-          dateFormat: format,
-          onSelected: (format) {
-            onSelected(format);
-            FlowyOverlay.of(context).remove(DateFormatList.identifier());
-          },
-          isSelected: selectedFormat == format);
+        dateFormat: format,
+        onSelected: onSelected,
+        isSelected: selectedFormat == format,
+      );
     }).toList();
 
     return SizedBox(
@@ -223,10 +226,6 @@ class DateFormatList extends StatelessWidget {
         },
       ),
     );
-  }
-
-  static String identifier() {
-    return (DateFormatList).toString();
   }
 }
 
@@ -291,12 +290,10 @@ class TimeFormatList extends StatelessWidget {
   Widget build(BuildContext context) {
     final cells = TimeFormat.values.map((format) {
       return TimeFormatCell(
-          isSelected: format == selectedFormat,
-          timeFormat: format,
-          onSelected: (format) {
-            onSelected(format);
-            FlowyOverlay.of(context).remove(TimeFormatList.identifier());
-          });
+        isSelected: format == selectedFormat,
+        timeFormat: format,
+        onSelected: onSelected,
+      );
     }).toList();
 
     return SizedBox(
@@ -313,10 +310,6 @@ class TimeFormatList extends StatelessWidget {
         },
       ),
     );
-  }
-
-  static String identifier() {
-    return (TimeFormatList).toString();
   }
 }
 

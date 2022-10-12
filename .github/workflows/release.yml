@@ -44,7 +44,7 @@ jobs:
       - name: Setup environment - Rust and Cargo
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 'stable-2022-01-20'
+          toolchain: 'stable-2022-04-07'
 
       - name: Setup environment - Flutter
         uses: subosito/flutter-action@v2
@@ -94,7 +94,7 @@ jobs:
       - name: Setup environment - Rust and Cargo
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 'stable-2022-01-20'
+          toolchain: 'stable-2022-04-07'
 
       - name: Setup environment - Flutter
         uses: subosito/flutter-action@v2
@@ -143,7 +143,7 @@ jobs:
       - name: Setup environment - Rust and Cargo
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 'stable-2022-01-20'
+          toolchain: 'stable-2022-04-07'
 
       - name: Setup environment - Flutter
         uses: subosito/flutter-action@v2

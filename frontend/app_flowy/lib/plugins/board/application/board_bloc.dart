@@ -36,21 +36,21 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         super(BoardState.initial(view.id)) {
     boardController = AppFlowyBoardController(
       onMoveGroup: (
-        fromColumnId,
+        fromGroupId,
         fromIndex,
-        toColumnId,
+        toGroupId,
         toIndex,
       ) {
-        _moveGroup(fromColumnId, toColumnId);
+        _moveGroup(fromGroupId, toGroupId);
       },
       onMoveGroupItem: (
-        columnId,
+        groupId,
         fromIndex,
         toIndex,
       ) {
-        final fromRow = groupControllers[columnId]?.rowAtIndex(fromIndex);
-        final toRow = groupControllers[columnId]?.rowAtIndex(toIndex);
-        _moveRow(fromRow, columnId, toRow);
+        final fromRow = groupControllers[groupId]?.rowAtIndex(fromIndex);
+        final toRow = groupControllers[groupId]?.rowAtIndex(toIndex);
+        _moveRow(fromRow, groupId, toRow);
       },
       onMoveGroupItemToGroup: (
         fromGroupId,
@@ -89,18 +89,30 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
               (err) => Log.error(err),
             );
           },
-          didCreateRow: (String groupId, RowPB row, int? index) {
+          didCreateRow: (group, row, int? index) {
             emit(state.copyWith(
               editingRow: Some(BoardEditingRow(
-                columnId: groupId,
+                group: group,
                 row: row,
                 index: index,
               )),
             ));
+            _groupItemStartEditing(group, row, true);
           },
-          endEditRow: (rowId) {
+          startEditingRow: (group, row) {
+            emit(state.copyWith(
+              editingRow: Some(BoardEditingRow(
+                group: group,
+                row: row,
+                index: null,
+              )),
+            ));
+            _groupItemStartEditing(group, row, true);
+          },
+          endEditingRow: (rowId) {
             state.editingRow.fold(() => null, (editingRow) {
               assert(editingRow.row.id == rowId);
+              _groupItemStartEditing(editingRow.group, editingRow.row, false);
               emit(state.copyWith(editingRow: none()));
             });
           },
@@ -122,6 +134,24 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
+  void _groupItemStartEditing(GroupPB group, RowPB row, bool isEdit) {
+    final fieldContext = fieldController.getField(group.fieldId);
+    if (fieldContext == null) {
+      Log.warn("FieldContext should not be null");
+      return;
+    }
+
+    boardController.enableGroupDragging(!isEdit);
+    // boardController.updateGroupItem(
+    //   group.groupId,
+    //   GroupItem(
+    //     row: row,
+    //     fieldContext: fieldContext,
+    //     isDraggable: !isEdit,
+    //   ),
+    // );
+  }
+
   void _moveRow(RowPB? fromRow, String columnId, RowPB? toRow) {
     if (fromRow != null) {
       _rowService
@@ -136,11 +166,11 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     }
   }
 
-  void _moveGroup(String fromColumnId, String toColumnId) {
+  void _moveGroup(String fromGroupId, String toGroupId) {
     _rowService
         .moveGroup(
-      fromGroupId: fromColumnId,
-      toGroupId: toColumnId,
+      fromGroupId: fromGroupId,
+      toGroupId: toGroupId,
     )
         .then((result) {
       result.fold((l) => null, (r) => add(BoardEvent.didReceiveError(r)));
@@ -156,7 +186,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     return super.close();
   }
 
-  void initializeGroups(List<GroupPB> groups) {
+  void initializeGroups(List<GroupPB> groupsData) {
     for (var controller in groupControllers.values) {
       controller.dispose();
     }
@@ -164,27 +194,27 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     boardController.clear();
 
     //
-    List<AppFlowyGroupData> columns = groups
+    List<AppFlowyGroupData> groups = groupsData
         .where((group) => fieldController.getField(group.fieldId) != null)
         .map((group) {
       return AppFlowyGroupData(
         id: group.groupId,
         name: group.desc,
-        items: _buildRows(group),
-        customData: BoardCustomData(
+        items: _buildGroupItems(group),
+        customData: GroupData(
           group: group,
           fieldContext: fieldController.getField(group.fieldId)!,
         ),
       );
     }).toList();
-    boardController.addGroups(columns);
+    boardController.addGroups(groups);
 
-    for (final group in groups) {
+    for (final group in groupsData) {
       final delegate = GroupControllerDelegateImpl(
         controller: boardController,
         fieldController: fieldController,
         onNewColumnItem: (groupId, row, index) {
-          add(BoardEvent.didCreateRow(groupId, row, index));
+          add(BoardEvent.didCreateRow(group, row, index));
         },
       );
       final controller = GroupController(
@@ -242,10 +272,13 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     );
   }
 
-  List<AppFlowyGroupItem> _buildRows(GroupPB group) {
+  List<AppFlowyGroupItem> _buildGroupItems(GroupPB group) {
     final items = group.rows.map((row) {
       final fieldContext = fieldController.getField(group.fieldId);
-      return BoardColumnItem(row: row, fieldContext: fieldContext!);
+      return GroupItem(
+        row: row,
+        fieldContext: fieldContext!,
+      );
     }).toList();
 
     return <AppFlowyGroupItem>[...items];
@@ -270,11 +303,15 @@ class BoardEvent with _$BoardEvent {
   const factory BoardEvent.createBottomRow(String groupId) = _CreateBottomRow;
   const factory BoardEvent.createHeaderRow(String groupId) = _CreateHeaderRow;
   const factory BoardEvent.didCreateRow(
-    String groupId,
+    GroupPB group,
     RowPB row,
     int? index,
   ) = _DidCreateRow;
-  const factory BoardEvent.endEditRow(String rowId) = _EndEditRow;
+  const factory BoardEvent.startEditingRow(
+    GroupPB group,
+    RowPB row,
+  ) = _StartEditRow;
+  const factory BoardEvent.endEditingRow(String rowId) = _EndEditRow;
   const factory BoardEvent.didReceiveError(FlowyError error) = _DidReceiveError;
   const factory BoardEvent.didReceiveGridUpdate(
     GridPB grid,
@@ -334,14 +371,17 @@ class GridFieldEquatable extends Equatable {
   UnmodifiableListView<FieldPB> get value => UnmodifiableListView(_fields);
 }
 
-class BoardColumnItem extends AppFlowyGroupItem {
+class GroupItem extends AppFlowyGroupItem {
   final RowPB row;
   final GridFieldContext fieldContext;
 
-  BoardColumnItem({
+  GroupItem({
     required this.row,
     required this.fieldContext,
-  });
+    bool draggable = true,
+  }) {
+    super.draggable = draggable;
+  }
 
   @override
   String get id => row.id;
@@ -367,10 +407,16 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
     }
 
     if (index != null) {
-      final item = BoardColumnItem(row: row, fieldContext: fieldContext);
+      final item = GroupItem(
+        row: row,
+        fieldContext: fieldContext,
+      );
       controller.insertGroupItem(group.groupId, index, item);
     } else {
-      final item = BoardColumnItem(row: row, fieldContext: fieldContext);
+      final item = GroupItem(
+        row: row,
+        fieldContext: fieldContext,
+      );
       controller.addGroupItem(group.groupId, item);
     }
   }
@@ -389,7 +435,10 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
     }
     controller.updateGroupItem(
       group.groupId,
-      BoardColumnItem(row: row, fieldContext: fieldContext),
+      GroupItem(
+        row: row,
+        fieldContext: fieldContext,
+      ),
     );
   }
 
@@ -400,7 +449,11 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
       Log.warn("FieldContext should not be null");
       return;
     }
-    final item = BoardColumnItem(row: row, fieldContext: fieldContext);
+    final item = GroupItem(
+      row: row,
+      fieldContext: fieldContext,
+      draggable: false,
+    );
 
     if (index != null) {
       controller.insertGroupItem(group.groupId, index, item);
@@ -412,21 +465,21 @@ class GroupControllerDelegateImpl extends GroupControllerDelegate {
 }
 
 class BoardEditingRow {
-  String columnId;
+  GroupPB group;
   RowPB row;
   int? index;
 
   BoardEditingRow({
-    required this.columnId,
+    required this.group,
     required this.row,
     required this.index,
   });
 }
 
-class BoardCustomData {
+class GroupData {
   final GroupPB group;
   final GridFieldContext fieldContext;
-  BoardCustomData({
+  GroupData({
     required this.group,
     required this.fieldContext,
   });

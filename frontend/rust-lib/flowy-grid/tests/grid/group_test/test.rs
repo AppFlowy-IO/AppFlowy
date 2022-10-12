@@ -358,9 +358,75 @@ async fn group_move_group_test() {
             from_group_index: 0,
             to_group_index: 1,
         },
+        AssertGroupRowCount {
+            group_index: 0,
+            row_count: 2,
+        },
         AssertGroup {
             group_index: 0,
             expected_group: group_1,
+        },
+        AssertGroupRowCount {
+            group_index: 1,
+            row_count: 2,
+        },
+        AssertGroup {
+            group_index: 1,
+            expected_group: group_0,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn group_move_group_row_after_move_group_test() {
+    let mut test = GridGroupTest::new().await;
+    let group_0 = test.group_at_index(0).await;
+    let group_1 = test.group_at_index(1).await;
+    let scripts = vec![
+        MoveGroup {
+            from_group_index: 0,
+            to_group_index: 1,
+        },
+        AssertGroup {
+            group_index: 0,
+            expected_group: group_1,
+        },
+        AssertGroup {
+            group_index: 1,
+            expected_group: group_0,
+        },
+        MoveRow {
+            from_group_index: 0,
+            from_row_index: 0,
+            to_group_index: 1,
+            to_row_index: 0,
+        },
+        AssertGroupRowCount {
+            group_index: 0,
+            row_count: 1,
+        },
+        AssertGroupRowCount {
+            group_index: 1,
+            row_count: 3,
+        },
+    ];
+    test.run_scripts(scripts).await;
+}
+
+#[tokio::test]
+async fn group_default_move_group_test() {
+    let mut test = GridGroupTest::new().await;
+    let group_0 = test.group_at_index(0).await;
+    let group_3 = test.group_at_index(3).await;
+    let scripts = vec![
+        MoveGroup {
+            from_group_index: 3,
+            to_group_index: 0,
+        },
+        AssertGroup {
+            group_index: 0,
+            expected_group: group_3,
         },
         AssertGroup {
             group_index: 1,
@@ -382,11 +448,8 @@ async fn group_insert_single_select_option_test() {
         AssertGroupCount(5),
     ];
     test.run_scripts(scripts).await;
-
-    // the group at index 4 is the default_group, so the new insert group will be the
-    // index 3.
-    let group_3 = test.group_at_index(3).await;
-    assert_eq!(group_3.desc, new_option_name);
+    let new_group = test.group_at_index(0).await;
+    assert_eq!(new_group.desc, new_option_name);
 }
 
 #[tokio::test]
@@ -405,7 +468,7 @@ async fn group_group_by_other_field() {
             group_index: 1,
             row_count: 2,
         },
-        AssertGroupCount(4),
+        AssertGroupCount(5),
     ];
     test.run_scripts(scripts).await;
 }

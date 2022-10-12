@@ -1,4 +1,4 @@
-use crate::core::attributes::Attributes;
+use crate::core::attributes::AttributeHashMap;
 use crate::core::{NodeBodyChangeset, NodeData, Path};
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
@@ -13,8 +13,8 @@ pub enum NodeOperation {
     #[serde(rename = "update-attribute")]
     UpdateAttributes {
         path: Path,
-        new: Attributes,
-        old: Attributes,
+        new: AttributeHashMap,
+        old: AttributeHashMap,
     },
 
     #[serde(rename = "update-body")]
@@ -121,11 +121,11 @@ impl NodeOperation {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct NodeOperationList {
+pub struct NodeOperations {
     operations: Vec<Rc<NodeOperation>>,
 }
 
-impl NodeOperationList {
+impl NodeOperations {
     pub fn into_inner(self) -> Vec<Rc<NodeOperation>> {
         self.operations
     }
@@ -135,7 +135,7 @@ impl NodeOperationList {
     }
 }
 
-impl std::ops::Deref for NodeOperationList {
+impl std::ops::Deref for NodeOperations {
     type Target = Vec<Rc<NodeOperation>>;
 
     fn deref(&self) -> &Self::Target {
@@ -143,19 +143,19 @@ impl std::ops::Deref for NodeOperationList {
     }
 }
 
-impl std::ops::DerefMut for NodeOperationList {
+impl std::ops::DerefMut for NodeOperations {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.operations
     }
 }
 
-impl std::convert::From<Vec<NodeOperation>> for NodeOperationList {
+impl std::convert::From<Vec<NodeOperation>> for NodeOperations {
     fn from(operations: Vec<NodeOperation>) -> Self {
         Self::new(operations)
     }
 }
 
-impl NodeOperationList {
+impl NodeOperations {
     pub fn new(operations: Vec<NodeOperation>) -> Self {
         Self {
             operations: operations.into_iter().map(Rc::new).collect(),

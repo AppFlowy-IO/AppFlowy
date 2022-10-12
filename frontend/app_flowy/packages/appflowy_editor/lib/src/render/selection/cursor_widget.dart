@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:appflowy_editor/src/render/selection/selectable.dart';
 import 'package:flutter/material.dart';
 
 class CursorWidget extends StatefulWidget {
@@ -9,9 +10,13 @@ class CursorWidget extends StatefulWidget {
     required this.rect,
     required this.color,
     this.blinkingInterval = 0.5,
+    this.shouldBlink = true,
+    this.cursorStyle = CursorStyle.verticalLine,
   }) : super(key: key);
 
   final double blinkingInterval; // milliseconds
+  final bool shouldBlink;
+  final CursorStyle cursorStyle;
   final Color color;
   final Rect rect;
   final LayerLink layerLink;
@@ -67,11 +72,28 @@ class CursorWidgetState extends State<CursorWidget> {
         // Ignore the gestures in cursor
         //  to solve the problem that cursor area cannot be selected.
         child: IgnorePointer(
-          child: Container(
-            color: showCursor ? widget.color : Colors.transparent,
-          ),
+          child: _buildCursor(context),
         ),
       ),
     );
+  }
+
+  Widget _buildCursor(BuildContext context) {
+    var color = widget.color;
+    if (widget.shouldBlink && !showCursor) {
+      color = Colors.transparent;
+    }
+    switch (widget.cursorStyle) {
+      case CursorStyle.verticalLine:
+        return Container(
+          color: color,
+        );
+      case CursorStyle.borderLine:
+        return Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: color, width: 2),
+          ),
+        );
+    }
   }
 }

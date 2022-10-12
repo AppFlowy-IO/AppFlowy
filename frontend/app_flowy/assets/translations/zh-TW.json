@@ -173,7 +173,7 @@
       "includeTime": " 包含時間",
       "dateFormatFriendly": "月 日,年",
       "dateFormatISO": "年-月-日",
-      "dateFormatLocal": "年/月/日",
+      "dateFormatLocal": "月/日/年",
       "dateFormatUS": "年/月/日",
       "timeFormat": " 時間格式",
       "invalidTimeFormat": "格式無效",
@@ -202,8 +202,8 @@
       "aquaColor": "水藍色",
       "blueColor": "藍色",
       "deleteTag": "刪除標籤",
-      "colorPannelTitle": "顏色",
-      "pannelTitle": "搜尋或建立選項",
+      "colorPanelTitle": "顏色",
+      "panelTitle": "搜尋或建立選項",
       "searchOption": "搜尋選項"
     },
     "menuName": "網格"
@@ -211,8 +211,8 @@
   "document": {
     "menuName": "檔案",
     "date": {
-      "timeHintTextInTwelveHour": "12:00 AM",
-      "timeHintTextInTwentyFourHour": "12:00"
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
     }
   },
   "sideBar": {

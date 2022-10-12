@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/url_cell_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -54,13 +54,11 @@ class GridURLCell extends GridCellWidget {
       GridURLCellAccessoryType ty, GridCellAccessoryBuildContext buildContext) {
     switch (ty) {
       case GridURLCellAccessoryType.edit:
-        final cellController =
-            cellControllerBuilder.build() as GridURLCellController;
         return GridCellAccessoryBuilder(
           builder: (Key key) => _EditURLAccessory(
             key: key,
-            cellContext: cellController,
             anchorContext: buildContext.anchorContext,
+            cellControllerBuilder: cellControllerBuilder,
           ),
         );
 
@@ -99,7 +97,6 @@ class GridURLCell extends GridCellWidget {
 
 class _GridURLCellState extends GridCellState<GridURLCell> {
   final _popoverController = PopoverController();
-  GridURLCellController? _cellContext;
   late URLCellBloc _cellBloc;
 
   @override
@@ -130,10 +127,11 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             ),
           );
 
-          return AppFlowyStylePopover(
+          return AppFlowyPopover(
             controller: _popoverController,
             constraints: BoxConstraints.loose(const Size(300, 160)),
             direction: PopoverDirection.bottomWithLeftAligned,
+            triggerActions: PopoverTriggerFlags.none,
             offset: const Offset(0, 20),
             child: SizedBox.expand(
               child: GestureDetector(
@@ -146,7 +144,8 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
             ),
             popupBuilder: (BuildContext popoverContext) {
               return URLEditorPopover(
-                cellController: _cellContext!,
+                cellController: widget.cellControllerBuilder.build()
+                    as GridURLCellController,
               );
             },
             onClose: () {
@@ -168,17 +167,13 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
     final uri = Uri.parse(url);
     if (url.isNotEmpty && await canLaunchUrl(uri)) {
       await launchUrl(uri);
-    } else {
-      _cellContext =
-          widget.cellControllerBuilder.build() as GridURLCellController;
-      widget.onCellEditing.value = true;
-      _popoverController.show();
     }
   }
 
   @override
   void requestBeginFocus() {
-    _openUrlOrEdit(_cellBloc.state.url);
+    widget.onCellEditing.value = true;
+    _popoverController.show();
   }
 
   @override
@@ -191,10 +186,10 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
 }
 
 class _EditURLAccessory extends StatefulWidget {
-  final GridURLCellController cellContext;
+  final GridCellControllerBuilder cellControllerBuilder;
   final BuildContext anchorContext;
   const _EditURLAccessory({
-    required this.cellContext,
+    required this.cellControllerBuilder,
     required this.anchorContext,
     Key? key,
   }) : super(key: key);
@@ -216,16 +211,16 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
-      triggerActions: PopoverTriggerActionFlags.click,
       offset: const Offset(0, 20),
       child: svgWidget("editor/edit", color: theme.iconColor),
       popupBuilder: (BuildContext popoverContext) {
         return URLEditorPopover(
-          cellController: widget.cellContext.clone(),
+          cellController:
+              widget.cellControllerBuilder.build() as GridURLCellController,
         );
       },
     );

@@ -28,14 +28,14 @@ packages:
       path: "packages/appflowy_board"
       relative: true
     source: path
-    version: "0.0.7"
+    version: "0.0.9"
   appflowy_editor:
     dependency: "direct main"
     description:
       path: "packages/appflowy_editor"
       relative: true
     source: path
-    version: "0.0.4"
+    version: "0.0.6"
   appflowy_popover:
     dependency: "direct main"
     description:
@@ -43,6 +43,13 @@ packages:
       relative: true
     source: path
     version: "0.0.1"
+  archive:
+    dependency: transitive
+    description:
+      name: archive
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.3.1"
   args:
     dependency: transitive
     description:
@@ -667,6 +674,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.17.0"
+  intl_utils:
+    dependency: transitive
+    description:
+      name: intl_utils
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.7.0"
   io:
     dependency: transitive
     description:

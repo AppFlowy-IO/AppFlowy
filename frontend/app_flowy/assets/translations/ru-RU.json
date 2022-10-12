@@ -1,212 +1,233 @@
 {
-    "appName": "AppFlowy",
-    "defaultUsername": "Я",
-    "welcomeText": "Добро пожаловать в @:appName",
-    "githubStarText": "Поставить звезду на GitHub",
-    "subscribeNewsletterText": "Подписаться на рассылку",
-    "letsGoButtonText": "Начнём",
-    "title": "Заголовок",
-    "signUp": {
-      "buttonText": "Зарегистрироваться",
-      "title": "Регистрация в @:appName",
-      "getStartedText": "Начать",
-      "emptyPasswordError": "Пароль не может быть пустым",
-      "repeatPasswordEmptyError": "Повтор пароля не может быть пустым",
-      "unmatchedPasswordError": "Пароли не совпадают",
-      "alreadyHaveAnAccount": "Уже есть аккаунт?",
-      "emailHint": "Электронная почта",
-      "passwordHint": "Пароль",
-      "repeatPasswordHint": "Повторите пароль"
+  "appName": "AppFlowy",
+  "defaultUsername": "Я",
+  "welcomeText": "Добро пожаловать в @:appName",
+  "githubStarText": "Поставить звезду на GitHub",
+  "subscribeNewsletterText": "Подписаться на рассылку",
+  "letsGoButtonText": "Начнём",
+  "title": "Заголовок",
+  "signUp": {
+    "buttonText": "Зарегистрироваться",
+    "title": "Регистрация в @:appName",
+    "getStartedText": "Начать",
+    "emptyPasswordError": "Пароль не может быть пустым",
+    "repeatPasswordEmptyError": "Повтор пароля не может быть пустым",
+    "unmatchedPasswordError": "Пароли не совпадают",
+    "alreadyHaveAnAccount": "Уже есть аккаунт?",
+    "emailHint": "Электронная почта",
+    "passwordHint": "Пароль",
+    "repeatPasswordHint": "Повторите пароль"
+  },
+  "signIn": {
+    "loginTitle": "Войти в @:appName",
+    "loginButtonText": "Войти",
+    "buttonText": "Авторизация",
+    "forgotPassword": "Забыли пароль?",
+    "emailHint": "Электронная почта",
+    "passwordHint": "Пароль",
+    "dontHaveAnAccount": "Нет аккаунта?",
+    "repeatPasswordEmptyError": "Повтор пароля не может быть пустым",
+    "unmatchedPasswordError": "Пароли не совпадают"
+  },
+  "workspace": {
+    "create": "Создать рабочее пространство",
+    "hint": "рабочее пространство",
+    "notFoundError": "Нет такого рабочего пространства"
+  },
+  "shareAction": {
+    "buttonText": "Поделиться",
+    "workInProgress": "В разработке",
+    "markdown": "Markdown",
+    "copyLink": "Скопировать ссылку"
+  },
+  "disclosureAction": {
+    "rename": "Переименовать",
+    "delete": "Удалить",
+    "duplicate": "Дублировать"
+  },
+  "blankPageTitle": "Пустая страница",
+  "newPageText": "Новая страница",
+  "trash": {
+    "text": "Корзина",
+    "restoreAll": "Восстановить всё",
+    "deleteAll": "Очистить",
+    "pageHeader": {
+      "fileName": "Имя",
+      "lastModified": "Последнее изменение",
+      "created": "Создан"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Эта страница в Корзине",
+    "restore": "Восстановить страницу",
+    "deletePermanent": "Удалить навсегда"
+  },
+  "dialogCreatePageNameHint": "Имя",
+  "questionBubble": {
+    "whatsNew": "Что нового?",
+    "help": "Помощь",
+    "debug": {
+      "name": "Отладочная информация",
+      "success": "Скопировано в буфер обмена!",
+      "fail": "Не получилось скопировать"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Быстро добавить новую страницу",
+    "defaultNewPageName": "Без заголовка",
+    "renameDialog": "Переименовать"
+  },
+  "toolbar": {
+    "undo": "Отменить",
+    "redo": "Повторить",
+    "bold": "Жирный",
+    "italic": "Курсив",
+    "underline": "Подчёркнутый",
+    "strike": "Зачёркнутый",
+    "numList": "Нумерованный список",
+    "bulletList": "Маркированный список",
+    "checkList": "Список To-Do",
+    "inlineCode": "Код",
+    "quote": "Цитата",
+    "header": "Заголовок",
+    "highlight": "Выделение"
+  },
+  "tooltip": {
+    "darkMode": "Переключиться в тёмную тему",
+    "openAsPage": "Открыть как страницу",
+    "addNewRow": "Добавить новую строку",
+    "openMenu": "Открыть меню"
+  },
+  "sideBar": {
+    "closeSidebar": "Закрыть боковое меню",
+    "openSidebar": "Открыть боковое меню"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Заметка экспортирована в Markdown",
+      "path": "Документы/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "Контакты",
+    "whatsHappening": "Что происходит на этой неделе?",
+    "addContact": "Новый контакт",
+    "editContact": "Редактировать"
+  },
+  "button": {
+    "OK": "OK",
+    "Cancel": "Отмена",
+    "signIn": "Войти",
+    "signOut": "Выйти",
+    "complete": "Завершить",
+    "save": "Сохранить"
+  },
+  "label": {
+    "welcome": "Добро пожаловать!",
+    "firstName": "Имя",
+    "middleName": "Отчество",
+    "lastName": "Фамилия",
+    "stepX": "Этап {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Ошибка подключения к аккаунту.",
+      "failedMsg": "Убедитесь, что вы завершили вход в своём браузере."
     },
-    "signIn": {
-      "loginTitle": "Войти в @:appName",
-      "loginButtonText": "Войти",
-      "buttonText": "Авторизация",
-      "forgotPassword": "Забыли пароль?",
-      "emailHint": "Электронная почта",
-      "passwordHint": "Пароль",
-      "dontHaveAnAccount": "Нет аккаунта?",
-      "repeatPasswordEmptyError": "Повтор пароля не может быть пустым",
-      "unmatchedPasswordError": "Пароли не совпадают"
+    "google": {
+      "title": "Вход через Google",
+      "instruction1": "Чтобы импортировать ваши Google Контакты, вам нужно будет авторизовать приложение через браузер.",
+      "instruction2": "Скопируйте этот код в буфер обмена (нажав кнопку или выделив текст):",
+      "instruction3": "Пройдите по ссылке и введите этот код:",
+      "instruction4": "Нажмите на кнопку ниже, когда завершите вход:"
+    }
+  },
+  "settings": {
+    "title": "Настройки",
+    "menu": {
+      "appearance": "Внешний вид",
+      "language": "Язык",
+      "user": "Пользователь",
+      "open": "Открыть настройки"
     },
-    "workspace": {
-      "create": "Создать рабочее пространство",
-      "hint": "рабочее пространство",
-      "notFoundError": "Нет такого рабочего пространства"
-    },
-    "shareAction": {
-      "buttonText": "Поделиться",
-      "workInProgress": "В разработке",
-      "markdown": "Markdown",
-      "copyLink": "Скопировать ссылку"
-    },
-    "disclosureAction": {
-      "rename": "Переименовать",
-      "delete": "Удалить",
-      "duplicate": "Дублировать"
-    },
-    "blankPageTitle": "Пустая страница",
-    "newPageText": "Новая страница",
-    "trash": {
-      "text": "Корзина",
-      "restoreAll": "Восстановить всё",
-      "deleteAll": "Очистить",
-      "pageHeader": {
-        "fileName": "Имя",
-        "lastModified": "Последнее изменение",
-        "created": "Создан"
-      }
-    },
-    "deletePagePrompt": {
-      "text": "Эта страница в Корзине",
-      "restore": "Восстановить страницу",
-      "deletePermanent": "Удалить навсегда"
-    },
-    "dialogCreatePageNameHint": "Имя",
-    "questionBubble": {
-      "whatsNew": "Что нового?",
-      "help": "Помощь",
-      "debug": {
-        "name": "Отладочная информация",
-        "success": "Скопировано в буфер обмена!",
-        "fail": "Не получилось скопировать"
-      }
-    },
-    "menuAppHeader": {
-      "addPageTooltip": "Быстро добавить новую страницу",
-      "defaultNewPageName": "Без заголовка",
-      "renameDialog": "Переименовать"
-    },
-    "toolbar": {
-      "undo": "Отменить",
-      "redo": "Повторить",
-      "bold": "Жирный",
-      "italic": "Курсив",
-      "underline": "Подчёркнутый",
-      "strike": "Зачёркнутый",
-      "numList": "Нумерованный список",
-      "bulletList": "Маркированный список",
-      "checkList": "Список To-Do",
-      "inlineCode": "Код",
-      "quote": "Цитата",
-      "header": "Заголовок",
-      "highlight": "Выделение"
-    },
-    "tooltip": {
-      "lightMode": "Переключиться в светлую тему",
-      "darkMode": "Переключиться в тёмную тему"
-    },
-    "contactsPage": {
-      "title": "Контакты",
-      "whatsHappening": "Что происходит на этой неделе?",
-      "addContact": "Новый контакт",
-      "editContact": "Редактировать"
-    },
-    "button": {
-      "OK": "OK",
-      "Cancel": "Отмена",
-      "signIn": "Войти",
-      "signOut": "Выйти",
-      "complete": "Завершить",
-      "save": "Сохранить"
-    },
-    "label": {
-      "welcome": "Добро пожаловать!",
-      "firstName": "Имя",
-      "middleName": "Отчество",
-      "lastName": "Фамилия",
-      "stepX": "Этап {X}"
-    },
-    "oAuth": {
-      "err": {
-        "failedTitle": "Ошибка подключения к аккаунту.",
-        "failedMsg": "Убедитесь, что вы завершили вход в своём браузере."
-      },
-      "google": {
-        "title": "Вход через Google",
-        "instruction1": "Чтобы импортировать ваши Google Контакты, вам нужно будет авторизовать приложение через браузер.",
-        "instruction2": "Скопируйте этот код в буфер обмена (нажав кнопку или выделив текст):",
-        "instruction3": "Пройдите по ссылке и введите этот код:",
-        "instruction4": "Нажмите на кнопку, когда завершите вход:"
-      }
-    },
+    "appearance": {
+      "lightLabel": "Светлая",
+      "darkLabel": "Тёмная"
+    }
+  },
+  "grid": {
     "settings": {
-      "title": "Настройки",
-      "menu": {
-        "appearance": "Внешний вид",
-        "language": "Язык",
-        "open": "Открыть настройки"
-      },
-      "appearance": {
-        "lightLabel": "Светлая тема",
-        "darkLabel": "Тёмная тема"
-      }
+      "filter": "Фильтр",
+      "sortBy": "Сортировать",
+      "Properties": "Свойства",
+      "group": "Группировать"
     },
-    "grid": {
-      "settings": {
-        "filter": "Фильтр",
-        "sortBy": "Сортировать",
-        "Properties": "Свойства"
-      },
-      "field": {
-        "hide": "Скрыть",
-        "insertLeft": "Вставить слева",
-        "insertRight": "Вставить справа",
-        "duplicate": "Дублировать",
-        "delete": "Удалить",
-        "textFieldName": "Текст",
-        "checkboxFieldName": "Checkbox",
-        "dateFieldName": "Дата",
-        "numberFieldName": "Число",
-        "singleSelectFieldName": "Выбор",
-        "multiSelectFieldName": "Выбор многих",
-        "urlFieldName": "URL",
-        "numberFormat": " Формат числа",
-        "dateFormat": " Формат даты",
-        "includeTime": " Время",
-        "dateFormatFriendly": "День Месяц, Год",
-        "dateFormatISO": "Год-Месяц-День",
-        "dateFormatLocal": "Год/Месяц/День",
-        "dateFormatUS": "Год/Месяц/День",
-        "timeFormat": " Форматировать время",
-        "invalidTimeFormat": "Неверный формат",
-        "timeFormatTwelveHour": "12 часов",
-        "timeFormatTwentyFourHour": "24 часа",
-        "addSelectOption": "Добавить вариант",
-        "optionTitle": "Варианты",
-        "addOption": "Добавить",
-        "editProperty": "Редактировать свойство"
-      },
-      "row": {
-        "duplicate": "Дублировать",
-        "delete": "Удалить",
-        "textPlaceholder": "Пусто",
-        "copyProperty": "Свойство скопировано"
-      },
-      "selectOption": {
-        "create": "Создать",
-        "purpleColor": "Фиолетовый",
-        "pinkColor": "Розовый",
-        "lightPinkColor": "Светло-розовый",
-        "orangeColor": "Оранжевый",
-        "yellowColor": "Желтый",
-        "limeColor": "Ярко-зелёный",
-        "greenColor": "Зелёный",
-        "aquaColor": "Морской волны",
-        "blueColor": "Синий",
-        "deleteTag": "Удалить вариант",
-        "colorPannelTitle": "Цвета",
-        "pannelTitle": "Выберите или создайте вариант",
-        "searchOption": "Поиск"
-      },
-      "date": {
-        "timeHintTextInTwelveHour": "12:00 AM",
-        "timeHintTextInTwentyFourHour": "12:00"
-      }
+    "field": {
+      "hide": "Скрыть",
+      "insertLeft": "Вставить слева",
+      "insertRight": "Вставить справа",
+      "duplicate": "Дублировать",
+      "delete": "Удалить",
+      "textFieldName": "Текст",
+      "checkboxFieldName": "Чекбокс",
+      "dateFieldName": "Дата",
+      "numberFieldName": "Число",
+      "singleSelectFieldName": "Выбор",
+      "multiSelectFieldName": "Выбор нескольких",
+      "urlFieldName": "URL",
+      "numberFormat": " Формат числа",
+      "dateFormat": " Формат даты",
+      "includeTime": " Время",
+      "dateFormatFriendly": "День Месяц, Год",
+      "dateFormatISO": "Год-Месяц-День",
+      "dateFormatLocal": "Месяц/День/Год",
+      "dateFormatUS": "Год/Месяц/День",
+      "timeFormat": " Форматировать время",
+      "invalidTimeFormat": "Неверный формат",
+      "timeFormatTwelveHour": "12 часов",
+      "timeFormatTwentyFourHour": "24 часа",
+      "addSelectOption": "Добавить вариант",
+      "optionTitle": "Варианты",
+      "addOption": "Добавить",
+      "editProperty": "Редактировать свойство",
+      "newColumn": "Добавить колонку",
+      "deleteFieldPromptMessage": "Вы уверены? Свойство будет удалено"
     },
-    "sideBar": {
-      "openSidebar": "Open sidebar",
-      "closeSidebar": "Close sidebar"
+    "row": {
+      "duplicate": "Дублировать",
+      "delete": "Удалить",
+      "textPlaceholder": "Пусто",
+      "copyProperty": "Свойство скопировано",
+      "count": "Количество"
+    },
+    "selectOption": {
+      "create": "Создать",
+      "purpleColor": "Фиолетовый",
+      "pinkColor": "Розовый",
+      "lightPinkColor": "Светло-розовый",
+      "orangeColor": "Оранжевый",
+      "yellowColor": "Желтый",
+      "limeColor": "Ярко-зелёный",
+      "greenColor": "Зелёный",
+      "aquaColor": "Бирюзовый",
+      "blueColor": "Синий",
+      "deleteTag": "Удалить вариант",
+      "colorPanelTitle": "Цвета",
+      "panelTitle": "Выберите или создайте вариант",
+      "searchOption": "Поиск"
+    },
+    "menuName": "Сетка"
+  },
+  "document": {
+    "menuName": "Документ",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "Создать"
     }
   }
-  
+}

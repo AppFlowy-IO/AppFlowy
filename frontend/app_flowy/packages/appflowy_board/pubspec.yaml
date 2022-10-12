@@ -1,6 +1,6 @@
 name: appflowy_board
 description: AppFlowyBoard is a board-style widget that consists of multi-groups. It supports drag and drop between different groups. 
-version: 0.0.7
+version: 0.0.9
 homepage: https://github.com/AppFlowy-IO/AppFlowy
 repository: https://github.com/AppFlowy-IO/AppFlowy/tree/main/frontend/app_flowy/packages/appflowy_board
 

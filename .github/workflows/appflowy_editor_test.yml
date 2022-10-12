@@ -1,0 +1,50 @@
+name: AppFlowyEditor test
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "frontend/app_flowy/packages/appflowy_editor/**"
+
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "frontend/app_flowy/packages/appflowy_editor/**"
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  tests:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: "3.0.5"
+          cache: true
+
+      - name: Run FlowyEditor tests
+        working-directory: frontend/app_flowy/packages/appflowy_editor
+        run: |
+          flutter pub get
+          flutter format --set-exit-if-changed .
+          flutter analyze .
+          flutter test --coverage
+
+      - uses: codecov/codecov-action@v3
+        with: 
+          name: appflowy_editor
+          env_vars: ${{ matrix.os }}
+          fail_ci_if_error: true
+          verbose: true
+

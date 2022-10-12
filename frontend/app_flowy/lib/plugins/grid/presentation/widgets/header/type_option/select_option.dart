@@ -1,5 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/select_option_type_option_bloc.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -180,10 +180,11 @@ class _OptionCellState extends State<_OptionCell> {
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
 
-    return AppFlowyStylePopover(
+    return AppFlowyPopover(
       controller: _popoverController,
       mutex: widget.popoverMutex,
       offset: const Offset(20, 0),
+      asBarrier: true,
       constraints: BoxConstraints.loose(const Size(460, 440)),
       child: SizedBox(
         height: GridSize.typeOptionItemHeight,
@@ -207,13 +208,13 @@ class _OptionCellState extends State<_OptionCell> {
             context
                 .read<SelectOptionTypeOptionBloc>()
                 .add(SelectOptionTypeOptionEvent.deleteOption(widget.option));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
           onUpdated: (updatedOption) {
             context
                 .read<SelectOptionTypeOptionBloc>()
                 .add(SelectOptionTypeOptionEvent.updateOption(updatedOption));
-            PopoverContainer.of(popoverContext).closeAll();
+            PopoverContainer.of(popoverContext).close();
           },
           key: ValueKey(widget.option.id),
         );
@@ -255,6 +256,7 @@ class _CreateOptionTextField extends StatelessWidget {
         final text = state.newOptionName.foldRight("", (a, previous) => a);
         return InputTextField(
           autoClearWhenDone: true,
+          maxLength: 30,
           text: text,
           onCanceled: () {
             context

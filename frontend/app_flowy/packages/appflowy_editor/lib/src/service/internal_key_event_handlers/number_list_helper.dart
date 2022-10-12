@@ -1,8 +1,7 @@
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
-import 'package:appflowy_editor/src/document/attributes.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/core/document/attributes.dart';
 
 void makeFollowingNodesIncremental(
     EditorState editorState, List<int> insertPath, Selection afterSelection,
@@ -16,7 +15,7 @@ void makeFollowingNodesIncremental(
   int numPtr = beginNum + 1;
   var ptr = insertNode.next;
 
-  final builder = TransactionBuilder(editorState);
+  final builder = editorState.transaction;
 
   while (ptr != null) {
     if (ptr.subtype != BuiltInAttributeKey.numberList) {
@@ -34,5 +33,5 @@ void makeFollowingNodesIncremental(
   }
 
   builder.afterSelection = afterSelection;
-  builder.commit();
+  editorState.commit();
 }

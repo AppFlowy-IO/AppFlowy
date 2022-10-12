@@ -1,3 +1,4 @@
+use crate::entities::GridLayout;
 use crate::services::block_editor::GridBlockRevisionCompactor;
 use crate::services::grid_editor::{GridRevisionCompactor, GridRevisionEditor};
 use crate::services::grid_view_manager::make_grid_view_rev_manager;
@@ -13,7 +14,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{BuildGridContext, GridRevision, GridViewRevision};
 use flowy_revision::disk::{SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
-use flowy_sync::client_grid::{make_grid_block_delta, make_grid_delta, make_grid_view_delta};
+use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -109,17 +110,6 @@ impl GridManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip(self, grid_id), fields(doc_id), err)]
-    pub async fn delete_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
-        let grid_id = grid_id.as_ref();
-        tracing::Span::current().record("grid_id", &grid_id);
-        self.grid_editors.remove(grid_id);
-        self.task_scheduler.write().await.unregister_handler(grid_id);
-        Ok(())
-    }
-
-    // pub fn update_grid_info()
-
     // #[tracing::instrument(level = "debug", skip(self), err)]
     pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
         match self.grid_editors.get(grid_id) {
@@ -189,10 +179,18 @@ impl GridManager {
 pub async fn make_grid_view_data(
     user_id: &str,
     view_id: &str,
+    layout: GridLayout,
     grid_manager: Arc<GridManager>,
     build_context: BuildGridContext,
 ) -> FlowyResult<Bytes> {
-    for block_meta_data in &build_context.blocks {
+    let BuildGridContext {
+        field_revs,
+        block_metas,
+        blocks,
+        grid_view_revision_data,
+    } = build_context;
+
+    for block_meta_data in &blocks {
         let block_id = &block_meta_data.block_id;
         // Indexing the block's rows
         block_meta_data.rows.iter().for_each(|row| {
@@ -200,7 +198,7 @@ pub async fn make_grid_view_data(
         });
 
         // Create grid's block
-        let grid_block_delta = make_grid_block_delta(block_meta_data);
+        let grid_block_delta = make_grid_block_operations(block_meta_data);
         let block_delta_data = grid_block_delta.json_bytes();
         let repeated_revision: RepeatedRevision =
             Revision::initial_revision(user_id, block_id, block_delta_data).into();
@@ -209,18 +207,22 @@ pub async fn make_grid_view_data(
 
     // Will replace the grid_id with the value returned by the gen_grid_id()
     let grid_id = view_id.to_owned();
-    let grid_rev = GridRevision::from_build_context(&grid_id, build_context);
+    let grid_rev = GridRevision::from_build_context(&grid_id, field_revs, block_metas);
 
     // Create grid
-    let grid_rev_delta = make_grid_delta(&grid_rev);
+    let grid_rev_delta = make_grid_operations(&grid_rev);
     let grid_rev_delta_bytes = grid_rev_delta.json_bytes();
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, &grid_id, grid_rev_delta_bytes.clone()).into();
     let _ = grid_manager.create_grid(&grid_id, repeated_revision).await?;
 
     // Create grid view
-    let grid_view = GridViewRevision::new(grid_id, view_id.to_owned());
-    let grid_view_delta = make_grid_view_delta(&grid_view);
+    let grid_view = if grid_view_revision_data.is_empty() {
+        GridViewRevision::new(grid_id, view_id.to_owned(), layout.into())
+    } else {
+        GridViewRevision::from_json(grid_view_revision_data)?
+    };
+    let grid_view_delta = make_grid_view_operations(&grid_view);
     let grid_view_delta_bytes = grid_view_delta.json_bytes();
     let repeated_revision: RepeatedRevision =
         Revision::initial_revision(user_id, view_id, grid_view_delta_bytes).into();

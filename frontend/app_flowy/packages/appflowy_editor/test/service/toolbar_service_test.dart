@@ -4,7 +4,6 @@ import 'package:appflowy_editor/src/render/toolbar/toolbar_item_widget.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_widget.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../infra/test_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
@@ -64,9 +63,9 @@ void main() async {
         ..insertTextNode(text)
         ..insertTextNode(
           null,
-          delta: Delta([
+          delta: Delta(operations: [
             TextInsert(text),
-            TextInsert(text, attributes),
+            TextInsert(text, attributes: attributes),
             TextInsert(text),
           ]),
         );
@@ -172,8 +171,8 @@ void main() async {
             BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
             BuiltInAttributeKey.heading: BuiltInAttributeKey.h1,
           },
-          delta: Delta([
-            TextInsert(text, {
+          delta: Delta(operations: [
+            TextInsert(text, attributes: {
               BuiltInAttributeKey.bold: true,
             })
           ]),

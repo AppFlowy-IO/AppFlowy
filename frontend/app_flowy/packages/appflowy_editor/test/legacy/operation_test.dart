@@ -1,11 +1,10 @@
 import 'dart:collection';
 
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:appflowy_editor/src/operation/operation.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
+import 'package:appflowy_editor/src/core/transform/operation.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/document/state_tree.dart';
+import 'package:appflowy_editor/src/core/document/document.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -48,25 +47,26 @@ void main() {
     final item2 = Node(type: "node", attributes: {}, children: LinkedList());
     final item3 = Node(type: "node", attributes: {}, children: LinkedList());
     final root = Node(
-        type: "root",
-        attributes: {},
-        children: LinkedList()
-          ..addAll([
-            item1,
-            item2,
-            item3,
-          ]));
-    final state = EditorState(document: StateTree(root: root));
+      type: "root",
+      attributes: {},
+      children: LinkedList()
+        ..addAll([
+          item1,
+          item2,
+          item3,
+        ]),
+    );
+    final state = EditorState(document: Document(root: root));
 
     expect(item1.path, [0]);
     expect(item2.path, [1]);
     expect(item3.path, [2]);
 
-    final tb = TransactionBuilder(state);
-    tb.deleteNode(item1);
-    tb.deleteNode(item2);
-    tb.deleteNode(item3);
-    final transaction = tb.finish();
+    final transaction = state.transaction;
+    transaction.deleteNode(item1);
+    transaction.deleteNode(item2);
+    transaction.deleteNode(item3);
+    state.commit();
     expect(transaction.operations[0].path, [0]);
     expect(transaction.operations[1].path, [0]);
     expect(transaction.operations[2].path, [0]);
@@ -74,13 +74,12 @@ void main() {
   group("toJson", () {
     test("insert", () {
       final root = Node(type: "root", attributes: {}, children: LinkedList());
-      final state = EditorState(document: StateTree(root: root));
+      final state = EditorState(document: Document(root: root));
 
       final item1 = Node(type: "node", attributes: {}, children: LinkedList());
-      final tb = TransactionBuilder(state);
-      tb.insertNode([0], item1);
-
-      final transaction = tb.finish();
+      final transaction = state.transaction;
+      transaction.insertNode([0], item1);
+      state.commit();
       expect(transaction.toJson(), {
         "operations": [
           {
@@ -94,16 +93,17 @@ void main() {
     test("delete", () {
       final item1 = Node(type: "node", attributes: {}, children: LinkedList());
       final root = Node(
-          type: "root",
-          attributes: {},
-          children: LinkedList()
-            ..addAll([
-              item1,
-            ]));
-      final state = EditorState(document: StateTree(root: root));
-      final tb = TransactionBuilder(state);
-      tb.deleteNode(item1);
-      final transaction = tb.finish();
+        type: "root",
+        attributes: {},
+        children: LinkedList()
+          ..addAll([
+            item1,
+          ]),
+      );
+      final state = EditorState(document: Document(root: root));
+      final transaction = state.transaction;
+      transaction.deleteNode(item1);
+      state.commit();
       expect(transaction.toJson(), {
         "operations": [
           {

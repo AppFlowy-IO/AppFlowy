@@ -9,12 +9,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
 
 class AppService {
-  final String appId;
-  AppService({
-    required this.appId,
-  });
-
-  Future<Either<AppPB, FlowyError>> getAppDesc({required String appId}) {
+  Future<Either<AppPB, FlowyError>> readApp({required String appId}) {
     final payload = AppIdPB.create()..value = appId;
 
     return FolderEventReadApp(payload).send();

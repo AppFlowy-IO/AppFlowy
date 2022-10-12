@@ -34,11 +34,15 @@ impl GridRevision {
         }
     }
 
-    pub fn from_build_context(grid_id: &str, context: BuildGridContext) -> Self {
+    pub fn from_build_context(
+        grid_id: &str,
+        field_revs: Vec<Arc<FieldRevision>>,
+        block_metas: Vec<GridBlockMetaRevision>,
+    ) -> Self {
         Self {
             grid_id: grid_id.to_owned(),
-            fields: context.field_revs,
-            blocks: context.block_metas.into_iter().map(Arc::new).collect(),
+            fields: field_revs,
+            blocks: block_metas.into_iter().map(Arc::new).collect(),
         }
     }
 }
@@ -153,7 +157,6 @@ impl FieldRevision {
 
     pub fn get_type_option<T: TypeOptionDataDeserializer>(&self, field_type_rev: FieldTypeRevision) -> Option<T> {
         let id = field_type_rev.to_string();
-        // TODO: cache the deserialized type option
         self.type_options.get(&id).map(|s| T::from_json_str(s))
     }
 
@@ -188,6 +191,9 @@ pub struct BuildGridContext {
     pub field_revs: Vec<Arc<FieldRevision>>,
     pub block_metas: Vec<GridBlockMetaRevision>,
     pub blocks: Vec<GridBlockRevision>,
+
+    // String in JSON format. It can be deserialized into [GridViewRevision]
+    pub grid_view_revision_data: String,
 }
 
 impl BuildGridContext {

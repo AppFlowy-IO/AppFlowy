@@ -10,14 +10,20 @@ use flowy_grid_data_model::revision::{
 use std::marker::PhantomData;
 use std::sync::Arc;
 
-// Each kind of group must implement this trait to provide custom group
-// operations. For example, insert cell data to the row_rev when creating
-// a new row.
-pub trait GroupController: GroupControllerSharedOperation + Send + Sync {
+/// The [GroupController] trait defines the group actions, including create/delete/move items
+/// For example, the group will insert a item if the one of the new [RowRevision]'s [CellRevision]s
+/// content match the group filter.
+///  
+/// Different [FieldType] has a different controller that implements the [GroupController] trait.
+/// If the [FieldType] doesn't implement its group controller, then the [DefaultGroupController] will
+/// be used.
+///
+pub trait GroupController: GroupControllerActions + Send + Sync {
     fn will_create_row(&mut self, row_rev: &mut RowRevision, field_rev: &FieldRevision, group_id: &str);
     fn did_create_row(&mut self, row_pb: &RowPB, group_id: &str);
 }
 
+/// The [GroupGenerator] trait is used to generate the groups for different [FieldType]
 pub trait GroupGenerator {
     type Context;
     type TypeOptionType;
@@ -26,10 +32,10 @@ pub trait GroupGenerator {
         field_id: &str,
         group_ctx: &Self::Context,
         type_option: &Option<Self::TypeOptionType>,
-    ) -> Vec<GeneratedGroup>;
+    ) -> Vec<GeneratedGroupConfig>;
 }
 
-pub struct GeneratedGroup {
+pub struct GeneratedGroupConfig {
     pub group_rev: GroupRevision,
     pub filter_content: String,
 }
@@ -42,29 +48,42 @@ pub struct MoveGroupRowContext<'a> {
     pub to_row_id: Option<String>,
 }
 
-// Defines the shared actions each group controller can perform.
-pub trait GroupControllerSharedOperation: Send + Sync {
-    // The field that is used for grouping the rows
+/// Defines the shared actions each group controller can perform.
+pub trait GroupControllerActions: Send + Sync {
+    /// The field that is used for grouping the rows
     fn field_id(&self) -> &str;
+
+    /// Returns number of groups the current field has
     fn groups(&self) -> Vec<Group>;
+
+    /// Returns the index and the group data with group_id
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)>;
+
+    /// Separates the rows into different groups
     fn fill_groups(&mut self, row_revs: &[Arc<RowRevision>], field_rev: &FieldRevision) -> FlowyResult<()>;
+
+    /// Remove the group with from_group_id and insert it to the index with to_group_id
     fn move_group(&mut self, from_group_id: &str, to_group_id: &str) -> FlowyResult<()>;
-    fn did_update_row(
+
+    /// Insert the row to the group if the corresponding cell data is changed
+    fn did_update_group_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>>;
 
-    fn did_delete_row(
+    /// Remove the row from the group if the corresponding cell data is changed
+    fn did_delete_delete_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>>;
 
+    /// Move the row from one group to another group
     fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>>;
 
-    fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>>;
+    /// Update the group if the corresponding field is changed
+    fn did_update_group_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>>;
 }
 
 /// C: represents the group configuration that impl [GroupConfigurationSerde]
@@ -86,10 +105,9 @@ where
     G: GroupGenerator<Context = GroupContext<C>, TypeOptionType = T>,
 {
     pub async fn new(field_rev: &Arc<FieldRevision>, mut configuration: GroupContext<C>) -> FlowyResult<Self> {
-        let field_type_rev = field_rev.ty;
-        let type_option = field_rev.get_type_option::<T>(field_type_rev);
+        let type_option = field_rev.get_type_option::<T>(field_rev.ty);
         let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
-        let _ = configuration.init_groups(groups, true)?;
+        let _ = configuration.init_groups(groups)?;
 
         Ok(Self {
             field_id: field_rev.id.clone(),
@@ -106,8 +124,8 @@ where
         &mut self,
         row_rev: &RowRevision,
         other_group_changesets: &[GroupChangesetPB],
-    ) -> GroupChangesetPB {
-        let default_group = self.group_ctx.get_mut_default_group();
+    ) -> Option<GroupChangesetPB> {
+        let default_group = self.group_ctx.get_mut_no_status_group()?;
 
         // [other_group_inserted_row] contains all the inserted rows except the default group.
         let other_group_inserted_row = other_group_changesets
@@ -164,11 +182,11 @@ where
         }
         default_group.rows.retain(|row| !deleted_row_ids.contains(&row.id));
         changeset.deleted_rows.extend(deleted_row_ids);
-        changeset
+        Some(changeset)
     }
 }
 
-impl<C, T, G, P> GroupControllerSharedOperation for GenericGroupController<C, T, G, P>
+impl<C, T, G, P> GroupControllerActions for GenericGroupController<C, T, G, P>
 where
     P: CellBytesParser,
     C: GroupConfigurationContentSerde,
@@ -183,11 +201,14 @@ where
 
     fn groups(&self) -> Vec<Group> {
         if self.use_default_group() {
-            let mut groups: Vec<Group> = self.group_ctx.concrete_groups().into_iter().cloned().collect();
-            groups.push(self.group_ctx.default_group().clone());
-            groups
+            self.group_ctx.groups().into_iter().cloned().collect()
         } else {
-            self.group_ctx.concrete_groups().into_iter().cloned().collect()
+            self.group_ctx
+                .groups()
+                .into_iter()
+                .filter(|group| group.id != self.field_id)
+                .cloned()
+                .collect::<Vec<_>>()
         }
     }
 
@@ -206,9 +227,9 @@ where
 
             if let Some(cell_rev) = cell_rev {
                 let mut grouped_rows: Vec<GroupedRow> = vec![];
-                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev);
+                let cell_bytes = decode_any_cell_data(cell_rev.data, field_rev).1;
                 let cell_data = cell_bytes.parser::<P>()?;
-                for group in self.group_ctx.concrete_groups() {
+                for group in self.group_ctx.groups() {
                     if self.can_group(&group.filter_content, &cell_data) {
                         grouped_rows.push(GroupedRow {
                             row: row_rev.into(),
@@ -217,17 +238,18 @@ where
                     }
                 }
 
-                if grouped_rows.is_empty() {
-                    self.group_ctx.get_mut_default_group().add_row(row_rev.into());
-                } else {
+                if !grouped_rows.is_empty() {
                     for group_row in grouped_rows {
                         if let Some(group) = self.group_ctx.get_mut_group(&group_row.group_id) {
                             group.add_row(group_row.row);
                         }
                     }
+                    continue;
                 }
-            } else {
-                self.group_ctx.get_mut_default_group().add_row(row_rev.into());
+            }
+            match self.group_ctx.get_mut_no_status_group() {
+                None => {}
+                Some(default_group) => default_group.add_row(row_rev.into()),
             }
         }
 
@@ -239,19 +261,20 @@ where
         self.group_ctx.move_group(from_group_id, to_group_id)
     }
 
-    fn did_update_row(
+    fn did_update_group_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             let mut changesets = self.add_row_if_match(row_rev, &cell_data);
-            let default_group_changeset = self.update_default_group(row_rev, &changesets);
-            tracing::trace!("default_group_changeset: {}", default_group_changeset);
-            if !default_group_changeset.is_empty() {
-                changesets.push(default_group_changeset);
+            if let Some(default_group_changeset) = self.update_default_group(row_rev, &changesets) {
+                tracing::trace!("default_group_changeset: {}", default_group_changeset);
+                if !default_group_changeset.is_empty() {
+                    changesets.push(default_group_changeset);
+                }
             }
             Ok(changesets)
         } else {
@@ -259,35 +282,45 @@ where
         }
     }
 
-    fn did_delete_row(
+    fn did_delete_delete_row(
         &mut self,
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
+        // if the cell_rev is none, then the row must be crated from the default group.
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev);
+            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.remove_row_if_match(row_rev, &cell_data))
+        } else if let Some(group) = self.group_ctx.get_no_status_group() {
+            Ok(vec![GroupChangesetPB::delete(
+                group.id.clone(),
+                vec![row_rev.id.clone()],
+            )])
         } else {
             Ok(vec![])
         }
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
     fn move_group_row(&mut self, context: MoveGroupRowContext) -> FlowyResult<Vec<GroupChangesetPB>> {
-        if let Some(cell_rev) = context.row_rev.cells.get(&self.field_id) {
-            let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), context.field_rev);
+        let cell_rev = match context.row_rev.cells.get(&self.field_id) {
+            Some(cell_rev) => Some(cell_rev.clone()),
+            None => self.default_cell_rev(),
+        };
+
+        if let Some(cell_rev) = cell_rev {
+            let cell_bytes = decode_any_cell_data(cell_rev.data, context.field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
             Ok(self.move_row(&cell_data, context))
         } else {
+            tracing::warn!("Unexpected moving group row, changes should not be empty");
             Ok(vec![])
         }
     }
 
-    fn did_update_field(&mut self, field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
-        let type_option = field_rev.get_type_option::<T>(field_rev.ty);
-        let groups = G::generate_groups(&field_rev.id, &self.group_ctx, &type_option);
-        let changeset = self.group_ctx.init_groups(groups, false)?;
-        Ok(changeset)
+    fn did_update_group_field(&mut self, _field_rev: &FieldRevision) -> FlowyResult<Option<GroupViewChangesetPB>> {
+        Ok(None)
     }
 }
 

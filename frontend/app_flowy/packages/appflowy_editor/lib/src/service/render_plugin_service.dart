@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
 import 'package:flutter/material.dart';

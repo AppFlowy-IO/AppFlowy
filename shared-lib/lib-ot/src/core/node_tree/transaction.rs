@@ -1,14 +1,14 @@
-use crate::core::attributes::Attributes;
+use crate::core::attributes::AttributeHashMap;
 use crate::core::{NodeData, NodeOperation, NodeTree, Path};
 use crate::errors::OTError;
 use indextree::NodeId;
 use std::rc::Rc;
 
-use super::{NodeBodyChangeset, NodeOperationList};
+use super::{NodeBodyChangeset, NodeOperations};
 
 #[derive(Debug, Clone, Default)]
 pub struct Transaction {
-    operations: NodeOperationList,
+    operations: NodeOperations,
 }
 
 impl Transaction {
@@ -16,7 +16,7 @@ impl Transaction {
         Self::default()
     }
 
-    pub fn from_operations<T: Into<NodeOperationList>>(operations: T) -> Self {
+    pub fn from_operations<T: Into<NodeOperations>>(operations: T) -> Self {
         Self {
             operations: operations.into(),
         }
@@ -66,14 +66,14 @@ impl std::ops::DerefMut for Transaction {
 
 pub struct TransactionBuilder<'a> {
     node_tree: &'a NodeTree,
-    operations: NodeOperationList,
+    operations: NodeOperations,
 }
 
 impl<'a> TransactionBuilder<'a> {
     pub fn new(node_tree: &'a NodeTree) -> TransactionBuilder {
         TransactionBuilder {
             node_tree,
-            operations: NodeOperationList::default(),
+            operations: NodeOperations::default(),
         }
     }
 
@@ -132,10 +132,10 @@ impl<'a> TransactionBuilder<'a> {
         self.insert_nodes_at_path(path, vec![node])
     }
 
-    pub fn update_attributes_at_path(mut self, path: &Path, attributes: Attributes) -> Self {
+    pub fn update_attributes_at_path(mut self, path: &Path, attributes: AttributeHashMap) -> Self {
         match self.node_tree.get_node_at_path(path) {
             Some(node) => {
-                let mut old_attributes = Attributes::new();
+                let mut old_attributes = AttributeHashMap::new();
                 for key in attributes.keys() {
                     let old_attrs = &node.attributes;
                     if let Some(value) = old_attrs.get(key.as_str()) {

@@ -57,6 +57,7 @@ impl GridBlockManager {
         Ok(self.get_block_editor(&block_id).await?)
     }
 
+    #[tracing::instrument(level = "trace", skip(self, start_row_id), err)]
     pub(crate) async fn create_row(&self, row_rev: RowRevision, start_row_id: Option<String>) -> FlowyResult<i32> {
         let block_id = row_rev.block_id.clone();
         let _ = self.persistence.insert(&row_rev.block_id, &row_rev.id)?;

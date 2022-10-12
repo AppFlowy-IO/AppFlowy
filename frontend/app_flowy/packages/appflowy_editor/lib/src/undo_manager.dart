@@ -1,10 +1,9 @@
 import 'dart:collection';
 
-import 'package:appflowy_editor/src/document/selection.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/infra/log.dart';
-import 'package:appflowy_editor/src/operation/operation.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
-import 'package:appflowy_editor/src/operation/transaction.dart';
+import 'package:appflowy_editor/src/core/transform/operation.dart';
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 
 /// A [HistoryItem] contains list of operations committed by users.
@@ -39,7 +38,7 @@ class HistoryItem extends LinkedListEntry<HistoryItem> {
 
   /// Create a new [Transaction] by inverting the operations.
   Transaction toTransaction(EditorState state) {
-    final builder = TransactionBuilder(state);
+    final builder = Transaction(document: state.document);
     for (var i = operations.length - 1; i >= 0; i--) {
       final operation = operations[i];
       final inverted = operation.invert();
@@ -47,7 +46,7 @@ class HistoryItem extends LinkedListEntry<HistoryItem> {
     }
     builder.afterSelection = beforeSelection;
     builder.beforeSelection = afterSelection;
-    return builder.finish();
+    return builder;
   }
 }
 

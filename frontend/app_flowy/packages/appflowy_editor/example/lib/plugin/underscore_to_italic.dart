@@ -18,7 +18,7 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString();
+  final text = textNode.toPlainText();
   // Determine if an 'underscore' already exists in the text node and only once.
   final firstUnderscore = text.indexOf('_');
   final lastUnderscore = text.lastIndexOf('_');
@@ -31,7 +31,7 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
   // Delete the previous 'underscore',
   // update the style of the text surrounded by the two underscores to 'italic',
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  editorState.transaction
     ..deleteText(textNode, firstUnderscore, 1)
     ..formatText(
       textNode,
@@ -46,8 +46,8 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
         path: textNode.path,
         offset: selection.end.offset - 1,
       ),
-    )
-    ..commit();
+    );
+  editorState.commit();
 
   return KeyEventResult.handled;
 };

@@ -6,27 +6,53 @@ import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+typedef SelectionMenuItemHandler = void Function(
+  EditorState editorState,
+  SelectionMenuService menuService,
+  BuildContext context,
+);
+
 /// Selection Menu Item
 class SelectionMenuItem {
   SelectionMenuItem({
     required this.name,
     required this.icon,
     required this.keywords,
-    required this.handler,
-  });
+    required SelectionMenuItemHandler handler,
+  }) {
+    this.handler = (editorState, menuService, context) {
+      _deleteToSlash(editorState);
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        handler(editorState, menuService, context);
+      });
+    };
+  }
 
-  final String name;
+  final String Function() name;
   final Widget icon;
 
   /// Customizes keywords for item.
   ///
   /// The keywords are used to quickly retrieve items.
   final List<String> keywords;
-  final void Function(
-    EditorState editorState,
-    SelectionMenuService menuService,
-    BuildContext context,
-  ) handler;
+  late final SelectionMenuItemHandler handler;
+
+  void _deleteToSlash(EditorState editorState) {
+    final selectionService = editorState.service.selectionService;
+    final selection = selectionService.currentSelection.value;
+    final nodes = selectionService.currentSelectedNodes;
+    if (selection != null && nodes.length == 1) {
+      final node = nodes.first as TextNode;
+      final end = selection.start.offset;
+      final start = node.toPlainText().substring(0, end).lastIndexOf('/');
+      editorState.transaction.deleteText(
+        node,
+        start,
+        selection.start.offset - start,
+      );
+      editorState.commit();
+    }
+  }
 }
 
 class SelectionMenuWidget extends StatefulWidget {
@@ -204,11 +230,8 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
 
     if (event.logicalKey == LogicalKeyboardKey.enter) {
       if (0 <= _selectedIndex && _selectedIndex < _showingItems.length) {
-        _deleteLastCharacters(length: keyword.length + 1);
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          _showingItems[_selectedIndex]
-              .handler(widget.editorState, widget.menuService, context);
-        });
+        _showingItems[_selectedIndex]
+            .handler(widget.editorState, widget.menuService, context);
         return KeyEventResult.handled;
       }
     } else if (event.logicalKey == LogicalKeyboardKey.escape) {
@@ -254,13 +277,12 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
     final nodes = selectionService.currentSelectedNodes;
     if (selection != null && nodes.length == 1) {
       widget.onSelectionUpdate();
-      TransactionBuilder(widget.editorState)
-        ..deleteText(
-          nodes.first as TextNode,
-          selection.start.offset - length,
-          length,
-        )
-        ..commit();
+      widget.editorState.transaction.deleteText(
+        nodes.first as TextNode,
+        selection.start.offset - length,
+        length,
+      );
+      widget.editorState.commit();
     }
   }
 
@@ -271,13 +293,12 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
         widget.editorState.service.selectionService.currentSelectedNodes;
     if (selection != null && nodes.length == 1) {
       widget.onSelectionUpdate();
-      TransactionBuilder(widget.editorState)
-        ..insertText(
-          nodes.first as TextNode,
-          selection.end.offset,
-          text,
-        )
-        ..commit();
+      widget.editorState.transaction.insertText(
+        nodes.first as TextNode,
+        selection.end.offset,
+        text,
+      );
+      widget.editorState.commit();
     }
   }
 }

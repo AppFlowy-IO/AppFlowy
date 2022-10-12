@@ -1,5 +1,5 @@
-import 'package:appflowy_editor/src/document/attributes.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/core/document/attributes.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 import 'package:flutter/material.dart';
 
 extension NodeAttributesExtensions on Attributes {
@@ -17,9 +17,9 @@ extension NodeAttributesExtensions on Attributes {
     return containsKey(BuiltInAttributeKey.quote);
   }
 
-  int? get number {
+  num? get number {
     if (containsKey(BuiltInAttributeKey.number) &&
-        this[BuiltInAttributeKey.number] is int) {
+        this[BuiltInAttributeKey.number] is num) {
       return this[BuiltInAttributeKey.number];
     }
     return null;
@@ -27,7 +27,7 @@ extension NodeAttributesExtensions on Attributes {
 
   bool get code {
     if (containsKey(BuiltInAttributeKey.code) &&
-        this[BuiltInAttributeKey.code] == true) {
+        this[BuiltInAttributeKey.code] is bool) {
       return this[BuiltInAttributeKey.code];
     }
     return false;
@@ -63,11 +63,14 @@ extension DeltaAttributesExtensions on Attributes {
         this[BuiltInAttributeKey.strikethrough] == true);
   }
 
+  static const whiteInt = 0XFFFFFFFF;
+
   Color? get color {
     if (containsKey(BuiltInAttributeKey.color) &&
         this[BuiltInAttributeKey.color] is String) {
       return Color(
-        int.parse(this[BuiltInAttributeKey.color]),
+        // If the parse fails returns white by default
+        int.tryParse(this[BuiltInAttributeKey.color]) ?? whiteInt,
       );
     }
     return null;
@@ -77,8 +80,7 @@ extension DeltaAttributesExtensions on Attributes {
     if (containsKey(BuiltInAttributeKey.backgroundColor) &&
         this[BuiltInAttributeKey.backgroundColor] is String) {
       return Color(
-        int.parse(this[BuiltInAttributeKey.backgroundColor]),
-      );
+          int.tryParse(this[BuiltInAttributeKey.backgroundColor]) ?? whiteInt);
     }
     return null;
   }

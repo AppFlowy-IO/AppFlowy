@@ -51,8 +51,8 @@ impl DateTypeOptionPB {
         let date = format!("{}", utc.format_with_items(StrftimeItems::new(fmt)));
 
         let mut time = "".to_string();
-        if has_time {
-            let fmt = format!("{} {}", self.date_format.format_str(), self.time_format.format_str());
+        if has_time && self.include_time {
+            let fmt = format!("{}{}", self.date_format.format_str(), self.time_format.format_str());
             time = format!("{}", utc.format_with_items(StrftimeItems::new(&fmt))).replace(&date, "");
         }
 
@@ -126,6 +126,17 @@ impl CellDisplayable<DateTimestamp> for DateTypeOptionPB {
         let timestamp = cell_data.try_into_inner()?;
         let date_cell_data = self.today_desc_from_timestamp(timestamp);
         CellBytes::from(date_cell_data)
+    }
+
+    fn display_string(
+        &self,
+        cell_data: CellData<DateTimestamp>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        let timestamp = cell_data.try_into_inner()?;
+        let date_cell_data = self.today_desc_from_timestamp(timestamp);
+        Ok(date_cell_data.date)
     }
 }
 

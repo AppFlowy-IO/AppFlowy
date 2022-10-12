@@ -33,8 +33,3 @@ impl std::convert::From<GridNotification> for i32 {
 pub fn send_dart_notification(id: &str, ty: GridNotification) -> DartNotifyBuilder {
     DartNotifyBuilder::new(id, ty, OBSERVABLE_CATEGORY)
 }
-
-#[tracing::instrument(level = "trace")]
-pub fn send_anonymous_dart_notification(ty: GridNotification) -> DartNotifyBuilder {
-    DartNotifyBuilder::new("", ty, OBSERVABLE_CATEGORY)
-}

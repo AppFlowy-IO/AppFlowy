@@ -1,6 +1,6 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -164,67 +164,67 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
-    final Widget child;
-    if (widget.selectOptions.isEmpty && widget.cellStyle != null) {
-      child = Align(
-        alignment: Alignment.centerLeft,
-        child: FlowyText.medium(
-          widget.cellStyle!.placeholder,
-          fontSize: 14,
-          color: theme.shader3,
-        ),
-      );
-    } else {
-      child = Align(
-        alignment: Alignment.centerLeft,
-        child: Wrap(
-          spacing: 4,
-          runSpacing: 2,
-          children: widget.selectOptions
-              .map((option) => SelectOptionTag.fromOption(
-                    context: context,
-                    option: option,
-                  ))
-              .toList(),
-        ),
-      );
-    }
+    Widget child = _buildOptions(theme, context);
 
     return Stack(
       alignment: AlignmentDirectional.center,
       fit: StackFit.expand,
       children: [
-        AppFlowyStylePopover(
-          controller: _popover,
-          constraints: BoxConstraints.loose(
-              Size(SelectOptionCellEditor.editorPanelWidth, 300)),
-          offset: const Offset(0, 20),
-          direction: PopoverDirection.bottomWithLeftAligned,
-          // triggerActions: PopoverTriggerActionFlags.c,
-          popupBuilder: (BuildContext context) {
-            WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-              widget.onFocus?.call(true);
-            });
-            return SizedBox(
-              width: SelectOptionCellEditor.editorPanelWidth,
-              child: SelectOptionCellEditor(
-                cellController: widget.cellControllerBuilder.build()
-                    as GridSelectOptionCellController,
-                onDismissed: () {
-                  widget.onFocus?.call(false);
-                },
-              ),
-            );
-          },
-          onClose: () {
-            widget.onFocus?.call(false);
-          },
-          child: child,
-        ),
-        InkWell(onTap: () {
-          _popover.show();
-        }),
+        _wrapPopover(child),
+        InkWell(onTap: () => _popover.show()),
       ],
     );
+  }
+
+  Widget _wrapPopover(Widget child) {
+    final constraints = BoxConstraints.loose(Size(
+      SelectOptionCellEditor.editorPanelWidth,
+      300,
+    ));
+    return AppFlowyPopover(
+      controller: _popover,
+      constraints: constraints,
+      direction: PopoverDirection.bottomWithLeftAligned,
+      popupBuilder: (BuildContext context) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.onFocus?.call(true);
+        });
+        return SelectOptionCellEditor(
+          cellController: widget.cellControllerBuilder.build()
+              as GridSelectOptionCellController,
+        );
+      },
+      onClose: () => widget.onFocus?.call(false),
+      child: child,
+    );
+  }
+
+  Widget _buildOptions(AppTheme theme, BuildContext context) {
+    final Widget child;
+    if (widget.selectOptions.isEmpty && widget.cellStyle != null) {
+      child = FlowyText.medium(
+        widget.cellStyle!.placeholder,
+        fontSize: 14,
+        color: theme.shader3,
+      );
+    } else {
+      final children = widget.selectOptions.map(
+        (option) {
+          return Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: SelectOptionTag.fromOption(
+              context: context,
+              option: option,
+            ),
+          );
+        },
+      ).toList();
+
+      child = Wrap(
+        runSpacing: 2,
+        children: children,
+      );
+    }
+    return Align(alignment: Alignment.centerLeft, child: child);
   }
 }

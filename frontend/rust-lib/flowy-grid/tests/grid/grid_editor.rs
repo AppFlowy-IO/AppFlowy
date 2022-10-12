@@ -127,6 +127,7 @@ fn make_test_grid() -> BuildGridContext {
                 let text_field = FieldBuilder::new(RichTextTypeOptionBuilder::default())
                     .name("Name")
                     .visibility(true)
+                    .primary(true)
                     .build();
                 grid_builder.add_field(text_field);
             }

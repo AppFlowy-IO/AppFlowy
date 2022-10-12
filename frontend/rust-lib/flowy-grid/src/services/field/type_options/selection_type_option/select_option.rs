@@ -76,6 +76,8 @@ pub fn make_selected_select_options(
 }
 
 pub trait SelectOptionOperation: TypeOptionDataFormat + Send + Sync {
+    /// Insert the `SelectOptionPB` into corresponding type option.
+    /// Replace the old value if the option already exists in the option list.
     fn insert_option(&mut self, new_option: SelectOptionPB) {
         let options = self.mut_options();
         if let Some(index) = options
@@ -120,6 +122,21 @@ where
     ) -> FlowyResult<CellBytes> {
         CellBytes::from(self.selected_select_option(cell_data))
     }
+
+    fn display_string(
+        &self,
+        cell_data: CellData<SelectOptionIds>,
+        _decoded_field_type: &FieldType,
+        _field_rev: &FieldRevision,
+    ) -> FlowyResult<String> {
+        Ok(self
+            .selected_select_option(cell_data)
+            .select_options
+            .into_iter()
+            .map(|option| option.name)
+            .collect::<Vec<String>>()
+            .join(SELECTION_IDS_SEPARATOR))
+    }
 }
 
 pub fn select_option_operation(field_rev: &FieldRevision) -> FlowyResult<Box<dyn SelectOptionOperation>> {
@@ -155,6 +172,11 @@ pub fn select_option_color_from_index(index: usize) -> SelectOptionColorPB {
     }
 }
 
+/// List of select option ids
+///
+/// Calls [to_string] will return a string consists list of ids,
+/// placing a commas separator between each
+///
 #[derive(Default)]
 pub struct SelectOptionIds(Vec<String>);
 
@@ -178,6 +200,10 @@ impl FromCellString for SelectOptionIds {
 
 impl std::convert::From<String> for SelectOptionIds {
     fn from(s: String) -> Self {
+        if s.is_empty() {
+            return Self(vec![]);
+        }
+
         let ids = s
             .split(SELECTION_IDS_SEPARATOR)
             .map(|id| id.to_string())
@@ -186,7 +212,16 @@ impl std::convert::From<String> for SelectOptionIds {
     }
 }
 
+impl std::convert::From<Vec<String>> for SelectOptionIds {
+    fn from(ids: Vec<String>) -> Self {
+        let ids = ids.into_iter().filter(|id| !id.is_empty()).collect::<Vec<String>>();
+        Self(ids)
+    }
+}
+
 impl ToString for SelectOptionIds {
+    /// Returns a string that consists list of ids, placing a commas
+    /// separator between each
     fn to_string(&self) -> String {
         self.0.join(SELECTION_IDS_SEPARATOR)
     }
@@ -239,24 +274,24 @@ pub struct SelectOptionCellChangesetPayloadPB {
     #[pb(index = 1)]
     pub cell_identifier: GridCellIdPB,
 
-    #[pb(index = 2, one_of)]
-    pub insert_option_id: Option<String>,
+    #[pb(index = 2)]
+    pub insert_option_ids: Vec<String>,
 
-    #[pb(index = 3, one_of)]
-    pub delete_option_id: Option<String>,
+    #[pb(index = 3)]
+    pub delete_option_ids: Vec<String>,
 }
 
 pub struct SelectOptionCellChangesetParams {
     pub cell_identifier: GridCellIdParams,
-    pub insert_option_id: Option<String>,
-    pub delete_option_id: Option<String>,
+    pub insert_option_ids: Vec<String>,
+    pub delete_option_ids: Vec<String>,
 }
 
 impl std::convert::From<SelectOptionCellChangesetParams> for CellChangesetPB {
     fn from(params: SelectOptionCellChangesetParams) -> Self {
         let changeset = SelectOptionCellChangeset {
-            insert_option_id: params.insert_option_id,
-            delete_option_id: params.delete_option_id,
+            insert_option_ids: params.insert_option_ids,
+            delete_option_ids: params.delete_option_ids,
         };
         let content = serde_json::to_string(&changeset).unwrap();
         CellChangesetPB {
@@ -273,36 +308,42 @@ impl TryInto<SelectOptionCellChangesetParams> for SelectOptionCellChangesetPaylo
 
     fn try_into(self) -> Result<SelectOptionCellChangesetParams, Self::Error> {
         let cell_identifier: GridCellIdParams = self.cell_identifier.try_into()?;
-        let insert_option_id = match self.insert_option_id {
-            None => None,
-            Some(insert_option_id) => Some(
-                NotEmptyStr::parse(insert_option_id)
-                    .map_err(|_| ErrorCode::OptionIdIsEmpty)?
-                    .0,
-            ),
-        };
+        let insert_option_ids = self
+            .insert_option_ids
+            .into_iter()
+            .flat_map(|option_id| match NotEmptyStr::parse(option_id) {
+                Ok(option_id) => Some(option_id.0),
+                Err(_) => {
+                    tracing::error!("The insert option id should not be empty");
+                    None
+                }
+            })
+            .collect::<Vec<String>>();
 
-        let delete_option_id = match self.delete_option_id {
-            None => None,
-            Some(delete_option_id) => Some(
-                NotEmptyStr::parse(delete_option_id)
-                    .map_err(|_| ErrorCode::OptionIdIsEmpty)?
-                    .0,
-            ),
-        };
+        let delete_option_ids = self
+            .delete_option_ids
+            .into_iter()
+            .flat_map(|option_id| match NotEmptyStr::parse(option_id) {
+                Ok(option_id) => Some(option_id.0),
+                Err(_) => {
+                    tracing::error!("The deleted option id should not be empty");
+                    None
+                }
+            })
+            .collect::<Vec<String>>();
 
         Ok(SelectOptionCellChangesetParams {
             cell_identifier,
-            insert_option_id,
-            delete_option_id,
+            insert_option_ids,
+            delete_option_ids,
         })
     }
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct SelectOptionCellChangeset {
-    pub insert_option_id: Option<String>,
-    pub delete_option_id: Option<String>,
+    pub insert_option_ids: Vec<String>,
+    pub delete_option_ids: Vec<String>,
 }
 
 impl FromCellChangeset for SelectOptionCellChangeset {
@@ -315,17 +356,31 @@ impl FromCellChangeset for SelectOptionCellChangeset {
 }
 
 impl SelectOptionCellChangeset {
-    pub fn from_insert(option_id: &str) -> Self {
+    pub fn from_insert_option_id(option_id: &str) -> Self {
         SelectOptionCellChangeset {
-            insert_option_id: Some(option_id.to_string()),
-            delete_option_id: None,
+            insert_option_ids: vec![option_id.to_string()],
+            delete_option_ids: vec![],
         }
     }
 
-    pub fn from_delete(option_id: &str) -> Self {
+    pub fn from_insert_options(option_ids: Vec<String>) -> Self {
         SelectOptionCellChangeset {
-            insert_option_id: None,
-            delete_option_id: Some(option_id.to_string()),
+            insert_option_ids: option_ids,
+            delete_option_ids: vec![],
+        }
+    }
+
+    pub fn from_delete_option_id(option_id: &str) -> Self {
+        SelectOptionCellChangeset {
+            insert_option_ids: vec![],
+            delete_option_ids: vec![option_id.to_string()],
+        }
+    }
+
+    pub fn from_delete_options(option_ids: Vec<String>) -> Self {
+        SelectOptionCellChangeset {
+            insert_option_ids: vec![],
+            delete_option_ids: option_ids,
         }
     }
 
@@ -354,21 +409,21 @@ pub struct SelectOptionChangesetPayloadPB {
     #[pb(index = 1)]
     pub cell_identifier: GridCellIdPB,
 
-    #[pb(index = 2, one_of)]
-    pub insert_option: Option<SelectOptionPB>,
+    #[pb(index = 2)]
+    pub insert_options: Vec<SelectOptionPB>,
 
-    #[pb(index = 3, one_of)]
-    pub update_option: Option<SelectOptionPB>,
+    #[pb(index = 3)]
+    pub update_options: Vec<SelectOptionPB>,
 
-    #[pb(index = 4, one_of)]
-    pub delete_option: Option<SelectOptionPB>,
+    #[pb(index = 4)]
+    pub delete_options: Vec<SelectOptionPB>,
 }
 
 pub struct SelectOptionChangeset {
     pub cell_identifier: GridCellIdParams,
-    pub insert_option: Option<SelectOptionPB>,
-    pub update_option: Option<SelectOptionPB>,
-    pub delete_option: Option<SelectOptionPB>,
+    pub insert_options: Vec<SelectOptionPB>,
+    pub update_options: Vec<SelectOptionPB>,
+    pub delete_options: Vec<SelectOptionPB>,
 }
 
 impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPayloadPB {
@@ -378,9 +433,9 @@ impl TryInto<SelectOptionChangeset> for SelectOptionChangesetPayloadPB {
         let cell_identifier = self.cell_identifier.try_into()?;
         Ok(SelectOptionChangeset {
             cell_identifier,
-            insert_option: self.insert_option,
-            update_option: self.update_option,
-            delete_option: self.delete_option,
+            insert_options: self.insert_options,
+            update_options: self.update_options,
+            delete_options: self.delete_options,
         })
     }
 }

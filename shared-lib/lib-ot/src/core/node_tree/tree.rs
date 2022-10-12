@@ -1,10 +1,10 @@
-use crate::core::attributes::Attributes;
+use crate::core::attributes::AttributeHashMap;
 use crate::core::{Node, NodeBodyChangeset, NodeData, NodeOperation, OperationTransform, Path, Transaction};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, Children, FollowingSiblings, NodeId};
 use std::rc::Rc;
 
-use super::NodeOperationList;
+use super::NodeOperations;
 
 ///
 pub struct NodeTree {
@@ -26,11 +26,11 @@ impl NodeTree {
     }
 
     pub fn from_bytes(root_name: &str, bytes: Vec<u8>) -> Result<Self, OTError> {
-        let operations = NodeOperationList::from_bytes(bytes)?;
+        let operations = NodeOperations::from_bytes(bytes)?;
         Self::from_operations(root_name, operations)
     }
 
-    pub fn from_operations(root_name: &str, operations: NodeOperationList) -> Result<Self, OTError> {
+    pub fn from_operations(root_name: &str, operations: NodeOperations) -> Result<Self, OTError> {
         let mut node_tree = NodeTree::new(root_name);
         for operation in operations.into_inner().into_iter() {
             let _ = node_tree.apply_op(operation)?;
@@ -252,9 +252,9 @@ impl NodeTree {
         }
     }
 
-    fn update_attributes(&mut self, path: &Path, attributes: Attributes) -> Result<(), OTError> {
+    fn update_attributes(&mut self, path: &Path, attributes: AttributeHashMap) -> Result<(), OTError> {
         self.mut_node_at_path(path, |node| {
-            let new_attributes = Attributes::compose(&node.attributes, &attributes)?;
+            let new_attributes = AttributeHashMap::compose(&node.attributes, &attributes)?;
             node.attributes = new_attributes;
             Ok(())
         })

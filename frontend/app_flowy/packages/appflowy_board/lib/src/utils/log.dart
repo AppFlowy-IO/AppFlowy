@@ -8,25 +8,32 @@ class Log {
 
   static void info(String? message) {
     if (enableLog) {
-      debugPrint('ℹ️[Info]=> $message');
+      debugPrint('AppFlowyBoard: ℹ️[Info]=> $message');
     }
   }
 
   static void debug(String? message) {
     if (enableLog) {
-      debugPrint('🐛[Debug] - ${DateTime.now().second}=> $message');
+      debugPrint(
+          'AppFlowyBoard: 🐛[Debug] - ${DateTime.now().second}=> $message');
     }
   }
 
   static void warn(String? message) {
     if (enableLog) {
-      debugPrint('🐛[Warn] - ${DateTime.now().second} => $message');
+      debugPrint(
+          'AppFlowyBoard: 🐛[Warn] - ${DateTime.now().second} => $message');
     }
   }
 
   static void trace(String? message) {
     if (enableLog) {
-      debugPrint('❗️[Trace] - ${DateTime.now().second}=> $message');
+      debugPrint(
+          'AppFlowyBoard: ❗️[Trace] - ${DateTime.now().second}=> $message');
     }
+  }
+
+  static void error(String? message) {
+    debugPrint('AppFlowyBoard: ❌[Error] - ${DateTime.now().second}=> $message');
   }
 }

@@ -42,6 +42,7 @@ abstract class AppFlowyKeyboardService {
 class AppFlowyKeyboard extends StatefulWidget {
   const AppFlowyKeyboard({
     Key? key,
+    this.editable = true,
     required this.shortcutEvents,
     required this.editorState,
     required this.child,
@@ -50,6 +51,7 @@ class AppFlowyKeyboard extends StatefulWidget {
   final EditorState editorState;
   final Widget child;
   final List<ShortcutEvent> shortcutEvents;
+  final bool editable;
 
   @override
   State<AppFlowyKeyboard> createState() => _AppFlowyKeyboardState();
@@ -62,7 +64,6 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
   bool isFocus = true;
 
   @override
-  // TODO: implement shortcutEvents
   List<ShortcutEvent> get shortcutEvents => widget.shortcutEvents;
 
   @override
@@ -91,8 +92,12 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
 
   @override
   void enable() {
-    isFocus = true;
-    _focusNode.requestFocus();
+    if (widget.editable) {
+      isFocus = true;
+      _focusNode.requestFocus();
+    } else {
+      disable();
+    }
   }
 
   @override
@@ -119,6 +124,8 @@ class _AppFlowyKeyboardState extends State<AppFlowyKeyboard>
         final result = shortcutEvent.handler(widget.editorState, event);
         if (result == KeyEventResult.handled) {
           return KeyEventResult.handled;
+        } else if (result == KeyEventResult.skipRemainingHandlers) {
+          return KeyEventResult.skipRemainingHandlers;
         }
         continue;
       }

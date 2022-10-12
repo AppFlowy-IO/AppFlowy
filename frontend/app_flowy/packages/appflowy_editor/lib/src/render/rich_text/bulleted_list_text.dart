@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/src/document/node.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
@@ -45,7 +45,11 @@ class BulletedListTextNodeWidget extends BuiltInTextWidget {
 // customize
 
 class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with
+        SelectableMixin,
+        DefaultSelectable,
+        BuiltInStyleMixin,
+        BuiltInTextWidgetMixin {
   @override
   final iconKey = GlobalKey();
 
@@ -61,7 +65,7 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget buildWithSingle(BuildContext context) {
     return Padding(
       padding: padding,
       child: Row(

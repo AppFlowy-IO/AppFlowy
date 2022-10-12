@@ -3,7 +3,6 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespa
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import '../../infra/test_editor.dart';
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
 
 void main() async {
   setUpAll(() {
@@ -88,7 +87,7 @@ void main() async {
         expect(textNode.subtype, BuiltInAttributeKey.heading);
         // BuiltInAttributeKey.h1 ~ BuiltInAttributeKey.h6
         expect(textNode.attributes.heading, 'h$i');
-        expect(textNode.toRawString().startsWith('##'), true);
+        expect(textNode.toPlainText().startsWith('##'), true);
       }
     });
 
@@ -212,7 +211,7 @@ void main() async {
       await editor.pressLogicKey(LogicalKeyboardKey.space);
       expect(textNode.subtype, BuiltInAttributeKey.checkbox);
       expect(textNode.attributes.check, true);
-      expect(textNode.toRawString(), insertedText);
+      expect(textNode.toPlainText(), insertedText);
     });
   });
 }

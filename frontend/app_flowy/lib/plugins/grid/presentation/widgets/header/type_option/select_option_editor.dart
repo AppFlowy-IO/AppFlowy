@@ -106,6 +106,7 @@ class _OptionNameTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return InputTextField(
       text: name,
+      maxLength: 30,
       onCanceled: () {},
       onDone: (optionName) {
         if (name != optionName) {
@@ -139,7 +140,7 @@ class SelectOptionColorList extends StatelessWidget {
           child: SizedBox(
             height: GridSize.typeOptionItemHeight,
             child: FlowyText.medium(
-              LocaleKeys.grid_selectOption_colorPannelTitle.tr(),
+              LocaleKeys.grid_selectOption_colorPanelTitle.tr(),
               fontSize: 12,
               textAlign: TextAlign.left,
             ),

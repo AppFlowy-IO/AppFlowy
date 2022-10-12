@@ -37,12 +37,14 @@ dependencies:
     path: ../
   provider: ^6.0.3
   url_launcher: ^6.1.5
-  video_player: ^2.4.5
-  pod_player: 0.0.8
   path_provider: ^2.0.11
   google_fonts: ^3.0.1
   flutter_localizations:
     sdk: flutter
+  file_picker: ^5.0.1
+  universal_html: ^2.0.8
+  highlight: ^0.7.0
+  flutter_math_fork: ^0.6.3+1
 
 dev_dependencies:
   flutter_test:

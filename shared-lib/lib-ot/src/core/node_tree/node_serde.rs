@@ -1,5 +1,5 @@
 use super::NodeBody;
-use crate::text_delta::TextDelta;
+use crate::text_delta::TextOperations;
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Deserializer, Serializer};
@@ -37,7 +37,7 @@ where
         where
             A: de::SeqAccess<'de>,
         {
-            let mut delta = TextDelta::default();
+            let mut delta = TextOperations::default();
             while let Some(op) = seq.next_element()? {
                 delta.add(op);
             }
@@ -49,7 +49,7 @@ where
         where
             V: MapAccess<'de>,
         {
-            let mut delta: Option<TextDelta> = None;
+            let mut delta: Option<TextOperations> = None;
             while let Some(key) = map.next_key()? {
                 match key {
                     "delta" => {

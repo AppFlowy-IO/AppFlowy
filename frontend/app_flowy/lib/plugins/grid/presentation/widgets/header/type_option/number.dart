@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/number_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/number_format_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:appflowy_popover/popover.dart';
+import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -55,10 +55,10 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
           listener: (context, state) =>
               typeOptionContext.typeOption = state.typeOption,
           builder: (context, state) {
-            return AppFlowyStylePopover(
+            return AppFlowyPopover(
               mutex: popoverMutex,
-              triggerActions: PopoverTriggerActionFlags.hover |
-                  PopoverTriggerActionFlags.click,
+              triggerActions:
+                  PopoverTriggerFlags.hover | PopoverTriggerFlags.click,
               offset: const Offset(20, 0),
               constraints: BoxConstraints.loose(const Size(460, 440)),
               child: FlowyButton(
@@ -82,7 +82,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
                     context
                         .read<NumberTypeOptionBloc>()
                         .add(NumberTypeOptionEvent.didSelectFormat(format));
-                    PopoverContainer.of(popoverContext).closeAll();
+                    PopoverContainer.of(popoverContext).close();
                   },
                   selectedFormat: state.typeOption.format,
                 );
@@ -123,8 +123,6 @@ class NumberFormatList extends StatelessWidget {
                       format: format,
                       onSelected: (format) {
                         onSelected(format);
-                        FlowyOverlay.of(context)
-                            .remove(NumberFormatList.identifier());
                       });
                 }).toList();
 
@@ -146,10 +144,6 @@ class NumberFormatList extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  static String identifier() {
-    return (NumberFormatList).toString();
   }
 }
 

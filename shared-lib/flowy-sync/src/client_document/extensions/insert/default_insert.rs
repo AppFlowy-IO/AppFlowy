@@ -1,8 +1,8 @@
 use crate::client_document::InsertExt;
-use lib_ot::core::Attributes;
+use lib_ot::core::AttributeHashMap;
 use lib_ot::{
     core::{OperationAttributes, OperationBuilder, OperationIterator, NEW_LINE},
-    text_delta::{BuildInTextAttributeKey, TextDelta},
+    text_delta::{BuildInTextAttributeKey, TextOperations},
 };
 
 pub struct DefaultInsertAttribute {}
@@ -11,9 +11,9 @@ impl InsertExt for DefaultInsertAttribute {
         "DefaultInsertAttribute"
     }
 
-    fn apply(&self, delta: &TextDelta, replace_len: usize, text: &str, index: usize) -> Option<TextDelta> {
+    fn apply(&self, delta: &TextOperations, replace_len: usize, text: &str, index: usize) -> Option<TextOperations> {
         let iter = OperationIterator::new(delta);
-        let mut attributes = Attributes::new();
+        let mut attributes = AttributeHashMap::new();
 
         // Enable each line split by "\n" remains the block attributes. for example:
         // insert "\n" to "123456" at index 3
@@ -28,7 +28,7 @@ impl InsertExt for DefaultInsertAttribute {
                         .get_attributes()
                         .contains_key(BuildInTextAttributeKey::Header.as_ref())
                     {
-                        attributes.extend_other(op.get_attributes());
+                        attributes.extend(op.get_attributes());
                     }
                 }
             }

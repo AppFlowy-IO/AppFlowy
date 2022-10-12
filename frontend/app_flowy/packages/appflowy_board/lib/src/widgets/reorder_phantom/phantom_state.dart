@@ -1,50 +1,54 @@
+import 'package:appflowy_board/src/utils/log.dart';
+
 import 'phantom_controller.dart';
 import 'package:flutter/material.dart';
 
 class GroupPhantomState {
-  final _states = <String, GroupState>{};
+  final _groupStates = <String, GroupState>{};
+  final _groupIsDragging = <String, bool>{};
 
   void setGroupIsDragging(String groupId, bool isDragging) {
-    _stateWithId(groupId).isDragging = isDragging;
+    _groupIsDragging[groupId] = isDragging;
   }
 
   bool isDragging(String groupId) {
-    return _stateWithId(groupId).isDragging;
+    return _groupIsDragging[groupId] ?? false;
   }
 
   void addGroupListener(String groupId, PassthroughPhantomListener listener) {
-    _stateWithId(groupId).notifier.addListener(
-          onInserted: (index) => listener.onInserted?.call(index),
-          onDeleted: () => listener.onDragEnded?.call(),
-        );
+    if (_groupStates[groupId] == null) {
+      Log.debug("[$GroupPhantomState] add group listener: $groupId");
+      _groupStates[groupId] = GroupState();
+      _groupStates[groupId]?.notifier.addListener(
+            onInserted: (index) => listener.onInserted?.call(index),
+            onDeleted: () => listener.onDragEnded?.call(),
+          );
+    }
   }
 
   void removeGroupListener(String groupId) {
-    _stateWithId(groupId).notifier.dispose();
-    _states.remove(groupId);
+    Log.debug("[$GroupPhantomState] remove group listener: $groupId");
+    final groupState = _groupStates.remove(groupId);
+    groupState?.dispose();
   }
 
   void notifyDidInsertPhantom(String groupId, int index) {
-    _stateWithId(groupId).notifier.insert(index);
+    _groupStates[groupId]?.notifier.insert(index);
   }
 
   void notifyDidRemovePhantom(String groupId) {
-    _stateWithId(groupId).notifier.remove();
-  }
-
-  GroupState _stateWithId(String groupId) {
-    var state = _states[groupId];
-    if (state == null) {
-      state = GroupState();
-      _states[groupId] = state;
-    }
-    return state;
+    Log.debug("[$GroupPhantomState] $groupId remove phantom");
+    _groupStates[groupId]?.notifier.remove();
   }
 }
 
 class GroupState {
   bool isDragging = false;
   final notifier = PassthroughPhantomNotifier();
+
+  void dispose() {
+    notifier.dispose();
+  }
 }
 
 abstract class PassthroughPhantomListener {

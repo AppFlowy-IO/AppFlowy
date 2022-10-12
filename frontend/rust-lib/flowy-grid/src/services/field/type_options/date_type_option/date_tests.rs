@@ -24,7 +24,7 @@ mod tests {
                     assert_date(&type_option, 1647251762, None, "2022-03-14", &field_rev);
                 }
                 DateFormat::Local => {
-                    assert_date(&type_option, 1647251762, None, "2022/03/14", &field_rev);
+                    assert_date(&type_option, 1647251762, None, "03/14/2022", &field_rev);
                 }
             }
         }
@@ -141,7 +141,9 @@ mod tests {
             .unwrap();
 
         if type_option.include_time {
-            format!("{}{}", decoded_data.date, decoded_data.time)
+            format!("{} {}", decoded_data.date, decoded_data.time)
+                .trim_end()
+                .to_owned()
         } else {
             decoded_data.date
         }

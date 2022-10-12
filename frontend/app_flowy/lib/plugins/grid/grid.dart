@@ -1,4 +1,5 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:app_flowy/plugins/util.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/widgets/left_bar_item.dart';
@@ -37,34 +38,47 @@ class GridPluginConfig implements PluginConfig {
 }
 
 class GridPlugin extends Plugin {
-  final ViewPB _view;
+  @override
+  final ViewPluginNotifier notifier;
   final PluginType _pluginType;
 
   GridPlugin({
     required ViewPB view,
     required PluginType pluginType,
   })  : _pluginType = pluginType,
-        _view = view;
+        notifier = ViewPluginNotifier(view: view);
 
   @override
-  PluginDisplay get display => GridPluginDisplay(view: _view);
+  PluginDisplay get display => GridPluginDisplay(notifier: notifier);
 
   @override
-  PluginId get id => _view.id;
+  PluginId get id => notifier.view.id;
 
   @override
   PluginType get ty => _pluginType;
 }
 
 class GridPluginDisplay extends PluginDisplay {
-  final ViewPB _view;
-  GridPluginDisplay({required ViewPB view, Key? key}) : _view = view;
+  final ViewPluginNotifier notifier;
+  ViewPB get view => notifier.view;
+
+  GridPluginDisplay({required this.notifier, Key? key});
 
   @override
-  Widget get leftBarItem => ViewLeftBarItem(view: _view);
+  Widget get leftBarItem => ViewLeftBarItem(view: view);
 
   @override
-  Widget buildWidget() => GridPage(view: _view);
+  Widget buildWidget(PluginContext context) {
+    notifier.isDeleted.addListener(() {
+      notifier.isDeleted.value.fold(() => null, (deletedView) {
+        if (deletedView.hasIndex()) {
+          context.onDeleted(view, deletedView.index);
+        }
+      });
+    });
+
+    return GridPage(key: ValueKey(view.id), view: view);
+  }
 
   @override
   List<NavigationItem> get navigationItems => [this];

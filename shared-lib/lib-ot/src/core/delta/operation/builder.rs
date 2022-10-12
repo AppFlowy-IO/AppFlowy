@@ -1,11 +1,11 @@
-use crate::core::delta::operation::{EmptyAttributes, Operation, OperationAttributes};
+use crate::core::delta::operation::{DeltaOperation, EmptyAttributes, OperationAttributes};
 
 // pub type RichTextOpBuilder = OperationsBuilder<TextAttributes>;
 pub type PlainTextOpBuilder = OperationsBuilder<EmptyAttributes>;
 
 #[derive(Default)]
 pub struct OperationsBuilder<T: OperationAttributes> {
-    operations: Vec<Operation<T>>,
+    operations: Vec<DeltaOperation<T>>,
 }
 
 impl<T> OperationsBuilder<T>
@@ -17,35 +17,35 @@ where
     }
 
     pub fn retain_with_attributes(mut self, n: usize, attributes: T) -> OperationsBuilder<T> {
-        let retain = Operation::retain_with_attributes(n, attributes);
+        let retain = DeltaOperation::retain_with_attributes(n, attributes);
         self.operations.push(retain);
         self
     }
 
     pub fn retain(mut self, n: usize) -> OperationsBuilder<T> {
-        let retain = Operation::retain(n);
+        let retain = DeltaOperation::retain(n);
         self.operations.push(retain);
         self
     }
 
     pub fn delete(mut self, n: usize) -> OperationsBuilder<T> {
-        self.operations.push(Operation::Delete(n));
+        self.operations.push(DeltaOperation::Delete(n));
         self
     }
 
     pub fn insert_with_attributes(mut self, s: &str, attributes: T) -> OperationsBuilder<T> {
-        let insert = Operation::insert_with_attributes(s, attributes);
+        let insert = DeltaOperation::insert_with_attributes(s, attributes);
         self.operations.push(insert);
         self
     }
 
     pub fn insert(mut self, s: &str) -> OperationsBuilder<T> {
-        let insert = Operation::insert(s);
+        let insert = DeltaOperation::insert(s);
         self.operations.push(insert);
         self
     }
 
-    pub fn build(self) -> Vec<Operation<T>> {
+    pub fn build(self) -> Vec<DeltaOperation<T>> {
         self.operations
     }
 }

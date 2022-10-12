@@ -13,9 +13,9 @@ async fn grid_create_field() {
 
     let scripts = vec![
         CreateField { params },
-        AssertFieldEqual {
+        AssertFieldTypeOptionEqual {
             field_index: test.field_count(),
-            field_rev,
+            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty.clone()).unwrap(),
         },
     ];
     test.run_scripts(scripts).await;
@@ -23,9 +23,9 @@ async fn grid_create_field() {
     let (params, field_rev) = create_single_select_field(&test.grid_id());
     let scripts = vec![
         CreateField { params },
-        AssertFieldEqual {
+        AssertFieldTypeOptionEqual {
             field_index: test.field_count(),
-            field_rev,
+            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty.clone()).unwrap(),
         },
     ];
     test.run_scripts(scripts).await;
@@ -39,7 +39,6 @@ async fn grid_create_duplicate_field() {
     let expected_field_count = field_count + 1;
     let scripts = vec![
         CreateField { params: params.clone() },
-        CreateField { params },
         AssertFieldCount(expected_field_count),
     ];
     test.run_scripts(scripts).await;
@@ -48,7 +47,12 @@ async fn grid_create_duplicate_field() {
 #[tokio::test]
 async fn grid_update_field_with_empty_change() {
     let mut test = GridFieldTest::new().await;
-    let (params, field_rev) = create_single_select_field(&test.grid_id());
+    let (params, _) = create_single_select_field(&test.grid_id());
+    let create_field_index = test.field_count();
+    let scripts = vec![CreateField { params }];
+    test.run_scripts(scripts).await;
+
+    let field_rev = (&*test.field_revs.clone().pop().unwrap()).clone();
     let changeset = FieldChangesetParams {
         field_id: field_rev.id.clone(),
         grid_id: test.grid_id(),
@@ -56,11 +60,10 @@ async fn grid_update_field_with_empty_change() {
     };
 
     let scripts = vec![
-        CreateField { params },
         UpdateField { changeset },
-        AssertFieldEqual {
-            field_index: test.field_count(),
-            field_rev,
+        AssertFieldTypeOptionEqual {
+            field_index: create_field_index,
+            expected_type_option_data: field_rev.get_type_option_str(field_rev.ty.clone()).unwrap(),
         },
     ];
     test.run_scripts(scripts).await;
@@ -69,10 +72,15 @@ async fn grid_update_field_with_empty_change() {
 #[tokio::test]
 async fn grid_update_field() {
     let mut test = GridFieldTest::new().await;
-    let (params, single_select_field) = create_single_select_field(&test.grid_id());
-
+    let (params, _) = create_single_select_field(&test.grid_id());
+    let scripts = vec![CreateField { params }];
+    let create_field_index = test.field_count();
+    test.run_scripts(scripts).await;
+    //
+    let single_select_field = (&*test.field_revs.clone().pop().unwrap()).clone();
     let mut single_select_type_option = SingleSelectTypeOptionPB::from(&single_select_field);
     single_select_type_option.options.push(SelectOptionPB::new("Unknown"));
+
     let changeset = FieldChangesetParams {
         field_id: single_select_field.id.clone(),
         grid_id: test.grid_id(),
@@ -89,11 +97,12 @@ async fn grid_update_field() {
     expected_field_rev.insert_type_option(&single_select_type_option);
 
     let scripts = vec![
-        CreateField { params },
         UpdateField { changeset },
-        AssertFieldEqual {
-            field_index: test.field_count(),
-            field_rev: expected_field_rev,
+        AssertFieldTypeOptionEqual {
+            field_index: create_field_index,
+            expected_type_option_data: expected_field_rev
+                .get_type_option_str(expected_field_rev.ty.clone())
+                .unwrap(),
         },
     ];
     test.run_scripts(scripts).await;
@@ -103,9 +112,12 @@ async fn grid_update_field() {
 async fn grid_delete_field() {
     let mut test = GridFieldTest::new().await;
     let original_field_count = test.field_count();
-    let (params, text_field_rev) = create_text_field(&test.grid_id());
+    let (params, _) = create_text_field(&test.grid_id());
+    let scripts = vec![CreateField { params }];
+    test.run_scripts(scripts).await;
+
+    let text_field_rev = (&*test.field_revs.clone().pop().unwrap()).clone();
     let scripts = vec![
-        CreateField { params },
         DeleteField {
             field_rev: text_field_rev,
         },

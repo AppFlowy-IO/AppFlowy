@@ -7,7 +7,7 @@ use crate::services::group::controller::{
 };
 
 use crate::services::cell::insert_checkbox_cell;
-use crate::services::group::{move_group_row, GeneratedGroup};
+use crate::services::group::{move_group_row, GeneratedGroupConfig};
 use flowy_grid_data_model::revision::{
     CellRevision, CheckboxGroupConfigurationRevision, FieldRevision, GroupRevision, RowRevision,
 };
@@ -41,7 +41,7 @@ impl GroupAction for CheckboxGroupController {
 
     fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
-        self.group_ctx.iter_mut_groups(|group| {
+        self.group_ctx.iter_mut_all_groups(|group| {
             let mut changeset = GroupChangesetPB::new(group.id.clone());
             let is_contained = group.contains_row(&row_rev.id);
             if group.id == CHECK && cell_data.is_check() {
@@ -63,7 +63,7 @@ impl GroupAction for CheckboxGroupController {
 
     fn remove_row_if_match(&mut self, row_rev: &RowRevision, _cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
-        self.group_ctx.iter_mut_groups(|group| {
+        self.group_ctx.iter_mut_all_groups(|group| {
             let mut changeset = GroupChangesetPB::new(group.id.clone());
             if group.contains_row(&row_rev.id) {
                 changeset.deleted_rows.push(row_rev.id.clone());
@@ -79,7 +79,7 @@ impl GroupAction for CheckboxGroupController {
 
     fn move_row(&mut self, _cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
         let mut group_changeset = vec![];
-        self.group_ctx.iter_mut_groups(|group| {
+        self.group_ctx.iter_mut_all_groups(|group| {
             if let Some(changeset) = move_group_row(group, &mut context) {
                 group_changeset.push(changeset);
             }
@@ -116,13 +116,13 @@ impl GroupGenerator for CheckboxGroupGenerator {
         _field_id: &str,
         _group_ctx: &Self::Context,
         _type_option: &Option<Self::TypeOptionType>,
-    ) -> Vec<GeneratedGroup> {
-        let check_group = GeneratedGroup {
+    ) -> Vec<GeneratedGroupConfig> {
+        let check_group = GeneratedGroupConfig {
             group_rev: GroupRevision::new(CHECK.to_string(), "".to_string()),
             filter_content: CHECK.to_string(),
         };
 
-        let uncheck_group = GeneratedGroup {
+        let uncheck_group = GeneratedGroupConfig {
             group_rev: GroupRevision::new(UNCHECK.to_string(), "".to_string()),
             filter_content: UNCHECK.to_string(),
         };
