@@ -54,7 +54,7 @@ impl GridBlockManager {
 
     pub(crate) async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<GridBlockRevisionEditor>> {
         let block_id = self.persistence.get_block_id(row_id)?;
-        Ok(self.get_block_editor(&block_id).await?)
+        self.get_block_editor(&block_id).await
     }
 
     #[tracing::instrument(level = "trace", skip(self, start_row_id), err)]

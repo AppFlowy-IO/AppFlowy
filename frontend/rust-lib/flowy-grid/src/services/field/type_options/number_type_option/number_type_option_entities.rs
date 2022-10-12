@@ -1,4 +1,4 @@
-use crate::services::cell::{CellBytesCustomParser, CellBytesParser};
+use crate::services::cell::{CellBytesCustomParser, CellBytesParser, CellDataIsEmpty};
 use crate::services::field::number_currency::Currency;
 use crate::services::field::{strip_currency_symbol, NumberFormat, STRIP_SYMBOL};
 use bytes::Bytes;
@@ -91,6 +91,12 @@ impl ToString for NumberCellData {
             },
             Some(money) => money.to_string(),
         }
+    }
+}
+
+impl CellDataIsEmpty for NumberCellData {
+    fn is_empty(&self) -> bool {
+        self.decimal.is_none()
     }
 }
 pub struct NumberCellDataParser();

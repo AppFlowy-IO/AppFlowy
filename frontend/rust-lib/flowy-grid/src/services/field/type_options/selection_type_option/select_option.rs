@@ -1,5 +1,7 @@
 use crate::entities::{CellChangesetPB, FieldType, GridCellIdPB, GridCellIdParams};
-use crate::services::cell::{CellBytes, CellBytesParser, CellData, CellDisplayable, FromCellChangeset, FromCellString};
+use crate::services::cell::{
+    CellBytes, CellBytesParser, CellData, CellDataIsEmpty, CellDisplayable, FromCellChangeset, FromCellString,
+};
 use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -233,7 +235,7 @@ impl ToString for SelectOptionIds {
 impl std::convert::From<Option<String>> for SelectOptionIds {
     fn from(s: Option<String>) -> Self {
         match s {
-            None => Self { 0: vec![] },
+            None => Self(vec![]),
             Some(s) => Self::from(s),
         }
     }
@@ -252,6 +254,13 @@ impl std::ops::DerefMut for SelectOptionIds {
         &mut self.0
     }
 }
+
+impl CellDataIsEmpty for SelectOptionIds {
+    fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
 pub struct SelectOptionIdsParser();
 impl CellBytesParser for SelectOptionIdsParser {
     type Object = SelectOptionIds;
@@ -260,6 +269,12 @@ impl CellBytesParser for SelectOptionIdsParser {
             Ok(s) => Ok(SelectOptionIds::from(s)),
             Err(_) => Ok(SelectOptionIds::from("".to_owned())),
         }
+    }
+}
+
+impl CellDataIsEmpty for SelectOptionCellDataPB {
+    fn is_empty(&self) -> bool {
+        self.select_options.is_empty()
     }
 }
 

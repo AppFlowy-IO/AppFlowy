@@ -123,15 +123,15 @@ impl GridViewRevisionEditor {
             })
             .await;
 
+        tracing::trace!("Delete row in view changeset: {:?}", changesets);
         if let Some(changesets) = changesets {
-            tracing::trace!("{:?}", changesets);
             for changeset in changesets {
                 self.notify_did_update_group(changeset).await;
             }
         }
     }
 
-    pub(crate) async fn did_update_view_row(&self, row_rev: &RowRevision) {
+    pub(crate) async fn did_update_view_cell(&self, row_rev: &RowRevision) {
         let changesets = self
             .mut_group_controller(|group_controller, field_rev| {
                 group_controller.did_update_group_row(row_rev, &field_rev)
@@ -539,11 +539,10 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
         .map(|filters_by_field_id| {
             filters_by_field_id
                 .into_iter()
-                .map(|(_, v)| {
+                .flat_map(|(_, v)| {
                     let repeated_filter: RepeatedGridFilterConfigurationPB = v.into();
                     repeated_filter.items
                 })
-                .flatten()
                 .collect::<Vec<GridFilterConfigurationPB>>()
         })
         .unwrap_or_default();
@@ -553,11 +552,10 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
         .map(|groups_by_field_id| {
             groups_by_field_id
                 .into_iter()
-                .map(|(_, v)| {
+                .flat_map(|(_, v)| {
                     let repeated_group: RepeatedGridGroupConfigurationPB = v.into();
                     repeated_group.items
                 })
-                .flatten()
                 .collect::<Vec<GridGroupConfigurationPB>>()
         })
         .unwrap_or_default();

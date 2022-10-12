@@ -164,7 +164,7 @@ impl RevisionManager {
     }
 
     pub async fn next_sync_revision(&self) -> FlowyResult<Option<Revision>> {
-        Ok(self.rev_persistence.next_sync_revision().await?)
+        self.rev_persistence.next_sync_revision().await
     }
 
     pub async fn get_revision(&self, rev_id: i64) -> Option<Revision> {

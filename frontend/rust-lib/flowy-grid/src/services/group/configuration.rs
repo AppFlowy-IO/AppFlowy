@@ -1,5 +1,5 @@
 use crate::entities::{GroupPB, GroupViewChangesetPB};
-use crate::services::group::{default_group_configuration, make_no_status_group, GeneratedGroupConfig, Group};
+use crate::services::group::{default_group_configuration, GeneratedGroupContext, Group};
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
     FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision, GroupRevision,
@@ -118,8 +118,16 @@ where
         }
     }
 
-    /// Iterate mut the groups. The default group will be the last one that get mutated.
-    pub(crate) fn iter_mut_all_groups(&mut self, mut each: impl FnMut(&mut Group)) {
+    /// Iterate mut the groups without `No status` group
+    pub(crate) fn iter_mut_status_groups(&mut self, mut each: impl FnMut(&mut Group)) {
+        self.groups_map.iter_mut().for_each(|(_, group)| {
+            if group.id != self.field_rev.id {
+                each(group);
+            }
+        });
+    }
+
+    pub(crate) fn iter_mut_groups(&mut self, mut each: impl FnMut(&mut Group)) {
         self.groups_map.iter_mut().for_each(|(_, group)| {
             each(group);
         });
@@ -172,14 +180,19 @@ where
     /// [GroupConfigurationRevision] as old groups. The old groups and the new groups will be merged
     /// while keeping the order of the old groups.
     ///
-    #[tracing::instrument(level = "trace", skip(self, generated_group_configs), err)]
+    #[tracing::instrument(level = "trace", skip(self, generated_group_context), err)]
     pub(crate) fn init_groups(
         &mut self,
-        generated_group_configs: Vec<GeneratedGroupConfig>,
+        generated_group_context: GeneratedGroupContext,
     ) -> FlowyResult<Option<GroupViewChangesetPB>> {
+        let GeneratedGroupContext {
+            no_status_group,
+            group_configs,
+        } = generated_group_context;
+
         let mut new_groups = vec![];
         let mut filter_content_map = HashMap::new();
-        generated_group_configs.into_iter().for_each(|generate_group| {
+        group_configs.into_iter().for_each(|generate_group| {
             filter_content_map.insert(generate_group.group_rev.id.clone(), generate_group.filter_content);
             new_groups.push(generate_group.group_rev);
         });
@@ -190,12 +203,9 @@ where
             old_groups.clear();
         }
 
-        // When grouping by a new field, there is no `No status` group. So it needs
-        // to insert a `No status` group at index 0
         // The `No status` group index is initialized to 0
-        //
-        if !old_groups.iter().any(|group| group.id == self.field_rev.id) {
-            old_groups.insert(0, make_no_status_group(&self.field_rev));
+        if let Some(no_status_group) = no_status_group {
+            old_groups.insert(0, no_status_group);
         }
 
         // The `all_group_revs` is the combination of the new groups and old groups
@@ -236,9 +246,9 @@ where
                     Some(pos) => {
                         let mut old_group = configuration.groups.get_mut(pos).unwrap();
                         // Take the old group setting
-                        group_rev.update_with_other(&old_group);
+                        group_rev.update_with_other(old_group);
                         if !is_changed {
-                            is_changed = is_group_changed(group_rev, &old_group);
+                            is_changed = is_group_changed(group_rev, old_group);
                         }
                         // Consider the the name of the `group_rev` as the newest.
                         old_group.name = group_rev.name.clone();

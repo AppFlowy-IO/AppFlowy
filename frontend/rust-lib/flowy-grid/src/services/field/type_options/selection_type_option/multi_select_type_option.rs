@@ -117,12 +117,12 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
         match field_type {
             FieldType::Checkbox => {
                 //Add Yes and No options if it's not exist.
-                if self.0.options.iter().find(|option| option.name == CHECK).is_none() {
+                if !self.0.options.iter().any(|option| option.name == CHECK) {
                     let check_option = SelectOptionPB::with_color(CHECK, SelectOptionColorPB::Green);
                     self.0.options.push(check_option);
                 }
 
-                if self.0.options.iter().find(|option| option.name == UNCHECK).is_none() {
+                if !self.0.options.iter().any(|option| option.name == UNCHECK) {
                     let uncheck_option = SelectOptionPB::with_color(UNCHECK, SelectOptionColorPB::Yellow);
                     self.0.options.push(uncheck_option);
                 }
