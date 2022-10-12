@@ -133,13 +133,7 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
     };
 
     // Append the no `status` group
-    let no_status_group_rev = GroupRevision {
-        id: field_rev.id.clone(),
-        name: format!("No {}", field_rev.name),
-        visible: true,
-    };
-
-    group_configuration_rev.groups.push(no_status_group_rev);
+    group_configuration_rev.groups.push(make_no_status_group(field_rev));
     group_configuration_rev
 }
 

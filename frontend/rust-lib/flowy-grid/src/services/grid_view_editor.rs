@@ -228,7 +228,9 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
+    /// Initialize new group when grouping by a new field
+    ///
+    pub(crate) async fn initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
         if let Some(field_rev) = self.field_delegate.get_field_rev(&params.field_id).await {
             let _ = self
                 .modify(|pad| {
