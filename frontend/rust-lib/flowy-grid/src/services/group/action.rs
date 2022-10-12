@@ -1,4 +1,5 @@
 use crate::entities::{GroupChangesetPB, GroupViewChangesetPB};
+use crate::services::cell::CellDataIsEmpty;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::Group;
 use flowy_error::FlowyResult;
@@ -10,7 +11,7 @@ use std::sync::Arc;
 /// For example, the `CheckboxGroupController` implements this trait to provide custom behavior.
 ///
 pub trait GroupControllerCustomActions: Send + Sync {
-    type CellDataType;
+    type CellDataType: CellDataIsEmpty;
     /// Returns the a value of the cell, default value is None
     ///
     /// Determine which group the row is placed in based on the data of the cell. If the cell data
@@ -20,22 +21,20 @@ pub trait GroupControllerCustomActions: Send + Sync {
         None
     }
 
-    /// Returns a bool value to determine the `No status` group should show or hide.
-    ///
-    fn use_no_status_group(&self) -> bool {
-        true
-    }
-
     /// Returns a bool value to determine whether the group should contain this cell or not.
     fn can_group(&self, content: &str, cell_data: &Self::CellDataType) -> bool;
 
-    /// Adding a new row to the group if the cell data match the group filter.
+    /// Adds or removes a row if the cell data match the group filter.
     /// It gets called after editing the cell or row
     ///
-    fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB>;
+    fn add_or_remove_row_in_groups_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+    ) -> Vec<GroupChangesetPB>;
 
-    ///
-    fn remove_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB>;
+    /// Deletes the row from the group
+    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB>;
 
     /// Move row from one group to another
     fn move_row(&mut self, cell_data: &Self::CellDataType, context: MoveGroupRowContext) -> Vec<GroupChangesetPB>;

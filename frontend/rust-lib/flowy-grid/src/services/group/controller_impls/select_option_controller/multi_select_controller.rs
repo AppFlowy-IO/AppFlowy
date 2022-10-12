@@ -8,7 +8,7 @@ use crate::services::group::controller::{
 };
 use crate::services::group::controller_impls::select_option_controller::util::*;
 
-use crate::services::group::GeneratedGroupConfig;
+use crate::services::group::{make_no_status_group, GeneratedGroupContext};
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision, SelectOptionGroupConfigurationRevision};
 
 // MultiSelect
@@ -26,19 +26,23 @@ impl GroupControllerCustomActions for MultiSelectGroupController {
         cell_data.select_options.iter().any(|option| option.id == content)
     }
 
-    fn add_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
+    fn add_or_remove_row_in_groups_if_match(
+        &mut self,
+        row_rev: &RowRevision,
+        cell_data: &Self::CellDataType,
+    ) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
-        self.group_ctx.iter_mut_all_groups(|group| {
-            if let Some(changeset) = add_select_option_row(group, cell_data, row_rev) {
+        self.group_ctx.iter_mut_status_groups(|group| {
+            if let Some(changeset) = add_or_remove_select_option_row(group, cell_data, row_rev) {
                 changesets.push(changeset);
             }
         });
         changesets
     }
 
-    fn remove_row_if_match(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
+    fn delete_row(&mut self, row_rev: &RowRevision, cell_data: &Self::CellDataType) -> Vec<GroupChangesetPB> {
         let mut changesets = vec![];
-        self.group_ctx.iter_mut_all_groups(|group| {
+        self.group_ctx.iter_mut_status_groups(|group| {
             if let Some(changeset) = remove_select_option_row(group, cell_data, row_rev) {
                 changesets.push(changeset);
             }
@@ -48,7 +52,7 @@ impl GroupControllerCustomActions for MultiSelectGroupController {
 
     fn move_row(&mut self, _cell_data: &Self::CellDataType, mut context: MoveGroupRowContext) -> Vec<GroupChangesetPB> {
         let mut group_changeset = vec![];
-        self.group_ctx.iter_mut_all_groups(|group| {
+        self.group_ctx.iter_mut_groups(|group| {
             if let Some(changeset) = move_group_row(group, &mut context) {
                 group_changeset.push(changeset);
             }
@@ -79,14 +83,20 @@ pub struct MultiSelectGroupGenerator();
 impl GroupGenerator for MultiSelectGroupGenerator {
     type Context = SelectOptionGroupContext;
     type TypeOptionType = MultiSelectTypeOptionPB;
+
     fn generate_groups(
-        field_id: &str,
+        field_rev: &FieldRevision,
         group_ctx: &Self::Context,
         type_option: &Option<Self::TypeOptionType>,
-    ) -> Vec<GeneratedGroupConfig> {
-        match type_option {
+    ) -> GeneratedGroupContext {
+        let group_configs = match type_option {
             None => vec![],
-            Some(type_option) => generate_select_option_groups(field_id, group_ctx, &type_option.options),
+            Some(type_option) => generate_select_option_groups(&field_rev.id, group_ctx, &type_option.options),
+        };
+
+        GeneratedGroupContext {
+            no_status_group: Some(make_no_status_group(field_rev)),
+            group_configs,
         }
     }
 }

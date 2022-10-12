@@ -97,7 +97,7 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
     let field_id = field_rev.id.clone();
     let field_type_rev = field_rev.ty;
     let field_type: FieldType = field_rev.ty.into();
-    let mut group_configuration_rev = match field_type {
+    match field_type {
         FieldType::RichText => {
             GroupConfigurationRevision::new(field_id, field_type_rev, TextGroupConfigurationRevision::default())
                 .unwrap()
@@ -130,11 +130,7 @@ pub fn default_group_configuration(field_rev: &FieldRevision) -> GroupConfigurat
         FieldType::URL => {
             GroupConfigurationRevision::new(field_id, field_type_rev, UrlGroupConfigurationRevision::default()).unwrap()
         }
-    };
-
-    // Append the no `status` group
-    group_configuration_rev.groups.push(make_no_status_group(field_rev));
-    group_configuration_rev
+    }
 }
 
 pub fn make_no_status_group(field_rev: &FieldRevision) -> GroupRevision {

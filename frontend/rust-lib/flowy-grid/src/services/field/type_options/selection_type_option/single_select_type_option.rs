@@ -61,7 +61,6 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let content_changeset = changeset.try_into_inner()?;
-        let new_cell_data: String;
 
         let mut insert_option_ids = content_changeset
             .insert_option_ids
@@ -73,14 +72,12 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         // Sometimes, the insert_option_ids may contain list of option ids. For example,
         // copy/paste a ids string.
         if insert_option_ids.is_empty() {
-            new_cell_data = "".to_string()
+            Ok("".to_string())
         } else {
             // Just take the first select option
             let _ = insert_option_ids.drain(1..);
-            new_cell_data = insert_option_ids.pop().unwrap();
+            Ok(insert_option_ids.pop().unwrap())
         }
-
-        Ok(new_cell_data)
     }
 }
 
@@ -109,12 +106,12 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
         match field_type {
             FieldType::Checkbox => {
                 //add Yes and No options if it's not exist.
-                if self.0.options.iter().find(|option| option.name == CHECK).is_none() {
+                if !self.0.options.iter().any(|option| option.name == CHECK) {
                     let check_option = SelectOptionPB::with_color(CHECK, SelectOptionColorPB::Green);
                     self.0.options.push(check_option);
                 }
 
-                if self.0.options.iter().find(|option| option.name == UNCHECK).is_none() {
+                if !self.0.options.iter().any(|option| option.name == UNCHECK) {
                     let uncheck_option = SelectOptionPB::with_color(UNCHECK, SelectOptionColorPB::Yellow);
                     self.0.options.push(uncheck_option);
                 }

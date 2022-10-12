@@ -1,8 +1,8 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    decode_cell_data_to_string, CellBytes, CellBytesParser, CellData, CellDataChangeset, CellDataOperation,
-    CellDisplayable, FromCellString,
+    decode_cell_data_to_string, CellBytes, CellBytesParser, CellData, CellDataChangeset, CellDataIsEmpty,
+    CellDataOperation, CellDisplayable, FromCellString,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
@@ -122,6 +122,12 @@ impl FromCellString for TextCellData {
 impl ToString for TextCellData {
     fn to_string(&self) -> String {
         self.0.clone()
+    }
+}
+
+impl CellDataIsEmpty for TextCellData {
+    fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 }
 

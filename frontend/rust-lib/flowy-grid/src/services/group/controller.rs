@@ -1,5 +1,5 @@
 use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, InsertedRowPB, RowPB};
-use crate::services::cell::{decode_any_cell_data, CellBytesParser};
+use crate::services::cell::{decode_any_cell_data, CellBytesParser, CellDataIsEmpty};
 use crate::services::group::action::{GroupControllerCustomActions, GroupControllerSharedActions};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::Group;
@@ -29,10 +29,15 @@ pub trait GroupGenerator {
     type TypeOptionType;
 
     fn generate_groups(
-        field_id: &str,
+        field_rev: &FieldRevision,
         group_ctx: &Self::Context,
         type_option: &Option<Self::TypeOptionType>,
-    ) -> Vec<GeneratedGroupConfig>;
+    ) -> GeneratedGroupContext;
+}
+
+pub struct GeneratedGroupContext {
+    pub no_status_group: Option<GroupRevision>,
+    pub group_configs: Vec<GeneratedGroupConfig>,
 }
 
 pub struct GeneratedGroupConfig {
@@ -67,8 +72,8 @@ where
 {
     pub async fn new(field_rev: &Arc<FieldRevision>, mut configuration: GroupContext<C>) -> FlowyResult<Self> {
         let type_option = field_rev.get_type_option::<T>(field_rev.ty);
-        let groups = G::generate_groups(&field_rev.id, &configuration, &type_option);
-        let _ = configuration.init_groups(groups)?;
+        let generated_group_context = G::generate_groups(field_rev, &configuration, &type_option);
+        let _ = configuration.init_groups(generated_group_context)?;
 
         Ok(Self {
             field_id: field_rev.id.clone(),
@@ -161,16 +166,7 @@ where
     }
 
     fn groups(&self) -> Vec<Group> {
-        if self.use_no_status_group() {
-            self.group_ctx.groups().into_iter().cloned().collect()
-        } else {
-            self.group_ctx
-                .groups()
-                .into_iter()
-                .filter(|group| group.id != self.field_id)
-                .cloned()
-                .collect::<Vec<_>>()
-        }
+        self.group_ctx.groups().into_iter().cloned().collect()
     }
 
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {
@@ -230,13 +226,14 @@ where
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
-            let mut changesets = self.add_row_if_match(row_rev, &cell_data);
-            // if let Some(default_group_changeset) = self.update_default_group(row_rev, &changesets) {
-            //     tracing::trace!("default_group_changeset: {}", default_group_changeset);
-            //     if !default_group_changeset.is_empty() {
-            //         changesets.push(default_group_changeset);
-            //     }
-            // }
+            let mut changesets = self.add_or_remove_row_in_groups_if_match(row_rev, &cell_data);
+
+            if let Some(default_group_changeset) = self.update_default_group(row_rev, &changesets) {
+                tracing::trace!("default_group_changeset: {}", default_group_changeset);
+                if !default_group_changeset.is_empty() {
+                    changesets.push(default_group_changeset);
+                }
+            }
             Ok(changesets)
         } else {
             Ok(vec![])
@@ -248,18 +245,30 @@ where
         row_rev: &RowRevision,
         field_rev: &FieldRevision,
     ) -> FlowyResult<Vec<GroupChangesetPB>> {
-        // if the cell_rev is none, then the row must be crated from the default group.
+        // if the cell_rev is none, then the row must in the default group.
         if let Some(cell_rev) = row_rev.cells.get(&self.field_id) {
             let cell_bytes = decode_any_cell_data(cell_rev.data.clone(), field_rev).1;
             let cell_data = cell_bytes.parser::<P>()?;
-            Ok(self.remove_row_if_match(row_rev, &cell_data))
-        } else if let Some(group) = self.group_ctx.get_no_status_group() {
-            Ok(vec![GroupChangesetPB::delete(
-                group.id.clone(),
-                vec![row_rev.id.clone()],
-            )])
-        } else {
-            Ok(vec![])
+            if !cell_data.is_empty() {
+                tracing::error!("did_delete_delete_row {:?}", cell_rev.data);
+                return Ok(self.delete_row(row_rev, &cell_data));
+            }
+        }
+
+        match self.group_ctx.get_no_status_group() {
+            None => {
+                tracing::error!("Unexpected None value. It should have the no status group");
+                Ok(vec![])
+            }
+            Some(no_status_group) => {
+                if !no_status_group.contains_row(&row_rev.id) {
+                    tracing::error!("The row: {} should be in the no status group", row_rev.id);
+                }
+                Ok(vec![GroupChangesetPB::delete(
+                    no_status_group.id.clone(),
+                    vec![row_rev.id.clone()],
+                )])
+            }
         }
     }
 

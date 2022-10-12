@@ -130,7 +130,6 @@ impl RevisionPersistence {
     #[tracing::instrument(level = "trace", skip(self, revisions), err)]
     pub(crate) async fn reset(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
         let records = revisions
-            .to_vec()
             .into_iter()
             .map(|revision| RevisionRecord {
                 revision,

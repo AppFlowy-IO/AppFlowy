@@ -42,7 +42,7 @@ impl TextEditorCloudService for BlockHttpCloudService {
 
 pub async fn create_document_request(token: &str, params: CreateTextBlockParams, url: &str) -> Result<(), FlowyError> {
     let _ = request_builder()
-        .post(&url.to_owned())
+        .post(url)
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
@@ -56,7 +56,7 @@ pub async fn read_document_request(
     url: &str,
 ) -> Result<Option<DocumentPB>, FlowyError> {
     let doc = request_builder()
-        .get(&url.to_owned())
+        .get(url)
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .option_response()
@@ -67,7 +67,7 @@ pub async fn read_document_request(
 
 pub async fn reset_doc_request(token: &str, params: ResetTextBlockParams, url: &str) -> Result<(), FlowyError> {
     let _ = request_builder()
-        .patch(&url.to_owned())
+        .patch(url)
         .header(HEADER_TOKEN, token)
         .protobuf(params)?
         .send()
