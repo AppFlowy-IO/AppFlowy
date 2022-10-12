@@ -77,15 +77,15 @@ impl GridViewManager {
         }
     }
 
-    /// Insert/Delete the group's row if the corresponding data was changed.  
-    pub(crate) async fn did_update_row(&self, row_id: &str) {
+    /// Insert/Delete the group's row if the corresponding cell data was changed.  
+    pub(crate) async fn did_update_cell(&self, row_id: &str) {
         match self.row_delegate.gv_get_row_rev(row_id).await {
             None => {
                 tracing::warn!("Can not find the row in grid view");
             }
             Some(row_rev) => {
                 for view_editor in self.view_editors.iter() {
-                    view_editor.did_update_view_row(&row_rev).await;
+                    view_editor.did_update_view_cell(&row_rev).await;
                 }
             }
         }
@@ -95,10 +95,6 @@ impl GridViewManager {
         let view_editor = self.get_default_view_editor().await?;
         let _ = view_editor.group_by_view_field(field_id).await?;
         Ok(())
-    }
-
-    pub(crate) async fn did_update_cell(&self, row_id: &str, _field_id: &str) {
-        self.did_update_row(row_id).await
     }
 
     pub(crate) async fn did_delete_row(&self, row_rev: Arc<RowRevision>) {

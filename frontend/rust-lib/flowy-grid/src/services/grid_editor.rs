@@ -410,7 +410,7 @@ impl GridRevisionEditor {
     pub async fn update_row(&self, changeset: RowChangeset) -> FlowyResult<()> {
         let row_id = changeset.row_id.clone();
         let _ = self.block_manager.update_row(changeset).await?;
-        self.view_manager.did_update_row(&row_id).await;
+        self.view_manager.did_update_cell(&row_id).await;
         Ok(())
     }
 
@@ -504,7 +504,7 @@ impl GridRevisionEditor {
                     content,
                 };
                 let _ = self.block_manager.update_cell(cell_changeset).await?;
-                self.view_manager.did_update_cell(&row_id, &field_id).await;
+                self.view_manager.did_update_cell(&row_id).await;
                 Ok(())
             }
         }

@@ -1,7 +1,7 @@
 use crate::entities::{GroupChangesetPB, RowPB};
 use crate::services::cell::insert_select_option_cell;
 use crate::services::field::{SelectOptionCellDataPB, SelectOptionCellDataParser, SingleSelectTypeOptionPB};
-use crate::services::group::action::GroupAction;
+use crate::services::group::action::GroupControllerCustomActions;
 
 use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
@@ -20,7 +20,7 @@ pub type SingleSelectGroupController = GenericGroupController<
     SelectOptionCellDataParser,
 >;
 
-impl GroupAction for SingleSelectGroupController {
+impl GroupControllerCustomActions for SingleSelectGroupController {
     type CellDataType = SelectOptionCellDataPB;
     fn can_group(&self, content: &str, cell_data: &SelectOptionCellDataPB) -> bool {
         cell_data.select_options.iter().any(|option| option.id == content)

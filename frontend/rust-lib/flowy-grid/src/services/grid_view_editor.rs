@@ -131,7 +131,7 @@ impl GridViewRevisionEditor {
         }
     }
 
-    pub(crate) async fn did_update_view_row(&self, row_rev: &RowRevision) {
+    pub(crate) async fn did_update_view_cell(&self, row_rev: &RowRevision) {
         let changesets = self
             .mut_group_controller(|group_controller, field_rev| {
                 group_controller.did_update_group_row(row_rev, &field_rev)

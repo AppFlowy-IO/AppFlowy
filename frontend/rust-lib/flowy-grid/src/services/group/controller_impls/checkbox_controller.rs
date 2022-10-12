@@ -1,6 +1,6 @@
 use crate::entities::{GroupChangesetPB, InsertedRowPB, RowPB};
 use crate::services::field::{CheckboxCellData, CheckboxCellDataParser, CheckboxTypeOptionPB, CHECK, UNCHECK};
-use crate::services::group::action::GroupAction;
+use crate::services::group::action::GroupControllerCustomActions;
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::{
     GenericGroupController, GroupController, GroupGenerator, MoveGroupRowContext,
@@ -21,13 +21,13 @@ pub type CheckboxGroupController = GenericGroupController<
 
 pub type CheckboxGroupContext = GroupContext<CheckboxGroupConfigurationRevision>;
 
-impl GroupAction for CheckboxGroupController {
+impl GroupControllerCustomActions for CheckboxGroupController {
     type CellDataType = CheckboxCellData;
     fn default_cell_rev(&self) -> Option<CellRevision> {
         Some(CellRevision::new(UNCHECK.to_string()))
     }
 
-    fn use_default_group(&self) -> bool {
+    fn use_no_status_group(&self) -> bool {
         false
     }
 
