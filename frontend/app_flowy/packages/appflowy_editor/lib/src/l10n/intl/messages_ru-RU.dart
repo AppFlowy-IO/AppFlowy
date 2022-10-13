@@ -22,21 +22,23 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "bold": MessageLookupByLibrary.simpleMessage(""),
-        "bulletedList": MessageLookupByLibrary.simpleMessage(""),
-        "checkbox": MessageLookupByLibrary.simpleMessage(""),
-        "embedCode": MessageLookupByLibrary.simpleMessage(""),
-        "heading1": MessageLookupByLibrary.simpleMessage(""),
-        "heading2": MessageLookupByLibrary.simpleMessage(""),
-        "heading3": MessageLookupByLibrary.simpleMessage(""),
-        "highlight": MessageLookupByLibrary.simpleMessage(""),
-        "image": MessageLookupByLibrary.simpleMessage(""),
-        "italic": MessageLookupByLibrary.simpleMessage(""),
-        "link": MessageLookupByLibrary.simpleMessage(""),
-        "numberedList": MessageLookupByLibrary.simpleMessage(""),
-        "quote": MessageLookupByLibrary.simpleMessage(""),
-        "strikethrough": MessageLookupByLibrary.simpleMessage(""),
-        "text": MessageLookupByLibrary.simpleMessage(""),
-        "underline": MessageLookupByLibrary.simpleMessage("")
+        "bold": MessageLookupByLibrary.simpleMessage("смелый"),
+        "bulletedList":
+            MessageLookupByLibrary.simpleMessage("маркированный список"),
+        "checkbox": MessageLookupByLibrary.simpleMessage("флажок"),
+        "embedCode": MessageLookupByLibrary.simpleMessage("код для вставки"),
+        "heading1": MessageLookupByLibrary.simpleMessage("заголовок1"),
+        "heading2": MessageLookupByLibrary.simpleMessage("заголовок2"),
+        "heading3": MessageLookupByLibrary.simpleMessage("заголовок3"),
+        "highlight": MessageLookupByLibrary.simpleMessage("выделять"),
+        "image": MessageLookupByLibrary.simpleMessage("изображение"),
+        "italic": MessageLookupByLibrary.simpleMessage("курсив"),
+        "link": MessageLookupByLibrary.simpleMessage("ссылка на сайт"),
+        "numberedList":
+            MessageLookupByLibrary.simpleMessage("нумерованный список"),
+        "quote": MessageLookupByLibrary.simpleMessage("цитировать"),
+        "strikethrough": MessageLookupByLibrary.simpleMessage("зачеркнутый"),
+        "text": MessageLookupByLibrary.simpleMessage("текст"),
+        "underline": MessageLookupByLibrary.simpleMessage("подчеркнуть")
       };
 }
