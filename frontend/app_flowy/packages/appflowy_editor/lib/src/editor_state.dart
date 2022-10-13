@@ -75,21 +75,9 @@ class EditorState {
   bool editable = true;
 
   Transaction get transaction {
-    if (_transaction != null) {
-      return _transaction!;
-    }
-    _transaction = Transaction(document: document);
-    _transaction!.beforeSelection = _cursorSelection;
-    return _transaction!;
-  }
-
-  Transaction? _transaction;
-
-  void commit() {
-    if (_transaction != null) {
-      apply(_transaction!, const ApplyOptions(recordUndo: true));
-      _transaction = null;
-    }
+    final transaction = Transaction(document: document);
+    transaction.beforeSelection = _cursorSelection;
+    return transaction;
   }
 
   Selection? get cursorSelection {
@@ -131,7 +119,7 @@ class EditorState {
   /// The options can be used to determine whether the editor
   /// should record the transaction in undo/redo stack.
   apply(Transaction transaction,
-      [ApplyOptions options = const ApplyOptions()]) {
+      [ApplyOptions options = const ApplyOptions(recordUndo: true)]) {
     if (!editable) {
       return;
     }

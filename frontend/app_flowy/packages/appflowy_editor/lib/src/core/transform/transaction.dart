@@ -119,7 +119,7 @@ class Transaction {
   ///
   /// Also, this method will transform the path of the operations
   /// to avoid conflicts.
-  add(Operation op, {bool transform = true}) {
+  void add(Operation op, {bool transform = true}) {
     final Operation? last = operations.isEmpty ? null : operations.last;
     if (last != null) {
       if (op is UpdateTextOperation &&
@@ -199,7 +199,7 @@ extension TextTransaction on Transaction {
   }
 
   /// Assigns a formatting attributes to a range of text.
-  formatText(
+  void formatText(
     TextNode textNode,
     int index,
     int length,
@@ -215,7 +215,7 @@ extension TextTransaction on Transaction {
   }
 
   /// Deletes the text of specified length starting at index.
-  deleteText(
+  void deleteText(
     TextNode textNode,
     int index,
     int length,
@@ -235,7 +235,7 @@ extension TextTransaction on Transaction {
   ///
   /// Optionally, you may specify formatting attributes that are applied to the inserted string.
   /// By default, the formatting attributes before the insert position will be reused.
-  replaceText(
+  void replaceText(
     TextNode textNode,
     int index,
     int length,
