@@ -40,7 +40,7 @@ pub struct RichTextTypeOptionPB {
 impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 
 impl CellDisplayable<String> for RichTextTypeOptionPB {
-    fn display_data(
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<String>,
         _decoded_field_type: &FieldType,
@@ -50,7 +50,7 @@ impl CellDisplayable<String> for RichTextTypeOptionPB {
         Ok(CellBytes::new(cell_str))
     }
 
-    fn display_string(
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<String>,
         _decoded_field_type: &FieldType,
@@ -77,7 +77,7 @@ impl CellDataOperation<String, String> for RichTextTypeOptionPB {
             let s = decode_cell_data_to_string(cell_data, decoded_field_type, decoded_field_type, field_rev);
             Ok(CellBytes::new(s.unwrap_or_else(|_| "".to_owned())))
         } else {
-            self.display_data(cell_data, decoded_field_type, field_rev)
+            self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
         }
     }
 

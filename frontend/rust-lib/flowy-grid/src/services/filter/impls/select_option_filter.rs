@@ -3,7 +3,7 @@
 use crate::entities::{SelectOptionCondition, SelectOptionFilterConfigurationPB};
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
-use crate::services::field::{SelectOptionOperation, SelectedSelectOptions};
+use crate::services::field::{SelectTypeOptionSharedAction, SelectedSelectOptions};
 use flowy_error::FlowyResult;
 
 impl SelectOptionFilterConfigurationPB {
@@ -49,7 +49,7 @@ impl CellFilterOperation<SelectOptionFilterConfigurationPB> for MultiSelectTypeO
             return Ok(true);
         }
 
-        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data.into()));
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(any_cell_data.into()));
         Ok(filter.is_visible(&selected_options))
     }
 }
@@ -63,7 +63,7 @@ impl CellFilterOperation<SelectOptionFilterConfigurationPB> for SingleSelectType
         if !any_cell_data.is_single_select() {
             return Ok(true);
         }
-        let selected_options = SelectedSelectOptions::from(self.selected_select_option(any_cell_data.into()));
+        let selected_options = SelectedSelectOptions::from(self.get_selected_options(any_cell_data.into()));
         Ok(filter.is_visible(&selected_options))
     }
 }

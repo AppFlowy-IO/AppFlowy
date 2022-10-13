@@ -3,8 +3,8 @@ use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{
-    make_selected_select_options, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB,
-    SelectOptionColorPB, SelectOptionIds, SelectOptionOperation, SelectOptionPB, TypeOptionBuilder, CHECK, UNCHECK,
+    BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
+    TypeOptionBuilder,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
@@ -25,13 +25,9 @@ pub struct MultiSelectTypeOptionPB {
 }
 impl_type_option!(MultiSelectTypeOptionPB, FieldType::MultiSelect);
 
-impl SelectOptionOperation for MultiSelectTypeOptionPB {
-    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
-        let select_options = make_selected_select_options(cell_data, &self.options);
-        SelectOptionCellDataPB {
-            options: self.options.clone(),
-            select_options,
-        }
+impl SelectTypeOptionSharedAction for MultiSelectTypeOptionPB {
+    fn number_of_max_options(&self) -> Option<usize> {
+        None
     }
 
     fn options(&self) -> &Vec<SelectOptionPB> {
@@ -50,7 +46,7 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
@@ -113,23 +109,8 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
         &self.0
     }
 
-    fn transform(&mut self, field_type: &FieldType, _type_option_data: String) {
-        match field_type {
-            FieldType::Checkbox => {
-                //Add Yes and No options if it's not exist.
-                if !self.0.options.iter().any(|option| option.name == CHECK) {
-                    let check_option = SelectOptionPB::with_color(CHECK, SelectOptionColorPB::Green);
-                    self.0.options.push(check_option);
-                }
-
-                if !self.0.options.iter().any(|option| option.name == UNCHECK) {
-                    let uncheck_option = SelectOptionPB::with_color(UNCHECK, SelectOptionColorPB::Yellow);
-                    self.0.options.push(uncheck_option);
-                }
-            }
-            FieldType::SingleSelect => {}
-            _ => {}
-        }
+    fn transform(&mut self, field_type: &FieldType, type_option_data: String) {
+        self.0.transform_type_option(field_type, type_option_data);
     }
 }
 #[cfg(test)]
@@ -153,6 +134,8 @@ mod tests {
         multi_select.transform(&FieldType::Checkbox, checkbox_type_option_data);
         debug_assert_eq!(multi_select.0.options.len(), 2);
     }
+
+    // #[test]
 
     #[test]
     fn multi_select_insert_multi_option_test() {

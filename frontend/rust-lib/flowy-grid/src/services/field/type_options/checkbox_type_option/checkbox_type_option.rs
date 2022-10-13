@@ -45,7 +45,7 @@ pub struct CheckboxTypeOptionPB {
 impl_type_option!(CheckboxTypeOptionPB, FieldType::Checkbox);
 
 impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
-    fn display_data(
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<CheckboxCellData>,
         _decoded_field_type: &FieldType,
@@ -55,7 +55,7 @@ impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
         Ok(CellBytes::new(cell_data))
     }
 
-    fn display_string(
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<CheckboxCellData>,
         _decoded_field_type: &FieldType,
@@ -77,7 +77,7 @@ impl CellDataOperation<CheckboxCellData, String> for CheckboxTypeOptionPB {
             return Ok(CellBytes::default());
         }
 
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
