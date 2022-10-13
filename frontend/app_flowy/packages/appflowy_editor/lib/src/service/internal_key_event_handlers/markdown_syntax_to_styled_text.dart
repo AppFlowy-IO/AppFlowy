@@ -188,9 +188,7 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
   return KeyEventResult.handled;
 };
 
-/// To create a link, enclose the link text in brackets (e.g., [link text]).
-/// Then, immediately follow it with the URL in parentheses (e.g., (https://example.com)).
-ShortcutEventHandler markdownLinkToLinkHandler = (editorState, event) {
+ShortcutEventHandler markdownLinkOrImageHandler = (editorState, event) {
   final selectionService = editorState.service.selectionService;
   final selection = selectionService.currentSelection.value;
   final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
@@ -198,47 +196,72 @@ ShortcutEventHandler markdownLinkToLinkHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
 
-  // find all of the indexs for important characters
+  // Find all of the indexes of the relevant characters
   final textNode = textNodes.first;
   final text = textNode.toPlainText();
+  final firstExclamation = text.indexOf('!');
   final firstOpeningBracket = text.indexOf('[');
   final firstClosingBracket = text.indexOf(']');
 
-  // use regex to validate the format of the link
-  // note: this enforces that the link has http or https
-  final regexp = RegExp(r'\[([\w\s\d]+)\]\(((?:\/|https?:\/\/)[\w\d./?=#]+)$');
-  final match = regexp.firstMatch(text);
-  if (match == null) {
+  // Use RegEx to determine whether it's an image or a link
+  // Difference between image and link syntax is that image
+  // has an exclamation point at the beginning.
+  // Note: The RegEx enforces that the URL has http or https
+  final imgRegEx =
+      RegExp(r'\!\[([\w\s\d]+)\]\(((?:\/|https?:\/\/)[\w\d-./?=#%&]+)$');
+  final lnkRegEx =
+      RegExp(r'\[([\w\s\d]+)\]\(((?:\/|https?:\/\/)[\w\d-./?=#%&]+)$');
+
+  if (imgRegEx.firstMatch(text) != null) {
+    // Extract the alt text and the URL of the image
+    final match = lnkRegEx.firstMatch(text);
+    final imgText = match?.group(1);
+    final imgUrl = match?.group(2);
+
+    // Delete the text and replace it with the image pointed to by the URL
+    editorState.transaction
+      ..deleteText(textNode, firstExclamation, text.length)
+      ..insertNode(
+          textNode.path,
+          Node.fromJson({
+            'type': 'network_image',
+            'attributes': {
+              'network_image_src': imgUrl,
+              BuiltInAttributeKey.href: imgUrl,
+            }
+          }));
+    editorState.commit();
+  } else if (lnkRegEx.firstMatch(text) != null) {
+    // Extract the text and the URL of the link
+    final match = lnkRegEx.firstMatch(text);
+    final linkText = match?.group(1);
+    final linkUrl = match?.group(2);
+
+    // Delete the initial opening bracket,
+    // update the href attribute of the text surrounded by [ ] to the url,
+    // delete everything after the text,
+    // and update the cursor position.
+    editorState.transaction
+      ..deleteText(textNode, firstOpeningBracket, 1)
+      ..formatText(
+        textNode,
+        firstOpeningBracket,
+        firstClosingBracket - firstOpeningBracket - 1,
+        {
+          BuiltInAttributeKey.href: linkUrl,
+        },
+      )
+      ..deleteText(textNode, firstClosingBracket - 1,
+          selection.end.offset - firstClosingBracket)
+      ..afterSelection = Selection.collapsed(
+        Position(
+          path: textNode.path,
+          offset: firstOpeningBracket + linkText!.length,
+        ),
+      );
+    editorState.commit();
+  } else {
     return KeyEventResult.ignored;
   }
-
-  // extract the text and the url of the link
-  final linkText = match.group(1);
-  final linkUrl = match.group(2);
-
-  // Delete the initial opening bracket,
-  // update the href attribute of the text surrounded by [ ] to the url,
-  // delete everything after the text,
-  // and update the cursor position.
-  editorState.transaction
-    ..deleteText(textNode, firstOpeningBracket, 1)
-    ..formatText(
-      textNode,
-      firstOpeningBracket,
-      firstClosingBracket - firstOpeningBracket - 1,
-      {
-        BuiltInAttributeKey.href: linkUrl,
-      },
-    )
-    ..deleteText(textNode, firstClosingBracket - 1,
-        selection.end.offset - firstClosingBracket)
-    ..afterSelection = Selection.collapsed(
-      Position(
-        path: textNode.path,
-        offset: firstOpeningBracket + linkText!.length,
-      ),
-    );
-  editorState.commit();
-
   return KeyEventResult.handled;
 };

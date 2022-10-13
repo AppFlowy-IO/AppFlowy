@@ -17,7 +17,6 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/whitespa
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 import 'package:flutter/foundation.dart';
 
-//
 List<ShortcutEvent> builtInShortcutEvents = [
   ShortcutEvent(
     key: 'Move cursor up',
@@ -274,10 +273,10 @@ List<ShortcutEvent> builtInShortcutEvents = [
     handler: doubleTildeToStrikethrough,
   ),
   ShortcutEvent(
-    key: 'Markdown link to link',
-    command: 'shift+parenthesis right',
-    handler: markdownLinkToLinkHandler,
-  ),
+    key: 'Markdown link or image',
+    command: 'shift+digit 0',
+    handler: markdownLinkOrImageHandler,
+  );
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,
   //  so adding a shortcut event to handle the space input instead of using the
