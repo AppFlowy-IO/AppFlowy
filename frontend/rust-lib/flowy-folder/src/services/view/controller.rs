@@ -17,7 +17,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::revision::{gen_view_id, ViewRevision};
-use flowy_sync::entities::text_block::DocumentIdPB;
+use flowy_sync::entities::document::DocumentIdPB;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 

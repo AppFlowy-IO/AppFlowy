@@ -16,7 +16,9 @@ use crate::services::row::{make_grid_blocks, make_rows_from_row_revs, GridBlockS
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::*;
-use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
+use flowy_revision::{
+    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+};
 use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::{CollaborateError, CollaborateResult};
@@ -56,7 +58,7 @@ impl GridRevisionEditor {
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
-        let grid_pad = rev_manager.load::<GridPadBuilder>(Some(cloud)).await?;
+        let grid_pad = rev_manager.load::<GridRevisionSerde>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
 
@@ -830,16 +832,21 @@ impl GridRevisionEditor {
     }
 }
 
-pub struct GridPadBuilder();
-impl RevisionObjectBuilder for GridPadBuilder {
+pub struct GridRevisionSerde();
+impl RevisionObjectDeserializer for GridRevisionSerde {
     type Output = GridRevisionPad;
 
-    fn build_object(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+    fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let pad = GridRevisionPad::from_revisions(revisions)?;
         Ok(pad)
     }
 }
-
+impl RevisionObjectSerializer for GridRevisionSerde {
+    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
+    }
+}
 struct GridRevisionCloudService {
     #[allow(dead_code)]
     token: String,
@@ -853,10 +860,10 @@ impl RevisionCloudService for GridRevisionCloudService {
 }
 
 pub struct GridRevisionCompactor();
-impl RevisionCompactor for GridRevisionCompactor {
-    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
-        Ok(operations.json_bytes())
+
+impl RevisionCompress for GridRevisionCompactor {
+    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        GridRevisionSerde::serialize_revisions(revisions)
     }
 }
 

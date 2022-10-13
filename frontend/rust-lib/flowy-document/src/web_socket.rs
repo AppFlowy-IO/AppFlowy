@@ -11,7 +11,6 @@ use flowy_sync::{
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::core::AttributeHashMap;
-
 use lib_ot::text_delta::TextOperations;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
@@ -33,11 +32,11 @@ pub(crate) async fn make_document_ws_manager(
     rev_web_socket: Arc<dyn RevisionWebSocket>,
 ) -> Arc<RevisionWebSocketManager> {
     let ws_data_provider = Arc::new(WSDataProvider::new(&doc_id, Arc::new(rev_manager.clone())));
-    let resolver = Arc::new(TextBlockConflictResolver { edit_cmd_tx });
+    let resolver = Arc::new(DocumentConflictResolver { edit_cmd_tx });
     let conflict_controller =
         RichTextConflictController::new(&user_id, resolver, Arc::new(ws_data_provider.clone()), rev_manager);
-    let ws_data_stream = Arc::new(TextBlockRevisionWSDataStream::new(conflict_controller));
-    let ws_data_sink = Arc::new(TextBlockWSDataSink(ws_data_provider));
+    let ws_data_stream = Arc::new(DocumentRevisionWSDataStream::new(conflict_controller));
+    let ws_data_sink = Arc::new(DocumentWSDataSink(ws_data_provider));
     let ping_duration = Duration::from_millis(TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS);
     let ws_manager = Arc::new(RevisionWebSocketManager::new(
         "Block",
@@ -65,11 +64,11 @@ fn listen_document_ws_state(_user_id: &str, _doc_id: &str, mut subscriber: broad
     });
 }
 
-pub(crate) struct TextBlockRevisionWSDataStream {
+pub(crate) struct DocumentRevisionWSDataStream {
     conflict_controller: Arc<RichTextConflictController>,
 }
 
-impl TextBlockRevisionWSDataStream {
+impl DocumentRevisionWSDataStream {
     #[allow(dead_code)]
     pub fn new(conflict_controller: RichTextConflictController) -> Self {
         Self {
@@ -78,7 +77,7 @@ impl TextBlockRevisionWSDataStream {
     }
 }
 
-impl RevisionWSDataStream for TextBlockRevisionWSDataStream {
+impl RevisionWSDataStream for DocumentRevisionWSDataStream {
     fn receive_push_revision(&self, bytes: Bytes) -> BoxResultFuture<(), FlowyError> {
         let resolver = self.conflict_controller.clone();
         Box::pin(async move { resolver.receive_bytes(bytes).await })
@@ -100,19 +99,19 @@ impl RevisionWSDataStream for TextBlockRevisionWSDataStream {
     }
 }
 
-pub(crate) struct TextBlockWSDataSink(pub(crate) Arc<WSDataProvider>);
-impl RevisionWebSocketSink for TextBlockWSDataSink {
+pub(crate) struct DocumentWSDataSink(pub(crate) Arc<WSDataProvider>);
+impl RevisionWebSocketSink for DocumentWSDataSink {
     fn next(&self) -> FutureResult<Option<ClientRevisionWSData>, FlowyError> {
         let sink_provider = self.0.clone();
         FutureResult::new(async move { sink_provider.next().await })
     }
 }
 
-struct TextBlockConflictResolver {
+struct DocumentConflictResolver {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ConflictResolver<AttributeHashMap> for TextBlockConflictResolver {
+impl ConflictResolver<AttributeHashMap> for DocumentConflictResolver {
     fn compose_operations(&self, operations: TextOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {

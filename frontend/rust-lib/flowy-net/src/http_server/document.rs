@@ -4,7 +4,7 @@ use crate::{
 };
 use flowy_document::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_sync::entities::text_block::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams};
+use flowy_sync::entities::document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams};
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;

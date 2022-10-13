@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_document::DocumentEditorManager;
+use flowy_document::DocumentManager;
 use flowy_folder::entities::{ViewDataTypePB, ViewLayoutTypePB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::{
@@ -35,7 +35,7 @@ impl FolderDepsResolver {
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
         ws_conn: &Arc<FlowyWebSocketConnect>,
-        text_block_manager: &Arc<DocumentEditorManager>,
+        text_block_manager: &Arc<DocumentManager>,
         grid_manager: &Arc<GridManager>,
     ) -> Arc<FolderManager> {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
@@ -64,7 +64,7 @@ impl FolderDepsResolver {
 }
 
 fn make_view_data_processor(
-    text_block_manager: Arc<DocumentEditorManager>,
+    text_block_manager: Arc<DocumentManager>,
     grid_manager: Arc<GridManager>,
 ) -> ViewDataProcessorMap {
     let mut map: HashMap<ViewDataTypePB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
@@ -136,7 +136,7 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
     }
 }
 
-struct DocumentViewDataProcessor(Arc<DocumentEditorManager>);
+struct DocumentViewDataProcessor(Arc<DocumentManager>);
 impl ViewDataProcessor for DocumentViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError> {
         let manager = self.0.clone();
@@ -165,7 +165,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = manager.close_text_editor(view_id)?;
+            let _ = manager.close_document_editor(view_id)?;
             Ok(())
         })
     }

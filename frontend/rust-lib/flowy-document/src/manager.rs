@@ -1,5 +1,5 @@
+use crate::editor::DocumentRevisionCompactor;
 use crate::entities::EditParams;
-use crate::queue::DocumentRevisionCompactor;
 use crate::{editor::DocumentEditor, errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -10,8 +10,8 @@ use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::entities::{
+    document::{DocumentIdPB, DocumentOperationsPB},
     revision::{md5, RepeatedRevision, Revision},
-    text_block::{DocumentIdPB, DocumentOperationsPB},
     ws_data::ServerRevisionWSData,
 };
 use lib_infra::future::FutureResult;
@@ -24,14 +24,14 @@ pub trait DocumentUser: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
-pub struct DocumentEditorManager {
+pub struct DocumentManager {
     cloud_service: Arc<dyn DocumentCloudService>,
     rev_web_socket: Arc<dyn RevisionWebSocket>,
-    editor_map: Arc<TextEditorMap>,
+    editor_map: Arc<DocumentEditorMap>,
     user: Arc<dyn DocumentUser>,
 }
 
-impl DocumentEditorManager {
+impl DocumentManager {
     pub fn new(
         cloud_service: Arc<dyn DocumentCloudService>,
         document_user: Arc<dyn DocumentUser>,
@@ -40,7 +40,7 @@ impl DocumentEditorManager {
         Self {
             cloud_service,
             rev_web_socket,
-            editor_map: Arc::new(TextEditorMap::new()),
+            editor_map: Arc::new(DocumentEditorMap::new()),
             user: document_user,
         }
     }
@@ -59,7 +59,7 @@ impl DocumentEditorManager {
     }
 
     #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
-    pub fn close_text_editor<T: AsRef<str>>(&self, editor_id: T) -> Result<(), FlowyError> {
+    pub fn close_document_editor<T: AsRef<str>>(&self, editor_id: T) -> Result<(), FlowyError> {
         let editor_id = editor_id.as_ref();
         tracing::Span::current().record("editor_id", &editor_id);
         self.editor_map.remove(editor_id);
@@ -116,19 +116,38 @@ impl DocumentEditorManager {
     }
 }
 
-impl DocumentEditorManager {
+impl DocumentManager {
+    /// Returns the `DocumentEditor`
+    /// Initializes the document editor if it's not initialized yet. Otherwise, returns the opened
+    /// editor.
+    ///
+    /// # Arguments
+    ///
+    /// * `doc_id`: the id of the document
+    ///
+    /// returns: Result<Arc<DocumentEditor>, FlowyError>
+    ///
     async fn get_document_editor(&self, doc_id: &str) -> FlowyResult<Arc<DocumentEditor>> {
         match self.editor_map.get(doc_id) {
             None => {
                 let db_pool = self.user.db_pool()?;
-                self.make_document_editor(doc_id, db_pool).await
+                self.init_document_editor(doc_id, db_pool).await
             }
             Some(editor) => Ok(editor),
         }
     }
 
+    /// Initializes a document editor with the doc_id
+    ///
+    /// # Arguments
+    ///
+    /// * `doc_id`: the id of the document
+    /// * `pool`: sqlite connection pool
+    ///
+    /// returns: Result<Arc<DocumentEditor>, FlowyError>
+    ///
     #[tracing::instrument(level = "trace", skip(self, pool), err)]
-    async fn make_document_editor(
+    async fn init_document_editor(
         &self,
         doc_id: &str,
         pool: Arc<ConnectionPool>,
@@ -202,11 +221,11 @@ impl RevisionCloudService for DocumentRevisionCloudService {
     }
 }
 
-pub struct TextEditorMap {
+pub struct DocumentEditorMap {
     inner: DashMap<String, Arc<DocumentEditor>>,
 }
 
-impl TextEditorMap {
+impl DocumentEditorMap {
     fn new() -> Self {
         Self { inner: DashMap::new() }
     }
@@ -231,7 +250,7 @@ impl TextEditorMap {
 }
 
 #[tracing::instrument(level = "trace", skip(web_socket, handlers))]
-fn listen_ws_state_changed(web_socket: Arc<dyn RevisionWebSocket>, handlers: Arc<TextEditorMap>) {
+fn listen_ws_state_changed(web_socket: Arc<dyn RevisionWebSocket>, handlers: Arc<DocumentEditorMap>) {
     tokio::spawn(async move {
         let mut notify = web_socket.subscribe_state_changed().await;
         while let Ok(state) = notify.recv().await {

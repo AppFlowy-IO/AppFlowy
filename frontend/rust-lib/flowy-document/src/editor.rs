@@ -6,14 +6,17 @@ use crate::{
 };
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyResult};
-use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket};
+use flowy_revision::{
+    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionWebSocket,
+};
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
 use flowy_sync::{
-    entities::{revision::Revision, text_block::DocumentPayloadPB},
+    entities::{document::DocumentPayloadPB, revision::Revision},
     errors::CollaborateResult,
     util::make_operations_from_revisions,
 };
-use lib_ot::core::AttributeEntry;
+use lib_ot::core::{AttributeEntry, AttributeHashMap};
 use lib_ot::{
     core::{DeltaOperation, Interval},
     text_delta::TextOperations,
@@ -40,13 +43,13 @@ impl DocumentEditor {
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let document_info = rev_manager.load::<DocumentRevisionBuilder>(Some(cloud_service)).await?;
-        let delta = document_info.delta()?;
+        let document_info = rev_manager.load::<DocumentRevisionSerde>(Some(cloud_service)).await?;
+        let operations = TextOperations::from_bytes(&document_info.content)?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();
         let user_id = user.user_id()?;
 
-        let edit_cmd_tx = spawn_edit_queue(user, rev_manager.clone(), delta);
+        let edit_cmd_tx = spawn_edit_queue(user, rev_manager.clone(), operations);
         #[cfg(feature = "sync")]
         let ws_manager = crate::web_socket::make_document_ws_manager(
             doc_id.clone(),
@@ -225,11 +228,11 @@ impl DocumentEditor {
     }
 }
 
-struct DocumentRevisionBuilder();
-impl RevisionObjectBuilder for DocumentRevisionBuilder {
+pub struct DocumentRevisionSerde();
+impl RevisionObjectDeserializer for DocumentRevisionSerde {
     type Output = DocumentPayloadPB;
 
-    fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+    fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = make_operations_from_revisions(revisions)?;
         correct_delta(&mut delta);
@@ -240,6 +243,20 @@ impl RevisionObjectBuilder for DocumentRevisionBuilder {
             rev_id,
             base_rev_id,
         })
+    }
+}
+
+impl RevisionObjectSerializer for DocumentRevisionSerde {
+    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        let operations = make_operations_from_revisions::<AttributeHashMap>(revisions)?;
+        Ok(operations.json_bytes())
+    }
+}
+
+pub(crate) struct DocumentRevisionCompactor();
+impl RevisionCompress for DocumentRevisionCompactor {
+    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        DocumentRevisionSerde::serialize_revisions(revisions)
     }
 }
 

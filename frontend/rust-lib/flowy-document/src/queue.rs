@@ -1,17 +1,16 @@
 use crate::web_socket::EditorCommandReceiver;
 use crate::DocumentUser;
 use async_stream::stream;
-use bytes::Bytes;
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_revision::{OperationsMD5, RevisionCompactor, RevisionManager, TextTransformOperations, TransformOperations};
-use flowy_sync::util::make_operations_from_revisions;
+use flowy_error::FlowyError;
+use flowy_revision::{OperationsMD5, RevisionManager, TextTransformOperations, TransformOperations};
+
 use flowy_sync::{
     client_document::{history::UndoResult, ClientDocument},
     entities::revision::{RevId, Revision},
     errors::CollaborateError,
 };
 use futures::stream::StreamExt;
-use lib_ot::core::{AttributeEntry, AttributeHashMap};
+use lib_ot::core::AttributeEntry;
 use lib_ot::{
     core::{Interval, OperationTransform},
     text_delta::TextOperations,
@@ -182,14 +181,6 @@ impl EditDocumentQueue {
         let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, &user_id, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
-    }
-}
-
-pub(crate) struct DocumentRevisionCompactor();
-impl RevisionCompactor for DocumentRevisionCompactor {
-    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let operations = make_operations_from_revisions::<AttributeHashMap>(revisions)?;
-        Ok(operations.json_bytes())
     }
 }
 

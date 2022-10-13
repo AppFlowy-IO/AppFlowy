@@ -1,9 +1,9 @@
 use crate::server_folder::FolderOperations;
 use crate::{
     entities::{
+        document::DocumentPayloadPB,
         folder::FolderInfo,
         revision::{RepeatedRevision, Revision},
-        text_block::DocumentPayloadPB,
     },
     errors::{CollaborateError, CollaborateResult},
 };

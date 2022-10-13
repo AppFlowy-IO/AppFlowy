@@ -1,6 +1,6 @@
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use flowy_sync::{
-    entities::{folder::FolderInfo, text_block::DocumentPayloadPB},
+    entities::{document::DocumentPayloadPB, folder::FolderInfo},
     errors::CollaborateError,
     server_document::*,
     server_folder::FolderCloudPersistence,
@@ -109,8 +109,8 @@ impl FolderCloudPersistence for LocalDocumentCloudPersistence {
     }
 }
 
-impl TextBlockCloudPersistence for LocalDocumentCloudPersistence {
-    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<DocumentPayloadPB, CollaborateError> {
+impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentPayloadPB, CollaborateError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
@@ -122,7 +122,7 @@ impl TextBlockCloudPersistence for LocalDocumentCloudPersistence {
         })
     }
 
-    fn create_text_block(
+    fn create_document(
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevision,
@@ -135,7 +135,7 @@ impl TextBlockCloudPersistence for LocalDocumentCloudPersistence {
         })
     }
 
-    fn read_text_block_revisions(
+    fn read_document_revisions(
         &self,
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
@@ -148,7 +148,7 @@ impl TextBlockCloudPersistence for LocalDocumentCloudPersistence {
         })
     }
 
-    fn save_text_block_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
+    fn save_document_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
         let storage = self.storage.clone();
         Box::pin(async move {
             let _ = storage.set_revisions(repeated_revision).await?;
@@ -156,7 +156,7 @@ impl TextBlockCloudPersistence for LocalDocumentCloudPersistence {
         })
     }
 
-    fn reset_text_block(&self, doc_id: &str, revisions: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
+    fn reset_document(&self, doc_id: &str, revisions: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {

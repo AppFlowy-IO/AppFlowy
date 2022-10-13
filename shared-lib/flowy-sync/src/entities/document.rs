@@ -29,13 +29,6 @@ pub struct DocumentPayloadPB {
     pub base_rev_id: i64,
 }
 
-impl DocumentPayloadPB {
-    pub fn delta(&self) -> Result<TextOperations, OTError> {
-        let delta = TextOperations::from_bytes(&self.content)?;
-        Ok(delta)
-    }
-}
-
 impl std::convert::TryFrom<Revision> for DocumentPayloadPB {
     type Error = CollaborateError;
 

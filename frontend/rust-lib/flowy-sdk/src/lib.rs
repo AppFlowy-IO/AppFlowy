@@ -3,7 +3,7 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
-use flowy_document::DocumentEditorManager;
+use flowy_document::DocumentManager;
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
 use flowy_grid::manager::GridManager;
 use flowy_net::ClientServerConfiguration;
@@ -89,7 +89,7 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub text_block_manager: Arc<DocumentEditorManager>,
+    pub text_block_manager: Arc<DocumentManager>,
     pub folder_manager: Arc<FolderManager>,
     pub grid_manager: Arc<GridManager>,
     pub dispatcher: Arc<EventDispatcher>,

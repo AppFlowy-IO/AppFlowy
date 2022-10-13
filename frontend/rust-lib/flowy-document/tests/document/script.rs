@@ -17,12 +17,12 @@ pub enum EditorScript {
     AssertJson(&'static str),
 }
 
-pub struct TextBlockEditorTest {
+pub struct DocumentEditorTest {
     pub sdk: FlowySDKTest,
     pub editor: Arc<DocumentEditor>,
 }
 
-impl TextBlockEditorTest {
+impl DocumentEditorTest {
     pub async fn new() -> Self {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;

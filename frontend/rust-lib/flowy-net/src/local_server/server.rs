@@ -6,7 +6,7 @@ use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_sync::{
     client_document::default::initial_document_str,
     entities::{
-        text_block::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams},
+        document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,

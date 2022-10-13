@@ -1,11 +1,11 @@
 use crate::event_handler::*;
-use crate::DocumentEditorManager;
+use crate::DocumentManager;
 use flowy_derive::{Flowy_Event, ProtoBuf_Enum};
 use lib_dispatch::prelude::Module;
 use std::sync::Arc;
 use strum_macros::Display;
 
-pub fn create(document_manager: Arc<DocumentEditorManager>) -> Module {
+pub fn create(document_manager: Arc<DocumentManager>) -> Module {
     let mut module = Module::new().name(env!("CARGO_PKG_NAME")).data(document_manager);
 
     module = module
