@@ -1,17 +1,15 @@
-use crate::web_socket::EditorCommandReceiver;
-use crate::TextEditorUser;
+use crate::web_socket::{DocumentResolveOperations, EditorCommandReceiver};
+use crate::DocumentUser;
 use async_stream::stream;
-use bytes::Bytes;
-use flowy_error::{FlowyError, FlowyResult};
-use flowy_revision::{OperationsMD5, RevisionCompactor, RevisionManager, RichTextTransformDeltas, TransformDeltas};
-use flowy_sync::util::make_operations_from_revisions;
+use flowy_error::FlowyError;
+use flowy_revision::{OperationsMD5, RevisionManager, TransformOperations};
 use flowy_sync::{
     client_document::{history::UndoResult, ClientDocument},
     entities::revision::{RevId, Revision},
     errors::CollaborateError,
 };
 use futures::stream::StreamExt;
-use lib_ot::core::{AttributeEntry, AttributeHashMap};
+use lib_ot::core::AttributeEntry;
 use lib_ot::{
     core::{Interval, OperationTransform},
     text_delta::TextOperations,
@@ -21,21 +19,21 @@ use tokio::sync::{oneshot, RwLock};
 
 // The EditorCommandQueue executes each command that will alter the document in
 // serial.
-pub(crate) struct EditBlockQueue {
+pub(crate) struct EditDocumentQueue {
     document: Arc<RwLock<ClientDocument>>,
-    user: Arc<dyn TextEditorUser>,
+    user: Arc<dyn DocumentUser>,
     rev_manager: Arc<RevisionManager>,
     receiver: Option<EditorCommandReceiver>,
 }
 
-impl EditBlockQueue {
+impl EditDocumentQueue {
     pub(crate) fn new(
-        user: Arc<dyn TextEditorUser>,
+        user: Arc<dyn DocumentUser>,
         rev_manager: Arc<RevisionManager>,
-        delta: TextOperations,
+        operations: TextOperations,
         receiver: EditorCommandReceiver,
     ) -> Self {
-        let document = Arc::new(RwLock::new(ClientDocument::from_operations(delta)));
+        let document = Arc::new(RwLock::new(ClientDocument::from_operations(operations)));
         Self {
             document,
             user,
@@ -67,62 +65,62 @@ impl EditBlockQueue {
     #[tracing::instrument(level = "trace", skip(self), err)]
     async fn handle_command(&self, command: EditorCommand) -> Result<(), FlowyError> {
         match command {
-            EditorCommand::ComposeLocalDelta { delta, ret } => {
+            EditorCommand::ComposeLocalOperations { operations, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_operations(delta.clone())?;
+                let _ = document.compose_operations(operations.clone())?;
                 let md5 = document.md5();
                 drop(document);
-                let _ = self.save_local_delta(delta, md5).await?;
+                let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
-            EditorCommand::ComposeRemoteDelta { client_delta, ret } => {
+            EditorCommand::ComposeRemoteOperation { client_operations, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.compose_operations(client_delta.clone())?;
+                let _ = document.compose_operations(client_operations.clone())?;
                 let md5 = document.md5();
                 drop(document);
                 let _ = ret.send(Ok(md5));
             }
-            EditorCommand::ResetDelta { delta, ret } => {
+            EditorCommand::ResetOperations { operations, ret } => {
                 let mut document = self.document.write().await;
-                let _ = document.set_operations(delta);
+                let _ = document.set_operations(operations);
                 let md5 = document.md5();
                 drop(document);
                 let _ = ret.send(Ok(md5));
             }
-            EditorCommand::TransformDelta { delta, ret } => {
+            EditorCommand::TransformOperations { operations, ret } => {
                 let f = || async {
                     let read_guard = self.document.read().await;
-                    let mut server_prime: Option<TextOperations> = None;
-                    let client_prime: TextOperations;
+                    let mut server_operations: Option<DocumentResolveOperations> = None;
+                    let client_operations: TextOperations;
 
                     if read_guard.is_empty() {
                         // Do nothing
-                        client_prime = delta;
+                        client_operations = operations;
                     } else {
-                        let (s_prime, c_prime) = read_guard.get_operations().transform(&delta)?;
-                        client_prime = c_prime;
-                        server_prime = Some(s_prime);
+                        let (s_prime, c_prime) = read_guard.get_operations().transform(&operations)?;
+                        client_operations = c_prime;
+                        server_operations = Some(DocumentResolveOperations(s_prime));
                     }
                     drop(read_guard);
-                    Ok::<RichTextTransformDeltas, CollaborateError>(TransformDeltas {
-                        client_prime,
-                        server_prime,
+                    Ok::<TextTransformOperations, CollaborateError>(TransformOperations {
+                        client_operations: DocumentResolveOperations(client_operations),
+                        server_operations,
                     })
                 };
                 let _ = ret.send(f().await);
             }
             EditorCommand::Insert { index, data, ret } => {
                 let mut write_guard = self.document.write().await;
-                let delta = write_guard.insert(index, data)?;
+                let operations = write_guard.insert(index, data)?;
                 let md5 = write_guard.md5();
-                let _ = self.save_local_delta(delta, md5).await?;
+                let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::Delete { interval, ret } => {
                 let mut write_guard = self.document.write().await;
-                let delta = write_guard.delete(interval)?;
+                let operations = write_guard.delete(interval)?;
                 let md5 = write_guard.md5();
-                let _ = self.save_local_delta(delta, md5).await?;
+                let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::Format {
@@ -131,16 +129,16 @@ impl EditBlockQueue {
                 ret,
             } => {
                 let mut write_guard = self.document.write().await;
-                let delta = write_guard.format(interval, attribute)?;
+                let operations = write_guard.format(interval, attribute)?;
                 let md5 = write_guard.md5();
-                let _ = self.save_local_delta(delta, md5).await?;
+                let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::Replace { interval, data, ret } => {
                 let mut write_guard = self.document.write().await;
-                let delta = write_guard.replace(interval, data)?;
+                let operations = write_guard.replace(interval, data)?;
                 let md5 = write_guard.md5();
-                let _ = self.save_local_delta(delta, md5).await?;
+                let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::CanUndo { ret } => {
@@ -151,73 +149,60 @@ impl EditBlockQueue {
             }
             EditorCommand::Undo { ret } => {
                 let mut write_guard = self.document.write().await;
-                let UndoResult { operations: delta } = write_guard.undo()?;
+                let UndoResult { operations } = write_guard.undo()?;
                 let md5 = write_guard.md5();
-                let _ = self.save_local_delta(delta, md5).await?;
+                let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::Redo { ret } => {
                 let mut write_guard = self.document.write().await;
-                let UndoResult { operations: delta } = write_guard.redo()?;
+                let UndoResult { operations } = write_guard.redo()?;
                 let md5 = write_guard.md5();
-                let _ = self.save_local_delta(delta, md5).await?;
+                let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
-            EditorCommand::ReadDeltaStr { ret } => {
+            EditorCommand::StringifyOperations { ret } => {
                 let data = self.document.read().await.get_operations_json();
                 let _ = ret.send(Ok(data));
             }
-            EditorCommand::ReadDelta { ret } => {
-                let delta = self.document.read().await.get_operations().clone();
-                let _ = ret.send(Ok(delta));
+            EditorCommand::ReadOperations { ret } => {
+                let operations = self.document.read().await.get_operations().clone();
+                let _ = ret.send(Ok(operations));
             }
         }
         Ok(())
     }
 
-    async fn save_local_delta(&self, delta: TextOperations, md5: String) -> Result<RevId, FlowyError> {
-        let delta_data = delta.json_bytes();
+    async fn save_local_operations(&self, operations: TextOperations, md5: String) -> Result<RevId, FlowyError> {
+        let bytes = operations.json_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let user_id = self.user.user_id()?;
-        let revision = Revision::new(
-            &self.rev_manager.object_id,
-            base_rev_id,
-            rev_id,
-            delta_data,
-            &user_id,
-            md5,
-        );
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, &user_id, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
     }
 }
 
-pub(crate) struct TextBlockRevisionCompactor();
-impl RevisionCompactor for TextBlockRevisionCompactor {
-    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_operations_from_revisions::<AttributeHashMap>(revisions)?;
-        Ok(delta.json_bytes())
-    }
-}
+pub type TextTransformOperations = TransformOperations<DocumentResolveOperations>;
 
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
 
 pub(crate) enum EditorCommand {
-    ComposeLocalDelta {
-        delta: TextOperations,
+    ComposeLocalOperations {
+        operations: TextOperations,
         ret: Ret<()>,
     },
-    ComposeRemoteDelta {
-        client_delta: TextOperations,
+    ComposeRemoteOperation {
+        client_operations: TextOperations,
         ret: Ret<OperationsMD5>,
     },
-    ResetDelta {
-        delta: TextOperations,
+    ResetOperations {
+        operations: TextOperations,
         ret: Ret<OperationsMD5>,
     },
-    TransformDelta {
-        delta: TextOperations,
-        ret: Ret<RichTextTransformDeltas>,
+    TransformOperations {
+        operations: TextOperations,
+        ret: Ret<TextTransformOperations>,
     },
     Insert {
         index: usize,
@@ -250,11 +235,11 @@ pub(crate) enum EditorCommand {
     Redo {
         ret: Ret<()>,
     },
-    ReadDeltaStr {
+    StringifyOperations {
         ret: Ret<String>,
     },
     #[allow(dead_code)]
-    ReadDelta {
+    ReadOperations {
         ret: Ret<TextOperations>,
     },
 }
@@ -262,10 +247,10 @@ pub(crate) enum EditorCommand {
 impl std::fmt::Debug for EditorCommand {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         let s = match self {
-            EditorCommand::ComposeLocalDelta { .. } => "ComposeLocalDelta",
-            EditorCommand::ComposeRemoteDelta { .. } => "ComposeRemoteDelta",
-            EditorCommand::ResetDelta { .. } => "ResetDelta",
-            EditorCommand::TransformDelta { .. } => "TransformDelta",
+            EditorCommand::ComposeLocalOperations { .. } => "ComposeLocalOperations",
+            EditorCommand::ComposeRemoteOperation { .. } => "ComposeRemoteOperation",
+            EditorCommand::ResetOperations { .. } => "ResetOperations",
+            EditorCommand::TransformOperations { .. } => "TransformOperations",
             EditorCommand::Insert { .. } => "Insert",
             EditorCommand::Delete { .. } => "Delete",
             EditorCommand::Format { .. } => "Format",
@@ -274,8 +259,8 @@ impl std::fmt::Debug for EditorCommand {
             EditorCommand::CanRedo { .. } => "CanRedo",
             EditorCommand::Undo { .. } => "Undo",
             EditorCommand::Redo { .. } => "Redo",
-            EditorCommand::ReadDeltaStr { .. } => "ReadDeltaStr",
-            EditorCommand::ReadDelta { .. } => "ReadDocumentAsDelta",
+            EditorCommand::StringifyOperations { .. } => "StringifyOperations",
+            EditorCommand::ReadOperations { .. } => "ReadOperations",
         };
         f.write_str(s)
     }

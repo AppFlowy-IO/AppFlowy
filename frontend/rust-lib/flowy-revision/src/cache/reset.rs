@@ -1,17 +1,18 @@
 use crate::disk::{RevisionDiskCache, RevisionRecord};
 use crate::{RevisionLoader, RevisionPersistence};
+use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::entities::revision::Revision;
-use lib_ot::core::DeltaBuilder;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;
 
 pub trait RevisionResettable {
     fn target_id(&self) -> &str;
+
     // String in json format
-    fn target_reset_rev_str(&self, revisions: Vec<Revision>) -> FlowyResult<String>;
+    fn reset_data(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes>;
 
     // String in json format
     fn default_target_rev_str(&self) -> FlowyResult<String>;
@@ -69,9 +70,8 @@ where
         .load()
         .await?;
 
-        let s = self.target.target_reset_rev_str(revisions)?;
-        let delta_data = DeltaBuilder::new().insert(&s).build().json_bytes();
-        let revision = Revision::initial_revision(&self.user_id, self.target.target_id(), delta_data);
+        let bytes = self.target.reset_data(revisions)?;
+        let revision = Revision::initial_revision(&self.user_id, self.target.target_id(), bytes);
         let record = RevisionRecord::new(revision);
 
         tracing::trace!("Reset {} revision record object", self.target.target_id());

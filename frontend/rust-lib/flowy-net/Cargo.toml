@@ -13,7 +13,7 @@ flowy-sync = { path = "../../../shared-lib/flowy-sync"}
 flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
-flowy-text-block = { path = "../flowy-text-block" }
+flowy-document = { path = "../flowy-document" }
 lazy_static = "1.4.0"
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 protobuf = {version = "2.18.0"}

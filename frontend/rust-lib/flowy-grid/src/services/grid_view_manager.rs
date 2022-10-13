@@ -4,17 +4,14 @@ use crate::entities::{
 };
 use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::grid_view_editor::GridViewRevisionEditor;
-use bytes::Bytes;
+use crate::services::grid_view_editor::{GridViewRevisionCompactor, GridViewRevisionEditor};
+
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
 use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
-use flowy_revision::{RevisionCompactor, RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
-use flowy_sync::entities::revision::Revision;
-use flowy_sync::util::make_operations_from_revisions;
+use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
 use lib_infra::future::AFFuture;
-use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
 
 type ViewId = String;
@@ -263,12 +260,4 @@ pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str)
         rev_compactor,
         snapshot_persistence,
     ))
-}
-
-pub struct GridViewRevisionCompactor();
-impl RevisionCompactor for GridViewRevisionCompactor {
-    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
-        Ok(operations.json_bytes())
-    }
 }

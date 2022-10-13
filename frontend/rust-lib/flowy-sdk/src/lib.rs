@@ -3,6 +3,7 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
+use flowy_document::DocumentManager;
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
 use flowy_grid::manager::GridManager;
 use flowy_net::ClientServerConfiguration;
@@ -11,7 +12,6 @@ use flowy_net::{
     local_server::LocalServer,
     ws::connection::{listen_on_websocket, FlowyWebSocketConnect},
 };
-use flowy_text_block::TextEditorManager;
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
@@ -67,7 +67,7 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("flowy_sdk={}", level));
     filters.push(format!("flowy_folder={}", level));
     filters.push(format!("flowy_user={}", level));
-    filters.push(format!("flowy_text_block={}", level));
+    filters.push(format!("flowy_document={}", level));
     filters.push(format!("flowy_grid={}", level));
     filters.push(format!("flowy_collaboration={}", "info"));
     filters.push(format!("dart_notify={}", level));
@@ -89,7 +89,7 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub text_block_manager: Arc<TextEditorManager>,
+    pub text_block_manager: Arc<DocumentManager>,
     pub folder_manager: Arc<FolderManager>,
     pub grid_manager: Arc<GridManager>,
     pub dispatcher: Arc<EventDispatcher>,
@@ -106,7 +106,7 @@ impl FlowySDK {
         let (local_server, ws_conn) = mk_local_server(&config.server_config);
         let (user_session, text_block_manager, folder_manager, local_server, grid_manager) = runtime.block_on(async {
             let user_session = mk_user_session(&config, &local_server, &config.server_config);
-            let text_block_manager = TextBlockDepsResolver::resolve(
+            let text_block_manager = DocumentDepsResolver::resolve(
                 local_server.clone(),
                 ws_conn.clone(),
                 user_session.clone(),

@@ -1,37 +1,37 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
+use flowy_document::{
+    errors::{internal_error, FlowyError},
+    DocumentCloudService, DocumentManager, DocumentUser,
+};
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
-    http_server::document::BlockHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
+    http_server::document::DocumentCloudServiceImpl, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_sync::entities::ws_data::ClientRevisionWSData;
-use flowy_text_block::{
-    errors::{internal_error, FlowyError},
-    TextEditorCloudService, TextEditorManager, TextEditorUser,
-};
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
 use lib_infra::future::BoxResultFuture;
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::{convert::TryInto, path::Path, sync::Arc};
 
-pub struct TextBlockDepsResolver();
-impl TextBlockDepsResolver {
+pub struct DocumentDepsResolver();
+impl DocumentDepsResolver {
     pub fn resolve(
         local_server: Option<Arc<LocalServer>>,
         ws_conn: Arc<FlowyWebSocketConnect>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
-    ) -> Arc<TextEditorManager> {
+    ) -> Arc<DocumentManager> {
         let user = Arc::new(BlockUserImpl(user_session));
-        let rev_web_socket = Arc::new(TextBlockWebSocket(ws_conn.clone()));
-        let cloud_service: Arc<dyn TextEditorCloudService> = match local_server {
-            None => Arc::new(BlockHttpCloudService::new(server_config.clone())),
+        let rev_web_socket = Arc::new(DocumentRevisionWebSocket(ws_conn.clone()));
+        let cloud_service: Arc<dyn DocumentCloudService> = match local_server {
+            None => Arc::new(DocumentCloudServiceImpl::new(server_config.clone())),
             Some(local_server) => local_server,
         };
 
-        let manager = Arc::new(TextEditorManager::new(cloud_service, user, rev_web_socket));
+        let manager = Arc::new(DocumentManager::new(cloud_service, user, rev_web_socket));
         let receiver = Arc::new(DocumentWSMessageReceiverImpl(manager.clone()));
         ws_conn.add_ws_message_receiver(receiver).unwrap();
 
@@ -40,7 +40,7 @@ impl TextBlockDepsResolver {
 }
 
 struct BlockUserImpl(Arc<UserSession>);
-impl TextEditorUser for BlockUserImpl {
+impl DocumentUser for BlockUserImpl {
     fn user_dir(&self) -> Result<String, FlowyError> {
         let dir = self.0.user_dir().map_err(|e| FlowyError::unauthorized().context(e))?;
 
@@ -64,8 +64,8 @@ impl TextEditorUser for BlockUserImpl {
     }
 }
 
-struct TextBlockWebSocket(Arc<FlowyWebSocketConnect>);
-impl RevisionWebSocket for TextBlockWebSocket {
+struct DocumentRevisionWebSocket(Arc<FlowyWebSocketConnect>);
+impl RevisionWebSocket for DocumentRevisionWebSocket {
     fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {
@@ -90,7 +90,7 @@ impl RevisionWebSocket for TextBlockWebSocket {
     }
 }
 
-struct DocumentWSMessageReceiverImpl(Arc<TextEditorManager>);
+struct DocumentWSMessageReceiverImpl(Arc<DocumentManager>);
 impl WSMessageReceiver for DocumentWSMessageReceiverImpl {
     fn source(&self) -> WSChannel {
         WSChannel::Document

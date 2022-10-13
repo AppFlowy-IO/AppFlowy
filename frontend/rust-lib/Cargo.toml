@@ -11,7 +11,7 @@ members = [
   "flowy-database",
   "flowy-folder",
   "dart-notify",
-  "flowy-text-block",
+  "flowy-document",
   "flowy-error",
   "flowy-revision",
   "flowy-grid",
