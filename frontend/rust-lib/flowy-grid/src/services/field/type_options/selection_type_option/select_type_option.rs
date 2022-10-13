@@ -122,7 +122,7 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
     fn transform_type_option(&mut self, field_type: &FieldType, _type_option_data: String) {
         match field_type {
             FieldType::Checkbox => {
-                //add Yes and No options if it's not exist.
+                // add Yes and No options if it's not exist.
                 if !self.options().iter().any(|option| option.name == CHECK) {
                     let check_option = SelectOptionPB::with_color(CHECK, SelectOptionColorPB::Green);
                     self.mut_options().push(check_option);
@@ -150,6 +150,21 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
             }
             FieldType::Checkbox => {
                 // transform the cell data to the option id
+                let mut transformed_ids = Vec::new();
+                let options = self.options();
+                cell_data.0.iter().for_each(|ids| {
+                    ids.0.iter().for_each(|name| {
+                        let id = options
+                            .iter()
+                            .find(|option| option.name == name.clone())
+                            .unwrap()
+                            .id
+                            .clone();
+                        transformed_ids.push(id);
+                    })
+                });
+
+                return CellBytes::from(self.get_selected_options(CellData(Some(SelectOptionIds(transformed_ids)))));
             }
             _ => {
                 return Ok(CellBytes::default());
