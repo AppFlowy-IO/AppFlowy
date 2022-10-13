@@ -3,6 +3,7 @@ use crate::{
     event_map::WorkspaceDatabase,
     services::persistence::{AppTableSql, TrashTableSql, ViewTableSql, WorkspaceTableSql},
 };
+use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::revision::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevision};
@@ -11,6 +12,7 @@ use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sync::client_folder::make_folder_rev_json_str;
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::{client_folder::FolderPad, entities::revision::md5};
+use lib_ot::core::DeltaBuilder;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";
@@ -129,10 +131,11 @@ impl RevisionResettable for FolderRevisionResettable {
         &self.folder_id
     }
 
-    fn target_reset_rev_str(&self, revisions: Vec<Revision>) -> FlowyResult<String> {
+    fn reset_data(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let pad = FolderPad::from_revisions(revisions)?;
         let json = pad.to_json()?;
-        Ok(json)
+        let bytes = DeltaBuilder::new().insert(&json).build().json_bytes();
+        Ok(bytes)
     }
 
     fn default_target_rev_str(&self) -> FlowyResult<String> {

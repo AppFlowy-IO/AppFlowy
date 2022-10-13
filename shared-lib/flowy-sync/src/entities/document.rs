@@ -3,7 +3,7 @@ use crate::{
     errors::CollaborateError,
 };
 use flowy_derive::ProtoBuf;
-use lib_ot::{errors::OTError, text_delta::TextOperations};
+use lib_ot::text_delta::TextOperations;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocumentParams {

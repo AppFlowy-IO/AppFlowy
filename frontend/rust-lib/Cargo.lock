@@ -1077,7 +1077,6 @@ dependencies = [
  "flowy-sync",
  "futures-util",
  "lib-infra",
- "lib-ot",
  "lib-ws",
  "serde",
  "serde_json",

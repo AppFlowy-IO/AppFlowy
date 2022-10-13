@@ -1,5 +1,6 @@
 use crate::manager::GridUser;
 use crate::services::persistence::GridDatabase;
+use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::GridRevision;
@@ -8,6 +9,7 @@ use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sync::client_grid::{make_grid_rev_json_str, GridRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::md5;
+use lib_ot::core::DeltaBuilder;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "GRID_V1_MIGRATION";
@@ -59,10 +61,11 @@ impl RevisionResettable for GridRevisionResettable {
         &self.grid_id
     }
 
-    fn target_reset_rev_str(&self, revisions: Vec<Revision>) -> FlowyResult<String> {
+    fn reset_data(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let pad = GridRevisionPad::from_revisions(revisions)?;
         let json = pad.json_str()?;
-        Ok(json)
+        let bytes = DeltaBuilder::new().insert(&json).build().json_bytes();
+        Ok(bytes)
     }
 
     fn default_target_rev_str(&self) -> FlowyResult<String> {

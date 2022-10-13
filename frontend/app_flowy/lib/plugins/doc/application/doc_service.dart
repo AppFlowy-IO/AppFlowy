@@ -3,7 +3,7 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-sync/text_block.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-sync/document.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/entities.pb.dart';
 
 class DocumentService {

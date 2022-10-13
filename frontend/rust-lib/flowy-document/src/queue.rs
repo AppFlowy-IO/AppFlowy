@@ -1,9 +1,8 @@
-use crate::web_socket::EditorCommandReceiver;
+use crate::web_socket::{DocumentResolveOperations, EditorCommandReceiver};
 use crate::DocumentUser;
 use async_stream::stream;
 use flowy_error::FlowyError;
-use flowy_revision::{OperationsMD5, RevisionManager, TextTransformOperations, TransformOperations};
-
+use flowy_revision::{OperationsMD5, RevisionManager, TransformOperations};
 use flowy_sync::{
     client_document::{history::UndoResult, ClientDocument},
     entities::revision::{RevId, Revision},
@@ -91,21 +90,21 @@ impl EditDocumentQueue {
             EditorCommand::TransformOperations { operations, ret } => {
                 let f = || async {
                     let read_guard = self.document.read().await;
-                    let mut server_prime: Option<TextOperations> = None;
-                    let client_prime: TextOperations;
+                    let mut server_operations: Option<DocumentResolveOperations> = None;
+                    let client_operations: TextOperations;
 
                     if read_guard.is_empty() {
                         // Do nothing
-                        client_prime = operations;
+                        client_operations = operations;
                     } else {
                         let (s_prime, c_prime) = read_guard.get_operations().transform(&operations)?;
-                        client_prime = c_prime;
-                        server_prime = Some(s_prime);
+                        client_operations = c_prime;
+                        server_operations = Some(DocumentResolveOperations(s_prime));
                     }
                     drop(read_guard);
                     Ok::<TextTransformOperations, CollaborateError>(TransformOperations {
-                        client_prime,
-                        server_prime,
+                        client_operations: DocumentResolveOperations(client_operations),
+                        server_operations,
                     })
                 };
                 let _ = ret.send(f().await);
@@ -183,6 +182,8 @@ impl EditDocumentQueue {
         Ok(rev_id.into())
     }
 }
+
+pub type TextTransformOperations = TransformOperations<DocumentResolveOperations>;
 
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
 

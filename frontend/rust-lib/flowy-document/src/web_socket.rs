@@ -1,7 +1,9 @@
+use crate::queue::TextTransformOperations;
 use crate::{queue::EditorCommand, TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS};
 use bytes::Bytes;
-use flowy_error::{internal_error, FlowyError};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_revision::*;
+use flowy_sync::entities::revision::Revision;
 use flowy_sync::{
     entities::{
         revision::RevisionRange,
@@ -10,7 +12,8 @@ use flowy_sync::{
     errors::CollaborateResult,
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::core::AttributeHashMap;
+
+use flowy_sync::util::make_operations_from_revisions;
 use lib_ot::text_delta::TextOperations;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
@@ -23,6 +26,29 @@ use tokio::sync::{
 pub(crate) type EditorCommandSender = Sender<EditorCommand>;
 pub(crate) type EditorCommandReceiver = Receiver<EditorCommand>;
 
+#[derive(Clone)]
+pub struct DocumentResolveOperations(pub TextOperations);
+
+impl OperationsDeserializer<DocumentResolveOperations> for DocumentResolveOperations {
+    fn deserialize_revisions(revisions: Vec<Revision>) -> FlowyResult<DocumentResolveOperations> {
+        Ok(DocumentResolveOperations(make_operations_from_revisions(revisions)?))
+    }
+}
+
+impl OperationsSerializer for DocumentResolveOperations {
+    fn serialize_operations(&self) -> Bytes {
+        self.0.json_bytes()
+    }
+}
+
+impl DocumentResolveOperations {
+    pub fn into_inner(self) -> TextOperations {
+        self.0
+    }
+}
+
+pub type DocumentConflictController = ConflictController<DocumentResolveOperations>;
+
 #[allow(dead_code)]
 pub(crate) async fn make_document_ws_manager(
     doc_id: String,
@@ -34,7 +60,7 @@ pub(crate) async fn make_document_ws_manager(
     let ws_data_provider = Arc::new(WSDataProvider::new(&doc_id, Arc::new(rev_manager.clone())));
     let resolver = Arc::new(DocumentConflictResolver { edit_cmd_tx });
     let conflict_controller =
-        RichTextConflictController::new(&user_id, resolver, Arc::new(ws_data_provider.clone()), rev_manager);
+        DocumentConflictController::new(&user_id, resolver, Arc::new(ws_data_provider.clone()), rev_manager);
     let ws_data_stream = Arc::new(DocumentRevisionWSDataStream::new(conflict_controller));
     let ws_data_sink = Arc::new(DocumentWSDataSink(ws_data_provider));
     let ping_duration = Duration::from_millis(TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS);
@@ -65,12 +91,12 @@ fn listen_document_ws_state(_user_id: &str, _doc_id: &str, mut subscriber: broad
 }
 
 pub(crate) struct DocumentRevisionWSDataStream {
-    conflict_controller: Arc<RichTextConflictController>,
+    conflict_controller: Arc<DocumentConflictController>,
 }
 
 impl DocumentRevisionWSDataStream {
     #[allow(dead_code)]
-    pub fn new(conflict_controller: RichTextConflictController) -> Self {
+    pub fn new(conflict_controller: DocumentConflictController) -> Self {
         Self {
             conflict_controller: Arc::new(conflict_controller),
         }
@@ -111,9 +137,10 @@ struct DocumentConflictResolver {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ConflictResolver<AttributeHashMap> for DocumentConflictResolver {
-    fn compose_operations(&self, operations: TextOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+impl ConflictResolver<DocumentResolveOperations> for DocumentConflictResolver {
+    fn compose_operations(&self, operations: DocumentResolveOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
+        let operations = operations.into_inner();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel();
             tx.send(EditorCommand::ComposeRemoteOperation {
@@ -131,9 +158,10 @@ impl ConflictResolver<AttributeHashMap> for DocumentConflictResolver {
 
     fn transform_operations(
         &self,
-        operations: TextOperations,
-    ) -> BoxResultFuture<flowy_revision::TextTransformOperations, FlowyError> {
+        operations: DocumentResolveOperations,
+    ) -> BoxResultFuture<TransformOperations<DocumentResolveOperations>, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
+        let operations = operations.into_inner();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel::<CollaborateResult<TextTransformOperations>>();
             tx.send(EditorCommand::TransformOperations { operations, ret })
@@ -146,8 +174,9 @@ impl ConflictResolver<AttributeHashMap> for DocumentConflictResolver {
         })
     }
 
-    fn reset_operations(&self, operations: TextOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn reset_operations(&self, operations: DocumentResolveOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
+        let operations = operations.into_inner();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel();
             let _ = tx
