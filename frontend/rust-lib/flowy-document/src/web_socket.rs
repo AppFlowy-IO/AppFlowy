@@ -25,7 +25,7 @@ pub(crate) type EditorCommandSender = Sender<EditorCommand>;
 pub(crate) type EditorCommandReceiver = Receiver<EditorCommand>;
 
 #[allow(dead_code)]
-pub(crate) async fn make_block_ws_manager(
+pub(crate) async fn make_document_ws_manager(
     doc_id: String,
     user_id: String,
     edit_cmd_tx: EditorCommandSender,
@@ -113,51 +113,51 @@ struct TextBlockConflictResolver {
 }
 
 impl ConflictResolver<AttributeHashMap> for TextBlockConflictResolver {
-    fn compose_delta(&self, delta: TextOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn compose_operations(&self, operations: TextOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel();
-            tx.send(EditorCommand::ComposeRemoteDelta {
-                client_delta: delta,
+            tx.send(EditorCommand::ComposeRemoteOperation {
+                client_operations: operations,
                 ret,
             })
             .await
             .map_err(internal_error)?;
-            let md5 = rx.await.map_err(|e| {
-                FlowyError::internal().context(format!("handle EditorCommand::ComposeRemoteDelta failed: {}", e))
-            })??;
+            let md5 = rx
+                .await
+                .map_err(|e| FlowyError::internal().context(format!("Compose operations failed: {}", e)))??;
             Ok(md5)
         })
     }
 
-    fn transform_delta(
+    fn transform_operations(
         &self,
-        delta: TextOperations,
-    ) -> BoxResultFuture<flowy_revision::RichTextTransformDeltas, FlowyError> {
+        operations: TextOperations,
+    ) -> BoxResultFuture<flowy_revision::TextTransformOperations, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {
-            let (ret, rx) = oneshot::channel::<CollaborateResult<RichTextTransformDeltas>>();
-            tx.send(EditorCommand::TransformDelta { delta, ret })
+            let (ret, rx) = oneshot::channel::<CollaborateResult<TextTransformOperations>>();
+            tx.send(EditorCommand::TransformOperations { operations, ret })
                 .await
                 .map_err(internal_error)?;
-            let transform_delta = rx
+            let transformed_operations = rx
                 .await
-                .map_err(|e| FlowyError::internal().context(format!("TransformDelta failed: {}", e)))??;
-            Ok(transform_delta)
+                .map_err(|e| FlowyError::internal().context(format!("Transform operations failed: {}", e)))??;
+            Ok(transformed_operations)
         })
     }
 
-    fn reset_delta(&self, delta: TextOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn reset_operations(&self, operations: TextOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         Box::pin(async move {
             let (ret, rx) = oneshot::channel();
             let _ = tx
-                .send(EditorCommand::ResetDelta { delta, ret })
+                .send(EditorCommand::ResetOperations { operations, ret })
                 .await
                 .map_err(internal_error)?;
-            let md5 = rx.await.map_err(|e| {
-                FlowyError::internal().context(format!("handle EditorCommand::OverrideDelta failed: {}", e))
-            })??;
+            let md5 = rx
+                .await
+                .map_err(|e| FlowyError::internal().context(format!("Reset operations failed: {}", e)))??;
             Ok(md5)
         })
     }

@@ -2,45 +2,45 @@ use crate::{
     configuration::*,
     request::{HttpRequestBuilder, ResponseMiddleware},
 };
+use flowy_document::DocumentCloudService;
 use flowy_error::FlowyError;
-use flowy_sync::entities::text_block::{CreateTextBlockParams, DocumentPB, ResetTextBlockParams, TextBlockIdPB};
-use flowy_text_block::TextEditorCloudService;
+use flowy_sync::entities::text_block::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams};
 use http_flowy::response::FlowyResponse;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
 
-pub struct BlockHttpCloudService {
+pub struct DocumentCloudServiceImpl {
     config: ClientServerConfiguration,
 }
 
-impl BlockHttpCloudService {
+impl DocumentCloudServiceImpl {
     pub fn new(config: ClientServerConfiguration) -> Self {
         Self { config }
     }
 }
 
-impl TextEditorCloudService for BlockHttpCloudService {
-    fn create_text_block(&self, token: &str, params: CreateTextBlockParams) -> FutureResult<(), FlowyError> {
+impl DocumentCloudService for DocumentCloudServiceImpl {
+    fn create_document(&self, token: &str, params: CreateDocumentParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { create_document_request(&token, params, &url).await })
     }
 
-    fn read_text_block(&self, token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError> {
+    fn fetch_document(&self, token: &str, params: DocumentIdPB) -> FutureResult<Option<DocumentPayloadPB>, FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { read_document_request(&token, params, &url).await })
     }
 
-    fn update_text_block(&self, token: &str, params: ResetTextBlockParams) -> FutureResult<(), FlowyError> {
+    fn update_document_content(&self, token: &str, params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
         let token = token.to_owned();
         let url = self.config.doc_url();
         FutureResult::new(async move { reset_doc_request(&token, params, &url).await })
     }
 }
 
-pub async fn create_document_request(token: &str, params: CreateTextBlockParams, url: &str) -> Result<(), FlowyError> {
+pub async fn create_document_request(token: &str, params: CreateDocumentParams, url: &str) -> Result<(), FlowyError> {
     let _ = request_builder()
         .post(url)
         .header(HEADER_TOKEN, token)
@@ -52,9 +52,9 @@ pub async fn create_document_request(token: &str, params: CreateTextBlockParams,
 
 pub async fn read_document_request(
     token: &str,
-    params: TextBlockIdPB,
+    params: DocumentIdPB,
     url: &str,
-) -> Result<Option<DocumentPB>, FlowyError> {
+) -> Result<Option<DocumentPayloadPB>, FlowyError> {
     let doc = request_builder()
         .get(url)
         .header(HEADER_TOKEN, token)
@@ -65,7 +65,7 @@ pub async fn read_document_request(
     Ok(doc)
 }
 
-pub async fn reset_doc_request(token: &str, params: ResetTextBlockParams, url: &str) -> Result<(), FlowyError> {
+pub async fn reset_doc_request(token: &str, params: ResetDocumentParams, url: &str) -> Result<(), FlowyError> {
     let _ = request_builder()
         .patch(url)
         .header(HEADER_TOKEN, token)

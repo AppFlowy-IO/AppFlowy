@@ -14,7 +14,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_error::FlowyError;
 use flowy_folder_data_model::user_default;
-use flowy_revision::disk::SQLiteTextBlockRevisionPersistence;
+use flowy_revision::disk::SQLiteDocumentRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
 use flowy_sync::client_document::default::{initial_document_str, initial_read_me};
 use flowy_sync::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
@@ -164,7 +164,7 @@ impl FolderManager {
 
         let pool = self.persistence.db_pool()?;
         let object_id = folder_id.as_ref();
-        let disk_cache = SQLiteTextBlockRevisionPersistence::new(user_id, pool.clone());
+        let disk_cache = SQLiteDocumentRevisionPersistence::new(user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache);
         let rev_compactor = FolderRevisionCompactor();
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());

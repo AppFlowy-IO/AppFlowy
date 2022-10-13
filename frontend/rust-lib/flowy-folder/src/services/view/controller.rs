@@ -17,7 +17,7 @@ use crate::{
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_folder_data_model::revision::{gen_view_id, ViewRevision};
-use flowy_sync::entities::text_block::TextBlockIdPB;
+use flowy_sync::entities::text_block::DocumentIdPB;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 
@@ -193,7 +193,7 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self,params), fields(doc_id = %params.value), err)]
-    pub(crate) async fn move_view_to_trash(&self, params: TextBlockIdPB) -> Result<(), FlowyError> {
+    pub(crate) async fn move_view_to_trash(&self, params: DocumentIdPB) -> Result<(), FlowyError> {
         let view_id = params.value;
         if let Some(latest_view_id) = KV::get_str(LATEST_VIEW_ID) {
             if latest_view_id == view_id {

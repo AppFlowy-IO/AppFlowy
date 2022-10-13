@@ -1,15 +1,15 @@
 use crate::web_socket::EditorCommandSender;
 use crate::{
     errors::FlowyError,
-    queue::{EditBlockQueue, EditorCommand},
-    TextEditorUser,
+    queue::{EditDocumentQueue, EditorCommand},
+    DocumentUser,
 };
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder, RevisionWebSocket};
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
 use flowy_sync::{
-    entities::{revision::Revision, text_block::DocumentPB},
+    entities::{revision::Revision, text_block::DocumentPayloadPB},
     errors::CollaborateResult,
     util::make_operations_from_revisions,
 };
@@ -22,7 +22,7 @@ use lib_ws::WSConnectState;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
-pub struct TextBlockEditor {
+pub struct DocumentEditor {
     pub doc_id: String,
     #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
@@ -31,16 +31,16 @@ pub struct TextBlockEditor {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl TextBlockEditor {
+impl DocumentEditor {
     #[allow(unused_variables)]
     pub(crate) async fn new(
         doc_id: &str,
-        user: Arc<dyn TextEditorUser>,
+        user: Arc<dyn DocumentUser>,
         mut rev_manager: RevisionManager,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let document_info = rev_manager.load::<TextBlockInfoBuilder>(Some(cloud_service)).await?;
+        let document_info = rev_manager.load::<DocumentRevisionBuilder>(Some(cloud_service)).await?;
         let delta = document_info.delta()?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();
@@ -48,7 +48,7 @@ impl TextBlockEditor {
 
         let edit_cmd_tx = spawn_edit_queue(user, rev_manager.clone(), delta);
         #[cfg(feature = "sync")]
-        let ws_manager = crate::web_socket::make_block_ws_manager(
+        let ws_manager = crate::web_socket::make_document_ws_manager(
             doc_id.clone(),
             user_id.clone(),
             edit_cmd_tx.clone(),
@@ -140,22 +140,19 @@ impl TextBlockEditor {
         Ok(())
     }
 
-    pub async fn delta_str(&self) -> FlowyResult<String> {
+    pub async fn get_operation_str(&self) -> FlowyResult<String> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
-        let msg = EditorCommand::ReadDeltaStr { ret };
+        let msg = EditorCommand::StringifyOperations { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let json = rx.await.map_err(internal_error)??;
         Ok(json)
     }
 
     #[tracing::instrument(level = "trace", skip(self, data), err)]
-    pub(crate) async fn compose_local_delta(&self, data: Bytes) -> Result<(), FlowyError> {
-        let delta = TextOperations::from_bytes(&data)?;
+    pub(crate) async fn compose_local_operations(&self, data: Bytes) -> Result<(), FlowyError> {
+        let operations = TextOperations::from_bytes(&data)?;
         let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
-        let msg = EditorCommand::ComposeLocalDelta {
-            delta: delta.clone(),
-            ret,
-        };
+        let msg = EditorCommand::ComposeLocalOperations { operations, ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let _ = rx.await.map_err(internal_error)??;
         Ok(())
@@ -186,20 +183,20 @@ impl TextBlockEditor {
     pub(crate) fn receive_ws_state(&self, _state: &WSConnectState) {}
 }
 
-impl std::ops::Drop for TextBlockEditor {
+impl std::ops::Drop for DocumentEditor {
     fn drop(&mut self) {
-        tracing::trace!("{} ClientBlockEditor was dropped", self.doc_id)
+        tracing::trace!("{} DocumentEditor was dropped", self.doc_id)
     }
 }
 
 // The edit queue will exit after the EditorCommandSender was dropped.
 fn spawn_edit_queue(
-    user: Arc<dyn TextEditorUser>,
+    user: Arc<dyn DocumentUser>,
     rev_manager: Arc<RevisionManager>,
     delta: TextOperations,
 ) -> EditorCommandSender {
     let (sender, receiver) = mpsc::channel(1000);
-    let edit_queue = EditBlockQueue::new(user, rev_manager, delta, receiver);
+    let edit_queue = EditDocumentQueue::new(user, rev_manager, delta, receiver);
     // We can use tokio::task::spawn_local here by using tokio::spawn_blocking.
     // https://github.com/tokio-rs/tokio/issues/2095
     // tokio::task::spawn_blocking(move || {
@@ -214,10 +211,10 @@ fn spawn_edit_queue(
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl TextBlockEditor {
-    pub async fn text_block_delta(&self) -> FlowyResult<TextOperations> {
+impl DocumentEditor {
+    pub async fn document_operations(&self) -> FlowyResult<TextOperations> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<TextOperations>>();
-        let msg = EditorCommand::ReadDelta { ret };
+        let msg = EditorCommand::ReadOperations { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let delta = rx.await.map_err(internal_error)??;
         Ok(delta)
@@ -228,18 +225,18 @@ impl TextBlockEditor {
     }
 }
 
-struct TextBlockInfoBuilder();
-impl RevisionObjectBuilder for TextBlockInfoBuilder {
-    type Output = DocumentPB;
+struct DocumentRevisionBuilder();
+impl RevisionObjectBuilder for DocumentRevisionBuilder {
+    type Output = DocumentPayloadPB;
 
     fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let (base_rev_id, rev_id) = revisions.last().unwrap().pair_rev_id();
         let mut delta = make_operations_from_revisions(revisions)?;
         correct_delta(&mut delta);
 
-        Result::<DocumentPB, FlowyError>::Ok(DocumentPB {
-            block_id: object_id.to_owned(),
-            text: delta.json_str(),
+        Result::<DocumentPayloadPB, FlowyError>::Ok(DocumentPayloadPB {
+            doc_id: object_id.to_owned(),
+            content: delta.json_str(),
             rev_id,
             base_rev_id,
         })

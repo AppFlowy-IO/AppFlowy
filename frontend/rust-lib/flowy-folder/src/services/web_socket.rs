@@ -52,7 +52,7 @@ struct FolderConflictResolver {
 }
 
 impl ConflictResolver<EmptyAttributes> for FolderConflictResolver {
-    fn compose_delta(&self, delta: Delta) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn compose_operations(&self, delta: Delta) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().compose_remote_operations(delta)?;
@@ -60,7 +60,7 @@ impl ConflictResolver<EmptyAttributes> for FolderConflictResolver {
         })
     }
 
-    fn transform_delta(&self, delta: Delta) -> BoxResultFuture<TransformDeltas<EmptyAttributes>, FlowyError> {
+    fn transform_operations(&self, delta: Delta) -> BoxResultFuture<TransformOperations<EmptyAttributes>, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let read_guard = folder_pad.read();
@@ -75,14 +75,14 @@ impl ConflictResolver<EmptyAttributes> for FolderConflictResolver {
                 server_prime = Some(s_prime);
             }
             drop(read_guard);
-            Ok(TransformDeltas {
+            Ok(TransformOperations {
                 client_prime,
                 server_prime,
             })
         })
     }
 
-    fn reset_delta(&self, delta: Delta) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn reset_operations(&self, delta: Delta) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().reset_folder(delta)?;

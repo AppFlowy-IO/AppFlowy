@@ -16,7 +16,7 @@ import 'package:flowy_sdk/ffi.dart' as ffi;
 import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-text-block/protobuf.dart';
+import 'package:flowy_sdk/protobuf/flowy-document/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-sync/protobuf.dart';
 
@@ -30,7 +30,7 @@ part 'dart_event/flowy-folder/dart_event.dart';
 part 'dart_event/flowy-net/dart_event.dart';
 part 'dart_event/flowy-user/dart_event.dart';
 part 'dart_event/flowy-grid/dart_event.dart';
-part 'dart_event/flowy-text-block/dart_event.dart';
+part 'dart_event/flowy-document/dart_event.dart';
 
 enum FFIException {
   RequestIsEmpty,
@@ -56,7 +56,8 @@ class Dispatch {
   }
 }
 
-Future<Either<Uint8List, Uint8List>> _extractPayload(Future<Either<FFIResponse, FlowyInternalError>> responseFuture) {
+Future<Either<Uint8List, Uint8List>> _extractPayload(
+    Future<Either<FFIResponse, FlowyInternalError>> responseFuture) {
   return responseFuture.then((result) {
     return result.fold(
       (response) {
@@ -82,7 +83,8 @@ Future<Either<Uint8List, Uint8List>> _extractPayload(Future<Either<FFIResponse, 
   });
 }
 
-Future<Either<FFIResponse, FlowyInternalError>> _extractResponse(Completer<Uint8List> bytesFuture) {
+Future<Either<FFIResponse, FlowyInternalError>> _extractResponse(
+    Completer<Uint8List> bytesFuture) {
   return bytesFuture.future.then((bytes) {
     try {
       final response = FFIResponse.fromBuffer(bytes);

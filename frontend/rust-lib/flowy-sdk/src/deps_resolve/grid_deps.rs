@@ -18,7 +18,7 @@ pub struct GridDepsResolver();
 impl GridDepsResolver {
     pub async fn resolve(ws_conn: Arc<FlowyWebSocketConnect>, user_session: Arc<UserSession>) -> Arc<GridManager> {
         let user = Arc::new(GridUserImpl(user_session.clone()));
-        let rev_web_socket = Arc::new(GridWebSocket(ws_conn));
+        let rev_web_socket = Arc::new(GridRevisionWebSocket(ws_conn));
         let grid_manager = Arc::new(GridManager::new(
             user.clone(),
             rev_web_socket,
@@ -58,8 +58,8 @@ impl GridUser for GridUserImpl {
     }
 }
 
-struct GridWebSocket(Arc<FlowyWebSocketConnect>);
-impl RevisionWebSocket for GridWebSocket {
+struct GridRevisionWebSocket(Arc<FlowyWebSocketConnect>);
+impl RevisionWebSocket for GridRevisionWebSocket {
     fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {

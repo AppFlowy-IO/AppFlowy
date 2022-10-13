@@ -1,6 +1,6 @@
 
 [package]
-name = "flowy-text-block"
+name = "flowy-document"
 version = "0.1.0"
 edition = "2018"
 
@@ -41,7 +41,7 @@ futures = "0.3.15"
 
 [dev-dependencies]
 flowy-test = { path = "../flowy-test" }
-flowy-text-block = { path = "../flowy-text-block", features = ["flowy_unit_test"]}
+flowy-document = { path = "../flowy-document", features = ["flowy_unit_test"]}
 derive_more = {version = "0.99", features = ["display"]}
 tracing-subscriber = "0.2.0"
 

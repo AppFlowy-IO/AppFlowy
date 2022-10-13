@@ -1,7 +1,7 @@
+use flowy_document::editor::DocumentEditor;
+use flowy_document::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use flowy_revision::disk::RevisionState;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
-use flowy_text_block::editor::TextBlockEditor;
-use flowy_text_block::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use lib_ot::{core::Interval, text_delta::TextOperations};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
@@ -19,7 +19,7 @@ pub enum EditorScript {
 
 pub struct TextBlockEditorTest {
     pub sdk: FlowySDKTest,
-    pub editor: Arc<TextBlockEditor>,
+    pub editor: Arc<DocumentEditor>,
 }
 
 impl TextBlockEditorTest {
@@ -27,7 +27,11 @@ impl TextBlockEditorTest {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = ViewTest::new_text_block_view(&sdk).await;
-        let editor = sdk.text_block_manager.open_text_editor(&test.view.id).await.unwrap();
+        let editor = sdk
+            .text_block_manager
+            .open_document_editor(&test.view.id)
+            .await
+            .unwrap();
         Self { sdk, editor }
     }
 
@@ -72,7 +76,7 @@ impl TextBlockEditorTest {
             }
             EditorScript::AssertJson(expected) => {
                 let expected_delta: TextOperations = serde_json::from_str(expected).unwrap();
-                let delta = self.editor.text_block_delta().await.unwrap();
+                let delta = self.editor.document_operations().await.unwrap();
                 if expected_delta != delta {
                     eprintln!("✅ expect: {}", expected,);
                     eprintln!("❌ receive: {}", delta.json_str());

@@ -1,5 +1,6 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
+use flowy_document::DocumentEditorManager;
 use flowy_folder::entities::{ViewDataTypePB, ViewLayoutTypePB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::{
@@ -19,7 +20,6 @@ use flowy_revision::{RevisionWebSocket, WSStateReceiver};
 use flowy_sync::client_document::default::initial_document_str;
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use flowy_sync::entities::ws_data::ClientRevisionWSData;
-use flowy_text_block::TextEditorManager;
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
 use lib_infra::future::{BoxResultFuture, FutureResult};
@@ -35,12 +35,12 @@ impl FolderDepsResolver {
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
         ws_conn: &Arc<FlowyWebSocketConnect>,
-        text_block_manager: &Arc<TextEditorManager>,
+        text_block_manager: &Arc<DocumentEditorManager>,
         grid_manager: &Arc<GridManager>,
     ) -> Arc<FolderManager> {
         let user: Arc<dyn WorkspaceUser> = Arc::new(WorkspaceUserImpl(user_session.clone()));
         let database: Arc<dyn WorkspaceDatabase> = Arc::new(WorkspaceDatabaseImpl(user_session));
-        let web_socket = Arc::new(FolderWebSocket(ws_conn.clone()));
+        let web_socket = Arc::new(FolderRevisionWebSocket(ws_conn.clone()));
         let cloud_service: Arc<dyn FolderCouldServiceV1> = match local_server {
             None => Arc::new(FolderHttpCloudService::new(server_config.clone())),
             Some(local_server) => local_server,
@@ -64,12 +64,12 @@ impl FolderDepsResolver {
 }
 
 fn make_view_data_processor(
-    text_block_manager: Arc<TextEditorManager>,
+    text_block_manager: Arc<DocumentEditorManager>,
     grid_manager: Arc<GridManager>,
 ) -> ViewDataProcessorMap {
     let mut map: HashMap<ViewDataTypePB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
-    let block_data_impl = TextBlockViewDataProcessor(text_block_manager);
+    let block_data_impl = DocumentViewDataProcessor(text_block_manager);
     map.insert(block_data_impl.data_type(), Arc::new(block_data_impl));
 
     let grid_data_impl = GridViewDataProcessor(grid_manager);
@@ -96,8 +96,8 @@ impl WorkspaceUser for WorkspaceUserImpl {
     }
 }
 
-struct FolderWebSocket(Arc<FlowyWebSocketConnect>);
-impl RevisionWebSocket for FolderWebSocket {
+struct FolderRevisionWebSocket(Arc<FlowyWebSocketConnect>);
+impl RevisionWebSocket for FolderRevisionWebSocket {
     fn send(&self, data: ClientRevisionWSData) -> BoxResultFuture<(), FlowyError> {
         let bytes: Bytes = data.try_into().unwrap();
         let msg = WebSocketRawMessage {
@@ -136,8 +136,8 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
     }
 }
 
-struct TextBlockViewDataProcessor(Arc<TextEditorManager>);
-impl ViewDataProcessor for TextBlockViewDataProcessor {
+struct DocumentViewDataProcessor(Arc<DocumentEditorManager>);
+impl ViewDataProcessor for DocumentViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError> {
         let manager = self.0.clone();
         FutureResult::new(async move { manager.init() })
@@ -156,7 +156,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         FutureResult::new(async move {
-            let _ = manager.create_text_block(view_id, repeated_revision).await?;
+            let _ = manager.create_document(view_id, repeated_revision).await?;
             Ok(())
         })
     }
@@ -174,8 +174,8 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         FutureResult::new(async move {
-            let editor = manager.open_text_editor(view_id).await?;
-            let delta_bytes = Bytes::from(editor.delta_str().await?);
+            let editor = manager.open_document_editor(view_id).await?;
+            let delta_bytes = Bytes::from(editor.get_operation_str().await?);
             Ok(delta_bytes)
         })
     }
@@ -195,7 +195,7 @@ impl ViewDataProcessor for TextBlockViewDataProcessor {
             let delta_data = Bytes::from(view_data);
             let repeated_revision: RepeatedRevision =
                 Revision::initial_revision(&user_id, &view_id, delta_data.clone()).into();
-            let _ = manager.create_text_block(view_id, repeated_revision).await?;
+            let _ = manager.create_document(view_id, repeated_revision).await?;
             Ok(delta_data)
         })
     }

@@ -20,9 +20,9 @@ pub trait ConflictResolver<T>
 where
     T: OperationAttributes + Send + Sync,
 {
-    fn compose_delta(&self, delta: DeltaOperations<T>) -> BoxResultFuture<OperationsMD5, FlowyError>;
-    fn transform_delta(&self, delta: DeltaOperations<T>) -> BoxResultFuture<TransformDeltas<T>, FlowyError>;
-    fn reset_delta(&self, delta: DeltaOperations<T>) -> BoxResultFuture<OperationsMD5, FlowyError>;
+    fn compose_operations(&self, delta: DeltaOperations<T>) -> BoxResultFuture<OperationsMD5, FlowyError>;
+    fn transform_operations(&self, delta: DeltaOperations<T>) -> BoxResultFuture<TransformOperations<T>, FlowyError>;
+    fn reset_operations(&self, delta: DeltaOperations<T>) -> BoxResultFuture<OperationsMD5, FlowyError>;
 }
 
 pub trait ConflictRevisionSink: Send + Sync + 'static {
@@ -105,23 +105,23 @@ where
 
         let new_delta = make_operations_from_revisions(revisions.clone())?;
 
-        let TransformDeltas {
+        let TransformOperations {
             client_prime,
             server_prime,
-        } = self.resolver.transform_delta(new_delta).await?;
+        } = self.resolver.transform_operations(new_delta).await?;
 
         match server_prime {
             None => {
                 // The server_prime is None means the client local revisions conflict with the
                 // // server, and it needs to override the client delta.
-                let md5 = self.resolver.reset_delta(client_prime).await?;
+                let md5 = self.resolver.reset_operations(client_prime).await?;
                 let repeated_revision = RepeatedRevision::new(revisions);
                 assert_eq!(repeated_revision.last().unwrap().md5, md5);
                 let _ = self.rev_manager.reset_object(repeated_revision).await?;
                 Ok(None)
             }
             Some(server_prime) => {
-                let md5 = self.resolver.compose_delta(client_prime.clone()).await?;
+                let md5 = self.resolver.compose_operations(client_prime.clone()).await?;
                 for revision in &revisions {
                     let _ = self.rev_manager.add_remote_revision(revision).await?;
                 }
@@ -175,9 +175,9 @@ where
     }
 }
 
-pub type RichTextTransformDeltas = TransformDeltas<AttributeHashMap>;
+pub type TextTransformOperations = TransformOperations<AttributeHashMap>;
 
-pub struct TransformDeltas<T>
+pub struct TransformOperations<T>
 where
     T: OperationAttributes,
 {

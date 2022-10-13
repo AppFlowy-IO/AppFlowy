@@ -1,6 +1,6 @@
 use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::{
-    entities::{text_block::DocumentPB, ws_data::ServerRevisionWSDataBuilder},
+    entities::{text_block::DocumentPayloadPB, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::ClientRevisionWSData,
     server_document::document_pad::ServerDocument,
@@ -20,13 +20,13 @@ use tokio::{
 };
 
 pub trait TextBlockCloudPersistence: Send + Sync + Debug {
-    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<DocumentPB, CollaborateError>;
+    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<DocumentPayloadPB, CollaborateError>;
 
     fn create_text_block(
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevision,
-    ) -> BoxResultFuture<Option<DocumentPB>, CollaborateError>;
+    ) -> BoxResultFuture<Option<DocumentPayloadPB>, CollaborateError>;
 
     fn read_text_block_revisions(
         &self,
@@ -184,7 +184,10 @@ impl ServerDocumentManager {
     }
 
     #[tracing::instrument(level = "debug", skip(self, doc), err)]
-    async fn create_document_handler(&self, doc: DocumentPB) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
+    async fn create_document_handler(
+        &self,
+        doc: DocumentPayloadPB,
+    ) -> Result<Arc<OpenDocumentHandler>, CollaborateError> {
         let persistence = self.persistence.clone();
         let handle = spawn_blocking(|| OpenDocumentHandler::new(doc, persistence))
             .await
@@ -208,16 +211,16 @@ struct OpenDocumentHandler {
 }
 
 impl OpenDocumentHandler {
-    fn new(doc: DocumentPB, persistence: Arc<dyn TextBlockCloudPersistence>) -> Result<Self, CollaborateError> {
-        let doc_id = doc.block_id.clone();
+    fn new(doc: DocumentPayloadPB, persistence: Arc<dyn TextBlockCloudPersistence>) -> Result<Self, CollaborateError> {
+        let doc_id = doc.doc_id.clone();
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();
 
-        let operations = TextOperations::from_bytes(&doc.text)?;
+        let operations = TextOperations::from_bytes(&doc.content)?;
         let sync_object = ServerDocument::from_operations(&doc_id, operations);
         let synchronizer = Arc::new(DocumentRevisionSynchronizer::new(doc.rev_id, sync_object, persistence));
 
-        let queue = DocumentCommandRunner::new(&doc.block_id, receiver, synchronizer);
+        let queue = DocumentCommandRunner::new(&doc.doc_id, receiver, synchronizer);
         tokio::task::spawn(queue.run());
         Ok(Self { doc_id, sender, users })
     }
