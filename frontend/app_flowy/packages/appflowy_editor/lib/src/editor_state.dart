@@ -9,7 +9,7 @@ import 'package:appflowy_editor/src/core/location/selection.dart';
 import 'package:appflowy_editor/src/core/document/document.dart';
 import 'package:appflowy_editor/src/core/transform/operation.dart';
 import 'package:appflowy_editor/src/core/transform/transaction.dart';
-import 'package:appflowy_editor/src/undo_manager.dart';
+import 'package:appflowy_editor/src/history/undo_manager.dart';
 
 class ApplyOptions {
   /// This flag indicates that
@@ -63,8 +63,8 @@ class EditorState {
   EditorStyle editorStyle = EditorStyle.defaultStyle();
 
   /// Operation stream.
-  Stream<Operation> get operationStream => _observer.stream;
-  final StreamController<Operation> _observer = StreamController.broadcast();
+  Stream<Transaction> get transactionStream => _observer.stream;
+  final StreamController<Transaction> _observer = StreamController.broadcast();
 
   final UndoManager undoManager = UndoManager();
   Selection? _cursorSelection;
@@ -140,6 +140,8 @@ class EditorState {
       _applyOperation(op);
     }
 
+    _observer.add(transaction);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       updateCursorSelection(transaction.afterSelection);
     });
@@ -187,6 +189,5 @@ class EditorState {
     } else if (op is UpdateTextOperation) {
       document.updateText(op.path, op.delta);
     }
-    _observer.add(op);
   }
 }
