@@ -5,7 +5,7 @@ mod serde_test;
 mod undo_redo_test;
 
 use derive_more::Display;
-use flowy_sync::client_document::{ClientDocument, InitialDocumentContent};
+use flowy_sync::client_document::{ClientDocument, InitialDocument};
 use lib_ot::{
     core::*,
     text_delta::{BuildInTextAttribute, TextOperations},
@@ -264,7 +264,7 @@ impl TestBuilder {
         }
     }
 
-    pub fn run_scripts<C: InitialDocumentContent>(mut self, scripts: Vec<TestOp>) {
+    pub fn run_scripts<C: InitialDocument>(mut self, scripts: Vec<TestOp>) {
         self.documents = vec![ClientDocument::new::<C>(), ClientDocument::new::<C>()];
         self.primes = vec![None, None];
         self.deltas = vec![None, None];

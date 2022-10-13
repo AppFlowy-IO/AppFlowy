@@ -10,19 +10,19 @@ use bytes::Bytes;
 use lib_ot::{core::*, text_delta::TextOperations};
 use tokio::sync::mpsc;
 
-pub trait InitialDocumentContent {
+pub trait InitialDocument {
     fn json_str() -> String;
 }
 
 pub struct EmptyDoc();
-impl InitialDocumentContent for EmptyDoc {
+impl InitialDocument for EmptyDoc {
     fn json_str() -> String {
         TextOperations::default().json_str()
     }
 }
 
 pub struct NewlineDoc();
-impl InitialDocumentContent for NewlineDoc {
+impl InitialDocument for NewlineDoc {
     fn json_str() -> String {
         initial_document_str()
     }
@@ -37,7 +37,7 @@ pub struct ClientDocument {
 }
 
 impl ClientDocument {
-    pub fn new<C: InitialDocumentContent>() -> Self {
+    pub fn new<C: InitialDocument>() -> Self {
         let content = C::json_str();
         Self::from_json(&content).unwrap()
     }

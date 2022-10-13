@@ -1,5 +1,5 @@
 use crate::synchronizer::RevisionOperations;
-use crate::{client_document::InitialDocumentContent, errors::CollaborateError, synchronizer::RevisionSyncObject};
+use crate::{client_document::InitialDocument, errors::CollaborateError, synchronizer::RevisionSyncObject};
 use lib_ot::{core::*, text_delta::TextOperations};
 
 pub struct ServerDocument {
@@ -9,7 +9,7 @@ pub struct ServerDocument {
 
 impl ServerDocument {
     #[allow(dead_code)]
-    pub fn new<C: InitialDocumentContent>(doc_id: &str) -> Self {
+    pub fn new<C: InitialDocument>(doc_id: &str) -> Self {
         let operations = TextOperations::from_json(&C::json_str()).unwrap();
         Self::from_operations(doc_id, operations)
     }
