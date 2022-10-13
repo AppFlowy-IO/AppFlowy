@@ -4,6 +4,7 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../layout/sizes.dart';
 import 'cell_builder.dart';
 
 class GridCheckboxCell extends GridCellWidget {
@@ -40,13 +41,16 @@ class _CheckboxCellState extends GridCellState<GridCheckboxCell> {
               : svgWidget('editor/editor_uncheck');
           return Align(
             alignment: Alignment.centerLeft,
-            child: FlowyIconButton(
-              onPressed: () => context
-                  .read<CheckboxCellBloc>()
-                  .add(const CheckboxCellEvent.select()),
-              iconPadding: EdgeInsets.zero,
-              icon: icon,
-              width: 20,
+            child: Padding(
+              padding: GridSize.cellContentInsets,
+              child: FlowyIconButton(
+                onPressed: () => context
+                    .read<CheckboxCellBloc>()
+                    .add(const CheckboxCellEvent.select()),
+                iconPadding: EdgeInsets.zero,
+                icon: icon,
+                width: 20,
+              ),
             ),
           );
         },
