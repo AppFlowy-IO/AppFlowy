@@ -60,7 +60,9 @@ class SelectOptionCellEditorBloc
             _trySelectOption(value.optionName, emit);
           },
           selectMultipleOptions: (_SelectMultipleOptions value) {
-            _selectMultipleOptions(value.optionNames);
+            if (value.optionNames.isNotEmpty) {
+              _selectMultipleOptions(value.optionNames);
+            }
             _filterOption(value.remainder, emit);
           },
           filterOption: (_SelectOptionFilter value) {
