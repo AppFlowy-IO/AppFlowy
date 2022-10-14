@@ -118,7 +118,7 @@ jobs:
 
       - name: Archive macOS app
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
-        run: zip -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
+        run: zip --symlinks -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
 
       - name: Upload Release Asset
         uses: actions/upload-release-asset@v1
