@@ -6,7 +6,7 @@ use bytes::Bytes;
 use flowy_grid::entities::*;
 use flowy_grid::services::field::SelectOptionPB;
 use flowy_grid::services::field::*;
-use flowy_grid::services::grid_editor::{GridPadBuilder, GridRevisionEditor};
+use flowy_grid::services::grid_editor::{GridRevisionEditor, GridRevisionSerde};
 use flowy_grid::services::row::{CreateRowRevisionPayload, RowRevisionBuilder};
 use flowy_grid::services::setting::GridSettingChangesetBuilder;
 use flowy_grid_data_model::revision::*;

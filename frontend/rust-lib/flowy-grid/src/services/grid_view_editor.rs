@@ -11,15 +11,20 @@ use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, GroupConfigurationReader,
     GroupConfigurationWriter, GroupController, MoveGroupRowContext,
 };
+use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
     gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
     RowChangeset, RowRevision,
 };
-use flowy_revision::{RevisionCloudService, RevisionManager, RevisionObjectBuilder};
+use flowy_revision::{
+    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+};
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::entities::revision::Revision;
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{wrap_future, AFFuture, FutureResult};
+use lib_ot::core::EmptyAttributes;
 use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -49,7 +54,7 @@ impl GridViewRevisionEditor {
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
         });
-        let view_revision_pad = rev_manager.load::<GridViewRevisionPadBuilder>(Some(cloud)).await?;
+        let view_revision_pad = rev_manager.load::<GridViewRevisionSerde>(Some(cloud)).await?;
         let pad = Arc::new(RwLock::new(view_revision_pad));
         let rev_manager = Arc::new(rev_manager);
         let group_controller = new_group_controller(
@@ -472,13 +477,27 @@ impl RevisionCloudService for GridViewRevisionCloudService {
     }
 }
 
-struct GridViewRevisionPadBuilder();
-impl RevisionObjectBuilder for GridViewRevisionPadBuilder {
+pub struct GridViewRevisionSerde();
+impl RevisionObjectDeserializer for GridViewRevisionSerde {
     type Output = GridViewRevisionPad;
 
-    fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+    fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let pad = GridViewRevisionPad::from_revisions(object_id, revisions)?;
         Ok(pad)
+    }
+}
+
+impl RevisionObjectSerializer for GridViewRevisionSerde {
+    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
+    }
+}
+
+pub struct GridViewRevisionCompactor();
+impl RevisionCompress for GridViewRevisionCompactor {
+    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        GridViewRevisionSerde::serialize_revisions(revisions)
     }
 }
 

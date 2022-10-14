@@ -14,7 +14,7 @@ async fn text_block_sync_current_rev_id_check() {
         AssertNextSyncRevId(None),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];
-    TextBlockEditorTest::new().await.run_scripts(scripts).await;
+    DocumentEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -28,7 +28,7 @@ async fn text_block_sync_state_check() {
         AssertRevisionState(3, RevisionState::Ack),
         AssertJson(r#"[{"insert":"123\n"}]"#),
     ];
-    TextBlockEditorTest::new().await.run_scripts(scripts).await;
+    DocumentEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -40,7 +40,7 @@ async fn text_block_sync_insert_test() {
         AssertJson(r#"[{"insert":"123\n"}]"#),
         AssertNextSyncRevId(None),
     ];
-    TextBlockEditorTest::new().await.run_scripts(scripts).await;
+    DocumentEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -52,7 +52,7 @@ async fn text_block_sync_insert_in_chinese() {
         InsertText("好", offset),
         AssertJson(r#"[{"insert":"你好\n"}]"#),
     ];
-    TextBlockEditorTest::new().await.run_scripts(scripts).await;
+    DocumentEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -64,7 +64,7 @@ async fn text_block_sync_insert_with_emoji() {
         InsertText("☺️", offset),
         AssertJson(r#"[{"insert":"😁☺️\n"}]"#),
     ];
-    TextBlockEditorTest::new().await.run_scripts(scripts).await;
+    DocumentEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -76,7 +76,7 @@ async fn text_block_sync_delete_in_english() {
         Delete(Interval::new(0, 2)),
         AssertJson(r#"[{"insert":"3\n"}]"#),
     ];
-    TextBlockEditorTest::new().await.run_scripts(scripts).await;
+    DocumentEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -89,7 +89,7 @@ async fn text_block_sync_delete_in_chinese() {
         Delete(Interval::new(0, offset)),
         AssertJson(r#"[{"insert":"好\n"}]"#),
     ];
-    TextBlockEditorTest::new().await.run_scripts(scripts).await;
+    DocumentEditorTest::new().await.run_scripts(scripts).await;
 }
 
 #[tokio::test]
@@ -101,5 +101,5 @@ async fn text_block_sync_replace_test() {
         Replace(Interval::new(0, 3), "abc"),
         AssertJson(r#"[{"insert":"abc\n"}]"#),
     ];
-    TextBlockEditorTest::new().await.run_scripts(scripts).await;
+    DocumentEditorTest::new().await.run_scripts(scripts).await;
 }

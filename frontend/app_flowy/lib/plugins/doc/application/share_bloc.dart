@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:app_flowy/startup/tasks/rust_sdk.dart';
 import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
 import 'package:app_flowy/plugins/doc/application/share_service.dart';
-import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-document/entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

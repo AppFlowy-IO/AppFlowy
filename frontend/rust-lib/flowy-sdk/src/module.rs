@@ -1,7 +1,7 @@
+use flowy_document::DocumentManager;
 use flowy_folder::manager::FolderManager;
 use flowy_grid::manager::GridManager;
 use flowy_net::ws::connection::FlowyWebSocketConnect;
-use flowy_text_block::TextEditorManager;
 use flowy_user::services::UserSession;
 use lib_dispatch::prelude::Module;
 use std::sync::Arc;
@@ -11,7 +11,7 @@ pub fn mk_modules(
     folder_manager: &Arc<FolderManager>,
     grid_manager: &Arc<GridManager>,
     user_session: &Arc<UserSession>,
-    text_block_manager: &Arc<TextEditorManager>,
+    text_block_manager: &Arc<DocumentManager>,
 ) -> Vec<Module> {
     let user_module = mk_user_module(user_session.clone());
     let folder_module = mk_folder_module(folder_manager.clone());
@@ -43,6 +43,6 @@ fn mk_grid_module(grid_manager: Arc<GridManager>) -> Module {
     flowy_grid::event_map::create(grid_manager)
 }
 
-fn mk_text_block_module(text_block_manager: Arc<TextEditorManager>) -> Module {
-    flowy_text_block::event_map::create(text_block_manager)
+fn mk_text_block_module(text_block_manager: Arc<DocumentManager>) -> Module {
+    flowy_document::event_map::create(text_block_manager)
 }

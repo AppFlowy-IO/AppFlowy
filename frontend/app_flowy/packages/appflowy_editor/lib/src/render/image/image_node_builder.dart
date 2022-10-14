@@ -24,20 +24,23 @@ class ImageNodeBuilder extends NodeWidgetBuilder<Node> {
         RichClipboard.setData(RichClipboardData(text: src));
       },
       onDelete: () {
-        context.editorState.transaction.deleteNode(context.node);
-        context.editorState.commit();
+        final transaction = context.editorState.transaction
+          ..deleteNode(context.node);
+        context.editorState.apply(transaction);
       },
       onAlign: (alignment) {
-        context.editorState.transaction.updateNode(context.node, {
-          'align': _alignmentToText(alignment),
-        });
-        context.editorState.commit();
+        final transaction = context.editorState.transaction
+          ..updateNode(context.node, {
+            'align': _alignmentToText(alignment),
+          });
+        context.editorState.apply(transaction);
       },
       onResize: (width) {
-        context.editorState.transaction.updateNode(context.node, {
-          'width': width,
-        });
-        context.editorState.commit();
+        final transaction = context.editorState.transaction
+          ..updateNode(context.node, {
+            'width': width,
+          });
+        context.editorState.apply(transaction);
       },
     );
   }

@@ -99,14 +99,14 @@ KeyEventResult _toNumberList(EditorState editorState, TextNode textNode,
   ));
 
   final insertPath = textNode.path;
-  editorState.transaction
+  final transaction = editorState.transaction
     ..deleteText(textNode, 0, matchText.length)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.numberList,
       BuiltInAttributeKey.number: numValue
     })
     ..afterSelection = afterSelection;
-  editorState.commit();
+  editorState.apply(transaction);
 
   makeFollowingNodesIncremental(editorState, insertPath, afterSelection);
 
@@ -117,7 +117,7 @@ KeyEventResult _toBulletedList(EditorState editorState, TextNode textNode) {
   if (textNode.subtype == BuiltInAttributeKey.bulletedList) {
     return KeyEventResult.ignored;
   }
-  editorState.transaction
+  final transaction = editorState.transaction
     ..deleteText(textNode, 0, 1)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.bulletedList,
@@ -128,7 +128,7 @@ KeyEventResult _toBulletedList(EditorState editorState, TextNode textNode) {
         offset: 0,
       ),
     );
-  editorState.commit();
+  editorState.apply(transaction);
   return KeyEventResult.handled;
 }
 
@@ -150,7 +150,7 @@ KeyEventResult _toCheckboxList(EditorState editorState, TextNode textNode) {
     check = false;
   }
 
-  editorState.transaction
+  final transaction = editorState.transaction
     ..deleteText(textNode, 0, symbol.length)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
@@ -162,7 +162,7 @@ KeyEventResult _toCheckboxList(EditorState editorState, TextNode textNode) {
         offset: 0,
       ),
     );
-  editorState.commit();
+  editorState.apply(transaction);
   return KeyEventResult.handled;
 }
 
@@ -176,7 +176,7 @@ KeyEventResult _toHeadingStyle(
   if (textNode.attributes.heading == hX) {
     return KeyEventResult.ignored;
   }
-  editorState.transaction
+  final transaction = editorState.transaction
     ..deleteText(textNode, 0, x)
     ..updateNode(textNode, {
       BuiltInAttributeKey.subtype: BuiltInAttributeKey.heading,
@@ -188,7 +188,7 @@ KeyEventResult _toHeadingStyle(
         offset: 0,
       ),
     );
-  editorState.commit();
+  editorState.apply(transaction);
   return KeyEventResult.handled;
 }
 

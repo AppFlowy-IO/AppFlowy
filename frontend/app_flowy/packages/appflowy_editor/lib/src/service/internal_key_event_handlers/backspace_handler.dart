@@ -86,13 +86,13 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       if (nonTextNodes.isNotEmpty) {
         transaction.afterSelection = Selection.collapsed(selection.start);
       }
-      editorState.commit();
+      editorState.apply(transaction);
       return KeyEventResult.handled;
     }
     final startPosition = selection.start;
     final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
     _deleteTextNodes(transaction, textNodes, selection);
-    editorState.commit();
+    editorState.apply(transaction);
 
     if (nodeAtStart is TextNode &&
         nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
@@ -109,7 +109,7 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     if (nonTextNodes.isNotEmpty) {
       transaction.afterSelection = Selection.collapsed(selection.start);
     }
-    editorState.commit();
+    editorState.apply(transaction);
   }
 
   if (cancelNumberListPath != null) {
@@ -140,7 +140,7 @@ KeyEventResult _backDeleteToPreviousTextNode(
       ..afterSelection = Selection.collapsed(
         Position(path: textNode.parent!.path.next, offset: 0),
       );
-    editorState.commit();
+    editorState.apply(transaction);
     return KeyEventResult.handled;
   }
 
@@ -171,7 +171,7 @@ KeyEventResult _backDeleteToPreviousTextNode(
     if (nonTextNodes.isNotEmpty) {
       transaction.afterSelection = Selection.collapsed(selection.start);
     }
-    editorState.commit();
+    editorState.apply(transaction);
   }
 
   if (prevIsNumberList) {
@@ -223,12 +223,12 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
         selection.end.offset - selection.start.offset,
       );
     }
-    editorState.commit();
+    editorState.apply(transaction);
   } else {
     final startPosition = selection.start;
     final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
     _deleteTextNodes(transaction, textNodes, selection);
-    editorState.commit();
+    editorState.apply(transaction);
 
     if (nodeAtStart is TextNode &&
         nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
@@ -250,7 +250,7 @@ KeyEventResult _mergeNextLineIntoThisLine(EditorState editorState,
     transaction.mergeText(textNode, nextNode);
   }
   transaction.deleteNode(nextNode);
-  editorState.commit();
+  editorState.apply(transaction);
 
   if (textNode.subtype == BuiltInAttributeKey.numberList) {
     makeFollowingNodesIncremental(editorState, textNode.path, selection);

@@ -15,7 +15,7 @@ void makeFollowingNodesIncremental(
   int numPtr = beginNum + 1;
   var ptr = insertNode.next;
 
-  final builder = editorState.transaction;
+  final transaction = editorState.transaction;
 
   while (ptr != null) {
     if (ptr.subtype != BuiltInAttributeKey.numberList) {
@@ -25,13 +25,13 @@ void makeFollowingNodesIncremental(
     if (currentNum != numPtr) {
       Attributes updateAttributes = {};
       updateAttributes[BuiltInAttributeKey.number] = numPtr;
-      builder.updateNode(ptr, updateAttributes);
+      transaction.updateNode(ptr, updateAttributes);
     }
 
     ptr = ptr.next;
     numPtr++;
   }
 
-  builder.afterSelection = afterSelection;
-  editorState.commit();
+  transaction.afterSelection = afterSelection;
+  editorState.apply(transaction);
 }

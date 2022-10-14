@@ -32,7 +32,7 @@ impl std::convert::From<i32> for ExportType {
 #[derive(Default, ProtoBuf)]
 pub struct EditPayloadPB {
     #[pb(index = 1)]
-    pub text_block_id: String,
+    pub doc_id: String,
 
     // Encode in JSON format
     #[pb(index = 2)]
@@ -40,35 +40,35 @@ pub struct EditPayloadPB {
 
     // Encode in JSON format
     #[pb(index = 3)]
-    pub delta: String,
+    pub operations_str: String,
 }
 
 #[derive(Default)]
 pub struct EditParams {
-    pub text_block_id: String,
+    pub doc_id: String,
 
     // Encode in JSON format
     pub operations: String,
 
     // Encode in JSON format
-    pub delta: String,
+    pub operations_str: String,
 }
 
 impl TryInto<EditParams> for EditPayloadPB {
     type Error = ErrorCode;
     fn try_into(self) -> Result<EditParams, Self::Error> {
         Ok(EditParams {
-            text_block_id: self.text_block_id,
+            doc_id: self.doc_id,
             operations: self.operations,
-            delta: self.delta,
+            operations_str: self.operations_str,
         })
     }
 }
 
 #[derive(Default, ProtoBuf)]
-pub struct TextBlockPB {
+pub struct DocumentSnapshotPB {
     #[pb(index = 1)]
-    pub text_block_id: String,
+    pub doc_id: String,
 
     /// Encode in JSON format
     #[pb(index = 2)]

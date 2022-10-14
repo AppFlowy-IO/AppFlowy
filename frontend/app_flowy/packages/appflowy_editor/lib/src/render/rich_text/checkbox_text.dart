@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/commands/format_built_in_text.dart';
+import 'package:appflowy_editor/src/commands/text/text_commands.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 
@@ -75,7 +75,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
               name: check ? 'check' : 'uncheck',
             ),
             onTap: () async {
-              await formatTextToCheckbox(
+              await widget.editorState.formatTextToCheckbox(
                 widget.editorState,
                 !check,
                 textNode: widget.textNode,

@@ -7,7 +7,6 @@ edition = "2018"
 
 [dependencies]
 flowy-sync = { path = "../../../shared-lib/flowy-sync" }
-lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 flowy-database = { path = "../flowy-database" }
@@ -26,4 +25,4 @@ async-stream = "0.3.2"
 serde_json = {version = "1.0"}
 
 [features]
-flowy_unit_test = ["lib-ot/flowy_unit_test"]
+flowy_unit_test = []

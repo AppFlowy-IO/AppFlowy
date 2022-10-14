@@ -66,7 +66,7 @@ void main() {
     transaction.deleteNode(item1);
     transaction.deleteNode(item2);
     transaction.deleteNode(item3);
-    state.commit();
+    state.apply(transaction);
     expect(transaction.operations[0].path, [0]);
     expect(transaction.operations[1].path, [0]);
     expect(transaction.operations[2].path, [0]);
@@ -79,7 +79,7 @@ void main() {
       final item1 = Node(type: "node", attributes: {}, children: LinkedList());
       final transaction = state.transaction;
       transaction.insertNode([0], item1);
-      state.commit();
+      state.apply(transaction);
       expect(transaction.toJson(), {
         "operations": [
           {
@@ -103,7 +103,7 @@ void main() {
       final state = EditorState(document: Document(root: root));
       final transaction = state.transaction;
       transaction.deleteNode(item1);
-      state.commit();
+      state.apply(transaction);
       expect(transaction.toJson(), {
         "operations": [
           {

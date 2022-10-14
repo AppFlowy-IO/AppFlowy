@@ -18,7 +18,7 @@ ShortcutEventHandler _insertHorzaontalRule = (editorState, event) {
   }
   final textNode = textNodes.first;
   if (textNode.toPlainText() == '--') {
-    editorState.transaction
+    final transaction = editorState.transaction
       ..deleteText(textNode, 0, 2)
       ..insertNode(
         textNode.path,
@@ -30,7 +30,7 @@ ShortcutEventHandler _insertHorzaontalRule = (editorState, event) {
       )
       ..afterSelection =
           Selection.single(path: textNode.path.next, startOffset: 0);
-    editorState.commit();
+    editorState.apply(transaction);
     return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;
@@ -54,7 +54,7 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
     }
     final textNode = textNodes.first;
     if (textNode.toPlainText().isEmpty) {
-      editorState.transaction
+      final transaction = editorState.transaction
         ..insertNode(
           textNode.path,
           Node(
@@ -65,9 +65,9 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
         )
         ..afterSelection =
             Selection.single(path: textNode.path.next, startOffset: 0);
-      editorState.commit();
+      editorState.apply(transaction);
     } else {
-      editorState.transaction
+      final transaction = editorState.transaction
         ..insertNode(
           selection.end.path.next,
           TextNode(
@@ -79,7 +79,7 @@ SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
           ),
         )
         ..afterSelection = selection;
-      editorState.commit();
+      editorState.apply(transaction);
     }
   },
 );
