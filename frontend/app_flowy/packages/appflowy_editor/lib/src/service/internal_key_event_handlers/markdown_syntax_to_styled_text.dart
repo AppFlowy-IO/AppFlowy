@@ -224,7 +224,7 @@ ShortcutEventHandler markdownLinkOrImageHandler = (editorState, event) {
       ..insertNode(
           textNode.path,
           Node.fromJson({
-            'type': 'network_image',
+            'type': 'image',
             'attributes': {
               'network_image_src': imgUrl,
               BuiltInAttributeKey.href: imgUrl,

@@ -274,7 +274,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'Markdown link or image',
-    command: 'shift+digit 0',
+    command: 'shift+parenthesis right',
     handler: markdownLinkOrImageHandler,
   )];
   // https://github.com/flutter/flutter/issues/104944

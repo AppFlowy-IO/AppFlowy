@@ -124,7 +124,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 'text/code_block': CodeBlockNodeWidgetBuilder(),
                 'tex': TeXBlockNodeWidgetBuidler(),
                 'horizontal_rule': HorizontalRuleWidgetBuilder(),
-                'network_image': NetworkImageNodeWidgetBuilder(),
               },
               shortcutEvents: [
                 enterInCodeBlock,
