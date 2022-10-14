@@ -12,6 +12,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../layout/sizes.dart';
 import '../cell_accessory.dart';
 import '../cell_builder.dart';
 import 'cell_editor.dart';
@@ -115,14 +116,17 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
       value: _cellBloc,
       child: BlocBuilder<URLCellBloc, URLCellState>(
         builder: (context, state) {
-          final richText = RichText(
-            textAlign: TextAlign.left,
-            text: TextSpan(
-              text: state.content,
-              style: TextStyle(
-                color: theme.main2,
-                fontSize: 14,
-                decoration: TextDecoration.underline,
+          final richText = Padding(
+            padding: GridSize.cellContentInsets,
+            child: RichText(
+              textAlign: TextAlign.left,
+              text: TextSpan(
+                text: state.content,
+                style: TextStyle(
+                  color: theme.main2,
+                  fontSize: 14,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
           );

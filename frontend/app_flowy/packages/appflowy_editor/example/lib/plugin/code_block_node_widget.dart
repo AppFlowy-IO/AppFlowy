@@ -26,9 +26,9 @@ ShortcutEventHandler _enterInCodeBlockHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
   if (selection.isCollapsed) {
-    editorState.transaction
-        .insertText(codeBlockNode.first, selection.end.offset, '\n');
-    editorState.commit();
+    final transaction = editorState.transaction
+      ..insertText(codeBlockNode.first, selection.end.offset, '\n');
+    editorState.apply(transaction);
     return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;
@@ -61,16 +61,16 @@ SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
       return;
     }
     if (textNodes.first.toPlainText().isEmpty) {
-      editorState.transaction
+      final transaction = editorState.transaction
         ..updateNode(textNodes.first, {
           'subtype': 'code_block',
           'theme': 'vs',
           'language': null,
         })
         ..afterSelection = selection;
-      editorState.commit();
+      editorState.apply(transaction);
     } else {
-      editorState.transaction
+      final transaction = editorState.transaction
         ..insertNode(
           selection.end.path.next,
           TextNode(
@@ -84,7 +84,7 @@ SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
           ),
         )
         ..afterSelection = selection;
-      editorState.commit();
+      editorState.apply(transaction);
     }
   },
 );
@@ -181,10 +181,11 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
       child: DropdownButton<String>(
         value: _detectLanguage,
         onChanged: (value) {
-          widget.editorState.transaction.updateNode(widget.textNode, {
-            'language': value,
-          });
-          widget.editorState.commit();
+          final transaction = widget.editorState.transaction
+            ..updateNode(widget.textNode, {
+              'language': value,
+            });
+          widget.editorState.apply(transaction);
         },
         items: allLanguages.keys.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(

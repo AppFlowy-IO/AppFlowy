@@ -4,6 +4,7 @@ import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../layout/sizes.dart';
 import 'cell_builder.dart';
 
 class GridNumberCell extends GridCellWidget {
@@ -45,18 +46,21 @@ class _NumberCellState extends GridFocusNodeCellState<GridNumberCell> {
                 _controller.text = contentFromState(state),
           ),
         ],
-        child: TextField(
-          controller: _controller,
-          focusNode: focusNode,
-          onEditingComplete: () => focusNode.unfocus(),
-          onSubmitted: (_) => focusNode.unfocus(),
-          maxLines: 1,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          textInputAction: TextInputAction.done,
-          decoration: const InputDecoration(
-            contentPadding: EdgeInsets.zero,
-            border: InputBorder.none,
-            isDense: true,
+        child: Padding(
+          padding: GridSize.cellContentInsets,
+          child: TextField(
+            controller: _controller,
+            focusNode: focusNode,
+            onEditingComplete: () => focusNode.unfocus(),
+            onSubmitted: (_) => focusNode.unfocus(),
+            maxLines: 1,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            textInputAction: TextInputAction.done,
+            decoration: const InputDecoration(
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              isDense: true,
+            ),
           ),
         ),
       ),

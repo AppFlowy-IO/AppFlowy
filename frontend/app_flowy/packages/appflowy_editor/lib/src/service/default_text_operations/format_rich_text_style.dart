@@ -47,7 +47,7 @@ bool insertTextNodeAfterSelection(
     formatTextNodes(editorState, attributes);
   } else {
     final next = selection.end.path.next;
-    editorState.transaction
+    final transaction = editorState.transaction
       ..insertNode(
         next,
         TextNode.empty(attributes: attributes),
@@ -55,7 +55,7 @@ bool insertTextNodeAfterSelection(
       ..afterSelection = Selection.collapsed(
         Position(path: next, offset: 0),
       );
-    editorState.commit();
+    editorState.apply(transaction);
   }
 
   return true;
@@ -122,7 +122,7 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
       );
   }
 
-  editorState.commit();
+  editorState.apply(transaction);
   return true;
 }
 
@@ -240,7 +240,7 @@ bool formatRichTextStyle(EditorState editorState, Attributes attributes) {
     }
   }
 
-  editorState.commit();
+  editorState.apply(transaction);
 
   return true;
 }

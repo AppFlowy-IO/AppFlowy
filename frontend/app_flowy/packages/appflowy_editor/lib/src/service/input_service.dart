@@ -160,12 +160,13 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     }
     if (currentSelection.isSingle) {
       final textNode = selectionService.currentSelectedNodes.first as TextNode;
-      _editorState.transaction.insertText(
+      final transaction = _editorState.transaction;
+      transaction.insertText(
         textNode,
         delta.insertionOffset,
         delta.textInserted,
       );
-      _editorState.commit();
+      _editorState.apply(transaction);
     } else {
       // TODO: implement
     }
@@ -180,9 +181,9 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     if (currentSelection.isSingle) {
       final textNode = selectionService.currentSelectedNodes.first as TextNode;
       final length = delta.deletedRange.end - delta.deletedRange.start;
-      _editorState.transaction
-          .deleteText(textNode, delta.deletedRange.start, length);
-      _editorState.commit();
+      final transaction = _editorState.transaction;
+      transaction.deleteText(textNode, delta.deletedRange.start, length);
+      _editorState.apply(transaction);
     } else {
       // TODO: implement
     }
@@ -197,9 +198,10 @@ class _AppFlowyInputState extends State<AppFlowyInput>
     if (currentSelection.isSingle) {
       final textNode = selectionService.currentSelectedNodes.first as TextNode;
       final length = delta.replacedRange.end - delta.replacedRange.start;
-      _editorState.transaction.replaceText(
+      final transaction = _editorState.transaction;
+      transaction.replaceText(
           textNode, delta.replacedRange.start, length, delta.replacementText);
-      _editorState.commit();
+      _editorState.apply(transaction);
     } else {
       // TODO: implement
     }

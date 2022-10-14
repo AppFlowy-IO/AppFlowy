@@ -73,7 +73,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
       return KeyEventResult.ignored;
     }
 
-    editorState.transaction
+    final transaction = editorState.transaction
       ..deleteText(textNode, lastBackquoteIndex, 1)
       ..deleteText(textNode, firstBackquoteIndex, 2)
       ..formatText(
@@ -90,7 +90,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
           offset: endIndex - 3,
         ),
       );
-    editorState.commit();
+    editorState.apply(transaction);
 
     return KeyEventResult.handled;
   }
@@ -104,7 +104,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
   // delete the backquote.
   // update the style of the text surround by ` ` to code.
   // and update the cursor position.
-  editorState.transaction
+  final transaction = editorState.transaction
     ..deleteText(textNode, startIndex, 1)
     ..formatText(
       textNode,
@@ -120,7 +120,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
         offset: endIndex - 1,
       ),
     );
-  editorState.commit();
+  editorState.apply(transaction);
 
   return KeyEventResult.handled;
 };
@@ -166,7 +166,7 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
   // delete the last three tildes.
   // update the style of the text surround by `~~ ~~` to strikethrough.
   // and update the cursor position.
-  editorState.transaction
+  final transaction = editorState.transaction
     ..deleteText(textNode, lastTildeIndex, 1)
     ..deleteText(textNode, thirdToLastTildeIndex, 2)
     ..formatText(
@@ -183,7 +183,7 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
         offset: selection.end.offset - 3,
       ),
     );
-  editorState.commit();
+  editorState.apply(transaction);
 
   return KeyEventResult.handled;
 };
@@ -219,7 +219,7 @@ ShortcutEventHandler markdownLinkOrImageHandler = (editorState, event) {
     final imgUrl = match?.group(2);
 
     // Delete the text and replace it with the image pointed to by the URL
-    editorState.transaction
+    final transaction = editorState.transaction
       ..deleteText(textNode, firstExclamation, text.length)
       ..insertNode(
           textNode.path,
@@ -230,7 +230,7 @@ ShortcutEventHandler markdownLinkOrImageHandler = (editorState, event) {
               BuiltInAttributeKey.href: imgUrl,
             }
           }));
-    editorState.commit();
+    editorState.apply(transaction);
   } else if (lnkRegEx.firstMatch(text) != null) {
     // Extract the text and the URL of the link
     final match = lnkRegEx.firstMatch(text);
@@ -241,7 +241,7 @@ ShortcutEventHandler markdownLinkOrImageHandler = (editorState, event) {
     // update the href attribute of the text surrounded by [ ] to the url,
     // delete everything after the text,
     // and update the cursor position.
-    editorState.transaction
+    final transaction = editorState.transaction
       ..deleteText(textNode, firstOpeningBracket, 1)
       ..formatText(
         textNode,
@@ -259,9 +259,137 @@ ShortcutEventHandler markdownLinkOrImageHandler = (editorState, event) {
           offset: firstOpeningBracket + linkText!.length,
         ),
       );
-    editorState.commit();
+    editorState.apply(transaction);
   } else {
     return KeyEventResult.ignored;
   }
   return KeyEventResult.handled;
+};
+
+// convert **abc** to bold abc.
+ShortcutEventHandler doubleAsterisksToBold = (editorState, event) {
+  final selectionService = editorState.service.selectionService;
+  final selection = selectionService.currentSelection.value;
+  final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
+  if (selection == null || !selection.isSingle || textNodes.length != 1) {
+    return KeyEventResult.ignored;
+  }
+
+  final textNode = textNodes.first;
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
+
+  // make sure the last two characters are **.
+  if (text.length < 2 || text[selection.end.offset - 1] != '*') {
+    return KeyEventResult.ignored;
+  }
+
+  // find all the index of `*`.
+  final asteriskIndexes = <int>[];
+  for (var i = 0; i < text.length; i++) {
+    if (text[i] == '*') {
+      asteriskIndexes.add(i);
+    }
+  }
+
+  if (asteriskIndexes.length < 3) {
+    return KeyEventResult.ignored;
+  }
+
+  // make sure the second to last and third to last asterisks are connected.
+  final thirdToLastAsteriskIndex = asteriskIndexes[asteriskIndexes.length - 3];
+  final secondToLastAsteriskIndex = asteriskIndexes[asteriskIndexes.length - 2];
+  final lastAsterisIndex = asteriskIndexes[asteriskIndexes.length - 1];
+  if (secondToLastAsteriskIndex != thirdToLastAsteriskIndex + 1 ||
+      lastAsterisIndex == secondToLastAsteriskIndex + 1) {
+    return KeyEventResult.ignored;
+  }
+
+  // delete the last three asterisks.
+  // update the style of the text surround by `** **` to bold.
+  // and update the cursor position.
+  final transaction = editorState.transaction
+    ..deleteText(textNode, lastAsterisIndex, 1)
+    ..deleteText(textNode, thirdToLastAsteriskIndex, 2)
+    ..formatText(
+      textNode,
+      thirdToLastAsteriskIndex,
+      selection.end.offset - thirdToLastAsteriskIndex - 3,
+      {
+        BuiltInAttributeKey.bold: true,
+        BuiltInAttributeKey.defaultFormating: true,
+      },
+    )
+    ..afterSelection = Selection.collapsed(
+      Position(
+        path: textNode.path,
+        offset: selection.end.offset - 3,
+      ),
+    );
+  editorState.apply(transaction);
+
+  return KeyEventResult.handled;
+};
+
+// convert __abc__ to bold abc.
+ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
+  final selectionService = editorState.service.selectionService;
+  final selection = selectionService.currentSelection.value;
+  final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
+  if (selection == null || !selection.isSingle || textNodes.length != 1) {
+    return KeyEventResult.ignored;
+  }
+
+  final textNode = textNodes.first;
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
+
+  // make sure the last two characters are __.
+  if (text.length < 2 || text[selection.end.offset - 1] != '_') {
+    return KeyEventResult.ignored;
+  }
+
+  // find all the index of `_`.
+  final underscoreIndexes = <int>[];
+  for (var i = 0; i < text.length; i++) {
+    if (text[i] == '_') {
+      underscoreIndexes.add(i);
+    }
+  }
+
+  if (underscoreIndexes.length < 3) {
+    return KeyEventResult.ignored;
+  }
+
+  // make sure the second to last and third to last underscores are connected.
+  final thirdToLastUnderscoreIndex =
+      underscoreIndexes[underscoreIndexes.length - 3];
+  final secondToLastUnderscoreIndex =
+      underscoreIndexes[underscoreIndexes.length - 2];
+  final lastAsterisIndex = underscoreIndexes[underscoreIndexes.length - 1];
+  if (secondToLastUnderscoreIndex != thirdToLastUnderscoreIndex + 1 ||
+      lastAsterisIndex == secondToLastUnderscoreIndex + 1) {
+    return KeyEventResult.ignored;
+  }
+
+  // delete the last three underscores.
+  // update the style of the text surround by `__ __` to bold.
+  // and update the cursor position.
+  final transaction = editorState.transaction
+    ..deleteText(textNode, lastAsterisIndex, 1)
+    ..deleteText(textNode, thirdToLastUnderscoreIndex, 2)
+    ..formatText(
+      textNode,
+      thirdToLastUnderscoreIndex,
+      selection.end.offset - thirdToLastUnderscoreIndex - 3,
+      {
+        BuiltInAttributeKey.bold: true,
+        BuiltInAttributeKey.defaultFormating: true,
+      },
+    )
+    ..afterSelection = Selection.collapsed(
+      Position(
+        path: textNode.path,
+        offset: selection.end.offset - 3,
+      ),
+    );
+  editorState.apply(transaction);
 };
