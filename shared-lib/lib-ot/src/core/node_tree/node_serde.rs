@@ -1,18 +1,18 @@
-use super::NodeBody;
+use super::Body;
 use crate::text_delta::TextOperations;
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Deserializer, Serializer};
 use std::fmt;
 
-pub fn serialize_body<S>(body: &NodeBody, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize_body<S>(body: &Body, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
     let mut map = serializer.serialize_map(Some(3))?;
     match body {
-        NodeBody::Empty => {}
-        NodeBody::Delta(delta) => {
+        Body::Empty => {}
+        Body::Delta(delta) => {
             map.serialize_key("delta")?;
             map.serialize_value(delta)?;
         }
@@ -20,14 +20,14 @@ where
     map.end()
 }
 
-pub fn deserialize_body<'de, D>(deserializer: D) -> Result<NodeBody, D::Error>
+pub fn deserialize_body<'de, D>(deserializer: D) -> Result<Body, D::Error>
 where
     D: Deserializer<'de>,
 {
     struct NodeBodyVisitor();
 
     impl<'de> Visitor<'de> for NodeBodyVisitor {
-        type Value = NodeBody;
+        type Value = Body;
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
             formatter.write_str("Expect NodeBody")
@@ -41,7 +41,7 @@ where
             while let Some(op) = seq.next_element()? {
                 delta.add(op);
             }
-            Ok(NodeBody::Delta(delta))
+            Ok(Body::Delta(delta))
         }
 
         #[inline]
@@ -65,7 +65,7 @@ where
             }
 
             if let Some(delta) = delta {
-                return Ok(NodeBody::Delta(delta));
+                return Ok(Body::Delta(delta));
             }
 
             Err(de::Error::missing_field("delta"))

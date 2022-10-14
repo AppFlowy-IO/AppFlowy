@@ -4,7 +4,7 @@ use crate::errors::OTError;
 use indextree::NodeId;
 use std::rc::Rc;
 
-use super::{NodeBodyChangeset, NodeOperations};
+use super::{Changeset, NodeOperations};
 
 #[derive(Debug, Clone, Default)]
 pub struct Transaction {
@@ -143,10 +143,12 @@ impl<'a> TransactionBuilder<'a> {
                     }
                 }
 
-                self.operations.add_op(NodeOperation::UpdateAttributes {
+                self.operations.add_op(NodeOperation::Update {
                     path: path.clone(),
-                    new: attributes,
-                    old: old_attributes,
+                    changeset: Changeset::Attributes {
+                        new: attributes,
+                        old: old_attributes,
+                    },
                 });
             }
             None => tracing::warn!("Update attributes at path: {:?} failed. Node is not exist", path),
@@ -154,10 +156,10 @@ impl<'a> TransactionBuilder<'a> {
         self
     }
 
-    pub fn update_body_at_path(mut self, path: &Path, changeset: NodeBodyChangeset) -> Self {
+    pub fn update_body_at_path(mut self, path: &Path, changeset: Changeset) -> Self {
         match self.node_tree.node_id_at_path(path) {
             Some(_) => {
-                self.operations.add_op(NodeOperation::UpdateBody {
+                self.operations.add_op(NodeOperation::Update {
                     path: path.clone(),
                     changeset,
                 });

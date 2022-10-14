@@ -163,7 +163,7 @@ impl GridRevisionPad {
                 }
                 Some(field_rev) => {
                     let mut_field_rev = Arc::make_mut(field_rev);
-                    let old_field_type_rev = mut_field_rev.ty.clone();
+                    let old_field_type_rev = mut_field_rev.ty;
                     let old_field_type_option = mut_field_rev.get_type_option_str(mut_field_rev.ty);
                     match mut_field_rev.get_type_option_str(new_field_type) {
                         Some(new_field_type_option) => {

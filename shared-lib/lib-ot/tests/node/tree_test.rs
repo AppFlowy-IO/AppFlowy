@@ -1,7 +1,7 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
-use lib_ot::core::NodeBody;
-use lib_ot::core::NodeBodyChangeset;
+use lib_ot::core::Body;
+use lib_ot::core::Changeset;
 use lib_ot::core::OperationTransform;
 use lib_ot::core::{NodeData, NodeDataBuilder, Path};
 use lib_ot::text_delta::TextOperationBuilder;
@@ -299,7 +299,7 @@ fn node_update_body_test() {
     let expected = init_delta.compose(&delta).unwrap();
 
     let node = NodeDataBuilder::new("text")
-        .insert_body(NodeBody::Delta(init_delta))
+        .insert_body(Body::Delta(init_delta))
         .build();
 
     let scripts = vec![
@@ -310,7 +310,7 @@ fn node_update_body_test() {
         },
         UpdateBody {
             path: path.clone(),
-            changeset: NodeBodyChangeset::Delta { delta, inverted },
+            changeset: Changeset::Delta { delta, inverted },
         },
         AssertNodeDelta { path, expected },
     ];

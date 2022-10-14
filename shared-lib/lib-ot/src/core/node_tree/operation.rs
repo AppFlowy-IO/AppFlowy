@@ -1,5 +1,4 @@
-use crate::core::attributes::AttributeHashMap;
-use crate::core::{NodeBodyChangeset, NodeData, Path};
+use crate::core::{Changeset, NodeData, Path};
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
@@ -10,17 +9,10 @@ pub enum NodeOperation {
     #[serde(rename = "insert")]
     Insert { path: Path, nodes: Vec<NodeData> },
 
-    #[serde(rename = "update-attribute")]
-    UpdateAttributes {
-        path: Path,
-        new: AttributeHashMap,
-        old: AttributeHashMap,
-    },
-
-    #[serde(rename = "update-body")]
+    #[serde(rename = "update")]
     // #[serde(serialize_with = "serialize_edit_body")]
     // #[serde(deserialize_with = "deserialize_edit_body")]
-    UpdateBody { path: Path, changeset: NodeBodyChangeset },
+    Update { path: Path, changeset: Changeset },
 
     #[serde(rename = "delete")]
     Delete { path: Path, nodes: Vec<NodeData> },
@@ -30,18 +22,16 @@ impl NodeOperation {
     pub fn get_path(&self) -> &Path {
         match self {
             NodeOperation::Insert { path, .. } => path,
-            NodeOperation::UpdateAttributes { path, .. } => path,
             NodeOperation::Delete { path, .. } => path,
-            NodeOperation::UpdateBody { path, .. } => path,
+            NodeOperation::Update { path, .. } => path,
         }
     }
 
     pub fn get_mut_path(&mut self) -> &mut Path {
         match self {
             NodeOperation::Insert { path, .. } => path,
-            NodeOperation::UpdateAttributes { path, .. } => path,
             NodeOperation::Delete { path, .. } => path,
-            NodeOperation::UpdateBody { path, .. } => path,
+            NodeOperation::Update { path, .. } => path,
         }
     }
 
@@ -51,20 +41,11 @@ impl NodeOperation {
                 path: path.clone(),
                 nodes: nodes.clone(),
             },
-            NodeOperation::UpdateAttributes {
-                path,
-                new: attributes,
-                old: old_attributes,
-            } => NodeOperation::UpdateAttributes {
-                path: path.clone(),
-                new: old_attributes.clone(),
-                old: attributes.clone(),
-            },
             NodeOperation::Delete { path, nodes } => NodeOperation::Insert {
                 path: path.clone(),
                 nodes: nodes.clone(),
             },
-            NodeOperation::UpdateBody { path, changeset: body } => NodeOperation::UpdateBody {
+            NodeOperation::Update { path, changeset: body } => NodeOperation::Update {
                 path: path.clone(),
                 changeset: body.inverted(),
             },

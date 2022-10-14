@@ -1,7 +1,7 @@
 use lib_ot::core::{Node, Transaction};
 use lib_ot::{
     core::attributes::AttributeHashMap,
-    core::{NodeBody, NodeBodyChangeset, NodeData, NodeTree, Path, TransactionBuilder},
+    core::{Body, Changeset, NodeData, NodeTree, Path, TransactionBuilder},
     text_delta::TextOperations,
 };
 use std::collections::HashMap;
@@ -18,7 +18,7 @@ pub enum NodeScript {
     },
     UpdateBody {
         path: Path,
-        changeset: NodeBodyChangeset,
+        changeset: Changeset,
     },
     DeleteNode {
         path: Path,
@@ -132,7 +132,7 @@ impl NodeTest {
             },
             NodeScript::AssertNodeDelta { path, expected } => {
                 let node = self.node_tree.get_node_at_path(&path).unwrap();
-                if let NodeBody::Delta(delta) = node.body.clone() {
+                if let Body::Delta(delta) = node.body.clone() {
                     debug_assert_eq!(delta, expected);
                 } else {
                     panic!("Node body type not match, expect Delta");

@@ -1,5 +1,4 @@
-use crate::core::attributes::AttributeHashMap;
-use crate::core::{Node, NodeBodyChangeset, NodeData, NodeOperation, OperationTransform, Path, Transaction};
+use crate::core::{Changeset, Node, NodeData, NodeOperation, Path, Transaction};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, Children, FollowingSiblings, NodeId};
 use std::rc::Rc;
@@ -181,8 +180,7 @@ impl NodeTree {
 
         match op {
             NodeOperation::Insert { path, nodes } => self.insert_nodes(&path, nodes),
-            NodeOperation::UpdateAttributes { path, new, .. } => self.update_attributes(&path, new),
-            NodeOperation::UpdateBody { path, changeset } => self.update_body(&path, changeset),
+            NodeOperation::Update { path, changeset } => self.update(&path, changeset),
             NodeOperation::Delete { path, nodes } => self.delete_node(&path, nodes),
         }
     }
@@ -252,14 +250,6 @@ impl NodeTree {
         }
     }
 
-    fn update_attributes(&mut self, path: &Path, attributes: AttributeHashMap) -> Result<(), OTError> {
-        self.mut_node_at_path(path, |node| {
-            let new_attributes = AttributeHashMap::compose(&node.attributes, &attributes)?;
-            node.attributes = new_attributes;
-            Ok(())
-        })
-    }
-
     fn delete_node(&mut self, path: &Path, nodes: Vec<NodeData>) -> Result<(), OTError> {
         let mut update_node = self
             .node_id_at_path(path)
@@ -277,9 +267,9 @@ impl NodeTree {
         Ok(())
     }
 
-    fn update_body(&mut self, path: &Path, changeset: NodeBodyChangeset) -> Result<(), OTError> {
+    fn update(&mut self, path: &Path, changeset: Changeset) -> Result<(), OTError> {
         self.mut_node_at_path(path, |node| {
-            node.apply_body_changeset(changeset);
+            let _ = node.apply_changeset(changeset)?;
             Ok(())
         })
     }

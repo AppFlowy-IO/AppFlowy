@@ -2,7 +2,7 @@ use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
 use lib_ot::core::{AttributeBuilder, Node};
 use lib_ot::{
-    core::{NodeBodyChangeset, NodeData, NodeDataBuilder, NodeOperation, Path},
+    core::{Changeset, NodeData, NodeDataBuilder, NodeOperation, Path},
     text_delta::TextOperationBuilder,
 };
 
@@ -33,16 +33,18 @@ fn operation_insert_node_with_children_serde_test() {
 }
 #[test]
 fn operation_update_node_attributes_serde_test() {
-    let operation = NodeOperation::UpdateAttributes {
+    let operation = NodeOperation::Update {
         path: Path(vec![0, 1]),
-        new: AttributeBuilder::new().insert("bold", true).build(),
-        old: AttributeBuilder::new().insert("bold", false).build(),
+        changeset: Changeset::Attributes {
+            new: AttributeBuilder::new().insert("bold", true).build(),
+            old: AttributeBuilder::new().insert("bold", false).build(),
+        },
     };
 
     let result = serde_json::to_string(&operation).unwrap();
     assert_eq!(
         result,
-        r#"{"op":"update-attribute","path":[0,1],"new":{"bold":true},"old":{"bold":null}}"#
+        r#"{"op":"update","path":[0,1],"changeset":{"attributes":{"new":{"bold":true},"old":{"bold":null}}}}"#
     );
 }
 
@@ -50,22 +52,22 @@ fn operation_update_node_attributes_serde_test() {
 fn operation_update_node_body_serialize_test() {
     let delta = TextOperationBuilder::new().insert("AppFlowy...").build();
     let inverted = delta.invert_str("");
-    let changeset = NodeBodyChangeset::Delta { delta, inverted };
-    let insert = NodeOperation::UpdateBody {
+    let changeset = Changeset::Delta { delta, inverted };
+    let insert = NodeOperation::Update {
         path: Path(vec![0, 1]),
         changeset,
     };
     let result = serde_json::to_string(&insert).unwrap();
     assert_eq!(
         result,
-        r#"{"op":"update-body","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#
+        r#"{"op":"update","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#
     );
     //
 }
 
 #[test]
 fn operation_update_node_body_deserialize_test() {
-    let json_1 = r#"{"op":"update-body","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#;
+    let json_1 = r#"{"op":"update","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#;
     let operation: NodeOperation = serde_json::from_str(json_1).unwrap();
     let json_2 = serde_json::to_string(&operation).unwrap();
     assert_eq!(json_1, json_2);
