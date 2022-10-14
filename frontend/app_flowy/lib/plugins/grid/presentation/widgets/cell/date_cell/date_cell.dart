@@ -6,6 +6,7 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
+import '../../../layout/sizes.dart';
 import '../cell_builder.dart';
 import 'date_editor.dart';
 
@@ -75,7 +76,10 @@ class _DateCellState extends GridCellState<GridDateCell> {
                 onTap: () => _popover.show(),
                 child: Align(
                   alignment: alignment,
-                  child: FlowyText.medium(state.dateStr, fontSize: 12),
+                  child: Padding(
+                    padding: GridSize.cellContentInsets,
+                    child: FlowyText.medium(state.dateStr, fontSize: 12),
+                  ),
                 ),
               ),
             ),
