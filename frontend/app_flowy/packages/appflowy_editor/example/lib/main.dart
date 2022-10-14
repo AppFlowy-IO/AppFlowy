@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:example/plugin/code_block_node_widget.dart';
 import 'package:example/plugin/horizontal_rule_node_widget.dart';
 import 'package:example/plugin/tex_block_node_widget.dart';
-import 'package:example/plugin/network_image_node_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
