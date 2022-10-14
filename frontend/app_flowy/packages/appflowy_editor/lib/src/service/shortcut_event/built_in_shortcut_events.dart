@@ -275,7 +275,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
     key: 'Markdown link or image',
     command: 'shift+parenthesis right',
     handler: markdownLinkOrImageHandler,
-  )];
+  ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,
   //  so adding a shortcut event to handle the space input instead of using the

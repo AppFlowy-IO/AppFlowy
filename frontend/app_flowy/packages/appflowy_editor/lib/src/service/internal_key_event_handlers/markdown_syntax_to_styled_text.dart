@@ -215,7 +215,6 @@ ShortcutEventHandler markdownLinkOrImageHandler = (editorState, event) {
   if (imgRegEx.firstMatch(text) != null) {
     // Extract the alt text and the URL of the image
     final match = lnkRegEx.firstMatch(text);
-    final imgText = match?.group(1);
     final imgUrl = match?.group(2);
 
     // Delete the text and replace it with the image pointed to by the URL
@@ -226,8 +225,8 @@ ShortcutEventHandler markdownLinkOrImageHandler = (editorState, event) {
           Node.fromJson({
             'type': 'image',
             'attributes': {
-              'network_image_src': imgUrl,
-              BuiltInAttributeKey.href: imgUrl,
+              'image_src': imgUrl,
+              'align': 'center',
             }
           }));
     editorState.apply(transaction);
@@ -392,4 +391,5 @@ ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
       ),
     );
   editorState.apply(transaction);
+  return KeyEventResult.handled;
 };
