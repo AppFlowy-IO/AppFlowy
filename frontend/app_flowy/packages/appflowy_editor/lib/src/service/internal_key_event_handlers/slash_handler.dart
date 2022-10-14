@@ -25,9 +25,10 @@ ShortcutEventHandler slashShortcutHandler = (editorState, event) {
   if (selection == null || context == null || selectable == null) {
     return KeyEventResult.ignored;
   }
-  editorState.transaction.replaceText(textNode, selection.start.offset,
-      selection.end.offset - selection.start.offset, event.character ?? '');
-  editorState.commit();
+  final transaction = editorState.transaction
+    ..replaceText(textNode, selection.start.offset,
+        selection.end.offset - selection.start.offset, event.character ?? '');
+  editorState.apply(transaction);
 
   WidgetsBinding.instance.addPostFrameCallback((_) {
     _selectionMenuService =

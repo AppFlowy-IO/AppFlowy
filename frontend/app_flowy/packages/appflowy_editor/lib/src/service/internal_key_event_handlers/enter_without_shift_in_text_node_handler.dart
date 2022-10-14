@@ -39,7 +39,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     final afterSelection = Selection.collapsed(
       Position(path: textNodes.first.path.next, offset: 0),
     );
-    editorState.transaction
+    final transaction = editorState.transaction
       ..deleteText(
         textNodes.first,
         selection.start.offset,
@@ -52,7 +52,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
         selection.end.offset,
       )
       ..afterSelection = afterSelection;
-    editorState.commit();
+    editorState.apply(transaction);
 
     if (startNode is TextNode &&
         startNode.subtype == BuiltInAttributeKey.numberList) {
@@ -77,12 +77,12 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
       final afterSelection = Selection.collapsed(
         Position(path: textNode.path, offset: 0),
       );
-      editorState.transaction
+      final transaction = editorState.transaction
         ..updateNode(textNode, {
           BuiltInAttributeKey.subtype: null,
         })
         ..afterSelection = afterSelection;
-      editorState.commit();
+      editorState.apply(transaction);
 
       final nextNode = textNode.next;
       if (nextNode is TextNode &&
@@ -105,13 +105,13 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
             BuiltInAttributeKey.numberList;
         newNode.attributes[BuiltInAttributeKey.number] = prevNumber;
         final insertPath = textNode.path;
-        editorState.transaction
+        final transaction = editorState.transaction
           ..insertNode(
             insertPath,
             newNode,
           )
           ..afterSelection = afterSelection;
-        editorState.commit();
+        editorState.apply(transaction);
 
         makeFollowingNodesIncremental(editorState, insertPath, afterSelection,
             beginNum: prevNumber);
@@ -120,7 +120,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
           BuiltInAttributeKey.heading,
           BuiltInAttributeKey.quote,
         ].contains(subtype);
-        editorState.transaction
+        final transaction = editorState.transaction
           ..insertNode(
             textNode.path,
             textNode.copyWith(
@@ -130,7 +130,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
             ),
           )
           ..afterSelection = afterSelection;
-        editorState.commit();
+        editorState.apply(transaction);
       }
     }
     return KeyEventResult.handled;
@@ -163,7 +163,7 @@ ShortcutEventHandler enterWithoutShiftInTextNodesHandler =
     transaction.deleteNodes(children);
   }
   transaction.afterSelection = afterSelection;
-  editorState.commit();
+  editorState.apply(transaction);
 
   // If the new type of a text node is number list,
   // the numbers of the following nodes should be incremental.

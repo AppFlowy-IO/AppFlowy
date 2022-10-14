@@ -195,6 +195,6 @@ extension on EditorState {
       selection.start.path,
       imageNode,
     );
-    commit();
+    apply(transaction);
   }
 }

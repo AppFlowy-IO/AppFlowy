@@ -1,5 +1,5 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/commands/edit_text.dart';
+import 'package:appflowy_editor/src/commands/text/text_commands.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +15,11 @@ ShortcutEventHandler spaceOnWebHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
 
-  insertContextInText(editorState, selection.startIndex, ' ');
+  editorState.insertText(
+    selection.startIndex,
+    ' ',
+    textNode: textNodes.first,
+  );
 
   return KeyEventResult.handled;
 };
