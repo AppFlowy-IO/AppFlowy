@@ -51,7 +51,9 @@ class ViewSectionItem extends StatelessWidget {
               onTap: () => onSelected(blocContext.read<ViewBloc>().state.view),
               child: FlowyHover(
                 style: HoverStyle(hoverColor: theme.bg3),
-                buildWhen: () => !state.isEditing,
+                // If current state.isEditing is true, the hover should not
+                // rebuild when onEnter/onExit events happened.
+                buildWhenOnHover: () => !state.isEditing,
                 builder: (_, onHover) => _render(
                   blocContext,
                   onHover,
@@ -177,7 +179,7 @@ class ViewDisclosureButton extends StatelessWidget {
       actions: ViewDisclosureAction.values
           .map((action) => ViewDisclosureActionWrapper(action))
           .toList(),
-      withChild: (controller) {
+      buildChild: (controller) {
         return FlowyIconButton(
           iconPadding: const EdgeInsets.all(5),
           width: 26,
@@ -192,6 +194,9 @@ class ViewDisclosureButton extends StatelessWidget {
         onEdit(false);
         onAction(action.inner);
         controller.close();
+      },
+      onClosed: () {
+        onEdit(false);
       },
     );
   }

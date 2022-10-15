@@ -1,15 +1,16 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
-use crate::services::field::{
-    make_selected_select_options, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds,
-    SelectOptionOperation, SelectOptionPB,
-};
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{
+    SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 use serde::{Deserialize, Serialize};
 
 // Single select
@@ -23,15 +24,9 @@ pub struct SingleSelectTypeOptionPB {
 }
 impl_type_option!(SingleSelectTypeOptionPB, FieldType::SingleSelect);
 
-impl SelectOptionOperation for SingleSelectTypeOptionPB {
-    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
-        let mut select_options = make_selected_select_options(cell_data, &self.options);
-        // only keep option in single select
-        select_options.truncate(1);
-        SelectOptionCellDataPB {
-            options: self.options.clone(),
-            select_options,
-        }
+impl SelectTypeOptionSharedAction for SingleSelectTypeOptionPB {
+    fn number_of_max_options(&self) -> Option<usize> {
+        Some(1)
     }
 
     fn options(&self) -> &Vec<SelectOptionPB> {
@@ -50,11 +45,7 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        if !decoded_field_type.is_select_option() {
-            return Ok(CellBytes::default());
-        }
-
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
@@ -62,15 +53,24 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         changeset: CellDataChangeset<SelectOptionCellChangeset>,
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
-        let select_option_changeset = changeset.try_into_inner()?;
-        let new_cell_data: String;
-        if let Some(insert_option_id) = select_option_changeset.insert_option_id {
-            new_cell_data = insert_option_id;
-        } else {
-            new_cell_data = "".to_string()
-        }
+        let content_changeset = changeset.try_into_inner()?;
 
-        Ok(new_cell_data)
+        let mut insert_option_ids = content_changeset
+            .insert_option_ids
+            .into_iter()
+            .filter(|insert_option_id| self.options.iter().any(|option| &option.id == insert_option_id))
+            .collect::<Vec<String>>();
+
+        // In single select, the insert_option_ids should only contain one select option id.
+        // Sometimes, the insert_option_ids may contain list of option ids. For example,
+        // copy/paste a ids string.
+        if insert_option_ids.is_empty() {
+            Ok("".to_string())
+        } else {
+            // Just take the first select option
+            let _ = insert_option_ids.drain(1..);
+            Ok(insert_option_ids.pop().unwrap())
+        }
     }
 }
 
@@ -91,8 +91,12 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
         FieldType::SingleSelect
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+
+    fn transform(&mut self, field_type: &FieldType, type_option_data: String) {
+        self.0.transform_type_option(field_type, type_option_data);
     }
 }
 
@@ -100,69 +104,95 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
 mod tests {
     use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-
     use crate::services::field::type_options::*;
-    use crate::services::field::FieldBuilder;
-    use flowy_grid_data_model::revision::FieldRevision;
+    use crate::services::field::{FieldBuilder, TypeOptionBuilder};
 
     #[test]
-    fn single_select_test() {
-        let google_option = SelectOptionPB::new("Google");
-        let facebook_option = SelectOptionPB::new("Facebook");
-        let twitter_option = SelectOptionPB::new("Twitter");
-        let single_select = SingleSelectTypeOptionBuilder::default()
-            .add_option(google_option.clone())
-            .add_option(facebook_option.clone())
-            .add_option(twitter_option);
+    fn single_select_transform_with_checkbox_type_option_test() {
+        let checkbox_type_option_builder = CheckboxTypeOptionBuilder::default();
+        let checkbox_type_option_data = checkbox_type_option_builder.serializer().json_str();
 
-        let field_rev = FieldBuilder::new(single_select)
-            .name("Platform")
-            .visibility(true)
-            .build();
+        let mut single_select = SingleSelectTypeOptionBuilder::default();
+        single_select.transform(&FieldType::Checkbox, checkbox_type_option_data.clone());
+        debug_assert_eq!(single_select.0.options.len(), 2);
 
-        let type_option = SingleSelectTypeOptionPB::from(&field_rev);
-
-        let option_ids = vec![google_option.id.clone(), facebook_option.id].join(SELECTION_IDS_SEPARATOR);
-        let data = SelectOptionCellChangeset::from_insert(&option_ids).to_str();
-        let cell_data = type_option.apply_changeset(data.into(), None).unwrap();
-        assert_single_select_options(cell_data, &type_option, &field_rev, vec![google_option.clone()]);
-
-        let data = SelectOptionCellChangeset::from_insert(&google_option.id).to_str();
-        let cell_data = type_option.apply_changeset(data.into(), None).unwrap();
-        assert_single_select_options(cell_data, &type_option, &field_rev, vec![google_option]);
-
-        // Invalid option id
-        let cell_data = type_option
-            .apply_changeset(SelectOptionCellChangeset::from_insert("").to_str().into(), None)
-            .unwrap();
-        assert_single_select_options(cell_data, &type_option, &field_rev, vec![]);
-
-        // Invalid option id
-        let cell_data = type_option
-            .apply_changeset(SelectOptionCellChangeset::from_insert("123").to_str().into(), None)
-            .unwrap();
-
-        assert_single_select_options(cell_data, &type_option, &field_rev, vec![]);
-
-        // Invalid changeset
-        assert!(type_option.apply_changeset("123".to_owned().into(), None).is_err());
+        // Already contain the yes/no option. It doesn't need to insert new options
+        single_select.transform(&FieldType::Checkbox, checkbox_type_option_data);
+        debug_assert_eq!(single_select.0.options.len(), 2);
     }
 
-    fn assert_single_select_options(
-        cell_data: String,
-        type_option: &SingleSelectTypeOptionPB,
-        field_rev: &FieldRevision,
-        expected: Vec<SelectOptionPB>,
-    ) {
-        let field_type: FieldType = field_rev.ty.into();
-        assert_eq!(
-            expected,
-            type_option
-                .decode_cell_data(cell_data.into(), &field_type, field_rev)
-                .unwrap()
-                .parser::<SelectOptionCellDataParser>()
-                .unwrap()
-                .select_options,
-        );
+    #[test]
+    fn single_select_insert_multi_option_test() {
+        let google = SelectOptionPB::new("Google");
+        let facebook = SelectOptionPB::new("Facebook");
+        let single_select = SingleSelectTypeOptionBuilder::default()
+            .add_option(google.clone())
+            .add_option(facebook.clone());
+
+        let field_rev = FieldBuilder::new(single_select).name("Platform").build();
+        let type_option = SingleSelectTypeOptionPB::from(&field_rev);
+        let option_ids = vec![google.id.clone(), facebook.id];
+        let data = SelectOptionCellChangeset::from_insert_options(option_ids).to_str();
+        let select_option_ids: SelectOptionIds = type_option.apply_changeset(data.into(), None).unwrap().into();
+
+        assert_eq!(&*select_option_ids, &vec![google.id]);
+    }
+
+    #[test]
+    fn single_select_unselect_multi_option_test() {
+        let google = SelectOptionPB::new("Google");
+        let facebook = SelectOptionPB::new("Facebook");
+        let single_select = SingleSelectTypeOptionBuilder::default()
+            .add_option(google.clone())
+            .add_option(facebook.clone());
+
+        let field_rev = FieldBuilder::new(single_select).name("Platform").build();
+        let type_option = SingleSelectTypeOptionPB::from(&field_rev);
+        let option_ids = vec![google.id.clone(), facebook.id];
+
+        // insert
+        let data = SelectOptionCellChangeset::from_insert_options(option_ids.clone()).to_str();
+        let select_option_ids: SelectOptionIds = type_option.apply_changeset(data.into(), None).unwrap().into();
+        assert_eq!(&*select_option_ids, &vec![google.id]);
+
+        // delete
+        let data = SelectOptionCellChangeset::from_delete_options(option_ids).to_str();
+        let select_option_ids: SelectOptionIds = type_option.apply_changeset(data.into(), None).unwrap().into();
+        assert!(select_option_ids.is_empty());
+    }
+
+    #[test]
+    fn single_select_insert_non_exist_option_test() {
+        let google = SelectOptionPB::new("Google");
+        let single_select = SingleSelectTypeOptionBuilder::default();
+        let field_rev = FieldBuilder::new(single_select).name("Platform").build();
+        let type_option = SingleSelectTypeOptionPB::from(&field_rev);
+
+        let option_ids = vec![google.id];
+        let data = SelectOptionCellChangeset::from_insert_options(option_ids).to_str();
+        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
+
+        assert!(cell_option_ids.is_empty());
+    }
+
+    #[test]
+    fn single_select_insert_invalid_option_id_test() {
+        let single_select = SingleSelectTypeOptionBuilder::default();
+        let field_rev = FieldBuilder::new(single_select).name("Platform").build();
+        let type_option = SingleSelectTypeOptionPB::from(&field_rev);
+
+        let data = SelectOptionCellChangeset::from_insert_option_id("").to_str();
+        let cell_option_ids = type_option.apply_changeset(data.into(), None).unwrap();
+        assert_eq!(cell_option_ids, "");
+    }
+
+    #[test]
+    fn single_select_invalid_changeset_data_test() {
+        let single_select = SingleSelectTypeOptionBuilder::default();
+        let field_rev = FieldBuilder::new(single_select).name("Platform").build();
+        let type_option = SingleSelectTypeOptionPB::from(&field_rev);
+
+        // The type of the changeset should be SelectOptionCellChangeset
+        assert!(type_option.apply_changeset("123".to_owned().into(), None).is_err());
     }
 }

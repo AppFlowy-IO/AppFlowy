@@ -2,7 +2,7 @@ pub use delete::*;
 pub use format::*;
 pub use insert::*;
 use lib_ot::core::AttributeEntry;
-use lib_ot::{core::Interval, text_delta::TextDelta};
+use lib_ot::{core::Interval, text_delta::TextOperations};
 
 mod delete;
 mod format;
@@ -15,15 +15,15 @@ pub type DeleteExtension = Box<dyn DeleteExt + Send + Sync>;
 
 pub trait InsertExt {
     fn ext_name(&self) -> &str;
-    fn apply(&self, delta: &TextDelta, replace_len: usize, text: &str, index: usize) -> Option<TextDelta>;
+    fn apply(&self, delta: &TextOperations, replace_len: usize, text: &str, index: usize) -> Option<TextOperations>;
 }
 
 pub trait FormatExt {
     fn ext_name(&self) -> &str;
-    fn apply(&self, delta: &TextDelta, interval: Interval, attribute: &AttributeEntry) -> Option<TextDelta>;
+    fn apply(&self, delta: &TextOperations, interval: Interval, attribute: &AttributeEntry) -> Option<TextOperations>;
 }
 
 pub trait DeleteExt {
     fn ext_name(&self) -> &str;
-    fn apply(&self, delta: &TextDelta, interval: Interval) -> Option<TextDelta>;
+    fn apply(&self, delta: &TextOperations, interval: Interval) -> Option<TextOperations>;
 }

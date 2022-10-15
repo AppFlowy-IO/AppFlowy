@@ -1,6 +1,6 @@
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 
-use crate::core::delta::operation::{EmptyAttributes, Operation, OperationAttributes, OperationTransform};
+use crate::core::delta::operation::{DeltaOperation, EmptyAttributes, OperationAttributes, OperationTransform};
 use crate::core::delta::{OperationIterator, MAX_IV_LEN};
 use crate::core::interval::Interval;
 use crate::core::ot_str::OTString;
@@ -15,7 +15,7 @@ use std::{
     str::FromStr,
 };
 
-pub type Delta = Operations<EmptyAttributes>;
+pub type Delta = DeltaOperations<EmptyAttributes>;
 pub type DeltaBuilder = OperationBuilder<EmptyAttributes>;
 
 /// A [Delta] contains list of operations that consists of 'Retain', 'Delete' and 'Insert' operation.
@@ -28,8 +28,8 @@ pub type DeltaBuilder = OperationBuilder<EmptyAttributes>;
 /// a JSON string.
 ///
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub struct Operations<T: OperationAttributes> {
-    pub ops: Vec<Operation<T>>,
+pub struct DeltaOperations<Attribute: OperationAttributes> {
+    pub ops: Vec<DeltaOperation<Attribute>>,
 
     /// 'Delete' and 'Retain' operation will update the [utf16_base_len]
     /// Transforming the other delta, it requires the utf16_base_len must be equal.  
@@ -40,7 +40,7 @@ pub struct Operations<T: OperationAttributes> {
     pub utf16_target_len: usize,
 }
 
-impl<T> Default for Operations<T>
+impl<T> Default for DeltaOperations<T>
 where
     T: OperationAttributes,
 {
@@ -53,7 +53,7 @@ where
     }
 }
 
-impl<T> fmt::Display for Operations<T>
+impl<T> fmt::Display for DeltaOperations<T>
 where
     T: OperationAttributes,
 {
@@ -68,12 +68,12 @@ where
     }
 }
 
-impl<T> FromIterator<Operation<T>> for Operations<T>
+impl<T> FromIterator<DeltaOperation<T>> for DeltaOperations<T>
 where
     T: OperationAttributes,
 {
-    fn from_iter<I: IntoIterator<Item = Operation<T>>>(ops: I) -> Self {
-        let mut operations = Operations::default();
+    fn from_iter<I: IntoIterator<Item = DeltaOperation<T>>>(ops: I) -> Self {
+        let mut operations = DeltaOperations::default();
         for op in ops {
             operations.add(op);
         }
@@ -81,7 +81,7 @@ where
     }
 }
 
-impl<T> Operations<T>
+impl<T> DeltaOperations<T>
 where
     T: OperationAttributes,
 {
@@ -99,11 +99,11 @@ where
     }
 
     /// Adding an operation. It will be added in sequence.
-    pub fn add(&mut self, op: Operation<T>) {
+    pub fn add(&mut self, op: DeltaOperation<T>) {
         match op {
-            Operation::Delete(i) => self.delete(i),
-            Operation::Insert(i) => self.insert(&i.s, i.attributes),
-            Operation::Retain(r) => self.retain(r.n, r.attributes),
+            DeltaOperation::Delete(i) => self.delete(i),
+            DeltaOperation::Insert(i) => self.insert(&i.s, i.attributes),
+            DeltaOperation::Retain(r) => self.retain(r.n, r.attributes),
         }
     }
 
@@ -113,10 +113,10 @@ where
             return;
         }
         self.utf16_base_len += n as usize;
-        if let Some(Operation::Delete(n_last)) = self.ops.last_mut() {
+        if let Some(DeltaOperation::Delete(n_last)) = self.ops.last_mut() {
             *n_last += n;
         } else {
-            self.ops.push(Operation::delete(n));
+            self.ops.push(DeltaOperation::delete(n));
         }
     }
 
@@ -129,20 +129,20 @@ where
 
         self.utf16_target_len += s.utf16_len();
         let new_last = match self.ops.as_mut_slice() {
-            [.., Operation::<T>::Insert(insert)] => {
+            [.., DeltaOperation::<T>::Insert(insert)] => {
                 //
                 insert.merge_or_new_op(&s, attributes)
             }
-            [.., Operation::<T>::Insert(pre_insert), Operation::Delete(_)] => {
+            [.., DeltaOperation::<T>::Insert(pre_insert), DeltaOperation::Delete(_)] => {
                 //
                 pre_insert.merge_or_new_op(&s, attributes)
             }
-            [.., op_last @ Operation::<T>::Delete(_)] => {
+            [.., op_last @ DeltaOperation::<T>::Delete(_)] => {
                 let new_last = op_last.clone();
-                *op_last = Operation::<T>::insert_with_attributes(&s, attributes);
+                *op_last = DeltaOperation::<T>::insert_with_attributes(&s, attributes);
                 Some(new_last)
             }
-            _ => Some(Operation::<T>::insert_with_attributes(&s, attributes)),
+            _ => Some(DeltaOperation::<T>::insert_with_attributes(&s, attributes)),
         };
 
         match new_last {
@@ -159,12 +159,13 @@ where
         self.utf16_base_len += n as usize;
         self.utf16_target_len += n as usize;
 
-        if let Some(Operation::<T>::Retain(retain)) = self.ops.last_mut() {
+        if let Some(DeltaOperation::<T>::Retain(retain)) = self.ops.last_mut() {
             if let Some(new_op) = retain.merge_or_new(n, attributes) {
                 self.ops.push(new_op);
             }
         } else {
-            self.ops.push(Operation::<T>::retain_with_attributes(n, attributes));
+            self.ops
+                .push(DeltaOperation::<T>::retain_with_attributes(n, attributes));
         }
     }
 
@@ -207,17 +208,17 @@ where
         let code_point_iter = &mut applied_str.utf16_iter();
         for op in &self.ops {
             match &op {
-                Operation::Retain(retain) => {
+                DeltaOperation::Retain(retain) => {
                     for c in code_point_iter.take(retain.n as usize) {
                         new_s.push_str(str::from_utf8(c.0).unwrap_or(""));
                     }
                 }
-                Operation::Delete(delete) => {
+                DeltaOperation::Delete(delete) => {
                     for _ in 0..*delete {
                         code_point_iter.next();
                     }
                 }
-                Operation::Insert(insert) => {
+                DeltaOperation::Insert(insert) => {
                     new_s += &insert.s;
                 }
             }
@@ -249,22 +250,22 @@ where
     /// ```
     ///
     pub fn invert_str(&self, inverted_s: &str) -> Self {
-        let mut inverted = Operations::default();
+        let mut inverted = DeltaOperations::default();
         let inverted_s: OTString = inverted_s.into();
         let code_point_iter = &mut inverted_s.utf16_iter();
 
         for op in &self.ops {
             match &op {
-                Operation::Retain(retain) => {
+                DeltaOperation::Retain(retain) => {
                     inverted.retain(retain.n, T::default());
                     for _ in 0..retain.n {
                         code_point_iter.next();
                     }
                 }
-                Operation::Insert(insert) => {
+                DeltaOperation::Insert(insert) => {
                     inverted.delete(insert.utf16_size());
                 }
-                Operation::Delete(delete) => {
+                DeltaOperation::Delete(delete) => {
                     let bytes = code_point_iter
                         .take(*delete as usize)
                         .into_iter()
@@ -280,7 +281,7 @@ where
 
     /// Return true if the delta doesn't contain any [Insert] or [Delete] operations.
     pub fn is_noop(&self) -> bool {
-        matches!(self.ops.as_slice(), [] | [Operation::Retain(_)])
+        matches!(self.ops.as_slice(), [] | [DeltaOperation::Retain(_)])
     }
 
     pub fn is_empty(&self) -> bool {
@@ -292,7 +293,7 @@ where
     }
 }
 
-impl<T> OperationTransform for Operations<T>
+impl<T> OperationTransform for DeltaOperations<T>
 where
     T: OperationAttributes,
 {
@@ -300,7 +301,7 @@ where
     where
         Self: Sized,
     {
-        let mut new_delta = Operations::default();
+        let mut new_delta = DeltaOperations::default();
         let mut iter = OperationIterator::new(self);
         let mut other_iter = OperationIterator::new(other);
 
@@ -322,25 +323,25 @@ where
 
             let op = iter
                 .next_op_with_len(length)
-                .unwrap_or_else(|| Operation::retain(length));
+                .unwrap_or_else(|| DeltaOperation::retain(length));
             let other_op = other_iter
                 .next_op_with_len(length)
-                .unwrap_or_else(|| Operation::retain(length));
+                .unwrap_or_else(|| DeltaOperation::retain(length));
 
             // debug_assert_eq!(op.len(), other_op.len(), "Composing delta failed,");
 
             match (&op, &other_op) {
-                (Operation::Retain(retain), Operation::Retain(other_retain)) => {
+                (DeltaOperation::Retain(retain), DeltaOperation::Retain(other_retain)) => {
                     let composed_attrs = retain.attributes.compose(&other_retain.attributes)?;
 
-                    new_delta.add(Operation::retain_with_attributes(retain.n, composed_attrs))
+                    new_delta.add(DeltaOperation::retain_with_attributes(retain.n, composed_attrs))
                 }
-                (Operation::Insert(insert), Operation::Retain(other_retain)) => {
+                (DeltaOperation::Insert(insert), DeltaOperation::Retain(other_retain)) => {
                     let mut composed_attrs = insert.attributes.compose(&other_retain.attributes)?;
-                    composed_attrs.remove_empty();
-                    new_delta.add(Operation::insert_with_attributes(op.get_data(), composed_attrs))
+                    composed_attrs.remove();
+                    new_delta.add(DeltaOperation::insert_with_attributes(op.get_data(), composed_attrs))
                 }
-                (Operation::Retain(_), Operation::Delete(_)) => {
+                (DeltaOperation::Retain(_), DeltaOperation::Delete(_)) => {
                     new_delta.add(other_op);
                 }
                 (a, b) => {
@@ -366,8 +367,8 @@ where
                 .build());
         }
 
-        let mut a_prime = Operations::default();
-        let mut b_prime = Operations::default();
+        let mut a_prime = DeltaOperations::default();
+        let mut b_prime = DeltaOperations::default();
 
         let mut ops1 = self.ops.iter().cloned();
         let mut ops2 = other.ops.iter().cloned();
@@ -377,13 +378,13 @@ where
         loop {
             match (&next_op1, &next_op2) {
                 (None, None) => break,
-                (Some(Operation::Insert(insert)), _) => {
+                (Some(DeltaOperation::Insert(insert)), _) => {
                     // let composed_attrs = transform_attributes(&next_op1, &next_op2, true);
                     a_prime.insert(&insert.s, insert.attributes.clone());
                     b_prime.retain(insert.utf16_size(), insert.attributes.clone());
                     next_op1 = ops1.next();
                 }
-                (_, Some(Operation::Insert(o_insert))) => {
+                (_, Some(DeltaOperation::Insert(o_insert))) => {
                     let composed_attrs = transform_op_attribute(&next_op1, &next_op2)?;
                     a_prime.retain(o_insert.utf16_size(), composed_attrs.clone());
                     b_prime.insert(&o_insert.s, composed_attrs);
@@ -395,13 +396,13 @@ where
                 (_, None) => {
                     return Err(ErrorBuilder::new(OTErrorCode::IncompatibleLength).build());
                 }
-                (Some(Operation::Retain(retain)), Some(Operation::Retain(o_retain))) => {
+                (Some(DeltaOperation::Retain(retain)), Some(DeltaOperation::Retain(o_retain))) => {
                     let composed_attrs = transform_op_attribute(&next_op1, &next_op2)?;
                     match retain.cmp(o_retain) {
                         Ordering::Less => {
                             a_prime.retain(retain.n, composed_attrs.clone());
                             b_prime.retain(retain.n, composed_attrs.clone());
-                            next_op2 = Some(Operation::retain(o_retain.n - retain.n));
+                            next_op2 = Some(DeltaOperation::retain(o_retain.n - retain.n));
                             next_op1 = ops1.next();
                         }
                         Ordering::Equal => {
@@ -413,14 +414,14 @@ where
                         Ordering::Greater => {
                             a_prime.retain(o_retain.n, composed_attrs.clone());
                             b_prime.retain(o_retain.n, composed_attrs.clone());
-                            next_op1 = Some(Operation::retain(retain.n - o_retain.n));
+                            next_op1 = Some(DeltaOperation::retain(retain.n - o_retain.n));
                             next_op2 = ops2.next();
                         }
                     };
                 }
-                (Some(Operation::Delete(i)), Some(Operation::Delete(j))) => match i.cmp(j) {
+                (Some(DeltaOperation::Delete(i)), Some(DeltaOperation::Delete(j))) => match i.cmp(j) {
                     Ordering::Less => {
-                        next_op2 = Some(Operation::delete(*j - *i));
+                        next_op2 = Some(DeltaOperation::delete(*j - *i));
                         next_op1 = ops1.next();
                     }
                     Ordering::Equal => {
@@ -428,15 +429,15 @@ where
                         next_op2 = ops2.next();
                     }
                     Ordering::Greater => {
-                        next_op1 = Some(Operation::delete(*i - *j));
+                        next_op1 = Some(DeltaOperation::delete(*i - *j));
                         next_op2 = ops2.next();
                     }
                 },
-                (Some(Operation::Delete(i)), Some(Operation::Retain(o_retain))) => {
+                (Some(DeltaOperation::Delete(i)), Some(DeltaOperation::Retain(o_retain))) => {
                     match i.cmp(o_retain) {
                         Ordering::Less => {
                             a_prime.delete(*i);
-                            next_op2 = Some(Operation::retain(o_retain.n - *i));
+                            next_op2 = Some(DeltaOperation::retain(o_retain.n - *i));
                             next_op1 = ops1.next();
                         }
                         Ordering::Equal => {
@@ -446,16 +447,16 @@ where
                         }
                         Ordering::Greater => {
                             a_prime.delete(o_retain.n);
-                            next_op1 = Some(Operation::delete(*i - o_retain.n));
+                            next_op1 = Some(DeltaOperation::delete(*i - o_retain.n));
                             next_op2 = ops2.next();
                         }
                     };
                 }
-                (Some(Operation::Retain(retain)), Some(Operation::Delete(j))) => {
+                (Some(DeltaOperation::Retain(retain)), Some(DeltaOperation::Delete(j))) => {
                     match retain.cmp(j) {
                         Ordering::Less => {
                             b_prime.delete(retain.n);
-                            next_op2 = Some(Operation::delete(*j - retain.n));
+                            next_op2 = Some(DeltaOperation::delete(*j - retain.n));
                             next_op1 = ops1.next();
                         }
                         Ordering::Equal => {
@@ -465,7 +466,7 @@ where
                         }
                         Ordering::Greater => {
                             b_prime.delete(*j);
-                            next_op1 = Some(Operation::retain(retain.n - *j));
+                            next_op1 = Some(DeltaOperation::retain(retain.n - *j));
                             next_op2 = ops2.next();
                         }
                     };
@@ -476,16 +477,16 @@ where
     }
 
     fn invert(&self, other: &Self) -> Self {
-        let mut inverted = Operations::default();
+        let mut inverted = DeltaOperations::default();
         let mut index = 0;
         for op in &self.ops {
             let len: usize = op.len() as usize;
             match op {
-                Operation::Delete(n) => {
+                DeltaOperation::Delete(n) => {
                     invert_other(&mut inverted, other, op, index, index + *n);
                     index += len;
                 }
-                Operation::Retain(_) => {
+                DeltaOperation::Retain(_) => {
                     match op.has_attribute() {
                         true => invert_other(&mut inverted, other, op, index, index + len),
                         false => {
@@ -496,7 +497,7 @@ where
                     }
                     index += len;
                 }
-                Operation::Insert(_) => {
+                DeltaOperation::Insert(_) => {
                     // tracing::trace!("invert insert: {} by delete {}", op, len);
                     inverted.delete(len as usize);
                 }
@@ -507,7 +508,7 @@ where
 }
 
 /// Removes trailing retain operation with empty attributes, if present.
-pub fn trim<T>(delta: &mut Operations<T>)
+pub fn trim<T>(delta: &mut DeltaOperations<T>)
 where
     T: OperationAttributes,
 {
@@ -519,20 +520,20 @@ where
 }
 
 fn invert_other<T: OperationAttributes>(
-    base: &mut Operations<T>,
-    other: &Operations<T>,
-    operation: &Operation<T>,
+    base: &mut DeltaOperations<T>,
+    other: &DeltaOperations<T>,
+    operation: &DeltaOperation<T>,
     start: usize,
     end: usize,
 ) {
     tracing::trace!("invert op: {} [{}:{}]", operation, start, end);
     let other_ops = OperationIterator::from_interval(other, Interval::new(start, end)).ops();
     other_ops.into_iter().for_each(|other_op| match operation {
-        Operation::Delete(_n) => {
+        DeltaOperation::Delete(_n) => {
             // tracing::trace!("invert delete: {} by add {}", n, other_op);
             base.add(other_op);
         }
-        Operation::Retain(_retain) => {
+        DeltaOperation::Retain(_retain) => {
             tracing::trace!(
                 "invert attributes: {:?}, {:?}",
                 operation.get_attributes(),
@@ -541,15 +542,15 @@ fn invert_other<T: OperationAttributes>(
             let inverted_attrs = operation.get_attributes().invert(&other_op.get_attributes());
             base.retain(other_op.len(), inverted_attrs);
         }
-        Operation::Insert(_) => {
+        DeltaOperation::Insert(_) => {
             log::error!("Impossible to here. Insert operation should be treated as delete")
         }
     });
 }
 
 fn transform_op_attribute<T: OperationAttributes>(
-    left: &Option<Operation<T>>,
-    right: &Option<Operation<T>>,
+    left: &Option<DeltaOperation<T>>,
+    right: &Option<DeltaOperation<T>>,
 ) -> Result<T, OTError> {
     if left.is_none() {
         if right.is_none() {
@@ -563,7 +564,7 @@ fn transform_op_attribute<T: OperationAttributes>(
     Ok(left.transform(&right)?.0)
 }
 
-impl<T> Operations<T>
+impl<T> DeltaOperations<T>
 where
     T: OperationAttributes + DeserializeOwned,
 {
@@ -571,11 +572,11 @@ where
     ///
     /// ```
     /// use lib_ot::core::OperationBuilder;
-    /// use lib_ot::text_delta::{TextDelta};
+    /// use lib_ot::text_delta::{TextOperations};
     /// let json = r#"[
     ///     {"retain":7,"attributes":{"bold":null}}
     ///  ]"#;
-    /// let delta = TextDelta::from_json(json).unwrap();
+    /// let delta = TextOperations::from_json(json).unwrap();
     /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":null}}]"#);
     /// ```
     pub fn from_json(json: &str) -> Result<Self, OTError> {
@@ -595,7 +596,7 @@ where
     }
 }
 
-impl<T> Operations<T>
+impl<T> DeltaOperations<T>
 where
     T: OperationAttributes + serde::Serialize,
 {
@@ -616,36 +617,36 @@ where
     }
 }
 
-impl<T> FromStr for Operations<T>
+impl<T> FromStr for DeltaOperations<T>
 where
     T: OperationAttributes,
 {
     type Err = ();
 
-    fn from_str(s: &str) -> Result<Operations<T>, Self::Err> {
-        let mut delta = Operations::with_capacity(1);
-        delta.add(Operation::Insert(s.into()));
+    fn from_str(s: &str) -> Result<DeltaOperations<T>, Self::Err> {
+        let mut delta = DeltaOperations::with_capacity(1);
+        delta.add(DeltaOperation::Insert(s.into()));
         Ok(delta)
     }
 }
 
-impl<T> std::convert::TryFrom<Vec<u8>> for Operations<T>
+impl<T> std::convert::TryFrom<Vec<u8>> for DeltaOperations<T>
 where
     T: OperationAttributes + DeserializeOwned,
 {
     type Error = OTError;
     fn try_from(bytes: Vec<u8>) -> Result<Self, Self::Error> {
-        Operations::from_bytes(bytes)
+        DeltaOperations::from_bytes(bytes)
     }
 }
 
-impl<T> std::convert::TryFrom<Bytes> for Operations<T>
+impl<T> std::convert::TryFrom<Bytes> for DeltaOperations<T>
 where
     T: OperationAttributes + DeserializeOwned,
 {
     type Error = OTError;
 
     fn try_from(bytes: Bytes) -> Result<Self, Self::Error> {
-        Operations::from_bytes(&bytes)
+        DeltaOperations::from_bytes(&bytes)
     }
 }

@@ -60,7 +60,7 @@ pub fn make_default_board() -> BuildGridContext {
 
     for i in 0..3 {
         let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
-        row_builder.insert_select_option_cell(&single_select_field_id, to_do_option.id.clone());
+        row_builder.insert_select_option_cell(&single_select_field_id, vec![to_do_option.id.clone()]);
         let data = format!("Card {}", i + 1);
         row_builder.insert_text_cell(&text_field_id, data);
         let row = row_builder.build();
@@ -116,23 +116,23 @@ pub fn make_default_board_2() -> BuildGridContext {
 
     for i in 0..3 {
         let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
-        row_builder.insert_select_option_cell(&single_select_field_id, to_do_option.id.clone());
+        row_builder.insert_select_option_cell(&single_select_field_id, vec![to_do_option.id.clone()]);
         match i {
             0 => {
                 row_builder.insert_text_cell(&text_field_id, "Update AppFlowy Website".to_string());
-                row_builder.insert_select_option_cell(&multi_select_field_id, work_option.id.clone());
+                row_builder.insert_select_option_cell(&multi_select_field_id, vec![work_option.id.clone()]);
             }
             1 => {
                 row_builder.insert_text_cell(&text_field_id, "Learn French".to_string());
                 let mut options = SelectOptionIds::new();
                 options.push(fun_option.id.clone());
                 options.push(travel_option.id.clone());
-                row_builder.insert_select_option_cell(&multi_select_field_id, options.to_string());
+                row_builder.insert_select_option_cell(&multi_select_field_id, vec![options.to_string()]);
             }
 
             2 => {
                 row_builder.insert_text_cell(&text_field_id, "Exercise 4x/week".to_string());
-                row_builder.insert_select_option_cell(&multi_select_field_id, fun_option.id.clone());
+                row_builder.insert_select_option_cell(&multi_select_field_id, vec![fun_option.id.clone()]);
             }
             _ => {}
         }
@@ -142,15 +142,15 @@ pub fn make_default_board_2() -> BuildGridContext {
 
     for i in 0..3 {
         let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
-        row_builder.insert_select_option_cell(&single_select_field_id, doing_option.id.clone());
+        row_builder.insert_select_option_cell(&single_select_field_id, vec![doing_option.id.clone()]);
         match i {
             0 => {
                 row_builder.insert_text_cell(&text_field_id, "Learn how to swim".to_string());
-                row_builder.insert_select_option_cell(&multi_select_field_id, fun_option.id.clone());
+                row_builder.insert_select_option_cell(&multi_select_field_id, vec![fun_option.id.clone()]);
             }
             1 => {
                 row_builder.insert_text_cell(&text_field_id, "Meditate 10 mins each day".to_string());
-                row_builder.insert_select_option_cell(&multi_select_field_id, health_option.id.clone());
+                row_builder.insert_select_option_cell(&multi_select_field_id, vec![health_option.id.clone()]);
             }
 
             2 => {
@@ -158,7 +158,7 @@ pub fn make_default_board_2() -> BuildGridContext {
                 let mut options = SelectOptionIds::new();
                 options.push(fun_option.id.clone());
                 options.push(work_option.id.clone());
-                row_builder.insert_select_option_cell(&multi_select_field_id, options.to_string());
+                row_builder.insert_select_option_cell(&multi_select_field_id, vec![options.to_string()]);
             }
             _ => {}
         }
@@ -168,18 +168,18 @@ pub fn make_default_board_2() -> BuildGridContext {
 
     for i in 0..2 {
         let mut row_builder = RowRevisionBuilder::new(grid_builder.block_id(), grid_builder.field_revs());
-        row_builder.insert_select_option_cell(&single_select_field_id, done_option.id.clone());
+        row_builder.insert_select_option_cell(&single_select_field_id, vec![done_option.id.clone()]);
         match i {
             0 => {
                 row_builder.insert_text_cell(&text_field_id, "Publish an article".to_string());
-                row_builder.insert_select_option_cell(&multi_select_field_id, work_option.id.clone());
+                row_builder.insert_select_option_cell(&multi_select_field_id, vec![work_option.id.clone()]);
             }
             1 => {
                 row_builder.insert_text_cell(&text_field_id, "Visit Chicago".to_string());
                 let mut options = SelectOptionIds::new();
                 options.push(travel_option.id.clone());
                 options.push(fun_option.id.clone());
-                row_builder.insert_select_option_cell(&multi_select_field_id, options.to_string());
+                row_builder.insert_select_option_cell(&multi_select_field_id, vec![options.to_string()]);
             }
 
             _ => {}

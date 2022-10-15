@@ -1,5 +1,6 @@
 use crate::core::delta::operation::OperationAttributes;
-use crate::core::delta::Operations;
+use crate::core::delta::DeltaOperations;
+use serde::de::DeserializeOwned;
 use serde::{
     de::{SeqAccess, Visitor},
     ser::SerializeSeq,
@@ -7,7 +8,7 @@ use serde::{
 };
 use std::{fmt, marker::PhantomData};
 
-impl<T> Serialize for Operations<T>
+impl<T> Serialize for DeltaOperations<T>
 where
     T: OperationAttributes + Serialize,
 {
@@ -23,11 +24,11 @@ where
     }
 }
 
-impl<'de, T> Deserialize<'de> for Operations<T>
+impl<'de, T> Deserialize<'de> for DeltaOperations<T>
 where
     T: OperationAttributes + Deserialize<'de>,
 {
-    fn deserialize<D>(deserializer: D) -> Result<Operations<T>, D::Error>
+    fn deserialize<D>(deserializer: D) -> Result<DeltaOperations<T>, D::Error>
     where
         D: Deserializer<'de>,
     {
@@ -37,7 +38,7 @@ where
         where
             T: OperationAttributes + Deserialize<'de>,
         {
-            type Value = Operations<T>;
+            type Value = DeltaOperations<T>;
 
             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
                 formatter.write_str("a sequence")
@@ -48,7 +49,7 @@ where
             where
                 A: SeqAccess<'de>,
             {
-                let mut o = Operations::default();
+                let mut o = DeltaOperations::default();
                 while let Some(op) = seq.next_element()? {
                     o.add(op);
                 }

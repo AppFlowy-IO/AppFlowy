@@ -2,12 +2,15 @@ use crate::entities::RowPB;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowChangeset, RowRevision};
-use flowy_revision::{RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder};
+use flowy_revision::{
+    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+};
 use flowy_sync::client_grid::{GridBlockRevisionChangeset, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
-use flowy_sync::util::make_text_delta_from_revisions;
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::FutureResult;
 
+use lib_ot::core::EmptyAttributes;
 use std::borrow::Cow;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -29,7 +32,7 @@ impl GridBlockRevisionEditor {
         let cloud = Arc::new(GridBlockRevisionCloudService {
             token: token.to_owned(),
         });
-        let block_revision_pad = rev_manager.load::<GridBlockRevisionPadBuilder>(Some(cloud)).await?;
+        let block_revision_pad = rev_manager.load::<GridBlockRevisionSerde>(Some(cloud)).await?;
         let pad = Arc::new(RwLock::new(block_revision_pad));
         let rev_manager = Arc::new(rev_manager);
         let user_id = user_id.to_owned();
@@ -162,7 +165,7 @@ impl GridBlockRevisionEditor {
     }
 
     async fn apply_change(&self, change: GridBlockRevisionChangeset) -> FlowyResult<()> {
-        let GridBlockRevisionChangeset { delta, md5 } = change;
+        let GridBlockRevisionChangeset { operations: delta, md5 } = change;
         let user_id = self.user_id.clone();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
@@ -191,20 +194,25 @@ impl RevisionCloudService for GridBlockRevisionCloudService {
     }
 }
 
-struct GridBlockRevisionPadBuilder();
-impl RevisionObjectBuilder for GridBlockRevisionPadBuilder {
+struct GridBlockRevisionSerde();
+impl RevisionObjectDeserializer for GridBlockRevisionSerde {
     type Output = GridBlockRevisionPad;
-
-    fn build_object(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+    fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let pad = GridBlockRevisionPad::from_revisions(object_id, revisions)?;
         Ok(pad)
     }
 }
 
+impl RevisionObjectSerializer for GridBlockRevisionSerde {
+    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
+    }
+}
+
 pub struct GridBlockRevisionCompactor();
-impl RevisionCompactor for GridBlockRevisionCompactor {
-    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_text_delta_from_revisions(revisions)?;
-        Ok(delta.json_bytes())
+impl RevisionCompress for GridBlockRevisionCompactor {
+    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        GridBlockRevisionSerde::serialize_revisions(revisions)
     }
 }

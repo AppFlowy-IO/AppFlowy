@@ -5,11 +5,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/document/path.dart';
-import 'package:appflowy_editor/src/document/position.dart';
-import 'package:appflowy_editor/src/document/selection.dart';
-import 'package:appflowy_editor/src/document/text_delta.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/core/document/path.dart';
+import 'package:appflowy_editor/src/core/location/position.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
+import 'package:appflowy_editor/src/core/document/text_delta.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/url_launcher_extension.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
@@ -123,7 +123,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   @override
   List<Rect> getRectsInSelection(Selection selection) {
     assert(selection.isSingle &&
-        pathEquals(selection.start.path, widget.textNode.path));
+        selection.start.path.equals(widget.textNode.path));
 
     final textSelection = TextSelection(
       baseOffset: selection.start.offset,
@@ -163,7 +163,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   Widget _buildRichText(BuildContext context) {
     return MouseRegion(
       cursor: SystemMouseCursors.text,
-      child: widget.textNode.toRawString().isEmpty
+      child: widget.textNode.toPlainText().isEmpty
           ? Stack(
               children: [
                 _buildPlaceholderText(context),
@@ -257,7 +257,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
       offset += textInsert.length;
       textSpans.add(
         TextSpan(
-          text: textInsert.content,
+          text: textInsert.text,
           style: textStyle,
           recognizer: recognizer,
         ),

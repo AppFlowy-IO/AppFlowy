@@ -1,5 +1,5 @@
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/operation/transaction_builder.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
 import 'package:appflowy_editor/src/extensions/node_extensions.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
@@ -25,10 +25,10 @@ ShortcutEventHandler slashShortcutHandler = (editorState, event) {
   if (selection == null || context == null || selectable == null) {
     return KeyEventResult.ignored;
   }
-  TransactionBuilder(editorState)
+  final transaction = editorState.transaction
     ..replaceText(textNode, selection.start.offset,
-        selection.end.offset - selection.start.offset, event.character ?? '')
-    ..commit();
+        selection.end.offset - selection.start.offset, event.character ?? '');
+  editorState.apply(transaction);
 
   WidgetsBinding.instance.addPostFrameCallback((_) {
     _selectionMenuService =

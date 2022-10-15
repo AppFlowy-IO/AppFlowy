@@ -30,8 +30,7 @@ impl GridViewRowDelegate for Arc<GridBlockManager> {
             let blocks = block_manager.get_block_snapshots(None).await.unwrap();
             blocks
                 .into_iter()
-                .map(|block| block.row_revs)
-                .flatten()
+                .flat_map(|block| block.row_revs)
                 .collect::<Vec<Arc<RowRevision>>>()
         })
     }

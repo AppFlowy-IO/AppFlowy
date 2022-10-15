@@ -9,7 +9,9 @@ use chrono::format::strftime::StrftimeItems;
 use chrono::{NaiveDateTime, Timelike};
 use flowy_derive::ProtoBuf;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 use serde::{Deserialize, Serialize};
 
 // Date
@@ -117,7 +119,7 @@ impl DateTypeOptionPB {
 }
 
 impl CellDisplayable<DateTimestamp> for DateTypeOptionPB {
-    fn display_data(
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<DateTimestamp>,
         _decoded_field_type: &FieldType,
@@ -128,7 +130,7 @@ impl CellDisplayable<DateTimestamp> for DateTypeOptionPB {
         CellBytes::from(date_cell_data)
     }
 
-    fn display_string(
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<DateTimestamp>,
         _decoded_field_type: &FieldType,
@@ -154,7 +156,7 @@ impl CellDataOperation<DateTimestamp, DateCellChangesetPB> for DateTypeOptionPB 
         if !decoded_field_type.is_date() {
             return Ok(CellBytes::default());
         }
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
@@ -200,7 +202,10 @@ impl TypeOptionBuilder for DateTypeOptionBuilder {
         FieldType::DateTime
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
+        // Do nothing
     }
 }

@@ -15,7 +15,6 @@ pub fn create(grid_manager: Arc<GridManager>) -> Module {
         // Field
         .event(GridEvent::GetFields, get_fields_handler)
         .event(GridEvent::UpdateField, update_field_handler)
-        .event(GridEvent::InsertField, insert_field_handler)
         .event(GridEvent::UpdateFieldTypeOption, update_field_type_option_handler)
         .event(GridEvent::DeleteField, delete_field_handler)
         .event(GridEvent::SwitchToField, switch_to_field_handler)
@@ -93,7 +92,7 @@ pub enum GridEvent {
     #[event(input = "FieldChangesetPayloadPB")]
     UpdateField = 11,
 
-    /// [UpdateFieldTypeOption] event is used to update the field's type option data. Certain field
+    /// [UpdateFieldTypeOption] event is used to update the field's type-option data. Certain field
     /// types have user-defined options such as color, date format, number format, or a list of values
     /// for a multi-select list. These options are defined within a specialization of the
     /// FieldTypeOption class.
@@ -106,11 +105,6 @@ pub enum GridEvent {
     #[event(input = "UpdateFieldTypeOptionPayloadPB")]
     UpdateFieldTypeOption = 12,
 
-    /// [InsertField] event is used to insert a new Field. If the Field already exists, the event
-    /// handler will replace the value with the new Field value.
-    #[event(input = "InsertFieldPayloadPB")]
-    InsertField = 13,
-
     /// [DeleteField] event is used to delete a Field. [DeleteFieldPayloadPB] is the context that
     /// is used to delete the field from the Grid.
     #[event(input = "DeleteFieldPayloadPB")]
@@ -119,7 +113,7 @@ pub enum GridEvent {
     /// [SwitchToField] event is used to update the current Field's type.
     /// It will insert a new FieldTypeOptionData if the new FieldType doesn't exist before, otherwise
     /// reuse the existing FieldTypeOptionData. You could check the [GridRevisionPad] for more details.
-    #[event(input = "EditFieldPayloadPB", output = "FieldTypeOptionDataPB")]
+    #[event(input = "EditFieldPayloadPB")]
     SwitchToField = 20,
 
     /// [DuplicateField] event is used to duplicate a Field. The duplicated field data is kind of

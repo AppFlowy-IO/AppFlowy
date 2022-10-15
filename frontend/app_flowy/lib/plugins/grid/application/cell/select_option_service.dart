@@ -3,7 +3,7 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/cell_entities.pb.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_service.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'cell_service/cell_service.dart';
 
 class SelectOptionService {
@@ -26,7 +26,7 @@ class SelectOptionService {
               ..fieldId = fieldId
               ..rowId = rowId;
             final payload = SelectOptionChangesetPayloadPB.create()
-              ..insertOption = option
+              ..insertOptions.add(option)
               ..cellIdentifier = cellIdentifier;
             return GridEventUpdateSelectOption(payload).send();
           },
@@ -40,7 +40,7 @@ class SelectOptionService {
     required SelectOptionPB option,
   }) {
     final payload = SelectOptionChangesetPayloadPB.create()
-      ..updateOption = option
+      ..updateOptions.add(option)
       ..cellIdentifier = _cellIdentifier();
     return GridEventUpdateSelectOption(payload).send();
   }
@@ -49,7 +49,7 @@ class SelectOptionService {
     required SelectOptionPB option,
   }) {
     final payload = SelectOptionChangesetPayloadPB.create()
-      ..deleteOption = option
+      ..deleteOptions.add(option)
       ..cellIdentifier = _cellIdentifier();
 
     return GridEventUpdateSelectOption(payload).send();
@@ -64,17 +64,19 @@ class SelectOptionService {
     return GridEventGetSelectOptionCellData(payload).send();
   }
 
-  Future<Either<void, FlowyError>> select({required String optionId}) {
+  Future<Either<void, FlowyError>> select(
+      {required Iterable<String> optionIds}) {
     final payload = SelectOptionCellChangesetPayloadPB.create()
       ..cellIdentifier = _cellIdentifier()
-      ..insertOptionId = optionId;
+      ..insertOptionIds.addAll(optionIds);
     return GridEventUpdateSelectOptionCell(payload).send();
   }
 
-  Future<Either<void, FlowyError>> unSelect({required String optionId}) {
+  Future<Either<void, FlowyError>> unSelect(
+      {required Iterable<String> optionIds}) {
     final payload = SelectOptionCellChangesetPayloadPB.create()
       ..cellIdentifier = _cellIdentifier()
-      ..deleteOptionId = optionId;
+      ..deleteOptionIds.addAll(optionIds);
     return GridEventUpdateSelectOptionCell(payload).send();
   }
 

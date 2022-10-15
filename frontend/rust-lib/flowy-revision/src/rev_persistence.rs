@@ -1,10 +1,10 @@
 use crate::cache::{
-    disk::{RevisionChangeset, RevisionDiskCache, SQLiteTextBlockRevisionPersistence},
+    disk::{RevisionChangeset, RevisionDiskCache, SQLiteDocumentRevisionPersistence},
     memory::RevisionMemoryCacheDelegate,
 };
 use crate::disk::{RevisionRecord, RevisionState, SQLiteGridBlockRevisionPersistence};
 use crate::memory::RevisionMemoryCache;
-use crate::RevisionCompactor;
+use crate::RevisionCompress;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_sync::entities::revision::{Revision, RevisionRange};
@@ -71,7 +71,7 @@ impl RevisionPersistence {
     pub(crate) async fn add_sync_revision<'a>(
         &'a self,
         revision: &'a Revision,
-        compactor: &Arc<dyn RevisionCompactor + 'a>,
+        rev_compress: &Arc<dyn RevisionCompress + 'a>,
     ) -> FlowyResult<i64> {
         let mut sync_seq_write_guard = self.sync_seq.write().await;
         let result = sync_seq_write_guard.compact();
@@ -93,7 +93,7 @@ impl RevisionPersistence {
                 revisions.push(revision.clone());
 
                 // compact multiple revisions into one
-                let compact_revision = compactor.compact(&self.user_id, &self.object_id, revisions)?;
+                let compact_revision = rev_compress.compress_revisions(&self.user_id, &self.object_id, revisions)?;
                 let rev_id = compact_revision.rev_id;
                 tracing::Span::current().record("rev_id", &rev_id);
 
@@ -130,7 +130,6 @@ impl RevisionPersistence {
     #[tracing::instrument(level = "trace", skip(self, revisions), err)]
     pub(crate) async fn reset(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
         let records = revisions
-            .to_vec()
             .into_iter()
             .map(|revision| RevisionRecord {
                 revision,
@@ -229,7 +228,7 @@ pub fn mk_text_block_revision_disk_cache(
     user_id: &str,
     pool: Arc<ConnectionPool>,
 ) -> Arc<dyn RevisionDiskCache<Error = FlowyError>> {
-    Arc::new(SQLiteTextBlockRevisionPersistence::new(user_id, pool))
+    Arc::new(SQLiteDocumentRevisionPersistence::new(user_id, pool))
 }
 
 pub fn mk_grid_block_revision_disk_cache(

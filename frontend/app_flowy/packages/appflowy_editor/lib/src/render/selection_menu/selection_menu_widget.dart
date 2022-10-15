@@ -44,14 +44,14 @@ class SelectionMenuItem {
     if (selection != null && nodes.length == 1) {
       final node = nodes.first as TextNode;
       final end = selection.start.offset;
-      final start = node.toRawString().substring(0, end).lastIndexOf('/');
-      TransactionBuilder(editorState)
+      final start = node.toPlainText().substring(0, end).lastIndexOf('/');
+      final transaction = editorState.transaction
         ..deleteText(
           node,
           start,
           selection.start.offset - start,
-        )
-        ..commit();
+        );
+      editorState.apply(transaction);
     }
   }
 }
@@ -278,13 +278,13 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
     final nodes = selectionService.currentSelectedNodes;
     if (selection != null && nodes.length == 1) {
       widget.onSelectionUpdate();
-      TransactionBuilder(widget.editorState)
+      final transaction = widget.editorState.transaction
         ..deleteText(
           nodes.first as TextNode,
           selection.start.offset - length,
           length,
-        )
-        ..commit();
+        );
+      widget.editorState.apply(transaction);
     }
   }
 
@@ -295,13 +295,13 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
         widget.editorState.service.selectionService.currentSelectedNodes;
     if (selection != null && nodes.length == 1) {
       widget.onSelectionUpdate();
-      TransactionBuilder(widget.editorState)
+      final transaction = widget.editorState.transaction
         ..insertText(
           nodes.first as TextNode,
           selection.end.offset,
           text,
-        )
-        ..commit();
+        );
+      widget.editorState.apply(transaction);
     }
   }
 }

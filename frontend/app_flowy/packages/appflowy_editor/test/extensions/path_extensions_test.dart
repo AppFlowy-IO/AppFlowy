@@ -31,7 +31,7 @@ void main() async {
       expect(p1 > p2, false);
       expect(p2 >= p1, true);
       expect(p2 <= p1, true);
-      expect(pathEquals(p1, p2), true);
+      expect(p1.equals(p2), true);
     });
   });
 }

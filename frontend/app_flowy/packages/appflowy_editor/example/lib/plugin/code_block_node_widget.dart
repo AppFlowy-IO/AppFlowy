@@ -26,9 +26,9 @@ ShortcutEventHandler _enterInCodeBlockHandler = (editorState, event) {
     return KeyEventResult.ignored;
   }
   if (selection.isCollapsed) {
-    TransactionBuilder(editorState)
-      ..insertText(codeBlockNode.first, selection.end.offset, '\n')
-      ..commit();
+    final transaction = editorState.transaction
+      ..insertText(codeBlockNode.first, selection.end.offset, '\n');
+    editorState.apply(transaction);
     return KeyEventResult.handled;
   }
   return KeyEventResult.ignored;
@@ -60,21 +60,20 @@ SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
     if (selection == null || textNodes.isEmpty) {
       return;
     }
-    if (textNodes.first.toRawString().isEmpty) {
-      TransactionBuilder(editorState)
+    if (textNodes.first.toPlainText().isEmpty) {
+      final transaction = editorState.transaction
         ..updateNode(textNodes.first, {
           'subtype': 'code_block',
           'theme': 'vs',
           'language': null,
         })
-        ..afterSelection = selection
-        ..commit();
+        ..afterSelection = selection;
+      editorState.apply(transaction);
     } else {
-      TransactionBuilder(editorState)
+      final transaction = editorState.transaction
         ..insertNode(
           selection.end.path.next,
           TextNode(
-            type: 'text',
             children: LinkedList(),
             attributes: {
               'subtype': 'code_block',
@@ -84,8 +83,8 @@ SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
             delta: Delta()..insert('\n'),
           ),
         )
-        ..afterSelection = selection
-        ..commit();
+        ..afterSelection = selection;
+      editorState.apply(transaction);
     }
   },
 );
@@ -149,7 +148,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
 
   Widget _buildCodeBlock(BuildContext context) {
     final result = highlight.highlight.parse(
-      widget.textNode.toRawString(),
+      widget.textNode.toPlainText(),
       language: _language,
       autoDetection: _language == null,
     );
@@ -182,11 +181,11 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
       child: DropdownButton<String>(
         value: _detectLanguage,
         onChanged: (value) {
-          TransactionBuilder(widget.editorState)
+          final transaction = widget.editorState.transaction
             ..updateNode(widget.textNode, {
               'language': value,
-            })
-            ..commit();
+            });
+          widget.editorState.apply(transaction);
         },
         items: allLanguages.keys.map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(

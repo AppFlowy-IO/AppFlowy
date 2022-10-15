@@ -220,7 +220,7 @@ ShortcutEventHandler cursorEndSelect = (editorState, event) {
 KeyEventResult cursorUp(EditorState editorState, RawKeyEvent event) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final selection =
-      editorState.service.selectionService.currentSelection.value?.normalize;
+      editorState.service.selectionService.currentSelection.value?.normalized;
   if (nodes.isEmpty || selection == null) {
     return KeyEventResult.ignored;
   }
@@ -234,7 +234,7 @@ KeyEventResult cursorUp(EditorState editorState, RawKeyEvent event) {
 KeyEventResult cursorDown(EditorState editorState, RawKeyEvent event) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final selection =
-      editorState.service.selectionService.currentSelection.value?.normalize;
+      editorState.service.selectionService.currentSelection.value?.normalized;
   if (nodes.isEmpty || selection == null) {
     return KeyEventResult.ignored;
   }
@@ -248,7 +248,7 @@ KeyEventResult cursorDown(EditorState editorState, RawKeyEvent event) {
 KeyEventResult cursorLeft(EditorState editorState, RawKeyEvent event) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final selection =
-      editorState.service.selectionService.currentSelection.value?.normalize;
+      editorState.service.selectionService.currentSelection.value?.normalized;
   if (nodes.isEmpty || selection == null) {
     return KeyEventResult.ignored;
   }
@@ -270,7 +270,7 @@ KeyEventResult cursorLeft(EditorState editorState, RawKeyEvent event) {
 KeyEventResult cursorRight(EditorState editorState, RawKeyEvent event) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final selection =
-      editorState.service.selectionService.currentSelection.value?.normalize;
+      editorState.service.selectionService.currentSelection.value?.normalized;
   if (nodes.isEmpty || selection == null) {
     return KeyEventResult.ignored;
   }

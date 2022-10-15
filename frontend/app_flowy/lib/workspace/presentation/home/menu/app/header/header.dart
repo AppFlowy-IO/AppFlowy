@@ -157,7 +157,7 @@ class AppActionList extends StatelessWidget {
       actions: AppDisclosureAction.values
           .map((action) => DisclosureActionWrapper(action))
           .toList(),
-      withChild: (controller) {
+      buildChild: (controller) {
         return GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => ExpandableController.of(context,

@@ -5,11 +5,11 @@ import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:appflowy_editor/src/service/service.dart';
 import 'package:flutter/material.dart';
 
-import 'package:appflowy_editor/src/document/selection.dart';
-import 'package:appflowy_editor/src/document/state_tree.dart';
-import 'package:appflowy_editor/src/operation/operation.dart';
-import 'package:appflowy_editor/src/operation/transaction.dart';
-import 'package:appflowy_editor/src/undo_manager.dart';
+import 'package:appflowy_editor/src/core/location/selection.dart';
+import 'package:appflowy_editor/src/core/document/document.dart';
+import 'package:appflowy_editor/src/core/transform/operation.dart';
+import 'package:appflowy_editor/src/core/transform/transaction.dart';
+import 'package:appflowy_editor/src/history/undo_manager.dart';
 
 class ApplyOptions {
   /// This flag indicates that
@@ -46,7 +46,7 @@ enum CursorUpdateReason {
 ///
 /// Mutating the document with document's API is not recommended.
 class EditorState {
-  final StateTree document;
+  final Document document;
 
   // Service reference.
   final service = FlowyService();
@@ -63,8 +63,8 @@ class EditorState {
   EditorStyle editorStyle = EditorStyle.defaultStyle();
 
   /// Operation stream.
-  Stream<Operation> get operationStream => _observer.stream;
-  final StreamController<Operation> _observer = StreamController.broadcast();
+  Stream<Transaction> get transactionStream => _observer.stream;
+  final StreamController<Transaction> _observer = StreamController.broadcast();
 
   final UndoManager undoManager = UndoManager();
   Selection? _cursorSelection;
@@ -73,6 +73,12 @@ class EditorState {
   bool disableSealTimer = false;
 
   bool editable = true;
+
+  Transaction get transaction {
+    final transaction = Transaction(document: document);
+    transaction.beforeSelection = _cursorSelection;
+    return transaction;
+  }
 
   Selection? get cursorSelection {
     return _cursorSelection;
@@ -105,7 +111,7 @@ class EditorState {
   }
 
   factory EditorState.empty() {
-    return EditorState(document: StateTree.empty());
+    return EditorState(document: Document.empty());
   }
 
   /// Apply the transaction to the state.
@@ -113,7 +119,7 @@ class EditorState {
   /// The options can be used to determine whether the editor
   /// should record the transaction in undo/redo stack.
   apply(Transaction transaction,
-      [ApplyOptions options = const ApplyOptions()]) {
+      [ApplyOptions options = const ApplyOptions(recordUndo: true)]) {
     if (!editable) {
       return;
     }
@@ -121,6 +127,8 @@ class EditorState {
     for (final op in transaction.operations) {
       _applyOperation(op);
     }
+
+    _observer.add(transaction);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       updateCursorSelection(transaction.afterSelection);
@@ -166,9 +174,8 @@ class EditorState {
       document.update(op.path, op.attributes);
     } else if (op is DeleteOperation) {
       document.delete(op.path, op.nodes.length);
-    } else if (op is TextEditOperation) {
-      document.textEdit(op.path, op.delta);
+    } else if (op is UpdateTextOperation) {
+      document.updateText(op.path, op.delta);
     }
-    _observer.add(op);
   }
 }

@@ -6,7 +6,9 @@ use crate::services::field::{BoxTypeOptionBuilder, NumberCellData, TypeOptionBui
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 
 use rust_decimal::Decimal;
 
@@ -45,8 +47,11 @@ impl TypeOptionBuilder for NumberTypeOptionBuilder {
         FieldType::Number
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
+        // Do nothing
     }
 }
 
@@ -103,7 +108,7 @@ pub(crate) fn strip_currency_symbol<T: ToString>(s: T) -> String {
 }
 
 impl CellDisplayable<String> for NumberTypeOptionPB {
-    fn display_data(
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<String>,
         _decoded_field_type: &FieldType,
@@ -116,7 +121,7 @@ impl CellDisplayable<String> for NumberTypeOptionPB {
         }
     }
 
-    fn display_string(
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<String>,
         _decoded_field_type: &FieldType,
@@ -138,7 +143,7 @@ impl CellDataOperation<String, String> for NumberTypeOptionPB {
             return Ok(CellBytes::default());
         }
 
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(

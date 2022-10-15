@@ -14,7 +14,7 @@ flowy-folder = { path = "../flowy-folder", default-features = false }
 flowy-grid = { path = "../flowy-grid", default-features = false }
 flowy-grid-data-model = { path = "../../../shared-lib/flowy-grid-data-model" }
 flowy-database = { path = "../flowy-database" }
-flowy-text-block = { path = "../flowy-text-block", default-features = false }
+flowy-document = { path = "../flowy-document", default-features = false }
 flowy-revision = { path = "../flowy-revision" }
 
 tracing = { version = "0.1" }
@@ -38,8 +38,8 @@ tokio = { version = "1", features = ["full"] }
 futures-util = "0.3.15"
 
 [features]
-http_sync = ["flowy-folder/cloud_sync", "flowy-text-block/cloud_sync"]
-native_sync = ["flowy-folder/cloud_sync", "flowy-text-block/cloud_sync"]
+http_sync = ["flowy-folder/cloud_sync", "flowy-document/cloud_sync"]
+native_sync = ["flowy-folder/cloud_sync", "flowy-document/cloud_sync"]
 use_bunyan = ["lib-log/use_bunyan"]
 dart = [
     "flowy-user/dart",
@@ -47,6 +47,6 @@ dart = [
     "flowy-folder/dart",
     "flowy-sync/dart",
     "flowy-grid/dart",
-    "flowy-text-block/dart",
+    "flowy-document/dart",
 ]
 openssl_vendored = ["flowy-database/openssl_vendored"]

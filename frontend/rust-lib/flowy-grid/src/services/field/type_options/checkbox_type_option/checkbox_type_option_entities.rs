@@ -1,4 +1,4 @@
-use crate::services::cell::{CellBytesParser, FromCellString};
+use crate::services::cell::{CellBytesParser, CellDataIsEmpty, FromCellString};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use std::str::FromStr;
@@ -11,6 +11,10 @@ pub struct CheckboxCellData(String);
 impl CheckboxCellData {
     pub fn is_check(&self) -> bool {
         self.0 == CHECK
+    }
+
+    pub fn is_uncheck(&self) -> bool {
+        self.0 == UNCHECK
     }
 }
 
@@ -57,6 +61,13 @@ impl ToString for CheckboxCellData {
         self.0.clone()
     }
 }
+
+impl CellDataIsEmpty for CheckboxCellData {
+    fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
 pub struct CheckboxCellDataParser();
 impl CellBytesParser for CheckboxCellDataParser {
     type Object = CheckboxCellData;

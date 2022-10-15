@@ -145,7 +145,7 @@ abstract class IFieldTypeOptionLoader {
   String get gridId;
   Future<Either<FieldTypeOptionDataPB, FlowyError>> load();
 
-  Future<Either<FieldTypeOptionDataPB, FlowyError>> switchToField(
+  Future<Either<Unit, FlowyError>> switchToField(
       String fieldId, FieldType fieldType) {
     final payload = EditFieldPayloadPB.create()
       ..gridId = gridId

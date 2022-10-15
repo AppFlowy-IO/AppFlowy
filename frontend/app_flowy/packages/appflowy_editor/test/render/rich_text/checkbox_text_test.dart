@@ -26,8 +26,8 @@ void main() async {
             BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
             BuiltInAttributeKey.checkbox: false,
           },
-          delta: Delta([
-            TextInsert(text, {
+          delta: Delta(operations: [
+            TextInsert(text, attributes: {
               BuiltInAttributeKey.bold: true,
               BuiltInAttributeKey.italic: true,
               BuiltInAttributeKey.underline: true,

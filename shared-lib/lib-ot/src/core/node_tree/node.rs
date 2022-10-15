@@ -1,9 +1,9 @@
 use super::node_serde::*;
-use crate::core::attributes::{AttributeKey, AttributeValue, Attributes};
+use crate::core::attributes::{AttributeHashMap, AttributeKey, AttributeValue};
 use crate::core::NodeBody::Delta;
 use crate::core::OperationTransform;
 use crate::errors::OTError;
-use crate::text_delta::TextDelta;
+use crate::text_delta::TextOperations;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
@@ -11,9 +11,9 @@ pub struct NodeData {
     #[serde(rename = "type")]
     pub node_type: String,
 
-    #[serde(skip_serializing_if = "Attributes::is_empty")]
+    #[serde(skip_serializing_if = "AttributeHashMap::is_empty")]
     #[serde(default)]
-    pub attributes: Attributes,
+    pub attributes: AttributeHashMap,
 
     #[serde(serialize_with = "serialize_body")]
     #[serde(deserialize_with = "deserialize_body")]
@@ -94,7 +94,7 @@ impl NodeDataBuilder {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum NodeBody {
     Empty,
-    Delta(TextDelta),
+    Delta(TextOperations),
 }
 
 impl std::default::Default for NodeBody {
@@ -159,7 +159,10 @@ impl OperationTransform for NodeBody {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum NodeBodyChangeset {
-    Delta { delta: TextDelta, inverted: TextDelta },
+    Delta {
+        delta: TextOperations,
+        inverted: TextOperations,
+    },
 }
 
 impl NodeBodyChangeset {
@@ -179,14 +182,14 @@ impl NodeBodyChangeset {
 pub struct Node {
     pub node_type: String,
     pub body: NodeBody,
-    pub attributes: Attributes,
+    pub attributes: AttributeHashMap,
 }
 
 impl Node {
     pub fn new(node_type: &str) -> Node {
         Node {
             node_type: node_type.into(),
-            attributes: Attributes::new(),
+            attributes: AttributeHashMap::new(),
             body: NodeBody::Empty,
         }
     }

@@ -2,15 +2,17 @@ use crate::manager::FolderId;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
+    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionWebSocket,
 };
-use flowy_sync::util::make_text_delta_from_revisions;
+use flowy_sync::util::make_operations_from_revisions;
 use flowy_sync::{
     client_folder::{FolderChangeset, FolderPad},
     entities::{revision::Revision, ws_data::ServerRevisionWSData},
 };
 use lib_infra::future::FutureResult;
 
+use lib_ot::core::EmptyAttributes;
 use parking_lot::RwLock;
 use std::sync::Arc;
 
@@ -36,7 +38,7 @@ impl FolderEditor {
         let cloud = Arc::new(FolderRevisionCloudService {
             token: token.to_string(),
         });
-        let folder = Arc::new(RwLock::new(rev_manager.load::<FolderPadBuilder>(Some(cloud)).await?));
+        let folder = Arc::new(RwLock::new(rev_manager.load::<FolderRevisionSerde>(Some(cloud)).await?));
         let rev_manager = Arc::new(rev_manager);
 
         #[cfg(feature = "sync")]
@@ -77,7 +79,7 @@ impl FolderEditor {
     }
 
     pub(crate) fn apply_change(&self, change: FolderChangeset) -> FlowyResult<()> {
-        let FolderChangeset { delta, md5 } = change;
+        let FolderChangeset { operations: delta, md5 } = change;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
         let revision = Revision::new(
@@ -99,13 +101,27 @@ impl FolderEditor {
     }
 }
 
-struct FolderPadBuilder();
-impl RevisionObjectBuilder for FolderPadBuilder {
+struct FolderRevisionSerde();
+impl RevisionObjectDeserializer for FolderRevisionSerde {
     type Output = FolderPad;
 
-    fn build_object(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+    fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let pad = FolderPad::from_revisions(revisions)?;
         Ok(pad)
+    }
+}
+
+impl RevisionObjectSerializer for FolderRevisionSerde {
+    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
+    }
+}
+
+pub struct FolderRevisionCompactor();
+impl RevisionCompress for FolderRevisionCompactor {
+    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        FolderRevisionSerde::serialize_revisions(revisions)
     }
 }
 
@@ -125,13 +141,5 @@ impl RevisionCloudService for FolderRevisionCloudService {
 impl FolderEditor {
     pub fn rev_manager(&self) -> Arc<RevisionManager> {
         self.rev_manager.clone()
-    }
-}
-
-pub struct FolderRevisionCompactor();
-impl RevisionCompactor for FolderRevisionCompactor {
-    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let delta = make_text_delta_from_revisions(revisions)?;
-        Ok(delta.json_bytes())
     }
 }

@@ -1,10 +1,10 @@
 use crate::grid::grid_editor::GridEditorTest;
-use flowy_grid::entities::{FieldChangesetParams, InsertFieldParams};
+use flowy_grid::entities::{CreateFieldParams, FieldChangesetParams};
 use flowy_grid_data_model::revision::FieldRevision;
 
 pub enum FieldScript {
     CreateField {
-        params: InsertFieldParams,
+        params: CreateFieldParams,
     },
     UpdateField {
         changeset: FieldChangesetParams,
@@ -13,9 +13,9 @@ pub enum FieldScript {
         field_rev: FieldRevision,
     },
     AssertFieldCount(usize),
-    AssertFieldEqual {
+    AssertFieldTypeOptionEqual {
         field_index: usize,
-        field_rev: FieldRevision,
+        expected_type_option_data: String,
     },
 }
 
@@ -46,11 +46,11 @@ impl GridFieldTest {
     pub async fn run_script(&mut self, script: FieldScript) {
         match script {
             FieldScript::CreateField { params } => {
-                if !self.editor.contain_field(&params.field.id).await {
-                    self.field_count += 1;
-                }
-
-                self.editor.insert_field(params).await.unwrap();
+                self.field_count += 1;
+                self.editor
+                    .create_new_field_rev(&params.field_type, params.type_option_data)
+                    .await
+                    .unwrap();
                 self.field_revs = self.editor.get_field_revs(None).await.unwrap();
                 assert_eq!(self.field_count, self.field_revs.len());
             }
@@ -70,9 +70,14 @@ impl GridFieldTest {
             FieldScript::AssertFieldCount(count) => {
                 assert_eq!(self.editor.get_field_revs(None).await.unwrap().len(), count);
             }
-            FieldScript::AssertFieldEqual { field_index, field_rev } => {
+            FieldScript::AssertFieldTypeOptionEqual {
+                field_index,
+                expected_type_option_data,
+            } => {
                 let field_revs = self.editor.get_field_revs(None).await.unwrap();
-                assert_eq!(field_revs[field_index].as_ref(), &field_rev);
+                let field_rev = field_revs[field_index].as_ref();
+                let type_option_data = field_rev.get_type_option_str(field_rev.ty).unwrap();
+                assert_eq!(type_option_data, expected_type_option_data);
             }
         }
     }

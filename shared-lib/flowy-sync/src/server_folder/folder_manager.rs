@@ -1,19 +1,16 @@
 use crate::entities::revision::{RepeatedRevision, Revision};
+use crate::server_folder::folder_pad::{FolderOperations, FolderRevisionSynchronizer};
 use crate::{
-    entities::{
-        folder::{FolderDelta, FolderInfo},
-        ws_data::ServerRevisionWSDataBuilder,
-    },
+    entities::{folder::FolderInfo, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
     protobuf::ClientRevisionWSData,
     server_folder::folder_pad::ServerFolder,
-    synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionSynchronizer, RevisionUser},
+    synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionUser},
     util::rev_id_from_str,
 };
 use async_stream::stream;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
-use lib_ot::core::EmptyAttributes;
 use std::{collections::HashMap, fmt::Debug, sync::Arc};
 use tokio::{
     sync::{mpsc, oneshot, RwLock},
@@ -188,8 +185,6 @@ impl ServerFolderManager {
     }
 }
 
-type FolderRevisionSynchronizer = RevisionSynchronizer<EmptyAttributes>;
-
 struct OpenFolderHandler {
     folder_id: String,
     sender: mpsc::Sender<FolderCommand>,
@@ -199,8 +194,8 @@ impl OpenFolderHandler {
     fn new(folder_info: FolderInfo, persistence: Arc<dyn FolderCloudPersistence>) -> CollaborateResult<Self> {
         let (sender, receiver) = mpsc::channel(1000);
         let folder_id = folder_info.folder_id.clone();
-        let delta = FolderDelta::from_bytes(&folder_info.text)?;
-        let sync_object = ServerFolder::from_delta(&folder_id, delta);
+        let operations = FolderOperations::from_bytes(&folder_info.text)?;
+        let sync_object = ServerFolder::from_operations(&folder_id, operations);
         let synchronizer = Arc::new(FolderRevisionSynchronizer::new(
             folder_info.rev_id,
             sync_object,

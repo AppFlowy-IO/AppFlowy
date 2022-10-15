@@ -98,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
         if (snapshot.hasData &&
             snapshot.connectionState == ConnectionState.done) {
           _editorState ??= EditorState(
-            document: StateTree.fromJson(
+            document: Document.fromJson(
               Map<String, Object>.from(
                 json.decode(snapshot.data!),
               ),
@@ -109,8 +109,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ..handler = (message) {
               debugPrint(message);
             };
-          _editorState!.operationStream.listen((event) {
-            debugPrint('Operation: ${event.toJson()}');
+          _editorState!.transactionStream.listen((event) {
+            debugPrint('Transaction: ${event.toJson()}');
           });
           return Container(
             color: darkMode ? Colors.black : Colors.white,

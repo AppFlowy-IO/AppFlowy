@@ -4,7 +4,7 @@ use flowy_grid::entities::{
 };
 use flowy_grid::services::cell::{delete_select_option_cell, insert_select_option_cell};
 use flowy_grid::services::field::{
-    edit_single_select_type_option, SelectOptionOperation, SelectOptionPB, SingleSelectTypeOptionPB,
+    edit_single_select_type_option, SelectOptionPB, SelectTypeOptionSharedAction, SingleSelectTypeOptionPB,
 };
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset};
 use std::sync::Arc;
@@ -46,7 +46,7 @@ pub enum GroupScript {
         from_group_index: usize,
         to_group_index: usize,
     },
-    UpdateSingleSelectOption {
+    UpdateSingleSelectSelectOption {
         inserted_options: Vec<SelectOptionPB>,
     },
     GroupByField {
@@ -136,16 +136,24 @@ impl GridGroupTest {
 
                 let cell_rev = if to_group.is_default {
                     match field_type {
-                        FieldType::SingleSelect => delete_select_option_cell(to_group.group_id.clone(), &field_rev),
-                        FieldType::MultiSelect => delete_select_option_cell(to_group.group_id.clone(), &field_rev),
+                        FieldType::SingleSelect => {
+                            delete_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+                        }
+                        FieldType::MultiSelect => {
+                            delete_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+                        }
                         _ => {
                             panic!("Unsupported group field type");
                         }
                     }
                 } else {
                     match field_type {
-                        FieldType::SingleSelect => insert_select_option_cell(to_group.group_id.clone(), &field_rev),
-                        FieldType::MultiSelect => insert_select_option_cell(to_group.group_id.clone(), &field_rev),
+                        FieldType::SingleSelect => {
+                            insert_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+                        }
+                        FieldType::MultiSelect => {
+                            insert_select_option_cell(vec![to_group.group_id.clone()], &field_rev)
+                        }
                         _ => {
                             panic!("Unsupported group field type");
                         }
@@ -179,7 +187,7 @@ impl GridGroupTest {
                 assert_eq!(group.group_id, group_pb.group_id);
                 assert_eq!(group.desc, group_pb.desc);
             }
-            GroupScript::UpdateSingleSelectOption { inserted_options } => {
+            GroupScript::UpdateSingleSelectSelectOption { inserted_options } => {
                 self.edit_single_select_type_option(|type_option| {
                     for inserted_option in inserted_options {
                         type_option.insert_option(inserted_option);

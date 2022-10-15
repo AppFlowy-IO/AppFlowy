@@ -1,6 +1,6 @@
 import 'dart:collection';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:appflowy_editor/src/undo_manager.dart';
+import 'package:appflowy_editor/src/history/undo_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() async {
@@ -17,16 +17,16 @@ void main() async {
   }
 
   test("HistoryItem #1", () {
-    final document = StateTree(root: _createEmptyEditorRoot());
+    final document = Document(root: _createEmptyEditorRoot());
     final editorState = EditorState(document: document);
 
     final historyItem = HistoryItem();
-    historyItem.add(DeleteOperation(
-        [0], [TextNode(type: 'text', delta: Delta()..insert('0'))]));
-    historyItem.add(DeleteOperation(
-        [0], [TextNode(type: 'text', delta: Delta()..insert('1'))]));
-    historyItem.add(DeleteOperation(
-        [0], [TextNode(type: 'text', delta: Delta()..insert('2'))]));
+    historyItem
+        .add(DeleteOperation([0], [TextNode(delta: Delta()..insert('0'))]));
+    historyItem
+        .add(DeleteOperation([0], [TextNode(delta: Delta()..insert('1'))]));
+    historyItem
+        .add(DeleteOperation([0], [TextNode(delta: Delta()..insert('2'))]));
 
     final transaction = historyItem.toTransaction(editorState);
     assert(isInsertAndPathEqual(transaction.operations[0], [0], '2'));
@@ -35,12 +35,12 @@ void main() async {
   });
 
   test("HistoryItem #2", () {
-    final document = StateTree(root: _createEmptyEditorRoot());
+    final document = Document(root: _createEmptyEditorRoot());
     final editorState = EditorState(document: document);
 
     final historyItem = HistoryItem();
-    historyItem.add(DeleteOperation(
-        [0], [TextNode(type: 'text', delta: Delta()..insert('0'))]));
+    historyItem
+        .add(DeleteOperation([0], [TextNode(delta: Delta()..insert('0'))]));
     historyItem
         .add(UpdateOperation([0], {"subType": "number"}, {"subType": null}));
     historyItem.add(DeleteOperation([0], [TextNode.empty(), TextNode.empty()]));
@@ -59,11 +59,11 @@ bool isInsertAndPathEqual(Operation operation, Path path, [String? content]) {
     return false;
   }
 
-  if (!pathEquals(operation.path, path)) {
+  if (!operation.path.equals(path)) {
     return false;
   }
 
-  final firstNode = operation.nodes[0];
+  final firstNode = operation.nodes.first;
   if (firstNode is! TextNode) {
     return false;
   }
@@ -72,5 +72,5 @@ bool isInsertAndPathEqual(Operation operation, Path path, [String? content]) {
     return true;
   }
 
-  return firstNode.delta.toRawString() == content;
+  return firstNode.delta.toPlainText() == content;
 }

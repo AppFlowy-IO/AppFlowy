@@ -15,12 +15,12 @@ use flowy_sync::{
 };
 use std::sync::Arc;
 
-pub struct SQLiteTextBlockRevisionPersistence {
+pub struct SQLiteDocumentRevisionPersistence {
     user_id: String,
     pub(crate) pool: Arc<ConnectionPool>,
 }
 
-impl RevisionDiskCache for SQLiteTextBlockRevisionPersistence {
+impl RevisionDiskCache for SQLiteDocumentRevisionPersistence {
     type Error = FlowyError;
 
     fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
@@ -81,7 +81,7 @@ impl RevisionDiskCache for SQLiteTextBlockRevisionPersistence {
     }
 }
 
-impl SQLiteTextBlockRevisionPersistence {
+impl SQLiteDocumentRevisionPersistence {
     pub fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
         Self {
             user_id: user_id.to_owned(),
@@ -109,7 +109,7 @@ impl TextRevisionSql {
                     dsl::doc_id.eq(record.revision.object_id),
                     dsl::base_rev_id.eq(record.revision.base_rev_id),
                     dsl::rev_id.eq(record.revision.rev_id),
-                    dsl::data.eq(record.revision.delta_data),
+                    dsl::data.eq(record.revision.bytes),
                     dsl::state.eq(rev_state),
                     dsl::ty.eq(RevTableType::Local),
                 )

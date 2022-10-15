@@ -1,8 +1,8 @@
 use lib_ot::core::{Node, Transaction};
 use lib_ot::{
-    core::attributes::Attributes,
+    core::attributes::AttributeHashMap,
     core::{NodeBody, NodeBodyChangeset, NodeData, NodeTree, Path, TransactionBuilder},
-    text_delta::TextDelta,
+    text_delta::TextOperations,
 };
 use std::collections::HashMap;
 
@@ -14,7 +14,7 @@ pub enum NodeScript {
     },
     UpdateAttributes {
         path: Path,
-        attributes: Attributes,
+        attributes: AttributeHashMap,
     },
     UpdateBody {
         path: Path,
@@ -38,7 +38,7 @@ pub enum NodeScript {
     },
     AssertNodeDelta {
         path: Path,
-        expected: TextDelta,
+        expected: TextOperations,
     },
 }
 

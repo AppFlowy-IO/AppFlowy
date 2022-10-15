@@ -2,7 +2,7 @@ use crate::entities::*;
 use crate::manager::GridManager;
 use crate::services::cell::AnyCellData;
 use crate::services::field::{
-    default_type_option_builder_from_type, select_option_operation, type_option_builder_from_json_str,
+    default_type_option_builder_from_type, select_type_option_from_field_rev, type_option_builder_from_json_str,
     DateChangesetParams, DateChangesetPayloadPB, SelectOptionCellChangeset, SelectOptionCellChangesetParams,
     SelectOptionCellChangesetPayloadPB, SelectOptionCellDataPB, SelectOptionChangeset, SelectOptionChangesetPayloadPB,
     SelectOptionPB,
@@ -102,17 +102,6 @@ pub(crate) async fn update_field_handler(
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
-pub(crate) async fn insert_field_handler(
-    data: Data<InsertFieldPayloadPB>,
-    manager: AppData<Arc<GridManager>>,
-) -> Result<(), FlowyError> {
-    let params: InsertFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
-    let _ = editor.insert_field(params).await?;
-    Ok(())
-}
-
-#[tracing::instrument(level = "trace", skip(data, manager), err)]
 pub(crate) async fn update_field_type_option_handler(
     data: Data<UpdateFieldTypeOptionPayloadPB>,
     manager: AppData<Arc<GridManager>>,
@@ -140,27 +129,26 @@ pub(crate) async fn delete_field_handler(
 pub(crate) async fn switch_to_field_handler(
     data: Data<EditFieldPayloadPB>,
     manager: AppData<Arc<GridManager>>,
-) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
+) -> Result<(), FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
     editor
         .switch_to_field_type(&params.field_id, &params.field_type)
         .await?;
 
-    // Get the FieldMeta with field_id, if it doesn't exist, we create the default FieldMeta from the FieldType.
+    // Get the field_rev with field_id, if it doesn't exist, we create the default FieldMeta from the FieldType.
     let field_rev = editor
         .get_field_rev(&params.field_id)
         .await
         .unwrap_or(Arc::new(editor.next_field_rev(&params.field_type).await?));
 
+    // Update the type-option data after the field type has been changed
     let type_option_data = get_type_option_data(&field_rev, &params.field_type).await?;
-    let data = FieldTypeOptionDataPB {
-        grid_id: params.grid_id,
-        field: field_rev.into(),
-        type_option_data,
-    };
+    let _ = editor
+        .update_field_type_option(&params.grid_id, &field_rev.id, type_option_data)
+        .await?;
 
-    data_result(data)
+    Ok(())
 }
 
 #[tracing::instrument(level = "trace", skip(data, manager), err)]
@@ -205,7 +193,9 @@ pub(crate) async fn create_field_type_option_data_handler(
 ) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
     let params: CreateFieldParams = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&params.grid_id)?;
-    let field_rev = editor.create_next_field_rev(&params.field_type).await?;
+    let field_rev = editor
+        .create_new_field_rev(&params.field_type, params.type_option_data)
+        .await?;
     let field_type: FieldType = field_rev.ty.into();
     let type_option_data = get_type_option_data(&field_rev, &field_type).await?;
 
@@ -227,16 +217,16 @@ pub(crate) async fn move_field_handler(
     Ok(())
 }
 
-/// The FieldMeta contains multiple data, each of them belongs to a specific FieldType.
+/// The [FieldRevision] contains multiple data, each of them belongs to a specific FieldType.
 async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
     let s = field_rev.get_type_option_str(field_type).unwrap_or_else(|| {
         default_type_option_builder_from_type(field_type)
-            .data_format()
+            .serializer()
             .json_str()
     });
     let field_type: FieldType = field_rev.ty.into();
     let builder = type_option_builder_from_json_str(&s, &field_type);
-    let type_option_data = builder.data_format().protobuf_bytes().to_vec();
+    let type_option_data = builder.serializer().protobuf_bytes().to_vec();
 
     Ok(type_option_data)
 }
@@ -331,7 +321,7 @@ pub(crate) async fn new_select_option_handler(
     match editor.get_field_rev(&params.field_id).await {
         None => Err(ErrorCode::InvalidData.into()),
         Some(field_rev) => {
-            let type_option = select_option_operation(&field_rev)?;
+            let type_option = select_type_option_from_field_rev(&field_rev)?;
             let select_option = type_option.create_option(&params.option_name);
             data_result(select_option)
         }
@@ -346,38 +336,52 @@ pub(crate) async fn update_select_option_handler(
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
     let editor = manager.get_grid_editor(&changeset.cell_identifier.grid_id)?;
 
-    if let Some(mut field_rev) = editor.get_field_rev(&changeset.cell_identifier.field_id).await {
-        let mut_field_rev = Arc::make_mut(&mut field_rev);
-        let mut type_option = select_option_operation(mut_field_rev)?;
-        let mut cell_content_changeset = None;
+    let _ = editor
+        .modify_field_rev(&changeset.cell_identifier.field_id, |field_rev| {
+            let mut type_option = select_type_option_from_field_rev(field_rev)?;
+            let mut cell_content_changeset = None;
+            let mut is_changed = None;
 
-        if let Some(option) = changeset.insert_option {
-            cell_content_changeset = Some(SelectOptionCellChangeset::from_insert(&option.id).to_str());
-            type_option.insert_option(option);
-        }
+            for option in changeset.insert_options {
+                cell_content_changeset = Some(SelectOptionCellChangeset::from_insert_option_id(&option.id).to_str());
+                type_option.insert_option(option);
+                is_changed = Some(());
+            }
 
-        if let Some(option) = changeset.update_option {
-            type_option.insert_option(option);
-        }
+            for option in changeset.update_options {
+                type_option.insert_option(option);
+                is_changed = Some(());
+            }
 
-        if let Some(option) = changeset.delete_option {
-            cell_content_changeset = Some(SelectOptionCellChangeset::from_delete(&option.id).to_str());
-            type_option.delete_option(option);
-        }
+            for option in changeset.delete_options {
+                cell_content_changeset = Some(SelectOptionCellChangeset::from_delete_option_id(&option.id).to_str());
+                type_option.delete_option(option);
+                is_changed = Some(());
+            }
 
-        mut_field_rev.insert_type_option(&*type_option);
-        let _ = editor.replace_field(field_rev).await?;
+            if is_changed.is_some() {
+                field_rev.insert_type_option(&*type_option);
+            }
 
-        if let Some(cell_content_changeset) = cell_content_changeset {
-            let changeset = CellChangesetPB {
-                grid_id: changeset.cell_identifier.grid_id,
-                row_id: changeset.cell_identifier.row_id,
-                field_id: changeset.cell_identifier.field_id,
-                content: cell_content_changeset,
-            };
-            let _ = editor.update_cell(changeset).await?;
-        }
-    }
+            if let Some(cell_content_changeset) = cell_content_changeset {
+                let changeset = CellChangesetPB {
+                    grid_id: changeset.cell_identifier.grid_id,
+                    row_id: changeset.cell_identifier.row_id,
+                    field_id: changeset.cell_identifier.field_id.clone(),
+                    content: cell_content_changeset,
+                };
+                let cloned_editor = editor.clone();
+                tokio::spawn(async move {
+                    match cloned_editor.update_cell(changeset).await {
+                        Ok(_) => {}
+                        Err(e) => tracing::error!("{}", e),
+                    }
+                });
+            }
+            Ok(is_changed)
+        })
+        .await?;
+
     Ok(())
 }
 
@@ -396,7 +400,7 @@ pub(crate) async fn get_select_option_handler(
         Some(field_rev) => {
             //
             let cell_rev = editor.get_cell_rev(&params.row_id, &params.field_id).await?;
-            let type_option = select_option_operation(&field_rev)?;
+            let type_option = select_type_option_from_field_rev(&field_rev)?;
             let any_cell_data: AnyCellData = match cell_rev {
                 None => AnyCellData {
                     data: "".to_string(),
@@ -404,8 +408,8 @@ pub(crate) async fn get_select_option_handler(
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };
-            let option_context = type_option.selected_select_option(any_cell_data.into());
-            data_result(option_context)
+            let selected_options = type_option.get_selected_options(any_cell_data.into());
+            data_result(selected_options)
         }
     }
 }

@@ -74,10 +74,10 @@ void main() async {
       expect(lastNode != null, true);
       expect(lastNode is TextNode, true);
       lastNode = lastNode as TextNode;
-      expect(lastNode.delta.toRawString(), text);
-      expect((lastNode.previous as TextNode).delta.toRawString(), '');
+      expect(lastNode.delta.toPlainText(), text);
+      expect((lastNode.previous as TextNode).delta.toPlainText(), '');
       expect(
-          (lastNode.previous!.previous as TextNode).delta.toRawString(), text);
+          (lastNode.previous!.previous as TextNode).delta.toPlainText(), text);
     });
 
     // Before
@@ -134,7 +134,7 @@ void main() async {
       );
       await editor.pressLogicKey(LogicalKeyboardKey.enter);
       expect(editor.documentLength, 2);
-      expect((editor.nodeAtPath([1]) as TextNode).toRawString(), text);
+      expect((editor.nodeAtPath([1]) as TextNode).toPlainText(), text);
     });
   });
 }
@@ -227,6 +227,6 @@ Future<void> _testMultipleSelection(
   );
 
   expect(editor.documentLength, 2);
-  expect((editor.nodeAtPath([0]) as TextNode).toRawString(), 'Welcome');
-  expect((editor.nodeAtPath([1]) as TextNode).toRawString(), 'to Appflowy 😁');
+  expect((editor.nodeAtPath([0]) as TextNode).toPlainText(), 'Welcome');
+  expect((editor.nodeAtPath([1]) as TextNode).toPlainText(), 'to Appflowy 😁');
 }

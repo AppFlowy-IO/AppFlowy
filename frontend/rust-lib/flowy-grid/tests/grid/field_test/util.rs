@@ -3,8 +3,8 @@ use flowy_grid::services::field::selection_type_option::SelectOptionPB;
 use flowy_grid::services::field::*;
 use flowy_grid_data_model::revision::*;
 
-pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
-    let field_rev = FieldBuilder::new(RichTextTypeOptionBuilder::default())
+pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldRevision) {
+    let mut field_rev = FieldBuilder::new(RichTextTypeOptionBuilder::default())
         .name("Name")
         .visibility(true)
         .build();
@@ -17,32 +17,23 @@ pub fn create_text_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
         .protobuf_bytes()
         .to_vec();
 
-    let field = FieldPB {
-        id: field_rev.id,
-        name: field_rev.name,
-        desc: field_rev.desc,
-        field_type: field_rev.ty.into(),
-        frozen: field_rev.frozen,
-        visibility: field_rev.visibility,
-        width: field_rev.width,
-        is_primary: false,
-    };
+    let type_option_builder = type_option_builder_from_bytes(type_option_data.clone(), &field_rev.ty.into());
+    field_rev.insert_type_option(type_option_builder.serializer());
 
-    let params = InsertFieldParams {
+    let params = CreateFieldParams {
         grid_id: grid_id.to_owned(),
-        field,
-        type_option_data,
-        start_field_id: None,
+        field_type: field_rev.ty.into(),
+        type_option_data: Some(type_option_data),
     };
     (params, cloned_field_rev)
 }
 
-pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRevision) {
+pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldRevision) {
     let single_select = SingleSelectTypeOptionBuilder::default()
         .add_option(SelectOptionPB::new("Done"))
         .add_option(SelectOptionPB::new("Progress"));
 
-    let field_rev = FieldBuilder::new(single_select).name("Name").visibility(true).build();
+    let mut field_rev = FieldBuilder::new(single_select).name("Name").visibility(true).build();
     let cloned_field_rev = field_rev.clone();
     let type_option_data = field_rev
         .get_type_option::<SingleSelectTypeOptionPB>(field_rev.ty)
@@ -50,22 +41,13 @@ pub fn create_single_select_field(grid_id: &str) -> (InsertFieldParams, FieldRev
         .protobuf_bytes()
         .to_vec();
 
-    let field = FieldPB {
-        id: field_rev.id,
-        name: field_rev.name,
-        desc: field_rev.desc,
-        field_type: field_rev.ty.into(),
-        frozen: field_rev.frozen,
-        visibility: field_rev.visibility,
-        width: field_rev.width,
-        is_primary: false,
-    };
+    let type_option_builder = type_option_builder_from_bytes(type_option_data.clone(), &field_rev.ty.into());
+    field_rev.insert_type_option(type_option_builder.serializer());
 
-    let params = InsertFieldParams {
+    let params = CreateFieldParams {
         grid_id: grid_id.to_owned(),
-        field,
-        type_option_data,
-        start_field_id: None,
+        field_type: field_rev.ty.into(),
+        type_option_data: Some(type_option_data),
     };
     (params, cloned_field_rev)
 }

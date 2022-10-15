@@ -1,14 +1,16 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{
-    decode_cell_data_to_string, CellBytes, CellBytesParser, CellData, CellDataChangeset, CellDataOperation,
-    CellDisplayable, FromCellString,
+    decode_cell_data_to_string, CellBytes, CellBytesParser, CellData, CellDataChangeset, CellDataIsEmpty,
+    CellDataOperation, CellDisplayable, FromCellString,
 };
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Default)]
@@ -21,8 +23,11 @@ impl TypeOptionBuilder for RichTextTypeOptionBuilder {
         FieldType::RichText
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
+        // Do nothing
     }
 }
 
@@ -35,7 +40,7 @@ pub struct RichTextTypeOptionPB {
 impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 
 impl CellDisplayable<String> for RichTextTypeOptionPB {
-    fn display_data(
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<String>,
         _decoded_field_type: &FieldType,
@@ -45,7 +50,7 @@ impl CellDisplayable<String> for RichTextTypeOptionPB {
         Ok(CellBytes::new(cell_str))
     }
 
-    fn display_string(
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<String>,
         _decoded_field_type: &FieldType,
@@ -72,7 +77,7 @@ impl CellDataOperation<String, String> for RichTextTypeOptionPB {
             let s = decode_cell_data_to_string(cell_data, decoded_field_type, decoded_field_type, field_rev);
             Ok(CellBytes::new(s.unwrap_or_else(|_| "".to_owned())))
         } else {
-            self.display_data(cell_data, decoded_field_type, field_rev)
+            self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
         }
     }
 
@@ -117,6 +122,12 @@ impl FromCellString for TextCellData {
 impl ToString for TextCellData {
     fn to_string(&self) -> String {
         self.0.clone()
+    }
+}
+
+impl CellDataIsEmpty for TextCellData {
+    fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 }
 

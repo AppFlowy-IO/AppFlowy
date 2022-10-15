@@ -1,8 +1,8 @@
 use crate::{client_document::InsertExt, util::is_newline};
-use lib_ot::core::Attributes;
+use lib_ot::core::AttributeHashMap;
 use lib_ot::{
     core::{OperationBuilder, OperationIterator, NEW_LINE},
-    text_delta::{attributes_except_header, empty_attributes, BuildInTextAttributeKey, TextDelta},
+    text_delta::{attributes_except_header, empty_attributes, BuildInTextAttributeKey, TextOperations},
 };
 
 pub struct PreserveBlockFormatOnInsert {}
@@ -11,7 +11,7 @@ impl InsertExt for PreserveBlockFormatOnInsert {
         "PreserveBlockFormatOnInsert"
     }
 
-    fn apply(&self, delta: &TextDelta, replace_len: usize, text: &str, index: usize) -> Option<TextDelta> {
+    fn apply(&self, delta: &TextOperations, replace_len: usize, text: &str, index: usize) -> Option<TextOperations> {
         if !is_newline(text) {
             return None;
         }
@@ -26,7 +26,7 @@ impl InsertExt for PreserveBlockFormatOnInsert {
                     return None;
                 }
 
-                let mut reset_attribute = Attributes::new();
+                let mut reset_attribute = AttributeHashMap::new();
                 if newline_attributes.contains_key(BuildInTextAttributeKey::Header.as_ref()) {
                     reset_attribute.insert(BuildInTextAttributeKey::Header, 1);
                 }

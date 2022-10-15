@@ -38,11 +38,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 0,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allCode, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('App`Flowy` to code AppFlowy', (tester) async {
@@ -61,11 +61,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 3,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allCode, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('`` nothing changes', (tester) async {
@@ -84,11 +84,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 0,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allCode, false);
-        expect(textNode.toRawString(), text);
+        expect(textNode.toPlainText(), text);
       });
     });
 
@@ -120,11 +120,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 1,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allCode, true);
-        expect(textNode.toRawString(), '`AppFlowy');
+        expect(textNode.toPlainText(), '`AppFlowy');
       });
 
       testWidgets('```` nothing changes', (tester) async {
@@ -143,11 +143,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 0,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allCode, false);
-        expect(textNode.toRawString(), text);
+        expect(textNode.toPlainText(), text);
       });
     });
 
@@ -180,11 +180,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 0,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allStrikethrough, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('App~~Flowy~~ to strikethrough AppFlowy', (tester) async {
@@ -203,11 +203,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 3,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allStrikethrough, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('~~~AppFlowy~~ to bold ~AppFlowy', (tester) async {
@@ -226,11 +226,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 1,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allStrikethrough, true);
-        expect(textNode.toRawString(), '~AppFlowy');
+        expect(textNode.toPlainText(), '~AppFlowy');
       });
 
       testWidgets('~~~~ nothing changes', (tester) async {
@@ -249,11 +249,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 0,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allStrikethrough, false);
-        expect(textNode.toRawString(), text);
+        expect(textNode.toPlainText(), text);
       });
     });
   });

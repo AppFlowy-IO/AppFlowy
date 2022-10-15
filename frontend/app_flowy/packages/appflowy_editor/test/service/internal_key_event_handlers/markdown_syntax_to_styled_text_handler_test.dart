@@ -39,11 +39,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 0,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allBold, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('App**Flowy** to bold AppFlowy', (tester) async {
@@ -62,11 +62,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 3,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allBold, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('***AppFlowy** to bold *AppFlowy', (tester) async {
@@ -85,11 +85,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 1,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allBold, true);
-        expect(textNode.toRawString(), '*AppFlowy');
+        expect(textNode.toPlainText(), '*AppFlowy');
       });
 
       testWidgets('**AppFlowy** application to bold AppFlowy only',
@@ -115,7 +115,7 @@ void main() async {
           ),
         );
         expect(appFlowyBold, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('**** nothing changes', (tester) async {
@@ -134,11 +134,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 0,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allBold, false);
-        expect(textNode.toRawString(), text);
+        expect(textNode.toPlainText(), text);
       });
     });
 
@@ -171,11 +171,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 0,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allBold, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('App__Flowy__ to bold AppFlowy', (tester) async {
@@ -194,11 +194,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 3,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allBold, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('___AppFlowy__ to bold _AppFlowy', (tester) async {
@@ -217,11 +217,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 1,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allBold, true);
-        expect(textNode.toRawString(), '_AppFlowy');
+        expect(textNode.toPlainText(), '_AppFlowy');
       });
 
       testWidgets('__AppFlowy__ application to bold AppFlowy only',
@@ -247,7 +247,7 @@ void main() async {
           ),
         );
         expect(appFlowyBold, true);
-        expect(textNode.toRawString(), 'AppFlowy');
+        expect(textNode.toPlainText(), 'AppFlowy');
       });
 
       testWidgets('____ nothing changes', (tester) async {
@@ -266,11 +266,11 @@ void main() async {
           Selection.single(
             path: [0],
             startOffset: 0,
-            endOffset: textNode.toRawString().length,
+            endOffset: textNode.toPlainText().length,
           ),
         );
         expect(allBold, false);
-        expect(textNode.toRawString(), text);
+        expect(textNode.toPlainText(), text);
       });
     });
   });

@@ -1,14 +1,14 @@
 import 'dart:collection';
 import 'dart:ui';
 
-import 'package:appflowy_editor/src/document/attributes.dart';
-import 'package:appflowy_editor/src/document/node.dart';
-import 'package:appflowy_editor/src/document/text_delta.dart';
+import 'package:appflowy_editor/src/core/document/attributes.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/core/document/text_delta.dart';
 import 'package:appflowy_editor/src/extensions/color_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:html/dom.dart' as html;
-import 'package:appflowy_editor/src/document/built_in_attribute_keys.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 
 class HTMLTag {
   static const h1 = "h1";
@@ -89,7 +89,7 @@ class HTMLToNodesConverter {
       }
     }
     if (delta.isNotEmpty) {
-      result.add(TextNode(type: "text", delta: delta));
+      result.add(TextNode(delta: delta));
     }
     return result;
   }
@@ -134,7 +134,7 @@ class HTMLToNodesConverter {
       final delta = Delta();
       delta.insert(element.text);
       if (delta.isNotEmpty) {
-        return [TextNode(type: "text", delta: delta)];
+        return [TextNode(delta: delta)];
       }
     }
     return [];
@@ -218,24 +218,29 @@ class HTMLToNodesConverter {
 
   _handleRichTextElement(Delta delta, html.Element element) {
     if (element.localName == HTMLTag.span) {
-      delta.insert(element.text,
-          _getDeltaAttributesFromHtmlAttributes(element.attributes));
+      delta.insert(
+        element.text,
+        attributes: _getDeltaAttributesFromHtmlAttributes(element.attributes),
+      );
     } else if (element.localName == HTMLTag.anchor) {
       final hyperLink = element.attributes["href"];
       Map<String, dynamic>? attributes;
       if (hyperLink != null) {
         attributes = {"href": hyperLink};
       }
-      delta.insert(element.text, attributes);
+      delta.insert(element.text, attributes: attributes);
     } else if (element.localName == HTMLTag.strong ||
         element.localName == HTMLTag.bold) {
-      delta.insert(element.text, {BuiltInAttributeKey.bold: true});
+      delta.insert(element.text, attributes: {BuiltInAttributeKey.bold: true});
     } else if (element.localName == HTMLTag.underline) {
-      delta.insert(element.text, {BuiltInAttributeKey.underline: true});
+      delta.insert(element.text,
+          attributes: {BuiltInAttributeKey.underline: true});
     } else if (element.localName == HTMLTag.italic) {
-      delta.insert(element.text, {BuiltInAttributeKey.italic: true});
+      delta
+          .insert(element.text, attributes: {BuiltInAttributeKey.italic: true});
     } else if (element.localName == HTMLTag.del) {
-      delta.insert(element.text, {BuiltInAttributeKey.strikethrough: true});
+      delta.insert(element.text,
+          attributes: {BuiltInAttributeKey.strikethrough: true});
     } else {
       delta.insert(element.text);
     }
@@ -271,8 +276,7 @@ class HTMLToNodesConverter {
       }
     }
 
-    final textNode =
-        TextNode(type: "text", delta: delta, attributes: attributes);
+    final textNode = TextNode(delta: delta, attributes: attributes);
     if (isCheckbox) {
       textNode.attributes["subtype"] = BuiltInAttributeKey.checkbox;
       textNode.attributes["checkbox"] = checked;
@@ -315,7 +319,6 @@ class HTMLToNodesConverter {
     final delta = Delta();
     delta.insert(element.text);
     return TextNode(
-        type: "text",
         attributes: {"subtype": "heading", "heading": headingStyle},
         delta: delta);
   }
@@ -537,22 +540,22 @@ class NodesToHTMLConverter {
           if (attributes.length == 1 &&
               attributes[BuiltInAttributeKey.bold] == true) {
             final strong = html.Element.tag(HTMLTag.strong);
-            strong.append(html.Text(op.content));
+            strong.append(html.Text(op.text));
             childNodes.add(strong);
           } else if (attributes.length == 1 &&
               attributes[BuiltInAttributeKey.underline] == true) {
             final strong = html.Element.tag(HTMLTag.underline);
-            strong.append(html.Text(op.content));
+            strong.append(html.Text(op.text));
             childNodes.add(strong);
           } else if (attributes.length == 1 &&
               attributes[BuiltInAttributeKey.italic] == true) {
             final strong = html.Element.tag(HTMLTag.italic);
-            strong.append(html.Text(op.content));
+            strong.append(html.Text(op.text));
             childNodes.add(strong);
           } else if (attributes.length == 1 &&
               attributes[BuiltInAttributeKey.strikethrough] == true) {
             final strong = html.Element.tag(HTMLTag.del);
-            strong.append(html.Text(op.content));
+            strong.append(html.Text(op.text));
             childNodes.add(strong);
           } else {
             final span = html.Element.tag(HTMLTag.span);
@@ -560,11 +563,11 @@ class NodesToHTMLConverter {
             if (cssString.isNotEmpty) {
               span.attributes["style"] = cssString;
             }
-            span.append(html.Text(op.content));
+            span.append(html.Text(op.text));
             childNodes.add(span);
           }
         } else {
-          childNodes.add(html.Text(op.content));
+          childNodes.add(html.Text(op.text));
         }
       }
     }

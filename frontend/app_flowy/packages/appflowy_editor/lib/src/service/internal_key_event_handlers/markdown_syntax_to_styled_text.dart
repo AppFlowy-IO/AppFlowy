@@ -1,6 +1,7 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/extensions/text_node_extensions.dart';
 import 'package:appflowy_editor/src/service/default_text_operations/format_rich_text_style.dart';
+
 import 'package:flutter/material.dart';
 
 bool _isCodeStyle(TextNode textNode, int index) {
@@ -44,7 +45,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
 
   final textNode = textNodes.first;
   final selectionText = textNode
-      .toRawString()
+      .toPlainText()
       .substring(selection.start.offset, selection.end.offset);
 
   // toggle code style when selected some text
@@ -53,7 +54,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
     return KeyEventResult.handled;
   }
 
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
   final backquoteIndexes = _findBackquoteIndexes(text, textNode);
   if (backquoteIndexes.isEmpty) {
     return KeyEventResult.ignored;
@@ -72,7 +73,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
       return KeyEventResult.ignored;
     }
 
-    TransactionBuilder(editorState)
+    final transaction = editorState.transaction
       ..deleteText(textNode, lastBackquoteIndex, 1)
       ..deleteText(textNode, firstBackquoteIndex, 2)
       ..formatText(
@@ -88,8 +89,8 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
           path: textNode.path,
           offset: endIndex - 3,
         ),
-      )
-      ..commit();
+      );
+    editorState.apply(transaction);
 
     return KeyEventResult.handled;
   }
@@ -103,7 +104,7 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
   // delete the backquote.
   // update the style of the text surround by ` ` to code.
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  final transaction = editorState.transaction
     ..deleteText(textNode, startIndex, 1)
     ..formatText(
       textNode,
@@ -118,8 +119,8 @@ ShortcutEventHandler backquoteToCodeHandler = (editorState, event) {
         path: textNode.path,
         offset: endIndex - 1,
       ),
-    )
-    ..commit();
+    );
+  editorState.apply(transaction);
 
   return KeyEventResult.handled;
 };
@@ -134,7 +135,7 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
   }
 
   final textNode = textNodes.first;
-  final text = textNode.toRawString().substring(0, selection.end.offset);
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
 
   // make sure the last two characters are ~~.
   if (text.length < 2 || text[selection.end.offset - 1] != '~') {
@@ -165,7 +166,7 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
   // delete the last three tildes.
   // update the style of the text surround by `~~ ~~` to strikethrough.
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  final transaction = editorState.transaction
     ..deleteText(textNode, lastTildeIndex, 1)
     ..deleteText(textNode, thirdToLastTildeIndex, 2)
     ..formatText(
@@ -181,8 +182,8 @@ ShortcutEventHandler doubleTildeToStrikethrough = (editorState, event) {
         path: textNode.path,
         offset: selection.end.offset - 3,
       ),
-    )
-    ..commit();
+    );
+  editorState.apply(transaction);
 
   return KeyEventResult.handled;
 };
@@ -199,7 +200,7 @@ ShortcutEventHandler markdownLinkToLinkHandler = (editorState, event) {
 
   // find all of the indexs for important characters
   final textNode = textNodes.first;
-  final text = textNode.toRawString();
+  final text = textNode.toPlainText();
   final firstOpeningBracket = text.indexOf('[');
   final firstClosingBracket = text.indexOf(']');
 
@@ -219,7 +220,7 @@ ShortcutEventHandler markdownLinkToLinkHandler = (editorState, event) {
   // update the href attribute of the text surrounded by [ ] to the url,
   // delete everything after the text,
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  final transaction = editorState.transaction
     ..deleteText(textNode, firstOpeningBracket, 1)
     ..formatText(
       textNode,
@@ -236,8 +237,138 @@ ShortcutEventHandler markdownLinkToLinkHandler = (editorState, event) {
         path: textNode.path,
         offset: firstOpeningBracket + linkText!.length,
       ),
+    );
+  editorState.apply(transaction);
+
+  return KeyEventResult.handled;
+};
+
+// convert **abc** to bold abc.
+ShortcutEventHandler doubleAsterisksToBold = (editorState, event) {
+  final selectionService = editorState.service.selectionService;
+  final selection = selectionService.currentSelection.value;
+  final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
+  if (selection == null || !selection.isSingle || textNodes.length != 1) {
+    return KeyEventResult.ignored;
+  }
+
+  final textNode = textNodes.first;
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
+
+  // make sure the last two characters are **.
+  if (text.length < 2 || text[selection.end.offset - 1] != '*') {
+    return KeyEventResult.ignored;
+  }
+
+  // find all the index of `*`.
+  final asteriskIndexes = <int>[];
+  for (var i = 0; i < text.length; i++) {
+    if (text[i] == '*') {
+      asteriskIndexes.add(i);
+    }
+  }
+
+  if (asteriskIndexes.length < 3) {
+    return KeyEventResult.ignored;
+  }
+
+  // make sure the second to last and third to last asterisks are connected.
+  final thirdToLastAsteriskIndex = asteriskIndexes[asteriskIndexes.length - 3];
+  final secondToLastAsteriskIndex = asteriskIndexes[asteriskIndexes.length - 2];
+  final lastAsterisIndex = asteriskIndexes[asteriskIndexes.length - 1];
+  if (secondToLastAsteriskIndex != thirdToLastAsteriskIndex + 1 ||
+      lastAsterisIndex == secondToLastAsteriskIndex + 1) {
+    return KeyEventResult.ignored;
+  }
+
+  // delete the last three asterisks.
+  // update the style of the text surround by `** **` to bold.
+  // and update the cursor position.
+  final transaction = editorState.transaction
+    ..deleteText(textNode, lastAsterisIndex, 1)
+    ..deleteText(textNode, thirdToLastAsteriskIndex, 2)
+    ..formatText(
+      textNode,
+      thirdToLastAsteriskIndex,
+      selection.end.offset - thirdToLastAsteriskIndex - 3,
+      {
+        BuiltInAttributeKey.bold: true,
+        BuiltInAttributeKey.defaultFormating: true,
+      },
     )
-    ..commit();
+    ..afterSelection = Selection.collapsed(
+      Position(
+        path: textNode.path,
+        offset: selection.end.offset - 3,
+      ),
+    );
+  editorState.apply(transaction);
+
+  return KeyEventResult.handled;
+};
+
+// convert __abc__ to bold abc.
+ShortcutEventHandler doubleUnderscoresToBold = (editorState, event) {
+  final selectionService = editorState.service.selectionService;
+  final selection = selectionService.currentSelection.value;
+  final textNodes = selectionService.currentSelectedNodes.whereType<TextNode>();
+  if (selection == null || !selection.isSingle || textNodes.length != 1) {
+    return KeyEventResult.ignored;
+  }
+
+  final textNode = textNodes.first;
+  final text = textNode.toPlainText().substring(0, selection.end.offset);
+
+  // make sure the last two characters are __.
+  if (text.length < 2 || text[selection.end.offset - 1] != '_') {
+    return KeyEventResult.ignored;
+  }
+
+  // find all the index of `_`.
+  final underscoreIndexes = <int>[];
+  for (var i = 0; i < text.length; i++) {
+    if (text[i] == '_') {
+      underscoreIndexes.add(i);
+    }
+  }
+
+  if (underscoreIndexes.length < 3) {
+    return KeyEventResult.ignored;
+  }
+
+  // make sure the second to last and third to last underscores are connected.
+  final thirdToLastUnderscoreIndex =
+      underscoreIndexes[underscoreIndexes.length - 3];
+  final secondToLastUnderscoreIndex =
+      underscoreIndexes[underscoreIndexes.length - 2];
+  final lastAsterisIndex = underscoreIndexes[underscoreIndexes.length - 1];
+  if (secondToLastUnderscoreIndex != thirdToLastUnderscoreIndex + 1 ||
+      lastAsterisIndex == secondToLastUnderscoreIndex + 1) {
+    return KeyEventResult.ignored;
+  }
+
+  // delete the last three underscores.
+  // update the style of the text surround by `__ __` to bold.
+  // and update the cursor position.
+  final transaction = editorState.transaction
+    ..deleteText(textNode, lastAsterisIndex, 1)
+    ..deleteText(textNode, thirdToLastUnderscoreIndex, 2)
+    ..formatText(
+      textNode,
+      thirdToLastUnderscoreIndex,
+      selection.end.offset - thirdToLastUnderscoreIndex - 3,
+      {
+        BuiltInAttributeKey.bold: true,
+        BuiltInAttributeKey.defaultFormating: true,
+      },
+    )
+    ..afterSelection = Selection.collapsed(
+      Position(
+        path: textNode.path,
+        offset: selection.end.offset - 3,
+      ),
+    );
+  editorState.apply(transaction);
 
   return KeyEventResult.handled;
 };

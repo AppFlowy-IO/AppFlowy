@@ -3,14 +3,14 @@ use crate::services::cell::{insert_checkbox_cell, insert_select_option_cell};
 use crate::services::field::{SelectOptionCellDataPB, SelectOptionPB, CHECK};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::MoveGroupRowContext;
-use crate::services::group::{GeneratedGroup, Group};
+use crate::services::group::{GeneratedGroupConfig, Group};
 use flowy_grid_data_model::revision::{
     CellRevision, FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision,
 };
 
 pub type SelectOptionGroupContext = GroupContext<SelectOptionGroupConfigurationRevision>;
 
-pub fn add_select_option_row(
+pub fn add_or_remove_select_option_row(
     group: &mut Group,
     cell_data: &SelectOptionCellDataPB,
     row_rev: &RowRevision,
@@ -134,11 +134,11 @@ pub fn make_inserted_cell_rev(group_id: &str, field_rev: &FieldRevision) -> Opti
     let field_type: FieldType = field_rev.ty.into();
     match field_type {
         FieldType::SingleSelect => {
-            let cell_rev = insert_select_option_cell(group_id.to_owned(), field_rev);
+            let cell_rev = insert_select_option_cell(vec![group_id.to_owned()], field_rev);
             Some(cell_rev)
         }
         FieldType::MultiSelect => {
-            let cell_rev = insert_select_option_cell(group_id.to_owned(), field_rev);
+            let cell_rev = insert_select_option_cell(vec![group_id.to_owned()], field_rev);
             Some(cell_rev)
         }
         FieldType::Checkbox => {
@@ -155,10 +155,10 @@ pub fn generate_select_option_groups(
     _field_id: &str,
     _group_ctx: &SelectOptionGroupContext,
     options: &[SelectOptionPB],
-) -> Vec<GeneratedGroup> {
+) -> Vec<GeneratedGroupConfig> {
     let groups = options
         .iter()
-        .map(|option| GeneratedGroup {
+        .map(|option| GeneratedGroupConfig {
             group_rev: GroupRevision::new(option.id.clone(), option.name.clone()),
             filter_content: option.id.clone(),
         })

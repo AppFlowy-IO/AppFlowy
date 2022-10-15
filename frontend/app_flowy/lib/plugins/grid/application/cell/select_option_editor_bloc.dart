@@ -4,7 +4,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:collection/collection.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -57,6 +57,10 @@ class SelectOptionCellEditorBloc
           trySelectOption: (_TrySelectOption value) {
             _trySelectOption(value.optionName, emit);
           },
+          selectMultipleOptions: (_SelectMultipleOptions value) {
+            _selectMultipleOptions(value.optionNames);
+            _filterOption(value.remainder, emit);
+          },
           filterOption: (_SelectOptionFilter value) {
             _filterOption(value.optionName, emit);
           },
@@ -97,14 +101,14 @@ class SelectOptionCellEditorBloc
     final hasSelected = state.selectedOptions
         .firstWhereOrNull((option) => option.id == optionId);
     if (hasSelected != null) {
-      _selectOptionService.unSelect(optionId: optionId);
+      _selectOptionService.unSelect(optionIds: [optionId]);
     } else {
-      _selectOptionService.select(optionId: optionId);
+      _selectOptionService.select(optionIds: [optionId]);
     }
   }
 
   void _trySelectOption(
-      String optionName, Emitter<SelectOptionEditorState> emit) async {
+      String optionName, Emitter<SelectOptionEditorState> emit) {
     SelectOptionPB? matchingOption;
     bool optionExistsButSelected = false;
 
@@ -126,11 +130,18 @@ class SelectOptionCellEditorBloc
 
     // if there is an unselected matching option, select it
     if (matchingOption != null) {
-      _selectOptionService.select(optionId: matchingOption.id);
+      _selectOptionService.select(optionIds: [matchingOption.id]);
     }
 
     // clear the filter
     emit(state.copyWith(filter: none()));
+  }
+
+  void _selectMultipleOptions(List<String> optionNames) {
+    final optionIds = state.options
+        .where((e) => optionNames.contains(e.name))
+        .map((e) => e.id);
+    _selectOptionService.select(optionIds: optionIds);
   }
 
   void _filterOption(String optionName, Emitter<SelectOptionEditorState> emit) {
@@ -222,6 +233,8 @@ class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
       _SelectOptionFilter;
   const factory SelectOptionEditorEvent.trySelectOption(String optionName) =
       _TrySelectOption;
+  const factory SelectOptionEditorEvent.selectMultipleOptions(
+      List<String> optionNames, String remainder) = _SelectMultipleOptions;
 }
 
 @freezed

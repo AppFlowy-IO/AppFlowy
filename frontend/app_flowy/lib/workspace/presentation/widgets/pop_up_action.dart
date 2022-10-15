@@ -13,12 +13,14 @@ class PopoverActionList<T extends PopoverAction> extends StatefulWidget {
   final Function(T, PopoverController) onSelected;
   final BoxConstraints constraints;
   final PopoverDirection direction;
-  final Widget Function(PopoverController) withChild;
+  final Widget Function(PopoverController) buildChild;
+  final VoidCallback? onClosed;
 
   const PopoverActionList({
     required this.actions,
-    required this.withChild,
+    required this.buildChild,
     required this.onSelected,
+    this.onClosed,
     this.direction = PopoverDirection.rightWithTopAligned,
     this.constraints = const BoxConstraints(
       minWidth: 120,
@@ -44,13 +46,14 @@ class _PopoverActionListState<T extends PopoverAction>
 
   @override
   Widget build(BuildContext context) {
-    final child = widget.withChild(popoverController);
+    final child = widget.buildChild(popoverController);
 
     return AppFlowyPopover(
       controller: popoverController,
       constraints: widget.constraints,
       direction: widget.direction,
       triggerActions: PopoverTriggerFlags.none,
+      onClose: widget.onClosed,
       popupBuilder: (BuildContext popoverContext) {
         final List<Widget> children = widget.actions.map((action) {
           if (action is ActionCell) {

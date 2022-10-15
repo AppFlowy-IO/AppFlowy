@@ -16,3 +16,203 @@ cd ../shared-lib
 RUST_LOG=info cargo test --no-default-features
 '''
 
+[tasks.check_grcov]
+description = "Check if `grcov` is installled"
+script_runner = "@shell"
+script = '''
+export PATH=$PATH:"$HOME/.cargo/bin/"
+if command -v grcov > /dev/null; then
+  echo "Found 'grcov' executable."
+else
+  echo "[!] Could not find 'grcov' executable."
+  echo "[!] Please install 'grcov' by running 'cargo install grcov'."
+  echo "[!] You may also need to install 'llvm-tools-preview' using 'rustup component add llvm-tools-preview'."
+  echo "[!] If installed, check if 'grcov' is in PATH."
+  echo "[!] Exiting..."
+  exit -1
+fi
+'''
+
+[tasks.clean_profraw_files]
+description = "Cleans profraw files that are created by `cargo test`"
+script_runner = "@duckscript"
+script = [
+  """
+  rust_lib_profs = glob_array ./rust-lib/**/*.profraw
+  for prof in ${rust_lib_profs}
+    full_path = canonicalize ${prof}
+    rm ${full_path}
+  end
+
+  shared_lib_profs = glob_array ../shared-lib/**/*.profraw
+  for prof in ${shared_lib_profs}
+    full_path = canonicalize ${prof}
+    rm ${full_path}
+  end
+
+  """
+]
+
+[tasks.run_rustlib_coverage_tests]
+description = "Run tests with coverage instrumentation"
+script_runner = "@shell"
+script = [
+  """
+  echo --- Running coverage tests ---
+
+  # Install Protobuf compiler
+  cargo make install_protobuf_compiler
+  export PATH="$PATH":"$HOME/.pub-cache/bin"
+  export PATH="$PATH":"$HOME/.cargo/bin/"
+
+  cd rust-lib/
+
+  CARGO_INCREMENTAL=0 \
+  RUSTFLAGS='-C instrument-coverage' \
+  LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
+  cargo test --no-default-features --features="sync"
+
+  """
+]
+
+[tasks.run_sharedlib_coverage_tests]
+description = "Run tests with coverage instrumentation"
+script_runner = "@shell"
+script = [
+  """
+  echo --- Running coverage tests ---
+
+  # Install Protobuf compiler
+  cargo make install_protobuf_compiler
+  export PATH="$PATH":"$HOME/.pub-cache/bin"
+  export PATH="$PATH":"$HOME/.cargo/bin/"
+
+  cd ../shared-lib
+
+  CARGO_INCREMENTAL=0 \
+  RUSTFLAGS='-C instrument-coverage' \
+  LLVM_PROFILE_FILE='prof-%p-%m.profraw' \
+  cargo test --no-default-features 
+
+  """
+]
+
+[tasks.get_rustlib_grcov_report]
+description = "Get `grcov` HTML report for test coverage for rust-lib"
+script_runner = "@shell"
+script = [
+  """
+  echo --- Getting 'grcov' results for 'rust-lib' --- 
+  cd rust-lib/
+
+  grcov . \
+  --binary-path target/debug/deps \
+  --source-dir . \
+  --output-type html \
+  --branch \
+  --ignore-not-existing \
+  --log-level WARN \
+  --output-path target/coverage-html
+
+  echo "--- Done! Generated HTML report under 'target/coverage-html' for rustlib."
+  """
+]
+
+[tasks.get_sharedlib_grcov_report]
+description = "Get `grcov` HTML report for test coverage shared-lib"
+script_runner = "@shell"
+script = [
+  """
+  echo --- Getting 'grcov' results 'shared-lib' --- 
+  cd ../shared-lib
+
+  grcov . \
+  --binary-path target/debug/deps \
+  --source-dir . \
+  --output-type html \
+  --branch \
+  --ignore-not-existing \
+  --log-level WARN \
+  --output-path target/coverage-html
+
+  echo "--- Done! Generated HTML report under 'target/coverage-html' for sharedlib."
+  """
+]
+
+[tasks.get_grcov_report]
+description = "Get `grcov` HTML report for test coverage"
+run_task = { name = [
+  "get_rustlib_grcov_report",
+  "get_sharedlib_grcov_report"
+], parallel = true }
+
+[tasks.get_sharedlib_lcov_report]
+description = "Generates `lcov` report for `shared-lib`"
+script_runner = "@shell"
+script = [
+  """
+  echo Getting 'lcov' results for 'shared-lib'
+
+  cd ../shared-lib
+
+  grcov . \
+  --binary-path target/debug/deps \
+  --source-dir . \
+  --output-type lcov \
+  --branch \
+  --ignore-not-existing \
+  --log-level WARN \
+  --output-path target/coverage.lcov
+
+  echo "--- Done! Generated 'target/coverage.lcov' sharedlib."
+  """
+]
+
+[tasks.get_rustlib_lcov_report]
+description = "Generates `lcov` report for `rust-lib`"
+script_runner = "@shell"
+script = [
+  """
+  echo Getting 'lcov' results for 'rust-lib'
+
+  cd rust-lib/
+
+  grcov . \
+  --binary-path target/debug/deps \
+  --source-dir . \
+  --output-type lcov \
+  --branch \
+  --ignore-not-existing \
+  --log-level WARN \
+  --output-path target/coverage.lcov
+
+  echo "--- Done! Generated 'target/coverage.lcov' for rustlib."
+  """
+]
+
+[tasks.get_lcov_report]
+description = "Get `lcov` reports for test coverage"
+run_task = { name = [
+  "get_sharedlib_lcov_report",
+  "get_rustlib_lcov_report"
+], parallel = true }
+
+[tasks.get_ci_test_coverage]
+description = "Get LCOV coverage reports for CI"
+run_task = { name = [
+    "check_grcov",
+    "run_rustlib_coverage_tests",
+    "run_sharedlib_coverage_tests",
+    "get_lcov_report",
+    "clean_profraw_files"
+  ]}
+
+[tasks.get_test_coverage]
+description = "Get human readable test coverage reports"
+run_task = { name = [
+    "check_grcov",
+    "run_rustlib_coverage_tests",
+    "run_sharedlib_coverage_tests",
+    "get_grcov_report",
+    "clean_profraw_files"
+  ]}

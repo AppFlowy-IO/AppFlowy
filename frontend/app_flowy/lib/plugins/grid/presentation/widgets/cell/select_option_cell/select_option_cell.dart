@@ -7,10 +7,11 @@ import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 // ignore: unused_import
 import 'package:flowy_sdk/log.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../layout/sizes.dart';
 import '../cell_builder.dart';
 import 'extension.dart';
 import 'select_option_editor.dart';
@@ -170,7 +171,10 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
       alignment: AlignmentDirectional.center,
       fit: StackFit.expand,
       children: [
-        _wrapPopover(child),
+        Padding(
+          padding: GridSize.cellContentInsets,
+          child: _wrapPopover(child),
+        ),
         InkWell(onTap: () => _popover.show()),
       ],
     );
@@ -210,15 +214,17 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
     } else {
       final children = widget.selectOptions.map(
         (option) {
-          return SelectOptionTag.fromOption(
-            context: context,
-            option: option,
+          return Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: SelectOptionTag.fromOption(
+              context: context,
+              option: option,
+            ),
           );
         },
       ).toList();
 
       child = Wrap(
-        spacing: 4,
         runSpacing: 2,
         children: children,
       );

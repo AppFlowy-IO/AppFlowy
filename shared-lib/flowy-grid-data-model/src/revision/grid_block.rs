@@ -73,4 +73,8 @@ impl CellRevision {
     pub fn new(data: String) -> Self {
         Self { data }
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
 }

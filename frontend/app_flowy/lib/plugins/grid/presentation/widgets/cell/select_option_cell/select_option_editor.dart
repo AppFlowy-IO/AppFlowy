@@ -10,7 +10,7 @@ import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -149,6 +149,7 @@ class _TextField extends StatelessWidget {
             distanceToText: _editorPanelWidth * 0.7,
             maxLength: 30,
             tagController: _tagController,
+            textSeparators: const [','],
             onClick: () => popoverMutex.close(),
             newText: (text) {
               context
@@ -159,6 +160,14 @@ class _TextField extends StatelessWidget {
               context
                   .read<SelectOptionCellEditorBloc>()
                   .add(SelectOptionEditorEvent.trySelectOption(tagName));
+            },
+            onPaste: (tagNames, remainder) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.selectMultipleOptions(
+                    tagNames,
+                    remainder,
+                  ));
             },
           ),
         );
