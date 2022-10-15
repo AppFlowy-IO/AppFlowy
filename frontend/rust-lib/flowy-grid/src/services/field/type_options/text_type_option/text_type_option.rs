@@ -31,11 +31,13 @@ impl TypeOptionBuilder for RichTextTypeOptionBuilder {
     }
 }
 
+/// For the moment, the `RichTextTypeOptionPB` is empty. The `data` property is not
+/// used yet.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, ProtoBuf)]
 pub struct RichTextTypeOptionPB {
     #[pb(index = 1)]
     #[serde(default)]
-    data: String, //It's not used yet
+    data: String,
 }
 impl_type_option!(RichTextTypeOptionPB, FieldType::RichText);
 
