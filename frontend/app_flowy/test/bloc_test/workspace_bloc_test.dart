@@ -4,13 +4,13 @@ import 'package:flowy_sdk/protobuf/flowy-user/protobuf.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bloc_test/bloc_test.dart';
 
-import 'util/test_env.dart';
+import '../util.dart';
 
 void main() {
   UserProfilePB? userInfo;
   setUpAll(() async {
-    final flowyTest = await FlowyTest.setup();
-    userInfo = await flowyTest.signIn();
+    await AppFlowyBlocTest.ensureInitialized();
+    userInfo = await signIn();
   });
 
   group('WelcomeBloc', () {
