@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
@@ -58,19 +59,22 @@ class _FieldEditorState extends State<FieldEditor> {
         isGroupField: widget.isGroupField,
         loader: widget.typeOptionLoader,
       )..add(const FieldEditorEvent.initial()),
-      child: ListView(
-        shrinkWrap: true,
-        children: [
-          FlowyText.medium(
-            LocaleKeys.grid_field_editProperty.tr(),
-            fontSize: 12,
-          ),
-          const VSpace(10),
-          _FieldNameTextField(popoverMutex: popoverMutex),
-          const VSpace(10),
-          ..._addDeleteFieldButton(),
-          _FieldTypeOptionCell(popoverMutex: popoverMutex),
-        ],
+      child: Padding(
+        padding: GridSize.typeOptionContentInsets,
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            FlowyText.medium(
+              LocaleKeys.grid_field_editProperty.tr(),
+              fontSize: 12,
+            ),
+            const VSpace(10),
+            _FieldNameTextField(popoverMutex: popoverMutex),
+            const VSpace(10),
+            ..._addDeleteFieldButton(),
+            _FieldTypeOptionCell(popoverMutex: popoverMutex),
+          ],
+        ),
       ),
     );
   }
