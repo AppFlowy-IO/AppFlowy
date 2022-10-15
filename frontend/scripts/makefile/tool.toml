@@ -43,7 +43,7 @@ run_task = { name = "remove_files_with_pattern" }
 #Dart Clean
 [tasks.rm_dart_generated_files]
 env = { "dart_flowy_sdk_path" = "./app_flowy/packages/flowy_sdk/" }
-run_task = { name = ["rm_dart_generated_protobuf_files"] }
+run_task = { name = ["rm_dart_generated_protobuf_files", "rm_dart_generated_event_files"] }
 
 [tasks.rm_dart_generated_protobuf_files]
 private = true
@@ -54,6 +54,24 @@ script = [
   if not array_is_empty ${protobuf_file_paths}
     echo Remove generated protobuf files:
     for path in ${protobuf_file_paths}
+        echo remove ${path}
+        rm -rf ${path}
+    end
+  end
+  """,
+]
+script_runner = "@duckscript"
+
+
+[tasks.rm_dart_generated_event_files]
+private = true
+script = [
+  """
+  dart_event_folder = glob_array ${dart_flowy_sdk_path}/lib/dispatch/dart_event
+
+  if not array_is_empty ${dart_event_folder}
+    echo Remove generated dart event files:
+    for path in ${dart_event_folder}
         echo remove ${path}
         rm -rf ${path}
     end
