@@ -12,10 +12,13 @@ import 'grid_data_controller.dart';
 import 'row/row_cache.dart';
 import 'dart:collection';
 
+import 'row/row_service.dart';
+
 part 'grid_bloc.freezed.dart';
 
 class GridBloc extends Bloc<GridEvent, GridState> {
   final GridDataController dataController;
+  void Function()? _createRowOperation;
 
   GridBloc({required ViewPB view})
       : dataController = GridDataController(view: view),
@@ -28,7 +31,19 @@ class GridBloc extends Bloc<GridEvent, GridState> {
             await _loadGrid(emit);
           },
           createRow: () {
-            dataController.createRow();
+            state.loadingState.when(
+              loading: () {
+                _createRowOperation = () => dataController.createRow();
+              },
+              finish: (_) => dataController.createRow(),
+            );
+          },
+          deleteRow: (rowInfo) async {
+            final rowService = RowFFIService(
+              blockId: rowInfo.rowPB.blockId,
+              gridId: rowInfo.gridId,
+            );
+            await rowService.deleteRow(rowInfo.rowPB.id);
           },
           didReceiveGridUpdate: (grid) {
             emit(state.copyWith(grid: Some(grid)));
@@ -84,9 +99,15 @@ class GridBloc extends Bloc<GridEvent, GridState> {
   Future<void> _loadGrid(Emitter<GridState> emit) async {
     final result = await dataController.loadData();
     result.fold(
-      (grid) => emit(
-        state.copyWith(loadingState: GridLoadingState.finish(left(unit))),
-      ),
+      (grid) {
+        if (_createRowOperation != null) {
+          _createRowOperation?.call();
+          _createRowOperation = null;
+        }
+        emit(
+          state.copyWith(loadingState: GridLoadingState.finish(left(unit))),
+        );
+      },
       (err) => emit(
         state.copyWith(loadingState: GridLoadingState.finish(right(err))),
       ),
@@ -98,6 +119,7 @@ class GridBloc extends Bloc<GridEvent, GridState> {
 class GridEvent with _$GridEvent {
   const factory GridEvent.initial() = InitialGrid;
   const factory GridEvent.createRow() = _CreateRow;
+  const factory GridEvent.deleteRow(RowInfo rowInfo) = _DeleteRow;
   const factory GridEvent.didReceiveRowUpdate(
     List<RowInfo> rows,
     RowsChangedReason listState,

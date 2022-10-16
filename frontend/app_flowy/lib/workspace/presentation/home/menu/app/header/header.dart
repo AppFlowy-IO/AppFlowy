@@ -104,13 +104,12 @@ class MenuAppHeader extends StatelessWidget {
       message: LocaleKeys.menuAppHeader_addPageTooltip.tr(),
       child: AddButton(
         onSelected: (pluginBuilder) {
-          context.read<AppBloc>().add(AppEvent.createView(
-                LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
-                "",
-                pluginBuilder.dataType,
-                pluginBuilder.subDataType!,
-                pluginBuilder.pluginType,
-              ));
+          context.read<AppBloc>().add(
+                AppEvent.createView(
+                  LocaleKeys.menuAppHeader_defaultNewPageName.tr(),
+                  pluginBuilder,
+                ),
+              );
         },
       ).padding(right: MenuAppSizes.headerPadding),
     );

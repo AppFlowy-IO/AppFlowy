@@ -51,7 +51,7 @@ abstract class PluginBuilder {
 
   ViewDataTypePB get dataType => ViewDataTypePB.Text;
 
-  ViewLayoutTypePB? get subDataType => ViewLayoutTypePB.Document;
+  ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Document;
 }
 
 abstract class PluginConfig {
