@@ -27,7 +27,7 @@ void main() {
     setUpAll(() async {
       gridBloc = GridBloc(view: gridTest.gridView)
         ..add(const GridEvent.initial());
-      await gridBlocResponseFuture();
+      await gridResponseFuture();
     });
 
     // The initial number of rows is three
@@ -37,7 +37,7 @@ void main() {
 
     test('delete row', () async {
       gridBloc.add(GridEvent.deleteRow(gridBloc.state.rowInfos.last));
-      await gridBlocResponseFuture();
+      await gridResponseFuture();
       assert(gridBloc.state.rowInfos.length == 2);
     });
   });
