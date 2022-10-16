@@ -50,7 +50,6 @@ class _MenuAppState extends State<MenuApp> {
             },
           ),
           BlocListener<AppBloc, AppState>(
-            listenWhen: (p, c) => p.views != c.views,
             listener: (context, state) => viewDataContext.views = state.views,
           ),
         ],
