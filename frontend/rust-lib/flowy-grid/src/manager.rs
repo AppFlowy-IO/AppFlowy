@@ -93,10 +93,9 @@ impl GridManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip_all, fields(grid_id), err)]
+    #[tracing::instrument(level = "debug", skip_all, err)]
     pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<GridRevisionEditor>> {
         let grid_id = grid_id.as_ref();
-        tracing::Span::current().record("grid_id", &grid_id);
         let _ = self.migration.run_v1_migration(grid_id).await;
         self.get_or_create_grid_editor(grid_id).await
     }

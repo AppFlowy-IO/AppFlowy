@@ -29,7 +29,7 @@ class GridPluginBuilder implements PluginBuilder {
   ViewDataTypePB get dataType => ViewDataTypePB.Database;
 
   @override
-  ViewLayoutTypePB? get subDataType => ViewLayoutTypePB.Grid;
+  ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Grid;
 }
 
 class GridPluginConfig implements PluginConfig {
