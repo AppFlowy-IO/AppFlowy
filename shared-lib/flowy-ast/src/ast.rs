@@ -112,7 +112,7 @@ pub struct ASTField<'a> {
 }
 
 impl<'a> ASTField<'a> {
-    pub fn new(cx: &Ctxt, field: &'a syn::Field, index: usize) -> Self {
+    pub fn new(cx: &Ctxt, field: &'a syn::Field, index: usize) -> Result<Self, String> {
         let mut bracket_inner_ty = None;
         let mut bracket_ty = None;
         let mut bracket_category = Some(BracketCategory::Other);
@@ -144,15 +144,16 @@ impl<'a> ASTField<'a> {
                 }
             }
             Ok(None) => {
-                cx.error_spanned_by(&field.ty, "fail to get the ty inner type");
+                let msg = format!("Fail to get the ty inner type: {:?}", field);
+                return Err(msg);
             }
             Err(e) => {
                 eprintln!("ASTField parser failed: {:?} with error: {}", field, e);
-                panic!()
+                return Err(e);
             }
         }
 
-        ASTField {
+        Ok(ASTField {
             member: match &field.ident {
                 Some(ident) => syn::Member::Named(ident.clone()),
                 None => syn::Member::Unnamed(index.into()),
@@ -163,7 +164,7 @@ impl<'a> ASTField<'a> {
             bracket_ty,
             bracket_inner_ty,
             bracket_category,
-        }
+        })
     }
 
     pub fn ty_as_str(&self) -> String {
@@ -235,6 +236,6 @@ fn fields_from_ast<'a>(cx: &Ctxt, fields: &'a Punctuated<syn::Field, Token![,]>)
     fields
         .iter()
         .enumerate()
-        .map(|(index, field)| ASTField::new(cx, field, index))
+        .flat_map(|(index, field)| ASTField::new(cx, field, index).ok())
         .collect()
 }
