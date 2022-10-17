@@ -1,14 +1,41 @@
+use super::{Changeset, NodeOperations};
 use crate::core::attributes::AttributeHashMap;
-use crate::core::{NodeData, NodeOperation, NodeTree, Path};
+use crate::core::{Interval, NodeData, NodeOperation, NodeTree, Path};
 use crate::errors::OTError;
 use indextree::NodeId;
+use serde::{Deserialize, Serialize};
 use std::rc::Rc;
 
-use super::{Changeset, NodeOperations};
-
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Transaction {
-    operations: NodeOperations,
+    #[serde(flatten)]
+    pub operations: NodeOperations,
+
+    #[serde(default)]
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Extension::is_empty")]
+    pub extension: Extension,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Extension {
+    Empty,
+    TextSelection {
+        before_selection: Interval,
+        after_selection: Interval,
+    },
+}
+
+impl std::default::Default for Extension {
+    fn default() -> Self {
+        Extension::Empty
+    }
+}
+
+impl Extension {
+    fn is_empty(&self) -> bool {
+        matches!(self, Extension::Empty)
+    }
 }
 
 impl Transaction {
@@ -19,6 +46,7 @@ impl Transaction {
     pub fn from_operations<T: Into<NodeOperations>>(operations: T) -> Self {
         Self {
             operations: operations.into(),
+            extension: Extension::Empty,
         }
     }
 
@@ -32,6 +60,7 @@ impl Transaction {
     /// the operations of the transaction will be transformed into the conflict operations.
     pub fn transform(&self, other: &Transaction) -> Result<Transaction, OTError> {
         let mut new_transaction = other.clone();
+        new_transaction.extension = self.extension.clone();
         for other_operation in new_transaction.iter_mut() {
             let other_operation = Rc::make_mut(other_operation);
             for operation in self.operations.iter() {

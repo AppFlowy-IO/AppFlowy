@@ -6,6 +6,7 @@ mod operation;
 mod operation_serde;
 mod path;
 mod transaction;
+mod transaction_serde;
 mod tree;
 
 pub use node::*;

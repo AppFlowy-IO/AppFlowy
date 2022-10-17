@@ -33,18 +33,6 @@ where
             formatter.write_str("Expect NodeBody")
         }
 
-        fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
-        where
-            A: de::SeqAccess<'de>,
-        {
-            let mut delta = TextOperations::default();
-            while let Some(op) = seq.next_element()? {
-                delta.add(op);
-            }
-            Ok(Body::Delta(delta))
-        }
-
-        #[inline]
         fn visit_map<V>(self, mut map: V) -> Result<Self::Value, V::Error>
         where
             V: MapAccess<'de>,

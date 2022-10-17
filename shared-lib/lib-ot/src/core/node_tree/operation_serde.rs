@@ -7,8 +7,7 @@ use std::convert::TryInto;
 use std::fmt;
 use std::marker::PhantomData;
 
-#[allow(dead_code)]
-pub fn serialize_edit_body<S>(path: &Path, changeset: &Changeset, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize_changeset<S>(path: &Path, changeset: &Changeset, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
@@ -34,8 +33,7 @@ where
     }
 }
 
-#[allow(dead_code)]
-pub fn deserialize_edit_body<'de, D>(deserializer: D) -> Result<(Path, Changeset), D::Error>
+pub fn deserialize_changeset<'de, D>(deserializer: D) -> Result<(Path, Changeset), D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -73,7 +71,6 @@ where
                         if path.is_some() {
                             return Err(de::Error::duplicate_field("path"));
                         }
-
                         path = Some(map.next_value::<Path>()?)
                     }
                     other => {
@@ -93,7 +90,6 @@ where
     deserializer.deserialize_any(ChangesetVisitor())
 }
 
-#[allow(dead_code)]
 struct DeltaChangeset<E> {
     delta: Option<TextOperations>,
     inverted: Option<TextOperations>,

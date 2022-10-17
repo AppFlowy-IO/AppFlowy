@@ -1,77 +1,7 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
-use lib_ot::core::{AttributeBuilder, Node};
-use lib_ot::{
-    core::{Changeset, NodeData, NodeDataBuilder, NodeOperation, Path},
-    text_delta::TextOperationBuilder,
-};
-
-#[test]
-fn operation_insert_node_serde_test() {
-    let insert = NodeOperation::Insert {
-        path: Path(vec![0, 1]),
-        nodes: vec![NodeData::new("text".to_owned())],
-    };
-    let result = serde_json::to_string(&insert).unwrap();
-    assert_eq!(result, r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}"#);
-}
-
-#[test]
-fn operation_insert_node_with_children_serde_test() {
-    let node = NodeDataBuilder::new("text")
-        .add_node(NodeData::new("sub_text".to_owned()))
-        .build();
-
-    let insert = NodeOperation::Insert {
-        path: Path(vec![0, 1]),
-        nodes: vec![node],
-    };
-    assert_eq!(
-        serde_json::to_string(&insert).unwrap(),
-        r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","children":[{"type":"sub_text"}]}]}"#
-    );
-}
-#[test]
-fn operation_update_node_attributes_serde_test() {
-    let operation = NodeOperation::Update {
-        path: Path(vec![0, 1]),
-        changeset: Changeset::Attributes {
-            new: AttributeBuilder::new().insert("bold", true).build(),
-            old: AttributeBuilder::new().insert("bold", false).build(),
-        },
-    };
-
-    let result = serde_json::to_string(&operation).unwrap();
-    assert_eq!(
-        result,
-        r#"{"op":"update","path":[0,1],"changeset":{"attributes":{"new":{"bold":true},"old":{"bold":null}}}}"#
-    );
-}
-
-#[test]
-fn operation_update_node_body_serialize_test() {
-    let delta = TextOperationBuilder::new().insert("AppFlowy...").build();
-    let inverted = delta.invert_str("");
-    let changeset = Changeset::Delta { delta, inverted };
-    let insert = NodeOperation::Update {
-        path: Path(vec![0, 1]),
-        changeset,
-    };
-    let result = serde_json::to_string(&insert).unwrap();
-    assert_eq!(
-        result,
-        r#"{"op":"update","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#
-    );
-    //
-}
-
-#[test]
-fn operation_update_node_body_deserialize_test() {
-    let json_1 = r#"{"op":"update","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#;
-    let operation: NodeOperation = serde_json::from_str(json_1).unwrap();
-    let json_2 = serde_json::to_string(&operation).unwrap();
-    assert_eq!(json_1, json_2);
-}
+use lib_ot::core::Node;
+use lib_ot::core::{NodeDataBuilder, NodeOperation, Path};
 
 #[test]
 fn operation_insert_op_transform_test() {
