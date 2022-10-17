@@ -132,8 +132,9 @@ class SelectOptionCellEditorBloc
   }
 
   void _selectMultipleOptions(List<String> optionNames) {
+    final lowerCaseNames = optionNames.map((e) => e.toLowerCase());
     final optionIds = state.options
-        .where((e) => optionNames.contains(e.name))
+        .where((e) => lowerCaseNames.contains(e.name.toLowerCase()))
         .map((e) => e.id);
     _selectOptionService.select(optionIds: optionIds);
   }
