@@ -97,8 +97,10 @@ impl OldDocumentEditor {
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let document_info = rev_manager.load::<DocumentRevisionSerde>(Some(cloud_service)).await?;
-        let operations = TextOperations::from_bytes(&document_info.content)?;
+        let document = rev_manager
+            .load::<DeltaDocumentRevisionSerde>(Some(cloud_service))
+            .await?;
+        let operations = TextOperations::from_bytes(&document.content)?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();
         let user_id = user.user_id()?;
@@ -240,8 +242,8 @@ impl OldDocumentEditor {
     }
 }
 
-pub struct DocumentRevisionSerde();
-impl RevisionObjectDeserializer for DocumentRevisionSerde {
+pub struct DeltaDocumentRevisionSerde();
+impl RevisionObjectDeserializer for DeltaDocumentRevisionSerde {
     type Output = DocumentPayloadPB;
 
     fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
@@ -258,7 +260,7 @@ impl RevisionObjectDeserializer for DocumentRevisionSerde {
     }
 }
 
-impl RevisionObjectSerializer for DocumentRevisionSerde {
+impl RevisionObjectSerializer for DeltaDocumentRevisionSerde {
     fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let operations = make_operations_from_revisions::<AttributeHashMap>(revisions)?;
         Ok(operations.json_bytes())
@@ -268,7 +270,7 @@ impl RevisionObjectSerializer for DocumentRevisionSerde {
 pub(crate) struct DocumentRevisionCompactor();
 impl RevisionCompress for DocumentRevisionCompactor {
     fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        DocumentRevisionSerde::serialize_revisions(revisions)
+        DeltaDocumentRevisionSerde::serialize_revisions(revisions)
     }
 }
 

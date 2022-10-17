@@ -3,6 +3,7 @@ mod event_handler;
 pub mod event_map;
 pub mod manager;
 
+pub mod editor;
 pub mod old_editor;
 pub mod protobuf;
 

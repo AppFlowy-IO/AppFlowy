@@ -36,7 +36,7 @@ fn editor_deserialize_node_test() {
         },
         AssertNumberOfNodesAtPath {
             path: Some(0.into()),
-            len: 14,
+            len: 4,
         },
         AssertNodeDelta {
             path: vec![0, 1].into(),
@@ -104,60 +104,6 @@ const EXAMPLE_JSON: &str = r#"
             { "insert": "Flutter", "attributes": { "underline": true } }
         ]
       }
-    },
-    {
-      "type": "text",
-      "attributes": { "checkbox": true, "subtype": "checkbox" },
-      "body": {
-        "delta": [{ "insert": "Customizable" }]
-      }
-    },
-    {
-      "type": "text",
-      "attributes": { "checkbox": true, "subtype": "checkbox" },
-      "delta": [{ "insert": "Test-covered" }]
-    },
-    {
-      "type": "text",
-      "attributes": { "checkbox": false, "subtype": "checkbox" },
-      "delta": [{ "insert": "more to come!" }]
-    },
-    { "type": "text", "delta": [] },
-    {
-      "type": "text",
-      "attributes": { "subtype": "quote" },
-      "delta": [{ "insert": "Here is an exmaple you can give it a try" }]
-    },
-    { "type": "text", "delta": [] },
-    {
-      "type": "text",
-      "delta": [
-        { "insert": "You can also use " },
-        {
-          "insert": "AppFlowy Editor",
-          "attributes": {
-            "italic": true,
-            "bold": true,
-            "backgroundColor": "0x6000BCF0"
-          }
-        },
-        { "insert": " as a component to build your own app." }
-      ]
-    },
-    { "type": "text", "delta": [] },
-    {
-      "type": "text",
-      "attributes": { "subtype": "bulleted-list" },
-      "delta": [{ "insert": "Use / to insert blocks" }]
-    },
-    {
-      "type": "text",
-      "attributes": { "subtype": "bulleted-list" },
-      "delta": [
-        {
-          "insert": "Select text to trigger to the toolbar to format your notes."
-        }
-      ]
     }
   ]
 }

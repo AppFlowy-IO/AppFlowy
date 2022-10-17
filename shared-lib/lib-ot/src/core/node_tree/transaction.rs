@@ -2,6 +2,7 @@ use super::{Changeset, NodeOperations};
 use crate::core::attributes::AttributeHashMap;
 use crate::core::{Interval, NodeData, NodeOperation, NodeTree, Path};
 use crate::errors::OTError;
+use bytes::Bytes;
 use indextree::NodeId;
 use serde::{Deserialize, Serialize};
 use std::rc::Rc;
@@ -17,27 +18,6 @@ pub struct Transaction {
     pub extension: Extension,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum Extension {
-    Empty,
-    TextSelection {
-        before_selection: Interval,
-        after_selection: Interval,
-    },
-}
-
-impl std::default::Default for Extension {
-    fn default() -> Self {
-        Extension::Empty
-    }
-}
-
-impl Extension {
-    fn is_empty(&self) -> bool {
-        matches!(self, Extension::Empty)
-    }
-}
-
 impl Transaction {
     pub fn new() -> Self {
         Self::default()
@@ -48,6 +28,16 @@ impl Transaction {
             operations: operations.into(),
             extension: Extension::Empty,
         }
+    }
+
+    pub fn from_bytes(bytes: &Vec<u8>) -> Result<Self, OTError> {
+        let transaction = serde_json::from_slice(bytes).map_err(|err| OTError::serde().context(err))?;
+        Ok(transaction)
+    }
+
+    pub fn to_bytes(&self) -> Result<Vec<u8>, OTError> {
+        let bytes = serde_json::to_vec(&self).map_err(|err| OTError::serde().context(err))?;
+        Ok(bytes)
     }
 
     pub fn into_operations(self) -> Vec<Rc<NodeOperation>> {
@@ -90,6 +80,27 @@ impl std::ops::Deref for Transaction {
 impl std::ops::DerefMut for Transaction {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.operations
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Extension {
+    Empty,
+    TextSelection {
+        before_selection: Interval,
+        after_selection: Interval,
+    },
+}
+
+impl std::default::Default for Extension {
+    fn default() -> Self {
+        Extension::Empty
+    }
+}
+
+impl Extension {
+    fn is_empty(&self) -> bool {
+        matches!(self, Extension::Empty)
     }
 }
 

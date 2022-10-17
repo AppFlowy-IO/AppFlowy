@@ -108,9 +108,7 @@ impl DocumentManager {
 
     pub async fn apply_edit(&self, params: EditParams) -> FlowyResult<()> {
         let editor = self.get_document_editor(&params.doc_id).await?;
-        let _ = editor
-            .compose_local_operations(Bytes::from(params.operations_str))
-            .await?;
+        let _ = editor.compose_local_operations(Bytes::from(params.operations)).await?;
         Ok(())
     }
 
