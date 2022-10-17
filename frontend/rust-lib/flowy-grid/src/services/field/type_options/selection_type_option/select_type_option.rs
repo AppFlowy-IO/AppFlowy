@@ -150,6 +150,21 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
             }
             FieldType::Checkbox => {
                 // transform the cell data to the option id
+                let mut transformed_ids = Vec::new();
+                let options = self.options();
+                cell_data.0.iter().for_each(|ids| {
+                    ids.0.iter().for_each(|name| {
+                        let id = options
+                            .iter()
+                            .find(|option| option.name == name.clone())
+                            .unwrap()
+                            .id
+                            .clone();
+                        transformed_ids.push(id);
+                    })
+                });
+
+                return CellBytes::from(self.get_selected_options(CellData(Some(SelectOptionIds(transformed_ids)))));
             }
             _ => {
                 return Ok(CellBytes::default());
