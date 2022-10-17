@@ -167,10 +167,12 @@ class FieldCellButton extends StatelessWidget {
       onTap: onTap,
       leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
       text: FlowyText.medium(
-        field.name,
-        fontSize: 12,
-        maxLines: maxLines,
-      ),
+          Characters(field.name)
+              .replaceAll(Characters(''), Characters('\u{200B}'))
+              .toString(),
+          fontSize: 12,
+          maxLines: maxLines,
+          overflow: TextOverflow.ellipsis),
       margin: GridSize.cellContentInsets,
     );
   }
