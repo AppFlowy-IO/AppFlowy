@@ -96,7 +96,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               }
 
               if (text.isNotEmpty) {
-                widget.onSubmitted(text);
+                widget.onSubmitted(text.trim());
                 focusNode.requestFocus();
               }
             },
@@ -132,7 +132,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
       return;
     }
 
-    final trimmedText = text.trim();
+    final trimmedText = text.trimLeft();
     List<String> splits = [];
     String currentString = '';
 
