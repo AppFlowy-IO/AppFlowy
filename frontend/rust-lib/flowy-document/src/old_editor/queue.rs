@@ -1,4 +1,4 @@
-use crate::web_socket::{DocumentResolveOperations, EditorCommandReceiver};
+use crate::old_editor::web_socket::{DocumentResolveOperations, EditorCommandReceiver};
 use crate::DocumentUser;
 use async_stream::stream;
 use flowy_error::FlowyError;
@@ -161,11 +161,11 @@ impl EditDocumentQueue {
                 let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
-            EditorCommand::StringifyOperations { ret } => {
+            EditorCommand::GetOperationsString { ret } => {
                 let data = self.document.read().await.get_operations_json();
                 let _ = ret.send(Ok(data));
             }
-            EditorCommand::ReadOperations { ret } => {
+            EditorCommand::GetOperations { ret } => {
                 let operations = self.document.read().await.get_operations().clone();
                 let _ = ret.send(Ok(operations));
             }
@@ -235,11 +235,11 @@ pub(crate) enum EditorCommand {
     Redo {
         ret: Ret<()>,
     },
-    StringifyOperations {
+    GetOperationsString {
         ret: Ret<String>,
     },
     #[allow(dead_code)]
-    ReadOperations {
+    GetOperations {
         ret: Ret<TextOperations>,
     },
 }
@@ -259,8 +259,8 @@ impl std::fmt::Debug for EditorCommand {
             EditorCommand::CanRedo { .. } => "CanRedo",
             EditorCommand::Undo { .. } => "Undo",
             EditorCommand::Redo { .. } => "Redo",
-            EditorCommand::StringifyOperations { .. } => "StringifyOperations",
-            EditorCommand::ReadOperations { .. } => "ReadOperations",
+            EditorCommand::GetOperationsString { .. } => "StringifyOperations",
+            EditorCommand::GetOperations { .. } => "ReadOperations",
         };
         f.write_str(s)
     }

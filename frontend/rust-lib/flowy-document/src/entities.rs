@@ -9,13 +9,13 @@ pub enum ExportType {
     Link = 2,
 }
 
-impl std::default::Default for ExportType {
+impl Default for ExportType {
     fn default() -> Self {
         ExportType::Text
     }
 }
 
-impl std::convert::From<i32> for ExportType {
+impl From<i32> for ExportType {
     fn from(val: i32) -> Self {
         match val {
             0 => ExportType::Text,
