@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/service/context_menu/context_menu.dart';
 import 'package:flutter/gestures.dart';
@@ -115,6 +117,11 @@ void main() async {
       expect(contextMenu, findsOneWidget);
 
       // test built in context menu items
+
+      // Skip the Windows platform because the rich_clipboard package doesn't support it perfectly.
+      if (Platform.isWindows) {
+        return;
+      }
 
       // cut
       await tester.tap(find.text('Cut'));
