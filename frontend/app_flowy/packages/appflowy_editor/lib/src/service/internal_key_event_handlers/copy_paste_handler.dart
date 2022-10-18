@@ -39,7 +39,10 @@ void _handleCopy(EditorState editorState) async {
               endOffset: selection.end.offset)
           .toHTMLString();
       Log.keyboard.debug('copy html: $htmlString');
-      RichClipboard.setData(RichClipboardData(html: htmlString));
+      RichClipboard.setData(RichClipboardData(
+        html: htmlString,
+        text: textNode.toPlainText(),
+      ));
     } else {
       Log.keyboard.debug('unimplemented: copy non-text');
     }
@@ -55,13 +58,15 @@ void _handleCopy(EditorState editorState) async {
     endNode: endNode,
   ).toList();
 
-  final copyString = NodesToHTMLConverter(
-          nodes: nodes,
-          startOffset: selection.start.offset,
-          endOffset: selection.end.offset)
-      .toHTMLString();
-  Log.keyboard.debug('copy html: $copyString');
-  RichClipboard.setData(RichClipboardData(html: copyString));
+  final html = NodesToHTMLConverter(
+    nodes: nodes,
+    startOffset: selection.start.offset,
+    endOffset: selection.end.offset,
+  ).toHTMLString();
+  final text = nodes
+      .map((node) => node is TextNode ? node.toPlainText() : '\n')
+      .join('\n');
+  RichClipboard.setData(RichClipboardData(html: html, text: text));
 }
 
 void _pasteHTML(EditorState editorState, String html) {
