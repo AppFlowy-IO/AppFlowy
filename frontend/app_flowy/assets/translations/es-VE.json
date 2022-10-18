@@ -7,7 +7,7 @@
   "letsGoButtonText": "Vamos",
   "title": "Título",
   "signUp": {
-    "buttonText": "Registar",
+    "buttonText": "Registrar",
     "title": "Registrar en @:appName",
     "getStartedText": "Empezar",
     "emptyPasswordError": "La contraseña no puede estar en blanco",
@@ -16,7 +16,7 @@
     "alreadyHaveAnAccount": "¿Posee credenciales?",
     "emailHint": "Correo",
     "passwordHint": "Contraseña",
-    "repeatPasswordHint": "Repite la contraseña"
+    "repeatPasswordHint": "Repetir contraseña"
   },
   "signIn": {
     "loginTitle": "Ingresa a @:appName",
@@ -58,7 +58,7 @@
     }
   },
   "deletePagePrompt": {
-    "text": "Esta paágina esta en la Papelera",
+    "text": "Esta página está en la Papelera",
     "restore": "Recuperar página",
     "deletePermanent": "Eliminar permanentemente"
   },
@@ -69,7 +69,7 @@
     "debug": {
       "name": "Información de depuración",
       "success": "¡Información copiada!",
-      "fail": "No fué posible copiar la información"
+      "fail": "No fue posible copiar la información"
     }
   },
   "menuAppHeader": {
@@ -167,15 +167,15 @@
       "singleSelectFieldName": "Seleccionar",
       "multiSelectFieldName": "Selección múltiple",
       "urlFieldName": "URL",
-      "numberFormat": " Formato numérico",
-      "dateFormat": " Formato de fecha",
-      "includeTime": " Incluir tiempo",
+      "numberFormat": "Formato numérico",
+      "dateFormat": "Formato de fecha",
+      "includeTime": "Incluir tiempo",
       "dateFormatFriendly": "Mes Día, Año",
       "dateFormatISO": "Año-Mes-Día",
       "dateFormatLocal": "Mes/Día/Año",
       "dateFormatUS": "Año/Mes/Día",
-      "timeFormat": " Time format",
-      "invalidTimeFormat": "Formato de tiempo",
+      "timeFormat": "Formato de tiempo",
+      "invalidTimeFormat": "Formato de tiempo inválido",
       "timeFormatTwelveHour": "12 horas",
       "timeFormatTwentyFourHour": "24 horas",
       "addSelectOption": "Añadir una opción",
@@ -205,17 +205,22 @@
       "panelTitle": "Selecciona una opción o crea una",
       "searchOption": "Buscar una opción"
     },
-    "menuName": "Grid"
+    "menuName": "Cuadrícula"
   },
   "document": {
-    "menuName": "Doc",
+    "menuName": "Documento",
     "date": {
       "timeHintTextInTwelveHour": "01:00 PM",
       "timeHintTextInTwentyFourHour": "13:00"
     }
   },
   "sideBar": {
-    "openSidebar": "Open sidebar",
-    "closeSidebar": "Close sidebar"
+    "openSidebar": "Abrir panel lateral",
+    "closeSidebar": "Cerrar panel lateral"
+  },
+    "board": {
+    "column": {
+      "create_new_card": "Nuevo"
+    }
   }
 }

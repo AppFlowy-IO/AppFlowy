@@ -100,15 +100,15 @@ impl GridRevisionEditor {
     ///
     /// * `grid_id`: the id of the grid
     /// * `field_id`: the id of the field
-    /// * `type_option_data`: the updated type-option data.
-    ///
+    /// * `type_option_data`: the updated type-option data. The `type-option` data might be empty
+    /// if there is no type-option config for that field. For example, the `RichTextTypeOptionPB`.
+    ///  
     pub async fn update_field_type_option(
         &self,
         grid_id: &str,
         field_id: &str,
         type_option_data: Vec<u8>,
     ) -> FlowyResult<()> {
-        debug_assert!(!type_option_data.is_empty());
         if type_option_data.is_empty() {
             return Ok(());
         }

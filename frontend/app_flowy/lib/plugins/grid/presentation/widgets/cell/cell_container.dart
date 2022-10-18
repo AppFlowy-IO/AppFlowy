@@ -1,4 +1,5 @@
 import 'package:flowy_infra/theme.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
@@ -56,7 +57,6 @@ class CellContainer extends StatelessWidget {
             child: Container(
               constraints: BoxConstraints(maxWidth: width, minHeight: 46),
               decoration: _makeBoxDecoration(context, isFocus),
-              padding: GridSize.cellContentInsets,
               child: container,
             ),
           );
@@ -92,8 +92,11 @@ class _GridCellEnterRegion extends StatelessWidget {
       builder: (context, onEnter, _) {
         List<Widget> children = [child];
         if (onEnter) {
-          children.add(CellAccessoryContainer(accessories: accessories)
-              .positioned(right: 0));
+          children.add(
+            CellAccessoryContainer(accessories: accessories).positioned(
+              right: GridSize.cellContentInsets.right,
+            ),
+          );
         }
 
         return MouseRegion(

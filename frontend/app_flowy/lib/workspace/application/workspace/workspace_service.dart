@@ -17,11 +17,11 @@ class WorkspaceService {
     required this.workspaceId,
   });
   Future<Either<AppPB, FlowyError>> createApp(
-      {required String name, required String desc}) {
+      {required String name, String? desc}) {
     final payload = CreateAppPayloadPB.create()
       ..name = name
       ..workspaceId = workspaceId
-      ..desc = desc;
+      ..desc = desc ?? "";
     return FolderEventCreateApp(payload).send();
   }
 

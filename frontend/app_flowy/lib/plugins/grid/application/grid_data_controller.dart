@@ -64,6 +64,7 @@ class GridDataController {
     });
   }
 
+  // Loads the rows from each block
   Future<Either<Unit, FlowyError>> loadData() async {
     final result = await _gridFFIService.loadGrid();
     return Future(

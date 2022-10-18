@@ -1,6 +1,7 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
 use crate::services::field::{
     SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
@@ -96,7 +97,7 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
     }
 
     fn transform(&mut self, field_type: &FieldType, type_option_data: String) {
-        self.0.transform_type_option(field_type, type_option_data);
+        SelectOptionTypeOptionTransformer::transform_type_option(&mut self.0, field_type, type_option_data)
     }
 }
 
