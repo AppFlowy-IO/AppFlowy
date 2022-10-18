@@ -1,7 +1,6 @@
 import 'package:appflowy_editor/src/core/transform/transaction.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event_handler.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/core/location/position.dart';
@@ -24,10 +23,6 @@ const _unCheckboxListSymbols = ['[]', '-[]'];
 final _numberRegex = RegExp(r'^(\d+)\.');
 
 ShortcutEventHandler whiteSpaceHandler = (editorState, event) {
-  if (event.logicalKey != LogicalKeyboardKey.space) {
-    return KeyEventResult.ignored;
-  }
-
   /// Process markdown input style.
   ///
   /// like, #, *, -, 1., -[],

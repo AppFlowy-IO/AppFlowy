@@ -208,12 +208,15 @@ List<ShortcutEvent> builtInShortcutEvents = [
     command: 'end',
     handler: cursorEnd,
   ),
-
-  // TODO: split the keys.
+  ShortcutEvent(
+    key: 'Delete Text by backspace',
+    command: 'backspace',
+    handler: backspaceEventHandler,
+  ),
   ShortcutEvent(
     key: 'Delete Text',
-    command: 'delete,backspace',
-    handler: deleteTextHandler,
+    command: 'delete',
+    handler: deleteEventHandler,
   ),
   ShortcutEvent(
     key: 'selection menu',
