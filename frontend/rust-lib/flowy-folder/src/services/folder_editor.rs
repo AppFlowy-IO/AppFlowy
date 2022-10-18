@@ -112,16 +112,16 @@ impl RevisionObjectDeserializer for FolderRevisionSerde {
 }
 
 impl RevisionObjectSerializer for FolderRevisionSerde {
-    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+    fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
         Ok(operations.json_bytes())
     }
 }
 
-pub struct FolderRevisionCompactor();
-impl RevisionCompress for FolderRevisionCompactor {
-    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        FolderRevisionSerde::serialize_revisions(revisions)
+pub struct FolderRevisionCompress();
+impl RevisionCompress for FolderRevisionCompress {
+    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        FolderRevisionSerde::combine_revisions(revisions)
     }
 }
 

@@ -4,7 +4,6 @@ use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError};
 use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_sync::{
-    client_document::default::initial_document_str,
     entities::{
         document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
@@ -422,15 +421,9 @@ impl DocumentCloudService for LocalServer {
     fn fetch_document(
         &self,
         _token: &str,
-        params: DocumentIdPB,
+        _params: DocumentIdPB,
     ) -> FutureResult<Option<DocumentPayloadPB>, FlowyError> {
-        let doc = DocumentPayloadPB {
-            doc_id: params.value,
-            content: initial_document_str(),
-            rev_id: 0,
-            base_rev_id: 0,
-        };
-        FutureResult::new(async { Ok(Some(doc)) })
+        FutureResult::new(async { Ok(None) })
     }
 
     fn update_document_content(&self, _token: &str, _params: ResetDocumentParams) -> FutureResult<(), FlowyError> {

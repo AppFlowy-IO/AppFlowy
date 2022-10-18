@@ -2,7 +2,7 @@ use super::operation_serde::{deserialize_changeset, serialize_changeset};
 use crate::core::{Changeset, NodeData, Path};
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "op")]
@@ -104,21 +104,21 @@ impl NodeOperation {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct NodeOperations {
-    operations: Vec<Rc<NodeOperation>>,
+    operations: Vec<Arc<NodeOperation>>,
 }
 
 impl NodeOperations {
-    pub fn into_inner(self) -> Vec<Rc<NodeOperation>> {
+    pub fn into_inner(self) -> Vec<Arc<NodeOperation>> {
         self.operations
     }
 
     pub fn add_op(&mut self, operation: NodeOperation) {
-        self.operations.push(Rc::new(operation));
+        self.operations.push(Arc::new(operation));
     }
 }
 
 impl std::ops::Deref for NodeOperations {
-    type Target = Vec<Rc<NodeOperation>>;
+    type Target = Vec<Arc<NodeOperation>>;
 
     fn deref(&self) -> &Self::Target {
         &self.operations
@@ -140,7 +140,7 @@ impl std::convert::From<Vec<NodeOperation>> for NodeOperations {
 impl NodeOperations {
     pub fn new(operations: Vec<NodeOperation>) -> Self {
         Self {
-            operations: operations.into_iter().map(Rc::new).collect(),
+            operations: operations.into_iter().map(Arc::new).collect(),
         }
     }
 

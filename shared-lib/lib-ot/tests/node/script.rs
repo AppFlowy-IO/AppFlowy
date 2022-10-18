@@ -56,7 +56,7 @@ impl NodeTest {
         Self {
             rev_id: 0,
             rev_operations: HashMap::new(),
-            node_tree: NodeTree::new("root"),
+            node_tree: NodeTree::new(),
         }
     }
 
@@ -142,9 +142,7 @@ impl NodeTest {
                 }
             }
             NodeScript::AssertNodeJSON { expected } => {
-                let mut children = self.node_tree.children_from_node(self.node_tree.root_node());
-                let node = children.next().unwrap();
-                let json = self.node_tree.to_json(node, true).unwrap();
+                let json = serde_json::to_string_pretty(&self.node_tree).unwrap();
                 assert_eq!(json, expected)
             }
         }

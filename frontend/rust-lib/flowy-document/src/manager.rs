@@ -1,5 +1,6 @@
+use crate::editor::{initial_document_content, AppFlowyDocumentEditor};
 use crate::entities::EditParams;
-use crate::old_editor::editor::{DocumentRevisionCompactor, OldDocumentEditor};
+use crate::old_editor::editor::{DocumentRevisionCompress, OldDocumentEditor};
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -9,12 +10,14 @@ use flowy_revision::disk::SQLiteDocumentRevisionPersistence;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
 };
+use flowy_sync::client_document::initial_old_document_content;
 use flowy_sync::entities::{
     document::{DocumentIdPB, DocumentOperationsPB},
     revision::{md5, RepeatedRevision, Revision},
     ws_data::ServerRevisionWSData,
 };
 use lib_infra::future::FutureResult;
+
 use lib_ws::WSConnectState;
 use std::any::Any;
 use std::{convert::TryInto, sync::Arc};
@@ -45,11 +48,17 @@ pub trait DocumentEditor: Send + Sync {
     fn as_any(&self) -> &dyn Any;
 }
 
+#[derive(Clone, Debug)]
+pub struct DocumentConfig {
+    pub use_new_editor: bool,
+}
+
 pub struct DocumentManager {
     cloud_service: Arc<dyn DocumentCloudService>,
     rev_web_socket: Arc<dyn RevisionWebSocket>,
     editor_map: Arc<DocumentEditorMap>,
     user: Arc<dyn DocumentUser>,
+    config: DocumentConfig,
 }
 
 impl DocumentManager {
@@ -57,12 +66,14 @@ impl DocumentManager {
         cloud_service: Arc<dyn DocumentCloudService>,
         document_user: Arc<dyn DocumentUser>,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
+        config: DocumentConfig,
     ) -> Self {
         Self {
             cloud_service,
             rev_web_socket,
             editor_map: Arc::new(DocumentEditorMap::new()),
             user: document_user,
+            config,
         }
     }
 
@@ -79,7 +90,7 @@ impl DocumentManager {
     ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
         let editor_id = editor_id.as_ref();
         tracing::Span::current().record("editor_id", &editor_id);
-        self.get_document_editor(editor_id).await
+        self.init_document_editor(editor_id).await
     }
 
     #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
@@ -136,12 +147,18 @@ impl DocumentManager {
             }
         }
     }
+
+    pub fn initial_document_content(&self) -> String {
+        if self.config.use_new_editor {
+            initial_document_content()
+        } else {
+            initial_old_document_content()
+        }
+    }
 }
 
 impl DocumentManager {
     /// Returns the `DocumentEditor`
-    /// Initializes the document editor if it's not initialized yet. Otherwise, returns the opened
-    /// editor.
     ///
     /// # Arguments
     ///
@@ -151,10 +168,7 @@ impl DocumentManager {
     ///
     async fn get_document_editor(&self, doc_id: &str) -> FlowyResult<Arc<dyn DocumentEditor>> {
         match self.editor_map.get(doc_id) {
-            None => {
-                let db_pool = self.user.db_pool()?;
-                self.init_document_editor(doc_id, db_pool).await
-            }
+            None => self.init_document_editor(doc_id).await,
             Some(editor) => Ok(editor),
         }
     }
@@ -168,12 +182,9 @@ impl DocumentManager {
     ///
     /// returns: Result<Arc<DocumentEditor>, FlowyError>
     ///
-    #[tracing::instrument(level = "trace", skip(self, pool), err)]
-    async fn init_document_editor(
-        &self,
-        doc_id: &str,
-        pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub async fn init_document_editor(&self, doc_id: &str) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
+        let pool = self.user.db_pool()?;
         let user = self.user.clone();
         let token = self.user.token()?;
         let rev_manager = self.make_document_rev_manager(doc_id, pool.clone())?;
@@ -181,9 +192,15 @@ impl DocumentManager {
             token,
             server: self.cloud_service.clone(),
         });
-        let editor =
-            OldDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
-        let editor: Arc<dyn DocumentEditor> = Arc::new(editor);
+
+        let editor: Arc<dyn DocumentEditor> = if self.config.use_new_editor {
+            let editor = AppFlowyDocumentEditor::new(doc_id, user, rev_manager, cloud_service).await?;
+            Arc::new(editor)
+        } else {
+            let editor =
+                OldDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
+            Arc::new(editor)
+        };
         self.editor_map.insert(doc_id, editor.clone());
         Ok(editor)
     }
@@ -198,7 +215,7 @@ impl DocumentManager {
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
-        let rev_compactor = DocumentRevisionCompactor();
+        let rev_compactor = DocumentRevisionCompress();
 
         Ok(RevisionManager::new(
             &user_id,

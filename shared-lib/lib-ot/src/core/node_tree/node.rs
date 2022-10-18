@@ -45,6 +45,9 @@ impl NodeData {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RepeatedNodeData(Vec<NodeData>);
+
 /// Builder for [`NodeData`]
 pub struct NodeDataBuilder {
     node: NodeData,

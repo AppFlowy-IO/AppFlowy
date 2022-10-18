@@ -3,7 +3,7 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
-use flowy_document::DocumentManager;
+use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
 use flowy_grid::manager::GridManager;
 use flowy_net::ClientServerConfiguration;
@@ -34,24 +34,28 @@ pub struct FlowySDKConfig {
     root: String,
     log_filter: String,
     server_config: ClientServerConfiguration,
+    document_config: DocumentConfig,
 }
 
 impl fmt::Debug for FlowySDKConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("FlowySDKConfig")
             .field("root", &self.root)
-            .field("server_config", &self.server_config)
+            .field("server-config", &self.server_config)
+            .field("document-config", &self.document_config)
             .finish()
     }
 }
 
 impl FlowySDKConfig {
-    pub fn new(root: &str, server_config: ClientServerConfiguration, name: &str) -> Self {
+    pub fn new(root: &str, name: &str, server_config: ClientServerConfiguration, use_new_editor: bool) -> Self {
+        let document_config = DocumentConfig { use_new_editor };
         FlowySDKConfig {
             name: name.to_owned(),
             root: root.to_owned(),
             log_filter: crate_log_filter("info".to_owned()),
             server_config,
+            document_config,
         }
     }
 
@@ -89,7 +93,7 @@ pub struct FlowySDK {
     #[allow(dead_code)]
     config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
-    pub text_block_manager: Arc<DocumentManager>,
+    pub document_manager: Arc<DocumentManager>,
     pub folder_manager: Arc<FolderManager>,
     pub grid_manager: Arc<GridManager>,
     pub dispatcher: Arc<EventDispatcher>,
@@ -106,11 +110,12 @@ impl FlowySDK {
         let (local_server, ws_conn) = mk_local_server(&config.server_config);
         let (user_session, text_block_manager, folder_manager, local_server, grid_manager) = runtime.block_on(async {
             let user_session = mk_user_session(&config, &local_server, &config.server_config);
-            let text_block_manager = DocumentDepsResolver::resolve(
+            let document_manager = DocumentDepsResolver::resolve(
                 local_server.clone(),
                 ws_conn.clone(),
                 user_session.clone(),
                 &config.server_config,
+                &config.document_config,
             );
 
             let grid_manager = GridDepsResolver::resolve(ws_conn.clone(), user_session.clone()).await;
@@ -120,7 +125,7 @@ impl FlowySDK {
                 user_session.clone(),
                 &config.server_config,
                 &ws_conn,
-                &text_block_manager,
+                &document_manager,
                 &grid_manager,
             )
             .await;
@@ -131,7 +136,7 @@ impl FlowySDK {
             ws_conn.init().await;
             (
                 user_session,
-                text_block_manager,
+                document_manager,
                 folder_manager,
                 local_server,
                 grid_manager,
@@ -153,7 +158,7 @@ impl FlowySDK {
         Self {
             config,
             user_session,
-            text_block_manager,
+            document_manager: text_block_manager,
             folder_manager,
             grid_manager,
             dispatcher,

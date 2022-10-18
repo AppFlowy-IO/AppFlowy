@@ -1,8 +1,8 @@
 use super::NodeOperations;
-use crate::core::{Changeset, Node, NodeData, NodeDataBuilder, NodeOperation, Path, Transaction};
+use crate::core::{Changeset, Node, NodeData, NodeOperation, Path, Transaction};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
-use indextree::{Arena, Children, FollowingSiblings, NodeId};
-use std::rc::Rc;
+use indextree::{Arena, FollowingSiblings, NodeId};
+use std::sync::Arc;
 
 #[derive(Debug)]
 pub struct NodeTree {
@@ -12,24 +12,30 @@ pub struct NodeTree {
 
 impl Default for NodeTree {
     fn default() -> Self {
-        Self::new("root")
+        Self::new()
     }
 }
 
 impl NodeTree {
-    pub fn new(root_name: &str) -> NodeTree {
+    pub fn new() -> NodeTree {
         let mut arena = Arena::new();
-        let root = arena.new_node(Node::new(root_name));
+        let root = arena.new_node(Node::new("root"));
         NodeTree { arena, root }
     }
 
-    pub fn from_bytes(root_name: &str, bytes: Vec<u8>) -> Result<Self, OTError> {
-        let operations = NodeOperations::from_bytes(bytes)?;
-        Self::from_operations(root_name, operations)
+    pub fn from_node_data(node_data: NodeData) -> Result<Self, OTError> {
+        let mut tree = Self::new();
+        let _ = tree.insert_nodes(&0_usize.into(), vec![node_data])?;
+        Ok(tree)
     }
 
-    pub fn from_operations(root_name: &str, operations: NodeOperations) -> Result<Self, OTError> {
-        let mut node_tree = NodeTree::new(root_name);
+    pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, OTError> {
+        let operations = NodeOperations::from_bytes(bytes)?;
+        Self::from_operations(operations)
+    }
+
+    pub fn from_operations(operations: NodeOperations) -> Result<Self, OTError> {
+        let mut node_tree = NodeTree::default();
         for operation in operations.into_inner().into_iter() {
             let _ = node_tree.apply_op(operation)?;
         }
@@ -59,7 +65,7 @@ impl NodeTree {
         }
         node_data.body = body;
 
-        let children = self.children_from_node(node_id);
+        let children = self.get_children_ids(node_id);
         for child in children.into_iter() {
             if let Some(child_node_data) = self.get_node_data(child) {
                 node_data.children.push(child_node_data);
@@ -68,34 +74,48 @@ impl NodeTree {
         Some(node_data)
     }
 
-    pub fn root_node(&self) -> NodeId {
+    pub fn root_node_id(&self) -> NodeId {
         self.root
     }
 
-    pub fn to_json(&self, node_id: NodeId, pretty_json: bool) -> Result<String, OTError> {
+    pub fn get_children(&self, node_id: NodeId) -> Vec<&Node> {
+        node_id
+            .children(&self.arena)
+            .flat_map(|node_id| self.get_node(node_id))
+            .collect()
+    }
+    /// Returns a iterator used to iterate over the node ids whose parent node id is node_id
+    ///
+    /// * `node_id`: the children's parent node id
+    ///
+    pub fn get_children_ids(&self, node_id: NodeId) -> Vec<NodeId> {
+        node_id.children(&self.arena).collect()
+    }
+
+    /// Serialize the node to JSON with node_id
+    pub fn serialize_node(&self, node_id: NodeId, pretty_json: bool) -> Result<String, OTError> {
         let node_data = self
             .get_node_data(node_id)
-            .ok_or(OTError::internal().context("Node doesn't exist exist"))?;
-        let json = if pretty_json {
-            serde_json::to_string_pretty(&node_data).map_err(|err| OTError::serde().context(err))?
+            .ok_or_else(|| OTError::internal().context("Node doesn't exist exist"))?;
+        if pretty_json {
+            serde_json::to_string_pretty(&node_data).map_err(|err| OTError::serde().context(err))
         } else {
-            serde_json::to_string(&node_data).map_err(|err| OTError::serde().context(err))?
-        };
-        Ok(json)
+            serde_json::to_string(&node_data).map_err(|err| OTError::serde().context(err))
+        }
     }
 
     ///
     /// # Examples
     ///
     /// ```
-    /// use std::rc::Rc;
+    /// use std::sync::Arc;
     /// use lib_ot::core::{NodeOperation, NodeTree, NodeData, Path};
     /// let nodes = vec![NodeData::new("text".to_string())];
     /// let root_path: Path = vec![0].into();
     /// let op = NodeOperation::Insert {path: root_path.clone(),nodes };
     ///
-    /// let mut node_tree = NodeTree::new("root");
-    /// node_tree.apply_op(Rc::new(op)).unwrap();
+    /// let mut node_tree = NodeTree::new();
+    /// node_tree.apply_op(Arc::new(op)).unwrap();
     /// let node_id = node_tree.node_id_at_path(&root_path).unwrap();
     /// let node_path = node_tree.path_from_node_id(node_id);
     /// debug_assert_eq!(node_path, root_path);
@@ -151,14 +171,14 @@ impl NodeTree {
     /// # Examples
     ///
     /// ```
-    /// use std::rc::Rc;
+    /// use std::sync::Arc;
     /// use lib_ot::core::{NodeOperation, NodeTree, NodeData, Path};
     /// let node_1 = NodeData::new("text".to_string());
     /// let inserted_path: Path = vec![0].into();
     ///
-    /// let mut node_tree = NodeTree::new("root");
+    /// let mut node_tree = NodeTree::new();
     /// let op = NodeOperation::Insert {path: inserted_path.clone(),nodes: vec![node_1.clone()] };
-    /// node_tree.apply_op(Rc::new(op)).unwrap();
+    /// node_tree.apply_op(Arc::new(op)).unwrap();
     ///
     /// let node_2 = node_tree.get_node_at_path(&inserted_path).unwrap();
     /// assert_eq!(node_2.node_type, node_1.node_type);
@@ -172,14 +192,6 @@ impl NodeTree {
         }
 
         None
-    }
-
-    /// Returns all children whose parent node id is node_id
-    ///
-    /// * `node_id`: the children's parent node id
-    ///
-    pub fn children_from_node(&self, node_id: NodeId) -> Children<'_, Node> {
-        node_id.children(&self.arena)
     }
 
     ///
@@ -208,8 +220,8 @@ impl NodeTree {
         Ok(())
     }
 
-    pub fn apply_op(&mut self, op: Rc<NodeOperation>) -> Result<(), OTError> {
-        let op = match Rc::try_unwrap(op) {
+    pub fn apply_op(&mut self, op: Arc<NodeOperation>) -> Result<(), OTError> {
+        let op = match Arc::try_unwrap(op) {
             Ok(op) => op,
             Err(op) => op.as_ref().clone(),
         };

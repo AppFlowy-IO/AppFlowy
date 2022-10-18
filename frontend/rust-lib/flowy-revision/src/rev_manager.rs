@@ -33,11 +33,11 @@ pub trait RevisionObjectDeserializer: Send + Sync {
 }
 
 pub trait RevisionObjectSerializer: Send + Sync {
-    /// Serialize the list of revisions to `Bytes`
+    /// Serialize a list of revisions into one in `Bytes` format
     ///
     /// * `revisions`: a list of revisions will be serialized to `Bytes`
     ///
-    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes>;
+    fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes>;
 }
 
 /// `RevisionCompress` is used to compress multiple revisions into one revision
@@ -62,11 +62,11 @@ pub trait RevisionCompress: Send + Sync {
 
         let (base_rev_id, rev_id) = first_revision.pair_rev_id();
         let md5 = last_revision.md5.clone();
-        let bytes = self.serialize_revisions(revisions)?;
+        let bytes = self.combine_revisions(revisions)?;
         Ok(Revision::new(object_id, base_rev_id, rev_id, bytes, user_id, md5))
     }
 
-    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes>;
+    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes>;
 }
 
 pub struct RevisionManager {

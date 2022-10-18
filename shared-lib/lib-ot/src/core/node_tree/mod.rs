@@ -8,6 +8,7 @@ mod path;
 mod transaction;
 mod transaction_serde;
 mod tree;
+mod tree_serde;
 
 pub use node::*;
 pub use operation::*;

@@ -204,15 +204,15 @@ impl RevisionObjectDeserializer for GridBlockRevisionSerde {
 }
 
 impl RevisionObjectSerializer for GridBlockRevisionSerde {
-    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+    fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
         Ok(operations.json_bytes())
     }
 }
 
-pub struct GridBlockRevisionCompactor();
-impl RevisionCompress for GridBlockRevisionCompactor {
-    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        GridBlockRevisionSerde::serialize_revisions(revisions)
+pub struct GridBlockRevisionCompress();
+impl RevisionCompress for GridBlockRevisionCompress {
+    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        GridBlockRevisionSerde::combine_revisions(revisions)
     }
 }

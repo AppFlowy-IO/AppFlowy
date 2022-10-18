@@ -1,4 +1,4 @@
-use crate::old_editor::web_socket::{DocumentResolveOperations, EditorCommandReceiver};
+use crate::old_editor::web_socket::DocumentResolveOperations;
 use crate::DocumentUser;
 use async_stream::stream;
 use flowy_error::FlowyError;
@@ -15,6 +15,7 @@ use lib_ot::{
     text_delta::TextOperations,
 };
 use std::sync::Arc;
+use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::{oneshot, RwLock};
 
 // The EditorCommandQueue executes each command that will alter the document in
@@ -184,7 +185,8 @@ impl EditDocumentQueue {
 }
 
 pub type TextTransformOperations = TransformOperations<DocumentResolveOperations>;
-
+pub(crate) type EditorCommandSender = Sender<EditorCommand>;
+pub(crate) type EditorCommandReceiver = Receiver<EditorCommand>;
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
 
 pub(crate) enum EditorCommand {

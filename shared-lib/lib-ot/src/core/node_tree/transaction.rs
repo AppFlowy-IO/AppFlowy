@@ -2,10 +2,10 @@ use super::{Changeset, NodeOperations};
 use crate::core::attributes::AttributeHashMap;
 use crate::core::{Interval, NodeData, NodeOperation, NodeTree, Path};
 use crate::errors::OTError;
-use bytes::Bytes;
+
 use indextree::NodeId;
 use serde::{Deserialize, Serialize};
-use std::rc::Rc;
+use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Transaction {
@@ -30,7 +30,7 @@ impl Transaction {
         }
     }
 
-    pub fn from_bytes(bytes: &Vec<u8>) -> Result<Self, OTError> {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, OTError> {
         let transaction = serde_json::from_slice(bytes).map_err(|err| OTError::serde().context(err))?;
         Ok(transaction)
     }
@@ -40,7 +40,11 @@ impl Transaction {
         Ok(bytes)
     }
 
-    pub fn into_operations(self) -> Vec<Rc<NodeOperation>> {
+    pub fn to_json(&self) -> Result<String, OTError> {
+        serde_json::to_string(&self).map_err(|err| OTError::serde().context(err))
+    }
+
+    pub fn into_operations(self) -> Vec<Arc<NodeOperation>> {
         self.operations.into_inner()
     }
 
@@ -52,7 +56,7 @@ impl Transaction {
         let mut new_transaction = other.clone();
         new_transaction.extension = self.extension.clone();
         for other_operation in new_transaction.iter_mut() {
-            let other_operation = Rc::make_mut(other_operation);
+            let other_operation = Arc::make_mut(other_operation);
             for operation in self.operations.iter() {
                 operation.transform(other_operation);
             }
@@ -60,17 +64,19 @@ impl Transaction {
         Ok(new_transaction)
     }
 
-    pub fn compose(&mut self, other: &Transaction) -> Result<(), OTError> {
+    pub fn compose(&mut self, other: Transaction) -> Result<(), OTError> {
         // For the moment, just append `other` operations to the end of `self`.
-        for operation in other.operations.iter() {
-            self.operations.push(operation.clone());
+        let Transaction { operations, extension } = other;
+        for operation in operations.into_inner().into_iter() {
+            self.operations.push(operation);
         }
+        self.extension = extension;
         Ok(())
     }
 }
 
 impl std::ops::Deref for Transaction {
-    type Target = Vec<Rc<NodeOperation>>;
+    type Target = Vec<Arc<NodeOperation>>;
 
     fn deref(&self) -> &Self::Target {
         &self.operations
@@ -131,7 +137,7 @@ impl<'a> TransactionBuilder<'a> {
     /// //      0 -- text_1
     /// //      1 -- text_2
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new("root");
+    /// let mut node_tree = NodeTree::new();
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_nodes_at_path(0,vec![ NodeData::new("text_1"),  NodeData::new("text_2")])
     ///     .finalize();
@@ -161,7 +167,7 @@ impl<'a> TransactionBuilder<'a> {
     /// // -- 0
     /// //    |-- text
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new("root");
+    /// let mut node_tree = NodeTree::new();
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_node_at_path(0, NodeData::new("text"))
     ///     .finalize();
@@ -232,9 +238,12 @@ impl<'a> TransactionBuilder<'a> {
         let node_data = self.node_tree.get_node(node_id).unwrap();
 
         let mut children = vec![];
-        self.node_tree.children_from_node(node_id).for_each(|child_id| {
-            children.push(self.get_deleted_nodes(child_id));
-        });
+        self.node_tree
+            .get_children_ids(node_id)
+            .into_iter()
+            .for_each(|child_id| {
+                children.push(self.get_deleted_nodes(child_id));
+            });
 
         NodeData {
             node_type: node_data.node_type.clone(),

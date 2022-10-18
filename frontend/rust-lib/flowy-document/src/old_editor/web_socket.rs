@@ -1,4 +1,4 @@
-use crate::old_editor::queue::{EditorCommand, TextTransformOperations};
+use crate::old_editor::queue::{EditorCommand, EditorCommandSender, TextTransformOperations};
 use crate::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
@@ -16,14 +16,7 @@ use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::text_delta::TextOperations;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
-use tokio::sync::{
-    broadcast,
-    mpsc::{Receiver, Sender},
-    oneshot,
-};
-
-pub(crate) type EditorCommandSender = Sender<EditorCommand>;
-pub(crate) type EditorCommandReceiver = Receiver<EditorCommand>;
+use tokio::sync::{broadcast, oneshot};
 
 #[derive(Clone)]
 pub struct DocumentResolveOperations(pub TextOperations);

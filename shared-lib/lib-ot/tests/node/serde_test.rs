@@ -1,5 +1,6 @@
 use lib_ot::core::{
-    AttributeBuilder, Changeset, Extension, Interval, NodeData, NodeDataBuilder, NodeOperation, Path, Transaction,
+    AttributeBuilder, Changeset, Extension, Interval, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path,
+    Transaction,
 };
 use lib_ot::text_delta::TextOperationBuilder;
 
@@ -93,3 +94,54 @@ fn transaction_deserialize_test() {
     let transaction: Transaction = serde_json::from_str(json).unwrap();
     assert_eq!(transaction.operations.len(), 1);
 }
+
+#[test]
+fn node_tree_deserialize_test() {
+    let tree: NodeTree = serde_json::from_str(TREE_JSON).unwrap();
+    assert_eq!(tree.number_of_children(None), 1);
+}
+
+#[test]
+fn node_tree_serialize_test() {
+    let tree: NodeTree = serde_json::from_str(TREE_JSON).unwrap();
+    let json = serde_json::to_string_pretty(&tree).unwrap();
+    assert_eq!(json, TREE_JSON);
+}
+
+#[allow(dead_code)]
+const TREE_JSON: &str = r#"{
+  "type": "editor",
+  "children": [
+    {
+      "type": "image",
+      "attributes": {
+        "image_src": "https://s1.ax1x.com/2022/08/26/v2sSbR.jpg"
+      }
+    },
+    {
+      "type": "text",
+      "attributes": {
+        "heading": "h1"
+      },
+      "body": {
+        "delta": [
+          {
+            "insert": "👋 "
+          },
+          {
+            "insert": "Welcome to ",
+            "attributes": {
+              "href": "appflowy.io"
+            }
+          },
+          {
+            "insert": "AppFlowy Editor",
+            "attributes": {
+              "italic": true
+            }
+          }
+        ]
+      }
+    }
+  ]
+}"#;

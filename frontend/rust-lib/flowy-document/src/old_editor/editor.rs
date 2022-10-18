@@ -1,8 +1,6 @@
 #![allow(unused_attributes)]
 #![allow(unused_attributes)]
-
-use crate::old_editor::queue::{EditDocumentQueue, EditorCommand};
-use crate::old_editor::web_socket::EditorCommandSender;
+use crate::old_editor::queue::{EditDocumentQueue, EditorCommand, EditorCommandSender};
 use crate::{errors::FlowyError, DocumentEditor, DocumentUser};
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyResult};
@@ -34,58 +32,6 @@ pub struct OldDocumentEditor {
     #[cfg(feature = "sync")]
     ws_manager: Arc<flowy_revision::RevisionWebSocketManager>,
     edit_cmd_tx: EditorCommandSender,
-}
-
-impl DocumentEditor for Arc<OldDocumentEditor> {
-    fn get_operations_str(&self) -> FutureResult<String, FlowyError> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
-        let msg = EditorCommand::GetOperationsString { ret };
-        let edit_cmd_tx = self.edit_cmd_tx.clone();
-        FutureResult::new(async move {
-            let _ = edit_cmd_tx.send(msg).await;
-            let json = rx.await.map_err(internal_error)??;
-            Ok(json)
-        })
-    }
-
-    fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError> {
-        let edit_cmd_tx = self.edit_cmd_tx.clone();
-        FutureResult::new(async move {
-            let operations = TextOperations::from_bytes(&data)?;
-            let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
-            let msg = EditorCommand::ComposeLocalOperations { operations, ret };
-
-            let _ = edit_cmd_tx.send(msg).await;
-            let _ = rx.await.map_err(internal_error)??;
-            Ok(())
-        })
-    }
-
-    fn close(&self) {
-        #[cfg(feature = "sync")]
-        self.ws_manager.stop();
-    }
-
-    #[allow(unused_variables)]
-    fn receive_ws_data(&self, data: ServerRevisionWSData) -> FutureResult<(), FlowyError> {
-        let cloned_self = self.clone();
-        FutureResult::new(async move {
-            #[cfg(feature = "sync")]
-            let _ = cloned_self.ws_manager.receive_ws_data(data).await?;
-
-            Ok(())
-        })
-    }
-
-    #[allow(unused_variables)]
-    fn receive_ws_state(&self, state: &WSConnectState) {
-        #[cfg(feature = "sync")]
-        self.ws_manager.connect_state_changed(state.clone());
-    }
-
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
 }
 
 impl OldDocumentEditor {
@@ -200,6 +146,57 @@ impl OldDocumentEditor {
     }
 }
 
+impl DocumentEditor for Arc<OldDocumentEditor> {
+    fn get_operations_str(&self) -> FutureResult<String, FlowyError> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
+        let msg = EditorCommand::GetOperationsString { ret };
+        let edit_cmd_tx = self.edit_cmd_tx.clone();
+        FutureResult::new(async move {
+            let _ = edit_cmd_tx.send(msg).await;
+            let json = rx.await.map_err(internal_error)??;
+            Ok(json)
+        })
+    }
+
+    fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError> {
+        let edit_cmd_tx = self.edit_cmd_tx.clone();
+        FutureResult::new(async move {
+            let operations = TextOperations::from_bytes(&data)?;
+            let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
+            let msg = EditorCommand::ComposeLocalOperations { operations, ret };
+
+            let _ = edit_cmd_tx.send(msg).await;
+            let _ = rx.await.map_err(internal_error)??;
+            Ok(())
+        })
+    }
+
+    fn close(&self) {
+        #[cfg(feature = "sync")]
+        self.ws_manager.stop();
+    }
+
+    #[allow(unused_variables)]
+    fn receive_ws_data(&self, data: ServerRevisionWSData) -> FutureResult<(), FlowyError> {
+        let cloned_self = self.clone();
+        FutureResult::new(async move {
+            #[cfg(feature = "sync")]
+            let _ = cloned_self.ws_manager.receive_ws_data(data).await?;
+
+            Ok(())
+        })
+    }
+
+    #[allow(unused_variables)]
+    fn receive_ws_state(&self, state: &WSConnectState) {
+        #[cfg(feature = "sync")]
+        self.ws_manager.connect_state_changed(state.clone());
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
 impl std::ops::Drop for OldDocumentEditor {
     fn drop(&mut self) {
         tracing::trace!("{} DocumentEditor was dropped", self.doc_id)
@@ -261,16 +258,16 @@ impl RevisionObjectDeserializer for DeltaDocumentRevisionSerde {
 }
 
 impl RevisionObjectSerializer for DeltaDocumentRevisionSerde {
-    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+    fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let operations = make_operations_from_revisions::<AttributeHashMap>(revisions)?;
         Ok(operations.json_bytes())
     }
 }
 
-pub(crate) struct DocumentRevisionCompactor();
-impl RevisionCompress for DocumentRevisionCompactor {
-    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        DeltaDocumentRevisionSerde::serialize_revisions(revisions)
+pub(crate) struct DocumentRevisionCompress();
+impl RevisionCompress for DocumentRevisionCompress {
+    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        DeltaDocumentRevisionSerde::combine_revisions(revisions)
     }
 }
 
