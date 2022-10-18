@@ -161,18 +161,23 @@ class FieldCellButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+
+    // Using this technique to have proper text ellipsis
+    // https://github.com/flutter/flutter/issues/18761#issuecomment-812390920
+    final text = Characters(field.name)
+        .replaceAll(Characters(''), Characters('\u{200B}'))
+        .toString();
     return FlowyButton(
       radius: BorderRadius.zero,
       hoverColor: theme.shader6,
       onTap: onTap,
       leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
       text: FlowyText.medium(
-          Characters(field.name)
-              .replaceAll(Characters(''), Characters('\u{200B}'))
-              .toString(),
-          fontSize: 12,
-          maxLines: maxLines,
-          overflow: TextOverflow.ellipsis),
+        text,
+        fontSize: 12,
+        maxLines: maxLines,
+        overflow: TextOverflow.ellipsis,
+      ),
       margin: GridSize.cellContentInsets,
     );
   }
