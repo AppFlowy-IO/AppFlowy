@@ -45,7 +45,12 @@ class SelectOptionCellEditorBloc
             ));
           },
           deleteOption: (_DeleteOption value) {
-            _deleteOption(value.option);
+            _deleteOption([value.option]);
+          },
+          deleteAllOptions: (_DeleteAllOptions value) {
+            if (state.allOptions.isNotEmpty) {
+              _deleteOption(state.allOptions);
+            }
           },
           updateOption: (_UpdateOption value) {
             _updateOption(value.option);
@@ -85,11 +90,8 @@ class SelectOptionCellEditorBloc
     result.fold((l) => {}, (err) => Log.error(err));
   }
 
-  void _deleteOption(SelectOptionPB option) async {
-    final result = await _selectOptionService.delete(
-      option: option,
-    );
-
+  void _deleteOption(List<SelectOptionPB> options) async {
+    final result = await _selectOptionService.delete(options: options);
     result.fold((l) => null, (err) => Log.error(err));
   }
 
@@ -226,6 +228,7 @@ class SelectOptionEditorEvent with _$SelectOptionEditorEvent {
       _UpdateOption;
   const factory SelectOptionEditorEvent.deleteOption(SelectOptionPB option) =
       _DeleteOption;
+  const factory SelectOptionEditorEvent.deleteAllOptions() = _DeleteAllOptions;
   const factory SelectOptionEditorEvent.filterOption(String optionName) =
       _SelectOptionFilter;
   const factory SelectOptionEditorEvent.trySelectOption(String optionName) =

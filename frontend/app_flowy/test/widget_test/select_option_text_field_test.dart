@@ -8,9 +8,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 
+import '../bloc_test/grid_test/util.dart';
+
 void main() {
   setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
+    AppFlowyGridTest.ensureInitialized();
   });
 
   group('text_field.dart', () {

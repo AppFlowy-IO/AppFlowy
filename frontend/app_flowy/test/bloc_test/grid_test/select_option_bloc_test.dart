@@ -1,5 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/select_option_editor_bloc.dart';
+import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
@@ -21,17 +22,43 @@ void main() {
     });
 
     blocTest<SelectOptionCellEditorBloc, SelectOptionEditorState>(
+      "delete options",
+      build: () {
+        final bloc = SelectOptionCellEditorBloc(cellController: cellController);
+        bloc.add(const SelectOptionEditorEvent.initial());
+        return bloc;
+      },
+      act: (bloc) async {
+        bloc.add(const SelectOptionEditorEvent.newOption("A"));
+        await Future.delayed(gridResponseDuration());
+        bloc.add(const SelectOptionEditorEvent.newOption("B"));
+        await Future.delayed(gridResponseDuration());
+        bloc.add(const SelectOptionEditorEvent.newOption("C"));
+        await Future.delayed(gridResponseDuration());
+        bloc.add(const SelectOptionEditorEvent.deleteAllOptions());
+        await Future.delayed(gridResponseDuration());
+      },
+      wait: gridResponseDuration(),
+      verify: (bloc) {
+        assert(bloc.state.options.isEmpty);
+      },
+    );
+
+    blocTest<SelectOptionCellEditorBloc, SelectOptionEditorState>(
       "create option",
       build: () {
         final bloc = SelectOptionCellEditorBloc(cellController: cellController);
         bloc.add(const SelectOptionEditorEvent.initial());
         return bloc;
       },
-      act: (bloc) => bloc.add(const SelectOptionEditorEvent.newOption("A")),
+      act: (bloc) async {
+        _removeFieldOptions(bloc);
+        bloc.add(const SelectOptionEditorEvent.newOption("A"));
+      },
       wait: gridResponseDuration(),
       verify: (bloc) {
-        assert(bloc.state.options.length == 1);
-        assert(bloc.state.options[0].name == "A");
+        expect(bloc.state.options.length, 1);
+        expect(bloc.state.options[0].name, "A");
       },
     );
 
@@ -43,6 +70,7 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
+        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         bloc.add(SelectOptionEditorEvent.deleteOption(bloc.state.options[0]));
@@ -61,6 +89,7 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
+        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         SelectOptionPB optionUpdate = bloc.state.options[0]
@@ -84,6 +113,7 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
+        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         final optionId = bloc.state.options[0].id;
@@ -104,6 +134,7 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
+        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         final optionId = bloc.state.options[0].id;
@@ -125,6 +156,7 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
+        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         bloc.add(const SelectOptionEditorEvent.trySelectOption("B"));
@@ -147,12 +179,13 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
+        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         bloc.add(const SelectOptionEditorEvent.newOption("B"));
         await Future.delayed(gridResponseDuration());
         bloc.add(const SelectOptionEditorEvent.selectMultipleOptions(
-            ["a", "B", "C"], "x"));
+            ["A", "B", "C"], "x"));
       },
       wait: gridResponseDuration(),
       verify: (bloc) {
@@ -170,6 +203,7 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
+        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("abcd"));
         await Future.delayed(gridResponseDuration());
         bloc.add(const SelectOptionEditorEvent.newOption("aaaa"));
@@ -187,4 +221,11 @@ void main() {
       },
     );
   });
+}
+
+void _removeFieldOptions(SelectOptionCellEditorBloc bloc) async {
+  if (bloc.state.options.isNotEmpty) {
+    bloc.add(const SelectOptionEditorEvent.deleteAllOptions());
+    await Future.delayed(gridResponseDuration());
+  }
 }
