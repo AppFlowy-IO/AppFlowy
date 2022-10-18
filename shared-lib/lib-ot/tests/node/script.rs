@@ -40,6 +40,9 @@ pub enum NodeScript {
         path: Path,
         expected: TextOperations,
     },
+    AssertNodeJSON {
+        expected: String,
+    },
 }
 
 pub struct NodeTest {
@@ -137,6 +140,12 @@ impl NodeTest {
                 } else {
                     panic!("Node body type not match, expect Delta");
                 }
+            }
+            NodeScript::AssertNodeJSON { expected } => {
+                let mut children = self.node_tree.children_from_node(self.node_tree.root_node());
+                let node = children.next().unwrap();
+                let json = self.node_tree.to_json(node, true).unwrap();
+                assert_eq!(json, expected)
             }
         }
     }

@@ -58,7 +58,7 @@ impl NodeDataBuilder {
     }
 
     /// Appends a new node to the end of the builder's node children.
-    pub fn add_node(mut self, node: NodeData) -> Self {
+    pub fn add_node_data(mut self, node: NodeData) -> Self {
         self.node.children.push(node);
         self
     }

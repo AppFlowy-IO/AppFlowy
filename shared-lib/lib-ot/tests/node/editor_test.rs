@@ -32,11 +32,7 @@ fn editor_deserialize_node_test() {
         AssertNumberOfNodesAtPath { path: None, len: 1 },
         AssertNumberOfNodesAtPath {
             path: Some(0.into()),
-            len: 14,
-        },
-        AssertNumberOfNodesAtPath {
-            path: Some(0.into()),
-            len: 4,
+            len: 2,
         },
         AssertNodeDelta {
             path: vec![0, 1].into(),
@@ -46,29 +42,25 @@ fn editor_deserialize_node_test() {
             path: vec![0, 0].into(),
             expected: Some(node.children[0].clone()),
         },
-        AssertNodeData {
-            path: vec![0, 3].into(),
-            expected: Some(node.children[3].clone()),
+        AssertNodeJSON {
+            expected: EXAMPLE_JSON.to_string(),
         },
     ]);
 }
 
 #[allow(dead_code)]
-const EXAMPLE_JSON: &str = r#"
-{
+const EXAMPLE_JSON: &str = r#"{
   "type": "editor",
   "children": [
     {
       "type": "image",
       "attributes": {
-        "image_src": "https://s1.ax1x.com/2022/08/26/v2sSbR.jpg",
-        "align": "center"
+        "image_src": "https://s1.ax1x.com/2022/08/26/v2sSbR.jpg"
       }
     },
     {
       "type": "text",
       "attributes": {
-        "subtype": "heading",
         "heading": "h1"
       },
       "body": {
@@ -90,21 +82,6 @@ const EXAMPLE_JSON: &str = r#"
           }
         ]
       }
-    },
-    { "type": "text", "delta": [] },
-    {
-      "type": "text",
-      "body": {
-        "delta": [
-            { "insert": "AppFlowy Editor is a " },
-            { "insert": "highly customizable", "attributes": { "bold": true } },
-            { "insert": " " },
-            { "insert": "rich-text editor", "attributes": { "italic": true } },
-            { "insert": " for " },
-            { "insert": "Flutter", "attributes": { "underline": true } }
-        ]
-      }
     }
   ]
-}
-"#;
+}"#;

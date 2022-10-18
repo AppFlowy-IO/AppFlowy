@@ -28,7 +28,9 @@ fn node_insert_test() {
 #[test]
 fn node_insert_node_with_children_test() {
     let mut test = NodeTest::new();
-    let inserted_node = NodeDataBuilder::new("text").add_node(NodeData::new("image")).build();
+    let inserted_node = NodeDataBuilder::new("text")
+        .add_node_data(NodeData::new("image"))
+        .build();
     let path: Path = 0.into();
     let scripts = vec![
         InsertNode {
@@ -152,15 +154,15 @@ fn node_insert_nested_nodes_test() {
     let node_data_1_1 = NodeDataBuilder::new("text_1_1").build();
     let node_data_1_2 = NodeDataBuilder::new("text_1_2").build();
     let node_data_1 = NodeDataBuilder::new("text_1")
-        .add_node(node_data_1_1.clone())
-        .add_node(node_data_1_2.clone())
+        .add_node_data(node_data_1_1.clone())
+        .add_node_data(node_data_1_2.clone())
         .build();
 
     let node_data_2_1 = NodeDataBuilder::new("text_2_1").build();
     let node_data_2_2 = NodeDataBuilder::new("text_2_2").build();
     let node_data_2 = NodeDataBuilder::new("text_2")
-        .add_node(node_data_2_1.clone())
-        .add_node(node_data_2_2.clone())
+        .add_node_data(node_data_2_1.clone())
+        .add_node_data(node_data_2_2.clone())
         .build();
 
     let scripts = vec![
@@ -207,8 +209,8 @@ fn node_insert_node_before_existing_nested_nodes_test() {
     let node_data_1_1 = NodeDataBuilder::new("text_1_1").build();
     let node_data_1_2 = NodeDataBuilder::new("text_1_2").build();
     let node_data_1 = NodeDataBuilder::new("text_1")
-        .add_node(node_data_1_1.clone())
-        .add_node(node_data_1_2.clone())
+        .add_node_data(node_data_1_1.clone())
+        .add_node_data(node_data_1_2.clone())
         .build();
 
     let scripts = vec![

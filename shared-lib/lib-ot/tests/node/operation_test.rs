@@ -75,13 +75,13 @@ fn operation_insert_transform_one_level_path_test() {
 fn operation_insert_transform_multiple_level_path_test() {
     let mut test = NodeTest::new();
     let node_data_1 = NodeDataBuilder::new("text_1")
-        .add_node(NodeDataBuilder::new("text_1_1").build())
-        .add_node(NodeDataBuilder::new("text_1_2").build())
+        .add_node_data(NodeDataBuilder::new("text_1_1").build())
+        .add_node_data(NodeDataBuilder::new("text_1_2").build())
         .build();
 
     let node_data_2 = NodeDataBuilder::new("text_2")
-        .add_node(NodeDataBuilder::new("text_2_1").build())
-        .add_node(NodeDataBuilder::new("text_2_2").build())
+        .add_node_data(NodeDataBuilder::new("text_2_1").build())
+        .add_node_data(NodeDataBuilder::new("text_2_2").build())
         .build();
 
     let node_data_3 = NodeDataBuilder::new("text_3").build();

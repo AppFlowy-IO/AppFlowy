@@ -1,4 +1,4 @@
-use crate::document::script::{EditorScript::*, *};
+use crate::old_document::script::{EditorScript::*, *};
 use flowy_revision::disk::RevisionState;
 use lib_ot::core::{count_utf16_code_units, Interval};
 

@@ -1,11 +1,10 @@
-use crate::core::{Changeset, Node, NodeData, NodeOperation, Path, Transaction};
+use super::NodeOperations;
+use crate::core::{Changeset, Node, NodeData, NodeDataBuilder, NodeOperation, Path, Transaction};
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, Children, FollowingSiblings, NodeId};
 use std::rc::Rc;
 
-use super::NodeOperations;
-
-///
+#[derive(Debug)]
 pub struct NodeTree {
     arena: Arena<Node>,
     root: NodeId,
@@ -46,6 +45,43 @@ impl NodeTree {
             let node_id = self.node_id_at_path(path)?;
             self.get_node(node_id)
         }
+    }
+
+    pub fn get_node_data(&self, node_id: NodeId) -> Option<NodeData> {
+        let Node {
+            node_type,
+            body,
+            attributes,
+        } = self.get_node(node_id)?.clone();
+        let mut node_data = NodeData::new(node_type);
+        for (key, value) in attributes.into_inner() {
+            node_data.attributes.insert(key, value);
+        }
+        node_data.body = body;
+
+        let children = self.children_from_node(node_id);
+        for child in children.into_iter() {
+            if let Some(child_node_data) = self.get_node_data(child) {
+                node_data.children.push(child_node_data);
+            }
+        }
+        Some(node_data)
+    }
+
+    pub fn root_node(&self) -> NodeId {
+        self.root
+    }
+
+    pub fn to_json(&self, node_id: NodeId, pretty_json: bool) -> Result<String, OTError> {
+        let node_data = self
+            .get_node_data(node_id)
+            .ok_or(OTError::internal().context("Node doesn't exist exist"))?;
+        let json = if pretty_json {
+            serde_json::to_string_pretty(&node_data).map_err(|err| OTError::serde().context(err))?
+        } else {
+            serde_json::to_string(&node_data).map_err(|err| OTError::serde().context(err))?
+        };
+        Ok(json)
     }
 
     ///

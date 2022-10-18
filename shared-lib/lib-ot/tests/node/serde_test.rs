@@ -16,7 +16,7 @@ fn operation_insert_node_serde_test() {
 #[test]
 fn operation_insert_node_with_children_serde_test() {
     let node = NodeDataBuilder::new("text")
-        .add_node(NodeData::new("sub_text".to_owned()))
+        .add_node_data(NodeData::new("sub_text".to_owned()))
         .build();
 
     let insert = NodeOperation::Insert {
