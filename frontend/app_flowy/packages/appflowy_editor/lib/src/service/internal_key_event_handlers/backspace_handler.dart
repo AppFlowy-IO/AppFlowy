@@ -1,22 +1,9 @@
 import 'package:appflowy_editor/src/infra/infra.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-// Handle delete text.
-ShortcutEventHandler deleteTextHandler = (editorState, event) {
-  if (event.logicalKey == LogicalKeyboardKey.backspace) {
-    return _handleBackspace(editorState, event);
-  }
-  if (event.logicalKey == LogicalKeyboardKey.delete) {
-    return _handleDelete(editorState, event);
-  }
-
-  return KeyEventResult.ignored;
-};
-
-KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
+ShortcutEventHandler backspaceEventHandler = (editorState, event) {
   var selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null) {
     return KeyEventResult.ignored;
@@ -122,7 +109,7 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   }
 
   return KeyEventResult.handled;
-}
+};
 
 KeyEventResult _backDeleteToPreviousTextNode(
   EditorState editorState,
@@ -182,7 +169,7 @@ KeyEventResult _backDeleteToPreviousTextNode(
   return KeyEventResult.handled;
 }
 
-KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
+ShortcutEventHandler deleteEventHandler = (editorState, event) {
   var selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null) {
     return KeyEventResult.ignored;
@@ -238,7 +225,7 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
   }
 
   return KeyEventResult.handled;
-}
+};
 
 KeyEventResult _mergeNextLineIntoThisLine(EditorState editorState,
     TextNode textNode, Transaction transaction, Selection selection) {
