@@ -505,6 +505,13 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   }
 
   void _showContextMenu(TapDownDetails details) {
+    _clearContextMenu();
+
+    // For now, only support the text node.
+    if (!currentSelectedNodes.every((element) => element is TextNode)) {
+      return;
+    }
+
     final contextMenu = OverlayEntry(
       builder: (context) => ContextMenu(
         position: details.globalPosition,
