@@ -13,6 +13,7 @@ use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
 pub struct AppFlowyDocumentEditor {
+    #[allow(dead_code)]
     doc_id: String,
     command_sender: CommandSender,
 }
@@ -42,9 +43,12 @@ impl AppFlowyDocumentEditor {
         Ok(())
     }
 
-    pub async fn get_content(&self) -> FlowyResult<String> {
+    pub async fn get_content(&self, pretty: bool) -> FlowyResult<String> {
         let (ret, rx) = oneshot::channel::<FlowyResult<String>>();
-        let _ = self.command_sender.send(Command::GetDocumentContent { ret }).await;
+        let _ = self
+            .command_sender
+            .send(Command::GetDocumentContent { pretty, ret })
+            .await;
         let content = rx.await.map_err(internal_error)??;
         Ok(content)
     }

@@ -1,7 +1,9 @@
 use crate::editor::document::Document;
-use lib_ot::core::NodeTree;
+
+use lib_ot::core::{AttributeHashMap, Body, NodeData, NodeId, NodeTree};
+use lib_ot::text_delta::TextOperations;
 use serde::de::{self, MapAccess, Visitor};
-use serde::ser::SerializeMap;
+use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
@@ -12,12 +14,12 @@ impl Serialize for Document {
     {
         let mut map = serializer.serialize_map(Some(1))?;
         let _ = map.serialize_key("document")?;
-        let _ = map.serialize_value(&self.tree)?;
+        let _ = map.serialize_value(&DocumentContentSerializer(self))?;
         map.end()
     }
 }
 
-const FIELDS: &'static [&str] = &["Document"];
+const FIELDS: &[&str] = &["Document"];
 
 impl<'de> Deserialize<'de> for Document {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -53,12 +55,78 @@ impl<'de> Deserialize<'de> for Document {
                 }
 
                 match node_tree {
-                    Some(tree) => Ok(Document { tree }),
+                    Some(tree) => Ok(Document::new(tree)),
                     None => Err(de::Error::missing_field("document")),
                 }
             }
         }
         deserializer.deserialize_any(DocumentVisitor())
+    }
+}
+
+#[derive(Debug)]
+struct DocumentContentSerializer<'a>(pub &'a Document);
+
+#[derive(Default, Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
+pub struct DocumentNodeData {
+    #[serde(rename = "type")]
+    pub node_type: String,
+
+    #[serde(skip_serializing_if = "AttributeHashMap::is_empty")]
+    #[serde(default)]
+    pub attributes: AttributeHashMap,
+
+    #[serde(skip_serializing_if = "TextOperations::is_empty")]
+    pub delta: TextOperations,
+
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(default)]
+    pub children: Vec<DocumentNodeData>,
+}
+
+impl std::convert::From<NodeData> for DocumentNodeData {
+    fn from(node_data: NodeData) -> Self {
+        let delta = if let Body::Delta(operations) = node_data.body {
+            operations
+        } else {
+            TextOperations::default()
+        };
+        DocumentNodeData {
+            node_type: node_data.node_type,
+            attributes: node_data.attributes,
+            delta,
+            children: node_data.children.into_iter().map(DocumentNodeData::from).collect(),
+        }
+    }
+}
+
+impl<'a> Serialize for DocumentContentSerializer<'a> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let tree = self.0.get_tree();
+        let root_node_id = tree.root_node_id();
+
+        // transform the NodeData to DocumentNodeData
+        let get_document_node_data = |node_id: NodeId| tree.get_node_data(node_id).map(DocumentNodeData::from);
+
+        let mut children = tree.get_children_ids(root_node_id);
+        if children.len() == 1 {
+            let node_id = children.pop().unwrap();
+            match get_document_node_data(node_id) {
+                None => serializer.serialize_str(""),
+                Some(node_data) => node_data.serialize(serializer),
+            }
+        } else {
+            let mut seq = serializer.serialize_seq(Some(children.len()))?;
+            for child in children {
+                if let Some(node_data) = get_document_node_data(child) {
+                    let _ = seq.serialize_element(&node_data)?;
+                }
+            }
+            seq.end()
+        }
     }
 }
 

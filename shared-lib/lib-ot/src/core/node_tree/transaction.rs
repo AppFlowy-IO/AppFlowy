@@ -137,7 +137,7 @@ impl<'a> TransactionBuilder<'a> {
     /// //      0 -- text_1
     /// //      1 -- text_2
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new();
+    /// let mut node_tree = NodeTree::default();
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_nodes_at_path(0,vec![ NodeData::new("text_1"),  NodeData::new("text_2")])
     ///     .finalize();
@@ -167,7 +167,7 @@ impl<'a> TransactionBuilder<'a> {
     /// // -- 0
     /// //    |-- text
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new();
+    /// let mut node_tree = NodeTree::default();
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_node_at_path(0, NodeData::new("text"))
     ///     .finalize();
@@ -220,11 +220,17 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     pub fn delete_nodes_at_path(mut self, path: &Path, length: usize) -> Self {
-        let mut node = self.node_tree.node_id_at_path(path).unwrap();
+        let node_id = self.node_tree.node_id_at_path(path);
+        if node_id.is_none() {
+            tracing::warn!("Path: {:?} doesn't contains any nodes", path);
+            return self;
+        }
+
+        let mut node_id = node_id.unwrap();
         let mut deleted_nodes = vec![];
         for _ in 0..length {
-            deleted_nodes.push(self.get_deleted_nodes(node));
-            node = self.node_tree.following_siblings(node).next().unwrap();
+            deleted_nodes.push(self.get_deleted_node_data(node_id));
+            node_id = self.node_tree.following_siblings(node_id).next().unwrap();
         }
 
         self.operations.add_op(NodeOperation::Delete {
@@ -234,7 +240,7 @@ impl<'a> TransactionBuilder<'a> {
         self
     }
 
-    fn get_deleted_nodes(&self, node_id: NodeId) -> NodeData {
+    fn get_deleted_node_data(&self, node_id: NodeId) -> NodeData {
         let node_data = self.node_tree.get_node(node_id).unwrap();
 
         let mut children = vec![];
@@ -242,7 +248,7 @@ impl<'a> TransactionBuilder<'a> {
             .get_children_ids(node_id)
             .into_iter()
             .for_each(|child_id| {
-                children.push(self.get_deleted_nodes(child_id));
+                children.push(self.get_deleted_node_data(child_id));
             });
 
         NodeData {

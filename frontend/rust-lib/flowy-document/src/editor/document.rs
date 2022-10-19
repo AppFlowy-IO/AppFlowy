@@ -2,27 +2,39 @@ use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{RevisionObjectDeserializer, RevisionObjectSerializer};
 use flowy_sync::entities::revision::Revision;
-use lib_ot::core::{Body, Extension, Interval, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Transaction};
-use lib_ot::text_delta::{TextOperationBuilder, TextOperations};
+use lib_ot::core::{Body, Extension, Interval, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Transaction};
+use lib_ot::text_delta::TextOperationBuilder;
 
 #[derive(Debug)]
 pub struct Document {
-    pub(crate) tree: NodeTree,
+    tree: NodeTree,
 }
 
 impl Document {
+    pub fn new(tree: NodeTree) -> Self {
+        Self { tree }
+    }
+
     pub fn from_transaction(transaction: Transaction) -> FlowyResult<Self> {
-        let tree = NodeTree::from_operations(transaction.operations)?;
+        let tree = NodeTree::from_operations(transaction.operations, make_tree_context())?;
         Ok(Self { tree })
     }
 
-    pub fn to_json(&self) -> FlowyResult<String> {
-        serde_json::to_string(self).map_err(|err| FlowyError::serde().context(err))
+    pub fn get_content(&self, pretty: bool) -> FlowyResult<String> {
+        if pretty {
+            serde_json::to_string_pretty(self).map_err(|err| FlowyError::serde().context(err))
+        } else {
+            serde_json::to_string(self).map_err(|err| FlowyError::serde().context(err))
+        }
     }
 
-    pub fn get_content(&self) -> FlowyResult<String> {
-        self.to_json()
+    pub fn get_tree(&self) -> &NodeTree {
+        &self.tree
     }
+}
+
+pub(crate) fn make_tree_context() -> NodeTreeContext {
+    NodeTreeContext {}
 }
 
 pub fn initial_document_content() -> String {
@@ -63,10 +75,10 @@ impl RevisionObjectDeserializer for DocumentRevisionSerde {
     type Output = Document;
 
     fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
-        let mut node_tree = NodeTree::new();
+        let mut tree = NodeTree::new(make_tree_context());
         let transaction = make_transaction_from_revisions(revisions)?;
-        let _ = node_tree.apply_transaction(transaction)?;
-        let document = Document { tree: node_tree };
+        let _ = tree.apply_transaction(transaction)?;
+        let document = Document::new(tree);
         Result::<Document, FlowyError>::Ok(document)
     }
 }

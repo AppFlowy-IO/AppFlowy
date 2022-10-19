@@ -153,7 +153,10 @@ fn operation_delete_transform_path_test() {
         // After perform the delete action, the tree will be:
         // 0: text_1
         // 1: text_3
-        AssertNumberOfNodesAtPath { path: None, len: 2 },
+        AssertNumberOfNodesAtPath {
+            path: None,
+            expected: 2,
+        },
         AssertNode {
             path: 1.into(),
             expected: Some(node_3),

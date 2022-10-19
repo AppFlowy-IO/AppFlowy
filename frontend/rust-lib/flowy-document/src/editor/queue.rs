@@ -57,8 +57,8 @@ impl DocumentQueue {
                 self.document.write().await.apply_transaction(transaction)?;
                 let _ = ret.send(Ok(()));
             }
-            Command::GetDocumentContent { ret } => {
-                let content = self.document.read().await.get_content()?;
+            Command::GetDocumentContent { pretty, ret } => {
+                let content = self.document.read().await.get_content(pretty)?;
                 let _ = ret.send(Ok(content));
             }
         }
@@ -72,5 +72,5 @@ pub(crate) type Ret<T> = oneshot::Sender<Result<T, FlowyError>>;
 
 pub enum Command {
     ComposeTransaction { transaction: Transaction, ret: Ret<()> },
-    GetDocumentContent { ret: Ret<String> },
+    GetDocumentContent { pretty: bool, ret: Ret<String> },
 }

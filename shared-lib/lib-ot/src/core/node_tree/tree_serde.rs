@@ -1,8 +1,9 @@
-use crate::core::{NodeData, NodeTree};
+use crate::core::{NodeData, NodeTree, NodeTreeContext};
 use serde::de::{MapAccess, Visitor};
 use serde::ser::SerializeSeq;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
+use std::fmt::Debug;
 use std::marker::PhantomData;
 
 impl Serialize for NodeTree {
@@ -57,6 +58,6 @@ impl<'de> Deserialize<'de> for NodeTree {
         }
 
         let node_data: NodeData = deserializer.deserialize_any(NodeTreeVisitor(PhantomData))?;
-        Ok(NodeTree::from_node_data(node_data).unwrap())
+        Ok(NodeTree::from_node_data(node_data, NodeTreeContext::default()).unwrap())
     }
 }

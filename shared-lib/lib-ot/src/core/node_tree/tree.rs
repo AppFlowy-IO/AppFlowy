@@ -4,38 +4,42 @@ use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use indextree::{Arena, FollowingSiblings, NodeId};
 use std::sync::Arc;
 
+#[derive(Default, Debug)]
+pub struct NodeTreeContext {}
+
 #[derive(Debug)]
 pub struct NodeTree {
     arena: Arena<Node>,
     root: NodeId,
+    pub context: NodeTreeContext,
 }
 
 impl Default for NodeTree {
     fn default() -> Self {
-        Self::new()
+        Self::new(NodeTreeContext::default())
     }
 }
 
 impl NodeTree {
-    pub fn new() -> NodeTree {
+    pub fn new(context: NodeTreeContext) -> NodeTree {
         let mut arena = Arena::new();
         let root = arena.new_node(Node::new("root"));
-        NodeTree { arena, root }
+        NodeTree { arena, root, context }
     }
 
-    pub fn from_node_data(node_data: NodeData) -> Result<Self, OTError> {
-        let mut tree = Self::new();
+    pub fn from_node_data(node_data: NodeData, context: NodeTreeContext) -> Result<Self, OTError> {
+        let mut tree = Self::new(context);
         let _ = tree.insert_nodes(&0_usize.into(), vec![node_data])?;
         Ok(tree)
     }
 
-    pub fn from_bytes(bytes: Vec<u8>) -> Result<Self, OTError> {
+    pub fn from_bytes(bytes: Vec<u8>, context: NodeTreeContext) -> Result<Self, OTError> {
         let operations = NodeOperations::from_bytes(bytes)?;
-        Self::from_operations(operations)
+        Self::from_operations(operations, context)
     }
 
-    pub fn from_operations(operations: NodeOperations) -> Result<Self, OTError> {
-        let mut node_tree = NodeTree::default();
+    pub fn from_operations(operations: NodeOperations, context: NodeTreeContext) -> Result<Self, OTError> {
+        let mut node_tree = NodeTree::new(context);
         for operation in operations.into_inner().into_iter() {
             let _ = node_tree.apply_op(operation)?;
         }
@@ -43,6 +47,9 @@ impl NodeTree {
     }
 
     pub fn get_node(&self, node_id: NodeId) -> Option<&Node> {
+        if node_id.is_removed(&self.arena) {
+            return None;
+        }
         Some(self.arena.get(node_id)?.get())
     }
 
@@ -50,6 +57,18 @@ impl NodeTree {
         {
             let node_id = self.node_id_at_path(path)?;
             self.get_node(node_id)
+        }
+    }
+
+    pub fn get_node_data_at_path(&self, path: &Path) -> Vec<NodeData> {
+        let f = |path: &Path| {
+            let node_id = self.node_id_at_path(path)?;
+            let node_data = self.get_node_data(node_id)?;
+            Some(node_data.children)
+        };
+        match f(path) {
+            None => vec![],
+            Some(nodes) => nodes,
         }
     }
 
@@ -114,7 +133,7 @@ impl NodeTree {
     /// let root_path: Path = vec![0].into();
     /// let op = NodeOperation::Insert {path: root_path.clone(),nodes };
     ///
-    /// let mut node_tree = NodeTree::new();
+    /// let mut node_tree = NodeTree::default();
     /// node_tree.apply_op(Arc::new(op)).unwrap();
     /// let node_id = node_tree.node_id_at_path(&root_path).unwrap();
     /// let node_path = node_tree.path_from_node_id(node_id);
@@ -122,13 +141,17 @@ impl NodeTree {
     /// ```
     pub fn node_id_at_path<T: Into<Path>>(&self, path: T) -> Option<NodeId> {
         let path = path.into();
-        if path.is_empty() {
-            return Some(self.root);
+        if !path.is_valid() {
+            return None;
         }
 
         let mut iterate_node = self.root;
         for id in path.iter() {
             iterate_node = self.child_from_node_at_index(iterate_node, *id)?;
+        }
+
+        if iterate_node.is_removed(&self.arena) {
+            return None;
         }
         Some(iterate_node)
     }
@@ -160,7 +183,7 @@ impl NodeTree {
         counter
     }
 
-    /// Returns the note_id at the position of the tree with id note_id
+    /// Returns the note_id at the index of the tree which its id is note_id
     /// # Arguments
     ///
     /// * `node_id`: the node id of the child's parent
@@ -176,7 +199,7 @@ impl NodeTree {
     /// let node_1 = NodeData::new("text".to_string());
     /// let inserted_path: Path = vec![0].into();
     ///
-    /// let mut node_tree = NodeTree::new();
+    /// let mut node_tree = NodeTree::default();
     /// let op = NodeOperation::Insert {path: inserted_path.clone(),nodes: vec![node_1.clone()] };
     /// node_tree.apply_op(Arc::new(op)).unwrap();
     ///
@@ -229,7 +252,7 @@ impl NodeTree {
         match op {
             NodeOperation::Insert { path, nodes } => self.insert_nodes(&path, nodes),
             NodeOperation::Update { path, changeset } => self.update(&path, changeset),
-            NodeOperation::Delete { path, nodes } => self.delete_node(&path, nodes),
+            NodeOperation::Delete { path, nodes } => self.delete_node(&path),
         }
     }
     /// Inserts nodes at given path
@@ -237,18 +260,21 @@ impl NodeTree {
     /// returns error if the path is empty
     ///
     fn insert_nodes(&mut self, path: &Path, nodes: Vec<NodeData>) -> Result<(), OTError> {
-        debug_assert!(!path.is_empty());
-        if path.is_empty() {
-            return Err(OTErrorCode::PathIsEmpty.into());
+        if !path.is_valid() {
+            return Err(OTErrorCode::InvalidPath.into());
         }
 
         let (parent_path, last_path) = path.split_at(path.0.len() - 1);
         let last_index = *last_path.first().unwrap();
-        let parent_node = self
-            .node_id_at_path(parent_path)
-            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+        if parent_path.is_empty() {
+            self.insert_nodes_at_index(self.root, last_index, nodes)
+        } else {
+            let parent_node = self
+                .node_id_at_path(parent_path)
+                .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
 
-        self.insert_nodes_at_index(parent_node, last_index, nodes)
+            self.insert_nodes_at_index(parent_node, last_index, nodes)
+        }
     }
 
     /// Inserts nodes before the node with node_id
@@ -298,20 +324,18 @@ impl NodeTree {
         }
     }
 
-    fn delete_node(&mut self, path: &Path, nodes: Vec<NodeData>) -> Result<(), OTError> {
-        let mut update_node = self
-            .node_id_at_path(path)
-            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
-
-        for _ in 0..nodes.len() {
-            let next = update_node.following_siblings(&self.arena).next();
-            update_node.remove_subtree(&mut self.arena);
-            if let Some(next_id) = next {
-                update_node = next_id;
-            } else {
-                break;
+    /// Removes a node and its descendants from the tree
+    fn delete_node(&mut self, path: &Path) -> Result<(), OTError> {
+        if !path.is_valid() {
+            return Err(OTErrorCode::InvalidPath.into());
+        }
+        match self.node_id_at_path(path) {
+            None => tracing::warn!("Can't find any node at path: {:?}", path),
+            Some(node) => {
+                node.remove_subtree(&mut self.arena);
             }
         }
+
         Ok(())
     }
 
@@ -326,6 +350,9 @@ impl NodeTree {
     where
         F: FnOnce(&mut Node) -> Result<(), OTError>,
     {
+        if !path.is_valid() {
+            return Err(OTErrorCode::InvalidPath.into());
+        }
         let node_id = self
             .node_id_at_path(path)
             .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;

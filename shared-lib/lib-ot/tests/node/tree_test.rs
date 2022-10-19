@@ -10,7 +10,7 @@ use lib_ot::text_delta::TextOperationBuilder;
 fn node_insert_test() {
     let mut test = NodeTest::new();
     let inserted_node = NodeData::new("text");
-    let path: Path = 0.into();
+    let path: Path = vec![0].into();
     let scripts = vec![
         InsertNode {
             path: path.clone(),
@@ -24,6 +24,31 @@ fn node_insert_test() {
     ];
     test.run_scripts(scripts);
 }
+
+// #[test]
+// fn tree_insert_multiple_nodes_at_same_path_test() {
+//     let mut test = NodeTest::new();
+//     let node_1 = NodeData::new("a");
+//     let node_2 = NodeData::new("b");
+//     let node_3 = NodeData::new("c");
+//     let node_data_list = vec![node_1, node_2, node_3];
+//     let path: Path = vec![0, 0].into();
+//     let scripts = vec![
+//         // 0:a
+//         // 1:b
+//         // 2:c
+//         InsertNodes {
+//             path: path.clone(),
+//             node_data_list: node_data_list.clone(),
+//             rev_id: 1,
+//         },
+//         AssertNodesAtPath {
+//             path,
+//             expected: node_data_list,
+//         },
+//     ];
+//     test.run_scripts(scripts);
+// }
 
 #[test]
 fn node_insert_node_with_children_test() {
@@ -143,7 +168,10 @@ fn node_insert_node_in_ordered_nodes_test() {
             path: path_3,
             expected: Some(node_2_1),
         },
-        AssertNumberOfNodesAtPath { path: None, len: 4 },
+        AssertNumberOfNodesAtPath {
+            path: None,
+            expected: 4,
+        },
     ];
     test.run_scripts(scripts);
 }
@@ -285,6 +313,53 @@ fn node_delete_test() {
             rev_id: 2,
         },
         AssertNodeData { path, expected: None },
+    ];
+    test.run_scripts(scripts);
+}
+
+#[test]
+fn node_delete_sub_nodes_test() {
+    let mut test = NodeTest::new();
+    let inserted_node = NodeDataBuilder::new("text")
+        .add_node_data(NodeDataBuilder::new("sub_text_1").build())
+        .add_node_data(NodeDataBuilder::new("sub_text_2").build())
+        .add_node_data(NodeDataBuilder::new("sub_text_3").build())
+        .build();
+
+    let scripts = vec![
+        InsertNode {
+            path: vec![0].into(),
+            node_data: inserted_node,
+            rev_id: 1,
+        },
+        AssertNodeData {
+            path: vec![0, 0].into(),
+            expected: Some(NodeDataBuilder::new("sub_text_1").build()),
+        },
+        AssertNodeData {
+            path: vec![0, 1].into(),
+            expected: Some(NodeDataBuilder::new("sub_text_2").build()),
+        },
+        AssertNodeData {
+            path: vec![0, 2].into(),
+            expected: Some(NodeDataBuilder::new("sub_text_3").build()),
+        },
+        AssertNumberOfNodesAtPath {
+            path: Some(Path(vec![0])),
+            expected: 3,
+        },
+        DeleteNode {
+            path: vec![0, 0].into(),
+            rev_id: 2,
+        },
+        AssertNodeData {
+            path: vec![0, 0].into(),
+            expected: Some(NodeDataBuilder::new("sub_text_2").build()),
+        },
+        AssertNumberOfNodesAtPath {
+            path: Some(Path(vec![0])),
+            expected: 2,
+        },
     ];
     test.run_scripts(scripts);
 }

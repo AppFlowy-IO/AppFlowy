@@ -2,14 +2,16 @@ use flowy_document::editor::AppFlowyDocumentEditor;
 
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use lib_ot::core::{Body, Changeset, NodeData, NodeDataBuilder, NodeOperation, Path, Transaction};
+use lib_ot::core::{Body, Changeset, NodeDataBuilder, NodeOperation, Path, Transaction};
 use lib_ot::text_delta::TextOperations;
 use std::sync::Arc;
 
 pub enum EditScript {
     InsertText { path: Path, delta: TextOperations },
     UpdateText { path: Path, delta: TextOperations },
+    Delete { path: Path },
     AssertContent { expected: &'static str },
+    AssertPrettyContent { expected: &'static str },
 }
 
 pub struct DocumentEditorTest {
@@ -32,7 +34,7 @@ impl DocumentEditorTest {
         Self { sdk, editor }
     }
 
-    pub async fn run_scripts(self, scripts: Vec<EditScript>) {
+    pub async fn run_scripts(&self, scripts: Vec<EditScript>) {
         for script in scripts {
             self.run_script(script).await;
         }
@@ -41,9 +43,7 @@ impl DocumentEditorTest {
     async fn run_script(&self, script: EditScript) {
         match script {
             EditScript::InsertText { path, delta } => {
-                let node_data = NodeDataBuilder::new("update_text")
-                    .insert_body(Body::Delta(delta))
-                    .build();
+                let node_data = NodeDataBuilder::new("text").insert_body(Body::Delta(delta)).build();
                 let operation = NodeOperation::Insert {
                     path,
                     nodes: vec![node_data],
@@ -62,9 +62,21 @@ impl DocumentEditorTest {
                     .await
                     .unwrap();
             }
+            EditScript::Delete { path } => {
+                let operation = NodeOperation::Delete { path, nodes: vec![] };
+                self.editor
+                    .apply_transaction(Transaction::from_operations(vec![operation]))
+                    .await
+                    .unwrap();
+            }
             EditScript::AssertContent { expected } => {
                 //
-                let content = self.editor.get_content().await.unwrap();
+                let content = self.editor.get_content(false).await.unwrap();
+                assert_eq!(content, expected);
+            }
+            EditScript::AssertPrettyContent { expected } => {
+                //
+                let content = self.editor.get_content(true).await.unwrap();
                 assert_eq!(content, expected);
             }
         }
