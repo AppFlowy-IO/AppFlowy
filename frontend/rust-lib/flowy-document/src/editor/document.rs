@@ -26,7 +26,7 @@ impl Document {
 }
 
 pub fn initial_document_content() -> String {
-    let delta = TextOperationBuilder::new().insert("abc").build();
+    let delta = TextOperationBuilder::new().insert("").build();
     let node_data = NodeDataBuilder::new("text").insert_body(Body::Delta(delta)).build();
     let editor_node = NodeDataBuilder::new("editor").add_node_data(node_data).build();
     let node_operation = NodeOperation::Insert {

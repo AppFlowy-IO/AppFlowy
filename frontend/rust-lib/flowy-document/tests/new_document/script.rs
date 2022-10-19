@@ -2,12 +2,13 @@ use flowy_document::editor::AppFlowyDocumentEditor;
 
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use lib_ot::core::{NodeOperation, Path, Transaction};
+use lib_ot::core::{Body, Changeset, NodeData, NodeDataBuilder, NodeOperation, Path, Transaction};
 use lib_ot::text_delta::TextOperations;
 use std::sync::Arc;
 
 pub enum EditScript {
     InsertText { path: Path, delta: TextOperations },
+    UpdateText { path: Path, delta: TextOperations },
     AssertContent { expected: &'static str },
 }
 
@@ -39,8 +40,23 @@ impl DocumentEditorTest {
 
     async fn run_script(&self, script: EditScript) {
         match script {
-            EditScript::InsertText { path, delta: _ } => {
-                let operation = NodeOperation::Insert { path, nodes: vec![] };
+            EditScript::InsertText { path, delta } => {
+                let node_data = NodeDataBuilder::new("update_text")
+                    .insert_body(Body::Delta(delta))
+                    .build();
+                let operation = NodeOperation::Insert {
+                    path,
+                    nodes: vec![node_data],
+                };
+                self.editor
+                    .apply_transaction(Transaction::from_operations(vec![operation]))
+                    .await
+                    .unwrap();
+            }
+            EditScript::UpdateText { path, delta } => {
+                let inverted = delta.invert_str("");
+                let changeset = Changeset::Delta { delta, inverted };
+                let operation = NodeOperation::Update { path, changeset };
                 self.editor
                     .apply_transaction(Transaction::from_operations(vec![operation]))
                     .await
