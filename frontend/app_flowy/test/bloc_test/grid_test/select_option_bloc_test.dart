@@ -106,7 +106,7 @@ void main() {
     );
 
     blocTest<SelectOptionCellEditorBloc, SelectOptionEditorState>(
-      "select option",
+      "select/unselect option",
       build: () {
         final bloc = SelectOptionCellEditorBloc(cellController: cellController);
         bloc.add(const SelectOptionEditorEvent.initial());
@@ -116,35 +116,17 @@ void main() {
         _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
+        expect(bloc.state.selectedOptions.length, 1);
         final optionId = bloc.state.options[0].id;
+        bloc.add(SelectOptionEditorEvent.unSelectOption(optionId));
+        await Future.delayed(gridResponseDuration());
+        assert(bloc.state.selectedOptions.isEmpty);
         bloc.add(SelectOptionEditorEvent.selectOption(optionId));
       },
       wait: gridResponseDuration(),
       verify: (bloc) {
         assert(bloc.state.selectedOptions.length == 1);
         expect(bloc.state.selectedOptions[0].name, "A");
-      },
-    );
-
-    blocTest<SelectOptionCellEditorBloc, SelectOptionEditorState>(
-      "unselect option",
-      build: () {
-        final bloc = SelectOptionCellEditorBloc(cellController: cellController);
-        bloc.add(const SelectOptionEditorEvent.initial());
-        return bloc;
-      },
-      act: (bloc) async {
-        _removeFieldOptions(bloc);
-        bloc.add(const SelectOptionEditorEvent.newOption("A"));
-        await Future.delayed(gridResponseDuration());
-        final optionId = bloc.state.options[0].id;
-        bloc.add(SelectOptionEditorEvent.selectOption(optionId));
-        await Future.delayed(gridResponseDuration());
-        bloc.add(SelectOptionEditorEvent.unSelectOption(optionId));
-      },
-      wait: gridResponseDuration(),
-      verify: (bloc) {
-        assert(bloc.state.selectedOptions.isEmpty);
       },
     );
 
