@@ -113,11 +113,15 @@ impl AnyCellData {
 /// * Use URLCellData to parse the data when the FieldType is URL.
 /// * Use String to parse the data when the FieldType is RichText, Number, or Checkbox.
 /// * Check out the implementation of CellDataOperation trait for more information.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct CellBytes(pub Bytes);
 
+pub trait CellDataIsEmpty {
+    fn is_empty(&self) -> bool;
+}
+
 pub trait CellBytesParser {
-    type Object;
+    type Object: CellDataIsEmpty;
     fn parser(bytes: &Bytes) -> FlowyResult<Self::Object>;
 }
 

@@ -65,6 +65,20 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: _buildEditor(context),
+      // body: Center(
+      //   child: ContextMenu(editorState: EditorState.empty(), items: [
+      //     [
+      //       ContextMenuItem(name: 'ABCDEFGHIJKLM', onPressed: (editorState) {}),
+      //       ContextMenuItem(name: 'A', onPressed: (editorState) {}),
+      //       ContextMenuItem(name: 'A', onPressed: (editorState) {})
+      //     ],
+      //     [
+      //       ContextMenuItem(name: 'B', onPressed: (editorState) {}),
+      //       ContextMenuItem(name: 'B', onPressed: (editorState) {}),
+      //       ContextMenuItem(name: 'B', onPressed: (editorState) {})
+      //     ]
+      //   ]),
+      // ),
       floatingActionButton: _buildExpandableFab(),
     );
   }
@@ -109,8 +123,8 @@ class _MyHomePageState extends State<MyHomePage> {
             ..handler = (message) {
               debugPrint(message);
             };
-          _editorState!.operationStream.listen((event) {
-            debugPrint('Operation: ${event.toJson()}');
+          _editorState!.transactionStream.listen((event) {
+            debugPrint('Transaction: ${event.toJson()}');
           });
           return Container(
             color: darkMode ? Colors.black : Colors.white,

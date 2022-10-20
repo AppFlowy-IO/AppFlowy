@@ -1,6 +1,6 @@
 use crate::entities::CellChangesetPB;
 use crate::entities::{GridCellIdPB, GridCellIdParams};
-use crate::services::cell::{CellBytesParser, FromCellChangeset, FromCellString};
+use crate::services::cell::{CellBytesParser, CellDataIsEmpty, FromCellChangeset, FromCellString};
 use bytes::Bytes;
 
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
@@ -197,6 +197,12 @@ impl TimeFormat {
 impl std::default::Default for TimeFormat {
     fn default() -> Self {
         TimeFormat::TwentyFourHour
+    }
+}
+
+impl CellDataIsEmpty for DateCellDataPB {
+    fn is_empty(&self) -> bool {
+        self.date.is_empty()
     }
 }
 

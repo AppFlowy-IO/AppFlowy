@@ -2,7 +2,8 @@ import 'dart:collection';
 
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
@@ -170,10 +171,21 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
         .toList();
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: SingleChildScrollView(
-        controller: sc,
-        scrollDirection: Axis.horizontal,
-        child: Wrap(spacing: 4, children: children),
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.mouse,
+            PointerDeviceKind.touch,
+            PointerDeviceKind.trackpad,
+            PointerDeviceKind.stylus,
+            PointerDeviceKind.invertedStylus,
+          },
+        ),
+        child: SingleChildScrollView(
+          controller: sc,
+          scrollDirection: Axis.horizontal,
+          child: Wrap(spacing: 4, children: children),
+        ),
       ),
     );
   }

@@ -1,15 +1,17 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
-use crate::services::field::{
-    make_selected_select_options, SelectOptionCellChangeset, SelectOptionCellDataPB, SelectOptionIds,
-    SelectOptionOperation, SelectOptionPB,
-};
+use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::{BoxTypeOptionBuilder, TypeOptionBuilder};
+use crate::services::field::{
+    SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
+};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 use serde::{Deserialize, Serialize};
 
 // Single select
@@ -23,15 +25,9 @@ pub struct SingleSelectTypeOptionPB {
 }
 impl_type_option!(SingleSelectTypeOptionPB, FieldType::SingleSelect);
 
-impl SelectOptionOperation for SingleSelectTypeOptionPB {
-    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
-        let mut select_options = make_selected_select_options(cell_data, &self.options);
-        // only keep option in single select
-        select_options.truncate(1);
-        SelectOptionCellDataPB {
-            options: self.options.clone(),
-            select_options,
-        }
+impl SelectTypeOptionSharedAction for SingleSelectTypeOptionPB {
+    fn number_of_max_options(&self) -> Option<usize> {
+        Some(1)
     }
 
     fn options(&self) -> &Vec<SelectOptionPB> {
@@ -50,11 +46,7 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        if !decoded_field_type.is_select_option() {
-            return Ok(CellBytes::default());
-        }
-
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
@@ -63,7 +55,6 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         _cell_rev: Option<CellRevision>,
     ) -> Result<String, FlowyError> {
         let content_changeset = changeset.try_into_inner()?;
-        let new_cell_data: String;
 
         let mut insert_option_ids = content_changeset
             .insert_option_ids
@@ -75,14 +66,12 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for SingleSel
         // Sometimes, the insert_option_ids may contain list of option ids. For example,
         // copy/paste a ids string.
         if insert_option_ids.is_empty() {
-            new_cell_data = "".to_string()
+            Ok("".to_string())
         } else {
             // Just take the first select option
             let _ = insert_option_ids.drain(1..);
-            new_cell_data = insert_option_ids.pop().unwrap();
+            Ok(insert_option_ids.pop().unwrap())
         }
-
-        Ok(new_cell_data)
     }
 }
 
@@ -103,17 +92,35 @@ impl TypeOptionBuilder for SingleSelectTypeOptionBuilder {
         FieldType::SingleSelect
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+
+    fn transform(&mut self, field_type: &FieldType, type_option_data: String) {
+        SelectOptionTypeOptionTransformer::transform_type_option(&mut self.0, field_type, type_option_data)
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
-
     use crate::services::field::type_options::*;
-    use crate::services::field::FieldBuilder;
+    use crate::services::field::{FieldBuilder, TypeOptionBuilder};
+
+    #[test]
+    fn single_select_transform_with_checkbox_type_option_test() {
+        let checkbox_type_option_builder = CheckboxTypeOptionBuilder::default();
+        let checkbox_type_option_data = checkbox_type_option_builder.serializer().json_str();
+
+        let mut single_select = SingleSelectTypeOptionBuilder::default();
+        single_select.transform(&FieldType::Checkbox, checkbox_type_option_data.clone());
+        debug_assert_eq!(single_select.0.options.len(), 2);
+
+        // Already contain the yes/no option. It doesn't need to insert new options
+        single_select.transform(&FieldType::Checkbox, checkbox_type_option_data);
+        debug_assert_eq!(single_select.0.options.len(), 2);
+    }
 
     #[test]
     fn single_select_insert_multi_option_test() {

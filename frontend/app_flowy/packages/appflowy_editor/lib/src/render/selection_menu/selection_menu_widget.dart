@@ -45,12 +45,13 @@ class SelectionMenuItem {
       final node = nodes.first as TextNode;
       final end = selection.start.offset;
       final start = node.toPlainText().substring(0, end).lastIndexOf('/');
-      editorState.transaction.deleteText(
-        node,
-        start,
-        selection.start.offset - start,
-      );
-      editorState.commit();
+      final transaction = editorState.transaction
+        ..deleteText(
+          node,
+          start,
+          selection.start.offset - start,
+        );
+      editorState.apply(transaction);
     }
   }
 }
@@ -277,12 +278,13 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
     final nodes = selectionService.currentSelectedNodes;
     if (selection != null && nodes.length == 1) {
       widget.onSelectionUpdate();
-      widget.editorState.transaction.deleteText(
-        nodes.first as TextNode,
-        selection.start.offset - length,
-        length,
-      );
-      widget.editorState.commit();
+      final transaction = widget.editorState.transaction
+        ..deleteText(
+          nodes.first as TextNode,
+          selection.start.offset - length,
+          length,
+        );
+      widget.editorState.apply(transaction);
     }
   }
 
@@ -293,12 +295,13 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
         widget.editorState.service.selectionService.currentSelectedNodes;
     if (selection != null && nodes.length == 1) {
       widget.onSelectionUpdate();
-      widget.editorState.transaction.insertText(
-        nodes.first as TextNode,
-        selection.end.offset,
-        text,
-      );
-      widget.editorState.commit();
+      final transaction = widget.editorState.transaction
+        ..insertText(
+          nodes.first as TextNode,
+          selection.end.offset,
+          text,
+        );
+      widget.editorState.apply(transaction);
     }
   }
 }

@@ -1,4 +1,4 @@
-use crate::services::cell::{CellBytesParser, FromCellString};
+use crate::services::cell::{CellBytesParser, CellDataIsEmpty, FromCellString};
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{internal_error, FlowyResult};
@@ -23,6 +23,12 @@ impl URLCellDataPB {
 
     pub(crate) fn to_json(&self) -> FlowyResult<String> {
         serde_json::to_string(self).map_err(internal_error)
+    }
+}
+
+impl CellDataIsEmpty for URLCellDataPB {
+    fn is_empty(&self) -> bool {
+        self.content.is_empty()
     }
 }
 

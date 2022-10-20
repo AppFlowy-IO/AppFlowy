@@ -16,12 +16,12 @@ class InitRustSDKTask extends LaunchTask {
 }
 
 Future<Directory> appFlowyDocumentDirectory() async {
-  Directory documentsDir = await getApplicationDocumentsDirectory();
-
   switch (integrationEnv()) {
     case IntegrationMode.develop:
+      Directory documentsDir = await getApplicationDocumentsDirectory();
       return Directory('${documentsDir.path}/flowy_dev').create();
     case IntegrationMode.release:
+      Directory documentsDir = await getApplicationDocumentsDirectory();
       return Directory('${documentsDir.path}/flowy').create();
     case IntegrationMode.test:
       return Directory("${Directory.current.path}/.sandbox");

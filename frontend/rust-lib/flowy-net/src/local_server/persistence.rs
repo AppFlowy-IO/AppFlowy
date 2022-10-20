@@ -1,6 +1,6 @@
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
 use flowy_sync::{
-    entities::{folder::FolderInfo, text_block::DocumentPB},
+    entities::{document::DocumentPayloadPB, folder::FolderInfo},
     errors::CollaborateError,
     server_document::*,
     server_folder::FolderCloudPersistence,
@@ -29,25 +29,25 @@ pub trait RevisionCloudStorage: Send + Sync {
     ) -> BoxResultFuture<(), CollaborateError>;
 }
 
-pub(crate) struct LocalTextBlockCloudPersistence {
+pub(crate) struct LocalDocumentCloudPersistence {
     storage: Arc<dyn RevisionCloudStorage>,
 }
 
-impl Debug for LocalTextBlockCloudPersistence {
+impl Debug for LocalDocumentCloudPersistence {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.write_str("LocalRevisionCloudPersistence")
     }
 }
 
-impl std::default::Default for LocalTextBlockCloudPersistence {
+impl std::default::Default for LocalDocumentCloudPersistence {
     fn default() -> Self {
-        LocalTextBlockCloudPersistence {
+        LocalDocumentCloudPersistence {
             storage: Arc::new(MemoryDocumentCloudStorage::default()),
         }
     }
 }
 
-impl FolderCloudPersistence for LocalTextBlockCloudPersistence {
+impl FolderCloudPersistence for LocalDocumentCloudPersistence {
     fn read_folder(&self, _user_id: &str, folder_id: &str) -> BoxResultFuture<FolderInfo, CollaborateError> {
         let storage = self.storage.clone();
         let folder_id = folder_id.to_owned();
@@ -109,8 +109,8 @@ impl FolderCloudPersistence for LocalTextBlockCloudPersistence {
     }
 }
 
-impl TextBlockCloudPersistence for LocalTextBlockCloudPersistence {
-    fn read_text_block(&self, doc_id: &str) -> BoxResultFuture<DocumentPB, CollaborateError> {
+impl DocumentCloudPersistence for LocalDocumentCloudPersistence {
+    fn read_document(&self, doc_id: &str) -> BoxResultFuture<DocumentPayloadPB, CollaborateError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {
@@ -122,11 +122,11 @@ impl TextBlockCloudPersistence for LocalTextBlockCloudPersistence {
         })
     }
 
-    fn create_text_block(
+    fn create_document(
         &self,
         doc_id: &str,
         repeated_revision: RepeatedRevision,
-    ) -> BoxResultFuture<Option<DocumentPB>, CollaborateError> {
+    ) -> BoxResultFuture<Option<DocumentPayloadPB>, CollaborateError> {
         let doc_id = doc_id.to_owned();
         let storage = self.storage.clone();
         Box::pin(async move {
@@ -135,7 +135,7 @@ impl TextBlockCloudPersistence for LocalTextBlockCloudPersistence {
         })
     }
 
-    fn read_text_block_revisions(
+    fn read_document_revisions(
         &self,
         doc_id: &str,
         rev_ids: Option<Vec<i64>>,
@@ -148,7 +148,7 @@ impl TextBlockCloudPersistence for LocalTextBlockCloudPersistence {
         })
     }
 
-    fn save_text_block_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
+    fn save_document_revisions(&self, repeated_revision: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
         let storage = self.storage.clone();
         Box::pin(async move {
             let _ = storage.set_revisions(repeated_revision).await?;
@@ -156,7 +156,7 @@ impl TextBlockCloudPersistence for LocalTextBlockCloudPersistence {
         })
     }
 
-    fn reset_text_block(&self, doc_id: &str, revisions: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
+    fn reset_document(&self, doc_id: &str, revisions: RepeatedRevision) -> BoxResultFuture<(), CollaborateError> {
         let storage = self.storage.clone();
         let doc_id = doc_id.to_owned();
         Box::pin(async move {

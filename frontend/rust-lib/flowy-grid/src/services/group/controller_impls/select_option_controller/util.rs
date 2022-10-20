@@ -10,7 +10,7 @@ use flowy_grid_data_model::revision::{
 
 pub type SelectOptionGroupContext = GroupContext<SelectOptionGroupConfigurationRevision>;
 
-pub fn add_select_option_row(
+pub fn add_or_remove_select_option_row(
     group: &mut Group,
     cell_data: &SelectOptionCellDataPB,
     row_rev: &RowRevision,

@@ -1,6 +1,6 @@
 use crate::entities::GridLayout;
-use crate::services::block_editor::GridBlockRevisionCompactor;
-use crate::services::grid_editor::{GridRevisionCompactor, GridRevisionEditor};
+use crate::services::block_editor::GridBlockRevisionCompress;
+use crate::services::grid_editor::{GridRevisionCompress, GridRevisionEditor};
 use crate::services::grid_view_manager::make_grid_view_rev_manager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
@@ -93,10 +93,9 @@ impl GridManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "debug", skip_all, fields(grid_id), err)]
+    #[tracing::instrument(level = "debug", skip_all, err)]
     pub async fn open_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<Arc<GridRevisionEditor>> {
         let grid_id = grid_id.as_ref();
-        tracing::Span::current().record("grid_id", &grid_id);
         let _ = self.migration.run_v1_migration(grid_id).await;
         self.get_or_create_grid_editor(grid_id).await
     }
@@ -159,7 +158,7 @@ impl GridManager {
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache);
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(grid_id, pool);
-        let rev_compactor = GridRevisionCompactor();
+        let rev_compactor = GridRevisionCompress();
         let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence, rev_compactor, snapshot_persistence);
         Ok(rev_manager)
     }
@@ -168,7 +167,7 @@ impl GridManager {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
-        let rev_compactor = GridBlockRevisionCompactor();
+        let rev_compactor = GridBlockRevisionCompress();
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
         let rev_manager =
             RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);

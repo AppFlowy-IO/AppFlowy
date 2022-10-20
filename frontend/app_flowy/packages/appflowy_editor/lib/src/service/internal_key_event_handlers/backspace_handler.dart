@@ -1,22 +1,9 @@
 import 'package:appflowy_editor/src/infra/infra.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/number_list_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 
-// Handle delete text.
-ShortcutEventHandler deleteTextHandler = (editorState, event) {
-  if (event.logicalKey == LogicalKeyboardKey.backspace) {
-    return _handleBackspace(editorState, event);
-  }
-  if (event.logicalKey == LogicalKeyboardKey.delete) {
-    return _handleDelete(editorState, event);
-  }
-
-  return KeyEventResult.ignored;
-};
-
-KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
+ShortcutEventHandler backspaceEventHandler = (editorState, event) {
   var selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null) {
     return KeyEventResult.ignored;
@@ -86,13 +73,13 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
       if (nonTextNodes.isNotEmpty) {
         transaction.afterSelection = Selection.collapsed(selection.start);
       }
-      editorState.commit();
+      editorState.apply(transaction);
       return KeyEventResult.handled;
     }
     final startPosition = selection.start;
     final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
     _deleteTextNodes(transaction, textNodes, selection);
-    editorState.commit();
+    editorState.apply(transaction);
 
     if (nodeAtStart is TextNode &&
         nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
@@ -109,7 +96,7 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
     if (nonTextNodes.isNotEmpty) {
       transaction.afterSelection = Selection.collapsed(selection.start);
     }
-    editorState.commit();
+    editorState.apply(transaction);
   }
 
   if (cancelNumberListPath != null) {
@@ -122,7 +109,7 @@ KeyEventResult _handleBackspace(EditorState editorState, RawKeyEvent event) {
   }
 
   return KeyEventResult.handled;
-}
+};
 
 KeyEventResult _backDeleteToPreviousTextNode(
   EditorState editorState,
@@ -140,7 +127,7 @@ KeyEventResult _backDeleteToPreviousTextNode(
       ..afterSelection = Selection.collapsed(
         Position(path: textNode.parent!.path.next, offset: 0),
       );
-    editorState.commit();
+    editorState.apply(transaction);
     return KeyEventResult.handled;
   }
 
@@ -171,7 +158,7 @@ KeyEventResult _backDeleteToPreviousTextNode(
     if (nonTextNodes.isNotEmpty) {
       transaction.afterSelection = Selection.collapsed(selection.start);
     }
-    editorState.commit();
+    editorState.apply(transaction);
   }
 
   if (prevIsNumberList) {
@@ -182,7 +169,7 @@ KeyEventResult _backDeleteToPreviousTextNode(
   return KeyEventResult.handled;
 }
 
-KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
+ShortcutEventHandler deleteEventHandler = (editorState, event) {
   var selection = editorState.service.selectionService.currentSelection.value;
   if (selection == null) {
     return KeyEventResult.ignored;
@@ -223,12 +210,12 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
         selection.end.offset - selection.start.offset,
       );
     }
-    editorState.commit();
+    editorState.apply(transaction);
   } else {
     final startPosition = selection.start;
     final nodeAtStart = editorState.document.nodeAtPath(startPosition.path)!;
     _deleteTextNodes(transaction, textNodes, selection);
-    editorState.commit();
+    editorState.apply(transaction);
 
     if (nodeAtStart is TextNode &&
         nodeAtStart.subtype == BuiltInAttributeKey.numberList) {
@@ -238,7 +225,7 @@ KeyEventResult _handleDelete(EditorState editorState, RawKeyEvent event) {
   }
 
   return KeyEventResult.handled;
-}
+};
 
 KeyEventResult _mergeNextLineIntoThisLine(EditorState editorState,
     TextNode textNode, Transaction transaction, Selection selection) {
@@ -250,7 +237,7 @@ KeyEventResult _mergeNextLineIntoThisLine(EditorState editorState,
     transaction.mergeText(textNode, nextNode);
   }
   transaction.deleteNode(nextNode);
-  editorState.commit();
+  editorState.apply(transaction);
 
   if (textNode.subtype == BuiltInAttributeKey.numberList) {
     makeFollowingNodesIncremental(editorState, textNode.path, selection);

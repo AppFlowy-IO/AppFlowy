@@ -1,12 +1,11 @@
-use crate::local_server::persistence::LocalTextBlockCloudPersistence;
+use crate::local_server::persistence::LocalDocumentCloudPersistence;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyError};
 use flowy_folder::event_map::FolderCouldServiceV1;
 use flowy_sync::{
-    client_document::default::initial_document_str,
     entities::{
-        text_block::{CreateTextBlockParams, DocumentPB, ResetTextBlockParams, TextBlockIdPB},
+        document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams},
         ws_data::{ClientRevisionWSData, ClientRevisionWSDataType},
     },
     errors::CollaborateError,
@@ -39,7 +38,7 @@ impl LocalServer {
         client_ws_sender: mpsc::UnboundedSender<WebSocketRawMessage>,
         client_ws_receiver: broadcast::Sender<WebSocketRawMessage>,
     ) -> Self {
-        let persistence = Arc::new(LocalTextBlockCloudPersistence::default());
+        let persistence = Arc::new(LocalDocumentCloudPersistence::default());
         let doc_manager = Arc::new(ServerDocumentManager::new(persistence.clone()));
         let folder_manager = Arc::new(ServerFolderManager::new(persistence));
         let stop_tx = RwLock::new(None);
@@ -252,6 +251,7 @@ impl RevisionUser for LocalRevisionUser {
     }
 }
 
+use flowy_document::DocumentCloudService;
 use flowy_folder::entities::{
     app::{AppIdPB, CreateAppParams, UpdateAppParams},
     trash::RepeatedTrashIdPB,
@@ -261,7 +261,6 @@ use flowy_folder::entities::{
 use flowy_folder_data_model::revision::{
     gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision,
 };
-use flowy_text_block::TextEditorCloudService;
 use flowy_user::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
@@ -414,22 +413,20 @@ impl UserCloudService for LocalServer {
     }
 }
 
-impl TextEditorCloudService for LocalServer {
-    fn create_text_block(&self, _token: &str, _params: CreateTextBlockParams) -> FutureResult<(), FlowyError> {
+impl DocumentCloudService for LocalServer {
+    fn create_document(&self, _token: &str, _params: CreateDocumentParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn read_text_block(&self, _token: &str, params: TextBlockIdPB) -> FutureResult<Option<DocumentPB>, FlowyError> {
-        let doc = DocumentPB {
-            block_id: params.value,
-            text: initial_document_str(),
-            rev_id: 0,
-            base_rev_id: 0,
-        };
-        FutureResult::new(async { Ok(Some(doc)) })
+    fn fetch_document(
+        &self,
+        _token: &str,
+        _params: DocumentIdPB,
+    ) -> FutureResult<Option<DocumentPayloadPB>, FlowyError> {
+        FutureResult::new(async { Ok(None) })
     }
 
-    fn update_text_block(&self, _token: &str, _params: ResetTextBlockParams) -> FutureResult<(), FlowyError> {
+    fn update_document_content(&self, _token: &str, _params: ResetDocumentParams) -> FutureResult<(), FlowyError> {
         FutureResult::new(async { Ok(()) })
     }
 }

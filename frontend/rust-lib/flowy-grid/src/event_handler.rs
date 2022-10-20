@@ -2,7 +2,7 @@ use crate::entities::*;
 use crate::manager::GridManager;
 use crate::services::cell::AnyCellData;
 use crate::services::field::{
-    default_type_option_builder_from_type, select_option_operation, type_option_builder_from_json_str,
+    default_type_option_builder_from_type, select_type_option_from_field_rev, type_option_builder_from_json_str,
     DateChangesetParams, DateChangesetPayloadPB, SelectOptionCellChangeset, SelectOptionCellChangesetParams,
     SelectOptionCellChangesetPayloadPB, SelectOptionCellDataPB, SelectOptionChangeset, SelectOptionChangesetPayloadPB,
     SelectOptionPB,
@@ -142,6 +142,7 @@ pub(crate) async fn switch_to_field_handler(
         .await
         .unwrap_or(Arc::new(editor.next_field_rev(&params.field_type).await?));
 
+    // Update the type-option data after the field type has been changed
     let type_option_data = get_type_option_data(&field_rev, &params.field_type).await?;
     let _ = editor
         .update_field_type_option(&params.grid_id, &field_rev.id, type_option_data)
@@ -220,12 +221,12 @@ pub(crate) async fn move_field_handler(
 async fn get_type_option_data(field_rev: &FieldRevision, field_type: &FieldType) -> FlowyResult<Vec<u8>> {
     let s = field_rev.get_type_option_str(field_type).unwrap_or_else(|| {
         default_type_option_builder_from_type(field_type)
-            .data_format()
+            .serializer()
             .json_str()
     });
     let field_type: FieldType = field_rev.ty.into();
     let builder = type_option_builder_from_json_str(&s, &field_type);
-    let type_option_data = builder.data_format().protobuf_bytes().to_vec();
+    let type_option_data = builder.serializer().protobuf_bytes().to_vec();
 
     Ok(type_option_data)
 }
@@ -320,7 +321,7 @@ pub(crate) async fn new_select_option_handler(
     match editor.get_field_rev(&params.field_id).await {
         None => Err(ErrorCode::InvalidData.into()),
         Some(field_rev) => {
-            let type_option = select_option_operation(&field_rev)?;
+            let type_option = select_type_option_from_field_rev(&field_rev)?;
             let select_option = type_option.create_option(&params.option_name);
             data_result(select_option)
         }
@@ -337,7 +338,7 @@ pub(crate) async fn update_select_option_handler(
 
     let _ = editor
         .modify_field_rev(&changeset.cell_identifier.field_id, |field_rev| {
-            let mut type_option = select_option_operation(field_rev)?;
+            let mut type_option = select_type_option_from_field_rev(field_rev)?;
             let mut cell_content_changeset = None;
             let mut is_changed = None;
 
@@ -373,7 +374,7 @@ pub(crate) async fn update_select_option_handler(
                 tokio::spawn(async move {
                     match cloned_editor.update_cell(changeset).await {
                         Ok(_) => {}
-                        Err(_) => {}
+                        Err(e) => tracing::error!("{}", e),
                     }
                 });
             }
@@ -399,7 +400,7 @@ pub(crate) async fn get_select_option_handler(
         Some(field_rev) => {
             //
             let cell_rev = editor.get_cell_rev(&params.row_id, &params.field_id).await?;
-            let type_option = select_option_operation(&field_rev)?;
+            let type_option = select_type_option_from_field_rev(&field_rev)?;
             let any_cell_data: AnyCellData = match cell_rev {
                 None => AnyCellData {
                     data: "".to_string(),
@@ -407,8 +408,8 @@ pub(crate) async fn get_select_option_handler(
                 },
                 Some(cell_rev) => cell_rev.try_into()?,
             };
-            let option_context = type_option.selected_select_option(any_cell_data.into());
-            data_result(option_context)
+            let selected_options = type_option.get_selected_options(any_cell_data.into());
+            data_result(selected_options)
         }
     }
 }

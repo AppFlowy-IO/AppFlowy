@@ -39,7 +39,10 @@ void _handleCopy(EditorState editorState) async {
               endOffset: selection.end.offset)
           .toHTMLString();
       Log.keyboard.debug('copy html: $htmlString');
-      RichClipboard.setData(RichClipboardData(html: htmlString));
+      RichClipboard.setData(RichClipboardData(
+        html: htmlString,
+        text: textNode.toPlainText(),
+      ));
     } else {
       Log.keyboard.debug('unimplemented: copy non-text');
     }
@@ -55,13 +58,15 @@ void _handleCopy(EditorState editorState) async {
     endNode: endNode,
   ).toList();
 
-  final copyString = NodesToHTMLConverter(
-          nodes: nodes,
-          startOffset: selection.start.offset,
-          endOffset: selection.end.offset)
-      .toHTMLString();
-  Log.keyboard.debug('copy html: $copyString');
-  RichClipboard.setData(RichClipboardData(html: copyString));
+  final html = NodesToHTMLConverter(
+    nodes: nodes,
+    startOffset: selection.start.offset,
+    endOffset: selection.end.offset,
+  ).toHTMLString();
+  final text = nodes
+      .map((node) => node is TextNode ? node.toPlainText() : '\n')
+      .join('\n');
+  RichClipboard.setData(RichClipboardData(html: html, text: text));
 }
 
 void _pasteHTML(EditorState editorState, String html) {
@@ -94,7 +99,7 @@ void _pasteHTML(EditorState editorState, String html) {
           textNodeAtPath, (Delta()..retain(startOffset)) + firstTextNode.delta);
       tb.afterSelection = (Selection.collapsed(Position(
           path: path, offset: startOffset + firstTextNode.delta.length)));
-      editorState.commit();
+      editorState.apply(tb);
       return;
     }
   }
@@ -147,7 +152,7 @@ void _pasteMultipleLinesInText(
 
     tb.afterSelection = afterSelection;
     tb.insertNodes(path, tailNodes);
-    editorState.commit();
+    editorState.apply(tb);
 
     if (startNumber != null) {
       makeFollowingNodesIncremental(editorState, originalPath, afterSelection,
@@ -162,7 +167,7 @@ void _pasteMultipleLinesInText(
   path[path.length - 1]++;
   tb.afterSelection = afterSelection;
   tb.insertNodes(path, nodes);
-  editorState.commit();
+  editorState.apply(tb);
 }
 
 void _handlePaste(EditorState editorState) async {
@@ -195,7 +200,7 @@ void _pasteSingleLine(
     EditorState editorState, Selection selection, String line) {
   final node = editorState.document.nodeAtPath(selection.end.path)! as TextNode;
   final beginOffset = selection.end.offset;
-  editorState.transaction
+  final transaction = editorState.transaction
     ..updateText(
         node,
         Delta()
@@ -203,7 +208,7 @@ void _pasteSingleLine(
           ..addAll(_lineContentToDelta(line)))
     ..afterSelection = (Selection.collapsed(
         Position(path: selection.end.path, offset: beginOffset + line.length)));
-  editorState.commit();
+  editorState.apply(transaction);
 }
 
 /// parse url from the line text
@@ -287,7 +292,7 @@ void _handlePastePlainText(EditorState editorState, String plainText) {
     // insert remains
     tb.insertNodes(path, nodes);
     tb.afterSelection = afterSelection;
-    editorState.commit();
+    editorState.apply(tb);
   }
 }
 
@@ -316,7 +321,7 @@ void _deleteSelectedContent(EditorState editorState) {
           ..retain(selection.start.offset)
           ..delete(len));
     tb.afterSelection = Selection.collapsed(selection.start);
-    editorState.commit();
+    editorState.apply(tb);
     return;
   }
   final traverser = NodeIterator(
@@ -347,7 +352,7 @@ void _deleteSelectedContent(EditorState editorState) {
     }
   }
   tb.afterSelection = Selection.collapsed(selection.start);
-  editorState.commit();
+  editorState.apply(tb);
 }
 
 ShortcutEventHandler copyEventHandler = (editorState, event) {

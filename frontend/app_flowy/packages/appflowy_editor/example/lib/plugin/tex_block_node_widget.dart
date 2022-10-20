@@ -23,7 +23,7 @@ SelectionMenuItem teXBlockMenuItem = SelectionMenuItem(
     final Path texNodePath;
     if (textNodes.first.toPlainText().isEmpty) {
       texNodePath = selection.end.path;
-      editorState.transaction
+      final transaction = editorState.transaction
         ..insertNode(
           selection.end.path,
           Node(
@@ -34,10 +34,10 @@ SelectionMenuItem teXBlockMenuItem = SelectionMenuItem(
         )
         ..deleteNode(textNodes.first)
         ..afterSelection = selection;
-      editorState.commit();
+      editorState.apply(transaction);
     } else {
       texNodePath = selection.end.path.next;
-      editorState.transaction
+      final transaction = editorState.transaction
         ..insertNode(
           selection.end.path.next,
           Node(
@@ -47,7 +47,7 @@ SelectionMenuItem teXBlockMenuItem = SelectionMenuItem(
           ),
         )
         ..afterSelection = selection;
-      editorState.commit();
+      editorState.apply(transaction);
     }
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final texState =
@@ -142,8 +142,9 @@ class __TeXBlockNodeWidgetState extends State<_TeXBlockNodeWidget> {
           size: 16,
         ),
         onPressed: () {
-          widget.editorState.transaction.deleteNode(widget.node);
-          widget.editorState.commit();
+          final transaction = widget.editorState.transaction
+            ..deleteNode(widget.node);
+          widget.editorState.apply(transaction);
         },
       ),
     );
@@ -174,11 +175,12 @@ class __TeXBlockNodeWidgetState extends State<_TeXBlockNodeWidget> {
               onPressed: () {
                 Navigator.of(context).pop();
                 if (controller.text != _tex) {
-                  widget.editorState.transaction.updateNode(
-                    widget.node,
-                    {'tex': controller.text},
-                  );
-                  widget.editorState.commit();
+                  final transaction = widget.editorState.transaction
+                    ..updateNode(
+                      widget.node,
+                      {'tex': controller.text},
+                    );
+                  widget.editorState.apply(transaction);
                 }
               },
               child: const Text('OK'),

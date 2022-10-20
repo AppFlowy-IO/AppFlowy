@@ -18,17 +18,17 @@ class AppService {
   Future<Either<ViewPB, FlowyError>> createView({
     required String appId,
     required String name,
-    required String desc,
+    String? desc,
     required ViewDataTypePB dataType,
     required PluginType pluginType,
-    required ViewLayoutTypePB layout,
+    required ViewLayoutTypePB layoutType,
   }) {
     var payload = CreateViewPayloadPB.create()
       ..belongToId = appId
       ..name = name
-      ..desc = desc
+      ..desc = desc ?? ""
       ..dataType = dataType
-      ..layout = layout;
+      ..layout = layoutType;
 
     return FolderEventCreateView(payload).send();
   }
@@ -47,6 +47,11 @@ class AppService {
   Future<Either<Unit, FlowyError>> delete({required String appId}) {
     final request = AppIdPB.create()..value = appId;
     return FolderEventDeleteApp(request).send();
+  }
+
+  Future<Either<Unit, FlowyError>> deleteView({required String viewId}) {
+    final request = RepeatedViewIdPB.create()..items.add(viewId);
+    return FolderEventDeleteView(request).send();
   }
 
   Future<Either<Unit, FlowyError>> updateApp(

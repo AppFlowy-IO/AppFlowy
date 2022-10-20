@@ -8,8 +8,6 @@ edition = "2018"
 [dependencies]
 bytecount = "0.6.0"
 serde = { version = "1.0", features = ["derive", "rc"] }
-#protobuf = {version = "2.18.0"}
-#flowy-derive = { path = "../flowy-derive" }
 tokio = { version = "1", features = ["sync"] }
 dashmap = "5"
 md5 = "0.7.0"

@@ -1,7 +1,7 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowPB};
 use crate::manager::GridUser;
-use crate::services::block_editor::{GridBlockRevisionCompactor, GridBlockRevisionEditor};
+use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlockSnapshot};
 use dashmap::DashMap;
@@ -54,7 +54,7 @@ impl GridBlockManager {
 
     pub(crate) async fn get_editor_from_row_id(&self, row_id: &str) -> FlowyResult<Arc<GridBlockRevisionEditor>> {
         let block_id = self.persistence.get_block_id(row_id)?;
-        Ok(self.get_block_editor(&block_id).await?)
+        self.get_block_editor(&block_id).await
     }
 
     #[tracing::instrument(level = "trace", skip(self, start_row_id), err)]
@@ -274,7 +274,7 @@ async fn make_block_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyRes
 
     let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
     let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
-    let rev_compactor = GridBlockRevisionCompactor();
+    let rev_compactor = GridBlockRevisionCompress();
     let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
     let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
     GridBlockRevisionEditor::new(&user_id, &token, block_id, rev_manager).await

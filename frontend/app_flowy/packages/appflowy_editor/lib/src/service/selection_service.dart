@@ -1,4 +1,6 @@
 import 'package:appflowy_editor/src/infra/log.dart';
+import 'package:appflowy_editor/src/service/context_menu/built_in_context_menu_item.dart';
+import 'package:appflowy_editor/src/service/context_menu/context_menu.dart';
 import 'package:flutter/material.dart';
 
 import 'package:appflowy_editor/src/core/document/node.dart';
@@ -108,6 +110,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   final List<Rect> selectionRects = [];
   final List<OverlayEntry> _selectionAreas = [];
   final List<OverlayEntry> _cursorAreas = [];
+  final List<OverlayEntry> _contextMenuAreas = [];
 
   // OverlayEntry? _debugOverlay;
 
@@ -156,6 +159,7 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
         onPanUpdate: _onPanUpdate,
         onPanEnd: _onPanEnd,
         onTapDown: _onTapDown,
+        onSecondaryTapDown: _onSecondaryTapDown,
         onDoubleTapDown: _onDoubleTapDown,
         onTripleTapDown: _onTripleTapDown,
         child: widget.child,
@@ -232,12 +236,21 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
     // hide toolbar
     editorState.service.toolbarService?.hide();
+
+    // clear context menu
+    _clearContextMenu();
   }
 
   @override
   void clearCursor() {
     // clear cursor areas
     _cursorAreas
+      ..forEach((overlay) => overlay.remove())
+      ..clear();
+  }
+
+  void _clearContextMenu() {
+    _contextMenuAreas
       ..forEach((overlay) => overlay.remove())
       ..clear();
   }
@@ -309,6 +322,20 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
     updateSelection(selection);
 
     _enableInteraction();
+  }
+
+  void _onSecondaryTapDown(TapDownDetails details) {
+    // if selection is null, or
+    // selection.isCollapsedand and the selected node is TextNode.
+    // try to select the word.
+    final selection = currentSelection.value;
+    if (selection == null ||
+        (selection.isCollapsed == true &&
+            currentSelectedNodes.first is TextNode)) {
+      _onDoubleTapDown(details);
+    }
+
+    _showContextMenu(details);
   }
 
   void _onPanStart(DragStartDetails details) {
@@ -475,6 +502,20 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
 
   void _forceShowCursor() {
     _cursorKey.currentState?.unwrapOrNull<CursorWidgetState>()?.show();
+  }
+
+  void _showContextMenu(TapDownDetails details) {
+    final contextMenu = OverlayEntry(
+      builder: (context) => ContextMenu(
+        position: details.globalPosition,
+        editorState: editorState,
+        items: builtInContextMenuItems,
+        onPressed: () => _clearContextMenu(),
+      ),
+    );
+
+    _contextMenuAreas.add(contextMenu);
+    Overlay.of(context)?.insert(contextMenu);
   }
 
   void _scrollUpOrDownIfNeeded() {

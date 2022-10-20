@@ -1,5 +1,6 @@
 use crate::entities::{GroupChangesetPB, GroupViewChangesetPB, RowPB};
-use crate::services::group::{Group, GroupController, GroupControllerActions, MoveGroupRowContext};
+use crate::services::group::action::GroupControllerSharedActions;
+use crate::services::group::{Group, GroupController, MoveGroupRowContext};
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
 use std::sync::Arc;
@@ -30,7 +31,7 @@ impl DefaultGroupController {
     }
 }
 
-impl GroupControllerActions for DefaultGroupController {
+impl GroupControllerSharedActions for DefaultGroupController {
     fn field_id(&self) -> &str {
         &self.field_id
     }

@@ -1,9 +1,9 @@
 use crate::server_folder::FolderOperations;
 use crate::{
     entities::{
+        document::DocumentPayloadPB,
         folder::FolderInfo,
         revision::{RepeatedRevision, Revision},
-        text_block::DocumentPB,
     },
     errors::{CollaborateError, CollaborateResult},
 };
@@ -149,7 +149,7 @@ pub fn make_folder_from_revisions_pb(
 pub fn make_document_from_revision_pbs(
     doc_id: &str,
     revisions: RepeatedRevision,
-) -> Result<Option<DocumentPB>, CollaborateError> {
+) -> Result<Option<DocumentPayloadPB>, CollaborateError> {
     let revisions = revisions.into_inner();
     if revisions.is_empty() {
         return Ok(None);
@@ -172,9 +172,9 @@ pub fn make_document_from_revision_pbs(
 
     let text = delta.json_str();
 
-    Ok(Some(DocumentPB {
-        block_id: doc_id.to_owned(),
-        text,
+    Ok(Some(DocumentPayloadPB {
+        doc_id: doc_id.to_owned(),
+        content: text,
         rev_id,
         base_rev_id,
     }))

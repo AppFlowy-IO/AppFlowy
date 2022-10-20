@@ -1,75 +1,7 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
-use lib_ot::core::{AttributeBuilder, Node};
-use lib_ot::{
-    core::{NodeBodyChangeset, NodeData, NodeDataBuilder, NodeOperation, Path},
-    text_delta::TextOperationBuilder,
-};
 
-#[test]
-fn operation_insert_node_serde_test() {
-    let insert = NodeOperation::Insert {
-        path: Path(vec![0, 1]),
-        nodes: vec![NodeData::new("text".to_owned())],
-    };
-    let result = serde_json::to_string(&insert).unwrap();
-    assert_eq!(result, r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}"#);
-}
-
-#[test]
-fn operation_insert_node_with_children_serde_test() {
-    let node = NodeDataBuilder::new("text")
-        .add_node(NodeData::new("sub_text".to_owned()))
-        .build();
-
-    let insert = NodeOperation::Insert {
-        path: Path(vec![0, 1]),
-        nodes: vec![node],
-    };
-    assert_eq!(
-        serde_json::to_string(&insert).unwrap(),
-        r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","children":[{"type":"sub_text"}]}]}"#
-    );
-}
-#[test]
-fn operation_update_node_attributes_serde_test() {
-    let operation = NodeOperation::UpdateAttributes {
-        path: Path(vec![0, 1]),
-        new: AttributeBuilder::new().insert("bold", true).build(),
-        old: AttributeBuilder::new().insert("bold", false).build(),
-    };
-
-    let result = serde_json::to_string(&operation).unwrap();
-    assert_eq!(
-        result,
-        r#"{"op":"update-attribute","path":[0,1],"new":{"bold":true},"old":{"bold":null}}"#
-    );
-}
-
-#[test]
-fn operation_update_node_body_serialize_test() {
-    let delta = TextOperationBuilder::new().insert("AppFlowy...").build();
-    let inverted = delta.invert_str("");
-    let changeset = NodeBodyChangeset::Delta { delta, inverted };
-    let insert = NodeOperation::UpdateBody {
-        path: Path(vec![0, 1]),
-        changeset,
-    };
-    let result = serde_json::to_string(&insert).unwrap();
-    assert_eq!(
-        result,
-        r#"{"op":"update-body","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#
-    );
-    //
-}
-
-#[test]
-fn operation_update_node_body_deserialize_test() {
-    let json_1 = r#"{"op":"update-body","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#;
-    let operation: NodeOperation = serde_json::from_str(json_1).unwrap();
-    let json_2 = serde_json::to_string(&operation).unwrap();
-    assert_eq!(json_1, json_2);
-}
+use lib_ot::core::{NodeDataBuilder, NodeOperation, Path};
 
 #[test]
 fn operation_insert_op_transform_test() {
@@ -94,12 +26,12 @@ fn operation_insert_op_transform_test() {
 }
 
 #[test]
-fn operation_insert_transform_one_level_path_test() {
+fn operation_insert_one_level_path_test() {
     let mut test = NodeTest::new();
     let node_data_1 = NodeDataBuilder::new("text_1").build();
     let node_data_2 = NodeDataBuilder::new("text_2").build();
     let node_data_3 = NodeDataBuilder::new("text_3").build();
-    let node_3: Node = node_data_3.clone().into();
+    let node_3 = node_data_3.clone();
     //  0: text_1
     //  1: text_2
     //
@@ -140,16 +72,16 @@ fn operation_insert_transform_one_level_path_test() {
 }
 
 #[test]
-fn operation_insert_transform_multiple_level_path_test() {
+fn operation_insert_with_multiple_level_path_test() {
     let mut test = NodeTest::new();
     let node_data_1 = NodeDataBuilder::new("text_1")
-        .add_node(NodeDataBuilder::new("text_1_1").build())
-        .add_node(NodeDataBuilder::new("text_1_2").build())
+        .add_node_data(NodeDataBuilder::new("text_1_1").build())
+        .add_node_data(NodeDataBuilder::new("text_1_2").build())
         .build();
 
     let node_data_2 = NodeDataBuilder::new("text_2")
-        .add_node(NodeDataBuilder::new("text_2_1").build())
-        .add_node(NodeDataBuilder::new("text_2_2").build())
+        .add_node_data(NodeDataBuilder::new("text_2_1").build())
+        .add_node_data(NodeDataBuilder::new("text_2_2").build())
         .build();
 
     let node_data_3 = NodeDataBuilder::new("text_3").build();
@@ -178,12 +110,12 @@ fn operation_insert_transform_multiple_level_path_test() {
 }
 
 #[test]
-fn operation_delete_transform_path_test() {
+fn operation_delete_test() {
     let mut test = NodeTest::new();
     let node_data_1 = NodeDataBuilder::new("text_1").build();
     let node_data_2 = NodeDataBuilder::new("text_2").build();
     let node_data_3 = NodeDataBuilder::new("text_3").build();
-    let node_3: Node = node_data_3.clone().into();
+    let node_3 = node_data_3.clone();
 
     let scripts = vec![
         InsertNode {
@@ -221,7 +153,10 @@ fn operation_delete_transform_path_test() {
         // After perform the delete action, the tree will be:
         // 0: text_1
         // 1: text_3
-        AssertNumberOfNodesAtPath { path: None, len: 2 },
+        AssertNumberOfChildrenAtPath {
+            path: None,
+            expected: 2,
+        },
         AssertNode {
             path: 1.into(),
             expected: Some(node_3),

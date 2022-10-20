@@ -74,8 +74,7 @@ pub fn parse_ty<'a>(ctxt: &Ctxt, ty: &'a syn::Type) -> Result<Option<TyInfo<'a>>
             }));
         };
     }
-    ctxt.error_spanned_by(ty, "Unsupported inner type, get inner type fail".to_string());
-    Ok(None)
+    Err("Unsupported inner type, get inner type fail".to_string())
 }
 
 fn parse_bracketed(bracketed: &AngleBracketedGenericArguments) -> Vec<&syn::Type> {

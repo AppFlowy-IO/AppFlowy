@@ -3,29 +3,27 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-sync/text_block.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-text-block/entities.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-sync/document.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-document/entities.pb.dart';
 
 class DocumentService {
-  Future<Either<TextBlockPB, FlowyError>> openDocument({
+  Future<Either<DocumentSnapshotPB, FlowyError>> openDocument({
     required String docId,
   }) async {
     await FolderEventSetLatestView(ViewIdPB(value: docId)).send();
 
-    final payload = TextBlockIdPB(value: docId);
-    return TextBlockEventGetTextBlock(payload).send();
+    final payload = DocumentIdPB(value: docId);
+    return DocumentEventGetDocument(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> applyEdit({
     required String docId,
-    required String data,
-    String operations = "",
+    required String operations,
   }) {
     final payload = EditPayloadPB.create()
-      ..textBlockId = docId
-      ..operations = operations
-      ..delta = data;
-    return TextBlockEventApplyEdit(payload).send();
+      ..docId = docId
+      ..operations = operations;
+    return DocumentEventApplyEdit(payload).send();
   }
 
   Future<Either<Unit, FlowyError>> closeDocument({required String docId}) {

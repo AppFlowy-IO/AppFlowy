@@ -2,7 +2,8 @@ use crate::manager::FolderId;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompactor, RevisionManager, RevisionObjectBuilder, RevisionWebSocket,
+    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionWebSocket,
 };
 use flowy_sync::util::make_operations_from_revisions;
 use flowy_sync::{
@@ -37,7 +38,7 @@ impl FolderEditor {
         let cloud = Arc::new(FolderRevisionCloudService {
             token: token.to_string(),
         });
-        let folder = Arc::new(RwLock::new(rev_manager.load::<FolderPadBuilder>(Some(cloud)).await?));
+        let folder = Arc::new(RwLock::new(rev_manager.load::<FolderRevisionSerde>(Some(cloud)).await?));
         let rev_manager = Arc::new(rev_manager);
 
         #[cfg(feature = "sync")]
@@ -100,13 +101,27 @@ impl FolderEditor {
     }
 }
 
-struct FolderPadBuilder();
-impl RevisionObjectBuilder for FolderPadBuilder {
+struct FolderRevisionSerde();
+impl RevisionObjectDeserializer for FolderRevisionSerde {
     type Output = FolderPad;
 
-    fn build_object(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+    fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let pad = FolderPad::from_revisions(revisions)?;
         Ok(pad)
+    }
+}
+
+impl RevisionObjectSerializer for FolderRevisionSerde {
+    fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
+        Ok(operations.json_bytes())
+    }
+}
+
+pub struct FolderRevisionCompress();
+impl RevisionCompress for FolderRevisionCompress {
+    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        FolderRevisionSerde::combine_revisions(revisions)
     }
 }
 
@@ -126,13 +141,5 @@ impl RevisionCloudService for FolderRevisionCloudService {
 impl FolderEditor {
     pub fn rev_manager(&self) -> Arc<RevisionManager> {
         self.rev_manager.clone()
-    }
-}
-
-pub struct FolderRevisionCompactor();
-impl RevisionCompactor for FolderRevisionCompactor {
-    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
-        Ok(operations.json_bytes())
     }
 }

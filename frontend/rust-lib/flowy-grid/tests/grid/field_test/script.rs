@@ -76,7 +76,7 @@ impl GridFieldTest {
             } => {
                 let field_revs = self.editor.get_field_revs(None).await.unwrap();
                 let field_rev = field_revs[field_index].as_ref();
-                let type_option_data = field_rev.get_type_option_str(field_rev.ty.clone()).unwrap();
+                let type_option_data = field_rev.get_type_option_str(field_rev.ty).unwrap();
                 assert_eq!(type_option_data, expected_type_option_data);
             }
         }

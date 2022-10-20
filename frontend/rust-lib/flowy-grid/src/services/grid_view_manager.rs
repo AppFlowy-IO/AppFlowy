@@ -4,17 +4,14 @@ use crate::entities::{
 };
 use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::grid_view_editor::GridViewRevisionEditor;
-use bytes::Bytes;
+use crate::services::grid_view_editor::{GridViewRevisionCompress, GridViewRevisionEditor};
+
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
 use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
-use flowy_revision::{RevisionCompactor, RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
-use flowy_sync::entities::revision::Revision;
-use flowy_sync::util::make_operations_from_revisions;
+use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
 use lib_infra::future::AFFuture;
-use lib_ot::core::EmptyAttributes;
 use std::sync::Arc;
 
 type ViewId = String;
@@ -77,15 +74,15 @@ impl GridViewManager {
         }
     }
 
-    /// Insert/Delete the group's row if the corresponding data was changed.  
-    pub(crate) async fn did_update_row(&self, row_id: &str) {
+    /// Insert/Delete the group's row if the corresponding cell data was changed.  
+    pub(crate) async fn did_update_cell(&self, row_id: &str) {
         match self.row_delegate.gv_get_row_rev(row_id).await {
             None => {
                 tracing::warn!("Can not find the row in grid view");
             }
             Some(row_rev) => {
                 for view_editor in self.view_editors.iter() {
-                    view_editor.did_update_view_row(&row_rev).await;
+                    view_editor.did_update_view_cell(&row_rev).await;
                 }
             }
         }
@@ -95,10 +92,6 @@ impl GridViewManager {
         let view_editor = self.get_default_view_editor().await?;
         let _ = view_editor.group_by_view_field(field_id).await?;
         Ok(())
-    }
-
-    pub(crate) async fn did_update_cell(&self, row_id: &str, _field_id: &str) {
-        self.did_update_row(row_id).await
     }
 
     pub(crate) async fn did_delete_row(&self, row_rev: Arc<RowRevision>) {
@@ -135,7 +128,7 @@ impl GridViewManager {
 
     pub(crate) async fn insert_or_update_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
         let view_editor = self.get_default_view_editor().await?;
-        view_editor.insert_group(params).await
+        view_editor.initialize_new_group(params).await
     }
 
     pub(crate) async fn delete_group(&self, params: DeleteGroupParams) -> FlowyResult<()> {
@@ -187,9 +180,9 @@ impl GridViewManager {
         Ok(())
     }
 
-    /// Notifies the view's field type option data is changed
-    /// For the moment, only the groups will be generated after the type option data changed. A
-    /// [FieldRevision] has a property named type_options contains a list of type option data.
+    /// Notifies the view's field type-option data is changed
+    /// For the moment, only the groups will be generated after the type-option data changed. A
+    /// [FieldRevision] has a property named type_options contains a list of type-option data.
     /// # Arguments
     ///
     /// * `field_id`: the id of the field in current view
@@ -257,7 +250,7 @@ pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str)
 
     let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
     let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache);
-    let rev_compactor = GridViewRevisionCompactor();
+    let rev_compactor = GridViewRevisionCompress();
 
     let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(view_id, pool);
     Ok(RevisionManager::new(
@@ -267,12 +260,4 @@ pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str)
         rev_compactor,
         snapshot_persistence,
     ))
-}
-
-pub struct GridViewRevisionCompactor();
-impl RevisionCompactor for GridViewRevisionCompactor {
-    fn bytes_from_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
-        Ok(operations.json_bytes())
-    }
 }

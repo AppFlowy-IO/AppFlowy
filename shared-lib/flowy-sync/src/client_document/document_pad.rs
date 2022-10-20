@@ -1,4 +1,3 @@
-use crate::client_document::default::initial_document_str;
 use crate::{
     client_document::{
         history::{History, UndoResult},
@@ -7,25 +6,30 @@ use crate::{
     errors::CollaborateError,
 };
 use bytes::Bytes;
+use lib_ot::text_delta::TextOperationBuilder;
 use lib_ot::{core::*, text_delta::TextOperations};
 use tokio::sync::mpsc;
 
-pub trait InitialDocumentContent {
+pub trait InitialDocument {
     fn json_str() -> String;
 }
 
-pub struct EmptyDoc();
-impl InitialDocumentContent for EmptyDoc {
+pub struct EmptyDocument();
+impl InitialDocument for EmptyDocument {
     fn json_str() -> String {
         TextOperations::default().json_str()
     }
 }
 
-pub struct NewlineDoc();
-impl InitialDocumentContent for NewlineDoc {
+pub struct NewlineDocument();
+impl InitialDocument for NewlineDocument {
     fn json_str() -> String {
-        initial_document_str()
+        initial_old_document_content()
     }
+}
+
+pub fn initial_old_document_content() -> String {
+    TextOperationBuilder::new().insert("\n").build().json_str()
 }
 
 pub struct ClientDocument {
@@ -37,7 +41,7 @@ pub struct ClientDocument {
 }
 
 impl ClientDocument {
-    pub fn new<C: InitialDocumentContent>() -> Self {
+    pub fn new<C: InitialDocument>() -> Self {
         let content = C::json_str();
         Self::from_json(&content).unwrap()
     }
@@ -206,7 +210,7 @@ impl ClientDocument {
 
     pub fn is_empty(&self) -> bool {
         // The document is empty if its text is equal to the initial text.
-        self.operations.json_str() == NewlineDoc::json_str()
+        self.operations.json_str() == NewlineDocument::json_str()
     }
 }
 

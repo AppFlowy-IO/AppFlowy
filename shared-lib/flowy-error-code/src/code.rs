@@ -111,7 +111,7 @@ pub enum ErrorCode {
     #[display(fmt = "The operation in this field is invalid")]
     FieldInvalidOperation = 444,
 
-    #[display(fmt = "Field's type option data should not be empty")]
+    #[display(fmt = "Field's type-option data should not be empty")]
     TypeOptionDataIsEmpty = 450,
 
     #[display(fmt = "Group id is empty")]
@@ -125,6 +125,9 @@ pub enum ErrorCode {
 
     #[display(fmt = "Invalid data")]
     InvalidData = 1000,
+
+    #[display(fmt = "Serde")]
+    Serde = 1001,
 
     #[display(fmt = "Out of bounds")]
     OutOfBounds = 10001,

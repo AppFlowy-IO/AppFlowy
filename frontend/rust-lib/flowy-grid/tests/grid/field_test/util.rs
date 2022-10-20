@@ -18,7 +18,7 @@ pub fn create_text_field(grid_id: &str) -> (CreateFieldParams, FieldRevision) {
         .to_vec();
 
     let type_option_builder = type_option_builder_from_bytes(type_option_data.clone(), &field_rev.ty.into());
-    field_rev.insert_type_option(type_option_builder.data_format());
+    field_rev.insert_type_option(type_option_builder.serializer());
 
     let params = CreateFieldParams {
         grid_id: grid_id.to_owned(),
@@ -42,7 +42,7 @@ pub fn create_single_select_field(grid_id: &str) -> (CreateFieldParams, FieldRev
         .to_vec();
 
     let type_option_builder = type_option_builder_from_bytes(type_option_data.clone(), &field_rev.ty.into());
-    field_rev.insert_type_option(type_option_builder.data_format());
+    field_rev.insert_type_option(type_option_builder.serializer());
 
     let params = CreateFieldParams {
         grid_id: grid_id.to_owned(),

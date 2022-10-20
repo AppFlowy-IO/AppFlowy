@@ -5,7 +5,9 @@ use crate::services::field::{BoxTypeOptionBuilder, CheckboxCellData, TypeOptionB
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -26,8 +28,12 @@ impl TypeOptionBuilder for CheckboxTypeOptionBuilder {
         FieldType::Checkbox
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+
+    fn transform(&mut self, _field_type: &FieldType, _type_option_data: String) {
+        // Do nothing
     }
 }
 
@@ -39,7 +45,7 @@ pub struct CheckboxTypeOptionPB {
 impl_type_option!(CheckboxTypeOptionPB, FieldType::Checkbox);
 
 impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
-    fn display_data(
+    fn displayed_cell_bytes(
         &self,
         cell_data: CellData<CheckboxCellData>,
         _decoded_field_type: &FieldType,
@@ -49,7 +55,7 @@ impl CellDisplayable<CheckboxCellData> for CheckboxTypeOptionPB {
         Ok(CellBytes::new(cell_data))
     }
 
-    fn display_string(
+    fn displayed_cell_string(
         &self,
         cell_data: CellData<CheckboxCellData>,
         _decoded_field_type: &FieldType,
@@ -71,7 +77,7 @@ impl CellDataOperation<CheckboxCellData, String> for CheckboxTypeOptionPB {
             return Ok(CellBytes::default());
         }
 
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(

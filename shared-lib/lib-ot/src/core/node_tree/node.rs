@@ -1,6 +1,6 @@
 use super::node_serde::*;
 use crate::core::attributes::{AttributeHashMap, AttributeKey, AttributeValue};
-use crate::core::NodeBody::Delta;
+use crate::core::Body::Delta;
 use crate::core::OperationTransform;
 use crate::errors::OTError;
 use crate::text_delta::TextOperations;
@@ -17,9 +17,9 @@ pub struct NodeData {
 
     #[serde(serialize_with = "serialize_body")]
     #[serde(deserialize_with = "deserialize_body")]
-    #[serde(skip_serializing_if = "NodeBody::is_empty")]
+    #[serde(skip_serializing_if = "Body::is_empty")]
     #[serde(default)]
-    pub body: NodeBody,
+    pub body: Body,
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
     #[serde(default)]
@@ -45,6 +45,9 @@ impl NodeData {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RepeatedNodeData(Vec<NodeData>);
+
 /// Builder for [`NodeData`]
 pub struct NodeDataBuilder {
     node: NodeData,
@@ -58,7 +61,7 @@ impl NodeDataBuilder {
     }
 
     /// Appends a new node to the end of the builder's node children.
-    pub fn add_node(mut self, node: NodeData) -> Self {
+    pub fn add_node_data(mut self, node: NodeData) -> Self {
         self.node.children.push(node);
         self
     }
@@ -72,7 +75,7 @@ impl NodeDataBuilder {
     }
 
     /// Inserts a body to the builder's node
-    pub fn insert_body(mut self, body: NodeBody) -> Self {
+    pub fn insert_body(mut self, body: Body) -> Self {
         self.node.body = body;
         self
     }
@@ -92,24 +95,24 @@ impl NodeDataBuilder {
 /// compose, transform and invert.
 ///
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum NodeBody {
+pub enum Body {
     Empty,
     Delta(TextOperations),
 }
 
-impl std::default::Default for NodeBody {
+impl std::default::Default for Body {
     fn default() -> Self {
-        NodeBody::Empty
+        Body::Empty
     }
 }
 
-impl NodeBody {
+impl Body {
     fn is_empty(&self) -> bool {
-        matches!(self, NodeBody::Empty)
+        matches!(self, Body::Empty)
     }
 }
 
-impl OperationTransform for NodeBody {
+impl OperationTransform for Body {
     /// Only the same enum variant can perform the compose operation.
     fn compose(&self, other: &Self) -> Result<Self, OTError>
     where
@@ -117,7 +120,7 @@ impl OperationTransform for NodeBody {
     {
         match (self, other) {
             (Delta(a), Delta(b)) => a.compose(b).map(Delta),
-            (NodeBody::Empty, NodeBody::Empty) => Ok(NodeBody::Empty),
+            (Body::Empty, Body::Empty) => Ok(Body::Empty),
             (l, r) => {
                 let msg = format!("{:?} can not compose {:?}", l, r);
                 Err(OTError::internal().context(msg))
@@ -132,7 +135,7 @@ impl OperationTransform for NodeBody {
     {
         match (self, other) {
             (Delta(l), Delta(r)) => l.transform(r).map(|(ta, tb)| (Delta(ta), Delta(tb))),
-            (NodeBody::Empty, NodeBody::Empty) => Ok((NodeBody::Empty, NodeBody::Empty)),
+            (Body::Empty, Body::Empty) => Ok((Body::Empty, Body::Empty)),
             (l, r) => {
                 let msg = format!("{:?} can not compose {:?}", l, r);
                 Err(OTError::internal().context(msg))
@@ -144,7 +147,7 @@ impl OperationTransform for NodeBody {
     fn invert(&self, other: &Self) -> Self {
         match (self, other) {
             (Delta(l), Delta(r)) => Delta(l.invert(r)),
-            (NodeBody::Empty, NodeBody::Empty) => NodeBody::Empty,
+            (Body::Empty, Body::Empty) => Body::Empty,
             (l, r) => {
                 tracing::error!("{:?} can not compose {:?}", l, r);
                 l.clone()
@@ -158,19 +161,27 @@ impl OperationTransform for NodeBody {
 /// Each NodeBody except the Empty should have its corresponding changeset variant.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
-pub enum NodeBodyChangeset {
+pub enum Changeset {
     Delta {
         delta: TextOperations,
         inverted: TextOperations,
     },
+    Attributes {
+        new: AttributeHashMap,
+        old: AttributeHashMap,
+    },
 }
 
-impl NodeBodyChangeset {
-    pub fn inverted(&self) -> NodeBodyChangeset {
+impl Changeset {
+    pub fn inverted(&self) -> Changeset {
         match self {
-            NodeBodyChangeset::Delta { delta, inverted } => NodeBodyChangeset::Delta {
+            Changeset::Delta { delta, inverted } => Changeset::Delta {
                 delta: inverted.clone(),
                 inverted: delta.clone(),
+            },
+            Changeset::Attributes { new, old } => Changeset::Attributes {
+                new: old.clone(),
+                old: new.clone(),
             },
         }
     }
@@ -181,7 +192,7 @@ impl NodeBodyChangeset {
 #[derive(Clone, Eq, PartialEq, Debug)]
 pub struct Node {
     pub node_type: String,
-    pub body: NodeBody,
+    pub body: Body,
     pub attributes: AttributeHashMap,
 }
 
@@ -190,16 +201,22 @@ impl Node {
         Node {
             node_type: node_type.into(),
             attributes: AttributeHashMap::new(),
-            body: NodeBody::Empty,
+            body: Body::Empty,
         }
     }
 
-    pub fn apply_body_changeset(&mut self, changeset: NodeBodyChangeset) {
+    pub fn apply_changeset(&mut self, changeset: Changeset) -> Result<(), OTError> {
         match changeset {
-            NodeBodyChangeset::Delta { delta, inverted: _ } => match self.body.compose(&Delta(delta)) {
-                Ok(new_body) => self.body = new_body,
-                Err(e) => tracing::error!("{:?}", e),
-            },
+            Changeset::Delta { delta, inverted: _ } => {
+                let new_body = self.body.compose(&Delta(delta))?;
+                self.body = new_body;
+                Ok(())
+            }
+            Changeset::Attributes { new, old: _ } => {
+                let new_attributes = AttributeHashMap::compose(&self.attributes, &new)?;
+                self.attributes = new_attributes;
+                Ok(())
+            }
         }
     }
 }

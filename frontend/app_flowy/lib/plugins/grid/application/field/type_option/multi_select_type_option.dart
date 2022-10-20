@@ -1,6 +1,6 @@
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/multi_select_type_option.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-grid/select_option.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'dart:async';
 import 'select_option_type_option_bloc.dart';
 import 'type_option_context.dart';

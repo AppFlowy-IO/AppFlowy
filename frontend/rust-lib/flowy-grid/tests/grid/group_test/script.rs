@@ -4,7 +4,7 @@ use flowy_grid::entities::{
 };
 use flowy_grid::services::cell::{delete_select_option_cell, insert_select_option_cell};
 use flowy_grid::services::field::{
-    edit_single_select_type_option, SelectOptionOperation, SelectOptionPB, SingleSelectTypeOptionPB,
+    edit_single_select_type_option, SelectOptionPB, SelectTypeOptionSharedAction, SingleSelectTypeOptionPB,
 };
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset};
 use std::sync::Arc;
@@ -46,7 +46,7 @@ pub enum GroupScript {
         from_group_index: usize,
         to_group_index: usize,
     },
-    UpdateSingleSelectOption {
+    UpdateSingleSelectSelectOption {
         inserted_options: Vec<SelectOptionPB>,
     },
     GroupByField {
@@ -187,7 +187,7 @@ impl GridGroupTest {
                 assert_eq!(group.group_id, group_pb.group_id);
                 assert_eq!(group.desc, group_pb.desc);
             }
-            GroupScript::UpdateSingleSelectOption { inserted_options } => {
+            GroupScript::UpdateSingleSelectSelectOption { inserted_options } => {
                 self.edit_single_select_type_option(|type_option| {
                     for inserted_option in inserted_options {
                         type_option.insert_option(inserted_option);

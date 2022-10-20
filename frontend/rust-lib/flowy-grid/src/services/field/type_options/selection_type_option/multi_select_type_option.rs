@@ -1,15 +1,18 @@
 use crate::entities::FieldType;
 use crate::impl_type_option;
 use crate::services::cell::{CellBytes, CellData, CellDataChangeset, CellDataOperation, CellDisplayable};
+use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
 use crate::services::field::type_options::util::get_cell_data;
 use crate::services::field::{
-    make_selected_select_options, BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionCellDataPB,
-    SelectOptionIds, SelectOptionOperation, SelectOptionPB, TypeOptionBuilder,
+    BoxTypeOptionBuilder, SelectOptionCellChangeset, SelectOptionIds, SelectOptionPB, SelectTypeOptionSharedAction,
+    TypeOptionBuilder,
 };
 use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataFormat};
+use flowy_grid_data_model::revision::{
+    CellRevision, FieldRevision, TypeOptionDataDeserializer, TypeOptionDataSerializer,
+};
 use serde::{Deserialize, Serialize};
 
 // Multiple select
@@ -23,13 +26,9 @@ pub struct MultiSelectTypeOptionPB {
 }
 impl_type_option!(MultiSelectTypeOptionPB, FieldType::MultiSelect);
 
-impl SelectOptionOperation for MultiSelectTypeOptionPB {
-    fn selected_select_option(&self, cell_data: CellData<SelectOptionIds>) -> SelectOptionCellDataPB {
-        let select_options = make_selected_select_options(cell_data, &self.options);
-        SelectOptionCellDataPB {
-            options: self.options.clone(),
-            select_options,
-        }
+impl SelectTypeOptionSharedAction for MultiSelectTypeOptionPB {
+    fn number_of_max_options(&self) -> Option<usize> {
+        None
     }
 
     fn options(&self) -> &Vec<SelectOptionPB> {
@@ -48,11 +47,7 @@ impl CellDataOperation<SelectOptionIds, SelectOptionCellChangeset> for MultiSele
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        if !decoded_field_type.is_select_option() {
-            return Ok(CellBytes::default());
-        }
-
-        self.display_data(cell_data, decoded_field_type, field_rev)
+        self.displayed_cell_bytes(cell_data, decoded_field_type, field_rev)
     }
 
     fn apply_changeset(
@@ -111,16 +106,37 @@ impl TypeOptionBuilder for MultiSelectTypeOptionBuilder {
         FieldType::MultiSelect
     }
 
-    fn data_format(&self) -> &dyn TypeOptionDataFormat {
+    fn serializer(&self) -> &dyn TypeOptionDataSerializer {
         &self.0
+    }
+
+    fn transform(&mut self, field_type: &FieldType, type_option_data: String) {
+        SelectOptionTypeOptionTransformer::transform_type_option(&mut self.0, field_type, type_option_data)
     }
 }
 #[cfg(test)]
 mod tests {
+    use crate::entities::FieldType;
     use crate::services::cell::CellDataOperation;
     use crate::services::field::type_options::selection_type_option::*;
-    use crate::services::field::FieldBuilder;
+    use crate::services::field::{CheckboxTypeOptionBuilder, FieldBuilder, TypeOptionBuilder};
     use crate::services::field::{MultiSelectTypeOptionBuilder, MultiSelectTypeOptionPB};
+
+    #[test]
+    fn multi_select_transform_with_checkbox_type_option_test() {
+        let checkbox_type_option_builder = CheckboxTypeOptionBuilder::default();
+        let checkbox_type_option_data = checkbox_type_option_builder.serializer().json_str();
+
+        let mut multi_select = MultiSelectTypeOptionBuilder::default();
+        multi_select.transform(&FieldType::Checkbox, checkbox_type_option_data.clone());
+        debug_assert_eq!(multi_select.0.options.len(), 2);
+
+        // Already contain the yes/no option. It doesn't need to insert new options
+        multi_select.transform(&FieldType::Checkbox, checkbox_type_option_data);
+        debug_assert_eq!(multi_select.0.options.len(), 2);
+    }
+
+    // #[test]
 
     #[test]
     fn multi_select_insert_multi_option_test() {

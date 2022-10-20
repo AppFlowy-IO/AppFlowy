@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
+import '../../layout/sizes.dart';
 import 'cell_builder.dart';
 
 class GridTextCellStyle extends GridCellStyle {
@@ -56,18 +57,21 @@ class _GridTextCellState extends GridFocusNodeCellState<GridTextCell> {
             _controller.text = state.content;
           }
         },
-        child: TextField(
-          controller: _controller,
-          focusNode: focusNode,
-          onChanged: (value) => focusChanged(),
-          onEditingComplete: () => focusNode.unfocus(),
-          maxLines: null,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.zero,
-            border: InputBorder.none,
-            hintText: widget.cellStyle?.placeholder,
-            isDense: true,
+        child: Padding(
+          padding: GridSize.cellContentInsets,
+          child: TextField(
+            controller: _controller,
+            focusNode: focusNode,
+            onChanged: (value) => focusChanged(),
+            onEditingComplete: () => focusNode.unfocus(),
+            maxLines: null,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              hintText: widget.cellStyle?.placeholder,
+              isDense: true,
+            ),
           ),
         ),
       ),

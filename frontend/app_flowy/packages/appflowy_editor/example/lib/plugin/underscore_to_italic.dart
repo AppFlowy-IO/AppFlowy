@@ -31,7 +31,7 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
   // Delete the previous 'underscore',
   // update the style of the text surrounded by the two underscores to 'italic',
   // and update the cursor position.
-  editorState.transaction
+  final transaction = editorState.transaction
     ..deleteText(textNode, firstUnderscore, 1)
     ..formatText(
       textNode,
@@ -47,7 +47,7 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
         offset: selection.end.offset - 1,
       ),
     );
-  editorState.commit();
+  editorState.apply(transaction);
 
   return KeyEventResult.handled;
 };
