@@ -26,7 +26,7 @@ class FlowyRichText extends StatefulWidget {
   const FlowyRichText({
     Key? key,
     this.cursorHeight,
-    this.cursorWidth = 1.0,
+    this.cursorWidth = 1.5,
     this.lineHeight = 1.0,
     this.textSpanDecorator,
     this.placeholderText = ' ',
@@ -95,7 +95,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
           textPosition, Rect.zero);
     }
     final rect = Rect.fromLTWH(
-      cursorOffset.dx - (widget.cursorWidth / 2),
+      cursorOffset.dx - (widget.cursorWidth / 2.0),
       cursorOffset.dy,
       widget.cursorWidth,
       widget.cursorHeight ?? cursorHeight ?? 16.0,

@@ -172,10 +172,26 @@ class TransactionAdaptor {
           .toList();
     }
     if (transaction.afterSelection != null) {
-      json['after_selection'] = transaction.afterSelection!.toJson();
+      final selection = transaction.afterSelection!;
+      final start = selection.start;
+      final end = selection.end;
+      json['after_selection'] = selection
+          .copyWith(
+            start: start.copyWith(path: [0, ...start.path]),
+            end: end.copyWith(path: [0, ...end.path]),
+          )
+          .toJson();
     }
     if (transaction.beforeSelection != null) {
-      json['before_selection'] = transaction.beforeSelection!.toJson();
+      final selection = transaction.beforeSelection!;
+      final start = selection.start;
+      final end = selection.end;
+      json['before_selection'] = selection
+          .copyWith(
+            start: start.copyWith(path: [0, ...start.path]),
+            end: end.copyWith(path: [0, ...end.path]),
+          )
+          .toJson();
     }
     return json;
   }
