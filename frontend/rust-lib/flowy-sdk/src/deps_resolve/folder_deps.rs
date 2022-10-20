@@ -174,7 +174,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         let manager = self.0.clone();
         FutureResult::new(async move {
             let editor = manager.open_document_editor(view_id).await?;
-            let delta_bytes = Bytes::from(editor.get_operations_str().await?);
+            let delta_bytes = Bytes::from(editor.export().await?);
             Ok(delta_bytes)
         })
     }
