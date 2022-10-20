@@ -74,14 +74,23 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _renderDocument(BuildContext context, DocumentState state) {
-    quill.QuillController controller = quill.QuillController(
-      document: context.read<DocumentBloc>().document,
-      selection: const TextSelection.collapsed(offset: 0),
-    );
+    // quill.QuillController controller = quill.QuillController(
+    //   document: context.read<DocumentBloc>().document,
+    //   selection: const TextSelection.collapsed(offset: 0),
+    // );
+
+    //
+    final editorState = EditorState.empty();
+
     return Column(
       children: [
         if (state.isDeleted) _renderBanner(context),
-        _renderAppFlowyEditor(controller),
+
+        // AppFlowy Editor
+        _renderAppFlowyEditor(editorState),
+
+        // Quill Editor
+        // _renderEditor(controller),
       ],
     );
   }
@@ -96,11 +105,9 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  // FIXME: data persistence
-  final EditorState _editorState = EditorState.empty();
-  Widget _renderAppFlowyEditor(quill.QuillController controller) {
+  Widget _renderAppFlowyEditor(EditorState editorState) {
     final editor = AppFlowyEditor(
-      editorState: _editorState,
+      editorState: editorState,
       editorStyle: customEditorStyle(context),
     );
     return Expanded(
