@@ -33,6 +33,10 @@ impl Path {
         }
         return true;
     }
+
+    pub fn is_root(&self) -> bool {
+        return self.0.len() == 1 && self.0[0] == 0;
+    }
 }
 
 impl std::ops::Deref for Path {

@@ -1,4 +1,5 @@
-use lib_ot::core::{Node, NodeTreeContext, Transaction};
+#![allow(clippy::all)]
+use lib_ot::core::{NodeTreeContext, Transaction};
 use lib_ot::{
     core::attributes::AttributeHashMap,
     core::{Body, Changeset, NodeData, NodeTree, Path, TransactionBuilder},
@@ -29,27 +30,28 @@ pub enum NodeScript {
         path: Path,
         rev_id: usize,
     },
-    AssertNumberOfNodesAtPath {
+    AssertNumberOfChildrenAtPath {
         path: Option<Path>,
         expected: usize,
     },
+    AssertNodesAtRoot {
+        expected: Vec<NodeData>,
+    },
+    #[allow(dead_code)]
     AssertNodesAtPath {
         path: Path,
         expected: Vec<NodeData>,
     },
-    AssertNodeData {
-        path: Path,
-        expected: Option<NodeData>,
-    },
     AssertNode {
         path: Path,
-        expected: Option<Node>,
+        expected: Option<NodeData>,
     },
     AssertNodeDelta {
         path: Path,
         expected: TextOperations,
     },
-    AssertNodeJSON {
+    #[allow(dead_code)]
+    AssertTreeJSON {
         expected: String,
     },
 }
@@ -119,27 +121,12 @@ impl NodeTest {
                 self.transform_transaction_if_need(&mut transaction, rev_id);
                 self.apply_transaction(transaction);
             }
+
             NodeScript::AssertNode { path, expected } => {
-                let node_id = self.node_tree.node_id_at_path(path);
-                if expected.is_none() && node_id.is_none() {
-                    return;
-                }
-
-                let node = self.node_tree.get_node(node_id.unwrap()).cloned();
-                assert_eq!(node, expected);
+                let node = self.node_tree.get_node_data_at_path(&path);
+                assert_eq!(node, expected.map(|e| e.into()));
             }
-            NodeScript::AssertNodeData { path, expected } => {
-                let node_id = self.node_tree.node_id_at_path(path);
-
-                match node_id {
-                    None => assert!(node_id.is_none()),
-                    Some(node_id) => {
-                        let node = self.node_tree.get_node(node_id).cloned();
-                        assert_eq!(node, expected.map(|e| e.into()));
-                    }
-                }
-            }
-            NodeScript::AssertNumberOfNodesAtPath { path, expected } => match path {
+            NodeScript::AssertNumberOfChildrenAtPath { path, expected } => match path {
                 None => {
                     let len = self.node_tree.number_of_children(None);
                     assert_eq!(len, expected)
@@ -150,8 +137,12 @@ impl NodeTest {
                     assert_eq!(len, expected)
                 }
             },
+            NodeScript::AssertNodesAtRoot { expected } => {
+                let nodes = self.node_tree.get_node_data_at_root().unwrap().children;
+                assert_eq!(nodes, expected)
+            }
             NodeScript::AssertNodesAtPath { path, expected } => {
-                let nodes = self.node_tree.get_node_data_at_path(&path);
+                let nodes = self.node_tree.get_node_data_at_path(&path).unwrap().children;
                 assert_eq!(nodes, expected)
             }
             NodeScript::AssertNodeDelta { path, expected } => {
@@ -162,8 +153,8 @@ impl NodeTest {
                     panic!("Node body type not match, expect Delta");
                 }
             }
-            NodeScript::AssertNodeJSON { expected } => {
-                let json = serde_json::to_string_pretty(&self.node_tree).unwrap();
+            NodeScript::AssertTreeJSON { expected } => {
+                let json = serde_json::to_string(&self.node_tree).unwrap();
                 assert_eq!(json, expected)
             }
         }

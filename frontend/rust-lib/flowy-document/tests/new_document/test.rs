@@ -1,6 +1,6 @@
 use crate::new_document::script::DocumentEditorTest;
 use crate::new_document::script::EditScript::*;
-use lib_ot::core::{DeltaBuilder, DeltaOperations, Path};
+
 use lib_ot::text_delta::TextOperationBuilder;
 
 #[tokio::test]

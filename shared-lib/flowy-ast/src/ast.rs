@@ -1,3 +1,6 @@
+#![allow(clippy::all)]
+#![allow(unused_attributes)]
+#![allow(unused_assignments)]
 use crate::{attr, ty_ext::*, AttrsContainer, Ctxt};
 use syn::{self, punctuated::Punctuated};
 

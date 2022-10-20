@@ -133,17 +133,15 @@ impl<'a> TransactionBuilder<'a> {
     /// # Examples
     ///
     /// ```
-    /// // -- 0 (root)
-    /// //      0 -- text_1
-    /// //      1 -- text_2
+    /// //   0 -- text_1
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
     /// let mut node_tree = NodeTree::default();
     /// let transaction = TransactionBuilder::new(&node_tree)
-    ///     .insert_nodes_at_path(0,vec![ NodeData::new("text_1"),  NodeData::new("text_2")])
+    ///     .insert_nodes_at_path(0,vec![ NodeData::new("text_1")])
     ///     .finalize();
     ///  node_tree.apply_transaction(transaction).unwrap();
     ///
-    ///  node_tree.node_id_at_path(vec![0, 0]);
+    ///  node_tree.node_id_at_path(vec![0]).unwrap();
     /// ```
     ///
     pub fn insert_nodes_at_path<T: Into<Path>>(self, path: T, nodes: Vec<NodeData>) -> Self {

@@ -54,22 +54,18 @@ impl NodeTree {
     }
 
     pub fn get_node_at_path(&self, path: &Path) -> Option<&Node> {
-        {
-            let node_id = self.node_id_at_path(path)?;
-            self.get_node(node_id)
-        }
+        let node_id = self.node_id_at_path(path)?;
+        self.get_node(node_id)
     }
 
-    pub fn get_node_data_at_path(&self, path: &Path) -> Vec<NodeData> {
-        let f = |path: &Path| {
-            let node_id = self.node_id_at_path(path)?;
-            let node_data = self.get_node_data(node_id)?;
-            Some(node_data.children)
-        };
-        match f(path) {
-            None => vec![],
-            Some(nodes) => nodes,
-        }
+    pub fn get_node_data_at_path(&self, path: &Path) -> Option<NodeData> {
+        let node_id = self.node_id_at_path(path)?;
+        let node_data = self.get_node_data(node_id)?;
+        Some(node_data)
+    }
+
+    pub fn get_node_data_at_root(&self) -> Option<NodeData> {
+        self.get_node_data(self.root)
     }
 
     pub fn get_node_data(&self, node_id: NodeId) -> Option<NodeData> {
@@ -252,10 +248,31 @@ impl NodeTree {
         match op {
             NodeOperation::Insert { path, nodes } => self.insert_nodes(&path, nodes),
             NodeOperation::Update { path, changeset } => self.update(&path, changeset),
-            NodeOperation::Delete { path, nodes } => self.delete_node(&path),
+            NodeOperation::Delete { path, nodes: _ } => self.delete_node(&path),
         }
     }
     /// Inserts nodes at given path
+    /// root
+    ///     0 - A
+    ///         0 - A1
+    ///     1 - B
+    ///         0 - B1
+    ///         1 - B2
+    ///
+    /// The path of each node will be:
+    /// A:      [0]
+    /// A1:     [0,0]
+    /// B:      [1]
+    /// B1:     [1,0]
+    /// B2:     [1,1]
+    ///
+    /// When inserting multiple nodes into the same path, each of them will be appended to the root
+    /// node. For example. The path is [0] and the nodes are [A, B, C]. After inserting the nodes,
+    /// the tree will be:
+    /// root
+    ///     0: A
+    ///     1: B
+    ///     2: C
     ///
     /// returns error if the path is empty
     ///

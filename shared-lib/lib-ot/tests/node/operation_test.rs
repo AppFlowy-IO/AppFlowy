@@ -1,6 +1,6 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
-use lib_ot::core::Node;
+
 use lib_ot::core::{NodeDataBuilder, NodeOperation, Path};
 
 #[test]
@@ -26,12 +26,12 @@ fn operation_insert_op_transform_test() {
 }
 
 #[test]
-fn operation_insert_transform_one_level_path_test() {
+fn operation_insert_one_level_path_test() {
     let mut test = NodeTest::new();
     let node_data_1 = NodeDataBuilder::new("text_1").build();
     let node_data_2 = NodeDataBuilder::new("text_2").build();
     let node_data_3 = NodeDataBuilder::new("text_3").build();
-    let node_3: Node = node_data_3.clone().into();
+    let node_3 = node_data_3.clone();
     //  0: text_1
     //  1: text_2
     //
@@ -72,7 +72,7 @@ fn operation_insert_transform_one_level_path_test() {
 }
 
 #[test]
-fn operation_insert_transform_multiple_level_path_test() {
+fn operation_insert_with_multiple_level_path_test() {
     let mut test = NodeTest::new();
     let node_data_1 = NodeDataBuilder::new("text_1")
         .add_node_data(NodeDataBuilder::new("text_1_1").build())
@@ -110,12 +110,12 @@ fn operation_insert_transform_multiple_level_path_test() {
 }
 
 #[test]
-fn operation_delete_transform_path_test() {
+fn operation_delete_test() {
     let mut test = NodeTest::new();
     let node_data_1 = NodeDataBuilder::new("text_1").build();
     let node_data_2 = NodeDataBuilder::new("text_2").build();
     let node_data_3 = NodeDataBuilder::new("text_3").build();
-    let node_3: Node = node_data_3.clone().into();
+    let node_3 = node_data_3.clone();
 
     let scripts = vec![
         InsertNode {
@@ -153,7 +153,7 @@ fn operation_delete_transform_path_test() {
         // After perform the delete action, the tree will be:
         // 0: text_1
         // 1: text_3
-        AssertNumberOfNodesAtPath {
+        AssertNumberOfChildrenAtPath {
             path: None,
             expected: 2,
         },

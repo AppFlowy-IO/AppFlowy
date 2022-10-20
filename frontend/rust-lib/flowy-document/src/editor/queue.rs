@@ -9,8 +9,10 @@ use std::sync::Arc;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::{oneshot, RwLock};
 pub struct DocumentQueue {
+    #[allow(dead_code)]
     user: Arc<dyn DocumentUser>,
     document: Arc<RwLock<Document>>,
+    #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
     receiver: Option<CommandReceiver>,
 }

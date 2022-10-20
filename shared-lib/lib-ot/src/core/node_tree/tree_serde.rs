@@ -3,7 +3,7 @@ use serde::de::{MapAccess, Visitor};
 use serde::ser::SerializeSeq;
 use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
-use std::fmt::Debug;
+
 use std::marker::PhantomData;
 
 impl Serialize for NodeTree {
