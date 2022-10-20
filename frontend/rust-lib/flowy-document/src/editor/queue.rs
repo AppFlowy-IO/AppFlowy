@@ -74,7 +74,7 @@ impl DocumentQueue {
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace", skip(self, md5), err)]
+    #[tracing::instrument(level = "trace", skip(self, transaction, md5), err)]
     async fn save_local_operations(&self, transaction: Transaction, md5: String) -> Result<RevId, FlowyError> {
         let bytes = Bytes::from(transaction.to_bytes()?);
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();

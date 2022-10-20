@@ -1,7 +1,8 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
+use flowy_document::entities::DocumentTypePB;
 use flowy_document::DocumentManager;
-use flowy_folder::entities::{ViewDataTypePB, ViewLayoutTypePB};
+use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::{
     errors::{internal_error, FlowyError},
@@ -66,13 +67,17 @@ fn make_view_data_processor(
     text_block_manager: Arc<DocumentManager>,
     grid_manager: Arc<GridManager>,
 ) -> ViewDataProcessorMap {
-    let mut map: HashMap<ViewDataTypePB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
+    let mut map: HashMap<ViewDataFormatPB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
-    let block_data_impl = DocumentViewDataProcessor(text_block_manager);
-    map.insert(block_data_impl.data_type(), Arc::new(block_data_impl));
+    let block_data_impl = Arc::new(DocumentViewDataProcessor(text_block_manager));
+    block_data_impl.data_types().into_iter().for_each(|data_type| {
+        map.insert(data_type, block_data_impl.clone());
+    });
 
-    let grid_data_impl = GridViewDataProcessor(grid_manager);
-    map.insert(grid_data_impl.data_type(), Arc::new(grid_data_impl));
+    let grid_data_impl = Arc::new(GridViewDataProcessor(grid_manager));
+    grid_data_impl.data_types().into_iter().for_each(|data_type| {
+        map.insert(data_type, grid_data_impl.clone());
+    });
 
     Arc::new(map)
 }
@@ -169,11 +174,15 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         })
     }
 
-    fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
-        let view_id = view_id.to_string();
+    fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
+        let view_id = view.id.clone();
         let manager = self.0.clone();
+        let document_type = match view.data_type {
+            ViewDataFormatPB::TreeFormat => DocumentTypePB::NodeTree,
+            _ => DocumentTypePB::Delta,
+        };
         FutureResult::new(async move {
-            let editor = manager.open_document_editor(view_id).await?;
+            let editor = manager.open_document_editor(view_id, document_type).await?;
             let delta_bytes = Bytes::from(editor.export().await?);
             Ok(delta_bytes)
         })
@@ -210,8 +219,8 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         FutureResult::new(async move { Ok(Bytes::from(data)) })
     }
 
-    fn data_type(&self) -> ViewDataTypePB {
-        ViewDataTypePB::Text
+    fn data_types(&self) -> Vec<ViewDataFormatPB> {
+        vec![ViewDataFormatPB::DeltaFormat, ViewDataFormatPB::TreeFormat]
     }
 }
 
@@ -246,9 +255,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
-        let view_id = view_id.to_string();
+    fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
         let grid_manager = self.0.clone();
+        let view_id = view.id.clone();
         FutureResult::new(async move {
             let editor = grid_manager.open_grid(view_id).await?;
             let delta_bytes = editor.duplicate_grid().await?;
@@ -308,7 +317,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn data_type(&self) -> ViewDataTypePB {
-        ViewDataTypePB::Database
+    fn data_types(&self) -> Vec<ViewDataFormatPB> {
+        vec![ViewDataFormatPB::DatabaseFormat]
     }
 }

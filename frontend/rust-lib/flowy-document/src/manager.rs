@@ -1,5 +1,5 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionCompress};
-use crate::entities::EditParams;
+use crate::entities::{DocumentTypePB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionCompress};
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
@@ -13,7 +13,7 @@ use flowy_revision::{
 };
 use flowy_sync::client_document::initial_old_document_content;
 use flowy_sync::entities::{
-    document::{DocumentIdPB, DocumentOperationsPB},
+    document::DocumentIdPB,
     revision::{md5, RepeatedRevision, Revision},
     ws_data::ServerRevisionWSData,
 };
@@ -84,14 +84,15 @@ impl DocumentManager {
         Ok(())
     }
 
-    #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
+    #[tracing::instrument(level = "trace", skip_all, fields(document_id), err)]
     pub async fn open_document_editor<T: AsRef<str>>(
         &self,
-        editor_id: T,
+        document_id: T,
+        document_type: DocumentTypePB,
     ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
-        let editor_id = editor_id.as_ref();
-        tracing::Span::current().record("editor_id", &editor_id);
-        self.init_document_editor(editor_id).await
+        let document_id = document_id.as_ref();
+        tracing::Span::current().record("document_id", &document_id);
+        self.init_document_editor(document_id).await
     }
 
     #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
@@ -100,22 +101,6 @@ impl DocumentManager {
         tracing::Span::current().record("editor_id", &editor_id);
         self.editor_map.remove(editor_id);
         Ok(())
-    }
-
-    #[tracing::instrument(level = "debug", skip(self, payload), err)]
-    pub async fn receive_local_operations(
-        &self,
-        payload: DocumentOperationsPB,
-    ) -> Result<DocumentOperationsPB, FlowyError> {
-        let editor = self.get_document_editor(&payload.doc_id).await?;
-        let _ = editor
-            .compose_local_operations(Bytes::from(payload.operations_str))
-            .await?;
-        let operations_str = editor.export().await?;
-        Ok(DocumentOperationsPB {
-            doc_id: payload.doc_id.clone(),
-            operations_str,
-        })
     }
 
     pub async fn apply_edit(&self, params: EditParams) -> FlowyResult<()> {

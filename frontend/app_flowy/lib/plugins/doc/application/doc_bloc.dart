@@ -73,7 +73,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> _initial(Initial value, Emitter<DocumentState> emit) async {
-    final result = await service.openDocument(docId: view.id);
+    final result = await service.openDocument(view: view);
     result.fold(
       (block) {
         final document = Document.fromJson(jsonDecode(block.snapshot));

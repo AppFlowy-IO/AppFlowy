@@ -84,7 +84,7 @@ impl RevisionObjectDeserializer for DocumentRevisionSerde {
 
     fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let mut tree = NodeTree::new(make_tree_context());
-        let transaction = make_transaction_from_revisions(revisions)?;
+        let transaction = make_transaction_from_revisions(&revisions)?;
         let _ = tree.apply_transaction(transaction)?;
         let document = Document::new(tree);
         Result::<Document, FlowyError>::Ok(document)
@@ -93,7 +93,7 @@ impl RevisionObjectDeserializer for DocumentRevisionSerde {
 
 impl RevisionObjectSerializer for DocumentRevisionSerde {
     fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let transaction = make_transaction_from_revisions(revisions)?;
+        let transaction = make_transaction_from_revisions(&revisions)?;
         Ok(Bytes::from(transaction.to_bytes()?))
     }
 }
@@ -106,8 +106,7 @@ impl RevisionCompress for DocumentRevisionCompress {
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
-fn make_transaction_from_revisions(revisions: Vec<Revision>) -> FlowyResult<Transaction> {
-    tracing::trace!("Number of revisions: {}", revisions.len());
+fn make_transaction_from_revisions(revisions: &[Revision]) -> FlowyResult<Transaction> {
     let mut transaction = Transaction::new();
     for revision in revisions {
         let _ = transaction.compose(Transaction::from_bytes(&revision.bytes)?)?;

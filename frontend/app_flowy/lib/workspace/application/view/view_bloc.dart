@@ -56,7 +56,7 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
           );
         },
         duplicate: (e) async {
-          final result = await service.duplicate(viewId: view.id);
+          final result = await service.duplicate(view: view);
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),

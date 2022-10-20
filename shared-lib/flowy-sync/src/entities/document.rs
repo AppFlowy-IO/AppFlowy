@@ -60,27 +60,6 @@ pub struct ResetDocumentParams {
 }
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct DocumentOperationsPB {
-    #[pb(index = 1)]
-    pub doc_id: String,
-
-    #[pb(index = 2)]
-    pub operations_str: String,
-}
-
-#[derive(ProtoBuf, Default, Debug, Clone)]
-pub struct NewDocUserPB {
-    #[pb(index = 1)]
-    pub user_id: String,
-
-    #[pb(index = 2)]
-    pub rev_id: i64,
-
-    #[pb(index = 3)]
-    pub doc_id: String,
-}
-
-#[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct DocumentIdPB {
     #[pb(index = 1)]
     pub value: String,

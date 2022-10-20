@@ -7,7 +7,7 @@ use crate::{
     impl_def_and_def_mut,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_folder_data_model::revision::{gen_view_id, ViewDataTypeRevision, ViewLayoutTypeRevision, ViewRevision};
+use flowy_folder_data_model::revision::{gen_view_id, ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
@@ -22,7 +22,7 @@ pub struct ViewPB {
     pub name: String,
 
     #[pb(index = 4)]
-    pub data_type: ViewDataTypePB,
+    pub data_type: ViewDataFormatPB,
 
     #[pb(index = 5)]
     pub modified_time: i64,
@@ -40,7 +40,7 @@ impl std::convert::From<ViewRevision> for ViewPB {
             id: rev.id,
             app_id: rev.app_id,
             name: rev.name,
-            data_type: rev.data_type.into(),
+            data_type: rev.data_format_type.into(),
             modified_time: rev.modified_time,
             create_time: rev.create_time,
             layout: rev.layout.into(),
@@ -49,31 +49,34 @@ impl std::convert::From<ViewRevision> for ViewPB {
 }
 
 #[derive(Eq, PartialEq, Hash, Debug, ProtoBuf_Enum, Clone)]
-pub enum ViewDataTypePB {
-    Text = 0,
-    Database = 1,
+pub enum ViewDataFormatPB {
+    DeltaFormat = 0,
+    DatabaseFormat = 1,
+    TreeFormat = 2,
 }
 
-impl std::default::Default for ViewDataTypePB {
+impl std::default::Default for ViewDataFormatPB {
     fn default() -> Self {
-        ViewDataTypeRevision::default().into()
+        ViewDataFormatRevision::default().into()
     }
 }
 
-impl std::convert::From<ViewDataTypeRevision> for ViewDataTypePB {
-    fn from(rev: ViewDataTypeRevision) -> Self {
+impl std::convert::From<ViewDataFormatRevision> for ViewDataFormatPB {
+    fn from(rev: ViewDataFormatRevision) -> Self {
         match rev {
-            ViewDataTypeRevision::Text => ViewDataTypePB::Text,
-            ViewDataTypeRevision::Database => ViewDataTypePB::Database,
+            ViewDataFormatRevision::DeltaFormat => ViewDataFormatPB::DeltaFormat,
+            ViewDataFormatRevision::DatabaseFormat => ViewDataFormatPB::DatabaseFormat,
+            ViewDataFormatRevision::TreeFormat => ViewDataFormatPB::TreeFormat,
         }
     }
 }
 
-impl std::convert::From<ViewDataTypePB> for ViewDataTypeRevision {
-    fn from(ty: ViewDataTypePB) -> Self {
+impl std::convert::From<ViewDataFormatPB> for ViewDataFormatRevision {
+    fn from(ty: ViewDataFormatPB) -> Self {
         match ty {
-            ViewDataTypePB::Text => ViewDataTypeRevision::Text,
-            ViewDataTypePB::Database => ViewDataTypeRevision::Database,
+            ViewDataFormatPB::DeltaFormat => ViewDataFormatRevision::DeltaFormat,
+            ViewDataFormatPB::DatabaseFormat => ViewDataFormatRevision::DatabaseFormat,
+            ViewDataFormatPB::TreeFormat => ViewDataFormatRevision::TreeFormat,
         }
     }
 }
@@ -146,7 +149,7 @@ pub struct CreateViewPayloadPB {
     pub thumbnail: Option<String>,
 
     #[pb(index = 5)]
-    pub data_type: ViewDataTypePB,
+    pub data_type: ViewDataFormatPB,
 
     #[pb(index = 6)]
     pub layout: ViewLayoutTypePB,
@@ -161,7 +164,7 @@ pub struct CreateViewParams {
     pub name: String,
     pub desc: String,
     pub thumbnail: String,
-    pub data_type: ViewDataTypePB,
+    pub data_type: ViewDataFormatPB,
     pub layout: ViewLayoutTypePB,
     pub view_id: String,
     pub view_content_data: Vec<u8>,

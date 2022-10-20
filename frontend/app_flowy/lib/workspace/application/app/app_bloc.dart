@@ -98,7 +98,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       appId: app.id,
       name: value.name,
       desc: value.desc ?? "",
-      dataType: value.pluginBuilder.dataType,
+      dataFormatType: value.pluginBuilder.dataFormatType,
       pluginType: value.pluginBuilder.pluginType,
       layoutType: value.pluginBuilder.layoutType!,
     );

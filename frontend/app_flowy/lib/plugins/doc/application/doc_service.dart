@@ -1,18 +1,27 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
+import 'package:flowy_sdk/protobuf/flowy-document/entities.pbenum.dart';
 
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-sync/document.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/entities.pb.dart';
 
 class DocumentService {
   Future<Either<DocumentSnapshotPB, FlowyError>> openDocument({
-    required String docId,
+    required ViewPB view,
   }) async {
-    await FolderEventSetLatestView(ViewIdPB(value: docId)).send();
+    await FolderEventSetLatestView(ViewIdPB(value: view.id)).send();
 
-    final payload = DocumentIdPB(value: docId);
+    var payload = OpenDocumentContextPB()..documentId = view.id;
+    switch (view.dataType) {
+      case ViewDataFormatPB.DeltaFormat:
+        payload.documentType = DocumentTypePB.Delta;
+        break;
+      default:
+        payload.documentType = DocumentTypePB.NodeTree;
+        break;
+    }
+
     return DocumentEventGetDocument(payload).send();
   }
 

@@ -126,7 +126,7 @@ pub enum FolderEvent {
     #[event(input = "RepeatedViewIdPB")]
     DeleteView = 204,
 
-    #[event(input = "ViewIdPB")]
+    #[event(input = "ViewPB")]
     DuplicateView = 205,
 
     #[event(input = "ViewIdPB")]

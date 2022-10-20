@@ -1,3 +1,4 @@
+use flowy_document::entities::DocumentTypePB;
 use flowy_document::old_editor::editor::DeltaDocumentEditor;
 use flowy_document::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use flowy_revision::disk::RevisionState;
@@ -27,7 +28,11 @@ impl DeltaDocumentEditorTest {
         let sdk = FlowySDKTest::default();
         let _ = sdk.init_user().await;
         let test = ViewTest::new_document_view(&sdk).await;
-        let document_editor = sdk.document_manager.open_document_editor(&test.view.id).await.unwrap();
+        let document_editor = sdk
+            .document_manager
+            .open_document_editor(&test.view.id, DocumentTypePB::Delta)
+            .await
+            .unwrap();
         let editor = match document_editor.as_any().downcast_ref::<Arc<DeltaDocumentEditor>>() {
             None => panic!(),
             Some(editor) => editor.clone(),

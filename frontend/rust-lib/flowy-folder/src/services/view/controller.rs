@@ -1,4 +1,4 @@
-pub use crate::entities::view::ViewDataTypePB;
+pub use crate::entities::view::ViewDataFormatPB;
 use crate::entities::{DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
@@ -95,7 +95,7 @@ impl ViewController {
     pub(crate) async fn create_view(
         &self,
         view_id: &str,
-        data_type: ViewDataTypePB,
+        data_type: ViewDataFormatPB,
         layout_type: ViewLayoutTypePB,
         delta_data: Bytes,
     ) -> Result<(), FlowyError> {
@@ -156,7 +156,7 @@ impl ViewController {
                     belong_to_id: view_rev.app_id,
                     name: view_rev.name,
                     desc: view_rev.desc,
-                    data_type: view_rev.data_type.into(),
+                    data_type: view_rev.data_format_type.into(),
                     belongings: RepeatedViewPB { items },
                     ext_data: view_rev.ext_data,
                 };
@@ -242,20 +242,20 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
+    pub(crate) async fn duplicate_view(&self, view: ViewPB) -> Result<(), FlowyError> {
         let view_rev = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_view(view_id))
+            .begin_transaction(|transaction| transaction.read_view(&view.id))
             .await?;
 
-        let processor = self.get_data_processor(view_rev.data_type.clone())?;
-        let view_data = processor.get_view_data(view_id).await?;
+        let processor = self.get_data_processor(view_rev.data_format_type.clone())?;
+        let view_data = processor.get_view_data(&view).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view_rev.app_id.clone(),
             name: format!("{} (copy)", &view_rev.name),
             desc: view_rev.desc,
             thumbnail: view_rev.thumbnail,
-            data_type: view_rev.data_type.into(),
+            data_type: view_rev.data_format_type.into(),
             layout: view_rev.layout.into(),
             view_content_data: view_data.to_vec(),
             view_id: gen_view_id(),
@@ -399,11 +399,11 @@ impl ViewController {
             .persistence
             .begin_transaction(|transaction| transaction.read_view(view_id))
             .await?;
-        self.get_data_processor(view.data_type)
+        self.get_data_processor(view.data_format_type)
     }
 
     #[inline]
-    fn get_data_processor<T: Into<ViewDataTypePB>>(
+    fn get_data_processor<T: Into<ViewDataFormatPB>>(
         &self,
         data_type: T,
     ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
@@ -472,7 +472,7 @@ async fn handle_trash_event(
                     .await?;
 
                 for view in views {
-                    let data_type = view.data_type.clone().into();
+                    let data_type = view.data_format_type.clone().into();
                     match get_data_processor(data_processors.clone(), &data_type) {
                         Ok(processor) => {
                             let _ = processor.close_container(&view.id).await?;
@@ -491,7 +491,7 @@ async fn handle_trash_event(
 
 fn get_data_processor(
     data_processors: ViewDataProcessorMap,
-    data_type: &ViewDataTypePB,
+    data_type: &ViewDataFormatPB,
 ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
     match data_processors.get(data_type) {
         None => Err(FlowyError::internal().context(format!(

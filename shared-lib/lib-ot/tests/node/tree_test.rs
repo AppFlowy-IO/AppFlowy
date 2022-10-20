@@ -64,10 +64,10 @@ fn node_insert_out_of_bound_test() {
     let image_a = NodeData::new("image_a");
     let image_b = NodeData::new("image_b");
     let image = NodeDataBuilder::new("image_1")
-        .add_node_data(image_a.clone())
-        .add_node_data(image_b.clone())
+        .add_node_data(image_a)
+        .add_node_data(image_b)
         .build();
-    let text_node = NodeDataBuilder::new("text_1").add_node_data(image.clone()).build();
+    let text_node = NodeDataBuilder::new("text_1").add_node_data(image).build();
     let image_c = NodeData::new("image_c");
 
     let scripts = vec![
@@ -309,19 +309,19 @@ fn node_insert_nested_nodes_test() {
         //      1:text_2_2
         AssertNode {
             path: vec![0, 0].into(),
-            expected: Some(node_data_1_1.into()),
+            expected: Some(node_data_1_1),
         },
         AssertNode {
             path: vec![0, 1].into(),
-            expected: Some(node_data_1_2.into()),
+            expected: Some(node_data_1_2),
         },
         AssertNode {
             path: vec![1, 0].into(),
-            expected: Some(node_data_2_1.into()),
+            expected: Some(node_data_2_1),
         },
         AssertNode {
             path: vec![1, 1].into(),
-            expected: Some(node_data_2_2.into()),
+            expected: Some(node_data_2_2),
         },
     ];
     test.run_scripts(scripts);
@@ -357,11 +357,11 @@ fn node_insert_node_before_existing_nested_nodes_test() {
         //      1:text_1_2
         AssertNode {
             path: vec![1, 0].into(),
-            expected: Some(node_data_1_1.into()),
+            expected: Some(node_data_1_1),
         },
         AssertNode {
             path: vec![1, 1].into(),
-            expected: Some(node_data_1_2.into()),
+            expected: Some(node_data_1_2),
         },
     ];
     test.run_scripts(scripts);
@@ -422,10 +422,10 @@ fn node_delete_node_from_list_test() {
         .add_node_data(image_a.clone())
         .add_node_data(image_b.clone())
         .build();
-    let text_node_1 = NodeDataBuilder::new("text_1").add_node_data(image_1.clone()).build();
+    let text_node_1 = NodeDataBuilder::new("text_1").add_node_data(image_1).build();
     let image_2 = NodeDataBuilder::new("image_2")
-        .add_node_data(image_a.clone())
-        .add_node_data(image_b.clone())
+        .add_node_data(image_a)
+        .add_node_data(image_b)
         .build();
     let text_node_2 = NodeDataBuilder::new("text_2").add_node_data(image_2.clone()).build();
 
@@ -470,13 +470,13 @@ fn node_delete_nested_node_test() {
         .add_node_data(image_a.clone())
         .add_node_data(image_b.clone())
         .build();
-    let text_node_1 = NodeDataBuilder::new("text_1").add_node_data(image_1.clone()).build();
+    let text_node_1 = NodeDataBuilder::new("text_1").add_node_data(image_1).build();
 
     let image_2 = NodeDataBuilder::new("image_2")
         .add_node_data(image_a.clone())
         .add_node_data(image_b.clone())
         .build();
-    let text_node_2 = NodeDataBuilder::new("text_2").add_node_data(image_2.clone()).build();
+    let text_node_2 = NodeDataBuilder::new("text_2").add_node_data(image_2).build();
 
     let scripts = vec![
         InsertNode {
@@ -486,7 +486,7 @@ fn node_delete_nested_node_test() {
         },
         InsertNode {
             path: 1.into(),
-            node_data: text_node_2.clone(),
+            node_data: text_node_2,
             rev_id: 1,
         },
         // 0:text_1
@@ -531,11 +531,11 @@ fn node_delete_nested_node_test() {
         },
         AssertNode {
             path: vec![1, 0, 0].into(),
-            expected: Some(image_a.clone()),
+            expected: Some(image_a),
         },
         AssertNode {
             path: vec![1, 0, 1].into(),
-            expected: Some(image_b.clone()),
+            expected: Some(image_b),
         },
     ];
     test.run_scripts(scripts);
@@ -598,7 +598,7 @@ fn node_reorder_sub_nodes_test() {
         .add_node_data(image_a.clone())
         .add_node_data(image_b.clone())
         .build();
-    let text_node_1 = NodeDataBuilder::new("text_1").add_node_data(child_1.clone()).build();
+    let text_node_1 = NodeDataBuilder::new("text_1").add_node_data(child_1).build();
     let scripts = vec![
         InsertNode {
             path: 0.into(),
@@ -627,11 +627,11 @@ fn node_reorder_sub_nodes_test() {
         //             1:image_a
         AssertNode {
             path: vec![0, 0, 0].into(),
-            expected: Some(image_b.clone()),
+            expected: Some(image_b),
         },
         AssertNode {
             path: vec![0, 0, 1].into(),
-            expected: Some(image_a.clone()),
+            expected: Some(image_a),
         },
     ];
     test.run_scripts(scripts);
@@ -693,27 +693,27 @@ fn node_reorder_nodes_test() {
         //             1:image_b
         AssertNode {
             path: vec![0].into(),
-            expected: Some(text_node_2.clone()),
+            expected: Some(text_node_2),
         },
         AssertNode {
             path: vec![0, 0].into(),
-            expected: Some(image_2.clone()),
+            expected: Some(image_2),
         },
         AssertNode {
             path: vec![0, 0, 0].into(),
-            expected: Some(image_a.clone()),
+            expected: Some(image_a),
         },
         AssertNode {
             path: vec![1].into(),
-            expected: Some(text_node_1.clone()),
+            expected: Some(text_node_1),
         },
         AssertNode {
             path: vec![1, 0].into(),
-            expected: Some(image_1.clone()),
+            expected: Some(image_1),
         },
         AssertNode {
             path: vec![1, 0, 1].into(),
-            expected: Some(image_b.clone()),
+            expected: Some(image_b),
         },
     ];
     test.run_scripts(scripts);

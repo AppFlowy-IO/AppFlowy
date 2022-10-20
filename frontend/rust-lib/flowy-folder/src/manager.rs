@@ -1,5 +1,5 @@
-use crate::entities::view::ViewDataTypePB;
-use crate::entities::ViewLayoutTypePB;
+use crate::entities::view::ViewDataFormatPB;
+use crate::entities::{ViewLayoutTypePB, ViewPB};
 use crate::services::folder_editor::FolderRevisionCompress;
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -221,7 +221,12 @@ impl DefaultFolderBuilder {
                     let _ = view_controller.set_latest_view(&view.id);
                     let layout_type = ViewLayoutTypePB::from(view.layout.clone());
                     let _ = view_controller
-                        .create_view(&view.id, ViewDataTypePB::Text, layout_type, Bytes::from(view_data))
+                        .create_view(
+                            &view.id,
+                            ViewDataFormatPB::DeltaFormat,
+                            layout_type,
+                            Bytes::from(view_data),
+                        )
                         .await?;
                 }
             }
@@ -259,7 +264,7 @@ pub trait ViewDataProcessor {
 
     fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
-    fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError>;
+    fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError>;
 
     fn create_default_view(
         &self,
@@ -276,7 +281,7 @@ pub trait ViewDataProcessor {
         layout: ViewLayoutTypePB,
     ) -> FutureResult<Bytes, FlowyError>;
 
-    fn data_type(&self) -> ViewDataTypePB;
+    fn data_types(&self) -> Vec<ViewDataFormatPB>;
 }
 
-pub type ViewDataProcessorMap = Arc<HashMap<ViewDataTypePB, Arc<dyn ViewDataProcessor + Send + Sync>>>;
+pub type ViewDataProcessorMap = Arc<HashMap<ViewDataFormatPB, Arc<dyn ViewDataProcessor + Send + Sync>>>;

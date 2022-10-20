@@ -302,6 +302,9 @@ mod tests {
 
     #[test]
     fn transaction_deserialize_update_text_operation_test() {
+        //{"operations":[{"op":"update_text","path":[0,0],"delta":[{"insert":"/"}],"inverted":[{"delete":1}]}],"after_selection":{"start":{"path":[0,0],"offset":1},"end":{"path":[0,0],"offset":1}},"before_selection":{"start":{"path":[0,0],"offset":0},"end":{"path":[0,0],"offset":0}}}
+        // {"operations":[{"op":"update_text","path":[0,0],"delta":[{"delete":1}],"inverted":[{"insert":"/"}]}],"after_selection":{"start":{"path":[0,0],"offset":0},"end":{"path":[0,0],"offset":0}},"before_selection":{"start":{"path":[0,0],"offset":1},"end":{"path":[0,0],"offset":1}}}
+
         // bold
         let json = r#"{"operations":[{"op":"update_text","path":[0],"delta":[{"retain":3,"attributes":{"bold":true}}],"inverted":[{"retain":3,"attributes":{"bold":null}}]}],"after_selection":{"start":{"path":[0],"offset":0},"end":{"path":[0],"offset":3}},"before_selection":{"start":{"path":[0],"offset":0},"end":{"path":[0],"offset":3}}}"#;
         let _ = serde_json::from_str::<DocumentTransaction>(json).unwrap();

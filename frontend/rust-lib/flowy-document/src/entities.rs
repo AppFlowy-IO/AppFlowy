@@ -74,12 +74,37 @@ pub struct ExportPayloadPB {
 
     #[pb(index = 2)]
     pub export_type: ExportType,
+
+    #[pb(index = 3)]
+    pub document_type: DocumentTypePB,
+}
+
+#[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
+pub enum DocumentTypePB {
+    Delta = 0,
+    NodeTree = 1,
+}
+
+impl std::default::Default for DocumentTypePB {
+    fn default() -> Self {
+        Self::Delta
+    }
+}
+
+#[derive(Default, ProtoBuf)]
+pub struct OpenDocumentContextPB {
+    #[pb(index = 1)]
+    pub document_id: String,
+
+    #[pb(index = 2)]
+    pub document_type: DocumentTypePB,
 }
 
 #[derive(Default, Debug)]
 pub struct ExportParams {
     pub view_id: String,
     pub export_type: ExportType,
+    pub document_type: DocumentTypePB,
 }
 
 impl TryInto<ExportParams> for ExportPayloadPB {
@@ -88,6 +113,7 @@ impl TryInto<ExportParams> for ExportPayloadPB {
         Ok(ExportParams {
             view_id: self.view_id,
             export_type: self.export_type,
+            document_type: self.document_type,
         })
     }
 }

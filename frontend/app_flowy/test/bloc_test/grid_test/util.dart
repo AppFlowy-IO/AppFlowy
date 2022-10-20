@@ -30,7 +30,7 @@ class AppFlowyGridTest {
     final result = await AppService().createView(
       appId: app.id,
       name: "Test Grid",
-      dataType: builder.dataType,
+      dataFormatType: builder.dataFormatType,
       pluginType: builder.pluginType,
       layoutType: builder.layoutType!,
     );

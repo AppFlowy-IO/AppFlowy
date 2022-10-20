@@ -13,7 +13,7 @@ use flowy_database::{
     SqliteConnection,
 };
 
-use flowy_folder_data_model::revision::{ViewDataTypeRevision, ViewLayoutTypeRevision, ViewRevision};
+use flowy_folder_data_model::revision::{ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
 use lib_infra::util::timestamp;
 
 pub struct ViewTableSql();
@@ -78,7 +78,7 @@ pub(crate) struct ViewTable {
     pub modified_time: i64,
     pub create_time: i64,
     pub thumbnail: String,
-    pub view_type: SqlViewDataType,
+    pub view_type: SqlViewDataFormat,
     pub version: i64,
     pub is_trash: bool,
     pub ext_data: String,
@@ -86,9 +86,10 @@ pub(crate) struct ViewTable {
 
 impl ViewTable {
     pub fn new(view_rev: ViewRevision) -> Self {
-        let data_type = match view_rev.data_type {
-            ViewDataTypeRevision::Text => SqlViewDataType::Block,
-            ViewDataTypeRevision::Database => SqlViewDataType::Grid,
+        let data_type = match view_rev.data_format_type {
+            ViewDataFormatRevision::DeltaFormat => SqlViewDataFormat::DeltaFormat,
+            ViewDataFormatRevision::DatabaseFormat => SqlViewDataFormat::DatabaseFormat,
+            ViewDataFormatRevision::TreeFormat => SqlViewDataFormat::TreeFormat,
         };
 
         ViewTable {
@@ -110,8 +111,9 @@ impl ViewTable {
 impl std::convert::From<ViewTable> for ViewRevision {
     fn from(table: ViewTable) -> Self {
         let data_type = match table.view_type {
-            SqlViewDataType::Block => ViewDataTypeRevision::Text,
-            SqlViewDataType::Grid => ViewDataTypeRevision::Database,
+            SqlViewDataFormat::DeltaFormat => ViewDataFormatRevision::DeltaFormat,
+            SqlViewDataFormat::DatabaseFormat => ViewDataFormatRevision::DatabaseFormat,
+            SqlViewDataFormat::TreeFormat => ViewDataFormatRevision::TreeFormat,
         };
 
         ViewRevision {
@@ -119,7 +121,7 @@ impl std::convert::From<ViewTable> for ViewRevision {
             app_id: table.belong_to_id,
             name: table.name,
             desc: table.desc,
-            data_type,
+            data_format_type: data_type,
             belongings: vec![],
             modified_time: table.modified_time,
             version: table.version,
@@ -180,34 +182,36 @@ impl ViewChangeset {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum SqlViewDataType {
-    Block = 0,
-    Grid = 1,
+pub enum SqlViewDataFormat {
+    DeltaFormat = 0,
+    DatabaseFormat = 1,
+    TreeFormat = 2,
 }
 
-impl std::default::Default for SqlViewDataType {
+impl std::default::Default for SqlViewDataFormat {
     fn default() -> Self {
-        SqlViewDataType::Block
+        SqlViewDataFormat::DeltaFormat
     }
 }
 
-impl std::convert::From<i32> for SqlViewDataType {
+impl std::convert::From<i32> for SqlViewDataFormat {
     fn from(value: i32) -> Self {
         match value {
-            0 => SqlViewDataType::Block,
-            1 => SqlViewDataType::Grid,
+            0 => SqlViewDataFormat::DeltaFormat,
+            1 => SqlViewDataFormat::DatabaseFormat,
+            2 => SqlViewDataFormat::TreeFormat,
             o => {
                 log::error!("Unsupported view type {}, fallback to ViewType::Block", o);
-                SqlViewDataType::Block
+                SqlViewDataFormat::DeltaFormat
             }
         }
     }
 }
 
-impl SqlViewDataType {
+impl SqlViewDataFormat {
     pub fn value(&self) -> i32 {
         *self as i32
     }
 }
 
-impl_sql_integer_expression!(SqlViewDataType);
+impl_sql_integer_expression!(SqlViewDataFormat);

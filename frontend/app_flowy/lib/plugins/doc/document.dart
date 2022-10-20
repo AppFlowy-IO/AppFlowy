@@ -44,7 +44,7 @@ class DocumentPluginBuilder extends PluginBuilder {
   PluginType get pluginType => PluginType.editor;
 
   @override
-  ViewDataTypePB get dataType => ViewDataTypePB.Text;
+  ViewDataFormatPB get dataFormatType => ViewDataFormatPB.TreeFormat;
 }
 
 class DocumentPlugin extends Plugin<int> {

@@ -22,7 +22,7 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
     on<DocShareEvent>((event, emit) async {
       await event.map(
         shareMarkdown: (ShareMarkdown value) async {
-          await service.exportMarkdown(view.id).then((result) {
+          await service.exportMarkdown(view).then((result) {
             result.fold(
               (value) => emit(DocShareState.finish(
                   left(_convertDocumentToMarkdown(value)))),

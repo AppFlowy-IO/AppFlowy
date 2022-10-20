@@ -1,5 +1,6 @@
 use flowy_document::editor::AppFlowyDocumentEditor;
 
+use flowy_document::entities::DocumentTypePB;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use lib_ot::core::{Body, Changeset, NodeDataBuilder, NodeOperation, Path, Transaction};
@@ -25,7 +26,11 @@ impl DocumentEditorTest {
         let _ = sdk.init_user().await;
 
         let test = ViewTest::new_document_view(&sdk).await;
-        let document_editor = sdk.document_manager.open_document_editor(&test.view.id).await.unwrap();
+        let document_editor = sdk
+            .document_manager
+            .open_document_editor(&test.view.id, DocumentTypePB::NodeTree)
+            .await
+            .unwrap();
         let editor = match document_editor.as_any().downcast_ref::<Arc<AppFlowyDocumentEditor>>() {
             None => panic!(),
             Some(editor) => editor.clone(),
