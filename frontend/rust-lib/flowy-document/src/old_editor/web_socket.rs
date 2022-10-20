@@ -19,27 +19,29 @@ use std::{sync::Arc, time::Duration};
 use tokio::sync::{broadcast, oneshot};
 
 #[derive(Clone)]
-pub struct DocumentResolveOperations(pub TextOperations);
+pub struct DeltaDocumentResolveOperations(pub TextOperations);
 
-impl OperationsDeserializer<DocumentResolveOperations> for DocumentResolveOperations {
-    fn deserialize_revisions(revisions: Vec<Revision>) -> FlowyResult<DocumentResolveOperations> {
-        Ok(DocumentResolveOperations(make_operations_from_revisions(revisions)?))
+impl OperationsDeserializer<DeltaDocumentResolveOperations> for DeltaDocumentResolveOperations {
+    fn deserialize_revisions(revisions: Vec<Revision>) -> FlowyResult<DeltaDocumentResolveOperations> {
+        Ok(DeltaDocumentResolveOperations(make_operations_from_revisions(
+            revisions,
+        )?))
     }
 }
 
-impl OperationsSerializer for DocumentResolveOperations {
+impl OperationsSerializer for DeltaDocumentResolveOperations {
     fn serialize_operations(&self) -> Bytes {
         self.0.json_bytes()
     }
 }
 
-impl DocumentResolveOperations {
+impl DeltaDocumentResolveOperations {
     pub fn into_inner(self) -> TextOperations {
         self.0
     }
 }
 
-pub type DocumentConflictController = ConflictController<DocumentResolveOperations>;
+pub type DocumentConflictController = ConflictController<DeltaDocumentResolveOperations>;
 
 #[allow(dead_code)]
 pub(crate) async fn make_document_ws_manager(
@@ -129,8 +131,11 @@ struct DocumentConflictResolver {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl ConflictResolver<DocumentResolveOperations> for DocumentConflictResolver {
-    fn compose_operations(&self, operations: DocumentResolveOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+impl ConflictResolver<DeltaDocumentResolveOperations> for DocumentConflictResolver {
+    fn compose_operations(
+        &self,
+        operations: DeltaDocumentResolveOperations,
+    ) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         let operations = operations.into_inner();
         Box::pin(async move {
@@ -150,8 +155,8 @@ impl ConflictResolver<DocumentResolveOperations> for DocumentConflictResolver {
 
     fn transform_operations(
         &self,
-        operations: DocumentResolveOperations,
-    ) -> BoxResultFuture<TransformOperations<DocumentResolveOperations>, FlowyError> {
+        operations: DeltaDocumentResolveOperations,
+    ) -> BoxResultFuture<TransformOperations<DeltaDocumentResolveOperations>, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         let operations = operations.into_inner();
         Box::pin(async move {
@@ -166,7 +171,10 @@ impl ConflictResolver<DocumentResolveOperations> for DocumentConflictResolver {
         })
     }
 
-    fn reset_operations(&self, operations: DocumentResolveOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn reset_operations(
+        &self,
+        operations: DeltaDocumentResolveOperations,
+    ) -> BoxResultFuture<OperationsMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         let operations = operations.into_inner();
         Box::pin(async move {

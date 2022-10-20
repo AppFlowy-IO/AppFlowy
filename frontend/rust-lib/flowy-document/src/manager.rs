@@ -1,6 +1,6 @@
-use crate::editor::{initial_document_content, AppFlowyDocumentEditor};
+use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionCompress};
 use crate::entities::EditParams;
-use crate::old_editor::editor::{DeltaDocumentEditor, DocumentRevisionCompress};
+use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionCompress};
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -8,7 +8,8 @@ use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::disk::SQLiteDocumentRevisionPersistence;
 use flowy_revision::{
-    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
+    RevisionCloudService, RevisionCompress, RevisionManager, RevisionPersistence, RevisionWebSocket,
+    SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::client_document::initial_old_document_content;
 use flowy_sync::entities::{
@@ -187,16 +188,17 @@ impl DocumentManager {
         let pool = self.user.db_pool()?;
         let user = self.user.clone();
         let token = self.user.token()?;
-        let rev_manager = self.make_document_rev_manager(doc_id, pool.clone())?;
         let cloud_service = Arc::new(DocumentRevisionCloudService {
             token,
             server: self.cloud_service.clone(),
         });
 
         let editor: Arc<dyn DocumentEditor> = if self.config.use_new_editor {
+            let rev_manager = self.make_document_rev_manager(doc_id, pool.clone())?;
             let editor = AppFlowyDocumentEditor::new(doc_id, user, rev_manager, cloud_service).await?;
             Arc::new(editor)
         } else {
+            let rev_manager = self.make_delta_document_rev_manager(doc_id, pool.clone())?;
             let editor =
                 DeltaDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
             Arc::new(editor)
@@ -215,13 +217,31 @@ impl DocumentManager {
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
-        let rev_compactor = DocumentRevisionCompress();
-
         Ok(RevisionManager::new(
             &user_id,
             doc_id,
             rev_persistence,
-            rev_compactor,
+            DocumentRevisionCompress(),
+            // history_persistence,
+            snapshot_persistence,
+        ))
+    }
+
+    fn make_delta_document_rev_manager(
+        &self,
+        doc_id: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> Result<RevisionManager, FlowyError> {
+        let user_id = self.user.user_id()?;
+        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
+        let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
+        // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
+        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
+        Ok(RevisionManager::new(
+            &user_id,
+            doc_id,
+            rev_persistence,
+            DeltaDocumentRevisionCompress(),
             // history_persistence,
             snapshot_persistence,
         ))

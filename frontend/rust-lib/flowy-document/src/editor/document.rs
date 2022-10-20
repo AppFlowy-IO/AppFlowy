@@ -1,6 +1,7 @@
+use crate::old_editor::editor::DeltaDocumentRevisionSerde;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_revision::{RevisionObjectDeserializer, RevisionObjectSerializer};
+use flowy_revision::{RevisionCompress, RevisionObjectDeserializer, RevisionObjectSerializer};
 use flowy_sync::entities::revision::Revision;
 use lib_ot::core::{
     Body, Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction,
@@ -28,6 +29,11 @@ impl Document {
         } else {
             serde_json::to_string(self).map_err(|err| FlowyError::serde().context(err))
         }
+    }
+
+    pub fn md5(&self) -> String {
+        // format!("{:x}", md5::compute(bytes))
+        "".to_owned()
     }
 
     pub fn get_tree(&self) -> &NodeTree {
@@ -92,7 +98,16 @@ impl RevisionObjectSerializer for DocumentRevisionSerde {
     }
 }
 
+pub(crate) struct DocumentRevisionCompress();
+impl RevisionCompress for DocumentRevisionCompress {
+    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        DocumentRevisionSerde::combine_revisions(revisions)
+    }
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
 fn make_transaction_from_revisions(revisions: Vec<Revision>) -> FlowyResult<Transaction> {
+    tracing::trace!("Number of revisions: {}", revisions.len());
     let mut transaction = Transaction::new();
     for revision in revisions {
         let _ = transaction.compose(Transaction::from_bytes(&revision.bytes)?)?;

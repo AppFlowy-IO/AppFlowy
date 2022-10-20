@@ -120,6 +120,7 @@ impl OperationTransform for Body {
     {
         match (self, other) {
             (Delta(a), Delta(b)) => a.compose(b).map(Delta),
+            (Body::Empty, Delta(b)) => Ok(Delta(b.clone())),
             (Body::Empty, Body::Empty) => Ok(Body::Empty),
             (l, r) => {
                 let msg = format!("{:?} can not compose {:?}", l, r);

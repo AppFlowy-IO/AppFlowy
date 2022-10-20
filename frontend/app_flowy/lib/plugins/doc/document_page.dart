@@ -1,17 +1,12 @@
 import 'package:app_flowy/plugins/doc/editor_styles.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/plugins/doc/presentation/banner.dart';
-import 'package:app_flowy/plugins/doc/presentation/toolbar/tool_bar.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import 'application/doc_bloc.dart';
-import 'styles.dart';
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
@@ -47,9 +42,9 @@ class _DocumentPageState extends State<DocumentPage> {
       child:
           BlocBuilder<DocumentBloc, DocumentState>(builder: (context, state) {
         return state.loadingState.map(
-          // loading: (_) => const FlowyProgressIndicator(),
-          loading: (_) =>
-              SizedBox.expand(child: Container(color: Colors.transparent)),
+          loading: (_) => SizedBox.expand(
+            child: Container(color: Colors.transparent),
+          ),
           finish: (result) => result.successOrFail.fold(
             (_) {
               if (state.forceClose) {
@@ -74,23 +69,11 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _renderDocument(BuildContext context, DocumentState state) {
-    // quill.QuillController controller = quill.QuillController(
-    //   document: context.read<DocumentBloc>().document,
-    //   selection: const TextSelection.collapsed(offset: 0),
-    // );
-
-    //
-    final editorState = EditorState.empty();
-
     return Column(
       children: [
         if (state.isDeleted) _renderBanner(context),
-
         // AppFlowy Editor
-        _renderAppFlowyEditor(editorState),
-
-        // Quill Editor
-        // _renderEditor(controller),
+        _renderAppFlowyEditor(context.read<DocumentBloc>().editorState),
       ],
     );
   }
@@ -113,37 +96,6 @@ class _DocumentPageState extends State<DocumentPage> {
     return Expanded(
       child: SizedBox.expand(
         child: editor,
-      ),
-    );
-  }
-
-  Widget _renderEditor(quill.QuillController controller) {
-    final scrollController = ScrollController();
-
-    final editor = quill.QuillEditor(
-      controller: controller,
-      focusNode: _focusNode,
-      scrollable: true,
-      paintCursorAboveText: true,
-      autoFocus: controller.document.isEmpty(),
-      expands: false,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      readOnly: false,
-      scrollBottomInset: 0,
-      scrollController: scrollController,
-      customStyles: customStyles(context),
-    );
-
-    return Expanded(
-      child: SizedBox.expand(child: editor),
-    );
-  }
-
-  Widget _renderToolbar(quill.QuillController controller) {
-    return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSetting>(context, listen: true),
-      child: EditorToolbar.basic(
-        controller: controller,
       ),
     );
   }

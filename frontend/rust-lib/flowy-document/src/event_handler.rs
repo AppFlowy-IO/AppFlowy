@@ -12,10 +12,10 @@ pub(crate) async fn get_document_handler(
 ) -> DataResult<DocumentSnapshotPB, FlowyError> {
     let document_id: DocumentIdPB = data.into_inner();
     let editor = manager.open_document_editor(&document_id).await?;
-    let operations_str = editor.export().await?;
+    let document_data = editor.export().await?;
     data_result(DocumentSnapshotPB {
         doc_id: document_id.into(),
-        snapshot: operations_str,
+        snapshot: document_data,
     })
 }
 

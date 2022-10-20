@@ -1,4 +1,4 @@
-use crate::old_editor::web_socket::DocumentResolveOperations;
+use crate::old_editor::web_socket::DeltaDocumentResolveOperations;
 use crate::DocumentUser;
 use async_stream::stream;
 use flowy_error::FlowyError;
@@ -91,7 +91,7 @@ impl EditDocumentQueue {
             EditorCommand::TransformOperations { operations, ret } => {
                 let f = || async {
                     let read_guard = self.document.read().await;
-                    let mut server_operations: Option<DocumentResolveOperations> = None;
+                    let mut server_operations: Option<DeltaDocumentResolveOperations> = None;
                     let client_operations: TextOperations;
 
                     if read_guard.is_empty() {
@@ -100,11 +100,11 @@ impl EditDocumentQueue {
                     } else {
                         let (s_prime, c_prime) = read_guard.get_operations().transform(&operations)?;
                         client_operations = c_prime;
-                        server_operations = Some(DocumentResolveOperations(s_prime));
+                        server_operations = Some(DeltaDocumentResolveOperations(s_prime));
                     }
                     drop(read_guard);
                     Ok::<TextTransformOperations, CollaborateError>(TransformOperations {
-                        client_operations: DocumentResolveOperations(client_operations),
+                        client_operations: DeltaDocumentResolveOperations(client_operations),
                         server_operations,
                     })
                 };
@@ -184,7 +184,7 @@ impl EditDocumentQueue {
     }
 }
 
-pub type TextTransformOperations = TransformOperations<DocumentResolveOperations>;
+pub type TextTransformOperations = TransformOperations<DeltaDocumentResolveOperations>;
 pub(crate) type EditorCommandSender = Sender<EditorCommand>;
 pub(crate) type EditorCommandReceiver = Receiver<EditorCommand>;
 pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;

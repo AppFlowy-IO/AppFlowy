@@ -86,7 +86,7 @@ impl RevisionManager {
         user_id: &str,
         object_id: &str,
         rev_persistence: RevisionPersistence,
-        rev_compactor: C,
+        rev_compress: C,
         snapshot_persistence: SP,
     ) -> Self
     where
@@ -94,7 +94,7 @@ impl RevisionManager {
         C: 'static + RevisionCompress,
     {
         let rev_id_counter = RevIdCounter::new(0);
-        let rev_compactor = Arc::new(rev_compactor);
+        let rev_compress = Arc::new(rev_compress);
         let rev_persistence = Arc::new(rev_persistence);
         let rev_snapshot = Arc::new(RevisionSnapshotManager::new(user_id, object_id, snapshot_persistence));
         #[cfg(feature = "flowy_unit_test")]
@@ -106,7 +106,7 @@ impl RevisionManager {
             rev_id_counter,
             rev_persistence,
             rev_snapshot,
-            rev_compress: rev_compactor,
+            rev_compress,
             #[cfg(feature = "flowy_unit_test")]
             rev_ack_notifier: revision_ack_notifier,
         }

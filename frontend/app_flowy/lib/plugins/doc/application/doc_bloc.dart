@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:app_flowy/plugins/trash/application/trash_service.dart';
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:app_flowy/plugins/doc/application/doc_service.dart';
+import 'package:appflowy_editor/appflowy_editor.dart'
+    show EditorState, Document, Transaction;
 import 'package:flowy_sdk/protobuf/flowy-folder/trash.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
-import 'package:flutter_quill/flutter_quill.dart' show Document, Delta;
 import 'package:flowy_sdk/log.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -14,15 +15,13 @@ import 'dart:async';
 
 part 'doc_bloc.freezed.dart';
 
-typedef FlutterQuillDocument = Document;
-
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final ViewPB view;
   final DocumentService service;
 
   final ViewListener listener;
   final TrashService trashService;
-  late FlutterQuillDocument document;
+  late EditorState editorState;
   StreamSubscription? _subscription;
 
   DocumentBloc({
@@ -35,6 +34,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
       await event.map(
         initial: (Initial value) async {
           await _initial(value, emit);
+          _listenOnViewChange();
         },
         deleted: (Deleted value) async {
           emit(state.copyWith(isDeleted: true));
@@ -73,6 +73,29 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   Future<void> _initial(Initial value, Emitter<DocumentState> emit) async {
+    final result = await service.openDocument(docId: view.id);
+    result.fold(
+      (block) {
+        final document = Document.fromJson(jsonDecode(block.snapshot));
+        editorState = EditorState(document: document);
+        _listenOnDocumentChange();
+        emit(
+          state.copyWith(
+            loadingState: DocumentLoadingState.finish(left(unit)),
+          ),
+        );
+      },
+      (err) {
+        emit(
+          state.copyWith(
+            loadingState: DocumentLoadingState.finish(right(err)),
+          ),
+        );
+      },
+    );
+  }
+
+  void _listenOnViewChange() {
     listener.start(
       onViewDeleted: (result) {
         result.fold(
@@ -87,46 +110,18 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
         );
       },
     );
-    final result = await service.openDocument(docId: view.id);
-    result.fold(
-      (block) {
-        document = _decodeJsonToDocument(block.snapshot);
-        _subscription = document.changes.listen((event) {
-          final delta = event.item2;
-          final documentDelta = document.toDelta();
-          _composeDelta(delta, documentDelta);
-        });
-        emit(state.copyWith(
-            loadingState: DocumentLoadingState.finish(left(unit))));
-      },
-      (err) {
-        emit(state.copyWith(
-            loadingState: DocumentLoadingState.finish(right(err))));
-      },
-    );
   }
 
-  // Document _decodeListToDocument(Uint8List data) {
-  //   final json = jsonDecode(utf8.decode(data));
-  //   final document = Document.fromJson(json);
-  //   return document;
-  // }
-
-  void _composeDelta(Delta composedDelta, Delta documentDelta) async {
-    final json = jsonEncode(composedDelta.toJson());
-    Log.debug("doc_id: $view.id - Send json: $json");
-    final result = await service.applyEdit(docId: view.id, operations: json);
-
-    result.fold(
-      (_) {},
-      (r) => Log.error(r),
-    );
-  }
-
-  Document _decodeJsonToDocument(String data) {
-    final json = jsonDecode(data);
-    final document = Document.fromJson(json);
-    return document;
+  void _listenOnDocumentChange() {
+    _subscription = editorState.transactionStream.listen((transaction) {
+      final json = jsonEncode(TransactionAdaptor(transaction).toJson());
+      service.applyEdit(docId: view.id, operations: json).then((result) {
+        result.fold(
+          (l) => null,
+          (err) => Log.error(err),
+        );
+      });
+    });
   }
 }
 
@@ -159,4 +154,29 @@ class DocumentLoadingState with _$DocumentLoadingState {
   const factory DocumentLoadingState.loading() = _Loading;
   const factory DocumentLoadingState.finish(
       Either<Unit, FlowyError> successOrFail) = _Finish;
+}
+
+/// Uses to erase the different between appflowy editor and the backend
+class TransactionAdaptor {
+  final Transaction transaction;
+  TransactionAdaptor(this.transaction);
+
+  Map<String, dynamic> toJson() {
+    final json = <String, dynamic>{};
+    if (transaction.operations.isNotEmpty) {
+      // The backend uses [0,0] as the beginning path, but the editor uses [0].
+      // So it needs to extend the path by inserting `0` at the head for all
+      // operations before passing to the backend.
+      json['operations'] = transaction.operations
+          .map((e) => e.copyWith(path: [0, ...e.path]).toJson())
+          .toList();
+    }
+    if (transaction.afterSelection != null) {
+      json['after_selection'] = transaction.afterSelection!.toJson();
+    }
+    if (transaction.beforeSelection != null) {
+      json['before_selection'] = transaction.beforeSelection!.toJson();
+    }
+    return json;
+  }
 }
