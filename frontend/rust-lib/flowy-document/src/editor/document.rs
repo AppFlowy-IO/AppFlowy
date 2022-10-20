@@ -2,7 +2,9 @@ use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{RevisionObjectDeserializer, RevisionObjectSerializer};
 use flowy_sync::entities::revision::Revision;
-use lib_ot::core::{Body, Extension, Interval, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Transaction};
+use lib_ot::core::{
+    Body, Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction,
+};
 use lib_ot::text_delta::TextOperationBuilder;
 
 #[derive(Debug)]
@@ -46,8 +48,8 @@ pub fn initial_document_content() -> String {
         nodes: vec![editor_node],
     };
     let extension = Extension::TextSelection {
-        before_selection: Interval::default(),
-        after_selection: Interval::default(),
+        before_selection: Selection::default(),
+        after_selection: Selection::default(),
     };
     let transaction = Transaction {
         operations: vec![node_operation].into(),

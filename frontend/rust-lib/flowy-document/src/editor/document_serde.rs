@@ -1,6 +1,11 @@
 use crate::editor::document::Document;
 
-use lib_ot::core::{AttributeHashMap, Body, NodeData, NodeId, NodeTree};
+use bytes::Bytes;
+use flowy_error::FlowyResult;
+use lib_ot::core::{
+    AttributeHashMap, Body, Changeset, Extension, NodeData, NodeId, NodeOperation, NodeTree, Path, Selection,
+    Transaction,
+};
 use lib_ot::text_delta::TextOperations;
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::{SerializeMap, SerializeSeq};
@@ -67,8 +72,157 @@ impl<'de> Deserialize<'de> for Document {
 #[derive(Debug)]
 struct DocumentContentSerializer<'a>(pub &'a Document);
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DocumentTransaction {
+    #[serde(default)]
+    operations: Vec<DocumentOperation>,
+
+    #[serde(default)]
+    before_selection: Selection,
+
+    #[serde(default)]
+    after_selection: Selection,
+}
+
+impl DocumentTransaction {
+    pub fn to_json(&self) -> FlowyResult<String> {
+        let json = serde_json::to_string(self)?;
+        Ok(json)
+    }
+
+    pub fn to_bytes(&self) -> FlowyResult<Bytes> {
+        let data = serde_json::to_vec(&self)?;
+        Ok(Bytes::from(data))
+    }
+
+    pub fn from_bytes(bytes: Bytes) -> FlowyResult<Self> {
+        let transaction = serde_json::from_slice(&bytes)?;
+        Ok(transaction)
+    }
+}
+
+impl std::convert::From<Transaction> for DocumentTransaction {
+    fn from(transaction: Transaction) -> Self {
+        let (before_selection, after_selection) = match transaction.extension {
+            Extension::Empty => (Selection::default(), Selection::default()),
+            Extension::TextSelection {
+                before_selection,
+                after_selection,
+            } => (before_selection, after_selection),
+        };
+
+        DocumentTransaction {
+            operations: transaction
+                .operations
+                .into_inner()
+                .into_iter()
+                .map(|operation| operation.as_ref().into())
+                .collect(),
+            before_selection,
+            after_selection,
+        }
+    }
+}
+
+impl std::convert::From<DocumentTransaction> for Transaction {
+    fn from(transaction: DocumentTransaction) -> Self {
+        Transaction {
+            operations: transaction
+                .operations
+                .into_iter()
+                .map(|operation| operation.into())
+                .collect::<Vec<NodeOperation>>()
+                .into(),
+            extension: Extension::TextSelection {
+                before_selection: transaction.before_selection,
+                after_selection: transaction.after_selection,
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "op")]
+pub enum DocumentOperation {
+    #[serde(rename = "insert")]
+    Insert { path: Path, nodes: Vec<DocumentNode> },
+
+    #[serde(rename = "delete")]
+    Delete { path: Path, nodes: Vec<DocumentNode> },
+
+    #[serde(rename = "update")]
+    Update {
+        path: Path,
+        attributes: AttributeHashMap,
+        #[serde(rename = "oldAttributes")]
+        old_attributes: AttributeHashMap,
+    },
+
+    #[serde(rename = "update_text")]
+    UpdateText {
+        path: Path,
+        delta: TextOperations,
+        inverted: TextOperations,
+    },
+}
+
+impl std::convert::From<DocumentOperation> for NodeOperation {
+    fn from(document_operation: DocumentOperation) -> Self {
+        match document_operation {
+            DocumentOperation::Insert { path, nodes } => NodeOperation::Insert {
+                path,
+                nodes: nodes.into_iter().map(|node| node.into()).collect(),
+            },
+            DocumentOperation::Delete { path, nodes } => NodeOperation::Delete {
+                path,
+
+                nodes: nodes.into_iter().map(|node| node.into()).collect(),
+            },
+            DocumentOperation::Update {
+                path,
+                attributes,
+                old_attributes,
+            } => NodeOperation::Update {
+                path,
+                changeset: Changeset::Attributes {
+                    new: attributes,
+                    old: old_attributes,
+                },
+            },
+            DocumentOperation::UpdateText { path, delta, inverted } => NodeOperation::Update {
+                path,
+                changeset: Changeset::Delta { delta, inverted },
+            },
+        }
+    }
+}
+
+impl std::convert::From<&NodeOperation> for DocumentOperation {
+    fn from(node_operation: &NodeOperation) -> Self {
+        let node_operation = node_operation.clone();
+        match node_operation {
+            NodeOperation::Insert { path, nodes } => DocumentOperation::Insert {
+                path,
+                nodes: nodes.into_iter().map(|node| node.into()).collect(),
+            },
+            NodeOperation::Update { path, changeset } => match changeset {
+                Changeset::Delta { delta, inverted } => DocumentOperation::UpdateText { path, delta, inverted },
+                Changeset::Attributes { new, old } => DocumentOperation::Update {
+                    path,
+                    attributes: new,
+                    old_attributes: old,
+                },
+            },
+            NodeOperation::Delete { path, nodes } => DocumentOperation::Delete {
+                path,
+                nodes: nodes.into_iter().map(|node| node.into()).collect(),
+            },
+        }
+    }
+}
+
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
-pub struct DocumentNodeData {
+pub struct DocumentNode {
     #[serde(rename = "type")]
     pub node_type: String,
 
@@ -81,21 +235,32 @@ pub struct DocumentNodeData {
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
     #[serde(default)]
-    pub children: Vec<DocumentNodeData>,
+    pub children: Vec<DocumentNode>,
 }
 
-impl std::convert::From<NodeData> for DocumentNodeData {
+impl std::convert::From<NodeData> for DocumentNode {
     fn from(node_data: NodeData) -> Self {
         let delta = if let Body::Delta(operations) = node_data.body {
             operations
         } else {
             TextOperations::default()
         };
-        DocumentNodeData {
+        DocumentNode {
             node_type: node_data.node_type,
             attributes: node_data.attributes,
             delta,
-            children: node_data.children.into_iter().map(DocumentNodeData::from).collect(),
+            children: node_data.children.into_iter().map(DocumentNode::from).collect(),
+        }
+    }
+}
+
+impl std::convert::From<DocumentNode> for NodeData {
+    fn from(document_node: DocumentNode) -> Self {
+        NodeData {
+            node_type: document_node.node_type,
+            attributes: document_node.attributes,
+            body: Body::Delta(document_node.delta),
+            children: document_node.children.into_iter().map(|child| child.into()).collect(),
         }
     }
 }
@@ -109,7 +274,7 @@ impl<'a> Serialize for DocumentContentSerializer<'a> {
         let root_node_id = tree.root_node_id();
 
         // transform the NodeData to DocumentNodeData
-        let get_document_node_data = |node_id: NodeId| tree.get_node_data(node_id).map(DocumentNodeData::from);
+        let get_document_node_data = |node_id: NodeId| tree.get_node_data(node_id).map(DocumentNode::from);
 
         let mut children = tree.get_children_ids(root_node_id);
         if children.len() == 1 {
@@ -133,6 +298,40 @@ impl<'a> Serialize for DocumentContentSerializer<'a> {
 #[cfg(test)]
 mod tests {
     use crate::editor::document::Document;
+    use crate::editor::document_serde::DocumentTransaction;
+
+    #[test]
+    fn transaction_deserialize_update_text_operation_test() {
+        // bold
+        let json = r#"{"operations":[{"op":"update_text","path":[0],"delta":[{"retain":3,"attributes":{"bold":true}}],"inverted":[{"retain":3,"attributes":{"bold":null}}]}],"after_selection":{"start":{"path":[0],"offset":0},"end":{"path":[0],"offset":3}},"before_selection":{"start":{"path":[0],"offset":0},"end":{"path":[0],"offset":3}}}"#;
+        let _ = serde_json::from_str::<DocumentTransaction>(json).unwrap();
+
+        // delete character
+        let json = r#"{"operations":[{"op":"update_text","path":[0],"delta":[{"retain":2},{"delete":1}],"inverted":[{"retain":2},{"insert":"C","attributes":{"bold":true}}]}],"after_selection":{"start":{"path":[0],"offset":2},"end":{"path":[0],"offset":2}},"before_selection":{"start":{"path":[0],"offset":3},"end":{"path":[0],"offset":3}}}"#;
+        let _ = serde_json::from_str::<DocumentTransaction>(json).unwrap();
+    }
+
+    #[test]
+    fn transaction_deserialize_insert_operation_test() {
+        let json = r#"{"operations":[{"op":"update_text","path":[0],"delta":[{"insert":"a"}],"inverted":[{"delete":1}]}],"after_selection":{"start":{"path":[0],"offset":1},"end":{"path":[0],"offset":1}},"before_selection":{"start":{"path":[0],"offset":0},"end":{"path":[0],"offset":0}}}"#;
+        let _ = serde_json::from_str::<DocumentTransaction>(json).unwrap();
+    }
+
+    #[test]
+    fn transaction_deserialize_delete_operation_test() {
+        let json = r#"{"operations": [{"op":"delete","path":[1],"nodes":[{"type":"text","delta":[]}]}],"after_selection":{"start":{"path":[0],"offset":2},"end":{"path":[0],"offset":2}},"before_selection":{"start":{"path":[1],"offset":0},"end":{"path":[1],"offset":0}}}"#;
+        let _transaction = serde_json::from_str::<DocumentTransaction>(json).unwrap();
+    }
+
+    #[test]
+    fn transaction_deserialize_update_attribute_operation_test() {
+        // let json = r#"{"operations":[{"op":"update","path":[0],"attributes":{"retain":3,"attributes":{"bold":true}},"oldAttributes":{"retain":3,"attributes":{"bold":null}}}]}"#;
+        // let transaction = serde_json::from_str::<DocumentTransaction>(&json).unwrap();
+
+        let json =
+            r#"{"operations":[{"op":"update","path":[0],"attributes":{"retain":3},"oldAttributes":{"retain":3}}]}"#;
+        let _ = serde_json::from_str::<DocumentTransaction>(json).unwrap();
+    }
 
     #[test]
     fn document_serde_test() {

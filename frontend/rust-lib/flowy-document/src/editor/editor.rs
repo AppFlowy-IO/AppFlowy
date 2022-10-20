@@ -1,4 +1,5 @@
 use crate::editor::document::{Document, DocumentRevisionSerde};
+use crate::editor::document_serde::DocumentTransaction;
 use crate::editor::queue::{Command, CommandSender, DocumentQueue};
 use crate::{DocumentEditor, DocumentUser};
 use bytes::Bytes;
@@ -66,25 +67,27 @@ fn spawn_edit_queue(
 }
 
 impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
-    fn get_operations_str(&self) -> FutureResult<String, FlowyError> {
-        todo!()
+    fn export(&self) -> FutureResult<String, FlowyError> {
+        let this = self.clone();
+        FutureResult::new(async move { this.get_content(false).await })
     }
 
-    fn compose_local_operations(&self, _data: Bytes) -> FutureResult<(), FlowyError> {
-        todo!()
+    fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError> {
+        let this = self.clone();
+        FutureResult::new(async move {
+            let transaction = DocumentTransaction::from_bytes(data)?;
+            let _ = this.apply_transaction(transaction.into()).await?;
+            Ok(())
+        })
     }
 
-    fn close(&self) {
-        todo!()
-    }
+    fn close(&self) {}
 
     fn receive_ws_data(&self, _data: ServerRevisionWSData) -> FutureResult<(), FlowyError> {
-        todo!()
+        FutureResult::new(async move { Ok(()) })
     }
 
-    fn receive_ws_state(&self, _state: &WSConnectState) {
-        todo!()
-    }
+    fn receive_ws_state(&self, _state: &WSConnectState) {}
 
     fn as_any(&self) -> &dyn Any {
         self

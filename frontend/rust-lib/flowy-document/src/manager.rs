@@ -1,6 +1,6 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor};
 use crate::entities::EditParams;
-use crate::old_editor::editor::{DocumentRevisionCompress, OldDocumentEditor};
+use crate::old_editor::editor::{DeltaDocumentEditor, DocumentRevisionCompress};
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
@@ -30,7 +30,7 @@ pub trait DocumentUser: Send + Sync {
 }
 
 pub trait DocumentEditor: Send + Sync {
-    fn get_operations_str(&self) -> FutureResult<String, FlowyError>;
+    fn export(&self) -> FutureResult<String, FlowyError>;
     fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError>;
     fn close(&self);
 
@@ -110,7 +110,7 @@ impl DocumentManager {
         let _ = editor
             .compose_local_operations(Bytes::from(payload.operations_str))
             .await?;
-        let operations_str = editor.get_operations_str().await?;
+        let operations_str = editor.export().await?;
         Ok(DocumentOperationsPB {
             doc_id: payload.doc_id.clone(),
             operations_str,
@@ -198,7 +198,7 @@ impl DocumentManager {
             Arc::new(editor)
         } else {
             let editor =
-                OldDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
+                DeltaDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
             Arc::new(editor)
         };
         self.editor_map.insert(doc_id, editor.clone());

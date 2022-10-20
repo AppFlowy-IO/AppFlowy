@@ -25,7 +25,7 @@ use std::any::Any;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
-pub struct OldDocumentEditor {
+pub struct DeltaDocumentEditor {
     pub doc_id: String,
     #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
@@ -34,7 +34,7 @@ pub struct OldDocumentEditor {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl OldDocumentEditor {
+impl DeltaDocumentEditor {
     #[allow(unused_variables)]
     pub(crate) async fn new(
         doc_id: &str,
@@ -146,8 +146,8 @@ impl OldDocumentEditor {
     }
 }
 
-impl DocumentEditor for Arc<OldDocumentEditor> {
-    fn get_operations_str(&self) -> FutureResult<String, FlowyError> {
+impl DocumentEditor for Arc<DeltaDocumentEditor> {
+    fn export(&self) -> FutureResult<String, FlowyError> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
         let msg = EditorCommand::GetOperationsString { ret };
         let edit_cmd_tx = self.edit_cmd_tx.clone();
@@ -197,7 +197,7 @@ impl DocumentEditor for Arc<OldDocumentEditor> {
         self
     }
 }
-impl std::ops::Drop for OldDocumentEditor {
+impl std::ops::Drop for DeltaDocumentEditor {
     fn drop(&mut self) {
         tracing::trace!("{} DocumentEditor was dropped", self.doc_id)
     }
@@ -225,7 +225,7 @@ fn spawn_edit_queue(
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl OldDocumentEditor {
+impl DeltaDocumentEditor {
     pub async fn document_operations(&self) -> FlowyResult<TextOperations> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<TextOperations>>();
         let msg = EditorCommand::GetOperations { ret };

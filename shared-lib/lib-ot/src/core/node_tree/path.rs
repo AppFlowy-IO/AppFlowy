@@ -23,7 +23,7 @@ use serde::{Deserialize, Serialize};
 /// The path of  Node A-1 will be [0,0]
 /// The path of  Node A-2 will be [0,1]
 /// The path of  Node B-2 will be [1,1]
-#[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
+#[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug, Default)]
 pub struct Path(pub Vec<usize>);
 
 impl Path {

@@ -1,5 +1,5 @@
 use lib_ot::core::{
-    AttributeBuilder, Changeset, Extension, Interval, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path,
+    AttributeBuilder, Changeset, Extension, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path, Selection,
     Transaction,
 };
 use lib_ot::text_delta::TextOperationBuilder;
@@ -78,19 +78,20 @@ fn transaction_serialize_test() {
     };
     let mut transaction = Transaction::from_operations(vec![insert]);
     transaction.extension = Extension::TextSelection {
-        before_selection: Interval::new(0, 1),
-        after_selection: Interval::new(1, 2),
+        before_selection: Selection::default(),
+        after_selection: Selection::default(),
     };
     let json = serde_json::to_string(&transaction).unwrap();
     assert_eq!(
         json,
-        r#"{"operations":[{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}],"TextSelection":{"before_selection":{"start":0,"end":1},"after_selection":{"start":1,"end":2}}}"#
+        r#"{"operations":[{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}],"TextSelection":{"before_selection":{"start":{"path":[],"offset":0},"end":{"path":[],"offset":0}},"after_selection":{"start":{"path":[],"offset":0},"end":{"path":[],"offset":0}}}}"#
     );
 }
 
 #[test]
 fn transaction_deserialize_test() {
-    let json = r#"{"operations":[{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}],"TextSelection":{"before_selection":{"start":0,"end":1},"after_selection":{"start":1,"end":2}}}"#;
+    let json = r#"{"operations":[{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}],"TextSelection":{"before_selection":{"start":{"path":[],"offset":0},"end":{"path":[],"offset":0}},"after_selection":{"start":{"path":[],"offset":0},"end":{"path":[],"offset":0}}}}"#;
+
     let transaction: Transaction = serde_json::from_str(json).unwrap();
     assert_eq!(transaction.operations.len(), 1);
 }
