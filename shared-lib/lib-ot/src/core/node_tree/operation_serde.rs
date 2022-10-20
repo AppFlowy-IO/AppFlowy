@@ -1,4 +1,4 @@
-use crate::core::{Changeset, Path};
+use crate::core::{AttributeHashMap, Changeset, Path};
 use crate::text_delta::TextOperations;
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::SerializeMap;
@@ -7,6 +7,7 @@ use std::convert::TryInto;
 use std::fmt;
 use std::marker::PhantomData;
 
+#[allow(dead_code)]
 pub fn serialize_changeset<S>(path: &Path, changeset: &Changeset, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
@@ -33,6 +34,7 @@ where
     }
 }
 
+#[allow(dead_code)]
 pub fn deserialize_changeset<'de, D>(deserializer: D) -> Result<(Path, Changeset), D::Error>
 where
     D: Deserializer<'de>,
@@ -53,6 +55,7 @@ where
         {
             let mut path: Option<Path> = None;
             let mut delta_changeset = DeltaChangeset::<V::Error>::new();
+            let mut attribute_changeset = AttributeChangeset::new();
             while let Some(key) = map.next_key()? {
                 match key {
                     "delta" => {
@@ -73,8 +76,21 @@ where
                         }
                         path = Some(map.next_value::<Path>()?)
                     }
+                    "new" => {
+                        if attribute_changeset.new.is_some() {
+                            return Err(de::Error::duplicate_field("new"));
+                        }
+                        attribute_changeset.new = Some(map.next_value()?);
+                    }
+                    "old" => {
+                        if attribute_changeset.old.is_some() {
+                            return Err(de::Error::duplicate_field("old"));
+                        }
+                        attribute_changeset.old = Some(map.next_value()?);
+                    }
                     other => {
-                        panic!("Unexpected key: {}", other);
+                        tracing::warn!("Unexpected key: {}", other);
+                        panic!()
                     }
                 }
             }
@@ -82,7 +98,12 @@ where
                 return Err(de::Error::missing_field("path"));
             }
 
-            let changeset = delta_changeset.try_into()?;
+            let mut changeset: Changeset;
+            if !delta_changeset.is_empty() {
+                changeset = delta_changeset.try_into()?
+            } else {
+                changeset = attribute_changeset.try_into()?;
+            }
 
             Ok((path.unwrap(), changeset))
         }
@@ -103,6 +124,10 @@ impl<E> DeltaChangeset<E> {
             inverted: None,
             error: PhantomData,
         }
+    }
+
+    fn is_empty(&self) -> bool {
+        self.delta.is_none() && self.inverted.is_none()
     }
 }
 
@@ -126,5 +151,46 @@ where
         };
 
         Ok(changeset)
+    }
+}
+struct AttributeChangeset<E> {
+    new: Option<AttributeHashMap>,
+    old: Option<AttributeHashMap>,
+    error: PhantomData<E>,
+}
+
+impl<E> AttributeChangeset<E> {
+    fn new() -> Self {
+        Self {
+            new: Default::default(),
+            old: Default::default(),
+            error: PhantomData,
+        }
+    }
+
+    fn is_empty(&self) -> bool {
+        self.new.is_none() && self.old.is_none()
+    }
+}
+
+impl<E> std::convert::TryInto<Changeset> for AttributeChangeset<E>
+where
+    E: de::Error,
+{
+    type Error = E;
+
+    fn try_into(self) -> Result<Changeset, Self::Error> {
+        if self.new.is_none() {
+            return Err(de::Error::missing_field("new"));
+        }
+
+        if self.old.is_none() {
+            return Err(de::Error::missing_field("old"));
+        }
+
+        Ok(Changeset::Attributes {
+            new: self.new.unwrap(),
+            old: self.old.unwrap(),
+        })
     }
 }

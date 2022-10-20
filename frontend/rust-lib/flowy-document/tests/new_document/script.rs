@@ -1,4 +1,4 @@
-use flowy_document::editor::AppFlowyDocumentEditor;
+use flowy_document::editor::{AppFlowyDocumentEditor, DocumentTransaction};
 
 use flowy_document::entities::DocumentTypePB;
 use flowy_test::helper::ViewTest;
@@ -8,11 +8,30 @@ use lib_ot::text_delta::TextOperations;
 use std::sync::Arc;
 
 pub enum EditScript {
-    InsertText { path: Path, delta: TextOperations },
-    UpdateText { path: Path, delta: TextOperations },
-    Delete { path: Path },
-    AssertContent { expected: &'static str },
-    AssertPrettyContent { expected: &'static str },
+    InsertText {
+        path: Path,
+        delta: TextOperations,
+    },
+    UpdateText {
+        path: Path,
+        delta: TextOperations,
+    },
+    #[allow(dead_code)]
+    ComposeTransaction {
+        transaction: Transaction,
+    },
+    ComposeTransactionStr {
+        transaction: &'static str,
+    },
+    Delete {
+        path: Path,
+    },
+    AssertContent {
+        expected: &'static str,
+    },
+    AssertPrettyContent {
+        expected: &'static str,
+    },
 }
 
 pub struct DocumentEditorTest {
@@ -67,6 +86,14 @@ impl DocumentEditorTest {
                     .await
                     .unwrap();
             }
+            EditScript::ComposeTransaction { transaction } => {
+                self.editor.apply_transaction(transaction).await.unwrap();
+            }
+            EditScript::ComposeTransactionStr { transaction } => {
+                let document_transaction = serde_json::from_str::<DocumentTransaction>(transaction).unwrap();
+                let transaction: Transaction = document_transaction.into();
+                self.editor.apply_transaction(transaction).await.unwrap();
+            }
             EditScript::Delete { path } => {
                 let operation = NodeOperation::Delete { path, nodes: vec![] };
                 self.editor
@@ -77,6 +104,7 @@ impl DocumentEditorTest {
             EditScript::AssertContent { expected } => {
                 //
                 let content = self.editor.get_content(false).await.unwrap();
+
                 assert_eq!(content, expected);
             }
             EditScript::AssertPrettyContent { expected } => {

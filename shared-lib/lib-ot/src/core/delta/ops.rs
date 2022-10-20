@@ -1,10 +1,9 @@
-use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
-
 use crate::core::delta::operation::{DeltaOperation, EmptyAttributes, OperationAttributes, OperationTransform};
 use crate::core::delta::{OperationIterator, MAX_IV_LEN};
 use crate::core::interval::Interval;
 use crate::core::ot_str::OTString;
 use crate::core::OperationBuilder;
+use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
 use std::{

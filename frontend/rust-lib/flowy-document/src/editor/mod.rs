@@ -6,4 +6,5 @@ mod migration;
 mod queue;
 
 pub use document::*;
+pub use document_serde::*;
 pub use editor::*;

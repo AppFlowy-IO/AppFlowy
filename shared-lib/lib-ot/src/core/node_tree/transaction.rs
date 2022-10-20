@@ -2,18 +2,15 @@ use super::{Changeset, NodeOperations};
 use crate::core::attributes::AttributeHashMap;
 use crate::core::{NodeData, NodeOperation, NodeTree, Path};
 use crate::errors::OTError;
-
 use indextree::NodeId;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Transaction {
     #[serde(flatten)]
     pub operations: NodeOperations,
 
     #[serde(default)]
-    #[serde(flatten)]
     #[serde(skip_serializing_if = "Extension::is_empty")]
     pub extension: Extension,
 }
