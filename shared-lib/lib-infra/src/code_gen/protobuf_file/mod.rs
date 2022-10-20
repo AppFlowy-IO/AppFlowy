@@ -182,9 +182,9 @@ pub fn check_pb_dart_plugin() {
                 ));
             }
 
-            msg.push_str(&"✅ You can fix that by adding:".to_string());
-            msg.push_str(&"\n\texport PATH=\"$PATH\":\"$HOME/.pub-cache/bin\"\n".to_string());
-            msg.push_str(&"to your shell's config file.(.bashrc, .bash, .profile, .zshrc etc.)".to_string());
+            msg.push_str("✅ You can fix that by adding:");
+            msg.push_str("\n\texport PATH=\"$PATH\":\"$HOME/.pub-cache/bin\"\n");
+            msg.push_str("to your shell's config file.(.bashrc, .bash, .profile, .zshrc etc.)");
             panic!("{}", msg)
         }
     }
@@ -198,13 +198,9 @@ fn gen_proto_files(crate_name: &str, crate_path: &str) -> Vec<ProtobufCrate> {
         .map(|info| info.protobuf_crate.clone())
         .collect::<Vec<_>>();
 
-    crate_context
-        .into_iter()
-        .map(|info| info.files)
-        .flatten()
-        .for_each(|file| {
-            println!("cargo:rerun-if-changed={}", file.file_path);
-        });
+    crate_context.into_iter().flat_map(|info| info.files).for_each(|file| {
+        println!("cargo:rerun-if-changed={}", file.file_path);
+    });
 
     proto_crates
 }

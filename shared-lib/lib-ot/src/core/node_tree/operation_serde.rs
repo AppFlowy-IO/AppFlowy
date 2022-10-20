@@ -1,4 +1,4 @@
-use crate::core::{NodeBodyChangeset, Path};
+use crate::core::{Changeset, Path};
 use crate::text_delta::TextOperations;
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::SerializeMap;
@@ -7,8 +7,7 @@ use std::convert::TryInto;
 use std::fmt;
 use std::marker::PhantomData;
 
-#[allow(dead_code)]
-pub fn serialize_edit_body<S>(path: &Path, changeset: &NodeBodyChangeset, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize_changeset<S>(path: &Path, changeset: &Changeset, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
@@ -17,28 +16,34 @@ where
     map.serialize_value(path)?;
 
     match changeset {
-        NodeBodyChangeset::Delta { delta, inverted } => {
+        Changeset::Delta { delta, inverted } => {
             map.serialize_key("delta")?;
             map.serialize_value(delta)?;
             map.serialize_key("inverted")?;
             map.serialize_value(inverted)?;
             map.end()
         }
+        Changeset::Attributes { new, old } => {
+            map.serialize_key("new")?;
+            map.serialize_value(new)?;
+            map.serialize_key("old")?;
+            map.serialize_value(old)?;
+            map.end()
+        }
     }
 }
 
-#[allow(dead_code)]
-pub fn deserialize_edit_body<'de, D>(deserializer: D) -> Result<(Path, NodeBodyChangeset), D::Error>
+pub fn deserialize_changeset<'de, D>(deserializer: D) -> Result<(Path, Changeset), D::Error>
 where
     D: Deserializer<'de>,
 {
-    struct NodeBodyChangesetVisitor();
+    struct ChangesetVisitor();
 
-    impl<'de> Visitor<'de> for NodeBodyChangesetVisitor {
-        type Value = (Path, NodeBodyChangeset);
+    impl<'de> Visitor<'de> for ChangesetVisitor {
+        type Value = (Path, Changeset);
 
         fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-            formatter.write_str("Expect Path and NodeBodyChangeset")
+            formatter.write_str("Expect Path and Changeset")
         }
 
         #[inline]
@@ -47,7 +52,7 @@ where
             V: MapAccess<'de>,
         {
             let mut path: Option<Path> = None;
-            let mut delta_changeset = DeltaBodyChangeset::<V::Error>::new();
+            let mut delta_changeset = DeltaChangeset::<V::Error>::new();
             while let Some(key) = map.next_key()? {
                 match key {
                     "delta" => {
@@ -66,7 +71,6 @@ where
                         if path.is_some() {
                             return Err(de::Error::duplicate_field("path"));
                         }
-
                         path = Some(map.next_value::<Path>()?)
                     }
                     other => {
@@ -83,17 +87,16 @@ where
             Ok((path.unwrap(), changeset))
         }
     }
-    deserializer.deserialize_any(NodeBodyChangesetVisitor())
+    deserializer.deserialize_any(ChangesetVisitor())
 }
 
-#[allow(dead_code)]
-struct DeltaBodyChangeset<E> {
+struct DeltaChangeset<E> {
     delta: Option<TextOperations>,
     inverted: Option<TextOperations>,
     error: PhantomData<E>,
 }
 
-impl<E> DeltaBodyChangeset<E> {
+impl<E> DeltaChangeset<E> {
     fn new() -> Self {
         Self {
             delta: None,
@@ -103,13 +106,13 @@ impl<E> DeltaBodyChangeset<E> {
     }
 }
 
-impl<E> std::convert::TryInto<NodeBodyChangeset> for DeltaBodyChangeset<E>
+impl<E> std::convert::TryInto<Changeset> for DeltaChangeset<E>
 where
     E: de::Error,
 {
     type Error = E;
 
-    fn try_into(self) -> Result<NodeBodyChangeset, Self::Error> {
+    fn try_into(self) -> Result<Changeset, Self::Error> {
         if self.delta.is_none() {
             return Err(de::Error::missing_field("delta"));
         }
@@ -117,7 +120,7 @@ where
         if self.inverted.is_none() {
             return Err(de::Error::missing_field("inverted"));
         }
-        let changeset = NodeBodyChangeset::Delta {
+        let changeset = Changeset::Delta {
             delta: self.delta.unwrap(),
             inverted: self.inverted.unwrap(),
         };

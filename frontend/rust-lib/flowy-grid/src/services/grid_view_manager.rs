@@ -4,7 +4,7 @@ use crate::entities::{
 };
 use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::grid_view_editor::{GridViewRevisionCompactor, GridViewRevisionEditor};
+use crate::services::grid_view_editor::{GridViewRevisionCompress, GridViewRevisionEditor};
 
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
@@ -250,7 +250,7 @@ pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str)
 
     let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
     let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache);
-    let rev_compactor = GridViewRevisionCompactor();
+    let rev_compactor = GridViewRevisionCompress();
 
     let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(view_id, pool);
     Ok(RevisionManager::new(

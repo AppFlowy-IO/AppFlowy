@@ -8,8 +8,6 @@ edition = "2018"
 [dependencies]
 bytecount = "0.6.0"
 serde = { version = "1.0", features = ["derive", "rc"] }
-#flowy-revision = { path = "../../frontend/rust-lib/flowy-revision" }
-#protobuf = {version = "2.18.0"}
 tokio = { version = "1", features = ["sync"] }
 dashmap = "5"
 md5 = "0.7.0"

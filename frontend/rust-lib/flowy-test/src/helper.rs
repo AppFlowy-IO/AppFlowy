@@ -46,7 +46,7 @@ impl ViewTest {
         Self::new(sdk, ViewDataTypePB::Database, ViewLayoutTypePB::Board, data).await
     }
 
-    pub async fn new_text_block_view(sdk: &FlowySDKTest) -> Self {
+    pub async fn new_document_view(sdk: &FlowySDKTest) -> Self {
         Self::new(sdk, ViewDataTypePB::Text, ViewLayoutTypePB::Document, vec![]).await
     }
 }

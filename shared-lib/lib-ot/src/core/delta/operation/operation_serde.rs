@@ -84,7 +84,7 @@ where
                             let map: T = map.next_value()?;
                             attributes = Some(map);
                         }
-                        _ => panic!(),
+                        _ => {}
                     }
                 }
                 match operation {

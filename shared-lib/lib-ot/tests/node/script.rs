@@ -1,7 +1,8 @@
-use lib_ot::core::{Node, Transaction};
+#![allow(clippy::all)]
+use lib_ot::core::{NodeTreeContext, Transaction};
 use lib_ot::{
     core::attributes::AttributeHashMap,
-    core::{NodeBody, NodeBodyChangeset, NodeData, NodeTree, Path, TransactionBuilder},
+    core::{Body, Changeset, NodeData, NodeTree, Path, TransactionBuilder},
     text_delta::TextOperations,
 };
 use std::collections::HashMap;
@@ -12,33 +13,46 @@ pub enum NodeScript {
         node_data: NodeData,
         rev_id: usize,
     },
+    InsertNodes {
+        path: Path,
+        node_data_list: Vec<NodeData>,
+        rev_id: usize,
+    },
     UpdateAttributes {
         path: Path,
         attributes: AttributeHashMap,
     },
     UpdateBody {
         path: Path,
-        changeset: NodeBodyChangeset,
+        changeset: Changeset,
     },
     DeleteNode {
         path: Path,
         rev_id: usize,
     },
-    AssertNumberOfNodesAtPath {
+    AssertNumberOfChildrenAtPath {
         path: Option<Path>,
-        len: usize,
+        expected: usize,
     },
-    AssertNodeData {
+    AssertNodesAtRoot {
+        expected: Vec<NodeData>,
+    },
+    #[allow(dead_code)]
+    AssertNodesAtPath {
         path: Path,
-        expected: Option<NodeData>,
+        expected: Vec<NodeData>,
     },
     AssertNode {
         path: Path,
-        expected: Option<Node>,
+        expected: Option<NodeData>,
     },
     AssertNodeDelta {
         path: Path,
         expected: TextOperations,
+    },
+    #[allow(dead_code)]
+    AssertTreeJSON {
+        expected: String,
     },
 }
 
@@ -53,7 +67,7 @@ impl NodeTest {
         Self {
             rev_id: 0,
             rev_operations: HashMap::new(),
-            node_tree: NodeTree::new("root"),
+            node_tree: NodeTree::new(NodeTreeContext::default()),
         }
     }
 
@@ -72,6 +86,17 @@ impl NodeTest {
             } => {
                 let mut transaction = TransactionBuilder::new(&self.node_tree)
                     .insert_node_at_path(path, node)
+                    .finalize();
+                self.transform_transaction_if_need(&mut transaction, rev_id);
+                self.apply_transaction(transaction);
+            }
+            NodeScript::InsertNodes {
+                path,
+                node_data_list,
+                rev_id,
+            } => {
+                let mut transaction = TransactionBuilder::new(&self.node_tree)
+                    .insert_nodes_at_path(path, node_data_list)
                     .finalize();
                 self.transform_transaction_if_need(&mut transaction, rev_id);
                 self.apply_transaction(transaction);
@@ -96,47 +121,41 @@ impl NodeTest {
                 self.transform_transaction_if_need(&mut transaction, rev_id);
                 self.apply_transaction(transaction);
             }
+
             NodeScript::AssertNode { path, expected } => {
-                let node_id = self.node_tree.node_id_at_path(path);
-                if expected.is_none() && node_id.is_none() {
-                    return;
-                }
-
-                let node = self.node_tree.get_node(node_id.unwrap()).cloned();
-                assert_eq!(node, expected);
+                let node = self.node_tree.get_node_data_at_path(&path);
+                assert_eq!(node, expected.map(|e| e.into()));
             }
-            NodeScript::AssertNodeData { path, expected } => {
-                let node_id = self.node_tree.node_id_at_path(path);
-
-                match node_id {
-                    None => assert!(node_id.is_none()),
-                    Some(node_id) => {
-                        let node = self.node_tree.get_node(node_id).cloned();
-                        assert_eq!(node, expected.map(|e| e.into()));
-                    }
-                }
-            }
-            NodeScript::AssertNumberOfNodesAtPath {
-                path,
-                len: expected_len,
-            } => match path {
+            NodeScript::AssertNumberOfChildrenAtPath { path, expected } => match path {
                 None => {
                     let len = self.node_tree.number_of_children(None);
-                    assert_eq!(len, expected_len)
+                    assert_eq!(len, expected)
                 }
                 Some(path) => {
                     let node_id = self.node_tree.node_id_at_path(path).unwrap();
                     let len = self.node_tree.number_of_children(Some(node_id));
-                    assert_eq!(len, expected_len)
+                    assert_eq!(len, expected)
                 }
             },
+            NodeScript::AssertNodesAtRoot { expected } => {
+                let nodes = self.node_tree.get_node_data_at_root().unwrap().children;
+                assert_eq!(nodes, expected)
+            }
+            NodeScript::AssertNodesAtPath { path, expected } => {
+                let nodes = self.node_tree.get_node_data_at_path(&path).unwrap().children;
+                assert_eq!(nodes, expected)
+            }
             NodeScript::AssertNodeDelta { path, expected } => {
                 let node = self.node_tree.get_node_at_path(&path).unwrap();
-                if let NodeBody::Delta(delta) = node.body.clone() {
+                if let Body::Delta(delta) = node.body.clone() {
                     debug_assert_eq!(delta, expected);
                 } else {
                     panic!("Node body type not match, expect Delta");
                 }
+            }
+            NodeScript::AssertTreeJSON { expected } => {
+                let json = serde_json::to_string(&self.node_tree).unwrap();
+                assert_eq!(json, expected)
             }
         }
     }

@@ -74,6 +74,7 @@ pub enum OTErrorCode {
     Internal,
     PathNotFound,
     PathIsEmpty,
+    InvalidPath,
     UnexpectedEmpty,
 }
 

@@ -2,7 +2,7 @@ use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_document::{
     errors::{internal_error, FlowyError},
-    DocumentCloudService, DocumentManager, DocumentUser,
+    DocumentCloudService, DocumentConfig, DocumentManager, DocumentUser,
 };
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
@@ -23,6 +23,7 @@ impl DocumentDepsResolver {
         ws_conn: Arc<FlowyWebSocketConnect>,
         user_session: Arc<UserSession>,
         server_config: &ClientServerConfiguration,
+        document_config: &DocumentConfig,
     ) -> Arc<DocumentManager> {
         let user = Arc::new(BlockUserImpl(user_session));
         let rev_web_socket = Arc::new(DocumentRevisionWebSocket(ws_conn.clone()));
@@ -31,7 +32,12 @@ impl DocumentDepsResolver {
             Some(local_server) => local_server,
         };
 
-        let manager = Arc::new(DocumentManager::new(cloud_service, user, rev_web_socket));
+        let manager = Arc::new(DocumentManager::new(
+            cloud_service,
+            user,
+            rev_web_socket,
+            document_config.clone(),
+        ));
         let receiver = Arc::new(DocumentWSMessageReceiverImpl(manager.clone()));
         ws_conn.add_ws_message_receiver(receiver).unwrap();
 

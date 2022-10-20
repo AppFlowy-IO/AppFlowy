@@ -115,7 +115,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   void _composeDelta(Delta composedDelta, Delta documentDelta) async {
     final json = jsonEncode(composedDelta.toJson());
     Log.debug("doc_id: $view.id - Send json: $json");
-    final result = await service.applyEdit(docId: view.id, data: json);
+    final result = await service.applyEdit(docId: view.id, operations: json);
 
     result.fold(
       (_) {},

@@ -1,6 +1,6 @@
 #![allow(clippy::all)]
 use crate::editor::{Rng, TestBuilder, TestOp::*};
-use flowy_sync::client_document::{EmptyDoc, NewlineDoc};
+use flowy_sync::client_document::{EmptyDocument, NewlineDocument};
 use lib_ot::text_delta::TextOperationBuilder;
 use lib_ot::{core::Interval, core::*, text_delta::TextOperations};
 
@@ -11,7 +11,7 @@ fn attributes_insert_text() {
         Insert(0, "456", 3),
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -21,7 +21,7 @@ fn attributes_insert_text_at_head() {
         Insert(0, "456", 0),
         AssertDocJson(0, r#"[{"insert":"456123"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -31,7 +31,7 @@ fn attributes_insert_text_at_middle() {
         Insert(0, "456", 1),
         AssertDocJson(0, r#"[{"insert":"145623"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -528,7 +528,7 @@ fn transform_two_plain_delta() {
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
         AssertDocJson(1, r#"[{"insert":"123456"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -542,7 +542,7 @@ fn transform_two_plain_delta2() {
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
         AssertDocJson(1, r#"[{"insert":"123456"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -560,7 +560,7 @@ fn transform_two_non_seq_delta() {
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
         AssertDocJson(1, r#"[{"insert":"123456789"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -575,7 +575,7 @@ fn transform_two_conflict_non_seq_delta() {
         AssertDocJson(0, r#"[{"insert":"123456"}]"#),
         AssertDocJson(1, r#"[{"insert":"12378456"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -602,7 +602,7 @@ fn delta_invert_no_attribute_delta2() {
         Invert(0, 1),
         AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -615,7 +615,7 @@ fn delta_invert_attribute_delta_with_no_attribute_delta() {
         Invert(0, 1),
         AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":true}}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -650,7 +650,7 @@ fn delta_invert_attribute_delta_with_no_attribute_delta2() {
             ]"#,
         ),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -663,7 +663,7 @@ fn delta_invert_no_attribute_delta_with_attribute_delta() {
         Invert(0, 1),
         AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -682,7 +682,7 @@ fn delta_invert_no_attribute_delta_with_attribute_delta2() {
         Invert(0, 1),
         AssertDocJson(0, r#"[{"insert":"123"}]"#),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -723,7 +723,7 @@ fn delta_invert_attribute_delta_with_attribute_delta() {
             ]"#,
         ),
     ];
-    TestBuilder::new().run_scripts::<EmptyDoc>(ops);
+    TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
 
 #[test]
@@ -733,7 +733,7 @@ fn delta_compose_str() {
         Insert(0, "2", 1),
         AssertDocJson(0, r#"[{"insert":"12\n"}]"#),
     ];
-    TestBuilder::new().run_scripts::<NewlineDoc>(ops);
+    TestBuilder::new().run_scripts::<NewlineDocument>(ops);
 }
 
 #[test]
@@ -746,5 +746,5 @@ fn delta_compose_with_missing_delta() {
         AssertDocJson(0, r#"[{"insert":"1234\n"}]"#),
         AssertStr(1, r#"4\n"#),
     ];
-    TestBuilder::new().run_scripts::<NewlineDoc>(ops);
+    TestBuilder::new().run_scripts::<NewlineDocument>(ops);
 }

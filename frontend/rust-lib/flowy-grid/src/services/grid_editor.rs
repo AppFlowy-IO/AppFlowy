@@ -842,7 +842,7 @@ impl RevisionObjectDeserializer for GridRevisionSerde {
     }
 }
 impl RevisionObjectSerializer for GridRevisionSerde {
-    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+    fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let operations = make_operations_from_revisions::<EmptyAttributes>(revisions)?;
         Ok(operations.json_bytes())
     }
@@ -859,11 +859,11 @@ impl RevisionCloudService for GridRevisionCloudService {
     }
 }
 
-pub struct GridRevisionCompactor();
+pub struct GridRevisionCompress();
 
-impl RevisionCompress for GridRevisionCompactor {
-    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        GridRevisionSerde::serialize_revisions(revisions)
+impl RevisionCompress for GridRevisionCompress {
+    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        GridRevisionSerde::combine_revisions(revisions)
     }
 }
 

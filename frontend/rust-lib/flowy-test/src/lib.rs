@@ -2,7 +2,8 @@ pub mod event_builder;
 pub mod helper;
 
 use crate::helper::*;
-use flowy_net::{get_client_server_configuration, ClientServerConfiguration};
+
+use flowy_net::get_client_server_configuration;
 use flowy_sdk::{FlowySDK, FlowySDKConfig};
 use flowy_user::entities::UserProfilePB;
 use nanoid::nanoid;
@@ -27,16 +28,14 @@ impl std::ops::Deref for FlowySDKTest {
 
 impl std::default::Default for FlowySDKTest {
     fn default() -> Self {
-        let server_config = get_client_server_configuration().unwrap();
-        let sdk = Self::new(server_config);
-        std::mem::forget(sdk.dispatcher());
-        sdk
+        Self::new(false)
     }
 }
 
 impl FlowySDKTest {
-    pub fn new(server_config: ClientServerConfiguration) -> Self {
-        let config = FlowySDKConfig::new(&root_dir(), server_config, &nanoid!(6)).log_filter("info");
+    pub fn new(use_new_editor: bool) -> Self {
+        let server_config = get_client_server_configuration().unwrap();
+        let config = FlowySDKConfig::new(&root_dir(), &nanoid!(6), server_config, use_new_editor).log_filter("info");
         let sdk = std::thread::spawn(|| FlowySDK::new(config)).join().unwrap();
         std::mem::forget(sdk.dispatcher());
         Self { inner: sdk }

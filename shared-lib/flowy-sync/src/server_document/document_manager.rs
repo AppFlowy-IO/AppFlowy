@@ -270,7 +270,7 @@ impl OpenDocumentHandler {
             .send(msg)
             .await
             .map_err(|e| CollaborateError::internal().context(format!("Send document command failed: {}", e)))?;
-        Ok(rx.await.map_err(internal_error)?)
+        rx.await.map_err(internal_error)
     }
 }
 

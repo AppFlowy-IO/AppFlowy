@@ -22,8 +22,7 @@ pub fn parse_protobuf_context_from(crate_paths: Vec<String>) -> Vec<ProtobufCrat
             let files = crate_info
                 .proto_input_paths()
                 .iter()
-                .map(|proto_crate_path| parse_files_protobuf(proto_crate_path, &proto_output_path))
-                .flatten()
+                .flat_map(|proto_crate_path| parse_files_protobuf(proto_crate_path, &proto_output_path))
                 .collect::<Vec<ProtoFile>>();
 
             ProtobufCrateContext::from_crate_info(crate_info, files)

@@ -48,6 +48,10 @@ impl AttributeHashMap {
         AttributeHashMap(HashMap::new())
     }
 
+    pub fn into_inner(self) -> HashMap<AttributeKey, AttributeValue> {
+        self.0
+    }
+
     pub fn from_value(attribute_map: HashMap<AttributeKey, AttributeValue>) -> Self {
         Self(attribute_map)
     }

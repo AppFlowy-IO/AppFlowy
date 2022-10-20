@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::{
     cmp::{max, min},
     fmt,
@@ -9,7 +10,7 @@ use std::{
 ///
 /// It is an invariant that `start <= end`. An interval where `end < start` is
 /// considered empty.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Interval {
     pub start: usize,
     pub end: usize,

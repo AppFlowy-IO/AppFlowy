@@ -26,6 +26,19 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
 pub struct Path(pub Vec<usize>);
 
+impl Path {
+    pub fn is_valid(&self) -> bool {
+        if self.is_empty() {
+            return false;
+        }
+        return true;
+    }
+
+    pub fn is_root(&self) -> bool {
+        return self.0.len() == 1 && self.0[0] == 0;
+    }
+}
+
 impl std::ops::Deref for Path {
     type Target = Vec<usize>;
 
