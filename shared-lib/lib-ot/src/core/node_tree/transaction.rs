@@ -1,6 +1,6 @@
 use super::{Changeset, NodeOperations};
 use crate::core::attributes::AttributeHashMap;
-use crate::core::{Interval, NodeData, NodeOperation, NodeTree, Path};
+use crate::core::{NodeData, NodeOperation, NodeTree, Path};
 use crate::errors::OTError;
 
 use indextree::NodeId;
@@ -93,8 +93,8 @@ impl std::ops::DerefMut for Transaction {
 pub enum Extension {
     Empty,
     TextSelection {
-        before_selection: Interval,
-        after_selection: Interval,
+        before_selection: Selection,
+        after_selection: Selection,
     },
 }
 
@@ -108,6 +108,18 @@ impl Extension {
     fn is_empty(&self) -> bool {
         matches!(self, Extension::Empty)
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Selection {
+    start: Position,
+    end: Position,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Position {
+    path: Path,
+    offset: usize,
 }
 
 pub struct TransactionBuilder<'a> {
