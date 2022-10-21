@@ -171,6 +171,10 @@ impl DocumentEditor for Arc<DeltaDocumentEditor> {
         })
     }
 
+    fn duplicate(&self) -> FutureResult<String, FlowyError> {
+        self.export()
+    }
+
     fn close(&self) {
         #[cfg(feature = "sync")]
         self.ws_manager.stop();

@@ -32,6 +32,7 @@ pub trait DocumentUser: Send + Sync {
 pub trait DocumentEditor: Send + Sync {
     fn export(&self) -> FutureResult<String, FlowyError>;
     fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError>;
+    fn duplicate(&self) -> FutureResult<String, FlowyError>;
     fn close(&self);
 
     fn receive_ws_data(&self, data: ServerRevisionWSData) -> FutureResult<(), FlowyError>;

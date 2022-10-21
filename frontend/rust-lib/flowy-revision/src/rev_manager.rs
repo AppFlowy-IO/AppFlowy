@@ -130,6 +130,18 @@ impl RevisionManager {
         B::deserialize_revisions(&self.object_id, revisions)
     }
 
+    pub async fn load_revisions(&self) -> FlowyResult<Vec<Revision>> {
+        let revisions = RevisionLoader {
+            object_id: self.object_id.clone(),
+            user_id: self.user_id.clone(),
+            cloud: None,
+            rev_persistence: self.rev_persistence.clone(),
+        }
+        .load_revisions()
+        .await?;
+        Ok(revisions)
+    }
+
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
     pub async fn reset_object(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
@@ -263,5 +275,11 @@ impl RevisionLoader {
         }
 
         Ok((revisions, rev_id))
+    }
+
+    pub async fn load_revisions(&self) -> Result<Vec<Revision>, FlowyError> {
+        let records = self.rev_persistence.batch_get(&self.object_id)?;
+        let revisions = records.into_iter().map(|record| record.revision).collect::<_>();
+        Ok(revisions)
     }
 }

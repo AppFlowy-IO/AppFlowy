@@ -105,7 +105,7 @@ impl RevisionCompress for DocumentRevisionCompress {
 }
 
 #[tracing::instrument(level = "trace", skip_all, err)]
-fn make_transaction_from_revisions(revisions: &[Revision]) -> FlowyResult<Transaction> {
+pub fn make_transaction_from_revisions(revisions: &[Revision]) -> FlowyResult<Transaction> {
     let mut transaction = Transaction::new();
     for revision in revisions {
         let _ = transaction.compose(Transaction::from_bytes(&revision.bytes)?)?;

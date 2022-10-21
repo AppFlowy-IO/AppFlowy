@@ -1,5 +1,6 @@
 use crate::editor::document::{Document, DocumentRevisionSerde};
 use crate::editor::document_serde::DocumentTransaction;
+use crate::editor::make_transaction_from_revisions;
 use crate::editor::queue::{Command, CommandSender, DocumentQueue};
 use crate::{DocumentEditor, DocumentUser};
 use bytes::Bytes;
@@ -17,6 +18,7 @@ pub struct AppFlowyDocumentEditor {
     #[allow(dead_code)]
     doc_id: String,
     command_sender: CommandSender,
+    rev_manager: Arc<RevisionManager>,
 }
 
 impl AppFlowyDocumentEditor {
@@ -28,9 +30,13 @@ impl AppFlowyDocumentEditor {
     ) -> FlowyResult<Arc<Self>> {
         let document = rev_manager.load::<DocumentRevisionSerde>(Some(cloud_service)).await?;
         let rev_manager = Arc::new(rev_manager);
-        let command_sender = spawn_edit_queue(user, rev_manager, document);
+        let command_sender = spawn_edit_queue(user, rev_manager.clone(), document);
         let doc_id = doc_id.to_string();
-        let editor = Arc::new(Self { doc_id, command_sender });
+        let editor = Arc::new(Self {
+            doc_id,
+            command_sender,
+            rev_manager,
+        });
         Ok(editor)
     }
 
@@ -52,6 +58,13 @@ impl AppFlowyDocumentEditor {
             .await;
         let content = rx.await.map_err(internal_error)??;
         Ok(content)
+    }
+
+    pub async fn duplicate_document(&self) -> FlowyResult<String> {
+        let revisions = self.rev_manager.load_revisions().await?;
+        let transaction = make_transaction_from_revisions(&revisions)?;
+        let json = transaction.to_json()?;
+        Ok(json)
     }
 }
 
@@ -79,6 +92,11 @@ impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
             let _ = this.apply_transaction(transaction.into()).await?;
             Ok(())
         })
+    }
+
+    fn duplicate(&self) -> FutureResult<String, FlowyError> {
+        let this = self.clone();
+        FutureResult::new(async move { this.duplicate_document().await })
     }
 
     fn close(&self) {}

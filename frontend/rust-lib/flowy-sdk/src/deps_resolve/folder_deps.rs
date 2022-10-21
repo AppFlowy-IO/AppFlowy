@@ -180,8 +180,8 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         let document_type = document_version_from_view_data_format(&view.data_format);
         FutureResult::new(async move {
             let editor = manager.open_document_editor(view_id, document_type).await?;
-            let delta_bytes = Bytes::from(editor.export().await?);
-            Ok(delta_bytes)
+            let document_data = Bytes::from(editor.duplicate().await?);
+            Ok(document_data)
         })
     }
 

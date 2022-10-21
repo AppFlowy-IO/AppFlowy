@@ -3,273 +3,94 @@
     "type": "editor",
     "children": [
       {
-        "type": "text",
+        "type": "image",
         "attributes": {
           "subtype": "heading",
           "heading": "h2"
         },
         "delta": [
+          { "insert": "👋 " },
+          { "insert": "Welcome to ", "attributes": { "bold": true } },
           {
-            "insert": "\nHere are the basics"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": false
-        },
-        "delta": [
-          {
-            "insert": "Click anywhere and just start typing"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": false
-        },
-        "delta": [
-          {
-            "insert": "Highlight",
+            "insert": "AppFlowy Editor",
             "attributes": {
-              "backgroundColor": "$fff2cd"
-            }
-          },
-          {
-            "insert": " any text, and use the menu at the bottom to "
-          },
-          {
-            "insert": "style",
-            "attributes": {
-              "italic": true
-            }
-          },
-          {
-            "insert": " "
-          },
-          {
-            "insert": "your",
-            "attributes": {
+              "href": "appflowy.io",
+              "italic": true,
               "bold": true
             }
-          },
-          {
-            "insert": " "
-          },
-          {
-            "insert": "writing",
-            "attributes": {
-              "underline": true
-            }
-          },
-          {
-            "insert": " "
-          },
-          {
-            "insert": "however",
-            "attributes": {
-              "code": true
-            }
-          },
-          {
-            "insert": " "
-          },
-          {
-            "insert": "you",
-            "attributes": {
-              "strikethrough": true
-            }
-          },
-          {
-            "insert": " "
-          },
-          {
-            "insert": "like",
-            "attributes": {
-              "backgroundColor": "$e8e0ff"
-            }
           }
+        ]
+      },
+      { "type": "text", "delta": [] },
+      {
+        "type": "text",
+        "delta": [
+          { "insert": "AppFlowy Editor is a " },
+          { "insert": "highly customizable", "attributes": { "bold": true } },
+          { "insert": " " },
+          { "insert": "rich-text editor", "attributes": { "italic": true } },
+          { "insert": " for " },
+          { "insert": "Flutter", "attributes": { "underline": true } }
         ]
       },
       {
         "type": "text",
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": false
-        },
+        "attributes": { "checkbox": true, "subtype": "checkbox" },
+        "delta": [{ "insert": "Customizable" }]
+      },
+      {
+        "type": "text",
+        "attributes": { "checkbox": true, "subtype": "checkbox" },
+        "delta": [{ "insert": "Test-covered" }]
+      },
+      {
+        "type": "text",
+        "attributes": { "checkbox": false, "subtype": "checkbox" },
+        "delta": [{ "insert": "more to come!" }]
+      },
+      { "type": "text", "delta": [] },
+      {
+        "type": "text",
+        "attributes": { "subtype": "quote" },
+        "delta": [{ "insert": "Here is an example you can give a try" }]
+      },
+      { "type": "text", "delta": [] },
+      {
+        "type": "text",
         "delta": [
+          { "insert": "You can also use " },
           {
-            "insert": "Click "
-          },
-          {
-            "insert": "+ New Page",
+            "insert": "AppFlowy Editor",
             "attributes": {
+              "italic": true,
               "bold": true,
-              "backgroundColor": "$defff1"
+              "backgroundColor": "0x6000BCF0"
             }
           },
-          {
-            "insert": " button at the bottom of your sidebar to add a new page"
-          }
+          { "insert": " as a component to build your own app." }
         ]
+      },
+      { "type": "text", "delta": [] },
+      {
+        "type": "text",
+        "attributes": { "subtype": "bulleted-list" },
+        "delta": [{ "insert": "Use / to insert blocks" }]
       },
       {
         "type": "text",
-        "attributes": {
-          "subtype": "checkbox",
-          "checkbox": false
-        },
+        "attributes": { "subtype": "bulleted-list" },
         "delta": [
           {
-            "insert": "Click the "
-          },
-          {
-            "insert": "'",
-            "attributes": {
-              "backgroundColor": "$defff1"
-            }
-          },
-          {
-            "insert": "+",
-            "attributes": {
-              "bold": true,
-              "backgroundColor": "$defff1"
-            }
-          },
-          {
-            "insert": "'",
-            "attributes": {
-              "backgroundColor": "$defff1"
-            }
-          },
-          {
-            "insert": "  next to any page title in the sidebar to quickly add a new subpage"
+            "insert": "Select text to trigger to the toolbar to format your notes."
           }
         ]
       },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "heading",
-          "heading": "h2"
-        },
-        "delta": [
-          {
-            "insert": "\nHave a question? "
-          }
-        ]
-      },
+      { "type": "text", "delta": [] },
       {
         "type": "text",
         "delta": [
           {
-            "insert": "Click the "
-          },
-          {
-            "insert": "'?'",
-            "attributes": {
-              "bold": true,
-              "backgroundColor": "$defff1"
-            }
-          },
-          {
-            "insert": " at the bottom right for help and support."
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "heading",
-          "heading": "h2"
-        },
-        "delta": [
-          {
-            "insert": "Like AppFlowy? Follow us:"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "quote"
-        },
-        "delta": [
-          {
-            "insert": "GitHub: https://github.com/AppFlowy-IO/appflowy"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "quote"
-        },
-        "delta": [
-          {
-            "insert": "Twitter: https://twitter.com/appflowy"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "quote"
-        },
-        "delta": [
-          {
-            "insert": "Newsletter: https://www.appflowy.io/blog"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "number-list",
-          "number": 1
-        },
-        "delta": [
-          {
-            "insert": "item 1"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "number-list",
-          "number": 2
-        },
-        "delta": [
-          {
-            "insert": "item 2"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "attributes": {
-          "subtype": "number-list",
-          "number": 3
-        },
-        "delta": [
-          {
-            "insert": "item3"
-          }
-        ]
-      },
-      {
-        "type": "text",
-        "delta": [
-          {
-            "insert": "appflowy",
-            "attributes": {
-              "href": "https://www.appflowy.io/"
-            }
+            "insert": "If you have questions or feedback, please submit an issue on Github or join the community along with 1000+ builders!"
           }
         ]
       }
