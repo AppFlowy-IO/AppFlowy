@@ -58,12 +58,17 @@ impl ViewController {
         &self,
         mut params: CreateViewParams,
     ) -> Result<ViewRevision, FlowyError> {
-        let processor = self.get_data_processor(params.data_type.clone())?;
+        let processor = self.get_data_processor(params.data_format.clone())?;
         let user_id = self.user.user_id()?;
         if params.view_content_data.is_empty() {
             tracing::trace!("Create view with build-in data");
             let view_data = processor
-                .create_default_view(&user_id, &params.view_id, params.layout.clone())
+                .create_default_view(
+                    &user_id,
+                    &params.view_id,
+                    params.layout.clone(),
+                    params.data_format.clone(),
+                )
                 .await?;
             params.view_content_data = view_data.to_vec();
         } else {
@@ -79,7 +84,7 @@ impl ViewController {
             let _ = self
                 .create_view(
                     &params.view_id,
-                    params.data_type.clone(),
+                    params.data_format.clone(),
                     params.layout.clone(),
                     delta_data,
                 )
@@ -156,7 +161,7 @@ impl ViewController {
                     belong_to_id: view_rev.app_id,
                     name: view_rev.name,
                     desc: view_rev.desc,
-                    data_type: view_rev.data_format_type.into(),
+                    data_type: view_rev.data_format.into(),
                     belongings: RepeatedViewPB { items },
                     ext_data: view_rev.ext_data,
                 };
@@ -248,14 +253,14 @@ impl ViewController {
             .begin_transaction(|transaction| transaction.read_view(&view.id))
             .await?;
 
-        let processor = self.get_data_processor(view_rev.data_format_type.clone())?;
+        let processor = self.get_data_processor(view_rev.data_format.clone())?;
         let view_data = processor.get_view_data(&view).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view_rev.app_id.clone(),
             name: format!("{} (copy)", &view_rev.name),
             desc: view_rev.desc,
             thumbnail: view_rev.thumbnail,
-            data_type: view_rev.data_format_type.into(),
+            data_format: view_rev.data_format.into(),
             layout: view_rev.layout.into(),
             view_content_data: view_data.to_vec(),
             view_id: gen_view_id(),
@@ -399,7 +404,7 @@ impl ViewController {
             .persistence
             .begin_transaction(|transaction| transaction.read_view(view_id))
             .await?;
-        self.get_data_processor(view.data_format_type)
+        self.get_data_processor(view.data_format)
     }
 
     #[inline]
@@ -472,7 +477,7 @@ async fn handle_trash_event(
                     .await?;
 
                 for view in views {
-                    let data_type = view.data_format_type.clone().into();
+                    let data_type = view.data_format.clone().into();
                     match get_data_processor(data_processors.clone(), &data_type) {
                         Ok(processor) => {
                             let _ = processor.close_container(&view.id).await?;

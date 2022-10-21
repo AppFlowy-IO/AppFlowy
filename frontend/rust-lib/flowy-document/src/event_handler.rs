@@ -14,7 +14,7 @@ pub(crate) async fn get_document_handler(
 ) -> DataResult<DocumentSnapshotPB, FlowyError> {
     let context: OpenDocumentContextPB = data.into_inner();
     let editor = manager
-        .open_document_editor(&context.document_id, context.document_type)
+        .open_document_editor(&context.document_id, context.document_version)
         .await?;
     let document_data = editor.export().await?;
     data_result(DocumentSnapshotPB {
@@ -39,7 +39,7 @@ pub(crate) async fn export_handler(
 ) -> DataResult<ExportDataPB, FlowyError> {
     let params: ExportParams = data.into_inner().try_into()?;
     let editor = manager
-        .open_document_editor(&params.view_id, params.document_type)
+        .open_document_editor(&params.view_id, params.document_version)
         .await?;
     let document_data = editor.export().await?;
     data_result(ExportDataPB {

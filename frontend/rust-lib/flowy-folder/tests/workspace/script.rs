@@ -366,7 +366,7 @@ pub async fn create_view(
         name: name.to_string(),
         desc: desc.to_string(),
         thumbnail: None,
-        data_type,
+        data_format: data_type,
         layout,
         view_content_data: vec![],
     };

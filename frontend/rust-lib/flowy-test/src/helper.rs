@@ -25,11 +25,16 @@ pub struct ViewTest {
 
 impl ViewTest {
     #[allow(dead_code)]
-    pub async fn new(sdk: &FlowySDKTest, data_type: ViewDataFormatPB, layout: ViewLayoutTypePB, data: Vec<u8>) -> Self {
+    pub async fn new(
+        sdk: &FlowySDKTest,
+        data_format: ViewDataFormatPB,
+        layout: ViewLayoutTypePB,
+        data: Vec<u8>,
+    ) -> Self {
         let workspace = create_workspace(sdk, "Workspace", "").await;
         open_workspace(sdk, &workspace.id).await;
         let app = create_app(sdk, "App", "AppFlowy GitHub Project", &workspace.id).await;
-        let view = create_view(sdk, &app.id, data_type, layout, data).await;
+        let view = create_view(sdk, &app.id, data_format, layout, data).await;
         Self {
             sdk: sdk.clone(),
             workspace,
@@ -47,7 +52,11 @@ impl ViewTest {
     }
 
     pub async fn new_document_view(sdk: &FlowySDKTest) -> Self {
-        Self::new(sdk, ViewDataFormatPB::DeltaFormat, ViewLayoutTypePB::Document, vec![]).await
+        let view_data_format = match sdk.document_version() {
+            DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
+            DocumentVersionPB::V1 => ViewDataFormatPB::TreeFormat,
+        };
+        Self::new(sdk, view_data_format, ViewLayoutTypePB::Document, vec![]).await
     }
 }
 
@@ -97,7 +106,7 @@ async fn create_app(sdk: &FlowySDKTest, name: &str, desc: &str, workspace_id: &s
 async fn create_view(
     sdk: &FlowySDKTest,
     app_id: &str,
-    data_type: ViewDataFormatPB,
+    data_format: ViewDataFormatPB,
     layout: ViewLayoutTypePB,
     data: Vec<u8>,
 ) -> ViewPB {
@@ -106,7 +115,7 @@ async fn create_view(
         name: "View A".to_string(),
         desc: "".to_string(),
         thumbnail: Some("http://1.png".to_string()),
-        data_type,
+        data_format,
         layout,
         view_content_data: data,
     };

@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_document::entities::DocumentTypePB;
+use flowy_document::entities::DocumentVersionPB;
 use flowy_document::DocumentManager;
 use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
@@ -177,10 +177,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
         let view_id = view.id.clone();
         let manager = self.0.clone();
-        let document_type = match view.data_type {
-            ViewDataFormatPB::TreeFormat => DocumentTypePB::NodeTree,
-            _ => DocumentTypePB::Delta,
-        };
+        let document_type = document_version_from_view_data_format(&view.data_format);
         FutureResult::new(async move {
             let editor = manager.open_document_editor(view_id, document_type).await?;
             let delta_bytes = Bytes::from(editor.export().await?);
@@ -193,14 +190,16 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
+        data_format: ViewDataFormatPB,
     ) -> FutureResult<Bytes, FlowyError> {
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let manager = self.0.clone();
-        let view_data = self.0.initial_document_content();
+        let document_type = document_version_from_view_data_format(&data_format);
+        let document_content = self.0.initial_document_content(document_type);
         FutureResult::new(async move {
-            let delta_data = Bytes::from(view_data);
+            let delta_data = Bytes::from(document_content);
             let repeated_revision: RepeatedRevision =
                 Revision::initial_revision(&user_id, &view_id, delta_data.clone()).into();
             let _ = manager.create_document(view_id, repeated_revision).await?;
@@ -221,6 +220,13 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
 
     fn data_types(&self) -> Vec<ViewDataFormatPB> {
         vec![ViewDataFormatPB::DeltaFormat, ViewDataFormatPB::TreeFormat]
+    }
+}
+
+fn document_version_from_view_data_format(view_data_format: &ViewDataFormatPB) -> DocumentVersionPB {
+    match view_data_format {
+        ViewDataFormatPB::TreeFormat => DocumentVersionPB::V1,
+        _ => DocumentVersionPB::V0,
     }
 }
 
@@ -270,7 +276,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
         user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
+        data_format: ViewDataFormatPB,
     ) -> FutureResult<Bytes, FlowyError> {
+        debug_assert_eq!(data_format, ViewDataFormatPB::DatabaseFormat);
         let (build_context, layout) = match layout {
             ViewLayoutTypePB::Grid => (make_default_grid(), GridLayout::Table),
             ViewLayoutTypePB::Board => (make_default_board(), GridLayout::Board),

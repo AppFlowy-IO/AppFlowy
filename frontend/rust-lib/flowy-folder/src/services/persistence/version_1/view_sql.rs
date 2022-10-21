@@ -86,7 +86,7 @@ pub(crate) struct ViewTable {
 
 impl ViewTable {
     pub fn new(view_rev: ViewRevision) -> Self {
-        let data_type = match view_rev.data_format_type {
+        let data_type = match view_rev.data_format {
             ViewDataFormatRevision::DeltaFormat => SqlViewDataFormat::DeltaFormat,
             ViewDataFormatRevision::DatabaseFormat => SqlViewDataFormat::DatabaseFormat,
             ViewDataFormatRevision::TreeFormat => SqlViewDataFormat::TreeFormat,
@@ -121,7 +121,7 @@ impl std::convert::From<ViewTable> for ViewRevision {
             app_id: table.belong_to_id,
             name: table.name,
             desc: table.desc,
-            data_format_type: data_type,
+            data_format: data_type,
             belongings: vec![],
             modified_time: table.modified_time,
             version: table.version,

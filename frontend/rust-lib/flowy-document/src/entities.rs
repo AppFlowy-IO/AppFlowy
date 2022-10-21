@@ -76,18 +76,22 @@ pub struct ExportPayloadPB {
     pub export_type: ExportType,
 
     #[pb(index = 3)]
-    pub document_type: DocumentTypePB,
+    pub document_version: DocumentVersionPB,
 }
 
 #[derive(PartialEq, Debug, ProtoBuf_Enum, Clone)]
-pub enum DocumentTypePB {
-    Delta = 0,
-    NodeTree = 1,
+pub enum DocumentVersionPB {
+    /// this version's content of the document is build from `Delta`. It uses
+    /// `DeltaDocumentEditor`.
+    V0 = 0,
+    /// this version's content of the document is build from `NodeTree`. It uses
+    /// `AppFlowyDocumentEditor`
+    V1 = 1,
 }
 
-impl std::default::Default for DocumentTypePB {
+impl std::default::Default for DocumentVersionPB {
     fn default() -> Self {
-        Self::Delta
+        Self::V0
     }
 }
 
@@ -97,14 +101,14 @@ pub struct OpenDocumentContextPB {
     pub document_id: String,
 
     #[pb(index = 2)]
-    pub document_type: DocumentTypePB,
+    pub document_version: DocumentVersionPB,
 }
 
 #[derive(Default, Debug)]
 pub struct ExportParams {
     pub view_id: String,
     pub export_type: ExportType,
-    pub document_type: DocumentTypePB,
+    pub document_version: DocumentVersionPB,
 }
 
 impl TryInto<ExportParams> for ExportPayloadPB {
@@ -113,7 +117,7 @@ impl TryInto<ExportParams> for ExportPayloadPB {
         Ok(ExportParams {
             view_id: self.view_id,
             export_type: self.export_type,
-            document_type: self.document_type,
+            document_version: self.document_version,
         })
     }
 }

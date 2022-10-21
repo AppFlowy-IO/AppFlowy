@@ -1,5 +1,5 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionCompress};
-use crate::entities::{DocumentTypePB, EditParams};
+use crate::entities::{DocumentVersionPB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionCompress};
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
@@ -11,7 +11,7 @@ use flowy_revision::{
     RevisionCloudService, RevisionCompress, RevisionManager, RevisionPersistence, RevisionWebSocket,
     SQLiteRevisionSnapshotPersistence,
 };
-use flowy_sync::client_document::initial_old_document_content;
+use flowy_sync::client_document::initial_delta_document_content;
 use flowy_sync::entities::{
     document::DocumentIdPB,
     revision::{md5, RepeatedRevision, Revision},
@@ -51,7 +51,15 @@ pub trait DocumentEditor: Send + Sync {
 
 #[derive(Clone, Debug)]
 pub struct DocumentConfig {
-    pub use_new_editor: bool,
+    pub version: DocumentVersionPB,
+}
+
+impl std::default::Default for DocumentConfig {
+    fn default() -> Self {
+        Self {
+            version: DocumentVersionPB::V1,
+        }
+    }
 }
 
 pub struct DocumentManager {
@@ -88,11 +96,11 @@ impl DocumentManager {
     pub async fn open_document_editor<T: AsRef<str>>(
         &self,
         document_id: T,
-        document_type: DocumentTypePB,
+        document_version: DocumentVersionPB,
     ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
         let document_id = document_id.as_ref();
         tracing::Span::current().record("document_id", &document_id);
-        self.init_document_editor(document_id).await
+        self.init_document_editor(document_id, document_version).await
     }
 
     #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
@@ -134,11 +142,10 @@ impl DocumentManager {
         }
     }
 
-    pub fn initial_document_content(&self) -> String {
-        if self.config.use_new_editor {
-            initial_document_content()
-        } else {
-            initial_old_document_content()
+    pub fn initial_document_content(&self, document_type: DocumentVersionPB) -> String {
+        match document_type {
+            DocumentVersionPB::V0 => initial_delta_document_content(),
+            DocumentVersionPB::V1 => initial_document_content(),
         }
     }
 }
@@ -154,7 +161,11 @@ impl DocumentManager {
     ///
     async fn get_document_editor(&self, doc_id: &str) -> FlowyResult<Arc<dyn DocumentEditor>> {
         match self.editor_map.get(doc_id) {
-            None => self.init_document_editor(doc_id).await,
+            None => {
+                //
+                tracing::warn!("Should call init_document_editor first");
+                self.init_document_editor(doc_id, DocumentVersionPB::V1).await
+            }
             Some(editor) => Ok(editor),
         }
     }
@@ -169,7 +180,11 @@ impl DocumentManager {
     /// returns: Result<Arc<DocumentEditor>, FlowyError>
     ///
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub async fn init_document_editor(&self, doc_id: &str) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
+    pub async fn init_document_editor(
+        &self,
+        doc_id: &str,
+        document_type: DocumentVersionPB,
+    ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
         let pool = self.user.db_pool()?;
         let user = self.user.clone();
         let token = self.user.token()?;
@@ -178,18 +193,24 @@ impl DocumentManager {
             server: self.cloud_service.clone(),
         });
 
-        let editor: Arc<dyn DocumentEditor> = if self.config.use_new_editor {
-            let rev_manager = self.make_document_rev_manager(doc_id, pool.clone())?;
-            let editor = AppFlowyDocumentEditor::new(doc_id, user, rev_manager, cloud_service).await?;
-            Arc::new(editor)
-        } else {
-            let rev_manager = self.make_delta_document_rev_manager(doc_id, pool.clone())?;
-            let editor =
-                DeltaDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
-            Arc::new(editor)
-        };
-        self.editor_map.insert(doc_id, editor.clone());
-        Ok(editor)
+        match document_type {
+            DocumentVersionPB::V0 => {
+                let rev_manager = self.make_delta_document_rev_manager(doc_id, pool.clone())?;
+                let editor: Arc<dyn DocumentEditor> = Arc::new(
+                    DeltaDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service)
+                        .await?,
+                );
+                self.editor_map.insert(doc_id, editor.clone());
+                Ok(editor)
+            }
+            DocumentVersionPB::V1 => {
+                let rev_manager = self.make_document_rev_manager(doc_id, pool.clone())?;
+                let editor: Arc<dyn DocumentEditor> =
+                    Arc::new(AppFlowyDocumentEditor::new(doc_id, user, rev_manager, cloud_service).await?);
+                self.editor_map.insert(doc_id, editor.clone());
+                Ok(editor)
+            }
+        }
     }
 
     fn make_document_rev_manager(

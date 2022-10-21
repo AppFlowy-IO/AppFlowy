@@ -50,7 +50,7 @@ fn create_default_view(app_id: String, time: chrono::DateTime<Utc>) -> ViewRevis
         app_id,
         name,
         desc: "".to_string(),
-        data_format_type: ViewDataFormatRevision::DeltaFormat,
+        data_format: ViewDataFormatRevision::DeltaFormat,
         version: 0,
         belongings: vec![],
         modified_time: time.timestamp(),

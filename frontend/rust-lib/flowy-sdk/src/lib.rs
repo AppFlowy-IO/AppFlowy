@@ -3,6 +3,8 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
+use flowy_document::editor::Document;
+use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
 use flowy_grid::manager::GridManager;
@@ -34,7 +36,7 @@ pub struct FlowySDKConfig {
     root: String,
     log_filter: String,
     server_config: ClientServerConfiguration,
-    document_config: DocumentConfig,
+    pub document: DocumentConfig,
 }
 
 impl fmt::Debug for FlowySDKConfig {
@@ -42,21 +44,25 @@ impl fmt::Debug for FlowySDKConfig {
         f.debug_struct("FlowySDKConfig")
             .field("root", &self.root)
             .field("server-config", &self.server_config)
-            .field("document-config", &self.document_config)
+            .field("document-config", &self.document)
             .finish()
     }
 }
 
 impl FlowySDKConfig {
-    pub fn new(root: &str, name: &str, server_config: ClientServerConfiguration, use_new_editor: bool) -> Self {
-        let document_config = DocumentConfig { use_new_editor };
+    pub fn new(root: &str, name: &str, server_config: ClientServerConfiguration) -> Self {
         FlowySDKConfig {
             name: name.to_owned(),
             root: root.to_owned(),
             log_filter: crate_log_filter("info".to_owned()),
             server_config,
-            document_config,
+            document: DocumentConfig::default(),
         }
+    }
+
+    pub fn with_document_version(mut self, version: DocumentVersionPB) -> Self {
+        self.document.version = version;
+        self
     }
 
     pub fn log_filter(mut self, level: &str) -> Self {
@@ -91,7 +97,7 @@ fn crate_log_filter(level: String) -> String {
 #[derive(Clone)]
 pub struct FlowySDK {
     #[allow(dead_code)]
-    config: FlowySDKConfig,
+    pub config: FlowySDKConfig,
     pub user_session: Arc<UserSession>,
     pub document_manager: Arc<DocumentManager>,
     pub folder_manager: Arc<FolderManager>,
@@ -115,7 +121,7 @@ impl FlowySDK {
                 ws_conn.clone(),
                 user_session.clone(),
                 &config.server_config,
-                &config.document_config,
+                &config.document,
             );
 
             let grid_manager = GridDepsResolver::resolve(ws_conn.clone(), user_session.clone()).await;

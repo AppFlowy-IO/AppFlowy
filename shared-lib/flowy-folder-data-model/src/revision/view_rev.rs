@@ -18,7 +18,7 @@ pub struct ViewRevision {
 
     #[serde(default)]
     #[serde(rename = "data_type")]
-    pub data_format_type: ViewDataFormatRevision,
+    pub data_format: ViewDataFormatRevision,
 
     pub version: i64, // Deprecated
 

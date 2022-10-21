@@ -22,7 +22,7 @@ pub struct ViewPB {
     pub name: String,
 
     #[pb(index = 4)]
-    pub data_type: ViewDataFormatPB,
+    pub data_format: ViewDataFormatPB,
 
     #[pb(index = 5)]
     pub modified_time: i64,
@@ -40,7 +40,7 @@ impl std::convert::From<ViewRevision> for ViewPB {
             id: rev.id,
             app_id: rev.app_id,
             name: rev.name,
-            data_type: rev.data_format_type.into(),
+            data_format: rev.data_format.into(),
             modified_time: rev.modified_time,
             create_time: rev.create_time,
             layout: rev.layout.into(),
@@ -149,7 +149,7 @@ pub struct CreateViewPayloadPB {
     pub thumbnail: Option<String>,
 
     #[pb(index = 5)]
-    pub data_type: ViewDataFormatPB,
+    pub data_format: ViewDataFormatPB,
 
     #[pb(index = 6)]
     pub layout: ViewLayoutTypePB,
@@ -164,7 +164,7 @@ pub struct CreateViewParams {
     pub name: String,
     pub desc: String,
     pub thumbnail: String,
-    pub data_type: ViewDataFormatPB,
+    pub data_format: ViewDataFormatPB,
     pub layout: ViewLayoutTypePB,
     pub view_id: String,
     pub view_content_data: Vec<u8>,
@@ -186,7 +186,7 @@ impl TryInto<CreateViewParams> for CreateViewPayloadPB {
             belong_to_id,
             name,
             desc: self.desc,
-            data_type: self.data_type,
+            data_format: self.data_format,
             layout: self.layout,
             thumbnail,
             view_id,

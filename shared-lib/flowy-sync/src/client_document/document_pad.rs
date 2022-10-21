@@ -24,11 +24,11 @@ impl InitialDocument for EmptyDocument {
 pub struct NewlineDocument();
 impl InitialDocument for NewlineDocument {
     fn json_str() -> String {
-        initial_old_document_content()
+        initial_delta_document_content()
     }
 }
 
-pub fn initial_old_document_content() -> String {
+pub fn initial_delta_document_content() -> String {
     TextOperationBuilder::new().insert("\n").build().json_str()
 }
 

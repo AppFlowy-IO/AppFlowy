@@ -3,11 +3,12 @@ use crate::editor::document::Document;
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use lib_ot::core::{
-    AttributeHashMap, Body, Changeset, Extension, NodeData, NodeId, NodeOperation, NodeTree, Path, Selection,
-    Transaction,
+    AttributeHashMap, Body, Changeset, Extension, NodeData, NodeId, NodeOperation, NodeTree, NodeTreeContext, Path,
+    Selection, Transaction,
 };
+use lib_ot::errors::OTError;
 use lib_ot::text_delta::TextOperations;
-use serde::de::{self, MapAccess, Visitor};
+use serde::de::{self, MapAccess, Unexpected, Visitor};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
@@ -44,14 +45,14 @@ impl<'de> Deserialize<'de> for Document {
             where
                 M: MapAccess<'de>,
             {
-                let mut node_tree = None;
+                let mut document_node = None;
                 while let Some(key) = map.next_key()? {
                     match key {
                         "document" => {
-                            if node_tree.is_some() {
+                            if document_node.is_some() {
                                 return Err(de::Error::duplicate_field("document"));
                             }
-                            node_tree = Some(map.next_value::<NodeTree>()?)
+                            document_node = Some(map.next_value::<DocumentNode>()?)
                         }
                         s => {
                             return Err(de::Error::unknown_field(s, FIELDS));
@@ -59,8 +60,13 @@ impl<'de> Deserialize<'de> for Document {
                     }
                 }
 
-                match node_tree {
-                    Some(tree) => Ok(Document::new(tree)),
+                match document_node {
+                    Some(document_node) => {
+                        match NodeTree::from_node_data(document_node.into(), NodeTreeContext::default()) {
+                            Ok(tree) => Ok(Document::new(tree)),
+                            Err(err) => Err(de::Error::invalid_value(Unexpected::Other(&format!("{}", err)), &"")),
+                        }
+                    }
                     None => Err(de::Error::missing_field("document")),
                 }
             }
@@ -68,9 +74,6 @@ impl<'de> Deserialize<'de> for Document {
         deserializer.deserialize_any(DocumentVisitor())
     }
 }
-
-#[derive(Debug)]
-struct DocumentContentSerializer<'a>(pub &'a Document);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DocumentTransaction {
@@ -231,6 +234,7 @@ pub struct DocumentNode {
     pub attributes: AttributeHashMap,
 
     #[serde(skip_serializing_if = "TextOperations::is_empty")]
+    #[serde(default)]
     pub delta: TextOperations,
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
@@ -265,6 +269,9 @@ impl std::convert::From<DocumentNode> for NodeData {
     }
 }
 
+#[derive(Debug)]
+struct DocumentContentSerializer<'a>(pub &'a Document);
+
 impl<'a> Serialize for DocumentContentSerializer<'a> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -295,6 +302,51 @@ impl<'a> Serialize for DocumentContentSerializer<'a> {
     }
 }
 
+// #[derive(Debug)]
+// struct DocumentContentDeserializer();
+//
+// impl<'de> Deserialize<'de> for DocumentContentDeserializer {
+//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+//     where
+//         D: Deserializer<'de>,
+//     {
+//         struct DocumentTransactionVisitor();
+//         impl<'de> Visitor<'de> for DocumentTransactionVisitor {
+//             type Value = NodeTree;
+//
+//             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+//                 formatter.write_str("Expect document tree")
+//             }
+//
+//             fn visit_map<M>(self, mut map: M) -> Result<Document, M::Error>
+//             where
+//                 M: MapAccess<'de>,
+//             {
+//                 let mut node_tree = None;
+//                 while let Some(key) = map.next_key()? {
+//                     match key {
+//                         "document" => {
+//                             if node_tree.is_some() {
+//                                 return Err(de::Error::duplicate_field("document"));
+//                             }
+//                             node_tree = Some(map.next_value::<NodeTree>()?)
+//                         }
+//                         s => {
+//                             return Err(de::Error::unknown_field(s, FIELDS));
+//                         }
+//                     }
+//                 }
+//
+//                 match node_tree {
+//                     Some(tree) => Ok(Document::new(tree)),
+//                     None => Err(de::Error::missing_field("document")),
+//                 }
+//             }
+//         }
+//         deserializer.deserialize_any(DocumentTransactionVisitor())
+//     }
+// }
+
 #[cfg(test)]
 mod tests {
     use crate::editor::document::Document;
@@ -302,11 +354,6 @@ mod tests {
 
     #[test]
     fn transaction_deserialize_update_text_operation_test() {
-        //
-        //
-
-        let json = r#"{"operations":[{"op":"update_text","path":[0,0],"delta":[{"insert":"/"}],"inverted":[{"delete":1}]}],"after_selection":{"start":{"path":[0,0],"offset":1},"end":{"path":[0,0],"offset":1}},"before_selection":{"start":{"path":[0,0],"offset":0},"end":{"path":[0,0],"offset":0}}}"#;
-
         // bold
         let json = r#"{"operations":[{"op":"update_text","path":[0],"delta":[{"retain":3,"attributes":{"bold":true}}],"inverted":[{"retain":3,"attributes":{"bold":null}}]}],"after_selection":{"start":{"path":[0],"offset":0},"end":{"path":[0],"offset":3}},"before_selection":{"start":{"path":[0],"offset":0},"end":{"path":[0],"offset":3}}}"#;
         let _ = serde_json::from_str::<DocumentTransaction>(json).unwrap();

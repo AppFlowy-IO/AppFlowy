@@ -1,6 +1,6 @@
-use flowy_document::editor::{AppFlowyDocumentEditor, DocumentTransaction};
+use flowy_document::editor::{AppFlowyDocumentEditor, Document, DocumentTransaction};
 
-use flowy_document::entities::DocumentTypePB;
+use flowy_document::entities::DocumentVersionPB;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use lib_ot::core::{Body, Changeset, NodeDataBuilder, NodeOperation, Path, Transaction};
@@ -41,13 +41,14 @@ pub struct DocumentEditorTest {
 
 impl DocumentEditorTest {
     pub async fn new() -> Self {
-        let sdk = FlowySDKTest::new(true);
+        let version = DocumentVersionPB::V1;
+        let sdk = FlowySDKTest::new(version.clone());
         let _ = sdk.init_user().await;
 
         let test = ViewTest::new_document_view(&sdk).await;
         let document_editor = sdk
             .document_manager
-            .open_document_editor(&test.view.id, DocumentTypePB::NodeTree)
+            .open_document_editor(&test.view.id, version)
             .await
             .unwrap();
         let editor = match document_editor.as_any().downcast_ref::<Arc<AppFlowyDocumentEditor>>() {
@@ -104,6 +105,8 @@ impl DocumentEditorTest {
             EditScript::AssertContent { expected } => {
                 //
                 let content = self.editor.get_content(false).await.unwrap();
+                let expected_document: Document = serde_json::from_str(expected).unwrap();
+                let expected = serde_json::to_string(&expected_document).unwrap();
 
                 assert_eq!(content, expected);
             }
