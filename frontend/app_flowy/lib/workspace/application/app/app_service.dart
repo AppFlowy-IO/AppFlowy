@@ -27,7 +27,7 @@ class AppService {
       ..belongToId = appId
       ..name = name
       ..desc = desc ?? ""
-      ..dataType = dataFormatType
+      ..dataFormat = dataFormatType
       ..layout = layoutType;
 
     return FolderEventCreateView(payload).send();

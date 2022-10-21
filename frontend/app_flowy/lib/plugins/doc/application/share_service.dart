@@ -13,12 +13,12 @@ class ShareService {
       ..viewId = view.id
       ..exportType = type;
 
-    switch (view.dataType) {
+    switch (view.dataFormat) {
       case ViewDataFormatPB.DeltaFormat:
-        payload.documentType = DocumentTypePB.Delta;
+        payload.documentVersion = DocumentVersionPB.V0;
         break;
       default:
-        payload.documentType = DocumentTypePB.NodeTree;
+        payload.documentVersion = DocumentVersionPB.V1;
         break;
     }
 
