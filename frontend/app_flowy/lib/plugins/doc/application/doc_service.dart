@@ -1,6 +1,5 @@
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-document/entities.pbenum.dart';
 
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -13,12 +12,12 @@ class DocumentService {
     await FolderEventSetLatestView(ViewIdPB(value: view.id)).send();
 
     var payload = OpenDocumentContextPB()..documentId = view.id;
-    switch (view.dataType) {
+    switch (view.dataFormat) {
       case ViewDataFormatPB.DeltaFormat:
-        payload.documentType = DocumentTypePB.Delta;
+        payload.documentVersion = DocumentVersionPB.V0;
         break;
       default:
-        payload.documentType = DocumentTypePB.NodeTree;
+        payload.documentVersion = DocumentVersionPB.V1;
         break;
     }
 
