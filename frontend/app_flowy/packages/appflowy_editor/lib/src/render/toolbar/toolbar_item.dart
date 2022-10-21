@@ -207,7 +207,9 @@ List<ToolbarItem> defaultToolbarItems = [
       BuiltInAttributeKey.subtype,
       (value) => value == BuiltInAttributeKey.quote,
     ),
-    handler: (editorState, context) => formatQuote(editorState),
+    handler: (editorState, context) {
+      formatQuote(editorState);
+    },
   ),
   ToolbarItem(
     id: 'appflowy.toolbar.bulleted_list',
