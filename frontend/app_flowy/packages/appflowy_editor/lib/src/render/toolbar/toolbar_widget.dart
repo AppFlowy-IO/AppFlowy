@@ -68,6 +68,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
                       isHighlight: item.highlightCallback(widget.editorState),
                       onPressed: () {
                         item.handler(widget.editorState, context);
+                        widget.editorState.service.keyboardService?.enable();
                       },
                     ),
                   ),
