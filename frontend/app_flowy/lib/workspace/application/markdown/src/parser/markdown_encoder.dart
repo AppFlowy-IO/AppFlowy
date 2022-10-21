@@ -1,38 +1,16 @@
 import 'dart:convert';
 
-import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
+import 'package:app_flowy/workspace/application/markdown/src/parser/image_node_parser.dart';
+import 'package:app_flowy/workspace/application/markdown/src/parser/node_parser.dart';
+import 'package:app_flowy/workspace/application/markdown/src/parser/text_node_parser.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-
-abstract class NodeParser {
-  const NodeParser();
-
-  String get id;
-  String transform(Node node);
-}
-
-class TextNodeParser extends NodeParser {
-  const TextNodeParser();
-
-  @override
-  String get id => 'text';
-
-  @override
-  String transform(Node node) {
-    assert(node is TextNode);
-    final textNode = node as TextNode;
-    final delta = jsonEncode(
-      textNode.delta
-        ..add(TextInsert('\n'))
-        ..toJson(),
-    );
-    final markdown = deltaToMarkdown(delta);
-    return markdown;
-  }
-}
 
 class AppFlowyEditorMarkdownEncoder extends Converter<Document, String> {
   AppFlowyEditorMarkdownEncoder({
-    this.parsers = const [TextNodeParser()],
+    this.parsers = const [
+      TextNodeParser(),
+      ImageNodeParser(),
+    ],
   });
 
   final List<NodeParser> parsers;

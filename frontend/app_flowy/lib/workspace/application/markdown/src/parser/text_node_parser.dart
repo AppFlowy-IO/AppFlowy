@@ -21,34 +21,48 @@ class TextNodeParser extends NodeParser {
     );
     final markdown = deltaToMarkdown(delta);
     final attributes = textNode.attributes;
+    var result = markdown;
+    var suffix = '';
     if (attributes.isNotEmpty &&
         attributes.containsKey(BuiltInAttributeKey.subtype)) {
       final subtype = attributes[BuiltInAttributeKey.subtype];
-      if (subtype == 'h1') {
-        return '# $markdown';
-      } else if (subtype == 'h2') {
-        return '## $markdown';
-      } else if (subtype == 'h3') {
-        return '### $markdown';
+      if (node.next?.subtype != subtype) {
+        suffix = '\n';
+      }
+      if (subtype == 'heading') {
+        final heading = attributes[BuiltInAttributeKey.heading];
+        if (heading == 'h1') {
+          result = '# $markdown';
+        } else if (heading == 'h2') {
+          result = '## $markdown';
+        } else if (heading == 'h3') {
+          result = '### $markdown';
+        } else if (heading == 'h4') {
+          result = '#### $markdown';
+        } else if (heading == 'h5') {
+          result = '##### $markdown';
+        } else if (heading == 'h6') {
+          result = '###### $markdown';
+        }
       } else if (subtype == 'quote') {
-        return '> $markdown';
+        result = '> $markdown';
       } else if (subtype == 'code') {
-        return '`$markdown`';
+        result = '`$markdown`';
       } else if (subtype == 'code-block') {
-        return '```\n$markdown\n```';
+        result = '```\n$markdown\n```';
       } else if (subtype == 'bulleted-list') {
-        return '- $markdown';
+        result = '- $markdown';
       } else if (subtype == 'number-list') {
         final number = attributes['number'];
-        return '$number. $markdown';
+        result = '$number. $markdown';
       } else if (subtype == 'checkbox') {
         if (attributes[BuiltInAttributeKey.checkbox] == true) {
-          return '- [x] $markdown';
+          result = '- [x] $markdown';
         } else {
-          return '- [ ] $markdown';
+          result = '- [ ] $markdown';
         }
       }
     }
-    return markdown;
+    return '$result$suffix';
   }
 }
