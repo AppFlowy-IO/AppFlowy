@@ -505,9 +505,12 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   }
 
   void _showContextMenu(TapDownDetails details) {
+    final baseOffset =
+        editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+    final offset = details.globalPosition + const Offset(10, 10) - baseOffset;
     final contextMenu = OverlayEntry(
       builder: (context) => ContextMenu(
-        position: details.globalPosition,
+        position: offset,
         editorState: editorState,
         items: builtInContextMenuItems,
         onPressed: () => _clearContextMenu(),
