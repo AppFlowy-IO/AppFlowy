@@ -189,7 +189,8 @@ KeyEventResult _toHeadingStyle(
 
 int _countOfSign(String text, Selection selection) {
   for (var i = 6; i >= 0; i--) {
-    if (text.substring(0, selection.end.offset).contains('#' * i)) {
+    final heading = text.substring(0, selection.end.offset);
+    if (heading.contains('#' * i) && heading.length == i) {
       return i;
     }
   }

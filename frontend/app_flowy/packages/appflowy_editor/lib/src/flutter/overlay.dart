@@ -768,8 +768,6 @@ class _RenderTheatre extends RenderBox
             _hasVisualOverflow;
       }
 
-      print('_hasVisualOverflow = $_hasVisualOverflow');
-
       assert(child.parentData == childParentData);
       child = childParentData.nextSibling;
     }
