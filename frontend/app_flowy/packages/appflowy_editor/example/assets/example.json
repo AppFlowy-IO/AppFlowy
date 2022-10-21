@@ -3,13 +3,6 @@
     "type": "editor",
     "children": [
       {
-        "type": "image",
-        "attributes": {
-          "image_src": "https://s1.ax1x.com/2022/08/26/v2sSbR.jpg",
-          "align": "center"
-        }
-      },
-      {
         "type": "text",
         "attributes": { "subtype": "heading", "heading": "h1" },
         "delta": [

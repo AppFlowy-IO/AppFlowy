@@ -97,6 +97,7 @@ void _pasteHTML(EditorState editorState, String html) {
       final firstTextNode = firstNode as TextNode;
       tb.updateText(
           textNodeAtPath, (Delta()..retain(startOffset)) + firstTextNode.delta);
+      tb.updateNode(textNodeAtPath, firstTextNode.attributes);
       tb.afterSelection = (Selection.collapsed(Position(
           path: path, offset: startOffset + firstTextNode.delta.length)));
       editorState.apply(tb);
@@ -114,7 +115,7 @@ void _pasteMultipleLinesInText(
   final firstNode = nodes[0];
   final nodeAtPath = editorState.document.nodeAtPath(path)!;
 
-  if (nodeAtPath.type == "text" && firstNode.type == "text") {
+  if (nodeAtPath.type == 'text' && firstNode.type == 'text') {
     int? startNumber;
     if (nodeAtPath.subtype == BuiltInAttributeKey.numberList) {
       startNumber = nodeAtPath.attributes[BuiltInAttributeKey.number] as int;
@@ -131,6 +132,7 @@ void _pasteMultipleLinesInText(
               ..retain(offset)
               ..delete(remain.length)) +
             firstTextNode.delta);
+    tb.updateNode(textNodeAtPath, firstTextNode.attributes);
 
     final tailNodes = nodes.sublist(1);
     final originalPath = [...path];

@@ -55,7 +55,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
   RenderParagraph get _renderParagraph =>
       _textKey.currentContext?.findRenderObject() as RenderParagraph;
 
-  RenderParagraph get _placeholderRenderParagraph =>
+  RenderParagraph? get _placeholderRenderParagraph =>
       _placeholderTextKey.currentContext?.findRenderObject() as RenderParagraph;
 
   @override
@@ -90,9 +90,10 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
         _renderParagraph.getOffsetForCaret(textPosition, Rect.zero);
     if (cursorHeight == null) {
       cursorHeight =
-          _placeholderRenderParagraph.getFullHeightForCaret(textPosition);
-      cursorOffset = _placeholderRenderParagraph.getOffsetForCaret(
-          textPosition, Rect.zero);
+          _placeholderRenderParagraph?.getFullHeightForCaret(textPosition);
+      cursorOffset = _placeholderRenderParagraph?.getOffsetForCaret(
+              textPosition, Rect.zero) ??
+          Offset.zero;
     }
     final rect = Rect.fromLTWH(
       cursorOffset.dx - (widget.cursorWidth / 2.0),
