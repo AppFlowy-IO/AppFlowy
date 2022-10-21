@@ -109,8 +109,14 @@ impl NodeOperations {
         self.operations
     }
 
-    pub fn add_op(&mut self, operation: NodeOperation) {
+    pub fn push_op(&mut self, operation: NodeOperation) {
         self.operations.push(Arc::new(operation));
+    }
+
+    pub fn extend(&mut self, other: NodeOperations) {
+        for operation in other.operations {
+            self.operations.push(operation);
+        }
     }
 }
 

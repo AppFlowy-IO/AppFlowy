@@ -230,8 +230,8 @@ impl TestBuilder {
                 let target_delta: DeltaTextOperations = serde_json::from_str(&delta_json).unwrap();
 
                 if expected_delta != target_delta {
-                    log::error!("✅ expect: {}", expected,);
-                    log::error!("❌ receive: {}", delta_json);
+                    println!("✅ expect: {}", expected,);
+                    println!("❌ receive: {}", delta_json);
                 }
                 assert_eq!(target_delta, expected_delta);
             }

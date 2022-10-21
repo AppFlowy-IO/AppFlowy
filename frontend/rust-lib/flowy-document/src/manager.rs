@@ -8,8 +8,7 @@ use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::disk::SQLiteDocumentRevisionPersistence;
 use flowy_revision::{
-    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket,
-    SQLiteRevisionSnapshotPersistence,
+    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::client_document::initial_delta_document_content;
 use flowy_sync::entities::{
@@ -67,6 +66,7 @@ pub struct DocumentManager {
     rev_web_socket: Arc<dyn RevisionWebSocket>,
     editor_map: Arc<DocumentEditorMap>,
     user: Arc<dyn DocumentUser>,
+    #[allow(dead_code)]
     config: DocumentConfig,
 }
 

@@ -41,7 +41,7 @@ fn operation_update_node_attributes_serde_test() {
     let result = serde_json::to_string(&operation).unwrap();
     assert_eq!(
         result,
-        r#"{"op":"update","path":[0,1],"changeset":{"attributes":{"new":{"bold":true},"old":{"bold":null}}}}"#
+        r#"{"op":"update","path":[0,1],"changeset":{"attributes":{"new":{"bold":true},"old":{"bold":false}}}}"#
     );
 }
 

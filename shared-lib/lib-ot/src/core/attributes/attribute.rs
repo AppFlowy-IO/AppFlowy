@@ -219,10 +219,10 @@ impl AttributeValue {
     }
 
     pub fn from_bool(val: bool) -> Self {
-        let value = if val { Some(val.to_string()) } else { None };
+        // let value = if val { Some(val.to_string()) } else { None };
         Self {
             ty: Some(ValueType::BoolType),
-            value,
+            value: Some(val.to_string()),
         }
     }
     pub fn from_string(s: &str) -> Self {

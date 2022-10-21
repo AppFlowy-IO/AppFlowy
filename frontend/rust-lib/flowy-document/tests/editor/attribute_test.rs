@@ -29,7 +29,7 @@ fn attributes_bold_added_and_invert_all() {
         Bold(0, Interval::new(0, 3), true),
         AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":true}}]"#),
         Bold(0, Interval::new(0, 3), false),
-        AssertDocJson(0, r#"[{"insert":"123"}]"#),
+        AssertDocJson(0, r#"[{"insert":"123","attributes":{"bold":false}}]"#),
     ];
     TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
@@ -41,7 +41,7 @@ fn attributes_bold_added_and_invert_partial_suffix() {
         Bold(0, Interval::new(0, 4), true),
         AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":true}}]"#),
         Bold(0, Interval::new(2, 4), false),
-        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":true}},{"insert":"34"}]"#),
+        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":true}},{"insert":"34","attributes":{"bold":false}}]"#),
     ];
     TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }
@@ -53,7 +53,7 @@ fn attributes_bold_added_and_invert_partial_suffix2() {
         Bold(0, Interval::new(0, 4), true),
         AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":true}}]"#),
         Bold(0, Interval::new(2, 4), false),
-        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":true}},{"insert":"34"}]"#),
+        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":true}},{"insert":"34","attributes":{"bold":false}}]"#),
         Bold(0, Interval::new(2, 4), true),
         AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":true}}]"#),
     ];
@@ -95,7 +95,7 @@ fn attributes_bold_added_and_invert_partial_prefix() {
         Bold(0, Interval::new(0, 4), true),
         AssertDocJson(0, r#"[{"insert":"1234","attributes":{"bold":true}}]"#),
         Bold(0, Interval::new(0, 2), false),
-        AssertDocJson(0, r#"[{"insert":"12"},{"insert":"34","attributes":{"bold":true}}]"#),
+        AssertDocJson(0, r#"[{"insert":"12","attributes":{"bold":false}},{"insert":"34","attributes":{"bold":true}}]"#),
     ];
     TestBuilder::new().run_scripts::<EmptyDocument>(ops);
 }

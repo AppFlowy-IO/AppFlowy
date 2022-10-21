@@ -45,28 +45,31 @@ impl Transaction {
         self.operations.into_inner()
     }
 
+    pub fn push_operation<T: Into<NodeOperation>>(&mut self, operation: T) {
+        let operation = operation.into();
+        self.operations.push_op(operation);
+    }
+
     /// Make the `other` can be applied to the version after applying the `self` transaction.
     ///
     /// The semantics of transform is used when editing conflicts occur, which is often determined by the version id。
     /// the operations of the transaction will be transformed into the conflict operations.
     pub fn transform(&self, other: &Transaction) -> Result<Transaction, OTError> {
-        let mut new_transaction = other.clone();
-        new_transaction.extension = self.extension.clone();
-        for other_operation in new_transaction.iter_mut() {
+        let mut other = other.clone();
+        other.extension = self.extension.clone();
+        for other_operation in other.iter_mut() {
             let other_operation = Arc::make_mut(other_operation);
             for operation in self.operations.iter() {
                 operation.transform(other_operation);
             }
         }
-        Ok(new_transaction)
+        Ok(other)
     }
 
     pub fn compose(&mut self, other: Transaction) -> Result<(), OTError> {
         // For the moment, just append `other` operations to the end of `self`.
         let Transaction { operations, extension } = other;
-        for operation in operations.into_inner().into_iter() {
-            self.operations.push(operation);
-        }
+        self.operations.extend(operations);
         self.extension = extension;
         Ok(())
     }
@@ -196,7 +199,7 @@ impl<'a> TransactionBuilder<'a> {
                     }
                 }
 
-                self.operations.add_op(NodeOperation::Update {
+                self.operations.push_op(NodeOperation::Update {
                     path: path.clone(),
                     changeset: Changeset::Attributes {
                         new: attributes,
@@ -212,7 +215,7 @@ impl<'a> TransactionBuilder<'a> {
     pub fn update_body_at_path(mut self, path: &Path, changeset: Changeset) -> Self {
         match self.node_tree.node_id_at_path(path) {
             Some(_) => {
-                self.operations.add_op(NodeOperation::Update {
+                self.operations.push_op(NodeOperation::Update {
                     path: path.clone(),
                     changeset,
                 });
@@ -240,7 +243,7 @@ impl<'a> TransactionBuilder<'a> {
             node_id = self.node_tree.following_siblings(node_id).next().unwrap();
         }
 
-        self.operations.add_op(NodeOperation::Delete {
+        self.operations.push_op(NodeOperation::Delete {
             path: path.clone(),
             nodes: deleted_nodes,
         });
@@ -267,7 +270,7 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     pub fn push(mut self, op: NodeOperation) -> Self {
-        self.operations.add_op(op);
+        self.operations.push_op(op);
         self
     }
 

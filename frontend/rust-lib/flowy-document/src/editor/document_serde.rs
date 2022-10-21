@@ -242,6 +242,12 @@ pub struct DocumentNode {
     pub children: Vec<DocumentNode>,
 }
 
+impl DocumentNode {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+
 impl std::convert::From<NodeData> for DocumentNode {
     fn from(node_data: NodeData) -> Self {
         let delta = if let Body::Delta(operations) = node_data.body {
