@@ -1,6 +1,6 @@
 name: Feature Request
 description: Suggest an idea for AppFlowy
-title: "[FR]: "
+title: "[FR] "
 body:
   - type: textarea
     id: desc

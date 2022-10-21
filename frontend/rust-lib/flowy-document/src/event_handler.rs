@@ -12,7 +12,7 @@ pub(crate) async fn get_document_handler(
 ) -> DataResult<DocumentSnapshotPB, FlowyError> {
     let document_id: DocumentIdPB = data.into_inner();
     let editor = manager.open_document_editor(&document_id).await?;
-    let operations_str = editor.get_operation_str().await?;
+    let operations_str = editor.export().await?;
     data_result(DocumentSnapshotPB {
         doc_id: document_id.into(),
         snapshot: operations_str,
@@ -35,9 +35,9 @@ pub(crate) async fn export_handler(
 ) -> DataResult<ExportDataPB, FlowyError> {
     let params: ExportParams = data.into_inner().try_into()?;
     let editor = manager.open_document_editor(&params.view_id).await?;
-    let operations_str = editor.get_operation_str().await?;
+    let document_data = editor.export().await?;
     data_result(ExportDataPB {
-        data: operations_str,
+        data: document_data,
         export_type: params.export_type,
     })
 }

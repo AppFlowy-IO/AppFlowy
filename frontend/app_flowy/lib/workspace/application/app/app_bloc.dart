@@ -22,19 +22,24 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   final AppService appService;
   final AppListener appListener;
 
-  AppBloc(
-      {required this.app, required this.appService, required this.appListener})
-      : super(AppState.initial(app)) {
+  AppBloc({required this.app})
+      : appService = AppService(),
+        appListener = AppListener(appId: app.id),
+        super(AppState.initial(app)) {
     on<AppEvent>((event, emit) async {
       await event.map(initial: (e) async {
         _startListening();
         await _loadViews(emit);
       }, createView: (CreateView value) async {
         await _createView(value, emit);
+      }, loadViews: (_) async {
+        await _loadViews(emit);
       }, didReceiveViewUpdated: (e) async {
         await _didReceiveViewUpdated(e.views, emit);
       }, delete: (e) async {
-        await _deleteView(emit);
+        await _deleteApp(emit);
+      }, deleteView: (deletedView) async {
+        await _deleteView(emit, deletedView.viewId);
       }, rename: (e) async {
         await _renameView(e, emit);
       }, appDidUpdate: (e) async {
@@ -71,7 +76,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     );
   }
 
-  Future<void> _deleteView(Emitter<AppState> emit) async {
+// Delete the current app
+  Future<void> _deleteApp(Emitter<AppState> emit) async {
     final result = await appService.delete(appId: app.id);
     result.fold(
       (unit) => emit(state.copyWith(successOrFailure: left(unit))),
@@ -79,16 +85,24 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     );
   }
 
+  Future<void> _deleteView(Emitter<AppState> emit, String viewId) async {
+    final result = await appService.deleteView(viewId: viewId);
+    result.fold(
+      (unit) => emit(state.copyWith(successOrFailure: left(unit))),
+      (error) => emit(state.copyWith(successOrFailure: right(error))),
+    );
+  }
+
   Future<void> _createView(CreateView value, Emitter<AppState> emit) async {
-    final viewOrFailed = await appService.createView(
+    final result = await appService.createView(
       appId: app.id,
       name: value.name,
-      desc: value.desc,
-      dataType: value.dataType,
-      pluginType: value.pluginType,
-      layout: value.layout,
+      desc: value.desc ?? "",
+      dataType: value.pluginBuilder.dataType,
+      pluginType: value.pluginBuilder.pluginType,
+      layoutType: value.pluginBuilder.layoutType!,
     );
-    viewOrFailed.fold(
+    result.fold(
       (view) => emit(state.copyWith(
         latestCreatedView: view,
         successOrFailure: left(unit),
@@ -107,7 +121,9 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _didReceiveViewUpdated(
-      List<ViewPB> views, Emitter<AppState> emit) async {
+    List<ViewPB> views,
+    Emitter<AppState> emit,
+  ) async {
     final latestCreatedView = state.latestCreatedView;
     AppState newState = state.copyWith(views: views);
     if (latestCreatedView != null) {
@@ -138,12 +154,12 @@ class AppEvent with _$AppEvent {
   const factory AppEvent.initial() = Initial;
   const factory AppEvent.createView(
     String name,
-    String desc,
-    ViewDataTypePB dataType,
-    ViewLayoutTypePB layout,
-    PluginType pluginType,
-  ) = CreateView;
-  const factory AppEvent.delete() = Delete;
+    PluginBuilder pluginBuilder, {
+    String? desc,
+  }) = CreateView;
+  const factory AppEvent.loadViews() = LoadApp;
+  const factory AppEvent.delete() = DeleteApp;
+  const factory AppEvent.deleteView(String viewId) = DeleteView;
   const factory AppEvent.rename(String newName) = Rename;
   const factory AppEvent.didReceiveViewUpdated(List<ViewPB> views) =
       ReceiveViews;
@@ -161,7 +177,7 @@ class AppState with _$AppState {
 
   factory AppState.initial(AppPB app) => AppState(
         app: app,
-        views: [],
+        views: app.belongings.items,
         successOrFailure: left(unit),
       );
 }

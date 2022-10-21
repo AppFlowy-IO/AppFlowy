@@ -1,14 +1,21 @@
+use super::{Changeset, NodeOperations};
 use crate::core::attributes::AttributeHashMap;
 use crate::core::{NodeData, NodeOperation, NodeTree, Path};
 use crate::errors::OTError;
+
 use indextree::NodeId;
-use std::rc::Rc;
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
 
-use super::{NodeBodyChangeset, NodeOperations};
-
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Transaction {
-    operations: NodeOperations,
+    #[serde(flatten)]
+    pub operations: NodeOperations,
+
+    #[serde(default)]
+    #[serde(flatten)]
+    #[serde(skip_serializing_if = "Extension::is_empty")]
+    pub extension: Extension,
 }
 
 impl Transaction {
@@ -19,10 +26,25 @@ impl Transaction {
     pub fn from_operations<T: Into<NodeOperations>>(operations: T) -> Self {
         Self {
             operations: operations.into(),
+            extension: Extension::Empty,
         }
     }
 
-    pub fn into_operations(self) -> Vec<Rc<NodeOperation>> {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, OTError> {
+        let transaction = serde_json::from_slice(bytes).map_err(|err| OTError::serde().context(err))?;
+        Ok(transaction)
+    }
+
+    pub fn to_bytes(&self) -> Result<Vec<u8>, OTError> {
+        let bytes = serde_json::to_vec(&self).map_err(|err| OTError::serde().context(err))?;
+        Ok(bytes)
+    }
+
+    pub fn to_json(&self) -> Result<String, OTError> {
+        serde_json::to_string(&self).map_err(|err| OTError::serde().context(err))
+    }
+
+    pub fn into_operations(self) -> Vec<Arc<NodeOperation>> {
         self.operations.into_inner()
     }
 
@@ -32,8 +54,9 @@ impl Transaction {
     /// the operations of the transaction will be transformed into the conflict operations.
     pub fn transform(&self, other: &Transaction) -> Result<Transaction, OTError> {
         let mut new_transaction = other.clone();
+        new_transaction.extension = self.extension.clone();
         for other_operation in new_transaction.iter_mut() {
-            let other_operation = Rc::make_mut(other_operation);
+            let other_operation = Arc::make_mut(other_operation);
             for operation in self.operations.iter() {
                 operation.transform(other_operation);
             }
@@ -41,17 +64,19 @@ impl Transaction {
         Ok(new_transaction)
     }
 
-    pub fn compose(&mut self, other: &Transaction) -> Result<(), OTError> {
+    pub fn compose(&mut self, other: Transaction) -> Result<(), OTError> {
         // For the moment, just append `other` operations to the end of `self`.
-        for operation in other.operations.iter() {
-            self.operations.push(operation.clone());
+        let Transaction { operations, extension } = other;
+        for operation in operations.into_inner().into_iter() {
+            self.operations.push(operation);
         }
+        self.extension = extension;
         Ok(())
     }
 }
 
 impl std::ops::Deref for Transaction {
-    type Target = Vec<Rc<NodeOperation>>;
+    type Target = Vec<Arc<NodeOperation>>;
 
     fn deref(&self) -> &Self::Target {
         &self.operations
@@ -62,6 +87,39 @@ impl std::ops::DerefMut for Transaction {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.operations
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Extension {
+    Empty,
+    TextSelection {
+        before_selection: Selection,
+        after_selection: Selection,
+    },
+}
+
+impl std::default::Default for Extension {
+    fn default() -> Self {
+        Extension::Empty
+    }
+}
+
+impl Extension {
+    fn is_empty(&self) -> bool {
+        matches!(self, Extension::Empty)
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Selection {
+    start: Position,
+    end: Position,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct Position {
+    path: Path,
+    offset: usize,
 }
 
 pub struct TransactionBuilder<'a> {
@@ -87,17 +145,15 @@ impl<'a> TransactionBuilder<'a> {
     /// # Examples
     ///
     /// ```
-    /// // -- 0 (root)
-    /// //      0 -- text_1
-    /// //      1 -- text_2
+    /// //   0 -- text_1
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new("root");
+    /// let mut node_tree = NodeTree::default();
     /// let transaction = TransactionBuilder::new(&node_tree)
-    ///     .insert_nodes_at_path(0,vec![ NodeData::new("text_1"),  NodeData::new("text_2")])
+    ///     .insert_nodes_at_path(0,vec![ NodeData::new("text_1")])
     ///     .finalize();
     ///  node_tree.apply_transaction(transaction).unwrap();
     ///
-    ///  node_tree.node_id_at_path(vec![0, 0]);
+    ///  node_tree.node_id_at_path(vec![0]).unwrap();
     /// ```
     ///
     pub fn insert_nodes_at_path<T: Into<Path>>(self, path: T, nodes: Vec<NodeData>) -> Self {
@@ -121,7 +177,7 @@ impl<'a> TransactionBuilder<'a> {
     /// // -- 0
     /// //    |-- text
     /// use lib_ot::core::{NodeTree, NodeData, TransactionBuilder};
-    /// let mut node_tree = NodeTree::new("root");
+    /// let mut node_tree = NodeTree::default();
     /// let transaction = TransactionBuilder::new(&node_tree)
     ///     .insert_node_at_path(0, NodeData::new("text"))
     ///     .finalize();
@@ -143,10 +199,12 @@ impl<'a> TransactionBuilder<'a> {
                     }
                 }
 
-                self.operations.add_op(NodeOperation::UpdateAttributes {
+                self.operations.add_op(NodeOperation::Update {
                     path: path.clone(),
-                    new: attributes,
-                    old: old_attributes,
+                    changeset: Changeset::Attributes {
+                        new: attributes,
+                        old: old_attributes,
+                    },
                 });
             }
             None => tracing::warn!("Update attributes at path: {:?} failed. Node is not exist", path),
@@ -154,10 +212,10 @@ impl<'a> TransactionBuilder<'a> {
         self
     }
 
-    pub fn update_body_at_path(mut self, path: &Path, changeset: NodeBodyChangeset) -> Self {
+    pub fn update_body_at_path(mut self, path: &Path, changeset: Changeset) -> Self {
         match self.node_tree.node_id_at_path(path) {
             Some(_) => {
-                self.operations.add_op(NodeOperation::UpdateBody {
+                self.operations.add_op(NodeOperation::Update {
                     path: path.clone(),
                     changeset,
                 });
@@ -172,11 +230,17 @@ impl<'a> TransactionBuilder<'a> {
     }
 
     pub fn delete_nodes_at_path(mut self, path: &Path, length: usize) -> Self {
-        let mut node = self.node_tree.node_id_at_path(path).unwrap();
+        let node_id = self.node_tree.node_id_at_path(path);
+        if node_id.is_none() {
+            tracing::warn!("Path: {:?} doesn't contains any nodes", path);
+            return self;
+        }
+
+        let mut node_id = node_id.unwrap();
         let mut deleted_nodes = vec![];
         for _ in 0..length {
-            deleted_nodes.push(self.get_deleted_nodes(node));
-            node = self.node_tree.following_siblings(node).next().unwrap();
+            deleted_nodes.push(self.get_deleted_node_data(node_id));
+            node_id = self.node_tree.following_siblings(node_id).next().unwrap();
         }
 
         self.operations.add_op(NodeOperation::Delete {
@@ -186,13 +250,16 @@ impl<'a> TransactionBuilder<'a> {
         self
     }
 
-    fn get_deleted_nodes(&self, node_id: NodeId) -> NodeData {
+    fn get_deleted_node_data(&self, node_id: NodeId) -> NodeData {
         let node_data = self.node_tree.get_node(node_id).unwrap();
 
         let mut children = vec![];
-        self.node_tree.children_from_node(node_id).for_each(|child_id| {
-            children.push(self.get_deleted_nodes(child_id));
-        });
+        self.node_tree
+            .get_children_ids(node_id)
+            .into_iter()
+            .for_each(|child_id| {
+                children.push(self.get_deleted_node_data(child_id));
+            });
 
         NodeData {
             node_type: node_data.node_type.clone(),

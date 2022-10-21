@@ -1,6 +1,7 @@
-use crate::editor::DocumentRevisionCompactor;
+use crate::editor::{initial_document_content, AppFlowyDocumentEditor};
 use crate::entities::EditParams;
-use crate::{editor::DocumentEditor, errors::FlowyError, DocumentCloudService};
+use crate::old_editor::editor::{DeltaDocumentEditor, DocumentRevisionCompress};
+use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
@@ -9,12 +10,16 @@ use flowy_revision::disk::SQLiteDocumentRevisionPersistence;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
 };
+use flowy_sync::client_document::initial_old_document_content;
 use flowy_sync::entities::{
     document::{DocumentIdPB, DocumentOperationsPB},
     revision::{md5, RepeatedRevision, Revision},
     ws_data::ServerRevisionWSData,
 };
 use lib_infra::future::FutureResult;
+
+use lib_ws::WSConnectState;
+use std::any::Any;
 use std::{convert::TryInto, sync::Arc};
 
 pub trait DocumentUser: Send + Sync {
@@ -24,11 +29,36 @@ pub trait DocumentUser: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
+pub trait DocumentEditor: Send + Sync {
+    fn export(&self) -> FutureResult<String, FlowyError>;
+    fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError>;
+    fn close(&self);
+
+    fn receive_ws_data(&self, data: ServerRevisionWSData) -> FutureResult<(), FlowyError>;
+    fn receive_ws_state(&self, state: &WSConnectState);
+
+    /// Returns the `Any` reference that can be used to downcast back to the original,
+    /// concrete type.
+    ///
+    /// The indirection through `as_any` is because using `downcast_ref`
+    /// on `Box<A>` *directly* only lets us downcast back to `&A` again. You can take a look at [this](https://stackoverflow.com/questions/33687447/how-to-get-a-reference-to-a-concrete-type-from-a-trait-object)
+    /// for more information.
+    ///
+    ///
+    fn as_any(&self) -> &dyn Any;
+}
+
+#[derive(Clone, Debug)]
+pub struct DocumentConfig {
+    pub use_new_editor: bool,
+}
+
 pub struct DocumentManager {
     cloud_service: Arc<dyn DocumentCloudService>,
     rev_web_socket: Arc<dyn RevisionWebSocket>,
     editor_map: Arc<DocumentEditorMap>,
     user: Arc<dyn DocumentUser>,
+    config: DocumentConfig,
 }
 
 impl DocumentManager {
@@ -36,12 +66,14 @@ impl DocumentManager {
         cloud_service: Arc<dyn DocumentCloudService>,
         document_user: Arc<dyn DocumentUser>,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
+        config: DocumentConfig,
     ) -> Self {
         Self {
             cloud_service,
             rev_web_socket,
             editor_map: Arc::new(DocumentEditorMap::new()),
             user: document_user,
+            config,
         }
     }
 
@@ -52,10 +84,13 @@ impl DocumentManager {
     }
 
     #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
-    pub async fn open_document_editor<T: AsRef<str>>(&self, editor_id: T) -> Result<Arc<DocumentEditor>, FlowyError> {
+    pub async fn open_document_editor<T: AsRef<str>>(
+        &self,
+        editor_id: T,
+    ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
         let editor_id = editor_id.as_ref();
         tracing::Span::current().record("editor_id", &editor_id);
-        self.get_document_editor(editor_id).await
+        self.init_document_editor(editor_id).await
     }
 
     #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
@@ -75,7 +110,7 @@ impl DocumentManager {
         let _ = editor
             .compose_local_operations(Bytes::from(payload.operations_str))
             .await?;
-        let operations_str = editor.get_operation_str().await?;
+        let operations_str = editor.export().await?;
         Ok(DocumentOperationsPB {
             doc_id: payload.doc_id.clone(),
             operations_str,
@@ -84,9 +119,7 @@ impl DocumentManager {
 
     pub async fn apply_edit(&self, params: EditParams) -> FlowyResult<()> {
         let editor = self.get_document_editor(&params.doc_id).await?;
-        let _ = editor
-            .compose_local_operations(Bytes::from(params.operations_str))
-            .await?;
+        let _ = editor.compose_local_operations(Bytes::from(params.operations)).await?;
         Ok(())
     }
 
@@ -114,12 +147,18 @@ impl DocumentManager {
             }
         }
     }
+
+    pub fn initial_document_content(&self) -> String {
+        if self.config.use_new_editor {
+            initial_document_content()
+        } else {
+            initial_old_document_content()
+        }
+    }
 }
 
 impl DocumentManager {
     /// Returns the `DocumentEditor`
-    /// Initializes the document editor if it's not initialized yet. Otherwise, returns the opened
-    /// editor.
     ///
     /// # Arguments
     ///
@@ -127,12 +166,9 @@ impl DocumentManager {
     ///
     /// returns: Result<Arc<DocumentEditor>, FlowyError>
     ///
-    async fn get_document_editor(&self, doc_id: &str) -> FlowyResult<Arc<DocumentEditor>> {
+    async fn get_document_editor(&self, doc_id: &str) -> FlowyResult<Arc<dyn DocumentEditor>> {
         match self.editor_map.get(doc_id) {
-            None => {
-                let db_pool = self.user.db_pool()?;
-                self.init_document_editor(doc_id, db_pool).await
-            }
+            None => self.init_document_editor(doc_id).await,
             Some(editor) => Ok(editor),
         }
     }
@@ -146,12 +182,9 @@ impl DocumentManager {
     ///
     /// returns: Result<Arc<DocumentEditor>, FlowyError>
     ///
-    #[tracing::instrument(level = "trace", skip(self, pool), err)]
-    async fn init_document_editor(
-        &self,
-        doc_id: &str,
-        pool: Arc<ConnectionPool>,
-    ) -> Result<Arc<DocumentEditor>, FlowyError> {
+    #[tracing::instrument(level = "trace", skip(self), err)]
+    pub async fn init_document_editor(&self, doc_id: &str) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
+        let pool = self.user.db_pool()?;
         let user = self.user.clone();
         let token = self.user.token()?;
         let rev_manager = self.make_document_rev_manager(doc_id, pool.clone())?;
@@ -159,8 +192,16 @@ impl DocumentManager {
             token,
             server: self.cloud_service.clone(),
         });
-        let editor = DocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
-        self.editor_map.insert(doc_id, &editor);
+
+        let editor: Arc<dyn DocumentEditor> = if self.config.use_new_editor {
+            let editor = AppFlowyDocumentEditor::new(doc_id, user, rev_manager, cloud_service).await?;
+            Arc::new(editor)
+        } else {
+            let editor =
+                DeltaDocumentEditor::new(doc_id, user, rev_manager, self.rev_web_socket.clone(), cloud_service).await?;
+            Arc::new(editor)
+        };
+        self.editor_map.insert(doc_id, editor.clone());
         Ok(editor)
     }
 
@@ -174,7 +215,7 @@ impl DocumentManager {
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
-        let rev_compactor = DocumentRevisionCompactor();
+        let rev_compactor = DocumentRevisionCompress();
 
         Ok(RevisionManager::new(
             &user_id,
@@ -222,7 +263,7 @@ impl RevisionCloudService for DocumentRevisionCloudService {
 }
 
 pub struct DocumentEditorMap {
-    inner: DashMap<String, Arc<DocumentEditor>>,
+    inner: DashMap<String, Arc<dyn DocumentEditor>>,
 }
 
 impl DocumentEditorMap {
@@ -230,20 +271,20 @@ impl DocumentEditorMap {
         Self { inner: DashMap::new() }
     }
 
-    pub(crate) fn insert(&self, editor_id: &str, doc: &Arc<DocumentEditor>) {
+    pub(crate) fn insert(&self, editor_id: &str, editor: Arc<dyn DocumentEditor>) {
         if self.inner.contains_key(editor_id) {
-            log::warn!("Doc:{} already exists in cache", editor_id);
+            log::warn!("Editor:{} already exists in cache", editor_id);
         }
-        self.inner.insert(editor_id.to_string(), doc.clone());
+        self.inner.insert(editor_id.to_string(), editor);
     }
 
-    pub(crate) fn get(&self, editor_id: &str) -> Option<Arc<DocumentEditor>> {
+    pub(crate) fn get(&self, editor_id: &str) -> Option<Arc<dyn DocumentEditor>> {
         Some(self.inner.get(editor_id)?.clone())
     }
 
     pub(crate) fn remove(&self, editor_id: &str) {
         if let Some(editor) = self.get(editor_id) {
-            editor.stop()
+            editor.close()
         }
         self.inner.remove(editor_id);
     }

@@ -1,9 +1,7 @@
-use crate::web_socket::EditorCommandSender;
-use crate::{
-    errors::FlowyError,
-    queue::{EditDocumentQueue, EditorCommand},
-    DocumentUser,
-};
+#![allow(unused_attributes)]
+#![allow(unused_attributes)]
+use crate::old_editor::queue::{EditDocumentQueue, EditorCommand, EditorCommandSender};
+use crate::{errors::FlowyError, DocumentEditor, DocumentUser};
 use bytes::Bytes;
 use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{
@@ -16,16 +14,18 @@ use flowy_sync::{
     errors::CollaborateResult,
     util::make_operations_from_revisions,
 };
+use lib_infra::future::FutureResult;
 use lib_ot::core::{AttributeEntry, AttributeHashMap};
 use lib_ot::{
     core::{DeltaOperation, Interval},
     text_delta::TextOperations,
 };
 use lib_ws::WSConnectState;
+use std::any::Any;
 use std::sync::Arc;
 use tokio::sync::{mpsc, oneshot};
 
-pub struct DocumentEditor {
+pub struct DeltaDocumentEditor {
     pub doc_id: String,
     #[allow(dead_code)]
     rev_manager: Arc<RevisionManager>,
@@ -34,7 +34,7 @@ pub struct DocumentEditor {
     edit_cmd_tx: EditorCommandSender,
 }
 
-impl DocumentEditor {
+impl DeltaDocumentEditor {
     #[allow(unused_variables)]
     pub(crate) async fn new(
         doc_id: &str,
@@ -43,15 +43,17 @@ impl DocumentEditor {
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let document_info = rev_manager.load::<DocumentRevisionSerde>(Some(cloud_service)).await?;
-        let operations = TextOperations::from_bytes(&document_info.content)?;
+        let document = rev_manager
+            .load::<DeltaDocumentRevisionSerde>(Some(cloud_service))
+            .await?;
+        let operations = TextOperations::from_bytes(&document.content)?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();
         let user_id = user.user_id()?;
 
         let edit_cmd_tx = spawn_edit_queue(user, rev_manager.clone(), operations);
         #[cfg(feature = "sync")]
-        let ws_manager = crate::web_socket::make_document_ws_manager(
+        let ws_manager = crate::old_editor::web_socket::make_document_ws_manager(
             doc_id.clone(),
             user_id.clone(),
             edit_cmd_tx.clone(),
@@ -142,51 +144,60 @@ impl DocumentEditor {
         let _ = rx.await.map_err(internal_error)??;
         Ok(())
     }
+}
 
-    pub async fn get_operation_str(&self) -> FlowyResult<String> {
+impl DocumentEditor for Arc<DeltaDocumentEditor> {
+    fn export(&self) -> FutureResult<String, FlowyError> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
-        let msg = EditorCommand::StringifyOperations { ret };
-        let _ = self.edit_cmd_tx.send(msg).await;
-        let json = rx.await.map_err(internal_error)??;
-        Ok(json)
+        let msg = EditorCommand::GetOperationsString { ret };
+        let edit_cmd_tx = self.edit_cmd_tx.clone();
+        FutureResult::new(async move {
+            let _ = edit_cmd_tx.send(msg).await;
+            let json = rx.await.map_err(internal_error)??;
+            Ok(json)
+        })
     }
 
-    #[tracing::instrument(level = "trace", skip(self, data), err)]
-    pub(crate) async fn compose_local_operations(&self, data: Bytes) -> Result<(), FlowyError> {
-        let operations = TextOperations::from_bytes(&data)?;
-        let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
-        let msg = EditorCommand::ComposeLocalOperations { operations, ret };
-        let _ = self.edit_cmd_tx.send(msg).await;
-        let _ = rx.await.map_err(internal_error)??;
-        Ok(())
+    fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError> {
+        let edit_cmd_tx = self.edit_cmd_tx.clone();
+        FutureResult::new(async move {
+            let operations = TextOperations::from_bytes(&data)?;
+            let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
+            let msg = EditorCommand::ComposeLocalOperations { operations, ret };
+
+            let _ = edit_cmd_tx.send(msg).await;
+            let _ = rx.await.map_err(internal_error)??;
+            Ok(())
+        })
     }
 
-    #[cfg(feature = "sync")]
-    pub fn stop(&self) {
+    fn close(&self) {
+        #[cfg(feature = "sync")]
         self.ws_manager.stop();
     }
 
-    #[cfg(not(feature = "sync"))]
-    pub fn stop(&self) {}
+    #[allow(unused_variables)]
+    fn receive_ws_data(&self, data: ServerRevisionWSData) -> FutureResult<(), FlowyError> {
+        let cloned_self = self.clone();
+        FutureResult::new(async move {
+            #[cfg(feature = "sync")]
+            let _ = cloned_self.ws_manager.receive_ws_data(data).await?;
 
-    #[cfg(feature = "sync")]
-    pub(crate) async fn receive_ws_data(&self, data: ServerRevisionWSData) -> Result<(), FlowyError> {
-        self.ws_manager.receive_ws_data(data).await
-    }
-    #[cfg(not(feature = "sync"))]
-    pub(crate) async fn receive_ws_data(&self, _data: ServerRevisionWSData) -> Result<(), FlowyError> {
-        Ok(())
+            Ok(())
+        })
     }
 
-    #[cfg(feature = "sync")]
-    pub(crate) fn receive_ws_state(&self, state: &WSConnectState) {
+    #[allow(unused_variables)]
+    fn receive_ws_state(&self, state: &WSConnectState) {
+        #[cfg(feature = "sync")]
         self.ws_manager.connect_state_changed(state.clone());
     }
-    #[cfg(not(feature = "sync"))]
-    pub(crate) fn receive_ws_state(&self, _state: &WSConnectState) {}
-}
 
-impl std::ops::Drop for DocumentEditor {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+}
+impl std::ops::Drop for DeltaDocumentEditor {
     fn drop(&mut self) {
         tracing::trace!("{} DocumentEditor was dropped", self.doc_id)
     }
@@ -214,10 +225,10 @@ fn spawn_edit_queue(
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl DocumentEditor {
+impl DeltaDocumentEditor {
     pub async fn document_operations(&self) -> FlowyResult<TextOperations> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<TextOperations>>();
-        let msg = EditorCommand::ReadOperations { ret };
+        let msg = EditorCommand::GetOperations { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let delta = rx.await.map_err(internal_error)??;
         Ok(delta)
@@ -228,8 +239,8 @@ impl DocumentEditor {
     }
 }
 
-pub struct DocumentRevisionSerde();
-impl RevisionObjectDeserializer for DocumentRevisionSerde {
+pub struct DeltaDocumentRevisionSerde();
+impl RevisionObjectDeserializer for DeltaDocumentRevisionSerde {
     type Output = DocumentPayloadPB;
 
     fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
@@ -246,17 +257,17 @@ impl RevisionObjectDeserializer for DocumentRevisionSerde {
     }
 }
 
-impl RevisionObjectSerializer for DocumentRevisionSerde {
-    fn serialize_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+impl RevisionObjectSerializer for DeltaDocumentRevisionSerde {
+    fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let operations = make_operations_from_revisions::<AttributeHashMap>(revisions)?;
         Ok(operations.json_bytes())
     }
 }
 
-pub(crate) struct DocumentRevisionCompactor();
-impl RevisionCompress for DocumentRevisionCompactor {
-    fn serialize_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        DocumentRevisionSerde::serialize_revisions(revisions)
+pub(crate) struct DocumentRevisionCompress();
+impl RevisionCompress for DocumentRevisionCompress {
+    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        DeltaDocumentRevisionSerde::combine_revisions(revisions)
     }
 }
 

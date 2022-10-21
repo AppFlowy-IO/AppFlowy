@@ -1154,6 +1154,7 @@ dependencies = [
  "claim 0.4.0",
  "claim 0.5.0",
  "fake",
+ "flowy-document",
  "flowy-folder",
  "flowy-net",
  "flowy-sdk",

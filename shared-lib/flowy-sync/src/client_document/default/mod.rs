@@ -1,14 +1,4 @@
-use lib_ot::{core::OperationBuilder, text_delta::TextOperations};
-
-#[inline]
-pub fn initial_document_operations() -> TextOperations {
-    OperationBuilder::new().insert("\n").build()
-}
-
-#[inline]
-pub fn initial_document_str() -> String {
-    initial_document_operations().json_str()
-}
+use lib_ot::text_delta::TextOperations;
 
 #[inline]
 pub fn initial_read_me() -> TextOperations {

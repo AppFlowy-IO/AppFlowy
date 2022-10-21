@@ -18,13 +18,11 @@ class DocumentService {
 
   Future<Either<Unit, FlowyError>> applyEdit({
     required String docId,
-    required String data,
-    String operations = "",
+    required String operations,
   }) {
     final payload = EditPayloadPB.create()
       ..docId = docId
-      ..operations = operations
-      ..operationsStr = data;
+      ..operations = operations;
     return DocumentEventApplyEdit(payload).send();
   }
 

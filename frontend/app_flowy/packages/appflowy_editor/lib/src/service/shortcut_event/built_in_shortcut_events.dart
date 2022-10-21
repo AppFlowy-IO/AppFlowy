@@ -4,6 +4,7 @@ import 'package:appflowy_editor/src/service/internal_key_event_handlers/arrow_ke
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/backspace_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/copy_paste_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/enter_without_shift_in_text_node_handler.dart';
+import 'package:appflowy_editor/src/service/internal_key_event_handlers/exit_editing_mode_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/markdown_syntax_to_styled_text.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/page_up_down_handler.dart';
 import 'package:appflowy_editor/src/service/internal_key_event_handlers/redo_undo_handler.dart';
@@ -207,12 +208,15 @@ List<ShortcutEvent> builtInShortcutEvents = [
     command: 'end',
     handler: cursorEnd,
   ),
-
-  // TODO: split the keys.
+  ShortcutEvent(
+    key: 'Delete Text by backspace',
+    command: 'backspace',
+    handler: backspaceEventHandler,
+  ),
   ShortcutEvent(
     key: 'Delete Text',
-    command: 'delete,backspace',
-    handler: deleteTextHandler,
+    command: 'delete',
+    handler: deleteEventHandler,
   ),
   ShortcutEvent(
     key: 'selection menu',
@@ -275,6 +279,11 @@ List<ShortcutEvent> builtInShortcutEvents = [
     key: 'Markdown link or image',
     command: 'shift+parenthesis right',
     handler: markdownLinkOrImageHandler,
+  ),
+  ShortcutEvent(
+    key: 'Exit editing mode',
+    command: 'escape',
+    handler: exitEditingModeEventHandler,
   ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,

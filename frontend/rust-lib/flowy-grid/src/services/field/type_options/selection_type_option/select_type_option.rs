@@ -2,7 +2,8 @@ use crate::entities::{CellChangesetPB, FieldType, GridCellIdPB, GridCellIdParams
 use crate::services::cell::{
     CellBytes, CellBytesParser, CellData, CellDataIsEmpty, CellDisplayable, FromCellChangeset, FromCellString,
 };
-use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB, CHECK, UNCHECK};
+use crate::services::field::selection_type_option::type_option_transform::SelectOptionTypeOptionTransformer;
+use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
@@ -119,25 +120,6 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
         }
     }
 
-    fn transform_type_option(&mut self, field_type: &FieldType, _type_option_data: String) {
-        match field_type {
-            FieldType::Checkbox => {
-                //add Yes and No options if it does not exist.
-                if !self.options().iter().any(|option| option.name == CHECK) {
-                    let check_option = SelectOptionPB::with_color(CHECK, SelectOptionColorPB::Green);
-                    self.mut_options().push(check_option);
-                }
-
-                if !self.options().iter().any(|option| option.name == UNCHECK) {
-                    let uncheck_option = SelectOptionPB::with_color(UNCHECK, SelectOptionColorPB::Yellow);
-                    self.mut_options().push(uncheck_option);
-                }
-            }
-            FieldType::MultiSelect => {}
-            _ => {}
-        }
-    }
-
     fn transform_cell_data(
         &self,
         cell_data: CellData<SelectOptionIds>,
@@ -150,6 +132,21 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
             }
             FieldType::Checkbox => {
                 // transform the cell data to the option id
+                let mut transformed_ids = Vec::new();
+                let options = self.options();
+                cell_data.0.iter().for_each(|ids| {
+                    ids.0.iter().for_each(|name| {
+                        let id = options
+                            .iter()
+                            .find(|option| option.name == name.clone())
+                            .unwrap()
+                            .id
+                            .clone();
+                        transformed_ids.push(id);
+                    })
+                });
+
+                return CellBytes::from(self.get_selected_options(CellData(Some(SelectOptionIds(transformed_ids)))));
             }
             _ => {
                 return Ok(CellBytes::default());
@@ -174,7 +171,12 @@ where
         decoded_field_type: &FieldType,
         field_rev: &FieldRevision,
     ) -> FlowyResult<CellBytes> {
-        self.transform_cell_data(cell_data, decoded_field_type, field_rev)
+        SelectOptionTypeOptionTransformer::transform_type_option_cell_data(
+            self,
+            cell_data,
+            decoded_field_type,
+            field_rev,
+        )
     }
 
     fn displayed_cell_string(

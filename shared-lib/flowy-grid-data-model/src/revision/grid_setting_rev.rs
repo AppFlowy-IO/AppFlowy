@@ -77,7 +77,7 @@ where
     }
 
     pub fn get_all_objects(&self) -> Vec<Arc<T>> {
-        self.inner.values().map(|map| map.all_objects()).flatten().collect()
+        self.inner.values().flat_map(|map| map.all_objects()).collect()
     }
 
     /// add object to the end of the list
@@ -117,7 +117,7 @@ where
     }
 
     pub fn all_objects(&self) -> Vec<Arc<T>> {
-        self.object_by_field_type.values().cloned().flatten().collect()
+        self.object_by_field_type.values().flatten().cloned().collect()
     }
 }
 

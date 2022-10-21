@@ -67,6 +67,7 @@ impl FlowyError {
     static_flowy_error!(text_too_long, ErrorCode::TextTooLong);
     static_flowy_error!(invalid_data, ErrorCode::InvalidData);
     static_flowy_error!(out_of_bounds, ErrorCode::OutOfBounds);
+    static_flowy_error!(serde, ErrorCode::Serde);
 }
 
 impl std::convert::From<ErrorCode> for FlowyError {

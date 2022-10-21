@@ -40,10 +40,15 @@ PRODUCT_NAME = "AppFlowy"
 #   for cdylib:
 #       if (Platform.isMacOS) return DynamicLibrary.open('${prefix}/libdart_ffi.dylib');
 CRATE_TYPE = "staticlib"
-SDK_EXT = "a"
+LIB_EXT = "a"
 APP_ENVIRONMENT = "local"
 FLUTTER_FLOWY_SDK_PATH = "app_flowy/packages/flowy_sdk"
 PROTOBUF_DERIVE_CACHE = "../shared-lib/flowy-derive/src/derive_cache/derive_cache.rs"
+# Test default config
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "dylib"
+TEST_BUILD_FLAG = "debug"
+TEST_COMPILE_TARGET = "x86_64-apple-darwin"
 
 [env.development-mac-arm64]
 RUST_LOG = "info"
@@ -88,7 +93,7 @@ BUILD_FLAG = "debug"
 FLUTTER_OUTPUT_DIR = "Debug"
 PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
-SDK_EXT = "dll"
+LIB_EXT = "dll"
 
 [env.production-windows-x86]
 BUILD_FLAG = "release"
@@ -97,7 +102,7 @@ RUST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
 FLUTTER_OUTPUT_DIR = "Release"
 PRODUCT_EXT = "exe"
 CRATE_TYPE = "cdylib"
-SDK_EXT = "dll"
+LIB_EXT = "dll"
 APP_ENVIRONMENT = "production"
 
 [env.development-linux-x86_64]
@@ -106,7 +111,7 @@ RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
 BUILD_FLAG = "debug"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
-SDK_EXT = "so"
+LIB_EXT = "so"
 LINUX_ARCH = "x64"
 
 [env.production-linux-x86_64]
@@ -115,7 +120,7 @@ TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
-SDK_EXT = "so"
+LIB_EXT = "so"
 LINUX_ARCH = "x64"
 APP_ENVIRONMENT = "production"
 
@@ -125,7 +130,7 @@ RUST_COMPILE_TARGET = "aarch64-unknown-linux-gnu"
 BUILD_FLAG = "debug"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Debug"
-SDK_EXT = "so"
+LIB_EXT = "so"
 LINUX_ARCH = "arm64"
 
 [env.production-linux-aarch64]
@@ -134,7 +139,7 @@ TARGET_OS = "linux"
 RUST_COMPILE_TARGET = "aarch64-unknown-linux-gnu"
 CRATE_TYPE = "cdylib"
 FLUTTER_OUTPUT_DIR = "Release"
-SDK_EXT = "so"
+LIB_EXT = "so"
 LINUX_ARCH = "arm64"
 APP_ENVIRONMENT = "production"
 
@@ -197,6 +202,46 @@ script = [
 ]
 script_runner = "@duckscript"
 
+[env.test-macos]
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "dylib"
+# For the moment, the DynamicLibrary only supports open x86_64 architectures binary.
+TEST_COMPILE_TARGET = "x86_64-apple-darwin"
+
+[env.test-linux]
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "so"
+TEST_COMPILE_TARGET = "x86_64-unknown-linux-gnu"
+
+[env.test-windows]
+TEST_CRATE_TYPE = "cdylib"
+TEST_LIB_EXT = "dll"
+TEST_COMPILE_TARGET = "x86_64-pc-windows-msvc"
+
+[tasks.setup-test-crate-type]
+private = true
+script = [
+    """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} "staticlib" ${TEST_CRATE_TYPE}
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
+script_runner = "@duckscript"
+
+[tasks.restore-test-crate-type]
+private = true
+script = [
+    """
+      toml = readfile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml
+      val = replace ${toml} ${TEST_CRATE_TYPE} "staticlib"
+      result = writefile ${CARGO_MAKE_WORKSPACE_WORKING_DIRECTORY}/rust-lib/${CARGO_MAKE_CRATE_NAME}/Cargo.toml ${val}
+      assert ${result}
+      """,
+]
+script_runner = "@duckscript"
+
 [tasks.test-build]
 condition = { env_set = ["FLUTTER_FLOWY_SDK_PATH"] }
 script = ["""
@@ -204,3 +249,5 @@ script = ["""
       cargo build -vv --features=dart
       """]
 script_runner = "@shell"
+
+

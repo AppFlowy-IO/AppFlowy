@@ -217,7 +217,7 @@ ShortcutEventHandler cursorEndSelect = (editorState, event) {
   return KeyEventResult.handled;
 };
 
-KeyEventResult cursorUp(EditorState editorState, RawKeyEvent event) {
+ShortcutEventHandler cursorUp = (editorState, event) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final selection =
       editorState.service.selectionService.currentSelection.value?.normalized;
@@ -229,9 +229,9 @@ KeyEventResult cursorUp(EditorState editorState, RawKeyEvent event) {
     upPosition == null ? null : Selection.collapsed(upPosition),
   );
   return KeyEventResult.handled;
-}
+};
 
-KeyEventResult cursorDown(EditorState editorState, RawKeyEvent event) {
+ShortcutEventHandler cursorDown = (editorState, event) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final selection =
       editorState.service.selectionService.currentSelection.value?.normalized;
@@ -243,9 +243,9 @@ KeyEventResult cursorDown(EditorState editorState, RawKeyEvent event) {
     downPosition == null ? null : Selection.collapsed(downPosition),
   );
   return KeyEventResult.handled;
-}
+};
 
-KeyEventResult cursorLeft(EditorState editorState, RawKeyEvent event) {
+ShortcutEventHandler cursorLeft = (editorState, event) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final selection =
       editorState.service.selectionService.currentSelection.value?.normalized;
@@ -265,9 +265,9 @@ KeyEventResult cursorLeft(EditorState editorState, RawKeyEvent event) {
     );
   }
   return KeyEventResult.handled;
-}
+};
 
-KeyEventResult cursorRight(EditorState editorState, RawKeyEvent event) {
+ShortcutEventHandler cursorRight = (editorState, event) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final selection =
       editorState.service.selectionService.currentSelection.value?.normalized;
@@ -287,7 +287,7 @@ KeyEventResult cursorRight(EditorState editorState, RawKeyEvent event) {
     );
   }
   return KeyEventResult.handled;
-}
+};
 
 extension on Position {
   Position? goLeft(EditorState editorState) {

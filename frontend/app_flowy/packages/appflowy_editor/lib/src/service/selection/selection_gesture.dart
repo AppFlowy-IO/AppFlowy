@@ -13,6 +13,7 @@ class SelectionGestureDetector extends StatefulWidget {
     this.onTapDown,
     this.onDoubleTapDown,
     this.onTripleTapDown,
+    this.onSecondaryTapDown,
     this.onPanStart,
     this.onPanUpdate,
     this.onPanEnd,
@@ -27,6 +28,7 @@ class SelectionGestureDetector extends StatefulWidget {
   final GestureTapDownCallback? onTapDown;
   final GestureTapDownCallback? onDoubleTapDown;
   final GestureTapDownCallback? onTripleTapDown;
+  final GestureTapDownCallback? onSecondaryTapDown;
   final GestureDragStartCallback? onPanStart;
   final GestureDragUpdateCallback? onPanUpdate;
   final GestureDragEndCallback? onPanEnd;
@@ -60,6 +62,7 @@ class SelectionGestureDetectorState extends State<SelectionGestureDetector> {
           () => TapGestureRecognizer(),
           (recognizer) {
             recognizer.onTapDown = _tapDownDelegate;
+            recognizer.onSecondaryTapDown = widget.onSecondaryTapDown;
           },
         ),
       },

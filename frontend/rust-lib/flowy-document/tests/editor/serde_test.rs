@@ -1,4 +1,4 @@
-use flowy_sync::client_document::{ClientDocument, EmptyDoc};
+use flowy_sync::client_document::{ClientDocument, EmptyDocument};
 use lib_ot::text_delta::TextOperation;
 use lib_ot::{
     core::*,
@@ -101,7 +101,7 @@ fn delta_deserialize_null_test() {
 
 #[test]
 fn document_insert_serde_test() {
-    let mut document = ClientDocument::new::<EmptyDoc>();
+    let mut document = ClientDocument::new::<EmptyDocument>();
     document.insert(0, "\n").unwrap();
     document.insert(0, "123").unwrap();
     let json = document.get_operations_json();
