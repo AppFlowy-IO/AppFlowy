@@ -11,8 +11,9 @@ use flowy_revision::disk::SQLiteDocumentRevisionPersistence;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sync::client_folder::make_folder_rev_json_str;
 use flowy_sync::entities::revision::Revision;
+use flowy_sync::server_folder::FolderOperationsBuilder;
 use flowy_sync::{client_folder::FolderPad, entities::revision::md5};
-use lib_ot::core::DeltaBuilder;
+
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";
@@ -134,7 +135,7 @@ impl RevisionResettable for FolderRevisionResettable {
     fn reset_data(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let pad = FolderPad::from_revisions(revisions)?;
         let json = pad.to_json()?;
-        let bytes = DeltaBuilder::new().insert(&json).build().json_bytes();
+        let bytes = FolderOperationsBuilder::new().insert(&json).build().json_bytes();
         Ok(bytes)
     }
 

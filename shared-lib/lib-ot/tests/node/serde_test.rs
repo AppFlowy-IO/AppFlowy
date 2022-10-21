@@ -1,8 +1,7 @@
 use lib_ot::core::{
-    AttributeBuilder, Changeset, Extension, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path, Selection,
-    Transaction,
+    AttributeBuilder, Changeset, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path, Transaction,
 };
-use lib_ot::text_delta::TextOperationBuilder;
+use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[test]
 fn operation_insert_node_serde_test() {
@@ -48,7 +47,7 @@ fn operation_update_node_attributes_serde_test() {
 
 #[test]
 fn operation_update_node_body_serialize_test() {
-    let delta = TextOperationBuilder::new().insert("AppFlowy...").build();
+    let delta = DeltaTextOperationBuilder::new().insert("AppFlowy...").build();
     let inverted = delta.invert_str("");
     let changeset = Changeset::Delta { delta, inverted };
     let insert = NodeOperation::Update {
@@ -76,7 +75,7 @@ fn transaction_serialize_test() {
         path: Path(vec![0, 1]),
         nodes: vec![NodeData::new("text".to_owned())],
     };
-    let mut transaction = Transaction::from_operations(vec![insert]);
+    let transaction = Transaction::from_operations(vec![insert]);
     let json = serde_json::to_string(&transaction).unwrap();
     assert_eq!(
         json,

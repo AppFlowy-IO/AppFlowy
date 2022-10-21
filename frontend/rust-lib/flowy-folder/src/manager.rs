@@ -254,7 +254,7 @@ impl FolderManager {
 pub trait ViewDataProcessor {
     fn initialize(&self) -> FutureResult<(), FlowyError>;
 
-    fn create_container(
+    fn create_view(
         &self,
         user_id: &str,
         view_id: &str,
@@ -262,7 +262,7 @@ pub trait ViewDataProcessor {
         delta_data: Bytes,
     ) -> FutureResult<(), FlowyError>;
 
-    fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError>;
+    fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError>;
 
     fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError>;
 

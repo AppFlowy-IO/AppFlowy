@@ -1,9 +1,9 @@
-use lib_ot::text_delta::TextOperations;
+use lib_ot::text_delta::DeltaTextOperations;
 
 #[inline]
-pub fn initial_read_me() -> TextOperations {
+pub fn initial_read_me() -> DeltaTextOperations {
     let json = include_str!("READ_ME.json");
-    TextOperations::from_json(json).unwrap()
+    DeltaTextOperations::from_json(json).unwrap()
 }
 
 #[cfg(test)]

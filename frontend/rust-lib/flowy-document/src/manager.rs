@@ -8,7 +8,7 @@ use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::disk::SQLiteDocumentRevisionPersistence;
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionPersistence, RevisionWebSocket,
+    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket,
     SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::client_document::initial_delta_document_content;

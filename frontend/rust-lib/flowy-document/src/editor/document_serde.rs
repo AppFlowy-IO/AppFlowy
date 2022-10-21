@@ -6,8 +6,8 @@ use lib_ot::core::{
     AttributeHashMap, Body, Changeset, Extension, NodeData, NodeId, NodeOperation, NodeTree, NodeTreeContext, Path,
     Selection, Transaction,
 };
-use lib_ot::errors::OTError;
-use lib_ot::text_delta::TextOperations;
+
+use lib_ot::text_delta::DeltaTextOperations;
 use serde::de::{self, MapAccess, Unexpected, Visitor};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -164,8 +164,8 @@ pub enum DocumentOperation {
     #[serde(rename = "update_text")]
     UpdateText {
         path: Path,
-        delta: TextOperations,
-        inverted: TextOperations,
+        delta: DeltaTextOperations,
+        inverted: DeltaTextOperations,
     },
 }
 
@@ -233,9 +233,9 @@ pub struct DocumentNode {
     #[serde(default)]
     pub attributes: AttributeHashMap,
 
-    #[serde(skip_serializing_if = "TextOperations::is_empty")]
+    #[serde(skip_serializing_if = "DeltaTextOperations::is_empty")]
     #[serde(default)]
-    pub delta: TextOperations,
+    pub delta: DeltaTextOperations,
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
     #[serde(default)]
@@ -247,7 +247,7 @@ impl std::convert::From<NodeData> for DocumentNode {
         let delta = if let Body::Delta(operations) = node_data.body {
             operations
         } else {
-            TextOperations::default()
+            DeltaTextOperations::default()
         };
         DocumentNode {
             node_type: node_data.node_type,

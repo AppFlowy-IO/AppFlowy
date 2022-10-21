@@ -147,7 +147,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         FutureResult::new(async move { manager.init() })
     }
 
-    fn create_container(
+    fn create_view(
         &self,
         user_id: &str,
         view_id: &str,
@@ -165,7 +165,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         })
     }
 
-    fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
         let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
@@ -236,7 +236,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         FutureResult::new(async { Ok(()) })
     }
 
-    fn create_container(
+    fn create_view(
         &self,
         user_id: &str,
         view_id: &str,
@@ -252,7 +252,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
         let grid_manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {

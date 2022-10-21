@@ -13,13 +13,13 @@ use flowy_sync::{
     errors::CollaborateResult,
 };
 use lib_infra::future::{BoxResultFuture, FutureResult};
-use lib_ot::text_delta::TextOperations;
+use lib_ot::text_delta::DeltaTextOperations;
 use lib_ws::WSConnectState;
 use std::{sync::Arc, time::Duration};
 use tokio::sync::{broadcast, oneshot};
 
 #[derive(Clone)]
-pub struct DeltaDocumentResolveOperations(pub TextOperations);
+pub struct DeltaDocumentResolveOperations(pub DeltaTextOperations);
 
 impl OperationsDeserializer<DeltaDocumentResolveOperations> for DeltaDocumentResolveOperations {
     fn deserialize_revisions(revisions: Vec<Revision>) -> FlowyResult<DeltaDocumentResolveOperations> {
@@ -36,7 +36,7 @@ impl OperationsSerializer for DeltaDocumentResolveOperations {
 }
 
 impl DeltaDocumentResolveOperations {
-    pub fn into_inner(self) -> TextOperations {
+    pub fn into_inner(self) -> DeltaTextOperations {
         self.0
     }
 }

@@ -12,7 +12,7 @@ use dashmap::DashMap;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
 use lib_ot::core::AttributeHashMap;
-use lib_ot::text_delta::TextOperations;
+use lib_ot::text_delta::DeltaTextOperations;
 use std::{collections::HashMap, fmt::Debug, sync::Arc};
 use tokio::{
     sync::{mpsc, oneshot, RwLock},
@@ -216,7 +216,7 @@ impl OpenDocumentHandler {
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();
 
-        let operations = TextOperations::from_bytes(&doc.content)?;
+        let operations = DeltaTextOperations::from_bytes(&doc.content)?;
         let sync_object = ServerDocument::from_operations(&doc_id, operations);
         let synchronizer = Arc::new(DocumentRevisionSynchronizer::new(doc.rev_id, sync_object, persistence));
 

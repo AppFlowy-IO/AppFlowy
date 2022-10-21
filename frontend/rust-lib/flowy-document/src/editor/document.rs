@@ -1,4 +1,3 @@
-use crate::old_editor::editor::DeltaDocumentRevisionSerde;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{RevisionCompress, RevisionObjectDeserializer, RevisionObjectSerializer};
@@ -6,7 +5,7 @@ use flowy_sync::entities::revision::Revision;
 use lib_ot::core::{
     Body, Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction,
 };
-use lib_ot::text_delta::TextOperationBuilder;
+use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[derive(Debug)]
 pub struct Document {
@@ -46,7 +45,7 @@ pub(crate) fn make_tree_context() -> NodeTreeContext {
 }
 
 pub fn initial_document_content() -> String {
-    let delta = TextOperationBuilder::new().insert("").build();
+    let delta = DeltaTextOperationBuilder::new().insert("").build();
     let node_data = NodeDataBuilder::new("text").insert_body(Body::Delta(delta)).build();
     let editor_node = NodeDataBuilder::new("editor").add_node_data(node_data).build();
     let node_operation = NodeOperation::Insert {

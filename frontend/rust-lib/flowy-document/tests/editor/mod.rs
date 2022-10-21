@@ -8,7 +8,7 @@ use derive_more::Display;
 use flowy_sync::client_document::{ClientDocument, InitialDocument};
 use lib_ot::{
     core::*,
-    text_delta::{BuildInTextAttribute, TextOperations},
+    text_delta::{BuildInTextAttribute, DeltaTextOperations},
 };
 use rand::{prelude::*, Rng as WrappedRng};
 use std::{sync::Once, time::Duration};
@@ -81,8 +81,8 @@ pub enum TestOp {
 
 pub struct TestBuilder {
     documents: Vec<ClientDocument>,
-    deltas: Vec<Option<TextOperations>>,
-    primes: Vec<Option<TextOperations>>,
+    deltas: Vec<Option<DeltaTextOperations>>,
+    primes: Vec<Option<DeltaTextOperations>>,
 }
 
 impl TestBuilder {
@@ -226,8 +226,8 @@ impl TestBuilder {
 
             TestOp::AssertDocJson(delta_i, expected) => {
                 let delta_json = self.documents[*delta_i].get_operations_json();
-                let expected_delta: TextOperations = serde_json::from_str(expected).unwrap();
-                let target_delta: TextOperations = serde_json::from_str(&delta_json).unwrap();
+                let expected_delta: DeltaTextOperations = serde_json::from_str(expected).unwrap();
+                let target_delta: DeltaTextOperations = serde_json::from_str(&delta_json).unwrap();
 
                 if expected_delta != target_delta {
                     log::error!("✅ expect: {}", expected,);
@@ -238,8 +238,8 @@ impl TestBuilder {
 
             TestOp::AssertPrimeJson(doc_i, expected) => {
                 let prime_json = self.primes[*doc_i].as_ref().unwrap().json_str();
-                let expected_prime: TextOperations = serde_json::from_str(expected).unwrap();
-                let target_prime: TextOperations = serde_json::from_str(&prime_json).unwrap();
+                let expected_prime: DeltaTextOperations = serde_json::from_str(expected).unwrap();
+                let target_prime: DeltaTextOperations = serde_json::from_str(&prime_json).unwrap();
 
                 if expected_prime != target_prime {
                     log::error!("✅ expect prime: {}", expected,);
@@ -297,8 +297,8 @@ impl Rng {
             .collect()
     }
 
-    pub fn gen_delta(&mut self, s: &str) -> TextOperations {
-        let mut delta = TextOperations::default();
+    pub fn gen_delta(&mut self, s: &str) -> DeltaTextOperations {
+        let mut delta = DeltaTextOperations::default();
         let s = OTString::from(s);
         loop {
             let left = s.utf16_len() - delta.utf16_base_len;

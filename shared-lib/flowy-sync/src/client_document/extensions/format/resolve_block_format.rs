@@ -1,8 +1,8 @@
 use lib_ot::core::AttributeEntry;
 use lib_ot::text_delta::is_block;
 use lib_ot::{
-    core::{Interval, OperationBuilder, OperationIterator},
-    text_delta::{empty_attributes, AttributeScope, TextOperations},
+    core::{DeltaOperationBuilder, Interval, OperationIterator},
+    text_delta::{empty_attributes, AttributeScope, DeltaTextOperations},
 };
 
 use crate::{
@@ -16,12 +16,17 @@ impl FormatExt for ResolveBlockFormat {
         "ResolveBlockFormat"
     }
 
-    fn apply(&self, delta: &TextOperations, interval: Interval, attribute: &AttributeEntry) -> Option<TextOperations> {
+    fn apply(
+        &self,
+        delta: &DeltaTextOperations,
+        interval: Interval,
+        attribute: &AttributeEntry,
+    ) -> Option<DeltaTextOperations> {
         if !is_block(&attribute.key) {
             return None;
         }
 
-        let mut new_delta = OperationBuilder::new().retain(interval.start).build();
+        let mut new_delta = DeltaOperationBuilder::new().retain(interval.start).build();
         let mut iter = OperationIterator::from_offset(delta, interval.start);
         let mut start = 0;
         let end = interval.size();

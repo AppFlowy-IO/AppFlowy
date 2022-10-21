@@ -3,7 +3,7 @@ use crate::{
     errors::CollaborateError,
 };
 use flowy_derive::ProtoBuf;
-use lib_ot::text_delta::TextOperations;
+use lib_ot::text_delta::DeltaTextOperations;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocumentParams {
@@ -38,7 +38,7 @@ impl std::convert::TryFrom<Revision> for DocumentPayloadPB {
                 .context("Revision's rev_id should be 0 when creating the document"));
         }
 
-        let delta = TextOperations::from_bytes(&revision.bytes)?;
+        let delta = DeltaTextOperations::from_bytes(&revision.bytes)?;
         let doc_json = delta.json_str();
 
         Ok(DocumentPayloadPB {

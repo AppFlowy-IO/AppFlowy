@@ -87,9 +87,9 @@ pub(crate) struct ViewTable {
 impl ViewTable {
     pub fn new(view_rev: ViewRevision) -> Self {
         let data_type = match view_rev.data_format {
-            ViewDataFormatRevision::DeltaFormat => SqlViewDataFormat::DeltaFormat,
-            ViewDataFormatRevision::DatabaseFormat => SqlViewDataFormat::DatabaseFormat,
-            ViewDataFormatRevision::TreeFormat => SqlViewDataFormat::TreeFormat,
+            ViewDataFormatRevision::DeltaFormat => SqlViewDataFormat::Delta,
+            ViewDataFormatRevision::DatabaseFormat => SqlViewDataFormat::Database,
+            ViewDataFormatRevision::TreeFormat => SqlViewDataFormat::Tree,
         };
 
         ViewTable {
@@ -111,9 +111,9 @@ impl ViewTable {
 impl std::convert::From<ViewTable> for ViewRevision {
     fn from(table: ViewTable) -> Self {
         let data_type = match table.view_type {
-            SqlViewDataFormat::DeltaFormat => ViewDataFormatRevision::DeltaFormat,
-            SqlViewDataFormat::DatabaseFormat => ViewDataFormatRevision::DatabaseFormat,
-            SqlViewDataFormat::TreeFormat => ViewDataFormatRevision::TreeFormat,
+            SqlViewDataFormat::Delta => ViewDataFormatRevision::DeltaFormat,
+            SqlViewDataFormat::Database => ViewDataFormatRevision::DatabaseFormat,
+            SqlViewDataFormat::Tree => ViewDataFormatRevision::TreeFormat,
         };
 
         ViewRevision {
@@ -183,26 +183,26 @@ impl ViewChangeset {
 #[repr(i32)]
 #[sql_type = "Integer"]
 pub enum SqlViewDataFormat {
-    DeltaFormat = 0,
-    DatabaseFormat = 1,
-    TreeFormat = 2,
+    Delta = 0,
+    Database = 1,
+    Tree = 2,
 }
 
 impl std::default::Default for SqlViewDataFormat {
     fn default() -> Self {
-        SqlViewDataFormat::DeltaFormat
+        SqlViewDataFormat::Delta
     }
 }
 
 impl std::convert::From<i32> for SqlViewDataFormat {
     fn from(value: i32) -> Self {
         match value {
-            0 => SqlViewDataFormat::DeltaFormat,
-            1 => SqlViewDataFormat::DatabaseFormat,
-            2 => SqlViewDataFormat::TreeFormat,
+            0 => SqlViewDataFormat::Delta,
+            1 => SqlViewDataFormat::Database,
+            2 => SqlViewDataFormat::Tree,
             o => {
                 log::error!("Unsupported view type {}, fallback to ViewType::Block", o);
-                SqlViewDataFormat::DeltaFormat
+                SqlViewDataFormat::Delta
             }
         }
     }

@@ -110,7 +110,7 @@ impl ViewController {
         let user_id = self.user.user_id()?;
         let processor = self.get_data_processor(data_type)?;
         let _ = processor
-            .create_container(&user_id, view_id, layout_type, delta_data)
+            .create_view(&user_id, view_id, layout_type, delta_data)
             .await?;
         Ok(())
     }
@@ -193,7 +193,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
         let processor = self.get_data_processor_from_view_id(view_id).await?;
-        let _ = processor.close_container(view_id).await?;
+        let _ = processor.close_view(view_id).await?;
         Ok(())
     }
 
@@ -228,7 +228,7 @@ impl ViewController {
             .send();
 
         let processor = self.get_data_processor_from_view_id(&view_id).await?;
-        let _ = processor.close_container(&view_id).await?;
+        let _ = processor.close_view(&view_id).await?;
         Ok(())
     }
 
@@ -480,7 +480,7 @@ async fn handle_trash_event(
                     let data_type = view.data_format.clone().into();
                     match get_data_processor(data_processors.clone(), &data_type) {
                         Ok(processor) => {
-                            let _ = processor.close_container(&view.id).await?;
+                            let _ = processor.close_view(&view.id).await?;
                         }
                         Err(e) => {
                             tracing::error!("{}", e)

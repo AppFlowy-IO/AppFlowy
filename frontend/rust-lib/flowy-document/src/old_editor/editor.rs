@@ -18,7 +18,7 @@ use lib_infra::future::FutureResult;
 use lib_ot::core::{AttributeEntry, AttributeHashMap};
 use lib_ot::{
     core::{DeltaOperation, Interval},
-    text_delta::TextOperations,
+    text_delta::DeltaTextOperations,
 };
 use lib_ws::WSConnectState;
 use std::any::Any;
@@ -46,7 +46,7 @@ impl DeltaDocumentEditor {
         let document = rev_manager
             .load::<DeltaDocumentRevisionSerde>(Some(cloud_service))
             .await?;
-        let operations = TextOperations::from_bytes(&document.content)?;
+        let operations = DeltaTextOperations::from_bytes(&document.content)?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();
         let user_id = user.user_id()?;
@@ -161,7 +161,7 @@ impl DocumentEditor for Arc<DeltaDocumentEditor> {
     fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError> {
         let edit_cmd_tx = self.edit_cmd_tx.clone();
         FutureResult::new(async move {
-            let operations = TextOperations::from_bytes(&data)?;
+            let operations = DeltaTextOperations::from_bytes(&data)?;
             let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
             let msg = EditorCommand::ComposeLocalOperations { operations, ret };
 
@@ -207,7 +207,7 @@ impl std::ops::Drop for DeltaDocumentEditor {
 fn spawn_edit_queue(
     user: Arc<dyn DocumentUser>,
     rev_manager: Arc<RevisionManager>,
-    delta: TextOperations,
+    delta: DeltaTextOperations,
 ) -> EditorCommandSender {
     let (sender, receiver) = mpsc::channel(1000);
     let edit_queue = EditDocumentQueue::new(user, rev_manager, delta, receiver);
@@ -226,8 +226,8 @@ fn spawn_edit_queue(
 
 #[cfg(feature = "flowy_unit_test")]
 impl DeltaDocumentEditor {
-    pub async fn document_operations(&self) -> FlowyResult<TextOperations> {
-        let (ret, rx) = oneshot::channel::<CollaborateResult<TextOperations>>();
+    pub async fn document_operations(&self) -> FlowyResult<DeltaTextOperations> {
+        let (ret, rx) = oneshot::channel::<CollaborateResult<DeltaTextOperations>>();
         let msg = EditorCommand::GetOperations { ret };
         let _ = self.edit_cmd_tx.send(msg).await;
         let delta = rx.await.map_err(internal_error)??;
@@ -273,7 +273,7 @@ impl RevisionCompress for DeltaDocumentRevisionCompress {
 
 // quill-editor requires the delta should end with '\n' and only contains the
 // insert operation. The function, correct_delta maybe be removed in the future.
-fn correct_delta(delta: &mut TextOperations) {
+fn correct_delta(delta: &mut DeltaTextOperations) {
     if let Some(op) = delta.ops.last() {
         let op_data = op.get_data();
         if !op_data.ends_with('\n') {

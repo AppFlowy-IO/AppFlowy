@@ -1,5 +1,5 @@
 use super::Body;
-use crate::text_delta::TextOperations;
+use crate::text_delta::DeltaTextOperations;
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Deserializer, Serializer};
@@ -37,7 +37,7 @@ where
         where
             V: MapAccess<'de>,
         {
-            let mut delta: Option<TextOperations> = None;
+            let mut delta: Option<DeltaTextOperations> = None;
             while let Some(key) = map.next_key()? {
                 match key {
                     "delta" => {

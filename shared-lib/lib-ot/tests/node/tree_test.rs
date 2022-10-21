@@ -4,7 +4,7 @@ use lib_ot::core::Body;
 use lib_ot::core::Changeset;
 use lib_ot::core::OperationTransform;
 use lib_ot::core::{NodeData, NodeDataBuilder, Path};
-use lib_ot::text_delta::{TextOperationBuilder, TextOperations};
+use lib_ot::text_delta::{DeltaTextOperationBuilder, DeltaTextOperations};
 
 #[test]
 fn node_insert_test() {
@@ -778,10 +778,10 @@ fn node_inverted_body_changeset_test() {
 fn make_node_delta_changeset(
     initial_content: &str,
     insert_str: &str,
-) -> (TextOperations, Changeset, Changeset, TextOperations) {
+) -> (DeltaTextOperations, Changeset, Changeset, DeltaTextOperations) {
     let initial_content = initial_content.to_owned();
-    let initial_delta = TextOperationBuilder::new().insert(&initial_content).build();
-    let delta = TextOperationBuilder::new()
+    let initial_delta = DeltaTextOperationBuilder::new().insert(&initial_content).build();
+    let delta = DeltaTextOperationBuilder::new()
         .retain(initial_content.len())
         .insert(insert_str)
         .build();

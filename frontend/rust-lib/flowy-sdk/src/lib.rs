@@ -3,7 +3,7 @@ pub mod module;
 pub use flowy_net::get_client_server_configuration;
 
 use crate::deps_resolve::*;
-use flowy_document::editor::Document;
+
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
 use flowy_folder::{errors::FlowyError, manager::FolderManager};

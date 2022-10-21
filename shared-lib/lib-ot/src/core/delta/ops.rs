@@ -2,7 +2,7 @@ use crate::core::delta::operation::{DeltaOperation, EmptyAttributes, OperationAt
 use crate::core::delta::{OperationIterator, MAX_IV_LEN};
 use crate::core::interval::Interval;
 use crate::core::ot_str::OTString;
-use crate::core::OperationBuilder;
+use crate::core::DeltaOperationBuilder;
 use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
 use bytes::Bytes;
 use serde::de::DeserializeOwned;
@@ -14,8 +14,7 @@ use std::{
     str::FromStr,
 };
 
-pub type Delta = DeltaOperations<EmptyAttributes>;
-pub type DeltaBuilder = OperationBuilder<EmptyAttributes>;
+pub type DeltaBuilder = DeltaOperationBuilder<EmptyAttributes>;
 
 /// A [Delta] contains list of operations that consists of 'Retain', 'Delete' and 'Insert' operation.
 /// Check out the [Operation] for more details. It describes the document as a sequence of
@@ -570,12 +569,12 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::core::OperationBuilder;
-    /// use lib_ot::text_delta::{TextOperations};
+    /// use lib_ot::core::DeltaOperationBuilder;
+    /// use lib_ot::text_delta::{DeltaTextOperations};
     /// let json = r#"[
     ///     {"retain":7,"attributes":{"bold":null}}
     ///  ]"#;
-    /// let delta = TextOperations::from_json(json).unwrap();
+    /// let delta = DeltaTextOperations::from_json(json).unwrap();
     /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":null}}]"#);
     /// ```
     pub fn from_json(json: &str) -> Result<Self, OTError> {

@@ -7,7 +7,7 @@ use flowy_revision::RevisionManager;
 use flowy_sync::entities::revision::{RevId, Revision};
 use futures::stream::StreamExt;
 use lib_ot::core::Transaction;
-use lib_ot::text_delta::TextOperations;
+
 use std::sync::Arc;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::{oneshot, RwLock};

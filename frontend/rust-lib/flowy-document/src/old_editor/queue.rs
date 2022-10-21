@@ -12,7 +12,7 @@ use futures::stream::StreamExt;
 use lib_ot::core::AttributeEntry;
 use lib_ot::{
     core::{Interval, OperationTransform},
-    text_delta::TextOperations,
+    text_delta::DeltaTextOperations,
 };
 use std::sync::Arc;
 use tokio::sync::mpsc::{Receiver, Sender};
@@ -31,7 +31,7 @@ impl EditDocumentQueue {
     pub(crate) fn new(
         user: Arc<dyn DocumentUser>,
         rev_manager: Arc<RevisionManager>,
-        operations: TextOperations,
+        operations: DeltaTextOperations,
         receiver: EditorCommandReceiver,
     ) -> Self {
         let document = Arc::new(RwLock::new(ClientDocument::from_operations(operations)));
@@ -92,7 +92,7 @@ impl EditDocumentQueue {
                 let f = || async {
                     let read_guard = self.document.read().await;
                     let mut server_operations: Option<DeltaDocumentResolveOperations> = None;
-                    let client_operations: TextOperations;
+                    let client_operations: DeltaTextOperations;
 
                     if read_guard.is_empty() {
                         // Do nothing
@@ -174,7 +174,7 @@ impl EditDocumentQueue {
         Ok(())
     }
 
-    async fn save_local_operations(&self, operations: TextOperations, md5: String) -> Result<RevId, FlowyError> {
+    async fn save_local_operations(&self, operations: DeltaTextOperations, md5: String) -> Result<RevId, FlowyError> {
         let bytes = operations.json_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let user_id = self.user.user_id()?;
@@ -191,19 +191,19 @@ pub(crate) type Ret<T> = oneshot::Sender<Result<T, CollaborateError>>;
 
 pub(crate) enum EditorCommand {
     ComposeLocalOperations {
-        operations: TextOperations,
+        operations: DeltaTextOperations,
         ret: Ret<()>,
     },
     ComposeRemoteOperation {
-        client_operations: TextOperations,
+        client_operations: DeltaTextOperations,
         ret: Ret<OperationsMD5>,
     },
     ResetOperations {
-        operations: TextOperations,
+        operations: DeltaTextOperations,
         ret: Ret<OperationsMD5>,
     },
     TransformOperations {
-        operations: TextOperations,
+        operations: DeltaTextOperations,
         ret: Ret<TextTransformOperations>,
     },
     Insert {
@@ -242,7 +242,7 @@ pub(crate) enum EditorCommand {
     },
     #[allow(dead_code)]
     GetOperations {
-        ret: Ret<TextOperations>,
+        ret: Ret<DeltaTextOperations>,
     },
 }
 

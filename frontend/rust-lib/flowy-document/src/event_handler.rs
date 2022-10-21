@@ -3,7 +3,7 @@ use crate::entities::{
 };
 use crate::DocumentManager;
 use flowy_error::FlowyError;
-use flowy_sync::entities::document::DocumentIdPB;
+
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::convert::TryInto;
 use std::sync::Arc;
