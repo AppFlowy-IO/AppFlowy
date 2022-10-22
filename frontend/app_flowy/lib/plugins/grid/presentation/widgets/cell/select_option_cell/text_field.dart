@@ -96,7 +96,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               }
 
               if (text.isNotEmpty) {
-                widget.onSubmitted(text);
+                widget.onSubmitted(text.trim());
                 focusNode.requestFocus();
               }
             },
@@ -132,26 +132,25 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
       return;
     }
 
-    final trimmedText = text.trim();
+    final trimmedText = text.trimLeft();
     List<String> splits = [];
     String currentString = '';
 
     // split the string into tokens
     for (final char in trimmedText.split('')) {
-      if (!widget.textSeparators.contains(char)) {
-        currentString += char;
+      if (widget.textSeparators.contains(char)) {
+        if (currentString.isNotEmpty) {
+          splits.add(currentString.trim());
+        }
+        currentString = '';
         continue;
       }
-      if (currentString.isNotEmpty) {
-        splits.add(currentString);
-      }
-      currentString = '';
+      currentString += char;
     }
     // add the remainder (might be '')
     splits.add(currentString);
 
-    final submittedOptions =
-        splits.sublist(0, splits.length - 1).map((e) => e.trim()).toList();
+    final submittedOptions = splits.sublist(0, splits.length - 1).toList();
 
     final remainder = splits.elementAt(splits.length - 1).trimLeft();
     editingController.text = remainder;
