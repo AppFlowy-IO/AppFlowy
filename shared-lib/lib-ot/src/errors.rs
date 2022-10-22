@@ -42,7 +42,7 @@ impl OTError {
 
 impl fmt::Display for OTError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}: {}",  self.code, self.msg)
+        write!(f, "{:?}: {}", self.code, self.msg)
     }
 }
 
