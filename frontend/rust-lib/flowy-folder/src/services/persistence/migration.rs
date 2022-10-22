@@ -102,7 +102,7 @@ impl FolderMigration {
         }
         let _ = self.migration_folder_rev_struct(folder_id).await?;
         KV::set_bool(&key, true);
-        tracing::info!("Run folder v3 migration");
+        tracing::trace!("Run folder v3 migration");
         Ok(())
     }
 
