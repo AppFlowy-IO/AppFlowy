@@ -506,6 +506,8 @@ class _AppFlowySelectionState extends State<AppFlowySelection>
   }
 
   void _showContextMenu(TapDownDetails details) {
+    _clearContextMenu();
+
     final baseOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final offset = details.globalPosition + const Offset(10, 10) - baseOffset;
