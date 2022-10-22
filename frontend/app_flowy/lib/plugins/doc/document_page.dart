@@ -7,6 +7,7 @@ import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'application/doc_bloc.dart';
 
 class DocumentPage extends StatefulWidget {
@@ -29,6 +30,8 @@ class _DocumentPageState extends State<DocumentPage> {
 
   @override
   void initState() {
+    // The appflowy editor use Intl as locatization, set the default language as fallback.
+    Intl.defaultLocale = 'en_US';
     documentBloc = getIt<DocumentBloc>(param1: super.widget.view)
       ..add(const DocumentEvent.initial());
     super.initState();
