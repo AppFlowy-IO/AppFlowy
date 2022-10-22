@@ -324,7 +324,7 @@ impl DocumentEditorMap {
 
     pub(crate) fn insert(&self, editor_id: &str, editor: Arc<dyn DocumentEditor>) {
         if self.inner.contains_key(editor_id) {
-            log::warn!("Editor:{} already exists in cache", editor_id);
+            log::warn!("Editor:{} already open", editor_id);
         }
         self.inner.insert(editor_id.to_string(), editor);
     }

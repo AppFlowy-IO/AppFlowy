@@ -261,9 +261,15 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
         child: SelectOptionTagCell(
           option: widget.option,
           onSelected: (option) {
-            context
-                .read<SelectOptionCellEditorBloc>()
-                .add(SelectOptionEditorEvent.selectOption(option.id));
+            if (widget.isSelected) {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.unSelectOption(option.id));
+            } else {
+              context
+                  .read<SelectOptionCellEditorBloc>()
+                  .add(SelectOptionEditorEvent.selectOption(option.id));
+            }
           },
           children: [
             if (widget.isSelected)

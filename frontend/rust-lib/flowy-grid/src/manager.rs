@@ -120,15 +120,16 @@ impl GridManager {
     async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
         match self.grid_editors.get(grid_id) {
             None => {
-                let db_pool = self.grid_user.db_pool()?;
-                let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
-
-                if self.grid_editors.contains_key(grid_id) {
-                    tracing::warn!("Grid:{} already exists in cache", grid_id);
+                if let Some(editor) = self.grid_editors.get(grid_id) {
+                    tracing::warn!("Grid:{} already open", grid_id);
+                    Ok(editor.clone())
+                } else {
+                    let db_pool = self.grid_user.db_pool()?;
+                    let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
+                    self.grid_editors.insert(grid_id.to_string(), editor.clone());
+                    self.task_scheduler.write().await.register_handler(editor.clone());
+                    Ok(editor)
                 }
-                self.grid_editors.insert(grid_id.to_string(), editor.clone());
-                self.task_scheduler.write().await.register_handler(editor.clone());
-                Ok(editor)
             }
             Some(editor) => Ok(editor.clone()),
         }
