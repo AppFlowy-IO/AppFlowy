@@ -1,4 +1,5 @@
 import 'package:app_flowy/plugins/doc/editor_styles.dart';
+import 'package:app_flowy/plugins/doc/presentation/plugins/horizontal_rule_node_widget.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/doc/presentation/banner.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
@@ -92,6 +93,12 @@ class _DocumentPageState extends State<DocumentPage> {
     final editor = AppFlowyEditor(
       editorState: editorState,
       editorStyle: customEditorStyle(context),
+      customBuilders: {
+        'horizontal_rule': HorizontalRuleWidgetBuilder(),
+      },
+      shortcutEvents: [
+        insertHorizontalRule,
+      ],
     );
     return Expanded(
       child: SizedBox.expand(
