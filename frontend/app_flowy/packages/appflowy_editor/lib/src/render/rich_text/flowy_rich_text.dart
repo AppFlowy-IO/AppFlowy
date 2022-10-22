@@ -79,7 +79,7 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
 
   @override
   Position end() => Position(
-      path: widget.textNode.path, offset: widget.textNode.delta.length);
+      path: widget.textNode.path, offset: widget.textNode.toPlainText().length);
 
   @override
   Rect? getCursorRectInPosition(Position position) {
