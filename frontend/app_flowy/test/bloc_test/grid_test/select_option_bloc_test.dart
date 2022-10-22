@@ -36,7 +36,6 @@ void main() {
         bloc.add(const SelectOptionEditorEvent.newOption("C"));
         await Future.delayed(gridResponseDuration());
         bloc.add(const SelectOptionEditorEvent.deleteAllOptions());
-        await Future.delayed(gridResponseDuration());
       },
       wait: gridResponseDuration(),
       verify: (bloc) {
