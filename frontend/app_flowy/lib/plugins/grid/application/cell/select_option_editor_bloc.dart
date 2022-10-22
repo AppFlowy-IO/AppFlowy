@@ -134,10 +134,19 @@ class SelectOptionCellEditorBloc
   }
 
   void _selectMultipleOptions(List<String> optionNames) {
+    // The options are unordered. So in order to keep the inserted [optionNames]
+    // order, it needs to get the option id in the [optionNames] order.
     final lowerCaseNames = optionNames.map((e) => e.toLowerCase());
-    final optionIds = state.options
-        .where((e) => lowerCaseNames.contains(e.name.toLowerCase()))
-        .map((e) => e.id);
+    final Map<String, String> optionIdsMap = {};
+    for (final option in state.options) {
+      optionIdsMap[option.name.toLowerCase()] = option.id;
+    }
+
+    final optionIds = lowerCaseNames
+        .where((name) => optionIdsMap[name] != null)
+        .map((name) => optionIdsMap[name]!)
+        .toList();
+
     _selectOptionService.select(optionIds: optionIds);
   }
 
@@ -159,8 +168,10 @@ class SelectOptionCellEditorBloc
           return;
         }
         return result.fold(
-          (data) => add(SelectOptionEditorEvent.didReceiveOptions(
-              data.options, data.selectOptions)),
+          (data) => add(
+            SelectOptionEditorEvent.didReceiveOptions(
+                data.options, data.selectOptions),
+          ),
           (err) {
             Log.error(err);
             return null;
