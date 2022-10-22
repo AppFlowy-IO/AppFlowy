@@ -298,6 +298,8 @@ class _FlowyRichTextState extends State<FlowyRichText> with SelectableMixin {
 
         timer = Timer(const Duration(milliseconds: 200), () {
           tapCount = 0;
+          widget.editorState.service.selectionService
+              .updateSelection(selection);
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             showLinkMenu(
               context,
