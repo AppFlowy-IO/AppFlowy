@@ -1,4 +1,4 @@
-pub use crate::entities::view::ViewDataTypePB;
+pub use crate::entities::view::ViewDataFormatPB;
 use crate::entities::{DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
@@ -58,12 +58,17 @@ impl ViewController {
         &self,
         mut params: CreateViewParams,
     ) -> Result<ViewRevision, FlowyError> {
-        let processor = self.get_data_processor(params.data_type.clone())?;
+        let processor = self.get_data_processor(params.data_format.clone())?;
         let user_id = self.user.user_id()?;
         if params.view_content_data.is_empty() {
             tracing::trace!("Create view with build-in data");
             let view_data = processor
-                .create_default_view(&user_id, &params.view_id, params.layout.clone())
+                .create_default_view(
+                    &user_id,
+                    &params.view_id,
+                    params.layout.clone(),
+                    params.data_format.clone(),
+                )
                 .await?;
             params.view_content_data = view_data.to_vec();
         } else {
@@ -79,7 +84,7 @@ impl ViewController {
             let _ = self
                 .create_view(
                     &params.view_id,
-                    params.data_type.clone(),
+                    params.data_format.clone(),
                     params.layout.clone(),
                     delta_data,
                 )
@@ -91,22 +96,20 @@ impl ViewController {
         Ok(view_rev)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, view_id, delta_data), err)]
+    #[tracing::instrument(level = "debug", skip(self, view_id, view_data), err)]
     pub(crate) async fn create_view(
         &self,
         view_id: &str,
-        data_type: ViewDataTypePB,
+        data_type: ViewDataFormatPB,
         layout_type: ViewLayoutTypePB,
-        delta_data: Bytes,
+        view_data: Bytes,
     ) -> Result<(), FlowyError> {
-        if delta_data.is_empty() {
+        if view_data.is_empty() {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
         let user_id = self.user.user_id()?;
         let processor = self.get_data_processor(data_type)?;
-        let _ = processor
-            .create_container(&user_id, view_id, layout_type, delta_data)
-            .await?;
+        let _ = processor.create_view(&user_id, view_id, layout_type, view_data).await?;
         Ok(())
     }
 
@@ -156,7 +159,7 @@ impl ViewController {
                     belong_to_id: view_rev.app_id,
                     name: view_rev.name,
                     desc: view_rev.desc,
-                    data_type: view_rev.data_type.into(),
+                    data_type: view_rev.data_format.into(),
                     belongings: RepeatedViewPB { items },
                     ext_data: view_rev.ext_data,
                 };
@@ -188,7 +191,7 @@ impl ViewController {
     #[tracing::instrument(level = "debug", skip(self), err)]
     pub(crate) async fn close_view(&self, view_id: &str) -> Result<(), FlowyError> {
         let processor = self.get_data_processor_from_view_id(view_id).await?;
-        let _ = processor.close_container(view_id).await?;
+        let _ = processor.close_view(view_id).await?;
         Ok(())
     }
 
@@ -223,7 +226,7 @@ impl ViewController {
             .send();
 
         let processor = self.get_data_processor_from_view_id(&view_id).await?;
-        let _ = processor.close_container(&view_id).await?;
+        let _ = processor.close_view(&view_id).await?;
         Ok(())
     }
 
@@ -242,20 +245,20 @@ impl ViewController {
     }
 
     #[tracing::instrument(level = "debug", skip(self), err)]
-    pub(crate) async fn duplicate_view(&self, view_id: &str) -> Result<(), FlowyError> {
+    pub(crate) async fn duplicate_view(&self, view: ViewPB) -> Result<(), FlowyError> {
         let view_rev = self
             .persistence
-            .begin_transaction(|transaction| transaction.read_view(view_id))
+            .begin_transaction(|transaction| transaction.read_view(&view.id))
             .await?;
 
-        let processor = self.get_data_processor(view_rev.data_type.clone())?;
-        let view_data = processor.get_view_data(view_id).await?;
+        let processor = self.get_data_processor(view_rev.data_format.clone())?;
+        let view_data = processor.get_view_data(&view).await?;
         let duplicate_params = CreateViewParams {
             belong_to_id: view_rev.app_id.clone(),
             name: format!("{} (copy)", &view_rev.name),
             desc: view_rev.desc,
             thumbnail: view_rev.thumbnail,
-            data_type: view_rev.data_type.into(),
+            data_format: view_rev.data_format.into(),
             layout: view_rev.layout.into(),
             view_content_data: view_data.to_vec(),
             view_id: gen_view_id(),
@@ -399,11 +402,11 @@ impl ViewController {
             .persistence
             .begin_transaction(|transaction| transaction.read_view(view_id))
             .await?;
-        self.get_data_processor(view.data_type)
+        self.get_data_processor(view.data_format)
     }
 
     #[inline]
-    fn get_data_processor<T: Into<ViewDataTypePB>>(
+    fn get_data_processor<T: Into<ViewDataFormatPB>>(
         &self,
         data_type: T,
     ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
@@ -472,10 +475,10 @@ async fn handle_trash_event(
                     .await?;
 
                 for view in views {
-                    let data_type = view.data_type.clone().into();
+                    let data_type = view.data_format.clone().into();
                     match get_data_processor(data_processors.clone(), &data_type) {
                         Ok(processor) => {
-                            let _ = processor.close_container(&view.id).await?;
+                            let _ = processor.close_view(&view.id).await?;
                         }
                         Err(e) => {
                             tracing::error!("{}", e)
@@ -491,7 +494,7 @@ async fn handle_trash_event(
 
 fn get_data_processor(
     data_processors: ViewDataProcessorMap,
-    data_type: &ViewDataTypePB,
+    data_type: &ViewDataFormatPB,
 ) -> FlowyResult<Arc<dyn ViewDataProcessor + Send + Sync>> {
     match data_processors.get(data_type) {
         None => Err(FlowyError::internal().context(format!(

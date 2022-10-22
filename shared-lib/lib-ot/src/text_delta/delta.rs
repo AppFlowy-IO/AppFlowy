@@ -1,8 +1,8 @@
-use crate::core::{AttributeHashMap, DeltaOperation, DeltaOperations, OperationBuilder};
+use crate::core::{AttributeHashMap, DeltaOperation, DeltaOperationBuilder, DeltaOperations};
 
-pub type TextOperations = DeltaOperations<AttributeHashMap>;
-pub type TextOperationBuilder = OperationBuilder<AttributeHashMap>;
-pub type TextOperation = DeltaOperation<AttributeHashMap>;
+pub type DeltaTextOperations = DeltaOperations<AttributeHashMap>;
+pub type DeltaTextOperationBuilder = DeltaOperationBuilder<AttributeHashMap>;
+pub type DeltaTextOperation = DeltaOperation<AttributeHashMap>;
 
 // pub trait TextOperation2: Default + Debug + OperationTransform {}
 //

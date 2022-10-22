@@ -1,6 +1,8 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/render/link_menu/link_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '../../infra/test_editor.dart';
 
 void main() async {
   setUpAll(() {
@@ -38,6 +40,35 @@ void main() async {
       await tester.pumpAndSettle();
 
       expect(submittedText, link);
+    });
+
+    testWidgets('test tap linked text', (tester) async {
+      const link = 'appflowy.io';
+      // This is a link [appflowy.io](appflowy.io)
+      final editor = tester.editor
+        ..insertTextNode(
+          null,
+          delta: Delta()
+            ..insert(
+              'appflowy.io',
+              attributes: {
+                BuiltInAttributeKey.href: link,
+              },
+            ),
+        );
+      await editor.startTesting();
+      final finder = find.byType(RichText);
+      expect(finder, findsOneWidget);
+
+      // tap the link
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: 0, endOffset: link.length),
+      );
+      await tester.tap(finder);
+      await tester.pumpAndSettle(const Duration(milliseconds: 350));
+      final linkMenu = find.byType(LinkMenu);
+      expect(linkMenu, findsOneWidget);
+      expect(find.text(link, findRichText: true), findsNWidgets(2));
     });
   });
 }

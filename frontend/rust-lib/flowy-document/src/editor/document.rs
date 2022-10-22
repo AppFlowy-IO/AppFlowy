@@ -1,11 +1,11 @@
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_revision::{RevisionObjectDeserializer, RevisionObjectSerializer};
+use flowy_revision::{RevisionCompress, RevisionObjectDeserializer, RevisionObjectSerializer};
 use flowy_sync::entities::revision::Revision;
 use lib_ot::core::{
     Body, Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction,
 };
-use lib_ot::text_delta::TextOperationBuilder;
+use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[derive(Debug)]
 pub struct Document {
@@ -30,6 +30,11 @@ impl Document {
         }
     }
 
+    pub fn md5(&self) -> String {
+        // format!("{:x}", md5::compute(bytes))
+        "".to_owned()
+    }
+
     pub fn get_tree(&self) -> &NodeTree {
         &self.tree
     }
@@ -40,7 +45,7 @@ pub(crate) fn make_tree_context() -> NodeTreeContext {
 }
 
 pub fn initial_document_content() -> String {
-    let delta = TextOperationBuilder::new().insert("").build();
+    let delta = DeltaTextOperationBuilder::new().insert("").build();
     let node_data = NodeDataBuilder::new("text").insert_body(Body::Delta(delta)).build();
     let editor_node = NodeDataBuilder::new("editor").add_node_data(node_data).build();
     let node_operation = NodeOperation::Insert {
@@ -78,7 +83,7 @@ impl RevisionObjectDeserializer for DocumentRevisionSerde {
 
     fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let mut tree = NodeTree::new(make_tree_context());
-        let transaction = make_transaction_from_revisions(revisions)?;
+        let transaction = make_transaction_from_revisions(&revisions)?;
         let _ = tree.apply_transaction(transaction)?;
         let document = Document::new(tree);
         Result::<Document, FlowyError>::Ok(document)
@@ -87,12 +92,20 @@ impl RevisionObjectDeserializer for DocumentRevisionSerde {
 
 impl RevisionObjectSerializer for DocumentRevisionSerde {
     fn combine_revisions(revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        let transaction = make_transaction_from_revisions(revisions)?;
+        let transaction = make_transaction_from_revisions(&revisions)?;
         Ok(Bytes::from(transaction.to_bytes()?))
     }
 }
 
-fn make_transaction_from_revisions(revisions: Vec<Revision>) -> FlowyResult<Transaction> {
+pub(crate) struct DocumentRevisionCompress();
+impl RevisionCompress for DocumentRevisionCompress {
+    fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
+        DocumentRevisionSerde::combine_revisions(revisions)
+    }
+}
+
+#[tracing::instrument(level = "trace", skip_all, err)]
+pub fn make_transaction_from_revisions(revisions: &[Revision]) -> FlowyResult<Transaction> {
     let mut transaction = Transaction::new();
     for revision in revisions {
         let _ = transaction.compose(Transaction::from_bytes(&revision.bytes)?)?;

@@ -8,10 +8,10 @@ use crate::{
     errors::{CollaborateError, CollaborateResult},
 };
 use dissimilar::Chunk;
-use lib_ot::core::{OTString, OperationAttributes, OperationBuilder};
+use lib_ot::core::{DeltaOperationBuilder, OTString, OperationAttributes};
 use lib_ot::{
     core::{DeltaOperations, OperationTransform, NEW_LINE, WHITESPACE},
-    text_delta::TextOperations,
+    text_delta::DeltaTextOperations,
 };
 use serde::de::DeserializeOwned;
 use std::sync::atomic::{AtomicI64, Ordering::SeqCst};
@@ -155,7 +155,7 @@ pub fn make_document_from_revision_pbs(
         return Ok(None);
     }
 
-    let mut delta = TextOperations::new();
+    let mut delta = DeltaTextOperations::new();
     let mut base_rev_id = 0;
     let mut rev_id = 0;
     for revision in revisions {
@@ -166,7 +166,7 @@ pub fn make_document_from_revision_pbs(
             tracing::warn!("revision delta_data is empty");
         }
 
-        let new_delta = TextOperations::from_bytes(revision.bytes)?;
+        let new_delta = DeltaTextOperations::from_bytes(revision.bytes)?;
         delta = delta.compose(&new_delta)?;
     }
 
@@ -191,7 +191,7 @@ pub fn rev_id_from_str(s: &str) -> Result<i64, CollaborateError> {
 
 pub fn cal_diff<T: OperationAttributes>(old: String, new: String) -> Option<DeltaOperations<T>> {
     let chunks = dissimilar::diff(&old, &new);
-    let mut delta_builder = OperationBuilder::<T>::new();
+    let mut delta_builder = DeltaOperationBuilder::<T>::new();
     for chunk in &chunks {
         match chunk {
             Chunk::Equal(s) => {

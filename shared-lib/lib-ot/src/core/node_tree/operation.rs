@@ -1,4 +1,3 @@
-use super::operation_serde::{deserialize_changeset, serialize_changeset};
 use crate::core::{Changeset, NodeData, Path};
 use crate::errors::OTError;
 use serde::{Deserialize, Serialize};
@@ -11,8 +10,6 @@ pub enum NodeOperation {
     Insert { path: Path, nodes: Vec<NodeData> },
 
     #[serde(rename = "update")]
-    #[serde(serialize_with = "serialize_changeset")]
-    #[serde(deserialize_with = "deserialize_changeset")]
     Update { path: Path, changeset: Changeset },
 
     #[serde(rename = "delete")]
@@ -112,8 +109,14 @@ impl NodeOperations {
         self.operations
     }
 
-    pub fn add_op(&mut self, operation: NodeOperation) {
+    pub fn push_op(&mut self, operation: NodeOperation) {
         self.operations.push(Arc::new(operation));
+    }
+
+    pub fn extend(&mut self, other: NodeOperations) {
+        for operation in other.operations {
+            self.operations.push(operation);
+        }
     }
 }
 

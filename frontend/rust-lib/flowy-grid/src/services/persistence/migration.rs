@@ -6,10 +6,10 @@ use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::GridRevision;
 use flowy_revision::disk::SQLiteGridRevisionPersistence;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
-use flowy_sync::client_grid::{make_grid_rev_json_str, GridRevisionPad};
+use flowy_sync::client_grid::{make_grid_rev_json_str, GridOperationsBuilder, GridRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::md5;
-use lib_ot::core::DeltaBuilder;
+
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "GRID_V1_MIGRATION";
@@ -64,7 +64,7 @@ impl RevisionResettable for GridRevisionResettable {
     fn reset_data(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let pad = GridRevisionPad::from_revisions(revisions)?;
         let json = pad.json_str()?;
-        let bytes = DeltaBuilder::new().insert(&json).build().json_bytes();
+        let bytes = GridOperationsBuilder::new().insert(&json).build().json_bytes();
         Ok(bytes)
     }
 

@@ -1,13 +1,17 @@
 use crate::editor::document::Document;
 use crate::DocumentUser;
 use async_stream::stream;
+use bytes::Bytes;
 use flowy_error::FlowyError;
 use flowy_revision::RevisionManager;
+use flowy_sync::entities::revision::{RevId, Revision};
 use futures::stream::StreamExt;
 use lib_ot::core::Transaction;
+
 use std::sync::Arc;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::{oneshot, RwLock};
+
 pub struct DocumentQueue {
     #[allow(dead_code)]
     user: Arc<dyn DocumentUser>,
@@ -56,7 +60,10 @@ impl DocumentQueue {
     async fn handle_command(&self, command: Command) -> Result<(), FlowyError> {
         match command {
             Command::ComposeTransaction { transaction, ret } => {
-                self.document.write().await.apply_transaction(transaction)?;
+                self.document.write().await.apply_transaction(transaction.clone())?;
+                let _ = self
+                    .save_local_operations(transaction, self.document.read().await.md5())
+                    .await?;
                 let _ = ret.send(Ok(()));
             }
             Command::GetDocumentContent { pretty, ret } => {
@@ -65,6 +72,16 @@ impl DocumentQueue {
             }
         }
         Ok(())
+    }
+
+    #[tracing::instrument(level = "trace", skip(self, transaction, md5), err)]
+    async fn save_local_operations(&self, transaction: Transaction, md5: String) -> Result<RevId, FlowyError> {
+        let bytes = Bytes::from(transaction.to_bytes()?);
+        let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
+        let user_id = self.user.user_id()?;
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, &user_id, md5);
+        let _ = self.rev_manager.add_local_revision(&revision).await?;
+        Ok(rev_id.into())
     }
 }
 

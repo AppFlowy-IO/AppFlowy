@@ -103,7 +103,7 @@ fn operation_insert_with_multiple_level_path_test() {
         },
         AssertNode {
             path: 2.into(),
-            expected: Some(node_data_3.into()),
+            expected: Some(node_data_3),
         },
     ];
     test.run_scripts(scripts);

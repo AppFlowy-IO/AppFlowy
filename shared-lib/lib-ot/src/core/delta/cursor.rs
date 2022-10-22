@@ -30,8 +30,8 @@ where
     ///
     /// ```
     /// use lib_ot::core::{OperationsCursor, OperationIterator, Interval, DeltaOperation};
-    /// use lib_ot::text_delta::TextOperations;
-    /// let mut delta = TextOperations::default();   
+    /// use lib_ot::text_delta::DeltaTextOperations;
+    /// let mut delta = DeltaTextOperations::default();
     /// delta.add(DeltaOperation::insert("123"));    
     /// delta.add(DeltaOperation::insert("4"));
     ///

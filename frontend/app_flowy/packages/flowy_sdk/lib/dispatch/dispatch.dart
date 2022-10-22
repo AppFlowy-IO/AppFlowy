@@ -18,7 +18,6 @@ import 'package:flowy_sdk/protobuf/dart-ffi/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/protobuf.dart';
-import 'package:flowy_sdk/protobuf/flowy-sync/protobuf.dart';
 
 // ignore: unused_import
 import 'package:protobuf/protobuf.dart';

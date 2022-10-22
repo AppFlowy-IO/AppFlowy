@@ -6,8 +6,8 @@ use crate::{
     errors::CollaborateError,
 };
 use bytes::Bytes;
-use lib_ot::text_delta::TextOperationBuilder;
-use lib_ot::{core::*, text_delta::TextOperations};
+use lib_ot::text_delta::DeltaTextOperationBuilder;
+use lib_ot::{core::*, text_delta::DeltaTextOperations};
 use tokio::sync::mpsc;
 
 pub trait InitialDocument {
@@ -17,23 +17,23 @@ pub trait InitialDocument {
 pub struct EmptyDocument();
 impl InitialDocument for EmptyDocument {
     fn json_str() -> String {
-        TextOperations::default().json_str()
+        DeltaTextOperations::default().json_str()
     }
 }
 
 pub struct NewlineDocument();
 impl InitialDocument for NewlineDocument {
     fn json_str() -> String {
-        initial_old_document_content()
+        initial_delta_document_content()
     }
 }
 
-pub fn initial_old_document_content() -> String {
-    TextOperationBuilder::new().insert("\n").build().json_str()
+pub fn initial_delta_document_content() -> String {
+    DeltaTextOperationBuilder::new().insert("\n").build().json_str()
 }
 
 pub struct ClientDocument {
-    operations: TextOperations,
+    operations: DeltaTextOperations,
     history: History,
     view: ViewExtensions,
     last_edit_time: usize,
@@ -46,7 +46,7 @@ impl ClientDocument {
         Self::from_json(&content).unwrap()
     }
 
-    pub fn from_operations(operations: TextOperations) -> Self {
+    pub fn from_operations(operations: DeltaTextOperations) -> Self {
         ClientDocument {
             operations,
             history: History::new(),
@@ -57,7 +57,7 @@ impl ClientDocument {
     }
 
     pub fn from_json(json: &str) -> Result<Self, CollaborateError> {
-        let operations = TextOperations::from_json(json)?;
+        let operations = DeltaTextOperations::from_json(json)?;
         Ok(Self::from_operations(operations))
     }
 
@@ -73,7 +73,7 @@ impl ClientDocument {
         self.operations.content().unwrap()
     }
 
-    pub fn get_operations(&self) -> &TextOperations {
+    pub fn get_operations(&self) -> &DeltaTextOperations {
         &self.operations
     }
 
@@ -86,7 +86,7 @@ impl ClientDocument {
         self.notify = Some(notify);
     }
 
-    pub fn set_operations(&mut self, operations: TextOperations) {
+    pub fn set_operations(&mut self, operations: DeltaTextOperations) {
         tracing::trace!("document: {}", operations.json_str());
         self.operations = operations;
 
@@ -98,7 +98,7 @@ impl ClientDocument {
         }
     }
 
-    pub fn compose_operations(&mut self, operations: TextOperations) -> Result<(), CollaborateError> {
+    pub fn compose_operations(&mut self, operations: DeltaTextOperations) -> Result<(), CollaborateError> {
         tracing::trace!("{} compose {}", &self.operations.json_str(), operations.json_str());
         let composed_operations = self.operations.compose(&operations)?;
         let mut undo_operations = operations.invert(&self.operations);
@@ -124,7 +124,7 @@ impl ClientDocument {
         Ok(())
     }
 
-    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<TextOperations, CollaborateError> {
+    pub fn insert<T: ToString>(&mut self, index: usize, data: T) -> Result<DeltaTextOperations, CollaborateError> {
         let text = data.to_string();
         let interval = Interval::new(index, index);
         let _ = validate_interval(&self.operations, &interval)?;
@@ -133,7 +133,7 @@ impl ClientDocument {
         Ok(operations)
     }
 
-    pub fn delete(&mut self, interval: Interval) -> Result<TextOperations, CollaborateError> {
+    pub fn delete(&mut self, interval: Interval) -> Result<DeltaTextOperations, CollaborateError> {
         let _ = validate_interval(&self.operations, &interval)?;
         debug_assert!(!interval.is_empty());
         let operations = self.view.delete(&self.operations, interval)?;
@@ -147,7 +147,7 @@ impl ClientDocument {
         &mut self,
         interval: Interval,
         attribute: AttributeEntry,
-    ) -> Result<TextOperations, CollaborateError> {
+    ) -> Result<DeltaTextOperations, CollaborateError> {
         let _ = validate_interval(&self.operations, &interval)?;
         tracing::trace!("format {} with {:?}", interval, attribute);
         let operations = self.view.format(&self.operations, attribute, interval).unwrap();
@@ -155,9 +155,13 @@ impl ClientDocument {
         Ok(operations)
     }
 
-    pub fn replace<T: ToString>(&mut self, interval: Interval, data: T) -> Result<TextOperations, CollaborateError> {
+    pub fn replace<T: ToString>(
+        &mut self,
+        interval: Interval,
+        data: T,
+    ) -> Result<DeltaTextOperations, CollaborateError> {
         let _ = validate_interval(&self.operations, &interval)?;
-        let mut operations = TextOperations::default();
+        let mut operations = DeltaTextOperations::default();
         let text = data.to_string();
         if !text.is_empty() {
             operations = self.view.insert(&self.operations, &text, interval)?;
@@ -215,7 +219,10 @@ impl ClientDocument {
 }
 
 impl ClientDocument {
-    fn invert(&self, operations: &TextOperations) -> Result<(TextOperations, TextOperations), CollaborateError> {
+    fn invert(
+        &self,
+        operations: &DeltaTextOperations,
+    ) -> Result<(DeltaTextOperations, DeltaTextOperations), CollaborateError> {
         // c = a.compose(b)
         // d = b.invert(a)
         // a = c.compose(d)
@@ -225,7 +232,7 @@ impl ClientDocument {
     }
 }
 
-fn validate_interval(operations: &TextOperations, interval: &Interval) -> Result<(), CollaborateError> {
+fn validate_interval(operations: &DeltaTextOperations, interval: &Interval) -> Result<(), CollaborateError> {
     if operations.utf16_target_len < interval.end {
         log::error!(
             "{:?} out of bounds. should 0..{}",

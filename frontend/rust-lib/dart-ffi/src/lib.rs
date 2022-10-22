@@ -23,7 +23,7 @@ pub extern "C" fn init_sdk(path: *mut c_char) -> i64 {
     let path: &str = c_str.to_str().unwrap();
 
     let server_config = get_client_server_configuration().unwrap();
-    let config = FlowySDKConfig::new(path, "appflowy", server_config, false).log_filter("info");
+    let config = FlowySDKConfig::new(path, "appflowy", server_config).log_filter("info");
     FLOWY_SDK.get_or_init(|| FlowySDK::new(config));
 
     0

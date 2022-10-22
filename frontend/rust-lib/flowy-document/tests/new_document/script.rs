@@ -1,17 +1,37 @@
-use flowy_document::editor::AppFlowyDocumentEditor;
+use flowy_document::editor::{AppFlowyDocumentEditor, Document, DocumentTransaction};
 
+use flowy_document::entities::DocumentVersionPB;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
 use lib_ot::core::{Body, Changeset, NodeDataBuilder, NodeOperation, Path, Transaction};
-use lib_ot::text_delta::TextOperations;
+use lib_ot::text_delta::DeltaTextOperations;
 use std::sync::Arc;
 
 pub enum EditScript {
-    InsertText { path: Path, delta: TextOperations },
-    UpdateText { path: Path, delta: TextOperations },
-    Delete { path: Path },
-    AssertContent { expected: &'static str },
-    AssertPrettyContent { expected: &'static str },
+    InsertText {
+        path: Path,
+        delta: DeltaTextOperations,
+    },
+    UpdateText {
+        path: Path,
+        delta: DeltaTextOperations,
+    },
+    #[allow(dead_code)]
+    ComposeTransaction {
+        transaction: Transaction,
+    },
+    ComposeTransactionStr {
+        transaction: &'static str,
+    },
+    Delete {
+        path: Path,
+    },
+    AssertContent {
+        expected: &'static str,
+    },
+    AssertPrettyContent {
+        expected: &'static str,
+    },
 }
 
 pub struct DocumentEditorTest {
@@ -21,7 +41,8 @@ pub struct DocumentEditorTest {
 
 impl DocumentEditorTest {
     pub async fn new() -> Self {
-        let sdk = FlowySDKTest::new(true);
+        let version = DocumentVersionPB::V1;
+        let sdk = FlowySDKTest::new(version.clone());
         let _ = sdk.init_user().await;
 
         let test = ViewTest::new_document_view(&sdk).await;
@@ -62,6 +83,14 @@ impl DocumentEditorTest {
                     .await
                     .unwrap();
             }
+            EditScript::ComposeTransaction { transaction } => {
+                self.editor.apply_transaction(transaction).await.unwrap();
+            }
+            EditScript::ComposeTransactionStr { transaction } => {
+                let document_transaction = serde_json::from_str::<DocumentTransaction>(transaction).unwrap();
+                let transaction: Transaction = document_transaction.into();
+                self.editor.apply_transaction(transaction).await.unwrap();
+            }
             EditScript::Delete { path } => {
                 let operation = NodeOperation::Delete { path, nodes: vec![] };
                 self.editor
@@ -72,6 +101,9 @@ impl DocumentEditorTest {
             EditScript::AssertContent { expected } => {
                 //
                 let content = self.editor.get_content(false).await.unwrap();
+                let expected_document: Document = serde_json::from_str(expected).unwrap();
+                let expected = serde_json::to_string(&expected_document).unwrap();
+
                 assert_eq!(content, expected);
             }
             EditScript::AssertPrettyContent { expected } => {

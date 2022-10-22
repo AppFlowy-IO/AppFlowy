@@ -1,17 +1,14 @@
+import 'package:app_flowy/plugins/doc/editor_styles.dart';
+import 'package:app_flowy/plugins/doc/presentation/plugins/horizontal_rule_node_widget.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/plugins/doc/presentation/banner.dart';
-import 'package:app_flowy/plugins/doc/presentation/toolbar/tool_bar.dart';
-import 'package:flowy_infra_ui/style_widget/scrolling/styled_scroll_bar.dart';
-import 'package:flowy_infra_ui/widget/spacing.dart';
-import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'application/doc_bloc.dart';
-import 'styles.dart';
 
 class DocumentPage extends StatefulWidget {
   final VoidCallback onDeleted;
@@ -29,11 +26,12 @@ class DocumentPage extends StatefulWidget {
 
 class _DocumentPageState extends State<DocumentPage> {
   late DocumentBloc documentBloc;
-  final scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
+    // The appflowy editor use Intl as locatization, set the default language as fallback.
+    Intl.defaultLocale = 'en_US';
     documentBloc = getIt<DocumentBloc>(param1: super.widget.view)
       ..add(const DocumentEvent.initial());
     super.initState();
@@ -48,9 +46,9 @@ class _DocumentPageState extends State<DocumentPage> {
       child:
           BlocBuilder<DocumentBloc, DocumentState>(builder: (context, state) {
         return state.loadingState.map(
-          // loading: (_) => const FlowyProgressIndicator(),
-          loading: (_) =>
-              SizedBox.expand(child: Container(color: Colors.transparent)),
+          loading: (_) => SizedBox.expand(
+            child: Container(color: Colors.transparent),
+          ),
           finish: (result) => result.successOrFail.fold(
             (_) {
               if (state.forceClose) {
@@ -75,24 +73,11 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _renderDocument(BuildContext context, DocumentState state) {
-    quill.QuillController controller = quill.QuillController(
-      document: context.read<DocumentBloc>().document,
-      selection: const TextSelection.collapsed(offset: 0),
-    );
     return Column(
       children: [
         if (state.isDeleted) _renderBanner(context),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _renderEditor(controller),
-              const VSpace(10),
-              _renderToolbar(controller),
-              const VSpace(10),
-            ],
-          ),
-        ),
+        // AppFlowy Editor
+        _renderAppFlowyEditor(context.read<DocumentBloc>().editorState),
       ],
     );
   }
@@ -107,36 +92,20 @@ class _DocumentPageState extends State<DocumentPage> {
     );
   }
 
-  Widget _renderEditor(quill.QuillController controller) {
-    final editor = quill.QuillEditor(
-      controller: controller,
-      focusNode: _focusNode,
-      scrollable: true,
-      paintCursorAboveText: true,
-      autoFocus: controller.document.isEmpty(),
-      expands: false,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      readOnly: false,
-      scrollBottomInset: 0,
-      scrollController: scrollController,
-      customStyles: customStyles(context),
+  Widget _renderAppFlowyEditor(EditorState editorState) {
+    final editor = AppFlowyEditor(
+      editorState: editorState,
+      editorStyle: customEditorStyle(context),
+      customBuilders: {
+        'horizontal_rule': HorizontalRuleWidgetBuilder(),
+      },
+      shortcutEvents: [
+        insertHorizontalRule,
+      ],
     );
-
     return Expanded(
-      child: ScrollbarListStack(
-        axis: Axis.vertical,
-        controller: scrollController,
-        barSize: 6.0,
-        child: SizedBox.expand(child: editor),
-      ),
-    );
-  }
-
-  Widget _renderToolbar(quill.QuillController controller) {
-    return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSetting>(context, listen: true),
-      child: EditorToolbar.basic(
-        controller: controller,
+      child: SizedBox.expand(
+        child: editor,
       ),
     );
   }

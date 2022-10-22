@@ -1,7 +1,8 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
+
 use flowy_document::DocumentManager;
-use flowy_folder::entities::{ViewDataTypePB, ViewLayoutTypePB};
+use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use flowy_folder::{
     errors::{internal_error, FlowyError},
@@ -63,16 +64,20 @@ impl FolderDepsResolver {
 }
 
 fn make_view_data_processor(
-    text_block_manager: Arc<DocumentManager>,
+    document_manager: Arc<DocumentManager>,
     grid_manager: Arc<GridManager>,
 ) -> ViewDataProcessorMap {
-    let mut map: HashMap<ViewDataTypePB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
+    let mut map: HashMap<ViewDataFormatPB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
-    let block_data_impl = DocumentViewDataProcessor(text_block_manager);
-    map.insert(block_data_impl.data_type(), Arc::new(block_data_impl));
+    let document_processor = Arc::new(DocumentViewDataProcessor(document_manager));
+    document_processor.data_types().into_iter().for_each(|data_type| {
+        map.insert(data_type, document_processor.clone());
+    });
 
-    let grid_data_impl = GridViewDataProcessor(grid_manager);
-    map.insert(grid_data_impl.data_type(), Arc::new(grid_data_impl));
+    let grid_data_impl = Arc::new(GridViewDataProcessor(grid_manager));
+    grid_data_impl.data_types().into_iter().for_each(|data_type| {
+        map.insert(data_type, grid_data_impl.clone());
+    });
 
     Arc::new(map)
 }
@@ -137,30 +142,26 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
 
 struct DocumentViewDataProcessor(Arc<DocumentManager>);
 impl ViewDataProcessor for DocumentViewDataProcessor {
-    fn initialize(&self) -> FutureResult<(), FlowyError> {
-        let manager = self.0.clone();
-        FutureResult::new(async move { manager.init() })
-    }
-
-    fn create_container(
+    fn create_view(
         &self,
         user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
-        delta_data: Bytes,
+        view_data: Bytes,
     ) -> FutureResult<(), FlowyError> {
         // Only accept Document type
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, delta_data).into();
+        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, view_data).into();
         let view_id = view_id.to_string();
         let manager = self.0.clone();
+
         FutureResult::new(async move {
             let _ = manager.create_document(view_id, repeated_revision).await?;
             Ok(())
         })
     }
 
-    fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
         let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
@@ -169,13 +170,13 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         })
     }
 
-    fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
-        let view_id = view_id.to_string();
+    fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
+        let view_id = view.id.clone();
         let manager = self.0.clone();
         FutureResult::new(async move {
             let editor = manager.open_document_editor(view_id).await?;
-            let delta_bytes = Bytes::from(editor.export().await?);
-            Ok(delta_bytes)
+            let document_data = Bytes::from(editor.duplicate().await?);
+            Ok(document_data)
         })
     }
 
@@ -184,14 +185,15 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
+        _data_format: ViewDataFormatPB,
     ) -> FutureResult<Bytes, FlowyError> {
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let manager = self.0.clone();
-        let view_data = self.0.initial_document_content();
+        let document_content = self.0.initial_document_content();
         FutureResult::new(async move {
-            let delta_data = Bytes::from(view_data);
+            let delta_data = Bytes::from(document_content);
             let repeated_revision: RepeatedRevision =
                 Revision::initial_revision(&user_id, &view_id, delta_data.clone()).into();
             let _ = manager.create_document(view_id, repeated_revision).await?;
@@ -210,18 +212,14 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         FutureResult::new(async move { Ok(Bytes::from(data)) })
     }
 
-    fn data_type(&self) -> ViewDataTypePB {
-        ViewDataTypePB::Text
+    fn data_types(&self) -> Vec<ViewDataFormatPB> {
+        vec![ViewDataFormatPB::DeltaFormat, ViewDataFormatPB::TreeFormat]
     }
 }
 
 struct GridViewDataProcessor(Arc<GridManager>);
 impl ViewDataProcessor for GridViewDataProcessor {
-    fn initialize(&self) -> FutureResult<(), FlowyError> {
-        FutureResult::new(async { Ok(()) })
-    }
-
-    fn create_container(
+    fn create_view(
         &self,
         user_id: &str,
         view_id: &str,
@@ -237,7 +235,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn close_container(&self, view_id: &str) -> FutureResult<(), FlowyError> {
+    fn close_view(&self, view_id: &str) -> FutureResult<(), FlowyError> {
         let grid_manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
@@ -246,9 +244,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn get_view_data(&self, view_id: &str) -> FutureResult<Bytes, FlowyError> {
-        let view_id = view_id.to_string();
+    fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
         let grid_manager = self.0.clone();
+        let view_id = view.id.clone();
         FutureResult::new(async move {
             let editor = grid_manager.open_grid(view_id).await?;
             let delta_bytes = editor.duplicate_grid().await?;
@@ -261,7 +259,9 @@ impl ViewDataProcessor for GridViewDataProcessor {
         user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
+        data_format: ViewDataFormatPB,
     ) -> FutureResult<Bytes, FlowyError> {
+        debug_assert_eq!(data_format, ViewDataFormatPB::DatabaseFormat);
         let (build_context, layout) = match layout {
             ViewLayoutTypePB::Grid => (make_default_grid(), GridLayout::Table),
             ViewLayoutTypePB::Board => (make_default_board(), GridLayout::Board),
@@ -308,7 +308,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         })
     }
 
-    fn data_type(&self) -> ViewDataTypePB {
-        ViewDataTypePB::Database
+    fn data_types(&self) -> Vec<ViewDataFormatPB> {
+        vec![ViewDataFormatPB::DatabaseFormat]
     }
 }

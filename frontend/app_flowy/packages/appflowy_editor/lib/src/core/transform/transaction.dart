@@ -103,7 +103,7 @@ class Transaction {
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
     if (operations.isNotEmpty) {
-      json['operations'] = operations.map((o) => o.toJson());
+      json['operations'] = operations.map((o) => o.toJson()).toList();
     }
     if (afterSelection != null) {
       json['after_selection'] = afterSelection!.toJson();

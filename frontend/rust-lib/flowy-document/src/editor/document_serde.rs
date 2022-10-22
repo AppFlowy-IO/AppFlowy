@@ -3,11 +3,12 @@ use crate::editor::document::Document;
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use lib_ot::core::{
-    AttributeHashMap, Body, Changeset, Extension, NodeData, NodeId, NodeOperation, NodeTree, Path, Selection,
-    Transaction,
+    AttributeHashMap, Body, Changeset, Extension, NodeData, NodeId, NodeOperation, NodeTree, NodeTreeContext, Path,
+    Selection, Transaction,
 };
-use lib_ot::text_delta::TextOperations;
-use serde::de::{self, MapAccess, Visitor};
+
+use lib_ot::text_delta::DeltaTextOperations;
+use serde::de::{self, MapAccess, Unexpected, Visitor};
 use serde::ser::{SerializeMap, SerializeSeq};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
@@ -44,14 +45,14 @@ impl<'de> Deserialize<'de> for Document {
             where
                 M: MapAccess<'de>,
             {
-                let mut node_tree = None;
+                let mut document_node = None;
                 while let Some(key) = map.next_key()? {
                     match key {
                         "document" => {
-                            if node_tree.is_some() {
+                            if document_node.is_some() {
                                 return Err(de::Error::duplicate_field("document"));
                             }
-                            node_tree = Some(map.next_value::<NodeTree>()?)
+                            document_node = Some(map.next_value::<DocumentNode>()?)
                         }
                         s => {
                             return Err(de::Error::unknown_field(s, FIELDS));
@@ -59,8 +60,13 @@ impl<'de> Deserialize<'de> for Document {
                     }
                 }
 
-                match node_tree {
-                    Some(tree) => Ok(Document::new(tree)),
+                match document_node {
+                    Some(document_node) => {
+                        match NodeTree::from_node_data(document_node.into(), NodeTreeContext::default()) {
+                            Ok(tree) => Ok(Document::new(tree)),
+                            Err(err) => Err(de::Error::invalid_value(Unexpected::Other(&format!("{}", err)), &"")),
+                        }
+                    }
                     None => Err(de::Error::missing_field("document")),
                 }
             }
@@ -69,10 +75,20 @@ impl<'de> Deserialize<'de> for Document {
     }
 }
 
-#[derive(Debug)]
-struct DocumentContentSerializer<'a>(pub &'a Document);
+pub fn make_transaction_from_document_content(content: &str) -> FlowyResult<Transaction> {
+    let document_node: DocumentNode = serde_json::from_str::<DocumentContentDeserializer>(content)?.document;
+    let document_operation = DocumentOperation::Insert {
+        path: 0_usize.into(),
+        nodes: vec![document_node],
+    };
+    let mut document_transaction = DocumentTransaction::default();
+    document_transaction.operations.push(document_operation);
+    Ok(document_transaction.into())
+}
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DocumentContentSerde {}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct DocumentTransaction {
     #[serde(default)]
     operations: Vec<DocumentOperation>,
@@ -161,8 +177,8 @@ pub enum DocumentOperation {
     #[serde(rename = "update_text")]
     UpdateText {
         path: Path,
-        delta: TextOperations,
-        inverted: TextOperations,
+        delta: DeltaTextOperations,
+        inverted: DeltaTextOperations,
     },
 }
 
@@ -230,12 +246,19 @@ pub struct DocumentNode {
     #[serde(default)]
     pub attributes: AttributeHashMap,
 
-    #[serde(skip_serializing_if = "TextOperations::is_empty")]
-    pub delta: TextOperations,
+    #[serde(skip_serializing_if = "DeltaTextOperations::is_empty")]
+    #[serde(default)]
+    pub delta: DeltaTextOperations,
 
     #[serde(skip_serializing_if = "Vec::is_empty")]
     #[serde(default)]
     pub children: Vec<DocumentNode>,
+}
+
+impl DocumentNode {
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl std::convert::From<NodeData> for DocumentNode {
@@ -243,7 +266,7 @@ impl std::convert::From<NodeData> for DocumentNode {
         let delta = if let Body::Delta(operations) = node_data.body {
             operations
         } else {
-            TextOperations::default()
+            DeltaTextOperations::default()
         };
         DocumentNode {
             node_type: node_data.node_type,
@@ -264,6 +287,14 @@ impl std::convert::From<DocumentNode> for NodeData {
         }
     }
 }
+
+#[derive(Debug, Deserialize)]
+struct DocumentContentDeserializer {
+    document: DocumentNode,
+}
+
+#[derive(Debug)]
+struct DocumentContentSerializer<'a>(pub &'a Document);
 
 impl<'a> Serialize for DocumentContentSerializer<'a> {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
@@ -299,6 +330,12 @@ impl<'a> Serialize for DocumentContentSerializer<'a> {
 mod tests {
     use crate::editor::document::Document;
     use crate::editor::document_serde::DocumentTransaction;
+    use crate::editor::initial_read_me;
+
+    #[test]
+    fn load_read_me() {
+        let _ = initial_read_me();
+    }
 
     #[test]
     fn transaction_deserialize_update_text_operation_test() {

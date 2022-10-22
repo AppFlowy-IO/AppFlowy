@@ -307,7 +307,7 @@ impl FolderCouldServiceV1 for LocalServer {
             app_id: params.belong_to_id,
             name: params.name,
             desc: params.desc,
-            data_type: params.data_type.into(),
+            data_format: params.data_format.into(),
             version: 0,
             belongings: vec![],
             modified_time: time,

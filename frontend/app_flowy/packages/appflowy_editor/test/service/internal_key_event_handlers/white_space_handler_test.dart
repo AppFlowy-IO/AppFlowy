@@ -213,5 +213,19 @@ void main() async {
       expect(textNode.attributes.check, true);
       expect(textNode.toPlainText(), insertedText);
     });
+
+    testWidgets('Presses # at the end of the text', (tester) async {
+      const text = 'Welcome to Appflowy 😁 #';
+      final editor = tester.editor..insertTextNode(text);
+      await editor.startTesting();
+
+      final textNode = editor.nodeAtPath([0]) as TextNode;
+      await editor.updateSelection(
+        Selection.single(path: [0], startOffset: text.length),
+      );
+      await editor.pressLogicKey(LogicalKeyboardKey.space);
+      expect(textNode.subtype, null);
+      expect(textNode.toPlainText(), text);
+    });
   });
 }
