@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
-use flowy_document::entities::DocumentVersionPB;
+
 use flowy_document::DocumentManager;
 use flowy_folder::entities::{ViewDataFormatPB, ViewLayoutTypePB, ViewPB};
 use flowy_folder::manager::{ViewDataProcessor, ViewDataProcessorMap};
@@ -64,14 +64,14 @@ impl FolderDepsResolver {
 }
 
 fn make_view_data_processor(
-    text_block_manager: Arc<DocumentManager>,
+    document_manager: Arc<DocumentManager>,
     grid_manager: Arc<GridManager>,
 ) -> ViewDataProcessorMap {
     let mut map: HashMap<ViewDataFormatPB, Arc<dyn ViewDataProcessor + Send + Sync>> = HashMap::new();
 
-    let block_data_impl = Arc::new(DocumentViewDataProcessor(text_block_manager));
-    block_data_impl.data_types().into_iter().for_each(|data_type| {
-        map.insert(data_type, block_data_impl.clone());
+    let document_processor = Arc::new(DocumentViewDataProcessor(document_manager));
+    document_processor.data_types().into_iter().for_each(|data_type| {
+        map.insert(data_type, document_processor.clone());
     });
 
     let grid_data_impl = Arc::new(GridViewDataProcessor(grid_manager));
@@ -142,23 +142,19 @@ impl WSMessageReceiver for FolderWSMessageReceiverImpl {
 
 struct DocumentViewDataProcessor(Arc<DocumentManager>);
 impl ViewDataProcessor for DocumentViewDataProcessor {
-    fn initialize(&self) -> FutureResult<(), FlowyError> {
-        let manager = self.0.clone();
-        FutureResult::new(async move { manager.init() })
-    }
-
     fn create_view(
         &self,
         user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
-        delta_data: Bytes,
+        view_data: Bytes,
     ) -> FutureResult<(), FlowyError> {
         // Only accept Document type
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, delta_data).into();
+        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, view_data).into();
         let view_id = view_id.to_string();
         let manager = self.0.clone();
+
         FutureResult::new(async move {
             let _ = manager.create_document(view_id, repeated_revision).await?;
             Ok(())
@@ -177,9 +173,8 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     fn get_view_data(&self, view: &ViewPB) -> FutureResult<Bytes, FlowyError> {
         let view_id = view.id.clone();
         let manager = self.0.clone();
-        let document_type = document_version_from_view_data_format(&view.data_format);
         FutureResult::new(async move {
-            let editor = manager.open_document_editor(view_id, document_type).await?;
+            let editor = manager.open_document_editor(view_id).await?;
             let document_data = Bytes::from(editor.duplicate().await?);
             Ok(document_data)
         })
@@ -190,14 +185,13 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
-        data_format: ViewDataFormatPB,
+        _data_format: ViewDataFormatPB,
     ) -> FutureResult<Bytes, FlowyError> {
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
         let user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let manager = self.0.clone();
-        let document_type = document_version_from_view_data_format(&data_format);
-        let document_content = self.0.initial_document_content(document_type);
+        let document_content = self.0.initial_document_content();
         FutureResult::new(async move {
             let delta_data = Bytes::from(document_content);
             let repeated_revision: RepeatedRevision =
@@ -223,19 +217,8 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     }
 }
 
-fn document_version_from_view_data_format(view_data_format: &ViewDataFormatPB) -> DocumentVersionPB {
-    match view_data_format {
-        ViewDataFormatPB::TreeFormat => DocumentVersionPB::V1,
-        _ => DocumentVersionPB::V0,
-    }
-}
-
 struct GridViewDataProcessor(Arc<GridManager>);
 impl ViewDataProcessor for GridViewDataProcessor {
-    fn initialize(&self) -> FutureResult<(), FlowyError> {
-        FutureResult::new(async { Ok(()) })
-    }
-
     fn create_view(
         &self,
         user_id: &str,

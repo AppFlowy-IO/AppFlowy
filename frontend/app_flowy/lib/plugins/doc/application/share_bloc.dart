@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:app_flowy/startup/tasks/rust_sdk.dart';
-import 'package:app_flowy/workspace/application/markdown/delta_markdown.dart';
 import 'package:app_flowy/plugins/doc/application/share_service.dart';
 import 'package:app_flowy/workspace/application/markdown/document_markdown.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/entities.pb.dart';
@@ -36,13 +35,6 @@ class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
         shareText: (ShareText value) {},
       );
     });
-  }
-
-  ExportDataPB _convertDeltaToMarkdown(ExportDataPB value) {
-    final result = deltaToMarkdown(value.data);
-    value.data = result;
-    writeFile(result);
-    return value;
   }
 
   ExportDataPB _convertDocumentToMarkdown(ExportDataPB value) {

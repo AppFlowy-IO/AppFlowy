@@ -6,6 +6,7 @@ use crate::deps_resolve::*;
 
 use flowy_document::entities::DocumentVersionPB;
 use flowy_document::{DocumentConfig, DocumentManager};
+use flowy_folder::entities::ViewDataFormatPB;
 use flowy_folder::{errors::FlowyError, manager::FolderManager};
 use flowy_grid::manager::GridManager;
 use flowy_net::ClientServerConfiguration;
@@ -114,7 +115,7 @@ impl FlowySDK {
         tracing::debug!("🔥 {:?}", config);
         let runtime = tokio_default_runtime().unwrap();
         let (local_server, ws_conn) = mk_local_server(&config.server_config);
-        let (user_session, text_block_manager, folder_manager, local_server, grid_manager) = runtime.block_on(async {
+        let (user_session, document_manager, folder_manager, local_server, grid_manager) = runtime.block_on(async {
             let user_session = mk_user_session(&config, &local_server, &config.server_config);
             let document_manager = DocumentDepsResolver::resolve(
                 local_server.clone(),
@@ -155,16 +156,24 @@ impl FlowySDK {
                 &folder_manager,
                 &grid_manager,
                 &user_session,
-                &text_block_manager,
+                &document_manager,
             )
         }));
 
-        _start_listening(&dispatcher, &ws_conn, &user_session, &folder_manager, &grid_manager);
+        _start_listening(
+            &config,
+            &dispatcher,
+            &ws_conn,
+            &user_session,
+            &document_manager,
+            &folder_manager,
+            &grid_manager,
+        );
 
         Self {
             config,
             user_session,
-            document_manager: text_block_manager,
+            document_manager,
             folder_manager,
             grid_manager,
             dispatcher,
@@ -179,9 +188,11 @@ impl FlowySDK {
 }
 
 fn _start_listening(
+    config: &FlowySDKConfig,
     dispatch: &EventDispatcher,
     ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
+    document_manager: &Arc<DocumentManager>,
     folder_manager: &Arc<FolderManager>,
     grid_manager: &Arc<GridManager>,
 ) {
@@ -192,15 +203,19 @@ fn _start_listening(
     let cloned_folder_manager = folder_manager.clone();
     let ws_conn = ws_conn.clone();
     let user_session = user_session.clone();
+    let document_manager = document_manager.clone();
+    let config = config.clone();
 
     dispatch.spawn(async move {
         user_session.init();
         listen_on_websocket(ws_conn.clone());
         _listen_user_status(
+            config,
             ws_conn.clone(),
             subscribe_user_status,
-            folder_manager.clone(),
-            grid_manager.clone(),
+            document_manager,
+            folder_manager,
+            grid_manager,
         )
         .await;
     });
@@ -226,8 +241,10 @@ fn mk_local_server(
 }
 
 async fn _listen_user_status(
+    config: FlowySDKConfig,
     ws_conn: Arc<FlowyWebSocketConnect>,
     mut subscribe: broadcast::Receiver<UserStatus>,
+    document_manager: Arc<DocumentManager>,
     folder_manager: Arc<FolderManager>,
     grid_manager: Arc<GridManager>,
 ) {
@@ -237,6 +254,7 @@ async fn _listen_user_status(
                 UserStatus::Login { token, user_id } => {
                     tracing::trace!("User did login");
                     let _ = folder_manager.initialize(&user_id, &token).await?;
+                    let _ = document_manager.initialize(&user_id).await?;
                     let _ = grid_manager.initialize(&user_id, &token).await?;
                     let _ = ws_conn.start(token, user_id).await?;
                 }
@@ -252,7 +270,15 @@ async fn _listen_user_status(
                 }
                 UserStatus::SignUp { profile, ret } => {
                     tracing::trace!("User did sign up");
+
+                    let view_data_type = match config.document.version {
+                        DocumentVersionPB::V0 => ViewDataFormatPB::DeltaFormat,
+                        DocumentVersionPB::V1 => ViewDataFormatPB::TreeFormat,
+                    };
                     let _ = folder_manager
+                        .initialize_with_new_user(&profile.id, &profile.token, view_data_type)
+                        .await?;
+                    let _ = document_manager
                         .initialize_with_new_user(&profile.id, &profile.token)
                         .await?;
 

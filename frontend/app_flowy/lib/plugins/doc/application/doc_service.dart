@@ -11,15 +11,16 @@ class DocumentService {
   }) async {
     await FolderEventSetLatestView(ViewIdPB(value: view.id)).send();
 
-    var payload = OpenDocumentContextPB()..documentId = view.id;
-    switch (view.dataFormat) {
-      case ViewDataFormatPB.DeltaFormat:
-        payload.documentVersion = DocumentVersionPB.V0;
-        break;
-      default:
-        payload.documentVersion = DocumentVersionPB.V1;
-        break;
-    }
+    final payload = OpenDocumentContextPB()
+      ..documentId = view.id
+      ..documentVersion = DocumentVersionPB.V1;
+    // switch (view.dataFormat) {
+    //   case ViewDataFormatPB.DeltaFormat:
+    //     payload.documentVersion = DocumentVersionPB.V0;
+    //     break;
+    //   default:
+    //     break;
+    // }
 
     return DocumentEventGetDocument(payload).send();
   }

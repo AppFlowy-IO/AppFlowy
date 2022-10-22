@@ -1,12 +1,13 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionCompress};
 use crate::entities::{DocumentVersionPB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionCompress};
+use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_revision::disk::SQLiteDocumentRevisionPersistence;
+use flowy_revision::disk::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
 };
@@ -17,7 +18,6 @@ use flowy_sync::entities::{
     ws_data::ServerRevisionWSData,
 };
 use lib_infra::future::FutureResult;
-
 use lib_ws::WSConnectState;
 use std::any::Any;
 use std::{convert::TryInto, sync::Arc};
@@ -26,17 +26,30 @@ pub trait DocumentUser: Send + Sync {
     fn user_dir(&self) -> Result<String, FlowyError>;
     fn user_id(&self) -> Result<String, FlowyError>;
     fn token(&self) -> Result<String, FlowyError>;
+}
+
+pub trait DocumentDatabase: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
 pub trait DocumentEditor: Send + Sync {
-    fn export(&self) -> FutureResult<String, FlowyError>;
-    fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError>;
-    fn duplicate(&self) -> FutureResult<String, FlowyError>;
+    /// Called when the document get closed
     fn close(&self);
 
+    /// Exports the document content. The content is encoded in the corresponding
+    /// editor data format.
+    fn export(&self) -> FutureResult<String, FlowyError>;
+
+    /// Duplicate the document inner data into String
+    fn duplicate(&self) -> FutureResult<String, FlowyError>;
+
     fn receive_ws_data(&self, data: ServerRevisionWSData) -> FutureResult<(), FlowyError>;
+
     fn receive_ws_state(&self, state: &WSConnectState);
+
+    /// Receives the local operations made by the user input. The operations are encoded
+    /// in binary format.
+    fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError>;
 
     /// Returns the `Any` reference that can be used to downcast back to the original,
     /// concrete type.
@@ -67,6 +80,7 @@ pub struct DocumentManager {
     rev_web_socket: Arc<dyn RevisionWebSocket>,
     editor_map: Arc<DocumentEditorMap>,
     user: Arc<dyn DocumentUser>,
+    persistence: Arc<DocumentPersistence>,
     #[allow(dead_code)]
     config: DocumentConfig,
 }
@@ -75,6 +89,7 @@ impl DocumentManager {
     pub fn new(
         cloud_service: Arc<dyn DocumentCloudService>,
         document_user: Arc<dyn DocumentUser>,
+        database: Arc<dyn DocumentDatabase>,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         config: DocumentConfig,
     ) -> Self {
@@ -83,13 +98,20 @@ impl DocumentManager {
             rev_web_socket,
             editor_map: Arc::new(DocumentEditorMap::new()),
             user: document_user,
+            persistence: Arc::new(DocumentPersistence::new(database)),
             config,
         }
     }
 
-    pub fn init(&self) -> FlowyResult<()> {
+    /// Called immediately after the application launched with the user sign in/sign up.
+    #[tracing::instrument(level = "trace", skip_all, err)]
+    pub async fn initialize(&self, user_id: &str) -> FlowyResult<()> {
+        let _ = self.persistence.initialize(user_id)?;
         listen_ws_state_changed(self.rev_web_socket.clone(), self.editor_map.clone());
+        Ok(())
+    }
 
+    pub async fn initialize_with_new_user(&self, _user_id: &str, _token: &str) -> FlowyResult<()> {
         Ok(())
     }
 
@@ -97,11 +119,10 @@ impl DocumentManager {
     pub async fn open_document_editor<T: AsRef<str>>(
         &self,
         document_id: T,
-        document_version: DocumentVersionPB,
     ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
         let document_id = document_id.as_ref();
         tracing::Span::current().record("document_id", &document_id);
-        self.init_document_editor(document_id, document_version).await
+        self.init_document_editor(document_id).await
     }
 
     #[tracing::instrument(level = "trace", skip(self, editor_id), fields(editor_id), err)]
@@ -120,9 +141,9 @@ impl DocumentManager {
 
     pub async fn create_document<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
         let doc_id = doc_id.as_ref().to_owned();
-        let db_pool = self.user.db_pool()?;
+        let db_pool = self.persistence.database.db_pool()?;
         // Maybe we could save the document to disk without creating the RevisionManager
-        let rev_manager = self.make_document_rev_manager(&doc_id, db_pool)?;
+        let rev_manager = self.make_rev_manager(&doc_id, db_pool)?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
     }
@@ -143,8 +164,8 @@ impl DocumentManager {
         }
     }
 
-    pub fn initial_document_content(&self, document_type: DocumentVersionPB) -> String {
-        match document_type {
+    pub fn initial_document_content(&self) -> String {
+        match self.config.version {
             DocumentVersionPB::V0 => initial_delta_document_content(),
             DocumentVersionPB::V1 => initial_document_content(),
         }
@@ -165,7 +186,7 @@ impl DocumentManager {
             None => {
                 //
                 tracing::warn!("Should call init_document_editor first");
-                self.init_document_editor(doc_id, DocumentVersionPB::V1).await
+                self.init_document_editor(doc_id).await
             }
             Some(editor) => Ok(editor),
         }
@@ -181,12 +202,8 @@ impl DocumentManager {
     /// returns: Result<Arc<DocumentEditor>, FlowyError>
     ///
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub async fn init_document_editor(
-        &self,
-        doc_id: &str,
-        document_type: DocumentVersionPB,
-    ) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
-        let pool = self.user.db_pool()?;
+    pub async fn init_document_editor(&self, doc_id: &str) -> Result<Arc<dyn DocumentEditor>, FlowyError> {
+        let pool = self.persistence.database.db_pool()?;
         let user = self.user.clone();
         let token = self.user.token()?;
         let cloud_service = Arc::new(DocumentRevisionCloudService {
@@ -194,7 +211,7 @@ impl DocumentManager {
             server: self.cloud_service.clone(),
         });
 
-        match document_type {
+        match self.config.version {
             DocumentVersionPB::V0 => {
                 let rev_manager = self.make_delta_document_rev_manager(doc_id, pool.clone())?;
                 let editor: Arc<dyn DocumentEditor> = Arc::new(
@@ -211,6 +228,13 @@ impl DocumentManager {
                 self.editor_map.insert(doc_id, editor.clone());
                 Ok(editor)
             }
+        }
+    }
+
+    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
+        match self.config.version {
+            DocumentVersionPB::V0 => self.make_delta_document_rev_manager(doc_id, pool),
+            DocumentVersionPB::V1 => self.make_document_rev_manager(doc_id, pool),
         }
     }
 
@@ -240,7 +264,7 @@ impl DocumentManager {
         pool: Arc<ConnectionPool>,
     ) -> Result<RevisionManager, FlowyError> {
         let user_id = self.user.user_id()?;
-        let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
+        let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);

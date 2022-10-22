@@ -147,6 +147,11 @@ impl DeltaDocumentEditor {
 }
 
 impl DocumentEditor for Arc<DeltaDocumentEditor> {
+    fn close(&self) {
+        #[cfg(feature = "sync")]
+        self.ws_manager.stop();
+    }
+
     fn export(&self) -> FutureResult<String, FlowyError> {
         let (ret, rx) = oneshot::channel::<CollaborateResult<String>>();
         let msg = EditorCommand::GetOperationsString { ret };
@@ -158,26 +163,8 @@ impl DocumentEditor for Arc<DeltaDocumentEditor> {
         })
     }
 
-    fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError> {
-        let edit_cmd_tx = self.edit_cmd_tx.clone();
-        FutureResult::new(async move {
-            let operations = DeltaTextOperations::from_bytes(&data)?;
-            let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
-            let msg = EditorCommand::ComposeLocalOperations { operations, ret };
-
-            let _ = edit_cmd_tx.send(msg).await;
-            let _ = rx.await.map_err(internal_error)??;
-            Ok(())
-        })
-    }
-
     fn duplicate(&self) -> FutureResult<String, FlowyError> {
         self.export()
-    }
-
-    fn close(&self) {
-        #[cfg(feature = "sync")]
-        self.ws_manager.stop();
     }
 
     #[allow(unused_variables)]
@@ -195,6 +182,19 @@ impl DocumentEditor for Arc<DeltaDocumentEditor> {
     fn receive_ws_state(&self, state: &WSConnectState) {
         #[cfg(feature = "sync")]
         self.ws_manager.connect_state_changed(state.clone());
+    }
+
+    fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError> {
+        let edit_cmd_tx = self.edit_cmd_tx.clone();
+        FutureResult::new(async move {
+            let operations = DeltaTextOperations::from_bytes(&data)?;
+            let (ret, rx) = oneshot::channel::<CollaborateResult<()>>();
+            let msg = EditorCommand::ComposeLocalOperations { operations, ret };
+
+            let _ = edit_cmd_tx.send(msg).await;
+            let _ = rx.await.map_err(internal_error)??;
+            Ok(())
+        })
     }
 
     fn as_any(&self) -> &dyn Any {

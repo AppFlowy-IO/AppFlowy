@@ -1,13 +1,12 @@
 use crate::editor::{DocumentNode, DocumentOperation};
 use flowy_error::FlowyResult;
-use flowy_sync::entities::revision::Revision;
+
 use lib_ot::core::{AttributeHashMap, DeltaOperation, Insert, Transaction};
 use lib_ot::text_delta::{DeltaTextOperation, DeltaTextOperations};
 
-pub struct DeltaRevisionMigration(pub Vec<Revision>);
+pub struct DeltaRevisionMigration();
 
 impl DeltaRevisionMigration {
-    #[allow(dead_code)]
     pub fn run(delta: DeltaTextOperations) -> FlowyResult<Transaction> {
         let migrate_background_attribute = |insert: &mut Insert<AttributeHashMap>| {
             if let Some(Some(color)) = insert.attributes.get("background").map(|value| value.str_value()) {

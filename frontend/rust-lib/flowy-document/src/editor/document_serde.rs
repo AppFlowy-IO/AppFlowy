@@ -75,7 +75,20 @@ impl<'de> Deserialize<'de> for Document {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+pub fn make_transaction_from_document_content(content: &str) -> FlowyResult<Transaction> {
+    let document_node: DocumentNode = serde_json::from_str::<DocumentContentDeserializer>(content)?.document;
+    let document_operation = DocumentOperation::Insert {
+        path: 0_usize.into(),
+        nodes: vec![document_node],
+    };
+    let mut document_transaction = DocumentTransaction::default();
+    document_transaction.operations.push(document_operation);
+    Ok(document_transaction.into())
+}
+
+pub struct DocumentContentSerde {}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct DocumentTransaction {
     #[serde(default)]
     operations: Vec<DocumentOperation>,
@@ -275,6 +288,11 @@ impl std::convert::From<DocumentNode> for NodeData {
     }
 }
 
+#[derive(Debug, Deserialize)]
+struct DocumentContentDeserializer {
+    document: DocumentNode,
+}
+
 #[derive(Debug)]
 struct DocumentContentSerializer<'a>(pub &'a Document);
 
@@ -308,55 +326,16 @@ impl<'a> Serialize for DocumentContentSerializer<'a> {
     }
 }
 
-// #[derive(Debug)]
-// struct DocumentContentDeserializer();
-//
-// impl<'de> Deserialize<'de> for DocumentContentDeserializer {
-//     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-//     where
-//         D: Deserializer<'de>,
-//     {
-//         struct DocumentTransactionVisitor();
-//         impl<'de> Visitor<'de> for DocumentTransactionVisitor {
-//             type Value = NodeTree;
-//
-//             fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-//                 formatter.write_str("Expect document tree")
-//             }
-//
-//             fn visit_map<M>(self, mut map: M) -> Result<Document, M::Error>
-//             where
-//                 M: MapAccess<'de>,
-//             {
-//                 let mut node_tree = None;
-//                 while let Some(key) = map.next_key()? {
-//                     match key {
-//                         "document" => {
-//                             if node_tree.is_some() {
-//                                 return Err(de::Error::duplicate_field("document"));
-//                             }
-//                             node_tree = Some(map.next_value::<NodeTree>()?)
-//                         }
-//                         s => {
-//                             return Err(de::Error::unknown_field(s, FIELDS));
-//                         }
-//                     }
-//                 }
-//
-//                 match node_tree {
-//                     Some(tree) => Ok(Document::new(tree)),
-//                     None => Err(de::Error::missing_field("document")),
-//                 }
-//             }
-//         }
-//         deserializer.deserialize_any(DocumentTransactionVisitor())
-//     }
-// }
-
 #[cfg(test)]
 mod tests {
     use crate::editor::document::Document;
     use crate::editor::document_serde::DocumentTransaction;
+    use crate::editor::initial_read_me;
+
+    #[test]
+    fn load_read_me() {
+        let _ = initial_read_me();
+    }
 
     #[test]
     fn transaction_deserialize_update_text_operation_test() {

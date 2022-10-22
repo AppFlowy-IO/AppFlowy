@@ -96,22 +96,20 @@ impl ViewController {
         Ok(view_rev)
     }
 
-    #[tracing::instrument(level = "debug", skip(self, view_id, delta_data), err)]
+    #[tracing::instrument(level = "debug", skip(self, view_id, view_data), err)]
     pub(crate) async fn create_view(
         &self,
         view_id: &str,
         data_type: ViewDataFormatPB,
         layout_type: ViewLayoutTypePB,
-        delta_data: Bytes,
+        view_data: Bytes,
     ) -> Result<(), FlowyError> {
-        if delta_data.is_empty() {
+        if view_data.is_empty() {
             return Err(FlowyError::internal().context("The content of the view should not be empty"));
         }
         let user_id = self.user.user_id()?;
         let processor = self.get_data_processor(data_type)?;
-        let _ = processor
-            .create_view(&user_id, view_id, layout_type, delta_data)
-            .await?;
+        let _ = processor.create_view(&user_id, view_id, layout_type, view_data).await?;
         Ok(())
     }
 

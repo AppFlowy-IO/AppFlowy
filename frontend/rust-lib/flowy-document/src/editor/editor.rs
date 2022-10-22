@@ -80,10 +80,23 @@ fn spawn_edit_queue(
 }
 
 impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
+    fn close(&self) {}
+
     fn export(&self) -> FutureResult<String, FlowyError> {
         let this = self.clone();
         FutureResult::new(async move { this.get_content(false).await })
     }
+
+    fn duplicate(&self) -> FutureResult<String, FlowyError> {
+        let this = self.clone();
+        FutureResult::new(async move { this.duplicate_document().await })
+    }
+
+    fn receive_ws_data(&self, _data: ServerRevisionWSData) -> FutureResult<(), FlowyError> {
+        FutureResult::new(async move { Ok(()) })
+    }
+
+    fn receive_ws_state(&self, _state: &WSConnectState) {}
 
     fn compose_local_operations(&self, data: Bytes) -> FutureResult<(), FlowyError> {
         let this = self.clone();
@@ -93,19 +106,6 @@ impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
             Ok(())
         })
     }
-
-    fn duplicate(&self) -> FutureResult<String, FlowyError> {
-        let this = self.clone();
-        FutureResult::new(async move { this.duplicate_document().await })
-    }
-
-    fn close(&self) {}
-
-    fn receive_ws_data(&self, _data: ServerRevisionWSData) -> FutureResult<(), FlowyError> {
-        FutureResult::new(async move { Ok(()) })
-    }
-
-    fn receive_ws_state(&self, _state: &WSConnectState) {}
 
     fn as_any(&self) -> &dyn Any {
         self

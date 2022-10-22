@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/dispatch/dispatch.dart';
-import 'package:flowy_sdk/protobuf/flowy-document/entities.pbenum.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/protobuf.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
@@ -11,16 +10,8 @@ class ShareService {
       ViewPB view, ExportType type) {
     var payload = ExportPayloadPB.create()
       ..viewId = view.id
-      ..exportType = type;
-
-    switch (view.dataFormat) {
-      case ViewDataFormatPB.DeltaFormat:
-        payload.documentVersion = DocumentVersionPB.V0;
-        break;
-      default:
-        payload.documentVersion = DocumentVersionPB.V1;
-        break;
-    }
+      ..exportType = type
+      ..documentVersion = DocumentVersionPB.V1;
 
     return DocumentEventExportDocument(payload).send();
   }
