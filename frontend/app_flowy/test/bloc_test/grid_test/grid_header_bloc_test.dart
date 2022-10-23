@@ -12,7 +12,7 @@ void main() {
     gridTest = await AppFlowyGridTest.ensureInitialized();
   });
 
-  group('GridHeaderBloc', () {
+  group('$GridHeaderBloc', () {
     late FieldActionSheetBloc actionSheetBloc;
     setUp(() async {
       await gridTest.createTestGrid();

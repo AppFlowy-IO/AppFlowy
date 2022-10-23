@@ -30,7 +30,7 @@ impl DocumentMigration {
         let conn = &*pool.get()?;
         let disk_cache = SQLiteDocumentRevisionPersistence::new(&self.user_id, pool);
         let documents = DeltaRevisionSql::read_all_documents(&self.user_id, conn)?;
-        tracing::info!("[Document Migration]: try migrate {} documents", documents.len());
+        tracing::debug!("[Document Migration]: try migrate {} documents", documents.len());
         for revisions in documents {
             if revisions.is_empty() {
                 continue;
@@ -66,7 +66,7 @@ impl DocumentMigration {
         //
 
         KV::set_bool(&key, true);
-        tracing::info!("Run document v1 migration");
+        tracing::debug!("Run document v1 migration");
         Ok(())
     }
 }
