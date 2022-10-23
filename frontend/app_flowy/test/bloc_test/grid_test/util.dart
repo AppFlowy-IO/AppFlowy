@@ -105,7 +105,7 @@ class AppFlowyGridCellTest {
       rowInfo: rowInfo,
       dataController: rowDataController,
     )..add(const RowEvent.initial());
-    await gridResponseFuture(milliseconds: 300);
+    await gridResponseFuture();
 
     return GridCellControllerBuilder(
       cellId: rowBloc.state.gridCellMap[fieldId]!,
@@ -115,10 +115,10 @@ class AppFlowyGridCellTest {
   }
 }
 
-Future<void> gridResponseFuture({int milliseconds = 200}) {
-  return Future.delayed(gridResponseDuration(milliseconds: milliseconds));
+Future<void> gridResponseFuture() {
+  return Future.delayed(gridResponseDuration(milliseconds: 500));
 }
 
-Duration gridResponseDuration({int milliseconds = 200}) {
+Duration gridResponseDuration({int milliseconds = 500}) {
   return Duration(milliseconds: milliseconds);
 }
