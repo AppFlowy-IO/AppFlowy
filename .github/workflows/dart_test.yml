@@ -1,4 +1,4 @@
-name: Unit test(Flutter)
+name: Frontend test
 
 on:
   push:
@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: "stable-2022-04-07"
@@ -53,10 +52,6 @@ jobs:
         working-directory: frontend
         run: |
           cargo install cargo-make
-
-      - name: Cargo make flowy dev
-        working-directory: frontend
-        run: |
           cargo make flowy_dev
 
       - name: Flutter Deps
@@ -64,12 +59,12 @@ jobs:
         run: |
           flutter config --enable-linux-desktop
 
-      - name: Build FlowySDK
+      - name: Build Test lib
         working-directory: frontend
         run: |
           cargo make --profile test-linux build-test-lib
 
-      - name: Code Generation
+      - name: Flutter Code Generation
         working-directory: frontend/app_flowy
         run: |
           flutter packages pub get

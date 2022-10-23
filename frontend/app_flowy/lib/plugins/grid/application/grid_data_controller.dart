@@ -79,8 +79,8 @@ class GridDataController {
     );
   }
 
-  void createRow() {
-    _gridFFIService.createRow();
+  Future<void> createRow() async {
+    await _gridFFIService.createRow();
   }
 
   Future<void> dispose() async {

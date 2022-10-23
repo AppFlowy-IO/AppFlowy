@@ -17,8 +17,11 @@ void main() {
   group('SingleSelectOptionBloc', () {
     late GridSelectOptionCellController cellController;
     setUp(() async {
-      cellController =
-          await cellTest.makeCellController(FieldType.SingleSelect);
+      await cellTest.createTestGrid();
+      await cellTest.createTestRow();
+      cellController = await cellTest.makeCellController(
+        FieldType.SingleSelect,
+      );
     });
 
     blocTest<SelectOptionCellEditorBloc, SelectOptionEditorState>(
