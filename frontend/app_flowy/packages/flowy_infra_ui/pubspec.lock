@@ -8,8 +8,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.1"
+  appflowy_popover:
+    dependency: "direct main"
+    description:
+      path: "../appflowy_popover"
+      relative: true
+    source: path
+    version: "0.0.1"
   async:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: async
       url: "https://pub.dartlang.org"
