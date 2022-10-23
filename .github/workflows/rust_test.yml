@@ -1,4 +1,4 @@
-name: Unit test(Rust)
+name: Backend test
 
 on:
   push:
