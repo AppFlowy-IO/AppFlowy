@@ -14,6 +14,7 @@ import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
@@ -138,7 +139,9 @@ class DocumentShareButton extends StatelessWidget {
                     height: 30,
                     width: 100,
                   ),
-                  child: const ShareActionList(),
+                  child: ShareActionList(
+                    view: view,
+                  ),
                 ),
               ),
             );
@@ -165,11 +168,17 @@ class DocumentShareButton extends StatelessWidget {
 }
 
 class ShareActionList extends StatelessWidget {
-  const ShareActionList({Key? key}) : super(key: key);
+  const ShareActionList({
+    Key? key,
+    required this.view,
+  }) : super(key: key);
+
+  final ViewPB view;
 
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<AppTheme>();
+    final docShareBloc = context.read<DocShareBloc>();
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: ShareAction.values
@@ -184,14 +193,17 @@ class ShareActionList extends StatelessWidget {
           onPressed: () => controller.show(),
         );
       },
-      onSelected: (action, controller) {
+      onSelected: (action, controller) async {
         switch (action.inner) {
           case ShareAction.markdown:
-            context
-                .read<DocShareBloc>()
-                .add(const DocShareEvent.shareMarkdown());
-            showMessageToast(
-                'Exported to: ${LocaleKeys.notifications_export_path.tr()}');
+            final exportPath = await FilePicker.platform.saveFile(
+              dialogTitle: '',
+              fileName: '${view.name}.md',
+            );
+            if (exportPath != null) {
+              docShareBloc.add(DocShareEvent.shareMarkdown(exportPath));
+              showMessageToast('Exported to: $exportPath');
+            }
             break;
           case ShareAction.copyLink:
             NavigatorAlertDialog(

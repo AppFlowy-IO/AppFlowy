@@ -65,7 +65,8 @@ class DeltaMarkdownEncoder extends Converter<String, String> {
     // First close any current styles if needed
     final markedForRemoval = <Attribute>[];
     // Close the styles in reverse order, e.g. **_ for _**Test**_.
-    for (final value in currentInlineStyle.attributes.values.toList().reversed) {
+    for (final value
+        in currentInlineStyle.attributes.values.toList().reversed) {
       // TODO(tillf): Is block correct?
       if (value.scope == AttributeScope.BLOCK) {
         continue;
@@ -122,8 +123,10 @@ class DeltaMarkdownEncoder extends Converter<String, String> {
         // Close any open inline styles.
         _handleInline(lineBuffer, '', null);
 
-        final lineBlock =
-            Style.fromJson(attributes).attributes.values.singleWhereOrNull((a) => a.scope == AttributeScope.BLOCK);
+        final lineBlock = Style.fromJson(attributes)
+            .attributes
+            .values
+            .singleWhereOrNull((a) => a.scope == AttributeScope.BLOCK);
 
         if (lineBlock == currentBlockStyle) {
           currentBlockLines.add(lineBuffer.toString());
@@ -228,7 +231,7 @@ class DeltaMarkdownEncoder extends Converter<String, String> {
     } else if (attribute.key == Attribute.strikeThrough.key) {
       buffer.write(!close ? '~~' : '~~');
     } else {
-      throw ArgumentError('Cannot handle $attribute');
+      // do nothing, just skip the unknown attribute.
     }
   }
 
@@ -256,7 +259,7 @@ class DeltaMarkdownEncoder extends Converter<String, String> {
     } else if (block.key == Attribute.list.key) {
       buffer.write('* ');
     } else {
-      throw ArgumentError('Cannot handle block $block');
+      // do nothing, just skip the unknown attribute.
     }
   }
 

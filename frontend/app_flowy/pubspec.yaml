@@ -92,6 +92,7 @@ dependencies:
   textstyle_extensions: "2.0.0-nullsafety"
   shared_preferences: ^2.0.15
   google_fonts: ^3.0.1
+  file_picker: <=5.0.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
