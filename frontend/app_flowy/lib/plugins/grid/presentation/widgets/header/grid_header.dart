@@ -195,7 +195,6 @@ class CreateFieldButton extends StatelessWidget {
       popupBuilder: (BuildContext popover) {
         return FieldEditor(
           gridId: gridId,
-          fieldName: "",
           typeOptionLoader: NewFieldTypeOptionLoader(gridId: gridId),
         );
       },
