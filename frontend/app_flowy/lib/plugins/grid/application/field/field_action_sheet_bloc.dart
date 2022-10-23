@@ -11,9 +11,16 @@ class FieldActionSheetBloc
     extends Bloc<FieldActionSheetEvent, FieldActionSheetState> {
   final FieldService fieldService;
 
-  FieldActionSheetBloc({required FieldPB field, required this.fieldService})
-      : super(FieldActionSheetState.initial(
-            FieldTypeOptionDataPB.create()..field_2 = field)) {
+  FieldActionSheetBloc({required GridFieldCellContext fieldCellContext})
+      : fieldService = FieldService(
+          gridId: fieldCellContext.gridId,
+          fieldId: fieldCellContext.field.id,
+        ),
+        super(
+          FieldActionSheetState.initial(
+            FieldTypeOptionDataPB.create()..field_2 = fieldCellContext.field,
+          ),
+        ) {
     on<FieldActionSheetEvent>(
       (event, emit) async {
         await event.map(
@@ -26,6 +33,13 @@ class FieldActionSheetBloc
           },
           hideField: (_HideField value) async {
             final result = await fieldService.updateField(visibility: false);
+            result.fold(
+              (l) => null,
+              (err) => Log.error(err),
+            );
+          },
+          showField: (_ShowField value) async {
+            final result = await fieldService.updateField(visibility: true);
             result.fold(
               (l) => null,
               (err) => Log.error(err),
@@ -62,6 +76,7 @@ class FieldActionSheetEvent with _$FieldActionSheetEvent {
   const factory FieldActionSheetEvent.updateFieldName(String name) =
       _UpdateFieldName;
   const factory FieldActionSheetEvent.hideField() = _HideField;
+  const factory FieldActionSheetEvent.showField() = _ShowField;
   const factory FieldActionSheetEvent.duplicateField() = _DuplicateField;
   const factory FieldActionSheetEvent.deleteField() = _DeleteField;
   const factory FieldActionSheetEvent.saveField() = _SaveField;

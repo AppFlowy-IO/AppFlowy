@@ -16,8 +16,7 @@ class _GridFieldNotifier extends ChangeNotifier {
   List<GridFieldContext> _fieldContexts = [];
 
   set fieldContexts(List<GridFieldContext> fieldContexts) {
-    _fieldContexts =
-        fieldContexts.where((element) => element.visibility).toList();
+    _fieldContexts = fieldContexts;
     notifyListeners();
   }
 
