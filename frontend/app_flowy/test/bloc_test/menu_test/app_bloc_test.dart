@@ -68,6 +68,34 @@ void main() {
   );
 
   group('$AppBloc', () {
+    late AppPB app;
+    setUpAll(() async {
+      app = await test.createTestApp();
+    });
+
+    blocTest<AppBloc, AppState>(
+      "rename the app",
+      build: () => AppBloc(app: app)..add(const AppEvent.initial()),
+      wait: blocResponseDuration(),
+      act: (bloc) => bloc.add(const AppEvent.rename('Hello world')),
+      verify: (bloc) {
+        assert(bloc.state.app.name == 'Hello world');
+      },
+    );
+
+    blocTest<AppBloc, AppState>(
+      "delete the app",
+      build: () => AppBloc(app: app)..add(const AppEvent.initial()),
+      wait: blocResponseDuration(),
+      act: (bloc) => bloc.add(const AppEvent.delete()),
+      verify: (bloc) async {
+        final apps = await test.loadApps();
+        assert(apps.where((element) => element.id == app.id).isEmpty);
+      },
+    );
+  });
+
+  group('$AppBloc', () {
     late ViewPB view;
     late AppPB app;
     setUpAll(() async {
@@ -86,6 +114,7 @@ void main() {
         view = bloc.state.views.last;
       },
     );
+
     blocTest<AppBloc, AppState>(
       "delete the document",
       build: () => AppBloc(app: app)..add(const AppEvent.initial()),
