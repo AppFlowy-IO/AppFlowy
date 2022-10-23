@@ -1,7 +1,9 @@
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FlowyButton extends StatelessWidget {
   final Widget text;
@@ -147,6 +149,7 @@ class FlowyTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
+        textStyle: TextStyles.caption.textColor(Colors.white),
         child: child,
       );
     }

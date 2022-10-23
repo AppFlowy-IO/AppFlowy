@@ -5,6 +5,8 @@ import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/notifier.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -100,13 +102,7 @@ class FlowyNavigation extends StatelessWidget {
             return RotationTransition(
               turns: const AlwaysStoppedAnimation(180 / 360),
               child: Tooltip(
-                  richMessage: TextSpan(children: [
-                    TextSpan(text: "${LocaleKeys.sideBar_openSidebar.tr()}\n"),
-                    TextSpan(
-                      text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
-                      style: const TextStyle(color: Colors.white60),
-                    ),
-                  ]),
+                  richMessage: sidebarTooltipTextSpan(),
                   child: FlowyIconButton(
                     width: 24,
                     onPressed: () {
@@ -198,3 +194,19 @@ class EllipsisNaviItem extends NavigationItem {
   @override
   NavigationCallback get action => (id) {};
 }
+
+TextSpan sidebarTooltipTextSpan() => TextSpan(
+      children: [
+        TextSpan(
+          text: "${LocaleKeys.sideBar_openSidebar.tr()}\n",
+          style: TextStyles.caption,
+        ),
+        TextSpan(
+          text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
+          style: TextStyles.general(
+            fontSize: FontSizes.s11,
+            color: Colors.white60,
+          ),
+        ),
+      ],
+    );
