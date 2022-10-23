@@ -1,12 +1,10 @@
 use crate::editor::document::Document;
-
 use bytes::Bytes;
 use flowy_error::FlowyResult;
 use lib_ot::core::{
     AttributeHashMap, Body, Changeset, Extension, NodeData, NodeId, NodeOperation, NodeTree, NodeTreeContext, Path,
     Selection, Transaction,
 };
-
 use lib_ot::text_delta::DeltaTextOperations;
 use serde::de::{self, MapAccess, Unexpected, Visitor};
 use serde::ser::{SerializeMap, SerializeSeq};
