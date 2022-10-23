@@ -15,7 +15,7 @@ void main() {
   });
 
   group(
-    'AppBloc',
+    '$AppBloc',
     () {
       late AppPB app;
       setUp(() async {
@@ -67,7 +67,7 @@ void main() {
     },
   );
 
-  group('AppBloc', () {
+  group('$AppBloc', () {
     late ViewPB view;
     late AppPB app;
     setUpAll(() async {
@@ -90,12 +90,6 @@ void main() {
       "delete the document",
       build: () => AppBloc(app: app)..add(const AppEvent.initial()),
       act: (bloc) => bloc.add(AppEvent.deleteView(view.id)),
-    );
-    blocTest<AppBloc, AppState>(
-      "verify the document is exist",
-      build: () => AppBloc(app: app)..add(const AppEvent.initial()),
-      act: (bloc) => bloc.add(const AppEvent.loadViews()),
-      wait: blocResponseDuration(),
       verify: (bloc) {
         assert(bloc.state.views.isEmpty);
       },

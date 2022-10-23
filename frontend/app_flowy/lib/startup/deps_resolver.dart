@@ -89,8 +89,6 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerFactoryParam<ViewBloc, ViewPB, void>(
     (view, _) => ViewBloc(
       view: view,
-      service: ViewService(),
-      listener: getIt<ViewListener>(param1: view),
     ),
   );
 

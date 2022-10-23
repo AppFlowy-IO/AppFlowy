@@ -15,9 +15,9 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
 
   ViewBloc({
     required this.view,
-    required this.service,
-    required this.listener,
-  }) : super(ViewState.init(view)) {
+  })  : service = ViewService(),
+        listener = ViewListener(view: view),
+        super(ViewState.init(view)) {
     on<ViewEvent>((event, emit) async {
       await event.map(
         initial: (e) {
@@ -31,14 +31,19 @@ class ViewBloc extends Bloc<ViewEvent, ViewState> {
         },
         viewDidUpdate: (e) {
           e.result.fold(
-            (view) =>
-                emit(state.copyWith(view: view, successOrFailure: left(unit))),
-            (error) => emit(state.copyWith(successOrFailure: right(error))),
+            (view) => emit(
+              state.copyWith(view: view, successOrFailure: left(unit)),
+            ),
+            (error) => emit(
+              state.copyWith(successOrFailure: right(error)),
+            ),
           );
         },
         rename: (e) async {
-          final result =
-              await service.updateView(viewId: view.id, name: e.newName);
+          final result = await service.updateView(
+            viewId: view.id,
+            name: e.newName,
+          );
           emit(
             result.fold(
               (l) => state.copyWith(successOrFailure: left(unit)),
