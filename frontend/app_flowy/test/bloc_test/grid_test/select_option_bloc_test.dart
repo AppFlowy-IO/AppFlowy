@@ -54,7 +54,6 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
-        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
       },
       wait: gridResponseDuration(),
@@ -72,7 +71,6 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
-        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         bloc.add(SelectOptionEditorEvent.deleteOption(bloc.state.options[0]));
@@ -91,7 +89,6 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
-        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         SelectOptionPB optionUpdate = bloc.state.options[0]
@@ -115,7 +112,6 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
-        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         expect(bloc.state.selectedOptions.length, 1);
@@ -140,7 +136,6 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
-        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         bloc.add(const SelectOptionEditorEvent.trySelectOption("B"));
@@ -163,7 +158,6 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
-        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("A"));
         await Future.delayed(gridResponseDuration());
         bloc.add(const SelectOptionEditorEvent.newOption("B"));
@@ -187,7 +181,6 @@ void main() {
         return bloc;
       },
       act: (bloc) async {
-        _removeFieldOptions(bloc);
         bloc.add(const SelectOptionEditorEvent.newOption("abcd"));
         await Future.delayed(gridResponseDuration());
         bloc.add(const SelectOptionEditorEvent.newOption("aaaa"));
@@ -205,11 +198,4 @@ void main() {
       },
     );
   });
-}
-
-void _removeFieldOptions(SelectOptionCellEditorBloc bloc) async {
-  if (bloc.state.options.isNotEmpty) {
-    bloc.add(const SelectOptionEditorEvent.deleteAllOptions());
-    await Future.delayed(gridResponseDuration());
-  }
 }
