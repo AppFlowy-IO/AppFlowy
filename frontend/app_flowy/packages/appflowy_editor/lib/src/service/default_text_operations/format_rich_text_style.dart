@@ -108,7 +108,16 @@ bool formatTextNodes(EditorState editorState, Attributes attributes) {
         newAttributes[globalStyleKey] = null;
       }
     }
-    newAttributes.addAll(attributes);
+
+    // if an attribute already exists in the node, it should be removed instead
+    for (final entry in attributes.entries) {
+      if (textNode.attributes.containsKey(entry.key) &&
+          textNode.attributes[entry.key] == entry.value) {
+        // attribute is not added to the node new attributes
+      } else {
+        newAttributes.addEntries([entry]);
+      }
+    }
     transaction
       ..updateNode(
         textNode,
