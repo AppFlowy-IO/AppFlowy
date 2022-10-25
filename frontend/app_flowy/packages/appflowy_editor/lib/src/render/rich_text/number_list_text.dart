@@ -58,6 +58,18 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     return super.baseOffset.translate(0, padding.top);
   }
 
+  Color get numberColor {
+    final numberColor = widget.editorState.editorStyle.style(
+      widget.editorState,
+      widget.textNode,
+      'numberColor',
+    );
+    if (numberColor is Color) {
+      return numberColor;
+    }
+    return Colors.black;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -70,8 +82,11 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
             padding: iconPadding,
             child: Text(
               '${widget.textNode.attributes.number.toString()}.',
-              // FIXME: customize
-              style: const TextStyle(fontSize: 16.0, color: Colors.black),
+              style: TextStyle(
+                fontSize: widget.editorState.editorStyle.textStyle
+                    .defaultTextStyle.fontSize,
+                color: numberColor,
+              ),
             ),
           ),
           Flexible(

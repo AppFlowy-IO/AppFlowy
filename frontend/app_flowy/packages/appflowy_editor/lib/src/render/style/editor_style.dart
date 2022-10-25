@@ -117,12 +117,20 @@ Map<String, PluginStyle> builtInTextStylers = {
     ),
   'text/bulleted-list': builtInPluginStyle,
   'text/number-list': builtInPluginStyle
-    ..update(
-      'iconPadding',
-      (_) => (EditorState editorState, Node node) {
+    ..addAll({
+      'numberColor': (EditorState editorState, Node node) {
+        return Colors.black;
+      },
+      'iconPadding': (EditorState editorState, Node node) {
         return const EdgeInsets.only(left: 5.0, right: 5.0);
       },
-    ),
+    }),
+  'text/bulleted-list': builtInPluginStyle
+    ..addAll({
+      'bulletColor': (EditorState editorState, Node node) {
+        return Colors.black;
+      },
+    }),
   'text/quote': builtInPluginStyle,
   'image': builtInPluginStyle,
 };

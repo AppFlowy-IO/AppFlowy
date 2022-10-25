@@ -64,6 +64,18 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
     return super.baseOffset.translate(0, padding.top);
   }
 
+  Color get bulletColor {
+    final bulletColor = widget.editorState.editorStyle.style(
+      widget.editorState,
+      widget.textNode,
+      'bulletColor',
+    );
+    if (bulletColor is Color) {
+      return bulletColor;
+    }
+    return Colors.black;
+  }
+
   @override
   Widget buildWithSingle(BuildContext context) {
     return Padding(
@@ -76,6 +88,7 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
             width: iconSize?.width,
             height: iconSize?.height,
             padding: iconPadding,
+            color: bulletColor,
             name: 'point',
           ),
           Flexible(

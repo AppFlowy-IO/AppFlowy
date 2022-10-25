@@ -55,7 +55,25 @@ EditorStyle customEditorStyle(BuildContext context) {
                 headingToPadding[node.attributes.heading] ?? basePadding;
             return EdgeInsets.only(bottom: padding);
           },
-        )
+        ),
+      'text/number-list': builtInPluginStyle
+        ..addAll(
+          {
+            'numberColor': (EditorState editorState, Node node) {
+              final theme = context.watch<AppTheme>();
+              return theme.isDark ? Colors.white : Colors.black;
+            },
+          },
+        ),
+      'text/bulleted-list': builtInPluginStyle
+        ..addAll(
+          {
+            'bulletColor': (EditorState editorState, Node node) {
+              final theme = context.watch<AppTheme>();
+              return theme.isDark ? Colors.white : Colors.black;
+            },
+          },
+        ),
     },
   );
 }
