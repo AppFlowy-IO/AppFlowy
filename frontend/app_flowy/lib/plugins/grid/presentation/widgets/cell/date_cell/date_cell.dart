@@ -68,7 +68,7 @@ class _DateCellState extends GridCellState<GridDateCell> {
             controller: _popover,
             triggerActions: PopoverTriggerFlags.none,
             direction: PopoverDirection.bottomWithLeftAligned,
-            constraints: BoxConstraints.loose(const Size(320, 500)),
+            constraints: BoxConstraints.loose(const Size(320, 520)),
             margin: EdgeInsets.zero,
             child: SizedBox.expand(
               child: GestureDetector(
