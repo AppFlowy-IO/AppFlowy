@@ -7,6 +7,8 @@ import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -20,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 import '../../../layout/sizes.dart';
 import '../../header/type_option/date.dart';
 
@@ -163,6 +166,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           headerStyle: HeaderStyle(
             formatButtonVisible: false,
             titleCentered: true,
+            titleTextStyle: TextStyles.body1.size(FontSizes.s14),
             leftChevronMargin: EdgeInsets.zero,
             leftChevronPadding: EdgeInsets.zero,
             leftChevronIcon: svgWidget("home/arrow_left"),
@@ -174,12 +178,14 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
           daysOfWeekStyle: DaysOfWeekStyle(
             dowTextFormatter: (date, locale) =>
                 DateFormat.E(locale).format(date).toUpperCase(),
-            weekdayStyle: TextStyle(
+            weekdayStyle: TextStyles.general(
               fontSize: 13,
+              fontWeight: FontWeight.w400,
               color: theme.shader3,
             ),
-            weekendStyle: TextStyle(
+            weekendStyle: TextStyles.general(
               fontSize: 13,
+              fontWeight: FontWeight.w400,
               color: theme.shader3,
             ),
           ),
@@ -210,13 +216,19 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
               shape: BoxShape.rectangle,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
-            selectedTextStyle: TextStyle(
+            defaultTextStyle: TextStyles.body1.size(FontSizes.s14),
+            weekendTextStyle: TextStyles.body1.size(FontSizes.s14),
+            selectedTextStyle: TextStyles.general(
+              fontSize: FontSizes.s14,
               color: theme.surface,
-              fontSize: 14.0,
             ),
-            todayTextStyle: TextStyle(
+            todayTextStyle: TextStyles.general(
+              fontSize: FontSizes.s14,
               color: theme.surface,
-              fontSize: 14.0,
+            ),
+            outsideTextStyle: TextStyles.general(
+              fontSize: FontSizes.s14,
+              color: theme.shader4,
             ),
           ),
           selectedDayPredicate: (day) {
@@ -261,8 +273,10 @@ class _IncludeTimeButton extends StatelessWidget {
               children: [
                 svgWidget("grid/clock", color: theme.iconColor),
                 const HSpace(4),
-                FlowyText.medium(LocaleKeys.grid_field_includeTime.tr(),
-                    fontSize: 14),
+                FlowyText.medium(
+                  LocaleKeys.grid_field_includeTime.tr(),
+                  fontSize: FontSizes.s14,
+                ),
                 const Spacer(),
                 Toggle(
                   value: includeTime,
@@ -340,7 +354,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
               autoFocus: true,
               hintText: state.timeHintText,
               controller: _controller,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              style: TextStyles.body1.size(FontSizes.s14),
               normalBorderColor: theme.shader4,
               errorBorderColor: theme.red,
               focusBorderColor: theme.main1,

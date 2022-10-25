@@ -7,11 +7,11 @@ use flowy_grid_data_model::revision::{
     GridRevision,
 };
 use lib_infra::util::move_vec_element;
-use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
+use lib_ot::core::{DeltaOperationBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::collections::HashMap;
 use std::sync::Arc;
 pub type GridOperations = DeltaOperations<EmptyAttributes>;
-pub type GridOperationsBuilder = DeltaBuilder;
+pub type GridOperationsBuilder = DeltaOperationBuilder<EmptyAttributes>;
 
 pub struct GridRevisionPad {
     grid_rev: Arc<GridRevision>,

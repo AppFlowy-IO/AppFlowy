@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
@@ -185,12 +183,12 @@ extension on EditorState {
     }
     final imageNode = Node(
       type: 'image',
-      children: LinkedList(),
       attributes: {
         'image_src': src,
         'align': 'center',
       },
     );
+    final transaction = this.transaction;
     transaction.insertNode(
       selection.start.path,
       imageNode,

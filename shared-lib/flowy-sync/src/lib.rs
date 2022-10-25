@@ -9,4 +9,4 @@ pub mod server_folder;
 pub mod synchronizer;
 pub mod util;
 
-pub use lib_ot::text_delta::TextOperations;
+pub use lib_ot::text_delta::DeltaTextOperations;

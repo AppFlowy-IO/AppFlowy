@@ -18,11 +18,10 @@ import 'package:dartz/dartz.dart';
 part 'app_bloc.freezed.dart';
 
 class AppBloc extends Bloc<AppEvent, AppState> {
-  final AppPB app;
   final AppService appService;
   final AppListener appListener;
 
-  AppBloc({required this.app})
+  AppBloc({required AppPB app})
       : appService = AppService(),
         appListener = AppListener(appId: app.id),
         super(AppState.initial(app)) {
@@ -34,8 +33,6 @@ class AppBloc extends Bloc<AppEvent, AppState> {
         await _createView(value, emit);
       }, loadViews: (_) async {
         await _loadViews(emit);
-      }, didReceiveViewUpdated: (e) async {
-        await _didReceiveViewUpdated(e.views, emit);
       }, delete: (e) async {
         await _deleteApp(emit);
       }, deleteView: (deletedView) async {
@@ -43,23 +40,26 @@ class AppBloc extends Bloc<AppEvent, AppState> {
       }, rename: (e) async {
         await _renameView(e, emit);
       }, appDidUpdate: (e) async {
-        emit(state.copyWith(app: e.app));
+        final latestCreatedView = state.latestCreatedView;
+        final views = e.app.belongings.items;
+        AppState newState = state.copyWith(
+          views: views,
+          app: e.app,
+        );
+        if (latestCreatedView != null) {
+          final index =
+              views.indexWhere((element) => element.id == latestCreatedView.id);
+          if (index == -1) {
+            newState = newState.copyWith(latestCreatedView: null);
+          }
+        }
+        emit(newState);
       });
     });
   }
 
   void _startListening() {
     appListener.start(
-      onViewsChanged: (result) {
-        result.fold(
-          (views) {
-            if (!isClosed) {
-              add(AppEvent.didReceiveViewUpdated(views));
-            }
-          },
-          (error) => Log.error(error),
-        );
-      },
       onAppUpdated: (app) {
         if (!isClosed) {
           add(AppEvent.appDidUpdate(app));
@@ -69,7 +69,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
   }
 
   Future<void> _renameView(Rename e, Emitter<AppState> emit) async {
-    final result = await appService.updateApp(appId: app.id, name: e.newName);
+    final result =
+        await appService.updateApp(appId: state.app.id, name: e.newName);
     result.fold(
       (l) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -78,7 +79,7 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
 // Delete the current app
   Future<void> _deleteApp(Emitter<AppState> emit) async {
-    final result = await appService.delete(appId: app.id);
+    final result = await appService.delete(appId: state.app.id);
     result.fold(
       (unit) => emit(state.copyWith(successOrFailure: left(unit))),
       (error) => emit(state.copyWith(successOrFailure: right(error))),
@@ -95,10 +96,10 @@ class AppBloc extends Bloc<AppEvent, AppState> {
 
   Future<void> _createView(CreateView value, Emitter<AppState> emit) async {
     final result = await appService.createView(
-      appId: app.id,
+      appId: state.app.id,
       name: value.name,
       desc: value.desc ?? "",
-      dataType: value.pluginBuilder.dataType,
+      dataFormatType: value.pluginBuilder.dataFormatType,
       pluginType: value.pluginBuilder.pluginType,
       layoutType: value.pluginBuilder.layoutType!,
     );
@@ -120,25 +121,8 @@ class AppBloc extends Bloc<AppEvent, AppState> {
     return super.close();
   }
 
-  Future<void> _didReceiveViewUpdated(
-    List<ViewPB> views,
-    Emitter<AppState> emit,
-  ) async {
-    final latestCreatedView = state.latestCreatedView;
-    AppState newState = state.copyWith(views: views);
-    if (latestCreatedView != null) {
-      final index =
-          views.indexWhere((element) => element.id == latestCreatedView.id);
-      if (index == -1) {
-        newState = newState.copyWith(latestCreatedView: null);
-      }
-    }
-
-    emit(newState);
-  }
-
   Future<void> _loadViews(Emitter<AppState> emit) async {
-    final viewsOrFailed = await appService.getViews(appId: app.id);
+    final viewsOrFailed = await appService.getViews(appId: state.app.id);
     viewsOrFailed.fold(
       (views) => emit(state.copyWith(views: views)),
       (error) {
@@ -161,8 +145,6 @@ class AppEvent with _$AppEvent {
   const factory AppEvent.delete() = DeleteApp;
   const factory AppEvent.deleteView(String viewId) = DeleteView;
   const factory AppEvent.rename(String newName) = Rename;
-  const factory AppEvent.didReceiveViewUpdated(List<ViewPB> views) =
-      ReceiveViews;
   const factory AppEvent.appDidUpdate(AppPB app) = AppDidUpdate;
 }
 

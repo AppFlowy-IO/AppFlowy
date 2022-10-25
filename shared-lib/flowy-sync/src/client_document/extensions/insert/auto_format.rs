@@ -1,8 +1,8 @@
 use crate::{client_document::InsertExt, util::is_whitespace};
 use lib_ot::core::AttributeHashMap;
 use lib_ot::{
-    core::{count_utf16_code_units, OperationBuilder, OperationIterator},
-    text_delta::{empty_attributes, BuildInTextAttribute, TextOperations},
+    core::{count_utf16_code_units, DeltaOperationBuilder, OperationIterator},
+    text_delta::{empty_attributes, BuildInTextAttribute, DeltaTextOperations},
 };
 use std::cmp::min;
 use url::Url;
@@ -13,7 +13,13 @@ impl InsertExt for AutoFormatExt {
         "AutoFormatExt"
     }
 
-    fn apply(&self, delta: &TextOperations, replace_len: usize, text: &str, index: usize) -> Option<TextOperations> {
+    fn apply(
+        &self,
+        delta: &DeltaTextOperations,
+        replace_len: usize,
+        text: &str,
+        index: usize,
+    ) -> Option<DeltaTextOperations> {
         // enter whitespace to trigger auto format
         if !is_whitespace(text) {
             return None;
@@ -42,7 +48,7 @@ impl InsertExt for AutoFormatExt {
                     };
 
                     return Some(
-                        OperationBuilder::new()
+                        DeltaOperationBuilder::new()
                             .retain(index + replace_len - min(index, format_len))
                             .retain_with_attributes(format_len, format_attributes)
                             .insert_with_attributes(text, next_attributes)

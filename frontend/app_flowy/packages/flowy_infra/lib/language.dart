@@ -40,6 +40,8 @@ String languageFromLocale(Locale locale) {
       return "Português";
     case "ru":
       return "русский";
+    case "sv":
+      return "Svenska";
     case "tr":
       return "Türkçe";
 

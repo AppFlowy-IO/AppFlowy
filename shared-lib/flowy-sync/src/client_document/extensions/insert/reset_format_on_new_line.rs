@@ -1,8 +1,8 @@
 use crate::{client_document::InsertExt, util::is_newline};
 use lib_ot::core::AttributeHashMap;
 use lib_ot::{
-    core::{OperationBuilder, OperationIterator, Utf16CodeUnitMetric, NEW_LINE},
-    text_delta::{BuildInTextAttributeKey, TextOperations},
+    core::{DeltaOperationBuilder, OperationIterator, Utf16CodeUnitMetric, NEW_LINE},
+    text_delta::{BuildInTextAttributeKey, DeltaTextOperations},
 };
 
 pub struct ResetLineFormatOnNewLine {}
@@ -11,7 +11,13 @@ impl InsertExt for ResetLineFormatOnNewLine {
         "ResetLineFormatOnNewLine"
     }
 
-    fn apply(&self, delta: &TextOperations, replace_len: usize, text: &str, index: usize) -> Option<TextOperations> {
+    fn apply(
+        &self,
+        delta: &DeltaTextOperations,
+        replace_len: usize,
+        text: &str,
+        index: usize,
+    ) -> Option<DeltaTextOperations> {
         if !is_newline(text) {
             return None;
         }
@@ -33,7 +39,7 @@ impl InsertExt for ResetLineFormatOnNewLine {
 
         let len = index + replace_len;
         Some(
-            OperationBuilder::new()
+            DeltaOperationBuilder::new()
                 .retain(len)
                 .insert_with_attributes(NEW_LINE, next_op.get_attributes())
                 .retain_with_attributes(1, reset_attribute)

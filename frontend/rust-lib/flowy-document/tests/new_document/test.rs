@@ -1,7 +1,7 @@
 use crate::new_document::script::DocumentEditorTest;
 use crate::new_document::script::EditScript::*;
 
-use lib_ot::text_delta::TextOperationBuilder;
+use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[tokio::test]
 async fn document_initialize_test() {
@@ -13,7 +13,7 @@ async fn document_initialize_test() {
 
 #[tokio::test]
 async fn document_insert_text_test() {
-    let delta = TextOperationBuilder::new().insert("Hello world").build();
+    let delta = DeltaTextOperationBuilder::new().insert("Hello world").build();
     let expected = r#"{
   "document": {
     "type": "editor",
@@ -49,7 +49,7 @@ async fn document_update_text_test() {
     let scripts = vec![
         UpdateText {
             path: vec![0, 0].into(),
-            delta: TextOperationBuilder::new().insert(&hello_world).build(),
+            delta: DeltaTextOperationBuilder::new().insert(&hello_world).build(),
         },
         AssertPrettyContent {
             expected: r#"{
@@ -75,7 +75,7 @@ async fn document_update_text_test() {
     let scripts = vec![
         UpdateText {
             path: vec![0, 0].into(),
-            delta: TextOperationBuilder::new()
+            delta: DeltaTextOperationBuilder::new()
                 .retain(hello_world.len())
                 .insert(", AppFlowy")
                 .build(),
@@ -122,11 +122,11 @@ async fn document_delete_text_test() {
     let scripts = vec![
         UpdateText {
             path: vec![0, 0].into(),
-            delta: TextOperationBuilder::new().insert(&hello_world).build(),
+            delta: DeltaTextOperationBuilder::new().insert(&hello_world).build(),
         },
         UpdateText {
             path: vec![0, 0].into(),
-            delta: TextOperationBuilder::new().retain(5).delete(6).build(),
+            delta: DeltaTextOperationBuilder::new().retain(5).delete(6).build(),
         },
         AssertPrettyContent { expected },
     ];
@@ -139,7 +139,7 @@ async fn document_delete_node_test() {
     let scripts = vec![
         UpdateText {
             path: vec![0, 0].into(),
-            delta: TextOperationBuilder::new().insert("Hello world").build(),
+            delta: DeltaTextOperationBuilder::new().insert("Hello world").build(),
         },
         AssertContent {
             expected: r#"{"document":{"type":"editor","children":[{"type":"text","delta":[{"insert":"Hello world"}]}]}}"#,

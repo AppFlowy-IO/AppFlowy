@@ -17,6 +17,7 @@ thiserror = "1.0"
 serde_json = { version = "1.0" }
 serde_repr = { version = "0.1" }
 derive_more = { version = "0.99", features = ["display"] }
+indexmap = {version = "1.9.1", features = ["serde"]}
 log = "0.4"
 tracing = { version = "0.1", features = ["log"] }
 lazy_static = "1.4.0"

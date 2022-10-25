@@ -38,12 +38,20 @@ impl NodeTree {
         Self::from_operations(operations, context)
     }
 
-    pub fn from_operations(operations: NodeOperations, context: NodeTreeContext) -> Result<Self, OTError> {
+    pub fn from_operations<T: Into<NodeOperations>>(operations: T, context: NodeTreeContext) -> Result<Self, OTError> {
+        let operations = operations.into();
         let mut node_tree = NodeTree::new(context);
         for operation in operations.into_inner().into_iter() {
             let _ = node_tree.apply_op(operation)?;
         }
         Ok(node_tree)
+    }
+
+    pub fn from_transaction<T: Into<Transaction>>(transaction: T, context: NodeTreeContext) -> Result<Self, OTError> {
+        let transaction = transaction.into();
+        let mut tree = Self::new(context);
+        let _ = tree.apply_transaction(transaction)?;
+        Ok(tree)
     }
 
     pub fn get_node(&self, node_id: NodeId) -> Option<&Node> {

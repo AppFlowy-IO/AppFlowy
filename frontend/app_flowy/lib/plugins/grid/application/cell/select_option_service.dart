@@ -45,11 +45,10 @@ class SelectOptionService {
     return GridEventUpdateSelectOption(payload).send();
   }
 
-  Future<Either<Unit, FlowyError>> delete({
-    required SelectOptionPB option,
-  }) {
+  Future<Either<Unit, FlowyError>> delete(
+      {required Iterable<SelectOptionPB> options}) {
     final payload = SelectOptionChangesetPayloadPB.create()
-      ..deleteOptions.add(option)
+      ..deleteOptions.addAll(options)
       ..cellIdentifier = _cellIdentifier();
 
     return GridEventUpdateSelectOption(payload).send();

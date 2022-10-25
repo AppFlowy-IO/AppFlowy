@@ -1,0 +1,235 @@
+{
+  "appName": "AppFlowy",
+  "defaultUsername": "Jag",
+  "welcomeText": "Välkommen till @:appName",
+  "githubStarText": "Stärnmärk på GitHub",
+  "subscribeNewsletterText": "Prenumerera på nyhetsbrev",
+  "letsGoButtonText": "Kör igång",
+  "title": "Namn",
+  "signUp": {
+    "buttonText": "Registrera dig",
+    "title": "Registrera dig på @:appName",
+    "getStartedText": "Sätt igång",
+    "emptyPasswordError": "Lösenordet kan inte vara tomt",
+    "repeatPasswordEmptyError": "Upprepat lösenord kan inte vara tomt",
+    "unmatchedPasswordError": "Upprepat lösenord är inte samma som det första",
+    "alreadyHaveAnAccount": "Har du redan ett konto?",
+    "emailHint": "E-post",
+    "passwordHint": "Lösenord",
+    "repeatPasswordHint": "Uprepa lösenordet"
+  },
+  "signIn": {
+    "loginTitle": "Logga in till @:appName",
+    "loginButtonText": "Logga in",
+    "buttonText": "Registrering",
+    "forgotPassword": "Glömt lösenordet?",
+    "emailHint": "E-post",
+    "passwordHint": "Lösenord",
+    "dontHaveAnAccount": "Har du inget konto?",
+    "repeatPasswordEmptyError": "Upprepat lösenord kan inte vara tomt",
+    "unmatchedPasswordError": "Upprepat lösenord är inte samma som det första"
+  },
+  "workspace": {
+    "create": "Skapa arbetsyta",
+    "hint": "Arbetsyta",
+    "notFoundError": "Hittade ingen arbetsyta"
+  },
+  "shareAction": {
+    "buttonText": "Dela",
+    "workInProgress": "Kommer snart",
+    "markdown": "Markdown",
+    "copyLink": "Kopiera länk"
+  },
+  "disclosureAction": {
+    "rename": "Byt namn",
+    "delete": "Ta bort",
+    "duplicate": "Klona"
+  },
+  "blankPageTitle": "Tom sida",
+  "newPageText": "Ny sida",
+  "trash": {
+    "text": "Skräp",
+    "restoreAll": "Återställ alla",
+    "deleteAll": "Ta bort alla",
+    "pageHeader": {
+      "fileName": "Filnamn",
+      "lastModified": "Ändrad",
+      "created": "Skapad"
+    }
+  },
+  "deletePagePrompt": {
+    "text": "Denna sida är i skräpmappen",
+    "restore": "Återställ sida",
+    "deletePermanent": "Radera permanent"
+  },
+  "dialogCreatePageNameHint": "Sidnamn",
+  "questionBubble": {
+    "whatsNew": "Vad nytt?",
+    "help": "Hjälp & Support",
+    "debug": {
+      "name": "Felsökningsinfo",
+      "success": "Kopierade felsökningsinfo till urklipp!",
+      "fail": "Kunde inte kopiera felsökningsinfo till urklipp"
+    }
+  },
+  "menuAppHeader": {
+    "addPageTooltip": "Lägg snabbt till en sida inuti",
+    "defaultNewPageName": "Namnlös",
+    "renameDialog": "Byt namn"
+  },
+  "toolbar": {
+    "undo": "Ångra",
+    "redo": "Upprepa",
+    "bold": "Fet",
+    "italic": "Kursiv",
+    "underline": "Understruken",
+    "strike": "Genomstruken",
+    "numList": "Numrerad lista",
+    "bulletList": "Punktlista",
+    "checkList": "Checklista",
+    "inlineCode": "Infogad kod",
+    "quote": "Citatblock",
+    "header": "Rubrik",
+    "highlight": "Färgmarkera"
+  },
+  "tooltip": {
+    "lightMode": "Växla till ljust läge",
+    "darkMode": "Växla till mörkt läge",
+    "openAsPage": "Öppna som sida",
+    "addNewRow": "Lägg till ny rad",
+    "openMenu": "Klicka för att öppna meny"
+  },
+  "sideBar": {
+    "closeSidebar": "Stäng sidofältet",
+    "openSidebar": "Öppna sidofältet"
+  },
+  "notifications": {
+    "export": {
+      "markdown": "Exporterade anteckning till Markdown",
+      "path": "Dokument/flowy"
+    }
+  },
+  "contactsPage": {
+    "title": "Kontakter",
+    "whatsHappening": "Vad händer denna vecka?",
+    "addContact": "Lägg till kontakt",
+    "editContact": "Redigera kontakt"
+  },
+  "button": {
+    "OK": "OK",
+    "Cancel": "Avbryt",
+    "signIn": "Logga in",
+    "signOut": "Logga ut",
+    "complete": "Slutfört",
+    "save": "Spara"
+  },
+  "label": {
+    "welcome": "Välkommen!",
+    "firstName": "Förnamn",
+    "middleName": "Mellannamn",
+    "lastName": "Efternamn",
+    "stepX": "Steg {X}"
+  },
+  "oAuth": {
+    "err": {
+      "failedTitle": "Kan inte ansluta till ditt konto.",
+      "failedMsg": "Tillse att du har slutfört registreringsprocessen i din webbläsare."
+    },
+    "google": {
+      "title": "GOOGLE-inloggning",
+      "instruction1": "För att kunna importera dina Google-kontakter, måste du auktorisera detta program med hjälp av din webbläsare.",
+      "instruction2": "Kopiera den här koden till urklipp genom att klicka på ikonen eller genom att markera texten:",
+      "instruction3": "Gå till följande länk i din webbläsare, och ange ovanstående kod:",
+      "instruction4": "Tryck på nedanstående knapp när du slutfört registreringen:"
+    }
+  },
+  "settings": {
+    "title": "Inställningar",
+    "menu": {
+      "appearance": "Utseende",
+      "language": "Språk",
+      "user": "Användare",
+      "open": "Öppna inställningarna"
+    },
+    "appearance": {
+      "lightLabel": "Ljust läge",
+      "darkLabel": "Mörkt läge"
+    }
+  },
+  "grid": {
+    "settings": {
+      "filter": "Filter",
+      "sortBy": "Sortera efter",
+      "Properties": "Egenskaper",
+      "group": "Grupp"
+    },
+    "field": {
+      "hide": "Dölj",
+      "insertLeft": "Infoga till vänster",
+      "insertRight": "Infoga till höger",
+      "duplicate": "Klona",
+      "delete": "Ta bort",
+      "textFieldName": "Text",
+      "checkboxFieldName": "Checkruta",
+      "dateFieldName": "Datum",
+      "numberFieldName": "Siffror",
+      "singleSelectFieldName": "Välj",
+      "multiSelectFieldName": "Välj flera",
+      "urlFieldName": "URL",
+      "numberFormat": " Sifferformat",
+      "dateFormat": " Datumformat",
+      "includeTime": " Inkludera tid",
+      "dateFormatFriendly": "Månad Dag,År",
+      "dateFormatISO": "År-Månad-Dag",
+      "dateFormatLocal": "Månad/Dag/År",
+      "dateFormatUS": "År/Månad/Dag",
+      "timeFormat": " Tidsformat",
+      "invalidTimeFormat": "Ogiltigt format",
+      "timeFormatTwelveHour": "12-timmars",
+      "timeFormatTwentyFourHour": "24-timmars",
+      "addSelectOption": "Lägg till ett alternativ",
+      "optionTitle": "Alternativ",
+      "addOption": "Lägg till alternativ",
+      "editProperty": "Redigera egenskap",
+      "newColumn": "Ny kolumn",
+      "deleteFieldPromptMessage": "Är du säker? Denna egenskap kommer att raderas."
+    },
+    "row": {
+      "duplicate": "Klona",
+      "delete": "Ta bort",
+      "textPlaceholder": "Tom",
+      "copyProperty": "Kopierade egenskap till urklipp",
+      "count": "Antal",
+      "newRow": "Ny rad"
+    },
+    "selectOption": {
+      "create": "Skapa",
+      "purpleColor": "Purpur",
+      "pinkColor": "Rosa",
+      "lightPinkColor": "Ljusrosa",
+      "orangeColor": "Orange",
+      "yellowColor": "Gul",
+      "limeColor": "Lime",
+      "greenColor": "Grön",
+      "aquaColor": "Vatten",
+      "blueColor": "Blå",
+      "deleteTag": "Ta bort tagg",
+      "colorPanelTitle": "Färger",
+      "panelTitle": "Välj ett alternativ eller skapa ett",
+      "searchOption": "Sök efter ett alternativ"
+    },
+    "menuName": "Tabell"
+  },
+  "document": {
+    "menuName": "Dokument",
+    "date": {
+      "timeHintTextInTwelveHour": "01:00 PM",
+      "timeHintTextInTwentyFourHour": "13:00"
+    }
+  },
+  "board": {
+    "column": {
+      "create_new_card": "Nytt"
+    }
+  }
+}

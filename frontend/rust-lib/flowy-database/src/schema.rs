@@ -14,6 +14,17 @@ table! {
 }
 
 table! {
+    document_rev_table (id) {
+        id -> Integer,
+        document_id -> Text,
+        base_rev_id -> BigInt,
+        rev_id -> BigInt,
+        data -> Binary,
+        state -> Integer,
+    }
+}
+
+table! {
     grid_block_index_table (row_id) {
         row_id -> Text,
         block_id -> Text,
@@ -133,6 +144,7 @@ table! {
 
 allow_tables_to_appear_in_same_query!(
     app_table,
+    document_rev_table,
     grid_block_index_table,
     grid_meta_rev_table,
     grid_rev_table,

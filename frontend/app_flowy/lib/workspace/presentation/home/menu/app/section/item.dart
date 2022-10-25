@@ -38,10 +38,11 @@ class ViewSectionItem extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-            create: (ctx) => getIt<ViewBloc>(param1: view)
-              ..add(
-                const ViewEvent.initial(),
-              )),
+          create: (ctx) => getIt<ViewBloc>(param1: view)
+            ..add(
+              const ViewEvent.initial(),
+            ),
+        ),
       ],
       child: BlocBuilder<ViewBloc, ViewState>(
         builder: (blocContext, state) {

@@ -2,7 +2,6 @@ export './app/header/header.dart';
 export './app/menu_app.dart';
 
 import 'dart:io' show Platform;
-import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/trash/menu.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
@@ -26,8 +25,8 @@ import 'package:app_flowy/core/frameless_window.dart';
 // import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
-import 'package:easy_localization/easy_localization.dart';
 
+import '../navigation.dart';
 import 'app/menu_app.dart';
 import 'app/create_button.dart';
 import 'menu_user.dart';
@@ -51,8 +50,10 @@ class HomeMenu extends StatelessWidget {
       providers: [
         BlocProvider<MenuBloc>(
           create: (context) {
-            final menuBloc = getIt<MenuBloc>(
-                param1: user, param2: workspaceSetting.workspace.id);
+            final menuBloc = MenuBloc(
+              user: user,
+              workspace: workspaceSetting.workspace,
+            );
             menuBloc.add(const MenuEvent.initial());
             return menuBloc;
           },
@@ -220,14 +221,7 @@ class MenuTopBar extends StatelessWidget {
               renderIcon(context),
               const Spacer(),
               Tooltip(
-                  richMessage: TextSpan(children: [
-                    TextSpan(
-                        text: "${LocaleKeys.sideBar_closeSidebar.tr()}\n"),
-                    TextSpan(
-                      text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
-                      style: const TextStyle(color: Colors.white60),
-                    ),
-                  ]),
+                  richMessage: sidebarTooltipTextSpan(),
                   child: FlowyIconButton(
                     width: 28,
                     onPressed: () => context

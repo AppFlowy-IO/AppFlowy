@@ -13,7 +13,8 @@ use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision
 use flowy_revision::disk::{RevisionRecord, RevisionState};
 use flowy_revision::mk_text_block_revision_disk_cache;
 use flowy_sync::{client_folder::FolderPad, entities::revision::Revision};
-use lib_ot::core::DeltaBuilder;
+
+use flowy_sync::server_folder::FolderOperationsBuilder;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 pub use version_1::{app_sql::*, trash_sql::*, v1_impl::V1Transaction, view_sql::*, workspace_sql::*};
@@ -108,7 +109,7 @@ impl FolderPersistence {
     pub async fn save_folder(&self, user_id: &str, folder_id: &FolderId, folder: FolderPad) -> FlowyResult<()> {
         let pool = self.database.db_pool()?;
         let json = folder.to_json()?;
-        let delta_data = DeltaBuilder::new().insert(&json).build().json_bytes();
+        let delta_data = FolderOperationsBuilder::new().insert(&json).build().json_bytes();
         let revision = Revision::initial_revision(user_id, folder_id.as_ref(), delta_data);
         let record = RevisionRecord {
             revision,

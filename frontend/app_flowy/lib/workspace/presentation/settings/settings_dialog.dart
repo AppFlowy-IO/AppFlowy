@@ -7,6 +7,7 @@ import 'package:app_flowy/workspace/presentation/settings/widgets/settings_user_
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_menu.dart';
 import 'package:app_flowy/workspace/application/settings/settings_dialog_bloc.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -35,11 +36,10 @@ class SettingsDialog extends StatelessWidget {
             builder: (context, state) => ChangeNotifierProvider.value(
                   value: Provider.of<AppearanceSetting>(context, listen: true),
                   child: FlowyDialog(
-                    title: Text(
+                    title: FlowyText(
                       LocaleKeys.settings_title.tr(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,14 +62,12 @@ class SettingsDialog extends StatelessWidget {
                         const SizedBox(width: 10),
                         Expanded(
                           child: getSettingsView(
-                              context
-                                  .read<SettingsDialogBloc>()
-                                  .state
-                                  .viewIndex,
-                              context
-                                  .read<SettingsDialogBloc>()
-                                  .state
-                                  .userProfile),
+                            context.read<SettingsDialogBloc>().state.viewIndex,
+                            context
+                                .read<SettingsDialogBloc>()
+                                .state
+                                .userProfile,
+                          ),
                         )
                       ],
                     ),

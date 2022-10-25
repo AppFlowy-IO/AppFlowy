@@ -474,6 +474,7 @@ impl FieldChangesetParams {
             || self.frozen.is_some()
             || self.type_option_data.is_some()
             || self.frozen.is_some()
+            || self.visibility.is_some()
             || self.width.is_some()
     }
 }

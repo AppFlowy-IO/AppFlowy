@@ -1,9 +1,10 @@
 use crate::synchronizer::{RevisionOperations, RevisionSynchronizer};
 use crate::{errors::CollaborateError, synchronizer::RevisionSyncObject};
-use lib_ot::core::{DeltaOperations, EmptyAttributes, OperationTransform};
+use lib_ot::core::{DeltaOperationBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 
 pub type FolderRevisionSynchronizer = RevisionSynchronizer<EmptyAttributes>;
 pub type FolderOperations = DeltaOperations<EmptyAttributes>;
+pub type FolderOperationsBuilder = DeltaOperationBuilder<EmptyAttributes>;
 
 pub struct ServerFolder {
     folder_id: String,

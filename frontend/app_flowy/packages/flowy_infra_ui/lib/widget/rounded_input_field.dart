@@ -1,8 +1,10 @@
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/time/duration.dart';
 import 'package:flutter/services.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class RoundedInputField extends StatefulWidget {
   final String? hintText;
@@ -113,7 +115,7 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
           decoration: InputDecoration(
             contentPadding: widget.contentPadding,
             hintText: widget.hintText,
-            hintStyle: TextStyle(color: widget.normalBorderColor),
+            hintStyle: TextStyles.body1.textColor(widget.normalBorderColor),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: borderColor,

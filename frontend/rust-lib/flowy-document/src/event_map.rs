@@ -19,7 +19,7 @@ pub fn create(document_manager: Arc<DocumentManager>) -> Module {
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Display, Hash, ProtoBuf_Enum, Flowy_Event)]
 #[event_err = "FlowyError"]
 pub enum DocumentEvent {
-    #[event(input = "DocumentIdPB", output = "DocumentSnapshotPB")]
+    #[event(input = "OpenDocumentContextPB", output = "DocumentSnapshotPB")]
     GetDocument = 0,
 
     #[event(input = "EditPayloadPB")]
