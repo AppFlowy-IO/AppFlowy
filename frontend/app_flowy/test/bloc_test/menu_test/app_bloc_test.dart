@@ -119,6 +119,7 @@ void main() {
       "delete the document",
       build: () => AppBloc(app: app)..add(const AppEvent.initial()),
       act: (bloc) => bloc.add(AppEvent.deleteView(view.id)),
+      wait: blocResponseDuration(),
       verify: (bloc) {
         assert(bloc.state.views.isEmpty);
       },
