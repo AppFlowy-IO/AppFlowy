@@ -92,14 +92,6 @@ void _resolveFolderDeps(GetIt getIt) {
     ),
   );
 
-  //Menu
-  getIt.registerFactoryParam<MenuBloc, UserProfilePB, String>(
-    (user, workspaceId) => MenuBloc(
-      workspaceId: workspaceId,
-      listener: getIt<WorkspaceListener>(param1: user, param2: workspaceId),
-    ),
-  );
-
   getIt.registerFactoryParam<MenuUserBloc, UserProfilePB, void>(
     (user, _) => MenuUserBloc(user),
   );
@@ -123,10 +115,7 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerLazySingleton<TrashService>(() => TrashService());
   getIt.registerLazySingleton<TrashListener>(() => TrashListener());
   getIt.registerFactory<TrashBloc>(
-    () => TrashBloc(
-      service: getIt<TrashService>(),
-      listener: getIt<TrashListener>(),
-    ),
+    () => TrashBloc(),
   );
 }
 

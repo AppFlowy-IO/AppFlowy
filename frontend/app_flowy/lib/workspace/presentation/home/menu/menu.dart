@@ -51,8 +51,10 @@ class HomeMenu extends StatelessWidget {
       providers: [
         BlocProvider<MenuBloc>(
           create: (context) {
-            final menuBloc = getIt<MenuBloc>(
-                param1: user, param2: workspaceSetting.workspace.id);
+            final menuBloc = MenuBloc(
+              user: user,
+              workspace: workspaceSetting.workspace,
+            );
             menuBloc.add(const MenuEvent.initial());
             return menuBloc;
           },
@@ -221,8 +223,7 @@ class MenuTopBar extends StatelessWidget {
               const Spacer(),
               Tooltip(
                   richMessage: TextSpan(children: [
-                    TextSpan(
-                        text: "${LocaleKeys.sideBar_closeSidebar.tr()}\n"),
+                    TextSpan(text: "${LocaleKeys.sideBar_closeSidebar.tr()}\n"),
                     TextSpan(
                       text: Platform.isMacOS ? "⌘+\\" : "Ctrl+\\",
                       style: const TextStyle(color: Colors.white60),
