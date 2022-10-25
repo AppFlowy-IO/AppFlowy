@@ -6,6 +6,8 @@ import 'package:dartz/dartz.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-folder/workspace.pb.dart';
+import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -13,16 +15,23 @@ part 'menu_bloc.freezed.dart';
 
 class MenuBloc extends Bloc<MenuEvent, MenuState> {
   final WorkspaceService _workspaceService;
-  final WorkspaceListener listener;
-  final String workspaceId;
+  final WorkspaceListener _listener;
+  final UserProfilePB user;
+  final WorkspacePB workspace;
 
-  MenuBloc({required this.workspaceId, required this.listener})
-      : _workspaceService = WorkspaceService(workspaceId: workspaceId),
-        super(MenuState.initial()) {
+  MenuBloc({
+    required this.user,
+    required this.workspace,
+  })  : _workspaceService = WorkspaceService(workspaceId: workspace.id),
+        _listener = WorkspaceListener(
+          user: user,
+          workspaceId: workspace.id,
+        ),
+        super(MenuState.initial(workspace)) {
     on<MenuEvent>((event, emit) async {
       await event.map(
         initial: (e) async {
-          listener.start(appsChanged: _handleAppsOrFail);
+          _listener.start(appsChanged: _handleAppsOrFail);
           await _fetchApps(emit);
         },
         openPage: (e) async {
@@ -55,7 +64,7 @@ class MenuBloc extends Bloc<MenuEvent, MenuState> {
 
   @override
   Future<void> close() async {
-    await listener.stop();
+    await _listener.stop();
     return super.close();
   }
 
@@ -110,8 +119,8 @@ class MenuState with _$MenuState {
     required Plugin plugin,
   }) = _MenuState;
 
-  factory MenuState.initial() => MenuState(
-        apps: [],
+  factory MenuState.initial(WorkspacePB workspace) => MenuState(
+        apps: workspace.apps.items,
         successOrFailure: left(unit),
         plugin: makePlugin(pluginType: PluginType.blank),
       );

@@ -39,9 +39,9 @@ class FlowyRunner {
 
     // add task
     getIt<AppLauncher>().addTask(InitRustSDKTask());
+    getIt<AppLauncher>().addTask(PluginLoadTask());
 
     if (!env.isTest()) {
-      getIt<AppLauncher>().addTask(PluginLoadTask());
       getIt<AppLauncher>().addTask(InitAppWidgetTask());
       getIt<AppLauncher>().addTask(InitPlatformServiceTask());
     }
