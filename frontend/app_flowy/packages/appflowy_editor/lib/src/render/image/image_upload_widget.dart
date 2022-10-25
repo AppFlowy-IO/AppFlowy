@@ -87,7 +87,6 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
 
   final _textEditingController = TextEditingController();
   final _focusNode = FocusNode();
-
   @override
   void initState() {
     super.initState();
