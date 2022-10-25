@@ -259,7 +259,7 @@ List<ToolbarItem> defaultToolbarItems = [
     ),
     handler: (editorState, context) => formatHighlight(
       editorState,
-      editorState.editorStyle.textStyle.highlightColorHex,
+      editorState.editorStyle.highlightColorHex!,
     ),
   ),
 ];

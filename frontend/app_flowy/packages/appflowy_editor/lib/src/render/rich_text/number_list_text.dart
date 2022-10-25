@@ -4,7 +4,7 @@ import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
-import 'package:appflowy_editor/src/render/style/plugin_style.dart';
+import 'package:appflowy_editor/src/render/style/built_in_plugin_styles.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
@@ -59,20 +59,9 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     return super.baseOffset.translate(0, padding.top);
   }
 
-  Color get numberColor {
-    final numberColor = widget.editorState.editorStyle.style(
-      widget.editorState,
-      widget.textNode,
-      'numberColor',
-    );
-    if (numberColor is Color) {
-      return numberColor;
-    }
-    return Colors.black;
-  }
-
   NumberListPluginStyle get style =>
-      Theme.of(context).extension<NumberListPluginStyle>()!;
+      Theme.of(context).extension<NumberListPluginStyle>() ??
+      NumberListPluginStyle.light;
 
   EdgeInsets get padding => style.padding(
         widget.editorState,
@@ -106,7 +95,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
               placeholderText: 'List',
               textNode: widget.textNode,
               editorState: widget.editorState,
-              lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+              lineHeight: widget.editorState.editorStyle.lineHeight,
               placeholderTextSpanDecorator: (textSpan) =>
                   textSpan.updateTextStyle(textStyle),
               textSpanDecorator: (textSpan) =>

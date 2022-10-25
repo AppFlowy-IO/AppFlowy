@@ -60,7 +60,8 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
   }
 
   HeadingPluginStyle get style =>
-      Theme.of(context).extension<HeadingPluginStyle>()!;
+      Theme.of(context).extension<HeadingPluginStyle>() ??
+      HeadingPluginStyle.light;
 
   EdgeInsets get padding => style.padding(
         widget.editorState,
@@ -82,7 +83,7 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
         placeholderTextSpanDecorator: (textSpan) =>
             textSpan.updateTextStyle(textStyle),
         textSpanDecorator: (textSpan) => textSpan.updateTextStyle(textStyle),
-        lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+        lineHeight: widget.editorState.editorStyle.lineHeight,
         textNode: widget.textNode,
         editorState: widget.editorState,
       ),

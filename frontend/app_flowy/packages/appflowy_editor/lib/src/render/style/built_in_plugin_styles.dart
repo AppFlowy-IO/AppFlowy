@@ -2,6 +2,21 @@ import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:flutter/material.dart';
 
+Iterable<ThemeExtension<dynamic>> get lightPlguinStyleExtension => [
+      HeadingPluginStyle.light,
+      CheckboxPluginStyle.light,
+      NumberListPluginStyle.light,
+      QuotedTextPluginStyle.light,
+    ];
+
+Iterable<ThemeExtension<dynamic>> get darkPlguinStyleExtension => [
+      HeadingPluginStyle.dark,
+      CheckboxPluginStyle.dark,
+      NumberListPluginStyle.dark,
+      QuotedTextPluginStyle.dark,
+      BulletedListPluginStyle.dark,
+    ];
+
 typedef TextStyleCustomizer = TextStyle Function(
     EditorState editorState, TextNode textNode);
 typedef PaddingCustomizer = EdgeInsets Function(

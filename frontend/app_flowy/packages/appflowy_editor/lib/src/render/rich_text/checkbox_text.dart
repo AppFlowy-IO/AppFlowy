@@ -54,7 +54,8 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
   }
 
   CheckboxPluginStyle get style =>
-      Theme.of(context).extension<CheckboxPluginStyle>()!;
+      Theme.of(context).extension<CheckboxPluginStyle>() ??
+      CheckboxPluginStyle.light;
 
   EdgeInsets get padding => style.padding(
         widget.editorState,
@@ -94,7 +95,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
             child: FlowyRichText(
               key: _richTextKey,
               placeholderText: 'To-do',
-              lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+              lineHeight: widget.editorState.editorStyle.lineHeight,
               textNode: widget.textNode,
               textSpanDecorator: (textSpan) =>
                   textSpan.updateTextStyle(textStyle),

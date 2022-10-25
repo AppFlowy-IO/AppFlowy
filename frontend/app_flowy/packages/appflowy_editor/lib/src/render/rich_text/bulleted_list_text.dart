@@ -61,7 +61,8 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
   }
 
   BulletedListPluginStyle get style =>
-      Theme.of(context).extension<BulletedListPluginStyle>()!;
+      Theme.of(context).extension<BulletedListPluginStyle>() ??
+      BulletedListPluginStyle.light;
 
   EdgeInsets get padding => style.padding(
         widget.editorState,
@@ -97,7 +98,7 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
                   textSpan.updateTextStyle(textStyle),
               placeholderTextSpanDecorator: (textSpan) =>
                   textSpan.updateTextStyle(textStyle),
-              lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+              lineHeight: widget.editorState.editorStyle.lineHeight,
               textNode: widget.textNode,
               editorState: widget.editorState,
             ),

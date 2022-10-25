@@ -60,7 +60,8 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
   }
 
   QuotedTextPluginStyle get style =>
-      Theme.of(context).extension<QuotedTextPluginStyle>()!;
+      Theme.of(context).extension<QuotedTextPluginStyle>() ??
+      QuotedTextPluginStyle.light;
 
   EdgeInsets get padding => style.padding(
         widget.editorState,
@@ -98,7 +99,7 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
                     textSpan.updateTextStyle(textStyle),
                 placeholderTextSpanDecorator: (textSpan) =>
                     textSpan.updateTextStyle(textStyle),
-                lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+                lineHeight: widget.editorState.editorStyle.lineHeight,
                 editorState: widget.editorState,
               ),
             ),
