@@ -1,4 +1,5 @@
 import 'package:flowy_infra/image.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:flowy_infra/size.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 import 'cell_builder.dart';
 
@@ -72,6 +74,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
       final theme = context.watch<AppTheme>();
       return Tooltip(
         message: LocaleKeys.tooltip_openAsPage.tr(),
+        textStyle: TextStyles.caption.textColor(Colors.white),
         child: svgWidget(
           "grid/expander",
           color: theme.main1,

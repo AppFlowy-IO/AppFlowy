@@ -1,15 +1,17 @@
 import 'package:app_flowy/workspace/application/view/view_listener.dart';
 import 'package:app_flowy/workspace/application/view/view_service.dart';
-import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class ViewLeftBarItem extends StatefulWidget {
   final ViewPB view;
 
-  ViewLeftBarItem({required this.view, Key? key}) : super(key: ValueKey(view.hashCode));
+  ViewLeftBarItem({required this.view, Key? key})
+      : super(key: ValueKey(view.hashCode));
 
   @override
   State<ViewLeftBarItem> createState() => _ViewLeftBarItemState();
@@ -54,7 +56,6 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
   Widget build(BuildContext context) {
     _controller.text = view.name;
 
-    final theme = context.watch<AppTheme>();
     return IntrinsicWidth(
       key: ValueKey(_controller.text),
       child: TextField(
@@ -66,12 +67,7 @@ class _ViewLeftBarItemState extends State<ViewLeftBarItem> {
           border: InputBorder.none,
           isDense: true,
         ),
-        style: TextStyle(
-          color: theme.textColor,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          overflow: TextOverflow.ellipsis,
-        ),
+        style: TextStyles.body1.size(FontSizes.s14),
         // cursorColor: widget.cursorColor,
         // obscureText: widget.enableObscure,
       ),

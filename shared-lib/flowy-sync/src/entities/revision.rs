@@ -2,7 +2,7 @@ use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
 
-pub type RevisionObject = lib_ot::text_delta::TextOperations;
+pub type RevisionObject = lib_ot::text_delta::DeltaTextOperations;
 
 #[derive(PartialEq, Eq, Clone, Default, ProtoBuf)]
 pub struct Revision {

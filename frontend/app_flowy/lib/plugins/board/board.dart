@@ -24,7 +24,7 @@ class BoardPluginBuilder implements PluginBuilder {
   PluginType get pluginType => PluginType.board;
 
   @override
-  ViewDataTypePB get dataType => ViewDataTypePB.Database;
+  ViewDataFormatPB get dataFormatType => ViewDataFormatPB.DatabaseFormat;
 
   @override
   ViewLayoutTypePB? get layoutType => ViewLayoutTypePB.Board;

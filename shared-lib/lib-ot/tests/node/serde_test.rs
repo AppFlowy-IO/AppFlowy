@@ -1,8 +1,7 @@
 use lib_ot::core::{
-    AttributeBuilder, Changeset, Extension, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path, Selection,
-    Transaction,
+    AttributeBuilder, Changeset, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path, Transaction,
 };
-use lib_ot::text_delta::TextOperationBuilder;
+use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[test]
 fn operation_insert_node_serde_test() {
@@ -42,13 +41,13 @@ fn operation_update_node_attributes_serde_test() {
     let result = serde_json::to_string(&operation).unwrap();
     assert_eq!(
         result,
-        r#"{"op":"update","path":[0,1],"new":{"bold":true},"old":{"bold":null}}"#
+        r#"{"op":"update","path":[0,1],"changeset":{"attributes":{"new":{"bold":true},"old":{"bold":false}}}}"#
     );
 }
 
 #[test]
 fn operation_update_node_body_serialize_test() {
-    let delta = TextOperationBuilder::new().insert("AppFlowy...").build();
+    let delta = DeltaTextOperationBuilder::new().insert("AppFlowy...").build();
     let inverted = delta.invert_str("");
     let changeset = Changeset::Delta { delta, inverted };
     let insert = NodeOperation::Update {
@@ -58,13 +57,13 @@ fn operation_update_node_body_serialize_test() {
     let result = serde_json::to_string(&insert).unwrap();
     assert_eq!(
         result,
-        r#"{"op":"update","path":[0,1],"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}"#
+        r#"{"op":"update","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#
     );
 }
 
 #[test]
 fn operation_update_node_body_deserialize_test() {
-    let json_1 = r#"{"op":"update","path":[0,1],"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}"#;
+    let json_1 = r#"{"op":"update","path":[0,1],"changeset":{"delta":{"delta":[{"insert":"AppFlowy..."}],"inverted":[{"delete":11}]}}}"#;
     let operation: NodeOperation = serde_json::from_str(json_1).unwrap();
     let json_2 = serde_json::to_string(&operation).unwrap();
     assert_eq!(json_1, json_2);
@@ -76,15 +75,11 @@ fn transaction_serialize_test() {
         path: Path(vec![0, 1]),
         nodes: vec![NodeData::new("text".to_owned())],
     };
-    let mut transaction = Transaction::from_operations(vec![insert]);
-    transaction.extension = Extension::TextSelection {
-        before_selection: Selection::default(),
-        after_selection: Selection::default(),
-    };
+    let transaction = Transaction::from_operations(vec![insert]);
     let json = serde_json::to_string(&transaction).unwrap();
     assert_eq!(
         json,
-        r#"{"operations":[{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}],"TextSelection":{"before_selection":{"start":{"path":[],"offset":0},"end":{"path":[],"offset":0}},"after_selection":{"start":{"path":[],"offset":0},"end":{"path":[],"offset":0}}}}"#
+        r#"{"operations":[{"op":"insert","path":[0,1],"nodes":[{"type":"text"}]}]}"#
     );
 }
 

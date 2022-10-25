@@ -31,11 +31,11 @@ impl Path {
         if self.is_empty() {
             return false;
         }
-        return true;
+        true
     }
 
     pub fn is_root(&self) -> bool {
-        return self.0.len() == 1 && self.0[0] == 0;
+        self.0.len() == 1 && self.0[0] == 0
     }
 }
 

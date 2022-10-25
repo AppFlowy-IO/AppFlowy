@@ -121,10 +121,10 @@ pub(crate) async fn move_item_handler(
 
 #[tracing::instrument(level = "debug", skip(data, controller), err)]
 pub(crate) async fn duplicate_view_handler(
-    data: Data<ViewIdPB>,
+    data: Data<ViewPB>,
     controller: AppData<Arc<ViewController>>,
 ) -> Result<(), FlowyError> {
-    let view_id: ViewIdPB = data.into_inner();
-    let _ = controller.duplicate_view(&view_id.value).await?;
+    let view: ViewPB = data.into_inner();
+    let _ = controller.duplicate_view(view).await?;
     Ok(())
 }

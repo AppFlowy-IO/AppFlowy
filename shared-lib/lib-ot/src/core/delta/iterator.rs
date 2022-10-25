@@ -15,8 +15,8 @@ pub(crate) const MAX_IV_LEN: usize = i32::MAX as usize;
 ///
 /// ```
 ///  use lib_ot::core::{OperationIterator, Interval, DeltaOperation};
-///  use lib_ot::text_delta::TextOperations;
-///  let mut delta = TextOperations::default();
+///  use lib_ot::text_delta::DeltaTextOperations;
+///  let mut delta = DeltaTextOperations::default();
 ///  delta.add(DeltaOperation::insert("123"));
 ///  delta.add(DeltaOperation::insert("4"));
 ///  assert_eq!(

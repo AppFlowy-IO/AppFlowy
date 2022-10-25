@@ -8,7 +8,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:example/plugin/underscore_to_italic.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -141,7 +140,6 @@ class _MyHomePageState extends State<MyHomePage> {
               shortcutEvents: [
                 enterInCodeBlock,
                 ignoreKeysInCodeBlock,
-                underscoreToItalic,
                 insertHorizontalRule,
               ],
               selectionMenuItems: [

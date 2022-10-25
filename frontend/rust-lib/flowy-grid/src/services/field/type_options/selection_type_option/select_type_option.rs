@@ -101,7 +101,7 @@ pub trait SelectTypeOptionSharedAction: TypeOptionDataSerializer + Send + Sync {
     }
 
     fn create_option(&self, name: &str) -> SelectOptionPB {
-        let color = select_option_color_from_index(self.options().len());
+        let color = new_select_option_color(self.options());
         SelectOptionPB::with_color(name, color)
     }
 
@@ -215,8 +215,20 @@ pub fn select_type_option_from_field_rev(
     }
 }
 
-pub fn select_option_color_from_index(index: usize) -> SelectOptionColorPB {
-    match index % 8 {
+pub fn new_select_option_color(options: &Vec<SelectOptionPB>) -> SelectOptionColorPB {
+    let mut freq: Vec<usize> = vec![0; 9];
+
+    for option in options {
+        freq[option.color.to_owned() as usize] += 1;
+    }
+
+    match freq
+        .into_iter()
+        .enumerate()
+        .min_by_key(|(_, v)| *v)
+        .map(|(idx, _val)| idx)
+        .unwrap()
+    {
         0 => SelectOptionColorPB::Purple,
         1 => SelectOptionColorPB::Pink,
         2 => SelectOptionColorPB::LightPink,

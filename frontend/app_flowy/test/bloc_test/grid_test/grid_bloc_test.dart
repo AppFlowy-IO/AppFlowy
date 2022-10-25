@@ -7,6 +7,7 @@ void main() {
   late AppFlowyGridTest gridTest;
   setUpAll(() async {
     gridTest = await AppFlowyGridTest.ensureInitialized();
+    await gridTest.createTestGrid();
   });
 
   group('GridBloc', () {

@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version 0.0.6 - 10/23/2022
+
+New features
+- Integrate **appflowy_editor** 
+
+
 ## Version 0.0.5.3 - 09/26/2022
 
 New features

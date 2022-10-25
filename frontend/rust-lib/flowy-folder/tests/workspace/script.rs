@@ -10,7 +10,7 @@ use flowy_folder::entities::{
 use flowy_folder::entities::{
     app::{AppPB, RepeatedAppPB},
     trash::TrashPB,
-    view::{RepeatedViewPB, ViewDataTypePB, ViewPB},
+    view::{RepeatedViewPB, ViewDataFormatPB, ViewPB},
     workspace::WorkspacePB,
 };
 use flowy_folder::event_map::FolderEvent::*;
@@ -52,7 +52,7 @@ pub enum FolderScript {
     CreateView {
         name: String,
         desc: String,
-        data_type: ViewDataTypePB,
+        data_type: ViewDataFormatPB,
     },
     AssertView(ViewPB),
     ReadView(String),
@@ -99,7 +99,7 @@ impl FolderTest {
             &app.id,
             "Folder View",
             "Folder test view",
-            ViewDataTypePB::Text,
+            ViewDataFormatPB::DeltaFormat,
             ViewLayoutTypePB::Document,
         )
         .await;
@@ -182,8 +182,9 @@ impl FolderTest {
 
             FolderScript::CreateView { name, desc, data_type } => {
                 let layout = match data_type {
-                    ViewDataTypePB::Text => ViewLayoutTypePB::Document,
-                    ViewDataTypePB::Database => ViewLayoutTypePB::Grid,
+                    ViewDataFormatPB::DeltaFormat => ViewLayoutTypePB::Document,
+                    ViewDataFormatPB::TreeFormat => ViewLayoutTypePB::Document,
+                    ViewDataFormatPB::DatabaseFormat => ViewLayoutTypePB::Grid,
                 };
                 let view = create_view(sdk, &self.app.id, &name, &desc, data_type, layout).await;
                 self.view = view;
@@ -357,7 +358,7 @@ pub async fn create_view(
     app_id: &str,
     name: &str,
     desc: &str,
-    data_type: ViewDataTypePB,
+    data_type: ViewDataFormatPB,
     layout: ViewLayoutTypePB,
 ) -> ViewPB {
     let request = CreateViewPayloadPB {
@@ -365,7 +366,7 @@ pub async fn create_view(
         name: name.to_string(),
         desc: desc.to_string(),
         thumbnail: None,
-        data_type,
+        data_format: data_type,
         layout,
         view_content_data: vec![],
     };

@@ -1,8 +1,8 @@
 use crate::client_document::InsertExt;
 use lib_ot::core::AttributeHashMap;
 use lib_ot::{
-    core::{OperationAttributes, OperationBuilder, OperationIterator, NEW_LINE},
-    text_delta::{BuildInTextAttributeKey, TextOperations},
+    core::{DeltaOperationBuilder, OperationAttributes, OperationIterator, NEW_LINE},
+    text_delta::{BuildInTextAttributeKey, DeltaTextOperations},
 };
 
 pub struct DefaultInsertAttribute {}
@@ -11,7 +11,13 @@ impl InsertExt for DefaultInsertAttribute {
         "DefaultInsertAttribute"
     }
 
-    fn apply(&self, delta: &TextOperations, replace_len: usize, text: &str, index: usize) -> Option<TextOperations> {
+    fn apply(
+        &self,
+        delta: &DeltaTextOperations,
+        replace_len: usize,
+        text: &str,
+        index: usize,
+    ) -> Option<DeltaTextOperations> {
         let iter = OperationIterator::new(delta);
         let mut attributes = AttributeHashMap::new();
 
@@ -35,7 +41,7 @@ impl InsertExt for DefaultInsertAttribute {
         }
 
         Some(
-            OperationBuilder::new()
+            DeltaOperationBuilder::new()
                 .retain(index + replace_len)
                 .insert_with_attributes(text, attributes)
                 .build(),

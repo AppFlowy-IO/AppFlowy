@@ -2,7 +2,7 @@ use flowy_document::old_editor::editor::DeltaDocumentEditor;
 use flowy_document::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use flowy_revision::disk::RevisionState;
 use flowy_test::{helper::ViewTest, FlowySDKTest};
-use lib_ot::{core::Interval, text_delta::TextOperations};
+use lib_ot::{core::Interval, text_delta::DeltaTextOperations};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
@@ -75,7 +75,7 @@ impl DeltaDocumentEditorTest {
                 assert_eq!(next_revision.rev_id, rev_id.unwrap());
             }
             EditorScript::AssertJson(expected) => {
-                let expected_delta: TextOperations = serde_json::from_str(expected).unwrap();
+                let expected_delta: DeltaTextOperations = serde_json::from_str(expected).unwrap();
                 let delta = self.editor.document_operations().await.unwrap();
                 if expected_delta != delta {
                     eprintln!("✅ expect: {}", expected,);

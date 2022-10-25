@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/gestures.dart';
@@ -10,6 +11,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textfield_tags/textfield_tags.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 import 'extension.dart';
 
@@ -96,7 +98,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               }
 
               if (text.isNotEmpty) {
-                widget.onSubmitted(text);
+                widget.onSubmitted(text.trim());
                 focusNode.requestFocus();
               }
             },
@@ -104,7 +106,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             maxLength: widget.maxLength,
             maxLengthEnforcement:
                 MaxLengthEnforcement.truncateAfterCompositionEnds,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            style: TextStyles.body1.size(FontSizes.s14),
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: theme.main1, width: 1.0),
@@ -132,26 +134,25 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
       return;
     }
 
-    final trimmedText = text.trim();
+    final trimmedText = text.trimLeft();
     List<String> splits = [];
     String currentString = '';
 
     // split the string into tokens
     for (final char in trimmedText.split('')) {
-      if (!widget.textSeparators.contains(char)) {
-        currentString += char;
+      if (widget.textSeparators.contains(char)) {
+        if (currentString.isNotEmpty) {
+          splits.add(currentString.trim());
+        }
+        currentString = '';
         continue;
       }
-      if (currentString.isNotEmpty) {
-        splits.add(currentString);
-      }
-      currentString = '';
+      currentString += char;
     }
     // add the remainder (might be '')
     splits.add(currentString);
 
-    final submittedOptions =
-        splits.sublist(0, splits.length - 1).map((e) => e.trim()).toList();
+    final submittedOptions = splits.sublist(0, splits.length - 1).toList();
 
     final remainder = splits.elementAt(splits.length - 1).trimLeft();
     editingController.text = remainder;

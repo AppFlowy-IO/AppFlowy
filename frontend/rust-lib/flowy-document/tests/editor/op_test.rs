@@ -1,8 +1,8 @@
 #![allow(clippy::all)]
 use crate::editor::{Rng, TestBuilder, TestOp::*};
 use flowy_sync::client_document::{EmptyDocument, NewlineDocument};
-use lib_ot::text_delta::TextOperationBuilder;
-use lib_ot::{core::Interval, core::*, text_delta::TextOperations};
+use lib_ot::text_delta::DeltaTextOperationBuilder;
+use lib_ot::{core::Interval, core::*, text_delta::DeltaTextOperations};
 
 #[test]
 fn attributes_insert_text() {
@@ -37,7 +37,7 @@ fn attributes_insert_text_at_middle() {
 #[test]
 fn delta_get_ops_in_interval_1() {
     let operations = OperationsBuilder::new().insert("123").insert("4").build();
-    let delta = TextOperationBuilder::from_operations(operations);
+    let delta = DeltaTextOperationBuilder::from_operations(operations);
 
     let mut iterator = OperationIterator::from_interval(&delta, Interval::new(0, 4));
     assert_eq!(iterator.ops(), delta.ops);
@@ -45,7 +45,7 @@ fn delta_get_ops_in_interval_1() {
 
 #[test]
 fn delta_get_ops_in_interval_2() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     let insert_a = DeltaOperation::insert("123");
     let insert_b = DeltaOperation::insert("4");
     let insert_c = DeltaOperation::insert("5");
@@ -89,7 +89,7 @@ fn delta_get_ops_in_interval_2() {
 
 #[test]
 fn delta_get_ops_in_interval_3() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     let insert_a = DeltaOperation::insert("123456");
     delta.add(insert_a.clone());
     assert_eq!(
@@ -100,7 +100,7 @@ fn delta_get_ops_in_interval_3() {
 
 #[test]
 fn delta_get_ops_in_interval_4() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     let insert_a = DeltaOperation::insert("12");
     let insert_b = DeltaOperation::insert("34");
     let insert_c = DeltaOperation::insert("56");
@@ -130,7 +130,7 @@ fn delta_get_ops_in_interval_4() {
 
 #[test]
 fn delta_get_ops_in_interval_5() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     let insert_a = DeltaOperation::insert("123456");
     let insert_b = DeltaOperation::insert("789");
     delta.ops.push(insert_a.clone());
@@ -148,7 +148,7 @@ fn delta_get_ops_in_interval_5() {
 
 #[test]
 fn delta_get_ops_in_interval_6() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     let insert_a = DeltaOperation::insert("12345678");
     delta.add(insert_a.clone());
     assert_eq!(
@@ -159,7 +159,7 @@ fn delta_get_ops_in_interval_6() {
 
 #[test]
 fn delta_get_ops_in_interval_7() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     let insert_a = DeltaOperation::insert("12345");
     let retain_a = DeltaOperation::retain(3);
 
@@ -179,7 +179,7 @@ fn delta_get_ops_in_interval_7() {
 
 #[test]
 fn delta_op_seek() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     let insert_a = DeltaOperation::insert("12345");
     let retain_a = DeltaOperation::retain(3);
     delta.add(insert_a.clone());
@@ -191,7 +191,7 @@ fn delta_op_seek() {
 
 #[test]
 fn delta_utf16_code_unit_seek() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.add(DeltaOperation::insert("12345"));
 
     let mut iter = OperationIterator::new(&delta);
@@ -201,7 +201,7 @@ fn delta_utf16_code_unit_seek() {
 
 #[test]
 fn delta_utf16_code_unit_seek_with_attributes() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     let attributes = AttributeBuilder::new()
         .insert("bold", true)
         .insert("italic", true)
@@ -221,7 +221,7 @@ fn delta_utf16_code_unit_seek_with_attributes() {
 
 #[test]
 fn delta_next_op_len() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.add(DeltaOperation::insert("12345"));
     let mut iter = OperationIterator::new(&delta);
     assert_eq!(iter.next_op_with_len(2).unwrap(), DeltaOperation::insert("12"));
@@ -232,7 +232,7 @@ fn delta_next_op_len() {
 
 #[test]
 fn delta_next_op_len_with_chinese() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.add(DeltaOperation::insert("你好"));
 
     let mut iter = OperationIterator::new(&delta);
@@ -242,7 +242,7 @@ fn delta_next_op_len_with_chinese() {
 
 #[test]
 fn delta_next_op_len_with_english() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.add(DeltaOperation::insert("ab"));
     let mut iter = OperationIterator::new(&delta);
     assert_eq!(iter.next_op_len().unwrap(), 2);
@@ -251,7 +251,7 @@ fn delta_next_op_len_with_english() {
 
 #[test]
 fn delta_next_op_len_after_seek() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.add(DeltaOperation::insert("12345"));
     let mut iter = OperationIterator::new(&delta);
     assert_eq!(iter.next_op_len().unwrap(), 5);
@@ -264,7 +264,7 @@ fn delta_next_op_len_after_seek() {
 
 #[test]
 fn delta_next_op_len_none() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.add(DeltaOperation::insert("12345"));
     let mut iter = OperationIterator::new(&delta);
 
@@ -275,7 +275,7 @@ fn delta_next_op_len_none() {
 
 #[test]
 fn delta_next_op_with_len_zero() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.add(DeltaOperation::insert("12345"));
     let mut iter = OperationIterator::new(&delta);
     assert_eq!(iter.next_op_with_len(0), None,);
@@ -284,7 +284,7 @@ fn delta_next_op_with_len_zero() {
 
 #[test]
 fn delta_next_op_with_len_cross_op_return_last() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.add(DeltaOperation::insert("12345"));
     delta.add(DeltaOperation::retain(1));
     delta.add(DeltaOperation::insert("678"));
@@ -297,7 +297,7 @@ fn delta_next_op_with_len_cross_op_return_last() {
 
 #[test]
 fn lengths() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     assert_eq!(delta.utf16_base_len, 0);
     assert_eq!(delta.utf16_target_len, 0);
     delta.retain(5, AttributeHashMap::default());
@@ -315,7 +315,7 @@ fn lengths() {
 }
 #[test]
 fn sequence() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.retain(5, AttributeHashMap::default());
     delta.retain(0, AttributeHashMap::default());
     delta.insert("appflowy", AttributeHashMap::default());
@@ -348,7 +348,7 @@ fn apply_test() {
 
 #[test]
 fn base_len_test() {
-    let mut delta_a = TextOperations::default();
+    let mut delta_a = DeltaTextOperations::default();
     delta_a.insert("a", AttributeHashMap::default());
     delta_a.insert("b", AttributeHashMap::default());
     delta_a.insert("c", AttributeHashMap::default());
@@ -387,7 +387,7 @@ fn invert_test() {
 
 #[test]
 fn empty_ops() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.retain(0, AttributeHashMap::default());
     delta.insert("", AttributeHashMap::default());
     delta.delete(0);
@@ -395,12 +395,12 @@ fn empty_ops() {
 }
 #[test]
 fn eq() {
-    let mut delta_a = TextOperations::default();
+    let mut delta_a = DeltaTextOperations::default();
     delta_a.delete(1);
     delta_a.insert("lo", AttributeHashMap::default());
     delta_a.retain(2, AttributeHashMap::default());
     delta_a.retain(3, AttributeHashMap::default());
-    let mut delta_b = TextOperations::default();
+    let mut delta_b = DeltaTextOperations::default();
     delta_b.delete(1);
     delta_b.insert("l", AttributeHashMap::default());
     delta_b.insert("o", AttributeHashMap::default());
@@ -412,7 +412,7 @@ fn eq() {
 }
 #[test]
 fn ops_merging() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     assert_eq!(delta.ops.len(), 0);
     delta.retain(2, AttributeHashMap::default());
     assert_eq!(delta.ops.len(), 1);
@@ -436,7 +436,7 @@ fn ops_merging() {
 
 #[test]
 fn is_noop() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     assert!(delta.is_noop());
     delta.retain(5, AttributeHashMap::default());
     assert!(delta.is_noop());
@@ -484,13 +484,13 @@ fn transform_random_delta() {
 
 #[test]
 fn transform_with_two_delta() {
-    let mut a = TextOperations::default();
+    let mut a = DeltaTextOperations::default();
     let mut a_s = String::new();
     a.insert("123", AttributeBuilder::new().insert("bold", true).build());
     a_s = a.apply(&a_s).unwrap();
     assert_eq!(&a_s, "123");
 
-    let mut b = TextOperations::default();
+    let mut b = DeltaTextOperations::default();
     let mut b_s = String::new();
     b.insert("456", AttributeHashMap::default());
     b_s = b.apply(&b_s).unwrap();
@@ -580,10 +580,10 @@ fn transform_two_conflict_non_seq_delta() {
 
 #[test]
 fn delta_invert_no_attribute_delta() {
-    let mut delta = TextOperations::default();
+    let mut delta = DeltaTextOperations::default();
     delta.add(DeltaOperation::insert("123"));
 
-    let mut change = TextOperations::default();
+    let mut change = DeltaTextOperations::default();
     change.add(DeltaOperation::retain(3));
     change.add(DeltaOperation::insert("456"));
     let undo = change.invert(&delta);

@@ -1,10 +1,9 @@
 import 'dart:math';
 
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class AuthFormContainer extends StatelessWidget {
   final List<Widget> children;
@@ -37,7 +36,6 @@ class FlowyLogoTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -47,14 +45,10 @@ class FlowyLogoTitle extends StatelessWidget {
             child: svgWidget("flowy_logo"),
           ),
           const VSpace(30),
-          Text(
+          FlowyText.semibold(
             title,
-            style: TextStyle(
-              color: theme.textColor,
-              fontWeight: FontWeight.w600,
-              fontSize: 24,
-            ),
-          )
+            fontSize: 24,
+          ),
         ],
       ),
     );

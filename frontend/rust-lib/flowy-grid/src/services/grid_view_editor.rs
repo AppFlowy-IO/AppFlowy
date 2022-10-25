@@ -589,14 +589,14 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
 
 #[cfg(test)]
 mod tests {
-    use lib_ot::core::Delta;
+    use flowy_sync::client_grid::GridOperations;
 
     #[test]
     fn test() {
         let s1 = r#"[{"insert":"{\"view_id\":\"fTURELffPr\",\"grid_id\":\"fTURELffPr\",\"layout\":0,\"filters\":[],\"groups\":[]}"}]"#;
-        let _delta_1 = Delta::from_json(s1).unwrap();
+        let _delta_1 = GridOperations::from_json(s1).unwrap();
 
         let s2 = r#"[{"retain":195},{"insert":"{\\\"group_id\\\":\\\"wD9i\\\",\\\"visible\\\":true},{\\\"group_id\\\":\\\"xZtv\\\",\\\"visible\\\":true},{\\\"group_id\\\":\\\"tFV2\\\",\\\"visible\\\":true}"},{"retain":10}]"#;
-        let _delta_2 = Delta::from_json(s2).unwrap();
+        let _delta_2 = GridOperations::from_json(s2).unwrap();
     }
 }

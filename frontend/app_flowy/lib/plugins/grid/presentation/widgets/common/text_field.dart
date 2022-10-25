@@ -1,7 +1,9 @@
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class InputTextField extends StatefulWidget {
   final void Function(String)? onDone;
@@ -51,7 +53,7 @@ class _InputTextFieldState extends State<InputTextField> {
       autoFocus: true,
       height: height,
       maxLength: widget.maxLength,
-      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+      style: TextStyles.body1.size(13),
       normalBorderColor: theme.shader4,
       focusBorderColor: theme.main1,
       cursorColor: theme.main1,

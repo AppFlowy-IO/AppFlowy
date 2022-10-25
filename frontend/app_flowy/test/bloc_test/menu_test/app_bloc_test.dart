@@ -2,6 +2,7 @@ import 'package:app_flowy/plugins/board/board.dart';
 import 'package:app_flowy/plugins/doc/document.dart';
 import 'package:app_flowy/plugins/grid/grid.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
+import 'package:app_flowy/workspace/application/menu/menu_view_section_bloc.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +16,7 @@ void main() {
   });
 
   group(
-    'AppBloc',
+    '$AppBloc',
     () {
       late AppPB app;
       setUp(() async {
@@ -67,7 +68,35 @@ void main() {
     },
   );
 
-  group('AppBloc', () {
+  group('$AppBloc', () {
+    late AppPB app;
+    setUpAll(() async {
+      app = await test.createTestApp();
+    });
+
+    blocTest<AppBloc, AppState>(
+      "rename the app",
+      build: () => AppBloc(app: app)..add(const AppEvent.initial()),
+      wait: blocResponseDuration(),
+      act: (bloc) => bloc.add(const AppEvent.rename('Hello world')),
+      verify: (bloc) {
+        assert(bloc.state.app.name == 'Hello world');
+      },
+    );
+
+    blocTest<AppBloc, AppState>(
+      "delete the app",
+      build: () => AppBloc(app: app)..add(const AppEvent.initial()),
+      wait: blocResponseDuration(),
+      act: (bloc) => bloc.add(const AppEvent.delete()),
+      verify: (bloc) async {
+        final apps = await test.loadApps();
+        assert(apps.where((element) => element.id == app.id).isEmpty);
+      },
+    );
+  });
+
+  group('$AppBloc', () {
     late ViewPB view;
     late AppPB app;
     setUpAll(() async {
@@ -86,18 +115,74 @@ void main() {
         view = bloc.state.views.last;
       },
     );
+
     blocTest<AppBloc, AppState>(
       "delete the document",
       build: () => AppBloc(app: app)..add(const AppEvent.initial()),
       act: (bloc) => bloc.add(AppEvent.deleteView(view.id)),
-    );
-    blocTest<AppBloc, AppState>(
-      "verify the document is exist",
-      build: () => AppBloc(app: app)..add(const AppEvent.initial()),
-      act: (bloc) => bloc.add(const AppEvent.loadViews()),
       wait: blocResponseDuration(),
       verify: (bloc) {
         assert(bloc.state.views.isEmpty);
+      },
+    );
+  });
+
+  group('$AppBloc', () {
+    late AppPB app;
+    setUpAll(() async {
+      app = await test.createTestApp();
+    });
+    blocTest<AppBloc, AppState>(
+      "create documents' order test",
+      build: () => AppBloc(app: app)..add(const AppEvent.initial()),
+      act: (bloc) async {
+        bloc.add(AppEvent.createView("1", DocumentPluginBuilder()));
+        await blocResponseFuture();
+        bloc.add(AppEvent.createView("2", DocumentPluginBuilder()));
+        await blocResponseFuture();
+        bloc.add(AppEvent.createView("3", DocumentPluginBuilder()));
+        await blocResponseFuture();
+      },
+      wait: blocResponseDuration(),
+      verify: (bloc) {
+        assert(bloc.state.views[0].name == '1');
+        assert(bloc.state.views[1].name == '2');
+        assert(bloc.state.views[2].name == '3');
+      },
+    );
+  });
+
+  group('$AppBloc', () {
+    late AppPB app;
+    setUpAll(() async {
+      app = await test.createTestApp();
+    });
+    blocTest<AppBloc, AppState>(
+      "reorder documents",
+      build: () => AppBloc(app: app)..add(const AppEvent.initial()),
+      act: (bloc) async {
+        bloc.add(AppEvent.createView("1", DocumentPluginBuilder()));
+        await blocResponseFuture();
+        bloc.add(AppEvent.createView("2", DocumentPluginBuilder()));
+        await blocResponseFuture();
+        bloc.add(AppEvent.createView("3", DocumentPluginBuilder()));
+        await blocResponseFuture();
+
+        final appViewData = AppViewDataContext(appId: app.id);
+        appViewData.views = bloc.state.views;
+        final viewSectionBloc = ViewSectionBloc(
+          appViewData: appViewData,
+        )..add(const ViewSectionEvent.initial());
+        await blocResponseFuture();
+
+        viewSectionBloc.add(const ViewSectionEvent.moveView(0, 2));
+        await blocResponseFuture();
+      },
+      wait: blocResponseDuration(),
+      verify: (bloc) {
+        assert(bloc.state.views[0].name == '2');
+        assert(bloc.state.views[1].name == '3');
+        assert(bloc.state.views[2].name == '1');
       },
     );
   });
