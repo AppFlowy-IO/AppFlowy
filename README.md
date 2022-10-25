@@ -49,7 +49,8 @@ Please view the [documentation](https://appflowy.gitbook.io/docs/essential-docum
 - [AppFlowy Roadmap ReadMe](https://appflowy.gitbook.io/docs/essential-documentation/roadmap)
 - [AppFlowy Public Roadmap](https://github.com/orgs/AppFlowy-IO/projects/5/views/12)
 
-If you'd like to propose a feature, submit an issue [here](https://github.com/AppFlowy-IO/appflowy/issues).
+If you'd like to propose a feature, submit an issue [here]([https://github.com/AppFlowy-IO/appflowy/issues](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=feature_request.yaml&title=%5BFR%5D+).
+If you'd like to report a bug, submit an issue [here](https://github.com/AppFlowy-IO/AppFlowy/issues/new?assignees=&labels=&template=bug_report.yaml&title=%5BBug%5D+).
 
 ## **Releases**
 
