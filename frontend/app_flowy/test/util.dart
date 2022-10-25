@@ -87,6 +87,15 @@ class AppFlowyUnitTest {
       (error) => throw Exception(error),
     );
   }
+
+  Future<List<AppPB>> loadApps() async {
+    final result = await workspaceService.getApps();
+
+    return result.fold(
+      (apps) => apps,
+      (error) => throw Exception(error),
+    );
+  }
 }
 
 void _pathProviderInitialized() {
