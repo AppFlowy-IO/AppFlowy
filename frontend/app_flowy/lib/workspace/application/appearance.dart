@@ -13,7 +13,6 @@ class AppearanceSetting extends ChangeNotifier with EquatableMixin {
   final AppearanceSettingsPB _setting;
   AppTheme _theme;
   Locale _locale;
-  Timer? _debounceSaveOperation;
 
   AppearanceSetting(AppearanceSettingsPB setting)
       : _setting = setting,
@@ -83,10 +82,17 @@ class AppearanceSetting extends ChangeNotifier with EquatableMixin {
       } else {
         _setting.settingKeyValue[key] = value;
       }
-
-      _saveAppearSetting();
-      notifyListeners();
     }
+    _saveAppearSetting();
+    notifyListeners();
+  }
+
+  String? getValue(String key) {
+    if (key.isEmpty) {
+      Log.warn("The key should not be empty");
+      return null;
+    }
+    return _setting.settingKeyValue[key];
   }
 
   /// Called when the application launch.
@@ -103,15 +109,12 @@ class AppearanceSetting extends ChangeNotifier with EquatableMixin {
   }
 
   Future<void> _saveAppearSetting() async {
-    _debounceSaveOperation?.cancel();
-    _debounceSaveOperation = Timer(
-      const Duration(seconds: 1),
-      () {
-        SettingsFFIService().setAppearanceSetting(_setting).then((result) {
-          result.fold((l) => null, (error) => Log.error(error));
-        });
-      },
-    );
+    SettingsFFIService().setAppearanceSetting(_setting).then((result) {
+      result.fold(
+        (l) => null,
+        (error) => Log.error(error),
+      );
+    });
   }
 
   @override
