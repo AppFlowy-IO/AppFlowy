@@ -10,14 +10,16 @@ import 'package:app_flowy/plugins/trash/application/trash_listener.dart';
 part 'trash_bloc.freezed.dart';
 
 class TrashBloc extends Bloc<TrashEvent, TrashState> {
-  final TrashService service;
-  final TrashListener listener;
-  TrashBloc({required this.service, required this.listener})
-      : super(TrashState.init()) {
+  final TrashService _service;
+  final TrashListener _listener;
+  TrashBloc()
+      : _service = TrashService(),
+        _listener = TrashListener(),
+        super(TrashState.init()) {
     on<TrashEvent>((event, emit) async {
       await event.map(initial: (e) async {
-        listener.start(trashUpdated: _listenTrashUpdated);
-        final result = await service.readTrash();
+        _listener.start(trashUpdated: _listenTrashUpdated);
+        final result = await _service.readTrash();
         emit(result.fold(
           (object) => state.copyWith(
               objects: object.items, successOrFailure: left(unit)),
@@ -26,17 +28,17 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
       }, didReceiveTrash: (e) async {
         emit(state.copyWith(objects: e.trash));
       }, putback: (e) async {
-        final result = await service.putback(e.trashId);
+        final result = await _service.putback(e.trashId);
         await _handleResult(result, emit);
       }, delete: (e) async {
         final result =
-            await service.deleteViews([Tuple2(e.trash.id, e.trash.ty)]);
+            await _service.deleteViews([Tuple2(e.trash.id, e.trash.ty)]);
         await _handleResult(result, emit);
       }, deleteAll: (e) async {
-        final result = await service.deleteAll();
+        final result = await _service.deleteAll();
         await _handleResult(result, emit);
       }, restoreAll: (e) async {
-        final result = await service.restoreAll();
+        final result = await _service.restoreAll();
         await _handleResult(result, emit);
       });
     });
@@ -63,7 +65,7 @@ class TrashBloc extends Bloc<TrashEvent, TrashState> {
 
   @override
   Future<void> close() async {
-    await listener.close();
+    await _listener.close();
     return super.close();
   }
 }

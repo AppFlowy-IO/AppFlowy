@@ -113,10 +113,10 @@ class FlowyTestApp implements EntryPoint {
   }
 }
 
-Future<void> blocResponseFuture() {
-  return Future.delayed(const Duration(milliseconds: 100));
+Future<void> blocResponseFuture({int millisecond = 100}) {
+  return Future.delayed(Duration(milliseconds: millisecond));
 }
 
-Duration blocResponseDuration({int millseconds = 100}) {
-  return Duration(milliseconds: millseconds);
+Duration blocResponseDuration({int milliseconds = 100}) {
+  return Duration(milliseconds: milliseconds);
 }

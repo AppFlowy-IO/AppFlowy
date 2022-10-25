@@ -1,5 +1,5 @@
 pub use crate::entities::view::ViewDataFormatPB;
-use crate::entities::{DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
+use crate::entities::{AppPB, DeletedViewPB, ViewInfoPB, ViewLayoutTypePB};
 use crate::manager::{ViewDataProcessor, ViewDataProcessorMap};
 use crate::{
     dart_notification::{send_dart_notification, FolderNotification},
@@ -531,16 +531,15 @@ fn notify_views_changed<'a>(
     trash_controller: Arc<TrashController>,
     transaction: &'a (dyn FolderPersistenceTransaction + 'a),
 ) -> FlowyResult<()> {
-    let items: Vec<ViewPB> = read_belonging_views_on_local(belong_to_id, trash_controller.clone(), transaction)?
-        .into_iter()
-        .map(|view_rev| view_rev.into())
-        .collect();
-    tracing::Span::current().record("view_count", &format!("{}", items.len()).as_str());
+    let mut app_rev = transaction.read_app(belong_to_id)?;
+    let trash_ids = trash_controller.read_trash_ids(transaction)?;
+    app_rev.belongings.retain(|view| !trash_ids.contains(&view.id));
+    let app: AppPB = app_rev.into();
 
-    let repeated_view = RepeatedViewPB { items };
-    send_dart_notification(belong_to_id, FolderNotification::AppViewsChanged)
-        .payload(repeated_view)
+    send_dart_notification(belong_to_id, FolderNotification::AppUpdated)
+        .payload(app)
         .send();
+
     Ok(())
 }
 
