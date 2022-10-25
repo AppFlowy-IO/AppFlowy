@@ -2,7 +2,6 @@ import 'package:app_flowy/plugins/board/board.dart';
 import 'package:app_flowy/plugins/doc/document.dart';
 import 'package:app_flowy/plugins/grid/grid.dart';
 import 'package:app_flowy/workspace/application/app/app_bloc.dart';
-import 'package:app_flowy/workspace/application/app/app_service.dart';
 import 'package:app_flowy/workspace/application/menu/menu_view_section_bloc.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
@@ -143,8 +142,6 @@ void main() {
         await blocResponseFuture();
         bloc.add(AppEvent.createView("3", DocumentPluginBuilder()));
         await blocResponseFuture();
-
-        final appService = AppService();
       },
       wait: blocResponseDuration(),
       verify: (bloc) {

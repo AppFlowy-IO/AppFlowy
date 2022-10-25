@@ -34,7 +34,9 @@ void main() {
       build: () => menuBloc,
       act: (bloc) async {
         bloc.add(const MenuEvent.createApp("App 1"));
+        await blocResponseFuture();
         bloc.add(const MenuEvent.createApp("App 2"));
+        await blocResponseFuture();
         bloc.add(const MenuEvent.createApp("App 3"));
       },
       wait: blocResponseDuration(),

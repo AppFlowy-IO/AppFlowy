@@ -115,10 +115,7 @@ void _resolveFolderDeps(GetIt getIt) {
   getIt.registerLazySingleton<TrashService>(() => TrashService());
   getIt.registerLazySingleton<TrashListener>(() => TrashListener());
   getIt.registerFactory<TrashBloc>(
-    () => TrashBloc(
-      service: getIt<TrashService>(),
-      listener: getIt<TrashListener>(),
-    ),
+    () => TrashBloc(),
   );
 }
 
