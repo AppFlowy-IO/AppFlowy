@@ -66,12 +66,16 @@ class ImageUploadMenu extends StatefulWidget {
   State<ImageUploadMenu> createState() => _ImageUploadMenuState();
 }
 
-class _ImageUploadMenuState extends State<ImageUploadMenu> {
+class _ImageUploadMenuState extends State<ImageUploadMenu>
+    with TickerProviderStateMixin {
   final _textEditingController = TextEditingController();
   final _focusNode = FocusNode();
+<<<<<<< HEAD
 
   EditorStyle? get style => widget.editorState?.editorStyle;
 
+=======
+>>>>>>> 096eeec1e (feat: upload via local file 🌟)
   @override
   void initState() {
     super.initState();
@@ -86,6 +90,7 @@ class _ImageUploadMenuState extends State<ImageUploadMenu> {
 
   @override
   Widget build(BuildContext context) {
+    TabController _tabController = TabController(length: 2, vsync: this);
     return Container(
       width: 300,
       padding: const EdgeInsets.all(24.0),
@@ -102,17 +107,52 @@ class _ImageUploadMenuState extends State<ImageUploadMenu> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(context),
-          const SizedBox(height: 16.0),
-          _buildInput(),
+        children: <Widget>[
+          TabBar(
+            controller: _tabController,
+            tabs: const [
+              Text(
+                'Upload Image',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500),
+              ),
+              Text(
+                'URL Image',
+                textAlign: TextAlign.left,
+                style: TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500),
+              )
+            ],
+          ),
+          SizedBox(
+              height: 200.0,
+              child: TabBarView(controller: _tabController, children: <Widget>[
+                InkWell(
+                  onTap: (() => print('Open File Picker')),
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[_buildFileInput(context)]),
+                ),
+                Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      _buildURLInput(),
+                      const SizedBox(height: 15.0),
+                      _buildUploadButton(context)
+                    ])
+              ])),
           const SizedBox(height: 18.0),
-          _buildUploadButton(context),
         ],
       ),
     );
   }
 
+<<<<<<< HEAD
   Widget _buildHeader(BuildContext context) {
     return Text(
       'URL Image',
@@ -126,6 +166,9 @@ class _ImageUploadMenuState extends State<ImageUploadMenu> {
   }
 
   Widget _buildInput() {
+=======
+  Widget _buildURLInput() {
+>>>>>>> 096eeec1e (feat: upload via local file 🌟)
     return TextField(
       focusNode: _focusNode,
       style: const TextStyle(fontSize: 14.0),
@@ -152,6 +195,18 @@ class _ImageUploadMenuState extends State<ImageUploadMenu> {
           borderRadius: BorderRadius.all(Radius.circular(12.0)),
           borderSide: BorderSide(color: Color(0xFFBDBDBD)),
         ),
+      ),
+    );
+  }
+
+  Widget _buildFileInput(BuildContext context) {
+    return InkWell(
+      child: Column(
+        children: const <Widget>[
+          Icon(Icons.image),
+          SizedBox(height: 15.0),
+          Text('Drop Image/Click To Upload')
+        ],
       ),
     );
   }
