@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/gestures.dart';
@@ -10,6 +11,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textfield_tags/textfield_tags.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 import 'extension.dart';
 
@@ -104,7 +106,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             maxLength: widget.maxLength,
             maxLengthEnforcement:
                 MaxLengthEnforcement.truncateAfterCompositionEnds,
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            style: TextStyles.body1.size(FontSizes.s14),
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: theme.main1, width: 1.0),

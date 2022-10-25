@@ -1,9 +1,12 @@
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/url_cell_editor_bloc.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class URLCellEditor extends StatefulWidget {
   final GridURLCellController cellController;
@@ -42,7 +45,7 @@ class _URLCellEditorState extends State<URLCellEditor> {
           controller: _controller,
           onChanged: (value) => focusChanged(),
           maxLines: null,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          style: TextStyles.body1.size(FontSizes.s14),
           decoration: const InputDecoration(
             contentPadding: EdgeInsets.zero,
             border: InputBorder.none,

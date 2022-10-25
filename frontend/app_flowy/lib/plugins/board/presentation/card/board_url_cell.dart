@@ -1,8 +1,11 @@
 import 'package:app_flowy/plugins/board/application/card/board_url_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 import 'define.dart';
 
@@ -53,11 +56,10 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
                   textAlign: TextAlign.left,
                   text: TextSpan(
                     text: state.content,
-                    style: TextStyle(
+                    style: TextStyles.general(
+                      fontSize: FontSizes.s14,
                       color: theme.main2,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
-                    ),
+                    ).underline,
                   ),
                 ),
               ),
