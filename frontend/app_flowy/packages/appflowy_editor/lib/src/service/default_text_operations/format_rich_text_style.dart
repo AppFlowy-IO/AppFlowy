@@ -91,6 +91,10 @@ void formatBulletedList(EditorState editorState) {
   });
 }
 
+/// Format the current selection with the given attributes.
+///
+/// If the selected nodes are not text nodes, this method will do nothing.
+/// If the selected text nodes already contain the style in attributes, this method will remove the existing style.
 bool formatTextNodes(EditorState editorState, Attributes attributes) {
   final nodes = editorState.service.selectionService.currentSelectedNodes;
   final textNodes = nodes.whereType<TextNode>().toList();
