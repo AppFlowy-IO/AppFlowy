@@ -4,7 +4,7 @@ Iterable<ThemeExtension<dynamic>> get lightEditorStyleExtension => [
       EditorStyle.light,
     ];
 
-Iterable<ThemeExtension<dynamic>> get dartEditorStyleExtension => [
+Iterable<ThemeExtension<dynamic>> get darkEditorStyleExtension => [
       EditorStyle.dark,
     ];
 
