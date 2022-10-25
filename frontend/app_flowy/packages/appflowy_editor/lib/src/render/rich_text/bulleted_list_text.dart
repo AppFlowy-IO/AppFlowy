@@ -8,6 +8,7 @@ import 'package:appflowy_editor/src/render/style/plugin_styles.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
+import 'package:appflowy_editor/src/extensions/theme_extension.dart';
 
 class BulletedListTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -61,7 +62,7 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
   }
 
   BulletedListPluginStyle get style =>
-      Theme.of(context).extension<BulletedListPluginStyle>() ??
+      Theme.of(context).extensionOrNull<BulletedListPluginStyle>() ??
       BulletedListPluginStyle.light;
 
   EdgeInsets get padding => style.padding(

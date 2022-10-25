@@ -9,6 +9,7 @@ import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
+import 'package:appflowy_editor/src/extensions/theme_extension.dart';
 
 class NumberListTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -60,7 +61,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
   }
 
   NumberListPluginStyle get style =>
-      Theme.of(context).extension<NumberListPluginStyle>() ??
+      Theme.of(context).extensionOrNull<NumberListPluginStyle>() ??
       NumberListPluginStyle.light;
 
   EdgeInsets get padding => style.padding(

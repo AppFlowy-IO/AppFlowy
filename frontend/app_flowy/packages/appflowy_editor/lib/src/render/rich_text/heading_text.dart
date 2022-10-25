@@ -9,6 +9,7 @@ import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
+import 'package:appflowy_editor/src/extensions/theme_extension.dart';
 
 class HeadingTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -60,7 +61,7 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
   }
 
   HeadingPluginStyle get style =>
-      Theme.of(context).extension<HeadingPluginStyle>() ??
+      Theme.of(context).extensionOrNull<HeadingPluginStyle>() ??
       HeadingPluginStyle.light;
 
   EdgeInsets get padding => style.padding(

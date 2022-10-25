@@ -4,6 +4,7 @@ import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy_editor/src/extensions/theme_extension.dart';
 
 class CheckboxNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -54,7 +55,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
   }
 
   CheckboxPluginStyle get style =>
-      Theme.of(context).extension<CheckboxPluginStyle>() ??
+      Theme.of(context).extensionOrNull<CheckboxPluginStyle>() ??
       CheckboxPluginStyle.light;
 
   EdgeInsets get padding => style.padding(
