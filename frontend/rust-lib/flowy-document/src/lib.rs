@@ -1,4 +1,4 @@
-mod entities;
+pub mod entities;
 mod event_handler;
 pub mod event_map;
 pub mod manager;
@@ -6,6 +6,7 @@ pub mod manager;
 pub mod editor;
 pub mod old_editor;
 pub mod protobuf;
+mod services;
 
 pub use manager::*;
 pub mod errors {

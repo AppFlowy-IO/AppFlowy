@@ -1,18 +1,18 @@
-use lib_ot::text_delta::TextOperations;
+use lib_ot::text_delta::DeltaTextOperations;
 
 const MAX_UNDOES: usize = 20;
 
 #[derive(Debug, Clone)]
 pub struct UndoResult {
-    pub operations: TextOperations,
+    pub operations: DeltaTextOperations,
 }
 
 #[derive(Debug, Clone)]
 pub struct History {
     #[allow(dead_code)]
     cur_undo: usize,
-    undoes: Vec<TextOperations>,
-    redoes: Vec<TextOperations>,
+    undoes: Vec<DeltaTextOperations>,
+    redoes: Vec<DeltaTextOperations>,
     capacity: usize,
 }
 
@@ -40,15 +40,15 @@ impl History {
         !self.redoes.is_empty()
     }
 
-    pub fn add_undo(&mut self, delta: TextOperations) {
+    pub fn add_undo(&mut self, delta: DeltaTextOperations) {
         self.undoes.push(delta);
     }
 
-    pub fn add_redo(&mut self, delta: TextOperations) {
+    pub fn add_redo(&mut self, delta: DeltaTextOperations) {
         self.redoes.push(delta);
     }
 
-    pub fn record(&mut self, delta: TextOperations) {
+    pub fn record(&mut self, delta: DeltaTextOperations) {
         if delta.ops.is_empty() {
             return;
         }
@@ -61,7 +61,7 @@ impl History {
         }
     }
 
-    pub fn undo(&mut self) -> Option<TextOperations> {
+    pub fn undo(&mut self) -> Option<DeltaTextOperations> {
         if !self.can_undo() {
             return None;
         }
@@ -69,7 +69,7 @@ impl History {
         Some(delta)
     }
 
-    pub fn redo(&mut self) -> Option<TextOperations> {
+    pub fn redo(&mut self) -> Option<DeltaTextOperations> {
         if !self.can_redo() {
             return None;
         }

@@ -17,7 +17,8 @@ pub struct ViewRevision {
     pub desc: String,
 
     #[serde(default)]
-    pub data_type: ViewDataTypeRevision,
+    #[serde(rename = "data_type")]
+    pub data_format: ViewDataFormatRevision,
 
     pub version: i64, // Deprecated
 
@@ -55,14 +56,15 @@ impl std::convert::From<ViewRevision> for TrashRevision {
 
 #[derive(Eq, PartialEq, Debug, Clone, Serialize_repr, Deserialize_repr)]
 #[repr(u8)]
-pub enum ViewDataTypeRevision {
-    Text = 0,
-    Database = 1,
+pub enum ViewDataFormatRevision {
+    DeltaFormat = 0,
+    DatabaseFormat = 1,
+    TreeFormat = 2,
 }
 
-impl std::default::Default for ViewDataTypeRevision {
+impl std::default::Default for ViewDataFormatRevision {
     fn default() -> Self {
-        ViewDataTypeRevision::Text
+        ViewDataFormatRevision::DeltaFormat
     }
 }
 

@@ -1,6 +1,7 @@
+import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_item.dart';
 import 'package:appflowy_editor/src/render/toolbar/toolbar_item_widget.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 
 import 'package:appflowy_editor/src/editor_state.dart';
 
@@ -67,6 +68,7 @@ class _ToolbarWidgetState extends State<ToolbarWidget> with ToolbarMixin {
                       isHighlight: item.highlightCallback(widget.editorState),
                       onPressed: () {
                         item.handler(widget.editorState, context);
+                        widget.editorState.service.keyboardService?.enable();
                       },
                     ),
                   ),

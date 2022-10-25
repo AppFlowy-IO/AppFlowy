@@ -28,6 +28,7 @@ tokio = {version = "1", features = ["sync"]}
 tracing = { version = "0.1", features = ["log"] }
 
 bytes = { version = "1.1" }
+md5 = "0.7.0"
 strum = "0.21"
 strum_macros = "0.21"
 dashmap = "5"

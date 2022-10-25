@@ -1,5 +1,5 @@
 use crate::cache::{
-    disk::{RevisionChangeset, RevisionDiskCache, SQLiteDocumentRevisionPersistence},
+    disk::{RevisionChangeset, RevisionDiskCache, SQLiteDeltaDocumentRevisionPersistence},
     memory::RevisionMemoryCacheDelegate,
 };
 use crate::disk::{RevisionRecord, RevisionState, SQLiteGridBlockRevisionPersistence};
@@ -228,7 +228,7 @@ pub fn mk_text_block_revision_disk_cache(
     user_id: &str,
     pool: Arc<ConnectionPool>,
 ) -> Arc<dyn RevisionDiskCache<Error = FlowyError>> {
-    Arc::new(SQLiteDocumentRevisionPersistence::new(user_id, pool))
+    Arc::new(SQLiteDeltaDocumentRevisionPersistence::new(user_id, pool))
 }
 
 pub fn mk_grid_block_revision_disk_cache(

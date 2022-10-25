@@ -1,20 +1,20 @@
 use crate::synchronizer::RevisionOperations;
 use crate::{client_document::InitialDocument, errors::CollaborateError, synchronizer::RevisionSyncObject};
-use lib_ot::{core::*, text_delta::TextOperations};
+use lib_ot::{core::*, text_delta::DeltaTextOperations};
 
 pub struct ServerDocument {
     document_id: String,
-    operations: TextOperations,
+    operations: DeltaTextOperations,
 }
 
 impl ServerDocument {
     #[allow(dead_code)]
     pub fn new<C: InitialDocument>(doc_id: &str) -> Self {
-        let operations = TextOperations::from_json(&C::json_str()).unwrap();
+        let operations = DeltaTextOperations::from_json(&C::json_str()).unwrap();
         Self::from_operations(doc_id, operations)
     }
 
-    pub fn from_operations(document_id: &str, operations: TextOperations) -> Self {
+    pub fn from_operations(document_id: &str, operations: DeltaTextOperations) -> Self {
         let document_id = document_id.to_owned();
         ServerDocument {
             document_id,
@@ -32,13 +32,16 @@ impl RevisionSyncObject<AttributeHashMap> for ServerDocument {
         self.operations.json_str()
     }
 
-    fn compose(&mut self, other: &TextOperations) -> Result<(), CollaborateError> {
+    fn compose(&mut self, other: &DeltaTextOperations) -> Result<(), CollaborateError> {
         let operations = self.operations.compose(other)?;
         self.operations = operations;
         Ok(())
     }
 
-    fn transform(&self, other: &TextOperations) -> Result<(TextOperations, TextOperations), CollaborateError> {
+    fn transform(
+        &self,
+        other: &DeltaTextOperations,
+    ) -> Result<(DeltaTextOperations, DeltaTextOperations), CollaborateError> {
         let value = self.operations.transform(other)?;
         Ok(value)
     }

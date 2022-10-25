@@ -285,6 +285,11 @@ List<ShortcutEvent> builtInShortcutEvents = [
     command: 'escape',
     handler: exitEditingModeEventHandler,
   ),
+  ShortcutEvent(
+    key: 'Underscore to italic',
+    command: 'shift+underscore',
+    handler: underscoreToItalicHandler,
+  ),
   // https://github.com/flutter/flutter/issues/104944
   // Workaround: Using space editing on the web platform often results in errors,
   //  so adding a shortcut event to handle the space input instead of using the

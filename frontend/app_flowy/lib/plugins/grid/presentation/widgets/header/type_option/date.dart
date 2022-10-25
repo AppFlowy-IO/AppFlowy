@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import '../../../layout/sizes.dart';
+import '../../common/text_field.dart';
 import '../field_type_option_editor.dart';
 import 'builder.dart';
 
@@ -53,11 +54,14 @@ class DateTypeOptionWidget extends TypeOptionWidget {
         listener: (context, state) =>
             typeOptionContext.typeOption = state.typeOption,
         builder: (context, state) {
-          return Column(children: [
-            _renderDateFormatButton(context, state.typeOption.dateFormat),
-            _renderTimeFormatButton(context, state.typeOption.timeFormat),
-            const _IncludeTimeButton(),
-          ]);
+          return Column(
+            children: [
+              const TypeOptionSeparator(),
+              _renderDateFormatButton(context, state.typeOption.dateFormat),
+              _renderTimeFormatButton(context, state.typeOption.timeFormat),
+              const _IncludeTimeButton(),
+            ],
+          );
         },
       ),
     );

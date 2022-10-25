@@ -59,10 +59,16 @@ class SelectionMenu implements SelectionMenuService {
     // Workaround: We can customize the padding through the [EditorStyle],
     //  but the coordinates of overlay are not properly converted currently.
     //  Just subtract the padding here as a result.
+    const menuHeight = 200.0;
+    const menuOffset = Offset(10, 10);
     final baseOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
-    final offset =
-        selectionRects.first.bottomRight + const Offset(10, 10) - baseOffset;
+    var offset = selectionRects.first.bottomRight + menuOffset;
+    if (offset.dy >=
+        baseOffset.dy + editorState.renderBox!.size.height - menuHeight) {
+      offset = selectionRects.first.topRight - menuOffset;
+      offset = offset.translate(0, -menuHeight);
+    }
     _topLeft = offset;
 
     _selectionMenuEntry = OverlayEntry(builder: (context) {

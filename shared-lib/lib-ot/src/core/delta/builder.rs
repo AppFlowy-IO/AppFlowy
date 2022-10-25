@@ -16,11 +16,11 @@ use crate::core::DeltaOperation;
 ///         .build();
 /// assert_eq!(delta.content().unwrap(), "AppFlowy");
 /// ```
-pub struct OperationBuilder<T: OperationAttributes> {
+pub struct DeltaOperationBuilder<T: OperationAttributes> {
     delta: DeltaOperations<T>,
 }
 
-impl<T> std::default::Default for OperationBuilder<T>
+impl<T> std::default::Default for DeltaOperationBuilder<T>
 where
     T: OperationAttributes,
 {
@@ -31,16 +31,16 @@ where
     }
 }
 
-impl<T> OperationBuilder<T>
+impl<T> DeltaOperationBuilder<T>
 where
     T: OperationAttributes,
 {
     pub fn new() -> Self {
-        OperationBuilder::default()
+        DeltaOperationBuilder::default()
     }
 
     pub fn from_operations(operations: Vec<DeltaOperation<T>>) -> DeltaOperations<T> {
-        let mut delta = OperationBuilder::default().build();
+        let mut delta = DeltaOperationBuilder::default().build();
         operations.into_iter().for_each(|operation| {
             delta.add(operation);
         });
@@ -52,10 +52,10 @@ where
     /// # Examples
     ///
     /// ```
-    /// use lib_ot::text_delta::{BuildInTextAttribute, TextOperations, TextOperationBuilder};
+    /// use lib_ot::text_delta::{BuildInTextAttribute, DeltaTextOperations, DeltaTextOperationBuilder};
     ///
     /// let mut attribute = BuildInTextAttribute::Bold(true);
-    /// let delta = TextOperationBuilder::new().retain_with_attributes(7, attribute.into()).build();
+    /// let delta = DeltaTextOperationBuilder::new().retain_with_attributes(7, attribute.into()).build();
     ///
     /// assert_eq!(delta.json_str(), r#"[{"retain":7,"attributes":{"bold":true}}]"#);
     /// ```
@@ -111,14 +111,14 @@ where
     ///
     /// ```
     /// use lib_ot::core::{OperationTransform, DeltaBuilder};
-    /// use lib_ot::text_delta::{BuildInTextAttribute, TextOperationBuilder};
+    /// use lib_ot::text_delta::{BuildInTextAttribute, DeltaTextOperationBuilder};
     /// let delta = DeltaBuilder::new()
     ///         .retain(3)
     ///         .trim()
     ///         .build();
     /// assert_eq!(delta.ops.len(), 0);
     ///
-    /// let delta = TextOperationBuilder::new()
+    /// let delta = DeltaTextOperationBuilder::new()
     ///         .retain_with_attributes(3, BuildInTextAttribute::Bold(true).into())
     ///         .trim()
     ///         .build();

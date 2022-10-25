@@ -1,5 +1,5 @@
 use crate::errors::internal_error;
-use crate::server_folder::FolderOperations;
+use crate::server_folder::{FolderOperations, FolderOperationsBuilder};
 use crate::util::cal_diff;
 use crate::{
     client_folder::builder::FolderPadBuilder,
@@ -11,8 +11,6 @@ use lib_infra::util::move_vec_element;
 use lib_ot::core::*;
 use serde::Deserialize;
 use std::sync::Arc;
-
-pub type FolderOperationsBuilder = DeltaBuilder;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct FolderPad {
@@ -464,15 +462,13 @@ pub struct FolderChangeset {
 mod tests {
     #![allow(clippy::all)]
     use crate::client_folder::folder_pad::FolderPad;
+    use crate::server_folder::{FolderOperations, FolderOperationsBuilder};
     use chrono::Utc;
-    use serde::Deserialize;
-
-    use crate::client_folder::FolderOperationsBuilder;
-    use crate::server_folder::FolderOperations;
     use flowy_folder_data_model::revision::{
         AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision,
     };
     use lib_ot::core::OperationTransform;
+    use serde::Deserialize;
 
     #[test]
     fn folder_add_workspace() {

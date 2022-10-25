@@ -1,84 +1,73 @@
+import 'package:flowy_infra/size.dart';
 import 'package:flutter/material.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class Fonts {
-  static const String lato = "Lato";
+  static String general = "Poppins";
 
-  static const String quicksand = "Quicksand";
+  static String monospace = "SF Mono";
 
-  static const String emoji = "OpenSansEmoji";
+  static String emoji = "Noto Color Emoji";
 }
 
-class FontSizes {
-  static double get scale => 1;
-
-  static double get s11 => 11 * scale;
-
-  static double get s12 => 12 * scale;
-
-  static double get s14 => 14 * scale;
-
-  static double get s16 => 16 * scale;
-
-  static double get s18 => 18 * scale;
-}
-
-// ignore: non_constant_identifier_names
 class TextStyles {
-  static const TextStyle lato = TextStyle(
-    fontFamily: Fonts.lato,
-    fontWeight: FontWeight.w400,
-    letterSpacing: 0,
-    height: 1,
-    fontFamilyFallback: [
-      Fonts.emoji,
-    ],
-  );
+  static TextStyle general({
+    double? fontSize,
+    FontWeight fontWeight = FontWeight.w500,
+    Color? color,
+  }) =>
+      TextStyle(
+        fontFamily: Fonts.general,
+        fontSize: fontSize ?? FontSizes.s12,
+        color: color,
+        fontWeight: fontWeight,
+        fontFamilyFallback: [Fonts.emoji],
+        letterSpacing: (fontSize ?? FontSizes.s12) * 0.005,
+      );
 
-  static const TextStyle quicksand = TextStyle(
-    fontFamily: Fonts.quicksand,
-    fontWeight: FontWeight.w400,
-    fontFamilyFallback: [
-      Fonts.emoji,
-    ],
-  );
+  static TextStyle monospace({
+    String? fontFamily,
+    double? fontSize,
+    FontWeight fontWeight = FontWeight.w400,
+  }) =>
+      TextStyle(
+        fontFamily: fontFamily ?? Fonts.monospace,
+        fontSize: fontSize ?? FontSizes.s12,
+        fontWeight: fontWeight,
+        fontFamilyFallback: [Fonts.emoji],
+      );
 
-  // ignore: non_constant_identifier_names
-  static TextStyle get T1 => quicksand.bold.size(FontSizes.s14).letterSpace(.7);
+  static TextStyle get title => general(
+        fontSize: FontSizes.s18,
+        fontWeight: FontWeight.w600,
+      );
 
-  // ignore: non_constant_identifier_names
-  static TextStyle get T2 => lato.bold.size(FontSizes.s12).letterSpace(.4);
+  static TextStyle get subheading => general(
+        fontSize: FontSizes.s16,
+        fontWeight: FontWeight.w600,
+      );
 
-  // ignore: non_constant_identifier_names
-  static TextStyle get H1 => lato.bold.size(FontSizes.s14);
+  static TextStyle get subtitle => general(
+        fontSize: FontSizes.s16,
+        fontWeight: FontWeight.w600,
+      );
 
-  // ignore: non_constant_identifier_names
-  static TextStyle get H2 => lato.bold.size(FontSizes.s12);
+  static TextStyle get body1 => general(
+        fontSize: FontSizes.s12,
+        fontWeight: FontWeight.w500,
+      );
 
-  // ignore: non_constant_identifier_names
-  static TextStyle get Body1 => lato.size(FontSizes.s14);
+  static TextStyle get body2 => general(
+        fontSize: FontSizes.s12,
+        fontWeight: FontWeight.w400,
+      );
 
-  // ignore: non_constant_identifier_names
-  static TextStyle get Body2 => lato.size(FontSizes.s12);
+  static TextStyle get callout => general(
+        fontSize: FontSizes.s11,
+        fontWeight: FontWeight.w600,
+      );
 
-  // ignore: non_constant_identifier_names
-  static TextStyle get Body3 => lato.size(FontSizes.s11);
-
-  // ignore: non_constant_identifier_names
-  static TextStyle get Callout => quicksand.size(FontSizes.s14).letterSpace(1.75);
-
-  // ignore: non_constant_identifier_names
-  static TextStyle get CalloutFocus => Callout.bold;
-
-  // ignore: non_constant_identifier_names
-  static TextStyle get Btn => quicksand.bold.size(FontSizes.s16).letterSpace(1.75);
-
-  // ignore: non_constant_identifier_names
-  static TextStyle get BtnSelected => quicksand.size(FontSizes.s14).letterSpace(1.75);
-
-  // ignore: non_constant_identifier_names
-  static TextStyle get Footnote => quicksand.bold.size(FontSizes.s11);
-
-  // ignore: non_constant_identifier_names
-  static TextStyle get Caption => lato.size(FontSizes.s11).letterSpace(.3);
+  static TextStyle get caption => general(
+        fontSize: FontSizes.s11,
+        fontWeight: FontWeight.w400,
+      );
 }

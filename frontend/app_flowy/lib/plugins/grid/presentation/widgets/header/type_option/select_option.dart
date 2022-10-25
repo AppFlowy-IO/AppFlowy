@@ -66,12 +66,17 @@ class OptionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.read<AppTheme>();
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
         List<Widget> children = [
-          FlowyText.medium(LocaleKeys.grid_field_optionTitle.tr(), fontSize: 12)
+          FlowyText.medium(
+            LocaleKeys.grid_field_optionTitle.tr(),
+            fontSize: 12,
+            color: theme.shader3,
+          )
         ];
-        if (state.options.isNotEmpty) {
+        if (state.options.isNotEmpty && !state.isEditingOption) {
           children.add(const Spacer());
           children.add(const _OptionTitleButton());
         }

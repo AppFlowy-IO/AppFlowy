@@ -1,4 +1,6 @@
+import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -37,13 +39,10 @@ class SettingsMenuElement extends StatelessWidget {
         borderRadius: BorderRadius.circular(5),
       ),
       minLeadingWidth: 0,
-      title: Text(
+      title: FlowyText.semibold(
         label,
-        style: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          overflow: TextOverflow.ellipsis,
-        ),
+        fontSize: FontSizes.s14,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }

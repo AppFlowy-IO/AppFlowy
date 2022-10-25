@@ -31,7 +31,12 @@ class NumberTypeOptionWidgetBuilder extends TypeOptionWidgetBuilder {
         );
 
   @override
-  Widget? build(BuildContext context) => _widget;
+  Widget? build(BuildContext context) {
+    return Column(children: [
+      const TypeOptionSeparator(),
+      _widget,
+    ]);
+  }
 }
 
 class NumberTypeOptionWidget extends TypeOptionWidget {

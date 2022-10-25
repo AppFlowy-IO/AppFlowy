@@ -1,4 +1,5 @@
 import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flutter/material.dart';
 
 class RoundedTextButton extends StatelessWidget {
@@ -45,7 +46,10 @@ class RoundedTextButton extends StatelessWidget {
             onPressed: onPressed,
             child: Text(
               title ?? '',
-              style: TextStyle(color: textColor, fontSize: fontSize),
+              style: TextStyles.general(
+                fontSize: fontSize,
+                color: textColor,
+              ),
             ),
           ),
         ),
@@ -80,9 +84,8 @@ class RoundedImageButton extends StatelessWidget {
       child: TextButton(
         onPressed: press,
         style: ButtonStyle(
-            shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-          borderRadius: borderRadius,
-        ))),
+            shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(borderRadius: borderRadius))),
         child: child,
       ),
     );

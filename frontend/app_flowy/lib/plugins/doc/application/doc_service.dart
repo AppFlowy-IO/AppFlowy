@@ -3,16 +3,25 @@ import 'package:flowy_sdk/dispatch/dispatch.dart';
 
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
-import 'package:flowy_sdk/protobuf/flowy-sync/document.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/entities.pb.dart';
 
 class DocumentService {
   Future<Either<DocumentSnapshotPB, FlowyError>> openDocument({
-    required String docId,
+    required ViewPB view,
   }) async {
-    await FolderEventSetLatestView(ViewIdPB(value: docId)).send();
+    await FolderEventSetLatestView(ViewIdPB(value: view.id)).send();
 
-    final payload = DocumentIdPB(value: docId);
+    final payload = OpenDocumentContextPB()
+      ..documentId = view.id
+      ..documentVersion = DocumentVersionPB.V1;
+    // switch (view.dataFormat) {
+    //   case ViewDataFormatPB.DeltaFormat:
+    //     payload.documentVersion = DocumentVersionPB.V0;
+    //     break;
+    //   default:
+    //     break;
+    // }
+
     return DocumentEventGetDocument(payload).send();
   }
 

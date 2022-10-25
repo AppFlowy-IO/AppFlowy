@@ -92,11 +92,16 @@ class _AppFlowyScrollState extends State<AppFlowyScroll>
   Widget build(BuildContext context) {
     return Listener(
       onPointerSignal: _onPointerSignal,
-      child: SingleChildScrollView(
+      child: CustomScrollView(
         key: _scrollViewKey,
         physics: const NeverScrollableScrollPhysics(),
         controller: _scrollController,
-        child: widget.child,
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: widget.child,
+          )
+        ],
       ),
     );
   }

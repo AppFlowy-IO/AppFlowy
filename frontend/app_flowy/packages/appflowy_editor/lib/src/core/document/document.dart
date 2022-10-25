@@ -57,8 +57,8 @@ class Document {
 
     final parent = nodeAtPath(path.parent);
     if (parent != null) {
-      for (final node in nodes) {
-        parent.insert(node, index: path.last);
+      for (var i = 0; i < nodes.length; i++) {
+        parent.insert(nodes.elementAt(i), index: path.last + i);
       }
       return true;
     }

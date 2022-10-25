@@ -86,7 +86,7 @@ impl RevisionManager {
         user_id: &str,
         object_id: &str,
         rev_persistence: RevisionPersistence,
-        rev_compactor: C,
+        rev_compress: C,
         snapshot_persistence: SP,
     ) -> Self
     where
@@ -94,7 +94,7 @@ impl RevisionManager {
         C: 'static + RevisionCompress,
     {
         let rev_id_counter = RevIdCounter::new(0);
-        let rev_compactor = Arc::new(rev_compactor);
+        let rev_compress = Arc::new(rev_compress);
         let rev_persistence = Arc::new(rev_persistence);
         let rev_snapshot = Arc::new(RevisionSnapshotManager::new(user_id, object_id, snapshot_persistence));
         #[cfg(feature = "flowy_unit_test")]
@@ -106,7 +106,7 @@ impl RevisionManager {
             rev_id_counter,
             rev_persistence,
             rev_snapshot,
-            rev_compress: rev_compactor,
+            rev_compress,
             #[cfg(feature = "flowy_unit_test")]
             rev_ack_notifier: revision_ack_notifier,
         }
@@ -128,6 +128,18 @@ impl RevisionManager {
         self.rev_id_counter.set(rev_id);
         tracing::Span::current().record("object_id", &self.object_id.as_str());
         B::deserialize_revisions(&self.object_id, revisions)
+    }
+
+    pub async fn load_revisions(&self) -> FlowyResult<Vec<Revision>> {
+        let revisions = RevisionLoader {
+            object_id: self.object_id.clone(),
+            user_id: self.user_id.clone(),
+            cloud: None,
+            rev_persistence: self.rev_persistence.clone(),
+        }
+        .load_revisions()
+        .await?;
+        Ok(revisions)
     }
 
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
@@ -263,5 +275,11 @@ impl RevisionLoader {
         }
 
         Ok((revisions, rev_id))
+    }
+
+    pub async fn load_revisions(&self) -> Result<Vec<Revision>, FlowyError> {
+        let records = self.rev_persistence.batch_get(&self.object_id)?;
+        let revisions = records.into_iter().map(|record| record.revision).collect::<_>();
+        Ok(revisions)
     }
 }

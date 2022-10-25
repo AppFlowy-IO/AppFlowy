@@ -1,7 +1,7 @@
 use crate::{client_document::DeleteExt, util::is_newline};
 use lib_ot::{
-    core::{Interval, OperationAttributes, OperationBuilder, OperationIterator, Utf16CodeUnitMetric, NEW_LINE},
-    text_delta::{empty_attributes, TextOperations},
+    core::{DeltaOperationBuilder, Interval, OperationAttributes, OperationIterator, Utf16CodeUnitMetric, NEW_LINE},
+    text_delta::{empty_attributes, DeltaTextOperations},
 };
 
 pub struct PreserveLineFormatOnMerge {}
@@ -10,7 +10,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
         "PreserveLineFormatOnMerge"
     }
 
-    fn apply(&self, delta: &TextOperations, interval: Interval) -> Option<TextOperations> {
+    fn apply(&self, delta: &DeltaTextOperations, interval: Interval) -> Option<DeltaTextOperations> {
         if interval.is_empty() {
             return None;
         }
@@ -25,7 +25,7 @@ impl DeleteExt for PreserveLineFormatOnMerge {
         }
 
         iter.seek::<Utf16CodeUnitMetric>(interval.size() - 1);
-        let mut new_delta = OperationBuilder::new()
+        let mut new_delta = DeltaOperationBuilder::new()
             .retain(interval.start)
             .delete(interval.size())
             .build();

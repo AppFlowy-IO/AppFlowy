@@ -1,7 +1,7 @@
 use crate::core::{OperationAttributes, OperationTransform};
 use crate::errors::OTError;
+use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::fmt;
 use std::fmt::Display;
 
@@ -27,10 +27,10 @@ impl std::convert::From<AttributeEntry> for AttributeHashMap {
 }
 
 #[derive(Default, Clone, Serialize, Deserialize, Eq, PartialEq, Debug)]
-pub struct AttributeHashMap(HashMap<AttributeKey, AttributeValue>);
+pub struct AttributeHashMap(IndexMap<AttributeKey, AttributeValue>);
 
 impl std::ops::Deref for AttributeHashMap {
-    type Target = HashMap<AttributeKey, AttributeValue>;
+    type Target = IndexMap<AttributeKey, AttributeValue>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -45,16 +45,16 @@ impl std::ops::DerefMut for AttributeHashMap {
 
 impl AttributeHashMap {
     pub fn new() -> AttributeHashMap {
-        AttributeHashMap(HashMap::new())
+        AttributeHashMap(IndexMap::new())
     }
 
-    pub fn into_inner(self) -> HashMap<AttributeKey, AttributeValue> {
+    pub fn into_inner(self) -> IndexMap<AttributeKey, AttributeValue> {
         self.0
     }
 
-    pub fn from_value(attribute_map: HashMap<AttributeKey, AttributeValue>) -> Self {
-        Self(attribute_map)
-    }
+    // pub fn from_value(attribute_map: HashMap<AttributeKey, AttributeValue>) -> Self {
+    //     Self(attribute_map)
+    // }
 
     pub fn insert<K: ToString, V: Into<AttributeValue>>(&mut self, key: K, value: V) {
         self.0.insert(key.to_string(), value.into());
@@ -219,10 +219,10 @@ impl AttributeValue {
     }
 
     pub fn from_bool(val: bool) -> Self {
-        let value = if val { Some(val.to_string()) } else { None };
+        // let value = if val { Some(val.to_string()) } else { None };
         Self {
             ty: Some(ValueType::BoolType),
-            value,
+            value: Some(val.to_string()),
         }
     }
     pub fn from_string(s: &str) -> Self {

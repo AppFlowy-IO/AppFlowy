@@ -3,7 +3,7 @@ use lib_ot::core::{NodeTreeContext, Transaction};
 use lib_ot::{
     core::attributes::AttributeHashMap,
     core::{Body, Changeset, NodeData, NodeTree, Path, TransactionBuilder},
-    text_delta::TextOperations,
+    text_delta::DeltaTextOperations,
 };
 use std::collections::HashMap;
 
@@ -48,7 +48,7 @@ pub enum NodeScript {
     },
     AssertNodeDelta {
         path: Path,
-        expected: TextOperations,
+        expected: DeltaTextOperations,
     },
     #[allow(dead_code)]
     AssertTreeJSON {

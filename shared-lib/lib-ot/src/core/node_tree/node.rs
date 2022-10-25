@@ -3,7 +3,7 @@ use crate::core::attributes::{AttributeHashMap, AttributeKey, AttributeValue};
 use crate::core::Body::Delta;
 use crate::core::OperationTransform;
 use crate::errors::OTError;
-use crate::text_delta::TextOperations;
+use crate::text_delta::DeltaTextOperations;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, Serialize, Deserialize, Eq, PartialEq)]
@@ -97,7 +97,7 @@ impl NodeDataBuilder {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Body {
     Empty,
-    Delta(TextOperations),
+    Delta(DeltaTextOperations),
 }
 
 impl std::default::Default for Body {
@@ -120,6 +120,7 @@ impl OperationTransform for Body {
     {
         match (self, other) {
             (Delta(a), Delta(b)) => a.compose(b).map(Delta),
+            (Body::Empty, Delta(b)) => Ok(Delta(b.clone())),
             (Body::Empty, Body::Empty) => Ok(Body::Empty),
             (l, r) => {
                 let msg = format!("{:?} can not compose {:?}", l, r);
@@ -163,8 +164,8 @@ impl OperationTransform for Body {
 #[serde(rename_all = "snake_case")]
 pub enum Changeset {
     Delta {
-        delta: TextOperations,
-        inverted: TextOperations,
+        delta: DeltaTextOperations,
+        inverted: DeltaTextOperations,
     },
     Attributes {
         new: AttributeHashMap,

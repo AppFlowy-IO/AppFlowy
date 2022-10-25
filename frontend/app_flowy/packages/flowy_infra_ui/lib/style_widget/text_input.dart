@@ -10,7 +10,8 @@ import 'package:provider/provider.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FlowyFormTextInput extends StatelessWidget {
-  static EdgeInsets kDefaultTextInputPadding = EdgeInsets.only(bottom: Insets.sm, top: 4);
+  static EdgeInsets kDefaultTextInputPadding =
+      EdgeInsets.only(bottom: Insets.sm, top: 4);
 
   final String? label;
   final bool? autoFocus;
@@ -52,7 +53,7 @@ class FlowyFormTextInput extends StatelessWidget {
       initialValue: initialValue,
       onChanged: onChanged,
       onFocusCreated: onFocusCreated,
-      style: textStyle ?? TextStyles.Body1,
+      style: textStyle ?? TextStyles.body1,
       onEditingComplete: onEditingComplete,
       onFocusChanged: onFocusChanged,
       controller: controller,
@@ -60,7 +61,8 @@ class FlowyFormTextInput extends StatelessWidget {
       inputDecoration: InputDecoration(
         isDense: true,
         contentPadding: contentPadding ?? kDefaultTextInputPadding,
-        border: const ThinUnderlineBorder(borderSide: BorderSide(width: 5, color: Colors.red)),
+        border: const ThinUnderlineBorder(
+            borderSide: BorderSide(width: 5, color: Colors.red)),
         //focusedBorder: UnderlineInputBorder(borderSide: BorderSide(width: .5, color: Colors.red)),
         hintText: hintText,
       ),
@@ -141,7 +143,8 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
 
   @override
   void initState() {
-    _controller = widget.controller ?? TextEditingController(text: widget.initialValue);
+    _controller =
+        widget.controller ?? TextEditingController(text: widget.initialValue);
     _focusNode = FocusNode(
       debugLabel: widget.label ?? '',
       onKey: (FocusNode node, RawKeyEvent evt) {
@@ -157,7 +160,8 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
       canRequestFocus: true,
     );
     // Listen for focus out events
-    _focusNode.addListener(() => widget.onFocusChanged?.call(_focusNode.hasFocus));
+    _focusNode
+        .addListener(() => widget.onFocusChanged?.call(_focusNode.hasFocus));
     widget.onFocusCreated?.call(_focusNode);
     if (widget.autoFocus ?? false) {
       scheduleMicrotask(() => _focusNode.requestFocus());
@@ -195,7 +199,7 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         obscureText: widget.obscureText ?? false,
         autocorrect: widget.autoCorrect ?? false,
         enableSuggestions: widget.enableSuggestions ?? false,
-        style: widget.style ?? TextStyles.Body1,
+        style: widget.style ?? TextStyles.body1,
         cursorColor: theme.main1,
         controller: _controller,
         showCursor: true,
@@ -206,14 +210,15 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
             InputDecoration(
                 prefixIcon: widget.prefixIcon,
                 suffixIcon: widget.suffixIcon,
-                contentPadding: widget.contentPadding ?? EdgeInsets.all(Insets.m),
+                contentPadding:
+                    widget.contentPadding ?? EdgeInsets.all(Insets.m),
                 border: const OutlineInputBorder(borderSide: BorderSide.none),
                 isDense: true,
                 icon: widget.icon == null ? null : Icon(widget.icon),
                 errorText: widget.errorText,
                 errorMaxLines: 2,
                 hintText: widget.hintText,
-                hintStyle: TextStyles.Body1.textColor(theme.shader4),
+                hintStyle: TextStyles.body1.textColor(theme.shader4),
                 labelText: widget.label),
       ),
     );
@@ -254,7 +259,8 @@ class ThinUnderlineBorder extends InputBorder {
   bool get isOutline => false;
 
   @override
-  UnderlineInputBorder copyWith({BorderSide? borderSide, BorderRadius? borderRadius}) {
+  UnderlineInputBorder copyWith(
+      {BorderSide? borderSide, BorderRadius? borderRadius}) {
     return UnderlineInputBorder(
       borderSide: borderSide ?? this.borderSide,
       borderRadius: borderRadius ?? this.borderRadius,
@@ -274,7 +280,8 @@ class ThinUnderlineBorder extends InputBorder {
   @override
   Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
     return Path()
-      ..addRect(Rect.fromLTWH(rect.left, rect.top, rect.width, math.max(0.0, rect.height - borderSide.width)));
+      ..addRect(Rect.fromLTWH(rect.left, rect.top, rect.width,
+          math.max(0.0, rect.height - borderSide.width)));
   }
 
   @override
@@ -285,7 +292,8 @@ class ThinUnderlineBorder extends InputBorder {
   @override
   ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
     if (a is UnderlineInputBorder) {
-      final newBorderRadius = BorderRadius.lerp(a.borderRadius, borderRadius, t);
+      final newBorderRadius =
+          BorderRadius.lerp(a.borderRadius, borderRadius, t);
 
       if (newBorderRadius != null) {
         return UnderlineInputBorder(
@@ -300,7 +308,8 @@ class ThinUnderlineBorder extends InputBorder {
   @override
   ShapeBorder? lerpTo(ShapeBorder? b, double t) {
     if (b is UnderlineInputBorder) {
-      final newBorderRadius = BorderRadius.lerp(b.borderRadius, borderRadius, t);
+      final newBorderRadius =
+          BorderRadius.lerp(b.borderRadius, borderRadius, t);
       if (newBorderRadius != null) {
         return UnderlineInputBorder(
           borderSide: BorderSide.lerp(borderSide, b.borderSide, t),
@@ -326,7 +335,8 @@ class ThinUnderlineBorder extends InputBorder {
     double gapPercentage = 0.0,
     TextDirection? textDirection,
   }) {
-    if (borderRadius.bottomLeft != Radius.zero || borderRadius.bottomRight != Radius.zero) {
+    if (borderRadius.bottomLeft != Radius.zero ||
+        borderRadius.bottomRight != Radius.zero) {
       canvas.clipPath(getOuterPath(rect, textDirection: textDirection));
     }
     canvas.drawLine(rect.bottomLeft, rect.bottomRight, borderSide.toPaint());

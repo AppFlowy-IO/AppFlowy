@@ -11,7 +11,6 @@ import 'package:app_flowy/startup/tasks/app_widget.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
 import 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
-import 'package:textstyle_extensions/textstyle_extensions.dart';
 export 'package:flowy_infra_ui/widget/dialog/styled_dialogs.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
@@ -56,8 +55,10 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
           FlowyFormTextInput(
             hintText: LocaleKeys.dialogCreatePageNameHint.tr(),
             initialValue: widget.value,
-            textStyle:
-                const TextStyle(fontSize: 24, fontWeight: FontWeight.w400),
+            textStyle: TextStyles.general(
+              fontSize: 24,
+              fontWeight: FontWeight.w400,
+            ),
             autoFocus: true,
             onChanged: (text) {
               newValue = text;
@@ -169,7 +170,7 @@ class NavigatorOkCancelDialog extends StatelessWidget {
             Container(color: theme.bg1, height: 1),
             VSpace(Insets.m * 1.5),
           ],
-          Text(message, style: TextStyles.Body1.textHeight(1.5)),
+          FlowyText.medium(message, fontSize: FontSizes.s12),
           SizedBox(height: Insets.l),
           OkCancelButton(
             onOkPressed: () {
