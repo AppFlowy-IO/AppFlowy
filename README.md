@@ -18,9 +18,9 @@ You are in charge of your data and customizations.
 </p>
 
 <p align="center">
-    <a href="http://www.appflowy.io"><b>Website</b></a> •
-    <a href="https://discord.gg/9Q2xaN37tV"><b>Discord</b></a> •
-    <a href="https://twitter.com/appflowy"><b>Twitter</b></a>
+    <a href="http://www.appflowy.io"><b><img src="https://user-images.githubusercontent.com/104122959/197604543-92d9ee58-458c-4560-801b-c52425330639.png" title="Website" | width=40></b></a> •
+    <a href="https://discord.gg/9Q2xaN37tV"><b><img src="https://user-images.githubusercontent.com/104122959/197730390-862e13ed-b1e4-46e5-a726-3e50c1ce9eda.png" title="Discord" | width=40> </b></a> •
+    <a href="https://twitter.com/appflowy"><b><img src="https://user-images.githubusercontent.com/104122959/197606757-7b716b86-3211-4f89-8989-9397591916e7.png" title="Twitter"| width=40 ></b></a>
 </p>
 
 <p align="center"><img src="https://user-images.githubusercontent.com/12026239/174754661-682980e4-e386-4685-bb6f-2da357390b61.png" alt="The Open Source Alternative To Notion." width="1000px" /></p>
@@ -100,3 +100,5 @@ Special thanks to these amazing projects which help power AppFlowy.IO:
 - [flutter-quill](https://github.com/singerdmx/flutter-quill)
 - [cargo-make](https://github.com/sagiegurari/cargo-make)
 - [contrib.rocks](https://contrib.rocks)
+
+
