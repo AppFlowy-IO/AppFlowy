@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        // extensions: [HeadingPluginStyle.light],
       ),
       home: const MyHomePage(title: 'AppFlowyEditor Example'),
     );
@@ -125,28 +126,48 @@ class _MyHomePageState extends State<MyHomePage> {
           _editorState!.transactionStream.listen((event) {
             debugPrint('Transaction: ${event.toJson()}');
           });
-          return Container(
-            color: darkMode ? Colors.black : Colors.white,
-            width: MediaQuery.of(context).size.width,
-            child: AppFlowyEditor(
-              editorState: _editorState!,
-              editorStyle: _editorStyle,
-              editable: true,
-              customBuilders: {
-                'text/code_block': CodeBlockNodeWidgetBuilder(),
-                'tex': TeXBlockNodeWidgetBuidler(),
-                'horizontal_rule': HorizontalRuleWidgetBuilder(),
-              },
-              shortcutEvents: [
-                enterInCodeBlock,
-                ignoreKeysInCodeBlock,
-                insertHorizontalRule,
-              ],
-              selectionMenuItems: [
-                codeBlockMenuItem,
-                teXBlockMenuItem,
-                horizontalRuleMenuItem,
-              ],
+          final themeData = darkMode
+              ? ThemeData.dark().copyWith(extensions: [
+                  HeadingPluginStyle.dark,
+                  CheckboxPluginStyle.dark,
+                  NumberListPluginStyle.dark,
+                  QuotedTextPluginStyle.dark,
+                  BulletedListPluginStyle.dark
+                ])
+              : ThemeData.light().copyWith(
+                  extensions: [
+                    HeadingPluginStyle.light,
+                    CheckboxPluginStyle.light,
+                    NumberListPluginStyle.light,
+                    QuotedTextPluginStyle.light,
+                    BulletedListPluginStyle.light
+                  ],
+                );
+          return Theme(
+            data: themeData,
+            child: Container(
+              color: darkMode ? Colors.black : Colors.white,
+              width: MediaQuery.of(context).size.width,
+              child: AppFlowyEditor(
+                editorState: _editorState!,
+                editorStyle: _editorStyle,
+                editable: true,
+                customBuilders: {
+                  'text/code_block': CodeBlockNodeWidgetBuilder(),
+                  'tex': TeXBlockNodeWidgetBuidler(),
+                  'horizontal_rule': HorizontalRuleWidgetBuilder(),
+                },
+                shortcutEvents: [
+                  enterInCodeBlock,
+                  ignoreKeysInCodeBlock,
+                  insertHorizontalRule,
+                ],
+                selectionMenuItems: [
+                  codeBlockMenuItem,
+                  teXBlockMenuItem,
+                  horizontalRuleMenuItem,
+                ],
+              ),
             ),
           );
         } else {

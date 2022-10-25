@@ -1,10 +1,10 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:appflowy_editor/src/render/style/built_in_plugin_styles.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
@@ -45,11 +45,7 @@ class BulletedListTextNodeWidget extends BuiltInTextWidget {
 // customize
 
 class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
-    with
-        SelectableMixin,
-        DefaultSelectable,
-        BuiltInStyleMixin,
-        BuiltInTextWidgetMixin {
+    with SelectableMixin, DefaultSelectable, BuiltInTextWidgetMixin {
   @override
   final iconKey = GlobalKey();
 
@@ -64,17 +60,23 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
     return super.baseOffset.translate(0, padding.top);
   }
 
-  Color get bulletColor {
-    final bulletColor = widget.editorState.editorStyle.style(
-      widget.editorState,
-      widget.textNode,
-      'bulletColor',
-    );
-    if (bulletColor is Color) {
-      return bulletColor;
-    }
-    return Colors.black;
-  }
+  BulletedListPluginStyle get style =>
+      Theme.of(context).extension<BulletedListPluginStyle>()!;
+
+  EdgeInsets get padding => style.padding(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  TextStyle get textStyle => style.textStyle(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  Widget get icon => style.icon(
+        widget.editorState,
+        widget.textNode,
+      );
 
   @override
   Widget buildWithSingle(BuildContext context) {
@@ -83,13 +85,9 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FlowySvg(
+          Container(
             key: iconKey,
-            width: iconSize?.width,
-            height: iconSize?.height,
-            padding: iconPadding,
-            color: bulletColor,
-            name: 'point',
+            child: icon,
           ),
           Flexible(
             child: FlowyRichText(

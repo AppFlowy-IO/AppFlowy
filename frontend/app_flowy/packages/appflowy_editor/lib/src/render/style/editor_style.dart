@@ -4,6 +4,100 @@ import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 
+class EditorStyleV2 extends ThemeExtension<EditorStyleV2> {
+  // Editor styles
+  final EdgeInsets? padding;
+  final Color? cursorColor;
+  final Color? selectionColor;
+
+  // Text styles
+  final TextStyle? textStyle;
+  final TextStyle? placeholderTextStyle;
+  final double lineHeight;
+
+  // Rich text styles
+  final TextStyle? bold;
+  final TextStyle? italic;
+  final TextStyle? underline;
+  final TextStyle? strikethrough;
+  final TextStyle? href;
+  final TextStyle? code;
+  final String? highlightColorHex;
+
+  EditorStyleV2({
+    required this.padding,
+    required this.cursorColor,
+    required this.selectionColor,
+    required this.textStyle,
+    required this.placeholderTextStyle,
+    required this.bold,
+    required this.italic,
+    required this.underline,
+    required this.strikethrough,
+    required this.href,
+    required this.code,
+    required this.highlightColorHex,
+    required this.lineHeight,
+  });
+
+  @override
+  EditorStyleV2 copyWith({
+    EdgeInsets? padding,
+    Color? cursorColor,
+    Color? selectionColor,
+    TextStyle? textStyle,
+    TextStyle? placeholderTextStyle,
+    TextStyle? bold,
+    TextStyle? italic,
+    TextStyle? underline,
+    TextStyle? strikethrough,
+    TextStyle? href,
+    TextStyle? code,
+    String? highlightColorHex,
+    double? lineHeight,
+  }) {
+    return EditorStyleV2(
+      padding: padding ?? this.padding,
+      cursorColor: cursorColor ?? this.cursorColor,
+      selectionColor: selectionColor ?? this.selectionColor,
+      textStyle: textStyle ?? this.textStyle,
+      placeholderTextStyle: placeholderTextStyle ?? this.placeholderTextStyle,
+      bold: bold ?? this.bold,
+      italic: italic ?? this.italic,
+      underline: underline ?? this.underline,
+      strikethrough: strikethrough ?? this.strikethrough,
+      href: href ?? this.href,
+      code: code ?? this.code,
+      highlightColorHex: highlightColorHex ?? this.highlightColorHex,
+      lineHeight: lineHeight ?? this.lineHeight,
+    );
+  }
+
+  @override
+  ThemeExtension<EditorStyleV2> lerp(
+      ThemeExtension<EditorStyleV2>? other, double t) {
+    if (other == null || other is! EditorStyleV2) {
+      return this;
+    }
+    return EditorStyleV2(
+      padding: EdgeInsets.lerp(padding, other.padding, t),
+      cursorColor: Color.lerp(cursorColor, other.cursorColor, t),
+      selectionColor: Color.lerp(selectionColor, other.selectionColor, t),
+      textStyle: TextStyle.lerp(textStyle, other.textStyle, t),
+      placeholderTextStyle:
+          TextStyle.lerp(placeholderTextStyle, other.placeholderTextStyle, t),
+      bold: TextStyle.lerp(bold, other.bold, t),
+      italic: TextStyle.lerp(italic, other.italic, t),
+      underline: TextStyle.lerp(underline, other.underline, t),
+      strikethrough: TextStyle.lerp(strikethrough, other.strikethrough, t),
+      href: TextStyle.lerp(href, other.href, t),
+      code: TextStyle.lerp(code, other.code, t),
+      highlightColorHex: highlightColorHex,
+      lineHeight: lineHeight,
+    );
+  }
+}
+
 typedef PluginStyler = Object Function(EditorState editorState, Node node);
 typedef PluginStyle = Map<String, PluginStyler>;
 
@@ -41,6 +135,7 @@ class EditorStyle {
     return null;
   }
 
+  @override
   EditorStyle copyWith({
     EdgeInsets? padding,
     BuiltInTextStyle? textStyle,

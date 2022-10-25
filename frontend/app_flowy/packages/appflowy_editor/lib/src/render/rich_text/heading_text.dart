@@ -4,6 +4,7 @@ import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:appflowy_editor/src/render/style/built_in_plugin_styles.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
@@ -43,7 +44,7 @@ class HeadingTextNodeWidget extends BuiltInTextWidget {
 
 // customize
 class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with SelectableMixin, DefaultSelectable {
   @override
   GlobalKey? get iconKey => null;
 
@@ -57,6 +58,19 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
   Offset get baseOffset {
     return padding.topLeft;
   }
+
+  HeadingPluginStyle get style =>
+      Theme.of(context).extension<HeadingPluginStyle>()!;
+
+  EdgeInsets get padding => style.padding(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  TextStyle get textStyle => style.textStyle(
+        widget.editorState,
+        widget.textNode,
+      );
 
   @override
   Widget build(BuildContext context) {

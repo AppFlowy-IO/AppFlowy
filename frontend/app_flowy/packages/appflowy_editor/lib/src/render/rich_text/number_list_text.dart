@@ -4,6 +4,7 @@ import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:appflowy_editor/src/render/style/plugin_style.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
@@ -43,7 +44,7 @@ class NumberListTextNodeWidget extends BuiltInTextWidget {
 }
 
 class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with SelectableMixin, DefaultSelectable {
   @override
   final iconKey = GlobalKey();
 
@@ -70,6 +71,24 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
     return Colors.black;
   }
 
+  NumberListPluginStyle get style =>
+      Theme.of(context).extension<NumberListPluginStyle>()!;
+
+  EdgeInsets get padding => style.padding(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  TextStyle get textStyle => style.textStyle(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  Widget get icon => style.icon(
+        widget.editorState,
+        widget.textNode,
+      );
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -79,15 +98,7 @@ class _NumberListTextNodeWidgetState extends State<NumberListTextNodeWidget>
         children: [
           Container(
             key: iconKey,
-            padding: iconPadding,
-            child: Text(
-              '${widget.textNode.attributes.number.toString()}.',
-              style: TextStyle(
-                fontSize: widget.editorState.editorStyle.textStyle
-                    .defaultTextStyle.fontSize,
-                color: numberColor,
-              ),
-            ),
+            child: icon,
           ),
           Flexible(
             child: FlowyRichText(
