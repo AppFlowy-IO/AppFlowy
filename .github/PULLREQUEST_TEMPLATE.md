@@ -1,8 +1,10 @@
-<!-- If your PR fixes an open issue, use `Closes #123` to link your PR with the issue. #123 stands for the issue number you are fixing -->
+# Pull request
 
 ## Which Issue does this fix ?
 
 <!-- Remove this section if not applicable -->
+
+<!-- If your PR fixes an open issue, use `Closes #123` to link your PR with the issue. #123 stands for the issue number you are fixing -->
 
 <!-- Example: Closes #123 -->
 
