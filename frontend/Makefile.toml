@@ -47,6 +47,7 @@ PROTOBUF_DERIVE_CACHE = "../shared-lib/flowy-derive/src/derive_cache/derive_cach
 # Test default config
 TEST_CRATE_TYPE = "cdylib"
 TEST_LIB_EXT = "dylib"
+TEST_RUST_LOG = "info"
 TEST_BUILD_FLAG = "debug"
 TEST_COMPILE_TARGET = "x86_64-apple-darwin"
 

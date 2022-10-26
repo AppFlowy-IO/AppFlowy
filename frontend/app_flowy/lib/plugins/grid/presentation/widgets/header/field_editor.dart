@@ -21,8 +21,8 @@ class FieldEditor extends StatefulWidget {
   final String fieldName;
   final bool isGroupField;
   final Function(String)? onDeleted;
-
   final IFieldTypeOptionLoader typeOptionLoader;
+
   const FieldEditor({
     required this.gridId,
     this.fieldName = "",

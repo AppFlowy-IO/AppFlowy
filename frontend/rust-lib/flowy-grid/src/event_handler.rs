@@ -136,7 +136,7 @@ pub(crate) async fn switch_to_field_handler(
         .switch_to_field_type(&params.field_id, &params.field_type)
         .await?;
 
-    // Get the field_rev with field_id, if it doesn't exist, we create the default FieldMeta from the FieldType.
+    // Get the field_rev with field_id, if it doesn't exist, we create the default FieldRevision from the FieldType.
     let field_rev = editor
         .get_field_rev(&params.field_id)
         .await

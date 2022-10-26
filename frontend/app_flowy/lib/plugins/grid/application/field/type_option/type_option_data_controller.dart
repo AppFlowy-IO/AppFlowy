@@ -83,18 +83,17 @@ class TypeOptionDataController {
     );
   }
 
-  Future<void> switchToField(FieldType newFieldType) {
-    return loader.switchToField(field.id, newFieldType).then((result) {
-      return result.fold(
-        (_) {
-          // Should load the type-option data after switching to a new field.
-          // After loading the type-option data, the editor widget that uses
-          // the type-option data will be rebuild.
-          loadTypeOptionData();
-        },
-        (err) => Log.error(err),
-      );
-    });
+  Future<void> switchToField(FieldType newFieldType) async {
+    final result = await loader.switchToField(field.id, newFieldType);
+    await result.fold(
+      (_) {
+        // Should load the type-option data after switching to a new field.
+        // After loading the type-option data, the editor widget that uses
+        // the type-option data will be rebuild.
+        loadTypeOptionData();
+      },
+      (err) => Future(() => Log.error(err)),
+    );
   }
 
   void Function() addFieldListener(void Function(FieldPB) callback) {

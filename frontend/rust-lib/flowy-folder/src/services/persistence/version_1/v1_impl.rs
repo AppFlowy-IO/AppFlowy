@@ -84,9 +84,10 @@ impl<'a> FolderPersistenceTransaction for V1Transaction<'a> {
         Ok(())
     }
 
-    fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
+    fn delete_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
+        let view_revision: ViewRevision = ViewTableSql::read_view(view_id, &*self.0)?.into();
         let _ = ViewTableSql::delete_view(view_id, &*self.0)?;
-        Ok(())
+        Ok(view_revision)
     }
 
     fn move_view(&self, _view_id: &str, _from: usize, _to: usize) -> FlowyResult<()> {
@@ -182,7 +183,7 @@ where
         (**self).update_view(changeset)
     }
 
-    fn delete_view(&self, view_id: &str) -> FlowyResult<()> {
+    fn delete_view(&self, view_id: &str) -> FlowyResult<ViewRevision> {
         (**self).delete_view(view_id)
     }
 

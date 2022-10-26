@@ -1,10 +1,12 @@
 import 'dart:collection';
+import 'package:app_flowy/plugins/board/application/board_data_controller.dart';
+import 'package:app_flowy/plugins/board/board.dart';
 import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
+import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
@@ -20,7 +22,8 @@ import '../../util.dart';
 class AppFlowyGridTest {
   final AppFlowyUnitTest unitTest;
   late ViewPB gridView;
-  late GridDataController _dataController;
+  GridDataController? _gridDataController;
+  BoardDataController? _boardDataController;
 
   AppFlowyGridTest({required this.unitTest});
 
@@ -29,52 +32,79 @@ class AppFlowyGridTest {
     return AppFlowyGridTest(unitTest: inner);
   }
 
-  List<RowInfo> get rowInfos => _dataController.rowInfos;
+  List<RowInfo> get rowInfos {
+    if (_gridDataController != null) {
+      return _gridDataController!.rowInfos;
+    }
 
-  UnmodifiableMapView<String, GridBlockCache> get blocks =>
-      _dataController.blocks;
+    if (_boardDataController != null) {
+      return _boardDataController!.rowInfos;
+    }
 
-  List<GridFieldContext> get fieldContexts =>
-      _dataController.fieldController.fieldContexts;
-
-  GridFieldController get fieldController => _dataController.fieldController;
-
-  Future<void> createRow() async {
-    await _dataController.createRow();
+    throw Exception();
   }
 
-  // Future<TypeOptionContext> createField(FieldType fieldType) {
-  //   final controller = TypeOptionDataController(
-  //     gridId: gridView.id,
-  //     loader: NewFieldTypeOptionLoader(gridId: gridView.id),
-  //   );
+  UnmodifiableMapView<String, GridBlockCache> get blocks {
+    if (_gridDataController != null) {
+      return _gridDataController!.blocks;
+    }
 
-  //   switch (fieldType) {
+    if (_boardDataController != null) {
+      return _boardDataController!.blocks;
+    }
 
-  //     case FieldType.Checkbox:
-  //       // TODO: Handle this case.
+    throw Exception();
+  }
 
-  //       break;
-  //     case FieldType.DateTime:
-  //       // TODO: Handle this case.
-  //       break;
-  //     case FieldType.MultiSelect:
-  //       // TODO: Handle this case.
-  //       break;
-  //     case FieldType.Number:
-  //       return NumberTypeOptionContext()
-  //       break;
-  //     case FieldType.RichText:
-  //       // TODO: Handle this case.
-  //       break;
-  //     case FieldType.SingleSelect:
-  //       // TODO: Handle this case.
-  //       break;
-  //     case FieldType.URL:
-  //       // TODO: Handle this case.
-  //       break;
-  //   }
-  // }
+  List<GridFieldContext> get fieldContexts => fieldController.fieldContexts;
+
+  GridFieldController get fieldController {
+    if (_gridDataController != null) {
+      return _gridDataController!.fieldController;
+    }
+
+    if (_boardDataController != null) {
+      return _boardDataController!.fieldController;
+    }
+
+    throw Exception();
+  }
+
+  Future<void> createRow() async {
+    if (_gridDataController != null) {
+      return _gridDataController!.createRow();
+    }
+
+    throw Exception();
+  }
+
+  FieldEditorBloc createFieldEditor({
+    GridFieldContext? fieldContext,
+  }) {
+    IFieldTypeOptionLoader loader;
+    if (fieldContext == null) {
+      loader = NewFieldTypeOptionLoader(gridId: gridView.id);
+    } else {
+      loader =
+          FieldTypeOptionLoader(gridId: gridView.id, field: fieldContext.field);
+    }
+
+    final editorBloc = FieldEditorBloc(
+      fieldName: fieldContext?.name ?? '',
+      isGroupField: fieldContext?.isGroupField ?? false,
+      loader: loader,
+      gridId: gridView.id,
+    );
+    return editorBloc;
+  }
+
+  Future<FieldEditorBloc> createFieldFromType(FieldType fieldType) async {
+    final editor = createFieldEditor()..add(const FieldEditorEvent.initial());
+    await gridResponseFuture();
+    editor.dataController.switchToField(fieldType);
+    await gridResponseFuture();
+    return Future(() => editor);
+  }
 
   GridFieldContext singleSelectFieldContext() {
     final fieldContext = fieldContexts
@@ -100,9 +130,30 @@ class AppFlowyGridTest {
     await result.fold(
       (view) async {
         gridView = view;
-        _dataController = GridDataController(view: view);
-        final result = await _dataController.openGrid();
+        _gridDataController = GridDataController(view: view);
+        final result = await _gridDataController!.openGrid();
         result.fold((l) => null, (r) => throw Exception(r));
+      },
+      (error) {},
+    );
+  }
+
+  Future<void> createTestBoard() async {
+    final app = await unitTest.createTestApp();
+    final builder = BoardPluginBuilder();
+    final result = await AppService().createView(
+      appId: app.id,
+      name: "Test Board",
+      dataFormatType: builder.dataFormatType,
+      pluginType: builder.pluginType,
+      layoutType: builder.layoutType!,
+    );
+    await result.fold(
+      (view) async {
+        _boardDataController = BoardDataController(view: view);
+        final result = await _boardDataController!.openGrid();
+        result.fold((l) => null, (r) => throw Exception(r));
+        gridView = view;
       },
       (error) {},
     );
@@ -136,7 +187,7 @@ class AppFlowyGridCellTest {
 
     final rowDataController = GridRowDataController(
       rowInfo: rowInfo,
-      fieldController: _gridTest._dataController.fieldController,
+      fieldController: _gridTest._gridDataController!.fieldController,
       rowCache: rowCache!,
     );
 
