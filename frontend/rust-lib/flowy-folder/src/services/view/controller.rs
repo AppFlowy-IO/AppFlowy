@@ -462,10 +462,10 @@ async fn handle_trash_event(
                         let mut notify_ids = HashSet::new();
                         let mut views = vec![];
                         for identifier in identifiers.items {
-                            let view = transaction.read_view(&identifier.id)?;
-                            let _ = transaction.delete_view(&view.id)?;
-                            notify_ids.insert(view.app_id.clone());
-                            views.push(view);
+                            if let Ok(view_rev) = transaction.delete_view(&identifier.id) {
+                                notify_ids.insert(view_rev.app_id.clone());
+                                views.push(view_rev);
+                            }
                         }
                         for notify_id in notify_ids {
                             let _ = notify_views_changed(&notify_id, trash_can.clone(), &transaction)?;
@@ -480,9 +480,7 @@ async fn handle_trash_event(
                         Ok(processor) => {
                             let _ = processor.close_view(&view.id).await?;
                         }
-                        Err(e) => {
-                            tracing::error!("{}", e)
-                        }
+                        Err(e) => tracing::error!("{}", e),
                     }
                 }
                 Ok(())

@@ -258,9 +258,8 @@ impl FolderPad {
     }
 
     #[tracing::instrument(level = "trace", skip(self), err)]
-    pub fn delete_view(&mut self, view_id: &str) -> CollaborateResult<Option<FolderChangeset>> {
-        let view = self.read_view(view_id)?;
-        self.with_app(&view.app_id, |app| {
+    pub fn delete_view(&mut self, app_id: &str, view_id: &str) -> CollaborateResult<Option<FolderChangeset>> {
+        self.with_app(app_id, |app| {
             app.belongings.retain(|view| view.id != view_id);
             Ok(Some(()))
         })
@@ -724,7 +723,7 @@ mod tests {
     #[test]
     fn folder_delete_view() {
         let (mut folder, initial_operations, view) = test_view_folder();
-        let operations = folder.delete_view(&view.id).unwrap().unwrap().operations;
+        let operations = folder.delete_view(&view.app_id, &view.id).unwrap().unwrap().operations;
 
         let new_folder = make_folder_from_operations(initial_operations, vec![operations]);
         assert_folder_equal(

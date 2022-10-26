@@ -11,13 +11,13 @@ void main() {
     boardTest = await AppFlowyBoardTest.ensureInitialized();
   });
 
-  group('description', () {
+  group('$BoardBloc', () {
     late BoardBloc boardBloc;
     late String groupId;
 
     setUp(() async {
-      await boardTest.createTestBoard();
-      boardBloc = BoardBloc(view: boardTest.boardView)
+      await boardTest.context.createTestBoard();
+      boardBloc = BoardBloc(view: boardTest.context.gridView)
         ..add(const BoardEvent.initial());
       await boardResponseFuture();
       groupId = boardBloc.state.groupIds.first;

@@ -36,7 +36,7 @@ pub trait FolderPersistenceTransaction {
     fn read_view(&self, view_id: &str) -> FlowyResult<ViewRevision>;
     fn read_views(&self, belong_to_id: &str) -> FlowyResult<Vec<ViewRevision>>;
     fn update_view(&self, changeset: ViewChangeset) -> FlowyResult<()>;
-    fn delete_view(&self, view_id: &str) -> FlowyResult<()>;
+    fn delete_view(&self, view_id: &str) -> FlowyResult<ViewRevision>;
     fn move_view(&self, view_id: &str, from: usize, to: usize) -> FlowyResult<()>;
 
     fn create_trash(&self, trashes: Vec<TrashRevision>) -> FlowyResult<()>;

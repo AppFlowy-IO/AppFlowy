@@ -165,8 +165,8 @@ void main() {
       act: (bloc) async {
         for (final view in appBloc.state.app.belongings.items) {
           appBloc.add(AppEvent.deleteView(view.id));
+          await blocResponseFuture();
         }
-        await blocResponseFuture();
         trashBloc.add(const TrashEvent.deleteAll());
       },
       wait: blocResponseDuration(),
