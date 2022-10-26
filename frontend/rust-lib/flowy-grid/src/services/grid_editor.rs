@@ -109,10 +109,6 @@ impl GridRevisionEditor {
         field_id: &str,
         type_option_data: Vec<u8>,
     ) -> FlowyResult<()> {
-        if type_option_data.is_empty() {
-            return Ok(());
-        }
-
         let result = self.get_field_rev(field_id).await;
         if result.is_none() {
             tracing::warn!("Can't find the field with id: {}", field_id);
@@ -307,10 +303,6 @@ impl GridRevisionEditor {
     #[tracing::instrument(level = "debug", skip_all, err)]
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
         let mut is_type_option_changed = false;
-        if !params.has_changes() {
-            return Ok(());
-        }
-
         let _ = self
             .modify(|grid| {
                 let changeset = grid.modify_field(&params.field_id, |field| {
@@ -334,11 +326,11 @@ impl GridRevisionEditor {
                     }
                     if let Some(type_option_data) = params.type_option_data {
                         let deserializer = TypeOptionJsonDeserializer(field_type);
+                        is_type_option_changed = true;
                         match deserializer.deserialize(type_option_data) {
                             Ok(json_str) => {
                                 let field_type = field.ty;
                                 field.insert_type_option_str(&field_type, json_str);
-                                is_type_option_changed = true;
                             }
                             Err(err) => {
                                 tracing::error!("Deserialize data to type option json failed: {}", err);
