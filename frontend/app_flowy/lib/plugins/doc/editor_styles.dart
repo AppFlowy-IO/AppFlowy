@@ -14,6 +14,10 @@ EditorStyle customEditorTheme(BuildContext context) {
       fontFamily: 'poppins',
       fontSize: _baseFontSize,
     ),
+    placeholderTextStyle: editorStyle.placeholderTextStyle?.copyWith(
+      fontFamily: 'poppins',
+      fontSize: _baseFontSize,
+    ),
     bold: editorStyle.bold?.copyWith(
       fontWeight: FontWeight.w500,
     ),
