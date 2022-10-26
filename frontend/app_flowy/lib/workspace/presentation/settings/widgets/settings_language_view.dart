@@ -1,10 +1,13 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/size.dart';
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/language.dart';
 import 'package:provider/provider.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class SettingsLanguageView extends StatelessWidget {
   const SettingsLanguageView({Key? key}) : super(key: key);
@@ -22,10 +25,7 @@ class SettingsLanguageView extends StatelessWidget {
               children: [
                 Text(
                   LocaleKeys.settings_menu_language.tr(),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyles.body1.size(FontSizes.s14),
                 ),
                 const LanguageSelectorDropdown(),
               ],
@@ -96,11 +96,7 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     languageFromLocale(locale),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: theme.textColor,
-                    ),
+                    style: TextStyles.body1.size(FontSizes.s14),
                   ),
                 ),
               );

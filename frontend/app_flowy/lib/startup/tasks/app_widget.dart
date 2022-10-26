@@ -19,9 +19,9 @@ class InitAppWidgetTask extends LaunchTask {
   Future<void> initialize(LaunchContext context) async {
     final widget = context.getIt<EntryPoint>().create();
     final setting = await SettingsFFIService().getAppearanceSetting();
-    final settingModel = AppearanceSetting(setting);
+    final appearanceSetting = AppearanceSetting(setting);
     final app = ApplicationWidget(
-      settingModel: settingModel,
+      appearanceSetting: appearanceSetting,
       child: widget,
     );
     Bloc.observer = ApplicationBlocObserver();
@@ -61,23 +61,23 @@ class InitAppWidgetTask extends LaunchTask {
 
 class ApplicationWidget extends StatelessWidget {
   final Widget child;
-  final AppearanceSetting settingModel;
+  final AppearanceSetting appearanceSetting;
 
   const ApplicationWidget({
     Key? key,
     required this.child,
-    required this.settingModel,
+    required this.appearanceSetting,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: settingModel,
+      value: appearanceSetting,
       builder: (context, _) {
         const ratio = 1.73;
         const minWidth = 600.0;
         setWindowMinSize(const Size(minWidth, minWidth / ratio));
-        settingModel.readLocaleWhenAppLaunch(context);
+        appearanceSetting.readLocaleWhenAppLaunch(context);
         AppTheme theme = context.select<AppearanceSetting, AppTheme>(
           (value) => value.theme,
         );
