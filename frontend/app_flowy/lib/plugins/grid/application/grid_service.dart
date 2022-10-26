@@ -14,7 +14,7 @@ class GridFFIService {
     required this.gridId,
   });
 
-  Future<Either<GridPB, FlowyError>> loadGrid() async {
+  Future<Either<GridPB, FlowyError>> openGrid() async {
     await FolderEventSetLatestView(ViewIdPB(value: gridId)).send();
 
     final payload = GridIdPB(value: gridId);

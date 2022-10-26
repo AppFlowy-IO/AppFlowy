@@ -30,7 +30,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
   @override
   void initState() {
-    // The appflowy editor use Intl as locatization, set the default language as fallback.
+    // The appflowy editor use Intl as localization, set the default language as fallback.
     Intl.defaultLocale = 'en_US';
     documentBloc = getIt<DocumentBloc>(param1: super.widget.view)
       ..add(const DocumentEvent.initial());

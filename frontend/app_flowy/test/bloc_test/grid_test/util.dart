@@ -66,7 +66,7 @@ class AppFlowyGridTest {
       (view) async {
         gridView = view;
         _dataController = GridDataController(view: view);
-        final result = await _dataController.loadData();
+        final result = await _dataController.openGrid();
         result.fold((l) => null, (r) => throw Exception(r));
       },
       (error) {},

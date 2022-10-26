@@ -46,7 +46,7 @@ pub fn create(folder: Arc<FolderManager>) -> Module {
     // Workspace
     module = module
         .event(FolderEvent::CreateWorkspace, create_workspace_handler)
-        .event(FolderEvent::ReadCurWorkspace, read_cur_workspace_handler)
+        .event(FolderEvent::ReadCurrentWorkspace, read_cur_workspace_handler)
         .event(FolderEvent::ReadWorkspaces, read_workspaces_handler)
         .event(FolderEvent::OpenWorkspace, open_workspace_handler)
         .event(FolderEvent::ReadWorkspaceApps, read_workspace_apps_handler);
@@ -87,8 +87,8 @@ pub enum FolderEvent {
     #[event(input = "CreateWorkspacePayloadPB", output = "WorkspacePB")]
     CreateWorkspace = 0,
 
-    #[event(output = "CurrentWorkspaceSettingPB")]
-    ReadCurWorkspace = 1,
+    #[event(output = "WorkspaceSettingPB")]
+    ReadCurrentWorkspace = 1,
 
     #[event(input = "WorkspaceIdPB", output = "RepeatedWorkspacePB")]
     ReadWorkspaces = 2,
