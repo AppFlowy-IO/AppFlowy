@@ -54,7 +54,7 @@ pub async fn set_appearance_setting(data: Data<AppearanceSettingsPB>) -> Result<
     Ok(())
 }
 
-#[tracing::instrument(err)]
+#[tracing::instrument(level = "debug", err)]
 pub async fn get_appearance_setting() -> DataResult<AppearanceSettingsPB, FlowyError> {
     match KV::get_str(APPEARANCE_SETTING_CACHE_KEY) {
         None => data_result(AppearanceSettingsPB::default()),
