@@ -70,7 +70,7 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
         await event.when(
           initial: () async {
             _startListening();
-            await _loadGrid(emit);
+            await _openGrid(emit);
           },
           createBottomRow: (groupId) async {
             final startRowId = groupControllers[groupId]?.lastRow()?.id;
@@ -285,8 +285,8 @@ class BoardBloc extends Bloc<BoardEvent, BoardState> {
     return <AppFlowyGroupItem>[...items];
   }
 
-  Future<void> _loadGrid(Emitter<BoardState> emit) async {
-    final result = await _gridDataController.loadData();
+  Future<void> _openGrid(Emitter<BoardState> emit) async {
+    final result = await _gridDataController.openGrid();
     result.fold(
       (grid) => emit(
         state.copyWith(loadingState: GridLoadingState.finish(left(unit))),

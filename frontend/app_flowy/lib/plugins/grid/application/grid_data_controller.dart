@@ -65,8 +65,8 @@ class GridDataController {
   }
 
   // Loads the rows from each block
-  Future<Either<Unit, FlowyError>> loadData() async {
-    final result = await _gridFFIService.loadGrid();
+  Future<Either<Unit, FlowyError>> openGrid() async {
+    final result = await _gridFFIService.openGrid();
     return Future(
       () => result.fold(
         (grid) async {

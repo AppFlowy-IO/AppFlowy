@@ -106,7 +106,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
     );
     result.fold(
       (user) {
-        FolderEventReadCurWorkspace().send().then((result) {
+        FolderEventReadCurrentWorkspace().send().then((result) {
           _openCurrentWorkspace(context, user, result);
         });
       },
@@ -119,7 +119,7 @@ class _SkipLogInScreenState extends State<SkipLogInScreen> {
   void _openCurrentWorkspace(
     BuildContext context,
     UserProfilePB user,
-    dartz.Either<CurrentWorkspaceSettingPB, FlowyError> workspacesOrError,
+    dartz.Either<WorkspaceSettingPB, FlowyError> workspacesOrError,
   ) {
     workspacesOrError.fold(
       (workspaceSetting) {

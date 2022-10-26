@@ -34,7 +34,7 @@ import 'menu_user.dart';
 class HomeMenu extends StatelessWidget {
   final PublishNotifier<bool> _collapsedNotifier;
   final UserProfilePB user;
-  final CurrentWorkspaceSettingPB workspaceSetting;
+  final WorkspaceSettingPB workspaceSetting;
 
   const HomeMenu({
     Key? key,
