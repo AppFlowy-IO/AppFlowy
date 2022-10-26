@@ -61,19 +61,27 @@ class SelectionMenu implements SelectionMenuService {
     //  Just subtract the padding here as a result.
     const menuHeight = 200.0;
     const menuOffset = Offset(10, 10);
-    final baseOffset =
+    final editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
-    var offset = selectionRects.first.bottomRight + menuOffset;
-    if (offset.dy >=
-        baseOffset.dy + editorState.renderBox!.size.height - menuHeight) {
-      offset = selectionRects.first.topRight - menuOffset;
-      offset = offset.translate(0, -menuHeight);
+    final editorHeight = editorState.renderBox!.size.height;
+
+    // show below defualt
+    var showBelow = true;
+    final bottomRight = selectionRects.first.bottomRight;
+    final topRight = selectionRects.first.topRight;
+    var offset = bottomRight + menuOffset;
+    // overflow
+    if (offset.dy + menuHeight >= editorOffset.dy + editorHeight) {
+      // show above
+      offset = topRight - menuOffset;
+      showBelow = false;
     }
     _topLeft = offset;
 
     _selectionMenuEntry = OverlayEntry(builder: (context) {
       return Positioned(
-        top: offset.dy,
+        top: showBelow ? offset.dy : null,
+        bottom: showBelow ? null : editorHeight - offset.dy,
         left: offset.dx,
         child: SelectionMenuWidget(
           items: [
