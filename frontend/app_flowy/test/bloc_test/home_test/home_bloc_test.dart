@@ -66,7 +66,7 @@ void main() {
       wait: blocResponseDuration(),
     );
 
-    test('description', () async {
+    test('check the latest view is the document', () async {
       assert(homeBloc.state.workspaceSetting.latestView.id ==
           latestCreatedView.id);
     });

@@ -15,6 +15,12 @@ class TypeOptionDataController {
   late FieldTypeOptionDataPB _data;
   final PublishNotifier<FieldPB> _fieldNotifier = PublishNotifier();
 
+  /// Returns a [TypeOptionDataController] used to modify the specified
+  /// [FieldPB]'s data
+  ///
+  /// Should call [loadTypeOptionData] if the passed-in [GridFieldContext]
+  /// is null
+  ///
   TypeOptionDataController({
     required this.gridId,
     required this.loader,

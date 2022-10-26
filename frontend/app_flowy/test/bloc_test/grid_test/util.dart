@@ -3,6 +3,8 @@ import 'package:app_flowy/plugins/grid/application/block/block_cache.dart';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/grid_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
@@ -16,15 +18,15 @@ import '../../util.dart';
 
 /// Create a empty Grid for test
 class AppFlowyGridTest {
-  final AppFlowyUnitTest _inner;
+  final AppFlowyUnitTest unitTest;
   late ViewPB gridView;
   late GridDataController _dataController;
 
-  AppFlowyGridTest(AppFlowyUnitTest unitTest) : _inner = unitTest;
+  AppFlowyGridTest({required this.unitTest});
 
   static Future<AppFlowyGridTest> ensureInitialized() async {
     final inner = await AppFlowyUnitTest.ensureInitialized();
-    return AppFlowyGridTest(inner);
+    return AppFlowyGridTest(unitTest: inner);
   }
 
   List<RowInfo> get rowInfos => _dataController.rowInfos;
@@ -41,6 +43,39 @@ class AppFlowyGridTest {
     await _dataController.createRow();
   }
 
+  // Future<TypeOptionContext> createField(FieldType fieldType) {
+  //   final controller = TypeOptionDataController(
+  //     gridId: gridView.id,
+  //     loader: NewFieldTypeOptionLoader(gridId: gridView.id),
+  //   );
+
+  //   switch (fieldType) {
+
+  //     case FieldType.Checkbox:
+  //       // TODO: Handle this case.
+
+  //       break;
+  //     case FieldType.DateTime:
+  //       // TODO: Handle this case.
+  //       break;
+  //     case FieldType.MultiSelect:
+  //       // TODO: Handle this case.
+  //       break;
+  //     case FieldType.Number:
+  //       return NumberTypeOptionContext()
+  //       break;
+  //     case FieldType.RichText:
+  //       // TODO: Handle this case.
+  //       break;
+  //     case FieldType.SingleSelect:
+  //       // TODO: Handle this case.
+  //       break;
+  //     case FieldType.URL:
+  //       // TODO: Handle this case.
+  //       break;
+  //   }
+  // }
+
   GridFieldContext singleSelectFieldContext() {
     final fieldContext = fieldContexts
         .firstWhere((element) => element.fieldType == FieldType.SingleSelect);
@@ -53,7 +88,7 @@ class AppFlowyGridTest {
   }
 
   Future<void> createTestGrid() async {
-    final app = await _inner.createTestApp();
+    final app = await unitTest.createTestApp();
     final builder = GridPluginBuilder();
     final result = await AppService().createView(
       appId: app.id,

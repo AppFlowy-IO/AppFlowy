@@ -11,7 +11,7 @@ void main() {
     boardTest = await AppFlowyBoardTest.ensureInitialized();
   });
 
-  group('description', () {
+  group('$BoardBloc', () {
     late BoardBloc boardBloc;
     late String groupId;
 
