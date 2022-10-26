@@ -465,19 +465,6 @@ pub struct FieldChangesetParams {
 
     pub type_option_data: Option<Vec<u8>>,
 }
-
-impl FieldChangesetParams {
-    pub fn has_changes(&self) -> bool {
-        self.name.is_some()
-            || self.desc.is_some()
-            || self.field_type.is_some()
-            || self.frozen.is_some()
-            || self.type_option_data.is_some()
-            || self.frozen.is_some()
-            || self.visibility.is_some()
-            || self.width.is_some()
-    }
-}
 /// Certain field types have user-defined options such as color, date format, number format,
 /// or a list of values for a multi-select list. These options are defined within a specialization
 /// of the FieldTypeOption class.
