@@ -3,7 +3,7 @@ import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
 import 'package:flutter/material.dart';
 
-class SelectionMenuItemWidget extends StatelessWidget {
+class SelectionMenuItemWidget extends StatefulWidget {
   const SelectionMenuItemWidget({
     Key? key,
     required this.editorState,
@@ -11,7 +11,6 @@ class SelectionMenuItemWidget extends StatelessWidget {
     required this.item,
     required this.isSelected,
     this.width = 140.0,
-    this.selectedColor = const Color(0xFFE0F8FF),
   }) : super(key: key);
 
   final EditorState editorState;
@@ -19,33 +18,52 @@ class SelectionMenuItemWidget extends StatelessWidget {
   final SelectionMenuItem item;
   final double width;
   final bool isSelected;
-  final Color selectedColor;
+
+  @override
+  State<SelectionMenuItemWidget> createState() =>
+      _SelectionMenuItemWidgetState();
+}
+
+class _SelectionMenuItemWidgetState extends State<SelectionMenuItemWidget> {
+  var _onHover = false;
 
   @override
   Widget build(BuildContext context) {
+    final editorStyle = widget.editorState.editorStyle;
     return Container(
       padding: const EdgeInsets.fromLTRB(8.0, 5.0, 8.0, 5.0),
       child: SizedBox(
-        width: width,
+        width: widget.width,
         child: TextButton.icon(
-          icon: item.icon,
+          icon: widget.item
+              .icon(widget.editorState, widget.isSelected || _onHover),
           style: ButtonStyle(
             alignment: Alignment.centerLeft,
-            overlayColor: MaterialStateProperty.all(selectedColor),
-            backgroundColor: isSelected
-                ? MaterialStateProperty.all(selectedColor)
+            overlayColor: MaterialStateProperty.all(
+                editorStyle.selectionMenuItemSelectedColor),
+            backgroundColor: widget.isSelected
+                ? MaterialStateProperty.all(
+                    editorStyle.selectionMenuItemSelectedColor)
                 : MaterialStateProperty.all(Colors.transparent),
           ),
           label: Text(
-            item.name(),
+            widget.item.name(),
             textAlign: TextAlign.left,
-            style: const TextStyle(
-              color: Colors.black,
-              fontSize: 14.0,
+            style: TextStyle(
+              color: widget.isSelected || _onHover
+                  ? editorStyle.selectionMenuItemSelectedTextColor
+                  : editorStyle.selectionMenuItemTextColor,
+              fontSize: 12.0,
             ),
           ),
           onPressed: () {
-            item.handler(editorState, menuService, context);
+            widget.item
+                .handler(widget.editorState, widget.menuService, context);
+          },
+          onHover: (value) {
+            setState(() {
+              _onHover = value;
+            });
           },
         ),
       ),

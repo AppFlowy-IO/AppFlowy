@@ -14,6 +14,14 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
   final Color? cursorColor;
   final Color? selectionColor;
 
+  // Selection menu styles
+  final Color? selectionMenuBackgroundColor;
+  final Color? selectionMenuItemTextColor;
+  final Color? selectionMenuItemIconColor;
+  final Color? selectionMenuItemSelectedTextColor;
+  final Color? selectionMenuItemSelectedIconColor;
+  final Color? selectionMenuItemSelectedColor;
+
   // Text styles
   final EdgeInsets? textPadding;
   final TextStyle? textStyle;
@@ -33,6 +41,12 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
     required this.padding,
     required this.cursorColor,
     required this.selectionColor,
+    required this.selectionMenuBackgroundColor,
+    required this.selectionMenuItemTextColor,
+    required this.selectionMenuItemIconColor,
+    required this.selectionMenuItemSelectedTextColor,
+    required this.selectionMenuItemSelectedIconColor,
+    required this.selectionMenuItemSelectedColor,
     required this.textPadding,
     required this.textStyle,
     required this.placeholderTextStyle,
@@ -51,6 +65,12 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
     EdgeInsets? padding,
     Color? cursorColor,
     Color? selectionColor,
+    Color? selectionMenuBackgroundColor,
+    Color? selectionMenuItemTextColor,
+    Color? selectionMenuItemIconColor,
+    Color? selectionMenuItemSelectedTextColor,
+    Color? selectionMenuItemSelectedIconColor,
+    Color? selectionMenuItemSelectedColor,
     TextStyle? textStyle,
     TextStyle? placeholderTextStyle,
     TextStyle? bold,
@@ -66,6 +86,18 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
       padding: padding ?? this.padding,
       cursorColor: cursorColor ?? this.cursorColor,
       selectionColor: selectionColor ?? this.selectionColor,
+      selectionMenuBackgroundColor:
+          selectionMenuBackgroundColor ?? this.selectionMenuBackgroundColor,
+      selectionMenuItemTextColor:
+          selectionMenuItemTextColor ?? this.selectionMenuItemTextColor,
+      selectionMenuItemIconColor:
+          selectionMenuItemIconColor ?? this.selectionMenuItemIconColor,
+      selectionMenuItemSelectedTextColor: selectionMenuItemSelectedTextColor ??
+          selectionMenuItemSelectedTextColor,
+      selectionMenuItemSelectedIconColor: selectionMenuItemSelectedIconColor ??
+          selectionMenuItemSelectedIconColor,
+      selectionMenuItemSelectedColor:
+          selectionMenuItemSelectedColor ?? this.selectionMenuItemSelectedColor,
       textPadding: textPadding ?? textPadding,
       textStyle: textStyle ?? this.textStyle,
       placeholderTextStyle: placeholderTextStyle ?? this.placeholderTextStyle,
@@ -91,6 +123,22 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
       cursorColor: Color.lerp(cursorColor, other.cursorColor, t),
       textPadding: EdgeInsets.lerp(textPadding, other.textPadding, t),
       selectionColor: Color.lerp(selectionColor, other.selectionColor, t),
+      selectionMenuBackgroundColor: Color.lerp(
+          selectionMenuBackgroundColor, other.selectionMenuBackgroundColor, t),
+      selectionMenuItemTextColor: Color.lerp(
+          selectionMenuItemTextColor, other.selectionMenuItemTextColor, t),
+      selectionMenuItemIconColor: Color.lerp(
+          selectionMenuItemIconColor, other.selectionMenuItemIconColor, t),
+      selectionMenuItemSelectedTextColor: Color.lerp(
+          selectionMenuItemSelectedTextColor,
+          other.selectionMenuItemSelectedTextColor,
+          t),
+      selectionMenuItemSelectedIconColor: Color.lerp(
+          selectionMenuItemSelectedIconColor,
+          other.selectionMenuItemSelectedIconColor,
+          t),
+      selectionMenuItemSelectedColor: Color.lerp(selectionMenuItemSelectedColor,
+          other.selectionMenuItemSelectedColor, t),
       textStyle: TextStyle.lerp(textStyle, other.textStyle, t),
       placeholderTextStyle:
           TextStyle.lerp(placeholderTextStyle, other.placeholderTextStyle, t),
@@ -109,6 +157,12 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
     padding: const EdgeInsets.fromLTRB(200.0, 0.0, 200.0, 0.0),
     cursorColor: const Color(0xFF00BCF0),
     selectionColor: const Color.fromARGB(53, 111, 201, 231),
+    selectionMenuBackgroundColor: const Color(0xFFFFFFFF),
+    selectionMenuItemTextColor: const Color(0xFF333333),
+    selectionMenuItemIconColor: const Color(0xFF333333),
+    selectionMenuItemSelectedTextColor: const Color(0xFF333333),
+    selectionMenuItemSelectedIconColor: const Color(0xFF333333),
+    selectionMenuItemSelectedColor: const Color(0xFFE0F8FF),
     textPadding: const EdgeInsets.symmetric(vertical: 8.0),
     textStyle: const TextStyle(fontSize: 16.0, color: Colors.black),
     placeholderTextStyle: const TextStyle(fontSize: 16.0, color: Colors.grey),
@@ -135,5 +189,11 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
       fontSize: 16.0,
       color: Colors.white.withOpacity(0.3),
     ),
+    selectionMenuBackgroundColor: const Color(0xFF282E3A),
+    selectionMenuItemTextColor: const Color(0xFFBBC3CD),
+    selectionMenuItemIconColor: const Color(0xFFBBC3CD),
+    selectionMenuItemSelectedTextColor: const Color(0xFF131720),
+    selectionMenuItemSelectedIconColor: const Color(0xFF131720),
+    selectionMenuItemSelectedColor: const Color(0xFF00BCF0),
   );
 }

@@ -46,7 +46,7 @@ ShortcutEventHandler _ignorekHandler = (editorState, event) {
 
 SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
   name: () => 'Code Block',
-  icon: const Icon(
+  icon: (_, __) => const Icon(
     Icons.abc,
     color: Colors.black,
     size: 18.0,

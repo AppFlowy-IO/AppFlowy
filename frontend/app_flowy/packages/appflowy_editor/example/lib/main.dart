@@ -39,6 +39,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         // extensions: [HeadingPluginStyle.light],
       ),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.dark,
       home: const MyHomePage(title: 'AppFlowyEditor Example'),
     );
   }

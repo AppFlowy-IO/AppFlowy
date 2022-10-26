@@ -131,7 +131,8 @@ List<SelectionMenuItem> get defaultSelectionMenuItems =>
 final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.text,
-    icon: _selectionMenuIcon('text'),
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('text', editorState, onSelected),
     keywords: ['text'],
     handler: (editorState, _, __) {
       insertTextNodeAfterSelection(editorState, {});
@@ -139,7 +140,8 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.heading1,
-    icon: _selectionMenuIcon('h1'),
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('h1', editorState, onSelected),
     keywords: ['heading 1, h1'],
     handler: (editorState, _, __) {
       insertHeadingAfterSelection(editorState, BuiltInAttributeKey.h1);
@@ -147,7 +149,8 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.heading2,
-    icon: _selectionMenuIcon('h2'),
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('h2', editorState, onSelected),
     keywords: ['heading 2, h2'],
     handler: (editorState, _, __) {
       insertHeadingAfterSelection(editorState, BuiltInAttributeKey.h2);
@@ -155,7 +158,8 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.heading3,
-    icon: _selectionMenuIcon('h3'),
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('h3', editorState, onSelected),
     keywords: ['heading 3, h3'],
     handler: (editorState, _, __) {
       insertHeadingAfterSelection(editorState, BuiltInAttributeKey.h3);
@@ -163,13 +167,15 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.image,
-    icon: _selectionMenuIcon('image'),
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('image', editorState, onSelected),
     keywords: ['image'],
     handler: showImageUploadMenu,
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.bulletedList,
-    icon: _selectionMenuIcon('bulleted_list'),
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('bulleted_list', editorState, onSelected),
     keywords: ['bulleted list', 'list', 'unordered list'],
     handler: (editorState, _, __) {
       insertBulletedListAfterSelection(editorState);
@@ -177,7 +183,8 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.numberedList,
-    icon: _selectionMenuIcon('number'),
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('number', editorState, onSelected),
     keywords: ['numbered list', 'list', 'ordered list'],
     handler: (editorState, _, __) {
       insertNumberedListAfterSelection(editorState);
@@ -185,7 +192,8 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.checkbox,
-    icon: _selectionMenuIcon('checkbox'),
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('checkbox', editorState, onSelected),
     keywords: ['todo list', 'list', 'checkbox list'],
     handler: (editorState, _, __) {
       insertCheckboxAfterSelection(editorState);
@@ -193,7 +201,8 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   ),
   SelectionMenuItem(
     name: () => AppFlowyEditorLocalizations.current.quote,
-    icon: _selectionMenuIcon('quote'),
+    icon: (editorState, onSelected) =>
+        _selectionMenuIcon('quote', editorState, onSelected),
     keywords: ['quote', 'refer'],
     handler: (editorState, _, __) {
       insertQuoteAfterSelection(editorState);
@@ -201,10 +210,13 @@ final List<SelectionMenuItem> _defaultSelectionMenuItems = [
   ),
 ];
 
-Widget _selectionMenuIcon(String name) {
+Widget _selectionMenuIcon(
+    String name, EditorState editorState, bool onSelected) {
   return FlowySvg(
     name: 'selection_menu/$name',
-    color: Colors.black,
+    color: onSelected
+        ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+        : editorState.editorStyle.selectionMenuItemIconColor,
     width: 18.0,
     height: 18.0,
   );
