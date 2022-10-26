@@ -29,7 +29,9 @@ You are in charge of your data and customizations.
 
 ## User Installation
 
-Please view the [documentation](https://appflowy.gitbook.io/docs/essential-documentation/install-appflowy/installation-methods) for OS specific installation instructions.
+* [Windows/Mac/Linux](https://appflowy.gitbook.io/docs/essential-documentation/install-appflowy/installation-methods/mac-windows-linux-packages)
+* [Docker](https://appflowy.gitbook.io/docs/essential-documentation/install-appflowy/installation-methods/installing-with-docker)
+* [Source](https://appflowy.gitbook.io/docs/essential-documentation/install-appflowy/installation-methods/from-source)
 
 ## Built With
 
@@ -93,7 +95,7 @@ To be honest, we do not claim to outperform Notion in terms of functionality and
 
 ## License
 
-Distributed under the AGPLv3 License. See `LICENSE.md` for more information.
+Distributed under the AGPLv3 License. See [`LICENSE.md`](https://github.com/AppFlowy-IO/AppFlowy/blob/main/LICENSE) for more information.
 
 ## Acknowledgements
 
