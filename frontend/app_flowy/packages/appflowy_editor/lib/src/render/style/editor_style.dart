@@ -93,9 +93,9 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
       selectionMenuItemIconColor:
           selectionMenuItemIconColor ?? this.selectionMenuItemIconColor,
       selectionMenuItemSelectedTextColor: selectionMenuItemSelectedTextColor ??
-          selectionMenuItemSelectedTextColor,
+          this.selectionMenuItemSelectedTextColor,
       selectionMenuItemSelectedIconColor: selectionMenuItemSelectedIconColor ??
-          selectionMenuItemSelectedIconColor,
+          this.selectionMenuItemSelectedIconColor,
       selectionMenuItemSelectedColor:
           selectionMenuItemSelectedColor ?? this.selectionMenuItemSelectedColor,
       textPadding: textPadding ?? textPadding,

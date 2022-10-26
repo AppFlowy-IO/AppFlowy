@@ -50,7 +50,7 @@ class _SelectionMenuItemWidgetState extends State<SelectionMenuItemWidget> {
             widget.item.name(),
             textAlign: TextAlign.left,
             style: TextStyle(
-              color: widget.isSelected || _onHover
+              color: (widget.isSelected || _onHover)
                   ? editorStyle.selectionMenuItemSelectedTextColor
                   : editorStyle.selectionMenuItemTextColor,
               fontSize: 12.0,

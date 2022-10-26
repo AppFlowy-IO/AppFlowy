@@ -38,9 +38,11 @@ ShortcutEventHandler _insertHorzaontalRule = (editorState, event) {
 
 SelectionMenuItem horizontalRuleMenuItem = SelectionMenuItem(
   name: () => 'Horizontal rule',
-  icon: const Icon(
+  icon: (editorState, onSelected) => Icon(
     Icons.horizontal_rule,
-    color: Colors.black,
+    color: onSelected
+        ? editorState.editorStyle.selectionMenuItemSelectedIconColor
+        : editorState.editorStyle.selectionMenuItemIconColor,
     size: 18.0,
   ),
   keywords: ['horizontal rule'],
