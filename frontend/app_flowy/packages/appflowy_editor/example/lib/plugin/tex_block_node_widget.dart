@@ -6,7 +6,7 @@ import 'package:flutter_math_fork/flutter_math.dart';
 
 SelectionMenuItem teXBlockMenuItem = SelectionMenuItem(
   name: () => 'Tex',
-  icon: const Icon(
+  icon: (_, __) => const Icon(
     Icons.text_fields_rounded,
     color: Colors.black,
     size: 18.0,

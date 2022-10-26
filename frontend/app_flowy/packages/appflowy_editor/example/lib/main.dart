@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:universal_html/html.dart' as html;
 
@@ -38,7 +37,10 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        // extensions: [HeadingPluginStyle.light],
       ),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.dark,
       home: const MyHomePage(title: 'AppFlowyEditor Example'),
     );
   }
@@ -56,7 +58,6 @@ class _MyHomePageState extends State<MyHomePage> {
   int _pageIndex = 0;
   EditorState? _editorState;
   bool darkMode = false;
-  EditorStyle _editorStyle = EditorStyle.defaultStyle();
   Future<String>? _jsonString;
 
   @override
@@ -125,12 +126,31 @@ class _MyHomePageState extends State<MyHomePage> {
           _editorState!.transactionStream.listen((event) {
             debugPrint('Transaction: ${event.toJson()}');
           });
+          final themeData = darkMode
+              ? ThemeData.dark().copyWith(extensions: [
+                  HeadingPluginStyle.dark,
+                  CheckboxPluginStyle.dark,
+                  NumberListPluginStyle.dark,
+                  QuotedTextPluginStyle.dark,
+                  BulletedListPluginStyle.dark,
+                  EditorStyle.dark,
+                ])
+              : ThemeData.light().copyWith(
+                  extensions: [
+                    HeadingPluginStyle.light,
+                    CheckboxPluginStyle.light,
+                    NumberListPluginStyle.light,
+                    QuotedTextPluginStyle.light,
+                    BulletedListPluginStyle.light,
+                    EditorStyle.light,
+                  ],
+                );
           return Container(
             color: darkMode ? Colors.black : Colors.white,
             width: MediaQuery.of(context).size.width,
             child: AppFlowyEditor(
               editorState: _editorState!,
-              editorStyle: _editorStyle,
+              themeData: themeData,
               editable: true,
               customBuilders: {
                 'text/code_block': CodeBlockNodeWidgetBuilder(),
@@ -186,8 +206,6 @@ class _MyHomePageState extends State<MyHomePage> {
           icon: const Icon(Icons.color_lens),
           onPressed: () {
             setState(() {
-              _editorStyle =
-                  darkMode ? EditorStyle.defaultStyle() : _customizedStyle();
               darkMode = !darkMode;
             });
           },
@@ -255,45 +273,5 @@ class _MyHomePageState extends State<MyHomePage> {
         _pageIndex = pageIndex;
       });
     }
-  }
-
-  EditorStyle _customizedStyle() {
-    final editorStyle = EditorStyle.defaultStyle();
-    return editorStyle.copyWith(
-      cursorColor: Colors.white,
-      selectionColor: Colors.blue.withOpacity(0.3),
-      textStyle: editorStyle.textStyle.copyWith(
-        defaultTextStyle: GoogleFonts.poppins().copyWith(
-          color: Colors.white,
-          fontSize: 14.0,
-        ),
-        defaultPlaceholderTextStyle: GoogleFonts.poppins().copyWith(
-          color: Colors.white.withOpacity(0.5),
-          fontSize: 14.0,
-        ),
-        bold: const TextStyle(fontWeight: FontWeight.w900),
-        code: TextStyle(
-          fontStyle: FontStyle.italic,
-          color: Colors.red[300],
-          backgroundColor: Colors.grey.withOpacity(0.3),
-        ),
-        highlightColorHex: '0x6FFFEB3B',
-      ),
-      pluginStyles: {
-        'text/quote': builtInPluginStyle
-          ..update(
-            'textStyle',
-            (_) {
-              return (EditorState editorState, Node node) {
-                return TextStyle(
-                  color: Colors.blue[200],
-                  fontStyle: FontStyle.italic,
-                  fontSize: 12.0,
-                );
-              };
-            },
-          ),
-      },
-    );
   }
 }

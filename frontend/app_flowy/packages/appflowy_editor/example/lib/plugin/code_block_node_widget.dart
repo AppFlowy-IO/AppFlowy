@@ -46,7 +46,7 @@ ShortcutEventHandler _ignorekHandler = (editorState, event) {
 
 SelectionMenuItem codeBlockMenuItem = SelectionMenuItem(
   name: () => 'Code Block',
-  icon: const Icon(
+  icon: (_, __) => const Icon(
     Icons.abc,
     color: Colors.black,
     size: 18.0,
@@ -167,7 +167,7 @@ class __CodeBlockNodeWidgeState extends State<_CodeBlockNodeWidge>
         textNode: widget.textNode,
         editorState: widget.editorState,
         textSpanDecorator: (textSpan) => TextSpan(
-          style: widget.editorState.editorStyle.textStyle.defaultTextStyle,
+          style: widget.editorState.editorStyle.textStyle,
           children: codeTextSpan,
         ),
       ),

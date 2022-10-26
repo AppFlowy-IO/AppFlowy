@@ -31,3 +31,5 @@ export 'src/render/rich_text/default_selectable.dart';
 export 'src/render/rich_text/flowy_rich_text.dart';
 export 'src/render/selection_menu/selection_menu_widget.dart';
 export 'src/l10n/l10n.dart';
+export 'src/render/style/plugin_styles.dart';
+export 'src/render/style/editor_style.dart';

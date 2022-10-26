@@ -93,15 +93,20 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _renderAppFlowyEditor(EditorState editorState) {
+    final theme = Theme.of(context);
     final editor = AppFlowyEditor(
       editorState: editorState,
-      editorStyle: customEditorStyle(context),
       customBuilders: {
         'horizontal_rule': HorizontalRuleWidgetBuilder(),
       },
       shortcutEvents: [
         insertHorizontalRule,
       ],
+      themeData: theme.copyWith(extensions: [
+        ...theme.extensions.values,
+        customEditorTheme(context),
+        ...customPluginTheme(context),
+      ]),
     );
     return Expanded(
       child: SizedBox.expand(

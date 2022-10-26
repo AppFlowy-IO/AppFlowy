@@ -29,7 +29,7 @@ class SelectionMenuItem {
   }
 
   final String Function() name;
-  final Widget icon;
+  final Widget Function(EditorState editorState, bool onSelected) icon;
 
   /// Customizes keywords for item.
   ///
@@ -142,7 +142,7 @@ class _SelectionMenuWidgetState extends State<SelectionMenuWidget> {
       onKey: _onKey,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: widget.editorState.editorStyle.selectionMenuBackgroundColor,
           boxShadow: [
             BoxShadow(
               blurRadius: 5,

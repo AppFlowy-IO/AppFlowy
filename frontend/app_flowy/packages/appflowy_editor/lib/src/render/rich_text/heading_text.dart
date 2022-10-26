@@ -4,10 +4,12 @@ import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:appflowy_editor/src/render/style/plugin_styles.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
+import 'package:appflowy_editor/src/extensions/theme_extension.dart';
 
 class HeadingTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -43,7 +45,7 @@ class HeadingTextNodeWidget extends BuiltInTextWidget {
 
 // customize
 class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with SelectableMixin, DefaultSelectable {
   @override
   GlobalKey? get iconKey => null;
 
@@ -58,6 +60,20 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
     return padding.topLeft;
   }
 
+  HeadingPluginStyle get style =>
+      Theme.of(context).extensionOrNull<HeadingPluginStyle>() ??
+      HeadingPluginStyle.light;
+
+  EdgeInsets get padding => style.padding(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  TextStyle get textStyle => style.textStyle(
+        widget.editorState,
+        widget.textNode,
+      );
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -68,7 +84,7 @@ class _HeadingTextNodeWidgetState extends State<HeadingTextNodeWidget>
         placeholderTextSpanDecorator: (textSpan) =>
             textSpan.updateTextStyle(textStyle),
         textSpanDecorator: (textSpan) => textSpan.updateTextStyle(textStyle),
-        lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+        lineHeight: widget.editorState.editorStyle.lineHeight,
         textNode: widget.textNode,
         editorState: widget.editorState,
       ),

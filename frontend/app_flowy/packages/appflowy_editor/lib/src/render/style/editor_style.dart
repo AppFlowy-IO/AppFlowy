@@ -1,202 +1,78 @@
 import 'package:flutter/material.dart';
 
-import 'package:appflowy_editor/src/core/document/node.dart';
-import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/extensions/attributes_extension.dart';
+Iterable<ThemeExtension<dynamic>> get lightEditorStyleExtension => [
+      EditorStyle.light,
+    ];
 
-typedef PluginStyler = Object Function(EditorState editorState, Node node);
-typedef PluginStyle = Map<String, PluginStyler>;
+Iterable<ThemeExtension<dynamic>> get darkEditorStyleExtension => [
+      EditorStyle.dark,
+    ];
 
-/// Editor style configuration
-class EditorStyle {
+class EditorStyle extends ThemeExtension<EditorStyle> {
+  // Editor styles
+  final EdgeInsets? padding;
+  final Color? cursorColor;
+  final Color? selectionColor;
+
+  // Selection menu styles
+  final Color? selectionMenuBackgroundColor;
+  final Color? selectionMenuItemTextColor;
+  final Color? selectionMenuItemIconColor;
+  final Color? selectionMenuItemSelectedTextColor;
+  final Color? selectionMenuItemSelectedIconColor;
+  final Color? selectionMenuItemSelectedColor;
+
+  // Text styles
+  final EdgeInsets? textPadding;
+  final TextStyle? textStyle;
+  final TextStyle? placeholderTextStyle;
+  final double lineHeight;
+
+  // Rich text styles
+  final TextStyle? bold;
+  final TextStyle? italic;
+  final TextStyle? underline;
+  final TextStyle? strikethrough;
+  final TextStyle? href;
+  final TextStyle? code;
+  final String? highlightColorHex;
+
   EditorStyle({
     required this.padding,
-    required this.textStyle,
     required this.cursorColor,
     required this.selectionColor,
-    Map<String, PluginStyle> pluginStyles = const {},
-  }) {
-    _pluginStyles.addAll(pluginStyles);
-  }
-
-  EditorStyle.defaultStyle()
-      : padding = const EdgeInsets.fromLTRB(200.0, 0.0, 200.0, 0.0),
-        textStyle = BuiltInTextStyle.builtIn(),
-        cursorColor = const Color(0xFF00BCF0),
-        selectionColor = const Color.fromARGB(53, 111, 201, 231);
-
-  /// The margin of the document context from the editor.
-  final EdgeInsets padding;
-  final BuiltInTextStyle textStyle;
-  final Color cursorColor;
-  final Color selectionColor;
-
-  final Map<String, PluginStyle> _pluginStyles = Map.from(builtInTextStylers);
-
-  Object? style(EditorState editorState, Node node, String key) {
-    final styler = _pluginStyles[node.id]?[key];
-    if (styler != null) {
-      return styler(editorState, node);
-    }
-    return null;
-  }
-
-  EditorStyle copyWith({
-    EdgeInsets? padding,
-    BuiltInTextStyle? textStyle,
-    Color? cursorColor,
-    Color? selectionColor,
-    Map<String, PluginStyle>? pluginStyles,
-  }) {
-    return EditorStyle(
-      padding: padding ?? this.padding,
-      textStyle: textStyle ?? this.textStyle,
-      cursorColor: cursorColor ?? this.cursorColor,
-      selectionColor: selectionColor ?? this.selectionColor,
-      pluginStyles: pluginStyles ?? {},
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is EditorStyle &&
-        other.padding == padding &&
-        other.textStyle == textStyle &&
-        other.cursorColor == cursorColor &&
-        other.selectionColor == selectionColor;
-  }
-
-  @override
-  int get hashCode {
-    return padding.hashCode ^
-        textStyle.hashCode ^
-        cursorColor.hashCode ^
-        selectionColor.hashCode;
-  }
-}
-
-PluginStyle get builtInPluginStyle => Map.from({
-      'padding': (_, __) => const EdgeInsets.symmetric(vertical: 8.0),
-      'textStyle': (_, __) => const TextStyle(),
-      'iconSize': (_, __) => const Size.square(20.0),
-      'iconPadding': (_, __) => const EdgeInsets.only(right: 5.0),
-    });
-
-Map<String, PluginStyle> builtInTextStylers = {
-  'text': builtInPluginStyle,
-  'text/checkbox': builtInPluginStyle
-    ..update(
-      'textStyle',
-      (_) => (EditorState editorState, Node node) {
-        if (node is TextNode && node.attributes.check == true) {
-          return const TextStyle(
-            color: Colors.grey,
-            decoration: TextDecoration.lineThrough,
-          );
-        }
-        return const TextStyle();
-      },
-    ),
-  'text/heading': builtInPluginStyle
-    ..update(
-      'textStyle',
-      (_) => (EditorState editorState, Node node) {
-        final headingToFontSize = {
-          'h1': 32.0,
-          'h2': 28.0,
-          'h3': 24.0,
-          'h4': 18.0,
-          'h5': 18.0,
-          'h6': 18.0,
-        };
-        final fontSize = headingToFontSize[node.attributes.heading] ?? 18.0;
-        return TextStyle(fontSize: fontSize, fontWeight: FontWeight.bold);
-      },
-    ),
-  'text/bulleted-list': builtInPluginStyle,
-  'text/number-list': builtInPluginStyle
-    ..update(
-      'iconPadding',
-      (_) => (EditorState editorState, Node node) {
-        return const EdgeInsets.only(left: 5.0, right: 5.0);
-      },
-    ),
-  'text/quote': builtInPluginStyle,
-  'image': builtInPluginStyle,
-};
-
-class BuiltInTextStyle {
-  const BuiltInTextStyle({
-    required this.defaultTextStyle,
-    required this.defaultPlaceholderTextStyle,
+    required this.selectionMenuBackgroundColor,
+    required this.selectionMenuItemTextColor,
+    required this.selectionMenuItemIconColor,
+    required this.selectionMenuItemSelectedTextColor,
+    required this.selectionMenuItemSelectedIconColor,
+    required this.selectionMenuItemSelectedColor,
+    required this.textPadding,
+    required this.textStyle,
+    required this.placeholderTextStyle,
     required this.bold,
     required this.italic,
     required this.underline,
     required this.strikethrough,
     required this.href,
     required this.code,
-    this.highlightColorHex = '0x6000BCF0',
-    this.lineHeight = 1.5,
+    required this.highlightColorHex,
+    required this.lineHeight,
   });
 
-  final TextStyle defaultTextStyle;
-  final TextStyle defaultPlaceholderTextStyle;
-  final TextStyle bold;
-  final TextStyle italic;
-  final TextStyle underline;
-  final TextStyle strikethrough;
-  final TextStyle href;
-  final TextStyle code;
-  final String highlightColorHex;
-  final double lineHeight;
-
-  BuiltInTextStyle.builtIn()
-      : defaultTextStyle = const TextStyle(fontSize: 16.0, color: Colors.black),
-        defaultPlaceholderTextStyle =
-            const TextStyle(fontSize: 16.0, color: Colors.grey),
-        bold = const TextStyle(fontWeight: FontWeight.bold),
-        italic = const TextStyle(fontStyle: FontStyle.italic),
-        underline = const TextStyle(decoration: TextDecoration.underline),
-        strikethrough = const TextStyle(decoration: TextDecoration.lineThrough),
-        href = const TextStyle(
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
-        ),
-        code = const TextStyle(
-          fontFamily: 'monospace',
-          color: Color(0xFF00BCF0),
-          backgroundColor: Color(0xFFE0F8FF),
-        ),
-        highlightColorHex = '0x6000BCF0',
-        lineHeight = 1.5;
-
-  BuiltInTextStyle.builtInDarkMode()
-      : defaultTextStyle = const TextStyle(fontSize: 16.0, color: Colors.white),
-        defaultPlaceholderTextStyle = TextStyle(
-          fontSize: 16.0,
-          color: Colors.white.withOpacity(0.3),
-        ),
-        bold = const TextStyle(fontWeight: FontWeight.bold),
-        italic = const TextStyle(fontStyle: FontStyle.italic),
-        underline = const TextStyle(decoration: TextDecoration.underline),
-        strikethrough = const TextStyle(decoration: TextDecoration.lineThrough),
-        href = const TextStyle(
-          color: Colors.blue,
-          decoration: TextDecoration.underline,
-        ),
-        code = const TextStyle(
-          fontFamily: 'monospace',
-          color: Color(0xFF00BCF0),
-          backgroundColor: Color(0xFFE0F8FF),
-        ),
-        highlightColorHex = '0x6000BCF0',
-        lineHeight = 1.5;
-
-  BuiltInTextStyle copyWith({
-    TextStyle? defaultTextStyle,
-    TextStyle? defaultPlaceholderTextStyle,
+  @override
+  EditorStyle copyWith({
+    EdgeInsets? padding,
+    Color? cursorColor,
+    Color? selectionColor,
+    Color? selectionMenuBackgroundColor,
+    Color? selectionMenuItemTextColor,
+    Color? selectionMenuItemIconColor,
+    Color? selectionMenuItemSelectedTextColor,
+    Color? selectionMenuItemSelectedIconColor,
+    Color? selectionMenuItemSelectedColor,
+    TextStyle? textStyle,
+    TextStyle? placeholderTextStyle,
     TextStyle? bold,
     TextStyle? italic,
     TextStyle? underline,
@@ -206,10 +82,25 @@ class BuiltInTextStyle {
     String? highlightColorHex,
     double? lineHeight,
   }) {
-    return BuiltInTextStyle(
-      defaultTextStyle: defaultTextStyle ?? this.defaultTextStyle,
-      defaultPlaceholderTextStyle:
-          defaultPlaceholderTextStyle ?? this.defaultPlaceholderTextStyle,
+    return EditorStyle(
+      padding: padding ?? this.padding,
+      cursorColor: cursorColor ?? this.cursorColor,
+      selectionColor: selectionColor ?? this.selectionColor,
+      selectionMenuBackgroundColor:
+          selectionMenuBackgroundColor ?? this.selectionMenuBackgroundColor,
+      selectionMenuItemTextColor:
+          selectionMenuItemTextColor ?? this.selectionMenuItemTextColor,
+      selectionMenuItemIconColor:
+          selectionMenuItemIconColor ?? this.selectionMenuItemIconColor,
+      selectionMenuItemSelectedTextColor: selectionMenuItemSelectedTextColor ??
+          this.selectionMenuItemSelectedTextColor,
+      selectionMenuItemSelectedIconColor: selectionMenuItemSelectedIconColor ??
+          this.selectionMenuItemSelectedIconColor,
+      selectionMenuItemSelectedColor:
+          selectionMenuItemSelectedColor ?? this.selectionMenuItemSelectedColor,
+      textPadding: textPadding ?? textPadding,
+      textStyle: textStyle ?? this.textStyle,
+      placeholderTextStyle: placeholderTextStyle ?? this.placeholderTextStyle,
       bold: bold ?? this.bold,
       italic: italic ?? this.italic,
       underline: underline ?? this.underline,
@@ -222,33 +113,87 @@ class BuiltInTextStyle {
   }
 
   @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-
-    return other is BuiltInTextStyle &&
-        other.defaultTextStyle == defaultTextStyle &&
-        other.defaultPlaceholderTextStyle == defaultPlaceholderTextStyle &&
-        other.bold == bold &&
-        other.italic == italic &&
-        other.underline == underline &&
-        other.strikethrough == strikethrough &&
-        other.href == href &&
-        other.code == code &&
-        other.highlightColorHex == highlightColorHex &&
-        other.lineHeight == lineHeight;
+  ThemeExtension<EditorStyle> lerp(
+      ThemeExtension<EditorStyle>? other, double t) {
+    if (other == null || other is! EditorStyle) {
+      return this;
+    }
+    return EditorStyle(
+      padding: EdgeInsets.lerp(padding, other.padding, t),
+      cursorColor: Color.lerp(cursorColor, other.cursorColor, t),
+      textPadding: EdgeInsets.lerp(textPadding, other.textPadding, t),
+      selectionColor: Color.lerp(selectionColor, other.selectionColor, t),
+      selectionMenuBackgroundColor: Color.lerp(
+          selectionMenuBackgroundColor, other.selectionMenuBackgroundColor, t),
+      selectionMenuItemTextColor: Color.lerp(
+          selectionMenuItemTextColor, other.selectionMenuItemTextColor, t),
+      selectionMenuItemIconColor: Color.lerp(
+          selectionMenuItemIconColor, other.selectionMenuItemIconColor, t),
+      selectionMenuItemSelectedTextColor: Color.lerp(
+          selectionMenuItemSelectedTextColor,
+          other.selectionMenuItemSelectedTextColor,
+          t),
+      selectionMenuItemSelectedIconColor: Color.lerp(
+          selectionMenuItemSelectedIconColor,
+          other.selectionMenuItemSelectedIconColor,
+          t),
+      selectionMenuItemSelectedColor: Color.lerp(selectionMenuItemSelectedColor,
+          other.selectionMenuItemSelectedColor, t),
+      textStyle: TextStyle.lerp(textStyle, other.textStyle, t),
+      placeholderTextStyle:
+          TextStyle.lerp(placeholderTextStyle, other.placeholderTextStyle, t),
+      bold: TextStyle.lerp(bold, other.bold, t),
+      italic: TextStyle.lerp(italic, other.italic, t),
+      underline: TextStyle.lerp(underline, other.underline, t),
+      strikethrough: TextStyle.lerp(strikethrough, other.strikethrough, t),
+      href: TextStyle.lerp(href, other.href, t),
+      code: TextStyle.lerp(code, other.code, t),
+      highlightColorHex: highlightColorHex,
+      lineHeight: lineHeight,
+    );
   }
 
-  @override
-  int get hashCode {
-    return defaultTextStyle.hashCode ^
-        defaultPlaceholderTextStyle.hashCode ^
-        bold.hashCode ^
-        italic.hashCode ^
-        underline.hashCode ^
-        strikethrough.hashCode ^
-        href.hashCode ^
-        code.hashCode ^
-        highlightColorHex.hashCode ^
-        lineHeight.hashCode;
-  }
+  static final light = EditorStyle(
+    padding: const EdgeInsets.fromLTRB(200.0, 0.0, 200.0, 0.0),
+    cursorColor: const Color(0xFF00BCF0),
+    selectionColor: const Color.fromARGB(53, 111, 201, 231),
+    selectionMenuBackgroundColor: const Color(0xFFFFFFFF),
+    selectionMenuItemTextColor: const Color(0xFF333333),
+    selectionMenuItemIconColor: const Color(0xFF333333),
+    selectionMenuItemSelectedTextColor: const Color(0xFF333333),
+    selectionMenuItemSelectedIconColor: const Color(0xFF333333),
+    selectionMenuItemSelectedColor: const Color(0xFFE0F8FF),
+    textPadding: const EdgeInsets.symmetric(vertical: 8.0),
+    textStyle: const TextStyle(fontSize: 16.0, color: Colors.black),
+    placeholderTextStyle: const TextStyle(fontSize: 16.0, color: Colors.grey),
+    bold: const TextStyle(fontWeight: FontWeight.bold),
+    italic: const TextStyle(fontStyle: FontStyle.italic),
+    underline: const TextStyle(decoration: TextDecoration.underline),
+    strikethrough: const TextStyle(decoration: TextDecoration.lineThrough),
+    href: const TextStyle(
+      color: Colors.blue,
+      decoration: TextDecoration.underline,
+    ),
+    code: const TextStyle(
+      fontFamily: 'monospace',
+      color: Color(0xFF00BCF0),
+      backgroundColor: Color(0xFFE0F8FF),
+    ),
+    highlightColorHex: '0x6000BCF0',
+    lineHeight: 1.5,
+  );
+
+  static final dark = light.copyWith(
+    textStyle: const TextStyle(fontSize: 16.0, color: Colors.white),
+    placeholderTextStyle: TextStyle(
+      fontSize: 16.0,
+      color: Colors.white.withOpacity(0.3),
+    ),
+    selectionMenuBackgroundColor: const Color(0xFF282E3A),
+    selectionMenuItemTextColor: const Color(0xFFBBC3CD),
+    selectionMenuItemIconColor: const Color(0xFFBBC3CD),
+    selectionMenuItemSelectedTextColor: const Color(0xFF131720),
+    selectionMenuItemSelectedIconColor: const Color(0xFF131720),
+    selectionMenuItemSelectedColor: const Color(0xFF00BCF0),
+  );
 }

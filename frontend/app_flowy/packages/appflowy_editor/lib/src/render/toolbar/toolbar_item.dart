@@ -259,7 +259,7 @@ List<ToolbarItem> defaultToolbarItems = [
     ),
     handler: (editorState, context) => formatHighlight(
       editorState,
-      editorState.editorStyle.textStyle.highlightColorHex,
+      editorState.editorStyle.highlightColorHex!,
     ),
   ),
 ];
@@ -348,6 +348,7 @@ void showLinkMenu(
       child: Material(
         child: LinkMenu(
           linkText: linkText,
+          editorState: editorState,
           onOpenLink: () async {
             await safeLaunchUrl(linkText);
           },
