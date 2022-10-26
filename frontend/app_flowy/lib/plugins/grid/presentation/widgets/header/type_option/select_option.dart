@@ -43,11 +43,15 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
         builder: (context, state) {
           List<Widget> children = [
             const TypeOptionSeparator(),
-            const OptionTitle(),
+            OptionTitle(
+              popoverMutex: popoverMutex,
+            ),
             if (state.isEditingOption)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 10),
-                child: _CreateOptionTextField(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _CreateOptionTextField(
+                  popoverMutex: popoverMutex,
+                ),
               ),
             if (state.options.isEmpty && !state.isEditingOption)
               const _AddOptionButton(),
@@ -62,7 +66,9 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
 }
 
 class OptionTitle extends StatelessWidget {
-  const OptionTitle({Key? key}) : super(key: key);
+  final PopoverMutex? popoverMutex;
+
+  const OptionTitle({this.popoverMutex, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +84,9 @@ class OptionTitle extends StatelessWidget {
         ];
         if (state.options.isNotEmpty && !state.isEditingOption) {
           children.add(const Spacer());
-          children.add(const _OptionTitleButton());
+          children.add(_OptionTitleButton(
+            popoverMutex: popoverMutex,
+          ));
         }
 
         return SizedBox(
@@ -91,7 +99,9 @@ class OptionTitle extends StatelessWidget {
 }
 
 class _OptionTitleButton extends StatelessWidget {
-  const _OptionTitleButton({Key? key}) : super(key: key);
+  final PopoverMutex? popoverMutex;
+
+  const _OptionTitleButton({this.popoverMutex, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +117,7 @@ class _OptionTitleButton extends StatelessWidget {
         ),
         hoverColor: theme.hover,
         onTap: () {
+          popoverMutex?.close();
           context
               .read<SelectOptionTypeOptionBloc>()
               .add(const SelectOptionTypeOptionEvent.addingOption());
@@ -252,7 +263,8 @@ class _AddOptionButton extends StatelessWidget {
 }
 
 class _CreateOptionTextField extends StatelessWidget {
-  const _CreateOptionTextField({Key? key}) : super(key: key);
+  final PopoverMutex? popoverMutex;
+  const _CreateOptionTextField({this.popoverMutex, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -272,6 +284,9 @@ class _CreateOptionTextField extends StatelessWidget {
             context
                 .read<SelectOptionTypeOptionBloc>()
                 .add(SelectOptionTypeOptionEvent.createOption(optionName));
+          },
+          onFocused: () {
+            popoverMutex?.close();
           },
         );
       },

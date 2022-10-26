@@ -9,6 +9,7 @@ class InputTextField extends StatefulWidget {
   final void Function(String)? onDone;
   final void Function(String)? onChanged;
   final void Function() onCanceled;
+  final void Function()? onFocused;
   final bool autoClearWhenDone;
   final String text;
   final int? maxLength;
@@ -18,6 +19,7 @@ class InputTextField extends StatefulWidget {
     this.onDone,
     required this.onCanceled,
     this.onChanged,
+    this.onFocused,
     this.autoClearWhenDone = false,
     this.maxLength,
     Key? key,
@@ -89,6 +91,10 @@ class _InputTextFieldState extends State<InputTextField> {
         if (widget.onDone != null) {
           widget.onDone!(_controller.text);
         }
+      }
+    } else {
+      if (widget.onFocused != null) {
+        widget.onFocused!();
       }
     }
   }
