@@ -19,6 +19,7 @@ class RoundedInputField extends StatefulWidget {
   final TextStyle style;
   final ValueChanged<String>? onChanged;
   final Function(String)? onEditingComplete;
+  final Function()? onTap;
   final String? initialValue;
   final EdgeInsets margin;
   final EdgeInsets padding;
@@ -39,6 +40,7 @@ class RoundedInputField extends StatefulWidget {
     this.obscureHideIcon,
     this.onChanged,
     this.onEditingComplete,
+    this.onTap,
     this.normalBorderColor = Colors.transparent,
     this.errorBorderColor = Colors.transparent,
     this.focusBorderColor,
@@ -107,6 +109,11 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
           onEditingComplete: () {
             if (widget.onEditingComplete != null) {
               widget.onEditingComplete!(inputText);
+            }
+          },
+          onTap: () {
+            if (widget.onTap != null) {
+              widget.onTap!();
             }
           },
           cursorColor: widget.cursorColor,

@@ -288,6 +288,9 @@ class _CreateOptionTextField extends StatelessWidget {
           onFocused: () {
             popoverMutex?.close();
           },
+          onTap: () {
+            popoverMutex?.close();
+          },
         );
       },
     );
