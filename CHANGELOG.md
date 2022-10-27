@@ -51,8 +51,8 @@ Boards are the best way to manage projects & tasks. Use them to group your datab
 
 <p align="left"><img src="https://user-images.githubusercontent.com/12026239/190055984-6efa2d7a-ee38-4551-859e-ee56388e1859.gif" width="1000px" /></p>
 
-- Set up columns that represent a specific phase of the project cycle and use cards to represent each project / task
-- Drag and drop a card from one phase / column to another phase / column
+- Set up columns that represent a specific phase of the project cycle and use cards to represent each project/task
+- Drag and drop a card from one phase/column to another phase/column
 - Update database properties in the Board view by clicking on a property and making edits on the card
 
 ### Other Features & Improvements
@@ -97,7 +97,7 @@ Boards are the best way to manage projects & tasks. Use them to group your datab
 
 ## Version 0.0.4 - beta.3 - 05/02/2022
 - Drag to reorder app/ view/ field
-- Row record open as a page
+- Row record opens as a page
 - Auto resize the height of the row in the grid
 - Support more number formats
 - Search column options, supporting Single-select, Multi-select, and number format
@@ -135,7 +135,7 @@ v0.0.3 is production ready, available on Linux, macOS, and Windows
 - Support new languages: French, Italian, Russian,  Simplified Chinese, Spanish
 - Add Settings: Toggle on Dark Mode; Select a language
 - Show device info 
-- Add tooltip on toolbar icons
+- Add tooltip on the toolbar icons
 
 Bug fixes and improvements
 - Increased height of action
