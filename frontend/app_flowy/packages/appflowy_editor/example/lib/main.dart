@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:example/plugin/editor_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -54,6 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
   bool darkMode = false;
   Future<String>? _jsonString;
 
+  ThemeData? _editorThemeData;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -102,7 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
           _editorState!.transactionStream.listen((event) {
             debugPrint('Transaction: ${event.toJson()}');
           });
-          final themeData = Theme.of(context).copyWith(extensions: [
+          _editorThemeData ??= Theme.of(context).copyWith(extensions: [
             if (darkMode) ...darkEditorStyleExtension,
             if (darkMode) ...darkPlguinStyleExtension,
             if (!darkMode) ...lightEditorStyleExtension,
@@ -114,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: AppFlowyEditor(
               editorState: _editorState!,
               editable: true,
-              themeData: themeData,
+              themeData: _editorThemeData,
               customBuilders: {
                 'text/code_block': CodeBlockNodeWidgetBuilder(),
                 'tex': TeXBlockNodeWidgetBuidler(),
@@ -162,10 +165,19 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () async => await _importDocument(),
         ),
         ActionButton(
-          icon: const Icon(Icons.color_lens),
+          icon: const Icon(Icons.dark_mode),
           onPressed: () {
             setState(() {
               darkMode = !darkMode;
+            });
+          },
+        ),
+        ActionButton(
+          icon: const Icon(Icons.color_lens),
+          onPressed: () {
+            setState(() {
+              _editorThemeData = customizeEditorTheme(context);
+              darkMode = true;
             });
           },
         ),
@@ -228,6 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _switchToPage(int pageIndex) {
     if (pageIndex != _pageIndex) {
       setState(() {
+        _editorThemeData = null;
         _editorState = null;
         _pageIndex = pageIndex;
       });

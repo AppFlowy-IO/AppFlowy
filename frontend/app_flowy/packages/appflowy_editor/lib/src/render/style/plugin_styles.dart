@@ -117,7 +117,13 @@ class CheckboxPluginStyle extends ThemeExtension<CheckboxPluginStyle> {
 
   static final light = CheckboxPluginStyle(
     padding: (_, __) => const EdgeInsets.symmetric(vertical: 8.0),
-    textStyle: (editorState, textNode) => const TextStyle(),
+    textStyle: (editorState, textNode) {
+      final isCheck = textNode.attributes.check;
+      return TextStyle(
+        decoration: isCheck ? TextDecoration.lineThrough : null,
+        color: isCheck ? Colors.grey.shade400 : null,
+      );
+    },
     icon: (editorState, textNode) {
       final isCheck = textNode.attributes.check;
       const iconSize = Size.square(20.0);
