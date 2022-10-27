@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'color_extension.dart';
+
 Brightness themeTypeFromString(String name) {
   Brightness themeType = Brightness.light;
   if (name == "dark") {
@@ -168,6 +170,15 @@ class AppTheme {
         onSecondary: bg1,
         error: red,
       ),
+      extensions: [
+        CustomColors(
+          warning: yellow,
+          success: green,
+          greyHover: bg2,
+          greySelect: bg3,
+          lightGreyHover: shader6,
+        )
+      ],
     );
 
     return t.copyWith(
