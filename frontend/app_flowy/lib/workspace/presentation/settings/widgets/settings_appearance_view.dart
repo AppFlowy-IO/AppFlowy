@@ -4,7 +4,6 @@ import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dar
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
@@ -29,7 +28,7 @@ class SettingsAppearanceView extends StatelessWidget {
                 style: TextStyles.body1.size(FontSizes.s14),
               ),
               Toggle(
-                value: theme.isDark,
+                value: theme.brightness == Brightness.dark,
                 onChanged: (_) => setTheme(context),
                 style: ToggleStyle.big(theme),
               ),
@@ -46,10 +45,10 @@ class SettingsAppearanceView extends StatelessWidget {
 
   void setTheme(BuildContext context) {
     final theme = context.read<AppearanceSettingsCubit>().state.theme;
-    if (theme.isDark) {
-      context.read<AppearanceSettingsCubit>().setTheme(ThemeType.light);
+    if (theme.brightness == Brightness.dark) {
+      context.read<AppearanceSettingsCubit>().setTheme(Brightness.light);
     } else {
-      context.read<AppearanceSettingsCubit>().setTheme(ThemeType.dark);
+      context.read<AppearanceSettingsCubit>().setTheme(Brightness.dark);
     }
   }
 }

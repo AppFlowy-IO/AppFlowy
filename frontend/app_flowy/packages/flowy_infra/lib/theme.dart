@@ -1,35 +1,30 @@
 import 'package:flutter/material.dart';
 
-enum ThemeType {
-  light,
-  dark,
-}
-
-ThemeType themeTypeFromString(String name) {
-  ThemeType themeType = ThemeType.light;
+Brightness themeTypeFromString(String name) {
+  Brightness themeType = Brightness.light;
   if (name == "dark") {
-    themeType = ThemeType.dark;
+    themeType = Brightness.dark;
   }
   return themeType;
 }
 
-String themeTypeToString(ThemeType ty) {
-  switch (ty) {
-    case ThemeType.light:
+String themeTypeToString(Brightness brightness) {
+  switch (brightness) {
+    case Brightness.light:
       return "light";
-    case ThemeType.dark:
+    case Brightness.dark:
       return "dark";
   }
 }
 
-//Color Pallettes
+// Color Pallettes
 const _black = Color(0xff000000);
 const _white = Color(0xFFFFFFFF);
 
 class AppTheme {
-  ThemeType ty;
-  bool isDark;
-  late Color surface; //
+  Brightness brightness;
+
+  late Color surface;
   late Color hover;
   late Color selector;
   late Color red;
@@ -58,6 +53,7 @@ class AppTheme {
   late Color tint7;
   late Color tint8;
   late Color tint9;
+
   late Color textColor;
   late Color iconColor;
   late Color disableIconColor;
@@ -68,19 +64,19 @@ class AppTheme {
   late Color shadowColor;
 
   /// Default constructor
-  AppTheme({required this.ty, this.isDark = false});
+  AppTheme({this.brightness = Brightness.light});
 
   factory AppTheme.fromName({required String name}) {
     return AppTheme.fromType(themeTypeFromString(name));
   }
 
   /// fromType factory constructor
-  factory AppTheme.fromType(ThemeType themeType) {
+  factory AppTheme.fromType(Brightness themeType) {
     switch (themeType) {
-      case ThemeType.light:
-        return AppTheme(ty: themeType, isDark: false)
+      case Brightness.light:
+        return AppTheme(brightness: Brightness.light)
           ..surface = Colors.white
-          ..hover = const Color(0xFFe0f8ff) //
+          ..hover = const Color(0xFFe0f8ff)
           ..selector = const Color(0xfff2fcff)
           ..red = const Color(0xfffb006d)
           ..yellow = const Color(0xffffd667)
@@ -112,8 +108,8 @@ class AppTheme {
           ..shadowColor = _black
           ..disableIconColor = const Color(0xffbdbdbd);
 
-      case ThemeType.dark:
-        return AppTheme(ty: themeType, isDark: true)
+      case Brightness.dark:
+        return AppTheme(brightness: Brightness.dark)
           ..surface = const Color(0xff292929)
           ..hover = const Color(0xff1f1f1f)
           ..selector = const Color(0xff333333)
@@ -160,17 +156,18 @@ class AppTheme {
       //Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
       // hoverColor: main2,
       colorScheme: ColorScheme(
-          brightness: isDark ? Brightness.dark : Brightness.light,
-          primary: main1,
-          secondary: main2,
-          background: surface,
-          surface: surface,
-          onBackground: surface,
-          onSurface: surface,
-          onError: red,
-          onPrimary: bg1,
-          onSecondary: bg1,
-          error: red),
+        brightness: brightness,
+        primary: main1,
+        secondary: main2,
+        background: surface,
+        surface: surface,
+        onBackground: surface,
+        onSurface: surface,
+        onError: red,
+        onPrimary: bg1,
+        onSecondary: bg1,
+        error: red,
+      ),
     );
 
     return t.copyWith(
@@ -181,7 +178,7 @@ class AppTheme {
   }
 
   Color shift(Color c, double d) =>
-      ColorUtils.shiftHsl(c, d * (isDark ? -1 : 1));
+      ColorUtils.shiftHsl(c, d * (brightness == Brightness.dark ? -1 : 1));
 }
 
 class ColorUtils {

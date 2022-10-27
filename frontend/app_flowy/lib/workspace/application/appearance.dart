@@ -21,15 +21,15 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
 
   /// Updates the current theme and notify the listeners the theme was changed.
   /// Do nothing if the passed in themeType equal to the current theme type.
-  void setTheme(ThemeType themeType) {
-    if (state.theme.ty == themeType) {
+  void setTheme(Brightness brightness) {
+    if (state.theme.brightness == brightness) {
       return;
     }
 
-    _setting.theme = themeTypeToString(themeType);
+    _setting.theme = themeTypeToString(brightness);
     _saveAppearanceSettings();
 
-    emit(state.copyWith(theme: AppTheme.fromType(themeType)));
+    emit(state.copyWith(theme: AppTheme.fromType(brightness)));
   }
 
   /// Updates the current locale and notify the listeners the locale was changed

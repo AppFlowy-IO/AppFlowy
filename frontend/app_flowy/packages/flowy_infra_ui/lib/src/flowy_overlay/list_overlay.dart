@@ -124,8 +124,7 @@ class OverlayContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme =
-        context.watch<AppTheme?>() ?? AppTheme.fromType(ThemeType.light);
+    final theme = context.watch<AppTheme>();
     return Material(
       type: MaterialType.transparency,
       child: Container(

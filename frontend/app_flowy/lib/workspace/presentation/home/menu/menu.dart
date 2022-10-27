@@ -203,7 +203,7 @@ class MenuTopBar extends StatelessWidget {
       return Container();
     }
     final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-    return (theme.isDark
+    return (theme.brightness == Brightness.dark
         ? svgWithSize("flowy_logo_dark_mode", const Size(92, 17))
         : svgWithSize("flowy_logo_with_text", const Size(92, 17)));
   }

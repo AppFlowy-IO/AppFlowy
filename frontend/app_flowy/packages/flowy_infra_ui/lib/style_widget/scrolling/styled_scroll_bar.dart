@@ -140,10 +140,12 @@ class ScrollbarState extends State<StyledScrollbar> {
 
         // Handle color
         var handleColor = widget.handleColor ??
-            (theme.isDark ? theme.bg2.withOpacity(.2) : theme.bg2);
+            (theme.brightness == Brightness.dark
+                ? theme.bg2.withOpacity(.2)
+                : theme.bg2);
         // Track color
         var trackColor = widget.trackColor ??
-            (theme.isDark
+            (theme.brightness == Brightness.dark
                 ? theme.bg2.withOpacity(.1)
                 : theme.bg2.withOpacity(.3));
 
