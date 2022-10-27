@@ -98,12 +98,52 @@ class AppFlowyGridTest {
     return editorBloc;
   }
 
-  Future<FieldEditorBloc> createFieldFromType(FieldType fieldType) async {
-    final editor = createFieldEditor()..add(const FieldEditorEvent.initial());
+  Future<IGridCellController> makeCellController(String fieldId) async {
+    final builder = await makeCellControllerBuilder(fieldId);
+    return builder.build();
+  }
+
+  Future<GridCellControllerBuilder> makeCellControllerBuilder(
+    String fieldId,
+  ) async {
+    final RowInfo rowInfo = rowInfos.last;
+    final blockCache = blocks[rowInfo.rowPB.blockId];
+    final rowCache = blockCache?.rowCache;
+    late GridFieldController fieldController;
+    if (_gridDataController != null) {
+      fieldController = _gridDataController!.fieldController;
+    }
+
+    if (_boardDataController != null) {
+      fieldController = _boardDataController!.fieldController;
+    }
+
+    final rowDataController = GridRowDataController(
+      rowInfo: rowInfo,
+      fieldController: fieldController,
+      rowCache: rowCache!,
+    );
+
+    final rowBloc = RowBloc(
+      rowInfo: rowInfo,
+      dataController: rowDataController,
+    )..add(const RowEvent.initial());
     await gridResponseFuture();
-    editor.dataController.switchToField(fieldType);
+
+    return GridCellControllerBuilder(
+      cellId: rowBloc.state.gridCellMap[fieldId]!,
+      cellCache: rowCache.cellCache,
+      delegate: rowDataController,
+    );
+  }
+
+  Future<FieldEditorBloc> createField(FieldType fieldType) async {
+    final editorBloc = createFieldEditor()
+      ..add(const FieldEditorEvent.initial());
     await gridResponseFuture();
-    return Future(() => editor);
+    editorBloc.add(FieldEditorEvent.switchToField(fieldType));
+    await gridResponseFuture();
+    return Future(() => editorBloc);
   }
 
   GridFieldContext singleSelectFieldContext() {
@@ -162,46 +202,20 @@ class AppFlowyGridTest {
 
 /// Create a new Grid for cell test
 class AppFlowyGridCellTest {
-  final AppFlowyGridTest _gridTest;
-  AppFlowyGridCellTest(AppFlowyGridTest gridTest) : _gridTest = gridTest;
+  final AppFlowyGridTest gridTest;
+  AppFlowyGridCellTest({required this.gridTest});
 
   static Future<AppFlowyGridCellTest> ensureInitialized() async {
     final gridTest = await AppFlowyGridTest.ensureInitialized();
-    return AppFlowyGridCellTest(gridTest);
+    return AppFlowyGridCellTest(gridTest: gridTest);
   }
 
   Future<void> createTestRow() async {
-    await _gridTest.createRow();
+    await gridTest.createRow();
   }
 
   Future<void> createTestGrid() async {
-    await _gridTest.createTestGrid();
-  }
-
-  Future<GridCellControllerBuilder> cellControllerBuilder(
-    String fieldId,
-  ) async {
-    final RowInfo rowInfo = _gridTest.rowInfos.last;
-    final blockCache = _gridTest.blocks[rowInfo.rowPB.blockId];
-    final rowCache = blockCache?.rowCache;
-
-    final rowDataController = GridRowDataController(
-      rowInfo: rowInfo,
-      fieldController: _gridTest._gridDataController!.fieldController,
-      rowCache: rowCache!,
-    );
-
-    final rowBloc = RowBloc(
-      rowInfo: rowInfo,
-      dataController: rowDataController,
-    )..add(const RowEvent.initial());
-    await gridResponseFuture();
-
-    return GridCellControllerBuilder(
-      cellId: rowBloc.state.gridCellMap[fieldId]!,
-      cellCache: rowCache.cellCache,
-      delegate: rowDataController,
-    );
+    await gridTest.createTestGrid();
   }
 }
 
@@ -229,11 +243,11 @@ class AppFlowyGridSelectOptionCellTest {
     assert(fieldType == FieldType.SingleSelect ||
         fieldType == FieldType.MultiSelect);
 
-    final fieldContexts = _gridCellTest._gridTest.fieldContexts;
+    final fieldContexts = _gridCellTest.gridTest.fieldContexts;
     final field =
         fieldContexts.firstWhere((element) => element.fieldType == fieldType);
-    final builder = await _gridCellTest.cellControllerBuilder(field.id);
-    final cellController = builder.build() as GridSelectOptionCellController;
+    final cellController = await _gridCellTest.gridTest
+        .makeCellController(field.id) as GridSelectOptionCellController;
     return cellController;
   }
 }
