@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:example/plugin/code_block_node_widget.dart';
-import 'package:example/plugin/horizontal_rule_node_widget.dart';
-import 'package:example/plugin/tex_block_node_widget.dart';
+import 'package:example/plugin/editor_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:example/plugin/code_block_node_widget.dart';
+import 'package:example/plugin/horizontal_rule_node_widget.dart';
+import 'package:example/plugin/tex_block_node_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:path_provider/path_provider.dart';
@@ -26,22 +27,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      localizationsDelegates: const [
+    return const MaterialApp(
+      localizationsDelegates: [
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         AppFlowyEditorLocalizations.delegate,
       ],
-      supportedLocales: const [Locale('en', 'US')],
+      supportedLocales: [Locale('en', 'US')],
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        // extensions: [HeadingPluginStyle.light],
-      ),
-      darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.dark,
-      home: const MyHomePage(title: 'AppFlowyEditor Example'),
+      home: MyHomePage(title: 'AppFlowyEditor Example'),
     );
   }
 }
@@ -60,25 +55,13 @@ class _MyHomePageState extends State<MyHomePage> {
   bool darkMode = false;
   Future<String>? _jsonString;
 
+  ThemeData? _editorThemeData;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: _buildEditor(context),
-      // body: Center(
-      //   child: ContextMenu(editorState: EditorState.empty(), items: [
-      //     [
-      //       ContextMenuItem(name: 'ABCDEFGHIJKLM', onPressed: (editorState) {}),
-      //       ContextMenuItem(name: 'A', onPressed: (editorState) {}),
-      //       ContextMenuItem(name: 'A', onPressed: (editorState) {})
-      //     ],
-      //     [
-      //       ContextMenuItem(name: 'B', onPressed: (editorState) {}),
-      //       ContextMenuItem(name: 'B', onPressed: (editorState) {}),
-      //       ContextMenuItem(name: 'B', onPressed: (editorState) {})
-      //     ]
-      //   ]),
-      // ),
       floatingActionButton: _buildExpandableFab(),
     );
   }
@@ -92,10 +75,6 @@ class _MyHomePageState extends State<MyHomePage> {
         rootBundle.loadString('assets/example.json'),
       );
     } else if (_pageIndex == 1) {
-      return _buildEditorWithJsonString(
-        rootBundle.loadString('assets/big_document.json'),
-      );
-    } else if (_pageIndex == 2) {
       return _buildEditorWithJsonString(
         Future.value(
           jsonEncode(EditorState.empty().document.toJson()),
@@ -126,32 +105,19 @@ class _MyHomePageState extends State<MyHomePage> {
           _editorState!.transactionStream.listen((event) {
             debugPrint('Transaction: ${event.toJson()}');
           });
-          final themeData = darkMode
-              ? ThemeData.dark().copyWith(extensions: [
-                  HeadingPluginStyle.dark,
-                  CheckboxPluginStyle.dark,
-                  NumberListPluginStyle.dark,
-                  QuotedTextPluginStyle.dark,
-                  BulletedListPluginStyle.dark,
-                  EditorStyle.dark,
-                ])
-              : ThemeData.light().copyWith(
-                  extensions: [
-                    HeadingPluginStyle.light,
-                    CheckboxPluginStyle.light,
-                    NumberListPluginStyle.light,
-                    QuotedTextPluginStyle.light,
-                    BulletedListPluginStyle.light,
-                    EditorStyle.light,
-                  ],
-                );
+          _editorThemeData ??= Theme.of(context).copyWith(extensions: [
+            if (darkMode) ...darkEditorStyleExtension,
+            if (darkMode) ...darkPlguinStyleExtension,
+            if (!darkMode) ...lightEditorStyleExtension,
+            if (!darkMode) ...lightPlguinStyleExtension,
+          ]);
           return Container(
             color: darkMode ? Colors.black : Colors.white,
             width: MediaQuery.of(context).size.width,
             child: AppFlowyEditor(
               editorState: _editorState!,
-              themeData: themeData,
               editable: true,
+              themeData: _editorThemeData,
               customBuilders: {
                 'text/code_block': CodeBlockNodeWidgetBuilder(),
                 'tex': TeXBlockNodeWidgetBuidler(),
@@ -191,10 +157,6 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () => _switchToPage(1),
         ),
         ActionButton(
-          icon: const Icon(Icons.abc),
-          onPressed: () => _switchToPage(2),
-        ),
-        ActionButton(
           icon: const Icon(Icons.print),
           onPressed: () => _exportDocument(_editorState!),
         ),
@@ -203,10 +165,19 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: () async => await _importDocument(),
         ),
         ActionButton(
-          icon: const Icon(Icons.color_lens),
+          icon: const Icon(Icons.dark_mode),
           onPressed: () {
             setState(() {
               darkMode = !darkMode;
+            });
+          },
+        ),
+        ActionButton(
+          icon: const Icon(Icons.color_lens),
+          onPressed: () {
+            setState(() {
+              _editorThemeData = customizeEditorTheme(context);
+              darkMode = true;
             });
           },
         ),
@@ -269,6 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _switchToPage(int pageIndex) {
     if (pageIndex != _pageIndex) {
       setState(() {
+        _editorThemeData = null;
         _editorState = null;
         _pageIndex = pageIndex;
       });

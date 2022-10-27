@@ -16,7 +16,6 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
-        editorStyle: EditorStyle.defaultStyle(),
         shortcutEvents: const [],
         customBuilders: const {},
       ),
@@ -93,7 +92,7 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
   // Delete the previous 'underscore',
   // update the style of the text surrounded by the two underscores to 'italic',
   // and update the cursor position.
-  TransactionBuilder(editorState)
+  final transaction = editorState.transaction
     ..deleteText(textNode, firstUnderscore, 1)
     ..formatText(
       textNode,
@@ -108,8 +107,8 @@ ShortcutEventHandler _underscoreToItalicHandler = (editorState, event) {
         path: textNode.path,
         offset: selection.end.offset - 1,
       ),
-    )
-    ..commit();
+    );
+  editorState.apply(transaction);
 
   return KeyEventResult.handled;
 };
@@ -125,7 +124,6 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
-        editorStyle: EditorStyle.defaultStyle(),
         customBuilders: const {},
         shortcutEvents: [
           underscoreToItalic,
@@ -138,7 +136,7 @@ Widget build(BuildContext context) {
 
 ![After](./images/customize_a_shortcut_event_after.gif)
 
-Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/underscore_to_italic.dart) file of this example.
+Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/lib/src/service/internal_key_event_handlers/markdown_syntax_to_styled_text.dart) file of this example.
 
 
 ## Customizing a Component
@@ -156,7 +154,6 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
-        editorStyle: EditorStyle.defaultStyle(),
         shortcutEvents: const [],
         customBuilders: const {},
       ),
@@ -180,7 +177,7 @@ We'll use `network_image` in this case. And we add `network_image_src` to the `a
 
 Then, we create a class that inherits [NodeWidgetBuilder](../lib/src/service/render_plugin_service.dart). As shown in the autoprompt, we need to implement two functions:
 1. one returns a widget 
-2. the other verifies the correctness of the [Node](../lib/src/document/node.dart).
+2. the other verifies the correctness of the [Node](../lib/src/core/document/node.dart).
 
 
 ```dart
@@ -308,7 +305,7 @@ return AppFlowyEditor(
 
 Check out the [complete code](https://github.com/AppFlowy-IO/AppFlowy/blob/main/frontend/app_flowy/packages/appflowy_editor/example/lib/plugin/network_image_node_widget.dart) file of this example.
 
-## Customizing a Theme (New Feature in 0.0.5, Alpha)
+## Customizing a Theme (New Feature in 0.0.7)
 
 We will use a simple example to illustrate how to quickly customize a theme.
 
@@ -322,7 +319,6 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
-        editorStyle: EditorStyle.defaultStyle(),
         shortcutEvents: const [],
         customBuilders: const {},
       ),
@@ -338,44 +334,41 @@ At this point, the editor looks like ...
 Next, we will customize the `EditorStyle`.
 
 ```dart
-EditorStyle _customizedStyle() {
-  final editorStyle = EditorStyle.defaultStyle();
-  return editorStyle.copyWith(
-    cursorColor: Colors.white,
-    selectionColor: Colors.blue.withOpacity(0.3),
-    textStyle: editorStyle.textStyle.copyWith(
-      defaultTextStyle: GoogleFonts.poppins().copyWith(
-        color: Colors.white,
-        fontSize: 14.0,
-      ),
-      defaultPlaceholderTextStyle: GoogleFonts.poppins().copyWith(
-        color: Colors.white.withOpacity(0.5),
-        fontSize: 14.0,
-      ),
-      bold: const TextStyle(fontWeight: FontWeight.w900),
-      code: TextStyle(
-        fontStyle: FontStyle.italic,
-        color: Colors.red[300],
-        backgroundColor: Colors.grey.withOpacity(0.3),
-      ),
-      highlightColorHex: '0x6FFFEB3B',
+ThemeData customizeEditorTheme(BuildContext context) {
+  final dark = EditorStyle.dark;
+  final editorStyle = dark.copyWith(
+    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 150),
+    cursorColor: Colors.red.shade600,
+    selectionColor: Colors.yellow.shade600.withOpacity(0.5),
+    textStyle: GoogleFonts.poppins().copyWith(
+      fontSize: 14,
+      color: Colors.white,
     ),
-    pluginStyles: {
-      'text/quote': builtInPluginStyle
-        ..update(
-          'textStyle',
-          (_) {
-            return (EditorState editorState, Node node) {
-              return TextStyle(
-                color: Colors.blue[200],
-                fontStyle: FontStyle.italic,
-                fontSize: 12.0,
-              );
-            };
-          },
-        ),
-    },
+    placeholderTextStyle: GoogleFonts.poppins().copyWith(
+      fontSize: 14,
+      color: Colors.grey.shade400,
+    ),
+    code: dark.code?.copyWith(
+      backgroundColor: Colors.lightBlue.shade200,
+      fontStyle: FontStyle.italic,
+    ),
+    highlightColorHex: '0x60FF0000', // red
   );
+
+  final quote = QuotedTextPluginStyle.dark.copyWith(
+    textStyle: (_, __) => GoogleFonts.poppins().copyWith(
+      fontSize: 14,
+      color: Colors.blue.shade400,
+      fontStyle: FontStyle.italic,
+      fontWeight: FontWeight.w700,
+    ),
+  );
+
+  return Theme.of(context).copyWith(extensions: [
+    editorStyle,
+    ...darkPlguinStyleExtension,
+    quote,
+  ]);
 }
 ```
 
@@ -389,7 +382,7 @@ Widget build(BuildContext context) {
       alignment: Alignment.topCenter,
       child: AppFlowyEditor(
         editorState: EditorState.empty(),
-        editorStyle: _customizedStyle(),
+        themeData: customizeEditorTheme(context),
         shortcutEvents: const [],
         customBuilders: const {},
       ),
