@@ -329,6 +329,8 @@ mod tests {
     use crate::editor::document::Document;
     use crate::editor::document_serde::DocumentTransaction;
     use crate::editor::initial_read_me;
+    use lib_infra::util::timestamp;
+    use lib_ot::core::Transaction;
 
     #[test]
     fn load_read_me() {
@@ -373,6 +375,16 @@ mod tests {
         let document: Document = serde_json::from_str(EXAMPLE_DOCUMENT).unwrap();
         let _ = serde_json::to_string_pretty(&document).unwrap();
     }
+
+    // #[test]
+    // fn document_operation_compose__test() {
+    //     let json = include_str!("./test.json");
+    //     let transaction: Transaction = Transaction::from_json(json).unwrap();
+    //     let operations = transaction.operations.into_iter();
+    //     for operation in transaction.operations {
+    //         //
+    //     }
+    // }
 
     const EXAMPLE_DOCUMENT: &str = r#"{
   "document": {

@@ -1,5 +1,6 @@
 #![allow(clippy::all)]
-use lib_ot::core::{NodeTreeContext, Transaction};
+use lib_ot::core::{NodeTreeContext, OperationTransform, Transaction};
+use lib_ot::text_delta::DeltaTextOperationBuilder;
 use lib_ot::{
     core::attributes::AttributeHashMap,
     core::{Body, Changeset, NodeData, NodeTree, Path, TransactionBuilder},
@@ -84,9 +85,7 @@ impl NodeTest {
                 node_data: node,
                 rev_id,
             } => {
-                let mut transaction = TransactionBuilder::new(&self.node_tree)
-                    .insert_node_at_path(path, node)
-                    .finalize();
+                let mut transaction = TransactionBuilder::new().insert_node_at_path(path, node).build();
                 self.transform_transaction_if_need(&mut transaction, rev_id);
                 self.apply_transaction(transaction);
             }
@@ -95,29 +94,34 @@ impl NodeTest {
                 node_data_list,
                 rev_id,
             } => {
-                let mut transaction = TransactionBuilder::new(&self.node_tree)
+                let mut transaction = TransactionBuilder::new()
                     .insert_nodes_at_path(path, node_data_list)
-                    .finalize();
+                    .build();
                 self.transform_transaction_if_need(&mut transaction, rev_id);
                 self.apply_transaction(transaction);
             }
             NodeScript::UpdateAttributes { path, attributes } => {
-                let transaction = TransactionBuilder::new(&self.node_tree)
-                    .update_attributes_at_path(&path, attributes)
-                    .finalize();
+                let node = self.node_tree.get_node_data_at_path(&path).unwrap();
+                let transaction = TransactionBuilder::new()
+                    .update_node_at_path(
+                        &path,
+                        Changeset::Attributes {
+                            new: attributes,
+                            old: node.attributes,
+                        },
+                    )
+                    .build();
                 self.apply_transaction(transaction);
             }
             NodeScript::UpdateBody { path, changeset } => {
                 //
-                let transaction = TransactionBuilder::new(&self.node_tree)
-                    .update_body_at_path(&path, changeset)
-                    .finalize();
+                let transaction = TransactionBuilder::new().update_node_at_path(&path, changeset).build();
                 self.apply_transaction(transaction);
             }
             NodeScript::DeleteNode { path, rev_id } => {
-                let mut transaction = TransactionBuilder::new(&self.node_tree)
-                    .delete_node_at_path(&path)
-                    .finalize();
+                let mut transaction = TransactionBuilder::new()
+                    .delete_node_at_path(&self.node_tree, &path)
+                    .build();
                 self.transform_transaction_if_need(&mut transaction, rev_id);
                 self.apply_transaction(transaction);
             }
@@ -174,4 +178,41 @@ impl NodeTest {
             }
         }
     }
+}
+
+pub fn update_node_delta(
+    delta: &DeltaTextOperations,
+    new_delta: DeltaTextOperations,
+) -> (Changeset, DeltaTextOperations) {
+    let inverted = new_delta.invert(&delta);
+    let expected = delta.compose(&new_delta).unwrap();
+    let changeset = Changeset::Delta {
+        delta: new_delta.clone(),
+        inverted: inverted.clone(),
+    };
+    (changeset, expected)
+}
+
+pub fn make_node_delta_changeset(
+    initial_content: &str,
+    insert_str: &str,
+) -> (DeltaTextOperations, Changeset, Changeset, DeltaTextOperations) {
+    let initial_content = initial_content.to_owned();
+    let initial_delta = DeltaTextOperationBuilder::new().insert(&initial_content).build();
+    let delta = DeltaTextOperationBuilder::new()
+        .retain(initial_content.len())
+        .insert(insert_str)
+        .build();
+    let inverted = delta.invert(&initial_delta);
+    let expected = initial_delta.compose(&delta).unwrap();
+
+    let changeset = Changeset::Delta {
+        delta: delta.clone(),
+        inverted: inverted.clone(),
+    };
+    let inverted_changeset = Changeset::Delta {
+        delta: inverted,
+        inverted: delta,
+    };
+    (initial_delta, changeset, inverted_changeset, expected)
 }

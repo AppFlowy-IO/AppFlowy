@@ -1,7 +1,7 @@
 use super::node_serde::*;
 use crate::core::attributes::{AttributeHashMap, AttributeKey, AttributeValue};
 use crate::core::Body::Delta;
-use crate::core::OperationTransform;
+use crate::core::{DeltaOperationBuilder, OperationTransform};
 use crate::errors::OTError;
 use crate::text_delta::DeltaTextOperations;
 use serde::{Deserialize, Serialize};
@@ -74,9 +74,8 @@ impl NodeDataBuilder {
         self
     }
 
-    /// Inserts a body to the builder's node
-    pub fn insert_body(mut self, body: Body) -> Self {
-        self.node.body = body;
+    pub fn insert_delta(mut self, delta: DeltaTextOperations) -> Self {
+        self.node.body = Body::Delta(delta);
         self
     }
 
@@ -184,6 +183,40 @@ impl Changeset {
                 new: old.clone(),
                 old: new.clone(),
             },
+        }
+    }
+
+    pub fn compose(&mut self, other: &Changeset) -> Result<(), OTError> {
+        match (self, other) {
+            (
+                Changeset::Delta { delta, inverted },
+                Changeset::Delta {
+                    delta: other_delta,
+                    inverted: other_inverted,
+                },
+            ) => {
+                let new_delta = delta.compose(other_delta)?;
+                *delta = new_delta;
+
+                let new_inverted_delta = inverted.compose(inverted)?;
+                *inverted = new_inverted_delta;
+                Ok(())
+            }
+            (
+                Changeset::Attributes { new, old },
+                Changeset::Attributes {
+                    new: other_new,
+                    old: other_old,
+                },
+            ) => {
+                *new = other_new.clone();
+                *old = other_old.clone();
+                Ok(())
+            }
+            (left, right) => {
+                let err = format!("Compose changeset failed. {:?} can't compose {:?}", left, right);
+                Err(OTError::compose().context(err))
+            }
         }
     }
 }

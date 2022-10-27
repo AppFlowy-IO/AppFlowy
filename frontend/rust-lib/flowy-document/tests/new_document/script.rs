@@ -64,7 +64,7 @@ impl DocumentEditorTest {
     async fn run_script(&self, script: EditScript) {
         match script {
             EditScript::InsertText { path, delta } => {
-                let node_data = NodeDataBuilder::new("text").insert_body(Body::Delta(delta)).build();
+                let node_data = NodeDataBuilder::new("text").insert_delta(delta).build();
                 let operation = NodeOperation::Insert {
                     path,
                     nodes: vec![node_data],

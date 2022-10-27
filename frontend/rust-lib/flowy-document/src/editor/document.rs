@@ -46,7 +46,7 @@ pub(crate) fn make_tree_context() -> NodeTreeContext {
 
 pub fn initial_document_content() -> String {
     let delta = DeltaTextOperationBuilder::new().insert("").build();
-    let node_data = NodeDataBuilder::new("text").insert_body(Body::Delta(delta)).build();
+    let node_data = NodeDataBuilder::new("text").insert_delta(delta).build();
     let editor_node = NodeDataBuilder::new("editor").add_node_data(node_data).build();
     let node_operation = NodeOperation::Insert {
         path: vec![0].into(),

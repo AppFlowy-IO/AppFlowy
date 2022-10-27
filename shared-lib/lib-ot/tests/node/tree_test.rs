@@ -1,5 +1,5 @@
 use crate::node::script::NodeScript::*;
-use crate::node::script::NodeTest;
+use crate::node::script::{make_node_delta_changeset, NodeTest};
 use lib_ot::core::Body;
 use lib_ot::core::Changeset;
 use lib_ot::core::OperationTransform;
@@ -723,9 +723,7 @@ fn node_reorder_nodes_test() {
 fn node_update_body_test() {
     let mut test = NodeTest::new();
     let (initial_delta, changeset, _, expected) = make_node_delta_changeset("Hello", "AppFlowy");
-    let node = NodeDataBuilder::new("text")
-        .insert_body(Body::Delta(initial_delta))
-        .build();
+    let node = NodeDataBuilder::new("text").insert_delta(initial_delta).build();
 
     let scripts = vec![
         InsertNode {
@@ -749,9 +747,7 @@ fn node_update_body_test() {
 fn node_inverted_body_changeset_test() {
     let mut test = NodeTest::new();
     let (initial_delta, changeset, inverted_changeset, _expected) = make_node_delta_changeset("Hello", "AppFlowy");
-    let node = NodeDataBuilder::new("text")
-        .insert_body(Body::Delta(initial_delta.clone()))
-        .build();
+    let node = NodeDataBuilder::new("text").insert_delta(initial_delta.clone()).build();
 
     let scripts = vec![
         InsertNode {
@@ -773,28 +769,4 @@ fn node_inverted_body_changeset_test() {
         },
     ];
     test.run_scripts(scripts);
-}
-
-fn make_node_delta_changeset(
-    initial_content: &str,
-    insert_str: &str,
-) -> (DeltaTextOperations, Changeset, Changeset, DeltaTextOperations) {
-    let initial_content = initial_content.to_owned();
-    let initial_delta = DeltaTextOperationBuilder::new().insert(&initial_content).build();
-    let delta = DeltaTextOperationBuilder::new()
-        .retain(initial_content.len())
-        .insert(insert_str)
-        .build();
-    let inverted = delta.invert(&initial_delta);
-    let expected = initial_delta.compose(&delta).unwrap();
-
-    let changeset = Changeset::Delta {
-        delta: delta.clone(),
-        inverted: inverted.clone(),
-    };
-    let inverted_changeset = Changeset::Delta {
-        delta: inverted,
-        inverted: delta,
-    };
-    (initial_delta, changeset, inverted_changeset, expected)
 }
