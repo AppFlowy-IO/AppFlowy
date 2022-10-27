@@ -1,5 +1,13 @@
 # Release Notes
 
+## Version 0.0.6.1 - 10/26/2022
+
+New features
+- Optimzie appflowy_editor dark mode style
+
+### Bug Fixes
+- Unable to copy the text with checkbox or link style
+
 ## Version 0.0.6 - 10/23/2022
 
 New features
