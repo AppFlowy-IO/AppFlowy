@@ -2,6 +2,7 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_detail_bloc.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -83,7 +84,7 @@ class _CloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return FlowyIconButton(
       width: 24,
       onPressed: () {
@@ -187,7 +188,7 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
 
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(240, 200)),
@@ -229,7 +230,7 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
   }
 
   BoxDecoration _makeBoxDecoration(BuildContext context) {
-    final theme = context.read<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final borderSide = BorderSide(color: theme.shader6, width: 1.0);
     return BoxDecoration(
       color: theme.surface,
@@ -256,7 +257,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final style = _customCellStyle(theme, widget.cellId.fieldType);
     final cell = widget.cellBuilder.build(widget.cellId, style: style);
 

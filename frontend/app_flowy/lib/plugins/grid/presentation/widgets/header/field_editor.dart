@@ -1,11 +1,11 @@
 import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
@@ -166,7 +166,7 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return MultiBlocListener(
       listeners: [
         BlocListener<FieldEditorBloc, FieldEditorState>(
@@ -222,7 +222,7 @@ class _DeleteFieldButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       buildWhen: (previous, current) => previous != current,
       builder: (context, state) {

@@ -1,5 +1,5 @@
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -115,7 +115,7 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final actionCell = action as ActionCell;
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final icon = actionCell.icon(theme.iconColor);
 
     return FlowyHover(

@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,7 @@ class CardAccessoryContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final children = accessories.map((accessory) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -58,7 +59,7 @@ class CardAccessoryContainer extends StatelessWidget {
   }
 
   Widget _wrapDecoration(BuildContext context, Widget child) {
-    final theme = context.read<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final borderSide = BorderSide(color: theme.shader6, width: 1.0);
     final decoration = BoxDecoration(
       color: Colors.transparent,

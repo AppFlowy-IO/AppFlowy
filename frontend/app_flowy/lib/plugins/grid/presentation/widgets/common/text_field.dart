@@ -1,5 +1,5 @@
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,7 +43,7 @@ class _InputTextFieldState extends State<InputTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
 
     final height = widget.maxLength == null ? 36.0 : 56.0;
 
@@ -99,7 +99,7 @@ class TypeOptionSeparator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Container(

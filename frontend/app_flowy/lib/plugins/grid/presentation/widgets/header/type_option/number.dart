@@ -1,9 +1,9 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/number_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/number_format_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -50,7 +50,7 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocProvider(
       create: (context) =>
           NumberTypeOptionBloc(typeOptionContext: typeOptionContext),
@@ -165,7 +165,7 @@ class NumberFormatCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     Widget? checkmark;
     if (isSelected) {
       checkmark = svgWidget("grid/checkmark");

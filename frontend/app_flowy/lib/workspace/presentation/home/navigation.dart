@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/image.dart';
@@ -61,7 +62,7 @@ class FlowyNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
 
     return ChangeNotifierProxyProvider<HomeStackNotifier, NavigationNotifier>(
       create: (_) {

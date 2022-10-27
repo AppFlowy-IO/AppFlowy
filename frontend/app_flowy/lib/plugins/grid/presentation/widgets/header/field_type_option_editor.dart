@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -108,7 +108,7 @@ class _SwitchFieldButton extends StatelessWidget {
   }
 
   Widget _buildMoreButton(BuildContext context) {
-    final theme = context.read<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final bloc = context.read<FieldTypeOptionEditBloc>();
     return FlowyButton(
       text: FlowyText.medium(

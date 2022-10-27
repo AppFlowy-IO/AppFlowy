@@ -1,7 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/blank/blank.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
-import 'package:flowy_infra/theme.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +32,7 @@ class HomeStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -198,7 +198,7 @@ class HomeTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return Container(
       color: theme.surface,
       height: HomeSizes.topBarHeight,

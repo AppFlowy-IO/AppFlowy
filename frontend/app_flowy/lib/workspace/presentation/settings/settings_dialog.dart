@@ -12,7 +12,6 @@ import 'package:flowy_sdk/protobuf/flowy-user/user_profile.pb.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 
 class SettingsDialog extends StatelessWidget {
   final UserProfilePB user;
@@ -33,9 +32,9 @@ class SettingsDialog extends StatelessWidget {
         create: (context) => getIt<SettingsDialogBloc>(param1: user)
           ..add(const SettingsDialogEvent.initial()),
         child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
-            builder: (context, state) => ChangeNotifierProvider.value(
-                  value: Provider.of<AppearanceSetting>(context, listen: true),
-                  child: FlowyDialog(
+            builder: (context, state) =>
+                BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+                  builder: (context, state) => FlowyDialog(
                     title: FlowyText(
                       LocaleKeys.settings_title.tr(),
                       fontSize: 20,

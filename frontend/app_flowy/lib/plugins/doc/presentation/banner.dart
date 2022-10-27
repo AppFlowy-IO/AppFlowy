@@ -1,6 +1,6 @@
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/buttons/base_styled_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -17,7 +17,7 @@ class DocumentBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 60),
       child: Container(

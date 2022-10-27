@@ -1,9 +1,9 @@
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_cache.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/foundation.dart';
@@ -152,7 +152,7 @@ class _InsertButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return FlowyIconButton(
       tooltipText: LocaleKeys.tooltip_addNewRow.tr(),
       hoverColor: theme.hover,
@@ -184,7 +184,7 @@ class _MenuButtonState extends State<_MenuButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return FlowyIconButton(
       tooltipText: LocaleKeys.tooltip_openMenu.tr(),
       hoverColor: theme.hover,

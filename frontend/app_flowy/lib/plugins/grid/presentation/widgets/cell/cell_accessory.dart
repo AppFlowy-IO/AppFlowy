@@ -1,7 +1,7 @@
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flowy_infra/size.dart';
@@ -71,7 +71,7 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
     if (widget.isCellEditing) {
       return const SizedBox();
     } else {
-      final theme = context.watch<AppTheme>();
+      final theme = context.watch<AppearanceSettingsCubit>().state.theme;
       return Tooltip(
         message: LocaleKeys.tooltip_openAsPage.tr(),
         textStyle: TextStyles.caption.textColor(Colors.white),
@@ -184,7 +184,7 @@ class _Background extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return Consumer<AccessoryHoverState>(
       builder: (context, state, child) {
         if (state.onHover) {
@@ -207,7 +207,7 @@ class CellAccessoryContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final children =
         accessories.where((accessory) => accessory.enable()).map((accessory) {
       final hover = FlowyHover(

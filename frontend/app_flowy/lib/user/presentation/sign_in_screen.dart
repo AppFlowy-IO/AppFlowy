@@ -2,10 +2,10 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/user/application/sign_in_bloc.dart';
 import 'package:app_flowy/user/presentation/router.dart';
 import 'package:app_flowy/user/presentation/widgets/background.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
@@ -96,7 +96,7 @@ class SignUpPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -125,7 +125,7 @@ class LoginButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return RoundedTextButton(
       title: LocaleKeys.signIn_loginButtonText.tr(),
       height: 48,
@@ -150,7 +150,7 @@ class ForgetPasswordButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return TextButton(
       style: TextButton.styleFrom(
         textStyle: TextStyles.body1,
@@ -171,7 +171,7 @@ class PasswordTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocBuilder<SignInBloc, SignInState>(
       buildWhen: (previous, current) =>
           previous.passwordError != current.passwordError,
@@ -206,7 +206,7 @@ class EmailTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocBuilder<SignInBloc, SignInState>(
       buildWhen: (previous, current) =>
           previous.emailError != current.emailError,

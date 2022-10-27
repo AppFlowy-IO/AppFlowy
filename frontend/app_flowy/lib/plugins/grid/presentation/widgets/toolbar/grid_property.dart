@@ -3,6 +3,7 @@ import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_editor.
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/setting/property_bloc.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_extension.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -87,7 +88,7 @@ class _GridPropertyCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
 
     final checkmark = fieldContext.visibility
         ? svgWidget('home/show', color: theme.iconColor)

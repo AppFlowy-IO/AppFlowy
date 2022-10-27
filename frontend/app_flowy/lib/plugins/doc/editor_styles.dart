@@ -1,12 +1,12 @@
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 const _baseFontSize = 14.0;
 
 EditorStyle customEditorTheme(BuildContext context) {
-  final theme = context.watch<AppTheme>();
+  final theme = context.watch<AppearanceSettingsCubit>().state.theme;
 
   var editorStyle = theme.isDark ? EditorStyle.dark : EditorStyle.light;
   editorStyle = editorStyle.copyWith(
@@ -26,7 +26,8 @@ EditorStyle customEditorTheme(BuildContext context) {
 }
 
 Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
-  final theme = context.watch<AppTheme>();
+  final theme = context.watch<AppearanceSettingsCubit>().state.theme;
+
   const basePadding = 12.0;
   var headingPluginStyle =
       theme.isDark ? HeadingPluginStyle.dark : HeadingPluginStyle.light;

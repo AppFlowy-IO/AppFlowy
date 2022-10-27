@@ -1,8 +1,9 @@
 import 'dart:math';
 import 'dart:async';
 import 'package:async/async.dart';
+// ignore: depend_on_referenced_packages
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -83,7 +84,7 @@ class ScrollbarState extends State<StyledScrollbar> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return LayoutBuilder(
       builder: (_, BoxConstraints constraints) {
         double maxExtent;

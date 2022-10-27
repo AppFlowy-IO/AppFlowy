@@ -1,6 +1,7 @@
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/date_cal_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -113,7 +114,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocProvider.value(
       value: bloc,
       child: BlocBuilder<DateCalBloc, DateCalState>(
@@ -261,7 +262,7 @@ class _IncludeTimeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocSelector<DateCalBloc, DateCalState, bool>(
       selector: (state) => state.dateTypeOptionPB.includeTime,
       builder: (context, includeTime) {
@@ -338,7 +339,7 @@ class _TimeTextFieldState extends State<_TimeTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocConsumer<DateCalBloc, DateCalState>(
       listener: (context, state) {
         _controller.text = state.time ?? "";
@@ -388,7 +389,7 @@ class _DateTypeOptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final title =
         "${LocaleKeys.grid_field_dateFormat.tr()} &${LocaleKeys.grid_field_timeFormat.tr()}";
     return BlocSelector<DateCalBloc, DateCalState, DateTypeOptionPB>(

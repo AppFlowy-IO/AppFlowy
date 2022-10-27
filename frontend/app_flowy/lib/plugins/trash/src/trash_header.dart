@@ -1,5 +1,5 @@
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +11,8 @@ class TrashHeaderDelegate extends SliverPersistentHeaderDelegate {
   TrashHeaderDelegate();
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return TrashHeader();
   }
 
@@ -36,16 +37,22 @@ class TrashHeaderItem {
 
 class TrashHeader extends StatelessWidget {
   final List<TrashHeaderItem> items = [
-    TrashHeaderItem(title: LocaleKeys.trash_pageHeader_fileName.tr(), width: TrashSizes.fileNameWidth),
-    TrashHeaderItem(title: LocaleKeys.trash_pageHeader_lastModified.tr(), width: TrashSizes.lashModifyWidth),
-    TrashHeaderItem(title: LocaleKeys.trash_pageHeader_created.tr(), width: TrashSizes.createTimeWidth),
+    TrashHeaderItem(
+        title: LocaleKeys.trash_pageHeader_fileName.tr(),
+        width: TrashSizes.fileNameWidth),
+    TrashHeaderItem(
+        title: LocaleKeys.trash_pageHeader_lastModified.tr(),
+        width: TrashSizes.lashModifyWidth),
+    TrashHeaderItem(
+        title: LocaleKeys.trash_pageHeader_created.tr(),
+        width: TrashSizes.createTimeWidth),
   ];
 
   TrashHeader({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final headerItems = List<Widget>.empty(growable: true);
     items.asMap().forEach((index, item) {
       headerItems.add(

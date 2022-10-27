@@ -8,9 +8,8 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:flowy_infra/theme.dart';
 
 class MenuTrash extends StatelessWidget {
   const MenuTrash({Key? key}) : super(key: key);
@@ -31,26 +30,18 @@ class MenuTrash extends StatelessWidget {
   }
 
   Widget _render(BuildContext context) {
-    return Row(children: [
-      ChangeNotifierProvider.value(
-        value: Provider.of<AppearanceSetting>(context, listen: true),
-        child: Selector<AppearanceSetting, AppTheme>(
-          selector: (ctx, notifier) => notifier.theme,
-          builder: (ctx, theme, child) => SizedBox(
-              width: 16,
-              height: 16,
-              child: svgWidget("home/trash", color: theme.iconColor)),
-        ),
-      ),
-      const HSpace(6),
-      ChangeNotifierProvider.value(
-        value: Provider.of<AppearanceSetting>(context, listen: true),
-        child: Selector<AppearanceSetting, Locale>(
-          selector: (ctx, notifier) => notifier.locale,
-          builder: (ctx, _, child) =>
-              FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
-        ),
-      ),
-    ]);
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) {
+        return Row(children: [
+          SizedBox(
+            width: 16,
+            height: 16,
+            child: svgWidget("home/trash", color: state.theme.iconColor),
+          ),
+          const HSpace(6),
+          FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
+        ]);
+      },
+    );
   }
 }

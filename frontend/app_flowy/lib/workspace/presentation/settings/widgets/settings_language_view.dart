@@ -3,10 +3,9 @@ import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flowy_infra/language.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class SettingsLanguageView extends StatelessWidget {
@@ -14,10 +13,9 @@ class SettingsLanguageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<AppTheme>();
-    return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSetting>(context, listen: true),
-      child: SingleChildScrollView(
+    context.watch<AppearanceSettingsCubit>().state.theme;
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) => SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -64,9 +62,8 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     themedHoverColor = theme.main2;
-
     return MouseRegion(
       onEnter: (event) => {hoverEnterLanguage()},
       onExit: (event) => {hoverExitLanguage()},
@@ -77,30 +74,35 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
           color: currHoverColor,
         ),
         child: DropdownButtonHideUnderline(
-          child: DropdownButton<Locale>(
-            value: context.read<AppearanceSetting>().locale,
-            onChanged: (val) {
-              setState(() {
-                context.read<AppearanceSetting>().setLocale(context, val!);
-              });
-            },
-            icon: const Visibility(
-              visible: false,
-              child: (Icon(Icons.arrow_downward)),
-            ),
-            borderRadius: BorderRadius.circular(8),
-            items: EasyLocalization.of(context)!.supportedLocales.map((locale) {
-              return DropdownMenuItem<Locale>(
-                value: locale,
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    languageFromLocale(locale),
-                    style: TextStyles.body1.size(FontSizes.s14),
+          child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+            builder: (context, state) => DropdownButton<Locale>(
+              value: state.locale,
+              onChanged: (val) {
+                setState(() {
+                  context
+                      .read<AppearanceSettingsCubit>()
+                      .setLocale(context, val!);
+                });
+              },
+              icon: const Visibility(
+                visible: false,
+                child: (Icon(Icons.arrow_downward)),
+              ),
+              borderRadius: BorderRadius.circular(8),
+              items:
+                  EasyLocalization.of(context)!.supportedLocales.map((locale) {
+                return DropdownMenuItem<Locale>(
+                  value: locale,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Text(
+                      languageFromLocale(locale),
+                      style: TextStyles.body1.size(FontSizes.s14),
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),

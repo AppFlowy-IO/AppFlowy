@@ -1,8 +1,8 @@
 import 'dart:collection';
 
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +65,7 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
 
     return TextFieldTags(
       textEditingController: controller,

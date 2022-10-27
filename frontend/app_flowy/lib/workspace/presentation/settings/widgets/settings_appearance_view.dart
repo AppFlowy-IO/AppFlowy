@@ -16,7 +16,7 @@ class SettingsAppearanceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
 
     return SingleChildScrollView(
       child: Column(
@@ -45,11 +45,11 @@ class SettingsAppearanceView extends StatelessWidget {
   }
 
   void setTheme(BuildContext context) {
-    final theme = context.read<AppTheme>();
+    final theme = context.read<AppearanceSettingsCubit>().state.theme;
     if (theme.isDark) {
-      context.read<AppearanceSetting>().setTheme(ThemeType.light);
+      context.read<AppearanceSettingsCubit>().setTheme(ThemeType.light);
     } else {
-      context.read<AppearanceSetting>().setTheme(ThemeType.dark);
+      context.read<AppearanceSettingsCubit>().setTheme(ThemeType.dark);
     }
   }
 }

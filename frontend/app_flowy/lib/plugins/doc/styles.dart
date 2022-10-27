@@ -1,14 +1,14 @@
 import 'package:app_flowy/plugins/doc/presentation/style_widgets.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
-import 'package:flowy_infra/theme.dart';
 
 DefaultStyles customStyles(BuildContext context) {
   const baseSpacing = Tuple2<double, double>(6, 0);
 
-  final theme = context.watch<AppTheme>();
+  final theme = context.watch<AppearanceSettingsCubit>().state.theme;
   final themeData = theme.themeData;
   final fontFamily = makeFontFamily(themeData);
 

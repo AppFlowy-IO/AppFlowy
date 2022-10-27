@@ -13,7 +13,6 @@ import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_board/appflowy_board.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -22,7 +21,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid/block_entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 import '../../grid/application/row/row_cache.dart';
 import '../application/board_bloc.dart';
 import 'card/card.dart';
@@ -102,26 +100,22 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   Widget _buildBoard(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: Provider.of<AppearanceSetting>(context, listen: true),
-      child: Selector<AppearanceSetting, AppTheme>(
-        selector: (ctx, notifier) => notifier.theme,
-        builder: (ctx, theme, child) => Expanded(
-          child: AppFlowyBoard(
-            boardScrollController: scrollManager,
-            scrollController: ScrollController(),
-            controller: context.read<BoardBloc>().boardController,
-            headerBuilder: _buildHeader,
-            footerBuilder: _buildFooter,
-            cardBuilder: (_, column, columnItem) => _buildCard(
-              context,
-              column,
-              columnItem,
-            ),
-            groupConstraints: const BoxConstraints.tightFor(width: 300),
-            config: AppFlowyBoardConfig(
-              groupBackgroundColor: theme.bg1,
-            ),
+    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+      builder: (context, state) => Expanded(
+        child: AppFlowyBoard(
+          boardScrollController: scrollManager,
+          scrollController: ScrollController(),
+          controller: context.read<BoardBloc>().boardController,
+          headerBuilder: _buildHeader,
+          footerBuilder: _buildFooter,
+          cardBuilder: (_, column, columnItem) => _buildCard(
+            context,
+            column,
+            columnItem,
+          ),
+          groupConstraints: const BoxConstraints.tightFor(width: 300),
+          config: AppFlowyBoardConfig(
+            groupBackgroundColor: state.theme.bg1,
           ),
         ),
       ),
@@ -159,7 +153,7 @@ class _BoardContentState extends State<BoardContent> {
           groupData.headerData.groupName,
           fontSize: 14,
           overflow: TextOverflow.clip,
-          color: context.read<AppTheme>().textColor,
+          color: context.watch<AppearanceSettingsCubit>().state.theme.textColor,
         ),
       ),
       icon: _buildHeaderIcon(boardCustomData),
@@ -168,7 +162,7 @@ class _BoardContentState extends State<BoardContent> {
         width: 20,
         child: svgWidget(
           "home/add",
-          color: context.read<AppTheme>().iconColor,
+          color: context.watch<AppearanceSettingsCubit>().state.theme.iconColor,
         ),
       ),
       onAddButtonClick: () {
@@ -191,13 +185,13 @@ class _BoardContentState extends State<BoardContent> {
         width: 20,
         child: svgWidget(
           "home/add",
-          color: context.read<AppTheme>().iconColor,
+          color: context.watch<AppearanceSettingsCubit>().state.theme.iconColor,
         ),
       ),
       title: FlowyText.medium(
         LocaleKeys.board_column_create_new_card.tr(),
         fontSize: 14,
-        color: context.read<AppTheme>().textColor,
+        color: context.watch<AppearanceSettingsCubit>().state.theme.textColor,
       ),
       height: 50,
       margin: config.footerPadding,
@@ -276,7 +270,7 @@ class _BoardContentState extends State<BoardContent> {
   }
 
   BoxDecoration _makeBoxDecoration(BuildContext context) {
-    final theme = context.read<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final borderSide = BorderSide(color: theme.shader6, width: 1.0);
     return BoxDecoration(
       color: theme.surface,
@@ -329,14 +323,9 @@ class _ToolbarBlocAdaptor extends StatelessWidget {
           fieldController: bloc.fieldController,
         );
 
-        return ChangeNotifierProvider.value(
-          value: Provider.of<AppearanceSetting>(context, listen: true),
-          child: Selector<AppearanceSetting, AppTheme>(
-            selector: (ctx, notifier) => notifier.theme,
-            builder: (ctx, theme, child) {
-              return BoardToolbar(toolbarContext: toolbarContext);
-            },
-          ),
+        return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+          builder: (context, state) =>
+              BoardToolbar(toolbarContext: toolbarContext),
         );
       },
     );

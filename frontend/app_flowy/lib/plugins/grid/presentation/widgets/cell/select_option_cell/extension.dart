@@ -1,4 +1,4 @@
-import 'package:flowy_infra/theme.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
@@ -9,7 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 extension SelectOptionColorExtension on SelectOptionColorPB {
   Color make(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     switch (this) {
       case SelectOptionColorPB.Purple:
         return theme.tint1;
@@ -118,7 +118,7 @@ class SelectOptionTagCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return Stack(
       fit: StackFit.expand,
       children: [

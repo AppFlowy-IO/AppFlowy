@@ -16,7 +16,6 @@ import 'package:clipboard/clipboard.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_button.dart';
 import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
@@ -24,7 +23,6 @@ import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/entities.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:provider/provider.dart';
 
 import 'document_page.dart';
 
@@ -130,18 +128,15 @@ class DocumentShareButton extends StatelessWidget {
         },
         child: BlocBuilder<DocShareBloc, DocShareState>(
           builder: (context, state) {
-            return ChangeNotifierProvider.value(
-              value: Provider.of<AppearanceSetting>(context, listen: true),
-              child: Selector<AppearanceSetting, Locale>(
-                selector: (ctx, notifier) => notifier.locale,
-                builder: (ctx, _, child) => ConstrainedBox(
-                  constraints: const BoxConstraints.expand(
-                    height: 30,
-                    width: 100,
-                  ),
-                  child: ShareActionList(
-                    view: view,
-                  ),
+            return BlocBuilder<AppearanceSettingsCubit,
+                AppearanceSettingsState>(
+              builder: (ctx, st) => ConstrainedBox(
+                constraints: const BoxConstraints.expand(
+                  height: 30,
+                  width: 100,
+                ),
+                child: ShareActionList(
+                  view: view,
                 ),
               ),
             );
@@ -177,7 +172,7 @@ class ShareActionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final docShareBloc = context.read<DocShareBloc>();
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,

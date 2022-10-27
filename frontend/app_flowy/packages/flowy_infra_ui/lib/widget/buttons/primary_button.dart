@@ -1,8 +1,9 @@
+// ignore: depend_on_referenced_packages
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'base_styled_button.dart';
 
 class PrimaryTextButton extends StatelessWidget {
@@ -16,7 +17,7 @@ class PrimaryTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return PrimaryButton(
       bigMode: bigMode,
       onPressed: onPressed,
@@ -39,7 +40,7 @@ class PrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BaseStyledButton(
       minWidth: bigMode ? 100 : 80,
       minHeight: bigMode ? 40 : 38,

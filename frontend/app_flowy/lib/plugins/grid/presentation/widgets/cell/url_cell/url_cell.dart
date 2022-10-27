@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/grid/application/cell/url_cell_bloc.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -114,7 +114,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<URLCellBloc, URLCellState>(
@@ -216,7 +216,7 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
@@ -251,7 +251,7 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
     with GridCellAccessoryState {
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return svgWidget("editor/copy", color: theme.iconColor);
   }
 

@@ -2,6 +2,7 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/trash/src/sizes.dart';
 import 'package:app_flowy/plugins/trash/src/trash_header.dart';
 import 'package:app_flowy/startup/startup.dart';
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/theme.dart';
@@ -29,7 +30,7 @@ class _TrashPageState extends State<TrashPage> {
   final ScrollController _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     const horizontalPadding = 80.0;
     return BlocProvider(
       create: (context) => getIt<TrashBloc>()..add(const TrashEvent.initial()),

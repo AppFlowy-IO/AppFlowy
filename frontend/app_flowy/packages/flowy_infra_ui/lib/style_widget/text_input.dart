@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:math' as math;
+// ignore: depend_on_referenced_packages
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -184,7 +185,7 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return Container(
       padding: EdgeInsets.symmetric(vertical: Insets.sm),
       child: TextFormField(

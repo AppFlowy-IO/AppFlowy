@@ -87,9 +87,9 @@ class _MenuAppState extends State<MenuApp> {
                 iconPadding: EdgeInsets.zero,
                 hasIcon: false,
               ),
-              header: ChangeNotifierProvider.value(
-                value: Provider.of<AppearanceSetting>(context, listen: true),
-                child: MenuAppHeader(widget.app),
+              header:
+                  BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
+                builder: (context, state) => MenuAppHeader(widget.app),
               ),
               expanded: ViewSection(appViewData: viewDataContext),
               collapsed: const SizedBox(),

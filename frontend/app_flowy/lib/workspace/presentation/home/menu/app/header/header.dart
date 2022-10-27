@@ -1,3 +1,4 @@
+import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -28,7 +29,7 @@ class MenuAppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return SizedBox(
       height: MenuAppSizes.headerHeight,
       child: Row(
@@ -153,7 +154,7 @@ class AppActionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
+    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return PopoverActionList<DisclosureActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: AppDisclosureAction.values
