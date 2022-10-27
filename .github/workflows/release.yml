@@ -37,6 +37,7 @@ jobs:
     env:
       LINUX_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/linux/Release
       LINUX_ZIP_NAME: AppFlowy-linux-x86.tar.gz
+      LINUX_PACKAGE_NAME: AppFlowy-linux-x86_${{ github.ref_name }}.deb
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -70,6 +71,42 @@ jobs:
           flutter config --enable-linux-desktop
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86_64 appflowy
 
+      - name: Build Linux package
+        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
+        run: |
+          mkdir -p package/opt && mv AppFlowy package/opt/
+          cd package && mkdir DEBIAN
+          printf 'Package: AppFlowy
+                  Version: %s
+                  Architecture: all
+                  Essential: no
+                  Priority: optional
+                  Maintainer: AppFlowy
+                  Description: An Open Source Alternative to Notion\n
+                  ' "${{ github.ref_name }}" > DEBIAN/control
+          printf '#!/bin/bash
+
+                  set -e 
+
+                  # Create a link in /usr/bin for quick access using terminal
+                  ln -s /opt/AppFlowy/app_flowy /usr/bin/appflowy
+
+                  # Update icon & executable path in desktop entry
+                  grep -rl "\[CHANGE_THIS\]" /opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
+
+                  # Add shortcut in applications drawer
+                  mv /opt/AppFlowy/appflowy.desktop.temp /usr/share/applications/appflowy.desktop' > DEBIAN/postinst
+          printf '#!/bin/bash
+
+                  set -e
+
+                  # Remove symbolic link from /usr/bin
+                  rm /usr/bin/appflowy
+
+                  # Remove Desktop entry
+                  rm /usr/share/applications/appflowy.desktop' > DEBIAN/postrm
+          cd ${{ env.LINUX_APP_RELEASE_PATH }} && dpkg-deb --build package ${{ env.LINUX_PACKAGE_NAME }}
+
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -79,6 +116,17 @@ jobs:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_ZIP_NAME }}
           asset_name: ${{ env.LINUX_ZIP_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset Install Package
+        id: upload-release-asset-install-package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_NAME }}
+          asset_name: ${{ env.LINUX_PACKAGE_NAME }}
           asset_content_type: application/octet-stream
 
   build-macos-x86_64:
