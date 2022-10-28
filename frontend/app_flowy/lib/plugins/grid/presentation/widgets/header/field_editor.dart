@@ -1,7 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/field_editor_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show none;
 import 'package:easy_localization/easy_localization.dart';
@@ -166,7 +165,6 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return MultiBlocListener(
       listeners: [
         BlocListener<FieldEditorBloc, FieldEditorState>(
@@ -193,10 +191,6 @@ class _FieldNameTextFieldState extends State<_FieldNameTextField> {
               fontSize: 13,
             ),
             controller: controller,
-            normalBorderColor: theme.shader4,
-            errorBorderColor: theme.red,
-            focusBorderColor: theme.main1,
-            cursorColor: theme.main1,
             errorText: context.read<FieldEditorBloc>().state.errorText,
             onChanged: (newName) {
               context
@@ -222,7 +216,6 @@ class _DeleteFieldButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocBuilder<FieldEditorBloc, FieldEditorState>(
       buildWhen: (previous, current) => previous != current,
       builder: (context, state) {
@@ -231,10 +224,10 @@ class _DeleteFieldButton extends StatelessWidget {
           text: FlowyText.medium(
             LocaleKeys.grid_field_delete.tr(),
             fontSize: 12,
-            color: enable ? null : theme.shader4,
+            color: enable ? null : Theme.of(context).disabledColor,
           ),
           onTap: () => onDeleted?.call(),
-          hoverColor: theme.hover,
+          hoverColor: Theme.of(context).colorScheme.secondary,
           onHover: (_) => popoverMutex.close(),
         );
         return SizedBox(height: 36, child: button);

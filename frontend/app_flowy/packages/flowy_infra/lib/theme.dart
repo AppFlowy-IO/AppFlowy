@@ -63,7 +63,7 @@ class AppTheme {
   late Color main1;
   late Color main2;
 
-  late Color shadowColor;
+  late Color shadow;
 
   /// Default constructor
   AppTheme({this.brightness = Brightness.light});
@@ -107,7 +107,7 @@ class AppTheme {
           ..main2 = const Color(0xff00b7ea)
           ..textColor = _black
           ..iconColor = _black
-          ..shadowColor = _black
+          ..shadow = _black
           ..disableIconColor = const Color(0xffbdbdbd);
 
       case Brightness.dark:
@@ -142,33 +142,44 @@ class AppTheme {
           ..main2 = const Color(0xff009cc7)
           ..textColor = _white
           ..iconColor = _white
-          ..shadowColor = _white
+          ..shadow = _black
           ..disableIconColor = const Color(0xff333333);
     }
   }
 
   ThemeData get themeData {
     var t = ThemeData(
-      textTheme: TextTheme(bodyText2: TextStyle(color: textColor)),
+      brightness: brightness,
+      textTheme: TextTheme(bodyText2: TextStyle(color: shader1)),
       textSelectionTheme: TextSelectionThemeData(
           cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
       iconTheme: IconThemeData(color: shader1),
       canvasColor: shader6,
+      dividerColor: shader6,
+      hintColor: shader3,
+      disabledColor: shader4,
       //Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
       // hoverColor: main2,
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: main1,
-        secondary: main2,
+        onPrimary: shader7,
+        primaryContainer: main2,
+        onPrimaryContainer: shader7,
+        secondary: hover,
+        onSecondary: shader1,
+        secondaryContainer: selector,
+        onSecondaryContainer: shader1,
         background: surface,
+        onBackground: shader1,
         surface: surface,
-        onBackground: surface,
-        onSurface: surface,
-        onError: red,
-        onPrimary: bg1,
-        onSecondary: bg1,
+        onSurface: shader1,
+        onError: shader7,
         error: red,
+        outline: shader4,
+        surfaceVariant: bg1,
+        shadow: shadow,
       ),
       extensions: [
         CustomColors(

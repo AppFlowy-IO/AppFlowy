@@ -1,7 +1,7 @@
 import 'package:app_flowy/plugins/grid/application/field/field_cell_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/field_service.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
@@ -91,8 +91,10 @@ class _GridHeaderCellContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-    final borderSide = BorderSide(color: theme.shader5, width: 1.0);
+    final borderSide = BorderSide(
+      color: Theme.of(context).dividerColor,
+      width: 1.0,
+    );
     final decoration = BoxDecoration(
         border: Border(
       top: borderSide,
@@ -116,8 +118,6 @@ class _DragToExpandLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return InkWell(
       onTap: () {},
       child: GestureDetector(
@@ -136,7 +136,7 @@ class _DragToExpandLine extends StatelessWidget {
         child: FlowyHover(
           cursor: SystemMouseCursors.resizeLeftRight,
           style: HoverStyle(
-            hoverColor: theme.main1,
+            hoverColor: Theme.of(context).colorScheme.primary,
             borderRadius: BorderRadius.zero,
             contentMargin: const EdgeInsets.only(left: 6),
           ),
@@ -160,17 +160,18 @@ class FieldCellButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     // Using this technique to have proper text ellipsis
     // https://github.com/flutter/flutter/issues/18761#issuecomment-812390920
     final text = Characters(field.name)
         .replaceAll(Characters(''), Characters('\u{200B}'))
         .toString();
     return FlowyButton(
-      hoverColor: theme.shader6,
+      hoverColor: Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
       onTap: onTap,
-      leftIcon: svgWidget(field.fieldType.iconName(), color: theme.iconColor),
+      leftIcon: svgWidget(
+        field.fieldType.iconName(),
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
       text: FlowyText.medium(
         text,
         fontSize: 12,

@@ -1,10 +1,9 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'toolbar_icon_button.dart';
 
@@ -50,25 +49,23 @@ class FlowyLinkStyleButtonState extends State<FlowyLinkStyleButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final isEnabled = !widget.controller.selection.isCollapsed;
     final pressedHandler = isEnabled ? () => _openLinkDialog(context) : null;
     final icon = isEnabled
         ? svgWidget(
             'editor/share',
-            color: theme.iconColor,
+            color: Theme.of(context).colorScheme.onSurface,
           )
         : svgWidget(
             'editor/share',
-            color: theme.disableIconColor,
+            color: Theme.of(context).disabledColor,
           );
 
     return FlowyIconButton(
       onPressed: pressedHandler,
       iconPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       icon: icon,
-      fillColor: theme.shader6,
-      hoverColor: theme.shader5,
+      fillColor: Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
       width: widget.iconSize * kIconButtonFactor,
     );
   }

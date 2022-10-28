@@ -1,14 +1,12 @@
 import 'dart:io';
 
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/home/home_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/notifier.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
@@ -62,8 +60,6 @@ class FlowyNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return ChangeNotifierProxyProvider<HomeStackNotifier, NavigationNotifier>(
       create: (_) {
         final notifier = Provider.of<HomeStackNotifier>(context, listen: false);
@@ -78,7 +74,7 @@ class FlowyNavigation extends StatelessWidget {
           Selector<NavigationNotifier, PublishNotifier<bool>>(
               selector: (context, notifier) => notifier.collapasedNotifier,
               builder: (ctx, collapsedNotifier, child) =>
-                  _renderCollapse(ctx, collapsedNotifier, theme)),
+                  _renderCollapse(ctx, collapsedNotifier)),
           Selector<NavigationNotifier, List<NavigationItem>>(
             selector: (context, notifier) => notifier.navigationItems,
             builder: (ctx, items, child) => Expanded(
@@ -93,8 +89,8 @@ class FlowyNavigation extends StatelessWidget {
     );
   }
 
-  Widget _renderCollapse(BuildContext context,
-      PublishNotifier<bool> collapsedNotifier, AppTheme theme) {
+  Widget _renderCollapse(
+      BuildContext context, PublishNotifier<bool> collapsedNotifier) {
     return ChangeNotifierProvider.value(
       value: collapsedNotifier,
       child: Consumer(
@@ -111,7 +107,10 @@ class FlowyNavigation extends StatelessWidget {
                       ctx.read<HomeBloc>().add(const HomeEvent.collapseMenu());
                     },
                     iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-                    icon: svgWidget("home/hide_menu", color: theme.iconColor),
+                    icon: svgWidget(
+                      "home/hide_menu",
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   )),
             );
           } else {

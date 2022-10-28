@@ -1,4 +1,3 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -6,7 +5,6 @@ import 'package:flowy_infra_ui/widget/buttons/primary_button.dart';
 import 'package:flowy_infra_ui/widget/buttons/secondary_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:app_flowy/startup/tasks/app_widget.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text_input.dart';
@@ -43,13 +41,13 @@ class _CreateTextFieldDialog extends State<NavigatorTextFieldDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return StyledDialog(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           ...[
-            FlowyText.medium(widget.title, color: theme.shader4),
+            FlowyText.medium(widget.title,
+                color: Theme.of(context).disabledColor),
             VSpace(Insets.sm * 1.5),
           ],
           FlowyFormTextInput(
@@ -111,14 +109,16 @@ class _CreateFlowyAlertDialog extends State<NavigatorAlertDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return StyledDialog(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           ...[
-            FlowyText.medium(widget.title, color: theme.shader4),
+            FlowyText.medium(
+              widget.title,
+              color: Theme.of(context).disabledColor,
+            ),
           ],
           if (widget.confirm != null) ...[
             const VSpace(20),
@@ -158,16 +158,16 @@ class NavigatorOkCancelDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return StyledDialog(
       maxWidth: maxWidth ?? 500,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           if (title != null) ...[
-            FlowyText.medium(title!.toUpperCase(), color: theme.shader1),
+            FlowyText.medium(title!.toUpperCase()),
             VSpace(Insets.sm * 1.5),
-            Container(color: theme.bg1, height: 1),
+            Container(
+                color: Theme.of(context).colorScheme.surfaceVariant, height: 1),
             VSpace(Insets.m * 1.5),
           ],
           FlowyText.medium(message, fontSize: FontSizes.s12),

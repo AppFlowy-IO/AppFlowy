@@ -1,10 +1,7 @@
-// ignore: depend_on_referenced_packages
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flowy_infra_ui/style_widget/decoration.dart';
-import 'package:provider/provider.dart';
 
 class AppFlowyPopover extends StatelessWidget {
   final Widget child;
@@ -70,10 +67,9 @@ class _PopoverContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final decoration = FlowyDecoration.decoration(
-      theme.surface,
-      theme.shadowColor.withOpacity(0.15),
+      Theme.of(context).colorScheme.surface,
+      Theme.of(context).colorScheme.shadow.withOpacity(0.15),
     );
 
     return Material(

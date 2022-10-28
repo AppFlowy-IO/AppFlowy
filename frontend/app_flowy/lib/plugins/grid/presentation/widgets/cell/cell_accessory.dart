@@ -1,4 +1,4 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
@@ -71,13 +71,12 @@ class _PrimaryCellAccessoryState extends State<PrimaryCellAccessory>
     if (widget.isCellEditing) {
       return const SizedBox();
     } else {
-      final theme = context.watch<AppearanceSettingsCubit>().state.theme;
       return Tooltip(
         message: LocaleKeys.tooltip_openAsPage.tr(),
         textStyle: TextStyles.caption.textColor(Colors.white),
         child: svgWidget(
           "grid/expander",
-          color: theme.main1,
+          color: Theme.of(context).colorScheme.primary,
         ),
       );
     }
@@ -184,13 +183,15 @@ class _Background extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return Consumer<AccessoryHoverState>(
       builder: (context, state, child) {
         if (state.onHover) {
           return FlowyHoverContainer(
             style: HoverStyle(
-                borderRadius: Corners.s6Border, hoverColor: theme.shader6),
+              borderRadius: Corners.s6Border,
+              hoverColor:
+                  Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
+            ),
           );
         } else {
           return const SizedBox();
@@ -207,12 +208,12 @@ class CellAccessoryContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final children =
         accessories.where((accessory) => accessory.enable()).map((accessory) {
       final hover = FlowyHover(
-        style:
-            HoverStyle(hoverColor: theme.bg3, backgroundColor: theme.surface),
+        style: HoverStyle(
+            hoverColor:
+                Theme.of(context).extension<CustomColors>()!.lightGreyHover!),
         builder: (_, onHover) => Container(
           width: 26,
           height: 26,

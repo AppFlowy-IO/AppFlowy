@@ -2,10 +2,9 @@ import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_servic
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_detail_bloc.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
@@ -84,14 +83,16 @@ class _CloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return FlowyIconButton(
       width: 24,
       onPressed: () {
         FlowyOverlay.pop(context);
       },
       iconPadding: const EdgeInsets.fromLTRB(2, 2, 2, 2),
-      icon: svgWidget("home/close", color: theme.iconColor),
+      icon: svgWidget(
+        "home/close",
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
     );
   }
 }
@@ -188,8 +189,6 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(240, 200)),
       controller: popoverController,
@@ -203,7 +202,8 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
             LocaleKeys.grid_field_newColumn.tr(),
             fontSize: 12,
           ),
-          hoverColor: theme.shader6,
+          hoverColor:
+              Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
           onTap: () {},
           leftIcon: svgWidget("home/add"),
         ),
@@ -230,10 +230,10 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
   }
 
   BoxDecoration _makeBoxDecoration(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-    final borderSide = BorderSide(color: theme.shader6, width: 1.0);
+    final borderSide =
+        BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
     return BoxDecoration(
-      color: theme.surface,
+      color: Theme.of(context).colorScheme.surface,
       border: Border(top: borderSide),
     );
   }
@@ -257,8 +257,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-    final style = _customCellStyle(theme, widget.cellId.fieldType);
+    final style = _customCellStyle(widget.cellId.fieldType);
     final cell = widget.cellBuilder.build(widget.cellId, style: style);
 
     final gesture = GestureDetector(
@@ -324,7 +323,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
   }
 }
 
-GridCellStyle? _customCellStyle(AppTheme theme, FieldType fieldType) {
+GridCellStyle? _customCellStyle(FieldType fieldType) {
   switch (fieldType) {
     case FieldType.Checkbox:
       return null;

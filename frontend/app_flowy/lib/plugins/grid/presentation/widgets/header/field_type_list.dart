@@ -1,4 +1,3 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -10,7 +9,6 @@ import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter/material.dart';
 import '../../layout/sizes.dart';
 import 'field_type_extension.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef SelectFieldCallback = void Function(FieldType);
 
@@ -60,15 +58,16 @@ class FieldTypeCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(fieldType.title(), fontSize: 12),
-        hoverColor: theme.hover,
+        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: () => onSelectField(fieldType),
-        leftIcon: svgWidget(fieldType.iconName(), color: theme.iconColor),
+        leftIcon: svgWidget(
+          fieldType.iconName(),
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }

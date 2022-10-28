@@ -1,14 +1,10 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 const _baseFontSize = 14.0;
 
 EditorStyle customEditorTheme(BuildContext context) {
-  final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
-  var editorStyle = theme.brightness == Brightness.dark
+  var editorStyle = Theme.of(context).brightness == Brightness.dark
       ? EditorStyle.dark
       : EditorStyle.light;
   editorStyle = editorStyle.copyWith(
@@ -28,10 +24,8 @@ EditorStyle customEditorTheme(BuildContext context) {
 }
 
 Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
-  final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
   const basePadding = 12.0;
-  var headingPluginStyle = theme.brightness == Brightness.dark
+  var headingPluginStyle = Theme.of(context).brightness == Brightness.dark
       ? HeadingPluginStyle.dark
       : HeadingPluginStyle.light;
   headingPluginStyle = headingPluginStyle.copyWith(
@@ -61,7 +55,7 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
       return EdgeInsets.only(bottom: padding);
     },
   );
-  final pluginTheme = theme.brightness == Brightness.dark
+  final pluginTheme = Theme.of(context).brightness == Brightness.dark
       ? darkPlguinStyleExtension
       : lightPlguinStyleExtension;
   return pluginTheme.toList()

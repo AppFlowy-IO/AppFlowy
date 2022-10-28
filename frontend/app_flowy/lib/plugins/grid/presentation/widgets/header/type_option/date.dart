@@ -120,17 +120,19 @@ class DateFormatButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr(),
             fontSize: 12),
         margin: GridSize.typeOptionContentInsets,
-        hoverColor: theme.hover,
+        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: onTap,
         onHover: onHover,
-        rightIcon: svgWidget("grid/more", color: theme.iconColor),
+        rightIcon: svgWidget(
+          "grid/more",
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }
@@ -146,17 +148,19 @@ class TimeFormatButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr(),
             fontSize: 12),
         margin: GridSize.typeOptionContentInsets,
-        hoverColor: theme.hover,
+        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: onTap,
         onHover: onHover,
-        rightIcon: svgWidget("grid/more", color: theme.iconColor),
+        rightIcon: svgWidget(
+          "grid/more",
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }
@@ -246,7 +250,6 @@ class DateFormatCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     Widget? checkmark;
     if (isSelected) {
       checkmark = svgWidget("grid/checkmark");
@@ -256,7 +259,7 @@ class DateFormatCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(dateFormat.title(), fontSize: 12),
-        hoverColor: theme.hover,
+        hoverColor: Theme.of(context).colorScheme.secondary,
         rightIcon: checkmark,
         onTap: () => onSelected(dateFormat),
       ),
@@ -330,7 +333,6 @@ class TimeFormatCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     Widget? checkmark;
     if (isSelected) {
       checkmark = svgWidget("grid/checkmark");
@@ -340,7 +342,7 @@ class TimeFormatCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(timeFormat.title(), fontSize: 12),
-        hoverColor: theme.hover,
+        hoverColor: Theme.of(context).colorScheme.secondary,
         rightIcon: checkmark,
         onTap: () => onSelected(timeFormat),
       ),

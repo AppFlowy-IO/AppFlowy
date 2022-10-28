@@ -1,8 +1,7 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 const double defaultIconSize = 18;
 
@@ -24,16 +23,19 @@ class ToolbarIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
+    final colorScheme = Theme.of(context).colorScheme;
     return FlowyIconButton(
       iconPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       onPressed: onPressed,
       width: width,
       icon: isToggled == true
           ? svgWidget(iconName, color: Colors.white)
-          : svgWidget(iconName, color: theme.iconColor),
-      fillColor: isToggled == true ? theme.main1 : theme.shader6,
-      hoverColor: isToggled == true ? theme.main1 : theme.hover,
+          : svgWidget(iconName, color: Theme.of(context).colorScheme.onSurface),
+      fillColor: isToggled == true
+          ? colorScheme.primary
+          : Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
+      hoverColor:
+          isToggled == true ? colorScheme.primary : colorScheme.secondary,
       tooltipText: tooltipText,
     );
   }

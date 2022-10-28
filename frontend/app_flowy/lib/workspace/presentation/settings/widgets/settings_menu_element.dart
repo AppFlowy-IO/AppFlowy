@@ -1,8 +1,6 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsMenuElement extends StatelessWidget {
   const SettingsMenuElement({
@@ -22,19 +20,21 @@ class SettingsMenuElement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return ListTile(
       leading: Icon(
         icon,
         size: 16,
-        color: index == currentIndex ? Colors.black : theme.textColor,
+        color: index == currentIndex
+            ? Theme.of(context).colorScheme.onSurface
+            : Theme.of(context).colorScheme.onSurface,
       ),
       onTap: () {
         changeSelectedIndex(index);
       },
       selected: index == currentIndex,
-      selectedColor: Colors.black,
-      selectedTileColor: theme.main2,
+      selectedColor: Theme.of(context).colorScheme.onSurface,
+      selectedTileColor: Theme.of(context).colorScheme.primaryContainer,
+      hoverColor: Theme.of(context).colorScheme.primary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5),
       ),

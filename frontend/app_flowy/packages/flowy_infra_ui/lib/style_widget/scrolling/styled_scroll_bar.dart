@@ -1,12 +1,10 @@
 import 'dart:math';
 import 'dart:async';
 import 'package:async/async.dart';
-// ignore: depend_on_referenced_packages
-import 'package:app_flowy/workspace/application/appearance.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class StyledScrollbar extends StatefulWidget {
@@ -84,7 +82,6 @@ class ScrollbarState extends State<StyledScrollbar> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return LayoutBuilder(
       builder: (_, BoxConstraints constraints) {
         double maxExtent;
@@ -140,14 +137,23 @@ class ScrollbarState extends State<StyledScrollbar> {
 
         // Handle color
         var handleColor = widget.handleColor ??
-            (theme.brightness == Brightness.dark
-                ? theme.bg2.withOpacity(.2)
-                : theme.bg2);
+            (Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context)
+                    .extension<CustomColors>()!
+                    .greyHover!
+                    .withOpacity(.2)
+                : Theme.of(context).extension<CustomColors>()!.greyHover!);
         // Track color
         var trackColor = widget.trackColor ??
-            (theme.brightness == Brightness.dark
-                ? theme.bg2.withOpacity(.1)
-                : theme.bg2.withOpacity(.3));
+            (Theme.of(context).brightness == Brightness.dark
+                ? Theme.of(context)
+                    .extension<CustomColors>()!
+                    .greyHover!
+                    .withOpacity(.1)
+                : Theme.of(context)
+                    .extension<CustomColors>()!
+                    .greyHover!
+                    .withOpacity(.3));
 
         //Layout the stack, it just contains a child, and
         return Stack(children: <Widget>[

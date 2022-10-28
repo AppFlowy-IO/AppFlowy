@@ -11,9 +11,9 @@ class RoundedInputField extends StatefulWidget {
   final bool obscureText;
   final Widget? obscureIcon;
   final Widget? obscureHideIcon;
-  final Color normalBorderColor;
-  final Color errorBorderColor;
-  final Color cursorColor;
+  final Color? normalBorderColor;
+  final Color? errorBorderColor;
+  final Color? cursorColor;
   final Color? focusBorderColor;
   final String errorText;
   final TextStyle style;
@@ -39,10 +39,10 @@ class RoundedInputField extends StatefulWidget {
     this.obscureHideIcon,
     this.onChanged,
     this.onEditingComplete,
-    this.normalBorderColor = Colors.transparent,
-    this.errorBorderColor = Colors.transparent,
+    this.normalBorderColor,
+    this.errorBorderColor,
     this.focusBorderColor,
-    this.cursorColor = Colors.black,
+    this.cursorColor,
     this.style = const TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
     this.margin = EdgeInsets.zero,
     this.padding = EdgeInsets.zero,
@@ -76,11 +76,13 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
 
   @override
   Widget build(BuildContext context) {
-    var borderColor = widget.normalBorderColor;
-    var focusBorderColor = widget.focusBorderColor ?? borderColor;
+    var borderColor =
+        widget.normalBorderColor ?? Theme.of(context).colorScheme.outline;
+    var focusBorderColor =
+        widget.focusBorderColor ?? Theme.of(context).colorScheme.primary;
 
     if (widget.errorText.isNotEmpty) {
-      borderColor = widget.errorBorderColor;
+      borderColor = Theme.of(context).colorScheme.error;
       focusBorderColor = borderColor;
     }
 
@@ -109,13 +111,14 @@ class _RoundedInputFieldState extends State<RoundedInputField> {
               widget.onEditingComplete!(inputText);
             }
           },
-          cursorColor: widget.cursorColor,
+          cursorColor:
+              widget.cursorColor ?? Theme.of(context).colorScheme.primary,
           obscureText: obscuteText,
           style: widget.style,
           decoration: InputDecoration(
             contentPadding: widget.contentPadding,
             hintText: widget.hintText,
-            hintStyle: TextStyles.body1.textColor(widget.normalBorderColor),
+            hintStyle: TextStyles.body1.textColor(borderColor),
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: borderColor,

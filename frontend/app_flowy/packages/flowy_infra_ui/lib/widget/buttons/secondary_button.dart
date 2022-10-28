@@ -1,8 +1,5 @@
-// ignore: depend_on_referenced_packages
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:flowy_infra/size.dart';
 import 'base_styled_button.dart';
@@ -18,13 +15,12 @@ class SecondaryTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return SecondaryButton(
       bigMode: bigMode,
       onPressed: onPressed,
       child: FlowyText.regular(
         label,
-        color: theme.main1,
+        color: Theme.of(context).colorScheme.primary,
       ),
     );
   }
@@ -41,15 +37,14 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BaseStyledButton(
       minWidth: bigMode ? 100 : 80,
       minHeight: bigMode ? 40 : 38,
       contentPadding: EdgeInsets.zero,
-      bgColor: theme.shader7,
-      hoverColor: theme.hover,
-      downColor: theme.main1,
-      outlineColor: theme.main1,
+      bgColor: Theme.of(context).colorScheme.surface,
+      hoverColor: Theme.of(context).colorScheme.secondary,
+      downColor: Theme.of(context).colorScheme.primary,
+      outlineColor: Theme.of(context).colorScheme.primary,
       borderRadius: bigMode ? Corners.s12Border : Corners.s8Border,
       onPressed: onPressed,
       child: child,

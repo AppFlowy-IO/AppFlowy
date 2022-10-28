@@ -1,5 +1,4 @@
 import 'package:app_flowy/startup/tasks/rust_sdk.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
 import 'package:app_flowy/workspace/presentation/widgets/pop_up_action.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
@@ -10,7 +9,6 @@ import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -35,8 +33,6 @@ class BubbleActionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     final List<PopoverAction> actions = [];
     actions.addAll(
       BubbleAction.values.map((action) => BubbleActionWrapper(action)),
@@ -52,7 +48,7 @@ class BubbleActionList extends StatelessWidget {
           tooltip: LocaleKeys.questionBubble_help.tr(),
           fontSize: 12,
           fontWeight: FontWeight.w600,
-          fillColor: theme.selector,
+          fillColor: Theme.of(context).colorScheme.secondaryContainer,
           mainAxisAlignment: MainAxisAlignment.center,
           radius: BorderRadius.circular(10),
           onPressed: () => controller.show(),
@@ -122,8 +118,6 @@ class _DebugToast {
 class FlowyVersionDescription extends CustomActionCell {
   @override
   Widget buildWithContext(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return FutureBuilder(
       future: PackageInfo.fromPlatform(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
@@ -132,7 +126,7 @@ class FlowyVersionDescription extends CustomActionCell {
             return FlowyText(
               "Error: ${snapshot.error}",
               fontSize: FontSizes.s12,
-              color: theme.shader4,
+              color: Theme.of(context).disabledColor,
             );
           }
 
@@ -147,12 +141,15 @@ class FlowyVersionDescription extends CustomActionCell {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Divider(height: 1, color: theme.shader6, thickness: 1.0),
+                Divider(
+                    height: 1,
+                    color: Theme.of(context).dividerColor,
+                    thickness: 1.0),
                 const VSpace(6),
                 FlowyText(
                   "$appName $version.$buildNumber",
                   fontSize: FontSizes.s12,
-                  color: theme.shader4,
+                  color: Theme.of(context).hintColor,
                 ),
               ],
             ).padding(

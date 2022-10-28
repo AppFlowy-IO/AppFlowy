@@ -28,7 +28,7 @@ class SettingsAppearanceView extends StatelessWidget {
                 style: TextStyles.body1.size(FontSizes.s14),
               ),
               Toggle(
-                value: theme.brightness == Brightness.dark,
+                value: Theme.of(context).brightness == Brightness.dark,
                 onChanged: (_) => setTheme(context),
                 style: ToggleStyle.big(theme),
               ),
@@ -44,8 +44,7 @@ class SettingsAppearanceView extends StatelessWidget {
   }
 
   void setTheme(BuildContext context) {
-    final theme = context.read<AppearanceSettingsCubit>().state.theme;
-    if (theme.brightness == Brightness.dark) {
+    if (Theme.of(context).brightness == Brightness.dark) {
       context.read<AppearanceSettingsCubit>().setTheme(Brightness.light);
     } else {
       context.read<AppearanceSettingsCubit>().setTheme(Brightness.dark);

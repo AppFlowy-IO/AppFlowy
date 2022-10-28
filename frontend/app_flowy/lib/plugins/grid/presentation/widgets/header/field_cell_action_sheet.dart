@@ -2,7 +2,6 @@ import 'package:app_flowy/plugins/grid/application/field/type_option/type_option
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_editor.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
@@ -72,8 +71,6 @@ class _EditFieldButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return BlocBuilder<FieldActionSheetBloc, FieldActionSheetState>(
       builder: (context, state) {
         return SizedBox(
@@ -83,7 +80,7 @@ class _EditFieldButton extends StatelessWidget {
               LocaleKeys.grid_field_editProperty.tr(),
               fontSize: 12,
             ),
-            hoverColor: theme.hover,
+            hoverColor: Theme.of(context).colorScheme.secondary,
             onTap: onTap,
           ),
         );
@@ -151,14 +148,13 @@ class FieldActionCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return FlowyButton(
       text: FlowyText.medium(
         action.title(),
         fontSize: 12,
-        color: enable ? null : theme.shader4,
+        color: enable ? null : Theme.of(context).disabledColor,
       ),
-      hoverColor: theme.hover,
+      hoverColor: Theme.of(context).colorScheme.secondary,
       onTap: () {
         if (enable) {
           action.run(context, fieldContext);
@@ -167,7 +163,9 @@ class FieldActionCell extends StatelessWidget {
       },
       leftIcon: svgWidget(
         action.iconName(),
-        color: enable ? theme.iconColor : theme.disableIconColor,
+        color: enable
+            ? Theme.of(context).colorScheme.onSurface
+            : Theme.of(context).disabledColor,
       ),
     );
   }

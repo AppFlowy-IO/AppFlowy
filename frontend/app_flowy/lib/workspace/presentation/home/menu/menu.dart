@@ -3,7 +3,6 @@ export './app/menu_app.dart';
 
 import 'dart:io' show Platform;
 import 'package:app_flowy/plugins/trash/menu.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/home/home_sizes.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:flowy_infra/notifier.dart';
@@ -83,9 +82,8 @@ class HomeMenu extends StatelessWidget {
 
   Widget _renderBody(BuildContext context) {
     // nested column: https://siddharthmolleti.com/flutter-box-constraints-nested-column-s-row-s-3dfacada7361
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return Container(
-      color: theme.bg1,
+      color: Theme.of(context).colorScheme.surfaceVariant,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -202,15 +200,13 @@ class MenuTopBar extends StatelessWidget {
     if (Platform.isMacOS) {
       return Container();
     }
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-    return (theme.brightness == Brightness.dark
+    return (Theme.of(context).brightness == Brightness.dark
         ? svgWithSize("flowy_logo_dark_mode", const Size(92, 17))
         : svgWithSize("flowy_logo_with_text", const Size(92, 17)));
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocBuilder<MenuBloc, MenuState>(
       builder: (context, state) {
         return SizedBox(
@@ -228,7 +224,10 @@ class MenuTopBar extends StatelessWidget {
                         .read<HomeBloc>()
                         .add(const HomeEvent.collapseMenu()),
                     iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                    icon: svgWidget("home/hide_menu", color: theme.iconColor),
+                    icon: svgWidget(
+                      "home/hide_menu",
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ))
             ],
           )),

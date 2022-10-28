@@ -1,7 +1,6 @@
 import 'package:app_flowy/plugins/board/application/card/card_bloc.dart';
 import 'package:app_flowy/plugins/board/application/card/card_data_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/row/row_action_sheet.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
@@ -221,9 +220,10 @@ class _CardMoreOption extends StatelessWidget with CardAccessory {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(3.0),
-      child: svgWidget('grid/details',
-          color:
-              context.watch<AppearanceSettingsCubit>().state.theme.iconColor),
+      child: svgWidget(
+        'grid/details',
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
     );
   }
 
@@ -244,7 +244,7 @@ class _CardEditOption extends StatelessWidget with CardAccessory {
       padding: const EdgeInsets.all(3.0),
       child: svgWidget(
         'editor/edit',
-        color: context.watch<AppearanceSettingsCubit>().state.theme.iconColor,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
     );
   }

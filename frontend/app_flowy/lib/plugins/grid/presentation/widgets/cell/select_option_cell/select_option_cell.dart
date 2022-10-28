@@ -1,9 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 // ignore: unused_import
@@ -165,8 +163,7 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-    Widget child = _buildOptions(theme, context);
+    Widget child = _buildOptions(context);
 
     return Stack(
       alignment: AlignmentDirectional.center,
@@ -204,13 +201,13 @@ class _SelectOptionWrapState extends State<SelectOptionWrap> {
     );
   }
 
-  Widget _buildOptions(AppTheme theme, BuildContext context) {
+  Widget _buildOptions(BuildContext context) {
     final Widget child;
     if (widget.selectOptions.isEmpty && widget.cellStyle != null) {
       child = FlowyText.medium(
         widget.cellStyle!.placeholder,
         fontSize: 14,
-        color: theme.shader3,
+        color: Theme.of(context).hintColor,
       );
     } else {
       final children = widget.selectOptions.map(

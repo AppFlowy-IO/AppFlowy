@@ -1,7 +1,7 @@
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/application/workspace/welcome_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
@@ -50,15 +50,14 @@ class WelcomeScreen extends StatelessWidget {
   }
 
   Widget _renderCreateButton(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return SizedBox(
       width: 200,
       height: 40,
       child: FlowyTextButton(
         LocaleKeys.workspace_create.tr(),
         fontSize: 14,
-        hoverColor: theme.bg3,
+        hoverColor:
+            Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
         onPressed: () {
           context.read<WelcomeBloc>().add(
               WelcomeEvent.createWorkspace(LocaleKeys.workspace_hint.tr(), ""));
@@ -98,13 +97,12 @@ class WorkspaceItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return SizedBox(
       height: 46,
       child: FlowyTextButton(
         workspace.name,
-        hoverColor: theme.bg3,
+        hoverColor:
+            Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
         fontSize: 14,
         onPressed: () => onPressed(workspace),
       ),

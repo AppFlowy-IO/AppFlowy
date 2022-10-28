@@ -4,7 +4,6 @@ import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:app_flowy/plugins/util.dart';
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/plugins/doc/application/share_bloc.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/toast.dart';
@@ -127,20 +126,13 @@ class DocumentShareButton extends StatelessWidget {
           );
         },
         child: BlocBuilder<DocShareBloc, DocShareState>(
-          builder: (context, state) {
-            return BlocBuilder<AppearanceSettingsCubit,
-                AppearanceSettingsState>(
-              builder: (ctx, st) => ConstrainedBox(
-                constraints: const BoxConstraints.expand(
-                  height: 30,
-                  width: 100,
-                ),
-                child: ShareActionList(
-                  view: view,
-                ),
-              ),
-            );
-          },
+          builder: (context, state) => ConstrainedBox(
+            constraints: const BoxConstraints.expand(
+              height: 30,
+              width: 100,
+            ),
+            child: ShareActionList(view: view),
+          ),
         ),
       ),
     );
@@ -172,7 +164,6 @@ class ShareActionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final docShareBloc = context.read<DocShareBloc>();
     return PopoverActionList<ShareActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
@@ -184,7 +175,7 @@ class ShareActionList extends StatelessWidget {
           title: LocaleKeys.shareAction_buttonText.tr(),
           fontSize: FontSizes.s12,
           borderRadius: Corners.s6Border,
-          color: theme.main1,
+          color: Theme.of(context).colorScheme.primary,
           onPressed: () => controller.show(),
         );
       },

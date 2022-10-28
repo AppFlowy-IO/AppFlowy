@@ -3,7 +3,6 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/application/row/row_data_controller.dart';
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/grid_bloc.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui_web.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -335,8 +334,6 @@ class RowCountBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return BlocSelector<GridBloc, GridState, int>(
       selector: (state) => state.rowCount,
       builder: (context, rowCount) {
@@ -348,7 +345,7 @@ class RowCountBadge extends StatelessWidget {
               FlowyText.regular(
                 '${LocaleKeys.grid_row_count.tr()} : ',
                 fontSize: 13,
-                color: theme.shader3,
+                color: Theme.of(context).hintColor,
               ),
               FlowyText.regular(rowCount.toString(), fontSize: 13),
             ],

@@ -4,7 +4,6 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_group.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/toolbar/grid_property.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
@@ -96,7 +95,6 @@ class _SettingItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final isSelected = context
         .read<BoardSettingBloc>()
         .state
@@ -111,13 +109,16 @@ class _SettingItem extends StatelessWidget {
           action.title(),
           fontSize: FontSizes.s12,
         ),
-        hoverColor: theme.hover,
+        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: () {
           context
               .read<BoardSettingBloc>()
               .add(BoardSettingEvent.performAction(action));
         },
-        leftIcon: svgWidget(action.iconName(), color: theme.iconColor),
+        leftIcon: svgWidget(
+          action.iconName(),
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }

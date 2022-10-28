@@ -1,8 +1,5 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum AccessoryType {
   edit,
@@ -29,7 +26,6 @@ class CardAccessoryContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final children = accessories.map((accessory) {
       return GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -37,17 +33,17 @@ class CardAccessoryContainer extends StatelessWidget {
           accessory.onTap(context);
           onTapAccessory(accessory.type);
         },
-        child: _wrapHover(theme, accessory),
+        child: _wrapHover(context, accessory),
       );
     }).toList();
     return _wrapDecoration(context, Row(children: children));
   }
 
-  FlowyHover _wrapHover(AppTheme theme, CardAccessory accessory) {
+  FlowyHover _wrapHover(BuildContext context, CardAccessory accessory) {
     return FlowyHover(
       style: HoverStyle(
-        hoverColor: theme.hover,
-        backgroundColor: theme.surface,
+        hoverColor: Theme.of(context).colorScheme.secondary,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.zero,
       ),
       builder: (_, onHover) => SizedBox(
@@ -59,8 +55,10 @@ class CardAccessoryContainer extends StatelessWidget {
   }
 
   Widget _wrapDecoration(BuildContext context, Widget child) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-    final borderSide = BorderSide(color: theme.shader6, width: 1.0);
+    final borderSide = BorderSide(
+      color: Theme.of(context).dividerColor,
+      width: 1.0,
+    );
     final decoration = BoxDecoration(
       color: Colors.transparent,
       border: Border.fromBorderSide(borderSide),

@@ -1,6 +1,5 @@
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_appearance_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_language_view.dart';
 import 'package:app_flowy/workspace/presentation/settings/widgets/settings_user_view.dart';
@@ -29,48 +28,42 @@ class SettingsDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SettingsDialogBloc>(
-        create: (context) => getIt<SettingsDialogBloc>(param1: user)
-          ..add(const SettingsDialogEvent.initial()),
-        child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
-            builder: (context, state) =>
-                BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-                  builder: (context, state) => FlowyDialog(
-                    title: FlowyText(
-                      LocaleKeys.settings_title.tr(),
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 200,
-                          child: SettingsMenu(
-                            changeSelectedIndex: (index) {
-                              context
-                                  .read<SettingsDialogBloc>()
-                                  .add(SettingsDialogEvent.setViewIndex(index));
-                            },
-                            currentIndex: context
-                                .read<SettingsDialogBloc>()
-                                .state
-                                .viewIndex,
-                          ),
-                        ),
-                        const VerticalDivider(),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: getSettingsView(
-                            context.read<SettingsDialogBloc>().state.viewIndex,
-                            context
-                                .read<SettingsDialogBloc>()
-                                .state
-                                .userProfile,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                )));
+      create: (context) => getIt<SettingsDialogBloc>(param1: user)
+        ..add(const SettingsDialogEvent.initial()),
+      child: BlocBuilder<SettingsDialogBloc, SettingsDialogState>(
+        builder: (context, state) => FlowyDialog(
+          title: FlowyText(
+            LocaleKeys.settings_title.tr(),
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 200,
+                child: SettingsMenu(
+                  changeSelectedIndex: (index) {
+                    context
+                        .read<SettingsDialogBloc>()
+                        .add(SettingsDialogEvent.setViewIndex(index));
+                  },
+                  currentIndex:
+                      context.read<SettingsDialogBloc>().state.viewIndex,
+                ),
+              ),
+              const VerticalDivider(),
+              const SizedBox(width: 10),
+              Expanded(
+                child: getSettingsView(
+                  context.read<SettingsDialogBloc>().state.viewIndex,
+                  context.read<SettingsDialogBloc>().state.userProfile,
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

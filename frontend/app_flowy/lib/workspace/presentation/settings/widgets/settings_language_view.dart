@@ -13,23 +13,20 @@ class SettingsLanguageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.watch<AppearanceSettingsCubit>().state.theme;
-    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-      builder: (context, state) => SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  LocaleKeys.settings_menu_language.tr(),
-                  style: TextStyles.body1.size(FontSizes.s14),
-                ),
-                const LanguageSelectorDropdown(),
-              ],
-            ),
-          ],
-        ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                LocaleKeys.settings_menu_language.tr(),
+                style: TextStyles.body1.size(FontSizes.s14),
+              ),
+              const LanguageSelectorDropdown(),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -47,7 +44,6 @@ class LanguageSelectorDropdown extends StatefulWidget {
 
 class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
   Color currHoverColor = Colors.white.withOpacity(0.0);
-  late Color themedHoverColor;
   void hoverExitLanguage() {
     setState(() {
       currHoverColor = Colors.white.withOpacity(0.0);
@@ -56,14 +52,12 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
 
   void hoverEnterLanguage() {
     setState(() {
-      currHoverColor = themedHoverColor;
+      currHoverColor = Theme.of(context).colorScheme.primary;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-    themedHoverColor = theme.main2;
     return MouseRegion(
       onEnter: (event) => {hoverEnterLanguage()},
       onExit: (event) => {hoverExitLanguage()},
@@ -74,35 +68,32 @@ class _LanguageSelectorDropdownState extends State<LanguageSelectorDropdown> {
           color: currHoverColor,
         ),
         child: DropdownButtonHideUnderline(
-          child: BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-            builder: (context, state) => DropdownButton<Locale>(
-              value: state.locale,
-              onChanged: (val) {
-                setState(() {
-                  context
-                      .read<AppearanceSettingsCubit>()
-                      .setLocale(context, val!);
-                });
-              },
-              icon: const Visibility(
-                visible: false,
-                child: (Icon(Icons.arrow_downward)),
-              ),
-              borderRadius: BorderRadius.circular(8),
-              items:
-                  EasyLocalization.of(context)!.supportedLocales.map((locale) {
-                return DropdownMenuItem<Locale>(
-                  value: locale,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Text(
-                      languageFromLocale(locale),
-                      style: TextStyles.body1.size(FontSizes.s14),
-                    ),
-                  ),
-                );
-              }).toList(),
+          child: DropdownButton<Locale>(
+            value: context.locale,
+            onChanged: (val) {
+              setState(() {
+                context
+                    .read<AppearanceSettingsCubit>()
+                    .setLocale(context, val!);
+              });
+            },
+            icon: const Visibility(
+              visible: false,
+              child: (Icon(Icons.arrow_downward)),
             ),
+            borderRadius: BorderRadius.circular(8),
+            items: EasyLocalization.of(context)!.supportedLocales.map((locale) {
+              return DropdownMenuItem<Locale>(
+                value: locale,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    languageFromLocale(locale),
+                    style: TextStyles.body1.size(FontSizes.s14),
+                  ),
+                ),
+              );
+            }).toList(),
           ),
         ),
       ),

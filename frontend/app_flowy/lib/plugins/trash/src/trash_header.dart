@@ -1,8 +1,6 @@
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 import 'sizes.dart';
@@ -52,7 +50,6 @@ class TrashHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     final headerItems = List<Widget>.empty(growable: true);
     items.asMap().forEach((index, item) {
       headerItems.add(
@@ -61,14 +58,14 @@ class TrashHeader extends StatelessWidget {
           child: FlowyText(
             item.title,
             fontSize: 12,
-            color: theme.shader3,
+            color: Theme.of(context).disabledColor,
           ),
         ),
       );
     });
 
     return Container(
-      color: theme.surface,
+      color: Theme.of(context).colorScheme.surface,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

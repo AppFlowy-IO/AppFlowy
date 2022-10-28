@@ -1,6 +1,5 @@
 import 'package:app_flowy/startup/plugin/plugin.dart';
 import 'package:app_flowy/startup/startup.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/home/home_stack.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -8,7 +7,6 @@ import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class MenuTrash extends StatelessWidget {
@@ -30,18 +28,19 @@ class MenuTrash extends StatelessWidget {
   }
 
   Widget _render(BuildContext context) {
-    return BlocBuilder<AppearanceSettingsCubit, AppearanceSettingsState>(
-      builder: (context, state) {
-        return Row(children: [
-          SizedBox(
-            width: 16,
-            height: 16,
-            child: svgWidget("home/trash", color: state.theme.iconColor),
+    return Row(
+      children: [
+        SizedBox(
+          width: 16,
+          height: 16,
+          child: svgWidget(
+            "home/trash",
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-          const HSpace(6),
-          FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
-        ]);
-      },
+        ),
+        const HSpace(6),
+        FlowyText.medium(LocaleKeys.trash_text.tr(), fontSize: 12),
+      ],
     );
   }
 }
