@@ -1,6 +1,4 @@
-use lib_ot::core::{
-    AttributeBuilder, Changeset, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path, Transaction,
-};
+use lib_ot::core::{AttributeBuilder, Changeset, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path};
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[test]

@@ -1,8 +1,6 @@
 use super::{Changeset, NodeOperations};
-use crate::core::attributes::AttributeHashMap;
-use crate::core::{Body, NodeData, NodeOperation, NodeTree, OperationTransform, Path};
+use crate::core::{NodeData, NodeOperation, NodeTree, Path};
 use crate::errors::OTError;
-use crate::text_delta::DeltaTextOperations;
 use indextree::NodeId;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -39,7 +37,12 @@ impl Transaction {
     }
 
     pub fn from_json(s: &str) -> Result<Self, OTError> {
-        let transaction = serde_json::from_str(s).map_err(|err| OTError::serde().context(err))?;
+        let serde_transaction: Transaction = serde_json::from_str(s).map_err(|err| OTError::serde().context(err))?;
+        let mut transaction = Self::new();
+        transaction.extension = serde_transaction.extension;
+        for operation in serde_transaction.operations.into_inner() {
+            transaction.operations.push_op(operation);
+        }
         Ok(transaction)
     }
 
@@ -49,6 +52,10 @@ impl Transaction {
 
     pub fn into_operations(self) -> Vec<Arc<NodeOperation>> {
         self.operations.into_inner()
+    }
+
+    pub fn split(self) -> (Vec<Arc<NodeOperation>>, Extension) {
+        (self.operations.into_inner(), self.extension)
     }
 
     pub fn push_operation<T: Into<NodeOperation>>(&mut self, operation: T) {
@@ -115,16 +122,14 @@ pub struct Position {
     path: Path,
     offset: usize,
 }
-
+#[derive(Default)]
 pub struct TransactionBuilder {
     operations: NodeOperations,
 }
 
 impl TransactionBuilder {
     pub fn new() -> TransactionBuilder {
-        TransactionBuilder {
-            operations: NodeOperations::default(),
-        }
+        Self::default()
     }
 
     ///

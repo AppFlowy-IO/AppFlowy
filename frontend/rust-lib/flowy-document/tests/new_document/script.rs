@@ -3,7 +3,7 @@ use flowy_document::editor::{AppFlowyDocumentEditor, Document, DocumentTransacti
 use flowy_document::entities::DocumentVersionPB;
 use flowy_test::helper::ViewTest;
 use flowy_test::FlowySDKTest;
-use lib_ot::core::{Body, Changeset, NodeDataBuilder, NodeOperation, Path, Transaction};
+use lib_ot::core::{Changeset, NodeDataBuilder, NodeOperation, Path, Transaction};
 use lib_ot::text_delta::DeltaTextOperations;
 use std::sync::Arc;
 

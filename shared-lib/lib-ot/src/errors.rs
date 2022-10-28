@@ -38,6 +38,7 @@ impl OTError {
     static_ot_error!(revision_id_conflict, OTErrorCode::RevisionIDConflict);
     static_ot_error!(internal, OTErrorCode::Internal);
     static_ot_error!(serde, OTErrorCode::SerdeError);
+    static_ot_error!(path_not_found, OTErrorCode::PathNotFound);
     static_ot_error!(compose, OTErrorCode::ComposeOperationFail);
     static_ot_error!(record_not_found, OTErrorCode::RecordNotFound);
 }

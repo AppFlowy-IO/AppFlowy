@@ -41,7 +41,13 @@ impl NodeTree {
     pub fn from_operations<T: Into<NodeOperations>>(operations: T, context: NodeTreeContext) -> Result<Self, OTError> {
         let operations = operations.into();
         let mut node_tree = NodeTree::new(context);
-        for operation in operations.into_inner().into_iter() {
+        for (index, operation) in operations.into_inner().into_iter().enumerate() {
+            if index == 75 {
+                println!("{}", index);
+            }
+            if index == 76 {
+                println!("{}", index);
+            }
             let _ = node_tree.apply_op(operation)?;
         }
         Ok(node_tree)
@@ -240,10 +246,11 @@ impl NodeTree {
     }
 
     pub fn apply_transaction(&mut self, transaction: Transaction) -> Result<(), OTError> {
-        let operations = transaction.into_operations();
+        let operations = transaction.split().0;
         for operation in operations {
             self.apply_op(operation)?;
         }
+
         Ok(())
     }
 
@@ -296,7 +303,7 @@ impl NodeTree {
         } else {
             let parent_node = self
                 .node_id_at_path(parent_path)
-                .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+                .ok_or_else(|| OTError::path_not_found().context("Can't find the path to insert"))?;
 
             self.insert_nodes_at_index(parent_node, last_index, nodes)
         }
@@ -305,15 +312,27 @@ impl NodeTree {
     /// Inserts nodes before the node with node_id
     ///
     fn insert_nodes_before(&mut self, node_id: &NodeId, nodes: Vec<NodeData>) {
+        if node_id.is_removed(&self.arena) {
+            tracing::warn!("Node:{:?} is remove before insert", node_id);
+            return;
+        }
         for node in nodes {
             let (node, children) = node.split();
             let new_node_id = self.arena.new_node(node);
-            if node_id.is_removed(&self.arena) {
-                tracing::warn!("Node:{:?} is remove before insert", node_id);
-                return;
-            }
-
             node_id.insert_before(new_node_id, &mut self.arena);
+            self.append_nodes(&new_node_id, children);
+        }
+    }
+
+    fn insert_nodes_after(&mut self, node_id: &NodeId, nodes: Vec<NodeData>) {
+        if node_id.is_removed(&self.arena) {
+            tracing::warn!("Node:{:?} is remove before insert", node_id);
+            return;
+        }
+        for node in nodes {
+            let (node, children) = node.split();
+            let new_node_id = self.arena.new_node(node);
+            node_id.insert_after(new_node_id, &mut self.arena);
             self.append_nodes(&new_node_id, children);
         }
     }
@@ -326,14 +345,22 @@ impl NodeTree {
 
         // Append the node to the end of the children list if index greater or equal to the
         // length of the children.
-        if index >= parent.children(&self.arena).count() {
+        let num_of_child = parent.children(&self.arena).count();
+        if index >= num_of_child {
+            let mut num_of_nodes_to_insert = index - num_of_child;
+            while num_of_nodes_to_insert > 0 {
+                // self.insert_nodes_after(&parent, vec![NodeData::new("text")]);
+                self.append_nodes(&parent, vec![NodeData::new("text")]);
+                num_of_nodes_to_insert -= 1;
+            }
+
             self.append_nodes(&parent, nodes);
             return Ok(());
         }
 
         let node_to_insert = self
             .child_from_node_at_index(parent, index)
-            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+            .ok_or_else(|| OTError::internal().context(format!("Can't find the node at {}", index)))?;
 
         self.insert_nodes_before(&node_to_insert, nodes);
         Ok(())
@@ -378,9 +405,9 @@ impl NodeTree {
         if !path.is_valid() {
             return Err(OTErrorCode::InvalidPath.into());
         }
-        let node_id = self
-            .node_id_at_path(path)
-            .ok_or_else(|| ErrorBuilder::new(OTErrorCode::PathNotFound).build())?;
+        let node_id = self.node_id_at_path(path).ok_or_else(|| {
+            OTError::path_not_found().context(format!("Can't find the mutated node at path: {:?}", path))
+        })?;
         match self.arena.get_mut(node_id) {
             None => tracing::warn!("The path: {:?} does not contain any nodes", path),
             Some(node) => {

@@ -2,9 +2,7 @@ use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{RevisionCompress, RevisionObjectDeserializer, RevisionObjectSerializer};
 use flowy_sync::entities::revision::Revision;
-use lib_ot::core::{
-    Body, Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction,
-};
+use lib_ot::core::{Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction};
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[derive(Debug)]

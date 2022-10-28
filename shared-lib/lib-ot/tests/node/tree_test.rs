@@ -1,10 +1,7 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::{make_node_delta_changeset, NodeTest};
-use lib_ot::core::Body;
-use lib_ot::core::Changeset;
-use lib_ot::core::OperationTransform;
+
 use lib_ot::core::{NodeData, NodeDataBuilder, Path};
-use lib_ot::text_delta::{DeltaTextOperationBuilder, DeltaTextOperations};
 
 #[test]
 fn node_insert_test() {

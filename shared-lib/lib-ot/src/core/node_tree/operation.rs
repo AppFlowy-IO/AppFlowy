@@ -34,10 +34,10 @@ impl NodeOperation {
         }
     }
 
-    pub fn is_update(&self) -> bool {
+    pub fn is_update_delta(&self) -> bool {
         match self {
             NodeOperation::Insert { .. } => false,
-            NodeOperation::Update { .. } => true,
+            NodeOperation::Update { path, changeset } => changeset.is_delta(),
             NodeOperation::Delete { .. } => false,
         }
     }
@@ -53,62 +53,50 @@ impl NodeOperation {
         if self.get_path() != other.get_path() {
             return false;
         }
-        self.is_update() && other.is_update() || self.is_insert() && other.is_update()
+        if self.is_update_delta() && other.is_update_delta() {
+            return true;
+        }
+
+        if self.is_insert() && other.is_update_delta() {
+            return true;
+        }
+        false
     }
 
     pub fn compose(&mut self, other: &NodeOperation) -> Result<(), OTError> {
-        if !self.can_compose(other) {
-            return Err(OTError::compose().context("Can't compose the operation"));
-        }
-
         match (self, other) {
             (
-                NodeOperation::Insert { path, nodes },
-                NodeOperation::Insert {
-                    path: other_path,
-                    nodes: other_nodes,
-                },
-            ) => {
-                nodes.extend(other_nodes.clone());
-            }
-            (
-                NodeOperation::Insert { path, nodes },
+                NodeOperation::Insert { path: _, nodes },
                 NodeOperation::Update {
-                    path: other_path,
+                    path: _other_path,
                     changeset,
                 },
             ) => {
-                if nodes.is_empty() {
-                    return Ok(());
-                }
                 match changeset {
-                    Changeset::Delta { delta, inverted } => {
+                    Changeset::Delta { delta, inverted: _ } => {
                         if let Body::Delta(old_delta) = &mut nodes.last_mut().unwrap().body {
                             let new_delta = old_delta.compose(delta)?;
                             *old_delta = new_delta;
                         }
                     }
-                    Changeset::Attributes { .. } => {}
+                    Changeset::Attributes { new, old } => {
+                        return Err(OTError::compose().context("Can't compose the attributes changeset"));
+                    }
                 }
+                Ok(())
             }
             (
                 NodeOperation::Update { path: _, changeset },
                 NodeOperation::Update {
-                    path: _other_path,
+                    path: _,
                     changeset: other_changeset,
                 },
-            ) => {
-                let _ = changeset.compose(other_changeset)?;
-            }
-            (left, right) => {
-                tracing::warn!("Compose failed. Operation type is not the same")
-            }
+            ) => changeset.compose(other_changeset),
+            (_left, _right) => Err(OTError::compose().context("Can't compose the operation")),
         }
-
-        Ok(())
     }
 
-    pub fn invert(&self) -> NodeOperation {
+    pub fn inverted(&self) -> NodeOperation {
         match self {
             NodeOperation::Insert { path, nodes } => NodeOperation::Delete {
                 path: path.clone(),
@@ -174,12 +162,11 @@ impl NodeOperation {
     }
 }
 
-type OperationIndexMap = IndexMap<Path, Arc<NodeOperation>>;
+type OperationIndexMap = IndexMap<Path, Vec<Arc<NodeOperation>>>;
 
 #[derive(Debug, Clone, Default)]
 pub struct NodeOperations {
-    // #[serde(with = "indexmap::serde_seq")]
-    pub(crate) operations: OperationIndexMap,
+    inner: OperationIndexMap,
 }
 
 impl NodeOperations {
@@ -204,42 +191,55 @@ impl NodeOperations {
         let bytes = serde_json::to_vec(self).map_err(|err| OTError::serde().context(err))?;
         Ok(bytes)
     }
+
+    pub fn values(&self) -> Vec<&Arc<NodeOperation>> {
+        self.inner.values().flatten().collect::<Vec<_>>()
+    }
+
+    pub fn values_mut(&mut self) -> Vec<&mut Arc<NodeOperation>> {
+        self.inner.values_mut().flatten().collect::<Vec<_>>()
+    }
+
+    pub fn len(&self) -> usize {
+        self.values().len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
+
     pub fn into_inner(self) -> Vec<Arc<NodeOperation>> {
-        self.operations.into_values().collect::<Vec<_>>()
+        self.inner.into_values().flatten().collect::<Vec<_>>()
     }
 
     pub fn push_op<T: Into<Arc<NodeOperation>>>(&mut self, other: T) {
         let other = other.into();
-        if let Some(operation) = self.operations.get_mut(other.get_path()) {
-            if let Ok(_) = Arc::make_mut(operation).compose(&other) {
-                return;
-            }
-        }
+        // if let Some(operations) = self.inner.get_mut(other.get_path()) {
+        //     if let Some(last_operation) = operations.last_mut() {
+        //         if last_operation.can_compose(&other) {
+        //             let mut_operation = Arc::make_mut(last_operation);
+        //             if mut_operation.compose(&other).is_ok() {
+        //                 return;
+        //             }
+        //         }
+        //     }
+        // }
         // If the passed-in operation can't be composed, then append it to the end.
-        self.operations.insert(other.get_path().clone(), other);
+        self.inner.entry(other.get_path().clone()).or_insert(vec![]).push(other);
     }
 
     pub fn compose(&mut self, other: NodeOperations) {
-        for operation in other.operations.into_values() {
-            self.push_op(operation);
+        for operation in other.values() {
+            self.push_op(operation.clone());
         }
     }
 
-    pub fn len(&self) -> usize {
-        self.operations.len()
-    }
-}
-impl std::ops::Deref for NodeOperations {
-    type Target = OperationIndexMap;
-
-    fn deref(&self) -> &Self::Target {
-        &self.operations
-    }
-}
-
-impl std::ops::DerefMut for NodeOperations {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.operations
+    pub fn inverted(&self) -> Self {
+        let mut operations = Self::new();
+        for operation in self.values() {
+            operations.push_op(operation.inverted());
+        }
+        operations
     }
 }
 

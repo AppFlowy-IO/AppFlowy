@@ -1,7 +1,7 @@
-use crate::core::{DeltaOperations, NodeOperation, NodeOperations};
-use serde::de::{MapAccess, SeqAccess, Visitor};
-use serde::ser::{SerializeMap, SerializeSeq};
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+use crate::core::{NodeOperation, NodeOperations};
+use serde::de::{SeqAccess, Visitor};
+use serde::ser::SerializeSeq;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
 impl Serialize for NodeOperations {
@@ -9,7 +9,7 @@ impl Serialize for NodeOperations {
     where
         S: Serializer,
     {
-        let operations = self.operations.values();
+        let operations = self.values();
         let mut seq = serializer.serialize_seq(Some(operations.len()))?;
         for operation in operations {
             let _ = seq.serialize_element(&operation)?;

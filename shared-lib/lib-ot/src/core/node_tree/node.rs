@@ -1,7 +1,7 @@
 use super::node_serde::*;
 use crate::core::attributes::{AttributeHashMap, AttributeKey, AttributeValue};
 use crate::core::Body::Delta;
-use crate::core::{DeltaOperationBuilder, OperationTransform};
+use crate::core::OperationTransform;
 use crate::errors::OTError;
 use crate::text_delta::DeltaTextOperations;
 use serde::{Deserialize, Serialize};
@@ -173,6 +173,12 @@ pub enum Changeset {
 }
 
 impl Changeset {
+    pub fn is_delta(&self) -> bool {
+        match self {
+            Changeset::Delta { .. } => true,
+            Changeset::Attributes { .. } => false,
+        }
+    }
     pub fn inverted(&self) -> Changeset {
         match self {
             Changeset::Delta { delta, inverted } => Changeset::Delta {
@@ -192,14 +198,15 @@ impl Changeset {
                 Changeset::Delta { delta, inverted },
                 Changeset::Delta {
                     delta: other_delta,
-                    inverted: other_inverted,
+                    inverted: _,
                 },
             ) => {
+                let original = delta.invert(inverted);
                 let new_delta = delta.compose(other_delta)?;
-                *delta = new_delta;
+                let new_inverted = new_delta.invert(&original);
 
-                let new_inverted_delta = inverted.compose(inverted)?;
-                *inverted = new_inverted_delta;
+                *delta = new_delta;
+                *inverted = new_inverted;
                 Ok(())
             }
             (

@@ -117,7 +117,8 @@ impl DocumentTransaction {
 
 impl std::convert::From<Transaction> for DocumentTransaction {
     fn from(transaction: Transaction) -> Self {
-        let (before_selection, after_selection) = match transaction.extension {
+        let (operations, extension) = transaction.split();
+        let (before_selection, after_selection) = match extension {
             Extension::Empty => (Selection::default(), Selection::default()),
             Extension::TextSelection {
                 before_selection,
@@ -126,9 +127,7 @@ impl std::convert::From<Transaction> for DocumentTransaction {
         };
 
         DocumentTransaction {
-            operations: transaction
-                .operations
-                .into_inner()
+            operations: operations
                 .into_iter()
                 .map(|operation| operation.as_ref().into())
                 .collect(),
@@ -139,19 +138,16 @@ impl std::convert::From<Transaction> for DocumentTransaction {
 }
 
 impl std::convert::From<DocumentTransaction> for Transaction {
-    fn from(transaction: DocumentTransaction) -> Self {
-        Transaction {
-            operations: transaction
-                .operations
-                .into_iter()
-                .map(|operation| operation.into())
-                .collect::<Vec<NodeOperation>>()
-                .into(),
-            extension: Extension::TextSelection {
-                before_selection: transaction.before_selection,
-                after_selection: transaction.after_selection,
-            },
+    fn from(document_transaction: DocumentTransaction) -> Self {
+        let mut transaction = Transaction::new();
+        for document_operation in document_transaction.operations {
+            transaction.push_operation(document_operation);
         }
+        transaction.extension = Extension::TextSelection {
+            before_selection: document_transaction.before_selection,
+            after_selection: document_transaction.after_selection,
+        };
+        transaction
     }
 }
 
@@ -329,7 +325,6 @@ mod tests {
     use crate::editor::document::Document;
     use crate::editor::document_serde::DocumentTransaction;
     use crate::editor::initial_read_me;
-    use lib_infra::util::timestamp;
     use lib_ot::core::Transaction;
 
     #[test]
@@ -376,15 +371,16 @@ mod tests {
         let _ = serde_json::to_string_pretty(&document).unwrap();
     }
 
-    // #[test]
-    // fn document_operation_compose__test() {
-    //     let json = include_str!("./test.json");
-    //     let transaction: Transaction = Transaction::from_json(json).unwrap();
-    //     let operations = transaction.operations.into_iter();
-    //     for operation in transaction.operations {
-    //         //
-    //     }
-    // }
+    #[test]
+    fn document_operation_compose_test() {
+        let json = include_str!("./test.json");
+        let transaction: Transaction = Transaction::from_json(json).unwrap();
+        let json = transaction.to_json().unwrap();
+        // let transaction: Transaction = Transaction::from_json(&json).unwrap();
+        let document = Document::from_transaction(transaction).unwrap();
+        let content = document.get_content(false).unwrap();
+        println!("{}", json);
+    }
 
     const EXAMPLE_DOCUMENT: &str = r#"{
   "document": {

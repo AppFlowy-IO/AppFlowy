@@ -1,6 +1,6 @@
 use crate::node::script::NodeScript::{AssertNodeDelta, InsertNode, UpdateBody};
-use crate::node::script::{edit_node_delta, make_node_delta_changeset, NodeTest};
-use lib_ot::core::{Body, NodeDataBuilder};
+use crate::node::script::{edit_node_delta, NodeTest};
+use lib_ot::core::NodeDataBuilder;
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[test]
