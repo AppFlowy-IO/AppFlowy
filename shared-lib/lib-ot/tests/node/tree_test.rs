@@ -722,7 +722,7 @@ fn node_reorder_nodes_test() {
 #[test]
 fn node_update_body_test() {
     let mut test = NodeTest::new();
-    let (initial_delta, changeset, _, expected) = make_node_delta_changeset("Hello", "AppFlowy");
+    let (initial_delta, changeset, expected) = make_node_delta_changeset("Hello", "AppFlowy");
     let node = NodeDataBuilder::new("text").insert_delta(initial_delta).build();
 
     let scripts = vec![
@@ -746,7 +746,7 @@ fn node_update_body_test() {
 #[test]
 fn node_inverted_body_changeset_test() {
     let mut test = NodeTest::new();
-    let (initial_delta, changeset, inverted_changeset, _expected) = make_node_delta_changeset("Hello", "AppFlowy");
+    let (initial_delta, changeset, _expected) = make_node_delta_changeset("Hello", "AppFlowy");
     let node = NodeDataBuilder::new("text").insert_delta(initial_delta.clone()).build();
 
     let scripts = vec![
@@ -757,11 +757,11 @@ fn node_inverted_body_changeset_test() {
         },
         UpdateBody {
             path: 0.into(),
-            changeset,
+            changeset: changeset.clone(),
         },
         UpdateBody {
             path: 0.into(),
-            changeset: inverted_changeset,
+            changeset: changeset.inverted(),
         },
         AssertNodeDelta {
             path: 0.into(),

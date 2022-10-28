@@ -180,7 +180,7 @@ impl NodeTest {
     }
 }
 
-pub fn update_node_delta(
+pub fn edit_node_delta(
     delta: &DeltaTextOperations,
     new_delta: DeltaTextOperations,
 ) -> (Changeset, DeltaTextOperations) {
@@ -196,7 +196,7 @@ pub fn update_node_delta(
 pub fn make_node_delta_changeset(
     initial_content: &str,
     insert_str: &str,
-) -> (DeltaTextOperations, Changeset, Changeset, DeltaTextOperations) {
+) -> (DeltaTextOperations, Changeset, DeltaTextOperations) {
     let initial_content = initial_content.to_owned();
     let initial_delta = DeltaTextOperationBuilder::new().insert(&initial_content).build();
     let delta = DeltaTextOperationBuilder::new()
@@ -205,14 +205,9 @@ pub fn make_node_delta_changeset(
         .build();
     let inverted = delta.invert(&initial_delta);
     let expected = initial_delta.compose(&delta).unwrap();
-
     let changeset = Changeset::Delta {
         delta: delta.clone(),
         inverted: inverted.clone(),
     };
-    let inverted_changeset = Changeset::Delta {
-        delta: inverted,
-        inverted: delta,
-    };
-    (initial_delta, changeset, inverted_changeset, expected)
+    (initial_delta, changeset, expected)
 }

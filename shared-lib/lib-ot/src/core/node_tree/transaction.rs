@@ -9,7 +9,6 @@ use std::sync::Arc;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Transaction {
-    #[serde(flatten)]
     pub operations: NodeOperations,
 
     #[serde(default)]

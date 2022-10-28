@@ -84,7 +84,8 @@ impl NodeOperation {
                 match changeset {
                     Changeset::Delta { delta, inverted } => {
                         if let Body::Delta(old_delta) = &mut nodes.last_mut().unwrap().body {
-                            let _ = old_delta.compose(delta)?;
+                            let new_delta = old_delta.compose(delta)?;
+                            *old_delta = new_delta;
                         }
                     }
                     Changeset::Attributes { .. } => {}
@@ -175,60 +176,10 @@ impl NodeOperation {
 
 type OperationIndexMap = IndexMap<Path, Arc<NodeOperation>>;
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct NodeOperations {
-    #[serde(with = "indexmap::serde_seq")]
-    operations: OperationIndexMap,
-}
-
-impl NodeOperations {
-    pub fn into_inner(self) -> Vec<Arc<NodeOperation>> {
-        self.operations.into_values().collect::<Vec<_>>()
-    }
-
-    pub fn push_op<T: Into<Arc<NodeOperation>>>(&mut self, other: T) {
-        let other = other.into();
-        if let Some(operation) = self.operations.get_mut(other.get_path()) {
-            let operation = Arc::make_mut(operation);
-            if operation.can_compose(&other) {
-                if let Ok(_) = operation.compose(&other) {
-                    return;
-                }
-            }
-        }
-
-        self.operations.insert(other.get_path().clone(), other);
-    }
-
-    pub fn compose(&mut self, other: NodeOperations) {
-        for operation in other.operations.into_values() {
-            self.push_op(operation);
-        }
-    }
-
-    pub fn len(&self) -> usize {
-        self.operations.len()
-    }
-}
-
-impl std::ops::Deref for NodeOperations {
-    type Target = OperationIndexMap;
-
-    fn deref(&self) -> &Self::Target {
-        &self.operations
-    }
-}
-
-impl std::ops::DerefMut for NodeOperations {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.operations
-    }
-}
-
-impl std::convert::From<Vec<NodeOperation>> for NodeOperations {
-    fn from(operations: Vec<NodeOperation>) -> Self {
-        Self::from_operations(operations)
-    }
+    // #[serde(with = "indexmap::serde_seq")]
+    pub(crate) operations: OperationIndexMap,
 }
 
 impl NodeOperations {
@@ -252,5 +203,48 @@ impl NodeOperations {
     pub fn to_bytes(&self) -> Result<Vec<u8>, OTError> {
         let bytes = serde_json::to_vec(self).map_err(|err| OTError::serde().context(err))?;
         Ok(bytes)
+    }
+    pub fn into_inner(self) -> Vec<Arc<NodeOperation>> {
+        self.operations.into_values().collect::<Vec<_>>()
+    }
+
+    pub fn push_op<T: Into<Arc<NodeOperation>>>(&mut self, other: T) {
+        let other = other.into();
+        if let Some(operation) = self.operations.get_mut(other.get_path()) {
+            if let Ok(_) = Arc::make_mut(operation).compose(&other) {
+                return;
+            }
+        }
+        // If the passed-in operation can't be composed, then append it to the end.
+        self.operations.insert(other.get_path().clone(), other);
+    }
+
+    pub fn compose(&mut self, other: NodeOperations) {
+        for operation in other.operations.into_values() {
+            self.push_op(operation);
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        self.operations.len()
+    }
+}
+impl std::ops::Deref for NodeOperations {
+    type Target = OperationIndexMap;
+
+    fn deref(&self) -> &Self::Target {
+        &self.operations
+    }
+}
+
+impl std::ops::DerefMut for NodeOperations {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.operations
+    }
+}
+
+impl std::convert::From<Vec<NodeOperation>> for NodeOperations {
+    fn from(operations: Vec<NodeOperation>) -> Self {
+        Self::from_operations(operations)
     }
 }

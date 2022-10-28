@@ -1,5 +1,5 @@
 use crate::node::script::NodeScript::{AssertNodeDelta, InsertNode, UpdateBody};
-use crate::node::script::{make_node_delta_changeset, update_node_delta, NodeTest};
+use crate::node::script::{edit_node_delta, make_node_delta_changeset, NodeTest};
 use lib_ot::core::{Body, NodeDataBuilder};
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 
@@ -11,7 +11,7 @@ fn operation_update_delta_test() {
         .retain(initial_delta.utf16_base_len)
         .insert("Hello, world")
         .build();
-    let (changeset, expected) = update_node_delta(&initial_delta, new_delta);
+    let (changeset, expected) = edit_node_delta(&initial_delta, new_delta);
     let node = NodeDataBuilder::new("text").insert_delta(initial_delta.clone()).build();
 
     let scripts = vec![
