@@ -1,7 +1,7 @@
 use super::node_serde::*;
 use crate::core::attributes::{AttributeHashMap, AttributeKey, AttributeValue};
 use crate::core::Body::Delta;
-use crate::core::OperationTransform;
+use crate::core::{AttributeEntry, OperationTransform};
 use crate::errors::OTError;
 use crate::text_delta::DeltaTextOperations;
 use serde::{Deserialize, Serialize};
@@ -69,8 +69,13 @@ impl NodeDataBuilder {
     /// Inserts attributes to the builder's node.
     ///
     /// The attributes will be replace if they shared the same key
-    pub fn insert_attribute(mut self, key: AttributeKey, value: AttributeValue) -> Self {
-        self.node.attributes.insert(key, value);
+    pub fn insert_attribute<K: Into<AttributeKey>, V: Into<AttributeValue>>(mut self, key: K, value: V) -> Self {
+        self.node.attributes.insert(key.into(), value);
+        self
+    }
+
+    pub fn insert_attribute_entry(mut self, entry: AttributeEntry) -> Self {
+        self.node.attributes.insert_entry(entry);
         self
     }
 
@@ -177,6 +182,12 @@ impl Changeset {
         match self {
             Changeset::Delta { .. } => true,
             Changeset::Attributes { .. } => false,
+        }
+    }
+    pub fn is_attribute(&self) -> bool {
+        match self {
+            Changeset::Delta { .. } => false,
+            Changeset::Attributes { .. } => true,
         }
     }
     pub fn inverted(&self) -> Changeset {

@@ -42,6 +42,13 @@ impl NodeOperation {
         }
     }
 
+    pub fn is_update_attribute(&self) -> bool {
+        match self {
+            NodeOperation::Insert { .. } => false,
+            NodeOperation::Update { path, changeset } => changeset.is_attribute(),
+            NodeOperation::Delete { .. } => false,
+        }
+    }
     pub fn is_insert(&self) -> bool {
         match self {
             NodeOperation::Insert { .. } => true,
@@ -54,6 +61,10 @@ impl NodeOperation {
             return false;
         }
         if self.is_update_delta() && other.is_update_delta() {
+            return true;
+        }
+
+        if self.is_update_attribute() && other.is_update_attribute() {
             return true;
         }
 
@@ -162,7 +173,7 @@ impl NodeOperation {
     }
 }
 
-type OperationIndexMap = IndexMap<Path, Vec<Arc<NodeOperation>>>;
+type OperationIndexMap = Vec<Arc<NodeOperation>>;
 
 #[derive(Debug, Clone, Default)]
 pub struct NodeOperations {
@@ -192,12 +203,12 @@ impl NodeOperations {
         Ok(bytes)
     }
 
-    pub fn values(&self) -> Vec<&Arc<NodeOperation>> {
-        self.inner.values().flatten().collect::<Vec<_>>()
+    pub fn values(&self) -> &Vec<Arc<NodeOperation>> {
+        &self.inner
     }
 
-    pub fn values_mut(&mut self) -> Vec<&mut Arc<NodeOperation>> {
-        self.inner.values_mut().flatten().collect::<Vec<_>>()
+    pub fn values_mut(&mut self) -> &mut Vec<Arc<NodeOperation>> {
+        &mut self.inner
     }
 
     pub fn len(&self) -> usize {
@@ -209,11 +220,20 @@ impl NodeOperations {
     }
 
     pub fn into_inner(self) -> Vec<Arc<NodeOperation>> {
-        self.inner.into_values().flatten().collect::<Vec<_>>()
+        self.inner
     }
 
     pub fn push_op<T: Into<Arc<NodeOperation>>>(&mut self, other: T) {
         let other = other.into();
+        if let Some(last_operation) = self.inner.last_mut() {
+            if last_operation.can_compose(&other) {
+                let mut_operation = Arc::make_mut(last_operation);
+                if mut_operation.compose(&other).is_ok() {
+                    return;
+                }
+            }
+        }
+
         // if let Some(operations) = self.inner.get_mut(other.get_path()) {
         //     if let Some(last_operation) = operations.last_mut() {
         //         if last_operation.can_compose(&other) {
@@ -225,7 +245,7 @@ impl NodeOperations {
         //     }
         // }
         // If the passed-in operation can't be composed, then append it to the end.
-        self.inner.entry(other.get_path().clone()).or_insert(vec![]).push(other);
+        self.inner.push(other);
     }
 
     pub fn compose(&mut self, other: NodeOperations) {

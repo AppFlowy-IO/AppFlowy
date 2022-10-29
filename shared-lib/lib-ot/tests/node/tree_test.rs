@@ -55,51 +55,6 @@ fn node_insert_with_not_exist_path_test() {
 }
 
 #[test]
-// Append the node to the end of the list if the insert path is out of bounds.
-fn node_insert_out_of_bound_test() {
-    let mut test = NodeTest::new();
-    let image_a = NodeData::new("image_a");
-    let image_b = NodeData::new("image_b");
-    let image = NodeDataBuilder::new("image_1")
-        .add_node_data(image_a)
-        .add_node_data(image_b)
-        .build();
-    let text_node = NodeDataBuilder::new("text_1").add_node_data(image).build();
-    let image_c = NodeData::new("image_c");
-
-    let scripts = vec![
-        InsertNode {
-            path: 0.into(),
-            node_data: text_node,
-            rev_id: 1,
-        },
-        // 0:text_1
-        //      0:image_1
-        //             0:image_a
-        //             1:image_b
-        InsertNode {
-            path: vec![0, 0, 10].into(),
-            node_data: image_c.clone(),
-            rev_id: 2,
-        },
-        // 0:text_1
-        //      0:image_1
-        //             0:image_a
-        //             1:image_b
-        //             2:image_b
-        AssertNode {
-            path: vec![0, 0, 2].into(),
-            expected: Some(image_c),
-        },
-        AssertNode {
-            path: vec![0, 0, 10].into(),
-            expected: None,
-        },
-    ];
-    test.run_scripts(scripts);
-}
-
-#[test]
 fn tree_insert_multiple_nodes_at_root_path_test() {
     let mut test = NodeTest::new();
     let node_1 = NodeData::new("a");
@@ -435,11 +390,11 @@ fn node_delete_node_from_list_test() {
         InsertNode {
             path: 1.into(),
             node_data: text_node_2.clone(),
-            rev_id: 1,
+            rev_id: 2,
         },
         DeleteNode {
             path: 0.into(),
-            rev_id: 2,
+            rev_id: 3,
         },
         AssertNode {
             path: 1.into(),
@@ -484,7 +439,7 @@ fn node_delete_nested_node_test() {
         InsertNode {
             path: 1.into(),
             node_data: text_node_2,
-            rev_id: 1,
+            rev_id: 2,
         },
         // 0:text_1
         //      0:image_1
@@ -496,7 +451,7 @@ fn node_delete_nested_node_test() {
         //             1:image_b
         DeleteNode {
             path: vec![0, 0, 0].into(),
-            rev_id: 2,
+            rev_id: 3,
         },
         // 0:text_1
         //      0:image_1
@@ -511,7 +466,7 @@ fn node_delete_nested_node_test() {
         },
         DeleteNode {
             path: vec![0, 0].into(),
-            rev_id: 3,
+            rev_id: 4,
         },
         // 0:text_1
         // 1:text_2
@@ -673,12 +628,16 @@ fn node_reorder_nodes_test() {
         //             1:image_b
         DeleteNode {
             path: vec![0].into(),
-            rev_id: 2,
+            rev_id: 3,
+        },
+        AssertNode {
+            path: vec![0].into(),
+            expected: Some(text_node_2.clone()),
         },
         InsertNode {
             path: vec![1].into(),
             node_data: text_node_1.clone(),
-            rev_id: 3,
+            rev_id: 4,
         },
         // 0:text_2
         //      0:image_2

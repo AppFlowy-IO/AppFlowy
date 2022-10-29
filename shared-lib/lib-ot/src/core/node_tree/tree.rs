@@ -20,6 +20,8 @@ impl Default for NodeTree {
     }
 }
 
+pub const PLACEHOLDER_NODE_TYPE: &'static str = "ghost";
+
 impl NodeTree {
     pub fn new(context: NodeTreeContext) -> NodeTree {
         let mut arena = Arena::new();
@@ -350,7 +352,7 @@ impl NodeTree {
             let mut num_of_nodes_to_insert = index - num_of_child;
             while num_of_nodes_to_insert > 0 {
                 // self.insert_nodes_after(&parent, vec![NodeData::new("text")]);
-                self.append_nodes(&parent, vec![NodeData::new("text")]);
+                self.append_nodes(&parent, vec![placeholder_node()]);
                 num_of_nodes_to_insert -= 1;
             }
 
@@ -391,11 +393,22 @@ impl NodeTree {
         Ok(())
     }
 
+    /// Update the node at path with the `changeset`
+    ///
+    /// Do nothing if there is no node at the path.
+    ///
+    /// # Arguments
+    ///
+    /// * `path`: references to the node that will be applied with the changeset  
+    /// * `changeset`: the change that will be applied to the node  
+    ///
+    /// returns: Result<(), OTError>
     fn update(&mut self, path: &Path, changeset: Changeset) -> Result<(), OTError> {
-        self.mut_node_at_path(path, |node| {
-            let _ = node.apply_changeset(changeset)?;
-            Ok(())
-        })
+        match self.mut_node_at_path(path, |node| node.apply_changeset(changeset)) {
+            Ok(_) => {}
+            Err(err) => tracing::error!("{}", err),
+        }
+        Ok(())
     }
 
     fn mut_node_at_path<F>(&mut self, path: &Path, f: F) -> Result<(), OTError>
@@ -417,4 +430,8 @@ impl NodeTree {
         }
         Ok(())
     }
+}
+
+pub fn placeholder_node() -> NodeData {
+    NodeData::new(PLACEHOLDER_NODE_TYPE)
 }
