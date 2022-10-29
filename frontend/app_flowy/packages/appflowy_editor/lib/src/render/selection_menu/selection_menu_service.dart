@@ -60,7 +60,7 @@ class SelectionMenu implements SelectionMenuService {
     //  but the coordinates of overlay are not properly converted currently.
     //  Just subtract the padding here as a result.
     const menuHeight = 200.0;
-    const menuOffset = Offset(10, 10);
+    const menuOffset = Offset(0, 10);
     final editorOffset =
         editorState.renderBox?.localToGlobal(Offset.zero) ?? Offset.zero;
     final editorHeight = editorState.renderBox!.size.height;
@@ -81,7 +81,8 @@ class SelectionMenu implements SelectionMenuService {
     _selectionMenuEntry = OverlayEntry(builder: (context) {
       return Positioned(
         top: showBelow ? offset.dy : null,
-        bottom: showBelow ? null : editorHeight - offset.dy,
+        bottom:
+            showBelow ? null : MediaQuery.of(context).size.height - offset.dy,
         left: offset.dx,
         child: SelectionMenuWidget(
           items: [

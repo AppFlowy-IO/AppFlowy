@@ -98,7 +98,7 @@ class _ImageUploadMenuState extends State<ImageUploadMenu> {
             color: Colors.black.withOpacity(0.1),
           ),
         ],
-        borderRadius: BorderRadius.circular(6.0),
+        // borderRadius: BorderRadius.circular(6.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
