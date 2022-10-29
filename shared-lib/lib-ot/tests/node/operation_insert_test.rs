@@ -58,7 +58,7 @@ fn operation_insert_one_level_path_test() {
         },
         AssertNode {
             path: 2.into(),
-            expected: Some(node_3.clone()).clone(),
+            expected: Some(node_3.clone()),
         },
     ];
     NodeTest::new().run_scripts(scripts);
@@ -130,35 +130,6 @@ fn operation_insert_with_multiple_level_path_test() {
 }
 
 #[test]
-fn operation_insert_node_when_its_parent_is_not_exist_test() {
-    let mut test = NodeTest::new();
-    let text_1 = NodeDataBuilder::new("text_1").build();
-    let text_2 = NodeDataBuilder::new("text_2").build();
-    let scripts = vec![
-        InsertNode {
-            path: 0.into(),
-            node_data: text_1.clone(),
-            rev_id: 1,
-        },
-        // The node at path 1 is not existing when inserting the text_2 to path 2.
-        InsertNode {
-            path: 2.into(),
-            node_data: text_2.clone(),
-            rev_id: 2,
-        },
-        AssertNode {
-            path: 1.into(),
-            expected: Some(placeholder_node()),
-        },
-        AssertNode {
-            path: 2.into(),
-            expected: Some(text_2),
-        },
-    ];
-    test.run_scripts(scripts);
-}
-
-#[test]
 fn operation_insert_node_out_of_bound_test() {
     let mut test = NodeTest::new();
     let image_a = NodeData::new("image_a");
@@ -207,14 +178,43 @@ fn operation_insert_node_out_of_bound_test() {
     test.run_scripts(scripts);
 }
 #[test]
-fn operation_insert_node_when_its_parent_is_not_exist_test2() {
+fn operation_insert_node_when_parent_is_not_exist_test1() {
     let mut test = NodeTest::new();
     let text_1 = NodeDataBuilder::new("text_1").build();
     let text_2 = NodeDataBuilder::new("text_2").build();
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: text_1.clone(),
+            node_data: text_1,
+            rev_id: 1,
+        },
+        // The node at path 1 is not existing when inserting the text_2 to path 2.
+        InsertNode {
+            path: 2.into(),
+            node_data: text_2.clone(),
+            rev_id: 2,
+        },
+        AssertNode {
+            path: 1.into(),
+            expected: Some(placeholder_node()),
+        },
+        AssertNode {
+            path: 2.into(),
+            expected: Some(text_2),
+        },
+    ];
+    test.run_scripts(scripts);
+}
+
+#[test]
+fn operation_insert_node_when_parent_is_not_exist_test2() {
+    let mut test = NodeTest::new();
+    let text_1 = NodeDataBuilder::new("text_1").build();
+    let text_2 = NodeDataBuilder::new("text_2").build();
+    let scripts = vec![
+        InsertNode {
+            path: 0.into(),
+            node_data: text_1,
             rev_id: 1,
         },
         // The node at path 1 is not existing when inserting the text_2 to path 2.
@@ -240,15 +240,18 @@ fn operation_insert_node_when_its_parent_is_not_exist_test2() {
 }
 
 #[test]
-#[should_panic]
 fn operation_insert_node_when_its_parent_is_not_exist_test3() {
     let mut test = NodeTest::new();
     let text_1 = NodeDataBuilder::new("text_1").build();
     let text_2 = NodeDataBuilder::new("text_2").build();
+
+    let mut placeholder_node = placeholder_node();
+    placeholder_node.children.push(text_2.clone());
+
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: text_1.clone(),
+            node_data: text_1,
             rev_id: 1,
         },
         // The node at path 1 is not existing when inserting the text_2 to path 2.
@@ -259,11 +262,198 @@ fn operation_insert_node_when_its_parent_is_not_exist_test3() {
         },
         AssertNode {
             path: 1.into(),
-            expected: Some(placeholder_node()),
+            expected: Some(placeholder_node),
         },
         AssertNode {
             path: vec![1, 0].into(),
             expected: Some(text_2),
+        },
+    ];
+    test.run_scripts(scripts);
+}
+
+#[test]
+fn operation_insert_node_to_the_end_when_parent_is_not_exist_test() {
+    let mut test = NodeTest::new();
+    let node_0 = NodeData::new("0");
+    let node_1 = NodeData::new("1");
+    let node_1_1 = NodeData::new("1_1");
+    let text_node = NodeData::new("text");
+    let mut ghost = placeholder_node();
+    ghost.children.push(text_node.clone());
+    // 0:0
+    // 1:1
+    //      0:1_1
+    //      1:ghost
+    //              0:text
+    let scripts = vec![
+        InsertNode {
+            path: 0.into(),
+            node_data: node_0,
+            rev_id: 1,
+        },
+        InsertNode {
+            path: 1.into(),
+            node_data: node_1,
+            rev_id: 2,
+        },
+        InsertNode {
+            path: vec![1, 0].into(),
+            node_data: node_1_1.clone(),
+            rev_id: 3,
+        },
+        InsertNode {
+            path: vec![1, 1, 0].into(),
+            node_data: text_node.clone(),
+            rev_id: 4,
+        },
+        AssertNode {
+            path: vec![1, 0].into(),
+            expected: Some(node_1_1),
+        },
+        AssertNode {
+            path: vec![1, 1].into(),
+            expected: Some(ghost),
+        },
+        AssertNode {
+            path: vec![1, 1, 0].into(),
+            expected: Some(text_node),
+        },
+    ];
+    test.run_scripts(scripts);
+}
+#[test]
+fn operation_insert_node_when_multiple_parent_is_not_exist_test() {
+    let mut test = NodeTest::new();
+    let text_1 = NodeDataBuilder::new("text_1").build();
+    let text_2 = NodeDataBuilder::new("text_2").build();
+
+    let path = vec![1, 0, 0, 0, 0, 0];
+    let mut auto_fill_node = placeholder_node();
+    let mut iter_node: &mut NodeData = &mut auto_fill_node;
+    let insert_path = path.split_at(1).1;
+    for (index, _) in insert_path.iter().enumerate() {
+        if index == insert_path.len() - 1 {
+            iter_node.children.push(text_2.clone());
+        } else {
+            iter_node.children.push(placeholder_node());
+            iter_node = iter_node.children.last_mut().unwrap();
+        }
+    }
+
+    let scripts = vec![
+        InsertNode {
+            path: 0.into(),
+            node_data: text_1,
+            rev_id: 1,
+        },
+        InsertNode {
+            path: path.clone().into(),
+            node_data: text_2.clone(),
+            rev_id: 2,
+        },
+        AssertNode {
+            path: vec![1].into(),
+            expected: Some(auto_fill_node),
+        },
+        AssertNode {
+            path: path.into(),
+            expected: Some(text_2),
+        },
+    ];
+    test.run_scripts(scripts);
+}
+
+#[test]
+fn operation_insert_node_when_multiple_parent_is_not_exist_test2() {
+    let mut test = NodeTest::new();
+    // 0:ghost
+    //        0:ghost
+    //        1:ghost
+    //               0:text
+    let mut text_node_parent = placeholder_node();
+    let text_node = NodeDataBuilder::new("text").build();
+    text_node_parent.children.push(text_node.clone());
+
+    let mut ghost = placeholder_node();
+    ghost.children.push(placeholder_node());
+    ghost.children.push(text_node_parent.clone());
+
+    let path = vec![1, 1, 0];
+    let scripts = vec![
+        InsertNode {
+            path: path.into(),
+            node_data: text_node.clone(),
+            rev_id: 1,
+        },
+        // 0:ghost
+        // 1:ghost
+        //        0:ghost
+        //        1:ghost
+        //               0:text
+        AssertNode {
+            path: 0.into(),
+            expected: Some(placeholder_node()),
+        },
+        AssertNode {
+            path: 1.into(),
+            expected: Some(ghost),
+        },
+        AssertNumberOfChildrenAtPath {
+            path: Some(1.into()),
+            expected: 2,
+        },
+        AssertNode {
+            path: vec![1, 1].into(),
+            expected: Some(text_node_parent),
+        },
+        AssertNode {
+            path: vec![1, 1, 0].into(),
+            expected: Some(text_node),
+        },
+    ];
+    test.run_scripts(scripts);
+}
+
+#[test]
+fn operation_insert_node_when_multiple_parent_is_not_exist_test3() {
+    let mut test = NodeTest::new();
+    let text_node = NodeDataBuilder::new("text").build();
+    let path = vec![3, 3, 0];
+    let scripts = vec![
+        InsertNode {
+            path: path.clone().into(),
+            node_data: text_node.clone(),
+            rev_id: 1,
+        },
+        // 0:ghost
+        // 1:ghost
+        // 2:ghost
+        // 3:ghost
+        //        0:ghost
+        //        1:ghost
+        //        2:ghost
+        //        3:ghost
+        //               0:text
+        AssertNode {
+            path: 0.into(),
+            expected: Some(placeholder_node()),
+        },
+        AssertNode {
+            path: 1.into(),
+            expected: Some(placeholder_node()),
+        },
+        AssertNode {
+            path: 2.into(),
+            expected: Some(placeholder_node()),
+        },
+        AssertNumberOfChildrenAtPath {
+            path: Some(3.into()),
+            expected: 4,
+        },
+        AssertNode {
+            path: path.into(),
+            expected: Some(text_node),
         },
     ];
     test.run_scripts(scripts);

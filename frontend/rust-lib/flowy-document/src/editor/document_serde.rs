@@ -325,7 +325,6 @@ mod tests {
     use crate::editor::document::Document;
     use crate::editor::document_serde::DocumentTransaction;
     use crate::editor::initial_read_me;
-    use lib_ot::core::Transaction;
 
     #[test]
     fn load_read_me() {
@@ -371,16 +370,16 @@ mod tests {
         let _ = serde_json::to_string_pretty(&document).unwrap();
     }
 
-    #[test]
-    fn document_operation_compose_test() {
-        let json = include_str!("./test.json");
-        let transaction: Transaction = Transaction::from_json(json).unwrap();
-        let json = transaction.to_json().unwrap();
-        // let transaction: Transaction = Transaction::from_json(&json).unwrap();
-        let document = Document::from_transaction(transaction).unwrap();
-        let content = document.get_content(false).unwrap();
-        println!("{}", json);
-    }
+    // #[test]
+    // fn document_operation_compose_test() {
+    //     let json = include_str!("./test.json");
+    //     let transaction: Transaction = Transaction::from_json(json).unwrap();
+    //     let json = transaction.to_json().unwrap();
+    //     // let transaction: Transaction = Transaction::from_json(&json).unwrap();
+    //     let document = Document::from_transaction(transaction).unwrap();
+    //     let content = document.get_content(false).unwrap();
+    //     println!("{}", json);
+    // }
 
     const EXAMPLE_DOCUMENT: &str = r#"{
   "document": {

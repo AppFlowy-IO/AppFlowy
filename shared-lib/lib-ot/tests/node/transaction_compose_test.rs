@@ -1,8 +1,5 @@
 use crate::node::script::{edit_node_delta, make_node_delta_changeset};
-use lib_ot::core::{
-    AttributeEntry, AttributeHashMap, Changeset, NodeData, NodeDataBuilder, NodeOperation, Transaction,
-    TransactionBuilder,
-};
+use lib_ot::core::{AttributeEntry, Changeset, NodeDataBuilder, NodeOperation, Transaction, TransactionBuilder};
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[test]
@@ -66,7 +63,7 @@ fn transaction_compose_multiple_update_test() {
 #[test]
 fn transaction_compose_multiple_attribute_test() {
     let delta = DeltaTextOperationBuilder::new().insert("Hello").build();
-    let node = NodeDataBuilder::new("text").insert_delta(delta.clone()).build();
+    let node = NodeDataBuilder::new("text").insert_delta(delta).build();
 
     let insert_operation = NodeOperation::Insert {
         path: 0.into(),

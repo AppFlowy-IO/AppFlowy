@@ -1,6 +1,6 @@
 use super::NodeOperations;
 use crate::core::{Changeset, Node, NodeData, NodeOperation, Path, Transaction};
-use crate::errors::{ErrorBuilder, OTError, OTErrorCode};
+use crate::errors::{OTError, OTErrorCode};
 use indextree::{Arena, FollowingSiblings, NodeId};
 use std::sync::Arc;
 
@@ -20,7 +20,7 @@ impl Default for NodeTree {
     }
 }
 
-pub const PLACEHOLDER_NODE_TYPE: &'static str = "ghost";
+pub const PLACEHOLDER_NODE_TYPE: &str = "";
 
 impl NodeTree {
     pub fn new(context: NodeTreeContext) -> NodeTree {
@@ -43,13 +43,7 @@ impl NodeTree {
     pub fn from_operations<T: Into<NodeOperations>>(operations: T, context: NodeTreeContext) -> Result<Self, OTError> {
         let operations = operations.into();
         let mut node_tree = NodeTree::new(context);
-        for (index, operation) in operations.into_inner().into_iter().enumerate() {
-            if index == 75 {
-                println!("{}", index);
-            }
-            if index == 76 {
-                println!("{}", index);
-            }
+        for (_, operation) in operations.into_inner().into_iter().enumerate() {
             let _ = node_tree.apply_op(operation)?;
         }
         Ok(node_tree)
@@ -157,15 +151,15 @@ impl NodeTree {
             return None;
         }
 
-        let mut iterate_node = self.root;
+        let mut node_id = self.root;
         for id in path.iter() {
-            iterate_node = self.child_from_node_at_index(iterate_node, *id)?;
+            node_id = self.node_id_from_parent_at_index(node_id, *id)?;
         }
 
-        if iterate_node.is_removed(&self.arena) {
+        if node_id.is_removed(&self.arena) {
             return None;
         }
-        Some(iterate_node)
+        Some(node_id)
     }
 
     pub fn path_from_node_id(&self, node_id: NodeId) -> Path {
@@ -218,7 +212,7 @@ impl NodeTree {
     /// let node_2 = node_tree.get_node_at_path(&inserted_path).unwrap();
     /// assert_eq!(node_2.node_type, node_1.node_type);
     /// ```
-    pub fn child_from_node_at_index(&self, node_id: NodeId, index: usize) -> Option<NodeId> {
+    pub fn node_id_from_parent_at_index(&self, node_id: NodeId, index: usize) -> Option<NodeId> {
         let children = node_id.children(&self.arena);
         for (counter, child) in children.enumerate() {
             if counter == index {
@@ -303,12 +297,56 @@ impl NodeTree {
         if parent_path.is_empty() {
             self.insert_nodes_at_index(self.root, last_index, nodes)
         } else {
-            let parent_node = self
-                .node_id_at_path(parent_path)
-                .ok_or_else(|| OTError::path_not_found().context("Can't find the path to insert"))?;
+            let parent_node = match self.node_id_at_path(parent_path) {
+                None => self.create_adjacent_nodes_for_path(parent_path),
+                Some(parent_node) => parent_node,
+            };
 
             self.insert_nodes_at_index(parent_node, last_index, nodes)
         }
+    }
+
+    /// Create the adjacent nodes for the path
+    ///
+    /// It will create a corresponding node for each node on the path if it's not existing.
+    /// If the path is not start from zero, it will create its siblings.
+    ///
+    /// Check out the operation_insert_test.rs for more examples.
+    /// * operation_insert_node_when_its_parent_is_not_exist
+    /// * operation_insert_node_when_multiple_parent_is_not_exist_test
+    ///
+    /// # Arguments
+    ///
+    /// * `path`: creates nodes for this path
+    ///
+    /// returns: NodeId
+    ///
+    fn create_adjacent_nodes_for_path<T: Into<Path>>(&mut self, path: T) -> NodeId {
+        let path = path.into();
+        let mut node_id = self.root;
+        for id in path.iter() {
+            match self.node_id_from_parent_at_index(node_id, *id) {
+                None => {
+                    let num_of_children = node_id.children(&self.arena).count();
+                    if *id > num_of_children {
+                        for _ in 0..(*id - num_of_children) {
+                            let node: Node = placeholder_node().into();
+                            let sibling_node = self.arena.new_node(node);
+                            node_id.append(sibling_node, &mut self.arena);
+                        }
+                    }
+
+                    let node: Node = placeholder_node().into();
+                    let new_node_id = self.arena.new_node(node);
+                    node_id.append(new_node_id, &mut self.arena);
+                    node_id = new_node_id;
+                }
+                Some(next_node_id) => {
+                    node_id = next_node_id;
+                }
+            }
+        }
+        node_id
     }
 
     /// Inserts nodes before the node with node_id
@@ -326,19 +364,6 @@ impl NodeTree {
         }
     }
 
-    fn insert_nodes_after(&mut self, node_id: &NodeId, nodes: Vec<NodeData>) {
-        if node_id.is_removed(&self.arena) {
-            tracing::warn!("Node:{:?} is remove before insert", node_id);
-            return;
-        }
-        for node in nodes {
-            let (node, children) = node.split();
-            let new_node_id = self.arena.new_node(node);
-            node_id.insert_after(new_node_id, &mut self.arena);
-            self.append_nodes(&new_node_id, children);
-        }
-    }
-
     fn insert_nodes_at_index(&mut self, parent: NodeId, index: usize, nodes: Vec<NodeData>) -> Result<(), OTError> {
         if index == 0 && parent.children(&self.arena).next().is_none() {
             self.append_nodes(&parent, nodes);
@@ -347,11 +372,10 @@ impl NodeTree {
 
         // Append the node to the end of the children list if index greater or equal to the
         // length of the children.
-        let num_of_child = parent.children(&self.arena).count();
-        if index >= num_of_child {
-            let mut num_of_nodes_to_insert = index - num_of_child;
+        let num_of_children = parent.children(&self.arena).count();
+        if index >= num_of_children {
+            let mut num_of_nodes_to_insert = index - num_of_children;
             while num_of_nodes_to_insert > 0 {
-                // self.insert_nodes_after(&parent, vec![NodeData::new("text")]);
                 self.append_nodes(&parent, vec![placeholder_node()]);
                 num_of_nodes_to_insert -= 1;
             }
@@ -361,7 +385,7 @@ impl NodeTree {
         }
 
         let node_to_insert = self
-            .child_from_node_at_index(parent, index)
+            .node_id_from_parent_at_index(parent, index)
             .ok_or_else(|| OTError::internal().context(format!("Can't find the node at {}", index)))?;
 
         self.insert_nodes_before(&node_to_insert, nodes);

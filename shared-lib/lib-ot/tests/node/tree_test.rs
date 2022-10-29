@@ -35,26 +35,6 @@ fn node_insert_with_empty_path_test() {
 }
 
 #[test]
-#[should_panic]
-fn node_insert_with_not_exist_path_test() {
-    let mut test = NodeTest::new();
-    let node_data = NodeData::new("text");
-    let path: Path = vec![0, 0, 9].into();
-    let scripts = vec![
-        InsertNode {
-            path: path.clone(),
-            node_data: node_data.clone(),
-            rev_id: 1,
-        },
-        AssertNode {
-            path,
-            expected: Some(node_data),
-        },
-    ];
-    test.run_scripts(scripts);
-}
-
-#[test]
 fn tree_insert_multiple_nodes_at_root_path_test() {
     let mut test = NodeTest::new();
     let node_1 = NodeData::new("a");

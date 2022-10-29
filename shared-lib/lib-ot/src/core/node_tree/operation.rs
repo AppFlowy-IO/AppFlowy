@@ -1,6 +1,6 @@
 use crate::core::{Body, Changeset, NodeData, OperationTransform, Path};
 use crate::errors::OTError;
-use indexmap::IndexMap;
+
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 
@@ -37,7 +37,7 @@ impl NodeOperation {
     pub fn is_update_delta(&self) -> bool {
         match self {
             NodeOperation::Insert { .. } => false,
-            NodeOperation::Update { path, changeset } => changeset.is_delta(),
+            NodeOperation::Update { path: _, changeset } => changeset.is_delta(),
             NodeOperation::Delete { .. } => false,
         }
     }
@@ -45,7 +45,7 @@ impl NodeOperation {
     pub fn is_update_attribute(&self) -> bool {
         match self {
             NodeOperation::Insert { .. } => false,
-            NodeOperation::Update { path, changeset } => changeset.is_attribute(),
+            NodeOperation::Update { path: _, changeset } => changeset.is_attribute(),
             NodeOperation::Delete { .. } => false,
         }
     }
@@ -90,7 +90,7 @@ impl NodeOperation {
                             *old_delta = new_delta;
                         }
                     }
-                    Changeset::Attributes { new, old } => {
+                    Changeset::Attributes { new: _, old: _ } => {
                         return Err(OTError::compose().context("Can't compose the attributes changeset"));
                     }
                 }

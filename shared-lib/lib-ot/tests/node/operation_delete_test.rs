@@ -1,7 +1,7 @@
 use crate::node::script::NodeScript::*;
 use crate::node::script::NodeTest;
 
-use lib_ot::core::{Changeset, NodeData, NodeDataBuilder, NodeOperation, Path};
+use lib_ot::core::{Changeset, NodeData, NodeDataBuilder};
 
 #[test]
 fn operation_delete_nested_node_test() {
@@ -18,7 +18,7 @@ fn operation_delete_nested_node_test() {
         .build();
     let video_1 = NodeDataBuilder::new("video_1")
         .add_node_data(video_a.clone())
-        .add_node_data(video_b.clone())
+        .add_node_data(video_b)
         .build();
 
     let text_node_1 = NodeDataBuilder::new("text_1")
@@ -27,7 +27,7 @@ fn operation_delete_nested_node_test() {
         .build();
 
     let image_2 = NodeDataBuilder::new("image_2")
-        .add_node_data(image_a.clone())
+        .add_node_data(image_a)
         .add_node_data(image_b.clone())
         .build();
     let text_node_2 = NodeDataBuilder::new("text_2").add_node_data(image_2).build();
@@ -64,7 +64,7 @@ fn operation_delete_nested_node_test() {
         },
         AssertNode {
             path: vec![0, 1].into(),
-            expected: Some(video_1.clone()),
+            expected: Some(video_1),
         },
         DeleteNode {
             path: vec![0, 1, 1].into(),
@@ -72,7 +72,7 @@ fn operation_delete_nested_node_test() {
         },
         AssertNode {
             path: vec![0, 1, 0].into(),
-            expected: Some(video_a.clone()),
+            expected: Some(video_a),
         },
     ];
     test.run_scripts(scripts);
@@ -149,7 +149,7 @@ fn operation_update_node_after_delete_test() {
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: text_1.clone(),
+            node_data: text_1,
             rev_id: 1,
         },
         InsertNode {
