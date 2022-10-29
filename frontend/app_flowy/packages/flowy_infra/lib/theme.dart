@@ -188,6 +188,7 @@ class AppTheme {
           greyHover: bg2,
           greySelect: bg3,
           lightGreyHover: shader6,
+          toggleOffFill: shader5,
         )
       ],
     );

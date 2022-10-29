@@ -18,6 +18,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
   final Color? greyHover;
   final Color? greySelect;
   final Color? lightGreyHover;
+  final Color? toggleOffFill;
 
   const CustomColors({
     required this.warning,
@@ -25,6 +26,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
     this.greyHover,
     this.greySelect,
     this.lightGreyHover,
+    this.toggleOffFill,
   });
 
   @override
@@ -34,6 +36,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
     Color? greyHover,
     Color? greySelect,
     Color? lightGreyHover,
+    Color? toggleOffFill,
   }) {
     return CustomColors(
       warning: warning ?? this.warning,
@@ -41,6 +44,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
       greyHover: greyHover ?? this.greyHover,
       greySelect: greySelect ?? this.greySelect,
       lightGreyHover: lightGreyHover ?? this.lightGreyHover,
+      toggleOffFill: toggleOffFill ?? this.toggleOffFill,
     );
   }
 
@@ -56,6 +60,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
       greyHover: Color.lerp(greyHover, other.greyHover, t),
       greySelect: Color.lerp(greySelect, other.greySelect, t),
       lightGreyHover: Color.lerp(lightGreyHover, other.lightGreyHover, t),
+      toggleOffFill: Color.lerp(toggleOffFill, other.toggleOffFill, t),
     );
   }
 }

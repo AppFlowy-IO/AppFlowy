@@ -15,8 +15,6 @@ class SettingsAppearanceView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
-
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -30,7 +28,7 @@ class SettingsAppearanceView extends StatelessWidget {
               Toggle(
                 value: Theme.of(context).brightness == Brightness.dark,
                 onChanged: (_) => setTheme(context),
-                style: ToggleStyle.big(theme),
+                style: ToggleStyle.big,
               ),
               Text(
                 LocaleKeys.settings_appearance_darkLabel.tr(),

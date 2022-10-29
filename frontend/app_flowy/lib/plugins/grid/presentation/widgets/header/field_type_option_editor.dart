@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_data_controller.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:flowy_infra/image.dart';

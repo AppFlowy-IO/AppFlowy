@@ -1,6 +1,5 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/date_bloc.dart';
 import 'package:app_flowy/plugins/grid/application/field/type_option/type_option_context.dart';
-import 'package:app_flowy/workspace/application/appearance.dart';
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle.dart';
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
@@ -171,7 +170,6 @@ class _IncludeTimeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppearanceSettingsCubit>().state.theme;
     return BlocSelector<DateTypeOptionBloc, DateTypeOptionState, bool>(
       selector: (state) => state.typeOption.includeTime,
       builder: (context, includeTime) {
@@ -191,7 +189,7 @@ class _IncludeTimeButton extends StatelessWidget {
                         .read<DateTypeOptionBloc>()
                         .add(DateTypeOptionEvent.includeTime(!value));
                   },
-                  style: ToggleStyle.big(theme),
+                  style: ToggleStyle.big,
                   padding: EdgeInsets.zero,
                 ),
               ],

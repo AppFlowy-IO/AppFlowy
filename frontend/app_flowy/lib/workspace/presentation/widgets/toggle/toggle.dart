@@ -1,9 +1,13 @@
 import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flowy_infra/color_extension.dart';
+import 'package:flutter/material.dart';
 
 class Toggle extends StatelessWidget {
   final ToggleStyle style;
   final bool value;
+  final Color? thumbColor;
+  final Color? activeBackgroundColor;
+  final Color? inactiveBackgroundColor;
   final void Function(bool) onChanged;
   final EdgeInsets padding;
 
@@ -12,11 +16,18 @@ class Toggle extends StatelessWidget {
     required this.value,
     required this.onChanged,
     required this.style,
+    this.thumbColor,
+    this.activeBackgroundColor,
+    this.inactiveBackgroundColor,
     this.padding = const EdgeInsets.all(8.0),
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final backgroundColor = value
+        ? activeBackgroundColor ?? Theme.of(context).colorScheme.primary
+        : activeBackgroundColor ??
+            Theme.of(context).extension<CustomColors>()!.toggleOffFill;
     return GestureDetector(
       onTap: (() => onChanged(value)),
       child: Padding(
@@ -27,7 +38,7 @@ class Toggle extends StatelessWidget {
               height: style.height,
               width: style.width,
               decoration: BoxDecoration(
-                color: value ? style.activeBackgroundColor : style.inactiveBackgroundColor,
+                color: backgroundColor,
                 borderRadius: BorderRadius.circular(style.height / 2),
               ),
             ),
@@ -39,7 +50,7 @@ class Toggle extends StatelessWidget {
                 height: style.thumbRadius,
                 width: style.thumbRadius,
                 decoration: BoxDecoration(
-                  color: style.thumbColor,
+                  color: thumbColor ?? Theme.of(context).colorScheme.onPrimary,
                   borderRadius: BorderRadius.circular(style.thumbRadius / 2),
                 ),
               ),
