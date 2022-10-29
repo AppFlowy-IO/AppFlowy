@@ -12,7 +12,14 @@ pub struct AttributeEntry {
 }
 
 impl AttributeEntry {
-    pub fn remove_value(&mut self) {
+    pub fn new<K: Into<AttributeKey>, V: Into<AttributeValue>>(key: K, value: V) -> Self {
+        Self {
+            key: key.into(),
+            value: value.into(),
+        }
+    }
+
+    pub fn clear(&mut self) {
         self.value.ty = None;
         self.value.value = None;
     }
