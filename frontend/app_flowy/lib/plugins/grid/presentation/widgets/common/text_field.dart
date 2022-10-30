@@ -37,7 +37,7 @@ class _InputTextFieldState extends State<InputTextField> {
   void initState() {
     _focusNode = FocusNode();
     _controller = TextEditingController(text: widget.text);
-        SchedulerBinding.instance.addPostFrameCallback((Duration _) {
+    SchedulerBinding.instance.addPostFrameCallback((Duration _) {
       _focusNode.requestFocus();
     });
 
