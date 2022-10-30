@@ -73,5 +73,66 @@ void main() async {
       final document = Document.fromJson(json);
       expect(document.toJson(), json);
     });
+
+    test('isEmpty', () {
+      expect(
+        true,
+        Document.fromJson({
+          'document': {
+            'type': 'editor',
+            'children': [
+              {
+                'type': 'text',
+                'delta': [],
+              }
+            ],
+          }
+        }).isEmpty,
+      );
+
+      expect(
+        true,
+        Document.fromJson({
+          'document': {
+            'type': 'editor',
+            'children': [],
+          }
+        }).isEmpty,
+      );
+
+      expect(
+        true,
+        Document.fromJson({
+          'document': {
+            'type': 'editor',
+            'children': [
+              {
+                'type': 'text',
+                'delta': [
+                  {'insert': ''}
+                ],
+              }
+            ],
+          }
+        }).isEmpty,
+      );
+
+      expect(
+        false,
+        Document.fromJson({
+          'document': {
+            'type': 'editor',
+            'children': [
+              {
+                'type': 'text',
+                'delta': [
+                  {'insert': 'Welcome to AppFlowy!'}
+                ],
+              }
+            ],
+          }
+        }).isEmpty,
+      );
+    });
   });
 }

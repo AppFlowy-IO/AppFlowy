@@ -117,6 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: AppFlowyEditor(
               editorState: _editorState!,
               editable: true,
+              autoFocus: _editorState!.document.isEmpty,
               themeData: _editorThemeData,
               customBuilders: {
                 'text/code_block': CodeBlockNodeWidgetBuilder(),

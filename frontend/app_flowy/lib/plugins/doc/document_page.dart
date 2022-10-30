@@ -96,6 +96,7 @@ class _DocumentPageState extends State<DocumentPage> {
     final theme = Theme.of(context);
     final editor = AppFlowyEditor(
       editorState: editorState,
+      autoFocus: editorState.document.isEmpty,
       customBuilders: {
         'horizontal_rule': HorizontalRuleWidgetBuilder(),
       },
