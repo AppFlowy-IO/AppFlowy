@@ -87,6 +87,7 @@ jobs:
     env:
       MACOS_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/macos/Release
       MACOS_X86_ZIP_NAME: Appflowy-macos-x86_64.zip
+      MACOS_DMG_NAME: Appflowy-macos-x86_64-installer
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -116,6 +117,21 @@ jobs:
           flutter config --enable-macos-desktop
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86_64 appflowy
 
+      - name: Create MacOS dmg
+        working-directory: frontend
+        run: |
+            brew install create-dmg
+            create-dmg \
+            --volname ${{ env.MACOS_DMG_NAME }} \
+            --hide-extension "AppFlowy.app" \
+            --background scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
+            --window-size 600 450 \
+            --icon-size 94 \
+            --icon "AppFlowy.app" 141 249 \
+            --app-drop-link 458 249 \
+            "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
+            "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app"
+
       - name: Archive macOS app
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
         run: zip --symlinks -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
@@ -129,6 +145,15 @@ jobs:
           asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_X86_ZIP_NAME }}
           asset_name: ${{ env.MACOS_X86_ZIP_NAME }}
           asset_content_type: application/octet-stream
+      - name: Upload DMG Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+              upload_url: ${{ needs.create-release.outputs.upload_url }}
+              asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg
+              asset_name: ${{ env.MACOS_DMG_NAME }}.dmg
+              asset_content_type: application/octet-stream
 
   build-windows-x86_64:
     runs-on: windows-latest
