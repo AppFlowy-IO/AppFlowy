@@ -269,15 +269,15 @@ class _AddOptionButton extends StatelessWidget {
 class _CreateOptionTextField extends StatefulWidget {
   final PopoverMutex? popoverMutex;
   const _CreateOptionTextField({
-    super.key,
+    Key? key,
     this.popoverMutex,
-  });
+  }) : super(key: key);
 
   @override
-  State<_CreateOptionTextField> createState() => __CreateOptionTextFieldState();
+  State<_CreateOptionTextField> createState() => _CreateOptionTextFieldState();
 }
 
-class __CreateOptionTextFieldState extends State<_CreateOptionTextField> {
+class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
   late final FocusNode _focusNode;
 
   @override
