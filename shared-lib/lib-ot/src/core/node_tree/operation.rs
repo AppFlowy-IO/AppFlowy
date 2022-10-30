@@ -234,16 +234,6 @@ impl NodeOperations {
             }
         }
 
-        // if let Some(operations) = self.inner.get_mut(other.get_path()) {
-        //     if let Some(last_operation) = operations.last_mut() {
-        //         if last_operation.can_compose(&other) {
-        //             let mut_operation = Arc::make_mut(last_operation);
-        //             if mut_operation.compose(&other).is_ok() {
-        //                 return;
-        //             }
-        //         }
-        //     }
-        // }
         // If the passed-in operation can't be composed, then append it to the end.
         self.inner.push(other);
     }

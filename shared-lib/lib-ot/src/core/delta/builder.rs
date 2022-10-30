@@ -1,6 +1,5 @@
 use crate::core::delta::operation::OperationAttributes;
 use crate::core::delta::{trim, DeltaOperations};
-use crate::core::DeltaOperation;
 
 /// A builder for creating new [Operations] objects.
 ///
@@ -39,12 +38,13 @@ where
         DeltaOperationBuilder::default()
     }
 
-    pub fn from_operations(operations: Vec<DeltaOperation<T>>) -> DeltaOperations<T> {
-        let mut delta = DeltaOperationBuilder::default().build();
-        operations.into_iter().for_each(|operation| {
-            delta.add(operation);
+    pub fn from_delta_operation(delta_operation: DeltaOperations<T>) -> Self {
+        debug_assert!(delta_operation.utf16_base_len == 0);
+        let mut builder = DeltaOperationBuilder::new();
+        delta_operation.ops.into_iter().for_each(|operation| {
+            builder.delta.add(operation);
         });
-        delta
+        builder
     }
 
     /// Retain the 'n' characters with the attributes. Use 'retain' instead if you don't
