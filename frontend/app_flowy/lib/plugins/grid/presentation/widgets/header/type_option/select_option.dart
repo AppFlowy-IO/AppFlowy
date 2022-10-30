@@ -289,6 +289,11 @@ class __CreateOptionTextFieldState extends State<_CreateOptionTextField> {
         widget.popoverMutex?.close();
       }
     });
+    widget.popoverMutex?.listenOnPopoverChanged(() {
+      if (_focusNode.hasFocus) {
+        _focusNode.unfocus();
+      }
+    });
   }
 
   @override
