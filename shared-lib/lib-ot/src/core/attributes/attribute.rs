@@ -115,6 +115,10 @@ impl AttributeHashMap {
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
+
+    pub fn to_json(&self) -> Result<String, OTError> {
+        serde_json::to_string(self).map_err(|err| OTError::serde().context(err))
+    }
 }
 
 impl Display for AttributeHashMap {
@@ -210,11 +214,10 @@ impl AttributeValue {
     pub fn none() -> Self {
         Self { ty: None, value: None }
     }
-    pub fn from_int(val: usize) -> Self {
-        let value = if val > 0_usize { Some(val.to_string()) } else { None };
+    pub fn from_int(val: i64) -> Self {
         Self {
             ty: Some(ValueType::IntType),
-            value,
+            value: Some(val.to_string()),
         }
     }
 
@@ -268,7 +271,7 @@ impl std::convert::From<bool> for AttributeValue {
 
 impl std::convert::From<usize> for AttributeValue {
     fn from(value: usize) -> Self {
-        AttributeValue::from_int(value)
+        AttributeValue::from_int(value as i64)
     }
 }
 
@@ -281,6 +284,12 @@ impl std::convert::From<&str> for AttributeValue {
 impl std::convert::From<String> for AttributeValue {
     fn from(value: String) -> Self {
         AttributeValue::from_string(&value)
+    }
+}
+
+impl std::convert::From<f64> for AttributeValue {
+    fn from(value: f64) -> Self {
+        AttributeValue::from_float(value)
     }
 }
 

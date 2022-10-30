@@ -47,6 +47,10 @@ pub enum NodeScript {
         path: Path,
         expected: Option<NodeData>,
     },
+    AssertNodeAttributes {
+        path: Path,
+        expected: &'static str,
+    },
     AssertNodeDelta {
         path: Path,
         expected: DeltaTextOperations,
@@ -129,6 +133,10 @@ impl NodeTest {
             NodeScript::AssertNode { path, expected } => {
                 let node = self.node_tree.get_node_data_at_path(&path);
                 assert_eq!(node, expected.map(|e| e.into()));
+            }
+            NodeScript::AssertNodeAttributes { path, expected } => {
+                let node = self.node_tree.get_node_data_at_path(&path).unwrap();
+                assert_eq!(node.attributes.to_json().unwrap(), expected);
             }
             NodeScript::AssertNumberOfChildrenAtPath { path, expected } => match path {
                 None => {
