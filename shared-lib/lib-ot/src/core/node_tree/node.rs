@@ -212,7 +212,7 @@ impl Changeset {
                     inverted: _,
                 },
             ) => {
-                let original = delta.invert(inverted);
+                let original = delta.compose(inverted)?;
                 let new_delta = delta.compose(other_delta)?;
                 let new_inverted = new_delta.invert(&original);
 

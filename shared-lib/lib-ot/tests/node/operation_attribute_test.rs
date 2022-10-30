@@ -9,7 +9,7 @@ fn operation_update_attribute_with_float_value_test() {
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: text_node.clone(),
+            node_data: text_node,
             rev_id: 1,
         },
         UpdateBody {
@@ -34,7 +34,7 @@ fn operation_update_attribute_with_negative_value_test() {
     let scripts = vec![
         InsertNode {
             path: 0.into(),
-            node_data: text_node.clone(),
+            node_data: text_node,
             rev_id: 1,
         },
         UpdateBody {

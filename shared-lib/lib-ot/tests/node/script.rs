@@ -55,6 +55,10 @@ pub enum NodeScript {
         path: Path,
         expected: DeltaTextOperations,
     },
+    AssertNodeDeltaContent {
+        path: Path,
+        expected: &'static str,
+    },
     #[allow(dead_code)]
     AssertTreeJSON {
         expected: String,
@@ -161,6 +165,14 @@ impl NodeTest {
                 let node = self.node_tree.get_node_at_path(&path).unwrap();
                 if let Body::Delta(delta) = node.body.clone() {
                     debug_assert_eq!(delta, expected);
+                } else {
+                    panic!("Node body type not match, expect Delta");
+                }
+            }
+            NodeScript::AssertNodeDeltaContent { path, expected } => {
+                let node = self.node_tree.get_node_at_path(&path).unwrap();
+                if let Body::Delta(delta) = node.body.clone() {
+                    debug_assert_eq!(delta.content().unwrap(), expected);
                 } else {
                     panic!("Node body type not match, expect Delta");
                 }
