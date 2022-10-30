@@ -43,9 +43,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
         builder: (context, state) {
           List<Widget> children = [
             const TypeOptionSeparator(),
-            OptionTitle(
-              popoverMutex: popoverMutex,
-            ),
+            const OptionTitle(),
             if (state.isEditingOption)
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
@@ -66,9 +64,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
 }
 
 class OptionTitle extends StatelessWidget {
-  final PopoverMutex? popoverMutex;
-
-  const OptionTitle({this.popoverMutex, Key? key}) : super(key: key);
+  const OptionTitle({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -84,9 +80,7 @@ class OptionTitle extends StatelessWidget {
         ];
         if (state.options.isNotEmpty && !state.isEditingOption) {
           children.add(const Spacer());
-          children.add(_OptionTitleButton(
-            popoverMutex: popoverMutex,
-          ));
+          children.add(const _OptionTitleButton());
         }
 
         return SizedBox(
@@ -99,9 +93,7 @@ class OptionTitle extends StatelessWidget {
 }
 
 class _OptionTitleButton extends StatelessWidget {
-  final PopoverMutex? popoverMutex;
-
-  const _OptionTitleButton({this.popoverMutex, Key? key}) : super(key: key);
+  const _OptionTitleButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +109,6 @@ class _OptionTitleButton extends StatelessWidget {
         ),
         hoverColor: theme.hover,
         onTap: () {
-          popoverMutex?.close();
           context
               .read<SelectOptionTypeOptionBloc>()
               .add(const SelectOptionTypeOptionEvent.addingOption());
@@ -315,9 +306,6 @@ class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
             context
                 .read<SelectOptionTypeOptionBloc>()
                 .add(SelectOptionTypeOptionEvent.createOption(optionName));
-          },
-          onTap: () {
-            widget.popoverMutex?.close();
           },
         );
       },
