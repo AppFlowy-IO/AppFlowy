@@ -294,6 +294,7 @@ class __CreateOptionTextFieldState extends State<_CreateOptionTextField> {
         _focusNode.unfocus();
       }
     });
+    super.initState();
   }
 
   @override
