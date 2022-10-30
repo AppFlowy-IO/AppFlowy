@@ -20,7 +20,7 @@
 
 <!-- Add notes to reviewers if applicable -->
 
-## Check List (Check all the applicable boxes) 
+## Check List (Check all the applicable boxes)
 
 <!-- Mark all the applicable boxes. To mark the box as done follow the following conventions -->
 <!--
