@@ -63,10 +63,13 @@ class SelectOptionTypeOptionEditor extends StatelessWidget {
 
             return SizedBox(
               width: 160,
-              child: CustomScrollView(
-                slivers: slivers,
-                controller: ScrollController(),
-                physics: StyledScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: CustomScrollView(
+                  slivers: slivers,
+                  controller: ScrollController(),
+                  physics: StyledScrollPhysics(),
+                ),
               ),
             );
           },
