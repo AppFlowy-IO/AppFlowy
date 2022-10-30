@@ -2,10 +2,17 @@ import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
+import 'package:appflowy_editor/src/render/image/file_picker_dialog.dart';
+import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 OverlayEntry? _imageUploadMenu;
 EditorState? _editorState;
+String? localFile;
 void showImageUploadMenu(
   EditorState editorState,
   SelectionMenuService menuService,
@@ -64,6 +71,17 @@ class ImageUploadMenu extends StatefulWidget {
 
 class _ImageUploadMenuState extends State<ImageUploadMenu>
     with TickerProviderStateMixin {
+  String? _fileName;
+  String? _saveAsFileName;
+  String? src;
+  List<PlatformFile>? _paths;
+  String? _directoryPath;
+  String? _extension;
+  bool _isLoading = false;
+  bool _userAborted = false;
+  bool _multiPick = false;
+  FileType _pickingType = FileType.any;
+
   final _textEditingController = TextEditingController();
   final _focusNode = FocusNode();
   @override
@@ -76,6 +94,62 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
   void dispose() {
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _pickFiles() async {
+    _resetState();
+    try {
+      _directoryPath = null;
+      _paths = (await FilePicker.platform.pickFiles(
+              type: _pickingType,
+              onFileLoading: (FilePickerStatus status) => print(status),
+              allowedExtensions: ['jpg', 'png', 'gif']))
+          ?.files;
+    } on PlatformException catch (e) {
+      _logException('Unsupported operation' + e.toString());
+    } catch (e) {
+      _logException(e.toString());
+    }
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+      for (var e in _paths!) {
+        _fileName = e.name;
+      }
+      for (var e in _paths!) {
+        src = e.path;
+      }
+
+      _userAborted = _paths == null;
+
+      File srcImg = File('$src');
+      copyFile(srcImg, _fileName!);
+    });
+  }
+
+  Future<void> copyFile(File path, String name) async {
+    Directory appDir = await getApplicationDocumentsDirectory();
+    path.copy('${appDir.path}/flowy_dev/$name');
+    localFile = '${appDir.path}/flowy_dev/$name';
+    widget.onUpload(localFile!);
+  }
+
+  void _resetState() {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isLoading = true;
+      _directoryPath = null;
+      _fileName = null;
+      _paths = null;
+      _saveAsFileName = null;
+      _userAborted = false;
+    });
+  }
+
+  void _logException(String message) {
+    print(message);
   }
 
   @override
@@ -123,7 +197,8 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
               height: 200.0,
               child: TabBarView(controller: _tabController, children: <Widget>[
                 InkWell(
-                  onTap: (() => print('Open File Picker')),
+                  //FIXME: Function is not called why?
+                  onTap: (() => _pickFiles()),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[_buildFileInput(context)]),
@@ -177,9 +252,16 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
     return InkWell(
       child: Column(
         children: const <Widget>[
-          Icon(Icons.image),
+          Icon(Icons.image, color: Colors.black, size: 48.0),
           SizedBox(height: 15.0),
-          Text('Drop Image/Click To Upload')
+          Text(
+            'Drop Image/Click To Upload',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 14.0,
+                color: Colors.black,
+                fontWeight: FontWeight.w500),
+          )
         ],
       ),
     );
