@@ -59,7 +59,7 @@ class _RowDetailPageState extends State<RowDetailPage> {
           child: Column(
             children: [
               SizedBox(
-                height: 40,
+                height: 30,
                 child: Row(
                   children: const [Spacer(), _CloseButton()],
                 ),
@@ -264,15 +264,14 @@ class _RowDetailCellState extends State<_RowDetailCell> {
       behavior: HitTestBehavior.translucent,
       onTap: () => cell.beginFocus.notify(),
       child: AccessoryHover(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 3, vertical: 3),
         child: cell,
       ),
     );
 
     return IntrinsicHeight(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 40),
+        constraints: const BoxConstraints(minHeight: 30),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -287,9 +286,7 @@ class _RowDetailCellState extends State<_RowDetailCell> {
                 child: FieldCellButton(
                   maxLines: null,
                   field: widget.cellId.fieldContext.field,
-                  onTap: () {
-                    popover.show();
-                  },
+                  onTap: () => popover.show(),
                 ),
               ),
             ),
