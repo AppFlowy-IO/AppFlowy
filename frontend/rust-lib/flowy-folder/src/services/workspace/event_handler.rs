@@ -119,7 +119,6 @@ fn read_workspaces_on_server(
         let workspace_revs = server.read_workspace(&token, params).await?;
         let _ = persistence
             .begin_transaction(|transaction| {
-                tracing::trace!("Save {} workspace", workspace_revs.len());
                 for workspace_rev in &workspace_revs {
                     let m_workspace = workspace_rev.clone();
                     let app_revs = m_workspace.apps.clone();
