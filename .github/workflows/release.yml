@@ -37,7 +37,7 @@ jobs:
     env:
       LINUX_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/linux/Release
       LINUX_ZIP_NAME: AppFlowy-linux-x86.tar.gz
-      LINUX_PACKAGE_NAME: AppFlowy-linux-x86_${{ github.ref_name }}.deb
+      LINUX_PACKAGE_NAME: AppFlowy_${{ github.ref_name }}_linux-amd64.deb
     steps:
       - name: Checkout
         uses: actions/checkout@v2
