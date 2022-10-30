@@ -152,6 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
               editorState: _editorState!,
               themeData: themeData,
               editable: true,
+              autoFocus: _editorState!.document.isEmpty,
               customBuilders: {
                 'text/code_block': CodeBlockNodeWidgetBuilder(),
                 'tex': TeXBlockNodeWidgetBuidler(),

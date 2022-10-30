@@ -31,6 +31,7 @@ class AppFlowyEditor extends StatefulWidget {
     this.shortcutEvents = const [],
     this.selectionMenuItems = const [],
     this.editable = true,
+    this.autoFocus = false,
     ThemeData? themeData,
   }) : super(key: key) {
     this.themeData = themeData ??
@@ -54,6 +55,9 @@ class AppFlowyEditor extends StatefulWidget {
 
   final bool editable;
 
+  /// Set the value to true to focus the editor on the start of the document.
+  final bool autoFocus;
+
   @override
   State<AppFlowyEditor> createState() => _AppFlowyEditorState();
 }
@@ -73,6 +77,15 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     editorState.themeData = widget.themeData;
     editorState.service.renderPluginService = _createRenderPlugin();
     editorState.editable = widget.editable;
+
+    // auto focus
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (widget.editable && widget.autoFocus) {
+        editorState.service.selectionService.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+      }
+    });
   }
 
   @override
