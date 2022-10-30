@@ -96,7 +96,6 @@ class Popover extends StatefulWidget {
 class PopoverState extends State<Popover> {
   static final RootOverlayEntry _rootEntry = RootOverlayEntry();
   final PopoverLink popoverLink = PopoverLink();
-  Timer? _debounceEnterRegionAction;
 
   @override
   void initState() {
@@ -175,16 +174,9 @@ class PopoverState extends State<Popover> {
 
     return MouseRegion(
       onEnter: (event) {
-        _debounceEnterRegionAction =
-            Timer(const Duration(milliseconds: 200), () {
-          if (widget.triggerActions & PopoverTriggerFlags.hover != 0) {
-            showOverlay();
-          }
-        });
-      },
-      onExit: (event) {
-        _debounceEnterRegionAction?.cancel();
-        _debounceEnterRegionAction = null;
+        if (widget.triggerActions & PopoverTriggerFlags.hover != 0) {
+          showOverlay();
+        }
       },
       child: Listener(
         child: widget.child,
