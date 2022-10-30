@@ -76,36 +76,23 @@ jobs:
         run: |
           mkdir -p package/opt && mv AppFlowy package/opt/
           cd package && mkdir DEBIAN
+          # Create control file
           printf 'Package: AppFlowy
-                  Version: %s
-                  Architecture: all
-                  Essential: no
-                  Priority: optional
-                  Maintainer: AppFlowy
-                  Description: An Open Source Alternative to Notion\n
-                  ' "${{ github.ref_name }}" > DEBIAN/control
-          printf '#!/bin/bash
+          Version: %s
+          Architecture: amd64
+          Essential: no
+          Priority: optional
+          Maintainer: AppFlowy
+          Description: An Open Source Alternative to Notion\n' "${{ github.ref_name }}" > DEBIAN/control
 
-                  set -e 
+          mkdir -p usr/share/applications
+          # Update Exec & icon path in desktop entry
+          grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
+          # Add desktop entry in package
+          mv ./opt/AppFlowy/appflowy.desktop.temp ./usr/share/applications/appflowy.desktop
 
-                  # Create a link in /usr/bin for quick access using terminal
-                  ln -s /opt/AppFlowy/app_flowy /usr/bin/appflowy
-
-                  # Update icon & executable path in desktop entry
-                  grep -rl "\[CHANGE_THIS\]" /opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
-
-                  # Add shortcut in applications drawer
-                  mv /opt/AppFlowy/appflowy.desktop.temp /usr/share/applications/appflowy.desktop' > DEBIAN/postinst
-          printf '#!/bin/bash
-
-                  set -e
-
-                  # Remove symbolic link from /usr/bin
-                  rm /usr/bin/appflowy
-
-                  # Remove Desktop entry
-                  rm /usr/share/applications/appflowy.desktop' > DEBIAN/postrm
-          cd ${{ env.LINUX_APP_RELEASE_PATH }} && dpkg-deb --build package ${{ env.LINUX_PACKAGE_NAME }}
+          # Build
+          cd ../ && dpkg-deb --build --root-owner-group package ${{ env.LINUX_PACKAGE_NAME }}
 
       - name: Upload Release Asset
         id: upload-release-asset
