@@ -29,7 +29,8 @@ class FlowyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: FlowyHover(
         style: HoverStyle(
