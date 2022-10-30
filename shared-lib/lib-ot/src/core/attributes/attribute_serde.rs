@@ -70,56 +70,70 @@ impl<'de> Deserialize<'de> for AttributeValue {
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_int(value as usize))
+                Ok(AttributeValue::from_int(value as i64))
             }
 
             fn visit_i16<E>(self, value: i16) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_int(value as usize))
+                Ok(AttributeValue::from_int(value as i64))
             }
 
             fn visit_i32<E>(self, value: i32) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_int(value as usize))
+                Ok(AttributeValue::from_int(value as i64))
             }
 
             fn visit_i64<E>(self, value: i64) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_int(value as usize))
+                Ok(AttributeValue::from_int(value as i64))
             }
 
             fn visit_u8<E>(self, value: u8) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_int(value as usize))
+                Ok(AttributeValue::from_int(value as i64))
             }
 
             fn visit_u16<E>(self, value: u16) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_int(value as usize))
+                Ok(AttributeValue::from_int(value as i64))
             }
 
             fn visit_u32<E>(self, value: u32) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_int(value as usize))
+                Ok(AttributeValue::from_int(value as i64))
             }
 
             fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
             where
                 E: de::Error,
             {
-                Ok(AttributeValue::from_int(value as usize))
+                Ok(AttributeValue::from_int(value as i64))
+            }
+
+            fn visit_f32<E>(self, value: f32) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(AttributeValue::from_float(value as f64))
+            }
+
+            fn visit_f64<E>(self, value: f64) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Ok(AttributeValue::from_float(value as f64))
             }
 
             fn visit_str<E>(self, s: &str) -> Result<Self::Value, E>

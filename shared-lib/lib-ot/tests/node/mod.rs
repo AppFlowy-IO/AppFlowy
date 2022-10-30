@@ -1,3 +1,4 @@
+mod operation_attribute_test;
 mod operation_delete_test;
 mod operation_delta_test;
 mod operation_insert_test;
