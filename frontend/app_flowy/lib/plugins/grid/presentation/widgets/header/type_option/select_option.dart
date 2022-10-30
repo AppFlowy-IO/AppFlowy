@@ -256,7 +256,6 @@ class _AddOptionButton extends StatelessWidget {
             fontSize: 12),
         hoverColor: theme.hover,
         onTap: () {
-          popoverMutex?.close();
           context
               .read<SelectOptionTypeOptionBloc>()
               .add(const SelectOptionTypeOptionEvent.addingOption());
