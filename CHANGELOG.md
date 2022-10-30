@@ -1,14 +1,25 @@
 # Release Notes
 
+## Version 0.0.6.2 - 10/30/2022
+
+- Fix some bugs
+
+## Version 0.0.6.1 - 10/26/2022
+### New features
+- Optimzie appflowy_editor dark mode style
+
+### Bug Fixes
+- Unable to copy the text with checkbox or link style
+
 ## Version 0.0.6 - 10/23/2022
 
-New features
+### New features
 - Integrate **appflowy_editor** 
 
 
 ## Version 0.0.5.3 - 09/26/2022
 
-New features
+### New features
 - Open the next page automatically after deleting the current page
 - Refresh the Kanban board after altering a property type
 
@@ -22,7 +33,7 @@ New features
 
 ## Version 0.0.5.2 - 09/16/2022
 
-New features
+### New features
 - Enable adding a new card to the "No Status" group
 - Fix some bugs
 
@@ -33,19 +44,19 @@ New features
 
 ## Version 0.0.5.1 - 09/14/2022
 
-New features
+### New features
 - Enable deleting a field in board 
 - Fix some bugs
 
 
 ## Version 0.0.5 - 09/08/2022
-New Features - Kanban Board like Notion and Trello beta
+### New features - Kanban Board like Notion and Trello beta
 Boards are the best way to manage projects & tasks. Use them to group your databases by select, multiselect, and checkbox.
 
 <p align="left"><img src="https://user-images.githubusercontent.com/12026239/190055984-6efa2d7a-ee38-4551-859e-ee56388e1859.gif" width="1000px" /></p>
 
-- Set up columns that represent a specific phase of the project cycle and use cards to represent each project / task
-- Drag and drop a card from one phase / column to another phase / column
+- Set up columns that represent a specific phase of the project cycle and use cards to represent each project/task
+- Drag and drop a card from one phase/column to another phase/column
 - Update database properties in the Board view by clicking on a property and making edits on the card
 
 ### Other Features & Improvements
@@ -55,7 +66,7 @@ Boards are the best way to manage projects & tasks. Use them to group your datab
 
 ## Version 0.0.5 - beta.2 - beta.1 - 09/01/2022
 
-New features
+### New features
 - Board-view database
   - Support start editing after creating a new card
   - Support editing the card directly by clicking the edit button
@@ -67,7 +78,7 @@ New features
 
 ## Version 0.0.5 - beta.1 - 08/25/2022
 
-New features
+### New features
 - Board-view database  
   - Group by single select
   - drag and drop cards
@@ -90,7 +101,7 @@ New features
 
 ## Version 0.0.4 - beta.3 - 05/02/2022
 - Drag to reorder app/ view/ field
-- Row record open as a page
+- Row record opens as a page
 - Auto resize the height of the row in the grid
 - Support more number formats
 - Search column options, supporting Single-select, Multi-select, and number format
@@ -114,7 +125,7 @@ New features
 ## Version 0.0.4 - beta.1 - 04/08/2022
 v0.0.4 - beta.1 is pre-release
 
-New features
+### New features
 - Table-view database
    - supported column types: Text, Checkbox, Single-select, Multi-select, Numbers
    - hide / delete columns
@@ -123,12 +134,12 @@ New features
 ## Version 0.0.3 - 02/23/2022
 v0.0.3 is production ready, available on Linux, macOS, and Windows
 
-New features
+### New features
 - Dark Mode 
 - Support new languages: French, Italian, Russian,  Simplified Chinese, Spanish
 - Add Settings: Toggle on Dark Mode; Select a language
 - Show device info 
-- Add tooltip on toolbar icons
+- Add tooltip on the toolbar icons
 
 Bug fixes and improvements
 - Increased height of action

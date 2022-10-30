@@ -224,6 +224,10 @@ where
         Ok(new_s)
     }
 
+    pub fn inverted(&self) -> Self {
+        self.invert_str("")
+    }
+
     /// Computes the inverse [Delta]. The inverse of an operation is the
     /// operation that reverts the effects of the operation     
     /// # Arguments

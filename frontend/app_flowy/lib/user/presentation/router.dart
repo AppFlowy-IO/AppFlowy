@@ -29,7 +29,7 @@ class AuthRouter {
   }
 
   void pushHomeScreen(BuildContext context, UserProfilePB profile,
-      CurrentWorkspaceSettingPB workspaceSetting) {
+      WorkspaceSettingPB workspaceSetting) {
     Navigator.push(
       context,
       PageRoutes.fade(() => HomeScreen(profile, workspaceSetting),
@@ -54,7 +54,7 @@ class SplashRoute {
   }
 
   void pushHomeScreen(BuildContext context, UserProfilePB userProfile,
-      CurrentWorkspaceSettingPB workspaceSetting) {
+      WorkspaceSettingPB workspaceSetting) {
     Navigator.push(
       context,
       PageRoutes.fade(() => HomeScreen(userProfile, workspaceSetting),

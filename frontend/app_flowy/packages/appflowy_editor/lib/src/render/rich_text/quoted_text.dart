@@ -1,13 +1,14 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:appflowy_editor/src/render/style/plugin_styles.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
+import 'package:appflowy_editor/src/extensions/theme_extension.dart';
 
 class QuotedTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -44,7 +45,7 @@ class QuotedTextNodeWidget extends BuiltInTextWidget {
 // customize
 
 class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
-    with SelectableMixin, DefaultSelectable, BuiltInStyleMixin {
+    with SelectableMixin, DefaultSelectable {
   @override
   final iconKey = GlobalKey();
 
@@ -59,6 +60,25 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
     return super.baseOffset.translate(0, padding.top);
   }
 
+  QuotedTextPluginStyle get style =>
+      Theme.of(context).extensionOrNull<QuotedTextPluginStyle>() ??
+      QuotedTextPluginStyle.light;
+
+  EdgeInsets get padding => style.padding(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  TextStyle get textStyle => style.textStyle(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  Widget get icon => style.icon(
+        widget.editorState,
+        widget.textNode,
+      );
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -67,11 +87,9 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            FlowySvg(
+            Container(
               key: iconKey,
-              width: iconSize?.width,
-              padding: iconPadding,
-              name: 'quote',
+              child: icon,
             ),
             Flexible(
               child: FlowyRichText(
@@ -82,7 +100,7 @@ class _QuotedTextNodeWidgetState extends State<QuotedTextNodeWidget>
                     textSpan.updateTextStyle(textStyle),
                 placeholderTextSpanDecorator: (textSpan) =>
                     textSpan.updateTextStyle(textStyle),
-                lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+                lineHeight: widget.editorState.editorStyle.lineHeight,
                 editorState: widget.editorState,
               ),
             ),

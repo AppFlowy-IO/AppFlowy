@@ -241,6 +241,8 @@ class HTMLToNodesConverter {
     } else if (element.localName == HTMLTag.del) {
       delta.insert(element.text,
           attributes: {BuiltInAttributeKey.strikethrough: true});
+    } else if (element.localName == HTMLTag.code) {
+      delta.insert(element.text, attributes: {BuiltInAttributeKey.code: true});
     } else {
       delta.insert(element.text);
     }
@@ -276,11 +278,13 @@ class HTMLToNodesConverter {
       }
     }
 
-    final textNode = TextNode(delta: delta, attributes: attributes);
-    if (isCheckbox) {
-      textNode.attributes["subtype"] = BuiltInAttributeKey.checkbox;
-      textNode.attributes["checkbox"] = checked;
-    }
+    final textNode = TextNode(delta: delta, attributes: {
+      if (attributes != null) ...attributes,
+      if (isCheckbox) ...{
+        BuiltInAttributeKey.subtype: BuiltInAttributeKey.checkbox,
+        BuiltInAttributeKey.checkbox: checked,
+      }
+    });
     return textNode;
   }
 
@@ -557,6 +561,17 @@ class NodesToHTMLConverter {
             final strong = html.Element.tag(HTMLTag.del);
             strong.append(html.Text(op.text));
             childNodes.add(strong);
+          } else if (attributes.length == 1 &&
+              attributes[BuiltInAttributeKey.code] == true) {
+            final code = html.Element.tag(HTMLTag.code);
+            code.append(html.Text(op.text));
+            childNodes.add(code);
+          } else if (attributes.length == 1 &&
+              attributes[BuiltInAttributeKey.href] != null) {
+            final anchor = html.Element.tag(HTMLTag.anchor);
+            anchor.attributes["href"] = attributes[BuiltInAttributeKey.href];
+            anchor.append(html.Text(op.text));
+            childNodes.add(anchor);
           } else {
             final span = html.Element.tag(HTMLTag.span);
             final cssString = _attributesToCssStyle(attributes);

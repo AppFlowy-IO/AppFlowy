@@ -30,7 +30,7 @@ class _DocumentPageState extends State<DocumentPage> {
 
   @override
   void initState() {
-    // The appflowy editor use Intl as locatization, set the default language as fallback.
+    // The appflowy editor use Intl as localization, set the default language as fallback.
     Intl.defaultLocale = 'en_US';
     documentBloc = getIt<DocumentBloc>(param1: super.widget.view)
       ..add(const DocumentEvent.initial());
@@ -93,15 +93,21 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _renderAppFlowyEditor(EditorState editorState) {
+    final theme = Theme.of(context);
     final editor = AppFlowyEditor(
       editorState: editorState,
-      editorStyle: customEditorStyle(context),
+      autoFocus: editorState.document.isEmpty,
       customBuilders: {
         'horizontal_rule': HorizontalRuleWidgetBuilder(),
       },
       shortcutEvents: [
         insertHorizontalRule,
       ],
+      themeData: theme.copyWith(extensions: [
+        ...theme.extensions.values,
+        customEditorTheme(context),
+        ...customPluginTheme(context),
+      ]),
     );
     return Expanded(
       child: SizedBox.expand(

@@ -53,20 +53,23 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
       )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
-          return CustomScrollView(
-            shrinkWrap: true,
-            slivers: [
-              SliverToBoxAdapter(
-                child: _TextField(popoverMutex: popoverMutex),
-              ),
-              const SliverToBoxAdapter(child: VSpace(6)),
-              const SliverToBoxAdapter(child: TypeOptionSeparator()),
-              const SliverToBoxAdapter(child: VSpace(6)),
-              const SliverToBoxAdapter(child: _Title()),
-              SliverToBoxAdapter(
-                child: _OptionList(popoverMutex: popoverMutex),
-              ),
-            ],
+          return Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: CustomScrollView(
+              shrinkWrap: true,
+              slivers: [
+                SliverToBoxAdapter(
+                  child: _TextField(popoverMutex: popoverMutex),
+                ),
+                const SliverToBoxAdapter(child: VSpace(6)),
+                const SliverToBoxAdapter(child: TypeOptionSeparator()),
+                const SliverToBoxAdapter(child: VSpace(6)),
+                const SliverToBoxAdapter(child: _Title()),
+                SliverToBoxAdapter(
+                  child: _OptionList(popoverMutex: popoverMutex),
+                ),
+              ],
+            ),
           );
         },
       ),

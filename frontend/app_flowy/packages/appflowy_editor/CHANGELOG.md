@@ -1,3 +1,7 @@
+## 0.0.7
+* Refactor theme customizer, and support dark mode.
+* Fix some bugs.
+
 ## 0.0.6
 * Add three plugins: Code Block, LateX, and Horizontal rule.
 * Support web platform.

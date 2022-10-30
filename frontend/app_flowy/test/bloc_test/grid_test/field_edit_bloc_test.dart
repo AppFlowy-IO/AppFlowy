@@ -55,7 +55,8 @@ void main() {
       "switch to text field",
       build: () => editorBloc,
       act: (bloc) async {
-        editorBloc.dataController.switchToField(FieldType.RichText);
+        editorBloc
+            .add(const FieldEditorEvent.switchToField(FieldType.RichText));
       },
       wait: gridResponseDuration(),
       verify: (bloc) {

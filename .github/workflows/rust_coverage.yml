@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "main"
+      - "release/*"
     paths:
       - "frontend/rust-lib/**"
       - "shared-lib/**"
@@ -11,6 +12,7 @@ on:
   pull_request:
     branches:
       - "main"
+      - "release/*"
     paths:
       - "frontend/rust-lib/**"
       - "shared-lib/**"

@@ -34,7 +34,8 @@ class BoardDataController {
 
   // key: the block id
   final LinkedHashMap<String, GridBlockCache> _blocks;
-  LinkedHashMap<String, GridBlockCache> get blocks => _blocks;
+  UnmodifiableMapView<String, GridBlockCache> get blocks =>
+      UnmodifiableMapView(_blocks);
 
   OnFieldsChanged? _onFieldsChanged;
   OnGridChanged? _onGridChanged;
@@ -107,21 +108,22 @@ class BoardDataController {
     );
   }
 
-  Future<Either<Unit, FlowyError>> loadData() async {
-    final result = await _gridFFIService.loadGrid();
+  Future<Either<Unit, FlowyError>> openGrid() async {
+    final result = await _gridFFIService.openGrid();
     return Future(
       () => result.fold(
         (grid) async {
           _onGridChanged?.call(grid);
-          return await fieldController.loadFields(fieldIds: grid.fields).then(
-                (result) => result.fold(
-                  (l) {
-                    _loadGroups(grid.blocks);
-                    return left(l);
-                  },
-                  (err) => right(err),
-                ),
-              );
+          final result = await fieldController.loadFields(
+            fieldIds: grid.fields,
+          );
+          return result.fold(
+            (l) {
+              _loadGroups(grid.blocks);
+              return left(l);
+            },
+            (err) => right(err),
+          );
         },
         (err) => right(err),
       ),

@@ -17,19 +17,19 @@ part 'doc_bloc.freezed.dart';
 
 class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   final ViewPB view;
-  final DocumentService service;
+  final DocumentService _documentService;
 
-  final ViewListener listener;
-  final TrashService trashService;
+  final ViewListener _listener;
+  final TrashService _trashService;
   late EditorState editorState;
   StreamSubscription? _subscription;
 
   DocumentBloc({
     required this.view,
-    required this.service,
-    required this.listener,
-    required this.trashService,
-  }) : super(DocumentState.initial()) {
+  })  : _documentService = DocumentService(),
+        _listener = ViewListener(view: view),
+        _trashService = TrashService(),
+        super(DocumentState.initial()) {
     on<DocumentEvent>((event, emit) async {
       await event.map(
         initial: (Initial value) async {
@@ -43,7 +43,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           emit(state.copyWith(isDeleted: false));
         },
         deletePermanently: (DeletePermanently value) async {
-          final result = await trashService
+          final result = await _trashService
               .deleteViews([Tuple2(view.id, TrashType.TrashView)]);
 
           final newState = result.fold(
@@ -51,7 +51,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
           emit(newState);
         },
         restorePage: (RestorePage value) async {
-          final result = await trashService.putback(view.id);
+          final result = await _trashService.putback(view.id);
           final newState = result.fold(
               (l) => state.copyWith(isDeleted: false), (r) => state);
           emit(newState);
@@ -62,18 +62,18 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
 
   @override
   Future<void> close() async {
-    await listener.stop();
+    await _listener.stop();
 
     if (_subscription != null) {
       await _subscription?.cancel();
     }
 
-    await service.closeDocument(docId: view.id);
+    await _documentService.closeDocument(docId: view.id);
     return super.close();
   }
 
   Future<void> _initial(Initial value, Emitter<DocumentState> emit) async {
-    final result = await service.openDocument(view: view);
+    final result = await _documentService.openDocument(view: view);
     result.fold(
       (block) {
         final document = Document.fromJson(jsonDecode(block.snapshot));
@@ -96,7 +96,7 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   }
 
   void _listenOnViewChange() {
-    listener.start(
+    _listener.start(
       onViewDeleted: (result) {
         result.fold(
           (view) => add(const DocumentEvent.deleted()),
@@ -115,7 +115,9 @@ class DocumentBloc extends Bloc<DocumentEvent, DocumentState> {
   void _listenOnDocumentChange() {
     _subscription = editorState.transactionStream.listen((transaction) {
       final json = jsonEncode(TransactionAdaptor(transaction).toJson());
-      service.applyEdit(docId: view.id, operations: json).then((result) {
+      _documentService
+          .applyEdit(docId: view.id, operations: json)
+          .then((result) {
         result.fold(
           (l) => null,
           (err) => Log.error(err),

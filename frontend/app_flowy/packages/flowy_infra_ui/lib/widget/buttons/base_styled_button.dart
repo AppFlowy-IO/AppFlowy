@@ -106,7 +106,7 @@ class BaseStyledBtnState extends State<BaseStyledButton> {
       child: RawMaterialButton(
         focusNode: _focusNode,
         autofocus: widget.autoFocus,
-        textStyle: widget.useBtnText ? TextStyles.Btn : null,
+        textStyle: widget.useBtnText ? TextStyles.body1 : null,
         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         // visualDensity: VisualDensity.compact,
         splashColor: Colors.transparent,

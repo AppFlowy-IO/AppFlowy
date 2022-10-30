@@ -1,7 +1,9 @@
+import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
+import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class FlowyButton extends StatelessWidget {
   final Widget text;
@@ -29,7 +31,8 @@ class FlowyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: FlowyHover(
         style: HoverStyle(
@@ -147,6 +150,7 @@ class FlowyTextButton extends StatelessWidget {
     if (tooltip != null) {
       child = Tooltip(
         message: tooltip!,
+        textStyle: TextStyles.caption.textColor(Colors.white),
         child: child,
       );
     }

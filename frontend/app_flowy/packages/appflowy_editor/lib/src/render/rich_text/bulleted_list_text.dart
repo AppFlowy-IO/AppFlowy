@@ -1,13 +1,14 @@
 import 'package:appflowy_editor/src/core/document/node.dart';
 import 'package:appflowy_editor/src/editor_state.dart';
-import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 import 'package:appflowy_editor/src/render/rich_text/default_selectable.dart';
 import 'package:appflowy_editor/src/render/rich_text/flowy_rich_text.dart';
 import 'package:appflowy_editor/src/render/selection/selectable.dart';
+import 'package:appflowy_editor/src/render/style/plugin_styles.dart';
 import 'package:appflowy_editor/src/service/render_plugin_service.dart';
 import 'package:flutter/material.dart';
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
+import 'package:appflowy_editor/src/extensions/theme_extension.dart';
 
 class BulletedListTextNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -45,11 +46,7 @@ class BulletedListTextNodeWidget extends BuiltInTextWidget {
 // customize
 
 class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
-    with
-        SelectableMixin,
-        DefaultSelectable,
-        BuiltInStyleMixin,
-        BuiltInTextWidgetMixin {
+    with SelectableMixin, DefaultSelectable, BuiltInTextWidgetMixin {
   @override
   final iconKey = GlobalKey();
 
@@ -64,6 +61,25 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
     return super.baseOffset.translate(0, padding.top);
   }
 
+  BulletedListPluginStyle get style =>
+      Theme.of(context).extensionOrNull<BulletedListPluginStyle>() ??
+      BulletedListPluginStyle.light;
+
+  EdgeInsets get padding => style.padding(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  TextStyle get textStyle => style.textStyle(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  Widget get icon => style.icon(
+        widget.editorState,
+        widget.textNode,
+      );
+
   @override
   Widget buildWithSingle(BuildContext context) {
     return Padding(
@@ -71,12 +87,9 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FlowySvg(
+          Container(
             key: iconKey,
-            width: iconSize?.width,
-            height: iconSize?.height,
-            padding: iconPadding,
-            name: 'point',
+            child: icon,
           ),
           Flexible(
             child: FlowyRichText(
@@ -86,7 +99,7 @@ class _BulletedListTextNodeWidgetState extends State<BulletedListTextNodeWidget>
                   textSpan.updateTextStyle(textStyle),
               placeholderTextSpanDecorator: (textSpan) =>
                   textSpan.updateTextStyle(textStyle),
-              lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+              lineHeight: widget.editorState.editorStyle.lineHeight,
               textNode: widget.textNode,
               editorState: widget.editorState,
             ),

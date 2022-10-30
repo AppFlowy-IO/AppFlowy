@@ -1,12 +1,9 @@
+import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/flutter/overlay.dart';
 import 'package:appflowy_editor/src/render/image/image_node_builder.dart';
-import 'package:appflowy_editor/src/render/selection_menu/selection_menu_widget.dart';
-import 'package:appflowy_editor/src/render/style/editor_style.dart';
 import 'package:appflowy_editor/src/service/shortcut_event/built_in_shortcut_events.dart';
-import 'package:appflowy_editor/src/service/shortcut_event/shortcut_event.dart';
 import 'package:flutter/material.dart' hide Overlay, OverlayEntry;
 
-import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/render/editor/editor_entry.dart';
 import 'package:appflowy_editor/src/render/rich_text/bulleted_list_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/checkbox_text.dart';
@@ -14,12 +11,6 @@ import 'package:appflowy_editor/src/render/rich_text/heading_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/number_list_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/quoted_text.dart';
 import 'package:appflowy_editor/src/render/rich_text/rich_text.dart';
-import 'package:appflowy_editor/src/service/input_service.dart';
-import 'package:appflowy_editor/src/service/keyboard_service.dart';
-import 'package:appflowy_editor/src/service/render_plugin_service.dart';
-import 'package:appflowy_editor/src/service/scroll_service.dart';
-import 'package:appflowy_editor/src/service/selection_service.dart';
-import 'package:appflowy_editor/src/service/toolbar_service.dart';
 
 NodeWidgetBuilders defaultBuilders = {
   'editor': EditorEntryWidgetBuilder(),
@@ -33,15 +24,22 @@ NodeWidgetBuilders defaultBuilders = {
 };
 
 class AppFlowyEditor extends StatefulWidget {
-  const AppFlowyEditor({
+  AppFlowyEditor({
     Key? key,
     required this.editorState,
     this.customBuilders = const {},
     this.shortcutEvents = const [],
     this.selectionMenuItems = const [],
     this.editable = true,
-    required this.editorStyle,
-  }) : super(key: key);
+    this.autoFocus = false,
+    ThemeData? themeData,
+  }) : super(key: key) {
+    this.themeData = themeData ??
+        ThemeData.light().copyWith(extensions: [
+          ...lightEditorStyleExtension,
+          ...lightPlguinStyleExtension,
+        ]);
+  }
 
   final EditorState editorState;
 
@@ -53,9 +51,12 @@ class AppFlowyEditor extends StatefulWidget {
 
   final List<SelectionMenuItem> selectionMenuItems;
 
-  final EditorStyle editorStyle;
+  late final ThemeData themeData;
 
   final bool editable;
+
+  /// Set the value to true to focus the editor on the start of the document.
+  final bool autoFocus;
 
   @override
   State<AppFlowyEditor> createState() => _AppFlowyEditorState();
@@ -65,15 +66,26 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
   Widget? services;
 
   EditorState get editorState => widget.editorState;
+  EditorStyle get editorStyle =>
+      editorState.themeData.extension<EditorStyle>() ?? EditorStyle.light;
 
   @override
   void initState() {
     super.initState();
 
     editorState.selectionMenuItems = widget.selectionMenuItems;
-    editorState.editorStyle = widget.editorStyle;
+    editorState.themeData = widget.themeData;
     editorState.service.renderPluginService = _createRenderPlugin();
     editorState.editable = widget.editable;
+
+    // auto focus
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      if (widget.editable && widget.autoFocus) {
+        editorState.service.selectionService.updateSelection(
+          Selection.single(path: [0], startOffset: 0),
+        );
+      }
+    });
   }
 
   @override
@@ -85,7 +97,7 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
       editorState.service.renderPluginService = _createRenderPlugin();
     }
 
-    editorState.editorStyle = widget.editorStyle;
+    editorState.themeData = widget.themeData;
     editorState.editable = widget.editable;
     services = null;
   }
@@ -102,38 +114,41 @@ class _AppFlowyEditorState extends State<AppFlowyEditor> {
     );
   }
 
-  AppFlowyScroll _buildServices(BuildContext context) {
-    return AppFlowyScroll(
-      key: editorState.service.scrollServiceKey,
-      child: Padding(
-        padding: widget.editorStyle.padding,
-        child: AppFlowySelection(
-          key: editorState.service.selectionServiceKey,
-          cursorColor: widget.editorStyle.cursorColor,
-          selectionColor: widget.editorStyle.selectionColor,
-          editorState: editorState,
-          editable: widget.editable,
-          child: AppFlowyInput(
-            key: editorState.service.inputServiceKey,
+  Widget _buildServices(BuildContext context) {
+    return Theme(
+      data: widget.themeData,
+      child: AppFlowyScroll(
+        key: editorState.service.scrollServiceKey,
+        child: Padding(
+          padding: editorStyle.padding!,
+          child: AppFlowySelection(
+            key: editorState.service.selectionServiceKey,
+            cursorColor: editorStyle.cursorColor!,
+            selectionColor: editorStyle.selectionColor!,
             editorState: editorState,
             editable: widget.editable,
-            child: AppFlowyKeyboard(
-              key: editorState.service.keyboardServiceKey,
-              editable: widget.editable,
-              shortcutEvents: [
-                ...widget.shortcutEvents,
-                ...builtInShortcutEvents,
-              ],
+            child: AppFlowyInput(
+              key: editorState.service.inputServiceKey,
               editorState: editorState,
-              child: FlowyToolbar(
-                key: editorState.service.toolbarServiceKey,
+              editable: widget.editable,
+              child: AppFlowyKeyboard(
+                key: editorState.service.keyboardServiceKey,
+                editable: widget.editable,
+                shortcutEvents: [
+                  ...widget.shortcutEvents,
+                  ...builtInShortcutEvents,
+                ],
                 editorState: editorState,
-                child:
-                    editorState.service.renderPluginService.buildPluginWidget(
-                  NodeWidgetContext(
-                    context: context,
-                    node: editorState.document.root,
-                    editorState: editorState,
+                child: FlowyToolbar(
+                  key: editorState.service.toolbarServiceKey,
+                  editorState: editorState,
+                  child:
+                      editorState.service.renderPluginService.buildPluginWidget(
+                    NodeWidgetContext(
+                      context: context,
+                      node: editorState.document.root,
+                      editorState: editorState,
+                    ),
                   ),
                 ),
               ),

@@ -1,10 +1,10 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
 import 'package:appflowy_editor/src/commands/text/text_commands.dart';
-import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/rich_text/built_in_text_widget.dart';
 
 import 'package:appflowy_editor/src/extensions/text_style_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:appflowy_editor/src/extensions/theme_extension.dart';
 
 class CheckboxNodeWidgetBuilder extends NodeWidgetBuilder<TextNode> {
   @override
@@ -39,11 +39,7 @@ class CheckboxNodeWidget extends BuiltInTextWidget {
 }
 
 class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
-    with
-        SelectableMixin,
-        DefaultSelectable,
-        BuiltInStyleMixin,
-        BuiltInTextWidgetMixin {
+    with SelectableMixin, DefaultSelectable, BuiltInTextWidgetMixin {
   @override
   final iconKey = GlobalKey();
 
@@ -58,6 +54,25 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
     return super.baseOffset.translate(0, padding.top);
   }
 
+  CheckboxPluginStyle get style =>
+      Theme.of(context).extensionOrNull<CheckboxPluginStyle>() ??
+      CheckboxPluginStyle.light;
+
+  EdgeInsets get padding => style.padding(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  TextStyle get textStyle => style.textStyle(
+        widget.editorState,
+        widget.textNode,
+      );
+
+  Widget get icon => style.icon(
+        widget.editorState,
+        widget.textNode,
+      );
+
   @override
   Widget buildWithSingle(BuildContext context) {
     final check = widget.textNode.attributes.check;
@@ -68,12 +83,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
         children: [
           GestureDetector(
             key: iconKey,
-            child: FlowySvg(
-              width: iconSize?.width,
-              height: iconSize?.height,
-              padding: iconPadding,
-              name: check ? 'check' : 'uncheck',
-            ),
+            child: icon,
             onTap: () async {
               await widget.editorState.formatTextToCheckbox(
                 widget.editorState,
@@ -86,7 +96,7 @@ class _CheckboxNodeWidgetState extends State<CheckboxNodeWidget>
             child: FlowyRichText(
               key: _richTextKey,
               placeholderText: 'To-do',
-              lineHeight: widget.editorState.editorStyle.textStyle.lineHeight,
+              lineHeight: widget.editorState.editorStyle.lineHeight,
               textNode: widget.textNode,
               textSpanDecorator: (textSpan) =>
                   textSpan.updateTextStyle(textStyle),
