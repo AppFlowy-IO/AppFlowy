@@ -9,22 +9,21 @@ class InputTextField extends StatefulWidget {
   final void Function(String)? onDone;
   final void Function(String)? onChanged;
   final void Function() onCanceled;
-  final void Function()? onFocused;
   final void Function()? onTap;
-
   final bool autoClearWhenDone;
   final String text;
   final int? maxLength;
+  final FocusNode? focusNode;
 
   const InputTextField({
     required this.text,
     this.onDone,
     required this.onCanceled,
     this.onChanged,
-    this.onFocused,
     this.onTap,
     this.autoClearWhenDone = false,
     this.maxLength,
+    this.focusNode,
     Key? key,
   }) : super(key: key);
 
@@ -39,7 +38,7 @@ class _InputTextFieldState extends State<InputTextField> {
 
   @override
   void initState() {
-    _focusNode = FocusNode();
+    _focusNode = widget.focusNode ?? FocusNode();
     _controller = TextEditingController(text: widget.text);
 
     _focusNode.addListener(notifyDidEndEditing);
@@ -87,7 +86,10 @@ class _InputTextFieldState extends State<InputTextField> {
   @override
   void dispose() {
     _focusNode.removeListener(notifyDidEndEditing);
-    _focusNode.dispose();
+    // only dispose the focusNode if it was created in this widget's initState
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
     super.dispose();
   }
 
@@ -99,10 +101,6 @@ class _InputTextFieldState extends State<InputTextField> {
         if (widget.onDone != null) {
           widget.onDone!(_controller.text);
         }
-      }
-    } else {
-      if (widget.onFocused != null) {
-        widget.onFocused!();
       }
     }
   }

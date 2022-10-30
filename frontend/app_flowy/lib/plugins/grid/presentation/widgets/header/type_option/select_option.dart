@@ -267,9 +267,29 @@ class _AddOptionButton extends StatelessWidget {
   }
 }
 
-class _CreateOptionTextField extends StatelessWidget {
+class _CreateOptionTextField extends StatefulWidget {
   final PopoverMutex? popoverMutex;
-  const _CreateOptionTextField({this.popoverMutex, Key? key}) : super(key: key);
+  const _CreateOptionTextField({
+    super.key,
+    this.popoverMutex,
+  });
+
+  @override
+  State<_CreateOptionTextField> createState() => __CreateOptionTextFieldState();
+}
+
+class __CreateOptionTextFieldState extends State<_CreateOptionTextField> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex?.close();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -280,6 +300,7 @@ class _CreateOptionTextField extends StatelessWidget {
           autoClearWhenDone: true,
           maxLength: 30,
           text: text,
+          focusNode: _focusNode,
           onCanceled: () {
             context
                 .read<SelectOptionTypeOptionBloc>()
@@ -290,11 +311,8 @@ class _CreateOptionTextField extends StatelessWidget {
                 .read<SelectOptionTypeOptionBloc>()
                 .add(SelectOptionTypeOptionEvent.createOption(optionName));
           },
-          onFocused: () {
-            popoverMutex?.close();
-          },
           onTap: () {
-            popoverMutex?.close();
+            widget.popoverMutex?.close();
           },
         );
       },
