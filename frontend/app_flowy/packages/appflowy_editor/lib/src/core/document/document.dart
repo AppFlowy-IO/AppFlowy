@@ -110,6 +110,20 @@ class Document {
     return true;
   }
 
+  bool get isEmpty {
+    if (root.children.isEmpty) {
+      return true;
+    }
+
+    final node = root.children.first;
+    if (node is TextNode &&
+        (node.delta.isEmpty || node.delta.toPlainText().isEmpty)) {
+      return true;
+    }
+
+    return false;
+  }
+
   Map<String, Object> toJson() {
     return {
       'document': root.toJson(),
