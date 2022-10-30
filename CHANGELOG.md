@@ -1,5 +1,9 @@
 # Release Notes
 
+## Version 0.0.6.2 - 10/30/2022
+
+- Fix some bugs
+
 ## Version 0.0.6.1 - 10/26/2022
 
 New features
