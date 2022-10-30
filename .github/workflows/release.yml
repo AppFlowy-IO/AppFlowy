@@ -85,6 +85,23 @@ jobs:
           Maintainer: AppFlowy
           Description: An Open Source Alternative to Notion\n' "${{ github.ref_name }}" > DEBIAN/control
 
+          # postinst script for creating symlink
+          printf '#!/bin/bash
+          if [ -e /usr/local/bin/appflowy ]; then
+            echo "Symlink already exists, skipping."
+          else
+            echo "Creating Symlink in /usr/local/bin/appflowy"
+            ln -s /opt/AppFlowy/app_flowy /usr/local/bin/appflowy
+          fi' > DEBIAN/postinst
+          chmod 0755 DEBIAN/postinst
+
+          # postrm script for cleaning up residuals
+          printf '#!/bin/bash
+          if [ -e /usr/local/bin/appflowy ]; then
+            rm /usr/local/bin/appflowy
+          fi' > DEBIAN/postrm
+          chmod 0755 DEBIAN/postrm
+
           mkdir -p usr/share/applications
           # Update Exec & icon path in desktop entry
           grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
