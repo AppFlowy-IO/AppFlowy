@@ -54,7 +54,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
                 ),
               ),
             if (state.options.isEmpty && !state.isEditingOption)
-              const _AddOptionButton(),
+              _AddOptionButton(popoverMutex: popoverMutex),
             _OptionList(popoverMutex: popoverMutex)
           ];
 
@@ -240,7 +240,11 @@ class _OptionCellState extends State<_OptionCell> {
 }
 
 class _AddOptionButton extends StatelessWidget {
-  const _AddOptionButton({Key? key}) : super(key: key);
+  final PopoverMutex? popoverMutex;
+  const _AddOptionButton({
+    Key? key,
+    this.popoverMutex,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -252,6 +256,7 @@ class _AddOptionButton extends StatelessWidget {
             fontSize: 12),
         hoverColor: theme.hover,
         onTap: () {
+          popoverMutex?.close();
           context
               .read<SelectOptionTypeOptionBloc>()
               .add(const SelectOptionTypeOptionEvent.addingOption());
