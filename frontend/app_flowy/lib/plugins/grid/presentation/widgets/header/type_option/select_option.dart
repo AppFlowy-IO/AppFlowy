@@ -52,7 +52,7 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
                 ),
               ),
             if (state.options.isEmpty && !state.isEditingOption)
-              _AddOptionButton(popoverMutex: popoverMutex),
+              const _AddOptionButton(),
             _OptionList(popoverMutex: popoverMutex)
           ];
 
@@ -231,11 +231,7 @@ class _OptionCellState extends State<_OptionCell> {
 }
 
 class _AddOptionButton extends StatelessWidget {
-  final PopoverMutex? popoverMutex;
-  const _AddOptionButton({
-    Key? key,
-    this.popoverMutex,
-  }) : super(key: key);
+  const _AddOptionButton({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
