@@ -153,7 +153,6 @@ class _InsertButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       tooltipText: LocaleKeys.tooltip_addNewRow.tr(),
-      hoverColor: Theme.of(context).colorScheme.secondary,
       width: 20,
       height: 30,
       onPressed: () => context.read<RowBloc>().add(const RowEvent.createRow()),
@@ -184,7 +183,6 @@ class _MenuButtonState extends State<_MenuButton> {
   Widget build(BuildContext context) {
     return FlowyIconButton(
       tooltipText: LocaleKeys.tooltip_openMenu.tr(),
-      hoverColor: Theme.of(context).colorScheme.secondary,
       width: 20,
       height: 30,
       onPressed: () => widget.openMenu(),

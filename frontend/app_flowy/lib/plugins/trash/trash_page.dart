@@ -96,7 +96,6 @@ class _TrashPageState extends State<TrashPage> {
                 'editor/restore',
                 color: Theme.of(context).colorScheme.onSurface,
               ),
-              hoverColor: Theme.of(context).colorScheme.secondary,
               onTap: () => context.read<TrashBloc>().add(
                     const TrashEvent.restoreAll(),
                   ),
@@ -111,7 +110,6 @@ class _TrashPageState extends State<TrashPage> {
                 'editor/delete',
                 color: Theme.of(context).colorScheme.onSurface,
               ),
-              hoverColor: Theme.of(context).colorScheme.secondary,
               onTap: () =>
                   context.read<TrashBloc>().add(const TrashEvent.deleteAll()),
             ),

@@ -280,6 +280,7 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
             FlowyIconButton(
               width: 30,
               onPressed: () => _popoverController.show(),
+              hoverColor: Colors.transparent,
               iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
               icon: svgWidget(
                 "editor/details",

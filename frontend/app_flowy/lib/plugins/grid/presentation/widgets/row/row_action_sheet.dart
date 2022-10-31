@@ -63,7 +63,6 @@ class _RowActionCell extends StatelessWidget {
           fontSize: 12,
           color: action.enable() ? null : Theme.of(context).disabledColor,
         ),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: () {
           if (action.enable()) {
             action.performAction(context);

@@ -109,7 +109,6 @@ class _SettingItem extends StatelessWidget {
           action.title(),
           fontSize: FontSizes.s12,
         ),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: () {
           context
               .read<BoardSettingBloc>()

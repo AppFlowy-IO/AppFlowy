@@ -82,7 +82,6 @@ class _GridGroupCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(fieldContext.name, fontSize: 12),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         leftIcon: svgWidget(
           fieldContext.fieldType.iconName(),
           color: Theme.of(context).colorScheme.onSurface,

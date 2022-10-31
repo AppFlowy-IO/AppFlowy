@@ -88,7 +88,6 @@ class _DeleteTag extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_selectOption_deleteTag.tr(),
             fontSize: 12),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         leftIcon: svgWidget(
           "grid/delete",
           color: Theme.of(context).colorScheme.onSurface,
@@ -197,7 +196,6 @@ class _SelectOptionColorCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(color.optionName(), fontSize: 12),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         leftIcon: colorIcon,
         rightIcon: checkmark,
         onTap: () {

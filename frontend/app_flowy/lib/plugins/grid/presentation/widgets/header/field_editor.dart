@@ -227,7 +227,6 @@ class _DeleteFieldButton extends StatelessWidget {
             color: enable ? null : Theme.of(context).disabledColor,
           ),
           onTap: () => onDeleted?.call(),
-          hoverColor: Theme.of(context).colorScheme.secondary,
           onHover: (_) => popoverMutex.close(),
         );
         return SizedBox(height: 36, child: button);

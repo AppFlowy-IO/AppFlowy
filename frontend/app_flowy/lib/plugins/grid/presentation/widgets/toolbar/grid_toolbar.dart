@@ -55,7 +55,6 @@ class _SettingButton extends StatelessWidget {
       margin: const EdgeInsets.all(6),
       child: FlowyIconButton(
         width: 22,
-        hoverColor: Theme.of(context).colorScheme.secondary,
         icon: svgWidget(
           "grid/setting/setting",
           color: Theme.of(context).colorScheme.onSurface,

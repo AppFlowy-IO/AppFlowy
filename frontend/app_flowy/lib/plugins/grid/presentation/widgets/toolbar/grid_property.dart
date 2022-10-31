@@ -100,7 +100,6 @@ class _GridPropertyCell extends StatelessWidget {
           ),
         ),
         FlowyIconButton(
-          hoverColor: Theme.of(context).colorScheme.secondary,
           width: GridSize.typeOptionItemHeight,
           onPressed: () {
             context.read<GridPropertyBloc>().add(
@@ -120,7 +119,6 @@ class _GridPropertyCell extends StatelessWidget {
       constraints: BoxConstraints.loose(const Size(240, 400)),
       child: FlowyButton(
         text: FlowyText.medium(fieldContext.name, fontSize: 12),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         leftIcon: svgWidget(
           fieldContext.fieldType.iconName(),
           color: Theme.of(context).colorScheme.onSurface,

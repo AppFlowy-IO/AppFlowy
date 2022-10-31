@@ -400,7 +400,6 @@ class _DateTypeOptionButton extends StatelessWidget {
           constraints: BoxConstraints.loose(const Size(140, 100)),
           child: FlowyButton(
             text: FlowyText.medium(title, fontSize: 14),
-            hoverColor: Theme.of(context).colorScheme.secondary,
             margin: kMargin,
             rightIcon: svgWidget(
               "grid/more",

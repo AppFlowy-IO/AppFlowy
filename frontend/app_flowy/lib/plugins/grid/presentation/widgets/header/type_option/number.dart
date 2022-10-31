@@ -66,7 +66,6 @@ class NumberTypeOptionWidget extends TypeOptionWidget {
               constraints: BoxConstraints.loose(const Size(460, 440)),
               child: FlowyButton(
                 margin: GridSize.typeOptionContentInsets,
-                hoverColor: Theme.of(context).colorScheme.secondary,
                 rightIcon: svgWidget(
                   "grid/more",
                   color: Theme.of(context).colorScheme.onSurface,
@@ -175,7 +174,6 @@ class NumberFormatCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(format.title(), fontSize: 12),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: () => onSelected(format),
         rightIcon: checkmark,
       ),

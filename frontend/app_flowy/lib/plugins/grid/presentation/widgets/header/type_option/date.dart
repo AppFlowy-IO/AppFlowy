@@ -125,7 +125,6 @@ class DateFormatButton extends StatelessWidget {
         text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr(),
             fontSize: 12),
         margin: GridSize.typeOptionContentInsets,
-        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: onTap,
         onHover: onHover,
         rightIcon: svgWidget(
@@ -153,7 +152,6 @@ class TimeFormatButton extends StatelessWidget {
         text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr(),
             fontSize: 12),
         margin: GridSize.typeOptionContentInsets,
-        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: onTap,
         onHover: onHover,
         rightIcon: svgWidget(
@@ -257,7 +255,6 @@ class DateFormatCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(dateFormat.title(), fontSize: 12),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         rightIcon: checkmark,
         onTap: () => onSelected(dateFormat),
       ),
@@ -340,7 +337,6 @@ class TimeFormatCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(timeFormat.title(), fontSize: 12),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         rightIcon: checkmark,
         onTap: () => onSelected(timeFormat),
       ),

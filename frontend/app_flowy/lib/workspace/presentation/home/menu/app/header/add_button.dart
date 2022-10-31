@@ -17,7 +17,6 @@ class AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FlowyIconButton(
-      hoverColor: Theme.of(context).colorScheme.secondary,
       width: 22,
       onPressed: () {
         ActionList(

@@ -102,7 +102,6 @@ class _OptionTitleButton extends StatelessWidget {
           fontSize: 12,
           textAlign: TextAlign.center,
         ),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: () {
           context
               .read<SelectOptionTypeOptionBloc>()
@@ -233,7 +232,6 @@ class _AddOptionButton extends StatelessWidget {
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr(),
             fontSize: 12),
-        hoverColor: Theme.of(context).colorScheme.secondary,
         onTap: () {
           context
               .read<SelectOptionTypeOptionBloc>()

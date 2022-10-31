@@ -80,7 +80,6 @@ class _EditFieldButton extends StatelessWidget {
               LocaleKeys.grid_field_editProperty.tr(),
               fontSize: 12,
             ),
-            hoverColor: Theme.of(context).colorScheme.secondary,
             onTap: onTap,
           ),
         );
@@ -154,7 +153,6 @@ class FieldActionCell extends StatelessWidget {
         fontSize: 12,
         color: enable ? null : Theme.of(context).disabledColor,
       ),
-      hoverColor: Theme.of(context).colorScheme.secondary,
       onTap: () {
         if (enable) {
           action.run(context, fieldContext);

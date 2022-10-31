@@ -63,7 +63,6 @@ class _SettingButtonState extends State<_SettingButton> {
       controller: popoverController,
       constraints: BoxConstraints.loose(const Size(260, 400)),
       child: FlowyIconButton(
-        hoverColor: Theme.of(context).colorScheme.secondary,
         width: 22,
         icon: Padding(
           padding: const EdgeInsets.symmetric(vertical: 3.0, horizontal: 3.0),

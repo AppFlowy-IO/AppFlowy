@@ -183,6 +183,7 @@ class ViewDisclosureButton extends StatelessWidget {
           .toList(),
       buildChild: (controller) {
         return FlowyIconButton(
+          hoverColor: Colors.transparent,
           iconPadding: const EdgeInsets.all(5),
           width: 26,
           icon: svgWidget(

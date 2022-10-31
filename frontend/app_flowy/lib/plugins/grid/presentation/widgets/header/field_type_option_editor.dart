@@ -114,7 +114,6 @@ class _SwitchFieldButton extends StatelessWidget {
         fontSize: 12,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      hoverColor: Theme.of(context).colorScheme.secondary,
       leftIcon: svgWidget(
         bloc.state.field.fieldType.iconName(),
         color: Theme.of(context).colorScheme.onSurface,
