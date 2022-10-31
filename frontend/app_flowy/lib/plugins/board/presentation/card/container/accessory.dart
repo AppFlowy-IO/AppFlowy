@@ -42,7 +42,6 @@ class CardAccessoryContainer extends StatelessWidget {
   FlowyHover _wrapHover(BuildContext context, CardAccessory accessory) {
     return FlowyHover(
       style: HoverStyle(
-        hoverColor: Theme.of(context).colorScheme.secondary,
         backgroundColor: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.zero,
       ),

@@ -116,7 +116,6 @@ class ActionCellWidget<T extends PopoverAction> extends StatelessWidget {
     final icon = actionCell.icon(Theme.of(context).colorScheme.onSurface);
 
     return FlowyHover(
-      style: HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => onSelected(action),

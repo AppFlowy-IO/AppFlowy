@@ -120,8 +120,6 @@ class SelectOptionTagCell extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         FlowyHover(
-          style:
-              HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary),
           child: InkWell(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),

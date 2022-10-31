@@ -84,12 +84,7 @@ class CreateItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final config = HoverStyle(
-      hoverColor: Theme.of(context).colorScheme.secondary,
-    );
-
     return FlowyHover(
-      style: config,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () => onSelected(pluginBuilder),
