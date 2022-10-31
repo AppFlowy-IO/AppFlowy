@@ -99,9 +99,11 @@ class FlowyNavigation extends StatelessWidget {
             return RotationTransition(
               turns: const AlwaysStoppedAnimation(180 / 360),
               child: Tooltip(
-                  richMessage: sidebarTooltipTextSpan(),
+                  richMessage: sidebarTooltipTextSpan(
+                      LocaleKeys.sideBar_openSidebar.tr()),
                   child: FlowyIconButton(
                     width: 24,
+                    hoverColor: Colors.transparent,
                     onPressed: () {
                       notifier.value = false;
                       ctx.read<HomeBloc>().add(const HomeEvent.collapseMenu());
@@ -195,10 +197,10 @@ class EllipsisNaviItem extends NavigationItem {
   NavigationCallback get action => (id) {};
 }
 
-TextSpan sidebarTooltipTextSpan() => TextSpan(
+TextSpan sidebarTooltipTextSpan(String hintText) => TextSpan(
       children: [
         TextSpan(
-          text: "${LocaleKeys.sideBar_openSidebar.tr()}\n",
+          text: "$hintText\n",
           style: TextStyles.caption,
         ),
         TextSpan(
