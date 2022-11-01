@@ -7,7 +7,6 @@ use flowy_sync::entities::{
 };
 use lib_infra::future::BoxResultFuture;
 
-use diesel::SqliteConnection;
 use flowy_database::ConnectionPool;
 use std::{convert::TryFrom, sync::Arc};
 

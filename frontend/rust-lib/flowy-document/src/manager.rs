@@ -1,13 +1,13 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionCompress};
 use crate::entities::{DocumentVersionPB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionCompress};
+use crate::services::sqlite::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
 use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_revision::disk::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
 };

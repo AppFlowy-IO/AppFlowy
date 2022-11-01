@@ -1,11 +1,9 @@
 mod delta_document_impl;
-mod document_impl;
 mod grid_block_impl;
 mod grid_impl;
 mod grid_view_impl;
 
 pub use delta_document_impl::*;
-pub use document_impl::*;
 pub use grid_block_impl::*;
 pub use grid_impl::*;
 pub use grid_view_impl::*;
@@ -120,9 +118,9 @@ impl RevisionRecord {
 }
 
 pub struct RevisionChangeset {
-    pub(crate) object_id: String,
-    pub(crate) rev_id: RevId,
-    pub(crate) state: RevisionState,
+    pub object_id: String,
+    pub rev_id: RevId,
+    pub state: RevisionState,
 }
 
 /// Sync: revision is not synced to the server
