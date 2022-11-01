@@ -1,5 +1,3 @@
-use crate::cache::disk::RevisionDiskCache;
-use crate::disk::{RevisionChangeset, RevisionRecord, RevisionState};
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
 use flowy_database::{
@@ -9,6 +7,7 @@ use flowy_database::{
     ConnectionPool,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionRecord, RevisionState};
 use flowy_sync::{
     entities::revision::{Revision, RevisionRange},
     util::md5,

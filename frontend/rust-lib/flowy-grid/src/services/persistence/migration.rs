@@ -4,12 +4,12 @@ use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::GridRevision;
-use flowy_revision::disk::SQLiteGridRevisionPersistence;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sync::client_grid::{make_grid_rev_json_str, GridOperationsBuilder, GridRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::md5;
 
+use crate::services::persistence::sqlite::SQLiteGridRevisionPersistence;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "GRID_V1_MIGRATION";

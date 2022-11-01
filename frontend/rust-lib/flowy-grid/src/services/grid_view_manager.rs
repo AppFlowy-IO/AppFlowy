@@ -6,11 +6,11 @@ use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_editor::{GridViewRevisionCompress, GridViewRevisionEditor};
 
+use crate::services::persistence::sqlite::SQLiteGridViewRevisionPersistence;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
-use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
 use lib_infra::future::AFFuture;
 use std::sync::Arc;

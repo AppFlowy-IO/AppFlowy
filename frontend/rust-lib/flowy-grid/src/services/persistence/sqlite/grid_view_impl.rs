@@ -1,31 +1,39 @@
-use crate::cache::disk::RevisionDiskCache;
-use crate::disk::{RevisionChangeset, RevisionRecord, RevisionState};
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
 use flowy_database::{
     impl_sql_integer_expression, insert_or_ignore_into,
     prelude::*,
-    schema::{grid_meta_rev_table, grid_meta_rev_table::dsl},
+    schema::{grid_view_rev_table, grid_view_rev_table::dsl},
     ConnectionPool,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionRecord, RevisionState};
 use flowy_sync::{
     entities::revision::{Revision, RevisionRange},
     util::md5,
 };
 use std::sync::Arc;
 
-pub struct SQLiteGridBlockRevisionPersistence {
+pub struct SQLiteGridViewRevisionPersistence {
     user_id: String,
     pub(crate) pool: Arc<ConnectionPool>,
 }
 
-impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridBlockRevisionPersistence {
+impl SQLiteGridViewRevisionPersistence {
+    pub fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
+        Self {
+            user_id: user_id.to_owned(),
+            pool,
+        }
+    }
+}
+
+impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridViewRevisionPersistence {
     type Error = FlowyError;
 
     fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let _ = GridMetaRevisionSql::create(revision_records, &*conn)?;
+        let _ = GridViewRevisionSql::create(revision_records, &*conn)?;
         Ok(())
     }
 
@@ -39,7 +47,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridBlockRevisionPersisten
         rev_ids: Option<Vec<i64>>,
     ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let records = GridMetaRevisionSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
+        let records = GridViewRevisionSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
         Ok(records)
     }
 
@@ -49,7 +57,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridBlockRevisionPersisten
         range: &RevisionRange,
     ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let revisions = GridMetaRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
+        let revisions = GridViewRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
         Ok(revisions)
     }
 
@@ -57,7 +65,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridBlockRevisionPersisten
         let conn = &*self.pool.get().map_err(internal_error)?;
         let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
-                let _ = GridMetaRevisionSql::update(changeset, conn)?;
+                let _ = GridViewRevisionSql::update(changeset, conn)?;
             }
             Ok(())
         })?;
@@ -66,7 +74,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridBlockRevisionPersisten
 
     fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let _ = GridMetaRevisionSql::delete(object_id, rev_ids, conn)?;
+        let _ = GridViewRevisionSql::delete(object_id, rev_ids, conn)?;
         Ok(())
     }
 
@@ -78,36 +86,26 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridBlockRevisionPersisten
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = GridMetaRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            let _ = GridMetaRevisionSql::create(inserted_records, &*conn)?;
+            let _ = GridViewRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
+            let _ = GridViewRevisionSql::create(inserted_records, &*conn)?;
             Ok(())
         })
     }
 }
 
-impl SQLiteGridBlockRevisionPersistence {
-    pub fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
-        Self {
-            user_id: user_id.to_owned(),
-            pool,
-        }
-    }
-}
-
-struct GridMetaRevisionSql();
-impl GridMetaRevisionSql {
+struct GridViewRevisionSql();
+impl GridViewRevisionSql {
     fn create(revision_records: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html
-
         let records = revision_records
             .into_iter()
             .map(|record| {
                 tracing::trace!(
-                    "[GridMetaRevisionSql] create revision: {}:{:?}",
+                    "[GridViewRevisionSql] create revision: {}:{:?}",
                     record.revision.object_id,
                     record.revision.rev_id
                 );
-                let rev_state: GridBlockRevisionState = record.state.into();
+                let rev_state: GridViewRevisionState = record.state.into();
                 (
                     dsl::object_id.eq(record.revision.object_id),
                     dsl::base_rev_id.eq(record.revision.base_rev_id),
@@ -118,20 +116,20 @@ impl GridMetaRevisionSql {
             })
             .collect::<Vec<_>>();
 
-        let _ = insert_or_ignore_into(dsl::grid_meta_rev_table)
+        let _ = insert_or_ignore_into(dsl::grid_view_rev_table)
             .values(&records)
             .execute(conn)?;
         Ok(())
     }
 
     fn update(changeset: RevisionChangeset, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        let state: GridBlockRevisionState = changeset.state.clone().into();
-        let filter = dsl::grid_meta_rev_table
+        let state: GridViewRevisionState = changeset.state.clone().into();
+        let filter = dsl::grid_view_rev_table
             .filter(dsl::rev_id.eq(changeset.rev_id.as_ref()))
             .filter(dsl::object_id.eq(changeset.object_id));
         let _ = update(filter).set(dsl::state.eq(state)).execute(conn)?;
         tracing::debug!(
-            "[GridMetaRevisionSql] update revision:{} state:to {:?}",
+            "[GridViewRevisionSql] update revision:{} state:to {:?}",
             changeset.rev_id,
             changeset.state
         );
@@ -144,13 +142,13 @@ impl GridMetaRevisionSql {
         rev_ids: Option<Vec<i64>>,
         conn: &SqliteConnection,
     ) -> Result<Vec<RevisionRecord>, FlowyError> {
-        let mut sql = dsl::grid_meta_rev_table
+        let mut sql = dsl::grid_view_rev_table
             .filter(dsl::object_id.eq(object_id))
             .into_boxed();
         if let Some(rev_ids) = rev_ids {
             sql = sql.filter(dsl::rev_id.eq_any(rev_ids));
         }
-        let rows = sql.order(dsl::rev_id.asc()).load::<GridBlockRevisionTable>(conn)?;
+        let rows = sql.order(dsl::rev_id.asc()).load::<GridViewRevisionTable>(conn)?;
         let records = rows
             .into_iter()
             .map(|row| mk_revision_record_from_table(user_id, row))
@@ -165,12 +163,12 @@ impl GridMetaRevisionSql {
         range: RevisionRange,
         conn: &SqliteConnection,
     ) -> Result<Vec<RevisionRecord>, FlowyError> {
-        let rev_tables = dsl::grid_meta_rev_table
+        let rev_tables = dsl::grid_view_rev_table
             .filter(dsl::rev_id.ge(range.start))
             .filter(dsl::rev_id.le(range.end))
             .filter(dsl::object_id.eq(object_id))
             .order(dsl::rev_id.asc())
-            .load::<GridBlockRevisionTable>(conn)?;
+            .load::<GridViewRevisionTable>(conn)?;
 
         let revisions = rev_tables
             .into_iter()
@@ -180,47 +178,48 @@ impl GridMetaRevisionSql {
     }
 
     fn delete(object_id: &str, rev_ids: Option<Vec<i64>>, conn: &SqliteConnection) -> Result<(), FlowyError> {
-        let mut sql = diesel::delete(dsl::grid_meta_rev_table).into_boxed();
+        let mut sql = diesel::delete(dsl::grid_view_rev_table).into_boxed();
         sql = sql.filter(dsl::object_id.eq(object_id));
 
         if let Some(rev_ids) = rev_ids {
-            tracing::trace!("[GridMetaRevisionSql] Delete revision: {}:{:?}", object_id, rev_ids);
+            tracing::trace!("[GridViewRevisionSql] Delete revision: {}:{:?}", object_id, rev_ids);
             sql = sql.filter(dsl::rev_id.eq_any(rev_ids));
         }
 
         let affected_row = sql.execute(conn)?;
-        tracing::trace!("[GridMetaRevisionSql] Delete {} rows", affected_row);
+        tracing::trace!("[GridViewRevisionSql] Delete {} rows", affected_row);
         Ok(())
     }
 }
 
 #[derive(PartialEq, Clone, Debug, Queryable, Identifiable, Insertable, Associations)]
-#[table_name = "grid_meta_rev_table"]
-struct GridBlockRevisionTable {
+#[table_name = "grid_view_rev_table"]
+struct GridViewRevisionTable {
     id: i32,
     object_id: String,
     base_rev_id: i64,
     rev_id: i64,
     data: Vec<u8>,
-    state: GridBlockRevisionState,
+    state: GridViewRevisionState,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash, FromSqlRow, AsExpression)]
 #[repr(i32)]
 #[sql_type = "Integer"]
-pub enum GridBlockRevisionState {
+pub enum GridViewRevisionState {
     Sync = 0,
     Ack = 1,
 }
-impl_sql_integer_expression!(GridBlockRevisionState);
-impl_rev_state_map!(GridBlockRevisionState);
-impl std::default::Default for GridBlockRevisionState {
+impl_sql_integer_expression!(GridViewRevisionState);
+impl_rev_state_map!(GridViewRevisionState);
+
+impl std::default::Default for GridViewRevisionState {
     fn default() -> Self {
-        GridBlockRevisionState::Sync
+        GridViewRevisionState::Sync
     }
 }
 
-fn mk_revision_record_from_table(user_id: &str, table: GridBlockRevisionTable) -> RevisionRecord {
+fn mk_revision_record_from_table(user_id: &str, table: GridViewRevisionTable) -> RevisionRecord {
     let md5 = md5(&table.data);
     let revision = Revision::new(
         &table.object_id,
