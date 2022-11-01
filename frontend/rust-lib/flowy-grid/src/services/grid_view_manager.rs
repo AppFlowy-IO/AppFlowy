@@ -6,7 +6,7 @@ use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_editor::{GridViewRevisionCompress, GridViewRevisionEditor};
 
-use crate::services::persistence::sqlite::SQLiteGridViewRevisionPersistence;
+use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;

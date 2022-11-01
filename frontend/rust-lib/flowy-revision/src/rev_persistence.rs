@@ -1,11 +1,11 @@
 use crate::cache::{
-    disk::{RevisionChangeset, RevisionDiskCache, SQLiteDeltaDocumentRevisionPersistence},
+    disk::{RevisionChangeset, RevisionDiskCache},
     memory::RevisionMemoryCacheDelegate,
 };
 use crate::disk::{RevisionRecord, RevisionState};
 use crate::memory::RevisionMemoryCache;
 use crate::RevisionCompress;
-use flowy_database::ConnectionPool;
+
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_sync::entities::revision::{Revision, RevisionRange};
 use std::collections::VecDeque;
@@ -222,13 +222,6 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
             .map(|record| record.revision)
             .collect::<Vec<Revision>>())
     }
-}
-
-pub fn mk_text_block_revision_disk_cache(
-    user_id: &str,
-    pool: Arc<ConnectionPool>,
-) -> Arc<dyn RevisionDiskCache<Arc<ConnectionPool>, Error = FlowyError>> {
-    Arc::new(SQLiteDeltaDocumentRevisionPersistence::new(user_id, pool))
 }
 
 impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = FlowyError>> {

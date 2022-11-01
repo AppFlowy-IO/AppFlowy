@@ -1,7 +1,3 @@
-mod delta_document_impl;
-
-pub use delta_document_impl::*;
-
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::entities::revision::{RevId, Revision, RevisionRange};
 use std::fmt::Debug;

@@ -1,5 +1,3 @@
-use crate::cache::disk::RevisionDiskCache;
-use crate::disk::{RevisionChangeset, RevisionRecord, RevisionState};
 use bytes::Bytes;
 use diesel::{sql_types::Integer, update, SqliteConnection};
 use flowy_database::{
@@ -9,6 +7,7 @@ use flowy_database::{
     ConnectionPool,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionRecord, RevisionState};
 use flowy_sync::{
     entities::revision::{RevType, Revision, RevisionRange},
     util::md5,
@@ -16,17 +15,17 @@ use flowy_sync::{
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub struct SQLiteDeltaDocumentRevisionPersistence {
+pub struct SQLiteFolderRevisionPersistence {
     user_id: String,
     pub(crate) pool: Arc<ConnectionPool>,
 }
 
-impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersistence {
+impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteFolderRevisionPersistence {
     type Error = FlowyError;
 
     fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let _ = DeltaRevisionSql::create(revision_records, &*conn)?;
+        let _ = FolderRevisionSql::create(revision_records, &*conn)?;
         Ok(())
     }
 
@@ -40,7 +39,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
         rev_ids: Option<Vec<i64>>,
     ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
-        let records = DeltaRevisionSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
+        let records = FolderRevisionSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
         Ok(records)
     }
 
@@ -50,7 +49,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
         range: &RevisionRange,
     ) -> Result<Vec<RevisionRecord>, Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let revisions = DeltaRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
+        let revisions = FolderRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
         Ok(revisions)
     }
 
@@ -58,7 +57,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
         let conn = &*self.pool.get().map_err(internal_error)?;
         let _ = conn.immediate_transaction::<_, FlowyError, _>(|| {
             for changeset in changesets {
-                let _ = DeltaRevisionSql::update(changeset, conn)?;
+                let _ = FolderRevisionSql::update(changeset, conn)?;
             }
             Ok(())
         })?;
@@ -67,7 +66,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
 
     fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
-        let _ = DeltaRevisionSql::delete(object_id, rev_ids, conn)?;
+        let _ = FolderRevisionSql::delete(object_id, rev_ids, conn)?;
         Ok(())
     }
 
@@ -79,14 +78,14 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteDeltaDocumentRevisionPersi
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
-            let _ = DeltaRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
-            let _ = DeltaRevisionSql::create(inserted_records, &*conn)?;
+            let _ = FolderRevisionSql::delete(object_id, deleted_rev_ids, &*conn)?;
+            let _ = FolderRevisionSql::create(inserted_records, &*conn)?;
             Ok(())
         })
     }
 }
 
-impl SQLiteDeltaDocumentRevisionPersistence {
+impl SQLiteFolderRevisionPersistence {
     pub fn new(user_id: &str, pool: Arc<ConnectionPool>) -> Self {
         Self {
             user_id: user_id.to_owned(),
@@ -95,9 +94,9 @@ impl SQLiteDeltaDocumentRevisionPersistence {
     }
 }
 
-pub struct DeltaRevisionSql {}
+struct FolderRevisionSql {}
 
-impl DeltaRevisionSql {
+impl FolderRevisionSql {
     fn create(revision_records: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html
 
@@ -190,30 +189,6 @@ impl DeltaRevisionSql {
         let affected_row = sql.execute(conn)?;
         tracing::trace!("[TextRevisionSql] Delete {} rows", affected_row);
         Ok(())
-    }
-
-    pub fn read_all_documents(user_id: &str, conn: &SqliteConnection) -> Result<Vec<Vec<Revision>>, FlowyError> {
-        let rev_tables = dsl::rev_table.order(dsl::rev_id.asc()).load::<RevisionTable>(conn)?;
-        let mut document_map = HashMap::new();
-        for rev_table in rev_tables {
-            document_map
-                .entry(rev_table.doc_id.clone())
-                .or_insert_with(Vec::new)
-                .push(rev_table);
-        }
-        let mut documents = vec![];
-        for rev_tables in document_map.into_values() {
-            let revisions = rev_tables
-                .into_iter()
-                .map(|table| {
-                    let record = mk_revision_record_from_table(user_id, table);
-                    record.revision
-                })
-                .collect::<Vec<_>>();
-            documents.push(revisions);
-        }
-
-        Ok(documents)
     }
 }
 

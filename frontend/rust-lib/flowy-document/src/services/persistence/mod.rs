@@ -1,5 +1,5 @@
-pub mod sqlite;
 pub mod delta_migration;
+pub mod rev_sqlite;
 
 use crate::services::migration::DocumentMigration;
 use crate::DocumentDatabase;

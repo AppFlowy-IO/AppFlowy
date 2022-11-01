@@ -1,6 +1,6 @@
 #[rustfmt::skip]
 /*
-diesel master support on_conflict on sqlite but not 1.4.7 version. Workaround for this
+diesel master support on_conflict on rev_sqlite but not 1.4.7 version. Workaround for this
 
 match dsl::workspace_table
     .filter(workspace_table::id.eq(table.id.clone()))

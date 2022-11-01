@@ -1,5 +1,5 @@
 use crate::services::delta_migration::DeltaRevisionMigration;
-use crate::services::sqlite::{DeltaRevisionSql, SQLiteDocumentRevisionPersistence};
+use crate::services::rev_sqlite::{DeltaRevisionSql, SQLiteDocumentRevisionPersistence};
 use crate::DocumentDatabase;
 use bytes::Bytes;
 use flowy_database::kv::KV;

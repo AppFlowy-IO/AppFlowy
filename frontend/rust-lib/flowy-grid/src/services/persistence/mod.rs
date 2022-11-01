@@ -5,7 +5,7 @@ use std::sync::Arc;
 pub mod block_index;
 pub mod kv;
 pub mod migration;
-pub mod sqlite;
+pub mod rev_sqlite;
 
 pub trait GridDatabase: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;

@@ -1,7 +1,7 @@
 use crate::editor::{initial_document_content, AppFlowyDocumentEditor, DocumentRevisionCompress};
 use crate::entities::{DocumentVersionPB, EditParams};
 use crate::old_editor::editor::{DeltaDocumentEditor, DeltaDocumentRevisionCompress};
-use crate::services::sqlite::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
+use crate::services::rev_sqlite::{SQLiteDeltaDocumentRevisionPersistence, SQLiteDocumentRevisionPersistence};
 use crate::services::DocumentPersistence;
 use crate::{errors::FlowyError, DocumentCloudService};
 use bytes::Bytes;
@@ -197,7 +197,7 @@ impl DocumentManager {
     /// # Arguments
     ///
     /// * `doc_id`: the id of the document
-    /// * `pool`: sqlite connection pool
+    /// * `pool`: rev_sqlite connection pool
     ///
     /// returns: Result<Arc<DocumentEditor>, FlowyError>
     ///

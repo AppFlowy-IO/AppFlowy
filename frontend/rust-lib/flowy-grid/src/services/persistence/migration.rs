@@ -9,7 +9,7 @@ use flowy_sync::client_grid::{make_grid_rev_json_str, GridOperationsBuilder, Gri
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::md5;
 
-use crate::services::persistence::sqlite::SQLiteGridRevisionPersistence;
+use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "GRID_V1_MIGRATION";
