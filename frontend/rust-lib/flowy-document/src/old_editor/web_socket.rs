@@ -42,7 +42,7 @@ impl DeltaDocumentResolveOperations {
     }
 }
 
-pub type DocumentConflictController = ConflictController<DeltaDocumentResolveOperations>;
+pub type DocumentConflictController = ConflictController<DeltaDocumentResolveOperations, Arc<ConnectionPool>>;
 
 #[allow(dead_code)]
 pub(crate) async fn make_document_ws_manager(

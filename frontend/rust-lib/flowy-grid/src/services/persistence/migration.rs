@@ -73,4 +73,12 @@ impl RevisionResettable for GridRevisionResettable {
         let json = make_grid_rev_json_str(&grid_rev)?;
         Ok(json)
     }
+
+    fn read_record(&self) -> Option<String> {
+        KV::get_str(self.target_id())
+    }
+
+    fn set_record(&self, record: String) {
+        KV::set_str(self.target_id(), record);
+    }
 }

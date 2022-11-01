@@ -12,7 +12,7 @@ use flowy_sync::{
     entities::revision::{RevType, Revision, RevisionRange},
     util::md5,
 };
-use std::collections::HashMap;
+
 use std::sync::Arc;
 
 pub struct SQLiteFolderRevisionPersistence {

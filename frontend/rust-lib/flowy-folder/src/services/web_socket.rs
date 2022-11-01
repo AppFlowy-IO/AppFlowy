@@ -38,7 +38,7 @@ impl FolderResolveOperations {
     }
 }
 
-pub type FolderConflictController = ConflictController<FolderResolveOperations>;
+pub type FolderConflictController = ConflictController<FolderResolveOperations, Arc<ConnectionPool>>;
 
 #[allow(dead_code)]
 pub(crate) async fn make_folder_ws_manager(
