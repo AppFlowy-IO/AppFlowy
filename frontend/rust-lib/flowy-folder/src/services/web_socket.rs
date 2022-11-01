@@ -1,5 +1,6 @@
 use crate::services::FOLDER_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::*;
 use flowy_sync::entities::revision::Revision;
@@ -37,13 +38,13 @@ impl FolderResolveOperations {
     }
 }
 
-pub type FolderConflictController = ConflictController<FolderResolveOperations>;
+pub type FolderConflictController = ConflictController<FolderResolveOperations, Arc<ConnectionPool>>;
 
 #[allow(dead_code)]
 pub(crate) async fn make_folder_ws_manager(
     user_id: &str,
     folder_id: &str,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     web_socket: Arc<dyn RevisionWebSocket>,
     folder_pad: Arc<RwLock<FolderPad>>,
 ) -> Arc<RevisionWebSocketManager> {

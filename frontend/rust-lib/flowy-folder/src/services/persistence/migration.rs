@@ -7,13 +7,13 @@ use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::revision::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevision};
-use flowy_revision::disk::SQLiteDeltaDocumentRevisionPersistence;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sync::client_folder::make_folder_rev_json_str;
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::server_folder::FolderOperationsBuilder;
 use flowy_sync::{client_folder::FolderPad, entities::revision::md5};
 
+use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";
@@ -113,7 +113,7 @@ impl FolderMigration {
         };
 
         let pool = self.database.db_pool()?;
-        let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&self.user_id, pool);
+        let disk_cache = SQLiteFolderRevisionPersistence::new(&self.user_id, pool);
         let reset = RevisionStructReset::new(&self.user_id, object, Arc::new(disk_cache));
         reset.run().await
     }
@@ -143,5 +143,13 @@ impl RevisionResettable for FolderRevisionResettable {
         let folder = FolderRevision::default();
         let json = make_folder_rev_json_str(&folder)?;
         Ok(json)
+    }
+
+    fn read_record(&self) -> Option<String> {
+        KV::get_str(self.target_id())
+    }
+
+    fn set_record(&self, record: String) {
+        KV::set_str(self.target_id(), record);
     }
 }

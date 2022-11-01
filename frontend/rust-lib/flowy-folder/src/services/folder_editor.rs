@@ -12,6 +12,7 @@ use flowy_sync::{
 };
 use lib_infra::future::FutureResult;
 
+use flowy_database::ConnectionPool;
 use lib_ot::core::EmptyAttributes;
 use parking_lot::RwLock;
 use std::sync::Arc;
@@ -21,7 +22,7 @@ pub struct FolderEditor {
     #[allow(dead_code)]
     pub(crate) folder_id: FolderId,
     pub(crate) folder: Arc<RwLock<FolderPad>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     #[cfg(feature = "sync")]
     ws_manager: Arc<flowy_revision::RevisionWebSocketManager>,
 }
@@ -32,7 +33,7 @@ impl FolderEditor {
         user_id: &str,
         folder_id: &FolderId,
         token: &str,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> FlowyResult<Self> {
         let cloud = Arc::new(FolderRevisionCloudService {
@@ -139,7 +140,7 @@ impl RevisionCloudService for FolderRevisionCloudService {
 
 #[cfg(feature = "flowy_unit_test")]
 impl FolderEditor {
-    pub fn rev_manager(&self) -> Arc<RevisionManager> {
+    pub fn rev_manager(&self) -> Arc<RevisionManager<Arc<ConnectionPool>>> {
         self.rev_manager.clone()
     }
 }

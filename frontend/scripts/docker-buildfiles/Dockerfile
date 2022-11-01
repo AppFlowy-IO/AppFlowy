@@ -17,7 +17,7 @@ RUN git clone https://aur.archlinux.org/yay.git \
   && cd yay \
   && makepkg -sri --needed --noconfirm
 
-RUN yay -S --noconfirm curl base-devel sqlite openssl clang cmake ninja pkg-config gtk3 unzip
+RUN yay -S --noconfirm curl base-devel rev_sqlite openssl clang cmake ninja pkg-config gtk3 unzip
 RUN xdg-user-dirs-update
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 RUN source $HOME/.cargo/env && rustup toolchain install stable && rustup default stable

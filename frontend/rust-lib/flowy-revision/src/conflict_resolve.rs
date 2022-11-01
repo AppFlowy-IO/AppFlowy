@@ -6,8 +6,8 @@ use flowy_sync::entities::{
     ws_data::ServerRevisionWSDataType,
 };
 use lib_infra::future::BoxResultFuture;
-
 use std::{convert::TryFrom, sync::Arc};
+
 pub type OperationsMD5 = String;
 
 pub struct TransformOperations<Operations> {
@@ -41,25 +41,26 @@ pub trait ConflictRevisionSink: Send + Sync + 'static {
     fn ack(&self, rev_id: String, ty: ServerRevisionWSDataType) -> BoxResultFuture<(), FlowyError>;
 }
 
-pub struct ConflictController<Operations>
+pub struct ConflictController<Operations, Connection>
 where
     Operations: Send + Sync,
 {
     user_id: String,
     resolver: Arc<dyn ConflictResolver<Operations> + Send + Sync>,
     rev_sink: Arc<dyn ConflictRevisionSink>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Connection>>,
 }
 
-impl<Operations> ConflictController<Operations>
+impl<Operations, Connection> ConflictController<Operations, Connection>
 where
     Operations: Clone + Send + Sync,
+    Connection: 'static,
 {
     pub fn new(
         user_id: &str,
         resolver: Arc<dyn ConflictResolver<Operations> + Send + Sync>,
         rev_sink: Arc<dyn ConflictRevisionSink>,
-        rev_manager: Arc<RevisionManager>,
+        rev_manager: Arc<RevisionManager<Connection>>,
     ) -> Self {
         let user_id = user_id.to_owned();
         Self {
@@ -71,9 +72,10 @@ where
     }
 }
 
-impl<Operations> ConflictController<Operations>
+impl<Operations, Connection> ConflictController<Operations, Connection>
 where
     Operations: OperationsSerializer + OperationsDeserializer<Operations> + Clone + Send + Sync,
+    Connection: Send + Sync + 'static,
 {
     pub async fn receive_bytes(&self, bytes: Bytes) -> FlowyResult<()> {
         let repeated_revision = RepeatedRevision::try_from(bytes)?;
@@ -151,15 +153,16 @@ where
     }
 }
 
-fn make_client_and_server_revision<Operations>(
+fn make_client_and_server_revision<Operations, Connection>(
     user_id: &str,
-    rev_manager: &Arc<RevisionManager>,
+    rev_manager: &Arc<RevisionManager<Connection>>,
     client_operations: Operations,
     server_operations: Option<Operations>,
     md5: String,
 ) -> (Revision, Option<Revision>)
 where
     Operations: OperationsSerializer,
+    Connection: 'static,
 {
     let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
     let bytes = client_operations.serialize_operations();

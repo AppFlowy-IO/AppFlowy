@@ -5,6 +5,7 @@ use crate::services::grid_view_manager::make_grid_view_rev_manager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::migration::GridMigration;
+use crate::services::persistence::rev_sqlite::{SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionPersistence};
 use crate::services::persistence::GridDatabase;
 use crate::services::tasks::GridTaskScheduler;
 use bytes::Bytes;
@@ -12,7 +13,6 @@ use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{BuildGridContext, GridRevision, GridViewRevision};
-use flowy_revision::disk::{SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionPersistence};
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
 use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
 use flowy_sync::entities::revision::{RepeatedRevision, Revision};
@@ -154,7 +154,11 @@ impl GridManager {
         Ok(grid_editor)
     }
 
-    pub fn make_grid_rev_manager(&self, grid_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
+    pub fn make_grid_rev_manager(
+        &self,
+        grid_id: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache);
@@ -164,7 +168,11 @@ impl GridManager {
         Ok(rev_manager)
     }
 
-    fn make_grid_block_rev_manager(&self, block_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
+    fn make_grid_block_rev_manager(
+        &self,
+        block_id: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);

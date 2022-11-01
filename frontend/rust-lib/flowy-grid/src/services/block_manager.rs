@@ -3,13 +3,13 @@ use crate::entities::{CellChangesetPB, GridBlockChangesetPB, InsertedRowPB, RowP
 use crate::manager::GridUser;
 use crate::services::block_editor::{GridBlockRevisionCompress, GridBlockRevisionEditor};
 use crate::services::persistence::block_index::BlockIndexCache;
+use crate::services::persistence::rev_sqlite::SQLiteGridBlockRevisionPersistence;
 use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlockSnapshot};
 use dashmap::DashMap;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
 };
-use flowy_revision::disk::SQLiteGridBlockRevisionPersistence;
 use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
 use std::borrow::Cow;
 use std::collections::HashMap;

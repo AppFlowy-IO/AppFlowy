@@ -1,6 +1,7 @@
 use crate::old_editor::queue::{EditorCommand, EditorCommandSender, TextTransformOperations};
 use crate::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_revision::*;
 use flowy_sync::entities::revision::Revision;
@@ -41,14 +42,14 @@ impl DeltaDocumentResolveOperations {
     }
 }
 
-pub type DocumentConflictController = ConflictController<DeltaDocumentResolveOperations>;
+pub type DocumentConflictController = ConflictController<DeltaDocumentResolveOperations, Arc<ConnectionPool>>;
 
 #[allow(dead_code)]
 pub(crate) async fn make_document_ws_manager(
     doc_id: String,
     user_id: String,
     edit_cmd_tx: EditorCommandSender,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     rev_web_socket: Arc<dyn RevisionWebSocket>,
 ) -> Arc<RevisionWebSocketManager> {
     let ws_data_provider = Arc::new(WSDataProvider::new(&doc_id, Arc::new(rev_manager.clone())));

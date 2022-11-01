@@ -69,11 +69,11 @@ pub trait RevisionCompress: Send + Sync {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes>;
 }
 
-pub struct RevisionManager {
+pub struct RevisionManager<Connection> {
     pub object_id: String,
     user_id: String,
     rev_id_counter: RevIdCounter,
-    rev_persistence: Arc<RevisionPersistence>,
+    rev_persistence: Arc<RevisionPersistence<Connection>>,
     #[allow(dead_code)]
     rev_snapshot: Arc<RevisionSnapshotManager>,
     rev_compress: Arc<dyn RevisionCompress>,
@@ -81,11 +81,11 @@ pub struct RevisionManager {
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
 }
 
-impl RevisionManager {
+impl<Connection: 'static> RevisionManager<Connection> {
     pub fn new<SP, C>(
         user_id: &str,
         object_id: &str,
-        rev_persistence: RevisionPersistence,
+        rev_persistence: RevisionPersistence<Connection>,
         rev_compress: C,
         snapshot_persistence: SP,
     ) -> Self
@@ -209,7 +209,7 @@ impl RevisionManager {
     }
 }
 
-impl WSDataProviderDataSource for Arc<RevisionManager> {
+impl<Connection: 'static> WSDataProviderDataSource for Arc<RevisionManager<Connection>> {
     fn next_revision(&self) -> FutureResult<Option<Revision>, FlowyError> {
         let rev_manager = self.clone();
         FutureResult::new(async move { rev_manager.next_sync_revision().await })
@@ -226,8 +226,8 @@ impl WSDataProviderDataSource for Arc<RevisionManager> {
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl RevisionManager {
-    pub async fn revision_cache(&self) -> Arc<RevisionPersistence> {
+impl<Connection> RevisionManager<Connection> {
+    pub async fn revision_cache(&self) -> Arc<RevisionPersistence<Connection>> {
         self.rev_persistence.clone()
     }
     pub fn ack_notify(&self) -> tokio::sync::broadcast::Receiver<i64> {
@@ -235,14 +235,14 @@ impl RevisionManager {
     }
 }
 
-pub struct RevisionLoader {
+pub struct RevisionLoader<Connection> {
     pub object_id: String,
     pub user_id: String,
     pub cloud: Option<Arc<dyn RevisionCloudService>>,
-    pub rev_persistence: Arc<RevisionPersistence>,
+    pub rev_persistence: Arc<RevisionPersistence<Connection>>,
 }
 
-impl RevisionLoader {
+impl<Connection: 'static> RevisionLoader<Connection> {
     pub async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
         let records = self.rev_persistence.batch_get(&self.object_id)?;
         let revisions: Vec<Revision>;

@@ -170,8 +170,8 @@ impl DeltaRevisionMigration {
 
 #[cfg(test)]
 mod tests {
-    use crate::editor::migration::delta_migration::DeltaRevisionMigration;
     use crate::editor::Document;
+    use crate::services::delta_migration::DeltaRevisionMigration;
     use lib_ot::text_delta::DeltaTextOperations;
 
     #[test]

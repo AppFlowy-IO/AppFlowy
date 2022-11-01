@@ -12,6 +12,7 @@ use crate::services::group::{
     GroupConfigurationWriter, GroupController, MoveGroupRowContext,
 };
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{
     gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
@@ -34,7 +35,7 @@ pub struct GridViewRevisionEditor {
     user_id: String,
     view_id: String,
     pad: Arc<RwLock<GridViewRevisionPad>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     field_delegate: Arc<dyn GridViewFieldDelegate>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
@@ -49,7 +50,7 @@ impl GridViewRevisionEditor {
         field_delegate: Arc<dyn GridViewFieldDelegate>,
         row_delegate: Arc<dyn GridViewRowDelegate>,
         scheduler: Arc<dyn GridServiceTaskScheduler>,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
@@ -401,7 +402,7 @@ async fn new_group_controller(
     user_id: String,
     view_id: String,
     view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     field_delegate: Arc<dyn GridViewFieldDelegate>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
@@ -438,7 +439,7 @@ async fn new_group_controller_with_field_rev(
     user_id: String,
     view_id: String,
     view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     field_rev: Arc<FieldRevision>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
@@ -454,7 +455,7 @@ async fn new_group_controller_with_field_rev(
 
 async fn apply_change(
     user_id: &str,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     change: GridViewRevisionChangeset,
 ) -> FlowyResult<()> {
     let GridViewRevisionChangeset { operations: delta, md5 } = change;
@@ -520,7 +521,7 @@ impl GroupConfigurationReader for GroupConfigurationReaderImpl {
 
 struct GroupConfigurationWriterImpl {
     user_id: String,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     view_pad: Arc<RwLock<GridViewRevisionPad>>,
 }
 

@@ -1,9 +1,10 @@
-use crate::editor::DeltaRevisionMigration;
+use crate::services::delta_migration::DeltaRevisionMigration;
+use crate::services::rev_sqlite::{DeltaRevisionSql, SQLiteDocumentRevisionPersistence};
 use crate::DocumentDatabase;
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_error::FlowyResult;
-use flowy_revision::disk::{DeltaRevisionSql, RevisionDiskCache, RevisionRecord, SQLiteDocumentRevisionPersistence};
+use flowy_revision::disk::{RevisionDiskCache, RevisionRecord};
 use flowy_sync::entities::revision::{md5, Revision};
 use flowy_sync::util::make_operations_from_revisions;
 use std::sync::Arc;

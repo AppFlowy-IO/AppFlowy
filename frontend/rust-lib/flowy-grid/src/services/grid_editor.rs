@@ -25,6 +25,7 @@ use flowy_sync::errors::{CollaborateError, CollaborateResult};
 use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{wrap_future, FutureResult};
 
+use flowy_database::ConnectionPool;
 use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -35,7 +36,7 @@ pub struct GridRevisionEditor {
     user: Arc<dyn GridUser>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
     view_manager: Arc<GridViewManager>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     block_manager: Arc<GridBlockManager>,
 
     #[allow(dead_code)]
@@ -52,7 +53,7 @@ impl GridRevisionEditor {
     pub async fn new(
         grid_id: &str,
         user: Arc<dyn GridUser>,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
         persistence: Arc<BlockIndexCache>,
         task_scheduler: GridTaskSchedulerRwLock,
     ) -> FlowyResult<Arc<Self>> {
@@ -819,7 +820,7 @@ impl GridRevisionEditor {
 
 #[cfg(feature = "flowy_unit_test")]
 impl GridRevisionEditor {
-    pub fn rev_manager(&self) -> Arc<RevisionManager> {
+    pub fn rev_manager(&self) -> Arc<RevisionManager<Arc<ConnectionPool>>> {
         self.rev_manager.clone()
     }
 }
