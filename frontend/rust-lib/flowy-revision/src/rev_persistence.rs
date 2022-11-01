@@ -15,28 +15,28 @@ use tokio::task::spawn_blocking;
 
 pub const REVISION_WRITE_INTERVAL_IN_MILLIS: u64 = 600;
 
-pub struct RevisionPersistence {
+pub struct RevisionPersistence<Connection> {
     user_id: String,
     object_id: String,
-    disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
+    disk_cache: Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>,
     memory_cache: Arc<RevisionMemoryCache>,
     sync_seq: RwLock<RevisionSyncSequence>,
 }
 
-impl RevisionPersistence {
-    pub fn new<C>(user_id: &str, object_id: &str, disk_cache: C) -> RevisionPersistence
+impl<Connection: 'static> RevisionPersistence<Connection> {
+    pub fn new<C>(user_id: &str, object_id: &str, disk_cache: C) -> RevisionPersistence<Connection>
     where
-        C: 'static + RevisionDiskCache<Error = FlowyError>,
+        C: 'static + RevisionDiskCache<Connection, Error = FlowyError>,
     {
-        let disk_cache = Arc::new(disk_cache) as Arc<dyn RevisionDiskCache<Error = FlowyError>>;
+        let disk_cache = Arc::new(disk_cache) as Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>;
         Self::from_disk_cache(user_id, object_id, disk_cache)
     }
 
     pub fn from_disk_cache(
         user_id: &str,
         object_id: &str,
-        disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
-    ) -> RevisionPersistence {
+        disk_cache: Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>,
+    ) -> RevisionPersistence<Connection> {
         let object_id = object_id.to_owned();
         let user_id = user_id.to_owned();
         let sync_seq = RwLock::new(RevisionSyncSequence::new());
@@ -227,18 +227,18 @@ impl RevisionPersistence {
 pub fn mk_text_block_revision_disk_cache(
     user_id: &str,
     pool: Arc<ConnectionPool>,
-) -> Arc<dyn RevisionDiskCache<Error = FlowyError>> {
+) -> Arc<dyn RevisionDiskCache<Arc<ConnectionPool>, Error = FlowyError>> {
     Arc::new(SQLiteDeltaDocumentRevisionPersistence::new(user_id, pool))
 }
 
 pub fn mk_grid_block_revision_disk_cache(
     user_id: &str,
     pool: Arc<ConnectionPool>,
-) -> Arc<dyn RevisionDiskCache<Error = FlowyError>> {
+) -> Arc<dyn RevisionDiskCache<Arc<ConnectionPool>, Error = FlowyError>> {
     Arc::new(SQLiteGridBlockRevisionPersistence::new(user_id, pool))
 }
 
-impl RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<Error = FlowyError>> {
+impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = FlowyError>> {
     fn checkpoint_tick(&self, mut records: Vec<RevisionRecord>) -> FlowyResult<()> {
         records.retain(|record| record.write_to_disk);
         if !records.is_empty() {

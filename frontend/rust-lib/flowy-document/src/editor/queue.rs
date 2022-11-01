@@ -8,6 +8,7 @@ use flowy_sync::entities::revision::{RevId, Revision};
 use futures::stream::StreamExt;
 use lib_ot::core::Transaction;
 
+use flowy_database::ConnectionPool;
 use std::sync::Arc;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::{oneshot, RwLock};
@@ -17,14 +18,14 @@ pub struct DocumentQueue {
     user: Arc<dyn DocumentUser>,
     document: Arc<RwLock<Document>>,
     #[allow(dead_code)]
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     receiver: Option<CommandReceiver>,
 }
 
 impl DocumentQueue {
     pub fn new(
         user: Arc<dyn DocumentUser>,
-        rev_manager: Arc<RevisionManager>,
+        rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
         document: Document,
         receiver: CommandReceiver,
     ) -> Self {

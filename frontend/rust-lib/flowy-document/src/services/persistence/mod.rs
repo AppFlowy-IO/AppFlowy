@@ -1,3 +1,5 @@
+pub mod sqlite;
+
 use crate::services::migration::DocumentMigration;
 use crate::DocumentDatabase;
 use flowy_error::FlowyResult;

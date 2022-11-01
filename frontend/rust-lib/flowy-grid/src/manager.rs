@@ -154,7 +154,11 @@ impl GridManager {
         Ok(grid_editor)
     }
 
-    pub fn make_grid_rev_manager(&self, grid_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
+    pub fn make_grid_rev_manager(
+        &self,
+        grid_id: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache);
@@ -164,7 +168,11 @@ impl GridManager {
         Ok(rev_manager)
     }
 
-    fn make_grid_block_rev_manager(&self, block_id: &str, pool: Arc<ConnectionPool>) -> FlowyResult<RevisionManager> {
+    fn make_grid_block_rev_manager(
+        &self,
+        block_id: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);

@@ -1,6 +1,7 @@
 use crate::old_editor::web_socket::DeltaDocumentResolveOperations;
 use crate::DocumentUser;
 use async_stream::stream;
+use flowy_database::ConnectionPool;
 use flowy_error::FlowyError;
 use flowy_revision::{OperationsMD5, RevisionManager, TransformOperations};
 use flowy_sync::{
@@ -23,14 +24,14 @@ use tokio::sync::{oneshot, RwLock};
 pub(crate) struct EditDocumentQueue {
     document: Arc<RwLock<ClientDocument>>,
     user: Arc<dyn DocumentUser>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     receiver: Option<EditorCommandReceiver>,
 }
 
 impl EditDocumentQueue {
     pub(crate) fn new(
         user: Arc<dyn DocumentUser>,
-        rev_manager: Arc<RevisionManager>,
+        rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
         operations: DeltaTextOperations,
         receiver: EditorCommandReceiver,
     ) -> Self {

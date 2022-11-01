@@ -20,13 +20,17 @@ pub struct SQLiteGridRevisionPersistence {
     pub(crate) pool: Arc<ConnectionPool>,
 }
 
-impl RevisionDiskCache for SQLiteGridRevisionPersistence {
+impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridRevisionPersistence {
     type Error = FlowyError;
 
     fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         let _ = GridRevisionSql::create(revision_records, &*conn)?;
         Ok(())
+    }
+
+    fn get_connection(&self) -> Result<Arc<ConnectionPool>, Self::Error> {
+        Ok(self.pool.clone())
     }
 
     fn read_revision_records(

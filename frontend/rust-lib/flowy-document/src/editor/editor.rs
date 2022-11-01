@@ -4,6 +4,7 @@ use crate::editor::make_transaction_from_revisions;
 use crate::editor::queue::{Command, CommandSender, DocumentQueue};
 use crate::{DocumentEditor, DocumentUser};
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_revision::{RevisionCloudService, RevisionManager};
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
@@ -18,14 +19,14 @@ pub struct AppFlowyDocumentEditor {
     #[allow(dead_code)]
     doc_id: String,
     command_sender: CommandSender,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
 }
 
 impl AppFlowyDocumentEditor {
     pub async fn new(
         doc_id: &str,
         user: Arc<dyn DocumentUser>,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
         let document = rev_manager.load::<DocumentRevisionSerde>(Some(cloud_service)).await?;
@@ -70,7 +71,7 @@ impl AppFlowyDocumentEditor {
 
 fn spawn_edit_queue(
     user: Arc<dyn DocumentUser>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     document: Document,
 ) -> CommandSender {
     let (sender, receiver) = mpsc::channel(1000);

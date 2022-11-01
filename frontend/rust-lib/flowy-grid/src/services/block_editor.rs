@@ -10,6 +10,7 @@ use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::FutureResult;
 
+use flowy_database::ConnectionPool;
 use lib_ot::core::EmptyAttributes;
 use std::borrow::Cow;
 use std::sync::Arc;
@@ -19,7 +20,7 @@ pub struct GridBlockRevisionEditor {
     user_id: String,
     pub block_id: String,
     pad: Arc<RwLock<GridBlockRevisionPad>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
 }
 
 impl GridBlockRevisionEditor {
@@ -27,7 +28,7 @@ impl GridBlockRevisionEditor {
         user_id: &str,
         token: &str,
         block_id: &str,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
         let cloud = Arc::new(GridBlockRevisionCloudService {
             token: token.to_owned(),

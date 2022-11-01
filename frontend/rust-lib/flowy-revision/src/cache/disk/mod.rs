@@ -15,9 +15,11 @@ use flowy_sync::entities::revision::{RevId, Revision, RevisionRange};
 use std::fmt::Debug;
 use std::sync::Arc;
 
-pub trait RevisionDiskCache: Sync + Send {
+pub trait RevisionDiskCache<Connection>: Sync + Send {
     type Error: Debug;
     fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error>;
+
+    fn get_connection(&self) -> Result<Connection, Self::Error>;
 
     // Read all the records if the rev_ids is None
     fn read_revision_records(
@@ -48,14 +50,18 @@ pub trait RevisionDiskCache: Sync + Send {
     ) -> Result<(), Self::Error>;
 }
 
-impl<T> RevisionDiskCache for Arc<T>
+impl<T, Connection> RevisionDiskCache<Connection> for Arc<T>
 where
-    T: RevisionDiskCache<Error = FlowyError>,
+    T: RevisionDiskCache<Connection, Error = FlowyError>,
 {
     type Error = FlowyError;
 
     fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
         (**self).create_revision_records(revision_records)
+    }
+
+    fn get_connection(&self) -> Result<Connection, Self::Error> {
+        (**self).get_connection()
     }
 
     fn read_revision_records(

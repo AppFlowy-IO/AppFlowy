@@ -231,7 +231,11 @@ impl DocumentManager {
         }
     }
 
-    fn make_rev_manager(&self, doc_id: &str, pool: Arc<ConnectionPool>) -> Result<RevisionManager, FlowyError> {
+    fn make_rev_manager(
+        &self,
+        doc_id: &str,
+        pool: Arc<ConnectionPool>,
+    ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         match self.config.version {
             DocumentVersionPB::V0 => self.make_delta_document_rev_manager(doc_id, pool),
             DocumentVersionPB::V1 => self.make_document_rev_manager(doc_id, pool),
@@ -242,7 +246,7 @@ impl DocumentManager {
         &self,
         doc_id: &str,
         pool: Arc<ConnectionPool>,
-    ) -> Result<RevisionManager, FlowyError> {
+    ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
         let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
@@ -262,7 +266,7 @@ impl DocumentManager {
         &self,
         doc_id: &str,
         pool: Arc<ConnectionPool>,
-    ) -> Result<RevisionManager, FlowyError> {
+    ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
         let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&user_id, pool.clone());
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);

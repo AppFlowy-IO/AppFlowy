@@ -7,7 +7,10 @@ use flowy_sync::entities::{
 };
 use lib_infra::future::BoxResultFuture;
 
+use diesel::SqliteConnection;
+use flowy_database::ConnectionPool;
 use std::{convert::TryFrom, sync::Arc};
+
 pub type OperationsMD5 = String;
 
 pub struct TransformOperations<Operations> {
@@ -48,7 +51,7 @@ where
     user_id: String,
     resolver: Arc<dyn ConflictResolver<Operations> + Send + Sync>,
     rev_sink: Arc<dyn ConflictRevisionSink>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
 }
 
 impl<Operations> ConflictController<Operations>
@@ -59,7 +62,7 @@ where
         user_id: &str,
         resolver: Arc<dyn ConflictResolver<Operations> + Send + Sync>,
         rev_sink: Arc<dyn ConflictRevisionSink>,
-        rev_manager: Arc<RevisionManager>,
+        rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     ) -> Self {
         let user_id = user_id.to_owned();
         Self {
@@ -153,7 +156,7 @@ where
 
 fn make_client_and_server_revision<Operations>(
     user_id: &str,
-    rev_manager: &Arc<RevisionManager>,
+    rev_manager: &Arc<RevisionManager<Arc<ConnectionPool>>>,
     client_operations: Operations,
     server_operations: Option<Operations>,
     md5: String,

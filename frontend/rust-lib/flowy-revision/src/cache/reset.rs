@@ -18,17 +18,18 @@ pub trait RevisionResettable {
     fn default_target_rev_str(&self) -> FlowyResult<String>;
 }
 
-pub struct RevisionStructReset<T> {
+pub struct RevisionStructReset<T, C> {
     user_id: String,
     target: T,
-    disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>,
+    disk_cache: Arc<dyn RevisionDiskCache<C, Error = FlowyError>>,
 }
 
-impl<T> RevisionStructReset<T>
+impl<T, C> RevisionStructReset<T, C>
 where
     T: RevisionResettable,
+    C: 'static,
 {
-    pub fn new(user_id: &str, object: T, disk_cache: Arc<dyn RevisionDiskCache<Error = FlowyError>>) -> Self {
+    pub fn new(user_id: &str, object: T, disk_cache: Arc<dyn RevisionDiskCache<C, Error = FlowyError>>) -> Self {
         Self {
             user_id: user_id.to_owned(),
             target: object,
