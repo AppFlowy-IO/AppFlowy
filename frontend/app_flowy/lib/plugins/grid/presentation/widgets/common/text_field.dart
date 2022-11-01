@@ -2,6 +2,7 @@ import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
@@ -36,6 +37,9 @@ class _InputTextFieldState extends State<InputTextField> {
   void initState() {
     _focusNode = FocusNode();
     _controller = TextEditingController(text: widget.text);
+    SchedulerBinding.instance.addPostFrameCallback((Duration _) {
+      _focusNode.requestFocus();
+    });
 
     _focusNode.addListener(notifyDidEndEditing);
     super.initState();
