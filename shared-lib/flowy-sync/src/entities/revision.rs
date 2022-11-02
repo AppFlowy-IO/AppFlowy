@@ -1,6 +1,6 @@
 use crate::util::md5;
 use bytes::Bytes;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_derive::ProtoBuf;
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
 
 pub type RevisionObject = lib_ot::text_delta::DeltaTextOperations;
@@ -21,11 +21,6 @@ pub struct Revision {
 
     #[pb(index = 5)]
     pub object_id: String,
-    // #[pb(index = 6)]
-    // ty: RevType, // Deprecated
-    //
-    // #[pb(index = 7)]
-    // pub user_id: String,
 }
 
 impl std::convert::From<Vec<u8>> for Revision {
@@ -36,14 +31,7 @@ impl std::convert::From<Vec<u8>> for Revision {
 }
 
 impl Revision {
-    pub fn new<T: Into<String>>(
-        object_id: &str,
-        base_rev_id: i64,
-        rev_id: i64,
-        bytes: Bytes,
-        _user_id: &str,
-        md5: T,
-    ) -> Revision {
+    pub fn new<T: Into<String>>(object_id: &str, base_rev_id: i64, rev_id: i64, bytes: Bytes, md5: T) -> Revision {
         let object_id = object_id.to_owned();
         let bytes = bytes.to_vec();
         let base_rev_id = base_rev_id;
@@ -61,6 +49,7 @@ impl Revision {
             object_id,
         }
     }
+
     pub fn is_empty(&self) -> bool {
         self.base_rev_id == self.rev_id
     }
@@ -73,9 +62,9 @@ impl Revision {
         self.rev_id == 0
     }
 
-    pub fn initial_revision(user_id: &str, object_id: &str, bytes: Bytes) -> Self {
+    pub fn initial_revision(object_id: &str, bytes: Bytes) -> Self {
         let md5 = md5(&bytes);
-        Self::new(object_id, 0, 0, bytes, user_id, md5)
+        Self::new(object_id, 0, 0, bytes, md5)
     }
 }
 
@@ -209,17 +198,5 @@ impl RevisionRange {
 
     pub fn to_rev_ids(&self) -> Vec<i64> {
         self.iter().collect::<Vec<_>>()
-    }
-}
-
-#[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
-pub enum RevType {
-    DeprecatedLocal = 0,
-    DeprecatedRemote = 1,
-}
-
-impl std::default::Default for RevType {
-    fn default() -> Self {
-        RevType::DeprecatedLocal
     }
 }

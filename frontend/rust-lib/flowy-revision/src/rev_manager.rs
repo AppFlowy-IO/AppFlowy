@@ -63,10 +63,22 @@ pub trait RevisionCompress: Send + Sync {
         let (base_rev_id, rev_id) = first_revision.pair_rev_id();
         let md5 = last_revision.md5.clone();
         let bytes = self.combine_revisions(revisions)?;
-        Ok(Revision::new(object_id, base_rev_id, rev_id, bytes, user_id, md5))
+        Ok(Revision::new(object_id, base_rev_id, rev_id, bytes, md5))
     }
 
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes>;
+}
+
+pub struct RevisionConfiguration {
+    merge_when_excess_number_of_version: i64,
+}
+
+impl std::default::Default for RevisionConfiguration {
+    fn default() -> Self {
+        Self {
+            merge_when_excess_number_of_version: 100,
+        }
+    }
 }
 
 pub struct RevisionManager<Connection> {
@@ -79,6 +91,7 @@ pub struct RevisionManager<Connection> {
     rev_compress: Arc<dyn RevisionCompress>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
+    // configuration: RevisionConfiguration,
 }
 
 impl<Connection: 'static> RevisionManager<Connection> {
@@ -188,6 +201,10 @@ impl<Connection: 'static> RevisionManager<Connection> {
     /// Returns the current revision id
     pub fn rev_id(&self) -> i64 {
         self.rev_id_counter.value()
+    }
+
+    pub async fn next_sync_rev_id(&self) -> Option<i64> {
+        self.rev_persistence.next_sync_rev_id().await
     }
 
     pub fn next_rev_id_pair(&self) -> (i64, i64) {

@@ -1077,6 +1077,7 @@ dependencies = [
  "lib-infra",
  "lib-ws",
  "nanoid",
+ "parking_lot 0.11.2",
  "serde",
  "serde_json",
  "strum",

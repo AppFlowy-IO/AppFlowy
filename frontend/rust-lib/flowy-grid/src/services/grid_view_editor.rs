@@ -461,7 +461,7 @@ async fn apply_change(
     let GridViewRevisionChangeset { operations: delta, md5 } = change;
     let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
     let delta_data = delta.json_bytes();
-    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, user_id, md5);
+    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
     let _ = rev_manager.add_local_revision(&revision).await?;
     Ok(())
 }

@@ -178,8 +178,7 @@ impl EditDocumentQueue {
     async fn save_local_operations(&self, operations: DeltaTextOperations, md5: String) -> Result<RevId, FlowyError> {
         let bytes = operations.json_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let user_id = self.user.user_id()?;
-        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, &user_id, md5);
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
     }

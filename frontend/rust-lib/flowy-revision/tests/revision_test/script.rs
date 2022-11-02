@@ -5,13 +5,33 @@ use flowy_revision::{
     RevisionCompress, RevisionManager, RevisionPersistence, RevisionSnapshotDiskCache, RevisionSnapshotInfo,
 };
 use flowy_sync::entities::revision::{Revision, RevisionRange};
+use flowy_sync::util::md5;
 use nanoid::nanoid;
+use parking_lot::RwLock;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use std::time::Duration;
+use tokio::time::interval;
 
 pub enum RevisionScript {
-    AddLocalRevision(Revision),
-    AckRevision { rev_id: i64 },
-    AssertNextSyncRevisionId { rev_id: i64 },
+    AddLocalRevision {
+        content: String,
+        base_rev_id: i64,
+        rev_id: i64,
+    },
+    AckRevision {
+        rev_id: i64,
+    },
+    AssertNextSyncRevisionId {
+        rev_id: Option<i64>,
+    },
+    AssertNextSyncRevisionContent {
+        expected: String,
+    },
+    Wait {
+        milliseconds: u64,
+    },
+
     AssertNextSyncRevision(Option<Revision>),
 }
 
@@ -36,9 +56,28 @@ impl RevisionTest {
             self.run_script(script).await;
         }
     }
+
+    pub fn next_rev_id_pair(&self) -> (i64, i64) {
+        self.rev_manager.next_rev_id_pair()
+    }
+
     pub async fn run_script(&self, script: RevisionScript) {
         match script {
-            RevisionScript::AddLocalRevision(revision) => {
+            RevisionScript::AddLocalRevision {
+                content,
+                base_rev_id,
+                rev_id,
+            } => {
+                let object = RevisionObjectMock::new(&content);
+                let bytes = object.to_bytes();
+                let md5 = md5(&bytes);
+                let revision = Revision::new(
+                    &self.rev_manager.object_id,
+                    base_rev_id,
+                    rev_id,
+                    Bytes::from(bytes),
+                    md5,
+                );
                 self.rev_manager.add_local_revision(&revision).await.unwrap();
             }
             RevisionScript::AckRevision { rev_id } => {
@@ -46,8 +85,19 @@ impl RevisionTest {
                 self.rev_manager.ack_revision(rev_id).await.unwrap()
             }
             RevisionScript::AssertNextSyncRevisionId { rev_id } => {
+                assert_eq!(self.rev_manager.next_sync_rev_id().await, rev_id)
+            }
+            RevisionScript::AssertNextSyncRevisionContent { expected } => {
                 //
-                assert_eq!(self.rev_manager.rev_id(), rev_id)
+                let rev_id = self.rev_manager.next_sync_rev_id().await.unwrap();
+                let revision = self.rev_manager.get_revision(rev_id).await.unwrap();
+                let object = RevisionObjectMock::from_bytes(&revision.bytes);
+                assert_eq!(object.content, expected);
+            }
+            RevisionScript::Wait { milliseconds } => {
+                // let mut interval = interval(Duration::from_millis(milliseconds));
+                // interval.tick().await;
+                tokio::time::sleep(Duration::from_millis(milliseconds)).await;
             }
             RevisionScript::AssertNextSyncRevision(expected) => {
                 let next_revision = self.rev_manager.next_sync_revision().await.unwrap();
@@ -57,11 +107,15 @@ impl RevisionTest {
     }
 }
 
-pub struct RevisionDiskCacheMock {}
+pub struct RevisionDiskCacheMock {
+    records: RwLock<Vec<SyncRecord>>,
+}
 
 impl RevisionDiskCacheMock {
     pub fn new() -> Self {
-        Self {}
+        Self {
+            records: RwLock::new(vec![]),
+        }
     }
 }
 
@@ -69,7 +123,8 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
     type Error = FlowyError;
 
     fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
-        todo!()
+        self.records.write().extend(revision_records);
+        Ok(())
     }
 
     fn get_connection(&self) -> Result<RevisionConnectionMock, Self::Error> {
@@ -93,11 +148,36 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
     }
 
     fn update_revision_record(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()> {
-        todo!()
+        for changeset in changesets {
+            if let Some(record) = self
+                .records
+                .write()
+                .iter_mut()
+                .find(|record| record.revision.rev_id == *changeset.rev_id.as_ref())
+            {
+                record.state = changeset.state;
+            }
+        }
+        Ok(())
     }
 
     fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
-        todo!()
+        match rev_ids {
+            None => {}
+            Some(rev_ids) => {
+                for rev_id in rev_ids {
+                    if let Some(index) = self
+                        .records
+                        .read()
+                        .iter()
+                        .position(|record| record.revision.rev_id == rev_id)
+                    {
+                        self.records.write().remove(index);
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 
     fn delete_and_insert_records(
@@ -128,12 +208,34 @@ pub struct RevisionCompressMock {}
 
 impl RevisionCompress for RevisionCompressMock {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
-        todo!()
+        let mut object = RevisionObjectMock::new("");
+        for revision in revisions {
+            let other = RevisionObjectMock::from_bytes(&revision.bytes);
+            object.compose(other);
+        }
+        Ok(Bytes::from(object.to_bytes()))
     }
 }
 
-pub struct RevisionMock {}
+#[derive(Serialize, Deserialize)]
+pub struct RevisionObjectMock {
+    content: String,
+}
 
-// impl std::convert::From<RevisionMock> for Revision {
-//     fn from(_: RevisionMock) -> Self {}
-// }
+impl RevisionObjectMock {
+    pub fn new(s: &str) -> Self {
+        Self { content: s.to_owned() }
+    }
+
+    pub fn compose(&mut self, other: RevisionObjectMock) {
+        self.content.push_str(other.content.as_str());
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        serde_json::to_vec(self).unwrap()
+    }
+
+    pub fn from_bytes(bytes: &[u8]) -> Self {
+        serde_json::from_slice(bytes).unwrap()
+    }
+}

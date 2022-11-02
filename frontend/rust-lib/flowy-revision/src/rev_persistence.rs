@@ -128,6 +128,10 @@ where
         }
     }
 
+    pub(crate) async fn next_sync_rev_id(&self) -> Option<i64> {
+        self.sync_seq.read().await.next_rev_id()
+    }
+
     /// The cache gets reset while it conflicts with the remote revisions.
     #[tracing::instrument(level = "trace", skip(self, revisions), err)]
     pub(crate) async fn reset(&self, revisions: Vec<Revision>) -> FlowyResult<()> {

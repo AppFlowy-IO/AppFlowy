@@ -43,7 +43,7 @@ impl DocumentMigration {
                     Ok(transaction) => {
                         let bytes = Bytes::from(transaction.to_bytes()?);
                         let md5 = format!("{:x}", md5::compute(&bytes));
-                        let revision = Revision::new(&document_id, 0, 1, bytes, &self.user_id, md5);
+                        let revision = Revision::new(&document_id, 0, 1, bytes, md5);
                         let record = SyncRecord::new(revision);
                         match disk_cache.create_revision_records(vec![record]) {
                             Ok(_) => {}

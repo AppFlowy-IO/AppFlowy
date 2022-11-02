@@ -23,6 +23,9 @@ serde_json = {version = "1.0"}
 
 [dev-dependencies]
 nanoid = "0.4.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+parking_lot = "0.11"
 
 [features]
 flowy_unit_test = []

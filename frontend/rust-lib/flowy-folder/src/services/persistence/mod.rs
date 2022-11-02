@@ -111,7 +111,7 @@ impl FolderPersistence {
         let pool = self.database.db_pool()?;
         let json = folder.to_json()?;
         let delta_data = FolderOperationsBuilder::new().insert(&json).build().json_bytes();
-        let revision = Revision::initial_revision(user_id, folder_id.as_ref(), delta_data);
+        let revision = Revision::initial_revision(folder_id.as_ref(), delta_data);
         let record = SyncRecord {
             revision,
             state: RevisionState::Sync,

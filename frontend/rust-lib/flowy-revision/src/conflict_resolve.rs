@@ -163,13 +163,13 @@ where
 {
     let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
     let bytes = client_operations.serialize_operations();
-    let client_revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, bytes, user_id, md5.clone());
+    let client_revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, bytes, md5.clone());
 
     match server_operations {
         None => (client_revision, None),
         Some(operations) => {
             let bytes = operations.serialize_operations();
-            let server_revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, bytes, user_id, md5);
+            let server_revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, bytes, md5);
             (client_revision, Some(server_revision))
         }
     }

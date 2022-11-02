@@ -75,7 +75,7 @@ where
         .await?;
 
         let bytes = self.target.reset_data(revisions)?;
-        let revision = Revision::initial_revision(&self.user_id, self.target.target_id(), bytes);
+        let revision = Revision::initial_revision(self.target.target_id(), bytes);
         let record = SyncRecord::new(revision);
 
         tracing::trace!("Reset {} revision record object", self.target.target_id());

@@ -208,7 +208,7 @@ pub async fn make_grid_view_data(
         // Create grid's block
         let grid_block_delta = make_grid_block_operations(block_meta_data);
         let block_delta_data = grid_block_delta.json_bytes();
-        let revision = Revision::initial_revision(user_id, block_id, block_delta_data);
+        let revision = Revision::initial_revision(block_id, block_delta_data);
         let _ = grid_manager.create_grid_block(&block_id, vec![revision]).await?;
     }
 
@@ -219,7 +219,7 @@ pub async fn make_grid_view_data(
     // Create grid
     let grid_rev_delta = make_grid_operations(&grid_rev);
     let grid_rev_delta_bytes = grid_rev_delta.json_bytes();
-    let revision = Revision::initial_revision(user_id, &grid_id, grid_rev_delta_bytes.clone());
+    let revision = Revision::initial_revision(&grid_id, grid_rev_delta_bytes.clone());
     let _ = grid_manager.create_grid(&grid_id, vec![revision]).await?;
 
     // Create grid view
@@ -230,7 +230,7 @@ pub async fn make_grid_view_data(
     };
     let grid_view_delta = make_grid_view_operations(&grid_view);
     let grid_view_delta_bytes = grid_view_delta.json_bytes();
-    let revision = Revision::initial_revision(user_id, view_id, grid_view_delta_bytes);
+    let revision = Revision::initial_revision(view_id, grid_view_delta_bytes);
     let _ = grid_manager.create_grid_view(view_id, vec![revision]).await?;
 
     Ok(grid_rev_delta_bytes)

@@ -151,7 +151,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     ) -> FutureResult<(), FlowyError> {
         // Only accept Document type
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-        let revision = Revision::initial_revision(user_id, view_id, view_data);
+        let revision = Revision::initial_revision(view_id, view_data);
         let view_id = view_id.to_string();
         let manager = self.0.clone();
 
@@ -194,7 +194,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         let document_content = self.0.initial_document_content();
         FutureResult::new(async move {
             let delta_data = Bytes::from(document_content);
-            let revision = Revision::initial_revision(&user_id, &view_id, delta_data.clone());
+            let revision = Revision::initial_revision(&view_id, delta_data.clone());
             let _ = manager.create_document(view_id, vec![revision]).await?;
             Ok(delta_data)
         })
@@ -225,7 +225,7 @@ impl ViewDataProcessor for GridViewDataProcessor {
         _layout: ViewLayoutTypePB,
         delta_data: Bytes,
     ) -> FutureResult<(), FlowyError> {
-        let revision = Revision::initial_revision(user_id, view_id, delta_data);
+        let revision = Revision::initial_revision(view_id, delta_data);
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {

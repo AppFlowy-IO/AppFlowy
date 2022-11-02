@@ -1,2 +1,2 @@
-mod revision_order_test;
+mod local_revision_test;
 mod script;

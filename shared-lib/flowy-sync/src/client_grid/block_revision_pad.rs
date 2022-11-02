@@ -259,7 +259,7 @@ pub fn make_grid_block_operations(block_rev: &GridBlockRevision) -> GridBlockOpe
 pub fn make_grid_block_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
     let operations = make_grid_block_operations(grid_block_meta_data);
     let bytes = operations.json_bytes();
-    let revision = Revision::initial_revision(user_id, &grid_block_meta_data.block_id, bytes);
+    let revision = Revision::initial_revision(&grid_block_meta_data.block_id, bytes);
     revision.into()
 }
 

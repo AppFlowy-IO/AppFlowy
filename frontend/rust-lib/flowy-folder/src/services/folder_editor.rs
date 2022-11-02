@@ -83,14 +83,7 @@ impl FolderEditor {
         let FolderChangeset { operations: delta, md5 } = change;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
-        let revision = Revision::new(
-            &self.rev_manager.object_id,
-            base_rev_id,
-            rev_id,
-            delta_data,
-            &self.user_id,
-            md5,
-        );
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
         let _ = futures::executor::block_on(async { self.rev_manager.add_local_revision(&revision).await })?;
         Ok(())
     }

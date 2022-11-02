@@ -226,7 +226,6 @@ fn mk_revision_record_from_table(user_id: &str, table: GridViewRevisionTable) ->
         table.base_rev_id,
         table.rev_id,
         Bytes::from(table.data),
-        user_id,
         md5,
     );
     SyncRecord {

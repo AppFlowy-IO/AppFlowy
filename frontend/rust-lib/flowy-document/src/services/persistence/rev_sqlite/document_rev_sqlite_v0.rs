@@ -9,7 +9,7 @@ use flowy_database::{
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
 use flowy_sync::{
-    entities::revision::{RevType, Revision, RevisionRange},
+    entities::revision::{Revision, RevisionRange},
     util::md5,
 };
 use std::collections::HashMap;
@@ -251,7 +251,6 @@ fn mk_revision_record_from_table(user_id: &str, table: RevisionTable) -> SyncRec
         table.base_rev_id,
         table.rev_id,
         Bytes::from(table.data),
-        user_id,
         md5,
     );
     SyncRecord {
@@ -285,24 +284,6 @@ impl std::convert::From<i32> for RevTableType {
                 tracing::error!("Unsupported rev type {}, fallback to RevTableType::Local", o);
                 RevTableType::Local
             }
-        }
-    }
-}
-
-impl std::convert::From<RevType> for RevTableType {
-    fn from(ty: RevType) -> Self {
-        match ty {
-            RevType::DeprecatedLocal => RevTableType::Local,
-            RevType::DeprecatedRemote => RevTableType::Remote,
-        }
-    }
-}
-
-impl std::convert::From<RevTableType> for RevType {
-    fn from(ty: RevTableType) -> Self {
-        match ty {
-            RevTableType::Local => RevType::DeprecatedLocal,
-            RevTableType::Remote => RevType::DeprecatedRemote,
         }
     }
 }

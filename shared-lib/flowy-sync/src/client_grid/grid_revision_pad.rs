@@ -412,7 +412,7 @@ pub fn make_grid_operations(grid_rev: &GridRevision) -> GridOperations {
 pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {
     let operations = make_grid_operations(grid_rev);
     let bytes = operations.json_bytes();
-    let revision = Revision::initial_revision(user_id, &grid_rev.grid_id, bytes);
+    let revision = Revision::initial_revision(&grid_rev.grid_id, bytes);
     revision.into()
 }
 

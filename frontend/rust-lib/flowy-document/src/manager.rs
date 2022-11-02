@@ -291,7 +291,6 @@ impl RevisionCloudService for DocumentRevisionCloudService {
         let params: DocumentIdPB = object_id.to_string().into();
         let server = self.server.clone();
         let token = self.token.clone();
-        let user_id = user_id.to_string();
 
         FutureResult::new(async move {
             match server.fetch_document(&token, params).await? {
@@ -299,14 +298,7 @@ impl RevisionCloudService for DocumentRevisionCloudService {
                 Some(payload) => {
                     let bytes = Bytes::from(payload.content.clone());
                     let doc_md5 = md5(&bytes);
-                    let revision = Revision::new(
-                        &payload.doc_id,
-                        payload.base_rev_id,
-                        payload.rev_id,
-                        bytes,
-                        &user_id,
-                        doc_md5,
-                    );
+                    let revision = Revision::new(&payload.doc_id, payload.base_rev_id, payload.rev_id, bytes, doc_md5);
                     Ok(vec![revision])
                 }
             }
