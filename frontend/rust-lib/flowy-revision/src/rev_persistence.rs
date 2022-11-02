@@ -2,10 +2,9 @@ use crate::cache::{
     disk::{RevisionChangeset, RevisionDiskCache},
     memory::RevisionMemoryCacheDelegate,
 };
-use crate::disk::{RevisionRecord, RevisionState};
+use crate::disk::{RevisionState, SyncRecord};
 use crate::memory::RevisionMemoryCache;
 use crate::RevisionCompress;
-
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_sync::entities::revision::{Revision, RevisionRange};
 use std::collections::VecDeque;
@@ -20,10 +19,13 @@ pub struct RevisionPersistence<Connection> {
     object_id: String,
     disk_cache: Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>,
     memory_cache: Arc<RevisionMemoryCache>,
-    sync_seq: RwLock<RevisionSyncSequence>,
+    sync_seq: RwLock<DeferSyncSequence>,
 }
 
-impl<Connection: 'static> RevisionPersistence<Connection> {
+impl<Connection> RevisionPersistence<Connection>
+where
+    Connection: 'static,
+{
     pub fn new<C>(user_id: &str, object_id: &str, disk_cache: C) -> RevisionPersistence<Connection>
     where
         C: 'static + RevisionDiskCache<Connection, Error = FlowyError>,
@@ -39,7 +41,7 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
     ) -> RevisionPersistence<Connection> {
         let object_id = object_id.to_owned();
         let user_id = user_id.to_owned();
-        let sync_seq = RwLock::new(RevisionSyncSequence::new());
+        let sync_seq = RwLock::new(DeferSyncSequence::new());
         let memory_cache = Arc::new(RevisionMemoryCache::new(&object_id, Arc::new(disk_cache.clone())));
         Self {
             user_id,
@@ -131,7 +133,7 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
     pub(crate) async fn reset(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
         let records = revisions
             .into_iter()
-            .map(|revision| RevisionRecord {
+            .map(|revision| SyncRecord {
                 revision,
                 state: RevisionState::Sync,
                 write_to_disk: false,
@@ -151,7 +153,7 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
             tracing::warn!("Duplicate revision: {}:{}-{:?}", self.object_id, revision.rev_id, state);
             return Ok(());
         }
-        let record = RevisionRecord {
+        let record = SyncRecord {
             revision,
             state,
             write_to_disk,
@@ -172,7 +174,7 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
         Ok(())
     }
 
-    pub async fn get(&self, rev_id: i64) -> Option<RevisionRecord> {
+    pub async fn get(&self, rev_id: i64) -> Option<SyncRecord> {
         match self.memory_cache.get(&rev_id).await {
             None => match self
                 .disk_cache
@@ -192,7 +194,7 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
         }
     }
 
-    pub fn batch_get(&self, doc_id: &str) -> FlowyResult<Vec<RevisionRecord>> {
+    pub fn batch_get(&self, doc_id: &str) -> FlowyResult<Vec<SyncRecord>> {
         self.disk_cache.read_revision_records(doc_id, None)
     }
 
@@ -225,7 +227,7 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
 }
 
 impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = FlowyError>> {
-    fn checkpoint_tick(&self, mut records: Vec<RevisionRecord>) -> FlowyResult<()> {
+    fn send_sync(&self, mut records: Vec<SyncRecord>) -> FlowyResult<()> {
         records.retain(|record| record.write_to_disk);
         if !records.is_empty() {
             tracing::Span::current().record(
@@ -251,10 +253,10 @@ impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = Flo
 }
 
 #[derive(Default)]
-struct RevisionSyncSequence(VecDeque<i64>);
-impl RevisionSyncSequence {
+struct DeferSyncSequence(VecDeque<i64>);
+impl DeferSyncSequence {
     fn new() -> Self {
-        RevisionSyncSequence::default()
+        DeferSyncSequence::default()
     }
 
     fn add(&mut self, new_rev_id: i64) -> FlowyResult<()> {

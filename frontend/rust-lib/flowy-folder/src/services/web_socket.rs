@@ -78,12 +78,12 @@ struct FolderConflictResolver {
 }
 
 impl ConflictResolver<FolderResolveOperations> for FolderConflictResolver {
-    fn compose_operations(&self, operations: FolderResolveOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn compose_operations(&self, operations: FolderResolveOperations) -> BoxResultFuture<RevisionMD5, FlowyError> {
         let operations = operations.into_inner();
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().compose_remote_operations(operations)?;
-            Ok(md5)
+            Ok(md5.into())
         })
     }
 
@@ -113,11 +113,11 @@ impl ConflictResolver<FolderResolveOperations> for FolderConflictResolver {
         })
     }
 
-    fn reset_operations(&self, operations: FolderResolveOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn reset_operations(&self, operations: FolderResolveOperations) -> BoxResultFuture<RevisionMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().reset_folder(operations.into_inner())?;
-            Ok(md5)
+            Ok(md5.into())
         })
     }
 }

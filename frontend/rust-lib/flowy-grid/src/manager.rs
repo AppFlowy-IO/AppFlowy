@@ -15,7 +15,7 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{BuildGridContext, GridRevision, GridViewRevision};
 use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
 use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
-use flowy_sync::entities::revision::{RepeatedRevision, Revision};
+use flowy_sync::entities::revision::Revision;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -67,7 +67,7 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub async fn create_grid<T: AsRef<str>>(&self, grid_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn create_grid<T: AsRef<str>>(&self, grid_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         let db_pool = self.grid_user.db_pool()?;
         let rev_manager = self.make_grid_rev_manager(grid_id, db_pool)?;
@@ -77,7 +77,7 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    async fn create_grid_view<T: AsRef<str>>(&self, view_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    async fn create_grid_view<T: AsRef<str>>(&self, view_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let view_id = view_id.as_ref();
         let rev_manager = make_grid_view_rev_manager(&self.grid_user, view_id).await?;
         let _ = rev_manager.reset_object(revisions).await?;
@@ -85,7 +85,7 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub async fn create_grid_block<T: AsRef<str>>(&self, block_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn create_grid_block<T: AsRef<str>>(&self, block_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let block_id = block_id.as_ref();
         let db_pool = self.grid_user.db_pool()?;
         let rev_manager = self.make_grid_block_rev_manager(block_id, db_pool)?;
@@ -208,9 +208,8 @@ pub async fn make_grid_view_data(
         // Create grid's block
         let grid_block_delta = make_grid_block_operations(block_meta_data);
         let block_delta_data = grid_block_delta.json_bytes();
-        let repeated_revision: RepeatedRevision =
-            Revision::initial_revision(user_id, block_id, block_delta_data).into();
-        let _ = grid_manager.create_grid_block(&block_id, repeated_revision).await?;
+        let revision = Revision::initial_revision(user_id, block_id, block_delta_data);
+        let _ = grid_manager.create_grid_block(&block_id, vec![revision]).await?;
     }
 
     // Will replace the grid_id with the value returned by the gen_grid_id()
@@ -220,9 +219,8 @@ pub async fn make_grid_view_data(
     // Create grid
     let grid_rev_delta = make_grid_operations(&grid_rev);
     let grid_rev_delta_bytes = grid_rev_delta.json_bytes();
-    let repeated_revision: RepeatedRevision =
-        Revision::initial_revision(user_id, &grid_id, grid_rev_delta_bytes.clone()).into();
-    let _ = grid_manager.create_grid(&grid_id, repeated_revision).await?;
+    let revision = Revision::initial_revision(user_id, &grid_id, grid_rev_delta_bytes.clone());
+    let _ = grid_manager.create_grid(&grid_id, vec![revision]).await?;
 
     // Create grid view
     let grid_view = if grid_view_revision_data.is_empty() {
@@ -232,9 +230,8 @@ pub async fn make_grid_view_data(
     };
     let grid_view_delta = make_grid_view_operations(&grid_view);
     let grid_view_delta_bytes = grid_view_delta.json_bytes();
-    let repeated_revision: RepeatedRevision =
-        Revision::initial_revision(user_id, view_id, grid_view_delta_bytes).into();
-    let _ = grid_manager.create_grid_view(view_id, repeated_revision).await?;
+    let revision = Revision::initial_revision(user_id, view_id, grid_view_delta_bytes);
+    let _ = grid_manager.create_grid_view(view_id, vec![revision]).await?;
 
     Ok(grid_rev_delta_bytes)
 }

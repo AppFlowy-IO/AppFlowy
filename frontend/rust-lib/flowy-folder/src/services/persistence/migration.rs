@@ -9,11 +9,12 @@ use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::revision::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevision};
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sync::client_folder::make_folder_rev_json_str;
+use flowy_sync::client_folder::FolderPad;
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::server_folder::FolderOperationsBuilder;
-use flowy_sync::{client_folder::FolderPad, entities::revision::md5};
 
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
+use flowy_sync::util::md5;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";

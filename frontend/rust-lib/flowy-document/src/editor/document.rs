@@ -28,9 +28,9 @@ impl Document {
         }
     }
 
-    pub fn md5(&self) -> String {
-        // format!("{:x}", md5::compute(bytes))
-        "".to_owned()
+    pub fn document_md5(&self) -> String {
+        let bytes = self.tree.to_bytes();
+        format!("{:x}", md5::compute(&bytes))
     }
 
     pub fn get_tree(&self) -> &NodeTree {

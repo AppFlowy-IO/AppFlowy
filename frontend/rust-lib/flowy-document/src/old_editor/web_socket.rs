@@ -136,7 +136,7 @@ impl ConflictResolver<DeltaDocumentResolveOperations> for DocumentConflictResolv
     fn compose_operations(
         &self,
         operations: DeltaDocumentResolveOperations,
-    ) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    ) -> BoxResultFuture<RevisionMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         let operations = operations.into_inner();
         Box::pin(async move {
@@ -172,10 +172,7 @@ impl ConflictResolver<DeltaDocumentResolveOperations> for DocumentConflictResolv
         })
     }
 
-    fn reset_operations(
-        &self,
-        operations: DeltaDocumentResolveOperations,
-    ) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn reset_operations(&self, operations: DeltaDocumentResolveOperations) -> BoxResultFuture<RevisionMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         let operations = operations.into_inner();
         Box::pin(async move {

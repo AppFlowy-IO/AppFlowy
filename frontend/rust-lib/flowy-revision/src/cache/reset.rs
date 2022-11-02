@@ -1,4 +1,4 @@
-use crate::disk::{RevisionDiskCache, RevisionRecord};
+use crate::disk::{RevisionDiskCache, SyncRecord};
 use crate::{RevisionLoader, RevisionPersistence};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
@@ -76,7 +76,7 @@ where
 
         let bytes = self.target.reset_data(revisions)?;
         let revision = Revision::initial_revision(&self.user_id, self.target.target_id(), bytes);
-        let record = RevisionRecord::new(revision);
+        let record = SyncRecord::new(revision);
 
         tracing::trace!("Reset {} revision record object", self.target.target_id());
         let _ = self

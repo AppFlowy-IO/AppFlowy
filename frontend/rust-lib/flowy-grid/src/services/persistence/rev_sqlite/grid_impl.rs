@@ -7,7 +7,7 @@ use flowy_database::{
     ConnectionPool,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionRecord, RevisionState};
+use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
 use flowy_sync::{
     entities::revision::{Revision, RevisionRange},
     util::md5,
@@ -22,7 +22,7 @@ pub struct SQLiteGridRevisionPersistence {
 impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridRevisionPersistence {
     type Error = FlowyError;
 
-    fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
+    fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         let _ = GridRevisionSql::create(revision_records, &*conn)?;
         Ok(())
@@ -36,7 +36,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridRevisionPersistence {
         &self,
         object_id: &str,
         rev_ids: Option<Vec<i64>>,
-    ) -> Result<Vec<RevisionRecord>, Self::Error> {
+    ) -> Result<Vec<SyncRecord>, Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         let records = GridRevisionSql::read(&self.user_id, object_id, rev_ids, &*conn)?;
         Ok(records)
@@ -46,7 +46,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridRevisionPersistence {
         &self,
         object_id: &str,
         range: &RevisionRange,
-    ) -> Result<Vec<RevisionRecord>, Self::Error> {
+    ) -> Result<Vec<SyncRecord>, Self::Error> {
         let conn = &*self.pool.get().map_err(internal_error)?;
         let revisions = GridRevisionSql::read_with_range(&self.user_id, object_id, range.clone(), conn)?;
         Ok(revisions)
@@ -73,7 +73,7 @@ impl RevisionDiskCache<Arc<ConnectionPool>> for SQLiteGridRevisionPersistence {
         &self,
         object_id: &str,
         deleted_rev_ids: Option<Vec<i64>>,
-        inserted_records: Vec<RevisionRecord>,
+        inserted_records: Vec<SyncRecord>,
     ) -> Result<(), Self::Error> {
         let conn = self.pool.get().map_err(internal_error)?;
         conn.immediate_transaction::<_, FlowyError, _>(|| {
@@ -95,7 +95,7 @@ impl SQLiteGridRevisionPersistence {
 
 struct GridRevisionSql();
 impl GridRevisionSql {
-    fn create(revision_records: Vec<RevisionRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
+    fn create(revision_records: Vec<SyncRecord>, conn: &SqliteConnection) -> Result<(), FlowyError> {
         // Batch insert: https://diesel.rs/guides/all-about-inserts.html
         let records = revision_records
             .into_iter()
@@ -141,7 +141,7 @@ impl GridRevisionSql {
         object_id: &str,
         rev_ids: Option<Vec<i64>>,
         conn: &SqliteConnection,
-    ) -> Result<Vec<RevisionRecord>, FlowyError> {
+    ) -> Result<Vec<SyncRecord>, FlowyError> {
         let mut sql = dsl::grid_rev_table.filter(dsl::object_id.eq(object_id)).into_boxed();
         if let Some(rev_ids) = rev_ids {
             sql = sql.filter(dsl::rev_id.eq_any(rev_ids));
@@ -160,7 +160,7 @@ impl GridRevisionSql {
         object_id: &str,
         range: RevisionRange,
         conn: &SqliteConnection,
-    ) -> Result<Vec<RevisionRecord>, FlowyError> {
+    ) -> Result<Vec<SyncRecord>, FlowyError> {
         let rev_tables = dsl::grid_rev_table
             .filter(dsl::rev_id.ge(range.start))
             .filter(dsl::rev_id.le(range.end))
@@ -217,7 +217,7 @@ impl std::default::Default for GridRevisionState {
     }
 }
 
-fn mk_revision_record_from_table(user_id: &str, table: GridRevisionTable) -> RevisionRecord {
+fn mk_revision_record_from_table(user_id: &str, table: GridRevisionTable) -> SyncRecord {
     let md5 = md5(&table.data);
     let revision = Revision::new(
         &table.object_id,
@@ -227,7 +227,7 @@ fn mk_revision_record_from_table(user_id: &str, table: GridRevisionTable) -> Rev
         user_id,
         md5,
     );
-    RevisionRecord {
+    SyncRecord {
         revision,
         state: table.state.into(),
         write_to_disk: false,

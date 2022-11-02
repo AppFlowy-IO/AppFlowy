@@ -1,3 +1,4 @@
+use crate::util::md5;
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
@@ -36,6 +37,34 @@ impl std::convert::From<Vec<u8>> for Revision {
 }
 
 impl Revision {
+    pub fn new<T: Into<String>>(
+        object_id: &str,
+        base_rev_id: i64,
+        rev_id: i64,
+        bytes: Bytes,
+        user_id: &str,
+        md5: T,
+    ) -> Revision {
+        let user_id = user_id.to_owned();
+        let object_id = object_id.to_owned();
+        let bytes = bytes.to_vec();
+        let base_rev_id = base_rev_id;
+        let rev_id = rev_id;
+
+        if base_rev_id != 0 {
+            debug_assert!(base_rev_id != rev_id);
+        }
+
+        Self {
+            base_rev_id,
+            rev_id,
+            bytes,
+            md5: md5.into(),
+            object_id,
+            ty: RevType::DeprecatedLocal,
+            user_id,
+        }
+    }
     pub fn is_empty(&self) -> bool {
         self.base_rev_id == self.rev_id
     }
@@ -51,28 +80,6 @@ impl Revision {
     pub fn initial_revision(user_id: &str, object_id: &str, bytes: Bytes) -> Self {
         let md5 = md5(&bytes);
         Self::new(object_id, 0, 0, bytes, user_id, md5)
-    }
-
-    pub fn new(object_id: &str, base_rev_id: i64, rev_id: i64, bytes: Bytes, user_id: &str, md5: String) -> Revision {
-        let user_id = user_id.to_owned();
-        let object_id = object_id.to_owned();
-        let bytes = bytes.to_vec();
-        let base_rev_id = base_rev_id;
-        let rev_id = rev_id;
-
-        if base_rev_id != 0 {
-            debug_assert!(base_rev_id != rev_id);
-        }
-
-        Self {
-            base_rev_id,
-            rev_id,
-            bytes,
-            md5,
-            object_id,
-            ty: RevType::DeprecatedLocal,
-            user_id,
-        }
     }
 }
 
@@ -207,12 +214,6 @@ impl RevisionRange {
     pub fn to_rev_ids(&self) -> Vec<i64> {
         self.iter().collect::<Vec<_>>()
     }
-}
-
-#[inline]
-pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
-    let md5 = format!("{:x}", md5::compute(data));
-    md5
 }
 
 #[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]

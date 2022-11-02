@@ -18,7 +18,7 @@ use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
-use flowy_sync::entities::revision::{RepeatedRevision, Revision};
+use flowy_sync::entities::revision::Revision;
 use flowy_sync::entities::ws_data::ClientRevisionWSData;
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
@@ -151,12 +151,12 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
     ) -> FutureResult<(), FlowyError> {
         // Only accept Document type
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, view_data).into();
+        let revision = Revision::initial_revision(user_id, view_id, view_data);
         let view_id = view_id.to_string();
         let manager = self.0.clone();
 
         FutureResult::new(async move {
-            let _ = manager.create_document(view_id, repeated_revision).await?;
+            let _ = manager.create_document(view_id, vec![revision]).await?;
             Ok(())
         })
     }
@@ -194,9 +194,8 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         let document_content = self.0.initial_document_content();
         FutureResult::new(async move {
             let delta_data = Bytes::from(document_content);
-            let repeated_revision: RepeatedRevision =
-                Revision::initial_revision(&user_id, &view_id, delta_data.clone()).into();
-            let _ = manager.create_document(view_id, repeated_revision).await?;
+            let revision = Revision::initial_revision(&user_id, &view_id, delta_data.clone());
+            let _ = manager.create_document(view_id, vec![revision]).await?;
             Ok(delta_data)
         })
     }
@@ -226,11 +225,11 @@ impl ViewDataProcessor for GridViewDataProcessor {
         _layout: ViewLayoutTypePB,
         delta_data: Bytes,
     ) -> FutureResult<(), FlowyError> {
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, delta_data).into();
+        let revision = Revision::initial_revision(user_id, view_id, delta_data);
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
-            let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
+            let _ = grid_manager.create_grid(view_id, vec![revision]).await?;
             Ok(())
         })
     }

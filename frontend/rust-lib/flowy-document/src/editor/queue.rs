@@ -63,7 +63,7 @@ impl DocumentQueue {
             Command::ComposeTransaction { transaction, ret } => {
                 self.document.write().await.apply_transaction(transaction.clone())?;
                 let _ = self
-                    .save_local_operations(transaction, self.document.read().await.md5())
+                    .save_local_operations(transaction, self.document.read().await.document_md5())
                     .await?;
                 let _ = ret.send(Ok(()));
             }

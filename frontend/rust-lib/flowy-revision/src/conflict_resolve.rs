@@ -1,4 +1,4 @@
-use crate::RevisionManager;
+use crate::{RevisionMD5, RevisionManager};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::entities::{
@@ -7,8 +7,6 @@ use flowy_sync::entities::{
 };
 use lib_infra::future::BoxResultFuture;
 use std::{convert::TryFrom, sync::Arc};
-
-pub type OperationsMD5 = String;
 
 pub struct TransformOperations<Operations> {
     pub client_operations: Operations,
@@ -28,12 +26,12 @@ pub trait ConflictResolver<Operations>
 where
     Operations: Send + Sync,
 {
-    fn compose_operations(&self, operations: Operations) -> BoxResultFuture<OperationsMD5, FlowyError>;
+    fn compose_operations(&self, operations: Operations) -> BoxResultFuture<RevisionMD5, FlowyError>;
     fn transform_operations(
         &self,
         operations: Operations,
     ) -> BoxResultFuture<TransformOperations<Operations>, FlowyError>;
-    fn reset_operations(&self, operations: Operations) -> BoxResultFuture<OperationsMD5, FlowyError>;
+    fn reset_operations(&self, operations: Operations) -> BoxResultFuture<RevisionMD5, FlowyError>;
 }
 
 pub trait ConflictRevisionSink: Send + Sync + 'static {
@@ -129,9 +127,8 @@ where
                 // The server_prime is None means the client local revisions conflict with the
                 // // server, and it needs to override the client delta.
                 let md5 = self.resolver.reset_operations(client_operations).await?;
-                let repeated_revision = RepeatedRevision::new(revisions);
-                assert_eq!(repeated_revision.last().unwrap().md5, md5);
-                let _ = self.rev_manager.reset_object(repeated_revision).await?;
+                debug_assert!(md5.is_equal(&revisions.last().unwrap().md5));
+                let _ = self.rev_manager.reset_object(revisions).await?;
                 Ok(None)
             }
             Some(server_operations) => {
@@ -158,7 +155,7 @@ fn make_client_and_server_revision<Operations, Connection>(
     rev_manager: &Arc<RevisionManager<Connection>>,
     client_operations: Operations,
     server_operations: Option<Operations>,
-    md5: String,
+    md5: RevisionMD5,
 ) -> (Revision, Option<Revision>)
 where
     Operations: OperationsSerializer,

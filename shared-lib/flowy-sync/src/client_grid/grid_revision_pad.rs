@@ -1,6 +1,6 @@
-use crate::entities::revision::{md5, RepeatedRevision, Revision};
+use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
-use crate::util::{cal_diff, make_operations_from_revisions};
+use crate::util::{cal_diff, make_operations_from_revisions, md5};
 
 use flowy_grid_data_model::revision::{
     gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
@@ -315,7 +315,7 @@ impl GridRevisionPad {
         })
     }
 
-    pub fn md5(&self) -> String {
+    pub fn grid_md5(&self) -> String {
         md5(&self.operations.json_bytes())
     }
 
@@ -343,7 +343,7 @@ impl GridRevisionPad {
                         self.operations = self.operations.compose(&operations)?;
                         Ok(Some(GridRevisionChangeset {
                             operations,
-                            md5: self.md5(),
+                            md5: self.grid_md5(),
                         }))
                     }
                 }

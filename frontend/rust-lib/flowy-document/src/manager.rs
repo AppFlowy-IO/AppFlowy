@@ -12,11 +12,8 @@ use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::client_document::initial_delta_document_content;
-use flowy_sync::entities::{
-    document::DocumentIdPB,
-    revision::{md5, RepeatedRevision, Revision},
-    ws_data::ServerRevisionWSData,
-};
+use flowy_sync::entities::{document::DocumentIdPB, revision::Revision, ws_data::ServerRevisionWSData};
+use flowy_sync::util::md5;
 use lib_infra::future::FutureResult;
 use lib_ws::WSConnectState;
 use std::any::Any;
@@ -139,7 +136,7 @@ impl DocumentManager {
         Ok(())
     }
 
-    pub async fn create_document<T: AsRef<str>>(&self, doc_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn create_document<T: AsRef<str>>(&self, doc_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let doc_id = doc_id.as_ref().to_owned();
         let db_pool = self.persistence.database.db_pool()?;
         // Maybe we could save the document to disk without creating the RevisionManager

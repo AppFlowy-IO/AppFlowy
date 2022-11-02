@@ -1,4 +1,6 @@
-use lib_ot::core::{AttributeBuilder, Changeset, NodeData, NodeDataBuilder, NodeOperation, NodeTree, Path};
+use lib_ot::core::{
+    AttributeBuilder, Changeset, NodeData, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Path,
+};
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[test]
@@ -26,6 +28,7 @@ fn operation_insert_node_with_children_serde_test() {
         r#"{"op":"insert","path":[0,1],"nodes":[{"type":"text","children":[{"type":"sub_text"}]}]}"#
     );
 }
+
 #[test]
 fn operation_update_node_attributes_serde_test() {
     let operation = NodeOperation::Update {
@@ -100,6 +103,14 @@ fn node_tree_serialize_test() {
     let tree: NodeTree = serde_json::from_str(TREE_JSON).unwrap();
     let json = serde_json::to_string_pretty(&tree).unwrap();
     assert_eq!(json, TREE_JSON);
+}
+
+#[test]
+fn node_tree_serde_test() {
+    let tree: NodeTree = serde_json::from_str(TREE_JSON).unwrap();
+    let bytes = tree.to_bytes();
+    let tree = NodeTree::from_bytes(&bytes).unwrap();
+    assert_eq!(bytes, tree.to_bytes());
 }
 
 #[allow(dead_code)]

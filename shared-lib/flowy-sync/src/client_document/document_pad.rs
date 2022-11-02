@@ -1,3 +1,4 @@
+use crate::util::md5;
 use crate::{
     client_document::{
         history::{History, UndoResult},
@@ -77,9 +78,9 @@ impl ClientDocument {
         &self.operations
     }
 
-    pub fn md5(&self) -> String {
+    pub fn document_md5(&self) -> String {
         let bytes = self.to_bytes();
-        format!("{:x}", md5::compute(bytes))
+        md5(&bytes)
     }
 
     pub fn set_notify(&mut self, notify: mpsc::UnboundedSender<()>) {

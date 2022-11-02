@@ -3,8 +3,8 @@ use crate::{RevisionPersistence, RevisionSnapshotDiskCache, RevisionSnapshotMana
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{
-    entities::revision::{RepeatedRevision, Revision, RevisionRange},
-    util::{pair_rev_id_from_revisions, RevIdCounter},
+    entities::revision::{Revision, RevisionRange},
+    util::{md5, pair_rev_id_from_revisions, RevIdCounter},
 };
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -143,9 +143,9 @@ impl<Connection: 'static> RevisionManager<Connection> {
     }
 
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
-    pub async fn reset_object(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn reset_object(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
-        let _ = self.rev_persistence.reset(revisions.into_inner()).await?;
+        let _ = self.rev_persistence.reset(revisions).await?;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }
@@ -191,7 +191,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
 
     pub fn next_rev_id_pair(&self) -> (i64, i64) {
         let cur = self.rev_id_counter.value();
-        let next = self.rev_id_counter.next();
+        let next = self.rev_id_counter.next_id();
         (cur, next)
     }
 
@@ -283,3 +283,56 @@ impl<Connection: 'static> RevisionLoader<Connection> {
         Ok(revisions)
     }
 }
+
+/// Represents as the md5 of the revision object after applying the
+/// revision. For example, RevisionMD5 will be the md5 of the document
+/// content.
+#[derive(Debug, Clone)]
+pub struct RevisionMD5(String);
+
+impl RevisionMD5 {
+    pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, FlowyError> {
+        Ok(RevisionMD5(md5(bytes)))
+    }
+
+    pub fn into_inner(self) -> String {
+        self.0
+    }
+
+    pub fn is_equal(&self, s: &str) -> bool {
+        self.0 == s
+    }
+}
+
+impl std::convert::From<RevisionMD5> for String {
+    fn from(md5: RevisionMD5) -> Self {
+        md5.0
+    }
+}
+
+impl std::convert::From<&str> for RevisionMD5 {
+    fn from(s: &str) -> Self {
+        Self(s.to_owned())
+    }
+}
+impl std::convert::From<String> for RevisionMD5 {
+    fn from(s: String) -> Self {
+        Self(s)
+    }
+}
+
+impl std::ops::Deref for RevisionMD5 {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl PartialEq<Self> for RevisionMD5 {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl std::cmp::Eq for RevisionMD5 {}
