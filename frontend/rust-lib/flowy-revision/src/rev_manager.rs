@@ -185,6 +185,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
         Ok(())
     }
 
+    /// Returns the current revision id
     pub fn rev_id(&self) -> i64 {
         self.rev_id_counter.value()
     }

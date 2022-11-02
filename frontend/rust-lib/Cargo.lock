@@ -1076,6 +1076,7 @@ dependencies = [
  "futures-util",
  "lib-infra",
  "lib-ws",
+ "nanoid",
  "serde",
  "serde_json",
  "strum",

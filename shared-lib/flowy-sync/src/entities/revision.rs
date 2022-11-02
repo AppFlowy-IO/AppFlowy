@@ -21,12 +21,11 @@ pub struct Revision {
 
     #[pb(index = 5)]
     pub object_id: String,
-
-    #[pb(index = 6)]
-    ty: RevType, // Deprecated
-
-    #[pb(index = 7)]
-    pub user_id: String,
+    // #[pb(index = 6)]
+    // ty: RevType, // Deprecated
+    //
+    // #[pb(index = 7)]
+    // pub user_id: String,
 }
 
 impl std::convert::From<Vec<u8>> for Revision {
@@ -42,10 +41,9 @@ impl Revision {
         base_rev_id: i64,
         rev_id: i64,
         bytes: Bytes,
-        user_id: &str,
+        _user_id: &str,
         md5: T,
     ) -> Revision {
-        let user_id = user_id.to_owned();
         let object_id = object_id.to_owned();
         let bytes = bytes.to_vec();
         let base_rev_id = base_rev_id;
@@ -61,8 +59,6 @@ impl Revision {
             bytes,
             md5: md5.into(),
             object_id,
-            ty: RevType::DeprecatedLocal,
-            user_id,
         }
     }
     pub fn is_empty(&self) -> bool {

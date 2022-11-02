@@ -47,7 +47,7 @@ where
                 let _ = self.save_migrate_record()?;
             }
             Some(s) => {
-                let mut record = MigrationObjectRecord::from_str(&s)?;
+                let mut record = MigrationObjectRecord::from_str(&s).map_err(|e| FlowyError::serde().context(e))?;
                 let rev_str = self.target.default_target_rev_str()?;
                 if record.len < rev_str.len() {
                     let _ = self.reset_object().await?;
