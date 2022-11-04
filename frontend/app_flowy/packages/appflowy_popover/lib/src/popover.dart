@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:appflowy_popover/src/layout.dart';
 import 'package:flutter/material.dart';
 import 'mask.dart';
