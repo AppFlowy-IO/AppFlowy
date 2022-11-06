@@ -219,7 +219,7 @@ impl std::default::Default for GridBlockRevisionState {
     }
 }
 
-fn mk_revision_record_from_table(user_id: &str, table: GridBlockRevisionTable) -> SyncRecord {
+fn mk_revision_record_from_table(_user_id: &str, table: GridBlockRevisionTable) -> SyncRecord {
     let md5 = md5(&table.data);
     let revision = Revision::new(
         &table.object_id,

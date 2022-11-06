@@ -256,7 +256,7 @@ pub fn make_grid_block_operations(block_rev: &GridBlockRevision) -> GridBlockOpe
     GridBlockOperationsBuilder::new().insert(&json).build()
 }
 
-pub fn make_grid_block_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
+pub fn make_grid_block_revisions(_user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
     let operations = make_grid_block_operations(grid_block_meta_data);
     let bytes = operations.json_bytes();
     let revision = Revision::initial_revision(&grid_block_meta_data.block_id, bytes);

@@ -3,7 +3,7 @@ use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowChangeset, RowRevision};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sync::client_grid::{GridBlockRevisionChangeset, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
@@ -17,6 +17,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub struct GridBlockRevisionEditor {
+    #[allow(dead_code)]
     user_id: String,
     pub block_id: String,
     pad: Arc<RwLock<GridBlockRevisionPad>>,
@@ -204,7 +205,7 @@ impl RevisionObjectSerializer for GridBlockRevisionSerde {
 }
 
 pub struct GridBlockRevisionCompress();
-impl RevisionCompress for GridBlockRevisionCompress {
+impl RevisionMergeable for GridBlockRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridBlockRevisionSerde::combine_revisions(revisions)
     }

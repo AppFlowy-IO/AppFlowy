@@ -244,7 +244,7 @@ impl std::default::Default for TextRevisionState {
     }
 }
 
-fn mk_revision_record_from_table(user_id: &str, table: RevisionTable) -> SyncRecord {
+fn mk_revision_record_from_table(_user_id: &str, table: RevisionTable) -> SyncRecord {
     let md5 = md5(&table.data);
     let revision = Revision::new(
         &table.doc_id,

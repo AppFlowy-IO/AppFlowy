@@ -1,5 +1,5 @@
 use crate::disk::{RevisionDiskCache, SyncRecord};
-use crate::{RevisionLoader, RevisionPersistence};
+use crate::{RevisionLoader, RevisionPersistence, RevisionPersistenceConfiguration};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::entities::revision::Revision;
@@ -60,10 +60,12 @@ where
     }
 
     async fn reset_object(&self) -> FlowyResult<()> {
+        let configuration = RevisionPersistenceConfiguration::new(2);
         let rev_persistence = Arc::new(RevisionPersistence::from_disk_cache(
             &self.user_id,
             self.target.target_id(),
             self.disk_cache.clone(),
+            configuration,
         ));
         let (revisions, _) = RevisionLoader {
             object_id: self.target.target_id().to_owned(),

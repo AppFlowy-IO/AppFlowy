@@ -2,7 +2,8 @@ use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 use flowy_revision::{
-    RevisionCompress, RevisionManager, RevisionPersistence, RevisionSnapshotDiskCache, RevisionSnapshotInfo,
+    RevisionManager, RevisionMergeable, RevisionPersistence, RevisionPersistenceConfiguration,
+    RevisionSnapshotDiskCache, RevisionSnapshotInfo,
 };
 use flowy_sync::entities::revision::{Revision, RevisionRange};
 use flowy_sync::util::md5;
@@ -11,7 +12,6 @@ use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::time::interval;
 
 pub enum RevisionScript {
     AddLocalRevision {
@@ -25,14 +25,15 @@ pub enum RevisionScript {
     AssertNextSyncRevisionId {
         rev_id: Option<i64>,
     },
+    AssertNumberOfSyncRevisions {
+        num: usize,
+    },
     AssertNextSyncRevisionContent {
         expected: String,
     },
     Wait {
         milliseconds: u64,
     },
-
-    AssertNextSyncRevision(Option<Revision>),
 }
 
 pub struct RevisionTest {
@@ -41,9 +42,14 @@ pub struct RevisionTest {
 
 impl RevisionTest {
     pub async fn new() -> Self {
+        Self::new_with_configuration(2).await
+    }
+
+    pub async fn new_with_configuration(merge_when_excess_number_of_version: i64) -> Self {
         let user_id = nanoid!(10);
         let object_id = nanoid!(6);
-        let persistence = RevisionPersistence::new(&user_id, &object_id, RevisionDiskCacheMock::new());
+        let configuration = RevisionPersistenceConfiguration::new(merge_when_excess_number_of_version as usize);
+        let persistence = RevisionPersistence::new(&user_id, &object_id, RevisionDiskCacheMock::new(), configuration);
         let compress = RevisionCompressMock {};
         let snapshot = RevisionSnapshotMock {};
         let rev_manager = RevisionManager::new(&user_id, &object_id, persistence, compress, snapshot);
@@ -51,6 +57,7 @@ impl RevisionTest {
             rev_manager: Arc::new(rev_manager),
         }
     }
+
     pub async fn run_scripts(&self, scripts: Vec<RevisionScript>) {
         for script in scripts {
             self.run_script(script).await;
@@ -87,6 +94,9 @@ impl RevisionTest {
             RevisionScript::AssertNextSyncRevisionId { rev_id } => {
                 assert_eq!(self.rev_manager.next_sync_rev_id().await, rev_id)
             }
+            RevisionScript::AssertNumberOfSyncRevisions { num } => {
+                assert_eq!(self.rev_manager.number_of_sync_revisions(), num)
+            }
             RevisionScript::AssertNextSyncRevisionContent { expected } => {
                 //
                 let rev_id = self.rev_manager.next_sync_rev_id().await.unwrap();
@@ -95,13 +105,7 @@ impl RevisionTest {
                 assert_eq!(object.content, expected);
             }
             RevisionScript::Wait { milliseconds } => {
-                // let mut interval = interval(Duration::from_millis(milliseconds));
-                // interval.tick().await;
                 tokio::time::sleep(Duration::from_millis(milliseconds)).await;
-            }
-            RevisionScript::AssertNextSyncRevision(expected) => {
-                let next_revision = self.rev_manager.next_sync_revision().await.unwrap();
-                assert_eq!(next_revision, expected);
             }
         }
     }
@@ -133,16 +137,16 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
 
     fn read_revision_records(
         &self,
-        object_id: &str,
-        rev_ids: Option<Vec<i64>>,
+        _object_id: &str,
+        _rev_ids: Option<Vec<i64>>,
     ) -> Result<Vec<SyncRecord>, Self::Error> {
         todo!()
     }
 
     fn read_revision_records_with_range(
         &self,
-        object_id: &str,
-        range: &RevisionRange,
+        _object_id: &str,
+        _range: &RevisionRange,
     ) -> Result<Vec<SyncRecord>, Self::Error> {
         todo!()
     }
@@ -161,7 +165,7 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
         Ok(())
     }
 
-    fn delete_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
+    fn delete_revision_records(&self, _object_id: &str, rev_ids: Option<Vec<i64>>) -> Result<(), Self::Error> {
         match rev_ids {
             None => {}
             Some(rev_ids) => {
@@ -182,9 +186,9 @@ impl RevisionDiskCache<RevisionConnectionMock> for RevisionDiskCacheMock {
 
     fn delete_and_insert_records(
         &self,
-        object_id: &str,
-        deleted_rev_ids: Option<Vec<i64>>,
-        inserted_records: Vec<SyncRecord>,
+        _object_id: &str,
+        _deleted_rev_ids: Option<Vec<i64>>,
+        _inserted_records: Vec<SyncRecord>,
     ) -> Result<(), Self::Error> {
         todo!()
     }
@@ -195,18 +199,18 @@ pub struct RevisionConnectionMock {}
 pub struct RevisionSnapshotMock {}
 
 impl RevisionSnapshotDiskCache for RevisionSnapshotMock {
-    fn write_snapshot(&self, object_id: &str, rev_id: i64, data: Vec<u8>) -> FlowyResult<()> {
+    fn write_snapshot(&self, _object_id: &str, _rev_id: i64, _data: Vec<u8>) -> FlowyResult<()> {
         todo!()
     }
 
-    fn read_snapshot(&self, object_id: &str, rev_id: i64) -> FlowyResult<RevisionSnapshotInfo> {
+    fn read_snapshot(&self, _object_id: &str, _rev_id: i64) -> FlowyResult<RevisionSnapshotInfo> {
         todo!()
     }
 }
 
 pub struct RevisionCompressMock {}
 
-impl RevisionCompress for RevisionCompressMock {
+impl RevisionMergeable for RevisionCompressMock {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let mut object = RevisionObjectMock::new("");
         for revision in revisions {

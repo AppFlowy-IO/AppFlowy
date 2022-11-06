@@ -1,6 +1,6 @@
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_revision::{RevisionCompress, RevisionObjectDeserializer, RevisionObjectSerializer};
+use flowy_revision::{RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer};
 use flowy_sync::entities::revision::Revision;
 use lib_ot::core::{Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction};
 use lib_ot::text_delta::DeltaTextOperationBuilder;
@@ -96,7 +96,7 @@ impl RevisionObjectSerializer for DocumentRevisionSerde {
 }
 
 pub(crate) struct DocumentRevisionCompress();
-impl RevisionCompress for DocumentRevisionCompress {
+impl RevisionMergeable for DocumentRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         DocumentRevisionSerde::combine_revisions(revisions)
     }

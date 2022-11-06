@@ -10,7 +10,9 @@ use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{
     GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
 };
-use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
+};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -273,7 +275,8 @@ async fn make_block_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyRes
     let pool = user.db_pool()?;
 
     let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
-    let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
+    let configuration = RevisionPersistenceConfiguration::default();
+    let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
     let rev_compactor = GridBlockRevisionCompress();
     let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
     let rev_manager = RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);

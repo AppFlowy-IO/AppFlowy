@@ -409,7 +409,7 @@ pub fn make_grid_operations(grid_rev: &GridRevision) -> GridOperations {
     GridOperationsBuilder::new().insert(&json).build()
 }
 
-pub fn make_grid_revisions(user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {
+pub fn make_grid_revisions(_user_id: &str, grid_rev: &GridRevision) -> RepeatedRevision {
     let operations = make_grid_operations(grid_rev);
     let bytes = operations.json_bytes();
     let revision = Revision::initial_revision(&grid_rev.grid_id, bytes);

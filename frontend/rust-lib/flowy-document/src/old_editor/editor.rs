@@ -6,7 +6,7 @@ use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
@@ -270,7 +270,7 @@ impl RevisionObjectSerializer for DeltaDocumentRevisionSerde {
 }
 
 pub(crate) struct DeltaDocumentRevisionCompress();
-impl RevisionCompress for DeltaDocumentRevisionCompress {
+impl RevisionMergeable for DeltaDocumentRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         DeltaDocumentRevisionSerde::combine_revisions(revisions)
     }

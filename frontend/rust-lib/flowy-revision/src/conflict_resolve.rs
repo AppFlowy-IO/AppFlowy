@@ -151,7 +151,7 @@ where
 }
 
 fn make_client_and_server_revision<Operations, Connection>(
-    user_id: &str,
+    _user_id: &str,
     rev_manager: &Arc<RevisionManager<Connection>>,
     client_operations: Operations,
     server_operations: Option<Operations>,

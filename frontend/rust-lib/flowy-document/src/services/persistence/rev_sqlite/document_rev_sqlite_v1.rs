@@ -220,7 +220,7 @@ impl std::default::Default for DocumentRevisionState {
     }
 }
 
-fn mk_revision_record_from_table(user_id: &str, table: DocumentRevisionTable) -> SyncRecord {
+fn mk_revision_record_from_table(_user_id: &str, table: DocumentRevisionTable) -> SyncRecord {
     let md5 = md5(&table.data);
     let revision = Revision::new(
         &table.document_id,

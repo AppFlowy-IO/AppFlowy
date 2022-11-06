@@ -2,7 +2,7 @@ use crate::manager::FolderId;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
 use flowy_sync::util::make_operations_from_revisions;
@@ -18,9 +18,8 @@ use parking_lot::RwLock;
 use std::sync::Arc;
 
 pub struct FolderEditor {
-    user_id: String,
     #[allow(dead_code)]
-    pub(crate) folder_id: FolderId,
+    user_id: String,
     pub(crate) folder: Arc<RwLock<FolderPad>>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     #[cfg(feature = "sync")]
@@ -56,7 +55,6 @@ impl FolderEditor {
         let folder_id = folder_id.to_owned();
         Ok(Self {
             user_id,
-            folder_id,
             folder,
             rev_manager,
             #[cfg(feature = "sync")]
@@ -113,7 +111,7 @@ impl RevisionObjectSerializer for FolderRevisionSerde {
 }
 
 pub struct FolderRevisionCompress();
-impl RevisionCompress for FolderRevisionCompress {
+impl RevisionMergeable for FolderRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         FolderRevisionSerde::combine_revisions(revisions)
     }

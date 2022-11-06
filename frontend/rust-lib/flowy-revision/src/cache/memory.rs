@@ -88,6 +88,10 @@ impl RevisionMemoryCache {
         Ok(revs)
     }
 
+    pub(crate) fn number_of_sync_records(&self) -> usize {
+        self.revs_map.len()
+    }
+
     pub(crate) async fn reset_with_revisions(&self, revision_records: Vec<SyncRecord>) {
         self.revs_map.clear();
         if let Some(handler) = self.defer_save.write().await.take() {

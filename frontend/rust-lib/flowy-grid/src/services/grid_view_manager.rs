@@ -11,7 +11,9 @@ use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
-use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
+};
 use lib_infra::future::AFFuture;
 use std::sync::Arc;
 
@@ -253,7 +255,8 @@ pub async fn make_grid_view_rev_manager(
     let pool = user.db_pool()?;
 
     let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
-    let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache);
+    let configuration = RevisionPersistenceConfiguration::default();
+    let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
     let rev_compactor = GridViewRevisionCompress();
 
     let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(view_id, pool);

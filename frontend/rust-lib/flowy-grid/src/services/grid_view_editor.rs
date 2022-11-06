@@ -19,7 +19,7 @@ use flowy_grid_data_model::revision::{
     RowChangeset, RowRevision,
 };
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::entities::revision::Revision;
@@ -454,7 +454,7 @@ async fn new_group_controller_with_field_rev(
 }
 
 async fn apply_change(
-    user_id: &str,
+    _user_id: &str,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     change: GridViewRevisionChangeset,
 ) -> FlowyResult<()> {
@@ -496,7 +496,7 @@ impl RevisionObjectSerializer for GridViewRevisionSerde {
 }
 
 pub struct GridViewRevisionCompress();
-impl RevisionCompress for GridViewRevisionCompress {
+impl RevisionMergeable for GridViewRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridViewRevisionSerde::combine_revisions(revisions)
     }

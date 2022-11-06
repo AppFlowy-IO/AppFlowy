@@ -13,7 +13,10 @@ use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{BuildGridContext, GridRevision, GridViewRevision};
-use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
+    SQLiteRevisionSnapshotPersistence,
+};
 use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
 use flowy_sync::entities::revision::Revision;
 use std::sync::Arc;
@@ -161,7 +164,8 @@ impl GridManager {
     ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
-        let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache);
+        let configuration = RevisionPersistenceConfiguration::default();
+        let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache, configuration);
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(grid_id, pool);
         let rev_compactor = GridRevisionCompress();
         let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence, rev_compactor, snapshot_persistence);
@@ -175,7 +179,8 @@ impl GridManager {
     ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
-        let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
+        let configuration = RevisionPersistenceConfiguration::default();
+        let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
         let rev_compactor = GridBlockRevisionCompress();
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
         let rev_manager =
@@ -185,7 +190,7 @@ impl GridManager {
 }
 
 pub async fn make_grid_view_data(
-    user_id: &str,
+    _user_id: &str,
     view_id: &str,
     layout: GridLayout,
     grid_manager: Arc<GridManager>,

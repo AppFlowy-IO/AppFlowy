@@ -42,13 +42,8 @@ pub trait RevisionObjectSerializer: Send + Sync {
 
 /// `RevisionCompress` is used to compress multiple revisions into one revision
 ///
-pub trait RevisionCompress: Send + Sync {
-    fn compress_revisions(
-        &self,
-        user_id: &str,
-        object_id: &str,
-        mut revisions: Vec<Revision>,
-    ) -> FlowyResult<Revision> {
+pub trait RevisionMergeable: Send + Sync {
+    fn merge_revisions(&self, _user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
         if revisions.is_empty() {
             return Err(FlowyError::internal().context("Can't compact the empty revisions"));
         }
@@ -69,18 +64,6 @@ pub trait RevisionCompress: Send + Sync {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes>;
 }
 
-pub struct RevisionConfiguration {
-    merge_when_excess_number_of_version: i64,
-}
-
-impl std::default::Default for RevisionConfiguration {
-    fn default() -> Self {
-        Self {
-            merge_when_excess_number_of_version: 100,
-        }
-    }
-}
-
 pub struct RevisionManager<Connection> {
     pub object_id: String,
     user_id: String,
@@ -88,10 +71,9 @@ pub struct RevisionManager<Connection> {
     rev_persistence: Arc<RevisionPersistence<Connection>>,
     #[allow(dead_code)]
     rev_snapshot: Arc<RevisionSnapshotManager>,
-    rev_compress: Arc<dyn RevisionCompress>,
+    rev_compress: Arc<dyn RevisionMergeable>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
-    // configuration: RevisionConfiguration,
 }
 
 impl<Connection: 'static> RevisionManager<Connection> {
@@ -104,7 +86,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
     ) -> Self
     where
         SP: 'static + RevisionSnapshotDiskCache,
-        C: 'static + RevisionCompress,
+        C: 'static + RevisionMergeable,
     {
         let rev_id_counter = RevIdCounter::new(0);
         let rev_compress = Arc::new(rev_compress);
@@ -211,6 +193,10 @@ impl<Connection: 'static> RevisionManager<Connection> {
         let cur = self.rev_id_counter.value();
         let next = self.rev_id_counter.next_id();
         (cur, next)
+    }
+
+    pub fn number_of_sync_revisions(&self) -> usize {
+        self.rev_persistence.number_of_sync_records()
     }
 
     pub async fn get_revisions_in_range(&self, range: RevisionRange) -> Result<Vec<Revision>, FlowyError> {

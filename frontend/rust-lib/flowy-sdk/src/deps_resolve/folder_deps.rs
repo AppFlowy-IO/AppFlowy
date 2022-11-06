@@ -144,7 +144,7 @@ struct DocumentViewDataProcessor(Arc<DocumentManager>);
 impl ViewDataProcessor for DocumentViewDataProcessor {
     fn create_view(
         &self,
-        user_id: &str,
+        _user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
         view_data: Bytes,
@@ -188,7 +188,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         _data_format: ViewDataFormatPB,
     ) -> FutureResult<Bytes, FlowyError> {
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-        let user_id = user_id.to_string();
+        let _user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         let document_content = self.0.initial_document_content();
@@ -220,7 +220,7 @@ struct GridViewDataProcessor(Arc<GridManager>);
 impl ViewDataProcessor for GridViewDataProcessor {
     fn create_view(
         &self,
-        user_id: &str,
+        _user_id: &str,
         view_id: &str,
         _layout: ViewLayoutTypePB,
         delta_data: Bytes,

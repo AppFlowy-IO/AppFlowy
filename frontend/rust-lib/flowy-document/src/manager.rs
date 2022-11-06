@@ -9,7 +9,8 @@ use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
 use flowy_revision::{
-    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence,
+    RevisionCloudService, RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
+    SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::client_document::initial_delta_document_content;
 use flowy_sync::entities::{document::DocumentIdPB, revision::Revision, ws_data::ServerRevisionWSData};
@@ -246,7 +247,8 @@ impl DocumentManager {
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
         let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
-        let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
+        let configuration = RevisionPersistenceConfiguration::default();
+        let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
         Ok(RevisionManager::new(
@@ -266,7 +268,8 @@ impl DocumentManager {
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
         let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&user_id, pool.clone());
-        let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache);
+        let configuration = RevisionPersistenceConfiguration::default();
+        let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
         Ok(RevisionManager::new(

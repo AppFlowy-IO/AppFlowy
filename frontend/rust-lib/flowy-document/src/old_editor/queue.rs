@@ -23,6 +23,7 @@ use tokio::sync::{oneshot, RwLock};
 // serial.
 pub(crate) struct EditDocumentQueue {
     document: Arc<RwLock<ClientDocument>>,
+    #[allow(dead_code)]
     user: Arc<dyn DocumentUser>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     receiver: Option<EditorCommandReceiver>,

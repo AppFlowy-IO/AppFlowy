@@ -178,10 +178,10 @@ impl std::fmt::Display for RevisionRange {
 }
 
 impl RevisionRange {
-    pub fn len(&self) -> i64 {
+    pub fn len(&self) -> u64 {
         debug_assert!(self.end >= self.start);
         if self.end >= self.start {
-            self.end - self.start + 1
+            (self.end - self.start + 1) as u64
         } else {
             0
         }
