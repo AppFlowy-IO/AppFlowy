@@ -104,9 +104,14 @@ where
         new_revision: &'a Revision,
         rev_compress: &Arc<dyn RevisionMergeable + 'a>,
     ) -> FlowyResult<i64> {
-        let mut sync_seq_write_guard = self.sync_seq.write().await;
-        if sync_seq_write_guard.step > self.configuration.merge_threshold {
-            let compact_seq = sync_seq_write_guard.compact();
+        let mut sync_seq = self.sync_seq.write().await;
+        let step = sync_seq.step;
+
+        // Before the new_revision pushed into the sync_seq, we check if the current `step` of the
+        // sync_seq is less equal or greater than the merge threshold. If yes, it's need to merged
+        // with the new_revision into one revision.
+        if step >= self.configuration.merge_threshold - 1 {
+            let compact_seq = sync_seq.compact();
             let range = RevisionRange {
                 start: *compact_seq.front().unwrap(),
                 end: *compact_seq.back().unwrap(),
@@ -119,20 +124,18 @@ where
             revisions.push(new_revision.clone());
 
             // compact multiple revisions into one
-            let compact_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
-            let rev_id = compact_revision.rev_id;
-            tracing::Span::current().record("rev_id", &rev_id);
-
-            // insert new revision
-            let _ = sync_seq_write_guard.dry_push(rev_id)?;
+            let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
+            let rev_id = merged_revision.rev_id;
+            tracing::Span::current().record("rev_id", &merged_revision.rev_id);
+            let _ = sync_seq.dry_push(merged_revision.rev_id)?;
 
             // replace the revisions in range with compact revision
-            self.compact(&range, compact_revision).await?;
+            self.compact(&range, merged_revision).await?;
             Ok(rev_id)
         } else {
             tracing::Span::current().record("rev_id", &new_revision.rev_id);
             self.add(new_revision.clone(), RevisionState::Sync, true).await?;
-            sync_seq_write_guard.push(new_revision.rev_id)?;
+            sync_seq.push(new_revision.rev_id)?;
             Ok(new_revision.rev_id)
         }
     }
@@ -201,7 +204,6 @@ where
         let _ = self
             .disk_cache
             .delete_revision_records(&self.object_id, Some(rev_ids))?;
-
         self.add(new_revision, RevisionState::Sync, true).await?;
         Ok(())
     }
