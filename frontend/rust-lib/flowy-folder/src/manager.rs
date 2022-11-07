@@ -168,7 +168,7 @@ impl FolderManager {
         let pool = self.persistence.db_pool()?;
         let object_id = folder_id.as_ref();
         let disk_cache = SQLiteFolderRevisionPersistence::new(user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::new(50);
+        let configuration = RevisionPersistenceConfiguration::new(100);
         let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
         let rev_compactor = FolderRevisionCompress();
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());

@@ -1,14 +1,14 @@
 use bytes::Bytes;
-use flowy_error::{FlowyError, FlowyResult};
+use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, SyncRecord};
 use flowy_revision::{
     RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionPersistence,
     RevisionPersistenceConfiguration, RevisionSnapshotDiskCache, RevisionSnapshotInfo,
     REVISION_WRITE_INTERVAL_IN_MILLIS,
 };
-use flowy_sync::entities::document::DocumentPayloadPB;
+
 use flowy_sync::entities::revision::{Revision, RevisionRange};
-use flowy_sync::util::{make_operations_from_revisions, md5};
+use flowy_sync::util::md5;
 use nanoid::nanoid;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};
@@ -175,7 +175,7 @@ impl RevisionTest {
                 //
                 let rev_id = self.rev_manager.next_sync_rev_id().await.unwrap();
                 let revision = self.rev_manager.get_revision(rev_id).await.unwrap();
-                let object = RevisionObjectMock::from_bytes(&revision.bytes);
+                let object = RevisionObjectMock::from_bytes(&revision.bytes).unwrap();
                 assert_eq!(object.content, expected);
             }
             RevisionScript::WaitWhenWriteToDisk => {
@@ -306,8 +306,9 @@ impl RevisionMergeable for RevisionCompressMock {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         let mut object = RevisionObjectMock::new("");
         for revision in revisions {
-            let other = RevisionObjectMock::from_bytes(&revision.bytes);
-            let _ = object.compose(other)?;
+            if let Ok(other) = RevisionObjectMock::from_bytes(&revision.bytes) {
+                let _ = object.compose(other)?;
+            }
         }
         Ok(Bytes::from(object.to_bytes()))
     }
@@ -319,17 +320,16 @@ pub struct InvalidRevisionObject {
 }
 
 impl InvalidRevisionObject {
-    pub fn new() -> Vec<u8> {
-        let object = InvalidRevisionObject { data: "".to_string() };
-        object.to_bytes()
+    pub fn new() -> Self {
+        InvalidRevisionObject { data: "".to_string() }
     }
-    fn to_bytes(&self) -> Vec<u8> {
+    pub(crate) fn to_bytes(&self) -> Vec<u8> {
         serde_json::to_vec(self).unwrap()
     }
 
-    fn from_bytes(bytes: &[u8]) -> Self {
-        serde_json::from_slice(bytes).unwrap()
-    }
+    // fn from_bytes(bytes: &[u8]) -> Self {
+    //     serde_json::from_slice(bytes).unwrap()
+    // }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -351,8 +351,8 @@ impl RevisionObjectMock {
         serde_json::to_vec(self).unwrap()
     }
 
-    pub fn from_bytes(bytes: &[u8]) -> Self {
-        serde_json::from_slice(bytes).unwrap()
+    pub fn from_bytes(bytes: &[u8]) -> FlowyResult<Self> {
+        serde_json::from_slice(bytes).map_err(internal_error)
     }
 }
 
@@ -360,15 +360,16 @@ pub struct RevisionObjectMockSerde();
 impl RevisionObjectDeserializer for RevisionObjectMockSerde {
     type Output = RevisionObjectMock;
 
-    fn deserialize_revisions(object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
+    fn deserialize_revisions(_object_id: &str, revisions: Vec<Revision>) -> FlowyResult<Self::Output> {
         let mut object = RevisionObjectMock::new("");
         if revisions.is_empty() {
             return Ok(object);
         }
 
         for revision in revisions {
-            let revision_object = RevisionObjectMock::from_bytes(&revision.bytes);
-            let _ = object.compose(revision_object)?;
+            if let Ok(revision_object) = RevisionObjectMock::from_bytes(&revision.bytes) {
+                let _ = object.compose(revision_object)?;
+            }
         }
 
         Ok(object)

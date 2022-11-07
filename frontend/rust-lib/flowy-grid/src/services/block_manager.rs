@@ -275,7 +275,7 @@ async fn make_block_editor(user: &Arc<dyn GridUser>, block_id: &str) -> FlowyRes
     let pool = user.db_pool()?;
 
     let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
-    let configuration = RevisionPersistenceConfiguration::default();
+    let configuration = RevisionPersistenceConfiguration::new(4);
     let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
     let rev_compactor = GridBlockRevisionCompress();
     let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);

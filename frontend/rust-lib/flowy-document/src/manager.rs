@@ -247,7 +247,7 @@ impl DocumentManager {
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
         let disk_cache = SQLiteDocumentRevisionPersistence::new(&user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::default();
+        let configuration = RevisionPersistenceConfiguration::new(100);
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);
@@ -268,7 +268,7 @@ impl DocumentManager {
     ) -> Result<RevisionManager<Arc<ConnectionPool>>, FlowyError> {
         let user_id = self.user.user_id()?;
         let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(&user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::default();
+        let configuration = RevisionPersistenceConfiguration::new(100);
         let rev_persistence = RevisionPersistence::new(&user_id, doc_id, disk_cache, configuration);
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(doc_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(doc_id, pool);

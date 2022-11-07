@@ -255,7 +255,7 @@ pub async fn make_grid_view_rev_manager(
     let pool = user.db_pool()?;
 
     let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
-    let configuration = RevisionPersistenceConfiguration::default();
+    let configuration = RevisionPersistenceConfiguration::new(2);
     let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
     let rev_compactor = GridViewRevisionCompress();
 

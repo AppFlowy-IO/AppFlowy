@@ -164,7 +164,7 @@ impl GridManager {
     ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::default();
+        let configuration = RevisionPersistenceConfiguration::new(2);
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache, configuration);
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(grid_id, pool);
         let rev_compactor = GridRevisionCompress();
@@ -179,7 +179,7 @@ impl GridManager {
     ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::default();
+        let configuration = RevisionPersistenceConfiguration::new(4);
         let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
         let rev_compactor = GridBlockRevisionCompress();
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);

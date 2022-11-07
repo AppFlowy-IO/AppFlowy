@@ -1,5 +1,4 @@
 use crate::revision_test::script::{RevisionScript::*, RevisionTest};
-use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 
 #[tokio::test]
 async fn revision_sync_test() {

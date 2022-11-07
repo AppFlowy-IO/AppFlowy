@@ -1,6 +1,5 @@
 use crate::revision_test::script::RevisionScript::*;
 use crate::revision_test::script::{InvalidRevisionObject, RevisionTest};
-use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
 
 #[tokio::test]
 async fn revision_write_to_disk_test() {
@@ -67,7 +66,7 @@ async fn revision_read_from_disk_test() {
         AddLocalRevision {
             content: "456".to_string(),
             base_rev_id,
-            rev_id: rev_id.clone(),
+            rev_id,
         },
         AckRevision { rev_id: 1 },
         AssertNextSyncRevisionId { rev_id: Some(rev_id) },
@@ -76,23 +75,25 @@ async fn revision_read_from_disk_test() {
 }
 
 #[tokio::test]
-#[should_panic]
 async fn revision_read_from_disk_with_invalid_record_test() {
     let test = RevisionTest::new_with_configuration(2).await;
     let (base_rev_id, rev_id) = test.next_rev_id_pair();
-    test.run_script(AddLocalRevision {
+    test.run_scripts(vec![AddLocalRevision {
         content: "123".to_string(),
         base_rev_id,
         rev_id,
-    })
+    }])
     .await;
 
     let (base_rev_id, rev_id) = test.next_rev_id_pair();
-    test.run_script(AddInvalidLocalRevision {
-        bytes: InvalidRevisionObject::new(),
-        base_rev_id,
-        rev_id,
-    })
+    test.run_scripts(vec![
+        AddInvalidLocalRevision {
+            bytes: InvalidRevisionObject::new().to_bytes(),
+            base_rev_id,
+            rev_id,
+        },
+        WaitWhenWriteToDisk,
+    ])
     .await;
 
     let test = RevisionTest::new_with_other(test).await;

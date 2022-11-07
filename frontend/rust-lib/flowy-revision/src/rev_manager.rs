@@ -92,8 +92,6 @@ impl<Connection: 'static> RevisionManager<Connection> {
         let rev_compress = Arc::new(rev_compress);
         let rev_persistence = Arc::new(rev_persistence);
         let rev_snapshot = Arc::new(RevisionSnapshotManager::new(user_id, object_id, snapshot_persistence));
-        #[cfg(feature = "flowy_unit_test")]
-        let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
         Self {
             object_id: object_id.to_string(),
@@ -103,7 +101,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
             rev_snapshot,
             rev_compress,
             #[cfg(feature = "flowy_unit_test")]
-            rev_ack_notifier: revision_ack_notifier,
+            rev_ack_notifier: tokio::sync::broadcast::channel(1).0,
         }
     }
 

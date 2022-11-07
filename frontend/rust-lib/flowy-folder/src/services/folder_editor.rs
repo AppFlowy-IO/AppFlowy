@@ -20,6 +20,8 @@ use std::sync::Arc;
 pub struct FolderEditor {
     #[allow(dead_code)]
     user_id: String,
+    #[allow(dead_code)]
+    folder_id: FolderId,
     pub(crate) folder: Arc<RwLock<FolderPad>>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     #[cfg(feature = "sync")]
@@ -57,6 +59,7 @@ impl FolderEditor {
         let folder_id = folder_id.to_owned();
         Ok(Self {
             user_id,
+            folder_id,
             folder,
             rev_manager,
             #[cfg(feature = "sync")]

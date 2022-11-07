@@ -360,10 +360,8 @@ impl DeferSyncSequence {
 
             let pop_rev_id = self.rev_ids.pop_front();
             if let (Some(compact_rev_id), Some(pop_rev_id)) = (compact_rev_id, pop_rev_id) {
-                if compact_rev_id <= pop_rev_id {
-                    if self.compact_length > 0 {
-                        self.compact_length -= 1;
-                    }
+                if compact_rev_id <= pop_rev_id && self.compact_length > 0 {
+                    self.compact_length -= 1;
                 }
             }
         }
