@@ -13,6 +13,7 @@ class InputTextField extends StatefulWidget {
   final bool autoClearWhenDone;
   final String text;
   final int? maxLength;
+  final FocusNode? focusNode;
 
   const InputTextField({
     required this.text,
@@ -21,6 +22,7 @@ class InputTextField extends StatefulWidget {
     this.onChanged,
     this.autoClearWhenDone = false,
     this.maxLength,
+    this.focusNode,
     Key? key,
   }) : super(key: key);
 
@@ -35,7 +37,7 @@ class _InputTextFieldState extends State<InputTextField> {
 
   @override
   void initState() {
-    _focusNode = FocusNode();
+    _focusNode = widget.focusNode ?? FocusNode();
     _controller = TextEditingController(text: widget.text);
     SchedulerBinding.instance.addPostFrameCallback((Duration _) {
       _focusNode.requestFocus();
@@ -81,7 +83,10 @@ class _InputTextFieldState extends State<InputTextField> {
   @override
   void dispose() {
     _focusNode.removeListener(notifyDidEndEditing);
-    _focusNode.dispose();
+    // only dispose the focusNode if it was created in this widget's initState
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
     super.dispose();
   }
 
