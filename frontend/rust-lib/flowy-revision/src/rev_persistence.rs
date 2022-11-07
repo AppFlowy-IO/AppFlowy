@@ -14,6 +14,7 @@ use tokio::task::spawn_blocking;
 
 pub const REVISION_WRITE_INTERVAL_IN_MILLIS: u64 = 600;
 
+#[derive(Clone)]
 pub struct RevisionPersistenceConfiguration {
     merge_threshold: usize,
 }
@@ -24,14 +25,14 @@ impl RevisionPersistenceConfiguration {
         if merge_threshold > 1 {
             Self { merge_threshold }
         } else {
-            Self { merge_threshold: 2 }
+            Self { merge_threshold: 100 }
         }
     }
 }
 
 impl std::default::Default for RevisionPersistenceConfiguration {
     fn default() -> Self {
-        Self { merge_threshold: 2 }
+        Self { merge_threshold: 100 }
     }
 }
 
@@ -93,7 +94,7 @@ where
     pub(crate) async fn sync_revision(&self, revision: &Revision) -> FlowyResult<()> {
         tracing::Span::current().record("rev_id", &revision.rev_id);
         self.add(revision.clone(), RevisionState::Sync, false).await?;
-        self.sync_seq.write().await.dry_push(revision.rev_id)?;
+        self.sync_seq.write().await.recv(revision.rev_id)?;
         Ok(())
     }
 
@@ -105,13 +106,17 @@ where
         rev_compress: &Arc<dyn RevisionMergeable + 'a>,
     ) -> FlowyResult<i64> {
         let mut sync_seq = self.sync_seq.write().await;
-        let step = sync_seq.step;
+        let compact_length = sync_seq.compact_length;
 
-        // Before the new_revision pushed into the sync_seq, we check if the current `step` of the
-        // sync_seq is less equal or greater than the merge threshold. If yes, it's need to merged
+        // Before the new_revision is pushed into the sync_seq, we check if the current `step` of the
+        // sync_seq is less equal to or greater than the merge threshold. If yes, it's needs to merged
         // with the new_revision into one revision.
-        if step >= self.configuration.merge_threshold - 1 {
-            let compact_seq = sync_seq.compact();
+        let mut compact_seq = VecDeque::default();
+        // tracing::info!("{}", compact_seq)
+        if compact_length >= self.configuration.merge_threshold - 1 {
+            compact_seq.extend(sync_seq.compact());
+        }
+        if !compact_seq.is_empty() {
             let range = RevisionRange {
                 start: *compact_seq.front().unwrap(),
                 end: *compact_seq.back().unwrap(),
@@ -127,7 +132,7 @@ where
             let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
             let rev_id = merged_revision.rev_id;
             tracing::Span::current().record("rev_id", &merged_revision.rev_id);
-            let _ = sync_seq.dry_push(merged_revision.rev_id)?;
+            let _ = sync_seq.recv(merged_revision.rev_id)?;
 
             // replace the revisions in range with compact revision
             self.compact(&range, merged_revision).await?;
@@ -135,7 +140,7 @@ where
         } else {
             tracing::Span::current().record("rev_id", &new_revision.rev_id);
             self.add(new_revision.clone(), RevisionState::Sync, true).await?;
-            sync_seq.push(new_revision.rev_id)?;
+            sync_seq.merge_recv(new_revision.rev_id)?;
             Ok(new_revision.rev_id)
         }
     }
@@ -161,6 +166,16 @@ where
 
     pub(crate) fn number_of_sync_records(&self) -> usize {
         self.memory_cache.number_of_sync_records()
+    }
+
+    pub(crate) fn number_of_records_in_disk(&self) -> usize {
+        match self.disk_cache.read_revision_records(&self.object_id, None) {
+            Ok(records) => records.len(),
+            Err(e) => {
+                tracing::error!("Read revision records failed: {:?}", e);
+                0
+            }
+        }
     }
 
     /// The cache gets reset while it conflicts with the remote revisions.
@@ -228,8 +243,8 @@ where
         }
     }
 
-    pub fn batch_get(&self, doc_id: &str) -> FlowyResult<Vec<SyncRecord>> {
-        self.disk_cache.read_revision_records(doc_id, None)
+    pub fn load_all_records(&self, object_id: &str) -> FlowyResult<Vec<SyncRecord>> {
+        self.disk_cache.read_revision_records(object_id, None)
     }
 
     // Read the revision which rev_id >= range.start && rev_id <= range.end
@@ -289,8 +304,8 @@ impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = Flo
 #[derive(Default)]
 struct DeferSyncSequence {
     rev_ids: VecDeque<i64>,
-    start: Option<usize>,
-    step: usize,
+    compact_index: Option<usize>,
+    compact_length: usize,
 }
 
 impl DeferSyncSequence {
@@ -298,17 +313,22 @@ impl DeferSyncSequence {
         DeferSyncSequence::default()
     }
 
-    fn push(&mut self, new_rev_id: i64) -> FlowyResult<()> {
-        let _ = self.dry_push(new_rev_id)?;
+    /// Pushes the new_rev_id to the end of the list and marks this new_rev_id is mergeable.
+    ///
+    /// When calling `compact` method, it will return a list of revision ids started from
+    /// the `compact_start_pos`, and ends with the `compact_length`.
+    fn merge_recv(&mut self, new_rev_id: i64) -> FlowyResult<()> {
+        let _ = self.recv(new_rev_id)?;
 
-        self.step += 1;
-        if self.start.is_none() && !self.rev_ids.is_empty() {
-            self.start = Some(self.rev_ids.len() - 1);
+        self.compact_length += 1;
+        if self.compact_index.is_none() && !self.rev_ids.is_empty() {
+            self.compact_index = Some(self.rev_ids.len() - 1);
         }
         Ok(())
     }
 
-    fn dry_push(&mut self, new_rev_id: i64) -> FlowyResult<()> {
+    /// Pushes the new_rev_id to the end of the list.
+    fn recv(&mut self, new_rev_id: i64) -> FlowyResult<()> {
         // The last revision's rev_id must be greater than the new one.
         if let Some(rev_id) = self.rev_ids.back() {
             if *rev_id >= new_rev_id {
@@ -321,6 +341,7 @@ impl DeferSyncSequence {
         Ok(())
     }
 
+    /// Removes the rev_id from the list
     fn ack(&mut self, rev_id: &i64) -> FlowyResult<()> {
         let cur_rev_id = self.rev_ids.front().cloned();
         if let Some(pop_rev_id) = cur_rev_id {
@@ -331,7 +352,20 @@ impl DeferSyncSequence {
                 );
                 return Err(FlowyError::internal().context(desc));
             }
-            let _ = self.rev_ids.pop_front();
+
+            let mut compact_rev_id = None;
+            if let Some(compact_index) = self.compact_index {
+                compact_rev_id = self.rev_ids.get(compact_index).cloned();
+            }
+
+            let pop_rev_id = self.rev_ids.pop_front();
+            if let (Some(compact_rev_id), Some(pop_rev_id)) = (compact_rev_id, pop_rev_id) {
+                if compact_rev_id <= pop_rev_id {
+                    if self.compact_length > 0 {
+                        self.compact_length -= 1;
+                    }
+                }
+            }
         }
         Ok(())
     }
@@ -341,28 +375,22 @@ impl DeferSyncSequence {
     }
 
     fn clear(&mut self) {
-        self.start = None;
-        self.step = 0;
+        self.compact_index = None;
+        self.compact_length = 0;
         self.rev_ids.clear();
     }
 
     // Compact the rev_ids into one except the current synchronizing rev_id.
     fn compact(&mut self) -> VecDeque<i64> {
-        if self.start.is_none() {
-            return VecDeque::default();
+        let mut compact_seq = VecDeque::with_capacity(self.rev_ids.len());
+        if let Some(start) = self.compact_index {
+            if start < self.rev_ids.len() {
+                let seq = self.rev_ids.split_off(start);
+                compact_seq.extend(seq);
+            }
         }
-
-        let start = self.start.unwrap();
-        let compact_seq = self.rev_ids.split_off(start);
-        self.start = None;
-        self.step = 0;
+        self.compact_index = None;
+        self.compact_length = 0;
         compact_seq
-
-        // let mut new_seq = self.rev_ids.clone();
-        // let mut drained = new_seq.drain(1..).collect::<VecDeque<_>>();
-        //
-        // let start = drained.pop_front()?;
-        // let end = drained.pop_back().unwrap_or(start);
-        // Some((RevisionRange { start, end }, new_seq))
     }
 }

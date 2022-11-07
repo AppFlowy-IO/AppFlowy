@@ -34,7 +34,7 @@ impl GridBlockRevisionEditor {
         let cloud = Arc::new(GridBlockRevisionCloudService {
             token: token.to_owned(),
         });
-        let block_revision_pad = rev_manager.load::<GridBlockRevisionSerde>(Some(cloud)).await?;
+        let block_revision_pad = rev_manager.initialize::<GridBlockRevisionSerde>(Some(cloud)).await?;
         let pad = Arc::new(RwLock::new(block_revision_pad));
         let rev_manager = Arc::new(rev_manager);
         let user_id = user_id.to_owned();

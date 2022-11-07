@@ -60,7 +60,7 @@ impl GridRevisionEditor {
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
-        let grid_pad = rev_manager.load::<GridRevisionSerde>(Some(cloud)).await?;
+        let grid_pad = rev_manager.initialize::<GridRevisionSerde>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
 

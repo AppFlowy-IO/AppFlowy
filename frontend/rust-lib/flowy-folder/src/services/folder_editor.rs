@@ -38,7 +38,9 @@ impl FolderEditor {
         let cloud = Arc::new(FolderRevisionCloudService {
             token: token.to_string(),
         });
-        let folder = Arc::new(RwLock::new(rev_manager.load::<FolderRevisionSerde>(Some(cloud)).await?));
+        let folder = Arc::new(RwLock::new(
+            rev_manager.initialize::<FolderRevisionSerde>(Some(cloud)).await?,
+        ));
         let rev_manager = Arc::new(rev_manager);
 
         #[cfg(feature = "sync")]

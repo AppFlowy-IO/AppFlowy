@@ -1072,6 +1072,7 @@ dependencies = [
  "bytes",
  "dashmap",
  "flowy-error",
+ "flowy-revision",
  "flowy-sync",
  "futures-util",
  "lib-infra",

@@ -45,7 +45,7 @@ impl DeltaDocumentEditor {
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
         let document = rev_manager
-            .load::<DeltaDocumentRevisionSerde>(Some(cloud_service))
+            .initialize::<DeltaDocumentRevisionSerde>(Some(cloud_service))
             .await?;
         let operations = DeltaTextOperations::from_bytes(&document.content)?;
         let rev_manager = Arc::new(rev_manager);

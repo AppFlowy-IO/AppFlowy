@@ -19,37 +19,31 @@ async fn revision_sync_test() {
 }
 
 #[tokio::test]
-async fn revision_sync_multiple_revisions() {
+async fn revision_compress_2_revisions_with_2_threshold_test() {
     let test = RevisionTest::new_with_configuration(2).await;
-    let (base_rev_id, rev_id_1) = test.next_rev_id_pair();
 
-    test.run_script(AddLocalRevision {
+    test.run_script(AddLocalRevision2 {
         content: "123".to_string(),
-        base_rev_id,
-        rev_id: rev_id_1,
+        pair_rev_id: test.next_rev_id_pair(),
     })
     .await;
 
-    let (base_rev_id, rev_id_2) = test.next_rev_id_pair();
-    test.run_script(AddLocalRevision {
+    test.run_script(AddLocalRevision2 {
         content: "456".to_string(),
-        base_rev_id,
-        rev_id: rev_id_2,
+        pair_rev_id: test.next_rev_id_pair(),
     })
     .await;
 
     test.run_scripts(vec![
-        AssertNextSyncRevisionId { rev_id: Some(rev_id_1) },
-        AckRevision { rev_id: rev_id_1 },
-        AssertNextSyncRevisionId { rev_id: Some(rev_id_2) },
-        AckRevision { rev_id: rev_id_2 },
+        AssertNextSyncRevisionId { rev_id: Some(1) },
+        AckRevision { rev_id: 1 },
         AssertNextSyncRevisionId { rev_id: None },
     ])
     .await;
 }
 
 #[tokio::test]
-async fn revision_compress_three_revisions_test() {
+async fn revision_compress_4_revisions_with_threshold_2_test() {
     let test = RevisionTest::new_with_configuration(2).await;
     let (base_rev_id, rev_id_1) = test.next_rev_id_pair();
 
@@ -86,23 +80,23 @@ async fn revision_compress_three_revisions_test() {
 
     // rev_id_2,rev_id_3,rev_id4 will be merged into rev_id_1
     test.run_scripts(vec![
-        Wait {
-            milliseconds: REVISION_WRITE_INTERVAL_IN_MILLIS,
-        },
-        AssertNumberOfSyncRevisions { num: 1 },
+        AssertNumberOfSyncRevisions { num: 2 },
         AssertNextSyncRevisionId { rev_id: Some(rev_id_1) },
         AssertNextSyncRevisionContent {
-            expected: "1234".to_string(),
+            expected: "12".to_string(),
         },
         AckRevision { rev_id: rev_id_1 },
-        AssertNextSyncRevisionId { rev_id: None },
+        AssertNextSyncRevisionId { rev_id: Some(rev_id_2) },
+        AssertNextSyncRevisionContent {
+            expected: "34".to_string(),
+        },
     ])
     .await;
 }
 
 #[tokio::test]
-async fn revision_compress_three_revisions_test2() {
-    let test = RevisionTest::new_with_configuration(2).await;
+async fn revision_compress_8_revisions_with_threshold_4_test() {
+    let test = RevisionTest::new_with_configuration(4).await;
     let (base_rev_id, rev_id_1) = test.next_rev_id_pair();
 
     test.run_script(AddLocalRevision {
@@ -169,9 +163,6 @@ async fn revision_compress_three_revisions_test2() {
     .await;
 
     test.run_scripts(vec![
-        // Wait {
-        //     milliseconds: REVISION_WRITE_INTERVAL_IN_MILLIS,
-        // },
         AssertNumberOfSyncRevisions { num: 2 },
         AssertNextSyncRevisionId { rev_id: Some(rev_id_1) },
         AssertNextSyncRevisionContent {
@@ -240,4 +231,89 @@ async fn revision_merge_per_100_revision_test() {
     }
 
     test.run_scripts(vec![AssertNumberOfSyncRevisions { num: 10 }]).await;
+}
+
+#[tokio::test]
+async fn revision_merge_per_100_revision_test2() {
+    let test = RevisionTest::new_with_configuration(100).await;
+    for i in 0..50 {
+        let (base_rev_id, rev_id) = test.next_rev_id_pair();
+        test.run_script(AddLocalRevision {
+            content: format!("{}", i),
+            base_rev_id,
+            rev_id,
+        })
+        .await;
+    }
+
+    test.run_scripts(vec![AssertNumberOfSyncRevisions { num: 50 }]).await;
+}
+
+#[tokio::test]
+async fn revision_merge_per_1000_revision_test() {
+    let test = RevisionTest::new_with_configuration(1000).await;
+    for i in 0..100000 {
+        let (base_rev_id, rev_id) = test.next_rev_id_pair();
+        test.run_script(AddLocalRevision {
+            content: format!("{}", i),
+            base_rev_id,
+            rev_id,
+        })
+        .await;
+    }
+
+    test.run_scripts(vec![AssertNumberOfSyncRevisions { num: 100 }]).await;
+}
+
+#[tokio::test]
+async fn revision_compress_revision_test() {
+    let test = RevisionTest::new_with_configuration(2).await;
+
+    test.run_scripts(vec![
+        AddLocalRevision2 {
+            content: "1".to_string(),
+            pair_rev_id: test.next_rev_id_pair(),
+        },
+        AddLocalRevision2 {
+            content: "2".to_string(),
+            pair_rev_id: test.next_rev_id_pair(),
+        },
+        AddLocalRevision2 {
+            content: "3".to_string(),
+            pair_rev_id: test.next_rev_id_pair(),
+        },
+        AddLocalRevision2 {
+            content: "4".to_string(),
+            pair_rev_id: test.next_rev_id_pair(),
+        },
+        AssertNumberOfSyncRevisions { num: 2 },
+    ])
+    .await;
+}
+#[tokio::test]
+async fn revision_compress_revision_while_recv_ack_test() {
+    let test = RevisionTest::new_with_configuration(2).await;
+    test.run_scripts(vec![
+        AddLocalRevision2 {
+            content: "1".to_string(),
+            pair_rev_id: test.next_rev_id_pair(),
+        },
+        AckRevision { rev_id: 1 },
+        AddLocalRevision2 {
+            content: "2".to_string(),
+            pair_rev_id: test.next_rev_id_pair(),
+        },
+        AckRevision { rev_id: 2 },
+        AddLocalRevision2 {
+            content: "3".to_string(),
+            pair_rev_id: test.next_rev_id_pair(),
+        },
+        AckRevision { rev_id: 3 },
+        AddLocalRevision2 {
+            content: "4".to_string(),
+            pair_rev_id: test.next_rev_id_pair(),
+        },
+        AssertNumberOfSyncRevisions { num: 4 },
+    ])
+    .await;
 }

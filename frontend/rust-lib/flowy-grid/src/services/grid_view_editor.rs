@@ -55,7 +55,7 @@ impl GridViewRevisionEditor {
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
         });
-        let view_revision_pad = rev_manager.load::<GridViewRevisionSerde>(Some(cloud)).await?;
+        let view_revision_pad = rev_manager.initialize::<GridViewRevisionSerde>(Some(cloud)).await?;
         let pad = Arc::new(RwLock::new(view_revision_pad));
         let rev_manager = Arc::new(rev_manager);
         let group_controller = new_group_controller(

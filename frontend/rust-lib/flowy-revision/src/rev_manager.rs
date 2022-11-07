@@ -108,7 +108,7 @@ impl<Connection: 'static> RevisionManager<Connection> {
     }
 
     #[tracing::instrument(level = "debug", skip_all, fields(object_id) err)]
-    pub async fn load<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
+    pub async fn initialize<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectDeserializer,
     {
@@ -199,6 +199,10 @@ impl<Connection: 'static> RevisionManager<Connection> {
         self.rev_persistence.number_of_sync_records()
     }
 
+    pub fn number_of_revisions_in_disk(&self) -> usize {
+        self.rev_persistence.number_of_records_in_disk()
+    }
+
     pub async fn get_revisions_in_range(&self, range: RevisionRange) -> Result<Vec<Revision>, FlowyError> {
         let revisions = self.rev_persistence.revisions_in_range(&range).await?;
         Ok(revisions)
@@ -230,12 +234,15 @@ impl<Connection: 'static> WSDataProviderDataSource for Arc<RevisionManager<Conne
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl<Connection> RevisionManager<Connection> {
+impl<Connection: 'static> RevisionManager<Connection> {
     pub async fn revision_cache(&self) -> Arc<RevisionPersistence<Connection>> {
         self.rev_persistence.clone()
     }
     pub fn ack_notify(&self) -> tokio::sync::broadcast::Receiver<i64> {
         self.rev_ack_notifier.subscribe()
+    }
+    pub fn get_all_revision_records(&self) -> FlowyResult<Vec<crate::disk::SyncRecord>> {
+        self.rev_persistence.load_all_records(&self.object_id)
     }
 }
 
@@ -248,7 +255,7 @@ pub struct RevisionLoader<Connection> {
 
 impl<Connection: 'static> RevisionLoader<Connection> {
     pub async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
-        let records = self.rev_persistence.batch_get(&self.object_id)?;
+        let records = self.rev_persistence.load_all_records(&self.object_id)?;
         let revisions: Vec<Revision>;
         let mut rev_id = 0;
         if records.is_empty() && self.cloud.is_some() {
@@ -282,7 +289,7 @@ impl<Connection: 'static> RevisionLoader<Connection> {
     }
 
     pub async fn load_revisions(&self) -> Result<Vec<Revision>, FlowyError> {
-        let records = self.rev_persistence.batch_get(&self.object_id)?;
+        let records = self.rev_persistence.load_all_records(&self.object_id)?;
         let revisions = records.into_iter().map(|record| record.revision).collect::<_>();
         Ok(revisions)
     }
