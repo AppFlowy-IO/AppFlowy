@@ -197,7 +197,7 @@ impl DocumentManager {
     /// # Arguments
     ///
     /// * `doc_id`: the id of the document
-    /// * `pool`: rev_sqlite connection pool
+    /// * `pool`: sqlite connection pool
     ///
     /// returns: Result<Arc<DocumentEditor>, FlowyError>
     ///
