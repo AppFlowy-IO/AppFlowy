@@ -64,6 +64,8 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y dart curl build-essential libsqlite3-dev libssl-dev clang cmake ninja-build pkg-config libgtk-3-dev
             sudo apt-get install keybinder-3.0
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            vcpkg integrate install
           elif [ "$RUNNER_OS" == "macOS" ]; then
             echo 'do nothing'
           fi
@@ -87,7 +89,7 @@ jobs:
             flutter config --enable-linux-desktop
           elif [ "$RUNNER_OS" == "macOS" ]; then
             flutter config --enable-macos-desktop
-          elif [ "$RUNNER_OS" == "windows" ]; then
+          elif [ "$RUNNER_OS" == "Windows" ]; then
             flutter config --enable-windows-desktop
           fi
         shell: bash
