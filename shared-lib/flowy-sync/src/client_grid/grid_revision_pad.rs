@@ -1,7 +1,7 @@
-use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
-use crate::util::{cal_diff, make_operations_from_revisions, md5};
-
+use crate::util::{cal_diff, make_operations_from_revisions};
+use flowy_http_model::revision::{RepeatedRevision, Revision};
+use flowy_http_model::util::md5;
 use grid_rev_model::{
     gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
     GridRevision,
@@ -10,6 +10,7 @@ use lib_infra::util::move_vec_element;
 use lib_ot::core::{DeltaOperationBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::collections::HashMap;
 use std::sync::Arc;
+
 pub type GridOperations = DeltaOperations<EmptyAttributes>;
 pub type GridOperationsBuilder = DeltaOperationBuilder<EmptyAttributes>;
 

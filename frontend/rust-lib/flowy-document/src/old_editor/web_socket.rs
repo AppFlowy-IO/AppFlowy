@@ -3,16 +3,13 @@ use crate::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_revision::*;
-use flowy_sync::entities::revision::Revision;
-use flowy_sync::util::make_operations_from_revisions;
-use flowy_sync::{
-    entities::{
-        revision::RevisionRange,
-        ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSDataType},
-    },
-    errors::CollaborateResult,
+use flowy_http_model::{
+    revision::{Revision, RevisionRange},
+    ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSDataType},
 };
+use flowy_revision::*;
+use flowy_sync::errors::CollaborateResult;
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::text_delta::DeltaTextOperations;
 use lib_ws::WSConnectState;

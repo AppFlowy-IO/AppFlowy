@@ -25,7 +25,7 @@ bytes = "1.0"
 tokio = { version = "1", features = ["rt"] }
 parking_lot = "0.12.1"
 
-flowy-sync = { path = "../../../shared-lib/flowy-sync" }
+flowy-http-model = { path = "../../../shared-lib/flowy-http-model" }
 lib-ws = { path = "../../../shared-lib/lib-ws" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
 
@@ -45,7 +45,6 @@ dart = [
     "flowy-user/dart",
     "flowy-net/dart",
     "flowy-folder/dart",
-    "flowy-sync/dart",
     "flowy-grid/dart",
     "flowy-document/dart",
 ]

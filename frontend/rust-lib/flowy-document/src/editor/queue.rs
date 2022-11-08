@@ -3,8 +3,8 @@ use crate::DocumentUser;
 use async_stream::stream;
 use bytes::Bytes;
 use flowy_error::FlowyError;
+use flowy_http_model::revision::{RevId, Revision};
 use flowy_revision::RevisionManager;
-use flowy_sync::entities::revision::{RevId, Revision};
 use futures::stream::StreamExt;
 use lib_ot::core::Transaction;
 

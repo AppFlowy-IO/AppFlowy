@@ -18,12 +18,13 @@ use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
     SQLiteRevisionSnapshotPersistence,
 };
-use flowy_sync::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
 use folder_rev_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
+use flowy_http_model::ws_data::ServerRevisionWSData;
+use flowy_sync::client_folder::FolderPad;
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 lazy_static! {

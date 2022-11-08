@@ -2,11 +2,11 @@ use crate::disk::RevisionState;
 use crate::{RevisionPersistence, RevisionSnapshotDiskCache, RevisionSnapshotManager, WSDataProviderDataSource};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::{
-    entities::revision::{Revision, RevisionRange},
-    util::{md5, pair_rev_id_from_revisions, RevIdCounter},
-};
+use flowy_http_model::revision::{Revision, RevisionRange};
+use flowy_http_model::util::md5;
 use lib_infra::future::FutureResult;
+use std::sync::atomic::AtomicI64;
+use std::sync::atomic::Ordering::SeqCst;
 use std::sync::Arc;
 
 pub trait RevisionCloudService: Send + Sync {
@@ -349,3 +349,39 @@ impl PartialEq<Self> for RevisionMD5 {
 }
 
 impl std::cmp::Eq for RevisionMD5 {}
+
+fn pair_rev_id_from_revisions(revisions: &[Revision]) -> (i64, i64) {
+    let mut rev_id = 0;
+    revisions.iter().for_each(|revision| {
+        if rev_id < revision.rev_id {
+            rev_id = revision.rev_id;
+        }
+    });
+
+    if rev_id > 0 {
+        (rev_id - 1, rev_id)
+    } else {
+        (0, rev_id)
+    }
+}
+
+#[derive(Debug)]
+pub struct RevIdCounter(pub AtomicI64);
+
+impl RevIdCounter {
+    pub fn new(n: i64) -> Self {
+        Self(AtomicI64::new(n))
+    }
+
+    pub fn next_id(&self) -> i64 {
+        let _ = self.0.fetch_add(1, SeqCst);
+        self.value()
+    }
+    pub fn value(&self) -> i64 {
+        self.0.load(SeqCst)
+    }
+
+    pub fn set(&self, n: i64) {
+        let _ = self.0.fetch_update(SeqCst, SeqCst, |_| Some(n));
+    }
+}

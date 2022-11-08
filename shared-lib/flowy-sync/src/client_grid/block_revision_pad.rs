@@ -1,6 +1,7 @@
-use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
-use crate::util::{cal_diff, make_operations_from_revisions, md5};
+use crate::util::{cal_diff, make_operations_from_revisions};
+use flowy_http_model::revision::{RepeatedRevision, Revision};
+use flowy_http_model::util::md5;
 use grid_rev_model::{gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision};
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::borrow::Cow;

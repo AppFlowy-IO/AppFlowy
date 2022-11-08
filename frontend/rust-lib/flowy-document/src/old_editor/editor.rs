@@ -5,16 +5,14 @@ use crate::{errors::FlowyError, DocumentEditor, DocumentUser};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
+use flowy_http_model::document::DocumentPayloadPB;
+use flowy_http_model::revision::Revision;
+use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
-use flowy_sync::entities::ws_data::ServerRevisionWSData;
-use flowy_sync::{
-    entities::{document::DocumentPayloadPB, revision::Revision},
-    errors::CollaborateResult,
-    util::make_operations_from_revisions,
-};
+use flowy_sync::{errors::CollaborateResult, util::make_operations_from_revisions};
 use lib_infra::future::FutureResult;
 use lib_ot::core::{AttributeEntry, AttributeHashMap};
 use lib_ot::{
@@ -47,7 +45,7 @@ impl DeltaDocumentEditor {
         let document = rev_manager
             .initialize::<DeltaDocumentRevisionSerde>(Some(cloud_service))
             .await?;
-        let operations = DeltaTextOperations::from_bytes(&document.content)?;
+        let operations = DeltaTextOperations::from_bytes(&document.data)?;
         let rev_manager = Arc::new(rev_manager);
         let doc_id = doc_id.to_string();
         let user_id = user.user_id()?;
@@ -255,7 +253,7 @@ impl RevisionObjectDeserializer for DeltaDocumentRevisionSerde {
 
         Result::<DocumentPayloadPB, FlowyError>::Ok(DocumentPayloadPB {
             doc_id: object_id.to_owned(),
-            content: delta.json_str(),
+            data: delta.json_bytes().to_vec(),
             rev_id,
             base_rev_id,
         })

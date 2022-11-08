@@ -7,8 +7,8 @@ use flowy_revision::{
     REVISION_WRITE_INTERVAL_IN_MILLIS,
 };
 
-use flowy_sync::entities::revision::{Revision, RevisionRange};
-use flowy_sync::util::md5;
+use flowy_http_model::revision::{Revision, RevisionRange};
+use flowy_http_model::util::md5;
 use nanoid::nanoid;
 use parking_lot::RwLock;
 use serde::{Deserialize, Serialize};

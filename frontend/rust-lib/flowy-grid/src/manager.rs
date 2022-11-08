@@ -12,12 +12,12 @@ use bytes::Bytes;
 
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_http_model::revision::Revision;
 use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
     SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
-use flowy_sync::entities::revision::Revision;
 use grid_rev_model::{BuildGridContext, GridRevision, GridViewRevision};
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 

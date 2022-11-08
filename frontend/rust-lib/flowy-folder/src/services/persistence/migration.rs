@@ -6,15 +6,15 @@ use crate::{
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_http_model::revision::Revision;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sync::client_folder::make_folder_rev_json_str;
 use flowy_sync::client_folder::FolderPad;
-use flowy_sync::entities::revision::Revision;
 use flowy_sync::server_folder::FolderOperationsBuilder;
 use folder_rev_model::{AppRevision, FolderRevision, ViewRevision, WorkspaceRevision};
 
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
-use flowy_sync::util::md5;
+use flowy_http_model::util::md5;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "FOLDER_V1_MIGRATION";

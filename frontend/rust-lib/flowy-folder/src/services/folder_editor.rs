@@ -1,18 +1,16 @@
 use crate::manager::FolderId;
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_http_model::revision::Revision;
+use flowy_http_model::ws_data::ServerRevisionWSData;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
+use flowy_sync::client_folder::{FolderChangeset, FolderPad};
 use flowy_sync::util::make_operations_from_revisions;
-use flowy_sync::{
-    client_folder::{FolderChangeset, FolderPad},
-    entities::{revision::Revision, ws_data::ServerRevisionWSData},
-};
 use lib_infra::future::FutureResult;
-
-use flowy_database::ConnectionPool;
 use lib_ot::core::EmptyAttributes;
 use parking_lot::RwLock;
 use std::sync::Arc;
