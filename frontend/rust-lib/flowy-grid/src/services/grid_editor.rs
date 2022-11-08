@@ -94,6 +94,8 @@ impl GridRevisionEditor {
         Ok(editor)
     }
 
+    pub fn close(&self) {}
+
     /// Save the type-option data to disk and send a `GridNotification::DidUpdateField` notification
     /// to dart side.
     ///

@@ -19,6 +19,8 @@ use flowy_revision::{
 };
 use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
 use flowy_sync::entities::revision::Revision;
+use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
+use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -31,7 +33,7 @@ pub trait GridUser: Send + Sync {
 pub type GridTaskSchedulerRwLock = Arc<RwLock<GridTaskScheduler>>;
 
 pub struct GridManager {
-    grid_editors: Arc<DashMap<String, Arc<GridRevisionEditor>>>,
+    grid_editors: RwLock<RefCountHashMap<Arc<GridRevisionEditor>>>,
     grid_user: Arc<dyn GridUser>,
     block_index_cache: Arc<BlockIndexCache>,
     #[allow(dead_code)]
@@ -46,7 +48,7 @@ impl GridManager {
         _rev_web_socket: Arc<dyn RevisionWebSocket>,
         database: Arc<dyn GridDatabase>,
     ) -> Self {
-        let grid_editors = Arc::new(DashMap::new());
+        let grid_editors = RwLock::new(RefCountHashMap::new());
         let kv_persistence = Arc::new(GridKVPersistence::new(database.clone()));
         let block_index_cache = Arc::new(BlockIndexCache::new(database.clone()));
         let task_scheduler = GridTaskScheduler::new();
@@ -107,35 +109,33 @@ impl GridManager {
     pub async fn close_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
-        self.grid_editors.remove(grid_id);
+
+        self.grid_editors.write().await.remove(grid_id);
         self.task_scheduler.write().await.unregister_handler(grid_id);
         Ok(())
     }
 
     // #[tracing::instrument(level = "debug", skip(self), err)]
-    pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
-        match self.grid_editors.get(grid_id) {
+    pub async fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
+        match self.grid_editors.read().await.get(grid_id) {
             None => Err(FlowyError::internal().context("Should call open_grid function first")),
             Some(editor) => Ok(editor.clone()),
         }
     }
 
     async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
-        match self.grid_editors.get(grid_id) {
-            None => {
-                if let Some(editor) = self.grid_editors.get(grid_id) {
-                    tracing::warn!("Grid:{} already open", grid_id);
-                    Ok(editor.clone())
-                } else {
-                    let db_pool = self.grid_user.db_pool()?;
-                    let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
-                    self.grid_editors.insert(grid_id.to_string(), editor.clone());
-                    self.task_scheduler.write().await.register_handler(editor.clone());
-                    Ok(editor)
-                }
-            }
-            Some(editor) => Ok(editor.clone()),
+        if let Some(editor) = self.grid_editors.read().await.get(grid_id) {
+            return Ok(editor.clone());
         }
+
+        let db_pool = self.grid_user.db_pool()?;
+        let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
+        self.grid_editors
+            .write()
+            .await
+            .insert(grid_id.to_string(), editor.clone());
+        self.task_scheduler.write().await.register_handler(editor.clone());
+        Ok(editor)
     }
 
     #[tracing::instrument(level = "trace", skip(self, pool), err)]
@@ -239,4 +239,10 @@ pub async fn make_grid_view_data(
     let _ = grid_manager.create_grid_view(view_id, vec![revision]).await?;
 
     Ok(grid_rev_delta_bytes)
+}
+
+impl RefCountValue for GridRevisionEditor {
+    fn did_remove(&self) {
+        self.close();
+    }
 }

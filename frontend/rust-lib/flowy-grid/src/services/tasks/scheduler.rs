@@ -6,12 +6,13 @@ use crate::services::tasks::task::Task;
 use crate::services::tasks::{TaskContent, TaskId, TaskStatus};
 use flowy_error::FlowyError;
 use lib_infra::future::BoxResultFuture;
+use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{watch, RwLock};
 
-pub(crate) trait GridTaskHandler: Send + Sync + 'static {
+pub(crate) trait GridTaskHandler: Send + Sync + 'static + RefCountValue {
     fn handler_id(&self) -> &str;
 
     fn process_content(&self, content: TaskContent) -> BoxResultFuture<(), FlowyError>;
@@ -21,7 +22,7 @@ pub struct GridTaskScheduler {
     queue: GridTaskQueue,
     store: GridTaskStore,
     notifier: watch::Sender<bool>,
-    handlers: HashMap<TaskHandlerId, Arc<dyn GridTaskHandler>>,
+    handlers: RefCountHashMap<Arc<dyn GridTaskHandler>>,
 }
 
 impl GridTaskScheduler {
@@ -32,7 +33,7 @@ impl GridTaskScheduler {
             queue: GridTaskQueue::new(),
             store: GridTaskStore::new(),
             notifier,
-            handlers: HashMap::new(),
+            handlers: RefCountHashMap::new(),
         };
         // The runner will receive the newest value after start running.
         scheduler.notify();
@@ -54,7 +55,7 @@ impl GridTaskScheduler {
     }
 
     pub(crate) fn unregister_handler<T: AsRef<str>>(&mut self, handler_id: T) {
-        let _ = self.handlers.remove(handler_id.as_ref());
+        self.handlers.remove(handler_id.as_ref());
     }
 
     #[allow(dead_code)]
@@ -110,6 +111,7 @@ mod tests {
     use crate::services::tasks::{GridTaskHandler, GridTaskScheduler, Task, TaskContent, TaskStatus};
     use flowy_error::FlowyError;
     use lib_infra::future::BoxResultFuture;
+    use lib_infra::ref_map::RefCountValue;
     use std::sync::Arc;
     use std::time::Duration;
     use tokio::time::interval;
@@ -169,6 +171,11 @@ mod tests {
         assert_eq!(rx_2.await.unwrap().status, TaskStatus::Done);
     }
     struct MockGridTaskHandler();
+
+    impl RefCountValue for MockGridTaskHandler {
+        fn did_remove(&self) {}
+    }
+
     impl GridTaskHandler for MockGridTaskHandler {
         fn handler_id(&self) -> &str {
             "1"
