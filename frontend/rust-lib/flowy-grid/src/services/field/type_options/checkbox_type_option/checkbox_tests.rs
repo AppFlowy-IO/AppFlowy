@@ -4,7 +4,7 @@ mod tests {
     use crate::services::cell::CellDataOperation;
     use crate::services::field::type_options::checkbox_type_option::*;
     use crate::services::field::FieldBuilder;
-    use flowy_grid_data_model::revision::FieldRevision;
+    use grid_rev_model::FieldRevision;
 
     #[test]
     fn checkout_box_description_test() {

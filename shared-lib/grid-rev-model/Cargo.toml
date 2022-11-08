@@ -1,5 +1,5 @@
 [package]
-name = "flowy-grid-data-model"
+name = "grid-rev-model"
 version = "0.1.0"
 edition = "2021"
 
@@ -13,13 +13,3 @@ serde_repr = "0.1"
 nanoid = "0.4.0"
 flowy-error-code = { path = "../flowy-error-code"}
 indexmap = {version = "1.9.1", features = ["serde"]}
-tracing = { version = "0.1", features = ["log"] }
-
-[build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["protobuf_file_gen"] }
-
-[features]
-default = []
-backend = []
-frontend = []
-dart = ["lib-infra/dart"]

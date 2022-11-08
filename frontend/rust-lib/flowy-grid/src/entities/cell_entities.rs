@@ -1,8 +1,8 @@
+use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{CellRevision, RowChangeset};
+use grid_rev_model::{CellRevision, RowChangeset};
 use std::collections::HashMap;
 
 #[derive(ProtoBuf, Default)]

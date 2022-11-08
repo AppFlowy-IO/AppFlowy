@@ -404,21 +404,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flowy-grid-data-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "flowy-error-code",
- "indexmap",
- "lib-infra",
- "nanoid",
- "serde",
- "serde_json",
- "serde_repr",
- "tracing",
-]
-
-[[package]]
 name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
@@ -428,14 +413,14 @@ dependencies = [
  "dashmap",
  "dissimilar",
  "flowy-derive",
- "flowy-grid-data-model",
  "folder-rev-model",
  "futures",
+ "grid-rev-model",
  "lib-infra",
  "lib-ot",
  "log",
  "md5",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "protobuf",
  "serde",
  "serde_json",
@@ -639,6 +624,20 @@ dependencies = [
  "bitflags",
  "ignore",
  "walkdir",
+]
+
+[[package]]
+name = "grid-rev-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-error-code",
+ "indexmap",
+ "nanoid",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "tracing",
 ]
 
 [[package]]

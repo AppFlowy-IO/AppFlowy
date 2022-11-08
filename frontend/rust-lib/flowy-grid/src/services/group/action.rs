@@ -3,7 +3,7 @@ use crate::services::cell::CellDataIsEmpty;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::Group;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{CellRevision, FieldRevision, RowRevision};
+use grid_rev_model::{CellRevision, FieldRevision, RowRevision};
 use std::sync::Arc;
 
 /// Using polymorphism to provides the customs action for different group controller.

@@ -1,4 +1,4 @@
-use crate::revision::{gen_grid_group_id, FieldTypeRevision};
+use crate::{gen_grid_group_id, FieldTypeRevision};
 use serde::{Deserialize, Serialize};
 use serde_json::Error;
 use serde_repr::*;
@@ -166,7 +166,7 @@ impl std::default::Default for DateCondition {
 
 #[cfg(test)]
 mod tests {
-    use crate::revision::{GroupConfigurationRevision, SelectOptionGroupConfigurationRevision};
+    use crate::{GroupConfigurationRevision, SelectOptionGroupConfigurationRevision};
 
     #[test]
     fn group_configuration_serde_test() {

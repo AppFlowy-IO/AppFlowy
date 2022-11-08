@@ -8,7 +8,7 @@ members = [
   "flowy-derive",
   "flowy-ast",
   "flowy-error-code",
-  "flowy-grid-data-model",
+  "grid-rev-model",
 ]
 
 [profile.dev]

@@ -1,5 +1,5 @@
 use crate::services::cell::AnyCellData;
-use flowy_grid_data_model::revision::CellRevision;
+use grid_rev_model::CellRevision;
 use std::str::FromStr;
 
 pub fn get_cell_data(cell_rev: &CellRevision) -> String {

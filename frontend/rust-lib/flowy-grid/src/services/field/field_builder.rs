@@ -2,7 +2,7 @@ use crate::entities::{FieldPB, FieldType};
 
 use crate::services::field::{default_type_option_builder_from_type, TypeOptionBuilder};
 
-use flowy_grid_data_model::revision::FieldRevision;
+use grid_rev_model::FieldRevision;
 use indexmap::IndexMap;
 
 pub struct FieldBuilder {

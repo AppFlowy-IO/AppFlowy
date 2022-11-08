@@ -12,7 +12,6 @@ use flowy_folder::{
 use flowy_grid::entities::GridLayout;
 use flowy_grid::manager::{make_grid_view_data, GridManager};
 use flowy_grid::util::{make_default_board, make_default_grid};
-use flowy_grid_data_model::revision::BuildGridContext;
 use flowy_net::ClientServerConfiguration;
 use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
@@ -22,6 +21,7 @@ use flowy_sync::entities::revision::Revision;
 use flowy_sync::entities::ws_data::ClientRevisionWSData;
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
+use grid_rev_model::BuildGridContext;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ws::{WSChannel, WSMessageReceiver, WebSocketRawMessage};
 use std::collections::HashMap;

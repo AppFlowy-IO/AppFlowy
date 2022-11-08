@@ -1,7 +1,7 @@
 use crate::entities::{GroupPB, GroupViewChangesetPB};
 use crate::services::group::{default_group_configuration, GeneratedGroupContext, Group};
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{
+use grid_rev_model::{
     FieldRevision, FieldTypeRevision, GroupConfigurationContentSerde, GroupConfigurationRevision, GroupRevision,
 };
 use indexmap::IndexMap;

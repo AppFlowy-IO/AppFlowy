@@ -1,7 +1,7 @@
+use crate::entities::parser::NotEmptyStr;
 use crate::entities::{GroupPB, InsertedRowPB, RowPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
 use std::fmt::Formatter;
 
 #[derive(Debug, Default, ProtoBuf)]

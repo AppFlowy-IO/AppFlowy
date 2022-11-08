@@ -19,7 +19,7 @@ dart-notify = { path = "../dart-notify" }
 lib-dispatch = { path = "../lib-dispatch" }
 flowy-revision = { path = "../flowy-revision" }
 
-parking_lot = "0.11"
+parking_lot = "0.12.1"
 protobuf = {version = "2.18.0"}
 log = "0.4.14"
 diesel = {version = "1.4.8", features = ["sqlite"]}

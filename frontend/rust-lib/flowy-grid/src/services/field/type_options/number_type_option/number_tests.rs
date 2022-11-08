@@ -4,7 +4,7 @@ mod tests {
     use crate::services::cell::CellDataOperation;
     use crate::services::field::FieldBuilder;
     use crate::services::field::{strip_currency_symbol, NumberFormat, NumberTypeOptionPB};
-    use flowy_grid_data_model::revision::FieldRevision;
+    use grid_rev_model::FieldRevision;
     use strum::IntoEnumIterator;
 
     /// Testing when the input is not a number.

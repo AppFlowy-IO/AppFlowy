@@ -4,7 +4,7 @@ use crate::services::group::action::{GroupControllerCustomActions, GroupControll
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::entities::Group;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{
+use grid_rev_model::{
     FieldRevision, GroupConfigurationContentSerde, GroupRevision, RowChangeset, RowRevision, TypeOptionDataDeserializer,
 };
 use std::marker::PhantomData;

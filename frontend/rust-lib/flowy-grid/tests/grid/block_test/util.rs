@@ -5,7 +5,7 @@ use flowy_grid::services::field::{
     DateCellChangesetPB, MultiSelectTypeOptionPB, SelectOptionPB, SingleSelectTypeOptionPB,
 };
 use flowy_grid::services::row::RowRevisionBuilder;
-use flowy_grid_data_model::revision::{FieldRevision, RowRevision};
+use grid_rev_model::{FieldRevision, RowRevision};
 
 use strum::EnumCount;
 

@@ -15,7 +15,6 @@ use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{make_grid_blocks, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder};
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::*;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
@@ -23,6 +22,7 @@ use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeseri
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::{CollaborateError, CollaborateResult};
 use flowy_sync::util::make_operations_from_revisions;
+use grid_rev_model::*;
 use lib_infra::future::{wrap_future, FutureResult};
 
 use flowy_database::ConnectionPool;

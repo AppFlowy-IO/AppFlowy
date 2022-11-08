@@ -1,9 +1,7 @@
 use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_operations_from_revisions, md5};
-use flowy_grid_data_model::revision::{
-    gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision,
-};
+use grid_rev_model::{gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision};
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -281,7 +279,7 @@ impl std::default::Default for GridBlockRevisionPad {
 #[cfg(test)]
 mod tests {
     use crate::client_grid::{GridBlockOperations, GridBlockRevisionPad};
-    use flowy_grid_data_model::revision::{RowChangeset, RowRevision};
+    use grid_rev_model::{RowChangeset, RowRevision};
 
     use std::borrow::Cow;
 
