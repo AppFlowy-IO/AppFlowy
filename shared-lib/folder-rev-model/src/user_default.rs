@@ -1,4 +1,4 @@
-use crate::revision::{
+use crate::{
     gen_app_id, gen_view_id, gen_workspace_id, AppRevision, ViewDataFormatRevision, ViewLayoutTypeRevision,
     ViewRevision, WorkspaceRevision,
 };

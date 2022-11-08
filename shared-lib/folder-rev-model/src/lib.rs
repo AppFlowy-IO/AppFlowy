@@ -1,6 +1,10 @@
+#[macro_use]
+mod macros;
+
 mod app_rev;
 mod folder_rev;
 mod trash_rev;
+pub mod user_default;
 mod view_rev;
 mod workspace_rev;
 

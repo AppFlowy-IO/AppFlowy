@@ -876,8 +876,8 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "serde_json",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -927,10 +927,10 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-folder",
- "flowy-folder-data-model",
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
+ "folder-rev-model",
  "futures",
  "lazy_static",
  "lib-dispatch",
@@ -942,31 +942,10 @@ dependencies = [
  "protobuf",
  "serde",
  "serde_json",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
  "tokio",
  "tracing",
- "unicode-segmentation",
-]
-
-[[package]]
-name = "flowy-folder-data-model"
-version = "0.1.0"
-dependencies = [
- "bytes",
- "chrono",
- "derive_more",
- "flowy-derive",
- "flowy-error-code",
- "lib-infra",
- "log",
- "nanoid",
- "protobuf",
- "serde",
- "serde_json",
- "serde_repr",
- "strum",
- "strum_macros",
  "unicode-segmentation",
 ]
 
@@ -1005,8 +984,8 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_repr",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
  "tokio",
  "tracing",
  "url",
@@ -1040,9 +1019,9 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-folder",
- "flowy-folder-data-model",
  "flowy-sync",
  "flowy-user",
+ "folder-rev-model",
  "futures-util",
  "http-flowy",
  "hyper",
@@ -1058,8 +1037,8 @@ dependencies = [
  "serde",
  "serde-aux",
  "serde_json",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
  "tokio",
  "tracing",
 ]
@@ -1081,8 +1060,8 @@ dependencies = [
  "parking_lot 0.11.2",
  "serde",
  "serde_json",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
  "tokio",
  "tracing",
 ]
@@ -1128,8 +1107,8 @@ dependencies = [
  "dashmap",
  "dissimilar",
  "flowy-derive",
- "flowy-folder-data-model",
  "flowy-grid-data-model",
+ "folder-rev-model",
  "futures",
  "lib-infra",
  "lib-ot",
@@ -1139,8 +1118,8 @@ dependencies = [
  "protobuf",
  "serde",
  "serde_json",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
  "tokio",
  "tracing",
  "url",
@@ -1209,8 +1188,8 @@ dependencies = [
  "serde",
  "serde_json",
  "serial_test",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
  "tokio",
  "tracing",
  "unicode-segmentation",
@@ -1222,6 +1201,20 @@ name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
+
+[[package]]
+name = "folder-rev-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "chrono",
+ "nanoid",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "strum 0.24.1",
+ "strum_macros 0.24.3",
+]
 
 [[package]]
 name = "foreign-types"
@@ -1457,6 +1450,12 @@ checksum = "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c"
 dependencies = [
  "unicode-segmentation",
 ]
+
+[[package]]
+name = "heck"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2540771e65fc8cb83cd6e8a237f70c319bd5c29f78ed1084ba5d50eeac86f7f9"
 
 [[package]]
 name = "hermit-abi"
@@ -1782,8 +1781,8 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_repr",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
  "thiserror",
  "tokio",
  "tracing",
@@ -1822,8 +1821,8 @@ dependencies = [
  "paste",
  "pin-project",
  "protobuf",
- "strum",
- "strum_macros",
+ "strum 0.21.0",
+ "strum_macros 0.21.1",
  "tokio",
  "tokio-tungstenite",
  "tracing",
@@ -3112,14 +3111,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aaf86bbcfd1fa9670b7a129f64fc0c9fcbbfe4f1bc4210e9e98fe71ffc12cde2"
 
 [[package]]
+name = "strum"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "063e6045c0e62079840579a7e47a355ae92f60eb74daaf156fb1e84ba164e63f"
+
+[[package]]
 name = "strum_macros"
 version = "0.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d06aaeeee809dbc59eb4556183dd927df67db1540de5be8d3ec0b6636358a5ec"
 dependencies = [
- "heck",
+ "heck 0.3.3",
  "proc-macro2",
  "quote",
+ "syn",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.24.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e385be0d24f186b4ce2f9982191e7101bb737312ad61c1f2f984f34bcf85d59"
+dependencies = [
+ "heck 0.4.0",
+ "proc-macro2",
+ "quote",
+ "rustversion",
  "syn",
 ]
 

@@ -12,7 +12,7 @@ use crate::{
     },
 };
 
-use flowy_folder_data_model::revision::AppRevision;
+use folder_rev_model::AppRevision;
 use futures::{FutureExt, StreamExt};
 use std::{collections::HashSet, sync::Arc};
 

@@ -1,0 +1,16 @@
+[package]
+name = "folder-rev-model"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bytes = "1.0"
+strum = "0.24.1"
+strum_macros = "0.24.3"
+nanoid = "0.4.0"
+chrono = { version = "0.4" }
+serde = { version = "1.0", features = ["derive", "rc"] }
+serde_json = "1.0"
+serde_repr = "0.1"

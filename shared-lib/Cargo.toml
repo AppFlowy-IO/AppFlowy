@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "flowy-folder-data-model",
+  "folder-rev-model",
   "flowy-sync",
   "lib-ot",
   "lib-ws",

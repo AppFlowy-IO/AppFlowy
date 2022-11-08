@@ -1,4 +1,4 @@
-use crate::revision::AppRevision;
+use crate::AppRevision;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 pub fn gen_workspace_id() -> String {

@@ -1,4 +1,4 @@
-use crate::revision::{TrashRevision, TrashTypeRevision, ViewRevision};
+use crate::{TrashRevision, TrashTypeRevision, ViewRevision};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 
