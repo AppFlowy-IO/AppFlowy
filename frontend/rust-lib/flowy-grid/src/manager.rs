@@ -1,15 +1,15 @@
 use crate::entities::GridLayout;
-use crate::services::block_editor::GridBlockRevisionCompress;
+
 use crate::services::grid_editor::{GridRevisionCompress, GridRevisionEditor};
 use crate::services::grid_view_manager::make_grid_view_rev_manager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::migration::GridMigration;
-use crate::services::persistence::rev_sqlite::{SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionPersistence};
+use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
 use crate::services::persistence::GridDatabase;
 use crate::services::tasks::GridTaskScheduler;
 use bytes::Bytes;
-use dashmap::DashMap;
+
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{BuildGridContext, GridRevision, GridViewRevision};
@@ -20,7 +20,8 @@ use flowy_revision::{
 use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
 use flowy_sync::entities::revision::Revision;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
-use std::collections::HashMap;
+
+use crate::services::block_manager::make_grid_block_rev_manager;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -92,8 +93,7 @@ impl GridManager {
     #[tracing::instrument(level = "debug", skip_all, err)]
     pub async fn create_grid_block<T: AsRef<str>>(&self, block_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let block_id = block_id.as_ref();
-        let db_pool = self.grid_user.db_pool()?;
-        let rev_manager = self.make_grid_block_rev_manager(block_id, db_pool)?;
+        let rev_manager = make_grid_block_rev_manager(&self.grid_user, block_id)?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
     }
@@ -119,13 +119,13 @@ impl GridManager {
     pub async fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
         match self.grid_editors.read().await.get(grid_id) {
             None => Err(FlowyError::internal().context("Should call open_grid function first")),
-            Some(editor) => Ok(editor.clone()),
+            Some(editor) => Ok(editor),
         }
     }
 
     async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
         if let Some(editor) = self.grid_editors.read().await.get(grid_id) {
-            return Ok(editor.clone());
+            return Ok(editor);
         }
 
         let db_pool = self.grid_user.db_pool()?;
@@ -164,27 +164,11 @@ impl GridManager {
     ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::new(2);
+        let configuration = RevisionPersistenceConfiguration::new(2, false);
         let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache, configuration);
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(grid_id, pool);
         let rev_compactor = GridRevisionCompress();
         let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence, rev_compactor, snapshot_persistence);
-        Ok(rev_manager)
-    }
-
-    fn make_grid_block_rev_manager(
-        &self,
-        block_id: &str,
-        pool: Arc<ConnectionPool>,
-    ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
-        let user_id = self.grid_user.user_id()?;
-        let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
-        let configuration = RevisionPersistenceConfiguration::new(4);
-        let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache, configuration);
-        let rev_compactor = GridBlockRevisionCompress();
-        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
-        let rev_manager =
-            RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
         Ok(rev_manager)
     }
 }

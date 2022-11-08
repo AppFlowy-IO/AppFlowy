@@ -60,7 +60,7 @@ where
     }
 
     async fn reset_object(&self) -> FlowyResult<()> {
-        let configuration = RevisionPersistenceConfiguration::new(2);
+        let configuration = RevisionPersistenceConfiguration::new(2, false);
         let rev_persistence = Arc::new(RevisionPersistence::from_disk_cache(
             &self.user_id,
             self.target.target_id(),

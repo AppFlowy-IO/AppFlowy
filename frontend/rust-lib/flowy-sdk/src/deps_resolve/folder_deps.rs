@@ -165,7 +165,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = manager.close_document_editor(view_id)?;
+            let _ = manager.close_document_editor(view_id).await?;
             Ok(())
         })
     }

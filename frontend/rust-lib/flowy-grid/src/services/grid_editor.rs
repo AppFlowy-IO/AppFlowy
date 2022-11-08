@@ -94,7 +94,13 @@ impl GridRevisionEditor {
         Ok(editor)
     }
 
-    pub fn close(&self) {}
+    #[tracing::instrument(name = "close grid editor", level = "trace", skip_all)]
+    pub fn close(&self) {
+        let rev_manager = self.rev_manager.clone();
+        tokio::spawn(async move {
+            rev_manager.close().await;
+        });
+    }
 
     /// Save the type-option data to disk and send a `GridNotification::DidUpdateField` notification
     /// to dart side.

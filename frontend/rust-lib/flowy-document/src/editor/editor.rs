@@ -83,7 +83,13 @@ fn spawn_edit_queue(
 }
 
 impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
-    fn close(&self) {}
+    #[tracing::instrument(name = "close document editor", level = "trace", skip_all)]
+    fn close(&self) {
+        let rev_manager = self.rev_manager.clone();
+        tokio::spawn(async move {
+            rev_manager.close().await;
+        });
+    }
 
     fn export(&self) -> FutureResult<String, FlowyError> {
         let this = self.clone();

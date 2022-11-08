@@ -123,6 +123,10 @@ impl<Connection: 'static> RevisionManager<Connection> {
         B::deserialize_revisions(&self.object_id, revisions)
     }
 
+    pub async fn close(&self) {
+        let _ = self.rev_persistence.compact_lagging_revisions(&self.rev_compress).await;
+    }
+
     pub async fn load_revisions(&self) -> FlowyResult<Vec<Revision>> {
         let revisions = RevisionLoader {
             object_id: self.object_id.clone(),

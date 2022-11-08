@@ -1,4 +1,4 @@
-use crate::services::tasks::queue::{GridTaskQueue, TaskHandlerId};
+use crate::services::tasks::queue::GridTaskQueue;
 use crate::services::tasks::runner::GridTaskRunner;
 use crate::services::tasks::store::GridTaskStore;
 use crate::services::tasks::task::Task;
@@ -7,22 +7,28 @@ use crate::services::tasks::{TaskContent, TaskId, TaskStatus};
 use flowy_error::FlowyError;
 use lib_infra::future::BoxResultFuture;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
-use std::collections::HashMap;
+
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{watch, RwLock};
 
-pub(crate) trait GridTaskHandler: Send + Sync + 'static + RefCountValue {
+pub(crate) trait GridTaskHandler: Send + Sync + 'static {
     fn handler_id(&self) -> &str;
 
     fn process_content(&self, content: TaskContent) -> BoxResultFuture<(), FlowyError>;
+}
+
+#[derive(Clone)]
+struct RefCountTaskHandler(Arc<dyn GridTaskHandler>);
+impl RefCountValue for RefCountTaskHandler {
+    fn did_remove(&self) {}
 }
 
 pub struct GridTaskScheduler {
     queue: GridTaskQueue,
     store: GridTaskStore,
     notifier: watch::Sender<bool>,
-    handlers: RefCountHashMap<Arc<dyn GridTaskHandler>>,
+    handlers: RefCountHashMap<RefCountTaskHandler>,
 }
 
 impl GridTaskScheduler {
@@ -51,7 +57,7 @@ impl GridTaskScheduler {
         T: GridTaskHandler,
     {
         let handler_id = handler.handler_id().to_owned();
-        self.handlers.insert(handler_id, handler);
+        self.handlers.insert(handler_id, RefCountTaskHandler(handler));
     }
 
     pub(crate) fn unregister_handler<T: AsRef<str>>(&mut self, handler_id: T) {
@@ -74,7 +80,7 @@ impl GridTaskScheduler {
         let content = task.content.take()?;
 
         task.set_status(TaskStatus::Processing);
-        let _ = match handler.process_content(content).await {
+        let _ = match handler.0.process_content(content).await {
             Ok(_) => {
                 task.set_status(TaskStatus::Done);
                 let _ = ret.send(task.into());

@@ -70,6 +70,7 @@ pub enum FolderScript {
     DeleteAllTrash,
 
     // Sync
+    #[allow(dead_code)]
     AssertCurrentRevId(i64),
     AssertNextSyncRevId(Option<i64>),
     AssertRevisionState {

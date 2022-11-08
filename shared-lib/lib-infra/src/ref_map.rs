@@ -22,16 +22,26 @@ impl<T> RefCountHandler<T> {
 
 pub struct RefCountHashMap<T>(HashMap<String, RefCountHandler<T>>);
 
+impl<T> std::default::Default for RefCountHashMap<T> {
+    fn default() -> Self {
+        Self(HashMap::new())
+    }
+}
+
 impl<T> RefCountHashMap<T>
 where
     T: Clone + Send + Sync + RefCountValue,
 {
     pub fn new() -> Self {
-        Self(Default::default())
+        Self::default()
     }
 
     pub fn get(&self, key: &str) -> Option<T> {
-        self.0.get(key).and_then(|handler| Some(handler.inner.clone()))
+        self.0.get(key).map(|handler| handler.inner.clone())
+    }
+
+    pub fn values(&self) -> Vec<T> {
+        self.0.values().map(|value| value.inner.clone()).collect::<Vec<T>>()
     }
 
     pub fn insert(&mut self, key: String, value: T) {

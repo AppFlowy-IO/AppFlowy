@@ -63,7 +63,7 @@ impl RevisionTest {
     pub async fn new_with_configuration(merge_threshold: i64) -> Self {
         let user_id = nanoid!(10);
         let object_id = nanoid!(6);
-        let configuration = RevisionPersistenceConfiguration::new(merge_threshold as usize);
+        let configuration = RevisionPersistenceConfiguration::new(merge_threshold as usize, false);
         let disk_cache = RevisionDiskCacheMock::new(vec![]);
         let persistence = RevisionPersistence::new(&user_id, &object_id, disk_cache, configuration.clone());
         let compress = RevisionCompressMock {};

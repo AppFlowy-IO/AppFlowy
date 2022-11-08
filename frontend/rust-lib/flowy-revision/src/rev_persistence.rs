@@ -17,22 +17,32 @@ pub const REVISION_WRITE_INTERVAL_IN_MILLIS: u64 = 600;
 #[derive(Clone)]
 pub struct RevisionPersistenceConfiguration {
     merge_threshold: usize,
+    merge_lagging: bool,
 }
 
 impl RevisionPersistenceConfiguration {
-    pub fn new(merge_threshold: usize) -> Self {
+    pub fn new(merge_threshold: usize, merge_lagging: bool) -> Self {
         debug_assert!(merge_threshold > 1);
         if merge_threshold > 1 {
-            Self { merge_threshold }
+            Self {
+                merge_threshold,
+                merge_lagging,
+            }
         } else {
-            Self { merge_threshold: 100 }
+            Self {
+                merge_threshold: 100,
+                merge_lagging,
+            }
         }
     }
 }
 
 impl std::default::Default for RevisionPersistenceConfiguration {
     fn default() -> Self {
-        Self { merge_threshold: 100 }
+        Self {
+            merge_threshold: 100,
+            merge_lagging: false,
+        }
     }
 }
 
@@ -98,6 +108,36 @@ where
         Ok(())
     }
 
+    #[tracing::instrument(level = "trace", skip_all, err)]
+    pub async fn compact_lagging_revisions<'a>(
+        &'a self,
+        rev_compress: &Arc<dyn RevisionMergeable + 'a>,
+    ) -> FlowyResult<()> {
+        if !self.configuration.merge_lagging {
+            return Ok(());
+        }
+
+        let mut sync_seq = self.sync_seq.write().await;
+        let compact_seq = sync_seq.compact();
+        if !compact_seq.is_empty() {
+            let range = RevisionRange {
+                start: *compact_seq.front().unwrap(),
+                end: *compact_seq.back().unwrap(),
+            };
+
+            let revisions = self.revisions_in_range(&range).await?;
+            debug_assert_eq!(range.len() as usize, revisions.len());
+            // compact multiple revisions into one
+            let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
+            tracing::Span::current().record("rev_id", &merged_revision.rev_id);
+            let _ = sync_seq.recv(merged_revision.rev_id)?;
+
+            // replace the revisions in range with compact revision
+            self.compact(&range, merged_revision).await?;
+        }
+        Ok(())
+    }
+
     /// Save the revision to disk and append it to the end of the sync sequence.
     #[tracing::instrument(level = "trace", skip_all, fields(rev_id, compact_range, object_id=%self.object_id), err)]
     pub(crate) async fn add_sync_revision<'a>(
@@ -108,7 +148,7 @@ where
         let mut sync_seq = self.sync_seq.write().await;
         let compact_length = sync_seq.compact_length;
 
-        // Before the new_revision is pushed into the sync_seq, we check if the current `step` of the
+        // Before the new_revision is pushed into the sync_seq, we check if the current `compact_length` of the
         // sync_seq is less equal to or greater than the merge threshold. If yes, it's needs to merged
         // with the new_revision into one revision.
         let mut compact_seq = VecDeque::default();
