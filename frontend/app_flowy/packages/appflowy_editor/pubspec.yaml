@@ -27,6 +27,7 @@ dependencies:
   intl:
   flutter_localizations:
     sdk: flutter
+  markdown: ^6.0.1
 
 dev_dependencies:
   flutter_test:
