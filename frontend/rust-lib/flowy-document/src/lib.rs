@@ -16,7 +16,7 @@ pub mod errors {
 pub const TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS: u64 = 1000;
 
 use crate::errors::FlowyError;
-use flowy_sync::entities::document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams};
+use flowy_http_model::document::{CreateDocumentParams, DocumentIdPB, DocumentPayloadPB, ResetDocumentParams};
 use lib_infra::future::FutureResult;
 
 pub trait DocumentCloudService: Send + Sync {

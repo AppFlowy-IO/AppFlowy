@@ -1,11 +1,12 @@
 use crate::errors::internal_error;
 use crate::server_folder::{FolderOperations, FolderOperationsBuilder};
-use crate::util::{cal_diff, md5};
+use crate::util::cal_diff;
 use crate::{
     client_folder::builder::FolderPadBuilder,
-    entities::revision::Revision,
     errors::{CollaborateError, CollaborateResult},
 };
+use flowy_http_model::revision::Revision;
+use flowy_http_model::util::md5;
 use folder_rev_model::{AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_infra::util::move_vec_element;
 use lib_ot::core::*;

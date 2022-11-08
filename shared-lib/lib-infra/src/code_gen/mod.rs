@@ -1,13 +1,13 @@
-#[cfg(feature = "protobuf_file_gen")]
+#[cfg(feature = "proto_gen")]
 pub mod protobuf_file;
 
 #[cfg(feature = "dart_event")]
 pub mod dart_event;
 
-#[cfg(any(feature = "protobuf_file_gen", feature = "dart_event"))]
+#[cfg(any(feature = "proto_gen", feature = "dart_event"))]
 mod flowy_toml;
 
-#[cfg(any(feature = "protobuf_file_gen", feature = "dart_event"))]
+#[cfg(any(feature = "proto_gen", feature = "dart_event"))]
 pub mod util;
 
 #[derive(serde::Serialize, serde::Deserialize)]

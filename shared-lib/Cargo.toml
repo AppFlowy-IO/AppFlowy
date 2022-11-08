@@ -2,6 +2,7 @@
 members = [
   "folder-rev-model",
   "flowy-sync",
+  "flowy-http-model",
   "lib-ot",
   "lib-ws",
   "lib-infra",

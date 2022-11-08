@@ -10,8 +10,9 @@ use crate::{
 };
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_http_model::revision::Revision;
 use flowy_revision::disk::{RevisionDiskCache, RevisionState, SyncRecord};
-use flowy_sync::{client_folder::FolderPad, entities::revision::Revision};
+use flowy_sync::client_folder::FolderPad;
 use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;

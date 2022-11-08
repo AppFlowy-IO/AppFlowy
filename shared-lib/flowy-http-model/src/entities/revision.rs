@@ -3,8 +3,6 @@ use bytes::Bytes;
 use flowy_derive::ProtoBuf;
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
 
-pub type RevisionObject = lib_ot::text_delta::DeltaTextOperations;
-
 #[derive(PartialEq, Eq, Clone, Default, ProtoBuf)]
 pub struct Revision {
     #[pb(index = 1)]
@@ -73,14 +71,6 @@ impl std::fmt::Debug for Revision {
         let _ = f.write_fmt(format_args!("object_id {}, ", self.object_id))?;
         let _ = f.write_fmt(format_args!("base_rev_id {}, ", self.base_rev_id))?;
         let _ = f.write_fmt(format_args!("rev_id {}, ", self.rev_id))?;
-        match RevisionObject::from_bytes(&self.bytes) {
-            Ok(object) => {
-                let _ = f.write_fmt(format_args!("object {:?}", object.json_str()))?;
-            }
-            Err(e) => {
-                let _ = f.write_fmt(format_args!("object {:?}", e))?;
-            }
-        }
         Ok(())
     }
 }

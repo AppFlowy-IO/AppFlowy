@@ -1,14 +1,15 @@
-use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::server_folder::folder_pad::{FolderOperations, FolderRevisionSynchronizer};
 use crate::{
-    entities::{folder::FolderInfo, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
-    protobuf::ClientRevisionWSData,
     server_folder::folder_pad::ServerFolder,
     synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionUser},
     util::rev_id_from_str,
 };
 use async_stream::stream;
+use flowy_http_model::folder::FolderInfo;
+use flowy_http_model::protobuf::ClientRevisionWSData;
+use flowy_http_model::revision::{RepeatedRevision, Revision};
+use flowy_http_model::ws_data::ServerRevisionWSDataBuilder;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
 use std::{collections::HashMap, fmt::Debug, sync::Arc};

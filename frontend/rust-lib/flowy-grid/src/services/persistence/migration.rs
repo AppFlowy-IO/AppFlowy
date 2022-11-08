@@ -1,15 +1,14 @@
 use crate::manager::GridUser;
+use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
 use crate::services::persistence::GridDatabase;
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_error::FlowyResult;
+use flowy_http_model::revision::Revision;
+use flowy_http_model::util::md5;
 use flowy_revision::reset::{RevisionResettable, RevisionStructReset};
 use flowy_sync::client_grid::{make_grid_rev_json_str, GridOperationsBuilder, GridRevisionPad};
-use flowy_sync::entities::revision::Revision;
-use flowy_sync::util::md5;
 use grid_rev_model::GridRevision;
-
-use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "GRID_V1_MIGRATION";

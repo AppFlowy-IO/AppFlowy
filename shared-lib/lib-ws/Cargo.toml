@@ -28,7 +28,7 @@ parking_lot = "0.12.1"
 dashmap = "5"
 
 [build-dependencies]
-lib-infra = { path = "../lib-infra", features = ["protobuf_file_gen"] }
+lib-infra = { path = "../lib-infra", features = ["proto_gen"] }
 
 [dev-dependencies]
 tokio = {version = "1", features = ["full"]}

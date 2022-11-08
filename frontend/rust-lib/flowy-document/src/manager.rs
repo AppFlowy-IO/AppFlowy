@@ -8,13 +8,13 @@ use bytes::Bytes;
 
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
+use flowy_http_model::util::md5;
+use flowy_http_model::{document::DocumentIdPB, revision::Revision, ws_data::ServerRevisionWSData};
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
     SQLiteRevisionSnapshotPersistence,
 };
 use flowy_sync::client_document::initial_delta_document_content;
-use flowy_sync::entities::{document::DocumentIdPB, revision::Revision, ws_data::ServerRevisionWSData};
-use flowy_sync::util::md5;
 use lib_infra::future::FutureResult;
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use lib_ws::WSConnectState;
@@ -307,7 +307,7 @@ impl RevisionCloudService for DocumentRevisionCloudService {
             match server.fetch_document(&token, params).await? {
                 None => Err(FlowyError::record_not_found().context("Remote doesn't have this document")),
                 Some(payload) => {
-                    let bytes = Bytes::from(payload.content.clone());
+                    let bytes = Bytes::from(payload.data.clone());
                     let doc_md5 = md5(&bytes);
                     let revision = Revision::new(&payload.doc_id, payload.base_rev_id, payload.rev_id, bytes, doc_md5);
                     Ok(vec![revision])

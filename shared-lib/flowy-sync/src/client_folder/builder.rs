@@ -1,11 +1,11 @@
 use crate::util::make_operations_from_revisions;
 use crate::{
     client_folder::{default_folder_operations, FolderPad},
-    entities::revision::Revision,
     errors::CollaborateResult,
 };
 
 use crate::server_folder::FolderOperations;
+use flowy_http_model::revision::Revision;
 use folder_rev_model::{TrashRevision, WorkspaceRevision};
 use serde::{Deserialize, Serialize};
 

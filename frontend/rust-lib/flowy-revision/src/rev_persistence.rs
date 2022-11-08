@@ -6,7 +6,7 @@ use crate::disk::{RevisionState, SyncRecord};
 use crate::memory::RevisionMemoryCache;
 use crate::RevisionMergeable;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_sync::entities::revision::{Revision, RevisionRange};
+use flowy_http_model::revision::{Revision, RevisionRange};
 use std::collections::VecDeque;
 use std::{borrow::Cow, sync::Arc};
 use tokio::sync::RwLock;

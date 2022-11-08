@@ -1,10 +1,7 @@
-use crate::{
-    entities::revision::{RepeatedRevision, RevId, Revision, RevisionRange},
-    errors::CollaborateError,
-};
+use crate::entities::revision::{RepeatedRevision, RevId, Revision, RevisionRange};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use std::convert::{TryFrom, TryInto};
+use std::convert::TryInto;
 
 #[derive(Debug, Clone, ProtoBuf_Enum, Eq, PartialEq, Hash)]
 pub enum ClientRevisionWSDataType {
@@ -12,16 +9,16 @@ pub enum ClientRevisionWSDataType {
     ClientPing = 1,
 }
 
-impl ClientRevisionWSDataType {
-    pub fn data<T>(&self, bytes: Bytes) -> Result<T, CollaborateError>
-    where
-        T: TryFrom<Bytes, Error = CollaborateError>,
-    {
-        T::try_from(bytes)
-    }
-}
+// impl ClientRevisionWSDataType {
+//     pub fn data<T>(&self, bytes: Bytes) -> Result<T, String>
+//     where
+//         T: TryFrom<Bytes, Error = String>,
+//     {
+//         T::try_from(bytes)
+//     }
+// }
 
-impl std::default::Default for ClientRevisionWSDataType {
+impl Default for ClientRevisionWSDataType {
     fn default() -> Self {
         ClientRevisionWSDataType::ClientPushRev
     }
@@ -39,7 +36,7 @@ pub struct ClientRevisionWSData {
     pub revisions: RepeatedRevision,
 
     #[pb(index = 4)]
-    data_id: String,
+    pub data_id: String,
 }
 
 impl ClientRevisionWSData {
@@ -79,7 +76,7 @@ pub enum ServerRevisionWSDataType {
     UserConnect = 3,
 }
 
-impl std::default::Default for ServerRevisionWSDataType {
+impl Default for ServerRevisionWSDataType {
     fn default() -> Self {
         ServerRevisionWSDataType::ServerPushRev
     }

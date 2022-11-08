@@ -1,9 +1,5 @@
-use crate::{
-    entities::revision::{RepeatedRevision, Revision},
-    errors::CollaborateError,
-};
+use crate::entities::revision::{RepeatedRevision, Revision};
 use flowy_derive::ProtoBuf;
-use lib_ot::text_delta::DeltaTextOperations;
 
 #[derive(ProtoBuf, Default, Debug, Clone)]
 pub struct CreateDocumentParams {
@@ -20,7 +16,7 @@ pub struct DocumentPayloadPB {
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub content: String,
+    pub data: Vec<u8>,
 
     #[pb(index = 3)]
     pub rev_id: i64,
@@ -30,20 +26,16 @@ pub struct DocumentPayloadPB {
 }
 
 impl std::convert::TryFrom<Revision> for DocumentPayloadPB {
-    type Error = CollaborateError;
+    type Error = String;
 
     fn try_from(revision: Revision) -> Result<Self, Self::Error> {
         if !revision.is_initial() {
-            return Err(CollaborateError::revision_conflict()
-                .context("Revision's rev_id should be 0 when creating the document"));
+            return Err("Revision's rev_id should be 0 when creating the document".to_string());
         }
-
-        let delta = DeltaTextOperations::from_bytes(&revision.bytes)?;
-        let doc_json = delta.json_str();
 
         Ok(DocumentPayloadPB {
             doc_id: revision.object_id,
-            content: doc_json,
+            data: revision.bytes,
             rev_id: revision.rev_id,
             base_rev_id: revision.base_rev_id,
         })

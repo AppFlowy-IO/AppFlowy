@@ -5,7 +5,7 @@ use flowy_database::{
     ConnectionPool,
 };
 use flowy_error::{internal_error, FlowyResult};
-use flowy_sync::entities::revision::Revision;
+use flowy_http_model::revision::Revision;
 use std::sync::Arc;
 
 pub struct SQLiteRevisionHistoryPersistence {

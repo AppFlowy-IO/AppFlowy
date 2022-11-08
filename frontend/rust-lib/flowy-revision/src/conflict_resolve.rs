@@ -1,7 +1,7 @@
 use crate::{RevisionMD5, RevisionManager};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::entities::{
+use flowy_http_model::{
     revision::{RepeatedRevision, Revision, RevisionRange},
     ws_data::ServerRevisionWSDataType,
 };

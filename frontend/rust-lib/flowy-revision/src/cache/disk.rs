@@ -1,5 +1,5 @@
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::entities::revision::{RevId, Revision, RevisionRange};
+use flowy_http_model::revision::{RevId, Revision, RevisionRange};
 use std::fmt::Debug;
 use std::sync::Arc;
 

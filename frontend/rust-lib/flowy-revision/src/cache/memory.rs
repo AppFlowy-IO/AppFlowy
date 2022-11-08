@@ -2,7 +2,7 @@ use crate::disk::SyncRecord;
 use crate::REVISION_WRITE_INTERVAL_IN_MILLIS;
 use dashmap::DashMap;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_sync::entities::revision::RevisionRange;
+use flowy_http_model::revision::RevisionRange;
 use std::{borrow::Cow, sync::Arc, time::Duration};
 use tokio::{sync::RwLock, task::JoinHandle};
 
