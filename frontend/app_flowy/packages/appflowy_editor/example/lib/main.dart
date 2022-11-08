@@ -111,47 +111,6 @@ class _MyHomePageState extends State<MyHomePage> {
             if (!darkMode) ...lightEditorStyleExtension,
             if (!darkMode) ...lightPlguinStyleExtension,
           ]);
-          final delta = Delta();
-          delta.add(TextInsert('Hello '));
-          delta.add(
-            TextInsert(
-              'World',
-              attributes: {
-                BuiltInAttributeKey.bold: true,
-                BuiltInAttributeKey.italic: true,
-              },
-            ),
-          );
-          delta.add(
-            TextInsert(
-              ' ',
-            ),
-          );
-          delta.add(
-            TextInsert(
-              'Again',
-              attributes: {
-                BuiltInAttributeKey.italic: true,
-              },
-            ),
-          );
-          delta.add(
-            TextInsert(
-              ' ',
-            ),
-          );
-          delta.add(
-            TextInsert(
-              'Again',
-              attributes: {
-                BuiltInAttributeKey.href: 'https://google.com',
-                BuiltInAttributeKey.italic: true,
-                BuiltInAttributeKey.bold: true,
-                BuiltInAttributeKey.strikethrough: true,
-              },
-            ),
-          );
-          final result = DeltaMarkdownEncoder().convert(delta);
           return Container(
             color: darkMode ? Colors.black : Colors.white,
             width: MediaQuery.of(context).size.width,
