@@ -1070,10 +1070,7 @@ dependencies = [
 name = "flowy-sdk"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "bytes",
- "claim 0.5.0",
- "color-eyre",
  "flowy-database",
  "flowy-document",
  "flowy-folder",
@@ -1083,16 +1080,12 @@ dependencies = [
  "flowy-revision",
  "flowy-user",
  "futures-core",
- "futures-util",
  "grid-rev-model",
  "lib-dispatch",
  "lib-infra",
  "lib-log",
  "lib-ws",
- "log",
  "parking_lot 0.12.1",
- "protobuf",
- "serde",
  "tokio",
  "tracing",
 ]

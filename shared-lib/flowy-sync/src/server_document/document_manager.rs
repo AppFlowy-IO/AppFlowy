@@ -217,7 +217,7 @@ impl OpenDocumentHandler {
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();
 
-        let operations = DeltaTextOperations::from_bytes(&doc.content)?;
+        let operations = DeltaTextOperations::from_bytes(&doc.data)?;
         let sync_object = ServerDocument::from_operations(&doc_id, operations);
         let synchronizer = Arc::new(DocumentRevisionSynchronizer::new(doc.rev_id, sync_object, persistence));
 

@@ -125,11 +125,9 @@ pub fn make_document_from_revision_pbs(
         delta = delta.compose(&new_delta)?;
     }
 
-    let text = delta.json_str();
-
     Ok(Some(DocumentPayloadPB {
         doc_id: doc_id.to_owned(),
-        content: text,
+        data: delta.json_bytes().to_vec(),
         rev_id,
         base_rev_id,
     }))

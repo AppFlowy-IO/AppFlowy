@@ -16,7 +16,7 @@ pub struct DocumentPayloadPB {
     pub doc_id: String,
 
     #[pb(index = 2)]
-    pub content: String,
+    pub data: Vec<u8>,
 
     #[pb(index = 3)]
     pub rev_id: i64,
@@ -33,12 +33,9 @@ impl std::convert::TryFrom<Revision> for DocumentPayloadPB {
             return Err("Revision's rev_id should be 0 when creating the document".to_string());
         }
 
-        // let delta = DeltaTextOperations::from_bytes(&revision.bytes)?;
-        // let doc_json = delta.json_str();
-
         Ok(DocumentPayloadPB {
             doc_id: revision.object_id,
-            content: "".to_string(),
+            data: revision.bytes,
             rev_id: revision.rev_id,
             base_rev_id: revision.base_rev_id,
         })
