@@ -44,9 +44,11 @@ class SelectOptionTypeOptionWidget extends StatelessWidget {
             const TypeOptionSeparator(),
             const OptionTitle(),
             if (state.isEditingOption)
-              const Padding(
-                padding: EdgeInsets.only(bottom: 10),
-                child: _CreateOptionTextField(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: _CreateOptionTextField(
+                  popoverMutex: popoverMutex,
+                ),
               ),
             if (state.options.isEmpty && !state.isEditingOption)
               const _AddOptionButton(),
@@ -246,8 +248,35 @@ class _AddOptionButton extends StatelessWidget {
   }
 }
 
-class _CreateOptionTextField extends StatelessWidget {
-  const _CreateOptionTextField({Key? key}) : super(key: key);
+class _CreateOptionTextField extends StatefulWidget {
+  final PopoverMutex? popoverMutex;
+  const _CreateOptionTextField({
+    Key? key,
+    this.popoverMutex,
+  }) : super(key: key);
+
+  @override
+  State<_CreateOptionTextField> createState() => _CreateOptionTextFieldState();
+}
+
+class _CreateOptionTextFieldState extends State<_CreateOptionTextField> {
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    _focusNode = FocusNode();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus) {
+        widget.popoverMutex?.close();
+      }
+    });
+    widget.popoverMutex?.listenOnPopoverChanged(() {
+      if (_focusNode.hasFocus) {
+        _focusNode.unfocus();
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -258,6 +287,7 @@ class _CreateOptionTextField extends StatelessWidget {
           autoClearWhenDone: true,
           maxLength: 30,
           text: text,
+          focusNode: _focusNode,
           onCanceled: () {
             context
                 .read<SelectOptionTypeOptionBloc>()

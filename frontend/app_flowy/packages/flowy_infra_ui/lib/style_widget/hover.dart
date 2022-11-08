@@ -51,7 +51,7 @@ class _FlowyHoverState extends State<FlowyHover> {
     return MouseRegion(
       cursor: widget.cursor != null ? widget.cursor! : SystemMouseCursors.click,
       opaque: false,
-      onEnter: (p) {
+      onHover: (p) {
         if (_onHover) return;
 
         if (widget.buildWhenOnHover?.call() ?? true) {

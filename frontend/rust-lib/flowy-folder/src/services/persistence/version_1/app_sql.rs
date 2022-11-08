@@ -8,7 +8,7 @@ use flowy_database::{
     schema::{app_table, app_table::dsl},
     SqliteConnection,
 };
-use flowy_folder_data_model::revision::AppRevision;
+use folder_rev_model::AppRevision;
 
 pub struct AppTableSql();
 impl AppTableSql {

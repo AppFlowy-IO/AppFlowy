@@ -1,6 +1,7 @@
 import 'package:flowy_infra/text_style.dart';
 import 'package:flowy_infra_ui/widget/rounded_input_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
 class InputTextField extends StatefulWidget {
@@ -10,6 +11,7 @@ class InputTextField extends StatefulWidget {
   final bool autoClearWhenDone;
   final String text;
   final int? maxLength;
+  final FocusNode? focusNode;
 
   const InputTextField({
     required this.text,
@@ -18,6 +20,7 @@ class InputTextField extends StatefulWidget {
     this.onChanged,
     this.autoClearWhenDone = false,
     this.maxLength,
+    this.focusNode,
     Key? key,
   }) : super(key: key);
 
@@ -32,8 +35,11 @@ class _InputTextFieldState extends State<InputTextField> {
 
   @override
   void initState() {
-    _focusNode = FocusNode();
+    _focusNode = widget.focusNode ?? FocusNode();
     _controller = TextEditingController(text: widget.text);
+    SchedulerBinding.instance.addPostFrameCallback((Duration _) {
+      _focusNode.requestFocus();
+    });
 
     _focusNode.addListener(notifyDidEndEditing);
     super.initState();
@@ -70,7 +76,10 @@ class _InputTextFieldState extends State<InputTextField> {
   @override
   void dispose() {
     _focusNode.removeListener(notifyDidEndEditing);
-    _focusNode.dispose();
+    // only dispose the focusNode if it was created in this widget's initState
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
     super.dispose();
   }
 

@@ -12,17 +12,18 @@ use crate::services::group::{
     GroupConfigurationWriter, GroupController, MoveGroupRowContext,
 };
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{
-    gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
-    RowChangeset, RowRevision,
-};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_operations_from_revisions;
+use grid_rev_model::{
+    gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
+    RowChangeset, RowRevision,
+};
 use lib_infra::future::{wrap_future, AFFuture, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::future::Future;
@@ -34,7 +35,7 @@ pub struct GridViewRevisionEditor {
     user_id: String,
     view_id: String,
     pad: Arc<RwLock<GridViewRevisionPad>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     field_delegate: Arc<dyn GridViewFieldDelegate>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
@@ -49,12 +50,12 @@ impl GridViewRevisionEditor {
         field_delegate: Arc<dyn GridViewFieldDelegate>,
         row_delegate: Arc<dyn GridViewRowDelegate>,
         scheduler: Arc<dyn GridServiceTaskScheduler>,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
         });
-        let view_revision_pad = rev_manager.load::<GridViewRevisionSerde>(Some(cloud)).await?;
+        let view_revision_pad = rev_manager.initialize::<GridViewRevisionSerde>(Some(cloud)).await?;
         let pad = Arc::new(RwLock::new(view_revision_pad));
         let rev_manager = Arc::new(rev_manager);
         let group_controller = new_group_controller(
@@ -401,7 +402,7 @@ async fn new_group_controller(
     user_id: String,
     view_id: String,
     view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     field_delegate: Arc<dyn GridViewFieldDelegate>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
@@ -438,7 +439,7 @@ async fn new_group_controller_with_field_rev(
     user_id: String,
     view_id: String,
     view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     field_rev: Arc<FieldRevision>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
@@ -453,14 +454,14 @@ async fn new_group_controller_with_field_rev(
 }
 
 async fn apply_change(
-    user_id: &str,
-    rev_manager: Arc<RevisionManager>,
+    _user_id: &str,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     change: GridViewRevisionChangeset,
 ) -> FlowyResult<()> {
     let GridViewRevisionChangeset { operations: delta, md5 } = change;
     let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
     let delta_data = delta.json_bytes();
-    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, user_id, md5);
+    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
     let _ = rev_manager.add_local_revision(&revision).await?;
     Ok(())
 }
@@ -495,7 +496,7 @@ impl RevisionObjectSerializer for GridViewRevisionSerde {
 }
 
 pub struct GridViewRevisionCompress();
-impl RevisionCompress for GridViewRevisionCompress {
+impl RevisionMergeable for GridViewRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridViewRevisionSerde::combine_revisions(revisions)
     }
@@ -520,7 +521,7 @@ impl GroupConfigurationReader for GroupConfigurationReaderImpl {
 
 struct GroupConfigurationWriterImpl {
     user_id: String,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     view_pad: Arc<RwLock<GridViewRevisionPad>>,
 }
 

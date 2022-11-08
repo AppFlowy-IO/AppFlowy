@@ -2,7 +2,7 @@ use crate::manager::FolderId;
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
 use flowy_sync::util::make_operations_from_revisions;
@@ -12,16 +12,18 @@ use flowy_sync::{
 };
 use lib_infra::future::FutureResult;
 
+use flowy_database::ConnectionPool;
 use lib_ot::core::EmptyAttributes;
 use parking_lot::RwLock;
 use std::sync::Arc;
 
 pub struct FolderEditor {
+    #[allow(dead_code)]
     user_id: String,
     #[allow(dead_code)]
-    pub(crate) folder_id: FolderId,
+    folder_id: FolderId,
     pub(crate) folder: Arc<RwLock<FolderPad>>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     #[cfg(feature = "sync")]
     ws_manager: Arc<flowy_revision::RevisionWebSocketManager>,
 }
@@ -32,13 +34,15 @@ impl FolderEditor {
         user_id: &str,
         folder_id: &FolderId,
         token: &str,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
         web_socket: Arc<dyn RevisionWebSocket>,
     ) -> FlowyResult<Self> {
         let cloud = Arc::new(FolderRevisionCloudService {
             token: token.to_string(),
         });
-        let folder = Arc::new(RwLock::new(rev_manager.load::<FolderRevisionSerde>(Some(cloud)).await?));
+        let folder = Arc::new(RwLock::new(
+            rev_manager.initialize::<FolderRevisionSerde>(Some(cloud)).await?,
+        ));
         let rev_manager = Arc::new(rev_manager);
 
         #[cfg(feature = "sync")]
@@ -82,14 +86,7 @@ impl FolderEditor {
         let FolderChangeset { operations: delta, md5 } = change;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
-        let revision = Revision::new(
-            &self.rev_manager.object_id,
-            base_rev_id,
-            rev_id,
-            delta_data,
-            &self.user_id,
-            md5,
-        );
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
         let _ = futures::executor::block_on(async { self.rev_manager.add_local_revision(&revision).await })?;
         Ok(())
     }
@@ -119,7 +116,7 @@ impl RevisionObjectSerializer for FolderRevisionSerde {
 }
 
 pub struct FolderRevisionCompress();
-impl RevisionCompress for FolderRevisionCompress {
+impl RevisionMergeable for FolderRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         FolderRevisionSerde::combine_revisions(revisions)
     }
@@ -139,7 +136,7 @@ impl RevisionCloudService for FolderRevisionCloudService {
 
 #[cfg(feature = "flowy_unit_test")]
 impl FolderEditor {
-    pub fn rev_manager(&self) -> Arc<RevisionManager> {
+    pub fn rev_manager(&self) -> Arc<RevisionManager<Arc<ConnectionPool>>> {
         self.rev_manager.clone()
     }
 }

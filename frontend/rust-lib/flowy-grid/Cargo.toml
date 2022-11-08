@@ -13,7 +13,7 @@ flowy-error = { path = "../flowy-error", features = ["db"]}
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 lib-ot = { path = "../../../shared-lib/lib-ot" }
 lib-infra = { path = "../../../shared-lib/lib-infra" }
-flowy-grid-data-model = { path = "../../../shared-lib/flowy-grid-data-model" }
+grid-rev-model = { path = "../../../shared-lib/grid-rev-model" }
 flowy-sync = { path = "../../../shared-lib/flowy-sync" }
 flowy-database = { path = "../flowy-database" }
 

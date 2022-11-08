@@ -3,6 +3,7 @@ import 'package:app_flowy/plugins/doc/presentation/plugins/horizontal_rule_node_
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/doc/presentation/banner.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';
@@ -73,12 +74,18 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _renderDocument(BuildContext context, DocumentState state) {
-    return Column(
-      children: [
-        if (state.isDeleted) _renderBanner(context),
-        // AppFlowy Editor
-        _renderAppFlowyEditor(context.read<DocumentBloc>().editorState),
-      ],
+    final theme = context.watch<AppTheme>();
+    return Container(
+      color: theme.surface,
+      child: Column(
+        children: [
+          if (state.isDeleted) _renderBanner(context),
+          // AppFlowy Editor
+          _renderAppFlowyEditor(
+            context.read<DocumentBloc>().editorState,
+          ),
+        ],
+      ),
     );
   }
 

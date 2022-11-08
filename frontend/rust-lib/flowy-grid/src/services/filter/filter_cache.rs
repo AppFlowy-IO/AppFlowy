@@ -3,8 +3,8 @@ use crate::entities::{
     SelectOptionFilterConfigurationPB, TextFilterConfigurationPB,
 };
 use dashmap::DashMap;
-use flowy_grid_data_model::revision::{FieldRevision, FilterConfigurationRevision, RowRevision};
 use flowy_sync::client_grid::GridRevisionPad;
+use grid_rev_model::{FieldRevision, FilterConfigurationRevision, RowRevision};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;

@@ -1,9 +1,7 @@
-use crate::entities::revision::{md5, RepeatedRevision, Revision};
+use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::errors::{CollaborateError, CollaborateResult};
-use crate::util::{cal_diff, make_operations_from_revisions};
-use flowy_grid_data_model::revision::{
-    gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision,
-};
+use crate::util::{cal_diff, make_operations_from_revisions, md5};
+use grid_rev_model::{gen_block_id, gen_row_id, CellRevision, GridBlockRevision, RowChangeset, RowRevision};
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -256,10 +254,10 @@ pub fn make_grid_block_operations(block_rev: &GridBlockRevision) -> GridBlockOpe
     GridBlockOperationsBuilder::new().insert(&json).build()
 }
 
-pub fn make_grid_block_revisions(user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
+pub fn make_grid_block_revisions(_user_id: &str, grid_block_meta_data: &GridBlockRevision) -> RepeatedRevision {
     let operations = make_grid_block_operations(grid_block_meta_data);
     let bytes = operations.json_bytes();
-    let revision = Revision::initial_revision(user_id, &grid_block_meta_data.block_id, bytes);
+    let revision = Revision::initial_revision(&grid_block_meta_data.block_id, bytes);
     revision.into()
 }
 
@@ -281,7 +279,7 @@ impl std::default::Default for GridBlockRevisionPad {
 #[cfg(test)]
 mod tests {
     use crate::client_grid::{GridBlockOperations, GridBlockRevisionPad};
-    use flowy_grid_data_model::revision::{RowChangeset, RowRevision};
+    use grid_rev_model::{RowChangeset, RowRevision};
 
     use std::borrow::Cow;
 

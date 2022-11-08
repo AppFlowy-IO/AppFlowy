@@ -49,7 +49,8 @@ impl RevIdCounter {
     pub fn new(n: i64) -> Self {
         Self(AtomicI64::new(n))
     }
-    pub fn next(&self) -> i64 {
+
+    pub fn next_id(&self) -> i64 {
         let _ = self.0.fetch_add(1, SeqCst);
         self.value()
     }

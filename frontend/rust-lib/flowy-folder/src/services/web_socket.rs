@@ -1,5 +1,6 @@
 use crate::services::FOLDER_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_revision::*;
 use flowy_sync::entities::revision::Revision;
@@ -37,13 +38,13 @@ impl FolderResolveOperations {
     }
 }
 
-pub type FolderConflictController = ConflictController<FolderResolveOperations>;
+pub type FolderConflictController = ConflictController<FolderResolveOperations, Arc<ConnectionPool>>;
 
 #[allow(dead_code)]
 pub(crate) async fn make_folder_ws_manager(
     user_id: &str,
     folder_id: &str,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     web_socket: Arc<dyn RevisionWebSocket>,
     folder_pad: Arc<RwLock<FolderPad>>,
 ) -> Arc<RevisionWebSocketManager> {
@@ -77,12 +78,12 @@ struct FolderConflictResolver {
 }
 
 impl ConflictResolver<FolderResolveOperations> for FolderConflictResolver {
-    fn compose_operations(&self, operations: FolderResolveOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn compose_operations(&self, operations: FolderResolveOperations) -> BoxResultFuture<RevisionMD5, FlowyError> {
         let operations = operations.into_inner();
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().compose_remote_operations(operations)?;
-            Ok(md5)
+            Ok(md5.into())
         })
     }
 
@@ -112,11 +113,11 @@ impl ConflictResolver<FolderResolveOperations> for FolderConflictResolver {
         })
     }
 
-    fn reset_operations(&self, operations: FolderResolveOperations) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn reset_operations(&self, operations: FolderResolveOperations) -> BoxResultFuture<RevisionMD5, FlowyError> {
         let folder_pad = self.folder_pad.clone();
         Box::pin(async move {
             let md5 = folder_pad.write().reset_folder(operations.into_inner())?;
-            Ok(md5)
+            Ok(md5.into())
         })
     }
 }

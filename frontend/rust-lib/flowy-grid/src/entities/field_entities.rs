@@ -1,10 +1,10 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{FieldRevision, FieldTypeRevision};
+use grid_rev_model::{FieldRevision, FieldTypeRevision};
 use serde_repr::*;
 use std::sync::Arc;
 
+use crate::entities::parser::NotEmptyStr;
 use strum_macros::{Display, EnumCount as EnumCountMacro, EnumIter, EnumString};
 
 /// [FieldPB] defines a Field's attributes. Such as the name, field_type, and width. etc.

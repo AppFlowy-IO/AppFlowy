@@ -1,6 +1,6 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::revision::FilterConfigurationRevision;
+use grid_rev_model::FilterConfigurationRevision;
 
 use std::sync::Arc;
 

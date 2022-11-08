@@ -8,7 +8,7 @@ use crate::services::persistence::{
 };
 use flowy_database::DBConnection;
 use flowy_error::FlowyResult;
-use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 
 /// V1Transaction is deprecated since version 0.0.2 version
 pub struct V1Transaction<'a>(pub &'a DBConnection);

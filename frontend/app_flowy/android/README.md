@@ -12,8 +12,8 @@ When compiling for android we need the following pre-requisites:
 - [Download](https://developer.android.com/ndk/downloads/) Android NDK version 24.
 - When downloading Android NDK you can get the compressed version as a standalone from the site.
     Or you can download it through [Android Studio](https://developer.android.com/studio).
-- After downloading the two you need to set the environment variables. For Windows that's a seperate process.
-    On MacOs and Linux the process is similar.
+- After downloading the two you need to set the environment variables. For Windows that's a separate process.
+    On macOS and Linux the process is similar.
 - The variables needed are '$ANDROID_NDK_HOME', this will point to where the NDK is located.
 ---
 
@@ -48,9 +48,9 @@ linker = "/home/user/Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux
 
 **Folder path: 'Android/Sdk/ndk/24.0.8215888/toolchains/llvm/prebuilt/linux-x86_64/lib64/clang/14.0.1/lib/linux'.**
 After that you have to copy this file into three different folders namely aarch64, arm, i386 and x86_64.
-We have to do this so we Android NDK can find clang on our system, if we used NDK 22 we wouldnt have to do this process.
-Though using NDK v22 will not give us alot of features to work with.
-This github [issue](https://github.com/fzyzcjy/flutter_rust_bridge/issues/419) explains the reason why we are doing this.
+We have to do this so we Android NDK can find clang on our system, if we used NDK 22 we wouldn't have to do this process.
+Though using NDK v22 will not give us a lot of features to work with.
+This GitHub [issue](https://github.com/fzyzcjy/flutter_rust_bridge/issues/419) explains the reason why we are doing this.
 
  ---
 

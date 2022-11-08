@@ -6,11 +6,14 @@ use crate::manager::GridUser;
 use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_editor::{GridViewRevisionCompress, GridViewRevisionEditor};
 
+use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
 use dashmap::DashMap;
+use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
-use flowy_revision::disk::SQLiteGridViewRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, SQLiteRevisionSnapshotPersistence};
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
+};
+use grid_rev_model::{FieldRevision, RowChangeset, RowRevision};
 use lib_infra::future::AFFuture;
 use std::sync::Arc;
 
@@ -244,12 +247,16 @@ async fn make_view_editor(
     .await
 }
 
-pub async fn make_grid_view_rev_manager(user: &Arc<dyn GridUser>, view_id: &str) -> FlowyResult<RevisionManager> {
+pub async fn make_grid_view_rev_manager(
+    user: &Arc<dyn GridUser>,
+    view_id: &str,
+) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
     let user_id = user.user_id()?;
     let pool = user.db_pool()?;
 
     let disk_cache = SQLiteGridViewRevisionPersistence::new(&user_id, pool.clone());
-    let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache);
+    let configuration = RevisionPersistenceConfiguration::new(2, false);
+    let rev_persistence = RevisionPersistence::new(&user_id, view_id, disk_cache, configuration);
     let rev_compactor = GridViewRevisionCompress();
 
     let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(view_id, pool);

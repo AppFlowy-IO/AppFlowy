@@ -28,7 +28,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: v${{ github.ref }}
           body_path: ${{ env.RELEASE_NOTES_PATH }}
 
   build-linux-x86:
@@ -37,6 +37,7 @@ jobs:
     env:
       LINUX_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/linux/Release
       LINUX_ZIP_NAME: AppFlowy-linux-x86.tar.gz
+      LINUX_PACKAGE_NAME: AppFlowy_${{ github.ref_name }}_linux-amd64.deb
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -70,6 +71,46 @@ jobs:
           flutter config --enable-linux-desktop
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-linux-x86_64 appflowy
 
+      - name: Build Linux package
+        working-directory: ${{ env.LINUX_APP_RELEASE_PATH }}
+        run: |
+          mkdir -p package/opt && mv AppFlowy package/opt/
+          cd package && mkdir DEBIAN
+          # Create control file
+          printf 'Package: AppFlowy
+          Version: %s
+          Architecture: amd64
+          Essential: no
+          Priority: optional
+          Maintainer: AppFlowy
+          Description: An Open Source Alternative to Notion\n' "${{ github.ref_name }}" > DEBIAN/control
+
+          # postinst script for creating symlink
+          printf '#!/bin/bash
+          if [ -e /usr/local/bin/appflowy ]; then
+            echo "Symlink already exists, skipping."
+          else
+            echo "Creating Symlink in /usr/local/bin/appflowy"
+            ln -s /opt/AppFlowy/app_flowy /usr/local/bin/appflowy
+          fi' > DEBIAN/postinst
+          chmod 0755 DEBIAN/postinst
+
+          # postrm script for cleaning up residuals
+          printf '#!/bin/bash
+          if [ -e /usr/local/bin/appflowy ]; then
+            rm /usr/local/bin/appflowy
+          fi' > DEBIAN/postrm
+          chmod 0755 DEBIAN/postrm
+
+          mkdir -p usr/share/applications
+          # Update Exec & icon path in desktop entry
+          grep -rl "\[CHANGE_THIS\]" ./opt/AppFlowy/appflowy.desktop.temp | xargs sed -i "s/\[CHANGE_THIS\]/\/opt/"
+          # Add desktop entry in package
+          mv ./opt/AppFlowy/appflowy.desktop.temp ./usr/share/applications/appflowy.desktop
+
+          # Build
+          cd ../ && dpkg-deb --build --root-owner-group package ${{ env.LINUX_PACKAGE_NAME }}
+
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -81,12 +122,24 @@ jobs:
           asset_name: ${{ env.LINUX_ZIP_NAME }}
           asset_content_type: application/octet-stream
 
+      - name: Upload Release Asset Install Package
+        id: upload-release-asset-install-package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.LINUX_APP_RELEASE_PATH }}/${{ env.LINUX_PACKAGE_NAME }}
+          asset_name: ${{ env.LINUX_PACKAGE_NAME }}
+          asset_content_type: application/octet-stream
+
   build-macos-x86_64:
     runs-on: macos-latest
     needs: create-release
     env:
       MACOS_APP_RELEASE_PATH: frontend/app_flowy/product/${{ github.ref_name }}/macos/Release
       MACOS_X86_ZIP_NAME: Appflowy-macos-x86_64.zip
+      MACOS_DMG_NAME: Appflowy-macos-x86_64-installer
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -116,6 +169,21 @@ jobs:
           flutter config --enable-macos-desktop
           cargo make --env APP_VERSION=${{ github.ref_name }} --profile production-mac-x86_64 appflowy
 
+      - name: Create MacOS dmg
+        working-directory: frontend
+        run: |
+            brew install create-dmg
+            create-dmg \
+            --volname ${{ env.MACOS_DMG_NAME }} \
+            --hide-extension "AppFlowy.app" \
+            --background scripts/dmg_assets/AppFlowyInstallerBackground.jpg \
+            --window-size 600 450 \
+            --icon-size 94 \
+            --icon "AppFlowy.app" 141 249 \
+            --app-drop-link 458 249 \
+            "${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg" \
+            "${{ env.MACOS_APP_RELEASE_PATH }}/AppFlowy.app"
+
       - name: Archive macOS app
         working-directory: ${{ env.MACOS_APP_RELEASE_PATH }}
         run: zip --symlinks -qr ${{ env.MACOS_X86_ZIP_NAME }} AppFlowy.app
@@ -129,6 +197,15 @@ jobs:
           asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_X86_ZIP_NAME }}
           asset_name: ${{ env.MACOS_X86_ZIP_NAME }}
           asset_content_type: application/octet-stream
+      - name: Upload DMG Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+              upload_url: ${{ needs.create-release.outputs.upload_url }}
+              asset_path: ${{ env.MACOS_APP_RELEASE_PATH }}/${{ env.MACOS_DMG_NAME }}.dmg
+              asset_name: ${{ env.MACOS_DMG_NAME }}.dmg
+              asset_content_type: application/octet-stream
 
   build-windows-x86_64:
     runs-on: windows-latest

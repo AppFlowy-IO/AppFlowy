@@ -10,7 +10,7 @@ lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error", features = ["collaboration", "http_server"] }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-sync = { path = "../../../shared-lib/flowy-sync"}
-flowy-folder-data-model = { path = "../../../shared-lib/flowy-folder-data-model"}
+folder-rev-model = { path = "../../../shared-lib/folder-rev-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
 flowy-document = { path = "../flowy-document" }
@@ -21,7 +21,7 @@ lib-ws = { path = "../../../shared-lib/lib-ws" }
 bytes = { version = "1.0" }
 anyhow = "1.0"
 tokio = {version = "1", features = ["sync"]}
-parking_lot = "0.11"
+parking_lot = "0.12.1"
 strum = "0.21"
 strum_macros = "0.21"
 tracing = { version = "0.1", features = ["log"] }
@@ -45,7 +45,6 @@ dart = [
     "flowy-user/dart",
     "flowy-sync/dart",
     "flowy-error/dart",
-    "flowy-folder-data-model/dart"
 ]
 
 [build-dependencies]

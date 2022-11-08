@@ -3,9 +3,10 @@
 use crate::old_editor::queue::{EditDocumentQueue, EditorCommand, EditorCommandSender};
 use crate::{errors::FlowyError, DocumentEditor, DocumentUser};
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
@@ -28,7 +29,7 @@ use tokio::sync::{mpsc, oneshot};
 pub struct DeltaDocumentEditor {
     pub doc_id: String,
     #[allow(dead_code)]
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     #[cfg(feature = "sync")]
     ws_manager: Arc<flowy_revision::RevisionWebSocketManager>,
     edit_cmd_tx: EditorCommandSender,
@@ -39,12 +40,12 @@ impl DeltaDocumentEditor {
     pub(crate) async fn new(
         doc_id: &str,
         user: Arc<dyn DocumentUser>,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
         rev_web_socket: Arc<dyn RevisionWebSocket>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
         let document = rev_manager
-            .load::<DeltaDocumentRevisionSerde>(Some(cloud_service))
+            .initialize::<DeltaDocumentRevisionSerde>(Some(cloud_service))
             .await?;
         let operations = DeltaTextOperations::from_bytes(&document.content)?;
         let rev_manager = Arc::new(rev_manager);
@@ -210,7 +211,7 @@ impl std::ops::Drop for DeltaDocumentEditor {
 // The edit queue will exit after the EditorCommandSender was dropped.
 fn spawn_edit_queue(
     user: Arc<dyn DocumentUser>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     delta: DeltaTextOperations,
 ) -> EditorCommandSender {
     let (sender, receiver) = mpsc::channel(1000);
@@ -238,7 +239,7 @@ impl DeltaDocumentEditor {
         Ok(delta)
     }
 
-    pub fn rev_manager(&self) -> Arc<RevisionManager> {
+    pub fn rev_manager(&self) -> Arc<RevisionManager<Arc<ConnectionPool>>> {
         self.rev_manager.clone()
     }
 }
@@ -269,7 +270,7 @@ impl RevisionObjectSerializer for DeltaDocumentRevisionSerde {
 }
 
 pub(crate) struct DeltaDocumentRevisionCompress();
-impl RevisionCompress for DeltaDocumentRevisionCompress {
+impl RevisionMergeable for DeltaDocumentRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         DeltaDocumentRevisionSerde::combine_revisions(revisions)
     }

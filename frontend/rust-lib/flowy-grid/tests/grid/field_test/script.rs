@@ -1,6 +1,6 @@
 use crate::grid::grid_editor::GridEditorTest;
 use flowy_grid::entities::{CreateFieldParams, FieldChangesetParams};
-use flowy_grid_data_model::revision::FieldRevision;
+use grid_rev_model::FieldRevision;
 
 pub enum FieldScript {
     CreateField {
