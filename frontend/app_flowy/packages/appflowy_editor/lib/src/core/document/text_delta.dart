@@ -50,7 +50,7 @@ class TextInsert extends TextOperation {
     final result = <String, dynamic>{
       'insert': text,
     };
-    if (_attributes != null) {
+    if (_attributes != null && _attributes!.isNotEmpty) {
       result['attributes'] = attributes;
     }
     return result;
@@ -87,7 +87,7 @@ class TextRetain extends TextOperation {
     final result = <String, dynamic>{
       'retain': length,
     };
-    if (_attributes != null) {
+    if (_attributes != null && _attributes!.isNotEmpty) {
       result['attributes'] = attributes;
     }
     return result;

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/core/document/attributes.dart';
+import 'package:appflowy_editor/src/core/document/text_delta.dart';
+import 'package:appflowy_editor/src/core/legacy/built_in_attribute_keys.dart';
 import 'package:markdown/markdown.dart' as md;
 
 class DeltaMarkdownDecoder extends Converter<String, Delta>
