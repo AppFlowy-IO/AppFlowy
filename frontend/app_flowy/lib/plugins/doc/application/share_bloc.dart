@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:app_flowy/plugins/doc/application/share_service.dart';
-import 'package:app_flowy/workspace/application/markdown/document_markdown.dart';
 import 'package:flowy_sdk/protobuf/flowy-document/entities.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flowy_sdk/protobuf/flowy-error/errors.pb.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dartz/dartz.dart';
-import 'package:appflowy_editor/appflowy_editor.dart' show Document;
+import 'package:appflowy_editor/appflowy_editor.dart'
+    show Document, documentToMarkdown;
 part 'share_bloc.freezed.dart';
 
 class DocShareBloc extends Bloc<DocShareEvent, DocShareState> {
