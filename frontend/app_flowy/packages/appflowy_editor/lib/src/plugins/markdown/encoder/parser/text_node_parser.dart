@@ -20,6 +20,9 @@ class TextNodeParser extends NodeParser {
     if (attributes.isNotEmpty &&
         attributes.containsKey(BuiltInAttributeKey.subtype)) {
       final subtype = attributes[BuiltInAttributeKey.subtype];
+      if (node.next == null) {
+        suffix = '';
+      }
       if (subtype == 'heading') {
         final heading = attributes[BuiltInAttributeKey.heading];
         if (heading == 'h1') {
@@ -50,6 +53,10 @@ class TextNodeParser extends NodeParser {
         } else {
           result = '- [ ] $markdown';
         }
+      }
+    } else {
+      if (node.next == null) {
+        suffix = '';
       }
     }
     return '$result$suffix';

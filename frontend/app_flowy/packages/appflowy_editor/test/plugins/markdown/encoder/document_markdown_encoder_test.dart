@@ -130,8 +130,7 @@ You can also use ***AppFlowy Editor*** as a component to build your own app.
 * Use / to insert blocks
 * Select text to trigger to the toolbar to format your notes.
 
-If you have questions or feedback, please submit an issue on Github or join the community along with 1000+ builders!
-''');
+If you have questions or feedback, please submit an issue on Github or join the community along with 1000+ builders!''');
     });
   });
 }
