@@ -4,9 +4,9 @@ use crate::DocumentDatabase;
 use bytes::Bytes;
 use flowy_database::kv::KV;
 use flowy_error::FlowyResult;
-use flowy_revision::disk::{RevisionDiskCache, RevisionRecord};
-use flowy_sync::entities::revision::{md5, Revision};
-use flowy_sync::util::make_operations_from_revisions;
+use flowy_revision::disk::{RevisionDiskCache, SyncRecord};
+use flowy_sync::entities::revision::Revision;
+use flowy_sync::util::{make_operations_from_revisions, md5};
 use std::sync::Arc;
 
 const V1_MIGRATION: &str = "DOCUMENT_V1_MIGRATION";
@@ -43,8 +43,8 @@ impl DocumentMigration {
                     Ok(transaction) => {
                         let bytes = Bytes::from(transaction.to_bytes()?);
                         let md5 = format!("{:x}", md5::compute(&bytes));
-                        let revision = Revision::new(&document_id, 0, 1, bytes, &self.user_id, md5);
-                        let record = RevisionRecord::new(revision);
+                        let revision = Revision::new(&document_id, 0, 1, bytes, md5);
+                        let record = SyncRecord::new(revision);
                         match disk_cache.create_revision_records(vec![record]) {
                             Ok(_) => {}
                             Err(err) => {

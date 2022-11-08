@@ -63,7 +63,7 @@ impl DocumentQueue {
             Command::ComposeTransaction { transaction, ret } => {
                 self.document.write().await.apply_transaction(transaction.clone())?;
                 let _ = self
-                    .save_local_operations(transaction, self.document.read().await.md5())
+                    .save_local_operations(transaction, self.document.read().await.document_md5())
                     .await?;
                 let _ = ret.send(Ok(()));
             }
@@ -79,8 +79,7 @@ impl DocumentQueue {
     async fn save_local_operations(&self, transaction: Transaction, md5: String) -> Result<RevId, FlowyError> {
         let bytes = Bytes::from(transaction.to_bytes()?);
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let user_id = self.user.user_id()?;
-        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, &user_id, md5);
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
     }

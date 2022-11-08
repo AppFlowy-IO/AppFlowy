@@ -3,7 +3,7 @@ use crate::DocumentUser;
 use async_stream::stream;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyError;
-use flowy_revision::{OperationsMD5, RevisionManager, TransformOperations};
+use flowy_revision::{RevisionMD5, RevisionManager, TransformOperations};
 use flowy_sync::{
     client_document::{history::UndoResult, ClientDocument},
     entities::revision::{RevId, Revision},
@@ -23,6 +23,7 @@ use tokio::sync::{oneshot, RwLock};
 // serial.
 pub(crate) struct EditDocumentQueue {
     document: Arc<RwLock<ClientDocument>>,
+    #[allow(dead_code)]
     user: Arc<dyn DocumentUser>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     receiver: Option<EditorCommandReceiver>,
@@ -70,7 +71,7 @@ impl EditDocumentQueue {
             EditorCommand::ComposeLocalOperations { operations, ret } => {
                 let mut document = self.document.write().await;
                 let _ = document.compose_operations(operations.clone())?;
-                let md5 = document.md5();
+                let md5 = document.document_md5();
                 drop(document);
                 let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
@@ -78,16 +79,16 @@ impl EditDocumentQueue {
             EditorCommand::ComposeRemoteOperation { client_operations, ret } => {
                 let mut document = self.document.write().await;
                 let _ = document.compose_operations(client_operations.clone())?;
-                let md5 = document.md5();
+                let md5 = document.document_md5();
                 drop(document);
-                let _ = ret.send(Ok(md5));
+                let _ = ret.send(Ok(md5.into()));
             }
             EditorCommand::ResetOperations { operations, ret } => {
                 let mut document = self.document.write().await;
                 let _ = document.set_operations(operations);
-                let md5 = document.md5();
+                let md5 = document.document_md5();
                 drop(document);
-                let _ = ret.send(Ok(md5));
+                let _ = ret.send(Ok(md5.into()));
             }
             EditorCommand::TransformOperations { operations, ret } => {
                 let f = || async {
@@ -114,14 +115,14 @@ impl EditDocumentQueue {
             EditorCommand::Insert { index, data, ret } => {
                 let mut write_guard = self.document.write().await;
                 let operations = write_guard.insert(index, data)?;
-                let md5 = write_guard.md5();
+                let md5 = write_guard.document_md5();
                 let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::Delete { interval, ret } => {
                 let mut write_guard = self.document.write().await;
                 let operations = write_guard.delete(interval)?;
-                let md5 = write_guard.md5();
+                let md5 = write_guard.document_md5();
                 let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
@@ -132,14 +133,14 @@ impl EditDocumentQueue {
             } => {
                 let mut write_guard = self.document.write().await;
                 let operations = write_guard.format(interval, attribute)?;
-                let md5 = write_guard.md5();
+                let md5 = write_guard.document_md5();
                 let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::Replace { interval, data, ret } => {
                 let mut write_guard = self.document.write().await;
                 let operations = write_guard.replace(interval, data)?;
-                let md5 = write_guard.md5();
+                let md5 = write_guard.document_md5();
                 let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
@@ -152,14 +153,14 @@ impl EditDocumentQueue {
             EditorCommand::Undo { ret } => {
                 let mut write_guard = self.document.write().await;
                 let UndoResult { operations } = write_guard.undo()?;
-                let md5 = write_guard.md5();
+                let md5 = write_guard.document_md5();
                 let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
             EditorCommand::Redo { ret } => {
                 let mut write_guard = self.document.write().await;
                 let UndoResult { operations } = write_guard.redo()?;
-                let md5 = write_guard.md5();
+                let md5 = write_guard.document_md5();
                 let _ = self.save_local_operations(operations, md5).await?;
                 let _ = ret.send(Ok(()));
             }
@@ -178,8 +179,7 @@ impl EditDocumentQueue {
     async fn save_local_operations(&self, operations: DeltaTextOperations, md5: String) -> Result<RevId, FlowyError> {
         let bytes = operations.json_bytes();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
-        let user_id = self.user.user_id()?;
-        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, &user_id, md5);
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, bytes, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(rev_id.into())
     }
@@ -197,11 +197,11 @@ pub(crate) enum EditorCommand {
     },
     ComposeRemoteOperation {
         client_operations: DeltaTextOperations,
-        ret: Ret<OperationsMD5>,
+        ret: Ret<RevisionMD5>,
     },
     ResetOperations {
         operations: DeltaTextOperations,
-        ret: Ret<OperationsMD5>,
+        ret: Ret<RevisionMD5>,
     },
     TransformOperations {
         operations: DeltaTextOperations,

@@ -1,5 +1,5 @@
-use crate::disk::{RevisionDiskCache, RevisionRecord};
-use crate::{RevisionLoader, RevisionPersistence};
+use crate::disk::{RevisionDiskCache, SyncRecord};
+use crate::{RevisionLoader, RevisionPersistence, RevisionPersistenceConfiguration};
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::entities::revision::Revision;
@@ -47,7 +47,7 @@ where
                 let _ = self.save_migrate_record()?;
             }
             Some(s) => {
-                let mut record = MigrationObjectRecord::from_str(&s)?;
+                let mut record = MigrationObjectRecord::from_str(&s).map_err(|e| FlowyError::serde().context(e))?;
                 let rev_str = self.target.default_target_rev_str()?;
                 if record.len < rev_str.len() {
                     let _ = self.reset_object().await?;
@@ -60,10 +60,12 @@ where
     }
 
     async fn reset_object(&self) -> FlowyResult<()> {
+        let configuration = RevisionPersistenceConfiguration::new(2, false);
         let rev_persistence = Arc::new(RevisionPersistence::from_disk_cache(
             &self.user_id,
             self.target.target_id(),
             self.disk_cache.clone(),
+            configuration,
         ));
         let (revisions, _) = RevisionLoader {
             object_id: self.target.target_id().to_owned(),
@@ -75,8 +77,8 @@ where
         .await?;
 
         let bytes = self.target.reset_data(revisions)?;
-        let revision = Revision::initial_revision(&self.user_id, self.target.target_id(), bytes);
-        let record = RevisionRecord::new(revision);
+        let revision = Revision::initial_revision(self.target.target_id(), bytes);
+        let record = SyncRecord::new(revision);
 
         tracing::trace!("Reset {} revision record object", self.target.target_id());
         let _ = self

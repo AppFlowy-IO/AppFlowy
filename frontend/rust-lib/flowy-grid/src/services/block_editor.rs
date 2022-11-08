@@ -3,7 +3,7 @@ use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{CellRevision, GridBlockRevision, RowChangeset, RowRevision};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sync::client_grid::{GridBlockRevisionChangeset, GridBlockRevisionPad};
 use flowy_sync::entities::revision::Revision;
@@ -17,6 +17,7 @@ use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub struct GridBlockRevisionEditor {
+    #[allow(dead_code)]
     user_id: String,
     pub block_id: String,
     pad: Arc<RwLock<GridBlockRevisionPad>>,
@@ -33,7 +34,7 @@ impl GridBlockRevisionEditor {
         let cloud = Arc::new(GridBlockRevisionCloudService {
             token: token.to_owned(),
         });
-        let block_revision_pad = rev_manager.load::<GridBlockRevisionSerde>(Some(cloud)).await?;
+        let block_revision_pad = rev_manager.initialize::<GridBlockRevisionSerde>(Some(cloud)).await?;
         let pad = Arc::new(RwLock::new(block_revision_pad));
         let rev_manager = Arc::new(rev_manager);
         let user_id = user_id.to_owned();
@@ -167,17 +168,9 @@ impl GridBlockRevisionEditor {
 
     async fn apply_change(&self, change: GridBlockRevisionChangeset) -> FlowyResult<()> {
         let GridBlockRevisionChangeset { operations: delta, md5 } = change;
-        let user_id = self.user_id.clone();
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
-        let revision = Revision::new(
-            &self.rev_manager.object_id,
-            base_rev_id,
-            rev_id,
-            delta_data,
-            &user_id,
-            md5,
-        );
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(())
     }
@@ -212,7 +205,7 @@ impl RevisionObjectSerializer for GridBlockRevisionSerde {
 }
 
 pub struct GridBlockRevisionCompress();
-impl RevisionCompress for GridBlockRevisionCompress {
+impl RevisionMergeable for GridBlockRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridBlockRevisionSerde::combine_revisions(revisions)
     }

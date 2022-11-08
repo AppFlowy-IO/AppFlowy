@@ -17,7 +17,7 @@ use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::*;
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
 use flowy_sync::entities::revision::Revision;
@@ -33,6 +33,7 @@ use tokio::sync::RwLock;
 
 pub struct GridRevisionEditor {
     pub grid_id: String,
+    #[allow(dead_code)]
     user: Arc<dyn GridUser>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
     view_manager: Arc<GridViewManager>,
@@ -59,7 +60,7 @@ impl GridRevisionEditor {
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
-        let grid_pad = rev_manager.load::<GridRevisionSerde>(Some(cloud)).await?;
+        let grid_pad = rev_manager.initialize::<GridRevisionSerde>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
 
@@ -91,6 +92,14 @@ impl GridRevisionEditor {
         });
 
         Ok(editor)
+    }
+
+    #[tracing::instrument(name = "close grid editor", level = "trace", skip_all)]
+    pub fn close(&self) {
+        let rev_manager = self.rev_manager.clone();
+        tokio::spawn(async move {
+            rev_manager.close().await;
+        });
     }
 
     /// Save the type-option data to disk and send a `GridNotification::DidUpdateField` notification
@@ -757,17 +766,9 @@ impl GridRevisionEditor {
 
     async fn apply_change(&self, change: GridRevisionChangeset) -> FlowyResult<()> {
         let GridRevisionChangeset { operations: delta, md5 } = change;
-        let user_id = self.user.user_id()?;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
-        let revision = Revision::new(
-            &self.rev_manager.object_id,
-            base_rev_id,
-            rev_id,
-            delta_data,
-            &user_id,
-            md5,
-        );
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(())
     }
@@ -854,7 +855,7 @@ impl RevisionCloudService for GridRevisionCloudService {
 
 pub struct GridRevisionCompress();
 
-impl RevisionCompress for GridRevisionCompress {
+impl RevisionMergeable for GridRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridRevisionSerde::combine_revisions(revisions)
     }

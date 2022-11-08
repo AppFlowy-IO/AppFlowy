@@ -18,7 +18,7 @@ use flowy_net::{
     http_server::folder::FolderHttpCloudService, local_server::LocalServer, ws::connection::FlowyWebSocketConnect,
 };
 use flowy_revision::{RevisionWebSocket, WSStateReceiver};
-use flowy_sync::entities::revision::{RepeatedRevision, Revision};
+use flowy_sync::entities::revision::Revision;
 use flowy_sync::entities::ws_data::ClientRevisionWSData;
 use flowy_user::services::UserSession;
 use futures_core::future::BoxFuture;
@@ -144,19 +144,19 @@ struct DocumentViewDataProcessor(Arc<DocumentManager>);
 impl ViewDataProcessor for DocumentViewDataProcessor {
     fn create_view(
         &self,
-        user_id: &str,
+        _user_id: &str,
         view_id: &str,
         layout: ViewLayoutTypePB,
         view_data: Bytes,
     ) -> FutureResult<(), FlowyError> {
         // Only accept Document type
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, view_data).into();
+        let revision = Revision::initial_revision(view_id, view_data);
         let view_id = view_id.to_string();
         let manager = self.0.clone();
 
         FutureResult::new(async move {
-            let _ = manager.create_document(view_id, repeated_revision).await?;
+            let _ = manager.create_document(view_id, vec![revision]).await?;
             Ok(())
         })
     }
@@ -165,7 +165,7 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         let manager = self.0.clone();
         let view_id = view_id.to_string();
         FutureResult::new(async move {
-            let _ = manager.close_document_editor(view_id)?;
+            let _ = manager.close_document_editor(view_id).await?;
             Ok(())
         })
     }
@@ -188,15 +188,14 @@ impl ViewDataProcessor for DocumentViewDataProcessor {
         _data_format: ViewDataFormatPB,
     ) -> FutureResult<Bytes, FlowyError> {
         debug_assert_eq!(layout, ViewLayoutTypePB::Document);
-        let user_id = user_id.to_string();
+        let _user_id = user_id.to_string();
         let view_id = view_id.to_string();
         let manager = self.0.clone();
         let document_content = self.0.initial_document_content();
         FutureResult::new(async move {
             let delta_data = Bytes::from(document_content);
-            let repeated_revision: RepeatedRevision =
-                Revision::initial_revision(&user_id, &view_id, delta_data.clone()).into();
-            let _ = manager.create_document(view_id, repeated_revision).await?;
+            let revision = Revision::initial_revision(&view_id, delta_data.clone());
+            let _ = manager.create_document(view_id, vec![revision]).await?;
             Ok(delta_data)
         })
     }
@@ -221,16 +220,16 @@ struct GridViewDataProcessor(Arc<GridManager>);
 impl ViewDataProcessor for GridViewDataProcessor {
     fn create_view(
         &self,
-        user_id: &str,
+        _user_id: &str,
         view_id: &str,
         _layout: ViewLayoutTypePB,
         delta_data: Bytes,
     ) -> FutureResult<(), FlowyError> {
-        let repeated_revision: RepeatedRevision = Revision::initial_revision(user_id, view_id, delta_data).into();
+        let revision = Revision::initial_revision(view_id, delta_data);
         let view_id = view_id.to_string();
         let grid_manager = self.0.clone();
         FutureResult::new(async move {
-            let _ = grid_manager.create_grid(view_id, repeated_revision).await?;
+            let _ = grid_manager.create_grid(view_id, vec![revision]).await?;
             Ok(())
         })
     }

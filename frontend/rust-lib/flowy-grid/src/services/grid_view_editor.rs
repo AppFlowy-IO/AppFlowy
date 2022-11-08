@@ -19,7 +19,7 @@ use flowy_grid_data_model::revision::{
     RowChangeset, RowRevision,
 };
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::entities::revision::Revision;
@@ -55,7 +55,7 @@ impl GridViewRevisionEditor {
         let cloud = Arc::new(GridViewRevisionCloudService {
             token: token.to_owned(),
         });
-        let view_revision_pad = rev_manager.load::<GridViewRevisionSerde>(Some(cloud)).await?;
+        let view_revision_pad = rev_manager.initialize::<GridViewRevisionSerde>(Some(cloud)).await?;
         let pad = Arc::new(RwLock::new(view_revision_pad));
         let rev_manager = Arc::new(rev_manager);
         let group_controller = new_group_controller(
@@ -454,14 +454,14 @@ async fn new_group_controller_with_field_rev(
 }
 
 async fn apply_change(
-    user_id: &str,
+    _user_id: &str,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     change: GridViewRevisionChangeset,
 ) -> FlowyResult<()> {
     let GridViewRevisionChangeset { operations: delta, md5 } = change;
     let (base_rev_id, rev_id) = rev_manager.next_rev_id_pair();
     let delta_data = delta.json_bytes();
-    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, user_id, md5);
+    let revision = Revision::new(&rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
     let _ = rev_manager.add_local_revision(&revision).await?;
     Ok(())
 }
@@ -496,7 +496,7 @@ impl RevisionObjectSerializer for GridViewRevisionSerde {
 }
 
 pub struct GridViewRevisionCompress();
-impl RevisionCompress for GridViewRevisionCompress {
+impl RevisionMergeable for GridViewRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridViewRevisionSerde::combine_revisions(revisions)
     }

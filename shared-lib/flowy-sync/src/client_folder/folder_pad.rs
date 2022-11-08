@@ -1,9 +1,9 @@
 use crate::errors::internal_error;
 use crate::server_folder::{FolderOperations, FolderOperationsBuilder};
-use crate::util::cal_diff;
+use crate::util::{cal_diff, md5};
 use crate::{
     client_folder::builder::FolderPadBuilder,
-    entities::revision::{md5, Revision},
+    entities::revision::Revision,
     errors::{CollaborateError, CollaborateResult},
 };
 use flowy_folder_data_model::revision::{AppRevision, FolderRevision, TrashRevision, ViewRevision, WorkspaceRevision};
@@ -61,7 +61,7 @@ impl FolderPad {
         self.folder_rev = folder.folder_rev;
         self.operations = folder.operations;
 
-        Ok(self.md5())
+        Ok(self.folder_md5())
     }
 
     pub fn compose_remote_operations(&mut self, operations: FolderOperations) -> CollaborateResult<String> {
@@ -313,7 +313,7 @@ impl FolderPad {
         }
     }
 
-    pub fn md5(&self) -> String {
+    pub fn folder_md5(&self) -> String {
         md5(&self.operations.json_bytes())
     }
 
@@ -345,7 +345,7 @@ impl FolderPad {
                         self.operations = self.operations.compose(&operations)?;
                         Ok(Some(FolderChangeset {
                             operations,
-                            md5: self.md5(),
+                            md5: self.folder_md5(),
                         }))
                     }
                 }
@@ -383,7 +383,7 @@ impl FolderPad {
                         self.operations = self.operations.compose(&operations)?;
                         Ok(Some(FolderChangeset {
                             operations,
-                            md5: self.md5(),
+                            md5: self.folder_md5(),
                         }))
                     }
                 }

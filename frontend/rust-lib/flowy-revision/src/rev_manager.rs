@@ -3,8 +3,8 @@ use crate::{RevisionPersistence, RevisionSnapshotDiskCache, RevisionSnapshotMana
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_sync::{
-    entities::revision::{RepeatedRevision, Revision, RevisionRange},
-    util::{pair_rev_id_from_revisions, RevIdCounter},
+    entities::revision::{Revision, RevisionRange},
+    util::{md5, pair_rev_id_from_revisions, RevIdCounter},
 };
 use lib_infra::future::FutureResult;
 use std::sync::Arc;
@@ -42,13 +42,8 @@ pub trait RevisionObjectSerializer: Send + Sync {
 
 /// `RevisionCompress` is used to compress multiple revisions into one revision
 ///
-pub trait RevisionCompress: Send + Sync {
-    fn compress_revisions(
-        &self,
-        user_id: &str,
-        object_id: &str,
-        mut revisions: Vec<Revision>,
-    ) -> FlowyResult<Revision> {
+pub trait RevisionMergeable: Send + Sync {
+    fn merge_revisions(&self, _user_id: &str, object_id: &str, mut revisions: Vec<Revision>) -> FlowyResult<Revision> {
         if revisions.is_empty() {
             return Err(FlowyError::internal().context("Can't compact the empty revisions"));
         }
@@ -63,7 +58,7 @@ pub trait RevisionCompress: Send + Sync {
         let (base_rev_id, rev_id) = first_revision.pair_rev_id();
         let md5 = last_revision.md5.clone();
         let bytes = self.combine_revisions(revisions)?;
-        Ok(Revision::new(object_id, base_rev_id, rev_id, bytes, user_id, md5))
+        Ok(Revision::new(object_id, base_rev_id, rev_id, bytes, md5))
     }
 
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes>;
@@ -76,7 +71,7 @@ pub struct RevisionManager<Connection> {
     rev_persistence: Arc<RevisionPersistence<Connection>>,
     #[allow(dead_code)]
     rev_snapshot: Arc<RevisionSnapshotManager>,
-    rev_compress: Arc<dyn RevisionCompress>,
+    rev_compress: Arc<dyn RevisionMergeable>,
     #[cfg(feature = "flowy_unit_test")]
     rev_ack_notifier: tokio::sync::broadcast::Sender<i64>,
 }
@@ -91,14 +86,12 @@ impl<Connection: 'static> RevisionManager<Connection> {
     ) -> Self
     where
         SP: 'static + RevisionSnapshotDiskCache,
-        C: 'static + RevisionCompress,
+        C: 'static + RevisionMergeable,
     {
         let rev_id_counter = RevIdCounter::new(0);
         let rev_compress = Arc::new(rev_compress);
         let rev_persistence = Arc::new(rev_persistence);
         let rev_snapshot = Arc::new(RevisionSnapshotManager::new(user_id, object_id, snapshot_persistence));
-        #[cfg(feature = "flowy_unit_test")]
-        let (revision_ack_notifier, _) = tokio::sync::broadcast::channel(1);
 
         Self {
             object_id: object_id.to_string(),
@@ -108,12 +101,12 @@ impl<Connection: 'static> RevisionManager<Connection> {
             rev_snapshot,
             rev_compress,
             #[cfg(feature = "flowy_unit_test")]
-            rev_ack_notifier: revision_ack_notifier,
+            rev_ack_notifier: tokio::sync::broadcast::channel(1).0,
         }
     }
 
     #[tracing::instrument(level = "debug", skip_all, fields(object_id) err)]
-    pub async fn load<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
+    pub async fn initialize<B>(&mut self, cloud: Option<Arc<dyn RevisionCloudService>>) -> FlowyResult<B::Output>
     where
         B: RevisionObjectDeserializer,
     {
@@ -130,6 +123,10 @@ impl<Connection: 'static> RevisionManager<Connection> {
         B::deserialize_revisions(&self.object_id, revisions)
     }
 
+    pub async fn close(&self) {
+        let _ = self.rev_persistence.compact_lagging_revisions(&self.rev_compress).await;
+    }
+
     pub async fn load_revisions(&self) -> FlowyResult<Vec<Revision>> {
         let revisions = RevisionLoader {
             object_id: self.object_id.clone(),
@@ -143,9 +140,9 @@ impl<Connection: 'static> RevisionManager<Connection> {
     }
 
     #[tracing::instrument(level = "debug", skip(self, revisions), err)]
-    pub async fn reset_object(&self, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn reset_object(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
         let rev_id = pair_rev_id_from_revisions(&revisions).1;
-        let _ = self.rev_persistence.reset(revisions.into_inner()).await?;
+        let _ = self.rev_persistence.reset(revisions).await?;
         self.rev_id_counter.set(rev_id);
         Ok(())
     }
@@ -185,14 +182,27 @@ impl<Connection: 'static> RevisionManager<Connection> {
         Ok(())
     }
 
+    /// Returns the current revision id
     pub fn rev_id(&self) -> i64 {
         self.rev_id_counter.value()
     }
 
+    pub async fn next_sync_rev_id(&self) -> Option<i64> {
+        self.rev_persistence.next_sync_rev_id().await
+    }
+
     pub fn next_rev_id_pair(&self) -> (i64, i64) {
         let cur = self.rev_id_counter.value();
-        let next = self.rev_id_counter.next();
+        let next = self.rev_id_counter.next_id();
         (cur, next)
+    }
+
+    pub fn number_of_sync_revisions(&self) -> usize {
+        self.rev_persistence.number_of_sync_records()
+    }
+
+    pub fn number_of_revisions_in_disk(&self) -> usize {
+        self.rev_persistence.number_of_records_in_disk()
     }
 
     pub async fn get_revisions_in_range(&self, range: RevisionRange) -> Result<Vec<Revision>, FlowyError> {
@@ -226,12 +236,15 @@ impl<Connection: 'static> WSDataProviderDataSource for Arc<RevisionManager<Conne
 }
 
 #[cfg(feature = "flowy_unit_test")]
-impl<Connection> RevisionManager<Connection> {
+impl<Connection: 'static> RevisionManager<Connection> {
     pub async fn revision_cache(&self) -> Arc<RevisionPersistence<Connection>> {
         self.rev_persistence.clone()
     }
     pub fn ack_notify(&self) -> tokio::sync::broadcast::Receiver<i64> {
         self.rev_ack_notifier.subscribe()
+    }
+    pub fn get_all_revision_records(&self) -> FlowyResult<Vec<crate::disk::SyncRecord>> {
+        self.rev_persistence.load_all_records(&self.object_id)
     }
 }
 
@@ -244,7 +257,7 @@ pub struct RevisionLoader<Connection> {
 
 impl<Connection: 'static> RevisionLoader<Connection> {
     pub async fn load(&self) -> Result<(Vec<Revision>, i64), FlowyError> {
-        let records = self.rev_persistence.batch_get(&self.object_id)?;
+        let records = self.rev_persistence.load_all_records(&self.object_id)?;
         let revisions: Vec<Revision>;
         let mut rev_id = 0;
         if records.is_empty() && self.cloud.is_some() {
@@ -278,8 +291,61 @@ impl<Connection: 'static> RevisionLoader<Connection> {
     }
 
     pub async fn load_revisions(&self) -> Result<Vec<Revision>, FlowyError> {
-        let records = self.rev_persistence.batch_get(&self.object_id)?;
+        let records = self.rev_persistence.load_all_records(&self.object_id)?;
         let revisions = records.into_iter().map(|record| record.revision).collect::<_>();
         Ok(revisions)
     }
 }
+
+/// Represents as the md5 of the revision object after applying the
+/// revision. For example, RevisionMD5 will be the md5 of the document
+/// content.
+#[derive(Debug, Clone)]
+pub struct RevisionMD5(String);
+
+impl RevisionMD5 {
+    pub fn from_bytes<T: AsRef<[u8]>>(bytes: T) -> Result<Self, FlowyError> {
+        Ok(RevisionMD5(md5(bytes)))
+    }
+
+    pub fn into_inner(self) -> String {
+        self.0
+    }
+
+    pub fn is_equal(&self, s: &str) -> bool {
+        self.0 == s
+    }
+}
+
+impl std::convert::From<RevisionMD5> for String {
+    fn from(md5: RevisionMD5) -> Self {
+        md5.0
+    }
+}
+
+impl std::convert::From<&str> for RevisionMD5 {
+    fn from(s: &str) -> Self {
+        Self(s.to_owned())
+    }
+}
+impl std::convert::From<String> for RevisionMD5 {
+    fn from(s: String) -> Self {
+        Self(s)
+    }
+}
+
+impl std::ops::Deref for RevisionMD5 {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl PartialEq<Self> for RevisionMD5 {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl std::cmp::Eq for RevisionMD5 {}

@@ -2,10 +2,9 @@ use crate::cache::{
     disk::{RevisionChangeset, RevisionDiskCache},
     memory::RevisionMemoryCacheDelegate,
 };
-use crate::disk::{RevisionRecord, RevisionState};
+use crate::disk::{RevisionState, SyncRecord};
 use crate::memory::RevisionMemoryCache;
-use crate::RevisionCompress;
-
+use crate::RevisionMergeable;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
 use flowy_sync::entities::revision::{Revision, RevisionRange};
 use std::collections::VecDeque;
@@ -15,31 +14,73 @@ use tokio::task::spawn_blocking;
 
 pub const REVISION_WRITE_INTERVAL_IN_MILLIS: u64 = 600;
 
+#[derive(Clone)]
+pub struct RevisionPersistenceConfiguration {
+    merge_threshold: usize,
+    merge_lagging: bool,
+}
+
+impl RevisionPersistenceConfiguration {
+    pub fn new(merge_threshold: usize, merge_lagging: bool) -> Self {
+        debug_assert!(merge_threshold > 1);
+        if merge_threshold > 1 {
+            Self {
+                merge_threshold,
+                merge_lagging,
+            }
+        } else {
+            Self {
+                merge_threshold: 100,
+                merge_lagging,
+            }
+        }
+    }
+}
+
+impl std::default::Default for RevisionPersistenceConfiguration {
+    fn default() -> Self {
+        Self {
+            merge_threshold: 100,
+            merge_lagging: false,
+        }
+    }
+}
+
 pub struct RevisionPersistence<Connection> {
     user_id: String,
     object_id: String,
     disk_cache: Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>,
     memory_cache: Arc<RevisionMemoryCache>,
-    sync_seq: RwLock<RevisionSyncSequence>,
+    sync_seq: RwLock<DeferSyncSequence>,
+    configuration: RevisionPersistenceConfiguration,
 }
 
-impl<Connection: 'static> RevisionPersistence<Connection> {
-    pub fn new<C>(user_id: &str, object_id: &str, disk_cache: C) -> RevisionPersistence<Connection>
+impl<Connection> RevisionPersistence<Connection>
+where
+    Connection: 'static,
+{
+    pub fn new<C>(
+        user_id: &str,
+        object_id: &str,
+        disk_cache: C,
+        configuration: RevisionPersistenceConfiguration,
+    ) -> RevisionPersistence<Connection>
     where
         C: 'static + RevisionDiskCache<Connection, Error = FlowyError>,
     {
         let disk_cache = Arc::new(disk_cache) as Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>;
-        Self::from_disk_cache(user_id, object_id, disk_cache)
+        Self::from_disk_cache(user_id, object_id, disk_cache, configuration)
     }
 
     pub fn from_disk_cache(
         user_id: &str,
         object_id: &str,
         disk_cache: Arc<dyn RevisionDiskCache<Connection, Error = FlowyError>>,
+        configuration: RevisionPersistenceConfiguration,
     ) -> RevisionPersistence<Connection> {
         let object_id = object_id.to_owned();
         let user_id = user_id.to_owned();
-        let sync_seq = RwLock::new(RevisionSyncSequence::new());
+        let sync_seq = RwLock::new(DeferSyncSequence::new());
         let memory_cache = Arc::new(RevisionMemoryCache::new(&object_id, Arc::new(disk_cache.clone())));
         Self {
             user_id,
@@ -47,6 +88,7 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
             disk_cache,
             memory_cache,
             sync_seq,
+            configuration,
         }
     }
 
@@ -62,7 +104,37 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
     pub(crate) async fn sync_revision(&self, revision: &Revision) -> FlowyResult<()> {
         tracing::Span::current().record("rev_id", &revision.rev_id);
         self.add(revision.clone(), RevisionState::Sync, false).await?;
-        self.sync_seq.write().await.add(revision.rev_id)?;
+        self.sync_seq.write().await.recv(revision.rev_id)?;
+        Ok(())
+    }
+
+    #[tracing::instrument(level = "trace", skip_all, err)]
+    pub async fn compact_lagging_revisions<'a>(
+        &'a self,
+        rev_compress: &Arc<dyn RevisionMergeable + 'a>,
+    ) -> FlowyResult<()> {
+        if !self.configuration.merge_lagging {
+            return Ok(());
+        }
+
+        let mut sync_seq = self.sync_seq.write().await;
+        let compact_seq = sync_seq.compact();
+        if !compact_seq.is_empty() {
+            let range = RevisionRange {
+                start: *compact_seq.front().unwrap(),
+                end: *compact_seq.back().unwrap(),
+            };
+
+            let revisions = self.revisions_in_range(&range).await?;
+            debug_assert_eq!(range.len() as usize, revisions.len());
+            // compact multiple revisions into one
+            let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
+            tracing::Span::current().record("rev_id", &merged_revision.rev_id);
+            let _ = sync_seq.recv(merged_revision.rev_id)?;
+
+            // replace the revisions in range with compact revision
+            self.compact(&range, merged_revision).await?;
+        }
         Ok(())
     }
 
@@ -70,44 +142,46 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
     #[tracing::instrument(level = "trace", skip_all, fields(rev_id, compact_range, object_id=%self.object_id), err)]
     pub(crate) async fn add_sync_revision<'a>(
         &'a self,
-        revision: &'a Revision,
-        rev_compress: &Arc<dyn RevisionCompress + 'a>,
+        new_revision: &'a Revision,
+        rev_compress: &Arc<dyn RevisionMergeable + 'a>,
     ) -> FlowyResult<i64> {
-        let mut sync_seq_write_guard = self.sync_seq.write().await;
-        let result = sync_seq_write_guard.compact();
-        match result {
-            None => {
-                tracing::Span::current().record("rev_id", &revision.rev_id);
-                self.add(revision.clone(), RevisionState::Sync, true).await?;
-                sync_seq_write_guard.add(revision.rev_id)?;
-                Ok(revision.rev_id)
-            }
-            Some((range, mut compact_seq)) => {
-                tracing::Span::current().record("compact_range", &format!("{}", range).as_str());
-                let mut revisions = self.revisions_in_range(&range).await?;
-                if range.to_rev_ids().len() != revisions.len() {
-                    debug_assert_eq!(range.to_rev_ids().len(), revisions.len());
-                }
+        let mut sync_seq = self.sync_seq.write().await;
+        let compact_length = sync_seq.compact_length;
 
-                // append the new revision
-                revisions.push(revision.clone());
+        // Before the new_revision is pushed into the sync_seq, we check if the current `compact_length` of the
+        // sync_seq is less equal to or greater than the merge threshold. If yes, it's needs to merged
+        // with the new_revision into one revision.
+        let mut compact_seq = VecDeque::default();
+        // tracing::info!("{}", compact_seq)
+        if compact_length >= self.configuration.merge_threshold - 1 {
+            compact_seq.extend(sync_seq.compact());
+        }
+        if !compact_seq.is_empty() {
+            let range = RevisionRange {
+                start: *compact_seq.front().unwrap(),
+                end: *compact_seq.back().unwrap(),
+            };
 
-                // compact multiple revisions into one
-                let compact_revision = rev_compress.compress_revisions(&self.user_id, &self.object_id, revisions)?;
-                let rev_id = compact_revision.rev_id;
-                tracing::Span::current().record("rev_id", &rev_id);
+            tracing::Span::current().record("compact_range", &format!("{}", range).as_str());
+            let mut revisions = self.revisions_in_range(&range).await?;
+            debug_assert_eq!(range.len() as usize, revisions.len());
+            // append the new revision
+            revisions.push(new_revision.clone());
 
-                // insert new revision
-                compact_seq.push_back(rev_id);
+            // compact multiple revisions into one
+            let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
+            let rev_id = merged_revision.rev_id;
+            tracing::Span::current().record("rev_id", &merged_revision.rev_id);
+            let _ = sync_seq.recv(merged_revision.rev_id)?;
 
-                // replace the revisions in range with compact revision
-                self.compact(&range, compact_revision).await?;
-                //
-                debug_assert_eq!(compact_seq.len(), 2);
-                debug_assert_eq!(sync_seq_write_guard.len(), compact_seq.len());
-                sync_seq_write_guard.reset(compact_seq);
-                Ok(rev_id)
-            }
+            // replace the revisions in range with compact revision
+            self.compact(&range, merged_revision).await?;
+            Ok(rev_id)
+        } else {
+            tracing::Span::current().record("rev_id", &new_revision.rev_id);
+            self.add(new_revision.clone(), RevisionState::Sync, true).await?;
+            sync_seq.merge_recv(new_revision.rev_id)?;
+            Ok(new_revision.rev_id)
         }
     }
 
@@ -126,12 +200,30 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
         }
     }
 
+    pub(crate) async fn next_sync_rev_id(&self) -> Option<i64> {
+        self.sync_seq.read().await.next_rev_id()
+    }
+
+    pub(crate) fn number_of_sync_records(&self) -> usize {
+        self.memory_cache.number_of_sync_records()
+    }
+
+    pub(crate) fn number_of_records_in_disk(&self) -> usize {
+        match self.disk_cache.read_revision_records(&self.object_id, None) {
+            Ok(records) => records.len(),
+            Err(e) => {
+                tracing::error!("Read revision records failed: {:?}", e);
+                0
+            }
+        }
+    }
+
     /// The cache gets reset while it conflicts with the remote revisions.
     #[tracing::instrument(level = "trace", skip(self, revisions), err)]
     pub(crate) async fn reset(&self, revisions: Vec<Revision>) -> FlowyResult<()> {
         let records = revisions
             .into_iter()
-            .map(|revision| RevisionRecord {
+            .map(|revision| SyncRecord {
                 revision,
                 state: RevisionState::Sync,
                 write_to_disk: false,
@@ -151,7 +243,7 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
             tracing::warn!("Duplicate revision: {}:{}-{:?}", self.object_id, revision.rev_id, state);
             return Ok(());
         }
-        let record = RevisionRecord {
+        let record = SyncRecord {
             revision,
             state,
             write_to_disk,
@@ -167,12 +259,11 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
         let _ = self
             .disk_cache
             .delete_revision_records(&self.object_id, Some(rev_ids))?;
-
         self.add(new_revision, RevisionState::Sync, true).await?;
         Ok(())
     }
 
-    pub async fn get(&self, rev_id: i64) -> Option<RevisionRecord> {
+    pub async fn get(&self, rev_id: i64) -> Option<SyncRecord> {
         match self.memory_cache.get(&rev_id).await {
             None => match self
                 .disk_cache
@@ -192,8 +283,8 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
         }
     }
 
-    pub fn batch_get(&self, doc_id: &str) -> FlowyResult<Vec<RevisionRecord>> {
-        self.disk_cache.read_revision_records(doc_id, None)
+    pub fn load_all_records(&self, object_id: &str) -> FlowyResult<Vec<SyncRecord>> {
+        self.disk_cache.read_revision_records(object_id, None)
     }
 
     // Read the revision which rev_id >= range.start && rev_id <= range.end
@@ -225,7 +316,7 @@ impl<Connection: 'static> RevisionPersistence<Connection> {
 }
 
 impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = FlowyError>> {
-    fn checkpoint_tick(&self, mut records: Vec<RevisionRecord>) -> FlowyResult<()> {
+    fn send_sync(&self, mut records: Vec<SyncRecord>) -> FlowyResult<()> {
         records.retain(|record| record.write_to_disk);
         if !records.is_empty() {
             tracing::Span::current().record(
@@ -251,27 +342,48 @@ impl<C> RevisionMemoryCacheDelegate for Arc<dyn RevisionDiskCache<C, Error = Flo
 }
 
 #[derive(Default)]
-struct RevisionSyncSequence(VecDeque<i64>);
-impl RevisionSyncSequence {
+struct DeferSyncSequence {
+    rev_ids: VecDeque<i64>,
+    compact_index: Option<usize>,
+    compact_length: usize,
+}
+
+impl DeferSyncSequence {
     fn new() -> Self {
-        RevisionSyncSequence::default()
+        DeferSyncSequence::default()
     }
 
-    fn add(&mut self, new_rev_id: i64) -> FlowyResult<()> {
+    /// Pushes the new_rev_id to the end of the list and marks this new_rev_id is mergeable.
+    ///
+    /// When calling `compact` method, it will return a list of revision ids started from
+    /// the `compact_start_pos`, and ends with the `compact_length`.
+    fn merge_recv(&mut self, new_rev_id: i64) -> FlowyResult<()> {
+        let _ = self.recv(new_rev_id)?;
+
+        self.compact_length += 1;
+        if self.compact_index.is_none() && !self.rev_ids.is_empty() {
+            self.compact_index = Some(self.rev_ids.len() - 1);
+        }
+        Ok(())
+    }
+
+    /// Pushes the new_rev_id to the end of the list.
+    fn recv(&mut self, new_rev_id: i64) -> FlowyResult<()> {
         // The last revision's rev_id must be greater than the new one.
-        if let Some(rev_id) = self.0.back() {
+        if let Some(rev_id) = self.rev_ids.back() {
             if *rev_id >= new_rev_id {
                 return Err(
                     FlowyError::internal().context(format!("The new revision's id must be greater than {}", rev_id))
                 );
             }
         }
-        self.0.push_back(new_rev_id);
+        self.rev_ids.push_back(new_rev_id);
         Ok(())
     }
 
+    /// Removes the rev_id from the list
     fn ack(&mut self, rev_id: &i64) -> FlowyResult<()> {
-        let cur_rev_id = self.0.front().cloned();
+        let cur_rev_id = self.rev_ids.front().cloned();
         if let Some(pop_rev_id) = cur_rev_id {
             if &pop_rev_id != rev_id {
                 let desc = format!(
@@ -280,38 +392,43 @@ impl RevisionSyncSequence {
                 );
                 return Err(FlowyError::internal().context(desc));
             }
-            let _ = self.0.pop_front();
+
+            let mut compact_rev_id = None;
+            if let Some(compact_index) = self.compact_index {
+                compact_rev_id = self.rev_ids.get(compact_index).cloned();
+            }
+
+            let pop_rev_id = self.rev_ids.pop_front();
+            if let (Some(compact_rev_id), Some(pop_rev_id)) = (compact_rev_id, pop_rev_id) {
+                if compact_rev_id <= pop_rev_id && self.compact_length > 0 {
+                    self.compact_length -= 1;
+                }
+            }
         }
         Ok(())
     }
 
     fn next_rev_id(&self) -> Option<i64> {
-        self.0.front().cloned()
-    }
-
-    fn reset(&mut self, new_seq: VecDeque<i64>) {
-        self.0 = new_seq;
+        self.rev_ids.front().cloned()
     }
 
     fn clear(&mut self) {
-        self.0.clear();
-    }
-
-    fn len(&self) -> usize {
-        self.0.len()
+        self.compact_index = None;
+        self.compact_length = 0;
+        self.rev_ids.clear();
     }
 
     // Compact the rev_ids into one except the current synchronizing rev_id.
-    fn compact(&self) -> Option<(RevisionRange, VecDeque<i64>)> {
-        // Make sure there are two rev_id going to sync. No need to compact if there is only
-        // one rev_id in queue.
-        self.next_rev_id()?;
-
-        let mut new_seq = self.0.clone();
-        let mut drained = new_seq.drain(1..).collect::<VecDeque<_>>();
-
-        let start = drained.pop_front()?;
-        let end = drained.pop_back().unwrap_or(start);
-        Some((RevisionRange { start, end }, new_seq))
+    fn compact(&mut self) -> VecDeque<i64> {
+        let mut compact_seq = VecDeque::with_capacity(self.rev_ids.len());
+        if let Some(start) = self.compact_index {
+            if start < self.rev_ids.len() {
+                let seq = self.rev_ids.split_off(start);
+                compact_seq.extend(seq);
+            }
+        }
+        self.compact_index = None;
+        self.compact_length = 0;
+        compact_seq
     }
 }

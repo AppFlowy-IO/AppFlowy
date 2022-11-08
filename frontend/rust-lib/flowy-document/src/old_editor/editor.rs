@@ -6,7 +6,7 @@ use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyResult};
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
     RevisionWebSocket,
 };
 use flowy_sync::entities::ws_data::ServerRevisionWSData;
@@ -45,7 +45,7 @@ impl DeltaDocumentEditor {
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
         let document = rev_manager
-            .load::<DeltaDocumentRevisionSerde>(Some(cloud_service))
+            .initialize::<DeltaDocumentRevisionSerde>(Some(cloud_service))
             .await?;
         let operations = DeltaTextOperations::from_bytes(&document.content)?;
         let rev_manager = Arc::new(rev_manager);
@@ -270,7 +270,7 @@ impl RevisionObjectSerializer for DeltaDocumentRevisionSerde {
 }
 
 pub(crate) struct DeltaDocumentRevisionCompress();
-impl RevisionCompress for DeltaDocumentRevisionCompress {
+impl RevisionMergeable for DeltaDocumentRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         DeltaDocumentRevisionSerde::combine_revisions(revisions)
     }

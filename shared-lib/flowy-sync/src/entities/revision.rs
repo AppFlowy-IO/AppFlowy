@@ -1,5 +1,6 @@
+use crate::util::md5;
 use bytes::Bytes;
-use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
+use flowy_derive::ProtoBuf;
 use std::{convert::TryFrom, fmt::Formatter, ops::RangeInclusive};
 
 pub type RevisionObject = lib_ot::text_delta::DeltaTextOperations;
@@ -20,12 +21,6 @@ pub struct Revision {
 
     #[pb(index = 5)]
     pub object_id: String,
-
-    #[pb(index = 6)]
-    ty: RevType, // Deprecated
-
-    #[pb(index = 7)]
-    pub user_id: String,
 }
 
 impl std::convert::From<Vec<u8>> for Revision {
@@ -36,25 +31,7 @@ impl std::convert::From<Vec<u8>> for Revision {
 }
 
 impl Revision {
-    pub fn is_empty(&self) -> bool {
-        self.base_rev_id == self.rev_id
-    }
-
-    pub fn pair_rev_id(&self) -> (i64, i64) {
-        (self.base_rev_id, self.rev_id)
-    }
-
-    pub fn is_initial(&self) -> bool {
-        self.rev_id == 0
-    }
-
-    pub fn initial_revision(user_id: &str, object_id: &str, bytes: Bytes) -> Self {
-        let md5 = md5(&bytes);
-        Self::new(object_id, 0, 0, bytes, user_id, md5)
-    }
-
-    pub fn new(object_id: &str, base_rev_id: i64, rev_id: i64, bytes: Bytes, user_id: &str, md5: String) -> Revision {
-        let user_id = user_id.to_owned();
+    pub fn new<T: Into<String>>(object_id: &str, base_rev_id: i64, rev_id: i64, bytes: Bytes, md5: T) -> Revision {
         let object_id = object_id.to_owned();
         let bytes = bytes.to_vec();
         let base_rev_id = base_rev_id;
@@ -68,11 +45,26 @@ impl Revision {
             base_rev_id,
             rev_id,
             bytes,
-            md5,
+            md5: md5.into(),
             object_id,
-            ty: RevType::DeprecatedLocal,
-            user_id,
         }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.base_rev_id == self.rev_id
+    }
+
+    pub fn pair_rev_id(&self) -> (i64, i64) {
+        (self.base_rev_id, self.rev_id)
+    }
+
+    pub fn is_initial(&self) -> bool {
+        self.rev_id == 0
+    }
+
+    pub fn initial_revision(object_id: &str, bytes: Bytes) -> Self {
+        let md5 = md5(&bytes);
+        Self::new(object_id, 0, 0, bytes, md5)
     }
 }
 
@@ -186,10 +178,10 @@ impl std::fmt::Display for RevisionRange {
 }
 
 impl RevisionRange {
-    pub fn len(&self) -> i64 {
+    pub fn len(&self) -> u64 {
         debug_assert!(self.end >= self.start);
         if self.end >= self.start {
-            self.end - self.start + 1
+            (self.end - self.start + 1) as u64
         } else {
             0
         }
@@ -206,23 +198,5 @@ impl RevisionRange {
 
     pub fn to_rev_ids(&self) -> Vec<i64> {
         self.iter().collect::<Vec<_>>()
-    }
-}
-
-#[inline]
-pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
-    let md5 = format!("{:x}", md5::compute(data));
-    md5
-}
-
-#[derive(Debug, ProtoBuf_Enum, Clone, Eq, PartialEq)]
-pub enum RevType {
-    DeprecatedLocal = 0,
-    DeprecatedRemote = 1,
-}
-
-impl std::default::Default for RevType {
-    fn default() -> Self {
-        RevType::DeprecatedLocal
     }
 }

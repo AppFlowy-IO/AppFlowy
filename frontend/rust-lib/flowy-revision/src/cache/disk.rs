@@ -5,23 +5,20 @@ use std::sync::Arc;
 
 pub trait RevisionDiskCache<Connection>: Sync + Send {
     type Error: Debug;
-    fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error>;
+    fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error>;
 
     fn get_connection(&self) -> Result<Connection, Self::Error>;
 
     // Read all the records if the rev_ids is None
-    fn read_revision_records(
-        &self,
-        object_id: &str,
-        rev_ids: Option<Vec<i64>>,
-    ) -> Result<Vec<RevisionRecord>, Self::Error>;
+    fn read_revision_records(&self, object_id: &str, rev_ids: Option<Vec<i64>>)
+        -> Result<Vec<SyncRecord>, Self::Error>;
 
     // Read the revision which rev_id >= range.start && rev_id <= range.end
     fn read_revision_records_with_range(
         &self,
         object_id: &str,
         range: &RevisionRange,
-    ) -> Result<Vec<RevisionRecord>, Self::Error>;
+    ) -> Result<Vec<SyncRecord>, Self::Error>;
 
     fn update_revision_record(&self, changesets: Vec<RevisionChangeset>) -> FlowyResult<()>;
 
@@ -34,7 +31,7 @@ pub trait RevisionDiskCache<Connection>: Sync + Send {
         &self,
         object_id: &str,
         deleted_rev_ids: Option<Vec<i64>>,
-        inserted_records: Vec<RevisionRecord>,
+        inserted_records: Vec<SyncRecord>,
     ) -> Result<(), Self::Error>;
 }
 
@@ -44,7 +41,7 @@ where
 {
     type Error = FlowyError;
 
-    fn create_revision_records(&self, revision_records: Vec<RevisionRecord>) -> Result<(), Self::Error> {
+    fn create_revision_records(&self, revision_records: Vec<SyncRecord>) -> Result<(), Self::Error> {
         (**self).create_revision_records(revision_records)
     }
 
@@ -56,7 +53,7 @@ where
         &self,
         object_id: &str,
         rev_ids: Option<Vec<i64>>,
-    ) -> Result<Vec<RevisionRecord>, Self::Error> {
+    ) -> Result<Vec<SyncRecord>, Self::Error> {
         (**self).read_revision_records(object_id, rev_ids)
     }
 
@@ -64,7 +61,7 @@ where
         &self,
         object_id: &str,
         range: &RevisionRange,
-    ) -> Result<Vec<RevisionRecord>, Self::Error> {
+    ) -> Result<Vec<SyncRecord>, Self::Error> {
         (**self).read_revision_records_with_range(object_id, range)
     }
 
@@ -80,20 +77,20 @@ where
         &self,
         object_id: &str,
         deleted_rev_ids: Option<Vec<i64>>,
-        inserted_records: Vec<RevisionRecord>,
+        inserted_records: Vec<SyncRecord>,
     ) -> Result<(), Self::Error> {
         (**self).delete_and_insert_records(object_id, deleted_rev_ids, inserted_records)
     }
 }
 
 #[derive(Clone, Debug)]
-pub struct RevisionRecord {
+pub struct SyncRecord {
     pub revision: Revision,
     pub state: RevisionState,
     pub write_to_disk: bool,
 }
 
-impl RevisionRecord {
+impl SyncRecord {
     pub fn new(revision: Revision) -> Self {
         Self {
             revision,

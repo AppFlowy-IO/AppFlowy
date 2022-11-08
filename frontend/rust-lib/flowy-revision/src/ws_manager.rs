@@ -28,7 +28,7 @@ pub trait RevisionWSDataStream: Send + Sync {
 }
 
 // The sink provides the data that will be sent through the web socket to the
-// backend.
+// server.
 pub trait RevisionWebSocketSink: Send + Sync {
     fn next(&self) -> FutureResult<Option<ClientRevisionWSData>, FlowyError>;
 }

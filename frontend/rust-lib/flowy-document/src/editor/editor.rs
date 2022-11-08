@@ -29,7 +29,9 @@ impl AppFlowyDocumentEditor {
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
         cloud_service: Arc<dyn RevisionCloudService>,
     ) -> FlowyResult<Arc<Self>> {
-        let document = rev_manager.load::<DocumentRevisionSerde>(Some(cloud_service)).await?;
+        let document = rev_manager
+            .initialize::<DocumentRevisionSerde>(Some(cloud_service))
+            .await?;
         let rev_manager = Arc::new(rev_manager);
         let command_sender = spawn_edit_queue(user, rev_manager.clone(), document);
         let doc_id = doc_id.to_string();
@@ -81,7 +83,13 @@ fn spawn_edit_queue(
 }
 
 impl DocumentEditor for Arc<AppFlowyDocumentEditor> {
-    fn close(&self) {}
+    #[tracing::instrument(name = "close document editor", level = "trace", skip_all)]
+    fn close(&self) {
+        let rev_manager = self.rev_manager.clone();
+        tokio::spawn(async move {
+            rev_manager.close().await;
+        });
+    }
 
     fn export(&self) -> FutureResult<String, FlowyError> {
         let this = self.clone();

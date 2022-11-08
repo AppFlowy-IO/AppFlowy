@@ -1,21 +1,27 @@
 use crate::entities::GridLayout;
-use crate::services::block_editor::GridBlockRevisionCompress;
+
 use crate::services::grid_editor::{GridRevisionCompress, GridRevisionEditor};
 use crate::services::grid_view_manager::make_grid_view_rev_manager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::migration::GridMigration;
-use crate::services::persistence::rev_sqlite::{SQLiteGridBlockRevisionPersistence, SQLiteGridRevisionPersistence};
+use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
 use crate::services::persistence::GridDatabase;
 use crate::services::tasks::GridTaskScheduler;
 use bytes::Bytes;
-use dashmap::DashMap;
+
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_grid_data_model::revision::{BuildGridContext, GridRevision, GridViewRevision};
-use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
+    SQLiteRevisionSnapshotPersistence,
+};
 use flowy_sync::client_grid::{make_grid_block_operations, make_grid_operations, make_grid_view_operations};
-use flowy_sync::entities::revision::{RepeatedRevision, Revision};
+use flowy_sync::entities::revision::Revision;
+use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
+
+use crate::services::block_manager::make_grid_block_rev_manager;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -28,7 +34,7 @@ pub trait GridUser: Send + Sync {
 pub type GridTaskSchedulerRwLock = Arc<RwLock<GridTaskScheduler>>;
 
 pub struct GridManager {
-    grid_editors: Arc<DashMap<String, Arc<GridRevisionEditor>>>,
+    grid_editors: RwLock<RefCountHashMap<Arc<GridRevisionEditor>>>,
     grid_user: Arc<dyn GridUser>,
     block_index_cache: Arc<BlockIndexCache>,
     #[allow(dead_code)]
@@ -43,7 +49,7 @@ impl GridManager {
         _rev_web_socket: Arc<dyn RevisionWebSocket>,
         database: Arc<dyn GridDatabase>,
     ) -> Self {
-        let grid_editors = Arc::new(DashMap::new());
+        let grid_editors = RwLock::new(RefCountHashMap::new());
         let kv_persistence = Arc::new(GridKVPersistence::new(database.clone()));
         let block_index_cache = Arc::new(BlockIndexCache::new(database.clone()));
         let task_scheduler = GridTaskScheduler::new();
@@ -67,7 +73,7 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub async fn create_grid<T: AsRef<str>>(&self, grid_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn create_grid<T: AsRef<str>>(&self, grid_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         let db_pool = self.grid_user.db_pool()?;
         let rev_manager = self.make_grid_rev_manager(grid_id, db_pool)?;
@@ -77,7 +83,7 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    async fn create_grid_view<T: AsRef<str>>(&self, view_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    async fn create_grid_view<T: AsRef<str>>(&self, view_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let view_id = view_id.as_ref();
         let rev_manager = make_grid_view_rev_manager(&self.grid_user, view_id).await?;
         let _ = rev_manager.reset_object(revisions).await?;
@@ -85,10 +91,9 @@ impl GridManager {
     }
 
     #[tracing::instrument(level = "debug", skip_all, err)]
-    pub async fn create_grid_block<T: AsRef<str>>(&self, block_id: T, revisions: RepeatedRevision) -> FlowyResult<()> {
+    pub async fn create_grid_block<T: AsRef<str>>(&self, block_id: T, revisions: Vec<Revision>) -> FlowyResult<()> {
         let block_id = block_id.as_ref();
-        let db_pool = self.grid_user.db_pool()?;
-        let rev_manager = self.make_grid_block_rev_manager(block_id, db_pool)?;
+        let rev_manager = make_grid_block_rev_manager(&self.grid_user, block_id)?;
         let _ = rev_manager.reset_object(revisions).await?;
         Ok(())
     }
@@ -104,35 +109,33 @@ impl GridManager {
     pub async fn close_grid<T: AsRef<str>>(&self, grid_id: T) -> FlowyResult<()> {
         let grid_id = grid_id.as_ref();
         tracing::Span::current().record("grid_id", &grid_id);
-        self.grid_editors.remove(grid_id);
+
+        self.grid_editors.write().await.remove(grid_id);
         self.task_scheduler.write().await.unregister_handler(grid_id);
         Ok(())
     }
 
     // #[tracing::instrument(level = "debug", skip(self), err)]
-    pub fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
-        match self.grid_editors.get(grid_id) {
+    pub async fn get_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
+        match self.grid_editors.read().await.get(grid_id) {
             None => Err(FlowyError::internal().context("Should call open_grid function first")),
-            Some(editor) => Ok(editor.clone()),
+            Some(editor) => Ok(editor),
         }
     }
 
     async fn get_or_create_grid_editor(&self, grid_id: &str) -> FlowyResult<Arc<GridRevisionEditor>> {
-        match self.grid_editors.get(grid_id) {
-            None => {
-                if let Some(editor) = self.grid_editors.get(grid_id) {
-                    tracing::warn!("Grid:{} already open", grid_id);
-                    Ok(editor.clone())
-                } else {
-                    let db_pool = self.grid_user.db_pool()?;
-                    let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
-                    self.grid_editors.insert(grid_id.to_string(), editor.clone());
-                    self.task_scheduler.write().await.register_handler(editor.clone());
-                    Ok(editor)
-                }
-            }
-            Some(editor) => Ok(editor.clone()),
+        if let Some(editor) = self.grid_editors.read().await.get(grid_id) {
+            return Ok(editor);
         }
+
+        let db_pool = self.grid_user.db_pool()?;
+        let editor = self.make_grid_rev_editor(grid_id, db_pool).await?;
+        self.grid_editors
+            .write()
+            .await
+            .insert(grid_id.to_string(), editor.clone());
+        self.task_scheduler.write().await.register_handler(editor.clone());
+        Ok(editor)
     }
 
     #[tracing::instrument(level = "trace", skip(self, pool), err)]
@@ -161,31 +164,17 @@ impl GridManager {
     ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
         let user_id = self.grid_user.user_id()?;
         let disk_cache = SQLiteGridRevisionPersistence::new(&user_id, pool.clone());
-        let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache);
+        let configuration = RevisionPersistenceConfiguration::new(2, false);
+        let rev_persistence = RevisionPersistence::new(&user_id, grid_id, disk_cache, configuration);
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(grid_id, pool);
         let rev_compactor = GridRevisionCompress();
         let rev_manager = RevisionManager::new(&user_id, grid_id, rev_persistence, rev_compactor, snapshot_persistence);
         Ok(rev_manager)
     }
-
-    fn make_grid_block_rev_manager(
-        &self,
-        block_id: &str,
-        pool: Arc<ConnectionPool>,
-    ) -> FlowyResult<RevisionManager<Arc<ConnectionPool>>> {
-        let user_id = self.grid_user.user_id()?;
-        let disk_cache = SQLiteGridBlockRevisionPersistence::new(&user_id, pool.clone());
-        let rev_persistence = RevisionPersistence::new(&user_id, block_id, disk_cache);
-        let rev_compactor = GridBlockRevisionCompress();
-        let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(block_id, pool);
-        let rev_manager =
-            RevisionManager::new(&user_id, block_id, rev_persistence, rev_compactor, snapshot_persistence);
-        Ok(rev_manager)
-    }
 }
 
 pub async fn make_grid_view_data(
-    user_id: &str,
+    _user_id: &str,
     view_id: &str,
     layout: GridLayout,
     grid_manager: Arc<GridManager>,
@@ -208,9 +197,8 @@ pub async fn make_grid_view_data(
         // Create grid's block
         let grid_block_delta = make_grid_block_operations(block_meta_data);
         let block_delta_data = grid_block_delta.json_bytes();
-        let repeated_revision: RepeatedRevision =
-            Revision::initial_revision(user_id, block_id, block_delta_data).into();
-        let _ = grid_manager.create_grid_block(&block_id, repeated_revision).await?;
+        let revision = Revision::initial_revision(block_id, block_delta_data);
+        let _ = grid_manager.create_grid_block(&block_id, vec![revision]).await?;
     }
 
     // Will replace the grid_id with the value returned by the gen_grid_id()
@@ -220,9 +208,8 @@ pub async fn make_grid_view_data(
     // Create grid
     let grid_rev_delta = make_grid_operations(&grid_rev);
     let grid_rev_delta_bytes = grid_rev_delta.json_bytes();
-    let repeated_revision: RepeatedRevision =
-        Revision::initial_revision(user_id, &grid_id, grid_rev_delta_bytes.clone()).into();
-    let _ = grid_manager.create_grid(&grid_id, repeated_revision).await?;
+    let revision = Revision::initial_revision(&grid_id, grid_rev_delta_bytes.clone());
+    let _ = grid_manager.create_grid(&grid_id, vec![revision]).await?;
 
     // Create grid view
     let grid_view = if grid_view_revision_data.is_empty() {
@@ -232,9 +219,14 @@ pub async fn make_grid_view_data(
     };
     let grid_view_delta = make_grid_view_operations(&grid_view);
     let grid_view_delta_bytes = grid_view_delta.json_bytes();
-    let repeated_revision: RepeatedRevision =
-        Revision::initial_revision(user_id, view_id, grid_view_delta_bytes).into();
-    let _ = grid_manager.create_grid_view(view_id, repeated_revision).await?;
+    let revision = Revision::initial_revision(view_id, grid_view_delta_bytes);
+    let _ = grid_manager.create_grid_view(view_id, vec![revision]).await?;
 
     Ok(grid_rev_delta_bytes)
+}
+
+impl RefCountValue for GridRevisionEditor {
+    fn did_remove(&self) {
+        self.close();
+    }
 }

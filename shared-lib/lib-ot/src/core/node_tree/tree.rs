@@ -35,9 +35,19 @@ impl NodeTree {
         Ok(tree)
     }
 
-    pub fn from_bytes(bytes: Vec<u8>, context: NodeTreeContext) -> Result<Self, OTError> {
-        let operations = NodeOperations::from_bytes(bytes)?;
-        Self::from_operations(operations, context)
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, OTError> {
+        let tree: NodeTree = serde_json::from_slice(bytes).map_err(|e| OTError::serde().context(e))?;
+        Ok(tree)
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        match serde_json::to_vec(self) {
+            Ok(bytes) => bytes,
+            Err(e) => {
+                tracing::error!("{}", e);
+                vec![]
+            }
+        }
     }
 
     pub fn from_operations<T: Into<NodeOperations>>(operations: T, context: NodeTreeContext) -> Result<Self, OTError> {

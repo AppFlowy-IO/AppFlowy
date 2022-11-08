@@ -11,7 +11,7 @@ use crate::{
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
-use flowy_revision::disk::{RevisionDiskCache, RevisionRecord, RevisionState};
+use flowy_revision::disk::{RevisionDiskCache, RevisionState, SyncRecord};
 use flowy_sync::{client_folder::FolderPad, entities::revision::Revision};
 
 use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
@@ -111,8 +111,8 @@ impl FolderPersistence {
         let pool = self.database.db_pool()?;
         let json = folder.to_json()?;
         let delta_data = FolderOperationsBuilder::new().insert(&json).build().json_bytes();
-        let revision = Revision::initial_revision(user_id, folder_id.as_ref(), delta_data);
-        let record = RevisionRecord {
+        let revision = Revision::initial_revision(folder_id.as_ref(), delta_data);
+        let record = SyncRecord {
             revision,
             state: RevisionState::Sync,
             write_to_disk: true,
