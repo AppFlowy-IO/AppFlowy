@@ -13,7 +13,7 @@ use flowy_database::{
     SqliteConnection,
 };
 
-use flowy_folder_data_model::revision::{ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
+use folder_rev_model::{ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
 use lib_infra::util::timestamp;
 
 pub struct ViewTableSql();

@@ -3,7 +3,7 @@ use crate::services::{
     persistence::{AppChangeset, FolderPersistenceTransaction, ViewChangeset, WorkspaceChangeset},
 };
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_folder_data_model::revision::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
+use folder_rev_model::{AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use std::sync::Arc;
 
 impl FolderPersistenceTransaction for FolderEditor {

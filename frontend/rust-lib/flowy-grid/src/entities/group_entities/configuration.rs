@@ -1,5 +1,5 @@
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_grid_data_model::revision::{GroupRevision, SelectOptionGroupConfigurationRevision};
+use grid_rev_model::{GroupRevision, SelectOptionGroupConfigurationRevision};
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct UrlGroupConfigurationPB {

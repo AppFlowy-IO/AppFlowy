@@ -1,7 +1,7 @@
 use crate::entities::FieldType;
 use crate::services::field::type_options::*;
 use bytes::Bytes;
-use flowy_grid_data_model::revision::TypeOptionDataSerializer;
+use grid_rev_model::TypeOptionDataSerializer;
 
 pub trait TypeOptionBuilder {
     /// Returns the type of the type-option data

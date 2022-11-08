@@ -8,12 +8,10 @@ use crate::services::row::{block_from_row_orders, make_row_from_row_rev, GridBlo
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{
-    GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision,
-};
 use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
+use grid_rev_model::{GridBlockMetaRevision, GridBlockMetaRevisionChangeset, RowChangeset, RowRevision};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::sync::Arc;

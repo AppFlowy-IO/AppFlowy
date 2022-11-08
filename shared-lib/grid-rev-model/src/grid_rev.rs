@@ -1,4 +1,4 @@
-use crate::revision::GridBlockRevision;
+use crate::GridBlockRevision;
 use bytes::Bytes;
 use indexmap::IndexMap;
 use nanoid::nanoid;

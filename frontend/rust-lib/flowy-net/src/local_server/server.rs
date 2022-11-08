@@ -258,13 +258,11 @@ use flowy_folder::entities::{
     view::{CreateViewParams, RepeatedViewIdPB, UpdateViewParams, ViewIdPB},
     workspace::{CreateWorkspaceParams, UpdateWorkspaceParams, WorkspaceIdPB},
 };
-use flowy_folder_data_model::revision::{
-    gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision,
-};
 use flowy_user::entities::{
     SignInParams, SignInResponse, SignUpParams, SignUpResponse, UpdateUserProfileParams, UserProfilePB,
 };
 use flowy_user::event_map::UserCloudService;
+use folder_rev_model::{gen_app_id, gen_workspace_id, AppRevision, TrashRevision, ViewRevision, WorkspaceRevision};
 use lib_infra::{future::FutureResult, util::timestamp};
 
 impl FolderCouldServiceV1 for LocalServer {

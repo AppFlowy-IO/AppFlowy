@@ -1,6 +1,6 @@
 use crate::impl_def_and_def_mut;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_folder_data_model::revision::{TrashRevision, TrashTypeRevision};
+use folder_rev_model::{TrashRevision, TrashTypeRevision};
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 

@@ -1,7 +1,5 @@
 use crate::errors::{CollaborateError, CollaborateResult};
-use flowy_grid_data_model::revision::{
-    BuildGridContext, FieldRevision, GridBlockMetaRevision, GridBlockRevision, RowRevision,
-};
+use grid_rev_model::{BuildGridContext, FieldRevision, GridBlockMetaRevision, GridBlockRevision, RowRevision};
 use std::sync::Arc;
 
 pub struct GridBuilder {

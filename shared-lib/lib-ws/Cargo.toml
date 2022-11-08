@@ -24,7 +24,7 @@ tracing = { version = "0.1", features = ["log"] }
 protobuf = {version = "2.18.0"}
 strum = "0.21"
 strum_macros = "0.21"
-parking_lot = "0.11"
+parking_lot = "0.12.1"
 dashmap = "5"
 
 [build-dependencies]

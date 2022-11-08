@@ -1,6 +1,6 @@
 use crate::services::grid_view_manager::GridViewFieldDelegate;
-use flowy_grid_data_model::revision::FieldRevision;
 use flowy_sync::client_grid::GridRevisionPad;
+use grid_rev_model::FieldRevision;
 use lib_infra::future::{wrap_future, AFFuture};
 use std::sync::Arc;
 use tokio::sync::RwLock;

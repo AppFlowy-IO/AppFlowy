@@ -1,3 +1,4 @@
+use crate::entities::parser::NotEmptyStr;
 use crate::entities::{CellChangesetPB, FieldType, GridCellIdPB, GridCellIdParams};
 use crate::services::cell::{
     CellBytes, CellBytesParser, CellData, CellDataIsEmpty, CellDisplayable, FromCellChangeset, FromCellString,
@@ -7,8 +8,7 @@ use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use bytes::Bytes;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::{internal_error, ErrorCode, FlowyResult};
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::{FieldRevision, TypeOptionDataSerializer};
+use grid_rev_model::{FieldRevision, TypeOptionDataSerializer};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 

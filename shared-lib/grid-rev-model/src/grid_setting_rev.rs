@@ -1,4 +1,4 @@
-use crate::revision::{FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision};
+use crate::{FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision};
 use indexmap::IndexMap;
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
@@ -49,7 +49,7 @@ where
             .get_mut(field_id)
             .and_then(|object_rev_map| object_rev_map.get_mut(field_type));
         if value.is_none() {
-            tracing::warn!("[Configuration] Can't find the {:?} with", std::any::type_name::<T>());
+            eprintln!("[Configuration] Can't find the {:?} with", std::any::type_name::<T>());
         }
         value
     }

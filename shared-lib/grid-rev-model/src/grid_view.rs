@@ -1,4 +1,4 @@
-use crate::revision::{FilterConfiguration, GroupConfiguration};
+use crate::{FilterConfiguration, GroupConfiguration};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
 use serde_repr::*;
@@ -71,7 +71,7 @@ pub struct RowOrderRevision {
 
 #[cfg(test)]
 mod tests {
-    use crate::revision::GridViewRevision;
+    use crate::GridViewRevision;
 
     #[test]
     fn grid_view_revision_serde_test() {

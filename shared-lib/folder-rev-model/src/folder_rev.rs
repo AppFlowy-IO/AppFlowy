@@ -1,4 +1,4 @@
-use crate::revision::{TrashRevision, WorkspaceRevision};
+use crate::{TrashRevision, WorkspaceRevision};
 use serde::de::{MapAccess, Visitor};
 use serde::{de, Deserialize, Deserializer, Serialize};
 use std::fmt;

@@ -4,9 +4,7 @@ use crate::services::field::{SelectOptionCellDataPB, SelectOptionPB, CHECK};
 use crate::services::group::configuration::GroupContext;
 use crate::services::group::controller::MoveGroupRowContext;
 use crate::services::group::{GeneratedGroupConfig, Group};
-use flowy_grid_data_model::revision::{
-    CellRevision, FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision,
-};
+use grid_rev_model::{CellRevision, FieldRevision, GroupRevision, RowRevision, SelectOptionGroupConfigurationRevision};
 
 pub type SelectOptionGroupContext = GroupContext<SelectOptionGroupConfigurationRevision>;
 

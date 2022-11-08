@@ -2,7 +2,7 @@ use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_operations_from_revisions, md5};
 
-use flowy_grid_data_model::revision::{
+use grid_rev_model::{
     gen_block_id, gen_grid_id, FieldRevision, FieldTypeRevision, GridBlockMetaRevision, GridBlockMetaRevisionChangeset,
     GridRevision,
 };

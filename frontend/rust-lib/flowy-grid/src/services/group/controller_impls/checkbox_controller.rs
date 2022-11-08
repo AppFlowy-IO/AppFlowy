@@ -8,9 +8,7 @@ use crate::services::group::controller::{
 
 use crate::services::cell::insert_checkbox_cell;
 use crate::services::group::{move_group_row, GeneratedGroupConfig, GeneratedGroupContext};
-use flowy_grid_data_model::revision::{
-    CellRevision, CheckboxGroupConfigurationRevision, FieldRevision, GroupRevision, RowRevision,
-};
+use grid_rev_model::{CellRevision, CheckboxGroupConfigurationRevision, FieldRevision, GroupRevision, RowRevision};
 
 pub type CheckboxGroupController = GenericGroupController<
     CheckboxGroupConfigurationRevision,

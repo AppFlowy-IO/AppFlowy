@@ -6,7 +6,7 @@ use crate::{
 };
 
 use crate::server_folder::FolderOperations;
-use flowy_folder_data_model::revision::{TrashRevision, WorkspaceRevision};
+use folder_rev_model::{TrashRevision, WorkspaceRevision};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]

@@ -10,10 +10,10 @@ use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{FieldRevision, RowChangeset, RowRevision};
 use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
+use grid_rev_model::{FieldRevision, RowChangeset, RowRevision};
 use lib_infra::future::AFFuture;
 use std::sync::Arc;
 

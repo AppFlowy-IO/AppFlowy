@@ -14,16 +14,16 @@ use crate::services::group::{
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::{
-    gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
-    RowChangeset, RowRevision,
-};
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_operations_from_revisions;
+use grid_rev_model::{
+    gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
+    RowChangeset, RowRevision,
+};
 use lib_infra::future::{wrap_future, AFFuture, FutureResult};
 use lib_ot::core::EmptyAttributes;
 use std::future::Future;

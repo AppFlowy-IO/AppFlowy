@@ -1,7 +1,7 @@
+use crate::entities::parser::NotEmptyStr;
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::RowRevision;
+use grid_rev_model::RowRevision;
 use std::sync::Arc;
 
 /// [BlockPB] contains list of row ids. The rows here does not contain any data, just the id

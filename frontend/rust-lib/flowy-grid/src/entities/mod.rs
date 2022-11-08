@@ -4,6 +4,7 @@ mod field_entities;
 mod filter_entities;
 mod grid_entities;
 mod group_entities;
+pub mod parser;
 mod row_entities;
 mod setting_entities;
 
