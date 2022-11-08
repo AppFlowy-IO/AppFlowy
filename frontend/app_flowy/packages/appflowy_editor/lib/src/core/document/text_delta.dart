@@ -62,7 +62,7 @@ class TextInsert extends TextOperation {
 
     return other is TextInsert &&
         other.text == text &&
-        mapEquals(_attributes, other._attributes);
+        _mapEquals(_attributes, other._attributes);
   }
 
   @override
@@ -99,7 +99,7 @@ class TextRetain extends TextOperation {
 
     return other is TextRetain &&
         other.length == length &&
-        mapEquals(_attributes, other._attributes);
+        _mapEquals(_attributes, other._attributes);
   }
 
   @override
@@ -181,7 +181,7 @@ class Delta extends Iterable<TextOperation> {
         lastOp.length += textOperation.length;
         return;
       }
-      if (mapEquals(lastOp.attributes, textOperation.attributes)) {
+      if (_mapEquals(lastOp.attributes, textOperation.attributes)) {
         if (lastOp is TextInsert && textOperation is TextInsert) {
           lastOp.text += textOperation.text;
           return;
@@ -538,4 +538,11 @@ class _OpIterator {
       return [next] + rest;
     }
   }
+}
+
+bool _mapEquals<T, U>(Map<T, U>? a, Map<T, U>? b) {
+  if ((a == null || a.isEmpty) && (b == null || b.isEmpty)) {
+    return true;
+  }
+  return mapEquals(a, b);
 }

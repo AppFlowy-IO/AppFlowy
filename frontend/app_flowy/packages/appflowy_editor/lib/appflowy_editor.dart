@@ -38,3 +38,4 @@ export 'src/plugins/markdown/encoder/document_markdown_encoder.dart';
 export 'src/plugins/markdown/encoder/parser/node_parser.dart';
 export 'src/plugins/markdown/encoder/parser/text_node_parser.dart';
 export 'src/plugins/markdown/encoder/parser/image_node_parser.dart';
+export 'src/plugins/markdown/decoder/delta_markdown_decoder.dart';
