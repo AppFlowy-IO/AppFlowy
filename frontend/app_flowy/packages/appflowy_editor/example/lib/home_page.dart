@@ -99,8 +99,12 @@ class _HomePageState extends State<HomePage> {
 
           // Decoder Demo
           _buildSeparator(context, 'Decoder Demo'),
-          _buildListTile(context, 'Import From JSON', () {}),
-          _buildListTile(context, 'Import From Markdown', () {}),
+          _buildListTile(context, 'Import From JSON', () {
+            _importFile(ExportFileType.json);
+          }),
+          _buildListTile(context, 'Import From Markdown', () {
+            _importFile(ExportFileType.markdown);
+          }),
 
           // Theme Demo
           _buildSeparator(context, 'Theme Demo'),
@@ -211,6 +215,34 @@ class _HomePageState extends State<HomePage> {
       )
         ..setAttribute('download', 'document.${fileType.extension}')
         ..click();
+    }
+  }
+
+  void _importFile(ExportFileType fileType) async {
+    final result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      allowedExtensions: [fileType.extension],
+      type: FileType.custom,
+    );
+    final path = result?.files.single.path;
+    if (path == null) {
+      return;
+    }
+    final plainText = await File(path).readAsString();
+    var jsonString = '';
+    switch (fileType) {
+      case ExportFileType.json:
+        jsonString = jsonEncode(plainText);
+        break;
+      case ExportFileType.markdown:
+        jsonString = jsonEncode(markdownToDocument(plainText).toJson());
+        break;
+      case ExportFileType.html:
+        throw UnimplementedError();
+    }
+
+    if (mounted) {
+      _loadEditor(context, Future<String>.value(jsonString));
     }
   }
 }
