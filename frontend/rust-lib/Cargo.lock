@@ -1091,6 +1091,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-search"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "atomic_refcell",
+ "lib-infra",
+ "rand 0.8.5",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "flowy-sync"
 version = "0.1.0"
 dependencies = [
