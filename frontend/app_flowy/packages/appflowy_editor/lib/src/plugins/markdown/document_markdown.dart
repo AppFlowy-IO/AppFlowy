@@ -2,8 +2,9 @@ library delta_markdown;
 
 import 'dart:convert';
 
-import 'package:appflowy_editor/appflowy_editor.dart' show Document;
-import 'package:app_flowy/workspace/application/markdown/src/parser/markdown_encoder.dart';
+import 'package:appflowy_editor/src/core/document/document.dart';
+import 'package:appflowy_editor/src/plugins/markdown/decoder/document_markdown_decoder.dart';
+import 'package:appflowy_editor/src/plugins/markdown/encoder/document_markdown_encoder.dart';
 
 /// Codec used to convert between Markdown and AppFlowy Editor Document.
 const AppFlowyEditorMarkdownCodec _kCodec = AppFlowyEditorMarkdownCodec();
@@ -20,10 +21,8 @@ class AppFlowyEditorMarkdownCodec extends Codec<Document, String> {
   const AppFlowyEditorMarkdownCodec();
 
   @override
-  Converter<String, Document> get decoder => throw UnimplementedError();
+  Converter<String, Document> get decoder => DocumentMarkdownDecoder();
 
   @override
-  Converter<Document, String> get encoder {
-    return AppFlowyEditorMarkdownEncoder();
-  }
+  Converter<Document, String> get encoder => DocumentMarkdownEncoder();
 }

@@ -1,4 +1,4 @@
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
 
 abstract class NodeParser {
   const NodeParser();

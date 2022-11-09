@@ -1,5 +1,5 @@
-import 'package:app_flowy/workspace/application/markdown/src/parser/node_parser.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/core/document/node.dart';
+import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/node_parser.dart';
 
 class ImageNodeParser extends NodeParser {
   const ImageNodeParser();

@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:app_flowy/workspace/application/markdown/src/parser/image_node_parser.dart';
-import 'package:app_flowy/workspace/application/markdown/src/parser/node_parser.dart';
-import 'package:app_flowy/workspace/application/markdown/src/parser/text_node_parser.dart';
-import 'package:appflowy_editor/appflowy_editor.dart';
+import 'package:appflowy_editor/src/core/document/document.dart';
+import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/image_node_parser.dart';
+import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/node_parser.dart';
+import 'package:appflowy_editor/src/plugins/markdown/encoder/parser/text_node_parser.dart';
 
-class AppFlowyEditorMarkdownEncoder extends Converter<Document, String> {
-  AppFlowyEditorMarkdownEncoder({
+class DocumentMarkdownEncoder extends Converter<Document, String> {
+  DocumentMarkdownEncoder({
     this.parsers = const [
       TextNodeParser(),
       ImageNodeParser(),
