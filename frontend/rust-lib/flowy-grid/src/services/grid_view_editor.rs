@@ -291,8 +291,13 @@ impl GridViewRevisionEditor {
         .await
     }
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub(crate) async fn did_update_view_field(&self, _field_id: &str) -> FlowyResult<()> {
-        // Do nothing
+    pub(crate) async fn did_update_view_field(&self, field_id: &str) -> FlowyResult<()> {
+        let grouped_field_id = self.group_controller.read().await.field_id().to_owned();
+        if grouped_field_id == field_id {
+            let _ = self.group_by_view_field(field_id).await?;
+        } else {
+            // Do nothing
+        }
         Ok(())
     }
 
