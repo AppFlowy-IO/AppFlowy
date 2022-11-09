@@ -37,7 +37,7 @@ void main() {
     });
 
     blocTest<GridGroupBloc, GridGroupState>(
-      "set grouped by multi-select field",
+      "set grouped by the new multi-select field",
       build: () => GridGroupBloc(
         viewId: boardTest.context.gridView.id,
         fieldController: boardTest.context.fieldController,
