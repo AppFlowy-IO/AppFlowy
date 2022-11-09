@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:universal_html/html.dart' as html;
 
 enum ExportFileType {
@@ -39,15 +40,28 @@ class _HomePageState extends State<HomePage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   late WidgetBuilder _widgetBuilder;
   late EditorState _editorState;
+  late Future<String> _jsonString;
+  ThemeData _themeData = ThemeData.light().copyWith(
+    extensions: [
+      ...lightEditorStyleExtension,
+      ...lightPlguinStyleExtension,
+    ],
+  );
 
   @override
   void initState() {
     super.initState();
 
-    _widgetBuilder = (context) {
-      _editorState = EditorState.empty();
-      return AppFlowyEditor(editorState: EditorState.empty());
-    };
+    _jsonString = Future<String>.value(
+      jsonEncode(EditorState.empty().document.toJson()),
+    );
+    _widgetBuilder = (context) => SimpleEditor(
+          jsonString: _jsonString,
+          themeData: _themeData,
+          onEditorStateChange: (editorState) {
+            _editorState = editorState;
+          },
+        );
   }
 
   @override
@@ -108,8 +122,27 @@ class _HomePageState extends State<HomePage> {
 
           // Theme Demo
           _buildSeparator(context, 'Theme Demo'),
-          _buildListTile(context, 'Bulit In Dark Mode', () {}),
-          _buildListTile(context, 'Custom Theme', () {}),
+          _buildListTile(context, 'Bulit In Dark Mode', () {
+            _jsonString = Future<String>.value(
+              jsonEncode(_editorState.document.toJson()).toString(),
+            );
+            setState(() {
+              _themeData = ThemeData.dark().copyWith(
+                extensions: [
+                  ...darkEditorStyleExtension,
+                  ...darkPlguinStyleExtension,
+                ],
+              );
+            });
+          }),
+          _buildListTile(context, 'Custom Theme', () {
+            _jsonString = Future<String>.value(
+              jsonEncode(_editorState.document.toJson()).toString(),
+            );
+            setState(() {
+              _themeData = _customizeEditorTheme(context);
+            });
+          }),
         ],
       ),
     );
@@ -165,10 +198,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _loadEditor(BuildContext context, Future<String> jsonString) {
+    _jsonString = jsonString;
     setState(
       () {
         _widgetBuilder = (context) => SimpleEditor(
-              jsonString: jsonString,
+              jsonString: _jsonString,
+              themeData: _themeData,
               onEditorStateChange: (editorState) {
                 _editorState = editorState;
               },
@@ -244,5 +279,42 @@ class _HomePageState extends State<HomePage> {
     if (mounted) {
       _loadEditor(context, Future<String>.value(jsonString));
     }
+  }
+
+  ThemeData _customizeEditorTheme(BuildContext context) {
+    final dark = EditorStyle.dark;
+    final editorStyle = dark.copyWith(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 150),
+      cursorColor: Colors.blue.shade600,
+      selectionColor: Colors.yellow.shade600.withOpacity(0.5),
+      textStyle: GoogleFonts.poppins().copyWith(
+        fontSize: 14,
+        color: Colors.grey,
+      ),
+      placeholderTextStyle: GoogleFonts.poppins().copyWith(
+        fontSize: 14,
+        color: Colors.grey.shade500,
+      ),
+      code: dark.code?.copyWith(
+        backgroundColor: Colors.lightBlue.shade200,
+        fontStyle: FontStyle.italic,
+      ),
+      highlightColorHex: '0x60FF0000', // red
+    );
+
+    final quote = QuotedTextPluginStyle.dark.copyWith(
+      textStyle: (_, __) => GoogleFonts.poppins().copyWith(
+        fontSize: 14,
+        color: Colors.blue.shade400,
+        fontStyle: FontStyle.italic,
+        fontWeight: FontWeight.w700,
+      ),
+    );
+
+    return Theme.of(context).copyWith(extensions: [
+      editorStyle,
+      ...darkPlguinStyleExtension,
+      quote,
+    ]);
   }
 }

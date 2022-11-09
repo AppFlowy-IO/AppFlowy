@@ -7,10 +7,12 @@ class SimpleEditor extends StatelessWidget {
   const SimpleEditor({
     super.key,
     required this.jsonString,
+    required this.themeData,
     required this.onEditorStateChange,
   });
 
   final Future<String> jsonString;
+  final ThemeData themeData;
   final void Function(EditorState editorState) onEditorStateChange;
 
   @override
@@ -30,6 +32,7 @@ class SimpleEditor extends StatelessWidget {
           onEditorStateChange(editorState);
           return AppFlowyEditor(
             editorState: editorState,
+            themeData: themeData,
             autoFocus: editorState.document.isEmpty,
           );
         } else {
