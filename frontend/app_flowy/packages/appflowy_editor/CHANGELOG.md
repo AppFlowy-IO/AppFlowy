@@ -1,5 +1,6 @@
 ## 0.0.7
 * Refactor theme customizer, and support dark mode.
+* Support export and import markdown.
 * Fix some bugs.
 
 ## 0.0.6
