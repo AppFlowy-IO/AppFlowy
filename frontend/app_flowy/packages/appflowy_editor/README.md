@@ -54,11 +54,9 @@ flutter pub get
 Start by creating a new empty AppFlowyEditor object. 
 
 ```dart
-final editorStyle = EditorStyle.defaultStyle();
 final editorState = EditorState.empty(); // an empty state
 final editor = AppFlowyEditor(
     editorState: editorState,
-    editorStyle: editorStyle,
 );
 ```
 
@@ -66,11 +64,9 @@ You can also create an editor from a JSON object in order to configure your init
 
 ```dart
 final json = ...;
-final editorStyle = EditorStyle.defaultStyle();
 final editorState = EditorState(Document.fromJson(data));
 final editor = AppFlowyEditor(
     editorState: editorState,
-    editorStyle: editorStyle,
 );
 ```
 

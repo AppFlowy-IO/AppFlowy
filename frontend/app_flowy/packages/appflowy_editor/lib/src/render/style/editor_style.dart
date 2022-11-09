@@ -11,6 +11,7 @@ Iterable<ThemeExtension<dynamic>> get darkEditorStyleExtension => [
 class EditorStyle extends ThemeExtension<EditorStyle> {
   // Editor styles
   final EdgeInsets? padding;
+  final Color? backgroundColor;
   final Color? cursorColor;
   final Color? selectionColor;
 
@@ -39,6 +40,7 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
 
   EditorStyle({
     required this.padding,
+    required this.backgroundColor,
     required this.cursorColor,
     required this.selectionColor,
     required this.selectionMenuBackgroundColor,
@@ -63,6 +65,7 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
   @override
   EditorStyle copyWith({
     EdgeInsets? padding,
+    Color? backgroundColor,
     Color? cursorColor,
     Color? selectionColor,
     Color? selectionMenuBackgroundColor,
@@ -84,6 +87,7 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
   }) {
     return EditorStyle(
       padding: padding ?? this.padding,
+      backgroundColor: backgroundColor ?? this.backgroundColor,
       cursorColor: cursorColor ?? this.cursorColor,
       selectionColor: selectionColor ?? this.selectionColor,
       selectionMenuBackgroundColor:
@@ -120,6 +124,7 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
     }
     return EditorStyle(
       padding: EdgeInsets.lerp(padding, other.padding, t),
+      backgroundColor: Color.lerp(backgroundColor, other.backgroundColor, t),
       cursorColor: Color.lerp(cursorColor, other.cursorColor, t),
       textPadding: EdgeInsets.lerp(textPadding, other.textPadding, t),
       selectionColor: Color.lerp(selectionColor, other.selectionColor, t),
@@ -155,6 +160,7 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
 
   static final light = EditorStyle(
     padding: const EdgeInsets.fromLTRB(200.0, 0.0, 200.0, 0.0),
+    backgroundColor: Colors.white,
     cursorColor: const Color(0xFF00BCF0),
     selectionColor: const Color.fromARGB(53, 111, 201, 231),
     selectionMenuBackgroundColor: const Color(0xFFFFFFFF),
@@ -184,6 +190,7 @@ class EditorStyle extends ThemeExtension<EditorStyle> {
   );
 
   static final dark = light.copyWith(
+    backgroundColor: Colors.black,
     textStyle: const TextStyle(fontSize: 16.0, color: Colors.white),
     placeholderTextStyle: TextStyle(
       fontSize: 16.0,

@@ -115,6 +115,10 @@ class Document {
       return true;
     }
 
+    if (root.children.length > 1) {
+      return false;
+    }
+
     final node = root.children.first;
     if (node is TextNode &&
         (node.delta.isEmpty || node.delta.toPlainText().isEmpty)) {
