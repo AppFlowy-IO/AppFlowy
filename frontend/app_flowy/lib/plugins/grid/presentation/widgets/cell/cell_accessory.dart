@@ -189,8 +189,7 @@ class _Background extends StatelessWidget {
           return FlowyHoverContainer(
             style: HoverStyle(
               borderRadius: Corners.s6Border,
-              hoverColor:
-                  Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
+              hoverColor: CustomColors.of(context).lightGreyHover,
             ),
           );
         } else {
@@ -211,9 +210,7 @@ class CellAccessoryContainer extends StatelessWidget {
     final children =
         accessories.where((accessory) => accessory.enable()).map((accessory) {
       final hover = FlowyHover(
-        style: HoverStyle(
-            hoverColor:
-                Theme.of(context).extension<CustomColors>()!.lightGreyHover!),
+        style: HoverStyle(hoverColor: CustomColors.of(context).lightGreyHover),
         builder: (_, onHover) => Container(
           width: 26,
           height: 26,

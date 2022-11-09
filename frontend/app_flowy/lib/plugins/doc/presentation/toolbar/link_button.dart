@@ -65,8 +65,8 @@ class FlowyLinkStyleButtonState extends State<FlowyLinkStyleButton> {
       onPressed: pressedHandler,
       iconPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       icon: icon,
-      fillColor: Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
-      hoverColor: Theme.of(context).extension<CustomColors>()!.toggleOffFill!,
+      fillColor: CustomColors.of(context).lightGreyHover,
+      hoverColor: CustomColors.of(context).toggleOffFill,
       width: widget.iconSize * kIconButtonFactor,
     );
   }

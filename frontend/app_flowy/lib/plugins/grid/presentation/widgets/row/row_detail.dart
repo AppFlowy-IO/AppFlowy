@@ -202,8 +202,7 @@ class _CreateFieldButtonState extends State<_CreateFieldButton> {
             LocaleKeys.grid_field_newColumn.tr(),
             fontSize: 12,
           ),
-          hoverColor:
-              Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
+          hoverColor: CustomColors.of(context).lightGreyHover,
           onTap: () {},
           leftIcon: svgWidget("home/add"),
         ),

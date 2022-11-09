@@ -201,8 +201,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
               borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
             todayDecoration: BoxDecoration(
-              color:
-                  Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
+              color: CustomColors.of(context).lightGreyHover,
               shape: BoxShape.rectangle,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),

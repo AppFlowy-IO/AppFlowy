@@ -15,19 +15,23 @@ class CustomColors extends ThemeExtension<CustomColors> {
   static Color tint8 = const Color(0xffdefff1);
   static Color tint9 = const Color(0xffe1fbff);
 
-  final Color? greyHover;
-  final Color? greySelect;
-  final Color? lightGreyHover;
-  final Color? toggleOffFill;
+  final Color greyHover;
+  final Color greySelect;
+  final Color lightGreyHover;
+  final Color toggleOffFill;
 
   const CustomColors({
     required this.warning,
     required this.success,
-    this.greyHover,
-    this.greySelect,
-    this.lightGreyHover,
-    this.toggleOffFill,
+    required this.greyHover,
+    required this.greySelect,
+    required this.lightGreyHover,
+    required this.toggleOffFill,
   });
+
+  static CustomColors of(BuildContext context) {
+    return Theme.of(context).extension<CustomColors>()!;
+  }
 
   @override
   CustomColors copyWith({
@@ -57,10 +61,10 @@ class CustomColors extends ThemeExtension<CustomColors> {
     return CustomColors(
       warning: Color.lerp(warning, other.warning, t),
       success: Color.lerp(success, other.success, t),
-      greyHover: Color.lerp(greyHover, other.greyHover, t),
-      greySelect: Color.lerp(greySelect, other.greySelect, t),
-      lightGreyHover: Color.lerp(lightGreyHover, other.lightGreyHover, t),
-      toggleOffFill: Color.lerp(toggleOffFill, other.toggleOffFill, t),
+      greyHover: Color.lerp(greyHover, other.greyHover, t)!,
+      greySelect: Color.lerp(greySelect, other.greySelect, t)!,
+      lightGreyHover: Color.lerp(lightGreyHover, other.lightGreyHover, t)!,
+      toggleOffFill: Color.lerp(toggleOffFill, other.toggleOffFill, t)!,
     );
   }
 }

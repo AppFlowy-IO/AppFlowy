@@ -166,7 +166,7 @@ class FieldCellButton extends StatelessWidget {
         .replaceAll(Characters(''), Characters('\u{200B}'))
         .toString();
     return FlowyButton(
-      hoverColor: Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
+      hoverColor: CustomColors.of(context).lightGreyHover,
       onTap: onTap,
       leftIcon: svgWidget(
         field.fieldType.iconName(),

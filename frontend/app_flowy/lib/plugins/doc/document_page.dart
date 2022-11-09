@@ -3,7 +3,6 @@ import 'package:app_flowy/plugins/doc/presentation/plugins/horizontal_rule_node_
 import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/doc/presentation/banner.dart';
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/error_page.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/view.pb.dart';
 import 'package:flutter/material.dart';

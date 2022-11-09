@@ -33,7 +33,7 @@ class ToolbarIconButton extends StatelessWidget {
           : svgWidget(iconName, color: Theme.of(context).colorScheme.onSurface),
       fillColor: isToggled == true
           ? colorScheme.primary
-          : Theme.of(context).extension<CustomColors>()!.lightGreyHover!,
+          : CustomColors.of(context).lightGreyHover,
       hoverColor:
           isToggled == true ? colorScheme.primary : colorScheme.secondary,
       tooltipText: tooltipText,
