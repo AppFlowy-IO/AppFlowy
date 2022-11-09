@@ -125,7 +125,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
                 text: state.content,
                 style: TextStyles.general(
                   fontSize: FontSizes.s14,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: Theme.of(context).colorScheme.primaryContainer,
                 ).underline,
               ),
             ),

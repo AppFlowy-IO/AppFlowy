@@ -56,7 +56,7 @@ class _BoardUrlCellState extends State<BoardUrlCell> {
                     text: state.content,
                     style: TextStyles.general(
                       fontSize: FontSizes.s14,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
                     ).underline,
                   ),
                 ),

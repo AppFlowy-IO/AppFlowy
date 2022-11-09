@@ -159,8 +159,6 @@ class AppTheme {
       dividerColor: shader6,
       hintColor: shader3,
       disabledColor: shader4,
-      //Don't use this property because of the redo/undo button in the toolbar use the hoverColor.
-      // hoverColor: main2,
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: main1,

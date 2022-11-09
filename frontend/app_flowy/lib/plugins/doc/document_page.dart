@@ -74,9 +74,8 @@ class _DocumentPageState extends State<DocumentPage> {
   }
 
   Widget _renderDocument(BuildContext context, DocumentState state) {
-    final theme = context.watch<AppTheme>();
     return Container(
-      color: theme.surface,
+      color: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           if (state.isDeleted) _renderBanner(context),
