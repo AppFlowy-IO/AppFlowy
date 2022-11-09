@@ -52,9 +52,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _jsonString = Future<String>.value(
-      jsonEncode(EditorState.empty().document.toJson()),
-    );
+    _jsonString = rootBundle.loadString('assets/example.json');
     _widgetBuilder = (context) => SimpleEditor(
           jsonString: _jsonString,
           themeData: _themeData,
@@ -259,11 +257,21 @@ class _HomePageState extends State<HomePage> {
       allowedExtensions: [fileType.extension],
       type: FileType.custom,
     );
-    final path = result?.files.single.path;
-    if (path == null) {
-      return;
+    var plainText = '';
+    if (!kIsWeb) {
+      final path = result?.files.single.path;
+      if (path == null) {
+        return;
+      }
+      plainText = await File(path).readAsString();
+    } else {
+      final bytes = result?.files.first.bytes;
+      if (bytes == null) {
+        return;
+      }
+      plainText = const Utf8Decoder().convert(bytes);
     }
-    final plainText = await File(path).readAsString();
+
     var jsonString = '';
     switch (fileType) {
       case ExportFileType.json:
