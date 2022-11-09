@@ -1096,6 +1096,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "atomic_refcell",
+ "futures",
  "lib-infra",
  "rand 0.8.5",
  "tokio",

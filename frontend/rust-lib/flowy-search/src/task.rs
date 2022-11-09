@@ -41,11 +41,11 @@ impl Ord for PendingTask {
     fn cmp(&self, other: &Self) -> Ordering {
         match (self.qos, other.qos) {
             // User interactive
-            (QualityOfService::UserInteractive, QualityOfService::UserInteractive) => Ordering::Equal,
+            (QualityOfService::UserInteractive, QualityOfService::UserInteractive) => self.id.cmp(&other.id),
             (QualityOfService::UserInteractive, _) => Ordering::Greater,
             (_, QualityOfService::UserInteractive) => Ordering::Less,
             // background
-            (QualityOfService::Background, QualityOfService::Background) => self.id.cmp(&other.id).reverse(),
+            (QualityOfService::Background, QualityOfService::Background) => self.id.cmp(&other.id),
         }
     }
 }
@@ -64,7 +64,7 @@ pub enum TaskStatus {
     Cancel,
 }
 
-pub struct Task<T> {
+pub struct Task {
     pub id: TaskId,
     pub handler_id: TaskHandlerId,
     pub content: Option<TaskContent>,
@@ -75,10 +75,19 @@ pub struct Task<T> {
 }
 
 impl Task {
+    pub fn background(handler_id: &str, id: TaskId, content: TaskContent) -> Self {
+        Self::new(handler_id, id, content, QualityOfService::Background)
+    }
+
+    pub fn user_interactive(handler_id: &str, id: TaskId, content: TaskContent) -> Self {
+        Self::new(handler_id, id, content, QualityOfService::UserInteractive)
+    }
+
     pub fn new(handler_id: &str, id: TaskId, content: TaskContent, qos: QualityOfService) -> Self {
+        let handler_id = handler_id.to_owned();
         let (ret, recv) = tokio::sync::oneshot::channel();
         Self {
-            handler_id: handler_id.to_owned(),
+            handler_id,
             id,
             content: Some(content),
             qos,
@@ -88,7 +97,7 @@ impl Task {
         }
     }
 
-    pub fn set_status(&mut self, status: TaskStatus) {
+    pub(crate) fn set_status(&mut self, status: TaskStatus) {
         self.status = status;
     }
 
@@ -99,19 +108,6 @@ impl Task {
         }
     }
 }
-
-// pub struct TaskBuilder {
-//     task: Task,
-// }
-//
-// impl TaskBuilder {
-//     pub fn new(handler_id: &str, task_id: TaskId) -> Self {
-//         Self {
-//             task: Task::new(handler_id, task_id, TaskContent::Empty, QualityOfService::Background),
-//         }
-//     }
-//
-// }
 
 pub struct TaskResult {
     pub id: TaskId,

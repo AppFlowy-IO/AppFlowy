@@ -81,7 +81,11 @@ impl TaskScheduler {
     }
 
     pub fn add_task(&mut self, task: Task) {
-        assert!(!task.is_finished());
+        debug_assert!(!task.is_finished());
+        if task.is_finished() {
+            return;
+        }
+
         self.queue.push(&task);
         self.store.insert_task(task);
         self.notify();

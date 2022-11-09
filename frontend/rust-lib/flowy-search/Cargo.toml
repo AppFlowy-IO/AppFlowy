@@ -14,3 +14,4 @@ tracing = { version = "0.1", features = ["log"] }
 
 [dev-dependencies]
 rand = "0.8.5"
+futures = "0.3.15"
