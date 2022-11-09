@@ -43,10 +43,6 @@ dependencies:
     path: packages/appflowy_editor
   appflowy_popover:
     path: packages/appflowy_popover
-  flutter_quill:
-    git:
-      url: https://github.com/appflowy/flutter-quill.git
-      ref: 306fd78b7a134abdde0fed6be67f59e8a6068509
 
   #  third party packages
   intl: ^0.17.0
