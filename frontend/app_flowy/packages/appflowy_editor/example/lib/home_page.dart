@@ -9,6 +9,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:universal_html/html.dart' as html;
 
+enum ExportFileType {
+  json,
+  markdown,
+  html,
+}
+
+extension on ExportFileType {
+  String get extension {
+    switch (this) {
+      case ExportFileType.json:
+        return 'json';
+      case ExportFileType.markdown:
+        return 'md';
+      case ExportFileType.html:
+        return 'html';
+    }
+  }
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -72,9 +91,11 @@ class _HomePageState extends State<HomePage> {
           // Encoder Demo
           _buildSeparator(context, 'Encoder Demo'),
           _buildListTile(context, 'Export To JSON', () {
-            _exportJson(_editorState);
+            _exportFile(_editorState, ExportFileType.json);
           }),
-          _buildListTile(context, 'Export to Markdown', () {}),
+          _buildListTile(context, 'Export to Markdown', () {
+            _exportFile(_editorState, ExportFileType.markdown);
+          }),
 
           // Decoder Demo
           _buildSeparator(context, 'Decoder Demo'),
@@ -152,58 +173,44 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _exportJson(EditorState editorState) async {
-    final document = editorState.document.toJson();
-    final json = jsonEncode(document);
+  void _exportFile(
+    EditorState editorState,
+    ExportFileType fileType,
+  ) async {
+    var result = '';
+
+    switch (fileType) {
+      case ExportFileType.json:
+        result = jsonEncode(editorState.document.toJson());
+        break;
+      case ExportFileType.markdown:
+        result = documentToMarkdown(editorState.document);
+        break;
+      case ExportFileType.html:
+        throw UnimplementedError();
+    }
 
     if (!kIsWeb) {
       final path = await FilePicker.platform.saveFile(
-        dialogTitle: 'Export to JSON',
-        fileName: 'document.json',
+        fileName: 'document.${fileType.extension}',
       );
       if (path != null) {
-        await File(path).writeAsString(json);
+        await File(path).writeAsString(result);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('The document.json is saved to the $path'),
+              content: Text('This document is saved to the $path'),
             ),
           );
         }
       }
     } else {
-      final blob = html.Blob([json], 'text/plain', 'native');
+      final blob = html.Blob([result], 'text/plain', 'native');
       html.AnchorElement(
         href: html.Url.createObjectUrlFromBlob(blob).toString(),
       )
-        ..setAttribute('download', 'document.json')
+        ..setAttribute('download', 'document.${fileType.extension}')
         ..click();
     }
   }
-
-  // void _exportDocument(EditorState editorState) async {
-  //   final document = editorState.document.toJson();
-  //   final json = jsonEncode(document);
-  //   if (kIsWeb) {
-  //     final blob = html.Blob([json], 'text/plain', 'native');
-  //     html.AnchorElement(
-  //       href: html.Url.createObjectUrlFromBlob(blob).toString(),
-  //     )
-  //       ..setAttribute('download', 'editor.json')
-  //       ..click();
-  //   } else {
-  //     final directory = await getTemporaryDirectory();
-  //     final path = directory.path;
-  //     final file = File('$path/editor.json');
-  //     await file.writeAsString(json);
-
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: Text('The document is saved to the ${file.path}'),
-  //         ),
-  //       );
-  //     }
-  //   }
-  // }
 }
