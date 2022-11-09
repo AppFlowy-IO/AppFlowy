@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:example/home_page.dart';
 import 'package:example/plugin/editor_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -59,11 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      body: _buildEditor(context),
-      floatingActionButton: _buildExpandableFab(),
-    );
+    return const HomePage();
   }
 
   Widget _buildEditor(BuildContext context) {
@@ -145,7 +142,10 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildExpandableFab() {
+  Widget _buildExpandableFab(BuildContext context) {
+    return FloatingActionButton(onPressed: () {
+      Scaffold.of(context).openDrawer();
+    });
     return ExpandableFab(
       distance: 112.0,
       children: [
