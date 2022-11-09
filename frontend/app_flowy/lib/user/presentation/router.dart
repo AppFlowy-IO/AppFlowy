@@ -12,9 +12,7 @@ import 'package:flowy_sdk/protobuf/flowy-folder/protobuf.dart';
 import 'package:flutter/material.dart';
 
 class AuthRouter {
-  void pushForgetPasswordScreen(BuildContext context) {
-    // TODO: implement showForgetPasswordScreen
-  }
+  void pushForgetPasswordScreen(BuildContext context) {}
 
   void pushWelcomeScreen(BuildContext context, UserProfilePB userProfile) {
     getIt<SplashRoute>().pushWelcomeScreen(context, userProfile);

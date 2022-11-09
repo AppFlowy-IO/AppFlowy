@@ -10,6 +10,7 @@ lib-dispatch = { path = "../lib-dispatch" }
 flowy-error = { path = "../flowy-error", features = ["collaboration", "http_server"] }
 flowy-derive = { path = "../../../shared-lib/flowy-derive" }
 flowy-sync = { path = "../../../shared-lib/flowy-sync"}
+flowy-http-model = { path = "../../../shared-lib/flowy-http-model"}
 folder-rev-model = { path = "../../../shared-lib/folder-rev-model"}
 flowy-folder = { path = "../flowy-folder" }
 flowy-user = { path = "../flowy-user" }
@@ -43,9 +44,8 @@ http_server = []
 dart = [
     "lib-infra/dart",
     "flowy-user/dart",
-    "flowy-sync/dart",
     "flowy-error/dart",
 ]
 
 [build-dependencies]
-lib-infra = { path = "../../../shared-lib/lib-infra", features = ["protobuf_file_gen"] }
+lib-infra = { path = "../../../shared-lib/lib-infra", features = ["proto_gen"] }

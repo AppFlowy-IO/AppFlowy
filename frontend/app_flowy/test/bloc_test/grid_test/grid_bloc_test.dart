@@ -10,9 +10,9 @@ void main() {
     await gridTest.createTestGrid();
   });
 
-  group('GridBloc', () {
+  group('Create a new row in Grid', () {
     blocTest<GridBloc, GridState>(
-      "Create row",
+      "Create a row",
       build: () =>
           GridBloc(view: gridTest.gridView)..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
@@ -23,7 +23,7 @@ void main() {
     );
   });
 
-  group('GridBloc', () {
+  group('Delete a row in the grid', () {
     late GridBloc gridBloc;
     setUpAll(() async {
       gridBloc = GridBloc(view: gridTest.gridView)
@@ -31,15 +31,10 @@ void main() {
       await gridResponseFuture();
     });
 
-    // The initial number of rows is three
-    test('', () async {
-      assert(gridBloc.state.rowInfos.length == 3);
-    });
-
-    test('delete row', () async {
+    test('delete the last row', () async {
       gridBloc.add(GridEvent.deleteRow(gridBloc.state.rowInfos.last));
       await gridResponseFuture();
-      assert(gridBloc.state.rowInfos.length == 2);
+      assert(gridBloc.state.rowInfos.length == 3);
     });
   });
 }

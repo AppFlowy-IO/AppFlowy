@@ -1,20 +1,16 @@
+use crate::errors::{CollaborateError, CollaborateResult};
 use crate::server_folder::FolderOperations;
-use crate::{
-    entities::{
-        document::DocumentPayloadPB,
-        folder::FolderInfo,
-        revision::{RepeatedRevision, Revision},
-    },
-    errors::{CollaborateError, CollaborateResult},
-};
 use dissimilar::Chunk;
+use flowy_http_model::document::DocumentPayloadPB;
+use flowy_http_model::folder::FolderInfo;
+use flowy_http_model::revision::RepeatedRevision;
+use flowy_http_model::revision::Revision;
 use lib_ot::core::{DeltaOperationBuilder, OTString, OperationAttributes};
 use lib_ot::{
     core::{DeltaOperations, OperationTransform, NEW_LINE, WHITESPACE},
     text_delta::DeltaTextOperations,
 };
 use serde::de::DeserializeOwned;
-use std::sync::atomic::{AtomicI64, Ordering::SeqCst};
 
 #[inline]
 pub fn find_newline(s: &str) -> Option<usize> {
@@ -34,33 +30,6 @@ pub fn is_whitespace(s: &str) -> bool {
 #[inline]
 pub fn contain_newline(s: &str) -> bool {
     s.contains(NEW_LINE)
-}
-
-#[inline]
-pub fn md5<T: AsRef<[u8]>>(data: T) -> String {
-    let md5 = format!("{:x}", md5::compute(data));
-    md5
-}
-
-#[derive(Debug)]
-pub struct RevIdCounter(pub AtomicI64);
-
-impl RevIdCounter {
-    pub fn new(n: i64) -> Self {
-        Self(AtomicI64::new(n))
-    }
-
-    pub fn next_id(&self) -> i64 {
-        let _ = self.0.fetch_add(1, SeqCst);
-        self.value()
-    }
-    pub fn value(&self) -> i64 {
-        self.0.load(SeqCst)
-    }
-
-    pub fn set(&self, n: i64) {
-        let _ = self.0.fetch_update(SeqCst, SeqCst, |_| Some(n));
-    }
 }
 
 #[tracing::instrument(level = "trace", skip(revisions), err)]
@@ -85,21 +54,6 @@ where
 }
 
 pub fn pair_rev_id_from_revision_pbs(revisions: &[Revision]) -> (i64, i64) {
-    let mut rev_id = 0;
-    revisions.iter().for_each(|revision| {
-        if rev_id < revision.rev_id {
-            rev_id = revision.rev_id;
-        }
-    });
-
-    if rev_id > 0 {
-        (rev_id - 1, rev_id)
-    } else {
-        (0, rev_id)
-    }
-}
-
-pub fn pair_rev_id_from_revisions(revisions: &[Revision]) -> (i64, i64) {
     let mut rev_id = 0;
     revisions.iter().for_each(|revision| {
         if rev_id < revision.rev_id {
@@ -171,11 +125,9 @@ pub fn make_document_from_revision_pbs(
         delta = delta.compose(&new_delta)?;
     }
 
-    let text = delta.json_str();
-
     Ok(Some(DocumentPayloadPB {
         doc_id: doc_id.to_owned(),
-        content: text,
+        data: delta.json_bytes().to_vec(),
         rev_id,
         base_rev_id,
     }))

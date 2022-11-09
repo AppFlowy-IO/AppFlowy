@@ -861,6 +861,7 @@ dependencies = [
  "flowy-derive",
  "flowy-document",
  "flowy-error",
+ "flowy-http-model",
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
@@ -927,6 +928,7 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-folder",
+ "flowy-http-model",
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
@@ -965,6 +967,7 @@ dependencies = [
  "flowy-derive",
  "flowy-error",
  "flowy-grid",
+ "flowy-http-model",
  "flowy-revision",
  "flowy-sync",
  "flowy-test",
@@ -992,6 +995,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "flowy-http-model"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "flowy-derive",
+ "lib-infra",
+ "md5",
+ "protobuf",
+]
+
+[[package]]
 name = "flowy-net"
 version = "0.1.0"
 dependencies = [
@@ -1004,6 +1018,7 @@ dependencies = [
  "flowy-document",
  "flowy-error",
  "flowy-folder",
+ "flowy-http-model",
  "flowy-sync",
  "flowy-user",
  "folder-rev-model",
@@ -1016,7 +1031,7 @@ dependencies = [
  "lib-ws",
  "log",
  "nanoid",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "protobuf",
  "reqwest",
  "serde",
@@ -1036,8 +1051,8 @@ dependencies = [
  "bytes",
  "dashmap",
  "flowy-error",
+ "flowy-http-model",
  "flowy-revision",
- "flowy-sync",
  "futures-util",
  "lib-infra",
  "lib-ws",
@@ -1055,29 +1070,22 @@ dependencies = [
 name = "flowy-sdk"
 version = "0.1.0"
 dependencies = [
- "bincode",
  "bytes",
- "claim 0.5.0",
- "color-eyre",
  "flowy-database",
  "flowy-document",
  "flowy-folder",
  "flowy-grid",
+ "flowy-http-model",
  "flowy-net",
  "flowy-revision",
- "flowy-sync",
  "flowy-user",
  "futures-core",
- "futures-util",
  "grid-rev-model",
  "lib-dispatch",
  "lib-infra",
  "lib-log",
  "lib-ws",
- "log",
- "parking_lot 0.11.2",
- "protobuf",
- "serde",
+ "parking_lot 0.12.1",
  "tokio",
  "tracing",
 ]
@@ -1092,13 +1100,13 @@ dependencies = [
  "dashmap",
  "dissimilar",
  "flowy-derive",
+ "flowy-http-model",
  "folder-rev-model",
  "futures",
  "grid-rev-model",
  "lib-infra",
  "lib-ot",
  "log",
- "md5",
  "parking_lot 0.12.1",
  "protobuf",
  "serde",
@@ -1164,7 +1172,7 @@ dependencies = [
  "log",
  "nanoid",
  "once_cell",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "protobuf",
  "quickcheck",
  "quickcheck_macros",
@@ -1809,7 +1817,7 @@ dependencies = [
  "futures-util",
  "lib-infra",
  "log",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.1",
  "paste",
  "pin-project",
  "protobuf",

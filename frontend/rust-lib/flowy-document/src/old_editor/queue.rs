@@ -3,10 +3,10 @@ use crate::DocumentUser;
 use async_stream::stream;
 use flowy_database::ConnectionPool;
 use flowy_error::FlowyError;
+use flowy_http_model::revision::{RevId, Revision};
 use flowy_revision::{RevisionMD5, RevisionManager, TransformOperations};
 use flowy_sync::{
     client_document::{history::UndoResult, ClientDocument},
-    entities::revision::{RevId, Revision},
     errors::CollaborateError,
 };
 use futures::stream::StreamExt;

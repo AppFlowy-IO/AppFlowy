@@ -14,11 +14,11 @@ use crate::services::group::{
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
+use flowy_http_model::revision::Revision;
 use flowy_revision::{
     RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
-use flowy_sync::entities::revision::Revision;
 use flowy_sync::util::make_operations_from_revisions;
 use grid_rev_model::{
     gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
@@ -291,8 +291,13 @@ impl GridViewRevisionEditor {
         .await
     }
     #[tracing::instrument(level = "trace", skip_all, err)]
-    pub(crate) async fn did_update_view_field(&self, _field_id: &str) -> FlowyResult<()> {
-        // Do nothing
+    pub(crate) async fn did_update_view_field(&self, field_id: &str) -> FlowyResult<()> {
+        let grouped_field_id = self.group_controller.read().await.field_id().to_owned();
+        if grouped_field_id == field_id {
+            let _ = self.group_by_view_field(field_id).await?;
+        } else {
+            // Do nothing
+        }
         Ok(())
     }
 

@@ -7,11 +7,9 @@ use flowy_database::{
     ConnectionPool,
 };
 use flowy_error::{internal_error, FlowyError, FlowyResult};
+use flowy_http_model::revision::{Revision, RevisionRange};
+use flowy_http_model::util::md5;
 use flowy_revision::disk::{RevisionChangeset, RevisionDiskCache, RevisionState, SyncRecord};
-use flowy_sync::{
-    entities::revision::{Revision, RevisionRange},
-    util::md5,
-};
 use std::sync::Arc;
 
 pub struct SQLiteGridRevisionPersistence {

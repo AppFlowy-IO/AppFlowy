@@ -16,9 +16,9 @@ use flowy_folder::entities::{
 use flowy_folder::event_map::FolderEvent::*;
 use flowy_folder::{errors::ErrorCode, services::folder_editor::FolderEditor};
 
+use flowy_http_model::document::DocumentPayloadPB;
 use flowy_revision::disk::RevisionState;
 use flowy_revision::REVISION_WRITE_INTERVAL_IN_MILLIS;
-use flowy_sync::entities::document::DocumentPayloadPB;
 use flowy_test::{event_builder::*, FlowySDKTest};
 use std::{sync::Arc, time::Duration};
 use tokio::time::sleep;

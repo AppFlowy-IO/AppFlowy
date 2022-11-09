@@ -295,7 +295,7 @@ async fn _listen_user_status(
 
         match result().await {
             Ok(_) => {}
-            Err(e) => log::error!("{}", e),
+            Err(e) => tracing::error!("{}", e),
         }
     }
 }
