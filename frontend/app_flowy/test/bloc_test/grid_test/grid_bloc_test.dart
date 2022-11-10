@@ -12,7 +12,7 @@ void main() {
 
   group('Create a new row in Grid', () {
     blocTest<GridBloc, GridState>(
-      "Create a row",
+      "create a row",
       build: () =>
           GridBloc(view: gridTest.gridView)..add(const GridEvent.initial()),
       act: (bloc) => bloc.add(const GridEvent.createRow()),
@@ -21,20 +21,20 @@ void main() {
         assert(bloc.state.rowInfos.length == 4);
       },
     );
-  });
 
-  group('Delete a row in the grid', () {
-    late GridBloc gridBloc;
-    setUpAll(() async {
-      gridBloc = GridBloc(view: gridTest.gridView)
-        ..add(const GridEvent.initial());
-      await gridResponseFuture();
-    });
-
-    test('delete the last row', () async {
-      gridBloc.add(GridEvent.deleteRow(gridBloc.state.rowInfos.last));
-      await gridResponseFuture();
-      assert(gridBloc.state.rowInfos.length == 3);
-    });
+    blocTest<GridBloc, GridState>(
+      "delete the last row",
+      build: () =>
+          GridBloc(view: gridTest.gridView)..add(const GridEvent.initial()),
+      act: (bloc) async {
+        await gridResponseFuture();
+        bloc.add(GridEvent.deleteRow(bloc.state.rowInfos.last));
+      },
+      wait: const Duration(milliseconds: 300),
+      verify: (bloc) {
+        assert(bloc.state.rowInfos.length == 2,
+            "Expected 2, but receive ${bloc.state.rowInfos.length}");
+      },
+    );
   });
 }

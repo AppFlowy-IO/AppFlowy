@@ -41,7 +41,7 @@ void main() {
         MaterialApp(
           home: Material(
             child: Provider<AppTheme>.value(
-              value: AppTheme.fromType(ThemeType.light),
+              value: AppTheme.fromType(Brightness.light),
               child: textField,
             ),
           ),

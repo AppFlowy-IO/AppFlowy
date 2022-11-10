@@ -1,7 +1,5 @@
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class FlowyText extends StatelessWidget {
   final String title;
@@ -58,7 +56,6 @@ class FlowyText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return Text(
       title,
       maxLines: maxLines,
@@ -67,7 +64,7 @@ class FlowyText extends StatelessWidget {
       style: TextStyles.general(
         fontSize: fontSize,
         fontWeight: fontWeight,
-        color: color ?? theme.textColor,
+        color: color,
       ),
     );
   }

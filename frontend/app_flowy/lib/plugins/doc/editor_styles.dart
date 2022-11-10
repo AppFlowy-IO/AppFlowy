@@ -1,14 +1,12 @@
 import 'package:appflowy_editor/appflowy_editor.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 const _baseFontSize = 14.0;
 
 EditorStyle customEditorTheme(BuildContext context) {
-  final theme = context.watch<AppTheme>();
-
-  var editorStyle = theme.isDark ? EditorStyle.dark : EditorStyle.light;
+  var editorStyle = Theme.of(context).brightness == Brightness.dark
+      ? EditorStyle.dark
+      : EditorStyle.light;
   editorStyle = editorStyle.copyWith(
     textStyle: editorStyle.textStyle?.copyWith(
       fontFamily: 'poppins',
@@ -26,10 +24,10 @@ EditorStyle customEditorTheme(BuildContext context) {
 }
 
 Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
-  final theme = context.watch<AppTheme>();
   const basePadding = 12.0;
-  var headingPluginStyle =
-      theme.isDark ? HeadingPluginStyle.dark : HeadingPluginStyle.light;
+  var headingPluginStyle = Theme.of(context).brightness == Brightness.dark
+      ? HeadingPluginStyle.dark
+      : HeadingPluginStyle.light;
   headingPluginStyle = headingPluginStyle.copyWith(
     textStyle: (EditorState editorState, Node node) {
       final headingToFontSize = {
@@ -57,8 +55,9 @@ Iterable<ThemeExtension<dynamic>> customPluginTheme(BuildContext context) {
       return EdgeInsets.only(bottom: padding);
     },
   );
-  final pluginTheme =
-      theme.isDark ? darkPlguinStyleExtension : lightPlguinStyleExtension;
+  final pluginTheme = Theme.of(context).brightness == Brightness.dark
+      ? darkPlguinStyleExtension
+      : lightPlguinStyleExtension;
   return pluginTheme.toList()
     ..removeWhere((element) => element is HeadingPluginStyle)
     ..add(headingPluginStyle);

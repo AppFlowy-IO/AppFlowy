@@ -2,7 +2,6 @@ import 'package:app_flowy/plugins/grid/application/field/field_controller.dart';
 import 'package:app_flowy/plugins/grid/presentation/layout/sizes.dart';
 import 'package:app_flowy/plugins/grid/presentation/widgets/header/field_type_extension.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -71,8 +70,6 @@ class _GridGroupCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
-
     Widget? rightIcon;
     if (fieldContext.isGroupField) {
       rightIcon = Padding(
@@ -85,10 +82,9 @@ class _GridGroupCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(fieldContext.name, fontSize: 12),
-        hoverColor: theme.hover,
         leftIcon: svgWidget(
           fieldContext.fieldType.iconName(),
-          color: theme.iconColor,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
         rightIcon: rightIcon,
         onTap: () {

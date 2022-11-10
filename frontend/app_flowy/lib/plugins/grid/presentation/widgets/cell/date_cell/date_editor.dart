@@ -6,10 +6,10 @@ import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dar
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -113,19 +113,18 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocProvider.value(
       value: bloc,
       child: BlocBuilder<DateCalBloc, DateCalState>(
         buildWhen: (p, c) => false,
         builder: (context, state) {
           List<Widget> children = [
-            _buildCalendar(theme, context),
+            _buildCalendar(context),
             _TimeTextField(
               bloc: context.read<DateCalBloc>(),
               popoverMutex: popoverMutex,
             ),
-            Divider(height: 1, color: theme.shader5),
+            Divider(height: 1, color: Theme.of(context).dividerColor),
             const _IncludeTimeButton(),
             _DateTypeOptionButton(popoverMutex: popoverMutex)
           ];
@@ -153,7 +152,7 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
     super.dispose();
   }
 
-  Widget _buildCalendar(AppTheme theme, BuildContext context) {
+  Widget _buildCalendar(BuildContext context) {
     return BlocBuilder<DateCalBloc, DateCalState>(
       builder: (context, state) {
         return TableCalendar(
@@ -181,38 +180,38 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             weekdayStyle: TextStyles.general(
               fontSize: 13,
               fontWeight: FontWeight.w400,
-              color: theme.shader3,
+              color: Theme.of(context).hintColor,
             ),
             weekendStyle: TextStyles.general(
               fontSize: 13,
               fontWeight: FontWeight.w400,
-              color: theme.shader3,
+              color: Theme.of(context).hintColor,
             ),
           ),
           calendarStyle: CalendarStyle(
             cellMargin: const EdgeInsets.all(3),
             defaultDecoration: BoxDecoration(
-              color: theme.surface,
+              color: Theme.of(context).colorScheme.surface,
               shape: BoxShape.rectangle,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
             selectedDecoration: BoxDecoration(
-              color: theme.main1,
+              color: Theme.of(context).colorScheme.primary,
               shape: BoxShape.rectangle,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
             todayDecoration: BoxDecoration(
-              color: theme.shader4,
+              color: CustomColors.of(context).lightGreyHover,
               shape: BoxShape.rectangle,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
             weekendDecoration: BoxDecoration(
-              color: theme.surface,
+              color: Theme.of(context).colorScheme.surface,
               shape: BoxShape.rectangle,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
             outsideDecoration: BoxDecoration(
-              color: theme.surface,
+              color: Theme.of(context).colorScheme.surface,
               shape: BoxShape.rectangle,
               borderRadius: const BorderRadius.all(Radius.circular(6)),
             ),
@@ -220,15 +219,14 @@ class _CellCalendarWidgetState extends State<_CellCalendarWidget> {
             weekendTextStyle: TextStyles.body1.size(FontSizes.s14),
             selectedTextStyle: TextStyles.general(
               fontSize: FontSizes.s14,
-              color: theme.surface,
+              color: Theme.of(context).colorScheme.surface,
             ),
             todayTextStyle: TextStyles.general(
               fontSize: FontSizes.s14,
-              color: theme.surface,
             ),
             outsideTextStyle: TextStyles.general(
               fontSize: FontSizes.s14,
-              color: theme.shader4,
+              color: Theme.of(context).disabledColor,
             ),
           ),
           selectedDayPredicate: (day) {
@@ -261,7 +259,6 @@ class _IncludeTimeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocSelector<DateCalBloc, DateCalState, bool>(
       selector: (state) => state.dateTypeOptionPB.includeTime,
       builder: (context, includeTime) {
@@ -271,7 +268,10 @@ class _IncludeTimeButton extends StatelessWidget {
             padding: kMargin,
             child: Row(
               children: [
-                svgWidget("grid/clock", color: theme.iconColor),
+                svgWidget(
+                  "grid/clock",
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 const HSpace(4),
                 FlowyText.medium(
                   LocaleKeys.grid_field_includeTime.tr(),
@@ -283,7 +283,7 @@ class _IncludeTimeButton extends StatelessWidget {
                   onChanged: (value) => context
                       .read<DateCalBloc>()
                       .add(DateCalEvent.setIncludeTime(!value)),
-                  style: ToggleStyle.big(theme),
+                  style: ToggleStyle.big,
                   padding: EdgeInsets.zero,
                 ),
               ],
@@ -338,7 +338,6 @@ class _TimeTextFieldState extends State<_TimeTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocConsumer<DateCalBloc, DateCalState>(
       listener: (context, state) {
         _controller.text = state.time ?? "";
@@ -355,10 +354,10 @@ class _TimeTextFieldState extends State<_TimeTextField> {
               hintText: state.timeHintText,
               controller: _controller,
               style: TextStyles.body1.size(FontSizes.s14),
-              normalBorderColor: theme.shader4,
-              errorBorderColor: theme.red,
-              focusBorderColor: theme.main1,
-              cursorColor: theme.main1,
+              normalBorderColor: Theme.of(context).colorScheme.outline,
+              errorBorderColor: Theme.of(context).colorScheme.error,
+              focusBorderColor: Theme.of(context).colorScheme.primary,
+              cursorColor: Theme.of(context).colorScheme.primary,
               errorText: state.timeFormatError.fold(() => "", (error) => error),
               onEditingComplete: (value) {
                 widget.bloc.add(DateCalEvent.setTime(value));
@@ -388,7 +387,6 @@ class _DateTypeOptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     final title =
         "${LocaleKeys.grid_field_dateFormat.tr()} &${LocaleKeys.grid_field_timeFormat.tr()}";
     return BlocSelector<DateCalBloc, DateCalState, DateTypeOptionPB>(
@@ -401,9 +399,11 @@ class _DateTypeOptionButton extends StatelessWidget {
           constraints: BoxConstraints.loose(const Size(140, 100)),
           child: FlowyButton(
             text: FlowyText.medium(title, fontSize: 14),
-            hoverColor: theme.hover,
             margin: kMargin,
-            rightIcon: svgWidget("grid/more", color: theme.iconColor),
+            rightIcon: svgWidget(
+              "grid/more",
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
           popupBuilder: (BuildContext popContext) {
             return _CalDateTimeSetting(

@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
@@ -184,7 +182,6 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return Container(
       padding: EdgeInsets.symmetric(vertical: Insets.sm),
       child: TextFormField(
@@ -200,7 +197,7 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
         autocorrect: widget.autoCorrect ?? false,
         enableSuggestions: widget.enableSuggestions ?? false,
         style: widget.style ?? TextStyles.body1,
-        cursorColor: theme.main1,
+        cursorColor: Theme.of(context).colorScheme.primary,
         controller: _controller,
         showCursor: true,
         enabled: widget.enabled,
@@ -218,7 +215,8 @@ class StyledSearchTextInputState extends State<StyledSearchTextInput> {
                 errorText: widget.errorText,
                 errorMaxLines: 2,
                 hintText: widget.hintText,
-                hintStyle: TextStyles.body1.textColor(theme.shader4),
+                hintStyle:
+                    TextStyles.body1.textColor(Theme.of(context).hintColor),
                 labelText: widget.label),
       ),
     );

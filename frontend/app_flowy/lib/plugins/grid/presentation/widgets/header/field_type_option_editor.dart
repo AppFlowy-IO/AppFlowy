@@ -3,7 +3,6 @@ import 'package:app_flowy/plugins/grid/application/field/type_option/type_option
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:dartz/dartz.dart' show Either;
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -108,7 +107,6 @@ class _SwitchFieldButton extends StatelessWidget {
   }
 
   Widget _buildMoreButton(BuildContext context) {
-    final theme = context.read<AppTheme>();
     final bloc = context.read<FieldTypeOptionEditBloc>();
     return FlowyButton(
       text: FlowyText.medium(
@@ -116,12 +114,14 @@ class _SwitchFieldButton extends StatelessWidget {
         fontSize: 12,
       ),
       margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      hoverColor: theme.hover,
       leftIcon: svgWidget(
         bloc.state.field.fieldType.iconName(),
-        color: theme.iconColor,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
-      rightIcon: svgWidget("grid/more", color: theme.iconColor),
+      rightIcon: svgWidget(
+        "grid/more",
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
     );
   }
 }

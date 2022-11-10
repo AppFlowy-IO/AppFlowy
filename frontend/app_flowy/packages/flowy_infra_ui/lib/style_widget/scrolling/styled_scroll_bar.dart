@@ -1,11 +1,10 @@
 import 'dart:math';
 import 'dart:async';
 import 'package:async/async.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/widget/mouse_hover_builder.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:styled_widget/styled_widget.dart';
 
 class StyledScrollbar extends StatefulWidget {
@@ -83,7 +82,6 @@ class ScrollbarState extends State<StyledScrollbar> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return LayoutBuilder(
       builder: (_, BoxConstraints constraints) {
         double maxExtent;
@@ -139,12 +137,14 @@ class ScrollbarState extends State<StyledScrollbar> {
 
         // Handle color
         var handleColor = widget.handleColor ??
-            (theme.isDark ? theme.bg2.withOpacity(.2) : theme.bg2);
+            (Theme.of(context).brightness == Brightness.dark
+                ? CustomColors.of(context).greyHover.withOpacity(.2)
+                : CustomColors.of(context).greyHover);
         // Track color
         var trackColor = widget.trackColor ??
-            (theme.isDark
-                ? theme.bg2.withOpacity(.1)
-                : theme.bg2.withOpacity(.3));
+            (Theme.of(context).brightness == Brightness.dark
+                ? CustomColors.of(context).greyHover.withOpacity(.1)
+                : CustomColors.of(context).greyHover.withOpacity(.3));
 
         //Layout the stack, it just contains a child, and
         return Stack(children: <Widget>[

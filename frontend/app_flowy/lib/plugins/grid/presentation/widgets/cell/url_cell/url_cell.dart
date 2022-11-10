@@ -7,7 +7,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -114,7 +113,6 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocProvider.value(
       value: _cellBloc,
       child: BlocBuilder<URLCellBloc, URLCellState>(
@@ -127,7 +125,7 @@ class _GridURLCellState extends GridCellState<GridURLCell> {
                 text: state.content,
                 style: TextStyles.general(
                   fontSize: FontSizes.s14,
-                  color: theme.main2,
+                  color: Theme.of(context).colorScheme.primaryContainer,
                 ).underline,
               ),
             ),
@@ -216,13 +214,15 @@ class _EditURLAccessoryState extends State<_EditURLAccessory>
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return AppFlowyPopover(
       constraints: BoxConstraints.loose(const Size(300, 160)),
       controller: _popoverController,
       direction: PopoverDirection.bottomWithLeftAligned,
       offset: const Offset(0, 20),
-      child: svgWidget("editor/edit", color: theme.iconColor),
+      child: svgWidget(
+        "editor/edit",
+        color: Theme.of(context).colorScheme.onSurface,
+      ),
       popupBuilder: (BuildContext popoverContext) {
         return URLEditorPopover(
           cellController:
@@ -251,8 +251,10 @@ class _CopyURLAccessoryState extends State<_CopyURLAccessory>
     with GridCellAccessoryState {
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    return svgWidget("editor/copy", color: theme.iconColor);
+    return svgWidget(
+      "editor/copy",
+      color: Theme.of(context).colorScheme.onSurface,
+    );
   }
 
   @override

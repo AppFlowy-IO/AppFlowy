@@ -5,8 +5,8 @@ import 'package:app_flowy/startup/startup.dart';
 import 'package:app_flowy/plugins/grid/application/prelude.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -94,7 +94,6 @@ class _GridHeaderState extends State<_GridHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocBuilder<GridHeaderBloc, GridHeaderState>(
       buildWhen: (previous, current) => previous.fields != current.fields,
       builder: (context, state) {
@@ -107,7 +106,7 @@ class _GridHeaderState extends State<_GridHeader> {
             .toList();
 
         return Container(
-          color: theme.surface,
+          color: Theme.of(context).colorScheme.surface,
           child: RepaintBoundary(
             child: ReorderableRow(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -154,8 +153,8 @@ class _CellTrailing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-    final borderSide = BorderSide(color: theme.shader4, width: 0.4);
+    final borderSide =
+        BorderSide(color: Theme.of(context).dividerColor, width: 1.0);
     return Container(
       width: GridSize.trailHeaderPadding,
       decoration: BoxDecoration(
@@ -173,8 +172,6 @@ class CreateFieldButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return AppFlowyPopover(
       direction: PopoverDirection.bottomWithRightAligned,
       asBarrier: true,
@@ -185,11 +182,11 @@ class CreateFieldButton extends StatelessWidget {
           LocaleKeys.grid_field_newColumn.tr(),
           fontSize: 12,
         ),
-        hoverColor: theme.shader6,
+        hoverColor: CustomColors.of(context).lightGreyHover,
         onTap: () {},
         leftIcon: svgWidget(
           "home/add",
-          color: theme.iconColor,
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
       popupBuilder: (BuildContext popover) {

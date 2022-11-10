@@ -1,7 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/field/type_option/select_option_type_option_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -68,14 +67,13 @@ class OptionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
     return BlocBuilder<SelectOptionTypeOptionBloc, SelectOptionTypeOptionState>(
       builder: (context, state) {
         List<Widget> children = [
           FlowyText.medium(
             LocaleKeys.grid_field_optionTitle.tr(),
             fontSize: 12,
-            color: theme.shader3,
+            color: Theme.of(context).hintColor,
           )
         ];
         if (state.options.isNotEmpty && !state.isEditingOption) {
@@ -97,7 +95,6 @@ class _OptionTitleButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       width: 100,
       height: 26,
@@ -107,7 +104,6 @@ class _OptionTitleButton extends StatelessWidget {
           fontSize: 12,
           textAlign: TextAlign.center,
         ),
-        hoverColor: theme.hover,
         onTap: () {
           context
               .read<SelectOptionTypeOptionBloc>()
@@ -185,8 +181,6 @@ class _OptionCellState extends State<_OptionCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return AppFlowyPopover(
       controller: _popoverController,
       mutex: widget.popoverMutex,
@@ -203,7 +197,7 @@ class _OptionCellState extends State<_OptionCell> {
           children: [
             svgWidget(
               "grid/details",
-              color: theme.iconColor,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ],
         ),
@@ -235,19 +229,20 @@ class _AddOptionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_addSelectOption.tr(),
             fontSize: 12),
-        hoverColor: theme.hover,
         onTap: () {
           context
               .read<SelectOptionTypeOptionBloc>()
               .add(const SelectOptionTypeOptionEvent.addingOption());
         },
-        leftIcon: svgWidget("home/add", color: theme.iconColor),
+        leftIcon: svgWidget(
+          "home/add",
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }

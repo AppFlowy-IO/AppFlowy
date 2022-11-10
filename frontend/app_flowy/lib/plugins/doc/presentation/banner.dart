@@ -1,11 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/size.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/buttons/base_styled_button.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 
 class DocumentBanner extends StatelessWidget {
@@ -17,12 +15,11 @@ class DocumentBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 60),
       child: Container(
         width: double.infinity,
-        color: theme.main1,
+        color: Theme.of(context).colorScheme.primary,
         child: FittedBox(
           alignment: Alignment.center,
           fit: BoxFit.scaleDown,
@@ -36,30 +33,32 @@ class DocumentBanner extends StatelessWidget {
                   minHeight: 40,
                   contentPadding: EdgeInsets.zero,
                   bgColor: Colors.transparent,
-                  hoverColor: theme.main2,
-                  downColor: theme.main1,
+                  hoverColor: Theme.of(context).colorScheme.primary,
+                  downColor: Theme.of(context).colorScheme.primaryContainer,
                   outlineColor: Colors.white,
                   borderRadius: Corners.s8Border,
                   onPressed: onRestore,
                   child: FlowyText.medium(
-                      LocaleKeys.deletePagePrompt_restore.tr(),
-                      color: Colors.white,
-                      fontSize: 14)),
+                    LocaleKeys.deletePagePrompt_restore.tr(),
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 14,
+                  )),
               const HSpace(20),
               BaseStyledButton(
                   minWidth: 220,
                   minHeight: 40,
                   contentPadding: EdgeInsets.zero,
                   bgColor: Colors.transparent,
-                  hoverColor: theme.main2,
-                  downColor: theme.main1,
+                  hoverColor: Theme.of(context).colorScheme.primaryContainer,
+                  downColor: Theme.of(context).colorScheme.primary,
                   outlineColor: Colors.white,
                   borderRadius: Corners.s8Border,
                   onPressed: onDelete,
                   child: FlowyText.medium(
-                      LocaleKeys.deletePagePrompt_deletePermanent.tr(),
-                      color: Colors.white,
-                      fontSize: 14)),
+                    LocaleKeys.deletePagePrompt_deletePermanent.tr(),
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontSize: 14,
+                  )),
             ],
           ),
         ),

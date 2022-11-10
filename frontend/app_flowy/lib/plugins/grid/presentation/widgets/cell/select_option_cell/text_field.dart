@@ -2,14 +2,12 @@ import 'dart:collection';
 
 import 'package:flowy_infra/size.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/select_type_option.pb.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:textfield_tags/textfield_tags.dart';
 import 'package:textstyle_extensions/textstyle_extensions.dart';
 
@@ -65,8 +63,6 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
-
     return TextFieldTags(
       textEditingController: controller,
       textfieldTagsController: widget.tagController,
@@ -109,7 +105,10 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
             style: TextStyles.body1.size(FontSizes.s14),
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: theme.main1, width: 1.0),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1.0,
+                ),
                 borderRadius: Corners.s10Border,
               ),
               isDense: true,
@@ -118,7 +117,10 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
               prefixIconConstraints:
                   BoxConstraints(maxWidth: widget.distanceToText),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: theme.main1, width: 1.0),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 1.0,
+                ),
                 borderRadius: Corners.s10Border,
               ),
             ),

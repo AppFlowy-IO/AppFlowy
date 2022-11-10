@@ -1,7 +1,6 @@
 import 'package:app_flowy/plugins/grid/application/setting/setting_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -89,7 +88,6 @@ class _SettingItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     final isSelected = context
         .read<GridSettingBloc>()
         .state
@@ -100,15 +98,20 @@ class _SettingItem extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         isSelected: isSelected,
-        text: FlowyText.medium(action.title(),
-            fontSize: 12, color: action.enable() ? null : theme.shader4),
-        hoverColor: theme.hover,
+        text: FlowyText.medium(
+          action.title(),
+          fontSize: 12,
+          color: action.enable() ? null : Theme.of(context).disabledColor,
+        ),
         onTap: () {
           context
               .read<GridSettingBloc>()
               .add(GridSettingEvent.performAction(action));
         },
-        leftIcon: svgWidget(action.iconName(), color: theme.iconColor),
+        leftIcon: svgWidget(
+          action.iconName(),
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }
