@@ -126,14 +126,20 @@ where
             };
 
             let revisions = self.revisions_in_range(&range).await?;
+            let rev_ids = range.to_rev_ids();
             debug_assert_eq!(range.len() as usize, revisions.len());
             // compact multiple revisions into one
             let merged_revision = rev_compress.merge_revisions(&self.user_id, &self.object_id, revisions)?;
             tracing::Span::current().record("rev_id", &merged_revision.rev_id);
-            let _ = sync_seq.recv(merged_revision.rev_id)?;
 
-            // replace the revisions in range with compact revision
-            self.compact(&range, merged_revision).await?;
+            let record = SyncRecord {
+                revision: merged_revision,
+                state: RevisionState::Sync,
+                write_to_disk: true,
+            };
+            let _ = self
+                .disk_cache
+                .delete_and_insert_records(&self.object_id, Some(rev_ids), vec![record])?;
         }
         Ok(())
     }

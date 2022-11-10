@@ -105,11 +105,9 @@ class GridDataController {
         fieldController: fieldController,
       );
 
-      cache.addListener(
-        onRowsChanged: (reason) {
-          _onRowChanged?.call(rowInfos, reason);
-        },
-      );
+      cache.addListener(onRowsChanged: (reason) {
+        _onRowChanged?.call(rowInfos, reason);
+      });
 
       _blocks[block.id] = cache;
     }
