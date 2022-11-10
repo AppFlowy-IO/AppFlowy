@@ -148,17 +148,24 @@ class AppTheme {
   }
 
   ThemeData get themeData {
-    var t = ThemeData(
+    return ThemeData(
       brightness: brightness,
       textTheme: TextTheme(bodyText2: TextStyle(color: shader1)),
       textSelectionTheme: TextSelectionThemeData(
           cursorColor: main2, selectionHandleColor: main2),
       primaryIconTheme: IconThemeData(color: hover),
       iconTheme: IconThemeData(color: shader1),
+      scrollbarTheme: const ScrollbarThemeData(
+        thumbColor: MaterialStatePropertyAll(Colors.transparent),
+      ),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       canvasColor: shader6,
       dividerColor: shader6,
       hintColor: shader3,
       disabledColor: shader4,
+      highlightColor: main1,
+      indicatorColor: main1,
+      toggleableActiveColor: main1,
       colorScheme: ColorScheme(
         brightness: brightness,
         primary: main1,
@@ -190,12 +197,6 @@ class AppTheme {
         )
       ],
     );
-
-    return t.copyWith(
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        highlightColor: main1,
-        indicatorColor: main1,
-        toggleableActiveColor: main1);
   }
 
   Color shift(Color c, double d) =>
