@@ -51,17 +51,53 @@ impl Ord for PendingTask {
 }
 
 pub enum TaskContent {
-    Snapshot,
-    Filter(String),
+    Text(String),
+    Blob(Vec<u8>),
 }
 
-#[derive(Debug, Eq, PartialEq)]
-pub enum TaskStatus {
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub enum TaskState {
     Pending,
     Processing,
     Done,
     Failure,
     Cancel,
+    Timeout,
+}
+
+impl TaskState {
+    pub fn is_pending(&self) -> bool {
+        match self {
+            TaskState::Pending => true,
+            _ => false,
+        }
+    }
+    pub fn is_done(&self) -> bool {
+        match self {
+            TaskState::Done => true,
+            _ => false,
+        }
+    }
+    pub fn is_cancel(&self) -> bool {
+        match self {
+            TaskState::Cancel => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_processing(&self) -> bool {
+        match self {
+            TaskState::Processing => true,
+            _ => false,
+        }
+    }
+
+    pub fn is_failed(&self) -> bool {
+        match self {
+            TaskState::Failure => true,
+            _ => false,
+        }
+    }
 }
 
 pub struct Task {
@@ -69,7 +105,7 @@ pub struct Task {
     pub handler_id: TaskHandlerId,
     pub content: Option<TaskContent>,
     pub qos: QualityOfService,
-    status: TaskStatus,
+    state: TaskState,
     pub ret: Option<Sender<TaskResult>>,
     pub recv: Option<Receiver<TaskResult>>,
 }
@@ -93,67 +129,29 @@ impl Task {
             qos,
             ret: Some(ret),
             recv: Some(recv),
-            status: TaskStatus::Pending,
+            state: TaskState::Pending,
         }
     }
 
-    pub(crate) fn set_status(&mut self, status: TaskStatus) {
-        self.status = status;
+    pub fn state(&self) -> &TaskState {
+        &self.state
     }
 
-    pub fn is_finished(&self) -> bool {
-        match self.status {
-            TaskStatus::Done => true,
-            _ => false,
-        }
+    pub(crate) fn set_state(&mut self, status: TaskState) {
+        self.state = status;
     }
 }
 
 pub struct TaskResult {
     pub id: TaskId,
-    pub status: TaskStatus,
-}
-
-impl TaskResult {
-    pub fn is_pending(&self) -> bool {
-        match self.status {
-            TaskStatus::Pending => true,
-            _ => false,
-        }
-    }
-    pub fn is_done(&self) -> bool {
-        match self.status {
-            TaskStatus::Done => true,
-            _ => false,
-        }
-    }
-    pub fn is_cancel(&self) -> bool {
-        match self.status {
-            TaskStatus::Cancel => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_processing(&self) -> bool {
-        match self.status {
-            TaskStatus::Processing => true,
-            _ => false,
-        }
-    }
-
-    pub fn is_failed(&self) -> bool {
-        match self.status {
-            TaskStatus::Failure => true,
-            _ => false,
-        }
-    }
+    pub state: TaskState,
 }
 
 impl std::convert::From<Task> for TaskResult {
     fn from(task: Task) -> Self {
         TaskResult {
             id: task.id,
-            status: task.status,
+            state: task.state().clone(),
         }
     }
 }

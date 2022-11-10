@@ -1,6 +1,6 @@
 use anyhow::Error;
 use anyhow::Result;
-use flowy_search::{QualityOfService, Task, TaskContent, TaskHandler, TaskId, TaskResult, TaskScheduler};
+use flowy_search::{QualityOfService, Task, TaskContent, TaskHandler, TaskId, TaskResult, TaskScheduler, TaskState};
 use futures::stream::{FuturesOrdered, FuturesUnordered};
 use futures::StreamExt;
 use lib_infra::future::BoxResultFuture;
@@ -19,6 +19,19 @@ pub enum SearchScript {
     AddTasks {
         tasks: Vec<Task>,
     },
+    Wait {
+        millisecond: u64,
+    },
+    CancelTask {
+        task_id: TaskId,
+    },
+    UnregisterHandler {
+        handler_id: String,
+    },
+    AssertTaskStatus {
+        task_id: TaskId,
+        expected_status: TaskState,
+    },
     AssertExecuteOrder {
         execute_order: Vec<u32>,
         rets: Vec<Receiver<TaskResult>>,
@@ -31,8 +44,20 @@ pub struct SearchTest {
 
 impl SearchTest {
     pub async fn new() -> Self {
-        let scheduler = TaskScheduler::new();
-        scheduler.write().await.register_handler(Arc::new(MockTaskHandler()));
+        let duration = Duration::from_millis(1000);
+        let scheduler = TaskScheduler::new(duration);
+        scheduler
+            .write()
+            .await
+            .register_handler(Arc::new(MockTextTaskHandler()));
+        scheduler
+            .write()
+            .await
+            .register_handler(Arc::new(MockBlobTaskHandler()));
+        scheduler
+            .write()
+            .await
+            .register_handler(Arc::new(MockTimeoutTaskHandler()));
 
         Self { scheduler }
     }
@@ -52,10 +77,26 @@ impl SearchTest {
             SearchScript::AddTask { task } => {
                 self.scheduler.write().await.add_task(task);
             }
+            SearchScript::CancelTask { task_id } => {
+                self.scheduler.write().await.cancel_task(task_id);
+            }
             SearchScript::AddTasks { tasks } => {
                 for task in tasks {
                     self.scheduler.write().await.add_task(task);
                 }
+            }
+            SearchScript::Wait { millisecond } => {
+                tokio::time::sleep(Duration::from_millis(millisecond)).await;
+            }
+            SearchScript::UnregisterHandler { handler_id } => {
+                self.scheduler.write().await.unregister_handler(handler_id);
+            }
+            SearchScript::AssertTaskStatus {
+                task_id,
+                expected_status,
+            } => {
+                let status = self.scheduler.read().await.read_task(&task_id).unwrap().state().clone();
+                assert_eq!(status, expected_status);
             }
             SearchScript::AssertExecuteOrder { execute_order, rets } => {
                 let mut futures = FuturesUnordered::new();
@@ -72,34 +113,95 @@ impl SearchTest {
     }
 }
 
-pub struct MockTaskHandler();
-impl RefCountValue for MockTaskHandler {
+pub struct MockTextTaskHandler();
+impl RefCountValue for MockTextTaskHandler {
     fn did_remove(&self) {}
 }
 
-impl TaskHandler for MockTaskHandler {
+impl TaskHandler for MockTextTaskHandler {
     fn handler_id(&self) -> &str {
         "1"
     }
 
-    fn run(&self, _content: TaskContent) -> BoxResultFuture<(), Error> {
+    fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {
         let mut rng = rand::thread_rng();
         let millisecond = rng.gen_range(50..100);
         Box::pin(async move {
-            tokio::time::sleep(Duration::from_millis(millisecond)).await;
+            match content {
+                TaskContent::Text(s) => {
+                    tokio::time::sleep(Duration::from_millis(millisecond)).await;
+                }
+                TaskContent::Blob(_) => panic!("Only support text"),
+            }
             Ok(())
         })
     }
 }
 
-pub fn make_background_task(task_id: TaskId, content: TaskContent) -> (Task, Receiver<TaskResult>) {
-    let mut task = Task::background("1", task_id, content);
+pub fn make_text_background_task(task_id: TaskId, s: &str) -> (Task, Receiver<TaskResult>) {
+    let mut task = Task::background("1", task_id, TaskContent::Text(s.to_owned()));
     let recv = task.recv.take().unwrap();
     (task, recv)
 }
 
-pub fn make_user_interactive_task(task_id: TaskId, content: TaskContent) -> (Task, Receiver<TaskResult>) {
-    let mut task = Task::user_interactive("1", task_id, content);
+pub fn make_text_user_interactive_task(task_id: TaskId, s: &str) -> (Task, Receiver<TaskResult>) {
+    let mut task = Task::user_interactive("1", task_id, TaskContent::Text(s.to_owned()));
+    let recv = task.recv.take().unwrap();
+    (task, recv)
+}
+
+pub struct MockBlobTaskHandler();
+impl RefCountValue for MockBlobTaskHandler {
+    fn did_remove(&self) {}
+}
+
+impl TaskHandler for MockBlobTaskHandler {
+    fn handler_id(&self) -> &str {
+        "2"
+    }
+
+    fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {
+        Box::pin(async move {
+            match content {
+                TaskContent::Text(_) => panic!("Only support blob"),
+                TaskContent::Blob(bytes) => {
+                    let msg = String::from_utf8(bytes).unwrap();
+                    tokio::time::sleep(Duration::from_millis(20)).await;
+                }
+            }
+            Ok(())
+        })
+    }
+}
+
+pub fn make_blob_background_task(task_id: TaskId, bytes: Vec<u8>) -> (Task, Receiver<TaskResult>) {
+    let mut task = Task::background("2", task_id, TaskContent::Blob(bytes));
+    let recv = task.recv.take().unwrap();
+    (task, recv)
+}
+
+pub struct MockTimeoutTaskHandler();
+
+impl TaskHandler for MockTimeoutTaskHandler {
+    fn handler_id(&self) -> &str {
+        "3"
+    }
+
+    fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {
+        Box::pin(async move {
+            match content {
+                TaskContent::Text(_) => panic!("Only support blob"),
+                TaskContent::Blob(bytes) => {
+                    tokio::time::sleep(Duration::from_millis(2000)).await;
+                }
+            }
+            Ok(())
+        })
+    }
+}
+
+pub fn make_timeout_task(task_id: TaskId) -> (Task, Receiver<TaskResult>) {
+    let mut task = Task::background("3", task_id, TaskContent::Blob(vec![]));
     let recv = task.recv.take().unwrap();
     (task, recv)
 }
