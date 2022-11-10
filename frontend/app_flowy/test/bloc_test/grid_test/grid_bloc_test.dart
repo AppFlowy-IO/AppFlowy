@@ -7,10 +7,13 @@ void main() {
   late AppFlowyGridTest gridTest;
   setUpAll(() async {
     gridTest = await AppFlowyGridTest.ensureInitialized();
-    await gridTest.createTestGrid();
   });
 
-  group('Create a new row in Grid', () {
+  group('Edit Grid:', () {
+    setUp(() async {
+      await gridTest.createTestGrid();
+    });
+    // The initial number of rows is 3 for each grid.
     blocTest<GridBloc, GridState>(
       "create a row",
       build: () =>

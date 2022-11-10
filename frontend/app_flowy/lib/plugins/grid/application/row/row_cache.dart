@@ -145,9 +145,7 @@ class GridRowCache {
 
   void _showRows(List<String> visibleRows) {}
 
-  void onRowsChanged(
-    void Function(RowsChangedReason) onRowChanged,
-  ) {
+  void onRowsChanged(void Function(RowsChangedReason) onRowChanged) {
     _rowChangeReasonNotifier.addListener(() {
       onRowChanged(_rowChangeReasonNotifier.reason);
     });
