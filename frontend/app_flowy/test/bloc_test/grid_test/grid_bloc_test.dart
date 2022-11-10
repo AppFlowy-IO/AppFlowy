@@ -32,8 +32,8 @@ void main() {
       },
       wait: const Duration(milliseconds: 300),
       verify: (bloc) {
-        assert(bloc.state.rowInfos.length == 3,
-            "Expected 3, but receive ${bloc.state.rowInfos.length}");
+        assert(bloc.state.rowInfos.length == 2,
+            "Expected 2, but receive ${bloc.state.rowInfos.length}");
       },
     );
   });
