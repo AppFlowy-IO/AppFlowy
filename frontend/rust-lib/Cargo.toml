@@ -15,7 +15,7 @@ members = [
   "flowy-error",
   "flowy-revision",
   "flowy-grid",
-  "flowy-search",
+  "flowy-task",
 ]
 
 [profile.dev]

@@ -5,11 +5,10 @@ use crate::queue::TaskQueue;
 use crate::runner::TaskRunner;
 use crate::store::TaskStore;
 use crate::{Task, TaskContent, TaskId, TaskState};
-use anyhow::{anyhow, Error};
+use anyhow::Error;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::{watch, RwLock};
-use tokio::time::error::Elapsed;
 
 pub struct TaskScheduler {
     queue: TaskQueue,
@@ -88,8 +87,7 @@ impl TaskScheduler {
                 }
             }
         } else {
-            tracing::warn!("Can not find the handler:{}", task.handler_id);
-            task.set_state(TaskState::Failure);
+            task.set_state(TaskState::Cancel);
         }
         let _ = ret.send(task.into());
         self.notify();
@@ -112,7 +110,7 @@ impl TaskScheduler {
     }
 
     pub fn cancel_task(&mut self, task_id: TaskId) {
-        if let Some(mut task) = self.store.mut_task(&task_id) {
+        if let Some(task) = self.store.mut_task(&task_id) {
             task.set_state(TaskState::Cancel);
         }
     }

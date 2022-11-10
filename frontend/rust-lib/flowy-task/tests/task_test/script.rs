@@ -1,7 +1,7 @@
 use anyhow::Error;
-use anyhow::Result;
-use flowy_search::{QualityOfService, Task, TaskContent, TaskHandler, TaskId, TaskResult, TaskScheduler, TaskState};
-use futures::stream::{FuturesOrdered, FuturesUnordered};
+
+use flowy_task::{QualityOfService, Task, TaskContent, TaskHandler, TaskId, TaskResult, TaskScheduler, TaskState};
+use futures::stream::FuturesUnordered;
 use futures::StreamExt;
 use lib_infra::future::BoxResultFuture;
 use lib_infra::ref_map::RefCountValue;
@@ -10,7 +10,6 @@ use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::oneshot::Receiver;
 use tokio::sync::RwLock;
-use tokio::time::interval;
 
 pub enum SearchScript {
     AddTask {
@@ -81,8 +80,9 @@ impl SearchTest {
                 self.scheduler.write().await.cancel_task(task_id);
             }
             SearchScript::AddTasks { tasks } => {
+                let mut scheduler = self.scheduler.write().await;
                 for task in tasks {
-                    self.scheduler.write().await.add_task(task);
+                    scheduler.add_task(task);
                 }
             }
             SearchScript::Wait { millisecond } => {
@@ -106,6 +106,7 @@ impl SearchTest {
                 let mut orders = vec![];
                 while let Some(Ok(result)) = futures.next().await {
                     orders.push(result.id);
+                    assert!(result.state.is_done());
                 }
                 assert_eq!(execute_order, orders);
             }
@@ -125,7 +126,7 @@ impl TaskHandler for MockTextTaskHandler {
 
     fn run(&self, content: TaskContent) -> BoxResultFuture<(), Error> {
         let mut rng = rand::thread_rng();
-        let millisecond = rng.gen_range(50..100);
+        let millisecond = rng.gen_range(1..50);
         Box::pin(async move {
             match content {
                 TaskContent::Text(s) => {

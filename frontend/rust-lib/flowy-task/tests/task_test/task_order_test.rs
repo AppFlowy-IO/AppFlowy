@@ -1,9 +1,6 @@
-use crate::search_test::script::{
+use crate::task_test::script::{
     make_text_background_task, make_text_user_interactive_task, SearchScript::*, SearchTest,
 };
-use flowy_search::TaskContent;
-use futures::stream::FuturesOrdered;
-use futures::StreamExt;
 
 #[tokio::test]
 async fn task_add_single_background_task_test() {
@@ -93,3 +90,22 @@ async fn task_add_multiple_different_kind_tasks_test2() {
     ])
     .await;
 }
+
+// #[tokio::test]
+// async fn task_add_1000_tasks_test() {
+//     let test = SearchTest::new().await;
+//     let mut tasks = vec![];
+//     let mut execute_order = vec![];
+//     let mut rets = vec![];
+//
+//     for i in 1..1000 {
+//         let (task, ret) = make_text_background_task(test.next_task_id().await, "");
+//         execute_order.push(i);
+//         tasks.push(task);
+//         rets.push(ret);
+//     }
+//     execute_order.reverse();
+//
+//     test.run_scripts(vec![AddTasks { tasks }, AssertExecuteOrder { execute_order, rets }])
+//         .await;
+// }

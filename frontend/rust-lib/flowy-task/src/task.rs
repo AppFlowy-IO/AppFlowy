@@ -67,36 +67,21 @@ pub enum TaskState {
 
 impl TaskState {
     pub fn is_pending(&self) -> bool {
-        match self {
-            TaskState::Pending => true,
-            _ => false,
-        }
+        matches!(self, TaskState::Pending)
     }
     pub fn is_done(&self) -> bool {
-        match self {
-            TaskState::Done => true,
-            _ => false,
-        }
+        matches!(self, TaskState::Done)
     }
     pub fn is_cancel(&self) -> bool {
-        match self {
-            TaskState::Cancel => true,
-            _ => false,
-        }
+        matches!(self, TaskState::Cancel)
     }
 
     pub fn is_processing(&self) -> bool {
-        match self {
-            TaskState::Processing => true,
-            _ => false,
-        }
+        matches!(self, TaskState::Processing)
     }
 
     pub fn is_failed(&self) -> bool {
-        match self {
-            TaskState::Failure => true,
-            _ => false,
-        }
+        matches!(self, TaskState::Failure)
     }
 }
 

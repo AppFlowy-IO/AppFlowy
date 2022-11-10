@@ -1,5 +1,5 @@
 [package]
-name = "flowy-search"
+name = "flowy-task"
 version = "0.1.0"
 edition = "2021"
 
