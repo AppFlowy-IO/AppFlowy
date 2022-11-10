@@ -76,14 +76,7 @@ class AppTheme {
     required String font,
     required String monospaceFont,
   }) {
-    return AppTheme.fromType(
-        themeTypeFromString(themeName), font, monospaceFont);
-  }
-
-  /// fromType factory constructor
-  factory AppTheme.fromType(
-      Brightness themeType, String font, String monospaceFont) {
-    switch (themeType) {
+    switch (themeTypeFromString(themeName)) {
       case Brightness.light:
         return AppTheme(brightness: Brightness.light)
           ..surface = Colors.white

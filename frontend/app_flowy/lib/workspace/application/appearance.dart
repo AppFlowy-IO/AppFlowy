@@ -35,10 +35,10 @@ class AppearanceSettingsCubit extends Cubit<AppearanceSettingsState> {
     _saveAppearanceSettings();
 
     emit(state.copyWith(
-      theme: AppTheme.fromType(
-        brightness,
-        state.theme.font,
-        state.theme.monospaceFont,
+      theme: AppTheme.fromName(
+        themeName: _setting.theme,
+        font: state.theme.font,
+        monospaceFont: state.theme.monospaceFont,
       ),
     ));
   }
