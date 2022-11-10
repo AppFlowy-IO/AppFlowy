@@ -3,9 +3,7 @@ use crate::entities::{
     InsertFilterParams, InsertGroupParams, MoveGroupParams, RepeatedGridGroupPB, RowPB,
 };
 use crate::manager::GridUser;
-use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_editor::{GridViewRevisionCompress, GridViewRevisionEditor};
-
 use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
@@ -13,9 +11,11 @@ use flowy_error::FlowyResult;
 use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
+use flowy_task::TaskDispatcher;
 use grid_rev_model::{FieldRevision, RowChangeset, RowRevision};
 use lib_infra::future::AFFuture;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
 type ViewId = String;
 
@@ -36,7 +36,7 @@ pub(crate) struct GridViewManager {
     field_delegate: Arc<dyn GridViewFieldDelegate>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
     view_editors: DashMap<ViewId, Arc<GridViewRevisionEditor>>,
-    scheduler: Arc<dyn GridServiceTaskScheduler>,
+    scheduler: Arc<RwLock<TaskDispatcher>>,
 }
 
 impl GridViewManager {
@@ -45,7 +45,7 @@ impl GridViewManager {
         user: Arc<dyn GridUser>,
         field_delegate: Arc<dyn GridViewFieldDelegate>,
         row_delegate: Arc<dyn GridViewRowDelegate>,
-        scheduler: Arc<dyn GridServiceTaskScheduler>,
+        scheduler: Arc<RwLock<TaskDispatcher>>,
     ) -> FlowyResult<Self> {
         Ok(Self {
             grid_id,
@@ -207,7 +207,6 @@ impl GridViewManager {
                         view_id,
                         self.field_delegate.clone(),
                         self.row_delegate.clone(),
-                        self.scheduler.clone(),
                     )
                     .await?,
                 );
@@ -228,23 +227,13 @@ async fn make_view_editor(
     view_id: &str,
     field_delegate: Arc<dyn GridViewFieldDelegate>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
-    scheduler: Arc<dyn GridServiceTaskScheduler>,
 ) -> FlowyResult<GridViewRevisionEditor> {
     let rev_manager = make_grid_view_rev_manager(user, view_id).await?;
     let user_id = user.user_id()?;
     let token = user.token()?;
     let view_id = view_id.to_owned();
 
-    GridViewRevisionEditor::new(
-        &user_id,
-        &token,
-        view_id,
-        field_delegate,
-        row_delegate,
-        scheduler,
-        rev_manager,
-    )
-    .await
+    GridViewRevisionEditor::new(&user_id, &token, view_id, field_delegate, row_delegate, rev_manager).await
 }
 
 pub async fn make_grid_view_rev_manager(

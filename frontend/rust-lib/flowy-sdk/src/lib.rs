@@ -15,11 +15,13 @@ use flowy_net::{
     local_server::LocalServer,
     ws::connection::{listen_on_websocket, FlowyWebSocketConnect},
 };
+use flowy_task::{TaskDispatcher, TaskRunner};
 use flowy_user::services::{notifier::UserStatus, UserSession, UserSessionConfig};
 use lib_dispatch::prelude::*;
 use lib_dispatch::runtime::tokio_default_runtime;
 use module::mk_modules;
 pub use module::*;
+use std::time::Duration;
 use std::{
     fmt,
     sync::{
@@ -27,7 +29,7 @@ use std::{
         Arc,
     },
 };
-use tokio::sync::broadcast;
+use tokio::sync::{broadcast, RwLock};
 
 static INIT_LOG: AtomicBool = AtomicBool::new(false);
 
@@ -103,9 +105,10 @@ pub struct FlowySDK {
     pub document_manager: Arc<DocumentManager>,
     pub folder_manager: Arc<FolderManager>,
     pub grid_manager: Arc<GridManager>,
-    pub dispatcher: Arc<EventDispatcher>,
+    pub event_dispatcher: Arc<EventDispatcher>,
     pub ws_conn: Arc<FlowyWebSocketConnect>,
     pub local_server: Option<Arc<LocalServer>>,
+    pub task_dispatcher: Arc<RwLock<TaskDispatcher>>,
 }
 
 impl FlowySDK {
@@ -114,6 +117,10 @@ impl FlowySDK {
         init_kv(&config.root);
         tracing::debug!("🔥 {:?}", config);
         let runtime = tokio_default_runtime().unwrap();
+        let mut task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
+        let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
+        runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
+
         let (local_server, ws_conn) = mk_local_server(&config.server_config);
         let (user_session, document_manager, folder_manager, local_server, grid_manager) = runtime.block_on(async {
             let user_session = mk_user_session(&config, &local_server, &config.server_config);
@@ -125,7 +132,8 @@ impl FlowySDK {
                 &config.document,
             );
 
-            let grid_manager = GridDepsResolver::resolve(ws_conn.clone(), user_session.clone()).await;
+            let grid_manager =
+                GridDepsResolver::resolve(ws_conn.clone(), user_session.clone(), task_dispatcher.clone()).await;
 
             let folder_manager = FolderDepsResolver::resolve(
                 local_server.clone(),
@@ -150,7 +158,7 @@ impl FlowySDK {
             )
         });
 
-        let dispatcher = Arc::new(EventDispatcher::construct(runtime, || {
+        let event_dispatcher = Arc::new(EventDispatcher::construct(runtime, || {
             mk_modules(
                 &ws_conn,
                 &folder_manager,
@@ -162,7 +170,7 @@ impl FlowySDK {
 
         _start_listening(
             &config,
-            &dispatcher,
+            &event_dispatcher,
             &ws_conn,
             &user_session,
             &document_manager,
@@ -176,20 +184,21 @@ impl FlowySDK {
             document_manager,
             folder_manager,
             grid_manager,
-            dispatcher,
+            event_dispatcher: event_dispatcher,
             ws_conn,
             local_server,
+            task_dispatcher: task_dispatcher,
         }
     }
 
     pub fn dispatcher(&self) -> Arc<EventDispatcher> {
-        self.dispatcher.clone()
+        self.event_dispatcher.clone()
     }
 }
 
 fn _start_listening(
     config: &FlowySDKConfig,
-    dispatch: &EventDispatcher,
+    event_dispatch: &EventDispatcher,
     ws_conn: &Arc<FlowyWebSocketConnect>,
     user_session: &Arc<UserSession>,
     document_manager: &Arc<DocumentManager>,
@@ -206,7 +215,7 @@ fn _start_listening(
     let document_manager = document_manager.clone();
     let config = config.clone();
 
-    dispatch.spawn(async move {
+    event_dispatch.spawn(async move {
         user_session.init();
         listen_on_websocket(ws_conn.clone());
         _listen_user_status(
@@ -220,7 +229,7 @@ fn _start_listening(
         .await;
     });
 
-    dispatch.spawn(async move {
+    event_dispatch.spawn(async move {
         _listen_network_status(subscribe_network_type, cloned_folder_manager).await;
     });
 }

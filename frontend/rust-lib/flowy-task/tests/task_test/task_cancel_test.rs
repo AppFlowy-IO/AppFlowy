@@ -67,7 +67,7 @@ async fn task_can_not_find_handler_test2() {
     let mut tasks = vec![];
     let mut rets = vec![];
     let handler_id = "1".to_owned();
-    for i in 1..10000 {
+    for _i in 1..10000 {
         let (task, ret) = make_text_background_task(test.next_task_id().await, "");
         tasks.push(task);
         rets.push(ret);

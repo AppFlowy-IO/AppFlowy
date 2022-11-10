@@ -2,9 +2,10 @@ use crate::entities::{
     CheckboxFilterConfigurationPB, DateFilterConfigurationPB, FieldType, NumberFilterConfigurationPB,
     SelectOptionFilterConfigurationPB, TextFilterConfigurationPB,
 };
+use crate::services::filter::FilterId;
 use dashmap::DashMap;
 use flowy_sync::client_grid::GridRevisionPad;
-use grid_rev_model::{FieldRevision, FilterConfigurationRevision, RowRevision};
+use grid_rev_model::{FilterConfigurationRevision, RowRevision};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -152,20 +153,6 @@ pub(crate) async fn refresh_filter_cache(
                     }
                 }
             }
-        }
-    }
-}
-#[derive(Hash, Eq, PartialEq)]
-pub(crate) struct FilterId {
-    pub(crate) field_id: String,
-    pub(crate) field_type: FieldType,
-}
-
-impl std::convert::From<&Arc<FieldRevision>> for FilterId {
-    fn from(rev: &Arc<FieldRevision>) -> Self {
-        Self {
-            field_id: rev.id.clone(),
-            field_type: rev.ty.into(),
         }
     }
 }

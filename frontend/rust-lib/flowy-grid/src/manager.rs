@@ -7,7 +7,6 @@ use crate::services::persistence::kv::GridKVPersistence;
 use crate::services::persistence::migration::GridMigration;
 use crate::services::persistence::rev_sqlite::SQLiteGridRevisionPersistence;
 use crate::services::persistence::GridDatabase;
-use crate::services::tasks::GridTaskScheduler;
 use bytes::Bytes;
 
 use flowy_database::ConnectionPool;
@@ -22,6 +21,7 @@ use grid_rev_model::{BuildGridContext, GridRevision, GridViewRevision};
 use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 
 use crate::services::block_manager::make_grid_block_rev_manager;
+use flowy_task::TaskDispatcher;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
@@ -31,15 +31,13 @@ pub trait GridUser: Send + Sync {
     fn db_pool(&self) -> Result<Arc<ConnectionPool>, FlowyError>;
 }
 
-pub type GridTaskSchedulerRwLock = Arc<RwLock<GridTaskScheduler>>;
-
 pub struct GridManager {
     grid_editors: RwLock<RefCountHashMap<Arc<GridRevisionEditor>>>,
     grid_user: Arc<dyn GridUser>,
     block_index_cache: Arc<BlockIndexCache>,
     #[allow(dead_code)]
     kv_persistence: Arc<GridKVPersistence>,
-    task_scheduler: GridTaskSchedulerRwLock,
+    task_scheduler: Arc<RwLock<TaskDispatcher>>,
     migration: GridMigration,
 }
 
@@ -47,12 +45,12 @@ impl GridManager {
     pub fn new(
         grid_user: Arc<dyn GridUser>,
         _rev_web_socket: Arc<dyn RevisionWebSocket>,
+        task_scheduler: Arc<RwLock<TaskDispatcher>>,
         database: Arc<dyn GridDatabase>,
     ) -> Self {
         let grid_editors = RwLock::new(RefCountHashMap::new());
         let kv_persistence = Arc::new(GridKVPersistence::new(database.clone()));
         let block_index_cache = Arc::new(BlockIndexCache::new(database.clone()));
-        let task_scheduler = GridTaskScheduler::new();
         let migration = GridMigration::new(grid_user.clone(), database);
         Self {
             grid_editors,
@@ -111,7 +109,7 @@ impl GridManager {
         tracing::Span::current().record("grid_id", &grid_id);
 
         self.grid_editors.write().await.remove(grid_id);
-        self.task_scheduler.write().await.unregister_handler(grid_id);
+        // self.task_scheduler.write().await.unregister_handler(grid_id);
         Ok(())
     }
 
@@ -134,7 +132,7 @@ impl GridManager {
             .write()
             .await
             .insert(grid_id.to_string(), editor.clone());
-        self.task_scheduler.write().await.register_handler(editor.clone());
+        // self.task_scheduler.write().await.register_handler(editor.clone());
         Ok(editor)
     }
 

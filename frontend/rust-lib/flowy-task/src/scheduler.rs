@@ -1,51 +1,44 @@
-use lib_infra::future::BoxResultFuture;
-use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
-
 use crate::queue::TaskQueue;
-use crate::runner::TaskRunner;
 use crate::store::TaskStore;
 use crate::{Task, TaskContent, TaskId, TaskState};
 use anyhow::Error;
+use lib_infra::future::BoxResultFuture;
+use lib_infra::ref_map::{RefCountHashMap, RefCountValue};
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::{watch, RwLock};
 
-pub struct TaskScheduler {
+use tokio::sync::{watch, RwLock};
+use tokio::time::interval;
+
+pub struct TaskDispatcher {
     queue: TaskQueue,
     store: TaskStore,
-    notifier: watch::Sender<bool>,
     timeout: Duration,
     handlers: RefCountHashMap<RefCountTaskHandler>,
+
+    notifier: watch::Sender<bool>,
+    pub(crate) notifier_rx: Option<watch::Receiver<bool>>,
 }
 
-impl TaskScheduler {
-    pub fn new(timeout: Duration) -> Arc<RwLock<Self>> {
-        let (notifier, stop_rx) = watch::channel(false);
-
-        let scheduler = Self {
+impl TaskDispatcher {
+    pub fn new(timeout: Duration) -> Self {
+        let (notifier, notifier_rx) = watch::channel(false);
+        Self {
             queue: TaskQueue::new(),
             store: TaskStore::new(),
-            notifier,
             timeout,
             handlers: RefCountHashMap::new(),
-        };
-        // The runner will receive the newest value after start running.
-        scheduler.notify();
-
-        let scheduler = Arc::new(RwLock::new(scheduler));
-        let debounce_duration = Duration::from_millis(300);
-        let runner = TaskRunner::new(scheduler.clone(), stop_rx, debounce_duration);
-        tokio::spawn(runner.run());
-
-        scheduler
+            notifier,
+            notifier_rx: Some(notifier_rx),
+        }
     }
 
-    pub fn register_handler<T>(&mut self, handler: Arc<T>)
+    pub fn register_handler<T>(&mut self, handler: T)
     where
         T: TaskHandler,
     {
         let handler_id = handler.handler_id().to_owned();
-        self.handlers.insert(handler_id, RefCountTaskHandler(handler));
+        self.handlers.insert(handler_id, RefCountTaskHandler(Arc::new(handler)));
     }
 
     pub fn unregister_handler<T: AsRef<str>>(&mut self, handler_id: T) {
@@ -121,6 +114,29 @@ impl TaskScheduler {
 
     pub(crate) fn notify(&self) {
         let _ = self.notifier.send(false);
+    }
+}
+pub struct TaskRunner();
+impl TaskRunner {
+    pub async fn run(dispatcher: Arc<RwLock<TaskDispatcher>>) {
+        dispatcher.read().await.notify();
+        let debounce_duration = Duration::from_millis(300);
+        let mut notifier = dispatcher.write().await.notifier_rx.take().expect("Only take once");
+        loop {
+            // stops the runner if the notifier was closed.
+            if notifier.changed().await.is_err() {
+                break;
+            }
+
+            // stops the runner if the value of notifier is `true`
+            if *notifier.borrow() {
+                break;
+            }
+
+            let mut interval = interval(debounce_duration);
+            interval.tick().await;
+            let _ = dispatcher.write().await.process_next_task().await;
+        }
     }
 }
 

@@ -5,7 +5,6 @@ use crate::entities::{
     InsertGroupParams, InsertedGroupPB, InsertedRowPB, MoveGroupParams, RepeatedGridFilterConfigurationPB,
     RepeatedGridGroupConfigurationPB, RowPB,
 };
-use crate::services::grid_editor_task::GridServiceTaskScheduler;
 use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, GroupConfigurationReader,
@@ -39,7 +38,6 @@ pub struct GridViewRevisionEditor {
     field_delegate: Arc<dyn GridViewFieldDelegate>,
     row_delegate: Arc<dyn GridViewRowDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
-    scheduler: Arc<dyn GridServiceTaskScheduler>,
 }
 impl GridViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all, err)]
@@ -49,7 +47,6 @@ impl GridViewRevisionEditor {
         view_id: String,
         field_delegate: Arc<dyn GridViewFieldDelegate>,
         row_delegate: Arc<dyn GridViewRowDelegate>,
-        scheduler: Arc<dyn GridServiceTaskScheduler>,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
         let cloud = Arc::new(GridViewRevisionCloudService {
@@ -73,7 +70,6 @@ impl GridViewRevisionEditor {
             user_id,
             view_id,
             rev_manager,
-            scheduler,
             field_delegate,
             row_delegate,
             group_controller: Arc::new(RwLock::new(group_controller)),

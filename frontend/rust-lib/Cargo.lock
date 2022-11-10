@@ -955,6 +955,7 @@ dependencies = [
 name = "flowy-grid"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "atomic_refcell",
  "bytes",
  "chrono",
@@ -970,6 +971,7 @@ dependencies = [
  "flowy-http-model",
  "flowy-revision",
  "flowy-sync",
+ "flowy-task",
  "flowy-test",
  "futures",
  "grid-rev-model",
@@ -1078,6 +1080,7 @@ dependencies = [
  "flowy-http-model",
  "flowy-net",
  "flowy-revision",
+ "flowy-task",
  "flowy-user",
  "futures-core",
  "grid-rev-model",
@@ -1088,13 +1091,6 @@ dependencies = [
  "parking_lot 0.12.1",
  "tokio",
  "tracing",
-]
-
-[[package]]
-name = "flowy-search"
-version = "0.1.0"
-dependencies = [
- "flowy-task",
 ]
 
 [[package]]

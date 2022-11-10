@@ -1,22 +1,14 @@
-#![allow(clippy::all)]
-#![allow(unused_attributes)]
-#![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_results)]
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{FieldType, GridBlockChangesetPB, GridSettingChangesetParams};
+use crate::entities::{
+    DeleteFilterParams, FieldType, GridBlockChangesetPB, GridSettingChangesetParams, InsertFilterParams,
+};
 use crate::services::block_manager::GridBlockManager;
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::{
     CheckboxTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB,
     SingleSelectTypeOptionPB, URLTypeOptionPB,
 };
-use crate::services::filter::filter_cache::{
-    refresh_filter_cache, FilterCache, FilterId, FilterResult, FilterResultCache,
-};
-use crate::services::grid_editor_task::GridServiceTaskScheduler;
-use crate::services::row::GridBlockSnapshot;
-use crate::services::tasks::{FilterTaskContext, Task, TaskContent};
+use crate::services::filter::{refresh_filter_cache, FilterCache, FilterResult, FilterResultCache};
 use flowy_error::FlowyResult;
 use flowy_sync::client_grid::GridRevisionPad;
 use grid_rev_model::{CellRevision, FieldId, FieldRevision, RowRevision};
@@ -25,34 +17,25 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub(crate) struct GridFilterService {
-    #[allow(dead_code)]
-    scheduler: Arc<dyn GridServiceTaskScheduler>,
+pub(crate) struct FilterController {
     grid_pad: Arc<RwLock<GridRevisionPad>>,
-    #[allow(dead_code)]
     block_manager: Arc<GridBlockManager>,
     filter_cache: Arc<FilterCache>,
     filter_result_cache: Arc<FilterResultCache>,
 }
-impl GridFilterService {
-    pub async fn new<S: GridServiceTaskScheduler>(
-        grid_pad: Arc<RwLock<GridRevisionPad>>,
-        block_manager: Arc<GridBlockManager>,
-        scheduler: S,
-    ) -> Self {
-        let scheduler = Arc::new(scheduler);
+impl FilterController {
+    pub async fn new(grid_pad: Arc<RwLock<GridRevisionPad>>, block_manager: Arc<GridBlockManager>) -> Self {
         let filter_cache = FilterCache::from_grid_pad(&grid_pad).await;
         let filter_result_cache = FilterResultCache::new();
         Self {
             grid_pad,
             block_manager,
-            scheduler,
             filter_cache,
             filter_result_cache,
         }
     }
 
-    pub async fn process(&self, task_context: FilterTaskContext) -> FlowyResult<()> {
+    pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
         let field_revs = self
             .grid_pad
             .read()
@@ -62,56 +45,52 @@ impl GridFilterService {
             .map(|field_rev| (field_rev.id.clone(), field_rev))
             .collect::<HashMap<String, Arc<FieldRevision>>>();
 
-        let mut changesets = vec![];
-        for (index, block) in task_context.blocks.into_iter().enumerate() {
-            // The row_ids contains the row that its visibility was changed.
-            let row_ids = block
-                .row_revs
-                .par_iter()
-                .flat_map(|row_rev| {
-                    let filter_result_cache = self.filter_result_cache.clone();
-                    let filter_cache = self.filter_cache.clone();
-                    filter_row(index, row_rev, filter_cache, filter_result_cache, &field_revs)
-                })
-                .collect::<Vec<String>>();
-
-            let mut visible_rows = vec![];
-            let mut hide_rows = vec![];
-
-            // Query the filter result from the cache
-            for row_id in row_ids {
-                if self
-                    .filter_result_cache
-                    .get(&row_id)
-                    .map(|result| result.is_visible())
-                    .unwrap_or(false)
-                {
-                    visible_rows.push(row_id);
-                } else {
-                    hide_rows.push(row_id);
-                }
-            }
-
-            let changeset = GridBlockChangesetPB {
-                block_id: block.block_id,
-                hide_rows,
-                visible_rows,
-                ..Default::default()
-            };
-
-            // Save the changeset for each block
-            changesets.push(changeset);
-        }
-
-        self.notify(changesets).await;
+        // let mut changesets = vec![];
+        // for (index, block) in task_context.blocks.into_iter().enumerate() {
+        //     // The row_ids contains the row that its visibility was changed.
+        //     let row_ids = block
+        //         .row_revs
+        //         .par_iter()
+        //         .flat_map(|row_rev| {
+        //             let filter_result_cache = self.filter_result_cache.clone();
+        //             let filter_cache = self.filter_cache.clone();
+        //             filter_row(index, row_rev, filter_cache, filter_result_cache, &field_revs)
+        //         })
+        //         .collect::<Vec<String>>();
+        //
+        //     let mut visible_rows = vec![];
+        //     let mut hide_rows = vec![];
+        //
+        //     // Query the filter result from the cache
+        //     for row_id in row_ids {
+        //         if self
+        //             .filter_result_cache
+        //             .get(&row_id)
+        //             .map(|result| result.is_visible())
+        //             .unwrap_or(false)
+        //         {
+        //             visible_rows.push(row_id);
+        //         } else {
+        //             hide_rows.push(row_id);
+        //         }
+        //     }
+        //
+        //     let changeset = GridBlockChangesetPB {
+        //         block_id: block.block_id,
+        //         hide_rows,
+        //         visible_rows,
+        //         ..Default::default()
+        //     };
+        //
+        //     // Save the changeset for each block
+        //     changesets.push(changeset);
+        // }
+        //
+        // self.notify(changesets).await;
         Ok(())
     }
 
-    pub async fn apply_changeset(&self, changeset: GridFilterChangeset) {
-        if !changeset.is_changed() {
-            return;
-        }
-
+    pub async fn apply_changeset(&self, changeset: FilterChangeset) {
         if let Some(filter_id) = &changeset.insert_filter {
             let field_ids = Some(vec![filter_id.field_id.clone()]);
             refresh_filter_cache(self.filter_cache.clone(), field_ids, &self.grid_pad).await;
@@ -122,17 +101,9 @@ impl GridFilterService {
         }
 
         if let Ok(blocks) = self.block_manager.get_block_snapshots(None).await {
-            let _task = self.gen_task(blocks).await;
+            // let _task = self.gen_task(blocks).await;
             // let _ = self.scheduler.register_task(task).await;
         }
-    }
-
-    async fn gen_task(&self, blocks: Vec<GridBlockSnapshot>) -> Task {
-        let task_id = self.scheduler.gen_task_id().await;
-        let handler_id = self.grid_pad.read().await.grid_id();
-
-        let context = FilterTaskContext { blocks };
-        Task::new(&handler_id, task_id, TaskContent::Filter(context))
     }
 
     async fn notify(&self, changesets: Vec<GridBlockChangesetPB>) {
@@ -264,18 +235,28 @@ fn filter_cell(
     }
 }
 
-pub struct GridFilterChangeset {
+pub struct FilterChangeset {
     insert_filter: Option<FilterId>,
     delete_filter: Option<FilterId>,
 }
 
-impl GridFilterChangeset {
-    fn is_changed(&self) -> bool {
-        self.insert_filter.is_some() || self.delete_filter.is_some()
+impl FilterChangeset {
+    pub fn from_insert(filter_id: FilterId) -> Self {
+        Self {
+            insert_filter: Some(filter_id),
+            delete_filter: None,
+        }
+    }
+
+    pub fn from_delete(filter_id: FilterId) -> Self {
+        Self {
+            insert_filter: None,
+            delete_filter: Some(filter_id),
+        }
     }
 }
 
-impl std::convert::From<&GridSettingChangesetParams> for GridFilterChangeset {
+impl std::convert::From<&GridSettingChangesetParams> for FilterChangeset {
     fn from(params: &GridSettingChangesetParams) -> Self {
         let insert_filter = params.insert_filter.as_ref().map(|insert_filter_params| FilterId {
             field_id: insert_filter_params.field_id.clone(),
@@ -286,9 +267,44 @@ impl std::convert::From<&GridSettingChangesetParams> for GridFilterChangeset {
             field_id: delete_filter_params.filter_id.clone(),
             field_type: delete_filter_params.field_type_rev.into(),
         });
-        GridFilterChangeset {
+        FilterChangeset {
             insert_filter,
             delete_filter,
+        }
+    }
+}
+
+#[derive(Hash, Eq, PartialEq)]
+pub struct FilterId {
+    pub field_id: String,
+    pub field_type: FieldType,
+}
+
+impl std::convert::From<&Arc<FieldRevision>> for FilterId {
+    fn from(rev: &Arc<FieldRevision>) -> Self {
+        Self {
+            field_id: rev.id.clone(),
+            field_type: rev.ty.into(),
+        }
+    }
+}
+
+impl std::convert::From<&InsertFilterParams> for FilterId {
+    fn from(params: &InsertFilterParams) -> Self {
+        let field_type: FieldType = params.field_type_rev.into();
+        Self {
+            field_id: params.field_id.clone(),
+            field_type,
+        }
+    }
+}
+
+impl std::convert::From<&DeleteFilterParams> for FilterId {
+    fn from(params: &DeleteFilterParams) -> Self {
+        let field_type: FieldType = params.field_type_rev.into();
+        Self {
+            field_id: params.field_id.clone(),
+            field_type,
         }
     }
 }

@@ -1,19 +1,19 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
 use crate::entities::GridCellIdParams;
 use crate::entities::*;
-use crate::manager::{GridTaskSchedulerRwLock, GridUser};
+use crate::manager::GridUser;
 use crate::services::block_manager::GridBlockManager;
-
 use crate::services::cell::{apply_cell_data_changeset, decode_any_cell_data, CellBytes};
 use crate::services::field::{
     default_type_option_builder_from_type, type_option_builder_from_bytes, type_option_builder_from_json_str,
     FieldBuilder,
 };
-use crate::services::filter::GridFilterService;
+use crate::services::filter::{FilterChangeset, FilterController, FilterId, FilterTaskHandler, FILTER_HANDLER_ID};
 use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{make_grid_blocks, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder};
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
 use flowy_revision::{
@@ -22,10 +22,9 @@ use flowy_revision::{
 use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
 use flowy_sync::errors::{CollaborateError, CollaborateResult};
 use flowy_sync::util::make_operations_from_revisions;
+use flowy_task::TaskDispatcher;
 use grid_rev_model::*;
 use lib_infra::future::{wrap_future, FutureResult};
-
-use flowy_database::ConnectionPool;
 use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -39,9 +38,8 @@ pub struct GridRevisionEditor {
     view_manager: Arc<GridViewManager>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     block_manager: Arc<GridBlockManager>,
-
-    #[allow(dead_code)]
-    pub(crate) filter_service: Arc<GridFilterService>,
+    task_scheduler: Arc<RwLock<TaskDispatcher>>,
+    filter_controller: Arc<FilterController>,
 }
 
 impl Drop for GridRevisionEditor {
@@ -56,7 +54,7 @@ impl GridRevisionEditor {
         user: Arc<dyn GridUser>,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
         persistence: Arc<BlockIndexCache>,
-        task_scheduler: GridTaskSchedulerRwLock,
+        task_scheduler: Arc<RwLock<TaskDispatcher>>,
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
@@ -67,8 +65,12 @@ impl GridRevisionEditor {
         // Block manager
         let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
         let block_manager = Arc::new(GridBlockManager::new(&user, block_meta_revs, persistence).await?);
-        let filter_service =
-            GridFilterService::new(grid_pad.clone(), block_manager.clone(), task_scheduler.clone()).await;
+        let filter_controller = Arc::new(FilterController::new(grid_pad.clone(), block_manager.clone()).await);
+
+        task_scheduler.write().await.register_handler(FilterTaskHandler::new(
+            task_scheduler.clone(),
+            filter_controller.clone(),
+        ));
 
         // View manager
         let view_manager = Arc::new(
@@ -77,7 +79,7 @@ impl GridRevisionEditor {
                 user.clone(),
                 Arc::new(grid_pad.clone()),
                 Arc::new(block_manager.clone()),
-                Arc::new(task_scheduler.clone()),
+                task_scheduler.clone(),
             )
             .await?,
         );
@@ -88,7 +90,8 @@ impl GridRevisionEditor {
             rev_manager,
             block_manager,
             view_manager,
-            filter_service: Arc::new(filter_service),
+            task_scheduler,
+            filter_controller,
         });
 
         Ok(editor)
@@ -97,8 +100,10 @@ impl GridRevisionEditor {
     #[tracing::instrument(name = "close grid editor", level = "trace", skip_all)]
     pub fn close(&self) {
         let rev_manager = self.rev_manager.clone();
+        let task_scheduler = self.task_scheduler.clone();
         tokio::spawn(async move {
             rev_manager.close().await;
+            task_scheduler.write().await.unregister_handler(FILTER_HANDLER_ID);
         });
     }
 
@@ -573,12 +578,27 @@ impl GridRevisionEditor {
     }
 
     pub async fn create_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
+        let filter_id = FilterId::from(&params);
         let _ = self.view_manager.insert_or_update_filter(params).await?;
+        let filter_controller = self.filter_controller.clone();
+        tokio::spawn(async move {
+            filter_controller
+                .apply_changeset(FilterChangeset::from_insert(filter_id))
+                .await;
+        });
         Ok(())
     }
 
     pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+        let filter_id = FilterId::from(&params);
         let _ = self.view_manager.delete_filter(params).await?;
+
+        let filter_controller = self.filter_controller.clone();
+        tokio::spawn(async move {
+            filter_controller
+                .apply_changeset(FilterChangeset::from_delete(filter_id))
+                .await;
+        });
         Ok(())
     }
 

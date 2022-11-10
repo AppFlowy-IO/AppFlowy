@@ -1,6 +1,6 @@
 use anyhow::Error;
 
-use flowy_task::{QualityOfService, Task, TaskContent, TaskHandler, TaskId, TaskResult, TaskScheduler, TaskState};
+use flowy_task::{Task, TaskContent, TaskDispatcher, TaskHandler, TaskId, TaskResult, TaskRunner, TaskState};
 use futures::stream::FuturesUnordered;
 use futures::StreamExt;
 use lib_infra::future::BoxResultFuture;
@@ -38,25 +38,19 @@ pub enum SearchScript {
 }
 
 pub struct SearchTest {
-    scheduler: Arc<RwLock<TaskScheduler>>,
+    scheduler: Arc<RwLock<TaskDispatcher>>,
 }
 
 impl SearchTest {
     pub async fn new() -> Self {
         let duration = Duration::from_millis(1000);
-        let scheduler = TaskScheduler::new(duration);
-        scheduler
-            .write()
-            .await
-            .register_handler(Arc::new(MockTextTaskHandler()));
-        scheduler
-            .write()
-            .await
-            .register_handler(Arc::new(MockBlobTaskHandler()));
-        scheduler
-            .write()
-            .await
-            .register_handler(Arc::new(MockTimeoutTaskHandler()));
+        let mut scheduler = TaskDispatcher::new(duration);
+        scheduler.register_handler(Arc::new(MockTextTaskHandler()));
+        scheduler.register_handler(Arc::new(MockBlobTaskHandler()));
+        scheduler.register_handler(Arc::new(MockTimeoutTaskHandler()));
+
+        let scheduler = Arc::new(RwLock::new(scheduler));
+        tokio::spawn(TaskRunner::run(scheduler.clone()));
 
         Self { scheduler }
     }
@@ -129,7 +123,7 @@ impl TaskHandler for MockTextTaskHandler {
         let millisecond = rng.gen_range(1..50);
         Box::pin(async move {
             match content {
-                TaskContent::Text(s) => {
+                TaskContent::Text(_s) => {
                     tokio::time::sleep(Duration::from_millis(millisecond)).await;
                 }
                 TaskContent::Blob(_) => panic!("Only support text"),
@@ -166,19 +160,13 @@ impl TaskHandler for MockBlobTaskHandler {
             match content {
                 TaskContent::Text(_) => panic!("Only support blob"),
                 TaskContent::Blob(bytes) => {
-                    let msg = String::from_utf8(bytes).unwrap();
+                    let _msg = String::from_utf8(bytes).unwrap();
                     tokio::time::sleep(Duration::from_millis(20)).await;
                 }
             }
             Ok(())
         })
     }
-}
-
-pub fn make_blob_background_task(task_id: TaskId, bytes: Vec<u8>) -> (Task, Receiver<TaskResult>) {
-    let mut task = Task::background("2", task_id, TaskContent::Blob(bytes));
-    let recv = task.recv.take().unwrap();
-    (task, recv)
 }
 
 pub struct MockTimeoutTaskHandler();
@@ -192,7 +180,7 @@ impl TaskHandler for MockTimeoutTaskHandler {
         Box::pin(async move {
             match content {
                 TaskContent::Text(_) => panic!("Only support blob"),
-                TaskContent::Blob(bytes) => {
+                TaskContent::Blob(_bytes) => {
                     tokio::time::sleep(Duration::from_millis(2000)).await;
                 }
             }
