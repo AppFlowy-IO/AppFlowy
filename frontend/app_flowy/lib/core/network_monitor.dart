@@ -11,7 +11,8 @@ class NetworkListener {
   late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   NetworkListener() {
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
   Future<void> start() async {
@@ -42,6 +43,8 @@ class NetworkListener {
         case ConnectivityResult.none:
           return NetworkType.UnknownNetworkType;
         case ConnectivityResult.bluetooth:
+          return NetworkType.UnknownNetworkType;
+        case ConnectivityResult.vpn:
           return NetworkType.UnknownNetworkType;
       }
     }();
