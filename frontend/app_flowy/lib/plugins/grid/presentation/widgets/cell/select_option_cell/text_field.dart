@@ -136,31 +136,12 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
       return;
     }
 
-    final trimmedText = text.trimLeft();
-    List<String> splits = [];
-    String currentString = '';
+    final result = splitInput(text.trimLeft(), widget.textSeparators);
 
-    // split the string into tokens
-    for (final char in trimmedText.split('')) {
-      if (widget.textSeparators.contains(char)) {
-        if (currentString.isNotEmpty) {
-          splits.add(currentString.trim());
-        }
-        currentString = '';
-        continue;
-      }
-      currentString += char;
-    }
-    // add the remainder (might be '')
-    splits.add(currentString);
-
-    final submittedOptions = splits.sublist(0, splits.length - 1).toList();
-
-    final remainder = splits.elementAt(splits.length - 1).trimLeft();
-    editingController.text = remainder;
+    editingController.text = result[1];
     editingController.selection =
         TextSelection.collapsed(offset: controller.text.length);
-    widget.onPaste(submittedOptions, remainder);
+    widget.onPaste(result[0], result[1]);
   }
 
   Widget? _renderTags(BuildContext context, ScrollController sc) {
@@ -192,4 +173,29 @@ class _SelectOptionTextFieldState extends State<SelectOptionTextField> {
       ),
     );
   }
+}
+
+@visibleForTesting
+List splitInput(String input, List<String> textSeparators) {
+  List<String> splits = [];
+  String currentString = '';
+
+  // split the string into tokens
+  for (final char in input.split('')) {
+    if (textSeparators.contains(char)) {
+      if (currentString.trim().isNotEmpty) {
+        splits.add(currentString.trim());
+      }
+      currentString = '';
+      continue;
+    }
+    currentString += char;
+  }
+  // add the remainder (might be '')
+  splits.add(currentString);
+
+  final submittedOptions = splits.sublist(0, splits.length - 1).toList();
+  final remainder = splits.elementAt(splits.length - 1).trimLeft();
+
+  return [submittedOptions, remainder];
 }
