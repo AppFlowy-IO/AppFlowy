@@ -3,12 +3,14 @@ import 'package:appflowy_editor/src/editor_state.dart';
 import 'package:appflowy_editor/src/infra/flowy_svg.dart';
 import 'package:appflowy_editor/src/render/selection_menu/selection_menu_service.dart';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import 'package:appflowy_editor/src/render/style/editor_style.dart';
 =======
 import 'package:appflowy_editor/src/render/image/file_picker_dialog.dart';
+=======
+>>>>>>> c066f53cd (feat: pick local image files)
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 >>>>>>> 3b501dd6c (feat: upload via file 🌟)
@@ -34,11 +36,11 @@ void showImageUploadMenu(
           editorState: editorState,
           onSubmitted: (text) {
             // _dismissImageUploadMenu();
-            editorState.insertImageNode(text);
+            editorState.insertImageNode(text, 'file');
           },
           onUpload: (text) {
             // _dismissImageUploadMenu();
-            editorState.insertImageNode(text);
+            editorState.insertImageNode(text, 'network');
           },
         ),
       ),
@@ -142,9 +144,11 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
 
   Future<void> copyFile(File path, String name) async {
     Directory appDir = await getApplicationDocumentsDirectory();
-    path.copy('${appDir.path}/flowy_dev/$name');
-    localFile = '${appDir.path}/flowy_dev/$name';
-    widget.onUpload(localFile!);
+    //TODO: Rewrite for it to autoselect dir based on release type 
+    Directory('${appDir.path}/flowy_dev/image').create();
+    path.copy('${appDir.path}/flowy_dev/image/$name');
+    localFile = '${appDir.path}/flowy_dev/image/$name';
+    widget.onSubmitted(localFile!);
   }
 
   void _resetState() {
@@ -167,7 +171,9 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
 
   @override
   Widget build(BuildContext context) {
-    TabController _tabController = TabController(length: 2, vsync: this);
+    TabController _tabController =
+        //BUG: Tab Controller still goes back to default tab
+        TabController(initialIndex: 1, length: 2, vsync: this);
     return Container(
       width: 300,
       padding: const EdgeInsets.all(24.0),
@@ -210,7 +216,6 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
               height: 200.0,
               child: TabBarView(controller: _tabController, children: <Widget>[
                 InkWell(
-                  //FIXME: Function is not called why?
                   onTap: (() => _pickFiles()),
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -322,7 +327,7 @@ class _ImageUploadMenuState extends State<ImageUploadMenu>
 }
 
 extension on EditorState {
-  void insertImageNode(String src) {
+  void insertImageNode(String src, String type) {
     final selection = service.selectionService.currentSelection.value;
     if (selection == null) {
       return;
@@ -332,8 +337,10 @@ extension on EditorState {
       attributes: {
         'image_src': src,
         'align': 'center',
+        'type': type,
       },
     );
+    print(imageNode);
     final transaction = this.transaction;
     transaction.insertNode(
       selection.start.path,
