@@ -40,11 +40,11 @@ class NetworkListener {
           return NetworkType.Ethernet;
         case ConnectivityResult.mobile:
           return NetworkType.Cell;
-        case ConnectivityResult.none:
-          return NetworkType.UnknownNetworkType;
         case ConnectivityResult.bluetooth:
-          return NetworkType.UnknownNetworkType;
+          return NetworkType.Bluetooth;
         case ConnectivityResult.vpn:
+          return NetworkType.VPN;
+        case ConnectivityResult.none:
           return NetworkType.UnknownNetworkType;
       }
     }();
