@@ -212,12 +212,12 @@ packages:
     source: hosted
     version: "1.2.4"
   connectivity_plus_platform_interface:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: connectivity_plus_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.2.0"
+    version: "1.2.3"
   connectivity_plus_web:
     dependency: transitive
     description:
