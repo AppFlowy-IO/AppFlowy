@@ -171,11 +171,15 @@ class AppFlowyGridTest {
       (view) async {
         gridView = view;
         _gridDataController = GridDataController(view: view);
-        final result = await _gridDataController!.openGrid();
-        result.fold((l) => null, (r) => throw Exception(r));
+        await openGrid();
       },
       (error) {},
     );
+  }
+
+  Future<void> openGrid() async {
+    final result = await _gridDataController!.openGrid();
+    result.fold((l) => null, (r) => throw Exception(r));
   }
 
   Future<void> createTestBoard() async {
