@@ -12,16 +12,19 @@ use crate::{
     },
 };
 use bytes::Bytes;
-use flowy_error::FlowyError;
-use flowy_folder_data_model::user_default;
-use flowy_revision::disk::SQLiteDeltaDocumentRevisionPersistence;
-use flowy_revision::{RevisionManager, RevisionPersistence, RevisionWebSocket, SQLiteRevisionSnapshotPersistence};
-
 use flowy_document::editor::initial_read_me;
-use flowy_sync::{client_folder::FolderPad, entities::ws_data::ServerRevisionWSData};
+use flowy_error::FlowyError;
+use flowy_revision::{
+    RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, RevisionWebSocket,
+    SQLiteRevisionSnapshotPersistence,
+};
+use folder_rev_model::user_default;
 use lazy_static::lazy_static;
 use lib_infra::future::FutureResult;
 
+use crate::services::persistence::rev_sqlite::SQLiteFolderRevisionPersistence;
+use flowy_http_model::ws_data::ServerRevisionWSData;
+use flowy_sync::client_folder::FolderPad;
 use std::{collections::HashMap, convert::TryInto, fmt::Formatter, sync::Arc};
 use tokio::sync::RwLock as TokioRwLock;
 lazy_static! {
@@ -165,8 +168,9 @@ impl FolderManager {
 
         let pool = self.persistence.db_pool()?;
         let object_id = folder_id.as_ref();
-        let disk_cache = SQLiteDeltaDocumentRevisionPersistence::new(user_id, pool.clone());
-        let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache);
+        let disk_cache = SQLiteFolderRevisionPersistence::new(user_id, pool.clone());
+        let configuration = RevisionPersistenceConfiguration::new(100, false);
+        let rev_persistence = RevisionPersistence::new(user_id, object_id, disk_cache, configuration);
         let rev_compactor = FolderRevisionCompress();
         // let history_persistence = SQLiteRevisionHistoryPersistence::new(object_id, pool.clone());
         let snapshot_persistence = SQLiteRevisionSnapshotPersistence::new(object_id, pool);

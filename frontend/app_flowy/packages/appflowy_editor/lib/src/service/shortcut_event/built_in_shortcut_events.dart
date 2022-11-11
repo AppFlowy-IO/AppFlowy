@@ -220,7 +220,7 @@ List<ShortcutEvent> builtInShortcutEvents = [
   ),
   ShortcutEvent(
     key: 'selection menu',
-    command: 'slash',
+    command: 'slash,shift+slash',
     handler: slashShortcutHandler,
   ),
   ShortcutEvent(

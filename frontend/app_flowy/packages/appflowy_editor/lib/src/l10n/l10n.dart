@@ -219,6 +219,7 @@ class AppLocalizationDelegate
   List<Locale> get supportedLocales {
     return const <Locale>[
       Locale.fromSubtags(languageCode: 'en'),
+      Locale.fromSubtags(languageCode: 'bn', countryCode: 'BN'),
       Locale.fromSubtags(languageCode: 'ca'),
       Locale.fromSubtags(languageCode: 'cs', countryCode: 'CZ'),
       Locale.fromSubtags(languageCode: 'de', countryCode: 'DE'),

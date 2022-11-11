@@ -7,7 +7,7 @@ use crate::{
     impl_def_and_def_mut,
 };
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
-use flowy_folder_data_model::revision::{gen_view_id, ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
+use folder_rev_model::{gen_view_id, ViewDataFormatRevision, ViewLayoutTypeRevision, ViewRevision};
 use std::convert::TryInto;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]

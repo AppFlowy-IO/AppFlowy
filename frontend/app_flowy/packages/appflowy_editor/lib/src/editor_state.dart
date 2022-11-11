@@ -59,12 +59,13 @@ class EditorState {
   /// Stores the selection menu items.
   List<SelectionMenuItem> selectionMenuItems = [];
 
-  /// Stores the editor style.
-  EditorStyle editorStyle = EditorStyle.defaultStyle();
-
   /// Operation stream.
   Stream<Transaction> get transactionStream => _observer.stream;
   final StreamController<Transaction> _observer = StreamController.broadcast();
+
+  late ThemeData themeData;
+  EditorStyle get editorStyle =>
+      themeData.extension<EditorStyle>() ?? EditorStyle.light;
 
   final UndoManager undoManager = UndoManager();
   Selection? _cursorSelection;

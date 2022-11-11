@@ -89,7 +89,7 @@ fn delta_deserialize_null_test() {
     let delta1 = DeltaTextOperations::from_json(json).unwrap();
 
     let mut attribute = BuildInTextAttribute::Bold(true);
-    attribute.remove_value();
+    attribute.clear();
 
     let delta2 = DeltaOperationBuilder::new()
         .retain_with_attributes(7, attribute.into())

@@ -4,7 +4,7 @@ use flowy_database::{
     prelude::*,
     schema::{workspace_table, workspace_table::dsl},
 };
-use flowy_folder_data_model::revision::WorkspaceRevision;
+use folder_rev_model::WorkspaceRevision;
 
 pub(crate) struct WorkspaceTableSql();
 impl WorkspaceTableSql {

@@ -290,20 +290,20 @@ class IGridCellController<T, D> extends Equatable {
     });
   }
 
-  void dispose() {
+  Future<void> dispose() async {
     if (_isDispose) {
       Log.error("$this should only dispose once");
       return;
     }
     _isDispose = true;
-    _cellListener?.stop();
+    await _cellListener?.stop();
     _loadDataOperation?.cancel();
     _saveDataOperation?.cancel();
     _cellDataNotifier = null;
 
     if (_onFieldChangedFn != null) {
       _fieldNotifier.unregister(_cacheKey, _onFieldChangedFn!);
-      _fieldNotifier.dispose();
+      await _fieldNotifier.dispose();
       _onFieldChangedFn = null;
     }
   }

@@ -1,7 +1,7 @@
 use crate::services::field::{MultiSelectTypeOptionPB, SingleSelectTypeOptionPB};
 use crate::services::grid_editor::GridRevisionEditor;
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{TypeOptionDataDeserializer, TypeOptionDataSerializer};
+use grid_rev_model::{TypeOptionDataDeserializer, TypeOptionDataSerializer};
 use std::sync::Arc;
 
 pub async fn edit_field_type_option<T>(

@@ -1,7 +1,7 @@
+use crate::entities::parser::NotEmptyStr;
 use crate::entities::{BlockPB, FieldIdPB};
 use flowy_derive::ProtoBuf;
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
 
 /// [GridPB] describes how many fields and blocks the grid has
 #[derive(Debug, Clone, Default, ProtoBuf)]

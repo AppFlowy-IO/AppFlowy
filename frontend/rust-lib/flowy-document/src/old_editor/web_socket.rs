@@ -1,17 +1,15 @@
 use crate::old_editor::queue::{EditorCommand, EditorCommandSender, TextTransformOperations};
 use crate::TEXT_BLOCK_SYNC_INTERVAL_IN_MILLIS;
 use bytes::Bytes;
+use flowy_database::ConnectionPool;
 use flowy_error::{internal_error, FlowyError, FlowyResult};
-use flowy_revision::*;
-use flowy_sync::entities::revision::Revision;
-use flowy_sync::util::make_operations_from_revisions;
-use flowy_sync::{
-    entities::{
-        revision::RevisionRange,
-        ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSDataType},
-    },
-    errors::CollaborateResult,
+use flowy_http_model::{
+    revision::{Revision, RevisionRange},
+    ws_data::{ClientRevisionWSData, NewDocumentUser, ServerRevisionWSDataType},
 };
+use flowy_revision::*;
+use flowy_sync::errors::CollaborateResult;
+use flowy_sync::util::make_operations_from_revisions;
 use lib_infra::future::{BoxResultFuture, FutureResult};
 use lib_ot::text_delta::DeltaTextOperations;
 use lib_ws::WSConnectState;
@@ -41,14 +39,14 @@ impl DeltaDocumentResolveOperations {
     }
 }
 
-pub type DocumentConflictController = ConflictController<DeltaDocumentResolveOperations>;
+pub type DocumentConflictController = ConflictController<DeltaDocumentResolveOperations, Arc<ConnectionPool>>;
 
 #[allow(dead_code)]
 pub(crate) async fn make_document_ws_manager(
     doc_id: String,
     user_id: String,
     edit_cmd_tx: EditorCommandSender,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     rev_web_socket: Arc<dyn RevisionWebSocket>,
 ) -> Arc<RevisionWebSocketManager> {
     let ws_data_provider = Arc::new(WSDataProvider::new(&doc_id, Arc::new(rev_manager.clone())));
@@ -135,7 +133,7 @@ impl ConflictResolver<DeltaDocumentResolveOperations> for DocumentConflictResolv
     fn compose_operations(
         &self,
         operations: DeltaDocumentResolveOperations,
-    ) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    ) -> BoxResultFuture<RevisionMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         let operations = operations.into_inner();
         Box::pin(async move {
@@ -171,10 +169,7 @@ impl ConflictResolver<DeltaDocumentResolveOperations> for DocumentConflictResolv
         })
     }
 
-    fn reset_operations(
-        &self,
-        operations: DeltaDocumentResolveOperations,
-    ) -> BoxResultFuture<OperationsMD5, FlowyError> {
+    fn reset_operations(&self, operations: DeltaDocumentResolveOperations) -> BoxResultFuture<RevisionMD5, FlowyError> {
         let tx = self.edit_cmd_tx.clone();
         let operations = operations.into_inner();
         Box::pin(async move {

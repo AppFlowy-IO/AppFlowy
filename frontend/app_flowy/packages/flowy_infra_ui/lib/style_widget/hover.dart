@@ -5,7 +5,7 @@ import 'package:flowy_infra/time/duration.dart';
 typedef HoverBuilder = Widget Function(BuildContext context, bool onHover);
 
 class FlowyHover extends StatefulWidget {
-  final HoverStyle style;
+  final HoverStyle? style;
   final HoverBuilder? builder;
   final Widget? child;
 
@@ -25,7 +25,7 @@ class FlowyHover extends StatefulWidget {
     Key? key,
     this.builder,
     this.child,
-    required this.style,
+    this.style,
     this.isSelected,
     this.onHover,
     this.cursor,
@@ -51,7 +51,7 @@ class _FlowyHoverState extends State<FlowyHover> {
     return MouseRegion(
       cursor: widget.cursor != null ? widget.cursor! : SystemMouseCursors.click,
       opaque: false,
-      onEnter: (p) {
+      onHover: (p) {
         if (_onHover) return;
 
         if (widget.buildWhenOnHover?.call() ?? true) {
@@ -82,13 +82,15 @@ class _FlowyHoverState extends State<FlowyHover> {
     }
 
     final child = widget.child ?? widget.builder!(context, _onHover);
+    final style = widget.style ??
+        HoverStyle(hoverColor: Theme.of(context).colorScheme.secondary);
     if (showHover) {
       return FlowyHoverContainer(
-        style: widget.style,
+        style: style,
         child: child,
       );
     } else {
-      return Container(color: widget.style.backgroundColor, child: child);
+      return Container(color: style.backgroundColor, child: child);
     }
   }
 }
@@ -96,18 +98,19 @@ class _FlowyHoverState extends State<FlowyHover> {
 class HoverStyle {
   final Color borderColor;
   final double borderWidth;
-  final Color hoverColor;
+  final Color? hoverColor;
   final BorderRadius borderRadius;
   final EdgeInsets contentMargin;
   final Color backgroundColor;
 
-  const HoverStyle(
-      {this.borderColor = Colors.transparent,
-      this.borderWidth = 0,
-      this.borderRadius = const BorderRadius.all(Radius.circular(6)),
-      this.contentMargin = EdgeInsets.zero,
-      this.backgroundColor = Colors.transparent,
-      required this.hoverColor});
+  const HoverStyle({
+    this.borderColor = Colors.transparent,
+    this.borderWidth = 0,
+    this.borderRadius = const BorderRadius.all(Radius.circular(6)),
+    this.contentMargin = EdgeInsets.zero,
+    this.backgroundColor = Colors.transparent,
+    this.hoverColor,
+  });
 }
 
 class FlowyHoverContainer extends StatelessWidget {
@@ -131,7 +134,7 @@ class FlowyHoverContainer extends StatelessWidget {
       margin: style.contentMargin,
       decoration: BoxDecoration(
         border: hoverBorder,
-        color: style.hoverColor,
+        color: style.hoverColor ?? Theme.of(context).colorScheme.secondary,
         borderRadius: style.borderRadius,
       ),
       child: child,

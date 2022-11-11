@@ -12,7 +12,7 @@ class FlowyButton extends StatelessWidget {
   final EdgeInsets margin;
   final Widget? leftIcon;
   final Widget? rightIcon;
-  final Color hoverColor;
+  final Color? hoverColor;
   final bool isSelected;
   final BorderRadius radius;
 
@@ -24,19 +24,20 @@ class FlowyButton extends StatelessWidget {
     this.margin = const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
     this.leftIcon,
     this.rightIcon,
-    this.hoverColor = Colors.transparent,
+    this.hoverColor,
     this.isSelected = false,
     this.radius = const BorderRadius.all(Radius.circular(6)),
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: FlowyHover(
         style: HoverStyle(
           borderRadius: radius,
-          hoverColor: hoverColor,
+          hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
         ),
         onHover: onHover,
         isSelected: () => isSelected,
@@ -137,7 +138,7 @@ class FlowyTextButton extends StatelessWidget {
       shape: RoundedRectangleBorder(
           borderRadius: radius ?? BorderRadius.circular(2)),
       fillColor: fillColor,
-      hoverColor: hoverColor ?? Colors.transparent,
+      hoverColor: hoverColor ?? Theme.of(context).colorScheme.secondary,
       focusColor: Colors.transparent,
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,

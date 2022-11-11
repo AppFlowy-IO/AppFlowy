@@ -39,7 +39,6 @@ class EditorWidgetTester {
       home: Scaffold(
         body: AppFlowyEditor(
           editorState: _editorState,
-          editorStyle: EditorStyle.defaultStyle(),
         ),
       ),
     );

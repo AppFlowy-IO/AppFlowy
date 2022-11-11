@@ -2,9 +2,9 @@ import 'dart:collection';
 import 'package:app_flowy/plugins/grid/application/cell/cell_service/cell_service.dart';
 import 'package:app_flowy/plugins/grid/application/cell/select_option_editor_bloc.dart';
 import 'package:appflowy_popover/appflowy_popover.dart';
+import 'package:flowy_infra/color_extension.dart';
 
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/icon_button.dart';
 import 'package:flowy_infra_ui/style_widget/scrolling/styled_list.dart';
@@ -53,20 +53,23 @@ class _SelectOptionCellEditorState extends State<SelectOptionCellEditor> {
       )..add(const SelectOptionEditorEvent.initial()),
       child: BlocBuilder<SelectOptionCellEditorBloc, SelectOptionEditorState>(
         builder: (context, state) {
-          return CustomScrollView(
-            shrinkWrap: true,
-            slivers: [
-              SliverToBoxAdapter(
-                child: _TextField(popoverMutex: popoverMutex),
-              ),
-              const SliverToBoxAdapter(child: VSpace(6)),
-              const SliverToBoxAdapter(child: TypeOptionSeparator()),
-              const SliverToBoxAdapter(child: VSpace(6)),
-              const SliverToBoxAdapter(child: _Title()),
-              SliverToBoxAdapter(
-                child: _OptionList(popoverMutex: popoverMutex),
-              ),
-            ],
+          return Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: CustomScrollView(
+              shrinkWrap: true,
+              slivers: [
+                SliverToBoxAdapter(
+                  child: _TextField(popoverMutex: popoverMutex),
+                ),
+                const SliverToBoxAdapter(child: VSpace(6)),
+                const SliverToBoxAdapter(child: TypeOptionSeparator()),
+                const SliverToBoxAdapter(child: VSpace(6)),
+                const SliverToBoxAdapter(child: _Title()),
+                SliverToBoxAdapter(
+                  child: _OptionList(popoverMutex: popoverMutex),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -181,7 +184,6 @@ class _Title extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: Padding(
@@ -189,7 +191,7 @@ class _Title extends StatelessWidget {
         child: FlowyText.medium(
           LocaleKeys.grid_selectOption_panelTitle.tr(),
           fontSize: 12,
-          color: theme.shader3,
+          color: Theme.of(context).hintColor,
         ),
       ),
     );
@@ -202,18 +204,17 @@ class _CreateOptionCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return Row(
       children: [
         FlowyText.medium(
           LocaleKeys.grid_selectOption_create.tr(),
           fontSize: 12,
-          color: theme.shader3,
+          color: Theme.of(context).hintColor,
         ),
         const HSpace(10),
         SelectOptionTag(
           name: name,
-          color: theme.shader6,
+          color: CustomColors.of(context).lightGreyHover,
           onSelected: () => context
               .read<SelectOptionCellEditorBloc>()
               .add(SelectOptionEditorEvent.newOption(name)),
@@ -249,7 +250,6 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return AppFlowyPopover(
       controller: _popoverController,
       offset: const Offset(20, 0),
@@ -280,8 +280,12 @@ class _SelectOptionCellState extends State<_SelectOptionCell> {
             FlowyIconButton(
               width: 30,
               onPressed: () => _popoverController.show(),
+              hoverColor: Colors.transparent,
               iconPadding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-              icon: svgWidget("editor/details", color: theme.iconColor),
+              icon: svgWidget(
+                "editor/details",
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
           ],
         ),

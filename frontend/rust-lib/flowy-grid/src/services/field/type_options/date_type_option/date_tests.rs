@@ -4,7 +4,7 @@ mod tests {
     use crate::services::cell::CellDataOperation;
     use crate::services::field::*;
     // use crate::services::field::{DateCellChangeset, DateCellData, DateFormat, DateTypeOptionPB, TimeFormat};
-    use flowy_grid_data_model::revision::FieldRevision;
+    use grid_rev_model::FieldRevision;
     use strum::IntoEnumIterator;
 
     #[test]

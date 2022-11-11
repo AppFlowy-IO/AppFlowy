@@ -6,6 +6,7 @@ use crate::{
     errors::CollaborateError,
 };
 use bytes::Bytes;
+use flowy_http_model::util::md5;
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 use lib_ot::{core::*, text_delta::DeltaTextOperations};
 use tokio::sync::mpsc;
@@ -77,9 +78,9 @@ impl ClientDocument {
         &self.operations
     }
 
-    pub fn md5(&self) -> String {
+    pub fn document_md5(&self) -> String {
         let bytes = self.to_bytes();
-        format!("{:x}", md5::compute(bytes))
+        md5(&bytes)
     }
 
     pub fn set_notify(&mut self, notify: mpsc::UnboundedSender<()>) {

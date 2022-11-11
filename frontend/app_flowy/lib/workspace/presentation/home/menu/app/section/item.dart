@@ -4,7 +4,7 @@ import 'package:app_flowy/workspace/application/view/view_ext.dart';
 import 'package:app_flowy/workspace/presentation/home/menu/menu.dart';
 import 'package:app_flowy/workspace/presentation/widgets/dialogs.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flowy_infra/theme.dart';
+import 'package:flowy_infra/color_extension.dart';
 import 'package:flowy_infra_ui/style_widget/hover.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_infra_ui/widget/spacing.dart';
@@ -34,7 +34,6 @@ class ViewSectionItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return MultiBlocProvider(
       providers: [
         BlocProvider(
@@ -51,7 +50,9 @@ class ViewSectionItem extends StatelessWidget {
             child: InkWell(
               onTap: () => onSelected(blocContext.read<ViewBloc>().state.view),
               child: FlowyHover(
-                style: HoverStyle(hoverColor: theme.bg3),
+                style: HoverStyle(
+                  hoverColor: CustomColors.of(context).greySelect,
+                ),
                 // If current state.isEditing is true, the hover should not
                 // rebuild when onEnter/onExit events happened.
                 buildWhenOnHover: () => !state.isEditing,
@@ -59,7 +60,7 @@ class ViewSectionItem extends StatelessWidget {
                   blocContext,
                   onHover,
                   state,
-                  theme.iconColor,
+                  Theme.of(context).colorScheme.onSurface,
                 ),
                 isSelected: () => state.isEditing || isSelected,
               ),
@@ -174,7 +175,6 @@ class ViewDisclosureButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return PopoverActionList<ViewDisclosureActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: ViewDisclosureAction.values
@@ -182,9 +182,13 @@ class ViewDisclosureButton extends StatelessWidget {
           .toList(),
       buildChild: (controller) {
         return FlowyIconButton(
+          hoverColor: Colors.transparent,
           iconPadding: const EdgeInsets.all(5),
           width: 26,
-          icon: svgWidget("editor/details", color: theme.iconColor),
+          icon: svgWidget(
+            "editor/details",
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () {
             onEdit(true);
             controller.show();

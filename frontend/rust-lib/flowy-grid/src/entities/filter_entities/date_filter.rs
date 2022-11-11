@@ -1,8 +1,8 @@
+use crate::entities::parser::NotEmptyStr;
 use crate::entities::FieldType;
 use flowy_derive::{ProtoBuf, ProtoBuf_Enum};
 use flowy_error::ErrorCode;
-use flowy_grid_data_model::parser::NotEmptyStr;
-use flowy_grid_data_model::revision::FilterConfigurationRevision;
+use grid_rev_model::FilterConfigurationRevision;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use std::sync::Arc;

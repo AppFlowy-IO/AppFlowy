@@ -86,7 +86,7 @@ fn crate_log_filter(level: String) -> String {
     filters.push(format!("lib_ws={}", level));
     filters.push(format!("lib_infra={}", level));
     filters.push(format!("flowy_sync={}", level));
-    // filters.push(format!("flowy_revision={}", level));
+    filters.push(format!("flowy_revision={}", level));
     // filters.push(format!("lib_dispatch={}", level));
 
     filters.push(format!("dart_ffi={}", "info"));
@@ -295,7 +295,7 @@ async fn _listen_user_status(
 
         match result().await {
             Ok(_) => {}
-            Err(e) => log::error!("{}", e),
+            Err(e) => tracing::error!("{}", e),
         }
     }
 }

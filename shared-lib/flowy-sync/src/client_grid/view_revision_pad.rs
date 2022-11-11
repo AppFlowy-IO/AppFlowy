@@ -1,7 +1,8 @@
-use crate::entities::revision::{md5, Revision};
 use crate::errors::{internal_error, CollaborateError, CollaborateResult};
 use crate::util::{cal_diff, make_operations_from_revisions};
-use flowy_grid_data_model::revision::{
+use flowy_http_model::revision::Revision;
+use flowy_http_model::util::md5;
+use grid_rev_model::{
     FieldRevision, FieldTypeRevision, FilterConfigurationRevision, FilterConfigurationsByFieldId, GridViewRevision,
     GroupConfigurationRevision, GroupConfigurationsByFieldId, LayoutRevision,
 };

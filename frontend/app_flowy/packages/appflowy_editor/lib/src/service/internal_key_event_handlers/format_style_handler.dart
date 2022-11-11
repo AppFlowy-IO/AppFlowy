@@ -57,7 +57,7 @@ ShortcutEventHandler formatHighlightEventHandler = (editorState, event) {
   }
   formatHighlight(
     editorState,
-    editorState.editorStyle.textStyle.highlightColorHex,
+    editorState.editorStyle.highlightColorHex!,
   );
   return KeyEventResult.handled;
 };

@@ -1,7 +1,7 @@
 use crate::grid::filter_test::script::FilterScript::*;
 use crate::grid::filter_test::script::*;
 use flowy_grid::entities::{FieldType, InsertFilterPayloadPB, TextFilterCondition};
-use flowy_grid_data_model::revision::FieldRevision;
+use grid_rev_model::FieldRevision;
 
 #[tokio::test]
 async fn grid_filter_create_test() {

@@ -10,7 +10,8 @@
         },
         "delta": [
           { "insert": "👋 " },
-          { "insert": "Welcome to ", "attributes": { "bold": true } },
+          { "insert": "Welcome to", "attributes": { "bold": true } },
+          { "insert": " " },
           {
             "insert": "AppFlowy Editor",
             "attributes": {
@@ -25,7 +26,8 @@
       {
         "type": "text",
         "delta": [
-          { "insert": "AppFlowy Editor is a " },
+          { "insert": "AppFlowy Editor is a" },
+          { "insert": " " },
           { "insert": "highly customizable", "attributes": { "bold": true } },
           { "insert": " " },
           { "insert": "rich-text editor", "attributes": { "italic": true } },

@@ -15,16 +15,17 @@ use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{make_grid_blocks, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder};
 use bytes::Bytes;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::*;
+use flowy_http_model::revision::Revision;
 use flowy_revision::{
-    RevisionCloudService, RevisionCompress, RevisionManager, RevisionObjectDeserializer, RevisionObjectSerializer,
+    RevisionCloudService, RevisionManager, RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer,
 };
 use flowy_sync::client_grid::{GridRevisionChangeset, GridRevisionPad, JsonDeserializer};
-use flowy_sync::entities::revision::Revision;
 use flowy_sync::errors::{CollaborateError, CollaborateResult};
 use flowy_sync::util::make_operations_from_revisions;
+use grid_rev_model::*;
 use lib_infra::future::{wrap_future, FutureResult};
 
+use flowy_database::ConnectionPool;
 use lib_ot::core::EmptyAttributes;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -32,10 +33,11 @@ use tokio::sync::RwLock;
 
 pub struct GridRevisionEditor {
     pub grid_id: String,
+    #[allow(dead_code)]
     user: Arc<dyn GridUser>,
     grid_pad: Arc<RwLock<GridRevisionPad>>,
     view_manager: Arc<GridViewManager>,
-    rev_manager: Arc<RevisionManager>,
+    rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     block_manager: Arc<GridBlockManager>,
 
     #[allow(dead_code)]
@@ -52,13 +54,13 @@ impl GridRevisionEditor {
     pub async fn new(
         grid_id: &str,
         user: Arc<dyn GridUser>,
-        mut rev_manager: RevisionManager,
+        mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
         persistence: Arc<BlockIndexCache>,
         task_scheduler: GridTaskSchedulerRwLock,
     ) -> FlowyResult<Arc<Self>> {
         let token = user.token()?;
         let cloud = Arc::new(GridRevisionCloudService { token });
-        let grid_pad = rev_manager.load::<GridRevisionSerde>(Some(cloud)).await?;
+        let grid_pad = rev_manager.initialize::<GridRevisionSerde>(Some(cloud)).await?;
         let rev_manager = Arc::new(rev_manager);
         let grid_pad = Arc::new(RwLock::new(grid_pad));
 
@@ -92,6 +94,14 @@ impl GridRevisionEditor {
         Ok(editor)
     }
 
+    #[tracing::instrument(name = "close grid editor", level = "trace", skip_all)]
+    pub fn close(&self) {
+        let rev_manager = self.rev_manager.clone();
+        tokio::spawn(async move {
+            rev_manager.close().await;
+        });
+    }
+
     /// Save the type-option data to disk and send a `GridNotification::DidUpdateField` notification
     /// to dart side.
     ///
@@ -109,10 +119,6 @@ impl GridRevisionEditor {
         field_id: &str,
         type_option_data: Vec<u8>,
     ) -> FlowyResult<()> {
-        if type_option_data.is_empty() {
-            return Ok(());
-        }
-
         let result = self.get_field_rev(field_id).await;
         if result.is_none() {
             tracing::warn!("Can't find the field with id: {}", field_id);
@@ -307,10 +313,6 @@ impl GridRevisionEditor {
     #[tracing::instrument(level = "debug", skip_all, err)]
     async fn update_field_rev(&self, params: FieldChangesetParams, field_type: FieldType) -> FlowyResult<()> {
         let mut is_type_option_changed = false;
-        if !params.has_changes() {
-            return Ok(());
-        }
-
         let _ = self
             .modify(|grid| {
                 let changeset = grid.modify_field(&params.field_id, |field| {
@@ -334,11 +336,11 @@ impl GridRevisionEditor {
                     }
                     if let Some(type_option_data) = params.type_option_data {
                         let deserializer = TypeOptionJsonDeserializer(field_type);
+                        is_type_option_changed = true;
                         match deserializer.deserialize(type_option_data) {
                             Ok(json_str) => {
                                 let field_type = field.ty;
                                 field.insert_type_option_str(&field_type, json_str);
-                                is_type_option_changed = true;
                             }
                             Err(err) => {
                                 tracing::error!("Deserialize data to type option json failed: {}", err);
@@ -764,17 +766,9 @@ impl GridRevisionEditor {
 
     async fn apply_change(&self, change: GridRevisionChangeset) -> FlowyResult<()> {
         let GridRevisionChangeset { operations: delta, md5 } = change;
-        let user_id = self.user.user_id()?;
         let (base_rev_id, rev_id) = self.rev_manager.next_rev_id_pair();
         let delta_data = delta.json_bytes();
-        let revision = Revision::new(
-            &self.rev_manager.object_id,
-            base_rev_id,
-            rev_id,
-            delta_data,
-            &user_id,
-            md5,
-        );
+        let revision = Revision::new(&self.rev_manager.object_id, base_rev_id, rev_id, delta_data, md5);
         let _ = self.rev_manager.add_local_revision(&revision).await?;
         Ok(())
     }
@@ -827,7 +821,7 @@ impl GridRevisionEditor {
 
 #[cfg(feature = "flowy_unit_test")]
 impl GridRevisionEditor {
-    pub fn rev_manager(&self) -> Arc<RevisionManager> {
+    pub fn rev_manager(&self) -> Arc<RevisionManager<Arc<ConnectionPool>>> {
         self.rev_manager.clone()
     }
 }
@@ -861,7 +855,7 @@ impl RevisionCloudService for GridRevisionCloudService {
 
 pub struct GridRevisionCompress();
 
-impl RevisionCompress for GridRevisionCompress {
+impl RevisionMergeable for GridRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         GridRevisionSerde::combine_revisions(revisions)
     }

@@ -1,6 +1,7 @@
-use flowy_sync::entities::revision::{RepeatedRevision, Revision};
+use flowy_http_model::document::DocumentPayloadPB;
+use flowy_http_model::folder::FolderInfo;
+use flowy_http_model::revision::{RepeatedRevision, Revision};
 use flowy_sync::{
-    entities::{document::DocumentPayloadPB, folder::FolderInfo},
     errors::CollaborateError,
     server_document::*,
     server_folder::FolderCloudPersistence,

@@ -1,14 +1,15 @@
-use crate::entities::revision::{RepeatedRevision, Revision};
 use crate::{
-    entities::{document::DocumentPayloadPB, ws_data::ServerRevisionWSDataBuilder},
     errors::{internal_error, CollaborateError, CollaborateResult},
-    protobuf::ClientRevisionWSData,
     server_document::document_pad::ServerDocument,
     synchronizer::{RevisionSyncPersistence, RevisionSyncResponse, RevisionSynchronizer, RevisionUser},
     util::rev_id_from_str,
 };
 use async_stream::stream;
 use dashmap::DashMap;
+use flowy_http_model::document::DocumentPayloadPB;
+use flowy_http_model::protobuf::ClientRevisionWSData;
+use flowy_http_model::revision::{RepeatedRevision, Revision};
+use flowy_http_model::ws_data::ServerRevisionWSDataBuilder;
 use futures::stream::StreamExt;
 use lib_infra::future::BoxResultFuture;
 use lib_ot::core::AttributeHashMap;
@@ -216,7 +217,7 @@ impl OpenDocumentHandler {
         let (sender, receiver) = mpsc::channel(1000);
         let users = DashMap::new();
 
-        let operations = DeltaTextOperations::from_bytes(&doc.content)?;
+        let operations = DeltaTextOperations::from_bytes(&doc.data)?;
         let sync_object = ServerDocument::from_operations(&doc_id, operations);
         let synchronizer = Arc::new(DocumentRevisionSynchronizer::new(doc.rev_id, sync_object, persistence));
 

@@ -5,7 +5,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flowy_infra/icon_data.dart';
 import 'package:flowy_infra/text_style.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
 import 'package:flowy_sdk/protobuf/flowy-folder/app.pb.dart';
 import 'package:flutter/material.dart';
@@ -28,23 +27,22 @@ class MenuAppHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
     return SizedBox(
       height: MenuAppSizes.headerHeight,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          _renderExpandedIcon(context, theme),
+          _renderExpandedIcon(context),
           // HSpace(MenuAppSizes.iconPadding),
-          _renderTitle(context, theme),
+          _renderTitle(context),
           _renderCreateViewButton(context),
         ],
       ),
     );
   }
 
-  Widget _renderExpandedIcon(BuildContext context, AppTheme theme) {
+  Widget _renderExpandedIcon(BuildContext context) {
     return SizedBox(
       width: MenuAppSizes.headerHeight,
       height: MenuAppSizes.headerHeight,
@@ -58,7 +56,7 @@ class MenuAppHeader extends StatelessWidget {
           theme: ExpandableThemeData(
             expandIcon: FlowyIconData.drop_down_show,
             collapseIcon: FlowyIconData.drop_down_hide,
-            iconColor: theme.shader1,
+            iconColor: Theme.of(context).colorScheme.onSurface,
             iconSize: MenuAppSizes.iconSize,
             iconPadding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
             hasIcon: false,
@@ -68,7 +66,7 @@ class MenuAppHeader extends StatelessWidget {
     );
   }
 
-  Widget _renderTitle(BuildContext context, AppTheme theme) {
+  Widget _renderTitle(BuildContext context) {
     return Expanded(
       child: BlocListener<AppBloc, AppState>(
         listenWhen: (p, c) =>
@@ -153,7 +151,6 @@ class AppActionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.read<AppTheme>();
     return PopoverActionList<DisclosureActionWrapper>(
       direction: PopoverDirection.bottomWithCenterAligned,
       actions: AppDisclosureAction.values
@@ -173,7 +170,6 @@ class AppActionList extends StatelessWidget {
             builder: (context, app) => FlowyText.medium(
               app.name,
               fontSize: 12,
-              color: theme.textColor,
               overflow: TextOverflow.ellipsis,
             ),
           ),

@@ -5,7 +5,6 @@ import 'package:app_flowy/workspace/presentation/widgets/toggle/toggle_style.dar
 import 'package:easy_localization/easy_localization.dart' hide DateFormat;
 import 'package:app_flowy/generated/locale_keys.g.dart';
 import 'package:flowy_infra/image.dart';
-import 'package:flowy_infra/theme.dart';
 import 'package:flowy_infra_ui/flowy_infra_ui.dart';
 import 'package:flowy_infra_ui/style_widget/button.dart';
 import 'package:flowy_infra_ui/style_widget/text.dart';
@@ -120,17 +119,18 @@ class DateFormatButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_dateFormat.tr(),
             fontSize: 12),
         margin: GridSize.typeOptionContentInsets,
-        hoverColor: theme.hover,
         onTap: onTap,
         onHover: onHover,
-        rightIcon: svgWidget("grid/more", color: theme.iconColor),
+        rightIcon: svgWidget(
+          "grid/more",
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }
@@ -146,17 +146,18 @@ class TimeFormatButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return SizedBox(
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(LocaleKeys.grid_field_timeFormat.tr(),
             fontSize: 12),
         margin: GridSize.typeOptionContentInsets,
-        hoverColor: theme.hover,
         onTap: onTap,
         onHover: onHover,
-        rightIcon: svgWidget("grid/more", color: theme.iconColor),
+        rightIcon: svgWidget(
+          "grid/more",
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     );
   }
@@ -167,7 +168,6 @@ class _IncludeTimeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     return BlocSelector<DateTypeOptionBloc, DateTypeOptionState, bool>(
       selector: (state) => state.typeOption.includeTime,
       builder: (context, includeTime) {
@@ -187,7 +187,7 @@ class _IncludeTimeButton extends StatelessWidget {
                         .read<DateTypeOptionBloc>()
                         .add(DateTypeOptionEvent.includeTime(!value));
                   },
-                  style: ToggleStyle.big(theme),
+                  style: ToggleStyle.big,
                   padding: EdgeInsets.zero,
                 ),
               ],
@@ -246,7 +246,6 @@ class DateFormatCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     Widget? checkmark;
     if (isSelected) {
       checkmark = svgWidget("grid/checkmark");
@@ -256,7 +255,6 @@ class DateFormatCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(dateFormat.title(), fontSize: 12),
-        hoverColor: theme.hover,
         rightIcon: checkmark,
         onTap: () => onSelected(dateFormat),
       ),
@@ -330,7 +328,6 @@ class TimeFormatCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.watch<AppTheme>();
     Widget? checkmark;
     if (isSelected) {
       checkmark = svgWidget("grid/checkmark");
@@ -340,7 +337,6 @@ class TimeFormatCell extends StatelessWidget {
       height: GridSize.typeOptionItemHeight,
       child: FlowyButton(
         text: FlowyText.medium(timeFormat.title(), fontSize: 12),
-        hoverColor: theme.hover,
         rightIcon: checkmark,
         onTap: () => onSelected(timeFormat),
       ),

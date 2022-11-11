@@ -1,10 +1,8 @@
 use bytes::Bytes;
 use flowy_error::{FlowyError, FlowyResult};
-use flowy_revision::{RevisionCompress, RevisionObjectDeserializer, RevisionObjectSerializer};
-use flowy_sync::entities::revision::Revision;
-use lib_ot::core::{
-    Body, Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction,
-};
+use flowy_http_model::revision::Revision;
+use flowy_revision::{RevisionMergeable, RevisionObjectDeserializer, RevisionObjectSerializer};
+use lib_ot::core::{Extension, NodeDataBuilder, NodeOperation, NodeTree, NodeTreeContext, Selection, Transaction};
 use lib_ot::text_delta::DeltaTextOperationBuilder;
 
 #[derive(Debug)]
@@ -30,9 +28,9 @@ impl Document {
         }
     }
 
-    pub fn md5(&self) -> String {
-        // format!("{:x}", md5::compute(bytes))
-        "".to_owned()
+    pub fn document_md5(&self) -> String {
+        let bytes = self.tree.to_bytes();
+        format!("{:x}", md5::compute(&bytes))
     }
 
     pub fn get_tree(&self) -> &NodeTree {
@@ -46,7 +44,7 @@ pub(crate) fn make_tree_context() -> NodeTreeContext {
 
 pub fn initial_document_content() -> String {
     let delta = DeltaTextOperationBuilder::new().insert("").build();
-    let node_data = NodeDataBuilder::new("text").insert_body(Body::Delta(delta)).build();
+    let node_data = NodeDataBuilder::new("text").insert_delta(delta).build();
     let editor_node = NodeDataBuilder::new("editor").add_node_data(node_data).build();
     let node_operation = NodeOperation::Insert {
         path: vec![0].into(),
@@ -98,7 +96,7 @@ impl RevisionObjectSerializer for DocumentRevisionSerde {
 }
 
 pub(crate) struct DocumentRevisionCompress();
-impl RevisionCompress for DocumentRevisionCompress {
+impl RevisionMergeable for DocumentRevisionCompress {
     fn combine_revisions(&self, revisions: Vec<Revision>) -> FlowyResult<Bytes> {
         DocumentRevisionSerde::combine_revisions(revisions)
     }

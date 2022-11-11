@@ -1,7 +1,7 @@
 use super::node_serde::*;
 use crate::core::attributes::{AttributeHashMap, AttributeKey, AttributeValue};
 use crate::core::Body::Delta;
-use crate::core::OperationTransform;
+use crate::core::{AttributeEntry, OperationTransform};
 use crate::errors::OTError;
 use crate::text_delta::DeltaTextOperations;
 use serde::{Deserialize, Serialize};
@@ -69,14 +69,18 @@ impl NodeDataBuilder {
     /// Inserts attributes to the builder's node.
     ///
     /// The attributes will be replace if they shared the same key
-    pub fn insert_attribute(mut self, key: AttributeKey, value: AttributeValue) -> Self {
-        self.node.attributes.insert(key, value);
+    pub fn insert_attribute<K: Into<AttributeKey>, V: Into<AttributeValue>>(mut self, key: K, value: V) -> Self {
+        self.node.attributes.insert(key.into(), value);
         self
     }
 
-    /// Inserts a body to the builder's node
-    pub fn insert_body(mut self, body: Body) -> Self {
-        self.node.body = body;
+    pub fn insert_attribute_entry(mut self, entry: AttributeEntry) -> Self {
+        self.node.attributes.insert_entry(entry);
+        self
+    }
+
+    pub fn insert_delta(mut self, delta: DeltaTextOperations) -> Self {
+        self.node.body = Body::Delta(delta);
         self
     }
 
@@ -174,6 +178,18 @@ pub enum Changeset {
 }
 
 impl Changeset {
+    pub fn is_delta(&self) -> bool {
+        match self {
+            Changeset::Delta { .. } => true,
+            Changeset::Attributes { .. } => false,
+        }
+    }
+    pub fn is_attribute(&self) -> bool {
+        match self {
+            Changeset::Delta { .. } => false,
+            Changeset::Attributes { .. } => true,
+        }
+    }
     pub fn inverted(&self) -> Changeset {
         match self {
             Changeset::Delta { delta, inverted } => Changeset::Delta {
@@ -184,6 +200,41 @@ impl Changeset {
                 new: old.clone(),
                 old: new.clone(),
             },
+        }
+    }
+
+    pub fn compose(&mut self, other: &Changeset) -> Result<(), OTError> {
+        match (self, other) {
+            (
+                Changeset::Delta { delta, inverted },
+                Changeset::Delta {
+                    delta: other_delta,
+                    inverted: _,
+                },
+            ) => {
+                let original = delta.compose(inverted)?;
+                let new_delta = delta.compose(other_delta)?;
+                let new_inverted = new_delta.invert(&original);
+
+                *delta = new_delta;
+                *inverted = new_inverted;
+                Ok(())
+            }
+            (
+                Changeset::Attributes { new, old },
+                Changeset::Attributes {
+                    new: other_new,
+                    old: other_old,
+                },
+            ) => {
+                *new = other_new.clone();
+                *old = other_old.clone();
+                Ok(())
+            }
+            (left, right) => {
+                let err = format!("Compose changeset failed. {:?} can't compose {:?}", left, right);
+                Err(OTError::compose().context(err))
+            }
         }
     }
 }

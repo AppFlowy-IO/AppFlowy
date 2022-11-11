@@ -6,7 +6,7 @@ use crate::services::group::{
     MultiSelectGroupController, SelectOptionGroupContext, SingleSelectGroupController,
 };
 use flowy_error::FlowyResult;
-use flowy_grid_data_model::revision::{
+use grid_rev_model::{
     CheckboxGroupConfigurationRevision, DateGroupConfigurationRevision, FieldRevision, GroupConfigurationRevision,
     GroupRevision, LayoutRevision, NumberGroupConfigurationRevision, RowRevision,
     SelectOptionGroupConfigurationRevision, TextGroupConfigurationRevision, UrlGroupConfigurationRevision,

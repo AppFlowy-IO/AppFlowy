@@ -1,13 +1,6 @@
-use crate::entities::revision::{RepeatedRevision, Revision};
-use crate::{
-    entities::{
-        revision::RevisionRange,
-        ws_data::{ServerRevisionWSData, ServerRevisionWSDataBuilder},
-    },
-    errors::CollaborateError,
-    protobuf::Revision as RevisionPB,
-    util::*,
-};
+use crate::{errors::CollaborateError, util::*};
+use flowy_http_model::revision::{RepeatedRevision, Revision, RevisionRange};
+use flowy_http_model::ws_data::{ServerRevisionWSData, ServerRevisionWSDataBuilder};
 use lib_infra::future::BoxResultFuture;
 use lib_ot::core::{DeltaOperations, OperationAttributes};
 use parking_lot::RwLock;
@@ -207,7 +200,7 @@ where
     #[tracing::instrument(level = "debug", skip(self, revision))]
     fn transform_revision(
         &self,
-        revision: &RevisionPB,
+        revision: &flowy_http_model::protobuf::Revision,
     ) -> Result<(RevisionOperations<Attribute>, RevisionOperations<Attribute>), CollaborateError> {
         let client_operations = RevisionOperations::<Attribute>::from_bytes(&revision.bytes)?;
         let result = self.object.read().transform(&client_operations)?;

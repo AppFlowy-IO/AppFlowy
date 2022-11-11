@@ -2,13 +2,11 @@
 mod document;
 mod document_serde;
 mod editor;
-mod migration;
 mod queue;
 
 pub use document::*;
 pub use document_serde::*;
 pub use editor::*;
-pub use migration::*;
 
 #[inline]
 pub fn initial_read_me() -> String {

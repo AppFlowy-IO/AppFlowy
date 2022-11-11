@@ -9,7 +9,7 @@ use crate::services::field::{
 };
 use crate::services::row::make_row_from_row_rev;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
-use flowy_grid_data_model::revision::FieldRevision;
+use grid_rev_model::FieldRevision;
 use lib_dispatch::prelude::{data_result, AppData, Data, DataResult};
 use std::sync::Arc;
 
@@ -42,7 +42,7 @@ pub(crate) async fn update_grid_setting_handler(
 ) -> Result<(), FlowyError> {
     let params: GridSettingChangesetParams = data.into_inner().try_into()?;
 
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     if let Some(insert_params) = params.insert_group {
         let _ = editor.insert_group(insert_params).await?;
     }
@@ -67,7 +67,7 @@ pub(crate) async fn get_grid_blocks_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RepeatedBlockPB, FlowyError> {
     let params: QueryGridBlocksParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let repeated_grid_block = editor.get_blocks(Some(params.block_ids)).await?;
     data_result(repeated_grid_block)
 }
@@ -78,7 +78,7 @@ pub(crate) async fn get_fields_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RepeatedFieldPB, FlowyError> {
     let params: QueryFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let field_orders = params
         .field_ids
         .items
@@ -96,7 +96,7 @@ pub(crate) async fn update_field_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: FieldChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&changeset.grid_id)?;
+    let editor = manager.get_grid_editor(&changeset.grid_id).await?;
     let _ = editor.update_field(changeset).await?;
     Ok(())
 }
@@ -107,7 +107,7 @@ pub(crate) async fn update_field_type_option_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: UpdateFieldTypeOptionParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let _ = editor
         .update_field_type_option(&params.grid_id, &params.field_id, params.type_option_data)
         .await?;
@@ -120,7 +120,7 @@ pub(crate) async fn delete_field_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: FieldIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let _ = editor.delete_field(&params.field_id).await?;
     Ok(())
 }
@@ -131,12 +131,12 @@ pub(crate) async fn switch_to_field_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: EditFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     editor
         .switch_to_field_type(&params.field_id, &params.field_type)
         .await?;
 
-    // Get the field_rev with field_id, if it doesn't exist, we create the default FieldMeta from the FieldType.
+    // Get the field_rev with field_id, if it doesn't exist, we create the default FieldRevision from the FieldType.
     let field_rev = editor
         .get_field_rev(&params.field_id)
         .await
@@ -157,7 +157,7 @@ pub(crate) async fn duplicate_field_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: FieldIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let _ = editor.duplicate_field(&params.field_id).await?;
     Ok(())
 }
@@ -169,7 +169,7 @@ pub(crate) async fn get_field_type_option_data_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
     let params: FieldTypeOptionIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(FlowyError::record_not_found()),
         Some(field_rev) => {
@@ -192,7 +192,7 @@ pub(crate) async fn create_field_type_option_data_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<FieldTypeOptionDataPB, FlowyError> {
     let params: CreateFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let field_rev = editor
         .create_new_field_rev(&params.field_type, params.type_option_data)
         .await?;
@@ -212,7 +212,7 @@ pub(crate) async fn move_field_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: MoveFieldParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let _ = editor.move_field(params).await?;
     Ok(())
 }
@@ -237,7 +237,7 @@ pub(crate) async fn get_row_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<OptionalRowPB, FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let row = editor.get_row_rev(&params.row_id).await?.map(make_row_from_row_rev);
 
     data_result(OptionalRowPB { row })
@@ -249,7 +249,7 @@ pub(crate) async fn delete_row_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let _ = editor.delete_row(&params.row_id).await?;
     Ok(())
 }
@@ -260,7 +260,7 @@ pub(crate) async fn duplicate_row_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: RowIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     let _ = editor.duplicate_row(&params.row_id).await?;
     Ok(())
 }
@@ -271,7 +271,7 @@ pub(crate) async fn move_row_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: MoveRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.view_id)?;
+    let editor = manager.get_grid_editor(&params.view_id).await?;
     let _ = editor.move_row(params).await?;
     Ok(())
 }
@@ -282,7 +282,7 @@ pub(crate) async fn create_table_row_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
+    let editor = manager.get_grid_editor(params.grid_id.as_ref()).await?;
     let row = editor.create_row(params).await?;
     data_result(row)
 }
@@ -293,7 +293,7 @@ pub(crate) async fn get_cell_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<GridCellPB, FlowyError> {
     let params: GridCellIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     match editor.get_cell(&params).await {
         None => data_result(GridCellPB::empty(&params.field_id)),
         Some(cell) => data_result(cell),
@@ -306,7 +306,7 @@ pub(crate) async fn update_cell_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: CellChangesetPB = data.into_inner();
-    let editor = manager.get_grid_editor(&changeset.grid_id)?;
+    let editor = manager.get_grid_editor(&changeset.grid_id).await?;
     let _ = editor.update_cell(changeset).await?;
     Ok(())
 }
@@ -317,7 +317,7 @@ pub(crate) async fn new_select_option_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<SelectOptionPB, FlowyError> {
     let params: CreateSelectOptionParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => Err(ErrorCode::InvalidData.into()),
         Some(field_rev) => {
@@ -334,7 +334,7 @@ pub(crate) async fn update_select_option_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let changeset: SelectOptionChangeset = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&changeset.cell_identifier.grid_id)?;
+    let editor = manager.get_grid_editor(&changeset.cell_identifier.grid_id).await?;
 
     let _ = editor
         .modify_field_rev(&changeset.cell_identifier.field_id, |field_rev| {
@@ -391,7 +391,7 @@ pub(crate) async fn get_select_option_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<SelectOptionCellDataPB, FlowyError> {
     let params: GridCellIdParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.grid_id)?;
+    let editor = manager.get_grid_editor(&params.grid_id).await?;
     match editor.get_field_rev(&params.field_id).await {
         None => {
             tracing::error!("Can't find the select option field with id: {}", params.field_id);
@@ -420,7 +420,7 @@ pub(crate) async fn update_select_option_cell_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: SelectOptionCellChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.cell_identifier.grid_id)?;
+    let editor = manager.get_grid_editor(&params.cell_identifier.grid_id).await?;
     let _ = editor.update_cell(params.into()).await?;
     Ok(())
 }
@@ -431,7 +431,7 @@ pub(crate) async fn update_date_cell_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> Result<(), FlowyError> {
     let params: DateChangesetParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(&params.cell_identifier.grid_id)?;
+    let editor = manager.get_grid_editor(&params.cell_identifier.grid_id).await?;
     let _ = editor.update_cell(params.into()).await?;
     Ok(())
 }
@@ -442,7 +442,7 @@ pub(crate) async fn get_groups_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RepeatedGridGroupPB, FlowyError> {
     let params: GridIdPB = data.into_inner();
-    let editor = manager.get_grid_editor(&params.value)?;
+    let editor = manager.get_grid_editor(&params.value).await?;
     let group = editor.load_groups().await?;
     data_result(group)
 }
@@ -453,7 +453,7 @@ pub(crate) async fn create_board_card_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> DataResult<RowPB, FlowyError> {
     let params: CreateRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(params.grid_id.as_ref())?;
+    let editor = manager.get_grid_editor(params.grid_id.as_ref()).await?;
     let row = editor.create_row(params).await?;
     data_result(row)
 }
@@ -464,7 +464,7 @@ pub(crate) async fn move_group_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> FlowyResult<()> {
     let params: MoveGroupParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(params.view_id.as_ref())?;
+    let editor = manager.get_grid_editor(params.view_id.as_ref()).await?;
     let _ = editor.move_group(params).await?;
     Ok(())
 }
@@ -475,7 +475,7 @@ pub(crate) async fn move_group_row_handler(
     manager: AppData<Arc<GridManager>>,
 ) -> FlowyResult<()> {
     let params: MoveGroupRowParams = data.into_inner().try_into()?;
-    let editor = manager.get_grid_editor(params.view_id.as_ref())?;
+    let editor = manager.get_grid_editor(params.view_id.as_ref()).await?;
     let _ = editor.move_group_row(params).await?;
     Ok(())
 }

@@ -6,7 +6,7 @@ use crate::{
     services::persistence::{FolderPersistence, FolderPersistenceTransaction},
 };
 
-use flowy_folder_data_model::revision::TrashRevision;
+use folder_rev_model::TrashRevision;
 use std::{fmt::Formatter, sync::Arc};
 use tokio::sync::{broadcast, mpsc};
 

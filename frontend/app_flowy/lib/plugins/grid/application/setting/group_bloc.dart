@@ -1,3 +1,4 @@
+import 'package:flowy_sdk/log.dart';
 import 'package:flowy_sdk/protobuf/flowy-grid/field_entities.pb.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -13,9 +14,10 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
   final SettingFFIService _settingFFIService;
   Function(List<GridFieldContext>)? _onFieldsFn;
 
-  GridGroupBloc(
-      {required String viewId, required GridFieldController fieldController})
-      : _fieldController = fieldController,
+  GridGroupBloc({
+    required String viewId,
+    required GridFieldController fieldController,
+  })  : _fieldController = fieldController,
         _settingFFIService = SettingFFIService(viewId: viewId),
         super(GridGroupState.initial(viewId, fieldController.fieldContexts)) {
     on<GridGroupEvent>(
@@ -27,11 +29,12 @@ class GridGroupBloc extends Bloc<GridGroupEvent, GridGroupState> {
           didReceiveFieldUpdate: (fieldContexts) {
             emit(state.copyWith(fieldContexts: fieldContexts));
           },
-          setGroupByField: (String fieldId, FieldType fieldType) {
-            _settingFFIService.groupByField(
+          setGroupByField: (String fieldId, FieldType fieldType) async {
+            final result = await _settingFFIService.groupByField(
               fieldId: fieldId,
               fieldType: fieldType,
             );
+            result.fold((l) => null, (err) => Log.error(err));
           },
         );
       },
