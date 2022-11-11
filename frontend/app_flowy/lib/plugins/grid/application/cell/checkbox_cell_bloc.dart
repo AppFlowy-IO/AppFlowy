@@ -37,7 +37,7 @@ class CheckboxCellBloc extends Bloc<CheckboxCellEvent, CheckboxCellState> {
       _onCellChangedFn = null;
     }
 
-    cellController.dispose();
+    await cellController.dispose();
     return super.close();
   }
 
