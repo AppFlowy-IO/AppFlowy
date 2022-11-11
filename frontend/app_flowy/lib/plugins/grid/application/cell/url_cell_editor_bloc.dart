@@ -36,7 +36,7 @@ class URLCellEditorBloc extends Bloc<URLCellEditorEvent, URLCellEditorState> {
       cellController.removeListener(_onCellChangedFn!);
       _onCellChangedFn = null;
     }
-    cellController.dispose();
+    await cellController.dispose();
     return super.close();
   }
 
