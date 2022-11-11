@@ -8,7 +8,8 @@ use crate::services::field::{
     default_type_option_builder_from_type, type_option_builder_from_bytes, type_option_builder_from_json_str,
     FieldBuilder,
 };
-use crate::services::filter::{FilterChangeset, FilterController, FilterId, FilterTaskHandler, FILTER_HANDLER_ID};
+use crate::services::filter::FILTER_HANDLER_ID;
+use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
 use crate::services::row::{make_grid_blocks, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder};
@@ -39,7 +40,6 @@ pub struct GridRevisionEditor {
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     block_manager: Arc<GridBlockManager>,
     task_scheduler: Arc<RwLock<TaskDispatcher>>,
-    filter_controller: Arc<FilterController>,
 }
 
 impl Drop for GridRevisionEditor {
@@ -65,24 +65,15 @@ impl GridRevisionEditor {
         // Block manager
         let block_meta_revs = grid_pad.read().await.get_block_meta_revs();
         let block_manager = Arc::new(GridBlockManager::new(&user, block_meta_revs, persistence).await?);
-        let filter_controller = Arc::new(FilterController::new(grid_pad.clone(), block_manager.clone()).await);
-
-        task_scheduler.write().await.register_handler(FilterTaskHandler::new(
-            task_scheduler.clone(),
-            filter_controller.clone(),
-        ));
+        let delegate = Arc::new(GridViewEditorDelegateImpl {
+            pad: grid_pad.clone(),
+            block_manager: block_manager.clone(),
+            task_scheduler: task_scheduler.clone(),
+        });
 
         // View manager
-        let view_manager = Arc::new(
-            GridViewManager::new(
-                grid_id.to_owned(),
-                user.clone(),
-                Arc::new(grid_pad.clone()),
-                Arc::new(block_manager.clone()),
-                task_scheduler.clone(),
-            )
-            .await?,
-        );
+        let view_manager =
+            Arc::new(GridViewManager::new(grid_id.to_owned(), user.clone(), delegate, task_scheduler.clone()).await?);
         let editor = Arc::new(Self {
             grid_id: grid_id.to_owned(),
             user,
@@ -91,7 +82,6 @@ impl GridRevisionEditor {
             block_manager,
             view_manager,
             task_scheduler,
-            filter_controller,
         });
 
         Ok(editor)
@@ -565,8 +555,14 @@ impl GridRevisionEditor {
         self.view_manager.get_setting().await
     }
 
-    pub async fn get_grid_filter(&self) -> FlowyResult<Vec<GridFilterConfigurationPB>> {
-        self.view_manager.get_filters().await
+    pub async fn get_grid_filter(&self) -> FlowyResult<Vec<FilterConfigurationPB>> {
+        Ok(self
+            .view_manager
+            .get_filters()
+            .await?
+            .into_iter()
+            .map(|filter| FilterConfigurationPB::from(filter.as_ref()))
+            .collect())
     }
 
     pub async fn insert_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
@@ -578,27 +574,12 @@ impl GridRevisionEditor {
     }
 
     pub async fn create_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
-        let filter_id = FilterId::from(&params);
         let _ = self.view_manager.insert_or_update_filter(params).await?;
-        let filter_controller = self.filter_controller.clone();
-        tokio::spawn(async move {
-            filter_controller
-                .apply_changeset(FilterChangeset::from_insert(filter_id))
-                .await;
-        });
         Ok(())
     }
 
     pub async fn delete_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
-        let filter_id = FilterId::from(&params);
         let _ = self.view_manager.delete_filter(params).await?;
-
-        let filter_controller = self.filter_controller.clone();
-        tokio::spawn(async move {
-            filter_controller
-                .apply_changeset(FilterChangeset::from_delete(filter_id))
-                .await;
-        });
         Ok(())
     }
 

@@ -1,33 +1,15 @@
 use crate::services::filter::FilterController;
-use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher, TaskHandler};
+use flowy_task::{TaskContent, TaskHandler};
 use lib_infra::future::BoxResultFuture;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
 pub const FILTER_HANDLER_ID: &str = "grid_filter";
 
-pub(crate) struct FilterTaskHandler {
-    scheduler: Arc<RwLock<TaskDispatcher>>,
-    filter_controller: Arc<FilterController>,
-}
-
+pub struct FilterTaskHandler(Arc<RwLock<FilterController>>);
 impl FilterTaskHandler {
-    pub(crate) fn new(scheduler: Arc<RwLock<TaskDispatcher>>, filter_controller: Arc<FilterController>) -> Self {
-        Self {
-            scheduler,
-            filter_controller,
-        }
-    }
-
-    pub(crate) async fn gen_task(&mut self, predicate: &str) {
-        let task_id = self.scheduler.read().await.next_task_id();
-        let task = Task::new(
-            FILTER_HANDLER_ID,
-            task_id,
-            TaskContent::Text(predicate.to_owned()),
-            QualityOfService::UserInteractive,
-        );
-        self.scheduler.write().await.add_task(task);
+    pub fn new(filter_controller: Arc<RwLock<FilterController>>) -> Self {
+        Self(filter_controller)
     }
 }
 
@@ -37,10 +19,15 @@ impl TaskHandler for FilterTaskHandler {
     }
 
     fn run(&self, content: TaskContent) -> BoxResultFuture<(), anyhow::Error> {
-        let filter_service = self.filter_controller.clone();
+        let filter_controller = self.0.clone();
         Box::pin(async move {
             if let TaskContent::Text(predicate) = content {
-                // let _ = filter_service.process(&predicate).await?;
+                let _ = filter_controller
+                    .read()
+                    .await
+                    .process(&predicate)
+                    .await
+                    .map_err(anyhow::Error::from);
             }
             Ok(())
         })

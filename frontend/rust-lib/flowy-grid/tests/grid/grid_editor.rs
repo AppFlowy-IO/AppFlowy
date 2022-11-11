@@ -3,6 +3,7 @@
 #![allow(unused_imports)]
 use crate::grid::block_test::util::GridRowTestBuilder;
 use bytes::Bytes;
+use flowy_error::FlowyResult;
 use flowy_grid::entities::*;
 use flowy_grid::services::field::SelectOptionPB;
 use flowy_grid::services::field::*;
@@ -85,7 +86,7 @@ impl GridEditorTest {
             .row_revs
     }
 
-    pub async fn grid_filters(&self) -> Vec<GridFilterConfigurationPB> {
+    pub async fn grid_filters(&self) -> Vec<FilterConfigurationPB> {
         self.editor.get_grid_filter().await.unwrap()
     }
 

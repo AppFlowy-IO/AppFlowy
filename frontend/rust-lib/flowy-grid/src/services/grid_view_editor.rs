@@ -1,16 +1,12 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{
-    CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridFilterConfigurationPB, GridGroupConfigurationPB,
-    GridLayout, GridLayoutPB, GridSettingPB, GroupChangesetPB, GroupPB, GroupViewChangesetPB, InsertFilterParams,
-    InsertGroupParams, InsertedGroupPB, InsertedRowPB, MoveGroupParams, RepeatedGridFilterConfigurationPB,
-    RepeatedGridGroupConfigurationPB, RowPB,
-};
-use crate::services::grid_view_manager::{GridViewFieldDelegate, GridViewRowDelegate};
+use crate::entities::*;
+use crate::services::filter::{FilterChangeset, FilterController, FilterId, FilterTaskHandler, GridViewFilterDelegate};
 use crate::services::group::{
     default_group_configuration, find_group_field, make_group_controller, GroupConfigurationReader,
     GroupConfigurationWriter, GroupController, MoveGroupRowContext,
 };
 use bytes::Bytes;
+
 use flowy_database::ConnectionPool;
 use flowy_error::{FlowyError, FlowyResult};
 use flowy_http_model::revision::Revision;
@@ -19,6 +15,7 @@ use flowy_revision::{
 };
 use flowy_sync::client_grid::{GridViewRevisionChangeset, GridViewRevisionPad};
 use flowy_sync::util::make_operations_from_revisions;
+use flowy_task::TaskDispatcher;
 use grid_rev_model::{
     gen_grid_filter_id, FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GroupConfigurationRevision,
     RowChangeset, RowRevision,
@@ -29,15 +26,27 @@ use std::future::Future;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+pub trait GridViewEditorDelegate: Send + Sync + 'static {
+    /// If the field_ids is None, then it will return all the field revisions
+    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> AFFuture<Vec<Arc<FieldRevision>>>;
+    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>>;
+
+    fn index_of_row(&self, row_id: &str) -> AFFuture<Option<usize>>;
+    fn get_row_rev(&self, row_id: &str) -> AFFuture<Option<Arc<RowRevision>>>;
+    fn get_row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>>;
+
+    fn get_task_scheduler(&self) -> Arc<RwLock<TaskDispatcher>>;
+}
+
 #[allow(dead_code)]
 pub struct GridViewRevisionEditor {
     user_id: String,
     view_id: String,
     pad: Arc<RwLock<GridViewRevisionPad>>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-    field_delegate: Arc<dyn GridViewFieldDelegate>,
-    row_delegate: Arc<dyn GridViewRowDelegate>,
+    delegate: Arc<dyn GridViewEditorDelegate>,
     group_controller: Arc<RwLock<Box<dyn GroupController>>>,
+    filter_controller: Arc<RwLock<FilterController>>,
 }
 impl GridViewRevisionEditor {
     #[tracing::instrument(level = "trace", skip_all, err)]
@@ -45,8 +54,7 @@ impl GridViewRevisionEditor {
         user_id: &str,
         token: &str,
         view_id: String,
-        field_delegate: Arc<dyn GridViewFieldDelegate>,
-        row_delegate: Arc<dyn GridViewRowDelegate>,
+        delegate: Arc<dyn GridViewEditorDelegate>,
         mut rev_manager: RevisionManager<Arc<ConnectionPool>>,
     ) -> FlowyResult<Self> {
         let cloud = Arc::new(GridViewRevisionCloudService {
@@ -60,19 +68,21 @@ impl GridViewRevisionEditor {
             view_id.clone(),
             pad.clone(),
             rev_manager.clone(),
-            field_delegate.clone(),
-            row_delegate.clone(),
+            delegate.clone(),
         )
         .await?;
+
         let user_id = user_id.to_owned();
+        let group_controller = Arc::new(RwLock::new(group_controller));
+        let filter_controller = make_filter_controller(&view_id, delegate.clone(), pad.clone()).await;
         Ok(Self {
             pad,
             user_id,
             view_id,
             rev_manager,
-            field_delegate,
-            row_delegate,
-            group_controller: Arc::new(RwLock::new(group_controller)),
+            delegate,
+            group_controller,
+            filter_controller,
         })
     }
 
@@ -213,27 +223,20 @@ impl GridViewRevisionEditor {
     }
 
     pub(crate) async fn get_view_setting(&self) -> GridSettingPB {
-        let field_revs = self.field_delegate.get_field_revs().await;
+        let field_revs = self.delegate.get_field_revs(None).await;
         let grid_setting = make_grid_setting(&*self.pad.read().await, &field_revs);
         grid_setting
     }
 
-    pub(crate) async fn get_view_filters(&self) -> Vec<GridFilterConfigurationPB> {
-        let field_revs = self.field_delegate.get_field_revs().await;
-        match self.pad.read().await.get_all_filters(&field_revs) {
-            None => vec![],
-            Some(filters) => filters
-                .into_values()
-                .flatten()
-                .map(|filter| GridFilterConfigurationPB::from(filter.as_ref()))
-                .collect(),
-        }
+    pub(crate) async fn get_view_filters(&self) -> Vec<Arc<FilterConfigurationRevision>> {
+        let field_revs = self.delegate.get_field_revs(None).await;
+        self.pad.read().await.get_all_filters(&field_revs)
     }
 
     /// Initialize new group when grouping by a new field
     ///
     pub(crate) async fn initialize_new_group(&self, params: InsertGroupParams) -> FlowyResult<()> {
-        if let Some(field_rev) = self.field_delegate.get_field_rev(&params.field_id).await {
+        if let Some(field_rev) = self.delegate.get_field_rev(&params.field_id).await {
             let _ = self
                 .modify(|pad| {
                     let configuration = default_group_configuration(&field_rev);
@@ -262,6 +265,13 @@ impl GridViewRevisionEditor {
     }
 
     pub(crate) async fn insert_view_filter(&self, params: InsertFilterParams) -> FlowyResult<()> {
+        let filter_id = FilterId::from(&params);
+        self.filter_controller
+            .write()
+            .await
+            .apply_changeset(FilterChangeset::from_insert(filter_id))
+            .await;
+
         self.modify(|pad| {
             let filter_rev = FilterConfigurationRevision {
                 id: gen_grid_filter_id(),
@@ -275,13 +285,18 @@ impl GridViewRevisionEditor {
         .await
     }
 
-    pub(crate) async fn delete_view_filter(&self, delete_filter: DeleteFilterParams) -> FlowyResult<()> {
+    pub(crate) async fn delete_view_filter(&self, params: DeleteFilterParams) -> FlowyResult<()> {
+        let filter_id = FilterId::from(&params);
+        let filter_controller = self.filter_controller.clone();
+        tokio::spawn(async move {
+            filter_controller
+                .write()
+                .await
+                .apply_changeset(FilterChangeset::from_delete(filter_id))
+                .await;
+        });
         self.modify(|pad| {
-            let changeset = pad.delete_filter(
-                &delete_filter.field_id,
-                &delete_filter.field_type_rev,
-                &delete_filter.filter_id,
-            )?;
+            let changeset = pad.delete_filter(&params.field_id, &params.field_type_rev, &params.filter_id)?;
             Ok(changeset)
         })
         .await
@@ -300,14 +315,15 @@ impl GridViewRevisionEditor {
     ///
     #[tracing::instrument(level = "debug", skip_all, err)]
     pub(crate) async fn group_by_view_field(&self, field_id: &str) -> FlowyResult<()> {
-        if let Some(field_rev) = self.field_delegate.get_field_rev(field_id).await {
+        if let Some(field_rev) = self.delegate.get_field_rev(field_id).await {
+            let row_revs = self.delegate.get_row_revs().await;
             let new_group_controller = new_group_controller_with_field_rev(
                 self.user_id.clone(),
                 self.view_id.clone(),
                 self.pad.clone(),
                 self.rev_manager.clone(),
                 field_rev,
-                self.row_delegate.clone(),
+                row_revs,
             )
             .await?;
 
@@ -368,7 +384,7 @@ impl GridViewRevisionEditor {
         F: FnOnce(&mut Box<dyn GroupController>, Arc<FieldRevision>) -> FlowyResult<T>,
     {
         let group_field_id = self.group_controller.read().await.field_id().to_owned();
-        match self.field_delegate.get_field_rev(&group_field_id).await {
+        match self.delegate.get_field_rev(&group_field_id).await {
             None => None,
             Some(field_rev) => {
                 let mut write_guard = self.group_controller.write().await;
@@ -384,7 +400,7 @@ impl GridViewRevisionEditor {
         O: Future<Output = FlowyResult<T>> + Sync + 'static,
     {
         let group_field_id = self.group_controller.read().await.field_id().to_owned();
-        match self.field_delegate.get_field_rev(&group_field_id).await {
+        match self.delegate.get_field_rev(&group_field_id).await {
             None => None,
             Some(field_rev) => {
                 let _write_guard = self.group_controller.write().await;
@@ -399,11 +415,11 @@ async fn new_group_controller(
     view_id: String,
     view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
-    field_delegate: Arc<dyn GridViewFieldDelegate>,
-    row_delegate: Arc<dyn GridViewRowDelegate>,
+    delegate: Arc<dyn GridViewEditorDelegate>,
 ) -> FlowyResult<Box<dyn GroupController>> {
     let configuration_reader = GroupConfigurationReaderImpl(view_rev_pad.clone());
-    let field_revs = field_delegate.get_field_revs().await;
+    let field_revs = delegate.get_field_revs(None).await;
+    let row_revs = delegate.get_row_revs().await;
     let layout = view_rev_pad.read().await.layout();
     // Read the group field or find a new group field
     let field_rev = configuration_reader
@@ -417,19 +433,10 @@ async fn new_group_controller(
         })
         .unwrap_or_else(|| find_group_field(&field_revs, &layout).unwrap());
 
-    new_group_controller_with_field_rev(user_id, view_id, view_rev_pad, rev_manager, field_rev, row_delegate).await
+    new_group_controller_with_field_rev(user_id, view_id, view_rev_pad, rev_manager, field_rev, row_revs).await
 }
 
 /// Returns a [GroupController]  
-///
-/// # Arguments
-///
-/// * `user_id`:
-/// * `view_id`:
-/// * `view_rev_pad`:
-/// * `rev_manager`:
-/// * `field_rev`:
-/// * `row_delegate`:
 ///
 async fn new_group_controller_with_field_rev(
     user_id: String,
@@ -437,7 +444,7 @@ async fn new_group_controller_with_field_rev(
     view_rev_pad: Arc<RwLock<GridViewRevisionPad>>,
     rev_manager: Arc<RevisionManager<Arc<ConnectionPool>>>,
     field_rev: Arc<FieldRevision>,
-    row_delegate: Arc<dyn GridViewRowDelegate>,
+    row_revs: Vec<Arc<RowRevision>>,
 ) -> FlowyResult<Box<dyn GroupController>> {
     let configuration_reader = GroupConfigurationReaderImpl(view_rev_pad.clone());
     let configuration_writer = GroupConfigurationWriterImpl {
@@ -445,8 +452,28 @@ async fn new_group_controller_with_field_rev(
         rev_manager,
         view_pad: view_rev_pad,
     };
-    let row_revs = row_delegate.gv_row_revs().await;
     make_group_controller(view_id, field_rev, row_revs, configuration_reader, configuration_writer).await
+}
+
+async fn make_filter_controller(
+    view_id: &str,
+    delegate: Arc<dyn GridViewEditorDelegate>,
+    pad: Arc<RwLock<GridViewRevisionPad>>,
+) -> Arc<RwLock<FilterController>> {
+    let filter_delegate = GridViewFilterDelegateImpl {
+        editor_delegate: delegate.clone(),
+    };
+    let field_revs = delegate.get_field_revs(None).await;
+    let filter_configurations = pad.read().await.get_all_filters(&field_revs);
+    let task_scheduler = delegate.get_task_scheduler();
+    let filter_controller =
+        FilterController::new(view_id, filter_delegate, task_scheduler.clone(), filter_configurations).await;
+    let filter_controller = Arc::new(RwLock::new(filter_controller));
+    task_scheduler
+        .write()
+        .await
+        .register_handler(FilterTaskHandler::new(filter_controller.clone()));
+    filter_controller
 }
 
 async fn apply_change(
@@ -552,35 +579,35 @@ pub fn make_grid_setting(view_pad: &GridViewRevisionPad, field_revs: &[Arc<Field
     let layout_type: GridLayout = view_pad.layout.clone().into();
     let filter_configurations = view_pad
         .get_all_filters(field_revs)
-        .map(|filters_by_field_id| {
-            filters_by_field_id
-                .into_iter()
-                .flat_map(|(_, v)| {
-                    let repeated_filter: RepeatedGridFilterConfigurationPB = v.into();
-                    repeated_filter.items
-                })
-                .collect::<Vec<GridFilterConfigurationPB>>()
-        })
-        .unwrap_or_default();
+        .into_iter()
+        .map(|filter| FilterConfigurationPB::from(filter.as_ref()))
+        .collect::<Vec<FilterConfigurationPB>>();
 
     let group_configurations = view_pad
         .get_groups_by_field_revs(field_revs)
-        .map(|groups_by_field_id| {
-            groups_by_field_id
-                .into_iter()
-                .flat_map(|(_, v)| {
-                    let repeated_group: RepeatedGridGroupConfigurationPB = v.into();
-                    repeated_group.items
-                })
-                .collect::<Vec<GridGroupConfigurationPB>>()
-        })
-        .unwrap_or_default();
+        .into_iter()
+        .map(|group| GridGroupConfigurationPB::from(group.as_ref()))
+        .collect::<Vec<GridGroupConfigurationPB>>();
 
     GridSettingPB {
         layouts: GridLayoutPB::all(),
         layout_type,
         filter_configurations: filter_configurations.into(),
         group_configurations: group_configurations.into(),
+    }
+}
+
+struct GridViewFilterDelegateImpl {
+    editor_delegate: Arc<dyn GridViewEditorDelegate>,
+}
+
+impl GridViewFilterDelegate for GridViewFilterDelegateImpl {
+    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>> {
+        self.editor_delegate.get_field_rev(field_id)
+    }
+
+    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> AFFuture<Vec<Arc<FieldRevision>>> {
+        self.editor_delegate.get_field_revs(field_ids)
     }
 }
 

@@ -2,7 +2,6 @@ mod util;
 
 pub mod block_editor;
 pub mod block_manager;
-mod block_manager_trait_impl;
 pub mod cell;
 pub mod field;
 mod filter;

@@ -3,8 +3,8 @@ use crate::util::{cal_diff, make_operations_from_revisions};
 use flowy_http_model::revision::Revision;
 use flowy_http_model::util::md5;
 use grid_rev_model::{
-    FieldRevision, FieldTypeRevision, FilterConfigurationRevision, FilterConfigurationsByFieldId, GridViewRevision,
-    GroupConfigurationRevision, GroupConfigurationsByFieldId, LayoutRevision,
+    FieldRevision, FieldTypeRevision, FilterConfigurationRevision, GridViewRevision, GroupConfigurationRevision,
+    LayoutRevision,
 };
 use lib_ot::core::{DeltaBuilder, DeltaOperations, EmptyAttributes, OperationTransform};
 use std::sync::Arc;
@@ -61,8 +61,12 @@ impl GridViewRevisionPad {
         Self::from_operations(view_id, operations)
     }
 
-    pub fn get_groups_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Option<GroupConfigurationsByFieldId> {
-        self.groups.get_objects_by_field_revs(field_revs)
+    pub fn get_groups_by_field_revs(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<GroupConfigurationRevision>> {
+        self.groups
+            .get_objects_by_field_revs(field_revs)
+            .into_values()
+            .flatten()
+            .collect()
     }
 
     pub fn get_all_groups(&self) -> Vec<Arc<GroupConfigurationRevision>> {
@@ -127,8 +131,12 @@ impl GridViewRevisionPad {
         })
     }
 
-    pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Option<FilterConfigurationsByFieldId> {
-        self.filters.get_objects_by_field_revs(field_revs)
+    pub fn get_all_filters(&self, field_revs: &[Arc<FieldRevision>]) -> Vec<Arc<FilterConfigurationRevision>> {
+        self.filters
+            .get_objects_by_field_revs(field_revs)
+            .into_values()
+            .flatten()
+            .collect()
     }
 
     pub fn get_filters(

@@ -117,7 +117,7 @@ impl FlowySDK {
         init_kv(&config.root);
         tracing::debug!("🔥 {:?}", config);
         let runtime = tokio_default_runtime().unwrap();
-        let mut task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
+        let task_scheduler = TaskDispatcher::new(Duration::from_secs(2));
         let task_dispatcher = Arc::new(RwLock::new(task_scheduler));
         runtime.spawn(TaskRunner::run(task_dispatcher.clone()));
 
@@ -184,10 +184,10 @@ impl FlowySDK {
             document_manager,
             folder_manager,
             grid_manager,
-            event_dispatcher: event_dispatcher,
+            event_dispatcher,
             ws_conn,
             local_server,
-            task_dispatcher: task_dispatcher,
+            task_dispatcher,
         }
     }
 

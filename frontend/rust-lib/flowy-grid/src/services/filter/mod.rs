@@ -3,6 +3,6 @@ mod filter_controller;
 mod filter_task;
 mod impls;
 
-pub use filter_cache::*;
-pub use filter_controller::*;
-pub use filter_task::*;
+pub(crate) use filter_cache::*;
+pub(crate) use filter_controller::*;
+pub(crate) use filter_task::*;

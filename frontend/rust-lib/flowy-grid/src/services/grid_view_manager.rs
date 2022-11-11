@@ -1,9 +1,10 @@
 use crate::entities::{
-    CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridFilterConfigurationPB, GridSettingPB,
-    InsertFilterParams, InsertGroupParams, MoveGroupParams, RepeatedGridGroupPB, RowPB,
+    CreateRowParams, DeleteFilterParams, DeleteGroupParams, GridSettingPB, InsertFilterParams, InsertGroupParams,
+    MoveGroupParams, RepeatedGridGroupPB, RowPB,
 };
 use crate::manager::GridUser;
-use crate::services::grid_view_editor::{GridViewRevisionCompress, GridViewRevisionEditor};
+
+use crate::services::grid_view_editor::{GridViewEditorDelegate, GridViewRevisionCompress, GridViewRevisionEditor};
 use crate::services::persistence::rev_sqlite::SQLiteGridViewRevisionPersistence;
 use dashmap::DashMap;
 use flowy_database::ConnectionPool;
@@ -12,29 +13,16 @@ use flowy_revision::{
     RevisionManager, RevisionPersistence, RevisionPersistenceConfiguration, SQLiteRevisionSnapshotPersistence,
 };
 use flowy_task::TaskDispatcher;
-use grid_rev_model::{FieldRevision, RowChangeset, RowRevision};
+use grid_rev_model::{FilterConfigurationRevision, RowChangeset, RowRevision};
 use lib_infra::future::AFFuture;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-
 type ViewId = String;
-
-pub trait GridViewFieldDelegate: Send + Sync + 'static {
-    fn get_field_revs(&self) -> AFFuture<Vec<Arc<FieldRevision>>>;
-    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>>;
-}
-
-pub trait GridViewRowDelegate: Send + Sync + 'static {
-    fn gv_index_of_row(&self, row_id: &str) -> AFFuture<Option<usize>>;
-    fn gv_get_row_rev(&self, row_id: &str) -> AFFuture<Option<Arc<RowRevision>>>;
-    fn gv_row_revs(&self) -> AFFuture<Vec<Arc<RowRevision>>>;
-}
 
 pub(crate) struct GridViewManager {
     grid_id: String,
     user: Arc<dyn GridUser>,
-    field_delegate: Arc<dyn GridViewFieldDelegate>,
-    row_delegate: Arc<dyn GridViewRowDelegate>,
+    delegate: Arc<dyn GridViewEditorDelegate>,
     view_editors: DashMap<ViewId, Arc<GridViewRevisionEditor>>,
     scheduler: Arc<RwLock<TaskDispatcher>>,
 }
@@ -43,17 +31,15 @@ impl GridViewManager {
     pub(crate) async fn new(
         grid_id: String,
         user: Arc<dyn GridUser>,
-        field_delegate: Arc<dyn GridViewFieldDelegate>,
-        row_delegate: Arc<dyn GridViewRowDelegate>,
+        delegate: Arc<dyn GridViewEditorDelegate>,
         scheduler: Arc<RwLock<TaskDispatcher>>,
     ) -> FlowyResult<Self> {
         Ok(Self {
             grid_id,
             user,
-            scheduler,
-            field_delegate,
-            row_delegate,
+            delegate,
             view_editors: DashMap::default(),
+            scheduler,
         })
     }
 
@@ -79,7 +65,7 @@ impl GridViewManager {
 
     /// Insert/Delete the group's row if the corresponding cell data was changed.  
     pub(crate) async fn did_update_cell(&self, row_id: &str) {
-        match self.row_delegate.gv_get_row_rev(row_id).await {
+        match self.delegate.get_row_rev(row_id).await {
             None => {
                 tracing::warn!("Can not find the row in grid view");
             }
@@ -108,7 +94,7 @@ impl GridViewManager {
         Ok(view_editor.get_view_setting().await)
     }
 
-    pub(crate) async fn get_filters(&self) -> FlowyResult<Vec<GridFilterConfigurationPB>> {
+    pub(crate) async fn get_filters(&self) -> FlowyResult<Vec<Arc<FilterConfigurationRevision>>> {
         let view_editor = self.get_default_view_editor().await?;
         Ok(view_editor.get_view_filters().await)
     }
@@ -201,15 +187,7 @@ impl GridViewManager {
         debug_assert!(!view_id.is_empty());
         match self.view_editors.get(view_id) {
             None => {
-                let editor = Arc::new(
-                    make_view_editor(
-                        &self.user,
-                        view_id,
-                        self.field_delegate.clone(),
-                        self.row_delegate.clone(),
-                    )
-                    .await?,
-                );
+                let editor = Arc::new(make_view_editor(&self.user, view_id, self.delegate.clone()).await?);
                 self.view_editors.insert(view_id.to_owned(), editor.clone());
                 Ok(editor)
             }
@@ -225,15 +203,14 @@ impl GridViewManager {
 async fn make_view_editor(
     user: &Arc<dyn GridUser>,
     view_id: &str,
-    field_delegate: Arc<dyn GridViewFieldDelegate>,
-    row_delegate: Arc<dyn GridViewRowDelegate>,
+    delegate: Arc<dyn GridViewEditorDelegate>,
 ) -> FlowyResult<GridViewRevisionEditor> {
     let rev_manager = make_grid_view_rev_manager(user, view_id).await?;
     let user_id = user.user_id()?;
     let token = user.token()?;
     let view_id = view_id.to_owned();
 
-    GridViewRevisionEditor::new(&user_id, &token, view_id, field_delegate, row_delegate, rev_manager).await
+    GridViewRevisionEditor::new(&user_id, &token, view_id, delegate, rev_manager).await
 }
 
 pub async fn make_grid_view_rev_manager(

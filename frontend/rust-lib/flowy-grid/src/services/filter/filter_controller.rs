@@ -1,49 +1,75 @@
 use crate::dart_notification::{send_dart_notification, GridNotification};
-use crate::entities::{
-    DeleteFilterParams, FieldType, GridBlockChangesetPB, GridSettingChangesetParams, InsertFilterParams,
-};
-use crate::services::block_manager::GridBlockManager;
+use crate::entities::filter_entities::*;
+use crate::entities::setting_entities::*;
+use crate::entities::{FieldType, GridBlockChangesetPB};
 use crate::services::cell::{AnyCellData, CellFilterOperation};
-use crate::services::field::{
-    CheckboxTypeOptionPB, DateTypeOptionPB, MultiSelectTypeOptionPB, NumberTypeOptionPB, RichTextTypeOptionPB,
-    SingleSelectTypeOptionPB, URLTypeOptionPB,
-};
-use crate::services::filter::{refresh_filter_cache, FilterCache, FilterResult, FilterResultCache};
+use crate::services::field::*;
+use crate::services::filter::{FilterMap, FilterResult, FILTER_HANDLER_ID};
 use flowy_error::FlowyResult;
-use flowy_sync::client_grid::GridRevisionPad;
-use grid_rev_model::{CellRevision, FieldId, FieldRevision, RowRevision};
-use rayon::prelude::*;
+use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
+use grid_rev_model::{CellRevision, FieldId, FieldRevision, FilterConfigurationRevision, RowRevision};
+use lib_infra::future::AFFuture;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-pub(crate) struct FilterController {
-    grid_pad: Arc<RwLock<GridRevisionPad>>,
-    block_manager: Arc<GridBlockManager>,
-    filter_cache: Arc<FilterCache>,
-    filter_result_cache: Arc<FilterResultCache>,
+type RowId = String;
+pub trait GridViewFilterDelegate: Send + Sync + 'static {
+    fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>>;
+    fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> AFFuture<Vec<Arc<FieldRevision>>>;
+}
+
+pub struct FilterController {
+    view_id: String,
+    delegate: Box<dyn GridViewFilterDelegate>,
+    filter_map: FilterMap,
+    filter_results: HashMap<RowId, FilterResult>,
+    task_scheduler: Arc<RwLock<TaskDispatcher>>,
 }
 impl FilterController {
-    pub async fn new(grid_pad: Arc<RwLock<GridRevisionPad>>, block_manager: Arc<GridBlockManager>) -> Self {
-        let filter_cache = FilterCache::from_grid_pad(&grid_pad).await;
-        let filter_result_cache = FilterResultCache::new();
-        Self {
-            grid_pad,
-            block_manager,
-            filter_cache,
-            filter_result_cache,
-        }
+    pub async fn new<T>(
+        view_id: &str,
+        delegate: T,
+        task_scheduler: Arc<RwLock<TaskDispatcher>>,
+        filter_configurations: Vec<Arc<FilterConfigurationRevision>>,
+    ) -> Self
+    where
+        T: GridViewFilterDelegate,
+    {
+        let filter_map = FilterMap::new();
+        let filter_results = HashMap::default();
+        let filter_delegate = Box::new(delegate);
+        let mut this = Self {
+            view_id: view_id.to_string(),
+            delegate: filter_delegate,
+            filter_map,
+            filter_results,
+            task_scheduler,
+        };
+        this.load_filters(filter_configurations).await;
+        this
     }
 
-    pub async fn process(&self, predicate: &str) -> FlowyResult<()> {
-        let field_revs = self
-            .grid_pad
-            .read()
-            .await
-            .get_field_revs(None)?
-            .into_iter()
-            .map(|field_rev| (field_rev.id.clone(), field_rev))
-            .collect::<HashMap<String, Arc<FieldRevision>>>();
+    pub(crate) async fn gen_task(&mut self, predicate: &str) {
+        let task_id = self.task_scheduler.read().await.next_task_id();
+        let task = Task::new(
+            FILTER_HANDLER_ID,
+            task_id,
+            TaskContent::Text(predicate.to_owned()),
+            QualityOfService::UserInteractive,
+        );
+        self.task_scheduler.write().await.add_task(task);
+    }
+
+    pub async fn process(&self, _predicate: &str) -> FlowyResult<()> {
+        // let field_revs = self
+        //     .grid_pad
+        //     .read()
+        //     .await
+        //     .get_field_revs(None)?
+        //     .into_iter()
+        //     .map(|field_rev| (field_rev.id.clone(), field_rev))
+        //     .collect::<HashMap<String, Arc<FieldRevision>>>();
 
         // let mut changesets = vec![];
         // for (index, block) in task_context.blocks.into_iter().enumerate() {
@@ -90,28 +116,74 @@ impl FilterController {
         Ok(())
     }
 
-    pub async fn apply_changeset(&self, changeset: FilterChangeset) {
-        if let Some(filter_id) = &changeset.insert_filter {
-            let field_ids = Some(vec![filter_id.field_id.clone()]);
-            refresh_filter_cache(self.filter_cache.clone(), field_ids, &self.grid_pad).await;
+    pub async fn apply_changeset(&mut self, changeset: FilterChangeset) {
+        if let Some(_filter_id) = &changeset.insert_filter {
+            // let field_ids = Some(vec![filter_id.field_id.clone()]);
+            // did_update_field(self.filter_cache.clone(), field_ids, &self.grid_pad).await;
         }
 
         if let Some(filter_id) = &changeset.delete_filter {
-            self.filter_cache.remove(filter_id);
+            self.filter_map.remove(filter_id);
         }
 
-        if let Ok(blocks) = self.block_manager.get_block_snapshots(None).await {
-            // let _task = self.gen_task(blocks).await;
-            // let _ = self.scheduler.register_task(task).await;
-        }
+        // if let Ok(blocks) = self.block_manager.get_block_snapshots(None).await {
+        // let _task = self.gen_task(blocks).await;
+        // let _ = self.scheduler.register_task(task).await;
+        // }
     }
 
     async fn notify(&self, changesets: Vec<GridBlockChangesetPB>) {
-        let grid_id = self.grid_pad.read().await.grid_id();
         for changeset in changesets {
-            send_dart_notification(&grid_id, GridNotification::DidUpdateGridBlock)
+            send_dart_notification(&self.view_id, GridNotification::DidUpdateGridBlock)
                 .payload(changeset)
                 .send();
+        }
+    }
+
+    pub async fn load_filters(&mut self, filter_configurations: Vec<Arc<FilterConfigurationRevision>>) {
+        for configuration in filter_configurations {
+            if let Some(field_rev) = self.delegate.get_field_rev(&configuration.field_id).await {
+                let filter_id = FilterId::from(&field_rev);
+                let field_type: FieldType = field_rev.ty.into();
+                match &field_type {
+                    FieldType::RichText => {
+                        let _ = self
+                            .filter_map
+                            .text_filter
+                            .insert(filter_id, TextFilterConfigurationPB::from(configuration));
+                    }
+                    FieldType::Number => {
+                        let _ = self
+                            .filter_map
+                            .number_filter
+                            .insert(filter_id, NumberFilterConfigurationPB::from(configuration));
+                    }
+                    FieldType::DateTime => {
+                        let _ = self
+                            .filter_map
+                            .date_filter
+                            .insert(filter_id, DateFilterConfigurationPB::from(configuration));
+                    }
+                    FieldType::SingleSelect | FieldType::MultiSelect => {
+                        let _ = self
+                            .filter_map
+                            .select_option_filter
+                            .insert(filter_id, SelectOptionFilterConfigurationPB::from(configuration));
+                    }
+                    FieldType::Checkbox => {
+                        let _ = self
+                            .filter_map
+                            .checkbox_filter
+                            .insert(filter_id, CheckboxFilterConfigurationPB::from(configuration));
+                    }
+                    FieldType::URL => {
+                        let _ = self
+                            .filter_map
+                            .url_filter
+                            .insert(filter_id, TextFilterConfigurationPB::from(configuration));
+                    }
+                }
+            }
         }
     }
 }
@@ -120,16 +192,16 @@ impl FilterController {
 fn filter_row(
     index: usize,
     row_rev: &Arc<RowRevision>,
-    filter_cache: Arc<FilterCache>,
-    filter_result_cache: Arc<FilterResultCache>,
+    filter_cache: Arc<FilterMap>,
+    filter_results: &mut HashMap<RowId, FilterResult>,
     field_revs: &HashMap<FieldId, Arc<FieldRevision>>,
 ) -> Option<String> {
-    let mut result = filter_result_cache
+    let result = filter_results
         .entry(row_rev.id.clone())
         .or_insert(FilterResult::new(index as i32, row_rev));
 
     for (field_id, cell_rev) in row_rev.cells.iter() {
-        match filter_cell(field_revs, result.value_mut(), &filter_cache, field_id, cell_rev) {
+        match filter_cell(field_revs, result, &filter_cache, field_id, cell_rev) {
             None => {}
             Some(_) => {
                 return Some(row_rev.id.clone());
@@ -143,7 +215,7 @@ fn filter_row(
 fn filter_cell(
     field_revs: &HashMap<FieldId, Arc<FieldRevision>>,
     filter_result: &mut FilterResult,
-    filter_cache: &Arc<FilterCache>,
+    filter_cache: &Arc<FilterMap>,
     field_id: &str,
     cell_rev: &CellRevision,
 ) -> Option<()> {
@@ -160,7 +232,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<RichTextTypeOptionPB>(field_type_rev)?
-                    .apply_filter(any_cell_data, filter.value())
+                    .apply_filter(any_cell_data, filter)
                     .ok(),
             )
         }),
@@ -168,7 +240,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<NumberTypeOptionPB>(field_type_rev)?
-                    .apply_filter(any_cell_data, filter.value())
+                    .apply_filter(any_cell_data, filter)
                     .ok(),
             )
         }),
@@ -176,7 +248,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<DateTypeOptionPB>(field_type_rev)?
-                    .apply_filter(any_cell_data, filter.value())
+                    .apply_filter(any_cell_data, filter)
                     .ok(),
             )
         }),
@@ -184,7 +256,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<SingleSelectTypeOptionPB>(field_type_rev)?
-                    .apply_filter(any_cell_data, filter.value())
+                    .apply_filter(any_cell_data, filter)
                     .ok(),
             )
         }),
@@ -192,7 +264,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<MultiSelectTypeOptionPB>(field_type_rev)?
-                    .apply_filter(any_cell_data, filter.value())
+                    .apply_filter(any_cell_data, filter)
                     .ok(),
             )
         }),
@@ -200,7 +272,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<CheckboxTypeOptionPB>(field_type_rev)?
-                    .apply_filter(any_cell_data, filter.value())
+                    .apply_filter(any_cell_data, filter)
                     .ok(),
             )
         }),
@@ -208,7 +280,7 @@ fn filter_cell(
             Some(
                 field_rev
                     .get_type_option::<URLTypeOptionPB>(field_type_rev)?
-                    .apply_filter(any_cell_data, filter.value())
+                    .apply_filter(any_cell_data, filter)
                     .ok(),
             )
         }),

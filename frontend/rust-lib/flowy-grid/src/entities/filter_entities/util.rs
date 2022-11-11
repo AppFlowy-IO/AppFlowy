@@ -10,7 +10,7 @@ use std::convert::TryInto;
 use std::sync::Arc;
 
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
-pub struct GridFilterConfigurationPB {
+pub struct FilterConfigurationPB {
     #[pb(index = 1)]
     pub id: String,
 }
@@ -18,10 +18,10 @@ pub struct GridFilterConfigurationPB {
 #[derive(Eq, PartialEq, ProtoBuf, Debug, Default, Clone)]
 pub struct RepeatedGridFilterConfigurationPB {
     #[pb(index = 1)]
-    pub items: Vec<GridFilterConfigurationPB>,
+    pub items: Vec<FilterConfigurationPB>,
 }
 
-impl std::convert::From<&FilterConfigurationRevision> for GridFilterConfigurationPB {
+impl std::convert::From<&FilterConfigurationRevision> for FilterConfigurationPB {
     fn from(rev: &FilterConfigurationRevision) -> Self {
         Self { id: rev.id.clone() }
     }
@@ -35,8 +35,8 @@ impl std::convert::From<Vec<Arc<FilterConfigurationRevision>>> for RepeatedGridF
     }
 }
 
-impl std::convert::From<Vec<GridFilterConfigurationPB>> for RepeatedGridFilterConfigurationPB {
-    fn from(items: Vec<GridFilterConfigurationPB>) -> Self {
+impl std::convert::From<Vec<FilterConfigurationPB>> for RepeatedGridFilterConfigurationPB {
+    fn from(items: Vec<FilterConfigurationPB>) -> Self {
         Self { items }
     }
 }
