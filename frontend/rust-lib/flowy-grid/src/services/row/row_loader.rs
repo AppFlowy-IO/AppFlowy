@@ -4,7 +4,7 @@ use grid_rev_model::RowRevision;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub struct GridBlockSnapshot {
+pub struct GridBlock {
     pub(crate) block_id: String,
     pub row_revs: Vec<Arc<RowRevision>>,
 }
@@ -55,7 +55,7 @@ pub(crate) fn make_rows_from_row_revs(row_revs: &[Arc<RowRevision>]) -> Vec<RowP
 
 pub(crate) fn make_grid_blocks(
     block_ids: Option<Vec<String>>,
-    block_snapshots: Vec<GridBlockSnapshot>,
+    block_snapshots: Vec<GridBlock>,
 ) -> FlowyResult<RepeatedBlockPB> {
     match block_ids {
         None => Ok(block_snapshots

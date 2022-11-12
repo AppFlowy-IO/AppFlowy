@@ -5,6 +5,7 @@ use crate::entities::{FieldType, GridBlockChangesetPB};
 use crate::services::cell::{AnyCellData, CellFilterOperation};
 use crate::services::field::*;
 use crate::services::filter::{FilterMap, FilterResult, FILTER_HANDLER_ID};
+use crate::services::row::GridBlock;
 use flowy_error::FlowyResult;
 use flowy_task::{QualityOfService, Task, TaskContent, TaskDispatcher};
 use grid_rev_model::{CellRevision, FieldId, FieldRevision, FilterConfigurationRevision, RowRevision};
@@ -15,8 +16,10 @@ use tokio::sync::RwLock;
 
 type RowId = String;
 pub trait GridViewFilterDelegate: Send + Sync + 'static {
+    fn get_filter_configuration(&self, field_id: &str) -> AFFuture<Vec<Arc<FilterConfigurationRevision>>>;
     fn get_field_rev(&self, field_id: &str) -> AFFuture<Option<Arc<FieldRevision>>>;
     fn get_field_revs(&self, field_ids: Option<Vec<String>>) -> AFFuture<Vec<Arc<FieldRevision>>>;
+    fn get_blocks(&self) -> AFFuture<Vec<GridBlock>>;
 }
 
 pub struct FilterController {
@@ -50,7 +53,11 @@ impl FilterController {
         this
     }
 
-    pub(crate) async fn gen_task(&mut self, predicate: &str) {
+    pub async fn close(&self) {
+        self.task_scheduler.write().await.unregister_handler(FILTER_HANDLER_ID);
+    }
+
+    async fn gen_task(&mut self, predicate: &str) {
         let task_id = self.task_scheduler.read().await.next_task_id();
         let task = Task::new(
             FILTER_HANDLER_ID,
@@ -62,14 +69,13 @@ impl FilterController {
     }
 
     pub async fn process(&self, _predicate: &str) -> FlowyResult<()> {
-        // let field_revs = self
-        //     .grid_pad
-        //     .read()
-        //     .await
-        //     .get_field_revs(None)?
-        //     .into_iter()
-        //     .map(|field_rev| (field_rev.id.clone(), field_rev))
-        //     .collect::<HashMap<String, Arc<FieldRevision>>>();
+        let field_revs = self
+            .delegate
+            .get_field_revs(None)
+            .await
+            .into_iter()
+            .map(|field_rev| (field_rev.id.clone(), field_rev))
+            .collect::<HashMap<String, Arc<FieldRevision>>>();
 
         // let mut changesets = vec![];
         // for (index, block) in task_context.blocks.into_iter().enumerate() {
@@ -117,8 +123,9 @@ impl FilterController {
     }
 
     pub async fn apply_changeset(&mut self, changeset: FilterChangeset) {
-        if let Some(_filter_id) = &changeset.insert_filter {
-            // let field_ids = Some(vec![filter_id.field_id.clone()]);
+        if let Some(filter_id) = &changeset.insert_filter {
+            let field_ids = Some(vec![filter_id.field_id.clone()]);
+
             // did_update_field(self.filter_cache.clone(), field_ids, &self.grid_pad).await;
         }
 
@@ -192,16 +199,16 @@ impl FilterController {
 fn filter_row(
     index: usize,
     row_rev: &Arc<RowRevision>,
-    filter_cache: Arc<FilterMap>,
+    filter_map: Arc<FilterMap>,
     filter_results: &mut HashMap<RowId, FilterResult>,
     field_revs: &HashMap<FieldId, Arc<FieldRevision>>,
 ) -> Option<String> {
     let result = filter_results
         .entry(row_rev.id.clone())
-        .or_insert(FilterResult::new(index as i32, row_rev));
+        .or_insert(FilterResult::new(row_rev));
 
     for (field_id, cell_rev) in row_rev.cells.iter() {
-        match filter_cell(field_revs, result, &filter_cache, field_id, cell_rev) {
+        match filter_cell(field_revs, result, &filter_map, field_id, cell_rev) {
             None => {}
             Some(_) => {
                 return Some(row_rev.id.clone());
@@ -215,7 +222,7 @@ fn filter_row(
 fn filter_cell(
     field_revs: &HashMap<FieldId, Arc<FieldRevision>>,
     filter_result: &mut FilterResult,
-    filter_cache: &Arc<FilterMap>,
+    filter_map: &Arc<FilterMap>,
     field_id: &str,
     cell_rev: &CellRevision,
 ) -> Option<()> {
@@ -228,7 +235,7 @@ fn filter_cell(
     };
     let any_cell_data = AnyCellData::try_from(cell_rev).ok()?;
     let is_visible = match &filter_id.field_type {
-        FieldType::RichText => filter_cache.text_filter.get(&filter_id).and_then(|filter| {
+        FieldType::RichText => filter_map.text_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<RichTextTypeOptionPB>(field_type_rev)?
@@ -236,7 +243,7 @@ fn filter_cell(
                     .ok(),
             )
         }),
-        FieldType::Number => filter_cache.number_filter.get(&filter_id).and_then(|filter| {
+        FieldType::Number => filter_map.number_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<NumberTypeOptionPB>(field_type_rev)?
@@ -244,7 +251,7 @@ fn filter_cell(
                     .ok(),
             )
         }),
-        FieldType::DateTime => filter_cache.date_filter.get(&filter_id).and_then(|filter| {
+        FieldType::DateTime => filter_map.date_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<DateTypeOptionPB>(field_type_rev)?
@@ -252,7 +259,7 @@ fn filter_cell(
                     .ok(),
             )
         }),
-        FieldType::SingleSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
+        FieldType::SingleSelect => filter_map.select_option_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<SingleSelectTypeOptionPB>(field_type_rev)?
@@ -260,7 +267,7 @@ fn filter_cell(
                     .ok(),
             )
         }),
-        FieldType::MultiSelect => filter_cache.select_option_filter.get(&filter_id).and_then(|filter| {
+        FieldType::MultiSelect => filter_map.select_option_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<MultiSelectTypeOptionPB>(field_type_rev)?
@@ -268,7 +275,7 @@ fn filter_cell(
                     .ok(),
             )
         }),
-        FieldType::Checkbox => filter_cache.checkbox_filter.get(&filter_id).and_then(|filter| {
+        FieldType::Checkbox => filter_map.checkbox_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<CheckboxTypeOptionPB>(field_type_rev)?
@@ -276,7 +283,7 @@ fn filter_cell(
                     .ok(),
             )
         }),
-        FieldType::URL => filter_cache.url_filter.get(&filter_id).and_then(|filter| {
+        FieldType::URL => filter_map.url_filter.get(&filter_id).and_then(|filter| {
             Some(
                 field_rev
                     .get_type_option::<URLTypeOptionPB>(field_type_rev)?

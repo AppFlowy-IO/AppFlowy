@@ -46,7 +46,7 @@ pub trait GroupControllerSharedActions: Send + Sync {
     fn field_id(&self) -> &str;
 
     /// Returns number of groups the current field has
-    fn groups(&self) -> Vec<Group>;
+    fn groups(&self) -> Vec<&Group>;
 
     /// Returns the index and the group data with group_id
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)>;

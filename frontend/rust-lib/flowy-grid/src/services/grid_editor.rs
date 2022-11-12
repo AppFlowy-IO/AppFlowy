@@ -12,7 +12,7 @@ use crate::services::filter::FILTER_HANDLER_ID;
 use crate::services::grid_editor_trait_impl::GridViewEditorDelegateImpl;
 use crate::services::grid_view_manager::GridViewManager;
 use crate::services::persistence::block_index::BlockIndexCache;
-use crate::services::row::{make_grid_blocks, make_rows_from_row_revs, GridBlockSnapshot, RowRevisionBuilder};
+use crate::services::row::{make_grid_blocks, make_rows_from_row_revs, GridBlock, RowRevisionBuilder};
 use bytes::Bytes;
 use flowy_database::ConnectionPool;
 use flowy_error::{ErrorCode, FlowyError, FlowyResult};
@@ -90,10 +90,11 @@ impl GridRevisionEditor {
     #[tracing::instrument(name = "close grid editor", level = "trace", skip_all)]
     pub fn close(&self) {
         let rev_manager = self.rev_manager.clone();
-        let task_scheduler = self.task_scheduler.clone();
+        let view_manager = self.view_manager.clone();
+        let view_id = self.grid_id.clone();
         tokio::spawn(async move {
             rev_manager.close().await;
-            task_scheduler.write().await.unregister_handler(FILTER_HANDLER_ID);
+            view_manager.close(&view_id).await;
         });
     }
 
@@ -347,7 +348,6 @@ impl GridRevisionEditor {
                 Ok(changeset)
             })
             .await?;
-        let _ = self.view_manager.did_update_view_field(&params.field_id).await?;
         if is_type_option_changed {
             let _ = self
                 .view_manager
@@ -415,14 +415,14 @@ impl GridRevisionEditor {
 
     pub async fn get_rows(&self, block_id: &str) -> FlowyResult<RepeatedRowPB> {
         let block_ids = vec![block_id.to_owned()];
-        let mut grid_block_snapshot = self.grid_block_snapshots(Some(block_ids)).await?;
+        let mut blocks = self.grid_blocks(Some(block_ids)).await?;
 
         // For the moment, we only support one block.
         // We can save the rows into multiple blocks and load them asynchronously in the future.
-        debug_assert_eq!(grid_block_snapshot.len(), 1);
-        if grid_block_snapshot.len() == 1 {
-            let snapshot = grid_block_snapshot.pop().unwrap();
-            let rows = make_rows_from_row_revs(&snapshot.row_revs);
+        debug_assert_eq!(blocks.len(), 1);
+        if blocks.len() == 1 {
+            let block = blocks.pop().unwrap();
+            let rows = make_rows_from_row_revs(&block.row_revs);
             Ok(rows.into())
         } else {
             Ok(vec![].into())
@@ -510,8 +510,8 @@ impl GridRevisionEditor {
     }
 
     pub async fn get_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<RepeatedBlockPB> {
-        let block_snapshots = self.grid_block_snapshots(block_ids.clone()).await?;
-        make_grid_blocks(block_ids, block_snapshots)
+        let blocks = self.grid_blocks(block_ids.clone()).await?;
+        make_grid_blocks(block_ids, blocks)
     }
 
     pub async fn get_block_meta_revs(&self) -> FlowyResult<Vec<Arc<GridBlockMetaRevision>>> {
@@ -583,7 +583,7 @@ impl GridRevisionEditor {
         Ok(())
     }
 
-    pub async fn grid_block_snapshots(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlockSnapshot>> {
+    pub async fn grid_blocks(&self, block_ids: Option<Vec<String>>) -> FlowyResult<Vec<GridBlock>> {
         let block_ids = match block_ids {
             None => self
                 .grid_pad
@@ -595,8 +595,8 @@ impl GridRevisionEditor {
                 .collect::<Vec<String>>(),
             Some(block_ids) => block_ids,
         };
-        let snapshots = self.block_manager.get_block_snapshots(Some(block_ids)).await?;
-        Ok(snapshots)
+        let blocks = self.block_manager.get_blocks(Some(block_ids)).await?;
+        Ok(blocks)
     }
 
     pub async fn move_row(&self, params: MoveRowParams) -> FlowyResult<()> {

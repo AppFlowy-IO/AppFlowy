@@ -165,8 +165,8 @@ where
         &self.field_id
     }
 
-    fn groups(&self) -> Vec<Group> {
-        self.group_ctx.groups().into_iter().cloned().collect()
+    fn groups(&self) -> Vec<&Group> {
+        self.group_ctx.groups()
     }
 
     fn get_group(&self, group_id: &str) -> Option<(usize, Group)> {

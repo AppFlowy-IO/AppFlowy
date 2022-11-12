@@ -56,7 +56,7 @@ impl GridEditorTest {
         let editor = sdk.grid_manager.open_grid(&test.view.id).await.unwrap();
         let field_revs = editor.get_field_revs(None).await.unwrap();
         let block_meta_revs = editor.get_block_meta_revs().await.unwrap();
-        let row_revs = editor.grid_block_snapshots(None).await.unwrap().pop().unwrap().row_revs;
+        let row_revs = editor.grid_blocks(None).await.unwrap().pop().unwrap().row_revs;
         assert_eq!(block_meta_revs.len(), 1);
 
         // It seems like you should add the field in the make_test_grid() function.
@@ -77,13 +77,7 @@ impl GridEditorTest {
     }
 
     pub async fn get_row_revs(&self) -> Vec<Arc<RowRevision>> {
-        self.editor
-            .grid_block_snapshots(None)
-            .await
-            .unwrap()
-            .pop()
-            .unwrap()
-            .row_revs
+        self.editor.grid_blocks(None).await.unwrap().pop().unwrap().row_revs
     }
 
     pub async fn grid_filters(&self) -> Vec<FilterConfigurationPB> {

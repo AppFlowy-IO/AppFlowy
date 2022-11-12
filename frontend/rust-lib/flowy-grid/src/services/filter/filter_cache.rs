@@ -3,7 +3,6 @@ use crate::entities::{
     SelectOptionFilterConfigurationPB, TextFilterConfigurationPB,
 };
 use crate::services::filter::FilterId;
-
 use grid_rev_model::RowRevision;
 use std::collections::HashMap;
 
@@ -53,15 +52,12 @@ impl FilterMap {
 
 #[derive(Default)]
 pub(crate) struct FilterResult {
-    #[allow(dead_code)]
-    pub(crate) row_index: i32,
     pub(crate) visible_by_field_id: HashMap<FilterId, bool>,
 }
 
 impl FilterResult {
-    pub(crate) fn new(index: i32, _row_rev: &RowRevision) -> Self {
+    pub(crate) fn new(_row_rev: &RowRevision) -> Self {
         Self {
-            row_index: index,
             visible_by_field_id: HashMap::new(),
         }
     }
